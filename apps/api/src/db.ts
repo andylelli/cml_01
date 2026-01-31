@@ -18,11 +18,14 @@ export type ProjectRepository = {
   getProject: (id: string) => Promise<Project | null>;
   createSpec: (projectId: string, spec: unknown) => Promise<Spec>;
   getSpec: (id: string) => Promise<Spec | null>;
+  getLatestSpec: (projectId: string) => Promise<Spec | null>;
   setProjectStatus: (projectId: string, status: string) => Promise<void>;
   getProjectStatus: (projectId: string) => Promise<string>;
   createRun: (projectId: string, status: string) => Promise<{ id: string; projectId: string; status: string }>;
   updateRunStatus: (runId: string, status: string) => Promise<void>;
   addRunEvent: (runId: string, step: string, message: string) => Promise<void>;
+  getLatestRun: (projectId: string) => Promise<{ id: string; projectId: string; status: string } | null>;
+  getRunEvents: (runId: string) => Promise<Array<{ step: string; message: string }>>;
   createArtifact: (
     projectId: string,
     type: string,
@@ -37,7 +40,9 @@ export type ProjectRepository = {
 const createMemoryRepository = (): ProjectRepository => {
   const projects = new Map<string, Project>();
   const specs = new Map<string, Spec>();
+  const specOrder: Array<{ id: string; projectId: string }> = [];
   const runs = new Map<string, { id: string; projectId: string; status: string }>();
+  const runOrder: Array<{ id: string; projectId: string }> = [];
   const runEvents: Array<{ runId: string; step: string; message: string }> = [];
   const artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }> = [];
 
@@ -55,10 +60,15 @@ const createMemoryRepository = (): ProjectRepository => {
       const id = `spec_${randomUUID()}`;
       const saved: Spec = { id, projectId, spec };
       specs.set(id, saved);
+      specOrder.push({ id, projectId });
       return saved;
     },
     async getSpec(id: string) {
       return specs.get(id) ?? null;
+    },
+    async getLatestSpec(projectId: string) {
+      const match = [...specOrder].reverse().find((entry) => entry.projectId === projectId);
+      return match ? specs.get(match.id) ?? null : null;
     },
     async setProjectStatus(projectId: string, status: string) {
       const project = projects.get(projectId);
@@ -72,6 +82,7 @@ const createMemoryRepository = (): ProjectRepository => {
     async createRun(projectId: string, status: string) {
       const id = `run_${randomUUID()}`;
       runs.set(id, { id, projectId, status });
+      runOrder.push({ id, projectId });
       return { id, projectId, status };
     },
     async updateRunStatus(runId: string, status: string) {
@@ -82,6 +93,13 @@ const createMemoryRepository = (): ProjectRepository => {
     },
     async addRunEvent(runId: string, step: string, message: string) {
       runEvents.push({ runId, step, message });
+    },
+    async getLatestRun(projectId: string) {
+      const match = [...runOrder].reverse().find((entry) => entry.projectId === projectId);
+      return match ? runs.get(match.id) ?? null : null;
+    },
+    async getRunEvents(runId: string) {
+      return runEvents.filter((event) => event.runId === runId).map(({ step, message }) => ({ step, message }));
     },
     async createArtifact(projectId: string, type: string, payload: unknown) {
       const id = `artifact_${randomUUID()}`;
@@ -177,6 +195,13 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
       );
       return result.rows[0] ?? null;
     },
+    async getLatestSpec(projectId: string) {
+      const result = await pool.query(
+        "SELECT id, project_id AS \"projectId\", spec_json AS spec FROM spec_versions WHERE project_id = $1 ORDER BY created_at DESC LIMIT 1",
+        [projectId],
+      );
+      return result.rows[0] ?? null;
+    },
     async setProjectStatus(projectId: string, status: string) {
       await pool.query("UPDATE projects SET status = $1 WHERE id = $2", [status, projectId]);
     },
@@ -201,6 +226,20 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
         step,
         message,
       ]);
+    },
+    async getLatestRun(projectId: string) {
+      const result = await pool.query(
+        "SELECT id, project_id AS \"projectId\", status FROM runs WHERE project_id = $1 ORDER BY started_at DESC LIMIT 1",
+        [projectId],
+      );
+      return result.rows[0] ?? null;
+    },
+    async getRunEvents(runId: string) {
+      const result = await pool.query(
+        "SELECT step, message FROM run_events WHERE run_id = $1 ORDER BY created_at ASC",
+        [runId],
+      );
+      return result.rows ?? [];
     },
     async createArtifact(projectId: string, type: string, payload: unknown, sourceSpecId?: string | null) {
       const id = `artifact_${randomUUID()}`;

@@ -44,6 +44,29 @@ describe("API server (phase 1)", () => {
     const run = await request(app).post(`/api/projects/${created.body.id}/run`);
     expect(run.status).toBe(202);
 
+    vi.advanceTimersByTime(0);
+
+    const latestRun = await request(app).get(`/api/projects/${created.body.id}/runs/latest`);
+    expect(latestRun.status).toBe(200);
+
+    const events = await request(app).get(`/api/runs/${latestRun.body.id}/events`);
+    expect(events.status).toBe(200);
+    expect(events.body.events.length).toBeGreaterThan(0);
+
+    const setting = await request(app).get(`/api/projects/${created.body.id}/setting/latest`);
+    expect(setting.status).toBe(200);
+
+    const cast = await request(app).get(`/api/projects/${created.body.id}/cast/latest`);
+    expect(cast.status).toBe(200);
+
+    const settingValidation = await request(app).get(
+      `/api/projects/${created.body.id}/setting/validation/latest`,
+    );
+    expect(settingValidation.status).toBe(200);
+
+    const castValidation = await request(app).get(`/api/projects/${created.body.id}/cast/validation/latest`);
+    expect(castValidation.status).toBe(200);
+
     const cml = await request(app)
       .get(`/api/projects/${created.body.id}/cml/latest`)
       .set("x-cml-mode", "advanced");
@@ -80,5 +103,10 @@ describe("API server (phase 1)", () => {
       .send({});
     expect(response.status).toBe(200);
     expect(response.body.valid).toBe(false);
+
+    const latest = await request(app)
+      .get(`/api/projects/${created.body.id}/cml/validation/latest`)
+      .set("x-cml-mode", "advanced");
+    expect(latest.status).toBe(200);
   });
 });

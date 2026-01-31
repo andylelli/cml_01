@@ -22,12 +22,21 @@
 - POST /api/projects/:id/run
 - GET /api/projects/:id/status
 - GET /api/projects/:id/events (SSE)
+- GET /api/projects/:id/runs/latest
+- GET /api/runs/:id/events
 
 ### Artifacts
 - GET /api/projects/:id/cml/latest (Advanced/Expert only)
 - POST /api/projects/:id/cml/validate (Advanced/Expert only)
+- GET /api/projects/:id/cml/validation/latest (Advanced/Expert only)
+- GET /api/projects/:id/setting/latest
+- GET /api/projects/:id/setting/validation/latest
+- GET /api/projects/:id/cast/latest
+- GET /api/projects/:id/cast/validation/latest
 - GET /api/projects/:id/clues/latest
+- GET /api/projects/:id/clues/validation/latest
 - GET /api/projects/:id/outline/latest
+- GET /api/projects/:id/outline/validation/latest
 - GET /api/projects/:id/prose/latest
 
 ### Samples
@@ -48,6 +57,10 @@ SPEC_READY → SETTING_DONE → CAST_DONE → CML_DRAFT → CML_VALIDATED → CL
 
 Phase 2 placeholder behavior:
 - Run initiation stores a stub CML, validation result, and placeholder artifacts for clues/outline/prose.
+Phase 3 start:
+- Setting/cast/CML/clues/outline deterministic artifacts are derived from the latest saved spec when present.
+Phase 3 completion:
+- Pipeline executes deterministic step order with run events and stores a novelty audit artifact (pass when no seeds selected).
 
 Artifact roles:
 - **Canonical:** CML (always generated and stored).

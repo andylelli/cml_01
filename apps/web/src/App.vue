@@ -3,11 +3,20 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import {
   createProject,
+  fetchCast,
+  fetchCastValidation,
   fetchCml,
+  fetchCmlValidation,
   fetchClues,
+  fetchCluesValidation,
   fetchHealth,
+  fetchLatestRun,
   fetchOutline,
+  fetchOutlineValidation,
+  fetchSetting,
+  fetchSettingValidation,
   fetchProse,
+  fetchRunEvents,
   runPipeline,
   saveSpec,
 } from "./services/api";
@@ -42,6 +51,11 @@ const cmlArtifact = ref<string | null>(null);
 const cluesArtifact = ref<string | null>(null);
 const outlineArtifact = ref<string | null>(null);
 const proseArtifact = ref<string | null>(null);
+const settingArtifact = ref<string | null>(null);
+const castArtifact = ref<string | null>(null);
+const validationErrors = ref<string[]>([]);
+const stepValidation = ref<Record<string, string>>({});
+const latestRunEvent = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
 
 const connectSse = () => {
@@ -118,16 +132,59 @@ const handleRunPipeline = async () => {
   actionMessage.value = null;
   try {
     await runPipeline(projectId.value);
-    const [cml, clues, outline, prose] = await Promise.allSettled([
+    const [
+      setting,
+      cast,
+      cml,
+      validation,
+      clues,
+      outline,
+      prose,
+      settingValidation,
+      castValidation,
+      cluesValidation,
+      outlineValidation,
+    ] = await Promise.allSettled([
+      fetchSetting(projectId.value),
+      fetchCast(projectId.value),
       fetchCml(projectId.value),
+      fetchCmlValidation(projectId.value),
       fetchClues(projectId.value),
       fetchOutline(projectId.value),
       fetchProse(projectId.value),
+      fetchSettingValidation(projectId.value),
+      fetchCastValidation(projectId.value),
+      fetchCluesValidation(projectId.value),
+      fetchOutlineValidation(projectId.value),
     ]);
+    settingArtifact.value = setting.status === "fulfilled" ? JSON.stringify(setting.value.payload, null, 2) : null;
+    castArtifact.value = cast.status === "fulfilled" ? JSON.stringify(cast.value.payload, null, 2) : null;
     cmlArtifact.value = cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
+    validationErrors.value =
+      validation.status === "fulfilled" && validation.value.payload?.errors
+        ? (validation.value.payload.errors as string[])
+        : [];
+    stepValidation.value = {
+      setting:
+        settingValidation.status === "fulfilled" && settingValidation.value.payload?.valid
+          ? "ok"
+          : "pending",
+      cast:
+        castValidation.status === "fulfilled" && castValidation.value.payload?.valid ? "ok" : "pending",
+      clues:
+        cluesValidation.status === "fulfilled" && cluesValidation.value.payload?.valid ? "ok" : "pending",
+      outline:
+        outlineValidation.status === "fulfilled" && outlineValidation.value.payload?.valid ? "ok" : "pending",
+    };
     cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
     outlineArtifact.value = outline.status === "fulfilled" ? JSON.stringify(outline.value.payload, null, 2) : null;
     proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
+
+    const latestRun = await fetchLatestRun(projectId.value).catch(() => null);
+    if (latestRun) {
+      const events = await fetchRunEvents(latestRun.id).catch(() => []);
+      latestRunEvent.value = events.length ? events[events.length - 1].message : null;
+    }
     actionMessage.value = "Run started";
   } catch (error) {
     actionMessage.value = "Failed to start run";
@@ -331,11 +388,15 @@ onBeforeUnmount(() => {
             <div class="grid gap-6 md:grid-cols-2">
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Setting overview</div>
-                <div class="mt-2 text-sm text-slate-600">1936 • Country house • Autumn storm</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ settingArtifact ? "Setting placeholder stored" : "1936 • Country house • Autumn storm" }}
+                </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Cast cards</div>
-                <div class="mt-2 text-sm text-slate-600">6 suspects • relationship map pending</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ castArtifact ? "Cast placeholder stored" : "6 suspects • relationship map pending" }}
+                </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Clue board</div>
@@ -356,6 +417,9 @@ onBeforeUnmount(() => {
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Run status</div>
               <div class="mt-2 text-sm text-slate-600">{{ runStatus }}</div>
+              <div v-if="latestRunEvent" class="mt-2 text-xs text-slate-500">
+                Latest event: {{ latestRunEvent }}
+              </div>
               <div class="mt-3 flex gap-2">
                 <button class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold" @click="connectSse">
                   Connect
@@ -369,6 +433,25 @@ onBeforeUnmount(() => {
               <div class="text-sm font-semibold text-slate-700">Validation</div>
               <div class="mt-2 text-sm text-slate-600">
                 {{ cmlArtifact ? "CML stored; validation recorded" : "Checklist will populate after CML validation." }}
+              </div>
+              <ul v-if="validationErrors.length" class="mt-3 list-disc space-y-1 pl-4 text-xs text-rose-600">
+                <li v-for="error in validationErrors" :key="error">{{ error }}</li>
+              </ul>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Step checks</div>
+              <div class="mt-2 text-xs text-slate-600">
+                Setting: {{ stepValidation.setting ?? "pending" }} · Cast: {{ stepValidation.cast ?? "pending" }}
+              </div>
+              <div class="mt-1 text-xs text-slate-600">
+                Clues: {{ stepValidation.clues ?? "pending" }} · Outline: {{ stepValidation.outline ?? "pending" }}
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Setting/Cast</div>
+              <div class="mt-2 text-sm text-slate-600">
+                {{ settingArtifact ? "Setting stored" : "No setting yet" }} ·
+                {{ castArtifact ? "Cast stored" : "No cast yet" }}
               </div>
             </div>
             <div v-if="isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

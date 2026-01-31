@@ -32,19 +32,41 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
   });
 };
 
-const buildStubCml = () => ({
+const deriveSetting = (spec?: Record<string, unknown>) => ({
+  decade: (spec?.decade as string) ?? "1930s",
+  locationPreset: (spec?.locationPreset as string) ?? "CountryHouse",
+  weather: "Autumn storm",
+  socialStructure: "aristocracy",
+  institution: "Estate",
+});
+
+const deriveCast = (spec?: Record<string, unknown>) => {
+  const size = (spec?.castSize as number) ?? 6;
+  const suspects = Array.from({ length: Math.max(3, Math.min(size, 8)) }, (_, index) => {
+    return String.fromCharCode(65 + index) + ". Example";
+  });
+
+  return {
+    size,
+    detectiveType: "amateur sleuth",
+    victimArchetype: "blackmailer",
+    suspects,
+  };
+};
+
+const deriveCml = (spec?: Record<string, unknown>) => ({
   CML_VERSION: 2.0,
   CASE: {
     meta: {
-      title: "Phase 2 Stub",
+      title: "Phase 3 Deterministic",
       author: "CML",
       license: "internal",
       era: {
-        decade: "1930s",
+        decade: (spec?.decade as string) ?? "1930s",
         realism_constraints: ["no modern forensics"],
       },
       setting: {
-        location: "Country House",
+        location: (spec?.locationPreset as string) ?? "Country House",
         institution: "Estate",
       },
       crime_class: {
@@ -52,29 +74,27 @@ const buildStubCml = () => ({
         subtype: "poisoning",
       },
     },
-    cast: [
-      {
-        name: "A. Example",
-        age_range: "adult",
-        role_archetype: "heir",
-        relationships: ["victim"],
-        public_persona: "polite",
-        private_secret: "debts",
-        motive_seed: "inheritance",
-        motive_strength: "high",
-        alibi_window: "evening",
-        access_plausibility: "high",
-        opportunity_channels: ["kitchen"],
-        behavioral_tells: ["nervous"],
-        stakes: "inheritance",
-        evidence_sensitivity: ["poison"],
-        culprit_eligibility: "eligible",
-        culpability: "unknown",
-      },
-    ],
+    cast: deriveCast(spec).suspects.map((name) => ({
+      name,
+      age_range: "adult",
+      role_archetype: "suspect",
+      relationships: ["victim"],
+      public_persona: "reserved",
+      private_secret: "debts",
+      motive_seed: "inheritance",
+      motive_strength: "medium",
+      alibi_window: "evening",
+      access_plausibility: "medium",
+      opportunity_channels: ["kitchen"],
+      behavioral_tells: ["hesitation"],
+      stakes: "inheritance",
+      evidence_sensitivity: ["poison"],
+      culprit_eligibility: "eligible",
+      culpability: "unknown",
+    })),
     culpability: {
       culprit_count: 1,
-      culprits: ["A. Example"],
+      culprits: [deriveCast(spec).suspects[0] ?? "A. Example"],
     },
     surface_model: {
       narrative: { summary: "A simple surface summary." },
@@ -90,7 +110,7 @@ const buildStubCml = () => ({
     },
     false_assumption: {
       statement: "Death was natural.",
-      type: "temporal",
+      type: (spec?.primaryAxis as string) ?? "temporal",
       why_it_seems_reasonable: "Symptoms resemble illness.",
       what_it_hides: "Poisoning timeline.",
     },
@@ -118,6 +138,92 @@ const buildStubCml = () => ({
     },
   },
 });
+
+const deriveClues = (spec?: Record<string, unknown>) => ({
+  status: "pending",
+  density: (spec?.clueDensity as string) ?? "medium",
+  axis: (spec?.primaryAxis as string) ?? "temporal",
+  summary: "Deterministic placeholder clues derived from spec.",
+});
+
+const deriveOutline = (spec?: Record<string, unknown>) => ({
+  status: "pending",
+  tone: (spec?.tone as string) ?? "Cozy",
+  chapters: spec?.chapters ?? null,
+  summary: "Deterministic placeholder outline derived from spec.",
+});
+
+const validateSetting = (setting: Record<string, unknown>) => ({
+  valid: Boolean(setting.decade && setting.locationPreset),
+  errors: setting.decade && setting.locationPreset ? [] : ["Setting must include decade and locationPreset"],
+});
+
+const validateCast = (cast: Record<string, unknown>) => ({
+  valid: Array.isArray(cast.suspects) && (cast.suspects as unknown[]).length >= 3,
+  errors:
+    Array.isArray(cast.suspects) && (cast.suspects as unknown[]).length >= 3
+      ? []
+      : ["Cast must include at least 3 suspects"],
+});
+
+const validateClues = (clues: Record<string, unknown>) => ({
+  valid: Boolean(clues.density && clues.axis),
+  errors: clues.density && clues.axis ? [] : ["Clues must include density and axis"],
+});
+
+const validateOutline = (outline: Record<string, unknown>) => ({
+  valid: Boolean(outline.tone),
+  errors: outline.tone ? [] : ["Outline must include tone"],
+});
+
+const runPipeline = async (
+  repoPromise: ReturnType<typeof createRepository>,
+  projectId: string,
+  runId: string,
+  specPayload?: Record<string, unknown>,
+) => {
+  const repo = await repoPromise;
+
+  const setting = deriveSetting(specPayload);
+  await repo.createArtifact(projectId, "setting", setting, null);
+  await repo.createArtifact(projectId, "setting_validation", validateSetting(setting), null);
+  await repo.addRunEvent(runId, "setting_done", "Setting generated");
+
+  const cast = deriveCast(specPayload);
+  await repo.createArtifact(projectId, "cast", cast, null);
+  await repo.createArtifact(projectId, "cast_validation", validateCast(cast), null);
+  await repo.addRunEvent(runId, "cast_done", "Cast generated");
+
+  let cml = deriveCml(specPayload);
+  let cmlValidation = validateCml(cml);
+  await repo.createArtifact(projectId, "cml", cml, null);
+
+  if (!cmlValidation.valid) {
+    await repo.addRunEvent(runId, "cml_retry", "CML failed validation; retrying");
+    cml = deriveCml({ ...specPayload, primaryAxis: "temporal" });
+    cmlValidation = validateCml(cml);
+    await repo.createArtifact(projectId, "cml", cml, null);
+  }
+
+  await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
+  await repo.addRunEvent(runId, "cml_validated", "CML validated");
+
+  await repo.createArtifact(projectId, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, null);
+  await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
+
+  const clues = deriveClues(specPayload);
+  await repo.createArtifact(projectId, "clues", clues, null);
+  await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
+  await repo.addRunEvent(runId, "clues_done", "Clues generated");
+
+  const outline = deriveOutline(specPayload);
+  await repo.createArtifact(projectId, "outline", outline, null);
+  await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
+  await repo.addRunEvent(runId, "outline_done", "Outline generated");
+
+  await repo.createArtifact(projectId, "prose", { status: "pending" }, null);
+  await repo.addRunEvent(runId, "prose_pending", "Prose pending" );
+};
 
 export const createServer = () => {
   const app = express();
@@ -196,13 +302,14 @@ export const createServer = () => {
           await repo.setProjectStatus(project.id, "running");
           await repo.addRunEvent(run.id, "run_started", "Pipeline run started");
 
-          const stubCml = buildStubCml();
-          const validation = validateCml(stubCml);
-          await repo.createArtifact(project.id, "cml", stubCml, null);
-          await repo.createArtifact(project.id, "cml_validation", validation, null);
-          await repo.createArtifact(project.id, "clues", { status: "pending" }, null);
-          await repo.createArtifact(project.id, "outline", { status: "pending" }, null);
-          await repo.createArtifact(project.id, "prose", { status: "pending" }, null);
+          const latestSpec = await repo.getLatestSpec(project.id);
+          const specPayload = (latestSpec?.spec as Record<string, unknown>) ?? undefined;
+
+          setTimeout(() => {
+            runPipeline(repoPromise, project.id, run.id, specPayload).catch(() => {
+              repo.addRunEvent(run.id, "run_failed", "Pipeline failed");
+            });
+          }, 0);
 
           setTimeout(async () => {
             await repo.updateRunStatus(run.id, "idle");
@@ -232,6 +339,26 @@ export const createServer = () => {
         });
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch status" }));
+  });
+
+  app.get("/api/projects/:id/runs/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestRun(_req.params.id))
+      .then((run) => {
+        if (!run) {
+          res.status(404).json({ error: "Run not found" });
+          return;
+        }
+        res.json(run);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch latest run" }));
+  });
+
+  app.get("/api/runs/:id/events", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getRunEvents(_req.params.id))
+      .then((events) => res.json({ runId: _req.params.id, events }))
+      .catch(() => res.status(500).json({ error: "Failed to fetch run events" }));
   });
 
   app.get("/api/projects/:id/events", (req, res) => {
@@ -291,6 +418,19 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to validate CML" }));
   });
 
+  app.get("/api/projects/:id/cml/validation/latest", requireCmlAccess, (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "cml_validation"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "CML validation artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch CML validation artifact" }));
+  });
+
   app.get("/api/projects/:id/clues/latest", (_req, res) => {
     repoPromise
       .then((repo) => repo.getLatestArtifact(_req.params.id, "clues"))
@@ -304,6 +444,58 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch clues artifact" }));
   });
 
+  app.get("/api/projects/:id/setting/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "setting"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Setting artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch setting artifact" }));
+  });
+
+  app.get("/api/projects/:id/cast/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "cast"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Cast artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch cast artifact" }));
+  });
+
+  app.get("/api/projects/:id/setting/validation/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "setting_validation"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Setting validation artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch setting validation artifact" }));
+  });
+
+  app.get("/api/projects/:id/cast/validation/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "cast_validation"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Cast validation artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch cast validation artifact" }));
+  });
+
   app.get("/api/projects/:id/outline/latest", (_req, res) => {
     repoPromise
       .then((repo) => repo.getLatestArtifact(_req.params.id, "outline"))
@@ -315,6 +507,32 @@ export const createServer = () => {
         res.json(artifact);
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch outline artifact" }));
+  });
+
+  app.get("/api/projects/:id/clues/validation/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "clues_validation"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Clues validation artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch clues validation artifact" }));
+  });
+
+  app.get("/api/projects/:id/outline/validation/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "outline_validation"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Outline validation artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch outline validation artifact" }));
   });
 
   app.get("/api/projects/:id/prose/latest", (_req, res) => {

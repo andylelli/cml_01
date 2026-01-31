@@ -40,7 +40,8 @@ Never reverse this order.
 - Editors and validators checking logic integrity
 
 ## Status
-Phase 2 in progress (Postgres-backed persistence for projects/specs/status/runs/artifacts + schema validation package + CML validation endpoint + stub artifact generation on run + UI artifact preview wiring).
+Phase 2 complete (Postgres-backed persistence, validation endpoints, artifact previews, run events).
+Phase 3 complete (deterministic pipeline execution, step validation artifacts, run events, novelty audit placeholder).
 
 Pull requests welcome.
 

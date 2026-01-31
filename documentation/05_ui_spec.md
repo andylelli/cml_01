@@ -151,6 +151,8 @@
 - “Fix guidance” expandable text
 **Feedback:**
 - Failures highlight related fields in forms
+ - Phase 2 placeholder: show validation error list from CML validation artifact
+- Phase 3 placeholder: show step validation status for setting/cast/clues/outline
 
 ### ClueTable
 **Purpose:** Manage clues and red herrings.

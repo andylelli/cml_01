@@ -479,7 +479,7 @@ Build simple deterministic validators too:
 - Advanced: read-only CML viewer
 - Export: ZIP with .yaml and .txt outline
 
-**Build state:** Phase 2 in progress: Postgres-backed persistence for projects/specs/status/runs/artifacts is wired (with in-memory fallback when `DATABASE_URL` is unset), the CML schema validation package is scaffolded, a CML validation endpoint is wired, stub artifacts are generated on run, and UI artifact preview wiring is in place.
+**Build state:** Phase 2 complete: persistence, validation endpoints, artifact previews, and run event endpoints are in place. Phase 3 complete: deterministic pipeline execution with step validation artifacts and novelty audit placeholder.
 
 ### V1
 - Clue list + red herring injection

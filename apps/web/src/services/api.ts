@@ -21,6 +21,17 @@ export type Artifact<T = unknown> = {
   payload: T;
 };
 
+export type Run = {
+  id: string;
+  projectId: string;
+  status: string;
+};
+
+export type RunEvent = {
+  step: string;
+  message: string;
+};
+
 export type ProjectStatus = {
   projectId: string;
   status: string;
@@ -80,10 +91,60 @@ export const fetchCml = async (projectId: string): Promise<Artifact> => {
   return response.json() as Promise<Artifact>;
 };
 
+export const fetchCmlValidation = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cml/validation/latest`, {
+    headers: { "x-cml-mode": "advanced" },
+  });
+  if (!response.ok) {
+    throw new Error(`Fetch CML validation failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchSetting = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/setting/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch setting failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchCast = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cast/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch cast failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchSettingValidation = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/setting/validation/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch setting validation failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchCastValidation = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cast/validation/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch cast validation failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
 export const fetchClues = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/clues/latest`);
   if (!response.ok) {
     throw new Error(`Fetch clues failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchCluesValidation = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/clues/validation/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch clues validation failed (${response.status})`);
   }
   return response.json() as Promise<Artifact>;
 };
@@ -96,12 +157,37 @@ export const fetchOutline = async (projectId: string): Promise<Artifact> => {
   return response.json() as Promise<Artifact>;
 };
 
+export const fetchOutlineValidation = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/outline/validation/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch outline validation failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
 export const fetchProse = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/prose/latest`);
   if (!response.ok) {
     throw new Error(`Fetch prose failed (${response.status})`);
   }
   return response.json() as Promise<Artifact>;
+};
+
+export const fetchLatestRun = async (projectId: string): Promise<Run> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/runs/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch latest run failed (${response.status})`);
+  }
+  return response.json() as Promise<Run>;
+};
+
+export const fetchRunEvents = async (runId: string): Promise<RunEvent[]> => {
+  const response = await fetch(`${apiBase}/api/runs/${runId}/events`);
+  if (!response.ok) {
+    throw new Error(`Fetch run events failed (${response.status})`);
+  }
+  const data = (await response.json()) as { events: RunEvent[] };
+  return data.events;
 };
 
 export const fetchProjectStatus = async (projectId: string): Promise<ProjectStatus> => {
