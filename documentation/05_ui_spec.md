@@ -50,6 +50,7 @@
 - Read-only in Advanced mode
 - Edit controls only in Expert mode (with warning modal and validation panel)
 - Schema validation badge
+ - Phase 2 placeholder: read-only CML preview panel in Advanced mode
 
 ### ClueBoard
 - Table with filters by category

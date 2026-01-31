@@ -14,6 +14,13 @@ export type Spec = {
   spec: unknown;
 };
 
+export type Artifact<T = unknown> = {
+  id: string;
+  projectId: string;
+  type: string;
+  payload: T;
+};
+
 export type ProjectStatus = {
   projectId: string;
   status: string;
@@ -61,6 +68,40 @@ export const runPipeline = async (projectId: string) => {
     throw new Error(`Run pipeline failed (${response.status})`);
   }
   return response.json() as Promise<{ status: string; projectId: string }>;
+};
+
+export const fetchCml = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/cml/latest`, {
+    headers: { "x-cml-mode": "advanced" },
+  });
+  if (!response.ok) {
+    throw new Error(`Fetch CML failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchClues = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/clues/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch clues failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchOutline = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/outline/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch outline failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchProse = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/prose/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch prose failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
 };
 
 export const fetchProjectStatus = async (projectId: string): Promise<ProjectStatus> => {

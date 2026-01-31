@@ -40,7 +40,7 @@ Never reverse this order.
 - Editors and validators checking logic integrity
 
 ## Status
-Phase 2 in progress (Postgres-backed persistence for projects/specs/status/runs/artifacts + schema validation package + CML validation endpoint + stub artifact generation on run).
+Phase 2 in progress (Postgres-backed persistence for projects/specs/status/runs/artifacts + schema validation package + CML validation endpoint + stub artifact generation on run + UI artifact preview wiring).
 
 Pull requests welcome.
 

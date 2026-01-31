@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
-import { createProject, fetchHealth, runPipeline, saveSpec } from "./services/api";
+import {
+  createProject,
+  fetchCml,
+  fetchClues,
+  fetchHealth,
+  fetchOutline,
+  fetchProse,
+  runPipeline,
+  saveSpec,
+} from "./services/api";
 import { subscribeToRunEvents } from "./services/sse";
 
 type Mode = "user" | "advanced" | "expert";
@@ -29,6 +38,10 @@ const spec = ref({
   primaryAxis: "temporal",
 });
 const actionMessage = ref<string | null>(null);
+const cmlArtifact = ref<string | null>(null);
+const cluesArtifact = ref<string | null>(null);
+const outlineArtifact = ref<string | null>(null);
+const proseArtifact = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
 
 const connectSse = () => {
@@ -105,6 +118,16 @@ const handleRunPipeline = async () => {
   actionMessage.value = null;
   try {
     await runPipeline(projectId.value);
+    const [cml, clues, outline, prose] = await Promise.allSettled([
+      fetchCml(projectId.value),
+      fetchClues(projectId.value),
+      fetchOutline(projectId.value),
+      fetchProse(projectId.value),
+    ]);
+    cmlArtifact.value = cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
+    cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
+    outlineArtifact.value = outline.status === "fulfilled" ? JSON.stringify(outline.value.payload, null, 2) : null;
+    proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
     actionMessage.value = "Run started";
   } catch (error) {
     actionMessage.value = "Failed to start run";
@@ -316,11 +339,15 @@ onBeforeUnmount(() => {
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Clue board</div>
-                <div class="mt-2 text-sm text-slate-600">No clues generated yet</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ cluesArtifact ? "Clues placeholder stored" : "No clues generated yet" }}
+                </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Outline</div>
-                <div class="mt-2 text-sm text-slate-600">Outline will appear after validation</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ outlineArtifact ? "Outline placeholder stored" : "Outline will appear after validation" }}
+                </div>
               </div>
             </div>
           </section>
@@ -340,7 +367,15 @@ onBeforeUnmount(() => {
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Validation</div>
-              <div class="mt-2 text-sm text-slate-600">Checklist will populate after CML validation.</div>
+              <div class="mt-2 text-sm text-slate-600">
+                {{ cmlArtifact ? "CML stored; validation recorded" : "Checklist will populate after CML validation." }}
+              </div>
+            </div>
+            <div v-if="isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">CML preview</div>
+              <pre class="mt-2 max-h-48 overflow-auto rounded bg-slate-900/5 p-2 text-xs text-slate-700">
+{{ cmlArtifact ?? "No CML available" }}
+              </pre>
             </div>
           </aside>
         </main>
