@@ -1,0 +1,23 @@
+{
+  "name": "@cml/api",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@cml/cml": "workspace:*",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.13.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.5"
+  }
+}

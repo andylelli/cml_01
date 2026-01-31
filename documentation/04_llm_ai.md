@@ -5,6 +5,7 @@
 - Enforce strict JSON outputs per agent
 - Support reproducibility and traceability
 - Guarantee CML-first ordering and fair-play constraints
+- Enforce novelty vs seed CMLs and prevent copying
 
 ## Where LLM interaction is required (by pipeline stage)
 
@@ -25,12 +26,13 @@
 **Input:** setting bible + cast + logic knobs
 **Output:** full CML 2.0 draft including false_assumption and discriminating_test
 **Validation:** schema + checklist, and “one primary axis” rule
+**Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths.
 
 ### 4) CML revision
 **Purpose:** Fix validator failures in a targeted manner.
 **Input:** failed validation report + current CML
 **Output:** corrected CML; no new facts outside constraint space
-**Validation:** rerun schema + checklist
+**Validation:** rerun schema + checklist, plus novelty audit vs selected seeds
 
 ### 5) Clue & red herring generation
 **Purpose:** Derive fair-play clue list from CML.
@@ -61,6 +63,7 @@
 **Input:** examples/ CML files
 **Output:** summaries, normalized variants (if required)
 **Validation:** schema compatibility checks
+**Constraint:** outputs must not be used as templates or copied into generated CMLs
 
 ---
 
@@ -75,12 +78,15 @@
 - Strict JSON schema in prompt output section
 - No-new-facts rule for downstream agents
 - Role separation: generative agents cannot override validator outputs
+- Seed usage: structural inspiration only, never content copying
 
 ## Output validation
 - All LLM outputs validated against schemas
 - Reject and retry if invalid
 - Log raw responses for audit
 - Diff checker: detect unintended changes outside requested sections
+- Novelty audit: compare generated CML to selected seeds and force regeneration if too similar to any single seed
+- Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
 
 ## Safety & compliance
 - Avoid copyrighted text replication
@@ -133,7 +139,7 @@
 
 ### CmlTreeView
 - AI needed: No
-- Notes: Displays generated CML; no LLM required
+- Notes: Displays generated CML in Advanced/Expert modes only; no LLM required
 
 ### ValidationChecklistPanel
 - AI needed: No
@@ -173,9 +179,9 @@
 - Logic constraints (primary axis, mechanism families, fair-play toggles)
 - Output preferences (format, POV, length)
 - Writing style capture (sample or descriptor)
-- Sample selection (seed/clone) and sample-specific overrides
+- Sample selection (seed patterns only; no copying of sample content)
 - Regeneration scope (which artifacts to rebuild)
-- Manual edits to CML, clues, outline, or prose (if allowed)
+- Manual edits to CML (Expert-only), clues, outline, or prose (if allowed)
 - Accept/reject decisions for each AI-generated artifact
 - Export packaging choices (which artifacts to include)
 - Safety preferences (e.g., avoid stereotypes, explicitness level)
@@ -215,7 +221,8 @@
 ### CML generation stage
 - AI generates CML draft using accepted setting/cast/logic
 - Validator runs schema + checklist
-- If fail: AI revises CML; loop until pass or manual intervention
+- Validator runs novelty audit vs selected seeds
+- If fail: AI revises CML with explicit divergence constraints; loop until pass or manual intervention
 
 ### Clue stage
 - AI derives clues and red herrings

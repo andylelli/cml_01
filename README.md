@@ -40,6 +40,17 @@ Never reverse this order.
 - Editors and validators checking logic integrity
 
 ## Status
-Proposed canonical specification.
+Phase 2 in progress (Postgres-backed persistence for projects/specs/status/runs/artifacts + schema validation package + CML validation endpoint + stub artifact generation on run).
 
 Pull requests welcome.
+
+## Database (Postgres)
+This project uses PostgreSQL as the system of record. You can run Postgres in Docker and point the API/worker to it with a standard connection string.
+
+Recommended environment variables:
+- `DATABASE_URL` (e.g., `postgres://user:password@localhost:5432/cml`)
+- `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` (optional split vars)
+
+Notes:
+- Migrations/schema setup are handled by the backend service once implemented.
+- The database is required for projects, specs, artifacts, and run history.

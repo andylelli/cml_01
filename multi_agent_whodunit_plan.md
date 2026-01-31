@@ -20,11 +20,18 @@ I’m going to treat **CML as your single source of truth**: everything (clues, 
 **Key design principle:**  
 CML is generated first, validated, then used to generate prose. This prevents “cool story, broken logic.”
 
+**Guiding sentence:** The system builds mysteries like an engineer builds proofs: the logic comes first, the interface stays friendly, and the machinery is hidden unless the user asks to see it.
+
 **Pipeline requirement (from CML 2.0):**  
 Spec → CML → Validate → Clues → Outline → Prose. Never reverse this order.
 
 **Source-awareness principle:**  
-The system must be aware of sample CMLs in the project directory. These now exist under examples/ and should be discoverable, indexable, and usable as optional seeds/examples for generation and validation.
+The system must be aware of sample CMLs in the project directory. These now exist under examples/ and should be discoverable and indexable for structural inspiration only. Samples are not templates and must never be copied or lightly edited.
+
+**Information access levels (required):**
+- **Level 1 — User (Default):** no raw CML; only friendly projections (cast cards, clues, outline, fair-play report).
+- **Level 2 — Advanced (Opt-in):** read-only CML viewer and export.
+- **Level 3 — Expert (Explicit Opt-in):** direct CML editing with full validation and regeneration scope control.
 
 ---
 
@@ -176,7 +183,7 @@ This prevents anachronisms and drives believable constraints.
 - discriminating_test (method/design/knowledge_revealed/pass_condition)
 - fair_play (all_clues_visible/no_special_knowledge_required/no_late_information/reader_can_solve/explanation)
 
-This agent must produce one primary axis.
+This agent must produce one primary axis. Seeds may inform abstract structure only (axis, mechanism families, cadence), never specific characters, events, clue wording, reveal logic, or inference paths.
 
 ### Agent 4 — CML Validator Agent (the “referee”)
 **Input:** CML + spec  
@@ -187,6 +194,7 @@ This agent must produce one primary axis.
 - checks fair-play toggles
 - ensures decade realism
 - ensures discriminating test relies on knowledge/constraints, not confession
+- runs a novelty audit against selected seeds; if too similar to a single seed, regeneration is required with explicit divergence constraints
 
 This agent is critical. It turns “AI storytelling” into “AI puzzle construction.”
 
@@ -278,7 +286,7 @@ You can do this with:
   - the_second_key.cml.yaml
   - the_sign_of_the_four_cml2.yaml
   - the_valley_of_fear_cml2.yaml
-- Use samples as optional starters, regression tests, and schema conformance exemplars
+- Use samples for structural inspiration, regression tests, and schema conformance exemplars only
 - Flag any sample deviations from schema (e.g., category/method) and normalize or extend schema explicitly
 
 ### Versioning (important)
@@ -294,14 +302,16 @@ So users can roll back if a generation goes weird.
 
 ## 7) “CML-driven UX” (what makes it fun)
 
-### Make CML visible but friendly
-Most users don’t want YAML, but they do want control.
+### Keep the default UX friendly
+Most users don’t want YAML. The default experience shows friendly projections only.
 
 So show:
 - “What everyone believes” (surface crime)
 - “What’s actually true” (hidden structure) — locked behind spoiler toggle
 - “The key mistaken assumption” (false assumption)
 - “Fair-play checklist” (green ticks)
+
+Advanced/Expert users can opt in to CML viewing; only Expert can edit.
 
 ### Provide “regenerate” buttons at the right granularity
 - Regenerate only cast secrets
@@ -331,13 +341,145 @@ Build simple deterministic validators too:
 
 ---
 
+## 8.5) Comprehensive testing plan (all phases + detailed cases)
+
+### Test layers (unit-first)
+- **Packages (pure logic):** schema validators, normalization, novelty audit, deterministic checks.
+- **API services:** request validation, access-mode gating, spec/version handling, run state transitions.
+- **Worker jobs:** input/output contracts, retries, and idempotency rules.
+- **Web UI:** view-model logic, mode toggles, and API client behavior.
+
+### Targeted unit suites
+- **Schema validation:** reject invalid CML, accept valid CML 2.0, enforce allowed enums.
+- **Novelty audit:** detects too-close similarity vs a seed, enforces regeneration flags.
+- **Access control:** `mode=user` blocks CML endpoints; Advanced/Expert allowed.
+- **Spec handling:** spec creation, versioning, and integrity checks.
+- **Run orchestration:** state transitions, retry limits, and failure handling.
+- **Clue/outline rules:** load-bearing clues before reveal; discriminating test placement.
+
+### Mocking guidance
+- Mock LLM calls at the service boundary; use deterministic fixtures.
+- Use static seed fixtures from examples/ but never copy content into generated outputs.
+- Use in-memory DB adapters for unit tests; replace with Postgres in integration tests.
+
+### Tooling (planned)
+- Test runner: Vitest or Jest (choose one; standardize across packages).
+- API tests: supertest (or equivalent).
+- UI tests: component-level tests for forms and toggles.
+
+### Reporting gates
+- Unit tests required for any new validator, agent prompt contract, or API change.
+- Failing tests block merges.
+
+---
+
+## 8.6) Phase-by-phase test scope
+
+### Phase 1 (scaffolding + stubs)
+- API health returns 200 and expected payload.
+- Project create returns id/name and stores in memory.
+- Spec save associates with project id.
+- Run start transitions status to running then idle.
+- SSE emits periodic ping payloads.
+- UI toggles Advanced/Expert and conditionally shows CML link.
+
+### Phase 2 (persistence + validation)
+- Postgres connection and migrations run without error.
+- Projects/specs/artifacts persist and reload correctly.
+- Schema validation rejects invalid CML and logs errors.
+- Validation checklist results stored as `cml_validation` artifact.
+
+### Phase 3 (pipeline + agents)
+- Orchestrator executes steps in order and retries failed steps.
+- Job inputs/outputs match strict JSON schema contracts.
+- Novelty audit blocks near-seed outputs.
+- Clue/outline generation uses only CML facts.
+
+### Phase 4 (UI workflows + exports)
+- Builder wizard saves spec versions and handles edits.
+- Run status banner reflects live SSE updates.
+- Export bundles include only selected artifacts.
+
+### Phase 5 (prose + game pack)
+- Prose agent never alters CML facts.
+- Game pack assets stay consistent with CML.
+- Style capture applies to prose only.
+
+---
+
+## 8.7) Detailed test cases (representative)
+
+### API (projects/specs/runs)
+1. **Create project**
+  - Given: name "Test Project"
+  - Expect: 201, `{ id, name }`, id is unique
+2. **Get project not found**
+  - Given: unknown id
+  - Expect: 404 with error message
+3. **Save spec**
+  - Given: valid project id + spec payload
+  - Expect: 201, `{ id, projectId, spec }`
+4. **Run pipeline**
+  - Given: valid project id
+  - Expect: 202 status `running`, status endpoint returns `running` then `idle`
+5. **CML endpoint access**
+  - Given: `mode=user`
+  - Expect: 403
+  - Given: `mode=advanced` or `mode=expert`
+  - Expect: 501 until implemented
+
+### Validation (schema + checklist)
+1. **Schema reject**
+  - Given: CML missing `false_assumption`
+  - Expect: validation fail, error list includes missing field
+2. **Allowed enums**
+  - Given: `crime_class.category = "assault"`
+  - Expect: fail or normalization (explicit decision logged)
+3. **Checklist integrity**
+  - Given: clue appears after reveal in outline
+  - Expect: fail with actionable guidance
+
+### Novelty audit
+1. **Near-seed detection**
+  - Given: generated CML with matching axis, mechanism family, inference path, and clue ordering to a seed
+  - Expect: fail and require regeneration with divergence constraints
+2. **Acceptable divergence**
+  - Given: changes in cast, relationship graph, motive distribution, and mechanism variant
+  - Expect: pass
+
+### Worker jobs
+1. **Job contract**
+  - Given: setting job output missing required field
+  - Expect: job marked failed and retried
+2. **Idempotency**
+  - Given: same runId reprocessed
+  - Expect: no duplicate artifacts created
+
+### UI
+1. **Advanced/Expert toggles**
+  - Given: User mode
+  - Expect: CML viewer hidden
+  - Given: Advanced/Expert
+  - Expect: CML viewer visible; editing only in Expert
+2. **Spec draft save**
+  - Given: form data
+  - Expect: API call succeeds, UI shows spec id
+3. **Run status**
+  - Given: SSE updates
+  - Expect: status badge updates without refresh
+
+---
+
 ## 9) What to build first (MVP → V1 → V2)
 
 ### MVP (2–4 weeks of focused build)
 - Wizard UI for Spec
 - Generate: Setting → Cast → CML → Validate → Outline
-- Show: CML + Outline + spoiler toggle
+- Show: friendly projections + Outline + spoiler toggle
+- Advanced: read-only CML viewer
 - Export: ZIP with .yaml and .txt outline
+
+**Build state:** Phase 2 in progress: Postgres-backed persistence for projects/specs/status/runs/artifacts is wired (with in-memory fallback when `DATABASE_URL` is unset), the CML schema validation package is scaffolded, a CML validation endpoint is wired, and stub artifacts are generated on run.
 
 ### V1
 - Clue list + red herring injection
@@ -380,12 +522,12 @@ This gives you a system that scales and stays coherent.
 
 ### Core layout
 - App shell: left rail (navigation), top bar (project/status), main content
-- Right drawer: “CML quick view” + validation status + last run
+- Right drawer: validation status + last run (CML hidden by default)
 - Responsive: single-column wizard on small screens, two-panel on desktop
 
 ### Primary screens
 1) **Project Dashboard**
-  - Create/clone project
+  - Create/import project
   - Recent versions (spec/cml/clues/outline)
   - Quick actions: regenerate, export
 
@@ -397,10 +539,11 @@ This gives you a system that scales and stays coherent.
   - Live preview card showing: title, axis, cast size, clue density
   - Validation hints inline (from checklist)
 
-3) **CML Viewer**
+3) **CML Viewer** (Advanced/Expert only)
   - Collapsible tree view (YAML/JSON toggle)
   - Spoiler toggle to hide hidden_model and false_assumption
   - Schema validation status badge
+  - Read-only in Advanced mode; editing only in Expert mode with warnings
 
 4) **Clue Board**
   - Table + filters by category (time/access/physical/social)
@@ -413,12 +556,12 @@ This gives you a system that scales and stays coherent.
 
 6) **Samples Gallery**
   - Cards for examples/ CMLs
-  - “Seed from sample” button
+  - “Seed structure patterns” button (no copying)
   - Diff view against generated CML (optional)
 
 ### Key components
 - `SpecStepper`
-- `CmlTreeView`
+- `CmlTreeView` (Advanced/Expert only)
 - `ValidationChecklistPanel`
 - `ArtifactVersionTimeline`
 - `ClueTable`
@@ -430,6 +573,7 @@ This gives you a system that scales and stays coherent.
 - Regenerate granularity buttons (setting/cast/clues/outline/prose)
 - Progress streaming (SSE) with step-by-step statuses
 - Undo/rollback to previous version
+- Advanced/Expert mode warnings before CML exposure or edits
 
 ### Accessibility & safety
 - All interactive controls keyboard navigable
@@ -451,7 +595,7 @@ flowchart TD
   V -->|Fail| CML
   CL --> O[Outline]
   O --> P["Prose optional"]
-  CML --> UI["CML Viewer"]
+  CML --> ADV["Advanced/Expert CML Viewer"]
   CL --> UI
   O --> UI
   P --> UI
@@ -464,7 +608,7 @@ flowchart TD
 flowchart LR
   subgraph Web["Vue 3 and Tailwind UI"]
     W1[Builder Wizard]
-    W2[CML Viewer]
+    W2[Advanced/Expert CML Viewer]
     W3[Clue Board]
     W4[Outline Viewer]
     W5[Samples Gallery]
@@ -574,7 +718,7 @@ Each job reads previous artifact, calls Azure OpenAI, validates output, stores n
 - `GET /api/projects/:id/events` → SSE progress stream
 
 **Artifacts**
-- `GET /api/projects/:id/cml/latest`
+- `GET /api/projects/:id/cml/latest` (Advanced/Expert only)
 - `GET /api/projects/:id/clues/latest`
 - `GET /api/projects/:id/outline/latest`
 - `GET /api/projects/:id/prose/latest`
@@ -591,6 +735,10 @@ Each job reads previous artifact, calls Azure OpenAI, validates output, stores n
 - `run_events(id, run_id, step, message, created_at)`
 
 Artifacts types: setting, cast, cml, cml_validation, clues, outline, prose, game_pack.
+
+Provenance fields to add:
+- `artifact_versions.seed_ids`
+- `artifact_versions.seed_patterns`
 
 ### F) CML validation logic (packages/cml)
 **Schema validation**
@@ -690,6 +838,7 @@ Each agent prompt must:
 - YAML/JSON toggle
 - Spoiler toggle hiding hidden_model + false_assumption
 - Schema errors list linked to paths
+- Read-only in Advanced mode; edit controls only in Expert mode
 
 ### E) Clue Board UX
 - Table with category filter and quick search
@@ -702,7 +851,7 @@ Each agent prompt must:
 
 ### G) Samples Gallery UX
 - Cards showing title/author/axis/decade
-- Load sample into builder (read-only mode or “clone to project”)
+- Load sample into builder (read-only) for structural inspiration
 
 ### H) State management & flow
 - Create project → open BuilderWizard → save spec → run pipeline

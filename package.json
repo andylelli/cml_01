@@ -1,0 +1,17 @@
+{
+  "name": "cml",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "echo \"build: TODO\"",
+    "dev": "echo \"dev: TODO\"",
+    "lint": "echo \"lint: TODO\"",
+    "test": "npm run -w @cml/api test ; npm run -w @cml/worker test ; npm run -w @cml/web test"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

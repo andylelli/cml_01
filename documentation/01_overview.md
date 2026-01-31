@@ -1,12 +1,54 @@
 # CML-first Whodunit Builder — Overview
 
 ## Product vision
-Users configure setting, cast, tone, and logic to generate a fair-play Golden Age whodunit. The system is CML-first: a coherent CML 2.0 model is generated and validated before any prose.
+Users configure setting, cast, tone, and logic to generate a fair-play Golden Age whodunit. The system is CML-first: a coherent CML 2.0 model is generated and validated before any prose. CML is always generated, but it is hidden by default and never required for typical use.
+
+**Guiding sentence:** The system builds mysteries like an engineer builds proofs: the logic comes first, the interface stays friendly, and the machinery is hidden unless the user asks to see it.
 
 ## Core principles
-- CML is the single source of truth.
+- CML is the single source of truth and is always generated.
 - Mandatory pipeline: Spec → CML → Validate → Clues → Outline → Prose.
-- Sample CMLs in examples/ must be discoverable and usable as seeds.
+- CML is not the primary interface; most users should never need to see it.
+- Sample CMLs in examples/ are used as structural inspiration only, never copied.
+
+## Information access levels
+**Level 1 — User (Default)**
+- No raw CML visible.
+- User sees friendly, human-readable projections: setting summary, cast cards + relationships, mystery “bones” overview, clue board with explanations, outline/timeline, fair-play report in plain language.
+
+**Level 2 — Advanced (Opt-in)**
+- Read-only CML viewer.
+- CML can be inspected and exported.
+- No direct editing.
+
+**Level 3 — Expert (Explicit Opt-in)**
+- Direct CML editing.
+- Full validation output and warnings.
+- Regeneration scope control.
+
+## Canonical user flow
+### Input stage
+- User selects options (setting, tone, cast size, constraints).
+- AI proposes suggestions; user explicitly accepts or rejects.
+- No CML interaction.
+
+### Generate action
+- System combines user selections, accepted suggestions, and structural patterns learned from seed CMLs.
+- Generates a completely new CML (full logical structure, no prose, no copied plot).
+
+### Output stage
+- Default UI shows friendly projections derived from CML.
+- CML exists internally and is visible only in Advanced/Expert modes.
+
+## Seed CML library usage (structural only)
+- Seeds teach classic crime structure, not story content.
+- Seeds may inform axis selection, mechanism families, false-assumption patterns, discriminating tests, clue cadence, and fair-play structure.
+- Seeds must not inform specific characters, events, clue wording, reveal logic, plot sequences, or inference paths.
+
+## Novelty enforcement (validation gate)
+- After CML generation, run a similarity audit against selected seeds.
+- If too many structural elements match a single seed, regeneration is required with explicit divergence constraints.
+- Provenance records seed IDs and abstract patterns; seed details are not shown by default.
 
 ## Configurable inputs (user knobs)
 ### Setting
@@ -30,7 +72,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ### MVP
 - Wizard UI for Spec
 - Generate: Setting → Cast → CML → Validate → Outline
-- CML + Outline viewer
+- Friendly projections (cast, clues, outline, fair-play report)
+- Advanced CML viewer (read-only)
 
 ### V1
 - Clue list + red herrings
@@ -47,14 +90,17 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Regenerate scopes: which artifacts are rebuilt and which are locked
 - Validation gates: which errors block progress vs warn only
 - Style input isolation: apply only to prose, never to CML logic
-- Sample handling: clone vs read-only baselines
+- Sample handling: read-only structural baselines (no copying)
 - Conflict resolution: e.g., clue density vs length constraints
 - Fair-play fixes: surface actionable corrections per checklist item
 - Discriminating test placement: enforce Act II/III placement
 - Clue ordering: enforce all load-bearing clues pre-reveal
 - Red herring constraints: must support false assumption only
 - Provenance: track which run, agent, and prompt created each artifact
+- Seed usage: track seed IDs consulted and abstract patterns extracted
 - Multi-run concurrency: one active run per project or queued runs
 - Partial failure handling: retries, skip, or rollback
 - Export packaging: ZIP structure and included artifacts
-- CML edits: validation + merge strategy for manual changes
+- CML edits: Expert-only, with validation + merge strategy
+- Novelty enforcement: similarity audit vs seeds as a validation gate
+- Default UX: friendly projections only; CML hidden unless Advanced/Expert

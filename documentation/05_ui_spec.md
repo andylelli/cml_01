@@ -5,14 +5,37 @@
 - Tailwind CSS for styling
 - Headless UI for accessible unstyled primitives
 
+## UX quality bar (non-negotiable)
+- Default experience is friendly and task-focused; CML is hidden unless Advanced/Expert is enabled.
+- First-time users can complete a full generation without seeing raw CML.
+- Primary actions are prominent, consistent, and never buried behind menus.
+- Information density scales with screen size; no horizontal scrolling on core views.
+- The UI stays legible and calm during long-running jobs with clear progress cues.
+
 ## Layout
 - App shell: left nav + top bar + main content
-- Right drawer: CML quick view, validation status, last run
+- Right drawer: validation status, last run (CML hidden by default)
 - Responsive: single-column wizard on small screens
 
+## Design tokens (Tailwind)
+- Typography: `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-2xl`
+- Spacing rhythm: 4/8/12/16/24/32
+- Surfaces: `bg-white`, `bg-slate-50`, `bg-slate-100`
+- Borders: `border-slate-200`, `rounded-lg`
+- Focus: `focus-visible:ring`, `ring-offset-2`
+- States: `disabled:opacity-50`, `hover:shadow`, `transition`
+
 ## Views
+### Results (default)
+- Setting overview
+- Cast cards + relationship map
+- Mystery “bones” overview
+- Clue board
+- Outline/timeline
+- Fair-play summary
+
 ### ProjectDashboard
-- Create/clone project
+- Create/import project
 - Recent versions
 - Quick actions: regenerate/export
 
@@ -21,9 +44,11 @@
 - Live preview card
 - Inline validation hints
 
-### CmlViewer
+### CmlViewer (Advanced/Expert only)
 - Tree view with YAML/JSON toggle
 - Spoiler toggle for hidden_model + false_assumption
+- Read-only in Advanced mode
+- Edit controls only in Expert mode (with warning modal and validation panel)
 - Schema validation badge
 
 ### ClueBoard
@@ -37,7 +62,11 @@
 
 ### SamplesGallery
 - Cards for example CMLs
-- Seed or clone to project
+- Seed structure patterns (no content copying)
+
+### Advanced/Expert toggles
+- Advanced mode enables read-only CML viewing and export.
+- Expert mode enables CML editing with warnings and full validation output.
 
 ## Components
 - SpecStepper
@@ -45,7 +74,7 @@
 - CastForm
 - LogicForm
 - OutputForm
-- CmlTreeView
+- CmlTreeView (Advanced/Expert only)
 - ValidationChecklistPanel
 - ClueTable
 - OutlineTimeline
@@ -61,6 +90,8 @@
 - Progressive disclosure: hide spoilers and advanced controls by default
 - Visible system status: always show current run and validation state
 - Actionable feedback: every action produces immediate visual response
+- Consistent layout: same header/actions placement across views
+- Predictable flows: no modal-only workflows for primary actions
 
 ### Global UI constraints
 - All primary actions must be reachable within 1–2 clicks from the view
@@ -107,6 +138,7 @@
 **Constraints:**
 - Hidden sections collapsed and masked unless spoiler enabled
 - Search highlights matching nodes
+ - Read-only in Advanced mode; editing only in Expert mode with explicit warning
 **Feedback:**
 - Toggle changes animate smoothly
 
@@ -153,7 +185,7 @@
 **Purpose:** Present sample CMLs with actions.
 **Layout:**
 - Title, author, axis, decade, short summary
-- Buttons: View, Seed, Clone
+- Buttons: View, Seed (structure-only)
 **Feedback:**
 - Hover elevation, active press state
 
@@ -176,11 +208,14 @@
 - Toggle switches: animated thumb with color change
 - Loaders: spinners for actions, skeletons for data tables
 - Toasts: success, warning, error with clear message and retry links
+- Inline save indicators for draft vs accepted artifacts
+- Sticky action bar for “Generate / Regenerate / Export” on long pages
 
 ## Error and empty states
 - Empty states: icon + message + primary action button
 - Errors: show inline + top summary; avoid modal-only errors
 - Retry: provide retry button per step
+- Long-running tasks: show estimated step name and last completed step
 
 ## Component-by-component framework mapping (Tailwind + Headless UI + Vue)
 
@@ -190,6 +225,7 @@
 - Step list: `ul` with `li` using `before:` status dots
 **Headless UI**
 - `Disclosure` for step details (optional on mobile)
+- `TabGroup` for step content in compact layouts
 **Vue behavior**
 - Props: `steps`, `currentStep`, `errorsByStep`, `dirty`
 - Emits: `next`, `back`, `save`, `run`
@@ -245,6 +281,7 @@
 - Search bar with `ring`, `focus:ring`
 **Headless UI**
 - `Disclosure` for expandable nodes
+- `Dialog` for Expert-mode warnings
 **Vue behavior**
 - Search highlighting via computed match list
 - Spoiler toggle hides hidden_model + false_assumption nodes
@@ -292,9 +329,9 @@
 **Tailwind**
 - Card layout `rounded-lg`, `shadow-sm`, `hover:shadow-md`, `transition`
 **Headless UI**
-- `Menu` for actions (View/Seed/Clone)
+- `Menu` for actions (View/Seed)
 **Vue behavior**
-- Emits `view`, `seed`, `clone`
+- Emits `view`, `seed`
 
 ### SpoilerToggle
 **Tailwind**
@@ -357,13 +394,14 @@
 ## Navigation and UX considerations
 
 ### Navigation model
-- Primary nav: left rail with top-level views (Dashboard, Builder, CML, Clues, Outline, Samples)
+- Primary nav: left rail with top-level views (Dashboard, Builder, Clues, Outline, Samples)
+- CML appears only when Advanced/Expert mode is enabled
 - Secondary nav: context tabs within Builder (Setting/Cast/Logic/Output)
 - Persistent status area: RunStatusBanner visible across all views
 
 ### Routing and deep links
 - Each view has a stable route with project ID
-- Deep link to artifacts (e.g., /projects/:id/cml)
+- Deep link to artifacts (e.g., /projects/:id/cml) available only in Advanced/Expert mode
 - Preserve wizard step in URL query (e.g., ?step=cast)
 
 ### UX flow guidance
@@ -388,3 +426,4 @@
 - Keyboard navigation
 - Contrast-compliant themes
 - Spoiler-safe defaults
+- Advanced/Expert mode warnings for CML exposure and edits

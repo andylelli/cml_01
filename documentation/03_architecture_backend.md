@@ -24,7 +24,8 @@
 - GET /api/projects/:id/events (SSE)
 
 ### Artifacts
-- GET /api/projects/:id/cml/latest
+- GET /api/projects/:id/cml/latest (Advanced/Expert only)
+- POST /api/projects/:id/cml/validate (Advanced/Expert only)
 - GET /api/projects/:id/clues/latest
 - GET /api/projects/:id/outline/latest
 - GET /api/projects/:id/prose/latest
@@ -33,9 +34,25 @@
 - GET /api/samples
 - GET /api/samples/:name
 
+## Access control (conceptual)
+- `mode = user | advanced | expert`
+- Default UI and APIs return friendly projections only.
+- CML endpoints exist but are not used by default UI.
+- Direct CML editing endpoints are Expert-only with explicit warnings.
+ - Phase 1 API skeleton reads `x-cml-mode` header to gate CML endpoints.
+ - Phase 2 adds a CML validation endpoint that stores a `cml_validation` artifact.
+
 ## Orchestration pattern
 State machine with retries:
 SPEC_READY → SETTING_DONE → CAST_DONE → CML_DRAFT → CML_VALIDATED → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
+
+Phase 2 placeholder behavior:
+- Run initiation stores a stub CML, validation result, and placeholder artifacts for clues/outline/prose.
+
+Artifact roles:
+- **Canonical:** CML (always generated and stored).
+- **Derived:** clues, outline, prose, and all friendly projections.
+- UI defaults to derived artifacts; CML is hidden unless Advanced/Expert mode is enabled.
 
 Functional policies:
 - One active run per project (queue additional runs)
@@ -67,10 +84,18 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - runs(id, project_id, status, started_at, finished_at)
 - run_events(id, run_id, step, message, created_at)
 
+## Database runtime (Postgres in Docker)
+- Postgres is the primary datastore and is expected to run in Docker in local dev.
+- Services connect via `DATABASE_URL` (preferred) or split `PG*` environment variables.
+- The DB stores canonical CML, derived artifacts, versions, and run history.
+- Phase 2 persistence: projects/specs/status/runs/artifacts use Postgres when `DATABASE_URL` is set; otherwise a temporary in-memory fallback is used.
+
 Provenance fields to add if needed:
 - artifact_versions.prompt_version
 - artifact_versions.model_name
 - artifact_versions.parent_artifact_id
+- artifact_versions.seed_ids
+- artifact_versions.seed_patterns
 
 ## Diagrams
 ### Conceptual flow
@@ -83,8 +108,8 @@ flowchart TD
   V -->|Fail| CML
   CL --> O[Outline]
   O --> P["Prose optional"]
-  CML --> UI["CML Viewer"]
-  CL --> UI
+  CML --> ADV["Advanced/Expert CML Viewer"]
+  CL --> UI["Friendly Projections"]
   O --> UI
   P --> UI
   UI --> E["Exports and Play Kit"]
@@ -95,7 +120,7 @@ flowchart TD
 flowchart LR
   subgraph Web["Vue 3 and Tailwind UI"]
     W1[Builder Wizard]
-    W2[CML Viewer]
+    W2[Advanced/Expert CML Viewer]
     W3[Clue Board]
     W4[Outline Viewer]
     W5[Samples Gallery]
