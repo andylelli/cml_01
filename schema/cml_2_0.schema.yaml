@@ -40,6 +40,54 @@ CASE:
               allowed: [murder, theft, disappearance, fraud]
             subtype: { type: string, required: true }
 
+    cast:
+      required: true
+      type: array
+      items:
+        type: object
+        fields:
+          name: { type: string, required: true }
+          age_range: { type: string, required: true }
+          role_archetype: { type: string, required: true }
+          relationships:
+            type: array
+            items: string
+          public_persona: { type: string, required: true }
+          private_secret: { type: string, required: true }
+          motive_seed: { type: string, required: true }
+          motive_strength: { type: string, required: true }
+          alibi_window: { type: string, required: true }
+          access_plausibility: { type: string, required: true }
+          opportunity_channels:
+            type: array
+            items: string
+          behavioral_tells:
+            type: array
+            items: string
+          stakes: { type: string, required: true }
+          evidence_sensitivity:
+            type: array
+            items: string
+          culprit_eligibility:
+            type: string
+            allowed: [eligible, ineligible, locked]
+          culpability:
+            type: string
+            allowed: [guilty, innocent, unknown]
+
+    culpability:
+      required: true
+      type: object
+      fields:
+        culprit_count:
+          type: number
+          required: true
+          allowed: [1, 2]
+        culprits:
+          type: array
+          required: true
+          items: string
+
     surface_model:
       required: true
       type: object

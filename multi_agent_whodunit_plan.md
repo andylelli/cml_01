@@ -368,9 +368,9 @@ This gives you a system that scales and stays coherent.
 
 ---
 
-## 11) UI spec (Vue 3 + Vuetify 3)
+## 11) UI spec (Vue 3 + Tailwind + Headless UI)
 
-**CSS framework choice:** Vuetify 3 (Material Design) for fast, consistent UI with strong accessibility defaults and robust Vue 3 integration.
+**CSS framework choice:** Tailwind CSS + Headless UI for a custom, literary aesthetic with accessible primitives and full control over visual tone.
 
 ### Design system
 - Typography: 2–3 sizes (H1/H2/body), clear hierarchy
@@ -462,7 +462,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  subgraph Web["Vue 3 and Vuetify UI"]
+  subgraph Web["Vue 3 and Tailwind UI"]
     W1[Builder Wizard]
     W2[CML Viewer]
     W3[Clue Board]
@@ -520,7 +520,7 @@ flowchart LR
 ## 12) Detailed implementation blueprint (structure + code)
 
 ### A) Repository structure (monorepo)
-- /apps/web (Vue 3 + Vite + Vuetify)
+- /apps/web (Vue 3 + Vite + Tailwind + Headless UI)
 - /apps/api (Node/TS API + orchestrator)
 - /apps/worker (queue worker for agents)
 - /packages/cml (shared CML types, schema, validators)
@@ -614,7 +614,7 @@ Each agent prompt must:
 
 ---
 
-## 13) Detailed UI implementation plan (Vue 3 + Vuetify 3)
+## 13) Detailed UI implementation plan (Vue 3 + Tailwind + Headless UI)
 
 ### A) Frontend structure (apps/web)
 - /src/views
