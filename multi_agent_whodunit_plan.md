@@ -479,7 +479,7 @@ Build simple deterministic validators too:
 - Advanced: read-only CML viewer
 - Export: ZIP with .yaml and .txt outline
 
-**Build state:** Phase 2 complete: persistence, validation endpoints, artifact previews, and run event endpoints are in place. Phase 3 complete: deterministic pipeline execution with step validation artifacts and novelty audit placeholder.
+**Build state:** Phase 2 complete: persistence, validation endpoints, artifact previews, and run event endpoints are in place. Phase 3 complete: deterministic pipeline execution with step validation artifacts and novelty audit placeholder. Phase 4 complete: export UI and export API endpoint implemented. Phase 5 complete: deterministic placeholder prose and game pack artifacts are generated and exposed via the API. V1 complete: clue list with red herrings, fair-play report, simple suspect cards, and granular regenerate controls are now rendered in the UI. V2 complete: play mode clue reveal by chapter, printable party kit PDF download, and community templates are available.
 
 ### V1
 - Clue list + red herring injection
@@ -853,10 +853,12 @@ Each agent prompt must:
 - Cards showing title/author/axis/decade
 - Load sample into builder (read-only) for structural inspiration
 
+
 ### H) State management & flow
 - Create project → open BuilderWizard → save spec → run pipeline
 - SSE updates runStore and artifactStore
 - Versions shown in ArtifactVersionTimeline
+- ExportPanel allows users to select and download packaged artifacts (setting, cast, cml, clues, outline, prose) via the backend export API endpoint (implemented).
 
 ### I) Error handling
 - API errors show toast + inline form feedback

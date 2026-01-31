@@ -10,20 +10,6 @@
 - /examples, /schema, /validation
 
 ## API surface
-### Projects
-- POST /api/projects
-- GET /api/projects/:id
-
-### Specs
-- POST /api/projects/:id/specs
-- GET /api/specs/:id
-
-### Pipeline
-- POST /api/projects/:id/run
-- GET /api/projects/:id/status
-- GET /api/projects/:id/events (SSE)
-- GET /api/projects/:id/runs/latest
-- GET /api/runs/:id/events
 
 ### Artifacts
 - GET /api/projects/:id/cml/latest (Advanced/Expert only)
@@ -38,10 +24,20 @@
 - GET /api/projects/:id/outline/latest
 - GET /api/projects/:id/outline/validation/latest
 - GET /api/projects/:id/prose/latest
+- GET /api/projects/:id/game-pack/latest
+- GET /api/projects/:id/fair-play/latest
+- GET /api/projects/:id/game-pack/pdf
+
+### Export
+- POST /api/projects/:id/export — Download a JSON file containing the latest version of selected artifacts (setting, cast, cml, clues, outline, fair_play_report, prose, game_pack). Accepts `{ artifactTypes: string[] }` in the body and returns a downloadable file. Used by the ExportPanel UI.
+
+### Regenerate
+- POST /api/projects/:id/regenerate — Regenerate a single artifact scope from the latest spec. Accepts `{ scope: string }` where scope is one of: setting, cast, cml, clues, outline, prose, game_pack, fair_play_report.
 
 ### Samples
 - GET /api/samples
 - GET /api/samples/:name
+  - returns sample metadata and raw YAML content from examples/ for community templates
 
 ## Access control (conceptual)
 - `mode = user | advanced | expert`
@@ -62,10 +58,21 @@ Phase 3 start:
 Phase 3 completion:
 - Pipeline executes deterministic step order with run events and stores a novelty audit artifact (pass when no seeds selected).
 
+Phase 5 completion:
+- Prose and game pack artifacts are generated deterministically (placeholder content) after outline.
+- Game pack artifact is available via a dedicated API endpoint.
+
 Artifact roles:
 - **Canonical:** CML (always generated and stored).
 - **Derived:** clues, outline, prose, and all friendly projections.
 - UI defaults to derived artifacts; CML is hidden unless Advanced/Expert mode is enabled.
+
+Derived friendly projections now include:
+- `fair_play_report` (summary + checklist)
+
+## Prose + game pack (Phase 5)
+- Prose generation is currently deterministic placeholder output derived from outline and cast.
+- Game pack generation is currently deterministic placeholder output derived from CML and cast.
 
 Functional policies:
 - One active run per project (queue additional runs)
@@ -126,6 +133,10 @@ flowchart TD
   O --> UI
   P --> UI
   UI --> E["Exports and Play Kit"]
+
+## Export packaging
+- The backend supports packaging selected artifacts into a downloadable JSON file via the export API endpoint.
+- The UI ExportPanel allows users to select which artifacts to include and triggers the download.
 ```
 
 ### Technical architecture

@@ -1,3 +1,15 @@
+// Export selected artifacts as a downloadable JSON file
+export const exportArtifacts = async (projectId: string, artifactTypes: string[]): Promise<Blob> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/export`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ artifactTypes }),
+  });
+  if (!response.ok) {
+    throw new Error(`Export failed (${response.status})`);
+  }
+  return response.blob();
+};
 export type ApiHealth = {
   status: string;
   service: string;
@@ -79,6 +91,18 @@ export const runPipeline = async (projectId: string) => {
     throw new Error(`Run pipeline failed (${response.status})`);
   }
   return response.json() as Promise<{ status: string; projectId: string }>;
+};
+
+export const regenerateArtifact = async (projectId: string, scope: string) => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/regenerate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ scope }),
+  });
+  if (!response.ok) {
+    throw new Error(`Regenerate failed (${response.status})`);
+  }
+  return response.json() as Promise<{ status: string; scope: string }>;
 };
 
 export const fetchCml = async (projectId: string): Promise<Artifact> => {
@@ -171,6 +195,49 @@ export const fetchProse = async (projectId: string): Promise<Artifact> => {
     throw new Error(`Fetch prose failed (${response.status})`);
   }
   return response.json() as Promise<Artifact>;
+};
+
+export const fetchFairPlayReport = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/fair-play/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch fair-play report failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchGamePack = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/game-pack/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch game pack failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const downloadGamePackPdf = async (projectId: string): Promise<Blob> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/game-pack/pdf`);
+  if (!response.ok) {
+    throw new Error(`Download game pack PDF failed (${response.status})`);
+  }
+  return response.blob();
+};
+
+export type SampleSummary = { id: string; name: string; filename: string };
+
+export const fetchSamples = async (): Promise<SampleSummary[]> => {
+  const response = await fetch(`${apiBase}/api/samples`);
+  if (!response.ok) {
+    throw new Error(`Fetch samples failed (${response.status})`);
+  }
+  const data = (await response.json()) as { samples: SampleSummary[] };
+  return data.samples;
+};
+
+export const fetchSampleContent = async (id: string): Promise<{ id: string; name: string; content: string }> => {
+  const response = await fetch(`${apiBase}/api/samples/${id}`);
+  if (!response.ok) {
+    throw new Error(`Fetch sample failed (${response.status})`);
+  }
+  return response.json() as Promise<{ id: string; name: string; content: string }>;
 };
 
 export const fetchLatestRun = async (projectId: string): Promise<Run> => {

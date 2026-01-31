@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
+import ExportPanel from "./components/ExportPanel.vue";
 import {
   createProject,
+  downloadGamePackPdf,
   fetchCast,
   fetchCastValidation,
   fetchCml,
@@ -10,13 +12,18 @@ import {
   fetchClues,
   fetchCluesValidation,
   fetchHealth,
+  fetchFairPlayReport,
+  fetchGamePack,
   fetchLatestRun,
   fetchOutline,
   fetchOutlineValidation,
+  fetchSampleContent,
+  fetchSamples,
   fetchSetting,
   fetchSettingValidation,
   fetchProse,
   fetchRunEvents,
+  regenerateArtifact,
   runPipeline,
   saveSpec,
 } from "./services/api";
@@ -51,12 +58,59 @@ const cmlArtifact = ref<string | null>(null);
 const cluesArtifact = ref<string | null>(null);
 const outlineArtifact = ref<string | null>(null);
 const proseArtifact = ref<string | null>(null);
+const gamePackArtifact = ref<string | null>(null);
+const gamePackData = ref<{ title?: string; suspects?: string[]; materials?: string[] } | null>(null);
 const settingArtifact = ref<string | null>(null);
 const castArtifact = ref<string | null>(null);
+const castData = ref<{ suspects?: string[] } | null>(null);
+const cluesData = ref<{ summary?: string; items?: Array<{ id: string; category: string; text: string; pointsTo: string; redHerring: boolean; revealChapter?: number }> } | null>(null);
+const fairPlayReport = ref<{ summary?: string; checks?: Array<{ id: string; label: string; status: string }> } | null>(null);
+const outlineData = ref<{ chapters?: unknown } | null>(null);
+const showRedHerrings = ref(true);
+const playModeEnabled = ref(false);
+const currentChapter = ref(1);
 const validationErrors = ref<string[]>([]);
 const stepValidation = ref<Record<string, string>>({});
 const latestRunEvent = ref<string | null>(null);
+const samples = ref<Array<{ id: string; name: string; filename: string }>>([]);
+const selectedSample = ref<{ id: string; name: string; content: string } | null>(null);
+const sampleError = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
+
+const filteredClues = computed(() => {
+  if (!cluesData.value?.items) return [];
+  return cluesData.value.items.filter((item) => {
+    const allowRedHerring = showRedHerrings.value || !item.redHerring;
+    const allowChapter = !playModeEnabled.value || (item.revealChapter ?? 1) <= currentChapter.value;
+    return allowRedHerring && allowChapter;
+  });
+});
+
+const chapterOptions = computed(() => {
+  const chapters = outlineData.value?.chapters;
+  if (Array.isArray(chapters) && chapters.length > 0) {
+    return chapters.map((_, index) => index + 1);
+  }
+  return [1, 2, 3];
+});
+
+const maxChapter = computed(() => chapterOptions.value[chapterOptions.value.length - 1] ?? 1);
+
+const nextChapter = () => {
+  if (!playModeEnabled.value) return;
+  currentChapter.value = Math.min(currentChapter.value + 1, maxChapter.value);
+};
+
+const prevChapter = () => {
+  if (!playModeEnabled.value) return;
+  currentChapter.value = Math.max(currentChapter.value - 1, 1);
+};
+
+watch(chapterOptions, (options) => {
+  if (!options.includes(currentChapter.value)) {
+    currentChapter.value = options[options.length - 1] ?? 1;
+  }
+});
 
 const connectSse = () => {
   if (!projectId.value) {
@@ -124,6 +178,71 @@ const handleSaveSpec = async () => {
   }
 };
 
+const loadArtifacts = async () => {
+  if (!projectId.value) return;
+  const [
+    setting,
+    cast,
+    cml,
+    validation,
+    clues,
+    fairPlay,
+    outline,
+    prose,
+    gamePack,
+    settingValidation,
+    castValidation,
+    cluesValidation,
+    outlineValidation,
+  ] = await Promise.allSettled([
+    fetchSetting(projectId.value),
+    fetchCast(projectId.value),
+    fetchCml(projectId.value),
+    fetchCmlValidation(projectId.value),
+    fetchClues(projectId.value),
+    fetchFairPlayReport(projectId.value),
+    fetchOutline(projectId.value),
+    fetchProse(projectId.value),
+    fetchGamePack(projectId.value),
+    fetchSettingValidation(projectId.value),
+    fetchCastValidation(projectId.value),
+    fetchCluesValidation(projectId.value),
+    fetchOutlineValidation(projectId.value),
+  ]);
+
+  settingArtifact.value = setting.status === "fulfilled" ? JSON.stringify(setting.value.payload, null, 2) : null;
+  castArtifact.value = cast.status === "fulfilled" ? JSON.stringify(cast.value.payload, null, 2) : null;
+  castData.value = cast.status === "fulfilled" ? (cast.value.payload as { suspects?: string[] }) : null;
+  cmlArtifact.value = cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
+  validationErrors.value =
+    validation.status === "fulfilled" && validation.value.payload?.errors
+      ? (validation.value.payload.errors as string[])
+      : [];
+  stepValidation.value = {
+    setting:
+      settingValidation.status === "fulfilled" && settingValidation.value.payload?.valid ? "ok" : "pending",
+    cast: castValidation.status === "fulfilled" && castValidation.value.payload?.valid ? "ok" : "pending",
+    clues:
+      cluesValidation.status === "fulfilled" && cluesValidation.value.payload?.valid ? "ok" : "pending",
+    outline:
+      outlineValidation.status === "fulfilled" && outlineValidation.value.payload?.valid ? "ok" : "pending",
+  };
+  cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
+  cluesData.value = clues.status === "fulfilled" ? (clues.value.payload as typeof cluesData.value) : null;
+  fairPlayReport.value = fairPlay.status === "fulfilled" ? (fairPlay.value.payload as typeof fairPlayReport.value) : null;
+  outlineArtifact.value = outline.status === "fulfilled" ? JSON.stringify(outline.value.payload, null, 2) : null;
+  outlineData.value = outline.status === "fulfilled" ? (outline.value.payload as typeof outlineData.value) : null;
+  proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
+  gamePackArtifact.value = gamePack.status === "fulfilled" ? JSON.stringify(gamePack.value.payload, null, 2) : null;
+  gamePackData.value = gamePack.status === "fulfilled" ? (gamePack.value.payload as typeof gamePackData.value) : null;
+
+  const latestRun = await fetchLatestRun(projectId.value).catch(() => null);
+  if (latestRun) {
+    const events = await fetchRunEvents(latestRun.id).catch(() => []);
+    latestRunEvent.value = events.length ? events[events.length - 1].message : null;
+  }
+};
+
 const handleRunPipeline = async () => {
   if (!projectId.value) {
     actionMessage.value = "Create a project first";
@@ -132,68 +251,72 @@ const handleRunPipeline = async () => {
   actionMessage.value = null;
   try {
     await runPipeline(projectId.value);
-    const [
-      setting,
-      cast,
-      cml,
-      validation,
-      clues,
-      outline,
-      prose,
-      settingValidation,
-      castValidation,
-      cluesValidation,
-      outlineValidation,
-    ] = await Promise.allSettled([
-      fetchSetting(projectId.value),
-      fetchCast(projectId.value),
-      fetchCml(projectId.value),
-      fetchCmlValidation(projectId.value),
-      fetchClues(projectId.value),
-      fetchOutline(projectId.value),
-      fetchProse(projectId.value),
-      fetchSettingValidation(projectId.value),
-      fetchCastValidation(projectId.value),
-      fetchCluesValidation(projectId.value),
-      fetchOutlineValidation(projectId.value),
-    ]);
-    settingArtifact.value = setting.status === "fulfilled" ? JSON.stringify(setting.value.payload, null, 2) : null;
-    castArtifact.value = cast.status === "fulfilled" ? JSON.stringify(cast.value.payload, null, 2) : null;
-    cmlArtifact.value = cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
-    validationErrors.value =
-      validation.status === "fulfilled" && validation.value.payload?.errors
-        ? (validation.value.payload.errors as string[])
-        : [];
-    stepValidation.value = {
-      setting:
-        settingValidation.status === "fulfilled" && settingValidation.value.payload?.valid
-          ? "ok"
-          : "pending",
-      cast:
-        castValidation.status === "fulfilled" && castValidation.value.payload?.valid ? "ok" : "pending",
-      clues:
-        cluesValidation.status === "fulfilled" && cluesValidation.value.payload?.valid ? "ok" : "pending",
-      outline:
-        outlineValidation.status === "fulfilled" && outlineValidation.value.payload?.valid ? "ok" : "pending",
-    };
-    cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
-    outlineArtifact.value = outline.status === "fulfilled" ? JSON.stringify(outline.value.payload, null, 2) : null;
-    proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
-
-    const latestRun = await fetchLatestRun(projectId.value).catch(() => null);
-    if (latestRun) {
-      const events = await fetchRunEvents(latestRun.id).catch(() => []);
-      latestRunEvent.value = events.length ? events[events.length - 1].message : null;
-    }
+    await loadArtifacts();
     actionMessage.value = "Run started";
   } catch (error) {
     actionMessage.value = "Failed to start run";
   }
 };
 
+const handleRegenerate = async (scope: "setting" | "cast" | "clues" | "outline" | "prose") => {
+  if (!projectId.value) {
+    actionMessage.value = "Create a project first";
+    return;
+  }
+  actionMessage.value = null;
+  try {
+    await regenerateArtifact(projectId.value, scope);
+    await loadArtifacts();
+    actionMessage.value = `${scope} regenerated`;
+  } catch (error) {
+    actionMessage.value = `Failed to regenerate ${scope}`;
+  }
+};
+
+const handleDownloadGamePackPdf = async () => {
+  if (!projectId.value) {
+    actionMessage.value = "Create a project first";
+    return;
+  }
+  try {
+    const blob = await downloadGamePackPdf(projectId.value);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `game_pack_${projectId.value}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  } catch (error) {
+    actionMessage.value = "Failed to download game pack";
+  }
+};
+
+const loadSamples = async () => {
+  sampleError.value = null;
+  try {
+    samples.value = await fetchSamples();
+  } catch (error) {
+    sampleError.value = "Failed to load samples";
+  }
+};
+
+const handleSampleSelect = async (id: string) => {
+  sampleError.value = null;
+  try {
+    selectedSample.value = await fetchSampleContent(id);
+  } catch (error) {
+    sampleError.value = "Failed to load sample";
+  }
+};
+
 onMounted(() => {
   checkHealth();
   connectSse();
+  loadSamples();
 });
 
 onBeforeUnmount(() => {
@@ -394,14 +517,75 @@ onBeforeUnmount(() => {
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Cast cards</div>
-                <div class="mt-2 text-sm text-slate-600">
-                  {{ castArtifact ? "Cast placeholder stored" : "6 suspects • relationship map pending" }}
+                <div v-if="castData?.suspects?.length" class="mt-3 grid gap-2 text-xs text-slate-700">
+                  <div
+                    v-for="suspect in castData.suspects"
+                    :key="suspect"
+                    class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div class="text-sm font-semibold">{{ suspect }}</div>
+                    <div class="text-[11px] text-slate-500">Role: Suspect • Motive: pending</div>
+                  </div>
                 </div>
+                <div v-else class="mt-2 text-sm text-slate-600">6 suspects • relationship map pending</div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Clue board</div>
-                <div class="mt-2 text-sm text-slate-600">
-                  {{ cluesArtifact ? "Clues placeholder stored" : "No clues generated yet" }}
+                <div class="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                  <div>{{ cluesData?.items?.length ? `${cluesData.items.length} clues` : "No clues generated yet" }}</div>
+                  <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-2">
+                      <input v-model="playModeEnabled" type="checkbox" />
+                      Play mode
+                    </label>
+                    <label v-if="playModeEnabled" class="flex items-center gap-2">
+                      <span>Chapter</span>
+                      <select v-model.number="currentChapter" class="rounded border border-slate-200 px-2 py-1">
+                        <option v-for="chapter in chapterOptions" :key="chapter" :value="chapter">
+                          {{ chapter }}
+                        </option>
+                      </select>
+                    </label>
+                    <div v-if="playModeEnabled" class="flex items-center gap-2">
+                      <button
+                        class="rounded border border-slate-200 px-2 py-1 text-[11px]"
+                        :disabled="currentChapter <= 1"
+                        @click="prevChapter"
+                      >
+                        Prev
+                      </button>
+                      <button
+                        class="rounded border border-slate-200 px-2 py-1 text-[11px]"
+                        :disabled="currentChapter >= maxChapter"
+                        @click="nextChapter"
+                      >
+                        Next
+                      </button>
+                      <span class="text-[11px] text-slate-400">{{ currentChapter }} / {{ maxChapter }}</span>
+                    </div>
+                    <label class="flex items-center gap-2">
+                      <input v-model="showRedHerrings" type="checkbox" />
+                      Show red herrings
+                    </label>
+                  </div>
+                </div>
+                <div v-if="filteredClues.length" class="mt-3 space-y-2 text-sm text-slate-700">
+                  <div
+                    v-for="clue in filteredClues"
+                    :key="clue.id"
+                    class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div class="flex items-center justify-between text-xs text-slate-500">
+                      <span class="uppercase">{{ clue.category }}</span>
+                      <span v-if="clue.redHerring" class="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                        Red herring
+                      </span>
+                    </div>
+                    <div class="mt-1 text-sm font-medium text-slate-700">{{ clue.text }}</div>
+                    <div class="mt-1 text-[11px] text-slate-500">
+                      Points to: {{ clue.pointsTo }} · Reveal: Chapter {{ clue.revealChapter ?? 1 }}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -409,6 +593,52 @@ onBeforeUnmount(() => {
                 <div class="mt-2 text-sm text-slate-600">
                   {{ outlineArtifact ? "Outline placeholder stored" : "Outline will appear after validation" }}
                 </div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-semibold text-slate-700">Fair-play report</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ fairPlayReport ? fairPlayReport.summary : "Report will appear after clues" }}
+                </div>
+                <div v-if="fairPlayReport?.checks?.length" class="mt-3 space-y-1 text-xs text-slate-600">
+                  <div v-for="check in fairPlayReport.checks" :key="check.id" class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full" :class="check.status === 'pass' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                    <span>{{ check.label }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-semibold text-slate-700">Game pack</div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ gamePackData?.title ?? "Game pack pending" }}
+                </div>
+                <div class="mt-2 text-xs text-slate-500">
+                  {{ gamePackData?.suspects?.length ?? 0 }} suspects · {{ gamePackData?.materials?.length ?? 0 }} materials
+                </div>
+                <button
+                  class="mt-3 rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!gamePackData || !projectId"
+                  @click="handleDownloadGamePackPdf"
+                >
+                  Download PDF
+                </button>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-semibold text-slate-700">Community templates</div>
+                <div v-if="sampleError" class="mt-2 text-xs text-rose-600">{{ sampleError }}</div>
+                <div v-else class="mt-3 grid gap-2 text-xs text-slate-600">
+                  <button
+                    v-for="sample in samples"
+                    :key="sample.id"
+                    class="rounded-md border border-slate-200 px-3 py-2 text-left hover:bg-slate-50"
+                    @click="handleSampleSelect(sample.id)"
+                  >
+                    {{ sample.name }}
+                  </button>
+                </div>
+                <pre
+                  v-if="selectedSample"
+                  class="mt-3 max-h-40 overflow-auto rounded bg-slate-900/5 p-2 text-[11px] text-slate-600"
+                >{{ selectedSample.content }}</pre>
               </div>
             </div>
           </section>
@@ -437,6 +667,18 @@ onBeforeUnmount(() => {
               <ul v-if="validationErrors.length" class="mt-3 list-disc space-y-1 pl-4 text-xs text-rose-600">
                 <li v-for="error in validationErrors" :key="error">{{ error }}</li>
               </ul>
+              <div v-if="fairPlayReport?.checks?.length" class="mt-3">
+                <div class="text-xs font-semibold text-slate-500">Fair-play report</div>
+                <ul class="mt-2 space-y-1 text-xs text-slate-600">
+                  <li v-for="check in fairPlayReport.checks" :key="check.id" class="flex items-center gap-2">
+                    <span
+                      class="h-2 w-2 rounded-full"
+                      :class="check.status === 'pass' ? 'bg-emerald-500' : 'bg-amber-500'"
+                    ></span>
+                    <span>{{ check.label }}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Step checks</div>
@@ -454,6 +696,59 @@ onBeforeUnmount(() => {
                 {{ castArtifact ? "Cast stored" : "No cast yet" }}
               </div>
             </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Regenerate</div>
+              <div class="mt-3 grid gap-2">
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId"
+                  @click="handleRegenerate('setting')"
+                >
+                  Regenerate setting
+                </button>
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId"
+                  @click="handleRegenerate('cast')"
+                >
+                  Regenerate cast
+                </button>
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId"
+                  @click="handleRegenerate('clues')"
+                >
+                  Regenerate clues
+                </button>
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId"
+                  @click="handleRegenerate('outline')"
+                >
+                  Regenerate outline
+                </button>
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId"
+                  @click="handleRegenerate('prose')"
+                >
+                  Regenerate prose
+                </button>
+              </div>
+            </div>
+            <ExportPanel
+              :project-id="projectId"
+              :available="{
+                setting: Boolean(settingArtifact),
+                cast: Boolean(castArtifact),
+                cml: isAdvanced && Boolean(cmlArtifact),
+                clues: Boolean(cluesArtifact),
+                outline: Boolean(outlineArtifact),
+                prose: Boolean(proseArtifact),
+                gamePack: Boolean(gamePackArtifact),
+                fairPlay: Boolean(fairPlayReport),
+              }"
+            />
             <div v-if="isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">CML preview</div>
               <pre class="mt-2 max-h-48 overflow-auto rounded bg-slate-900/5 p-2 text-xs text-slate-700">

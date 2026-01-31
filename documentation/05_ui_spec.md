@@ -33,6 +33,8 @@
 - Clue board
 - Outline/timeline
 - Fair-play summary
+- Game pack preview (materials + suspect cards summary)
+- Game pack PDF download action
 
 ### ProjectDashboard
 - Create/import project
@@ -64,6 +66,7 @@
 ### SamplesGallery
 - Cards for example CMLs
 - Seed structure patterns (no content copying)
+- Current build lists example templates and shows raw YAML preview
 
 ### Advanced/Expert toggles
 - Advanced mode enables read-only CML viewing and export.
@@ -153,6 +156,7 @@
 - Failures highlight related fields in forms
  - Phase 2 placeholder: show validation error list from CML validation artifact
 - Phase 3 placeholder: show step validation status for setting/cast/clues/outline
+- Fair-play report renders checklist items with pass/warn indicators.
 
 ### ClueTable
 **Purpose:** Manage clues and red herrings.
@@ -165,6 +169,10 @@
 **Feedback:**
 - Row hover highlights
 - Table loading skeleton while fetching
+- Current build renders a clue list with red herring tags and a show/hide toggle.
+- Play mode toggle allows revealing clues by chapter (uses reveal metadata from clues).
+- Chapter selector defaults to 1–3 but uses outline chapter count when available.
+- Play mode provides Prev/Next controls with current chapter progress.
 
 ### OutlineTimeline
 **Purpose:** Validate clue placement and reveal timing.
@@ -183,6 +191,16 @@
 - Rollback requires confirmation modal
 **Feedback:**
 - Success toast and refreshed view
+
+
+### ExportPanel
+**Purpose:** Select artifacts for export packaging and trigger download.
+**Layout:**
+- Checkbox list for setting/cast/clues/outline/fair-play/prose/game pack/CML
+- Export button (disabled until selections available)
+**Feedback:**
+- Calls the export API endpoint with selected artifact types and downloads a JSON file containing the latest versions.
+- Shows error if export fails.
 
 ### SampleCard
 **Purpose:** Present sample CMLs with actions.
@@ -205,6 +223,14 @@
 - Actions: cancel run, retry failed step
 **Feedback:**
 - Spinner for active run
+
+### Regenerate controls (V1)
+**Purpose:** Allow granular regeneration of individual artifacts.
+**Layout:**
+- Sidebar buttons for setting, cast, clues, outline, prose.
+**Feedback:**
+- Success message on completion; error message on failure.
+- Regenerate actions refresh the current artifact previews.
 
 ## Interaction feedback
 - Buttons: hover (bg + shadow), active (pressed), focus-visible (ring)

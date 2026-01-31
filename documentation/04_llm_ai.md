@@ -51,12 +51,14 @@
 **Input:** outline + style capture
 **Output:** prose chapters
 **Validation:** must not introduce new facts; style must not copy copyrighted text
+**Current build:** deterministic placeholder prose (multi-paragraph per chapter) is generated from outline and cast (no LLM yet).
 
 ### 8) Game pack generation (optional)
 **Purpose:** Create suspect cards and host packet.
 **Input:** CML + cast
 **Output:** printable assets
 **Validation:** all facts consistent with CML
+**Current build:** deterministic placeholder game pack is generated from CML and cast (no LLM yet).
 
 ### 9) Sample CML analysis (optional)
 **Purpose:** Summarize or normalize examples for seeds and regression tests.

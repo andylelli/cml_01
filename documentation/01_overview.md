@@ -39,6 +39,10 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ### Output stage
 - Default UI shows friendly projections derived from CML.
 - CML exists internally and is visible only in Advanced/Expert modes.
+- Prose and game pack outputs are currently deterministic placeholders derived from outline/CML and cast.
+- Play mode allows chapter-based clue reveal in the UI.
+- Community templates are listed from examples/ for structural inspiration.
+- Printable party kit PDF is available from the game pack panel.
 
 ## Seed CML library usage (structural only)
 - Seeds teach classic crime structure, not story content.

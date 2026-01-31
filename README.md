@@ -40,8 +40,13 @@ Never reverse this order.
 - Editors and validators checking logic integrity
 
 ## Status
+
 Phase 2 complete (Postgres-backed persistence, validation endpoints, artifact previews, run events).
 Phase 3 complete (deterministic pipeline execution, step validation artifacts, run events, novelty audit placeholder).
+Phase 4: Export packaging implemented (UI ExportPanel and backend export API endpoint allow users to download selected artifacts as a JSON file).
+Phase 5: Prose and game pack artifacts are generated deterministically (placeholders) and available via the API.
+V1 complete: clue list with red herrings, fair-play report, simple suspect cards, and granular regenerate controls are now visible in the UI.
+V2 complete: play mode chapter reveal, printable party kit PDF download, and community templates are available.
 
 Pull requests welcome.
 

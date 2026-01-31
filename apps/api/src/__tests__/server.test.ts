@@ -1,3 +1,23 @@
+describe("Export API", () => {
+  it("exports selected artifacts as a JSON file", async () => {
+    // Create project and run pipeline to generate artifacts
+    const created = await request(app).post("/api/projects").send({ name: "Export Project" });
+    await request(app).post(`/api/projects/${created.body.id}/specs`).send({ decade: "1930s", locationPreset: "CountryHouse" });
+    await request(app).post(`/api/projects/${created.body.id}/run`);
+    // Wait for pipeline to finish (simulate with delay)
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Export setting and cast artifacts
+    const response = await request(app)
+      .post(`/api/projects/${created.body.id}/export`)
+      .send({ artifactTypes: ["setting", "cast"] });
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/application\/json/);
+    expect(response.headers["content-disposition"]).toMatch(/attachment/);
+    const exported = response.body;
+    expect(exported.setting).toBeDefined();
+    expect(exported.cast).toBeDefined();
+  });
+});
 import request from "supertest";
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { createServer } from "../server.js";
@@ -59,6 +79,12 @@ describe("API server (phase 1)", () => {
     const cast = await request(app).get(`/api/projects/${created.body.id}/cast/latest`);
     expect(cast.status).toBe(200);
 
+    const gamePack = await request(app).get(`/api/projects/${created.body.id}/game-pack/latest`);
+    expect(gamePack.status).toBe(200);
+
+    const fairPlay = await request(app).get(`/api/projects/${created.body.id}/fair-play/latest`);
+    expect(fairPlay.status).toBe(200);
+
     const settingValidation = await request(app).get(
       `/api/projects/${created.body.id}/setting/validation/latest`,
     );
@@ -79,6 +105,43 @@ describe("API server (phase 1)", () => {
 
     const idle = await request(app).get(`/api/projects/${created.body.id}/status`);
     expect(idle.body.status).toBe("idle");
+  });
+
+  it("regenerates a single artifact scope", async () => {
+    const created = await request(app).post("/api/projects").send({ name: "Regen Project" });
+    await request(app).post(`/api/projects/${created.body.id}/specs`).send({ decade: "1930s" });
+    await request(app).post(`/api/projects/${created.body.id}/run`);
+
+    const regen = await request(app)
+      .post(`/api/projects/${created.body.id}/regenerate`)
+      .send({ scope: "clues" });
+    expect(regen.status).toBe(200);
+
+    const clues = await request(app).get(`/api/projects/${created.body.id}/clues/latest`);
+    expect(clues.status).toBe(200);
+    expect(clues.body.payload?.items?.length).toBeGreaterThan(0);
+    expect(clues.body.payload?.items?.[0]?.revealChapter).toBeDefined();
+  });
+
+  it("serves samples list and content", async () => {
+    const list = await request(app).get("/api/samples");
+    expect(list.status).toBe(200);
+    expect(list.body.samples?.length).toBeGreaterThan(0);
+
+    const first = list.body.samples[0];
+    const sample = await request(app).get(`/api/samples/${first.id}`);
+    expect(sample.status).toBe(200);
+    expect(sample.body.content).toBeTruthy();
+  });
+
+  it("downloads game pack PDF", async () => {
+    const created = await request(app).post("/api/projects").send({ name: "PDF Project" });
+    await request(app).post(`/api/projects/${created.body.id}/specs`).send({ decade: "1930s" });
+    await request(app).post(`/api/projects/${created.body.id}/run`);
+
+    const response = await request(app).get(`/api/projects/${created.body.id}/game-pack/pdf`);
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/application\/pdf/);
   });
 
   it("blocks CML endpoint in user mode", async () => {

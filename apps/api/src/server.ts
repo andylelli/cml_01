@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import { promises as fs } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
 
@@ -30,6 +33,75 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
     error: "CML access requires Advanced or Expert mode",
     mode: req.cmlMode ?? "user",
   });
+};
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const examplesDir = path.resolve(__dirname, "../../..", "examples");
+
+const listSampleFiles = async () => {
+  const files = await fs.readdir(examplesDir);
+  return files.filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
+};
+
+const getSampleId = (filename: string) => filename.replace(/\.(yaml|yml)$/i, "");
+
+const toTitle = (id: string) =>
+  id
+    .replace(/_cml2$/i, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
+const escapePdfText = (value: string) => value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+
+const buildGamePackPdf = (gamePack: Record<string, unknown>) => {
+  const title = (gamePack.title as string) ?? "Mystery Game Pack";
+  const suspects = Array.isArray(gamePack.suspects) ? (gamePack.suspects as string[]) : [];
+  const hostPacket = (gamePack.hostPacket as Record<string, unknown>) ?? {};
+  const materials = Array.isArray(gamePack.materials) ? (gamePack.materials as string[]) : [];
+
+  const lines = [
+    title,
+    "",
+    "Suspects",
+    ...(suspects.length ? suspects.map((suspect) => `• ${suspect}`) : ["• No suspects available yet."]),
+    "",
+    "Host Packet",
+    (hostPacket.summary as string) ?? "Host packet summary pending.",
+    `Culprit count: ${hostPacket.culpritCount ?? 1}`,
+    "",
+    "Materials",
+    ...(materials.length ? materials.map((material) => `• ${material}`) : ["• No materials listed yet."]),
+  ];
+
+  const contentLines = lines.map((line) => `(${escapePdfText(line)}) Tj T*`).join("\n");
+  const stream = `BT\n/F1 12 Tf\n72 720 Td\n14 TL\n${contentLines}\nET`;
+
+  const objects = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj",
+    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj",
+    `4 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj`,
+    "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj",
+  ];
+
+  let offset = 0;
+  const xref: string[] = ["0000000000 65535 f "];
+  const body = objects
+    .map((obj) => {
+      const entry = obj + "\n";
+      const current = offset;
+      offset += entry.length;
+      xref.push(`${String(current).padStart(10, "0")} 00000 n `);
+      return entry;
+    })
+    .join("");
+
+  const header = "%PDF-1.4\n";
+  const xrefStart = header.length + body.length;
+  const xrefTable = `xref\n0 ${xref.length}\n${xref.join("\n")}\n`;
+  const trailer = `trailer\n<< /Size ${xref.length} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+  const pdf = header + body + xrefTable + trailer;
+  return Buffer.from(pdf, "utf-8");
 };
 
 const deriveSetting = (spec?: Record<string, unknown>) => ({
@@ -139,12 +211,56 @@ const deriveCml = (spec?: Record<string, unknown>) => ({
   },
 });
 
-const deriveClues = (spec?: Record<string, unknown>) => ({
-  status: "pending",
-  density: (spec?.clueDensity as string) ?? "medium",
-  axis: (spec?.primaryAxis as string) ?? "temporal",
-  summary: "Deterministic placeholder clues derived from spec.",
-});
+const deriveClues = (spec?: Record<string, unknown>) => {
+  const density = (spec?.clueDensity as string) ?? "medium";
+  const axis = (spec?.primaryAxis as string) ?? "temporal";
+  const baseClues = [
+    {
+      id: "clue-1",
+      category: "time",
+      text: "The clock in the library stopped at 8:40.",
+      pointsTo: "timeline discrepancy",
+      redHerring: false,
+      revealChapter: 1,
+    },
+    {
+      id: "clue-2",
+      category: "access",
+      text: "Only the kitchen keyring was missing overnight.",
+      pointsTo: "restricted access",
+      redHerring: false,
+      revealChapter: 2,
+    },
+    {
+      id: "clue-3",
+      category: "object",
+      text: "A teacup carries a bitter almond scent.",
+      pointsTo: "poison delivery",
+      redHerring: false,
+      revealChapter: 2,
+    },
+  ];
+  const redHerrings = [
+    {
+      id: "red-1",
+      category: "testimony",
+      text: "A neighbor reported a shadow by the greenhouse.",
+      pointsTo: "garden distraction",
+      redHerring: true,
+      revealChapter: 1,
+    },
+  ];
+
+  const items = density === "sparse" ? baseClues : density === "rich" ? [...baseClues, ...redHerrings] : [...baseClues, ...redHerrings];
+
+  return {
+    status: "ready",
+    density,
+    axis,
+    summary: "Deterministic placeholder clues derived from spec.",
+    items,
+  };
+};
 
 const deriveOutline = (spec?: Record<string, unknown>) => ({
   status: "pending",
@@ -152,6 +268,107 @@ const deriveOutline = (spec?: Record<string, unknown>) => ({
   chapters: spec?.chapters ?? null,
   summary: "Deterministic placeholder outline derived from spec.",
 });
+
+const deriveFairPlayReport = (cml?: Record<string, unknown>, clues?: Record<string, unknown>) => {
+  const fairPlay = (cml?.CASE as Record<string, unknown>)?.fair_play as Record<string, unknown> | undefined;
+  const clueItems = (clues?.items as Array<Record<string, unknown>> | undefined) ?? [];
+  const hasRedHerrings = clueItems.some((item) => item.redHerring === true);
+
+  return {
+    status: "ready",
+    summary: "Deterministic placeholder fair-play report derived from CML and clues.",
+    checks: [
+      {
+        id: "all_clues_visible",
+        label: "All clues are visible",
+        status: fairPlay?.all_clues_visible ? "pass" : "warn",
+      },
+      {
+        id: "no_late_information",
+        label: "No late information",
+        status: fairPlay?.no_late_information ? "pass" : "warn",
+      },
+      {
+        id: "reader_can_solve",
+        label: "Reader can solve with given clues",
+        status: fairPlay?.reader_can_solve ? "pass" : "warn",
+      },
+      {
+        id: "red_herrings_controlled",
+        label: "Red herrings are clearly flagged",
+        status: hasRedHerrings ? "pass" : "warn",
+      },
+    ],
+  };
+};
+
+const deriveProse = (
+  spec?: Record<string, unknown>,
+  outline?: Record<string, unknown>,
+  cast?: Record<string, unknown>,
+) => {
+  const outlineChapters = outline?.chapters as unknown[] | null | undefined;
+  const suspects = Array.isArray(cast?.suspects) ? (cast?.suspects as string[]) : [];
+  const chapters = Array.isArray(outlineChapters)
+    ? outlineChapters.map((chapter, index) => ({
+        title: `Chapter ${index + 1}`,
+        summary: typeof chapter === "string" ? chapter : `Chapter ${index + 1} beats derived from outline.`,
+        paragraphs: [
+          `The story advances as the investigator tracks a new thread in chapter ${index + 1}.`,
+          suspects.length
+            ? `Suspicion brushes against ${suspects[index % suspects.length]} while new details surface.`
+            : "Suspicion gathers as new details surface.",
+        ],
+      }))
+    : [
+        {
+          title: "Chapter 1",
+          summary: (outline?.summary as string) ?? "Opening beats derived from outline.",
+          paragraphs: [
+            "The case opens with a quiet routine shattered by a startling discovery.",
+            suspects.length ? `Attention turns to ${suspects[0]} as the first clue emerges.` : "Attention turns as the first clue emerges.",
+          ],
+        },
+        {
+          title: "Chapter 2",
+          summary: "Investigation beats derived from outline.",
+          paragraphs: [
+            "Interviews reveal fractures in alibis and motives.",
+            suspects.length ? `A second inquiry puts ${suspects[1] ?? suspects[0]} under pressure.` : "A second inquiry puts the household under pressure.",
+          ],
+        },
+      ];
+
+  return {
+    status: "draft",
+    tone: (outline?.tone as string) ?? (spec?.tone as string) ?? "Cozy",
+    chapters,
+    cast: suspects,
+    note: "Deterministic placeholder prose derived from outline and cast.",
+  };
+};
+
+const deriveGamePack = (
+  _spec?: Record<string, unknown>,
+  cast?: Record<string, unknown>,
+  cml?: Record<string, unknown>,
+) => {
+  const caseBlock = (cml?.CASE as Record<string, unknown>) ?? {};
+  const meta = (caseBlock.meta as Record<string, unknown>) ?? {};
+  const title = (meta.title as string) ?? "Untitled Mystery";
+
+  return {
+    status: "draft",
+    title,
+    suspects: Array.isArray(cast?.suspects) ? (cast?.suspects as string[]) : [],
+    hostPacket: {
+      summary: "Deterministic placeholder host packet derived from CML and cast.",
+      culpritCount: (caseBlock.culpability as Record<string, unknown>)?.culprit_count ?? 1,
+    },
+    materials: ["suspect_cards", "host_packet", "timeline_sheet"],
+    note: "Deterministic placeholder game pack derived from CML and cast.",
+  };
+};
 
 const validateSetting = (setting: Record<string, unknown>) => ({
   valid: Boolean(setting.decade && setting.locationPreset),
@@ -166,10 +383,15 @@ const validateCast = (cast: Record<string, unknown>) => ({
       : ["Cast must include at least 3 suspects"],
 });
 
-const validateClues = (clues: Record<string, unknown>) => ({
-  valid: Boolean(clues.density && clues.axis),
-  errors: clues.density && clues.axis ? [] : ["Clues must include density and axis"],
-});
+const validateClues = (clues: Record<string, unknown>) => {
+  const hasBasics = Boolean(clues.density && clues.axis);
+  const items = (clues.items as Array<Record<string, unknown>> | undefined) ?? [];
+  const hasItems = Array.isArray(items) && items.length > 0;
+  return {
+    valid: hasBasics && hasItems,
+    errors: hasBasics && hasItems ? [] : ["Clues must include density, axis, and at least one item"],
+  };
+};
 
 const validateOutline = (outline: Record<string, unknown>) => ({
   valid: Boolean(outline.tone),
@@ -216,13 +438,22 @@ const runPipeline = async (
   await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
   await repo.addRunEvent(runId, "clues_done", "Clues generated");
 
+  const fairPlayReport = deriveFairPlayReport(cml, clues);
+  await repo.createArtifact(projectId, "fair_play_report", fairPlayReport, null);
+  await repo.addRunEvent(runId, "fair_play_report_done", "Fair-play report generated");
+
   const outline = deriveOutline(specPayload);
   await repo.createArtifact(projectId, "outline", outline, null);
   await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
   await repo.addRunEvent(runId, "outline_done", "Outline generated");
 
-  await repo.createArtifact(projectId, "prose", { status: "pending" }, null);
-  await repo.addRunEvent(runId, "prose_pending", "Prose pending" );
+  const prose = deriveProse(specPayload, outline, cast);
+  await repo.createArtifact(projectId, "prose", prose, null);
+  await repo.addRunEvent(runId, "prose_done", "Prose generated");
+
+  const gamePack = deriveGamePack(specPayload, cast, cml);
+  await repo.createArtifact(projectId, "game_pack", gamePack, null);
+  await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
 };
 
 export const createServer = () => {
@@ -256,6 +487,112 @@ export const createServer = () => {
         res.json(project);
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
+  });
+
+  app.post("/api/projects/:id/regenerate", express.json(), async (req, res) => {
+    const scope = typeof req.body?.scope === "string" ? req.body.scope : "";
+    const allowedScopes = new Set([
+      "setting",
+      "cast",
+      "cml",
+      "clues",
+      "outline",
+      "prose",
+      "game_pack",
+      "fair_play_report",
+    ]);
+    if (!allowedScopes.has(scope)) {
+      res.status(400).json({ error: "scope must be one of setting, cast, cml, clues, outline, prose, game_pack, fair_play_report" });
+      return;
+    }
+
+    try {
+      const repo = await repoPromise;
+      const spec = await repo.getLatestSpec(req.params.id);
+      if (!spec) {
+        res.status(404).json({ error: "Spec not found" });
+        return;
+      }
+
+      const latestRun = await repo.getLatestRun(req.params.id).catch(() => null);
+      const runId = latestRun?.id ?? null;
+
+      if (scope === "setting") {
+        const setting = deriveSetting(spec.spec as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "setting", setting, spec.id);
+        await repo.createArtifact(req.params.id, "setting_validation", validateSetting(setting), spec.id);
+      }
+
+      if (scope === "cast") {
+        const cast = deriveCast(spec.spec as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "cast", cast, spec.id);
+        await repo.createArtifact(req.params.id, "cast_validation", validateCast(cast), spec.id);
+      }
+
+      if (scope === "cml") {
+        const cml = deriveCml(spec.spec as Record<string, unknown>);
+        const cmlValidation = validateCml(cml);
+        await repo.createArtifact(req.params.id, "cml", cml, spec.id);
+        await repo.createArtifact(req.params.id, "cml_validation", cmlValidation, spec.id);
+        await repo.createArtifact(req.params.id, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, spec.id);
+      }
+
+      if (scope === "clues") {
+        const clues = deriveClues(spec.spec as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "clues", clues, spec.id);
+        await repo.createArtifact(req.params.id, "clues_validation", validateClues(clues), spec.id);
+        const cml = await repo.getLatestArtifact(req.params.id, "cml");
+        const fairPlayReport = deriveFairPlayReport((cml?.payload as Record<string, unknown>) ?? {}, clues);
+        await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
+      }
+
+      if (scope === "outline") {
+        const outline = deriveOutline(spec.spec as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "outline", outline, spec.id);
+        await repo.createArtifact(req.params.id, "outline_validation", validateOutline(outline), spec.id);
+      }
+
+      if (scope === "prose") {
+        const outline = await repo.getLatestArtifact(req.params.id, "outline");
+        const cast = await repo.getLatestArtifact(req.params.id, "cast");
+        if (!outline || !cast) {
+          res.status(409).json({ error: "Outline and cast artifacts required for prose regeneration" });
+          return;
+        }
+        const prose = deriveProse(spec.spec as Record<string, unknown>, outline.payload as Record<string, unknown>, cast.payload as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "prose", prose, spec.id);
+      }
+
+      if (scope === "game_pack") {
+        const cml = await repo.getLatestArtifact(req.params.id, "cml");
+        const cast = await repo.getLatestArtifact(req.params.id, "cast");
+        if (!cml || !cast) {
+          res.status(409).json({ error: "CML and cast artifacts required for game pack regeneration" });
+          return;
+        }
+        const gamePack = deriveGamePack(spec.spec as Record<string, unknown>, cast.payload as Record<string, unknown>, cml.payload as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "game_pack", gamePack, spec.id);
+      }
+
+      if (scope === "fair_play_report") {
+        const cml = await repo.getLatestArtifact(req.params.id, "cml");
+        const clues = await repo.getLatestArtifact(req.params.id, "clues");
+        if (!cml || !clues) {
+          res.status(409).json({ error: "CML and clues artifacts required for fair-play report regeneration" });
+          return;
+        }
+        const fairPlayReport = deriveFairPlayReport(cml.payload as Record<string, unknown>, clues.payload as Record<string, unknown>);
+        await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
+      }
+
+      if (runId) {
+        await repo.addRunEvent(runId, `${scope}_regenerated`, `${scope} regenerated`);
+      }
+
+      res.status(200).json({ status: "ok", scope });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to regenerate artifact" });
+    }
   });
 
   app.post("/api/projects/:id/specs", (_req, res) => {
@@ -548,12 +885,103 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch prose artifact" }));
   });
 
-  app.get("/api/samples", (_req, res) => {
-    res.status(501).json({ error: "Not implemented" });
+  app.get("/api/projects/:id/fair-play/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "fair_play_report"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Fair-play report artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch fair-play report artifact" }));
   });
 
-  app.get("/api/samples/:name", (_req, res) => {
-    res.status(501).json({ error: "Not implemented" });
+  app.get("/api/projects/:id/game-pack/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "game_pack"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Game pack artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch game pack artifact" }));
+  });
+
+  app.get("/api/projects/:id/game-pack/pdf", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      const artifact = await repo.getLatestArtifact(_req.params.id, "game_pack");
+      if (!artifact) {
+        res.status(404).json({ error: "Game pack artifact not found" });
+        return;
+      }
+      const pdfBuffer = await buildGamePackPdf(artifact.payload as Record<string, unknown>);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=\"game_pack_${_req.params.id}.pdf\"`);
+      res.status(200).send(pdfBuffer);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate game pack PDF" });
+    }
+  });
+
+
+  // Export selected artifacts as a single JSON file
+  app.post("/api/projects/:id/export", express.json(), async (req, res) => {
+    const { artifactTypes } = req.body;
+    if (!Array.isArray(artifactTypes) || artifactTypes.length === 0) {
+      res.status(400).json({ error: "artifactTypes must be a non-empty array" });
+      return;
+    }
+    try {
+      const repo = await repoPromise;
+      const results = {};
+      for (const type of artifactTypes) {
+        // Only fetch known artifact types for safety
+        if (typeof type !== "string") continue;
+        const artifact = await repo.getLatestArtifact(req.params.id, type);
+        if (artifact) {
+          results[type] = artifact.payload;
+        }
+      }
+      const filename = `export_${req.params.id}_${Date.now()}.json`;
+      res.setHeader("Content-Disposition", `attachment; filename=\"${filename}\"`);
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).send(JSON.stringify(results, null, 2));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to export artifacts" });
+    }
+  });
+
+  app.get("/api/samples", async (_req, res) => {
+    try {
+      const files = await listSampleFiles();
+      const samples = files.map((file) => {
+        const id = getSampleId(file);
+        return { id, name: toTitle(id), filename: file };
+      });
+      res.json({ samples });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to list samples" });
+    }
+  });
+
+  app.get("/api/samples/:name", async (_req, res) => {
+    try {
+      const files = await listSampleFiles();
+      const match = files.find((file) => getSampleId(file) === _req.params.name || file === _req.params.name);
+      if (!match) {
+        res.status(404).json({ error: "Sample not found" });
+        return;
+      }
+      const contents = await fs.readFile(path.join(examplesDir, match), "utf-8");
+      res.json({ id: getSampleId(match), name: toTitle(getSampleId(match)), content: contents });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch sample" });
+    }
   });
 
   return app;

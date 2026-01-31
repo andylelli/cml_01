@@ -49,9 +49,11 @@ Creates outline with clue placement and discriminating test timing.
 ### Agent 7 — Prose Writer
 Produces prose constrained by CML facts. Uses style input to match tone/voice without copying copyrighted text.
 Never alters CML logic; prose is always downstream of validated CML.
+Current build: deterministic placeholder prose is generated from outline and cast (no LLM yet).
 
 ### Agent 8 — Game Pack (optional)
 Creates suspect cards, host packet, timeline sheet, and handouts.
+Current build: deterministic placeholder game pack is generated from CML and cast (no LLM yet).
 
 ## Validator gates
 - Structural integrity

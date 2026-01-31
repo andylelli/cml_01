@@ -25,4 +25,9 @@ describe("App shell (phase 1)", () => {
     await nextTick();
     expect(wrapper.text()).toContain("CML Viewer");
   });
+
+  it("shows export panel", () => {
+    const wrapper = mount(App);
+    expect(wrapper.text()).toContain("Export selected");
+  });
 });
