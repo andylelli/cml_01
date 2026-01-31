@@ -103,6 +103,7 @@ This is where you outclass generic story generators.
 - Tone: cozy / satirical / bleak / romantic undertone / comedic
 - Violence level: off-page / mild / explicit (keep within “cozy” defaults)
 - Length: short story / novella / full novel plan
+- Writing style capture: user-provided style sample or style descriptor (used only for prose)
 
 ---
 
@@ -126,6 +127,7 @@ type MysterySpec = {
     redHerringBudget: number;
   };
   outputs: { format: string[]; chapters?: number; };
+  style?: { mode: "sample"|"descriptor"; text: string; guardrails?: string[] };
 };
 ```
 
@@ -206,6 +208,7 @@ This agent is critical. It turns “AI storytelling” into “AI puzzle constru
 **Output:** prose chapters (optional)
 - never allowed to alter CML facts
 - only allowed to dramatize within constraints
+- uses `style` input to match tone/voice without copying copyrighted text
 
 ### Agent 8 — Game Pack Agent (optional)
 **Input:** CML + cast  
@@ -432,6 +435,205 @@ This gives you a system that scales and stays coherent.
 - All interactive controls keyboard navigable
 - Contrast-compliant themes
 - Spoiler-safe defaults (hidden_model collapsed by default)
+
+---
+
+## 12) Detailed implementation blueprint (structure + code)
+
+### A) Repository structure (monorepo)
+- /apps/web (Vue 3 + Vite + Vuetify)
+- /apps/api (Node/TS API + orchestrator)
+- /apps/worker (queue worker for agents)
+- /packages/cml (shared CML types, schema, validators)
+- /packages/prompts (agent prompts, versioned)
+- /packages/utils (logging, retry, rate-limit helpers)
+- /examples (sample CMLs)
+- /schema (CML 2.0 schema)
+- /validation (validation checklist)
+
+### B) Backend modules (apps/api)
+**Core services**
+- `SpecService` — create/update MysterySpec, validate input ranges
+- `CmlService` — generate, validate, store CML
+- `ClueService` — derive clues, red herrings
+- `OutlineService` — outline from CML+clues
+- `ProseService` — optional prose generation
+- `SampleCmlService` — load/parse examples from examples/
+
+**Orchestrator**
+- `Orchestrator.run(specId, steps[])`
+- Each step writes artifacts to DB with versioning and emits SSE events
+
+**Azure OpenAI client**
+- `AzureOpenAIClient` wraps all calls (model selection, retries, telemetry)
+- Supports per-agent system prompt + tool policy
+
+### C) Worker modules (apps/worker)
+- `jobs/settingJob.ts`
+- `jobs/castJob.ts`
+- `jobs/cmlJob.ts`
+- `jobs/validateCmlJob.ts`
+- `jobs/cluesJob.ts`
+- `jobs/outlineJob.ts`
+- `jobs/proseJob.ts`
+- `jobs/gamePackJob.ts`
+
+Each job reads previous artifact, calls Azure OpenAI, validates output, stores new version.
+
+### D) API surface (apps/api)
+**Projects**
+- `POST /api/projects` → create project
+- `GET /api/projects/:id` → project detail
+
+**Specs**
+- `POST /api/projects/:id/specs` → create spec version
+- `GET /api/specs/:id` → spec detail
+
+**Generate / Orchestrate**
+- `POST /api/projects/:id/run` → run pipeline steps
+- `GET /api/projects/:id/status` → current job state
+- `GET /api/projects/:id/events` → SSE progress stream
+
+**Artifacts**
+- `GET /api/projects/:id/cml/latest`
+- `GET /api/projects/:id/clues/latest`
+- `GET /api/projects/:id/outline/latest`
+- `GET /api/projects/:id/prose/latest`
+
+**Samples**
+- `GET /api/samples` → list sample CMLs from examples/
+- `GET /api/samples/:name` → load sample CML
+
+### E) Data model (Postgres)
+- `projects(id, name, created_at)`
+- `spec_versions(id, project_id, spec_json, created_at)`
+- `artifact_versions(id, project_id, type, payload_json, created_at, source_spec_id)`
+- `runs(id, project_id, status, started_at, finished_at)`
+- `run_events(id, run_id, step, message, created_at)`
+
+Artifacts types: setting, cast, cml, cml_validation, clues, outline, prose, game_pack.
+
+### F) CML validation logic (packages/cml)
+**Schema validation**
+- Parse schema/cml_2_0.schema.yaml
+- Validate output against schema before storing
+
+**Checklist validation**
+- Implement checks from validation/VALIDATION_CHECKLIST.md
+- Store results as `cml_validation` artifact
+
+**Normalization layer**
+- Map non-canonical sample fields to schema-safe values if needed
+- Log warnings when normalization occurs
+
+### G) Agent prompt contracts (packages/prompts)
+Each agent prompt must:
+- accept strict JSON input
+- produce strict JSON output matching expected artifact shape
+- include explicit “do not invent new facts” constraints
+- declare CML_VERSION = 2.0 when generating CML
+
+---
+
+## 13) Detailed UI implementation plan (Vue 3 + Vuetify 3)
+
+### A) Frontend structure (apps/web)
+- /src/views
+  - `ProjectDashboard.vue`
+  - `BuilderWizard.vue`
+  - `CmlViewer.vue`
+  - `ClueBoard.vue`
+  - `OutlineViewer.vue`
+  - `SamplesGallery.vue`
+- /src/components
+  - `SpecStepper.vue`
+  - `SettingForm.vue`
+  - `CastForm.vue`
+  - `LogicForm.vue`
+  - `OutputForm.vue`
+  - `CmlTreeView.vue`
+  - `ValidationChecklistPanel.vue`
+  - `ClueTable.vue`
+  - `OutlineTimeline.vue`
+  - `ArtifactVersionTimeline.vue`
+  - `SampleCard.vue`
+  - `SpoilerToggle.vue`
+  - `RunStatusBanner.vue`
+- /src/stores
+  - `projectStore.ts`
+  - `specStore.ts`
+  - `artifactStore.ts`
+  - `runStore.ts`
+- /src/services
+  - `api.ts` (axios client)
+  - `sse.ts` (event stream handling)
+
+### B) Form fields (spec inputs)
+**SettingForm**
+- decade (select)
+- locationPreset (select)
+- weather (select)
+- socialStructure (select)
+- institution (select)
+
+**CastForm**
+- cast size (slider)
+- detective type (select)
+- victim archetype (select)
+- suspect roles (multi-select)
+- relationshipPreset (select)
+- secretIntensity (select)
+
+**LogicForm**
+- primaryAxis (radio)
+- mechanismFamilies (multi-select)
+- fairPlay toggles (checkboxes)
+- clueDensity (select)
+- redHerringBudget (slider)
+
+**OutputForm**
+- output format (multi-select)
+- POV (select)
+- tone (select)
+- length (select)
+- chapters (number input if outline/prose selected)
+- writing style mode (radio: sample | descriptor)
+- writing style text (textarea)
+- guardrails (chips: “no archaic language”, “short sentences”, etc.)
+
+### C) Validation UX
+- Inline hints beside each field
+- Checklist summary panel (pass/warn/fail)
+- “Run pipeline” disabled only if critical schema errors
+
+### D) CML Viewer UX
+- Tree view with search
+- YAML/JSON toggle
+- Spoiler toggle hiding hidden_model + false_assumption
+- Schema errors list linked to paths
+
+### E) Clue Board UX
+- Table with category filter and quick search
+- “Red herring” tag + hide/show toggle
+- “Points-to” hidden until spoiler toggle enabled
+
+### F) Outline Viewer UX
+- Timeline/step list with clue markers
+- Warnings if discriminating test placed too early/late
+
+### G) Samples Gallery UX
+- Cards showing title/author/axis/decade
+- Load sample into builder (read-only mode or “clone to project”)
+
+### H) State management & flow
+- Create project → open BuilderWizard → save spec → run pipeline
+- SSE updates runStore and artifactStore
+- Versions shown in ArtifactVersionTimeline
+
+### I) Error handling
+- API errors show toast + inline form feedback
+- Retry buttons for failed steps
+- “Open logs” drawer for agent diagnostics
 
 ---
 
