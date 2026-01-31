@@ -1,0 +1,64 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Leavenworth Case"
+    author: "Anna Katharine Green"
+    license: "public_domain"
+    era:
+      decade: "1870s"
+      realism_constraints:
+        - "No audio recording"
+        - "Reliance on witness testimony"
+    setting:
+      location: "Private residence"
+      institution: "Household"
+    crime_class:
+      category: murder
+      subtype: "false alibi geometry"
+  surface_model:
+    narrative:
+      summary: "A man is murdered; witnesses give sincere but conflicting accounts."
+    accepted_facts:
+      - "Witnesses are honest"
+      - "Alibis appear to conflict"
+    inferred_conclusions:
+      - "Testimony cannot be reconciled"
+  hidden_model:
+    mechanism:
+      description: "Spatial perspective and timing errors create an impossible reconstruction."
+      delivery_path:
+        - "Sound and sight misinterpreted"
+    outcome:
+      result: "False crime geometry accepted as truth"
+  false_assumption:
+    statement: "Sincere eyewitness testimony produces an accurate timeline."
+    type: spatial
+    why_it_seems_reasonable: "Honesty is equated with correctness."
+    what_it_hides: "Perspective alters perception."
+  constraint_space:
+    physical:
+      laws:
+        - "Sound travels unevenly"
+        - "Sightlines are limited"
+    social:
+      trust_channels:
+        - "Eyewitness confidence"
+  inference_path:
+    steps:
+      - observation: "Accounts overlap impossibly."
+        correction: "Spatial positions must be mapped, not narrated."
+        effect: "Accepted timeline collapses."
+      - observation: "Only one layout satisfies all constraints."
+        correction: "Geometry overrules testimony."
+        effect: "True positions revealed."
+  discriminating_test:
+    method: constraint_proof
+    design: "Demonstrate impossibility of the accepted reconstruction."
+    knowledge_revealed: "Only one spatial arrangement is feasible."
+    pass_condition: "All testimony fits revised model."
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "Witnesses tell the truth; interpretation is wrong."

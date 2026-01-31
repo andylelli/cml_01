@@ -1,0 +1,79 @@
+CML_VERSION: 2.0
+CASE:
+
+  meta:
+    title: "The Second Key"
+    author: "original"
+    license: "CC-BY"
+    era:
+      decade: "1940s"
+      realism_constraints:
+        - no digital locks
+        - manual record keeping
+    setting:
+      location: "London townhouse"
+      institution: "private residence"
+    crime_class:
+      category: murder
+      subtype: "staged burglary"
+
+  surface_model:
+    narrative:
+      summary: "The victim was murdered by an intruder who stole nothing."
+    accepted_facts:
+      - The door was unlocked
+      - A neighbor saw the victim admit someone
+      - No forced entry occurred
+    inferred_conclusions:
+      - The victim trusted the killer
+      - The visitor was known to the victim
+
+  hidden_model:
+    mechanism:
+      description: "The victim admitted a person falsely believed to be someone else."
+      delivery_path:
+        - step: "Killer impersonated the victim’s brother"
+        - step: "Victim relied on voice and expectation"
+    outcome:
+      result: "Murder without forced entry"
+
+  false_assumption:
+    statement: "Being admitted means being recognized"
+    type: identity
+    why_it_seems_reasonable: "People do not open doors to strangers at night"
+    what_it_hides: "Recognition was inferred, not verified"
+
+  constraint_space:
+    time:
+      anchors: ["Neighbor’s sighting at 9:10 PM"]
+      windows: ["9:00–9:20 PM"]
+      contradictions: []
+    access:
+      actors: ["Victim", "Killer"]
+      objects: ["Front door", "Spare key"]
+      permissions: ["Family members allowed entry"]
+    physical:
+      laws: ["Voices can be mimicked"]
+      traces: ["No forced entry marks"]
+    social:
+      trust_channels: ["Familial expectation"]
+      authority_sources: []
+
+  inference_path:
+    steps:
+      - observation: "Door unlocked implies consent"
+        correction: "Consent does not imply correct identity"
+        effect: "Trust decoupled from recognition"
+
+  discriminating_test:
+    method: constraint_proof
+    design: "Demonstrate identical vocal imitation under identical conditions"
+    knowledge_revealed: "Victim relied solely on expectation"
+    pass_condition: "Imitation succeeds without visual confirmation"
+
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "All evidence supports mistaken identity without new facts"

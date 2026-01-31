@@ -1,0 +1,74 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Moonstone"
+    author: "Wilkie Collins"
+    license: "public_domain"
+    era:
+      decade: "1860s"
+      realism_constraints:
+        - "No forensic science"
+        - "Reliance on testimony and routine"
+    setting:
+      location: "English country house"
+      institution: "Private estate"
+    crime_class:
+      category: theft
+      subtype: "unwitting agent theft"
+  surface_model:
+    narrative:
+      summary: "A guarded diamond disappears from a locked bedroom overnight."
+    accepted_facts:
+      - "The room was secured"
+      - "No one admits to taking the diamond"
+    inferred_conclusions:
+      - "The thief must have acted knowingly"
+  hidden_model:
+    mechanism:
+      description: "The diamond is taken by a person acting under altered consciousness, without awareness or intent."
+      delivery_path:
+        - "Altered mental state induced"
+        - "Unconscious removal of diamond"
+    outcome:
+      result: "Diamond removed without conscious theft"
+  false_assumption:
+    statement: "A person must knowingly act to be responsible for the theft."
+    type: identity
+    why_it_seems_reasonable: "Criminal law and social norms equate guilt with intent."
+    what_it_hides: "Physical action can occur without conscious agency."
+  constraint_space:
+    time:
+      anchors:
+        - "Night of disappearance"
+      windows:
+        - "Unobserved nocturnal interval"
+    access:
+      actors:
+        - "Household members"
+      objects:
+        - "Bedroom door"
+        - "Diamond case"
+    social:
+      trust_channels:
+        - "Personal memory"
+      authority_sources:
+        - "Self-testimony"
+  inference_path:
+    steps:
+      - observation: "One suspect cannot remember the relevant interval."
+        correction: "Memory absence is evidence, not exoneration."
+        effect: "Agency separated from intent."
+      - observation: "Physical movement still occurred."
+        correction: "Action does not require awareness."
+        effect: "Unwitting agent hypothesis confirmed."
+  discriminating_test:
+    method: reenactment
+    design: "Recreate conditions producing altered consciousness."
+    knowledge_revealed: "Only one person reproduces the involuntary behavior."
+    pass_condition: "Unconscious removal is repeated."
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "All facts are present; only the assumption about intent is wrong."

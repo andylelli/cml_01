@@ -1,0 +1,56 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Mystery of the Yellow Room"
+    author: "Gaston Leroux"
+    license: "public_domain"
+    era:
+      decade: "1900s"
+      realism_constraints:
+        - "Mechanical locks only"
+    setting:
+      location: "Isolated pavilion"
+      institution: "Private residence"
+    crime_class:
+      category: assault
+      subtype: "locked-room illusion"
+  surface_model:
+    narrative:
+      summary: "A woman is attacked in a sealed room with no exits."
+    accepted_facts:
+      - "Room was locked"
+    inferred_conclusions:
+      - "Entry or escape was impossible"
+  hidden_model:
+    mechanism:
+      description: "An intermediate lock state permits exit without violating security."
+      delivery_path:
+        - "Lock manipulated into transitional state"
+    outcome:
+      result: "Escape occurs without visible breach"
+  false_assumption:
+    statement: "Locks have only two states: open or closed."
+    type: spatial
+    why_it_seems_reasonable: "Lay understanding of mechanical security."
+    what_it_hides: "Transitional mechanical states."
+  constraint_space:
+    physical:
+      laws:
+        - "Mechanical tolerances"
+        - "Non-binary lock states"
+  inference_path:
+    steps:
+      - observation: "No damage or exit visible."
+        correction: "Security states must be enumerated."
+        effect: "Intermediate state identified."
+  discriminating_test:
+    method: mechanical_demonstration
+    design: "Recreate lock state transition."
+    knowledge_revealed: "Escape without force is possible."
+    pass_condition: "Room integrity preserved."
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "Locks behave mechanically, not narratively."

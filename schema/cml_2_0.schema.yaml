@@ -1,0 +1,152 @@
+CML_VERSION:
+  type: number
+  required: true
+  allowed: [2.0]
+
+CASE:
+  required: true
+  type: object
+  fields:
+
+    meta:
+      required: true
+      type: object
+      fields:
+        title: { type: string, required: true }
+        author: { type: string, required: true }
+        license: { type: string, required: true }
+        era:
+          type: object
+          required: true
+          fields:
+            decade:
+              type: string
+              required: true
+            realism_constraints:
+              type: array
+              items: string
+        setting:
+          type: object
+          required: true
+          fields:
+            location: { type: string, required: true }
+            institution: { type: string, required: true }
+        crime_class:
+          type: object
+          required: true
+          fields:
+            category:
+              type: string
+              allowed: [murder, theft, disappearance, fraud]
+            subtype: { type: string, required: true }
+
+    surface_model:
+      required: true
+      type: object
+      fields:
+        narrative:
+          type: object
+          fields:
+            summary: { type: string, required: true }
+        accepted_facts:
+          type: array
+          items: string
+          required: true
+        inferred_conclusions:
+          type: array
+          items: string
+          required: true
+
+    hidden_model:
+      required: true
+      type: object
+      fields:
+        mechanism:
+          type: object
+          required: true
+          fields:
+            description: { type: string, required: true }
+            delivery_path:
+              type: array
+              items:
+                type: object
+                fields:
+                  step: { type: string, required: true }
+        outcome:
+          type: object
+          required: true
+          fields:
+            result: { type: string, required: true }
+
+    false_assumption:
+      required: true
+      type: object
+      fields:
+        statement: { type: string, required: true }
+        type:
+          type: string
+          allowed: [temporal, spatial, identity, behavioral, authority]
+        why_it_seems_reasonable: { type: string, required: true }
+        what_it_hides: { type: string, required: true }
+
+    constraint_space:
+      required: true
+      type: object
+      fields:
+        time:
+          type: object
+          fields:
+            anchors: { type: array, items: string }
+            windows: { type: array, items: string }
+            contradictions: { type: array, items: string }
+        access:
+          type: object
+          fields:
+            actors: { type: array, items: string }
+            objects: { type: array, items: string }
+            permissions: { type: array, items: string }
+        physical:
+          type: object
+          fields:
+            laws: { type: array, items: string }
+            traces: { type: array, items: string }
+        social:
+          type: object
+          fields:
+            trust_channels: { type: array, items: string }
+            authority_sources: { type: array, items: string }
+
+    inference_path:
+      required: true
+      type: object
+      fields:
+        steps:
+          type: array
+          required: true
+          items:
+            type: object
+            fields:
+              observation: { type: string, required: true }
+              correction: { type: string, required: true }
+              effect: { type: string, required: true }
+
+    discriminating_test:
+      required: true
+      type: object
+      fields:
+        method:
+          type: string
+          allowed: [reenactment, trap, constraint_proof, administrative_pressure]
+        design: { type: string, required: true }
+        knowledge_revealed: { type: string, required: true }
+        pass_condition: { type: string, required: true }
+
+    fair_play:
+      required: true
+      type: object
+      fields:
+        all_clues_visible: { type: boolean, required: true }
+        no_special_knowledge_required: { type: boolean, required: true }
+        no_late_information: { type: boolean, required: true }
+        reader_can_solve: { type: boolean, required: true }
+        explanation: { type: string, required: true }

@@ -1,0 +1,108 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Mysterious Affair at Styles"
+    author: "Agatha Christie"
+    license: "public_domain"
+    era:
+      decade: "1910s"
+      realism_constraints:
+        - "Medical evidence is limited but sufficient for timing constraints"
+        - "Household routines shape access"
+        - "Legal/estate pressure is a primary leverage"
+    setting:
+      location: "Country manor"
+      institution: "Household estate under inheritance pressure"
+    crime_class:
+      category: murder
+      subtype: "delayed-effect poisoning"
+
+  surface_model:
+    narrative:
+      summary: "A wealthy matriarch dies at night from strychnine; the household assumes poisoning occurred shortly before death within a narrow window."
+    accepted_facts:
+      - "Death occurs at night with convulsions consistent with strychnine"
+      - "Household members assert a tight timeline based on last sightings and sounds"
+      - "Focus is placed on who could access the victim near death"
+    inferred_conclusions:
+      - "Poison was administered close to the time of death"
+      - "Alibis for the late-night window are decisive"
+
+  hidden_model:
+    mechanism:
+      description: "Poison is administered earlier via a trusted medication routine; onset is delayed or mis-timed relative to witnesses’ certainty."
+      delivery_path:
+        - step: "Access is obtained to the medication/tonic channel earlier"
+        - step: "Poison is introduced in a way consistent with routine consumption"
+        - step: "Symptoms manifest later, causing observers to anchor poisoning to the time of symptoms"
+    outcome:
+      result: "Late-night alibis appear to clear the culprit because the causative act occurred earlier."
+
+  false_assumption:
+    statement: "The time of death is the same as the time of poisoning."
+    type: temporal
+    why_it_seems_reasonable: "Symptoms appear suddenly; lay observers equate onset with administration."
+    what_it_hides: "A wider earlier window where the causative act occurred through routine channels."
+
+  constraint_space:
+    time:
+      anchors:
+        - "Victim’s routine medication times"
+        - "Onset of symptoms and death"
+        - "Witness-reported movements during the night"
+      windows:
+        - "Earlier administration window via medication access"
+        - "Nighttime symptom window"
+      contradictions:
+        - "Assumed administration window conflicts with medical plausibility and access patterns"
+
+    access:
+      actors:
+        - "Those with control over or proximity to medication preparation/storage"
+        - "Those trusted to deliver or handle household health routines"
+      objects:
+        - "Medication/tonic bottle"
+        - "Measuring tools, cups, labels"
+      permissions:
+        - "Routine handling is normalized and unremarkable"
+
+    physical:
+      laws:
+        - "Effect can be temporally separated from administration depending on delivery and context"
+      traces:
+        - "Anomalies in medication handling, preparation timing, or bottle state"
+
+    social:
+      trust_channels:
+        - "Witness certainty about time-of-poisoning"
+        - "Household assumptions about routine safety"
+      authority_sources:
+        - "Initial doctor/police narrative anchored to symptom timing"
+
+  inference_path:
+    steps:
+      - observation: "Everyone argues about access near death; certainty is high but based on assumption."
+        correction: "Separate symptom onset from administration time."
+        effect: "Alibis tied to the late window lose decisiveness."
+      - observation: "Medication routine creates earlier access points not treated as suspicious."
+        correction: "Treat routine channels as prime delivery paths."
+        effect: "Earlier window becomes the true opportunity window."
+      - observation: "Only some suspects had unremarked access to medication preparation/storage."
+        correction: "Filter by access to the routine channel, not by proximity at death."
+        effect: "Suspect set collapses to those with early access."
+      - observation: "A beneficiary exists for preserving the false late-night timeline."
+        correction: "Use incentive to maintain the mistaken model as behavioral evidence."
+        effect: "Culprit is identified through contradictions under pressure."
+
+  discriminating_test:
+    method: administrative_pressure
+    design: "Apply legal/estate pressure that forces precise accounting of medication handling and timing; observe who contradicts themselves when the administration window is moved earlier."
+    knowledge_revealed: "Only the culprit knows the true administration pathway and must defend the false timeline."
+    pass_condition: "A suspect produces a contradiction that only arises if they are protecting the earlier administration act."
+
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "The reader can solve by separating symptom onset from administration time and focusing on the routine medication access channel; the key is rejecting time-of-death-as-time-of-poisoning."
