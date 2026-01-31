@@ -444,25 +444,25 @@ This gives you a system that scales and stays coherent.
 
 ```mermaid
 flowchart TD
-  U["User Inputs<br/>(Setting/Cast/Logic/Output/Style)"] --> S[MysterySpec]
-  S --> CML[CML 2.0 Draft]
-  CML --> V["Validator<br/>(Schema + Checklist)"]
-  V -->|Pass| CL[Clues & Red Herrings]
+  U["User Inputs<br/>Setting Cast Logic Output Style"] --> S[MysterySpec]
+  S --> CML["CML 2 0 Draft"]
+  CML --> V["Validator<br/>Schema and Checklist"]
+  V -->|Pass| CL["Clues and Red Herrings"]
   V -->|Fail| CML
   CL --> O[Outline]
-  O --> P["Prose (optional)"]
+  O --> P["Prose optional"]
   CML --> UI["CML Viewer"]
   CL --> UI
   O --> UI
   P --> UI
-  UI --> E["Exports/Play Kit"]
+  UI --> E["Exports and Play Kit"]
 ```
 
 ### B) Technical architecture
 
 ```mermaid
 flowchart LR
-  subgraph Web[Vue 3 + Vuetify UI]
+  subgraph Web["Vue 3 and Vuetify UI"]
     W1[Builder Wizard]
     W2[CML Viewer]
     W3[Clue Board]
@@ -470,7 +470,7 @@ flowchart LR
     W5[Samples Gallery]
   end
 
-  subgraph API[Node/TS API]
+  subgraph API["Node TS API"]
     A1[SpecService]
     A2[CmlService]
     A3[ClueService]
@@ -489,15 +489,15 @@ flowchart LR
     J7[Prose Job]
   end
 
-  subgraph Shared[Shared Packages]
-    P1[CML Schema + Validators]
+  subgraph Shared["Shared Packages"]
+    P1["CML Schema and Validators"]
     P2[Prompt Library]
     P3[Azure OpenAI Client]
   end
 
   subgraph Storage[Storage]
     DB[(Postgres)]
-    FS[(examples/ + schema/)]
+    FS[(examples and schema)]
   end
 
   W1 --> A1
