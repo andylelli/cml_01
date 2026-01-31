@@ -60,3 +60,7 @@ Recommended environment variables:
 Notes:
 - Migrations/schema setup are handled by the backend service once implemented.
 - The database is required for projects, specs, artifacts, and run history.
+
+## Local startup (Windows)
+- Run start-app.bat to install dependencies, build packages, and start API/worker/web.
+- If starting manually, build @cml/cml first (`npm run -w @cml/cml build`) before running @cml/api dev.

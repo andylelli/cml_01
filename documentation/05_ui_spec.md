@@ -16,6 +16,8 @@
 - App shell: left nav + top bar + main content
 - Right drawer: validation status, last run (CML hidden by default)
 - Responsive: single-column wizard on small screens
+ - Sidebar navigation switches main content views (Dashboard, Builder, Clues, Outline, Samples, CML Viewer).
+- Active view header reflects the current selection.
 
 ## Design tokens (Tailwind)
 - Typography: `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-2xl`

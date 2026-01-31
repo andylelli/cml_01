@@ -3,19 +3,22 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@cml/cml": "workspace:*",
+    "@cml/cml": "file:../../packages/cml",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "pg": "^8.13.1"
   },
   "scripts": {
+    "prebuild": "npm run -w @cml/cml build",
     "build": "tsc -p tsconfig.json",
+    "predev": "npm run -w @cml/cml build && npm run build",
     "dev": "node dist/index.js",
     "test": "vitest run"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/pg": "^8.10.9",
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
     "vitest": "^2.1.5"

@@ -23,8 +23,11 @@ const withMode = (req: ModeRequest, _res: ModeResponse, next: ModeNext) => {
   next();
 };
 
+const isAllowedCmlMode = (mode?: CmlMode): mode is "advanced" | "expert" =>
+  mode === "advanced" || mode === "expert";
+
 const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) => {
-  if (req.cmlMode && ALLOWED_CML_MODES.has(req.cmlMode)) {
+  if (isAllowedCmlMode(req.cmlMode) && ALLOWED_CML_MODES.has(req.cmlMode)) {
     next();
     return;
   }
@@ -938,7 +941,7 @@ export const createServer = () => {
     }
     try {
       const repo = await repoPromise;
-      const results = {};
+      const results: Record<string, unknown> = {};
       for (const type of artifactTypes) {
         // Only fetch known artifact types for safety
         if (typeof type !== "string") continue;

@@ -30,14 +30,49 @@ import {
 import { subscribeToRunEvents } from "./services/sse";
 
 type Mode = "user" | "advanced" | "expert";
+type View = "dashboard" | "builder" | "clues" | "outline" | "samples" | "cml";
 
 const mode = ref<Mode>("user");
+const currentView = ref<View>("dashboard");
 
 const isAdvanced = computed(() => mode.value === "advanced" || mode.value === "expert");
 const isExpert = computed(() => mode.value === "expert");
 
+const advancedChecked = computed({
+  get: () => isAdvanced.value,
+  set: (checked: boolean) => handleAdvancedToggle(checked),
+});
+
+const expertChecked = computed({
+  get: () => isExpert.value,
+  set: (checked: boolean) => handleExpertToggle(checked),
+});
+
 const setMode = (nextMode: Mode) => {
   mode.value = nextMode;
+};
+
+const handleAdvancedToggle = (checked: boolean) => {
+  if (checked) {
+    if (mode.value !== "expert") {
+      setMode("advanced");
+    }
+    return;
+  }
+  setMode("user");
+};
+
+const handleExpertToggle = (checked: boolean) => {
+  if (checked) {
+    setMode("expert");
+    return;
+  }
+  setMode("advanced");
+};
+
+const setView = (nextView: View) => {
+  currentView.value = nextView;
+  actionMessage.value = `Viewing ${nextView}`;
 };
 
 const healthStatus = ref<"idle" | "ok" | "error">("idle");
@@ -92,6 +127,25 @@ const chapterOptions = computed(() => {
     return chapters.map((_, index) => index + 1);
   }
   return [1, 2, 3];
+});
+
+const viewLabel = computed(() => {
+  switch (currentView.value) {
+    case "dashboard":
+      return "Dashboard";
+    case "builder":
+      return "Builder";
+    case "clues":
+      return "Clue board";
+    case "outline":
+      return "Outline";
+    case "samples":
+      return "Samples";
+    case "cml":
+      return "CML Viewer";
+    default:
+      return "Dashboard";
+  }
 });
 
 const maxChapter = computed(() => chapterOptions.value[chapterOptions.value.length - 1] ?? 1);
@@ -330,24 +384,46 @@ onBeforeUnmount(() => {
       <aside class="hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 md:flex">
         <div class="text-lg font-semibold">CML Whodunit Builder</div>
         <nav class="mt-6 space-y-1 text-sm">
-          <button class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100">
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('dashboard')"
+          >
             Dashboard
           </button>
-          <button class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100">
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'builder' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('builder')"
+          >
             Builder
           </button>
-          <button class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100">
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'clues' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('clues')"
+          >
             Clues
           </button>
-          <button class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100">
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'outline' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('outline')"
+          >
             Outline
           </button>
-          <button class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100">
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'samples' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('samples')"
+          >
             Samples
           </button>
           <button
             v-if="isAdvanced"
-            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium text-slate-900 hover:bg-slate-100"
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'cml' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('cml')"
           >
             CML Viewer
           </button>
@@ -364,8 +440,7 @@ onBeforeUnmount(() => {
             <SwitchGroup as="div" class="flex items-center gap-2">
               <SwitchLabel class="text-slate-600">Advanced</SwitchLabel>
               <Switch
-                :checked="isAdvanced"
-                @update:checked="(checked) => setMode(checked ? 'advanced' : 'user')"
+                v-model:checked="advancedChecked"
                 class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 transition data-[checked=true]:bg-slate-900"
               >
                 <span class="sr-only">Enable Advanced mode</span>
@@ -377,8 +452,7 @@ onBeforeUnmount(() => {
             <SwitchGroup as="div" class="flex items-center gap-2">
               <SwitchLabel class="text-slate-600">Expert</SwitchLabel>
               <Switch
-                :checked="isExpert"
-                @update:checked="(checked) => setMode(checked ? 'expert' : 'user')"
+                v-model:checked="expertChecked"
                 class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 transition data-[checked=true]:bg-rose-600"
               >
                 <span class="sr-only">Enable Expert mode</span>
@@ -387,12 +461,17 @@ onBeforeUnmount(() => {
                 />
               </Switch>
             </SwitchGroup>
+            <div class="ml-2 text-xs text-slate-500">Mode: {{ mode }}</div>
           </div>
         </header>
 
         <main class="flex min-h-0 flex-1 gap-6 overflow-hidden bg-slate-50 px-6 py-6">
           <section class="flex min-w-0 flex-1 flex-col gap-6 overflow-auto">
-            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
+              <span class="font-semibold text-slate-700">{{ viewLabel }}</span>
+              <span class="ml-2 text-xs text-slate-500">Use the sidebar to switch sections.</span>
+            </div>
+            <div v-if="currentView === 'dashboard' || currentView === 'builder'" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
               <div class="text-sm font-medium text-slate-500">Status</div>
               <div class="mt-2 text-2xl font-semibold">Ready to generate</div>
               <div class="mt-1 text-sm text-slate-600">
@@ -428,7 +507,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div v-if="currentView === 'dashboard' || currentView === 'builder'" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Project setup</div>
               <div class="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
@@ -453,7 +532,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div v-if="currentView === 'dashboard' || currentView === 'builder'" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Spec draft (Phase 1)</div>
               <div class="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
@@ -508,7 +587,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2">
+            <div v-if="currentView === 'dashboard'" class="grid gap-6 md:grid-cols-2">
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Setting overview</div>
                 <div class="mt-2 text-sm text-slate-600">
@@ -640,6 +719,99 @@ onBeforeUnmount(() => {
                   class="mt-3 max-h-40 overflow-auto rounded bg-slate-900/5 p-2 text-[11px] text-slate-600"
                 >{{ selectedSample.content }}</pre>
               </div>
+            </div>
+
+            <div v-if="currentView === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Clue board</div>
+              <div class="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                <div>{{ cluesData?.items?.length ? `${cluesData.items.length} clues` : "No clues generated yet" }}</div>
+                <div class="flex items-center gap-3">
+                  <label class="flex items-center gap-2">
+                    <input v-model="playModeEnabled" type="checkbox" />
+                    Play mode
+                  </label>
+                  <label v-if="playModeEnabled" class="flex items-center gap-2">
+                    <span>Chapter</span>
+                    <select v-model.number="currentChapter" class="rounded border border-slate-200 px-2 py-1">
+                      <option v-for="chapter in chapterOptions" :key="chapter" :value="chapter">
+                        {{ chapter }}
+                      </option>
+                    </select>
+                  </label>
+                  <div v-if="playModeEnabled" class="flex items-center gap-2">
+                    <button
+                      class="rounded border border-slate-200 px-2 py-1 text-[11px]"
+                      :disabled="currentChapter <= 1"
+                      @click="prevChapter"
+                    >
+                      Prev
+                    </button>
+                    <button
+                      class="rounded border border-slate-200 px-2 py-1 text-[11px]"
+                      :disabled="currentChapter >= maxChapter"
+                      @click="nextChapter"
+                    >
+                      Next
+                    </button>
+                    <span class="text-[11px] text-slate-400">{{ currentChapter }} / {{ maxChapter }}</span>
+                  </div>
+                  <label class="flex items-center gap-2">
+                    <input v-model="showRedHerrings" type="checkbox" />
+                    Show red herrings
+                  </label>
+                </div>
+              </div>
+              <div v-if="filteredClues.length" class="mt-3 space-y-2 text-sm text-slate-700">
+                <div
+                  v-for="clue in filteredClues"
+                  :key="clue.id"
+                  class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+                >
+                  <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span class="uppercase">{{ clue.category }}</span>
+                    <span v-if="clue.redHerring" class="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                      Red herring
+                    </span>
+                  </div>
+                  <div class="mt-1 text-sm font-medium text-slate-700">{{ clue.text }}</div>
+                  <div class="mt-1 text-[11px] text-slate-500">
+                    Points to: {{ clue.pointsTo }} · Reveal: Chapter {{ clue.revealChapter ?? 1 }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="currentView === 'outline'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Outline</div>
+              <div class="mt-2 text-sm text-slate-600">
+                {{ outlineArtifact ? "Outline placeholder stored" : "Outline will appear after validation" }}
+              </div>
+            </div>
+
+            <div v-if="currentView === 'samples'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Community templates</div>
+              <div v-if="sampleError" class="mt-2 text-xs text-rose-600">{{ sampleError }}</div>
+              <div v-else class="mt-3 grid gap-2 text-xs text-slate-600">
+                <button
+                  v-for="sample in samples"
+                  :key="sample.id"
+                  class="rounded-md border border-slate-200 px-3 py-2 text-left hover:bg-slate-50"
+                  @click="handleSampleSelect(sample.id)"
+                >
+                  {{ sample.name }}
+                </button>
+              </div>
+              <pre
+                v-if="selectedSample"
+                class="mt-3 max-h-40 overflow-auto rounded bg-slate-900/5 p-2 text-[11px] text-slate-600"
+              >{{ selectedSample.content }}</pre>
+            </div>
+
+            <div v-if="currentView === 'cml'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">CML preview</div>
+              <pre class="mt-2 max-h-96 overflow-auto rounded bg-slate-900/5 p-2 text-xs text-slate-700">
+{{ cmlArtifact ?? "No CML available" }}
+              </pre>
             </div>
           </section>
 

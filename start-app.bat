@@ -7,6 +7,11 @@ if not exist node_modules (
   call npm install
 )
 
+if not exist packages\cml\dist (
+  echo Building CML package...
+  call npm run -w @cml/cml build
+)
+
 if not exist apps\api\dist (
   echo Building API...
   call npm run -w @cml/api build
