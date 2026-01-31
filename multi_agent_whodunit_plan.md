@@ -444,11 +444,9 @@ This gives you a system that scales and stays coherent.
 
 ```mermaid
 flowchart TD
-  U[User Inputs
-  (Setting/Cast/Logic/Output/Style)] --> S[MysterySpec]
+  U["User Inputs<br/>(Setting/Cast/Logic/Output/Style)"] --> S[MysterySpec]
   S --> CML[CML 2.0 Draft]
-  CML --> V[Validator
-  (Schema + Checklist)]
+  CML --> V["Validator<br/>(Schema + Checklist)"]
   V -->|Pass| CL[Clues & Red Herrings]
   V -->|Fail| CML
   CL --> O[Outline]
