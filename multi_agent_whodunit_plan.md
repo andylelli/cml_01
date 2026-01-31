@@ -438,6 +438,87 @@ This gives you a system that scales and stays coherent.
 
 ---
 
+## 11.5) Diagrams (conceptual + technical)
+
+### A) Conceptual flow (CML-first)
+
+```mermaid
+flowchart TD
+  U[User Inputs
+  (Setting/Cast/Logic/Output/Style)] --> S[MysterySpec]
+  S --> CML[CML 2.0 Draft]
+  CML --> V[Validator
+  (Schema + Checklist)]
+  V -->|Pass| CL[Clues & Red Herrings]
+  V -->|Fail| CML
+  CL --> O[Outline]
+  O --> P[Prose (optional)]
+  CML --> UI[CML Viewer]
+  CL --> UI
+  O --> UI
+  P --> UI
+  UI --> E[Exports/Play Kit]
+```
+
+### B) Technical architecture
+
+```mermaid
+flowchart LR
+  subgraph Web[Vue 3 + Vuetify UI]
+    W1[Builder Wizard]
+    W2[CML Viewer]
+    W3[Clue Board]
+    W4[Outline Viewer]
+    W5[Samples Gallery]
+  end
+
+  subgraph API[Node/TS API]
+    A1[SpecService]
+    A2[CmlService]
+    A3[ClueService]
+    A4[OutlineService]
+    A5[Run Orchestrator]
+    A6[SampleCmlService]
+  end
+
+  subgraph Worker[Queue Worker]
+    J1[Setting Job]
+    J2[Cast Job]
+    J3[CML Job]
+    J4[Validate Job]
+    J5[Clues Job]
+    J6[Outline Job]
+    J7[Prose Job]
+  end
+
+  subgraph Shared[Shared Packages]
+    P1[CML Schema + Validators]
+    P2[Prompt Library]
+    P3[Azure OpenAI Client]
+  end
+
+  subgraph Storage[Storage]
+    DB[(Postgres)]
+    FS[(examples/ + schema/)]
+  end
+
+  W1 --> A1
+  W2 --> A2
+  W3 --> A3
+  W4 --> A4
+  W5 --> A6
+  A5 --> Worker
+  Worker --> P3
+  API --> DB
+  A6 --> FS
+  Worker --> P1
+  Worker --> DB
+  API --> P1
+  API --> P2
+```
+
+---
+
 ## 12) Detailed implementation blueprint (structure + code)
 
 ### A) Repository structure (monorepo)
