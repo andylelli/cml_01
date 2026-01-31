@@ -450,12 +450,12 @@ flowchart TD
   V -->|Pass| CL[Clues & Red Herrings]
   V -->|Fail| CML
   CL --> O[Outline]
-  O --> P[Prose (optional)]
-  CML --> UI[CML Viewer]
+  O --> P["Prose (optional)"]
+  CML --> UI["CML Viewer"]
   CL --> UI
   O --> UI
   P --> UI
-  UI --> E[Exports/Play Kit]
+  UI --> E["Exports/Play Kit"]
 ```
 
 ### B) Technical architecture
