@@ -3,6 +3,11 @@
  */
 
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
+export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
+export { buildCluePrompt, extractClues } from "./agent5-clues.js";
+export { buildFairPlayPrompt, auditFairPlay } from "./agent6-fairplay.js";
+export { buildNarrativePrompt, formatNarrative } from "./agent7-narrative.js";
+export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
 
 export type {
   PromptMessages,
@@ -10,6 +15,21 @@ export type {
   CMLGenerationResult,
   SeedPattern,
 } from "./types.js";
+
+// Agent 4 types
+export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";
+
+// Agent 5 types
+export type { ClueExtractionInputs, Clue, RedHerring, ClueDistributionResult } from "./agent5-clues.js";
+
+// Agent 6 types
+export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult } from "./agent6-fairplay.js";
+
+// Agent 7 types
+export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";
+
+// Agent 8 types
+export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./agent8-novelty.js";
 
 // Shared exports for other agents (will expand in future)
 export {

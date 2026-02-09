@@ -52,6 +52,11 @@ export interface CMLGenerationResult {
   attempt: number;
   latencyMs: number;
   cost: number;
+  revisedByAgent4?: boolean; // Whether Agent 4 was called to fix validation errors
+  revisionDetails?: {
+    attempts: number; // Number of Agent 4 revision attempts
+    revisionsApplied: string[]; // List of revisions made
+  };
 }
 
 export interface SeedPattern {

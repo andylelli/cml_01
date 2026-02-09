@@ -3,10 +3,12 @@
  *
  * Generates detailed character profiles with secrets, motives, alibis, and relationships.
  * Accepts user-provided character names and creates psychologically rich suspects.
+ * 
+ * Note: Like Agent 1, this implementation does NOT use explicit logging calls to keep it simple.
+ * Agent 3 uses the logger from client, but Agents 1 & 2 follow a simpler pattern.
  */
 
-import { AzureOpenAIClient } from "@cml/llm-client";
-import { logInfo, logError, logWarn } from "./shared/logger.js";
+import type { AzureOpenAIClient } from "@cml/llm-client";
 
 // ============================================================================
 // Types
@@ -221,7 +223,6 @@ export async function designCast(
   maxAttempts = 3
 ): Promise<CastDesignResult> {
   const startTime = Date.now();
-  const agentName = "Agent2-CastDesigner";
 
   if (inputs.characterNames.length !== 6) {
     throw new Error(
@@ -235,28 +236,17 @@ export async function designCast(
       const prompt = buildCastPrompt(inputs);
 
       // 2. Call LLM
-      logInfo(agentName, "chat_request", {
-        attempt,
-        runId: inputs.runId,
-        projectId: inputs.projectId,
-        characterCount: inputs.characterNames.length,
-      });
-
-      const response = await client.chat(prompt.messages, {
+      const response = await client.chat({
+        messages: prompt.messages,
         temperature: 0.7,
         maxTokens: 4000,
-        responseFormat: { type: "json_object" },
-      });
-
-      logInfo(agentName, "chat_response", {
-        attempt,
-        tokensUsed: response.usage?.totalTokens || 0,
-        cost: response.cost,
+        jsonMode: true,
       });
 
       // 3. Parse JSON
-      const content = response.choices?.[0]?.message?.content;
+      const content = response.content;
       if (!content) {
+        console.error("Empty response - full response:", response);
         throw new Error("Empty response from LLM");
       }
 
@@ -264,16 +254,11 @@ export async function designCast(
       try {
         cast = JSON.parse(content);
       } catch (error) {
-        logError(agentName, "parse_json", error);
         if (attempt < maxAttempts) {
-          logWarn(
-            agentName,
-            "design_cast",
-            `Attempt ${attempt}/${maxAttempts} failed (JSON parse error), retrying...`
-          );
-          continue;
+          console.error(`Attempt ${attempt}: JSON parse failed`, error);
+          continue; // Retry on parse error
         } else {
-          throw new Error(`JSON parsing failed after ${maxAttempts} attempts`);
+          throw new Error(`JSON parsing failed after ${maxAttempts} attempts: ${(error as Error).message}`);
         }
       }
 
@@ -283,16 +268,12 @@ export async function designCast(
         !Array.isArray(cast.characters) ||
         cast.characters.length !== inputs.characterNames.length
       ) {
-        logWarn(
-          agentName,
-          "design_cast",
-          `Attempt ${attempt}/${maxAttempts}: Invalid character count (expected ${inputs.characterNames.length}, got ${cast.characters?.length || 0})`
-        );
+        console.error(`Attempt ${attempt}: Validation failed - expected ${inputs.characterNames.length} characters, got:`, cast.characters?.length, cast);
         if (attempt < maxAttempts) {
-          continue;
+          continue; // Retry on validation error
         } else {
           throw new Error(
-            `Character count mismatch after ${maxAttempts} attempts`
+            `Character count mismatch after ${maxAttempts} attempts (expected ${inputs.characterNames.length}, got ${cast.characters?.length || 0})`
           );
         }
       }
@@ -314,7 +295,7 @@ export async function designCast(
       ];
 
       const missingFields = cast.characters
-        .map((char, idx) => {
+        .map((char: any, idx: number) => {
           const missing = requiredFields.filter((field) => !char[field]);
           return missing.length > 0
             ? `Character ${idx + 1} (${char.name || "unknown"}): ${missing.join(", ")}`
@@ -323,42 +304,29 @@ export async function designCast(
         .filter(Boolean);
 
       if (missingFields.length > 0) {
-        logWarn(
-          agentName,
-          "design_cast",
-          `Attempt ${attempt}/${maxAttempts}: Missing fields - ${missingFields.join("; ")}`
-        );
         if (attempt < maxAttempts) {
-          continue;
+          continue; // Retry on missing fields
         } else {
           throw new Error(
-            `Missing required fields after ${maxAttempts} attempts`
+            `Missing required fields after ${maxAttempts} attempts: ${missingFields.join("; ")}`
           );
         }
       }
 
       // Success!
       const latencyMs = Date.now() - startTime;
-      logInfo(agentName, "design_cast", {
-        status: "success",
-        attempt,
-        latencyMs,
-        cost: response.cost,
-        characterCount: cast.characters.length,
-        relationshipCount: cast.relationships?.pairs?.length || 0,
-      });
 
       return {
         cast,
         attempt,
         latencyMs,
-        cost: response.cost,
+        cost: 0, // Cost tracking not available in simplified client
       };
     } catch (error) {
-      logError(agentName, "design_cast", error);
       if (attempt === maxAttempts) {
-        throw error;
+        throw error; // Re-throw on final attempt
       }
+      // Otherwise continue to next attempt
     }
   }
 

@@ -6,6 +6,8 @@
 import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { parse as parseYAML } from "yaml";
 import { validateCml } from "@cml/cml";
+import { reviseCml } from "./agent4-revision.js";
+import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
   MYSTERY_EXPERT_SYSTEM,
@@ -269,10 +271,91 @@ export async function generateCML(
         // Will retry
         continue;
       } else {
-        // Max attempts reached - would call Agent 4 (Revision) in future
-        throw new Error(
-          `CML validation failed after ${maxAttempts} attempts. Errors: ${validation.errors.join("; ")}`
-        );
+        // Max attempts reached - call Agent 4 (Revision) to fix validation errors
+        await logger.logRequest({
+          runId: inputs.runId,
+          projectId: inputs.projectId,
+          agent: "Agent3-CMLGenerator",
+          operation: "calling_agent4_revision",
+          metadata: {
+            validationErrorCount: validation.errors.length,
+            agent3Attempts: maxAttempts,
+          },
+        });
+
+        try {
+          const revisionResult = await reviseCml(client, {
+            originalPrompt: { 
+              system: prompt.system, 
+              developer: prompt.developer, 
+              user: prompt.user 
+            },
+            invalidCml: yaml.dump(cml),
+            validationErrors: validation.errors,
+            attempt: 1,
+            runId: inputs.runId,
+            projectId: inputs.projectId,
+          });
+
+          // Agent 4 succeeded! Return the fixed CML
+          const totalLatency = Date.now() - startTime;
+          const costTracker = client.getCostTracker();
+          const totalCost = costTracker.getSummary().byAgent["Agent3-CMLGenerator"] || 0;
+          const revisionCost = costTracker.getSummary().byAgent["Agent4-Revision"] || 0;
+
+          await logger.logResponse({
+            runId: inputs.runId,
+            projectId: inputs.projectId,
+            agent: "Agent3-CMLGenerator",
+            operation: "generate_cml_with_revision",
+            model: "gpt-4",
+            success: true,
+            validationStatus: "pass",
+            retryAttempt: attempt,
+            latencyMs: totalLatency,
+            metadata: {
+              agent3Attempts: maxAttempts,
+              agent4Attempts: revisionResult.attempt,
+              totalRevisions: revisionResult.revisionsApplied.length,
+              agent3Cost: totalCost,
+              agent4Cost: revisionCost,
+              totalCost: totalCost + revisionCost,
+              axis: inputs.primaryAxis,
+            },
+          });
+
+          return {
+            cml: revisionResult.cml,
+            validation: revisionResult.validation,
+            attempt: maxAttempts + revisionResult.attempt,
+            latencyMs: totalLatency,
+            cost: totalCost + revisionCost,
+            revisedByAgent4: true,
+            revisionDetails: {
+              attempts: revisionResult.attempt,
+              revisionsApplied: revisionResult.revisionsApplied,
+            },
+          };
+        } catch (revisionError) {
+          // Agent 4 also failed - throw with context
+          await logger.logError({
+            runId: inputs.runId,
+            projectId: inputs.projectId,
+            agent: "Agent3-CMLGenerator",
+            operation: "agent4_revision_failed",
+            errorMessage: (revisionError as Error).message,
+            metadata: {
+              agent3Attempts: maxAttempts,
+              originalErrors: validation.errors,
+            },
+          });
+
+          throw new Error(
+            `CML generation failed after Agent 3 (${maxAttempts} attempts) and Agent 4 revision. ` +
+            `Original errors: ${validation.errors.slice(0, 5).join("; ")}... ` +
+            `Revision error: ${(revisionError as Error).message}`
+          );
+        }
       }
     } catch (error) {
       lastError = error as Error;

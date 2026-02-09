@@ -18,6 +18,9 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
   const runId = `test-${Date.now()}`;
   const projectId = "integration-test";
 
+  // Increase timeout for Agent 4 integration (Agent 3 + Agent 4 can take 90-120s)
+  const INTEGRATION_TIMEOUT = 120000; // 2 minutes
+
   beforeAll(() => {
     // Check if Azure OpenAI is configured
     if (!process.env.AZURE_OPENAI_ENDPOINT || !process.env.AZURE_OPENAI_API_KEY) {
@@ -58,8 +61,10 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
 
   // Test each of the 5 axis types
   describe("Temporal Axis", () => {
-    it("should generate valid CML for temporal axis mystery", async () => {
-      const inputs: CMLPromptInputs = {
+    it(
+      "should generate valid CML for temporal axis mystery", 
+      async () => {
+        const inputs: CMLPromptInputs = {
         ...baseInputs,
         primaryAxis: "temporal",
       };
@@ -76,11 +81,16 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       console.log(`   Valid: ${result.validation.valid}`);
       console.log(`   Cost: $${result.cost.toFixed(4)}`);
       console.log(`   Latency: ${result.latencyMs}ms`);
+      if (result.revisedByAgent4) {
+        console.log(`   🔧 Revised by Agent 4 (${result.revisionDetails?.attempts} attempts)`);
+      }
 
       if (!result.validation.valid) {
         console.log(`   Errors: ${result.validation.errors.length}`);
       }
-    }, 60000); // 60s timeout
+    }, 
+    INTEGRATION_TIMEOUT
+  );
   });
 
   describe("Spatial Axis", () => {
