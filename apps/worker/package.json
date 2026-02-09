@@ -2,6 +2,10 @@
   "name": "@cml/worker",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./jobs/mystery-orchestrator.js": "./src/jobs/mystery-orchestrator.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "node dist/index.js",

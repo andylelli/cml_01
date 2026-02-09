@@ -2,6 +2,8 @@
  * Prompts LLM Package - Templates for all 8 agents
  */
 
+export { refineSetting } from "./agent1-setting.js";
+export { designCast } from "./agent2-cast.js";
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
 export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
 export { buildCluePrompt, extractClues } from "./agent5-clues.js";
@@ -15,6 +17,12 @@ export type {
   CMLGenerationResult,
   SeedPattern,
 } from "./types.js";
+
+// Agent 1 types
+export type { SettingRefinementInputs, SettingRefinementResult } from "./agent1-setting.js";
+
+// Agent 2 types
+export type { CastDesignInputs, Character, MotiveRelationship, CastDesignResult } from "./agent2-cast.js";
 
 // Agent 4 types
 export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";

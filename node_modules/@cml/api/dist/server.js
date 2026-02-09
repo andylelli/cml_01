@@ -211,28 +211,62 @@ const deriveCml = (spec) => ({
 const deriveClues = (spec) => {
     const density = spec?.clueDensity ?? "medium";
     const axis = spec?.primaryAxis ?? "temporal";
+    const decade = spec?.decade ?? "1930s";
+    const location = spec?.locationPreset ?? "CountryHouse";
+    const cast = deriveCast(spec);
+    const firstSuspect = cast.suspects[0] ?? "the suspect";
+    const secondSuspect = cast.suspects[1] ?? "another guest";
+    // Generate axis-specific clues that vary by project settings
+    const axisClues = {
+        temporal: {
+            category: "time",
+            text: `A clock was stopped at ${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}.`,
+            pointsTo: "timeline discrepancy",
+        },
+        spatial: {
+            category: "access",
+            text: `Only ${firstSuspect} had access to the ${location === "CountryHouse" ? "library" : location === "SeasideHotel" ? "suite" : "restricted area"}.`,
+            pointsTo: "restricted access",
+        },
+        identity: {
+            category: "testimony",
+            text: `${secondSuspect} was seen in two places at once according to witness statements.`,
+            pointsTo: "identity confusion",
+        },
+        behavioral: {
+            category: "behavior",
+            text: `${firstSuspect} exhibited unusual nervous behavior when questioned about the evening.`,
+            pointsTo: "suspicious behavior",
+        },
+        authority: {
+            category: "circumstantial",
+            text: `A forged ${decade === "1930s" ? "telegram" : decade === "1940s" ? "letter" : "document"} was found claiming official authority.`,
+            pointsTo: "authority misuse",
+        },
+    };
+    const primaryClue = axisClues[axis] ?? axisClues.temporal;
     const baseClues = [
         {
             id: "clue-1",
-            category: "time",
-            text: "The clock in the library stopped at 8:40.",
-            pointsTo: "timeline discrepancy",
+            category: primaryClue.category,
+            text: primaryClue.text,
+            pointsTo: primaryClue.pointsTo,
             redHerring: false,
             revealChapter: 1,
         },
         {
             id: "clue-2",
-            category: "access",
-            text: "Only the kitchen keyring was missing overnight.",
-            pointsTo: "restricted access",
+            category: "physical",
+            text: `A ${decade === "1930s" ? "cigarette stub" : decade === "1940s" ? "matchbook" : "lighter"} was found at the scene.`,
+            pointsTo: "physical evidence",
             redHerring: false,
             revealChapter: 2,
         },
         {
             id: "clue-3",
-            category: "object",
-            text: "A teacup carries a bitter almond scent.",
-            pointsTo: "poison delivery",
+            category: "document",
+            text: `A diary entry from ${firstSuspect} mentions a secret meeting.`,
+            pointsTo: "motive evidence",
             redHerring: false,
             revealChapter: 2,
         },
@@ -241,8 +275,8 @@ const deriveClues = (spec) => {
         {
             id: "red-1",
             category: "testimony",
-            text: "A neighbor reported a shadow by the greenhouse.",
-            pointsTo: "garden distraction",
+            text: `${secondSuspect} was reportedly seen near the ${location === "CountryHouse" ? "greenhouse" : location === "SeasideHotel" ? "beach" : "garden"}.`,
+            pointsTo: "false lead",
             redHerring: true,
             revealChapter: 1,
         },
@@ -252,7 +286,7 @@ const deriveClues = (spec) => {
         status: "ready",
         density,
         axis,
-        summary: "Deterministic placeholder clues derived from spec.",
+        summary: `Clues generated based on ${axis} axis in ${decade} ${location} setting.`,
         items,
     };
 };
@@ -392,47 +426,9 @@ const validateOutline = (outline) => ({
 });
 const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
     const repo = await repoPromise;
-    const setting = deriveSetting(specPayload);
-    await repo.createArtifact(projectId, "setting", setting, null);
-    await repo.createArtifact(projectId, "setting_validation", validateSetting(setting), null);
-    await repo.addRunEvent(runId, "setting_done", "Setting generated");
-    const cast = deriveCast(specPayload);
-    await repo.createArtifact(projectId, "cast", cast, null);
-    await repo.createArtifact(projectId, "cast_validation", validateCast(cast), null);
-    await repo.addRunEvent(runId, "cast_done", "Cast generated");
-    let cml = deriveCml(specPayload);
-    let cmlValidation = validateCml(cml);
-    await repo.createArtifact(projectId, "cml", cml, null);
-    if (!cmlValidation.valid) {
-        await repo.addRunEvent(runId, "cml_retry", "CML failed validation; retrying");
-        cml = deriveCml({ ...specPayload, primaryAxis: "temporal" });
-        cmlValidation = validateCml(cml);
-        await repo.createArtifact(projectId, "cml", cml, null);
-    }
-    await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
-    await repo.addRunEvent(runId, "cml_validated", "CML validated");
-    const synopsis = deriveSynopsis(cml);
-    await repo.createArtifact(projectId, "synopsis", synopsis, null);
-    await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
-    await repo.createArtifact(projectId, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, null);
-    await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
-    const clues = deriveClues(specPayload);
-    await repo.createArtifact(projectId, "clues", clues, null);
-    await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
-    await repo.addRunEvent(runId, "clues_done", "Clues generated");
-    const fairPlayReport = deriveFairPlayReport(cml, clues);
-    await repo.createArtifact(projectId, "fair_play_report", fairPlayReport, null);
-    await repo.addRunEvent(runId, "fair_play_report_done", "Fair-play report generated");
-    const outline = deriveOutline(specPayload);
-    await repo.createArtifact(projectId, "outline", outline, null);
-    await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
-    await repo.addRunEvent(runId, "outline_done", "Outline generated");
-    const prose = deriveProse(specPayload, outline, cast);
-    await repo.createArtifact(projectId, "prose", prose, null);
-    await repo.addRunEvent(runId, "prose_done", "Prose generated");
-    const gamePack = deriveGamePack(specPayload, cast, cml);
-    await repo.createArtifact(projectId, "game_pack", gamePack, null);
-    await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
+    // Pipeline will be implemented with actual LLM agents
+    // For now, just log that the run was initiated
+    await repo.addRunEvent(runId, "pipeline_ready", "Pipeline ready for LLM agent integration");
 };
 export const createServer = () => {
     const app = express();

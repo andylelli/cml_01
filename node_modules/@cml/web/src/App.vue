@@ -525,18 +525,21 @@ const handleCreateProject = async () => {
     const project = await createProject(projectName.value.trim() || "Untitled project");
     projectId.value = project.id;
     runStatus.value = `idle • project ${project.id}`;
+    
+    // Reset validation state for new project (no artifacts yet)
+    allValidation.value = {
+      setting: { valid: true, errors: [], warnings: [] },
+      cast: { valid: true, errors: [], warnings: [] },
+      cml: { valid: true, errors: [], warnings: [] },
+      clues: { valid: true, errors: [], warnings: [] },
+      outline: { valid: true, errors: [], warnings: [] },
+    };
+    
     connectSse();
-    addError("info", "project", `Project created: ${project.id}`);
+    addError("info", "project", `Project created: ${project.id}. Configure your spec, then click Generate.`);
     persistState();
     logActivity({ projectId: project.id, scope: "ui", message: "project_created" });
-    try {
-      await runPipeline(project.id);
-      addError("info", "pipeline", "Generation started");
-      await pollArtifacts();
-    } catch (error) {
-      addError("error", "pipeline", "Pipeline failed to start", error instanceof Error ? error.message : String(error));
-      logActivity({ projectId: project.id, scope: "ui", message: "run_failed" });
-    }
+    // Don't auto-run pipeline - user should configure spec first and manually click Generate
   } catch (error) {
     addError("error", "project", "Failed to create project", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "project_create_failed" });
@@ -635,19 +638,19 @@ const loadArtifacts = async () => {
   allValidation.value = {
     setting: settingValidation.status === "fulfilled" 
       ? (settingValidation.value.payload as ValidationResult)
-      : { valid: false, errors: ["Not loaded"], warnings: [] },
+      : { valid: true, errors: [], warnings: [] },
     cast: castValidation.status === "fulfilled"
       ? (castValidation.value.payload as ValidationResult)
-      : { valid: false, errors: ["Not loaded"], warnings: [] },
+      : { valid: true, errors: [], warnings: [] },
     cml: validation.status === "fulfilled"
       ? (validation.value.payload as ValidationResult)
-      : { valid: false, errors: ["Not loaded"], warnings: [] },
+      : { valid: true, errors: [], warnings: [] },
     clues: cluesValidation.status === "fulfilled"
       ? (cluesValidation.value.payload as ValidationResult)
-      : { valid: false, errors: ["Not loaded"], warnings: [] },
+      : { valid: true, errors: [], warnings: [] },
     outline: outlineValidation.status === "fulfilled"
       ? (outlineValidation.value.payload as ValidationResult)
-      : { valid: false, errors: ["Not loaded"], warnings: [] },
+      : { valid: true, errors: [], warnings: [] },
   };
   
   cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
@@ -696,6 +699,10 @@ const loadArtifacts = async () => {
   if (failures.length === 0) {
     artifactsStatus.value = "ready";
     addError("info", "artifacts", "All artifacts loaded successfully");
+  } else if (failures.length === 15) {
+    // All artifacts failed - likely a new project with no generated content yet
+    artifactsStatus.value = "idle";
+    // Don't show error - this is expected for new projects
   } else if (failures.length < 5) {
     artifactsStatus.value = "partial";
     addError("warning", "artifacts", `${failures.length} artifacts failed to load`, "Some content may be unavailable. Refresh to retry.");
@@ -955,6 +962,13 @@ onBeforeUnmount(() => {
             <TabPanel id="project-tab" :active="activeMainTab === 'project'" :lazy="true">
               <div class="flex flex-col gap-6">
 
+            <div class="rounded-lg border border-blue-100 bg-blue-50 p-4 shadow-sm">
+              <div class="text-sm font-semibold text-blue-900">Welcome to your Mystery Generator</div>
+              <div class="mt-2 text-sm text-blue-800">
+                This is your project dashboard. Create a new project, configure your story settings in the Spec tab, then generate your mystery in the Generate tab. All generated content will appear here and in the Review tab.
+              </div>
+            </div>
+
             <div v-if="synopsisData" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Synopsis</div>
               <div class="mt-2 text-sm text-slate-600">
@@ -1154,14 +1168,73 @@ onBeforeUnmount(() => {
                     Save draft
                   </button>
                 </div>
+
+                <!-- Regenerate Controls -->
+                <div class="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Regenerate Individual Artifacts</div>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId"
+                      @click="handleRegenerate('setting')"
+                    >
+                      Setting
+                    </button>
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId"
+                      @click="handleRegenerate('cast')"
+                    >
+                      Cast
+                    </button>
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId"
+                      @click="handleRegenerate('clues')"
+                    >
+                      Clues
+                    </button>
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId"
+                      @click="handleRegenerate('outline')"
+                    >
+                      Outline
+                    </button>
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId"
+                      @click="handleRegenerate('prose')"
+                    >
+                      Generate Story
+                    </button>
+                  </div>
+                  <div class="mt-2 text-xs text-slate-500">
+                    Regenerate a specific artifact without running the full pipeline.
+                  </div>
+                </div>
               </div>
             </TabPanel>
 
             <!-- Review Tab with sub-tabs -->
             <TabPanel id="review-tab" :active="activeMainTab === 'review'" :lazy="true">
               <div class="flex flex-col gap-6">
+
+            <div class="rounded-lg border border-purple-100 bg-purple-50 p-4 shadow-sm">
+              <div class="text-sm font-semibold text-purple-900">Review Generated Content</div>
+              <div class="mt-2 text-sm text-purple-800">
+                <span v-if="activeReviewTab === 'cast'">Review the cast of suspects with their roles and relationships.</span>
+                <span v-else-if="activeReviewTab === 'clues'">Browse all clues with red herring filtering and play mode to reveal by chapter.</span>
+                <span v-else-if="activeReviewTab === 'outline'">View the story structure broken down by chapters and events.</span>
+                <span v-else-if="activeReviewTab === 'prose'">Read the full narrative story text.</span>
+              </div>
+            </div>
+
             <div v-if="currentView === 'cast'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Cast</div>
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Cast of Suspects</div>
+                <div class="text-xs text-slate-500">{{ castData?.suspects?.length || 0 }} suspects</div>
+              </div>
               <div v-if="castData && castData.suspects && castData.suspects.length" class="mt-4 space-y-2 text-sm text-slate-600">
                 <div v-for="suspect in castData.suspects" :key="suspect" class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
                   {{ suspect }}
@@ -1172,7 +1245,10 @@ onBeforeUnmount(() => {
 
             <div v-if="currentView === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-700">Clues</div>
+                <div>
+                  <div class="text-sm font-semibold text-slate-700">Clue Board</div>
+                  <div class="mt-1 text-xs text-slate-500">{{ cluesData?.items?.length || 0 }} total clues</div>
+                </div>
                 <div class="flex items-center gap-3 text-xs">
                   <label class="flex items-center gap-1">
                     <input v-model="showRedHerrings" type="checkbox" class="h-3 w-3" />
@@ -1206,7 +1282,10 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'outline'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Outline</div>
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Story Outline</div>
+                <div class="text-xs text-slate-500">{{ outlineData?.chapters?.length || 0 }} chapters</div>
+              </div>
               <div v-if="outlineData && outlineData.chapters && outlineData.chapters.length" class="mt-4 space-y-4">
                 <div v-for="(chapter, idx) in outlineData.chapters" :key="idx" class="border-l-2 border-slate-300 pl-4">
                   <div class="text-sm font-semibold text-slate-700">Chapter {{ idx + 1 }}: {{ chapter.title || 'Untitled' }}</div>
@@ -1231,8 +1310,27 @@ onBeforeUnmount(() => {
             <!-- Advanced Tab with sub-tabs -->
             <TabPanel id="advanced-tab" :active="activeMainTab === 'advanced' && isAdvanced" :lazy="true">
               <div class="flex flex-col gap-6">
+
+            <div class="rounded-lg border border-amber-100 bg-amber-50 p-4 shadow-sm">
+              <div class="text-sm font-semibold text-amber-900">Advanced Mode</div>
+              <div class="mt-2 text-sm text-amber-800">
+                <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Expert mode enables editing.</span>
+                <span v-else-if="activeAdvancedTab === 'samples'">Browse example mystery structures for inspiration. Use these as patterns, not templates to copy.</span>
+                <span v-else-if="activeAdvancedTab === 'history'">View the complete run history and event log for this project.</span>
+              </div>
+            </div>
+
             <div v-if="currentView === 'cml'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">CML Viewer</div>
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">CML Viewer</div>
+                <div class="text-xs text-slate-500">
+                  <span v-if="isExpert" class="rounded bg-red-100 px-2 py-1 text-red-700">Expert Mode - Editable</span>
+                  <span v-else class="rounded bg-slate-100 px-2 py-1 text-slate-700">Read-only</span>
+                </div>
+              </div>
+              <div class="mt-2 text-xs text-slate-500">
+                CML (Compositional Mystery Language) is the canonical source of truth for your mystery structure.
+              </div>
               <div v-if="cmlArtifact" class="mt-4">
                 <pre class="overflow-auto rounded-md bg-slate-900 p-4 text-xs text-slate-100">{{ cmlArtifact }}</pre>
               </div>
@@ -1240,7 +1338,10 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'samples'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Sample CMLs</div>
+              <div class="text-sm font-semibold text-slate-700">Sample Mystery Structures</div>
+              <div class="mt-2 text-xs text-slate-500">
+                Browse classic mystery examples for structural inspiration. These show patterns and techniques, but content should not be copied to ensure novelty.
+              </div>
               <div class="mt-4 grid gap-2">
                 <button
                   v-for="sample in samples"
@@ -1269,9 +1370,12 @@ onBeforeUnmount(() => {
             <!-- Export Tab -->
             <TabPanel id="export-tab" :active="activeMainTab === 'export'" :lazy="true">
               <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Export</div>
+                <div class="text-sm font-semibold text-slate-700">Export Your Mystery</div>
                 <div class="mt-4 text-sm text-slate-600">
-                  Download your game pack in various formats.
+                  Download your complete game pack as a PDF. This includes suspect cards, clue materials, and all content needed to run your mystery game.
+                </div>
+                <div class="mt-2 text-xs text-slate-500">
+                  Game pack status: {{ gamePackReady ? 'Ready to download' : 'Generate content first to enable export' }}
                 </div>
                 <div class="mt-4">
                   <button

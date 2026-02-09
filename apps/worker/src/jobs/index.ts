@@ -6,7 +6,18 @@ export type JobName =
   | "cluesJob"
   | "outlineJob"
   | "proseJob"
-  | "gamePackJob";
+  | "gamePackJob"
+  | "fullPipelineJob";
+
+// Export orchestrator functions
+export {
+  generateMystery,
+  generateMysterySimple,
+  type MysteryGenerationInputs,
+  type MysteryGenerationProgress,
+  type MysteryGenerationResult,
+  type ProgressCallback,
+} from "./mystery-orchestrator.js";
 
 export type JobContext = {
   runId?: string;
