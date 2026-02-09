@@ -27,6 +27,7 @@
 - GET /api/projects/:id/game-pack/latest
 - GET /api/projects/:id/fair-play/latest
 - GET /api/projects/:id/game-pack/pdf
+- GET /api/projects/:id/synopsis/latest
 
 ### Export
 - POST /api/projects/:id/export — Download a JSON file containing the latest version of selected artifacts (setting, cast, cml, clues, outline, fair_play_report, prose, game_pack). Accepts `{ artifactTypes: string[] }` in the body and returns a downloadable file. Used by the ExportPanel UI.
@@ -38,6 +39,10 @@
 - GET /api/samples
 - GET /api/samples/:name
   - returns sample metadata and raw YAML content from examples/ for community templates
+
+### Logging
+- POST /api/logs — Record UI or system activity logs (scope/message/payload).
+- GET /api/logs?projectId=... — Retrieve logs for debugging.
 
 ## Access control (conceptual)
 - `mode = user | advanced | expert`
@@ -67,8 +72,13 @@ Artifact roles:
 - **Derived:** clues, outline, prose, and all friendly projections.
 - UI defaults to derived artifacts; CML is hidden unless Advanced/Expert mode is enabled.
 
+Spec extensions:
+- `castNames` (optional array or comma-separated string) overrides the placeholder cast list in deterministic generation.
+- If `castNames` is omitted, the API generates a default list of readable names.
+
 Derived friendly projections now include:
 - `fair_play_report` (summary + checklist)
+- `synopsis` (readable summary derived from CML)
 
 ## Prose + game pack (Phase 5)
 - Prose generation is currently deterministic placeholder output derived from outline and cast.
@@ -103,6 +113,7 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - artifact_versions(id, project_id, type, payload_json, created_at, source_spec_id)
 - runs(id, project_id, status, started_at, finished_at)
 - run_events(id, run_id, step, message, created_at)
+- activity_logs(id, project_id, scope, message, payload_json, created_at)
 
 ## Database runtime (Postgres in Docker)
 - Postgres is the primary datastore and is expected to run in Docker in local dev.

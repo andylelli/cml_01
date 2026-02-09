@@ -1,0 +1,23 @@
+{
+  "name": "@cml/prompts-llm",
+  "version": "1.0.0",
+  "description": "LLM prompt templates for all 8 mystery generation agents",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cml/cml": "*",
+    "@cml/llm-client": "*",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

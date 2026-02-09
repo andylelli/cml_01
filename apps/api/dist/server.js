@@ -88,12 +88,37 @@ const deriveSetting = (spec) => ({
     institution: "Estate",
 });
 const deriveCast = (spec) => {
-    const size = spec?.castSize ?? 6;
-    const suspects = Array.from({ length: Math.max(3, Math.min(size, 8)) }, (_, index) => {
-        return String.fromCharCode(65 + index) + ". Example";
+    const rawNames = spec?.castNames;
+    const normalizedNames = Array.isArray(rawNames)
+        ? rawNames.map((name) => String(name).trim()).filter(Boolean)
+        : typeof rawNames === "string"
+            ? rawNames
+                .split(",")
+                .map((name) => name.trim())
+                .filter(Boolean)
+            : [];
+    const requestedSize = spec?.castSize ?? 6;
+    const baseSize = normalizedNames.length ? normalizedNames.length : requestedSize;
+    const targetSize = Math.max(3, Math.min(baseSize, 8));
+    const fillCount = Math.max(0, targetSize - normalizedNames.length);
+    const defaultNames = [
+        "Avery",
+        "Blair",
+        "Casey",
+        "Dana",
+        "Ellis",
+        "Finley",
+        "Harper",
+        "Jordan",
+        "Morgan",
+        "Quinn",
+    ];
+    const filler = Array.from({ length: fillCount }, (_, index) => {
+        return defaultNames[index] ?? `Suspect ${index + 1}`;
     });
+    const suspects = (normalizedNames.length ? [...normalizedNames, ...filler] : filler).slice(0, targetSize);
     return {
-        size,
+        size: suspects.length,
         detectiveType: "amateur sleuth",
         victimArchetype: "blackmailer",
         suspects,
@@ -229,6 +254,24 @@ const deriveClues = (spec) => {
         axis,
         summary: "Deterministic placeholder clues derived from spec.",
         items,
+    };
+};
+const deriveSynopsis = (cml) => {
+    const caseBlock = cml?.CASE ?? {};
+    const meta = caseBlock.meta ?? {};
+    const title = meta.title ?? "Untitled Mystery";
+    const era = meta.era ?? {};
+    const decade = era.decade ?? "unknown era";
+    const setting = meta.setting ?? {};
+    const location = setting.location ?? "unknown location";
+    const crimeClass = meta.crime_class ?? {};
+    const category = crimeClass.category ?? "crime";
+    const falseAssumption = caseBlock.false_assumption ?? {};
+    const assumption = falseAssumption.statement ?? "a false assumption";
+    return {
+        status: "ready",
+        title,
+        summary: `${title} is a ${decade} ${category} in ${location}. The case hinges on ${assumption.toLowerCase()}.`,
     };
 };
 const deriveOutline = (spec) => ({
@@ -368,6 +411,9 @@ const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
     }
     await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
     await repo.addRunEvent(runId, "cml_validated", "CML validated");
+    const synopsis = deriveSynopsis(cml);
+    await repo.createArtifact(projectId, "synopsis", synopsis, null);
+    await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
     await repo.createArtifact(projectId, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, null);
     await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
     const clues = deriveClues(specPayload);
@@ -394,6 +440,24 @@ export const createServer = () => {
     app.use(cors());
     app.use(express.json());
     app.use(withMode);
+    app.use((req, res, next) => {
+        const start = Date.now();
+        res.on("finish", () => {
+            repoPromise
+                .then((repo) => {
+                const match = req.path.match(/\/api\/projects\/([^/]+)/);
+                const projectId = match?.[1] ?? null;
+                return repo.createLog({
+                    projectId,
+                    scope: "http",
+                    message: `${req.method} ${req.path} ${res.statusCode}`,
+                    payload: { durationMs: Date.now() - start },
+                });
+            })
+                .catch(() => undefined);
+        });
+        next();
+    });
     app.get("/api/health", (_req, res) => {
         res.json({ status: "ok", service: "api" });
     });
@@ -798,6 +862,61 @@ export const createServer = () => {
             res.json(artifact);
         })
             .catch(() => res.status(500).json({ error: "Failed to fetch game pack artifact" }));
+    });
+    app.get("/api/projects/:id/synopsis/latest", (_req, res) => {
+        repoPromise
+            .then((repo) => repo.getLatestArtifact(_req.params.id, "synopsis"))
+            .then((artifact) => {
+            if (!artifact) {
+                res.status(404).json({ error: "Synopsis artifact not found" });
+                return;
+            }
+            res.json(artifact);
+        })
+            .catch(() => res.status(500).json({ error: "Failed to fetch synopsis artifact" }));
+    });
+    app.get("/api/projects/:id/novelty-audit/latest", (_req, res) => {
+        repoPromise
+            .then((repo) => repo.getLatestArtifact(_req.params.id, "novelty_audit"))
+            .then((artifact) => {
+            if (!artifact) {
+                res.status(404).json({ error: "Novelty audit artifact not found" });
+                return;
+            }
+            res.json(artifact);
+        })
+            .catch(() => res.status(500).json({ error: "Failed to fetch novelty audit artifact" }));
+    });
+    app.post("/api/logs", express.json(), async (req, res) => {
+        try {
+            const { projectId, scope, message, payload } = req.body ?? {};
+            if (typeof scope !== "string" || typeof message !== "string") {
+                res.status(400).json({ error: "scope and message are required" });
+                return;
+            }
+            const repo = await repoPromise;
+            const log = await repo.createLog({
+                projectId: typeof projectId === "string" ? projectId : null,
+                scope,
+                message,
+                payload: payload ?? null,
+            });
+            res.status(201).json(log);
+        }
+        catch (error) {
+            res.status(500).json({ error: "Failed to create log" });
+        }
+    });
+    app.get("/api/logs", async (_req, res) => {
+        try {
+            const projectId = typeof _req.query.projectId === "string" ? _req.query.projectId : null;
+            const repo = await repoPromise;
+            const logs = await repo.listLogs(projectId);
+            res.json({ logs });
+        }
+        catch (error) {
+            res.status(500).json({ error: "Failed to fetch logs" });
+        }
     });
     app.get("/api/projects/:id/game-pack/pdf", async (_req, res) => {
         try {

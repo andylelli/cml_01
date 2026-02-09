@@ -13,6 +13,15 @@ export type Spec = {
   spec: unknown;
 };
 
+export type ActivityLog = {
+  id: string;
+  projectId: string | null;
+  scope: string;
+  message: string;
+  payload: unknown;
+  createdAt: string;
+};
+
 export type ProjectRepository = {
   createProject: (name: string) => Promise<Project>;
   getProject: (id: string) => Promise<Project | null>;
@@ -26,6 +35,8 @@ export type ProjectRepository = {
   addRunEvent: (runId: string, step: string, message: string) => Promise<void>;
   getLatestRun: (projectId: string) => Promise<{ id: string; projectId: string; status: string } | null>;
   getRunEvents: (runId: string) => Promise<Array<{ step: string; message: string }>>;
+  createLog: (log: Omit<ActivityLog, "id" | "createdAt">) => Promise<ActivityLog>;
+  listLogs: (projectId?: string | null) => Promise<ActivityLog[]>;
   createArtifact: (
     projectId: string,
     type: string,
@@ -45,6 +56,7 @@ const createMemoryRepository = (): ProjectRepository => {
   const runOrder: Array<{ id: string; projectId: string }> = [];
   const runEvents: Array<{ runId: string; step: string; message: string }> = [];
   const artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }> = [];
+  const logs: ActivityLog[] = [];
 
   return {
     async createProject(name: string) {
@@ -100,6 +112,19 @@ const createMemoryRepository = (): ProjectRepository => {
     },
     async getRunEvents(runId: string) {
       return runEvents.filter((event) => event.runId === runId).map(({ step, message }) => ({ step, message }));
+    },
+    async createLog(log) {
+      const id = `log_${randomUUID()}`;
+      const createdAt = new Date().toISOString();
+      const entry: ActivityLog = { id, createdAt, ...log };
+      logs.push(entry);
+      return entry;
+    },
+    async listLogs(projectId?: string | null) {
+      if (!projectId) {
+        return [...logs];
+      }
+      return logs.filter((log) => log.projectId === projectId);
     },
     async createArtifact(projectId: string, type: string, payload: unknown) {
       const id = `artifact_${randomUUID()}`;
@@ -162,6 +187,17 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
       run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
       step TEXT NOT NULL,
       message TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NULL REFERENCES projects(id) ON DELETE SET NULL,
+      scope TEXT NOT NULL,
+      message TEXT NOT NULL,
+      payload_json JSONB NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
@@ -238,6 +274,27 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
       const result = await pool.query(
         "SELECT step, message FROM run_events WHERE run_id = $1 ORDER BY created_at ASC",
         [runId],
+      );
+      return result.rows ?? [];
+    },
+    async createLog(log) {
+      const id = `log_${randomUUID()}`;
+      await pool.query(
+        "INSERT INTO activity_logs (id, project_id, scope, message, payload_json) VALUES ($1, $2, $3, $4, $5)",
+        [id, log.projectId, log.scope, log.message, log.payload ?? null],
+      );
+      return { id, createdAt: new Date().toISOString(), ...log };
+    },
+    async listLogs(projectId?: string | null) {
+      if (projectId) {
+        const result = await pool.query(
+          "SELECT id, project_id AS \"projectId\", scope, message, payload_json AS payload, created_at AS \"createdAt\" FROM activity_logs WHERE project_id = $1 ORDER BY created_at DESC",
+          [projectId],
+        );
+        return result.rows ?? [];
+      }
+      const result = await pool.query(
+        "SELECT id, project_id AS \"projectId\", scope, message, payload_json AS payload, created_at AS \"createdAt\" FROM activity_logs ORDER BY created_at DESC",
       );
       return result.rows ?? [];
     },

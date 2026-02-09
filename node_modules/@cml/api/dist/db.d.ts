@@ -8,6 +8,14 @@ export type Spec = {
     projectId: string;
     spec: unknown;
 };
+export type ActivityLog = {
+    id: string;
+    projectId: string | null;
+    scope: string;
+    message: string;
+    payload: unknown;
+    createdAt: string;
+};
 export type ProjectRepository = {
     createProject: (name: string) => Promise<Project>;
     getProject: (id: string) => Promise<Project | null>;
@@ -32,6 +40,8 @@ export type ProjectRepository = {
         step: string;
         message: string;
     }>>;
+    createLog: (log: Omit<ActivityLog, "id" | "createdAt">) => Promise<ActivityLog>;
+    listLogs: (projectId?: string | null) => Promise<ActivityLog[]>;
     createArtifact: (projectId: string, type: string, payload: unknown, sourceSpecId?: string | null) => Promise<{
         id: string;
         projectId: string;

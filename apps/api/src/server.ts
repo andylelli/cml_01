@@ -116,13 +116,39 @@ const deriveSetting = (spec?: Record<string, unknown>) => ({
 });
 
 const deriveCast = (spec?: Record<string, unknown>) => {
-  const size = (spec?.castSize as number) ?? 6;
-  const suspects = Array.from({ length: Math.max(3, Math.min(size, 8)) }, (_, index) => {
-    return String.fromCharCode(65 + index) + ". Example";
+  const rawNames = spec?.castNames;
+  const normalizedNames = Array.isArray(rawNames)
+    ? rawNames.map((name) => String(name).trim()).filter(Boolean)
+    : typeof rawNames === "string"
+      ? rawNames
+          .split(",")
+          .map((name) => name.trim())
+          .filter(Boolean)
+      : [];
+
+  const requestedSize = (spec?.castSize as number) ?? 6;
+  const baseSize = normalizedNames.length ? normalizedNames.length : requestedSize;
+  const targetSize = Math.max(3, Math.min(baseSize, 8));
+  const fillCount = Math.max(0, targetSize - normalizedNames.length);
+  const defaultNames = [
+    "Avery",
+    "Blair",
+    "Casey",
+    "Dana",
+    "Ellis",
+    "Finley",
+    "Harper",
+    "Jordan",
+    "Morgan",
+    "Quinn",
+  ];
+  const filler = Array.from({ length: fillCount }, (_, index) => {
+    return defaultNames[index] ?? `Suspect ${index + 1}`;
   });
+  const suspects = (normalizedNames.length ? [...normalizedNames, ...filler] : filler).slice(0, targetSize);
 
   return {
-    size,
+    size: suspects.length,
     detectiveType: "amateur sleuth",
     victimArchetype: "blackmailer",
     suspects,
@@ -217,38 +243,76 @@ const deriveCml = (spec?: Record<string, unknown>) => ({
 const deriveClues = (spec?: Record<string, unknown>) => {
   const density = (spec?.clueDensity as string) ?? "medium";
   const axis = (spec?.primaryAxis as string) ?? "temporal";
+  const decade = (spec?.decade as string) ?? "1930s";
+  const location = (spec?.locationPreset as string) ?? "CountryHouse";
+  const cast = deriveCast(spec);
+  const firstSuspect = cast.suspects[0] ?? "the suspect";
+  const secondSuspect = cast.suspects[1] ?? "another guest";
+
+  // Generate axis-specific clues that vary by project settings
+  const axisClues: Record<string, { category: string; text: string; pointsTo: string }> = {
+    temporal: {
+      category: "time",
+      text: `A clock was stopped at ${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}.`,
+      pointsTo: "timeline discrepancy",
+    },
+    spatial: {
+      category: "access",
+      text: `Only ${firstSuspect} had access to the ${location === "CountryHouse" ? "library" : location === "SeasideHotel" ? "suite" : "restricted area"}.`,
+      pointsTo: "restricted access",
+    },
+    identity: {
+      category: "testimony",
+      text: `${secondSuspect} was seen in two places at once according to witness statements.`,
+      pointsTo: "identity confusion",
+    },
+    behavioral: {
+      category: "behavior",
+      text: `${firstSuspect} exhibited unusual nervous behavior when questioned about the evening.`,
+      pointsTo: "suspicious behavior",
+    },
+    authority: {
+      category: "circumstantial",
+      text: `A forged ${decade === "1930s" ? "telegram" : decade === "1940s" ? "letter" : "document"} was found claiming official authority.`,
+      pointsTo: "authority misuse",
+    },
+  };
+
+  const primaryClue = axisClues[axis] ?? axisClues.temporal;
+
   const baseClues = [
     {
       id: "clue-1",
-      category: "time",
-      text: "The clock in the library stopped at 8:40.",
-      pointsTo: "timeline discrepancy",
+      category: primaryClue.category,
+      text: primaryClue.text,
+      pointsTo: primaryClue.pointsTo,
       redHerring: false,
       revealChapter: 1,
     },
     {
       id: "clue-2",
-      category: "access",
-      text: "Only the kitchen keyring was missing overnight.",
-      pointsTo: "restricted access",
+      category: "physical",
+      text: `A ${decade === "1930s" ? "cigarette stub" : decade === "1940s" ? "matchbook" : "lighter"} was found at the scene.`,
+      pointsTo: "physical evidence",
       redHerring: false,
       revealChapter: 2,
     },
     {
       id: "clue-3",
-      category: "object",
-      text: "A teacup carries a bitter almond scent.",
-      pointsTo: "poison delivery",
+      category: "document",
+      text: `A diary entry from ${firstSuspect} mentions a secret meeting.`,
+      pointsTo: "motive evidence",
       redHerring: false,
       revealChapter: 2,
     },
   ];
+
   const redHerrings = [
     {
       id: "red-1",
       category: "testimony",
-      text: "A neighbor reported a shadow by the greenhouse.",
-      pointsTo: "garden distraction",
+      text: `${secondSuspect} was reportedly seen near the ${location === "CountryHouse" ? "greenhouse" : location === "SeasideHotel" ? "beach" : "garden"}.`,
+      pointsTo: "false lead",
       redHerring: true,
       revealChapter: 1,
     },
@@ -260,8 +324,28 @@ const deriveClues = (spec?: Record<string, unknown>) => {
     status: "ready",
     density,
     axis,
-    summary: "Deterministic placeholder clues derived from spec.",
+    summary: `Clues generated based on ${axis} axis in ${decade} ${location} setting.`,
     items,
+  };
+};
+
+const deriveSynopsis = (cml: Record<string, unknown>) => {
+  const caseBlock = (cml?.CASE as Record<string, unknown>) ?? {};
+  const meta = (caseBlock.meta as Record<string, unknown>) ?? {};
+  const title = (meta.title as string) ?? "Untitled Mystery";
+  const era = (meta.era as Record<string, unknown>) ?? {};
+  const decade = (era.decade as string) ?? "unknown era";
+  const setting = (meta.setting as Record<string, unknown>) ?? {};
+  const location = (setting.location as string) ?? "unknown location";
+  const crimeClass = (meta.crime_class as Record<string, unknown>) ?? {};
+  const category = (crimeClass.category as string) ?? "crime";
+  const falseAssumption = (caseBlock.false_assumption as Record<string, unknown>) ?? {};
+  const assumption = (falseAssumption.statement as string) ?? "a false assumption";
+
+  return {
+    status: "ready",
+    title,
+    summary: `${title} is a ${decade} ${category} in ${location}. The case hinges on ${assumption.toLowerCase()}.`,
   };
 };
 
@@ -433,6 +517,10 @@ const runPipeline = async (
   await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
   await repo.addRunEvent(runId, "cml_validated", "CML validated");
 
+  const synopsis = deriveSynopsis(cml);
+  await repo.createArtifact(projectId, "synopsis", synopsis, null);
+  await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
+
   await repo.createArtifact(projectId, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, null);
   await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
 
@@ -466,6 +554,25 @@ export const createServer = () => {
   app.use(cors());
   app.use(express.json());
   app.use(withMode);
+
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      repoPromise
+        .then((repo) => {
+          const match = req.path.match(/\/api\/projects\/([^/]+)/);
+          const projectId = match?.[1] ?? null;
+          return repo.createLog({
+            projectId,
+            scope: "http",
+            message: `${req.method} ${req.path} ${res.statusCode}`,
+            payload: { durationMs: Date.now() - start },
+          });
+        })
+        .catch(() => undefined);
+    });
+    next();
+  });
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", service: "api" });
@@ -912,6 +1019,63 @@ export const createServer = () => {
         res.json(artifact);
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch game pack artifact" }));
+  });
+
+  app.get("/api/projects/:id/synopsis/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "synopsis"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Synopsis artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch synopsis artifact" }));
+  });
+
+  app.get("/api/projects/:id/novelty-audit/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "novelty_audit"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Novelty audit artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch novelty audit artifact" }));
+  });
+
+  app.post("/api/logs", express.json(), async (req, res) => {
+    try {
+      const { projectId, scope, message, payload } = req.body ?? {};
+      if (typeof scope !== "string" || typeof message !== "string") {
+        res.status(400).json({ error: "scope and message are required" });
+        return;
+      }
+      const repo = await repoPromise;
+      const log = await repo.createLog({
+        projectId: typeof projectId === "string" ? projectId : null,
+        scope,
+        message,
+        payload: payload ?? null,
+      });
+      res.status(201).json(log);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create log" });
+    }
+  });
+
+  app.get("/api/logs", async (_req, res) => {
+    try {
+      const projectId = typeof _req.query.projectId === "string" ? _req.query.projectId : null;
+      const repo = await repoPromise;
+      const logs = await repo.listLogs(projectId);
+      res.json({ logs });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch logs" });
+    }
   });
 
   app.get("/api/projects/:id/game-pack/pdf", async (_req, res) => {

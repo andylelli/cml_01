@@ -8,6 +8,7 @@ const createMemoryRepository = () => {
     const runOrder = [];
     const runEvents = [];
     const artifacts = [];
+    const logs = [];
     return {
         async createProject(name) {
             const id = `proj_${randomUUID()}`;
@@ -62,6 +63,19 @@ const createMemoryRepository = () => {
         },
         async getRunEvents(runId) {
             return runEvents.filter((event) => event.runId === runId).map(({ step, message }) => ({ step, message }));
+        },
+        async createLog(log) {
+            const id = `log_${randomUUID()}`;
+            const createdAt = new Date().toISOString();
+            const entry = { id, createdAt, ...log };
+            logs.push(entry);
+            return entry;
+        },
+        async listLogs(projectId) {
+            if (!projectId) {
+                return [...logs];
+            }
+            return logs.filter((log) => log.projectId === projectId);
         },
         async createArtifact(projectId, type, payload) {
             const id = `artifact_${randomUUID()}`;
@@ -121,6 +135,16 @@ const createPostgresRepository = async (connectionString) => {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NULL REFERENCES projects(id) ON DELETE SET NULL,
+      scope TEXT NOT NULL,
+      message TEXT NOT NULL,
+      payload_json JSONB NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
     return {
         async createProject(name) {
             const id = `proj_${randomUUID()}`;
@@ -173,6 +197,19 @@ const createPostgresRepository = async (connectionString) => {
         },
         async getRunEvents(runId) {
             const result = await pool.query("SELECT step, message FROM run_events WHERE run_id = $1 ORDER BY created_at ASC", [runId]);
+            return result.rows ?? [];
+        },
+        async createLog(log) {
+            const id = `log_${randomUUID()}`;
+            await pool.query("INSERT INTO activity_logs (id, project_id, scope, message, payload_json) VALUES ($1, $2, $3, $4, $5)", [id, log.projectId, log.scope, log.message, log.payload ?? null]);
+            return { id, createdAt: new Date().toISOString(), ...log };
+        },
+        async listLogs(projectId) {
+            if (projectId) {
+                const result = await pool.query("SELECT id, project_id AS \"projectId\", scope, message, payload_json AS payload, created_at AS \"createdAt\" FROM activity_logs WHERE project_id = $1 ORDER BY created_at DESC", [projectId]);
+                return result.rows ?? [];
+            }
+            const result = await pool.query("SELECT id, project_id AS \"projectId\", scope, message, payload_json AS payload, created_at AS \"createdAt\" FROM activity_logs ORDER BY created_at DESC");
             return result.rows ?? [];
         },
         async createArtifact(projectId, type, payload, sourceSpecId) {

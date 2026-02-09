@@ -10,6 +10,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Mandatory pipeline: Spec → CML → Validate → Clues → Outline → Prose.
 - CML is not the primary interface; most users should never need to see it.
 - Sample CMLs in examples/ are used as structural inspiration only, never copied.
+- Full activity logging is captured for debugging across UI and API.
+- The UI restores the last project/spec/session state after refresh.
 
 ## Information access levels
 **Level 1 — User (Default)**
@@ -35,6 +37,7 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ### Generate action
 - System combines user selections, accepted suggestions, and structural patterns learned from seed CMLs.
 - Generates a completely new CML (full logical structure, no prose, no copied plot).
+- Creating a project auto-starts the pipeline to generate initial artifacts.
 
 ### Output stage
 - Default UI shows friendly projections derived from CML.
@@ -60,6 +63,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 
 ### Cast
 - Cast size, role palette, relationship graph, secret intensity, motive distribution.
+- Optional manual cast names (comma-separated) override the placeholder cast list.
+- If no cast names are provided, the system generates readable default names.
 
 ### Crime logic
 - Primary axis: temporal, spatial, identity, behavioral, authority.

@@ -68,6 +68,8 @@ describe("API server (phase 1)", () => {
         expect(gamePack.status).toBe(200);
         const fairPlay = await request(app).get(`/api/projects/${created.body.id}/fair-play/latest`);
         expect(fairPlay.status).toBe(200);
+        const synopsis = await request(app).get(`/api/projects/${created.body.id}/synopsis/latest`);
+        expect(synopsis.status).toBe(200);
         const settingValidation = await request(app).get(`/api/projects/${created.body.id}/setting/validation/latest`);
         expect(settingValidation.status).toBe(200);
         const castValidation = await request(app).get(`/api/projects/${created.body.id}/cast/validation/latest`);
@@ -111,6 +113,16 @@ describe("API server (phase 1)", () => {
         const response = await request(app).get(`/api/projects/${created.body.id}/game-pack/pdf`);
         expect(response.status).toBe(200);
         expect(response.headers["content-type"]).toMatch(/application\/pdf/);
+    });
+    it("creates and lists activity logs", async () => {
+        const created = await request(app).post("/api/projects").send({ name: "Log Project" });
+        const log = await request(app)
+            .post("/api/logs")
+            .send({ projectId: created.body.id, scope: "ui", message: "test_log", payload: { ok: true } });
+        expect(log.status).toBe(201);
+        const list = await request(app).get(`/api/logs?projectId=${created.body.id}`);
+        expect(list.status).toBe(200);
+        expect(list.body.logs.length).toBeGreaterThan(0);
     });
     it("blocks CML endpoint in user mode", async () => {
         const created = await request(app).post("/api/projects").send({ name: "Mode Project" });

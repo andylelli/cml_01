@@ -17,6 +17,7 @@ Keep documentation fully aligned with the implemented product. As features are b
      - documentation/03_architecture_backend.md
      - documentation/04_llm_ai.md
      - documentation/05_ui_spec.md
+     - documentation/06_workflow.md
      - multi_agent_whodunit_plan.md
      - README.md
 

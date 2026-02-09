@@ -11,12 +11,14 @@
 - Primary actions are prominent, consistent, and never buried behind menus.
 - Information density scales with screen size; no horizontal scrolling on core views.
 - The UI stays legible and calm during long-running jobs with clear progress cues.
+- UI actions emit debug logs for full activity tracing.
+- Project/spec/session state persists across refresh to avoid losing progress.
 
 ## Layout
 - App shell: left nav + top bar + main content
 - Right drawer: validation status, last run (CML hidden by default)
 - Responsive: single-column wizard on small screens
- - Sidebar navigation switches main content views (Dashboard, Builder, Clues, Outline, Samples, CML Viewer).
+ - Sidebar navigation switches main content views (Dashboard, Builder, Cast, Clues, Outline, Samples, CML Viewer).
 - Active view header reflects the current selection.
 
 ## Design tokens (Tailwind)
@@ -37,11 +39,17 @@
 - Fair-play summary
 - Game pack preview (materials + suspect cards summary)
 - Game pack PDF download action
+- Setting/cast/outline cards render generated content when available.
+- Synopsis card shows a readable summary after CML generation.
+- Synopsis card includes quick links to detailed views (Clues, Outline, CML) and a jump to the dashboard detail panels.
+- Status panel includes a “Refresh data” action and a compact artifact availability summary.
 
 ### ProjectDashboard
 - Create/import project
 - Recent versions
 - Quick actions: regenerate/export
+ - Creating a project auto-starts the pipeline so artifacts appear without extra steps.
+- Project setup includes a field to load an existing project by ID.
 
 ### BuilderWizard
 - Stepper with Setting, Cast, Logic, Output
@@ -73,6 +81,7 @@
 ### Advanced/Expert toggles
 - Advanced mode enables read-only CML viewing and export.
 - Expert mode enables CML editing with warnings and full validation output.
+- Current build uses native checkbox toggles for reliability.
 
 ## Components
 - SpecStepper
@@ -135,6 +144,9 @@
 - Multi-select chips show count
 **Feedback:**
 - On change: show “unsaved changes” badge until saved
+
+Spec draft inputs include a comma-separated cast names field that overrides the placeholder cast list.
+If cast names are left empty, the system generates a default list of readable names.
 
 ### CmlTreeView
 **Purpose:** View CML with spoiler-safe controls.
@@ -225,6 +237,8 @@
 - Actions: cancel run, retry failed step
 **Feedback:**
 - Spinner for active run
+ - When run status returns to idle, the UI auto-refreshes artifacts.
+- After a run starts, the UI polls for artifacts until they are available.
 
 ### Regenerate controls (V1)
 **Purpose:** Allow granular regeneration of individual artifacts.

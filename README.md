@@ -47,6 +47,9 @@ Phase 4: Export packaging implemented (UI ExportPanel and backend export API end
 Phase 5: Prose and game pack artifacts are generated deterministically (placeholders) and available via the API.
 V1 complete: clue list with red herrings, fair-play report, simple suspect cards, and granular regenerate controls are now visible in the UI.
 V2 complete: play mode chapter reveal, printable party kit PDF download, and community templates are available.
+Full activity logging is enabled for API requests and UI actions (see /api/logs).
+The UI restores the last project/spec/session state after refresh.
+Spec draft supports optional comma-separated cast names to override placeholder cast output.
 
 Pull requests welcome.
 

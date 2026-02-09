@@ -49,6 +49,13 @@ export type ProjectStatus = {
   status: string;
 };
 
+export type ActivityLogPayload = {
+  projectId?: string | null;
+  scope: string;
+  message: string;
+  payload?: unknown;
+};
+
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export const fetchHealth = async (): Promise<ApiHealth> => {
@@ -59,6 +66,18 @@ export const fetchHealth = async (): Promise<ApiHealth> => {
   return response.json() as Promise<ApiHealth>;
 };
 
+export const logActivity = async (entry: ActivityLogPayload): Promise<void> => {
+  try {
+    await fetch(`${apiBase}/api/logs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry),
+    });
+  } catch {
+    // swallow logging failures
+  }
+};
+
 export const createProject = async (name: string): Promise<Project> => {
   const response = await fetch(`${apiBase}/api/projects`, {
     method: "POST",
@@ -67,6 +86,14 @@ export const createProject = async (name: string): Promise<Project> => {
   });
   if (!response.ok) {
     throw new Error(`Create project failed (${response.status})`);
+  }
+  return response.json() as Promise<Project>;
+};
+
+export const fetchProject = async (projectId: string): Promise<Project> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}`);
+  if (!response.ok) {
+    throw new Error(`Fetch project failed (${response.status})`);
   }
   return response.json() as Promise<Project>;
 };
@@ -209,6 +236,14 @@ export const fetchGamePack = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/game-pack/latest`);
   if (!response.ok) {
     throw new Error(`Fetch game pack failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchSynopsis = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/synopsis/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch synopsis failed (${response.status})`);
   }
   return response.json() as Promise<Artifact>;
 };

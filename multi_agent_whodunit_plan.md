@@ -22,6 +22,8 @@ CML is generated first, validated, then used to generate prose. This prevents �
 
 **Guiding sentence:** The system builds mysteries like an engineer builds proofs: the logic comes first, the interface stays friendly, and the machinery is hidden unless the user asks to see it.
 
+**Debugging requirement:** full activity logging is captured for API requests and UI actions.
+
 **Pipeline requirement (from CML 2.0):**  
 Spec → CML → Validate → Clues → Outline → Prose. Never reverse this order.
 
