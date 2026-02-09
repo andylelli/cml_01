@@ -8,6 +8,10 @@
 import { generateCML, buildCMLPrompt } from "../src/agent3-cml";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { join } from "path";
+import { config } from "dotenv";
+
+// Load environment variables from root .env.local
+config({ path: join(process.cwd(), "../../.env.local") });
 
 async function main() {
   console.log("=== Agent 3: CML Generator Integration Demo ===\n");
@@ -80,12 +84,14 @@ async function main() {
   const client = new AzureOpenAIClient({
     apiKey: process.env.AZURE_OPENAI_API_KEY!,
     endpoint: process.env.AZURE_OPENAI_ENDPOINT!,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 || "gpt-4",
+    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 || "gpt-4o",
     requestsPerMinute: 60,
     logger,
   });
 
-  console.log("✅ Client configured\n");
+  console.log("✅ Client configured");
+  console.log(`   Endpoint: ${process.env.AZURE_OPENAI_ENDPOINT}`);
+  console.log(`   Deployment: ${process.env.AZURE_OPENAI_DEPLOYMENT_GPT4}\n`);
 
   // 2. Define mystery specifications
   console.log("2. Defining mystery specifications...");

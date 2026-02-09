@@ -28,7 +28,10 @@ export class AzureOpenAIClient {
   }) {
     this.client = new OpenAIClient(
       config.endpoint,
-      new AzureKeyCredential(config.apiKey)
+      new AzureKeyCredential(config.apiKey),
+      {
+        apiVersion: config.apiVersion || "2024-02-15-preview"
+      }
     );
 
     this.defaultModel = config.defaultModel || "gpt-4";

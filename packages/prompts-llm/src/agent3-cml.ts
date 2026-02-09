@@ -139,9 +139,10 @@ Respond with ONLY valid CML 2.0 YAML. No explanations, no markdown code blocks, 
 Start immediately with "CML_VERSION: 2.0" and continue with complete CASE structure.`;
 
   // Convert to Message array
+  // Note: "developer" role not supported by Azure OpenAI, so merge into system message
+  const combinedSystem = `${system}\n\n# Technical Specifications\n\n${developer}`;
   const messages: Message[] = [
-    { role: "system", content: system },
-    { role: "developer" as any, content: developer },
+    { role: "system", content: combinedSystem },
     { role: "user", content: user },
   ];
 
@@ -176,9 +177,9 @@ export async function generateCML(
       // Generate CML
       const response = await client.chatWithRetry({
         messages: prompt.messages,
-        model: "gpt-4", // Use reasoning model for complex logic
+        model: process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 || "gpt-4.1", // Deployment name, not model name
         temperature: 0.7,
-        maxTokens: 8000,
+        maxTokens: 8000, // gpt-4.1 supports higher token limits
         jsonMode: false, // YAML output
         logContext: {
           runId: inputs.runId,

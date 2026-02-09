@@ -32,13 +32,7 @@ describe("Agent 3: CML Generator", () => {
       expect(prompt.system).toBeDefined();
       expect(prompt.developer).toBeDefined();
       expect(prompt.user).toBeDefined();
-      expect(prompt.messages).toHaveLength(3);
-    });
-
-    it("includes CML specialist system prompt", () => {
-      const prompt = buildCMLPrompt(baseInputs);
-
-      expect(prompt.system).toContain("CML (Case Modeling Language) 2.0 specialist");
+      expect(prompt.messages).toHaveLength(2); // system+developer combined, user
       expect(prompt.system).toContain("fair-play");
     });
 
@@ -83,9 +77,15 @@ describe("Agent 3: CML Generator", () => {
     it("formats messages array correctly", () => {
       const prompt = buildCMLPrompt(baseInputs);
 
+      expect(prompt.messages).toHaveLength(2);
       expect(prompt.messages[0].role).toBe("system");
-      expect(prompt.messages[1].role).toBe("developer");
-      expect(prompt.messages[2].role).toBe("user");
+      expect(prompt.messages[1].role).toBe("user");
+      
+      // System message should combine system + developer
+      expect(prompt.messages[0].content).toContain(prompt.system);
+      expect(prompt.messages[0].content).toContain(prompt.developer);
+      
+      expect(prompt.messages[1].content).toBe(prompt.user);
     });
   });
 
