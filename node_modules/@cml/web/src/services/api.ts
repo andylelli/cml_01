@@ -18,6 +18,8 @@ export type ApiHealth = {
 export type Project = {
   id: string;
   name: string;
+  status?: string;
+  createdAt?: string;
 };
 
 export type Spec = {
@@ -88,6 +90,15 @@ export const createProject = async (name: string): Promise<Project> => {
     throw new Error(`Create project failed (${response.status})`);
   }
   return response.json() as Promise<Project>;
+};
+
+export const fetchProjects = async (): Promise<Project[]> => {
+  const response = await fetch(`${apiBase}/api/projects`);
+  if (!response.ok) {
+    throw new Error(`Fetch projects failed (${response.status})`);
+  }
+  const data = (await response.json()) as { projects: Project[] };
+  return data.projects;
 };
 
 export const fetchProject = async (projectId: string): Promise<Project> => {

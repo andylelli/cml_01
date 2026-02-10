@@ -319,6 +319,12 @@ export async function extractClues(
       temperature: 0.4, // Low - we want consistent, grounded extraction
       maxTokens: 3000,  // Moderate - clue lists can be detailed
       jsonMode: true,   // Structured output
+      logContext: {
+        runId,
+        projectId,
+        agent: "Agent5-ClueExtraction",
+        retryAttempt: 0,
+      },
     });
 
     await logger.logResponse({

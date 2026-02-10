@@ -12,6 +12,7 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Sample CMLs in examples/ are used as structural inspiration only, never copied.
 - Full activity logging is captured for debugging across UI and API.
 - The UI restores the last project/spec/session state after refresh.
+- When the API is not connected to Postgres, a simple JSON file-backed store preserves projects and artifacts across restarts.
 
 ## Information access levels
 **Level 1 — User (Default)**

@@ -191,7 +191,10 @@ export async function refineSetting(
       // Generate setting refinement
       const response = await client.chatWithRetry({
         messages: prompt.messages,
-        model: process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 || "gpt-4.1",
+        model:
+          process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
+          process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
+          "gpt-4o",
         temperature: 0.3, // Lower temperature for factual accuracy
         maxTokens: 2000,
         jsonMode: true, // JSON mode for structured output

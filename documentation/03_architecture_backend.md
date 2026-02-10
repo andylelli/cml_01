@@ -29,6 +29,11 @@
 - GET /api/projects/:id/game-pack/pdf
 - GET /api/projects/:id/synopsis/latest
 
+### Projects
+- POST /api/projects
+- GET /api/projects
+- GET /api/projects/:id
+
 ### Export
 - POST /api/projects/:id/export — Download a JSON file containing the latest version of selected artifacts (setting, cast, cml, clues, outline, fair_play_report, prose, game_pack). Accepts `{ artifactTypes: string[] }` in the body and returns a downloadable file. Used by the ExportPanel UI.
 
@@ -43,6 +48,8 @@
 ### Logging
 - POST /api/logs — Record UI or system activity logs (scope/message/payload).
 - GET /api/logs?projectId=... — Retrieve logs for debugging.
+- HTTP requests with status >= 400 are also recorded with scope `http_error`.
+- Activity logs are also appended to `apps/api/logs/activity.jsonl` for file-based inspection.
 
 ## Access control (conceptual)
 - `mode = user | advanced | expert`
@@ -62,7 +69,6 @@ Phase 3 start:
 - Setting/cast/CML/clues/outline deterministic artifacts are derived from the latest saved spec when present.
 Phase 3 completion:
 - Pipeline executes deterministic step order with run events and stores a novelty audit artifact (pass when no seeds selected).
-- If Azure OpenAI credentials are not configured, the API falls back to deterministic placeholder generation.
 
 Phase 5 completion:
 - Prose and game pack artifacts are generated deterministically (placeholder content) after outline.
@@ -120,7 +126,7 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - Postgres is the primary datastore and is expected to run in Docker in local dev.
 - Services connect via `DATABASE_URL` (preferred) or split `PG*` environment variables.
 - The DB stores canonical CML, derived artifacts, versions, and run history.
-- Phase 2 persistence: projects/specs/status/runs/artifacts use Postgres when `DATABASE_URL` is set; otherwise a temporary in-memory fallback is used.
+- When `DATABASE_URL` is not set, the API uses a simple JSON file-backed repository (default `data/store.json`, override with `CML_JSON_DB_PATH`).
 
 Provenance fields to add if needed:
 - artifact_versions.prompt_version

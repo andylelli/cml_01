@@ -1,10 +1,13 @@
 import { randomUUID } from "crypto";
+import fs from "fs/promises";
+import path from "path";
 import pg from "pg";
 
 export type Project = {
   id: string;
   name: string;
   status: string;
+  createdAt?: string;
 };
 
 export type Spec = {
@@ -24,6 +27,7 @@ export type ActivityLog = {
 
 export type ProjectRepository = {
   createProject: (name: string) => Promise<Project>;
+  listProjects: () => Promise<Project[]>;
   getProject: (id: string) => Promise<Project | null>;
   createSpec: (projectId: string, spec: unknown) => Promise<Spec>;
   getSpec: (id: string) => Promise<Spec | null>;
@@ -48,7 +52,47 @@ export type ProjectRepository = {
   >;
 };
 
-const createMemoryRepository = (): ProjectRepository => {
+type FileState = {
+  projects: Record<string, Project>;
+  specs: Record<string, Spec>;
+  specOrder: Array<{ id: string; projectId: string }>;
+  runs: Record<string, { id: string; projectId: string; status: string }>;
+  runOrder: Array<{ id: string; projectId: string }>;
+  runEvents: Array<{ runId: string; step: string; message: string }>;
+  artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }>;
+  logs: ActivityLog[];
+};
+
+const createMemoryRepository = async (filePath?: string): Promise<ProjectRepository> => {
+  const defaultPath = path.resolve(process.cwd(), "data", "store.json");
+  const storePath = filePath ?? process.env.CML_JSON_DB_PATH ?? defaultPath;
+  const storeDir = path.dirname(storePath);
+  let savePromise: Promise<void> | null = null;
+
+  const loadState = async (): Promise<FileState | null> => {
+    try {
+      const raw = await fs.readFile(storePath, "utf-8");
+      return JSON.parse(raw) as FileState;
+    } catch {
+      return null;
+    }
+  };
+
+  const persistState = async (state: FileState) => {
+    if (savePromise) {
+      await savePromise;
+    }
+    savePromise = (async () => {
+      await fs.mkdir(storeDir, { recursive: true });
+      const tempPath = `${storePath}.tmp`;
+      await fs.writeFile(tempPath, JSON.stringify(state, null, 2), "utf-8");
+      await fs.rename(tempPath, storePath);
+    })();
+    await savePromise;
+    savePromise = null;
+  };
+
+  const restored = await loadState();
   const projects = new Map<string, Project>();
   const specs = new Map<string, Spec>();
   const specOrder: Array<{ id: string; projectId: string }> = [];
@@ -58,12 +102,42 @@ const createMemoryRepository = (): ProjectRepository => {
   const artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }> = [];
   const logs: ActivityLog[] = [];
 
+  if (restored) {
+    Object.entries(restored.projects ?? {}).forEach(([id, project]) => projects.set(id, project));
+    Object.entries(restored.specs ?? {}).forEach(([id, spec]) => specs.set(id, spec));
+    (restored.specOrder ?? []).forEach((entry) => specOrder.push(entry));
+    Object.entries(restored.runs ?? {}).forEach(([id, run]) => runs.set(id, run));
+    (restored.runOrder ?? []).forEach((entry) => runOrder.push(entry));
+    (restored.runEvents ?? []).forEach((entry) => runEvents.push(entry));
+    (restored.artifacts ?? []).forEach((entry) => artifacts.push(entry));
+    (restored.logs ?? []).forEach((entry) => logs.push(entry));
+  }
+
+  const snapshot = (): FileState => ({
+    projects: Object.fromEntries(projects.entries()),
+    specs: Object.fromEntries(specs.entries()),
+    specOrder: [...specOrder],
+    runs: Object.fromEntries(runs.entries()),
+    runOrder: [...runOrder],
+    runEvents: [...runEvents],
+    artifacts: [...artifacts],
+    logs: [...logs],
+  });
+
+  const persist = async () => {
+    await persistState(snapshot());
+  };
+
   return {
     async createProject(name: string) {
       const id = `proj_${randomUUID()}`;
-      const project: Project = { id, name, status: "idle" };
+      const project: Project = { id, name, status: "idle", createdAt: new Date().toISOString() };
       projects.set(id, project);
+      await persist();
       return project;
+    },
+    async listProjects() {
+      return [...projects.values()];
     },
     async getProject(id: string) {
       return projects.get(id) ?? null;
@@ -73,6 +147,7 @@ const createMemoryRepository = (): ProjectRepository => {
       const saved: Spec = { id, projectId, spec };
       specs.set(id, saved);
       specOrder.push({ id, projectId });
+      await persist();
       return saved;
     },
     async getSpec(id: string) {
@@ -86,6 +161,7 @@ const createMemoryRepository = (): ProjectRepository => {
       const project = projects.get(projectId);
       if (project) {
         projects.set(projectId, { ...project, status });
+        await persist();
       }
     },
     async getProjectStatus(projectId: string) {
@@ -95,16 +171,19 @@ const createMemoryRepository = (): ProjectRepository => {
       const id = `run_${randomUUID()}`;
       runs.set(id, { id, projectId, status });
       runOrder.push({ id, projectId });
+      await persist();
       return { id, projectId, status };
     },
     async updateRunStatus(runId: string, status: string) {
       const run = runs.get(runId);
       if (run) {
         runs.set(runId, { ...run, status });
+        await persist();
       }
     },
     async addRunEvent(runId: string, step: string, message: string) {
       runEvents.push({ runId, step, message });
+      await persist();
     },
     async getLatestRun(projectId: string) {
       const match = [...runOrder].reverse().find((entry) => entry.projectId === projectId);
@@ -118,6 +197,7 @@ const createMemoryRepository = (): ProjectRepository => {
       const createdAt = new Date().toISOString();
       const entry: ActivityLog = { id, createdAt, ...log };
       logs.push(entry);
+      await persist();
       return entry;
     },
     async listLogs(projectId?: string | null) {
@@ -130,6 +210,7 @@ const createMemoryRepository = (): ProjectRepository => {
       const id = `artifact_${randomUUID()}`;
       const artifact = { id, projectId, type, payload };
       artifacts.push(artifact);
+      await persist();
       return artifact;
     },
     async getLatestArtifact(projectId: string, type: string) {
@@ -206,14 +287,23 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
     async createProject(name: string) {
       const id = `proj_${randomUUID()}`;
       const status = "idle";
-      await pool.query(
-        "INSERT INTO projects (id, name, status) VALUES ($1, $2, $3)",
+      const result = await pool.query(
+        "INSERT INTO projects (id, name, status) VALUES ($1, $2, $3) RETURNING created_at",
         [id, name, status],
       );
-      return { id, name, status };
+      return { id, name, status, createdAt: result.rows[0]?.created_at };
+    },
+    async listProjects() {
+      const result = await pool.query(
+        "SELECT id, name, status, created_at AS \"createdAt\" FROM projects ORDER BY created_at DESC",
+      );
+      return result.rows ?? [];
     },
     async getProject(id: string) {
-      const result = await pool.query("SELECT id, name, status FROM projects WHERE id = $1", [id]);
+      const result = await pool.query(
+        "SELECT id, name, status, created_at AS \"createdAt\" FROM projects WHERE id = $1",
+        [id],
+      );
       return result.rows[0] ?? null;
     },
     async createSpec(projectId: string, spec: unknown) {
@@ -319,7 +409,7 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
 export const createRepository = async (): Promise<ProjectRepository> => {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    console.warn("DATABASE_URL not set. Using in-memory repository for now.");
+    console.warn("DATABASE_URL not set. Using JSON file-backed repository.");
     return createMemoryRepository();
   }
 

@@ -13,6 +13,7 @@
 - The UI stays legible and calm during long-running jobs with clear progress cues.
 - UI actions emit debug logs for full activity tracing.
 - Project/spec/session state persists across refresh to avoid losing progress.
+- If artifacts cannot be found after refresh (e.g., API restarted or invalid project ID), the UI shows a clear error with guidance to reload the project or rerun the pipeline.
 
 ## Layout
 - App shell: left nav + top bar + main content
@@ -50,6 +51,8 @@
 - Quick actions: regenerate/export
  - Creating a project auto-starts the pipeline so artifacts appear without extra steps.
 - Project setup includes a field to load an existing project by ID.
+- Project setup includes a dropdown list of existing projects fetched from the API for quick reload.
+- If a saved project ID is no longer available, the UI clears it and prompts the user to pick an existing project or create a new one.
 
 ### BuilderWizard
 - Stepper with Setting, Cast, Logic, Output

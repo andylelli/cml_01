@@ -27,12 +27,17 @@
 **Output:** full CML 2.0 draft including false_assumption and discriminating_test
 **Validation:** schema + checklist, and “one primary axis” rule
 **Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths.
+**Parsing safety:** JSON parsing attempts include extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
+**Output guardrails:** Agent 3 includes a required YAML skeleton to avoid missing mandatory fields.
+**Schema normalization:** After parsing, missing required fields are filled with safe defaults before validation to stabilize runs.
 
 ### 4) CML revision
 **Purpose:** Fix validator failures in a targeted manner.
 **Input:** failed validation report + current CML
 **Output:** corrected CML; no new facts outside constraint space
 **Validation:** rerun schema + checklist, plus novelty audit vs selected seeds
+**Schema normalization:** Agent 4 normalizes parsed CML to fill required fields, including inference_path step fields (observation/correction/effect) and valid discriminating_test.method enums before validation.
+**Parsing safety:** If strict JSON parsing fails, Agent 4 sanitizes and parses YAML output before retrying.
 
 ### 5) Clue & red herring generation
 **Purpose:** Derive fair-play clue list from CML.
@@ -100,6 +105,8 @@
 - Log model name, prompt version, latency, token usage
 - Store request/response hashes for diffing
 - Attach run_id and artifact_id to each response
+- LLM logging uses environment configuration (LOG_LEVEL, LOG_TO_FILE, LOG_FILE_PATH, LOG_TO_CONSOLE)
+- API loads .env.local at startup to populate Azure OpenAI and logging settings
 
 ## Failure handling
 - Retry policy with exponential backoff

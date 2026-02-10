@@ -1,6 +1,35 @@
 import { randomUUID } from "crypto";
+import fs from "fs/promises";
+import path from "path";
 import pg from "pg";
-const createMemoryRepository = () => {
+const createMemoryRepository = async (filePath) => {
+    const defaultPath = path.resolve(process.cwd(), "data", "store.json");
+    const storePath = filePath ?? process.env.CML_JSON_DB_PATH ?? defaultPath;
+    const storeDir = path.dirname(storePath);
+    let savePromise = null;
+    const loadState = async () => {
+        try {
+            const raw = await fs.readFile(storePath, "utf-8");
+            return JSON.parse(raw);
+        }
+        catch {
+            return null;
+        }
+    };
+    const persistState = async (state) => {
+        if (savePromise) {
+            await savePromise;
+        }
+        savePromise = (async () => {
+            await fs.mkdir(storeDir, { recursive: true });
+            const tempPath = `${storePath}.tmp`;
+            await fs.writeFile(tempPath, JSON.stringify(state, null, 2), "utf-8");
+            await fs.rename(tempPath, storePath);
+        })();
+        await savePromise;
+        savePromise = null;
+    };
+    const restored = await loadState();
     const projects = new Map();
     const specs = new Map();
     const specOrder = [];
@@ -9,12 +38,39 @@ const createMemoryRepository = () => {
     const runEvents = [];
     const artifacts = [];
     const logs = [];
+    if (restored) {
+        Object.entries(restored.projects ?? {}).forEach(([id, project]) => projects.set(id, project));
+        Object.entries(restored.specs ?? {}).forEach(([id, spec]) => specs.set(id, spec));
+        (restored.specOrder ?? []).forEach((entry) => specOrder.push(entry));
+        Object.entries(restored.runs ?? {}).forEach(([id, run]) => runs.set(id, run));
+        (restored.runOrder ?? []).forEach((entry) => runOrder.push(entry));
+        (restored.runEvents ?? []).forEach((entry) => runEvents.push(entry));
+        (restored.artifacts ?? []).forEach((entry) => artifacts.push(entry));
+        (restored.logs ?? []).forEach((entry) => logs.push(entry));
+    }
+    const snapshot = () => ({
+        projects: Object.fromEntries(projects.entries()),
+        specs: Object.fromEntries(specs.entries()),
+        specOrder: [...specOrder],
+        runs: Object.fromEntries(runs.entries()),
+        runOrder: [...runOrder],
+        runEvents: [...runEvents],
+        artifacts: [...artifacts],
+        logs: [...logs],
+    });
+    const persist = async () => {
+        await persistState(snapshot());
+    };
     return {
         async createProject(name) {
             const id = `proj_${randomUUID()}`;
-            const project = { id, name, status: "idle" };
+            const project = { id, name, status: "idle", createdAt: new Date().toISOString() };
             projects.set(id, project);
+            await persist();
             return project;
+        },
+        async listProjects() {
+            return [...projects.values()];
         },
         async getProject(id) {
             return projects.get(id) ?? null;
@@ -24,6 +80,7 @@ const createMemoryRepository = () => {
             const saved = { id, projectId, spec };
             specs.set(id, saved);
             specOrder.push({ id, projectId });
+            await persist();
             return saved;
         },
         async getSpec(id) {
@@ -37,6 +94,7 @@ const createMemoryRepository = () => {
             const project = projects.get(projectId);
             if (project) {
                 projects.set(projectId, { ...project, status });
+                await persist();
             }
         },
         async getProjectStatus(projectId) {
@@ -46,16 +104,19 @@ const createMemoryRepository = () => {
             const id = `run_${randomUUID()}`;
             runs.set(id, { id, projectId, status });
             runOrder.push({ id, projectId });
+            await persist();
             return { id, projectId, status };
         },
         async updateRunStatus(runId, status) {
             const run = runs.get(runId);
             if (run) {
                 runs.set(runId, { ...run, status });
+                await persist();
             }
         },
         async addRunEvent(runId, step, message) {
             runEvents.push({ runId, step, message });
+            await persist();
         },
         async getLatestRun(projectId) {
             const match = [...runOrder].reverse().find((entry) => entry.projectId === projectId);
@@ -69,6 +130,7 @@ const createMemoryRepository = () => {
             const createdAt = new Date().toISOString();
             const entry = { id, createdAt, ...log };
             logs.push(entry);
+            await persist();
             return entry;
         },
         async listLogs(projectId) {
@@ -81,6 +143,7 @@ const createMemoryRepository = () => {
             const id = `artifact_${randomUUID()}`;
             const artifact = { id, projectId, type, payload };
             artifacts.push(artifact);
+            await persist();
             return artifact;
         },
         async getLatestArtifact(projectId, type) {
@@ -149,11 +212,15 @@ const createPostgresRepository = async (connectionString) => {
         async createProject(name) {
             const id = `proj_${randomUUID()}`;
             const status = "idle";
-            await pool.query("INSERT INTO projects (id, name, status) VALUES ($1, $2, $3)", [id, name, status]);
-            return { id, name, status };
+            const result = await pool.query("INSERT INTO projects (id, name, status) VALUES ($1, $2, $3) RETURNING created_at", [id, name, status]);
+            return { id, name, status, createdAt: result.rows[0]?.created_at };
+        },
+        async listProjects() {
+            const result = await pool.query("SELECT id, name, status, created_at AS \"createdAt\" FROM projects ORDER BY created_at DESC");
+            return result.rows ?? [];
         },
         async getProject(id) {
-            const result = await pool.query("SELECT id, name, status FROM projects WHERE id = $1", [id]);
+            const result = await pool.query("SELECT id, name, status, created_at AS \"createdAt\" FROM projects WHERE id = $1", [id]);
             return result.rows[0] ?? null;
         },
         async createSpec(projectId, spec) {
@@ -226,7 +293,7 @@ const createPostgresRepository = async (connectionString) => {
 export const createRepository = async () => {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
-        console.warn("DATABASE_URL not set. Using in-memory repository for now.");
+        console.warn("DATABASE_URL not set. Using JSON file-backed repository.");
         return createMemoryRepository();
     }
     return createPostgresRepository(connectionString);

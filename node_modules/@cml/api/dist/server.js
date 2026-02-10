@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
-import { AzureOpenAIClient } from "@cml/llm-client";
+import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"]);
 const withMode = (req, _res, next) => {
@@ -426,46 +426,27 @@ const validateOutline = (outline) => ({
     valid: Boolean(outline.tone),
     errors: outline.tone ? [] : ["Outline must include tone"],
 });
-const runDeterministicPipeline = async (repoPromise, projectId, runId, specPayload) => {
-    const repo = await repoPromise;
-    await repo.addRunEvent(runId, "pipeline_started", "Starting deterministic pipeline (no LLM credentials)");
-    const setting = deriveSetting(specPayload);
-    await repo.createArtifact(projectId, "setting", setting, null);
-    await repo.createArtifact(projectId, "setting_validation", validateSetting(setting), null);
-    await repo.addRunEvent(runId, "setting_done", "Setting generated");
-    const cast = deriveCast(specPayload);
-    await repo.createArtifact(projectId, "cast", cast, null);
-    await repo.createArtifact(projectId, "cast_validation", validateCast(cast), null);
-    await repo.addRunEvent(runId, "cast_done", "Cast generated");
-    const cml = deriveCml(specPayload);
-    const cmlValidation = validateCml(cml);
-    await repo.createArtifact(projectId, "cml", cml, null);
-    await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
-    await repo.addRunEvent(runId, "cml_validated", "CML validated");
-    const synopsis = deriveSynopsis(cml);
-    await repo.createArtifact(projectId, "synopsis", synopsis, null);
-    await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
-    const noveltyAudit = { status: "pass", seedIds: [], patterns: [] };
-    await repo.createArtifact(projectId, "novelty_audit", noveltyAudit, null);
-    await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
-    const clues = deriveClues(specPayload);
-    await repo.createArtifact(projectId, "clues", clues, null);
-    await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
-    await repo.addRunEvent(runId, "clues_done", "Clues generated");
-    const fairPlayReport = deriveFairPlayReport(cml, clues);
-    await repo.createArtifact(projectId, "fair_play_report", fairPlayReport, null);
-    await repo.addRunEvent(runId, "fair_play_report_done", "Fair-play report generated");
-    const outline = deriveOutline(specPayload);
-    await repo.createArtifact(projectId, "outline", outline, null);
-    await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
-    await repo.addRunEvent(runId, "outline_done", "Outline generated");
-    const prose = deriveProse(specPayload, outline, cast);
-    await repo.createArtifact(projectId, "prose", prose, null);
-    await repo.addRunEvent(runId, "prose_done", "Prose generated");
-    const gamePack = deriveGamePack(specPayload, cast, cml);
-    await repo.createArtifact(projectId, "game_pack", gamePack, null);
-    await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
-    await repo.addRunEvent(runId, "pipeline_complete", "Deterministic pipeline complete");
+const parseEnvBool = (value, defaultValue) => {
+    if (value === undefined)
+        return defaultValue;
+    return value.toLowerCase() === "true";
+};
+const buildLlmLogger = () => new LLMLogger({
+    logLevel: process.env.LOG_LEVEL,
+    logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
+    logToFile: parseEnvBool(process.env.LOG_TO_FILE, false),
+    logFilePath: process.env.LOG_FILE_PATH,
+});
+const describeError = (error) => {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    try {
+        return JSON.stringify(error);
+    }
+    catch {
+        return String(error);
+    }
 };
 const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
     const repo = await repoPromise;
@@ -474,12 +455,15 @@ const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
         const config = {
             endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
             apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-            deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o",
-            apiVersion: "2024-10-21",
+            defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
+                process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
+                "gpt-4o",
+            apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
+            requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
+            logger: buildLlmLogger(),
         };
         if (!config.endpoint || !config.apiKey) {
-            await runDeterministicPipeline(repoPromise, projectId, runId, specPayload);
-            return;
+            throw new Error("Azure OpenAI credentials not configured. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY environment variables.");
         }
         const client = new AzureOpenAIClient(config);
         // Build mystery generation inputs from spec
@@ -550,9 +534,15 @@ const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
         }
     }
     catch (error) {
-        await repo.addRunEvent(runId, "pipeline_error", `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`);
+        await repo.addRunEvent(runId, "pipeline_error", `Pipeline failed: ${describeError(error)}`);
         throw error;
     }
+};
+const appendActivityLog = async (entry) => {
+    const logDir = path.resolve(process.cwd(), "logs");
+    const logPath = path.join(logDir, "activity.jsonl");
+    await fs.mkdir(logDir, { recursive: true });
+    await fs.appendFile(logPath, `${JSON.stringify(entry)}\n`, "utf-8");
 };
 export const createServer = () => {
     const app = express();
@@ -567,12 +557,32 @@ export const createServer = () => {
                 .then((repo) => {
                 const match = req.path.match(/\/api\/projects\/([^/]+)/);
                 const projectId = match?.[1] ?? null;
-                return repo.createLog({
+                const durationMs = Date.now() - start;
+                const httpEntry = {
                     projectId,
                     scope: "http",
                     message: `${req.method} ${req.path} ${res.statusCode}`,
-                    payload: { durationMs: Date.now() - start },
-                });
+                    payload: { durationMs },
+                };
+                const httpLog = repo.createLog(httpEntry);
+                appendActivityLog({
+                    ...httpEntry,
+                    createdAt: new Date().toISOString(),
+                }).catch(() => undefined);
+                if (res.statusCode >= 400) {
+                    const errorEntry = {
+                        projectId,
+                        scope: "http_error",
+                        message: `${req.method} ${req.path} ${res.statusCode}`,
+                        payload: { durationMs },
+                    };
+                    appendActivityLog({
+                        ...errorEntry,
+                        createdAt: new Date().toISOString(),
+                    }).catch(() => undefined);
+                    return Promise.all([httpLog, repo.createLog(errorEntry)]).then(() => undefined);
+                }
+                return httpLog;
             })
                 .catch(() => undefined);
         });
@@ -587,6 +597,12 @@ export const createServer = () => {
             .then((repo) => repo.createProject(name))
             .then((project) => res.status(201).json(project))
             .catch(() => res.status(500).json({ error: "Failed to create project" }));
+    });
+    app.get("/api/projects", (_req, res) => {
+        repoPromise
+            .then((repo) => repo.listProjects())
+            .then((projects) => res.json({ projects }))
+            .catch(() => res.status(500).json({ error: "Failed to list projects" }));
     });
     app.get("/api/projects/:id", (_req, res) => {
         repoPromise
@@ -758,15 +774,18 @@ export const createServer = () => {
                 const latestSpec = await repo.getLatestSpec(project.id);
                 const specPayload = latestSpec?.spec ?? undefined;
                 setTimeout(() => {
-                    runPipeline(repoPromise, project.id, run.id, specPayload).catch(() => {
-                        repo.addRunEvent(run.id, "run_failed", "Pipeline failed");
+                    runPipeline(repoPromise, project.id, run.id, specPayload)
+                        .then(async () => {
+                        await repo.updateRunStatus(run.id, "idle");
+                        await repo.setProjectStatus(project.id, "idle");
+                        await repo.addRunEvent(run.id, "run_finished", "Pipeline run finished");
+                    })
+                        .catch(async () => {
+                        await repo.updateRunStatus(run.id, "idle");
+                        await repo.setProjectStatus(project.id, "idle");
+                        await repo.addRunEvent(run.id, "run_failed", "Pipeline failed");
                     });
                 }, 0);
-                setTimeout(async () => {
-                    await repo.updateRunStatus(run.id, "idle");
-                    await repo.setProjectStatus(project.id, "idle");
-                    await repo.addRunEvent(run.id, "run_finished", "Pipeline run finished");
-                }, 5000);
                 res.status(202).json({ status: "running", projectId: project.id, runId: run.id });
                 return project;
             });
@@ -1035,12 +1054,17 @@ export const createServer = () => {
                 return;
             }
             const repo = await repoPromise;
-            const log = await repo.createLog({
+            const logEntry = {
                 projectId: typeof projectId === "string" ? projectId : null,
                 scope,
                 message,
                 payload: payload ?? null,
-            });
+            };
+            const log = await repo.createLog(logEntry);
+            appendActivityLog({
+                ...logEntry,
+                createdAt: log.createdAt,
+            }).catch(() => undefined);
             res.status(201).json(log);
         }
         catch (error) {

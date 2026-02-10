@@ -92,6 +92,18 @@ export interface MysteryGenerationResult {
   errors: string[];
 }
 
+const describeError = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+};
+
 // ============================================================================
 // Progress Callback
 // ============================================================================
@@ -373,9 +385,10 @@ export async function generateMystery(
     };
   } catch (error) {
     // Catastrophic failure
-    errors.push(`Pipeline failure: ${error}`);
-    
-    throw new Error(`Mystery generation failed: ${error}`);
+    const errorMessage = describeError(error);
+    errors.push(`Pipeline failure: ${errorMessage}`);
+
+    throw new Error(`Mystery generation failed: ${errorMessage}`);
   }
 }
 

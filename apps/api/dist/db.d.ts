@@ -2,6 +2,7 @@ export type Project = {
     id: string;
     name: string;
     status: string;
+    createdAt?: string;
 };
 export type Spec = {
     id: string;
@@ -18,6 +19,7 @@ export type ActivityLog = {
 };
 export type ProjectRepository = {
     createProject: (name: string) => Promise<Project>;
+    listProjects: () => Promise<Project[]>;
     getProject: (id: string) => Promise<Project | null>;
     createSpec: (projectId: string, spec: unknown) => Promise<Spec>;
     getSpec: (id: string) => Promise<Spec | null>;

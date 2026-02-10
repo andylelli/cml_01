@@ -23,6 +23,7 @@ import {
   createProject,
   downloadGamePackPdf,
   fetchProject,
+  fetchProjects,
   fetchCast,
   fetchCastValidation,
   fetchCml,
@@ -47,6 +48,7 @@ import {
   runPipeline,
   saveSpec,
   type Artifact,
+  type Project,
 } from "./services/api";
 import { subscribeToRunEvents } from "./services/sse";
 
@@ -244,6 +246,9 @@ const playModeEnabled = ref(false);
 const currentChapter = ref(1);
 const samples = ref<Array<{ id: string; name: string; filename: string }>>([]);
 const selectedSample = ref<{ id: string; name: string; content: string } | null>(null);
+const projectsList = ref<Project[]>([]);
+const selectedProjectId = ref("");
+const missingProjectNotified = ref(false);
 const artifactsStatus = ref<"idle" | "loading" | "ready" | "partial" | "error">("idle");
 const lastProjectStatus = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
@@ -527,6 +532,10 @@ const handleCreateProject = async () => {
   try {
     const project = await createProject(projectName.value.trim() || "Untitled project");
     projectId.value = project.id;
+    projectIdInput.value = project.id;
+    selectedProjectId.value = project.id;
+    missingProjectNotified.value = false;
+    projectsList.value = [project, ...projectsList.value.filter((entry) => entry.id !== project.id)];
     runStatus.value = `idle • project ${project.id}`;
     
     // Reset validation state for new project (no artifacts yet)
@@ -542,10 +551,37 @@ const handleCreateProject = async () => {
     addError("info", "project", `Project created: ${project.id}. Configure your spec, then click Generate.`);
     persistState();
     logActivity({ projectId: project.id, scope: "ui", message: "project_created" });
+    await loadProjects();
     // Don't auto-run pipeline - user should configure spec first and manually click Generate
   } catch (error) {
     addError("error", "project", "Failed to create project", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "project_create_failed" });
+  }
+};
+
+const loadProjects = async () => {
+  clearErrors("project");
+  try {
+    projectsList.value = await fetchProjects();
+    if (projectId.value && !selectedProjectId.value) {
+      selectedProjectId.value = projectId.value;
+    }
+    if (projectId.value && !projectsList.value.some((project) => project.id === projectId.value)) {
+      projectId.value = null;
+      latestSpecId.value = null;
+      selectedProjectId.value = "";
+      runStatus.value = "Idle • No active run";
+      missingProjectNotified.value = true;
+      persistState();
+      addError(
+        "warning",
+        "project",
+        "Saved project not found",
+        "The API was restarted or the project was deleted. Create a new project or select an existing one."
+      );
+    }
+  } catch (error) {
+    addError("warning", "project", "Failed to load project list", error instanceof Error ? error.message : String(error));
   }
 };
 
@@ -699,13 +735,56 @@ const loadArtifacts = async () => {
     noveltyAudit,
   ].filter((result) => result.status === "rejected");
 
+  const failureReasons = failures
+    .map((result) => (result.status === "rejected" ? result.reason : null))
+    .filter((reason): reason is Error => reason instanceof Error);
+  const hasNotFound = failureReasons.some((reason) => reason.message.includes("(404)"));
+  const hasNetworkError = failureReasons.some((reason) => reason.message.toLowerCase().includes("failed to fetch"));
+
   if (failures.length === 0) {
     artifactsStatus.value = "ready";
     addError("info", "artifacts", "All artifacts loaded successfully");
   } else if (failures.length === 15) {
-    // All artifacts failed - likely a new project with no generated content yet
-    artifactsStatus.value = "idle";
-    // Don't show error - this is expected for new projects
+    if (hasNotFound) {
+      const projectMissing = projectId.value
+        ? !projectsList.value.some((project) => project.id === projectId.value)
+        : false;
+      if (projectMissing && !missingProjectNotified.value) {
+        missingProjectNotified.value = true;
+        projectId.value = null;
+        latestSpecId.value = null;
+        selectedProjectId.value = "";
+        runStatus.value = "Idle • No active run";
+        persistState();
+        addError(
+          "warning",
+          "project",
+          "Saved project not found",
+          "The API was restarted or the project was deleted. Create a new project or select an existing one."
+        );
+      } else if (!missingProjectNotified.value) {
+        artifactsStatus.value = "error";
+        addError(
+          "error",
+          "artifacts",
+          "No artifacts found for this project",
+          "The API may have restarted or the project ID is invalid. Load the project again or rerun the pipeline."
+        );
+        missingProjectNotified.value = true;
+      }
+    } else if (hasNetworkError) {
+      artifactsStatus.value = "error";
+      addError(
+        "error",
+        "artifacts",
+        "API unreachable",
+        "Check that the API server is running and refresh the page."
+      );
+    } else {
+      // All artifacts failed - likely a new project with no generated content yet
+      artifactsStatus.value = "idle";
+      // Don't show error - this is expected for new projects
+    }
   } else if (failures.length < 5) {
     artifactsStatus.value = "partial";
     addError("warning", "artifacts", `${failures.length} artifacts failed to load`, "Some content may be unavailable. Refresh to retry.");
@@ -813,10 +892,11 @@ const handleSampleSelect = async (id: string) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   hydrateState();
   checkHealth();
   connectSse();
+  await loadProjects();
   loadSamples();
   if (projectId.value) {
     loadArtifacts();
@@ -1040,6 +1120,27 @@ onBeforeUnmount(() => {
                     @click="handleLoadProject"
                   >
                     Load project
+                  </button>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-slate-500">Load existing project</label>
+                  <select
+                    v-model="selectedProjectId"
+                    class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    <option value="">Select a project</option>
+                    <option v-for="project in projectsList" :key="project.id" :value="project.id">
+                      {{ project.name }} ({{ project.id }})
+                    </option>
+                  </select>
+                </div>
+                <div class="flex items-end">
+                  <button
+                    class="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    :disabled="!selectedProjectId"
+                    @click="projectIdInput = selectedProjectId; handleLoadProject()"
+                  >
+                    Load selected
                   </button>
                 </div>
               </div>

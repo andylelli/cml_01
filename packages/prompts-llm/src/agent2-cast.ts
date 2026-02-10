@@ -242,6 +242,12 @@ export async function designCast(
         temperature: 0.7,
         maxTokens: 4000,
         jsonMode: true,
+        logContext: {
+          runId: inputs.runId,
+          projectId: inputs.projectId,
+          agent: "Agent2-CastDesigner",
+          retryAttempt: attempt,
+        },
       });
 
       // 3. Parse JSON

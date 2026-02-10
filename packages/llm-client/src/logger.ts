@@ -66,6 +66,8 @@ export class LLMLogger {
       totalTokens: entry.totalTokens,
       estimatedCost: entry.estimatedCost,
       success: entry.success ?? true,
+      errorCode: entry.errorCode,
+      errorMessage: entry.errorMessage,
       validationStatus: entry.validationStatus,
       retryAttempt: entry.retryAttempt || 0,
       metadata: entry.metadata || {},

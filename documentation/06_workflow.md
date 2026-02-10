@@ -11,6 +11,11 @@ This document describes the current implementation of the mystery generation wor
 - **Action**: Creates a new project with `idle` status
 - **Response**: `{ id, name, status }`
 
+### 1b. List Projects
+- **Endpoint**: `GET /api/projects`
+- **Action**: Returns existing projects for reload dropdown
+- **Response**: `{ projects: [{ id, name, status, createdAt? }] }`
+
 ### 2. Save Spec
 - **Endpoint**: `POST /api/projects/:id/specs`
 - **Action**: Stores user input specification (decade, cast size, tone, clue density, etc.)
@@ -120,7 +125,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Event**: `game_pack_done` - "Game pack generated"
 
 ### Pipeline Completion
-- After 5 seconds, project status returns to `idle`
+- After the pipeline finishes (success or failure), project status returns to `idle`
 - **Event**: `run_finished` - "Pipeline run finished"
 
 ## Run Events
@@ -208,10 +213,9 @@ Users can regenerate individual artifacts without re-running the entire pipeline
 - ✅ SSE provides real-time status updates
 - ✅ CML access control is enforced
 - ✅ Validation is performed at each step
-- ✅ If Azure OpenAI credentials are missing, the pipeline falls back to deterministic placeholder generation
 
 ### What's Stubbed
-- ⚠️ **LLM pipeline requires Azure OpenAI credentials** - Without credentials, generation falls back to deterministic placeholders
+- ⚠️ **LLM pipeline requires Azure OpenAI credentials** - Runs fail fast if credentials are missing
 - ⚠️ **Worker jobs are placeholders** - All return `notImplemented`
 - ⚠️ **Novelty audit always passes** - No actual similarity checking
 - ⚠️ **In-memory storage** - No persistent database (data lost on restart)

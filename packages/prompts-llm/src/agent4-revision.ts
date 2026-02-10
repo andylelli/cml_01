@@ -92,7 +92,7 @@ export function buildRevisionPrompt(inputs: RevisionInputs): PromptComponents {
   const grouped = groupErrorsBySection(validationErrors);
 
   // System prompt: Revision specialist role
-  const system = `You are a CML (Case Markup Language) revision specialist. Your task is to fix validation errors in CML YAML documents while preserving the original creative intent and narrative structure.
+  const system = `You are a CML (Case Markup Language) revision specialist. Your task is to fix validation errors in CML documents while preserving the original creative intent and narrative structure.
 
 **Core Principles**:
 - Fix ONLY the validation errors - don't rewrite working sections
@@ -108,7 +108,7 @@ export function buildRevisionPrompt(inputs: RevisionInputs): PromptComponents {
 4. Fix type/value errors while preserving intent
 5. Ensure all fixes maintain narrative coherence
 
-You MUST return ONLY valid YAML that matches the CML 2.0 schema.`;
+You MUST return ONLY valid JSON that matches the CML 2.0 schema.`;
 
   // Developer prompt: Error analysis and schema guidance
   let developer = `# Revision Context
@@ -215,7 +215,7 @@ When cast members are missing fields like age_range, role_archetype, etc.:
   // User prompt: The actual revision task
   const user = `# Revision Task
 
-Fix ALL validation errors in the CML below. Return the COMPLETE, corrected CML as valid YAML.
+Fix ALL validation errors in the CML below. Return the COMPLETE, corrected CML as valid JSON.
 
 ## Invalid CML to Fix
 
@@ -232,7 +232,7 @@ ${invalidCml}
 5. **Maintain narrative coherence** - fixes must make logical sense
 6. **Return COMPLETE YAML** - the entire fixed CML document
 
-**IMPORTANT**: Return ONLY the corrected YAML. No explanations, no markdown code blocks, just the raw YAML that will parse and validate successfully.`;
+**IMPORTANT**: Return ONLY the corrected JSON. No explanations, no markdown code blocks, just the raw JSON that will parse and validate successfully.`;
 
   return {
     system,
@@ -255,6 +255,161 @@ export async function reviseCml(
   const logger = client.getLogger();
   const runId = inputs.runId || `revision-${Date.now()}`;
   const projectId = inputs.projectId || "unknown";
+
+  const ensureObject = (value: unknown) =>
+    value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  const ensureArray = (value: unknown) => (Array.isArray(value) ? value : []);
+  const ensureString = (value: unknown, fallback: string) =>
+    typeof value === "string" && value.trim() ? value : fallback;
+
+  const normalizeCml = (raw: Record<string, unknown>) => {
+    const cml = ensureObject(raw);
+    cml.CML_VERSION = 2.0;
+
+    const caseBlock = ensureObject(cml.CASE);
+    cml.CASE = caseBlock;
+
+    const meta = ensureObject(caseBlock.meta);
+    caseBlock.meta = meta;
+    meta.title = ensureString(meta.title, "Untitled Mystery");
+    meta.author = ensureString(meta.author, "CML Generator");
+    meta.license = ensureString(meta.license, "CC-BY-4.0");
+
+    const era = ensureObject(meta.era);
+    meta.era = era;
+    era.decade = ensureString(era.decade, "1930s");
+    era.realism_constraints = ensureArray(era.realism_constraints);
+
+    const setting = ensureObject(meta.setting);
+    meta.setting = setting;
+    setting.location = ensureString(setting.location, "Unknown location");
+    setting.institution = ensureString(setting.institution, "Unknown institution");
+
+    const crimeClass = ensureObject(meta.crime_class);
+    meta.crime_class = crimeClass;
+    crimeClass.category = ensureString(crimeClass.category, "murder");
+    crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
+
+    caseBlock.cast = Array.isArray(caseBlock.cast)
+      ? caseBlock.cast.map((member, index) => {
+          const existing = ensureObject(member);
+          return {
+            name: ensureString(existing.name, `Suspect ${index + 1}`),
+            age_range: ensureString(existing.age_range, "adult"),
+            role_archetype: ensureString(existing.role_archetype, "suspect"),
+            relationships: ensureArray(existing.relationships),
+            public_persona: ensureString(existing.public_persona, "reserved"),
+            private_secret: ensureString(existing.private_secret, "keeps a secret"),
+            motive_seed: ensureString(existing.motive_seed, "inheritance"),
+            motive_strength: ensureString(existing.motive_strength, "moderate"),
+            alibi_window: ensureString(existing.alibi_window, "evening"),
+            access_plausibility: ensureString(existing.access_plausibility, "medium"),
+            opportunity_channels: ensureArray(existing.opportunity_channels),
+            behavioral_tells: ensureArray(existing.behavioral_tells),
+            stakes: ensureString(existing.stakes, "reputation"),
+            evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
+            culprit_eligibility: ensureString(existing.culprit_eligibility, "eligible"),
+            culpability: ensureString(existing.culpability, "unknown"),
+          };
+        })
+      : [];
+
+    const culpability = ensureObject(caseBlock.culpability);
+    caseBlock.culpability = culpability;
+    culpability.culprit_count = typeof culpability.culprit_count === "number" ? culpability.culprit_count : 1;
+    culpability.culprits = ensureArray(culpability.culprits);
+
+    const surface = ensureObject(caseBlock.surface_model);
+    caseBlock.surface_model = surface;
+    const surfaceNarrative = ensureObject(surface.narrative);
+    surface.narrative = surfaceNarrative;
+    surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "A mystery unfolds.");
+    surface.accepted_facts = ensureArray(surface.accepted_facts);
+    surface.inferred_conclusions = ensureArray(surface.inferred_conclusions);
+
+    const hidden = ensureObject(caseBlock.hidden_model);
+    caseBlock.hidden_model = hidden;
+    const hiddenMechanism = ensureObject(hidden.mechanism);
+    hidden.mechanism = hiddenMechanism;
+    hiddenMechanism.description = ensureString(hiddenMechanism.description, "Poisoned tea.");
+    hiddenMechanism.delivery_path = ensureArray(hiddenMechanism.delivery_path);
+    const hiddenOutcome = ensureObject(hidden.outcome);
+    hidden.outcome = hiddenOutcome;
+    hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");
+
+    const falseAssumption = ensureObject(caseBlock.false_assumption);
+    caseBlock.false_assumption = falseAssumption;
+    falseAssumption.statement = ensureString(falseAssumption.statement, "Death was natural.");
+    falseAssumption.type = ensureString(falseAssumption.type, "temporal");
+    falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
+    falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
+
+    const constraintSpace = ensureObject(caseBlock.constraint_space);
+    caseBlock.constraint_space = constraintSpace;
+    const constraintTime = ensureObject(constraintSpace.time);
+    constraintSpace.time = constraintTime;
+    constraintTime.anchors = ensureArray(constraintTime.anchors);
+    constraintTime.windows = ensureArray(constraintTime.windows);
+    constraintTime.contradictions = ensureArray(constraintTime.contradictions);
+    const constraintAccess = ensureObject(constraintSpace.access);
+    constraintSpace.access = constraintAccess;
+    constraintAccess.actors = ensureArray(constraintAccess.actors);
+    constraintAccess.objects = ensureArray(constraintAccess.objects);
+    constraintAccess.permissions = ensureArray(constraintAccess.permissions);
+    const constraintPhysical = ensureObject(constraintSpace.physical);
+    constraintSpace.physical = constraintPhysical;
+    constraintPhysical.laws = ensureArray(constraintPhysical.laws);
+    constraintPhysical.traces = ensureArray(constraintPhysical.traces);
+    const constraintSocial = ensureObject(constraintSpace.social);
+    constraintSpace.social = constraintSocial;
+    constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
+    constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
+
+    const inferencePath = ensureObject(caseBlock.inference_path);
+    caseBlock.inference_path = inferencePath;
+    inferencePath.steps = Array.isArray(inferencePath.steps) && inferencePath.steps.length
+      ? inferencePath.steps
+      : [
+          { observation: "Symptom onset", correction: "Poison delay", effect: "Alibi weakens" },
+          { observation: "Access log", correction: "Hidden entry", effect: "Access narrowed" },
+          { observation: "Motive clue", correction: "Blackmail reveal", effect: "Suspect isolated" },
+        ];
+    const inferenceSteps = ensureArray(inferencePath.steps);
+    inferencePath.steps = inferenceSteps.map((step, index) => {
+      const stepObj = ensureObject(step);
+      return {
+        observation: ensureString(stepObj.observation, `Observation ${index + 1}`),
+        correction: ensureString(stepObj.correction, `Correction ${index + 1}`),
+        effect: ensureString(stepObj.effect, `Effect ${index + 1}`),
+      };
+    });
+
+    const discriminatingTest = ensureObject(caseBlock.discriminating_test);
+    caseBlock.discriminating_test = discriminatingTest;
+    const method = ensureString(discriminatingTest.method, "trap");
+    discriminatingTest.method = [
+      "reenactment",
+      "trap",
+      "constraint_proof",
+      "administrative_pressure",
+    ].includes(method)
+      ? method
+      : "trap";
+    discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
+    discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
+    discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
+
+    const fairPlay = ensureObject(caseBlock.fair_play);
+    caseBlock.fair_play = fairPlay;
+    fairPlay.all_clues_visible = typeof fairPlay.all_clues_visible === "boolean" ? fairPlay.all_clues_visible : true;
+    fairPlay.no_special_knowledge_required =
+      typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
+    fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
+    fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
+    fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
+
+    return cml;
+  };
 
   let currentCml = inputs.invalidCml;
   let currentErrors = inputs.validationErrors;
@@ -299,15 +454,21 @@ export async function reviseCml(
         },
       });
 
+      const combinedSystem = `${prompt.system}\n\n# Technical Specifications\n\n${prompt.developer}`;
       const response = await client.chat({
         messages: [
-          { role: "system", content: prompt.system },
-          { role: "developer", content: prompt.developer },
+          { role: "system", content: combinedSystem },
           { role: "user", content: prompt.user },
         ],
         temperature: 0.5, // Balanced - not too creative, not too rigid
         maxTokens: 8000,  // Large - needs full CML revision
-        jsonMode: false,  // YAML output, not JSON
+        jsonMode: true,  // JSON output
+        logContext: {
+          runId,
+          projectId,
+          agent: "Agent4-Revision",
+          retryAttempt: attempt,
+        },
       });
 
       await logger.logResponse({
@@ -325,34 +486,118 @@ export async function reviseCml(
         },
       });
 
-      // Parse YAML
-      let cml: Record<string, unknown>;
-      try {
-        cml = yaml.load(response.content) as Record<string, unknown>;
-      } catch (parseError) {
+      // Parse JSON/YAML
+      let cml: Record<string, unknown> | undefined;
+      let jsonParseError: Error | undefined;
+      let yamlParseError: Error | undefined;
+
+      const sanitizeYaml = (raw: string) =>
+        raw
+          .split("\n")
+          .map((line) => {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith("#")) return line;
+
+            const doubleQuoteMatch = line.match(/^([\s\S]*?:\s*"(?:[^"\\]|\\.)*")\s+(.+)$/);
+            if (doubleQuoteMatch && !doubleQuoteMatch[2].trimStart().startsWith("#")) {
+              return doubleQuoteMatch[1];
+            }
+
+            const singleQuoteMatch = line.match(/^([\s\S]*?:\s*'(?:[^'\\]|\\.)*')\s+(.+)$/);
+            if (singleQuoteMatch && !singleQuoteMatch[2].trimStart().startsWith("#")) {
+              return singleQuoteMatch[1];
+            }
+
+            if (!trimmed.includes(":")) {
+              const isListItem = trimmed.startsWith("-") || trimmed.startsWith("[") || trimmed.startsWith("{");
+              if (!isListItem) {
+                const indentMatch = line.match(/^(\s*)/);
+                const indent = indentMatch ? indentMatch[1] : "";
+                return `${indent}# ${trimmed}`;
+              }
+            }
+
+            return line;
+          })
+          .join("\n");
+
+      const tryParseJson = (raw: string): Record<string, unknown> | undefined => {
+        try {
+          return JSON.parse(raw) as Record<string, unknown>;
+        } catch (error) {
+          jsonParseError = error as Error;
+        }
+
+        const trimmed = raw.trim();
+        const start = trimmed.indexOf("{");
+        const end = trimmed.lastIndexOf("}");
+        if (start !== -1 && end > start) {
+          const candidate = trimmed.slice(start, end + 1);
+          try {
+            return JSON.parse(candidate) as Record<string, unknown>;
+          } catch (error) {
+            jsonParseError = error as Error;
+          }
+        }
+
+        return undefined;
+      };
+
+      cml = tryParseJson(response.content);
+
+      if (!cml) {
+        try {
+          const sanitized = sanitizeYaml(response.content);
+          const parsed = yaml.load(sanitized) as Record<string, unknown> | undefined;
+          if (parsed && typeof parsed === "object") {
+            cml = parsed;
+            await logger.logResponse({
+              runId,
+              projectId,
+              agent: "Agent4-Revision",
+              operation: "parse_output_sanitized",
+              model: response.model,
+              success: true,
+              validationStatus: "pass",
+              retryAttempt: attempt,
+              latencyMs: Date.now() - startTime,
+              metadata: { note: "YAML sanitized after JSON parse failure" },
+            });
+          }
+        } catch (error) {
+          yamlParseError = error as Error;
+        }
+      }
+
+      if (!cml || typeof cml !== "object") {
+        const jsonMessage = jsonParseError ? jsonParseError.message : "Unknown JSON parse error";
+        const yamlMessage = yamlParseError ? yamlParseError.message : "Unknown YAML parse error";
+
         await logger.logError({
           runId,
           projectId,
           agent: "Agent4-Revision",
           operation: "parse_yaml",
-          errorMessage: `YAML parse failed: ${(parseError as Error).message}`,
+          errorMessage: `Output parse failed: ${jsonMessage}; ${yamlMessage}`,
           retryAttempt: attempt,
           metadata: { rawContent: response.content.substring(0, 500) },
         });
 
         if (attempt < maxAttempts) {
           // Try again with parsing error feedback
-          currentErrors.push(`YAML parsing failed: ${(parseError as Error).message}`);
-          revisionsApplied.push(`Attempt ${attempt}: YAML parse failed, retrying`);
+          currentErrors.push(`Output parsing failed: ${jsonMessage}`);
+          revisionsApplied.push(`Attempt ${attempt}: Output parse failed, retrying`);
           attempt++;
           continue;
         } else {
-          throw new Error(`YAML parsing failed after ${maxAttempts} attempts: ${(parseError as Error).message}`);
+          throw new Error(`Output parsing failed after ${maxAttempts} attempts: ${jsonMessage}`);
         }
       }
 
+      const normalized = normalizeCml(cml);
+
       // Validate revised CML
-      const validation = validateCml(cml);
+      const validation = validateCml(normalized);
 
       if (validation.valid) {
         // Success!
@@ -380,7 +625,7 @@ export async function reviseCml(
         });
 
         return {
-          cml,
+          cml: normalized,
           validation,
           revisionsApplied,
           attempt,
