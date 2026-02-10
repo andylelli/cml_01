@@ -17,7 +17,8 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 export interface CastInputs {
   runId: string;
   projectId: string;
-  characterNames: string[]; // User-provided names (6 required)
+  characterNames?: string[]; // User-provided names (optional)
+  castSize?: number; // Number of characters to generate (if names not provided)
   setting: string; // Era + location context
   crimeType: string; // Murder, theft, etc.
   tone: string; // Golden age, noir, cozy, etc.
@@ -184,16 +185,21 @@ Return JSON only:
 \`\`\`
 `;
 
+  const count = inputs.characterNames?.length || inputs.castSize || 6;
+  const namesSection = inputs.characterNames 
+    ? `**Character Names**: ${inputs.characterNames.join(", ")}`
+    : `**Cast Size**: Create ${count} original characters (generate appropriate names)`;
+
   const user = `Design detailed character profiles for the following mystery:
 
-**Character Names**: ${inputs.characterNames.join(", ")}
+${namesSection}
 **Setting**: ${inputs.setting}
 **Crime Type**: ${inputs.crimeType}
 ${inputs.socialContext ? `**Social Context**: ${inputs.socialContext}` : ""}
 **Tone**: ${inputs.tone}
 
 Requirements:
-1. Create complete profiles for all ${inputs.characterNames.length} characters
+1. Create complete profiles for all ${count} characters
 2. Ensure diverse representation (age, background, archetype)
 3. Build interconnected relationships with hidden tensions
 4. Generate plausible motives and alibis for each character
@@ -223,12 +229,7 @@ export async function designCast(
   maxAttempts = 3
 ): Promise<CastDesignResult> {
   const startTime = Date.now();
-
-  if (inputs.characterNames.length !== 6) {
-    throw new Error(
-      `Cast design requires exactly 6 character names, got ${inputs.characterNames.length}`
-    );
-  }
+  const expectedCount = inputs.characterNames?.length || inputs.castSize || 6;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -266,14 +267,14 @@ export async function designCast(
       if (
         !cast.characters ||
         !Array.isArray(cast.characters) ||
-        cast.characters.length !== inputs.characterNames.length
+        cast.characters.length !== expectedCount
       ) {
-        console.error(`Attempt ${attempt}: Validation failed - expected ${inputs.characterNames.length} characters, got:`, cast.characters?.length, cast);
+        console.error(`Attempt ${attempt}: Validation failed - expected ${expectedCount} characters, got:`, cast.characters?.length, cast);
         if (attempt < maxAttempts) {
           continue; // Retry on validation error
         } else {
           throw new Error(
-            `Character count mismatch after ${maxAttempts} attempts (expected ${inputs.characterNames.length}, got ${cast.characters?.length || 0})`
+            `Character count mismatch after ${maxAttempts} attempts (expected ${expectedCount}, got ${cast.characters?.length || 0})`
           );
         }
       }

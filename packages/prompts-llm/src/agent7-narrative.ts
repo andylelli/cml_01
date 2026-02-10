@@ -118,28 +118,28 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const crime = setup.crime.description;
   const victim = setup.crime.victim;
   const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c) => c.character_id === culprit)?.name || "Unknown";
+  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
   const motive = solution.culprit.motive;
   const method = solution.culprit.method;
   const falseAssumption = solution.false_assumption.description;
   const whenRevealed = solution.false_assumption.when_revealed;
 
   // Cast list
-  const detective = cast.find((c) => c.role === "detective");
-  const suspects = cast.filter((c) => c.role === "suspect");
-  const witnesses = cast.filter((c) => c.role === "witness");
+  const detective = cast.find((c: any) => c.role === "detective");
+  const suspects = cast.filter((c: any) => c.role === "suspect");
+  const witnesses = cast.filter((c: any) => c.role === "witness");
 
   const castList = [
     detective ? `- **Detective**: ${detective.name} (${detective.character_id})` : "",
-    ...suspects.map((s) => `- **Suspect**: ${s.name} (${s.character_id})`),
-    ...witnesses.map((w) => `- **Witness**: ${w.name} (${w.character_id})`),
+    ...suspects.map((s: any) => `- **Suspect**: ${s.name} (${s.character_id})`),
+    ...witnesses.map((w: any) => `- **Witness**: ${w.name} (${w.character_id})`),
   ]
     .filter(Boolean)
     .join("\n");
 
   // Inference path
   const inferenceSteps = inference_path.steps
-    .map((step, idx) => `${idx + 1}. **${step.type}**: ${step.observation} → ${step.reasoning}`)
+    .map((step: any, idx: number) => `${idx + 1}. **${step.type}**: ${step.observation} → ${step.reasoning}`)
     .join("\n");
 
   // Discriminating test
@@ -161,8 +161,8 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
     : "None";
 
   // Key constraints
-  const timeConstraints = constraint_space.time.slice(0, 3).map((t) => `- ${t.description}`).join("\n") || "None";
-  const accessConstraints = constraint_space.access.slice(0, 3).map((a) => `- ${a.description}`).join("\n") || "None";
+  const timeConstraints = constraint_space.time.slice(0, 3).map((t: any) => `- ${t.description}`).join("\n") || "None";
+  const accessConstraints = constraint_space.access.slice(0, 3).map((a: any) => `- ${a.description}`).join("\n") || "None";
 
   return `# Narrative Formatting Context
 
@@ -221,7 +221,7 @@ ${accessConstraints}
 ---
 
 ## Era Details
-${setup.era.key_details.map((d) => `- ${d}`).join("\n")}`;
+${setup.era.key_details.map((d: any) => `- ${d}`).join("\n")}`;
 }
 
 function buildUserRequest(targetLength: string, narrativeStyle: string): string {
@@ -354,19 +354,25 @@ export async function formatNarrative(
   const prompt = buildNarrativePrompt(inputs);
 
   // Call LLM with JSON mode
-  const response = await client.complete({
-    system: prompt.system,
-    developer: prompt.developer,
-    user: prompt.user,
+  const response = await client.chat({
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "developer", content: prompt.developer },
+      { role: "user", content: prompt.user }
+    ],
     temperature: 0.5, // Moderate - creative scene structuring grounded in CML
     maxTokens: 4000, // Larger - detailed scene descriptions
-    responseFormat: { type: "json_object" },
-    runId: inputs.runId,
-    projectId: inputs.projectId,
+    jsonMode: true,
+    logContext: {
+      runId: inputs.runId || "unknown",
+      projectId: inputs.projectId || "unknown",
+      agent: "Agent7-NarrativeFormatter"
+    }
   });
 
   const durationMs = Date.now() - startTime;
-  const cost = response.cost;
+  const costTracker = client.getCostTracker();
+  const cost = costTracker.getSummary().byAgent["Agent7-NarrativeFormatter"] || 0;
 
   // Parse the narrative outline
   let outlineData: Omit<NarrativeOutline, "cost" | "durationMs">;

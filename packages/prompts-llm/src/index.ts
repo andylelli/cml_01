@@ -19,10 +19,10 @@ export type {
 } from "./types.js";
 
 // Agent 1 types
-export type { SettingRefinementInputs, SettingRefinementResult } from "./agent1-setting.js";
+export type { SettingInputs, SettingRefinement, SettingRefinementResult } from "./agent1-setting.js";
 
 // Agent 2 types
-export type { CastDesignInputs, Character, MotiveRelationship, CastDesignResult } from "./agent2-cast.js";
+export type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast.js";
 
 // Agent 4 types
 export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";

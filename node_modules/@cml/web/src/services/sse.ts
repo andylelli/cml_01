@@ -3,7 +3,7 @@ export type SseMessage = {
   status: string;
 };
 
-const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3005";
 
 export const subscribeToRunEvents = (
   projectId: string,

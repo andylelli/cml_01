@@ -11,6 +11,13 @@ export interface PromptMessages {
   messages: Message[];
 }
 
+export interface PromptComponents {
+  system: string;
+  developer: string;
+  user: string;
+  messages?: Array<{ role: "system" | "user"; content: string }>;
+}
+
 export interface CMLPromptInputs {
   // User specification
   decade: string;

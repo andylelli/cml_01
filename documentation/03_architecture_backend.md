@@ -62,6 +62,7 @@ Phase 3 start:
 - Setting/cast/CML/clues/outline deterministic artifacts are derived from the latest saved spec when present.
 Phase 3 completion:
 - Pipeline executes deterministic step order with run events and stores a novelty audit artifact (pass when no seeds selected).
+- If Azure OpenAI credentials are not configured, the API falls back to deterministic placeholder generation.
 
 Phase 5 completion:
 - Prose and game pack artifacts are generated deterministically (placeholder content) after outline.

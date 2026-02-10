@@ -109,7 +109,7 @@ export class AzureOpenAIClient {
       const chatResponse: ChatResponse = {
         content,
         usage,
-        model: response.model,
+        model, // Use deployment name since response may not have model property
         finishReason,
         latencyMs,
       };

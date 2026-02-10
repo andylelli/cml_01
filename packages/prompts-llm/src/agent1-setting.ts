@@ -87,7 +87,7 @@ You have expertise in:
 
   // Developer prompt with constraints
   const eraConstraints = buildEraConstraints(inputs.decade);
-  const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location, inputs.institution) : null;
+  const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location as string, inputs.institution as string) : null;
 
   const developer = `**Era Constraints Template**
 

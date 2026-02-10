@@ -76,6 +76,7 @@ export interface LLMLogEntry {
   success: boolean;
   errorCode?: string;
   errorMessage?: string;
+  stackTrace?: string;
   retryAttempt: number;
   validationStatus?: "pass" | "fail";
 

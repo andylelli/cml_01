@@ -488,6 +488,65 @@ const validateOutline = (outline: Record<string, unknown>) => ({
   errors: outline.tone ? [] : ["Outline must include tone"],
 });
 
+const runDeterministicPipeline = async (
+  repoPromise: ReturnType<typeof createRepository>,
+  projectId: string,
+  runId: string,
+  specPayload?: Record<string, unknown>,
+) => {
+  const repo = await repoPromise;
+
+  await repo.addRunEvent(runId, "pipeline_started", "Starting deterministic pipeline (no LLM credentials)");
+
+  const setting = deriveSetting(specPayload);
+  await repo.createArtifact(projectId, "setting", setting, null);
+  await repo.createArtifact(projectId, "setting_validation", validateSetting(setting), null);
+  await repo.addRunEvent(runId, "setting_done", "Setting generated");
+
+  const cast = deriveCast(specPayload);
+  await repo.createArtifact(projectId, "cast", cast, null);
+  await repo.createArtifact(projectId, "cast_validation", validateCast(cast), null);
+  await repo.addRunEvent(runId, "cast_done", "Cast generated");
+
+  const cml = deriveCml(specPayload);
+  const cmlValidation = validateCml(cml);
+  await repo.createArtifact(projectId, "cml", cml, null);
+  await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
+  await repo.addRunEvent(runId, "cml_validated", "CML validated");
+
+  const synopsis = deriveSynopsis(cml as Record<string, unknown>);
+  await repo.createArtifact(projectId, "synopsis", synopsis, null);
+  await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
+
+  const noveltyAudit = { status: "pass", seedIds: [], patterns: [] };
+  await repo.createArtifact(projectId, "novelty_audit", noveltyAudit, null);
+  await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
+
+  const clues = deriveClues(specPayload);
+  await repo.createArtifact(projectId, "clues", clues, null);
+  await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
+  await repo.addRunEvent(runId, "clues_done", "Clues generated");
+
+  const fairPlayReport = deriveFairPlayReport(cml as Record<string, unknown>, clues as Record<string, unknown>);
+  await repo.createArtifact(projectId, "fair_play_report", fairPlayReport, null);
+  await repo.addRunEvent(runId, "fair_play_report_done", "Fair-play report generated");
+
+  const outline = deriveOutline(specPayload);
+  await repo.createArtifact(projectId, "outline", outline, null);
+  await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
+  await repo.addRunEvent(runId, "outline_done", "Outline generated");
+
+  const prose = deriveProse(specPayload, outline as Record<string, unknown>, cast as Record<string, unknown>);
+  await repo.createArtifact(projectId, "prose", prose, null);
+  await repo.addRunEvent(runId, "prose_done", "Prose generated");
+
+  const gamePack = deriveGamePack(specPayload, cast as Record<string, unknown>, cml as Record<string, unknown>);
+  await repo.createArtifact(projectId, "game_pack", gamePack, null);
+  await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
+
+  await repo.addRunEvent(runId, "pipeline_complete", "Deterministic pipeline complete");
+};
+
 const runPipeline = async (
   repoPromise: ReturnType<typeof createRepository>,
   projectId: string,
@@ -506,7 +565,8 @@ const runPipeline = async (
     };
 
     if (!config.endpoint || !config.apiKey) {
-      throw new Error("Azure OpenAI credentials not configured. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY environment variables.");
+      await runDeterministicPipeline(repoPromise, projectId, runId, specPayload);
+      return;
     }
 
     const client = new AzureOpenAIClient(config);
@@ -566,13 +626,14 @@ const runPipeline = async (
     }
 
     // Generate prose placeholder (Agent 7 outputs outline, actual prose is future work)
+    const allScenes = result.narrative.acts?.flatMap(act => act.scenes) || [];
     const prose = {
       title: synopsis.title,
-      chapters: result.narrative.scenes?.map((scene: { chapterNumber: number; sceneNumber: number; summary: string }) => ({
-        number: scene.chapterNumber,
-        title: `Chapter ${scene.chapterNumber}`,
-        content: scene.summary,
-      })) || [],
+      chapters: allScenes.map((scene, idx) => ({
+        number: idx + 1,
+        title: `Scene ${idx + 1}`,
+        content: scene.summary || "",
+      })),
     };
     await repo.createArtifact(projectId, "prose", prose, null);
     await repo.addRunEvent(runId, "prose_done", "Prose structure generated");
@@ -580,7 +641,7 @@ const runPipeline = async (
     // Generate game pack
     const gamePack = {
       title: synopsis.title,
-      suspects: result.cast.characters?.map((c: { name: string }) => c.name) || [],
+      suspects: result.cast.cast.characters?.map((c: { name: string }) => c.name) || [],
       materials: ["Character cards", "Clue cards", "Investigation guide"],
     };
     await repo.createArtifact(projectId, "game_pack", gamePack, null);
@@ -658,7 +719,16 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
   });
 
+  // DISABLED: Regenerate endpoint uses placeholder functions
+  // Individual regeneration will be implemented later with real LLM agents
   app.post("/api/projects/:id/regenerate", express.json(), async (req, res) => {
+    res.status(501).json({ 
+      error: "Individual regeneration not yet implemented",
+      message: "Use the main Generate button to regenerate the full mystery with real AI agents"
+    });
+    return;
+
+    /* PLACEHOLDER CODE DISABLED
     const scope = typeof req.body?.scope === "string" ? req.body.scope : "";
     const allowedScopes = new Set([
       "setting",
@@ -762,6 +832,7 @@ export const createServer = () => {
     } catch (error) {
       res.status(500).json({ error: "Failed to regenerate artifact" });
     }
+    */ // END PLACEHOLDER CODE
   });
 
   app.post("/api/projects/:id/specs", (_req, res) => {

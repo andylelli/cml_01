@@ -51,7 +51,7 @@ import {
 import { subscribeToRunEvents } from "./services/sse";
 
 type Mode = "user" | "advanced" | "expert";
-type View = "dashboard" | "builder" | "cast" | "clues" | "outline" | "samples" | "cml" | "prose" | "history";
+type View = "dashboard" | "builder" | "generate" | "cast" | "clues" | "outline" | "samples" | "cml" | "prose" | "history";
 
 const mode = ref<Mode>("user");
 const currentView = ref<View>("dashboard");
@@ -449,7 +449,7 @@ watch(activeMainTab, (newTab) => {
       setView("builder");
       break;
     case "generate":
-      setView("dashboard");
+      setView("generate");
       break;
     case "review":
       // Use active review sub-tab
@@ -488,6 +488,9 @@ watch(currentView, (newView) => {
     case "dashboard":
     case "builder":
       activeMainTab.value = newView === "dashboard" ? "project" : "spec";
+      break;
+    case "generate":
+      activeMainTab.value = "generate";
       break;
     case "cast":
     case "clues":
@@ -624,7 +627,7 @@ const loadArtifacts = async () => {
     fetchCluesValidation(projectId.value),
     fetchOutlineValidation(projectId.value),
     // New: fetch novelty audit
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/projects/${projectId.value}/novelty-audit/latest`)
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3005"}/api/projects/${projectId.value}/novelty-audit/latest`)
       .then(r => r.ok ? r.json() as Promise<Artifact> : Promise.reject(new Error(`${r.status}`))),
   ]);
 

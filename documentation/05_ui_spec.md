@@ -56,6 +56,11 @@
 - Live preview card
 - Inline validation hints
 
+### Generate
+- Dedicated main tab for running the pipeline and monitoring progress.
+- Shows API health, artifact readiness summary, and regenerate controls.
+- Does not replace or duplicate Project setup; it is its own view.
+
 ### CmlViewer (Advanced/Expert only)
 - Tree view with YAML/JSON toggle
 - Spoiler toggle for hidden_model + false_assumption

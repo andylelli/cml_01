@@ -1,7 +1,7 @@
 # Manual Testing Guide - Phase 2 Features
 
 ## Prerequisites
-- Services running: API (port 3001), Worker (port 4000), Web (port 3000)
+- Services running: API (port 3005), Worker (port 4000), Web (port 3000)
 - Run `.\start-app.bat` to start all services
 - Open http://localhost:3000 in browser
 
@@ -201,13 +201,13 @@
 ## Troubleshooting
 
 ### Services not starting
-- Check if ports 3000, 3001, 4000 are available
+- Check if ports 3000, 3005, 4000 are available
 - Look for error messages in terminal windows
 - Verify database connection
 
 ### No data appearing
 - Check browser console for API errors
-- Verify API server is responding: `curl http://localhost:3001/api/health`
+- Verify API server is responding: `curl http://localhost:3005/api/health`
 - Check that database has projects/data
 
 ### Components not rendering

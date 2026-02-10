@@ -95,11 +95,11 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const crime = setup.crime.description;
   const victim = setup.crime.victim;
   const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c) => c.character_id === culprit)?.name || "Unknown";
+  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
   const falseAssumption = solution.false_assumption.description;
 
   // Inference path steps
-  const inferenceSteps = inference_path.steps.map((step, idx) => {
+  const inferenceSteps = inference_path.steps.map((step: any, idx: number) => {
     return `${idx + 1}. **${step.type}**: ${step.observation} → ${step.reasoning}`;
   });
 
@@ -161,21 +161,21 @@ ${redHerrings || "None"}
 The mystery establishes these constraints:
 
 ### Temporal Constraints
-${constraint_space.time.map((t) => `- ${t.description} (${t.constraint_type})`).join("\n")}
+${constraint_space.time.map((t: any) => `- ${t.description} (${t.constraint_type})`).join("\n")}
 
 ### Access Constraints
-${constraint_space.access.map((a) => `- ${a.description} (${a.constraint_type})`).join("\n")}
+${constraint_space.access.map((a: any) => `- ${a.description} (${a.constraint_type})`).join("\n")}
 
 ### Physical Evidence
-${constraint_space.physical.map((p) => `- ${p.description} (${p.constraint_type})`).join("\n")}
+${constraint_space.physical.map((p: any) => `- ${p.description} (${p.constraint_type})`).join("\n")}
 
 ---
 
 ## Cast Evidence Sensitivity
 ${cast
-  .filter((c) => c.evidence_sensitivity && c.evidence_sensitivity.length > 0)
-  .map((c) => {
-    const evidence = c.evidence_sensitivity!.map((e) => `${e.evidence_type}: ${e.vulnerability}`).join(", ");
+  .filter((c: any) => c.evidence_sensitivity && c.evidence_sensitivity.length > 0)
+  .map((c: any) => {
+    const evidence = c.evidence_sensitivity!.map((e: any) => `${e.evidence_type}: ${e.vulnerability}`).join(", ");
     return `- **${c.name}**: ${evidence}`;
   })
   .join("\n")}`;
@@ -245,19 +245,25 @@ export async function auditFairPlay(
   const prompt = buildFairPlayPrompt(inputs);
 
   // Call LLM with JSON mode
-  const response = await client.complete({
-    system: prompt.system,
-    developer: prompt.developer,
-    user: prompt.user,
+  const response = await client.chat({
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "developer", content: prompt.developer },
+      { role: "user", content: prompt.user }
+    ],
     temperature: 0.3, // Very low - consistent, rigorous auditing
     maxTokens: 2500, // Moderate - detailed audit report
-    responseFormat: { type: "json_object" },
-    runId: inputs.runId,
-    projectId: inputs.projectId,
+    jsonMode: true,
+    logContext: {
+      runId: inputs.runId || "unknown",
+      projectId: inputs.projectId || "unknown",
+      agent: "Agent6-FairPlayAuditor"
+    }
   });
 
   const durationMs = Date.now() - startTime;
-  const cost = response.cost;
+  const costTracker = client.getCostTracker();
+  const cost = costTracker.getSummary().byAgent["Agent6-FairPlayAuditor"] || 0;
 
   // Parse the audit result
   let auditData: Omit<FairPlayAuditResult, "cost" | "durationMs">;

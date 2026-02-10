@@ -1,9 +1,9 @@
 import { createServer } from "./server.js";
 
-const port = Number(process.env.PORT || 3001);
+const port = Number(process.env.PORT || 3005);
 
 const app = createServer();
 
-app.listen(port, () => {
-	console.log(`@cml/api listening on :${port}`);
+app.listen(port, "0.0.0.0", () => {
+	console.log(`@cml/api listening on 0.0.0.0:${port}`);
 });

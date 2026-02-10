@@ -4,14 +4,15 @@
   "type": "module",
   "dependencies": {
     "@cml/cml": "file:../../packages/cml",
+    "@cml/worker": "file:../worker",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "pg": "^8.13.1"
   },
   "scripts": {
-    "prebuild": "npm run -w @cml/cml build",
+    "prebuild": "npm run -w @cml/cml build && npm run -w @cml/worker build",
     "build": "tsc -p tsconfig.json",
-    "predev": "npm run -w @cml/cml build && npm run build",
+    "predev": "npm run -w @cml/cml build && npm run -w @cml/worker build && npm run build",
     "dev": "node dist/index.js",
     "test": "vitest run"
   },

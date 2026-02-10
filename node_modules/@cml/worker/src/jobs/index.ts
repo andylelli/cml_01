@@ -41,4 +41,5 @@ export const jobRegistry: Record<JobName, JobHandler> = {
   outlineJob: notImplemented("outlineJob"),
   proseJob: notImplemented("proseJob"),
   gamePackJob: notImplemented("gamePackJob"),
+  fullPipelineJob: notImplemented("fullPipelineJob"),
 };

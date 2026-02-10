@@ -56,7 +56,7 @@ export type ActivityLogPayload = {
   payload?: unknown;
 };
 
-const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3005";
 
 export const fetchHealth = async (): Promise<ApiHealth> => {
   const response = await fetch(`${apiBase}/api/health`);

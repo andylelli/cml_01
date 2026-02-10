@@ -6,7 +6,7 @@ Write-Host "Phase 2 Feature Testing" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-$apiBase = "http://localhost:3001"
+$apiBase = "http://localhost:3005"
 $webBase = "http://localhost:3000"
 
 $testResults = @{

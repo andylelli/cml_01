@@ -183,7 +183,7 @@ start http://localhost:3000
 All automated testing for Phase 2 is complete with 21/21 tests passing. TypeScript compilation issues have been resolved. A comprehensive manual testing guide has been created with 50+ checkpoints covering all user-facing features. 
 
 The application is ready for manual browser testing to verify user-visible behavior, console errors, and responsive design. Services are running on:
-- **API**: http://localhost:3001
+- **API**: http://localhost:3005
 - **Worker**: http://localhost:4000  
 - **Web**: http://localhost:3000
 

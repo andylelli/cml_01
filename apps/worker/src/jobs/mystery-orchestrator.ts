@@ -7,6 +7,7 @@
  * Handles progress tracking, error recovery, cost tracking, and result aggregation.
  */
 
+import { join } from "path";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateCaseData } from "@cml/cml";
@@ -136,18 +137,18 @@ export async function generateMystery(
     
     const settingStart = Date.now();
     const setting = await refineSetting(client, {
-      theme: inputs.theme,
-      eraPreference: inputs.eraPreference,
+      decade: inputs.eraPreference || "1930s",
+      location: "Unspecified Location",
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent1_setting"] = setting.cost;
     agentDurations["agent1_setting"] = Date.now() - settingStart;
     
-    if (setting.anachronisms.length > 0) {
+    if (setting.setting.realism.anachronisms.length > 0) {
       warnings.push(
-        `Agent 1: Found ${setting.anachronisms.length} potential anachronisms (corrected)`
+        `Agent 1: Found ${setting.setting.realism.anachronisms.length} potential anachronisms (corrected)`
       );
     }
     
@@ -160,23 +161,22 @@ export async function generateMystery(
     
     const castStart = Date.now();
     const cast = await designCast(client, {
-      theme: inputs.theme,
-      era: setting.era,
-      location: setting.location,
-      castSize: inputs.castSize,
-      primaryAxis: inputs.primaryAxis,
+      castSize: inputs.castSize || 6,
+      setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+      crimeType: "Murder",
+      tone: inputs.narrativeStyle || "Golden Age Mystery",
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent2_cast"] = cast.cost;
     agentDurations["agent2_cast"] = Date.now() - castStart;
     
-    if (cast.diversityCheck.warnings.length > 0) {
-      warnings.push(...cast.diversityCheck.warnings.map((w) => `Agent 2: ${w}`));
+    if (cast.cast.diversity.stereotypeCheck.length > 0) {
+      warnings.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
     }
     
-    reportProgress("cast", `Cast designed (${cast.characters.length} characters)`, 25);
+    reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
 
     // ========================================================================
     // Agent 3: CML Generator (+ Agent 4 auto-revision)
@@ -185,20 +185,27 @@ export async function generateMystery(
     
     const cmlStart = Date.now();
     const cmlResult = await generateCML(client, {
-      theme: inputs.theme,
-      era: setting.era,
-      location: setting.location,
-      cast: cast.characters,
-      motiveWeb: cast.motiveWeb,
-      primaryAxis: inputs.primaryAxis || "temporal",
+      decade: setting.setting.era.decade,
+      location: setting.setting.location.description,
+      institution: setting.setting.location.type,
+      tone: inputs.narrativeStyle || "Golden Age Mystery",
+      weather: setting.setting.atmosphere.weather,
+      socialStructure: setting.setting.era.socialNorms.join(", "),
+      castSize: cast.cast.characters.length,
+      castNames: cast.cast.characters.map((c: any) => c.name),
+      detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
+      victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
+      complexityLevel: "moderate",
+      mechanismFamilies: [],
+      primaryAxis: (inputs.primaryAxis || "temporal") as "temporal" | "spatial" | "identity" | "behavioral" | "authority",
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent3_cml"] = cmlResult.cost;
     agentDurations["agent3_cml"] = Date.now() - cmlStart;
     
-    if (!cmlResult.validation.isValid) {
+    if (!cmlResult.validation.valid) {
       errors.push(`Agent 3: Generated invalid CML after all attempts`);
       throw new Error("CML generation failed validation");
     }
@@ -221,11 +228,11 @@ export async function generateMystery(
     
     const cluesStart = Date.now();
     const clues = await extractClues(client, {
-      caseData: cml,
+      cml,
       clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
       redHerringBudget: 2, // Standard 2 red herrings
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent5_clues"] = clues.cost;
@@ -241,9 +248,9 @@ export async function generateMystery(
     const fairPlayStart = Date.now();
     const fairPlayAudit = await auditFairPlay(client, {
       caseData: cml,
-      clues,
+      clues: clues,
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent6_fairplay"] = fairPlayAudit.cost;
@@ -271,11 +278,11 @@ export async function generateMystery(
     const narrativeStart = Date.now();
     const narrative = await formatNarrative(client, {
       caseData: cml,
-      clues,
+      clues: clues,
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
       runId,
-      projectId,
+      projectId: projectId || "",
     });
     
     agentCosts["agent7_narrative"] = narrative.cost;
@@ -297,15 +304,16 @@ export async function generateMystery(
       
       const noveltyStart = Date.now();
       
-      // Load seed CMLs
-      const seedCMLs = await loadSeedCMLFiles();
+      // Load seed CMLs from examples directory
+      const examplesDir = join(process.cwd(), "examples");
+      const seedCMLs = await loadSeedCMLFiles(examplesDir);
       
       noveltyAudit = await auditNovelty(client, {
         generatedCML: cml,
-        seedCMLs: seedCMLs.map((s) => s.cml),
+        seedCMLs: seedCMLs.map((s: any) => s.cml),
         similarityThreshold: inputs.similarityThreshold,
         runId,
-        projectId,
+        projectId: projectId || "",
       });
       
       agentCosts["agent8_novelty"] = noveltyAudit.cost;

@@ -2,14 +2,27 @@
   "name": "@cml/worker",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
-    "./jobs/mystery-orchestrator.js": "./src/jobs/mystery-orchestrator.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./jobs/mystery-orchestrator.js": {
+      "types": "./dist/jobs/mystery-orchestrator.d.ts",
+      "default": "./dist/jobs/mystery-orchestrator.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "node dist/index.js",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@cml/cml": "file:../../packages/cml",
+    "@cml/llm-client": "file:../../packages/llm-client",
+    "@cml/prompts-llm": "file:../../packages/prompts-llm"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

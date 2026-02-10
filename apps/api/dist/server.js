@@ -5,6 +5,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
+import { AzureOpenAIClient } from "@cml/llm-client";
+import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"]);
 const withMode = (req, _res, next) => {
     const headerMode = (req.header("x-cml-mode") || "user").toLowerCase();
@@ -424,11 +426,133 @@ const validateOutline = (outline) => ({
     valid: Boolean(outline.tone),
     errors: outline.tone ? [] : ["Outline must include tone"],
 });
+const runDeterministicPipeline = async (repoPromise, projectId, runId, specPayload) => {
+    const repo = await repoPromise;
+    await repo.addRunEvent(runId, "pipeline_started", "Starting deterministic pipeline (no LLM credentials)");
+    const setting = deriveSetting(specPayload);
+    await repo.createArtifact(projectId, "setting", setting, null);
+    await repo.createArtifact(projectId, "setting_validation", validateSetting(setting), null);
+    await repo.addRunEvent(runId, "setting_done", "Setting generated");
+    const cast = deriveCast(specPayload);
+    await repo.createArtifact(projectId, "cast", cast, null);
+    await repo.createArtifact(projectId, "cast_validation", validateCast(cast), null);
+    await repo.addRunEvent(runId, "cast_done", "Cast generated");
+    const cml = deriveCml(specPayload);
+    const cmlValidation = validateCml(cml);
+    await repo.createArtifact(projectId, "cml", cml, null);
+    await repo.createArtifact(projectId, "cml_validation", cmlValidation, null);
+    await repo.addRunEvent(runId, "cml_validated", "CML validated");
+    const synopsis = deriveSynopsis(cml);
+    await repo.createArtifact(projectId, "synopsis", synopsis, null);
+    await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
+    const noveltyAudit = { status: "pass", seedIds: [], patterns: [] };
+    await repo.createArtifact(projectId, "novelty_audit", noveltyAudit, null);
+    await repo.addRunEvent(runId, "novelty_audit", "Novelty audit passed (no seeds selected)");
+    const clues = deriveClues(specPayload);
+    await repo.createArtifact(projectId, "clues", clues, null);
+    await repo.createArtifact(projectId, "clues_validation", validateClues(clues), null);
+    await repo.addRunEvent(runId, "clues_done", "Clues generated");
+    const fairPlayReport = deriveFairPlayReport(cml, clues);
+    await repo.createArtifact(projectId, "fair_play_report", fairPlayReport, null);
+    await repo.addRunEvent(runId, "fair_play_report_done", "Fair-play report generated");
+    const outline = deriveOutline(specPayload);
+    await repo.createArtifact(projectId, "outline", outline, null);
+    await repo.createArtifact(projectId, "outline_validation", validateOutline(outline), null);
+    await repo.addRunEvent(runId, "outline_done", "Outline generated");
+    const prose = deriveProse(specPayload, outline, cast);
+    await repo.createArtifact(projectId, "prose", prose, null);
+    await repo.addRunEvent(runId, "prose_done", "Prose generated");
+    const gamePack = deriveGamePack(specPayload, cast, cml);
+    await repo.createArtifact(projectId, "game_pack", gamePack, null);
+    await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
+    await repo.addRunEvent(runId, "pipeline_complete", "Deterministic pipeline complete");
+};
 const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
     const repo = await repoPromise;
-    // Pipeline will be implemented with actual LLM agents
-    // For now, just log that the run was initiated
-    await repo.addRunEvent(runId, "pipeline_ready", "Pipeline ready for LLM agent integration");
+    try {
+        // Initialize Azure OpenAI client
+        const config = {
+            endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
+            apiKey: process.env.AZURE_OPENAI_API_KEY || "",
+            deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o",
+            apiVersion: "2024-10-21",
+        };
+        if (!config.endpoint || !config.apiKey) {
+            await runDeterministicPipeline(repoPromise, projectId, runId, specPayload);
+            return;
+        }
+        const client = new AzureOpenAIClient(config);
+        // Build mystery generation inputs from spec
+        const inputs = {
+            theme: specPayload?.theme || "A classic murder mystery",
+            eraPreference: specPayload?.decade,
+            primaryAxis: specPayload?.primaryAxis,
+            castSize: specPayload?.castSize,
+            targetLength: specPayload?.targetLength || "medium",
+            narrativeStyle: specPayload?.narrativeStyle || "classic",
+            runId,
+            projectId,
+        };
+        await repo.addRunEvent(runId, "pipeline_started", "Starting mystery generation pipeline");
+        // Progress callback to update run events
+        const onProgress = async (progress) => {
+            await repo.addRunEvent(runId, progress.stage, progress.message);
+        };
+        // Call real LLM pipeline
+        const result = await generateMystery(client, inputs, onProgress);
+        // Save all artifacts
+        await repo.createArtifact(projectId, "setting", result.setting, null);
+        await repo.addRunEvent(runId, "setting_done", "Setting generated");
+        await repo.createArtifact(projectId, "cast", result.cast, null);
+        await repo.addRunEvent(runId, "cast_done", "Cast generated");
+        await repo.createArtifact(projectId, "cml", result.cml, null);
+        await repo.addRunEvent(runId, "cml_done", "CML generated");
+        // Generate synopsis from CML
+        const synopsis = {
+            title: result.cml.title || "Untitled Mystery",
+            summary: result.cml.crime?.description || "A mysterious crime has occurred.",
+        };
+        await repo.createArtifact(projectId, "synopsis", synopsis, null);
+        await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");
+        await repo.createArtifact(projectId, "clues", result.clues, null);
+        await repo.addRunEvent(runId, "clues_done", "Clues distributed");
+        await repo.createArtifact(projectId, "fair_play_report", result.fairPlayAudit, null);
+        await repo.addRunEvent(runId, "fair_play_report_done", "Fair play audit complete");
+        await repo.createArtifact(projectId, "outline", result.narrative, null);
+        await repo.addRunEvent(runId, "outline_done", "Narrative outline generated");
+        if (result.noveltyAudit) {
+            await repo.createArtifact(projectId, "novelty_audit", result.noveltyAudit, null);
+            await repo.addRunEvent(runId, "novelty_audit_done", `Novelty audit: ${result.noveltyAudit.status}`);
+        }
+        // Generate prose placeholder (Agent 7 outputs outline, actual prose is future work)
+        const allScenes = result.narrative.acts?.flatMap(act => act.scenes) || [];
+        const prose = {
+            title: synopsis.title,
+            chapters: allScenes.map((scene, idx) => ({
+                number: idx + 1,
+                title: `Scene ${idx + 1}`,
+                content: scene.summary || "",
+            })),
+        };
+        await repo.createArtifact(projectId, "prose", prose, null);
+        await repo.addRunEvent(runId, "prose_done", "Prose structure generated");
+        // Generate game pack
+        const gamePack = {
+            title: synopsis.title,
+            suspects: result.cast.cast.characters?.map((c) => c.name) || [],
+            materials: ["Character cards", "Clue cards", "Investigation guide"],
+        };
+        await repo.createArtifact(projectId, "game_pack", gamePack, null);
+        await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
+        await repo.addRunEvent(runId, "pipeline_complete", `Mystery generation complete! Total cost: $${result.metadata.totalCost.toFixed(4)} | Duration: ${(result.metadata.totalDurationMs / 1000).toFixed(1)}s | Status: ${result.status}`);
+        if (result.warnings.length > 0) {
+            await repo.addRunEvent(runId, "pipeline_warnings", `Warnings: ${result.warnings.join(", ")}`);
+        }
+    }
+    catch (error) {
+        await repo.addRunEvent(runId, "pipeline_error", `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
+    }
 };
 export const createServer = () => {
     const app = express();
@@ -476,99 +600,119 @@ export const createServer = () => {
         })
             .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
     });
+    // DISABLED: Regenerate endpoint uses placeholder functions
+    // Individual regeneration will be implemented later with real LLM agents
     app.post("/api/projects/:id/regenerate", express.json(), async (req, res) => {
+        res.status(501).json({
+            error: "Individual regeneration not yet implemented",
+            message: "Use the main Generate button to regenerate the full mystery with real AI agents"
+        });
+        return;
+        /* PLACEHOLDER CODE DISABLED
         const scope = typeof req.body?.scope === "string" ? req.body.scope : "";
         const allowedScopes = new Set([
-            "setting",
-            "cast",
-            "cml",
-            "clues",
-            "outline",
-            "prose",
-            "game_pack",
-            "fair_play_report",
+          "setting",
+          "cast",
+          "cml",
+          "clues",
+          "outline",
+          "prose",
+          "game_pack",
+          "fair_play_report",
         ]);
         if (!allowedScopes.has(scope)) {
-            res.status(400).json({ error: "scope must be one of setting, cast, cml, clues, outline, prose, game_pack, fair_play_report" });
-            return;
+          res.status(400).json({ error: "scope must be one of setting, cast, cml, clues, outline, prose, game_pack, fair_play_report" });
+          return;
         }
+    
         try {
-            const repo = await repoPromise;
-            const spec = await repo.getLatestSpec(req.params.id);
-            if (!spec) {
-                res.status(404).json({ error: "Spec not found" });
-                return;
+          const repo = await repoPromise;
+          const spec = await repo.getLatestSpec(req.params.id);
+          if (!spec) {
+            res.status(404).json({ error: "Spec not found" });
+            return;
+          }
+    
+          const latestRun = await repo.getLatestRun(req.params.id).catch(() => null);
+          const runId = latestRun?.id ?? null;
+    
+          if (scope === "setting") {
+            const setting = deriveSetting(spec.spec as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "setting", setting, spec.id);
+            await repo.createArtifact(req.params.id, "setting_validation", validateSetting(setting), spec.id);
+          }
+    
+          if (scope === "cast") {
+            const cast = deriveCast(spec.spec as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "cast", cast, spec.id);
+            await repo.createArtifact(req.params.id, "cast_validation", validateCast(cast), spec.id);
+          }
+    
+          if (scope === "cml") {
+            const cml = deriveCml(spec.spec as Record<string, unknown>);
+            const cmlValidation = validateCml(cml);
+            await repo.createArtifact(req.params.id, "cml", cml, spec.id);
+            await repo.createArtifact(req.params.id, "cml_validation", cmlValidation, spec.id);
+            await repo.createArtifact(req.params.id, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, spec.id);
+          }
+    
+          if (scope === "clues") {
+            const clues = deriveClues(spec.spec as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "clues", clues, spec.id);
+            await repo.createArtifact(req.params.id, "clues_validation", validateClues(clues), spec.id);
+            const cml = await repo.getLatestArtifact(req.params.id, "cml");
+            const fairPlayReport = deriveFairPlayReport((cml?.payload as Record<string, unknown>) ?? {}, clues);
+            await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
+          }
+    
+          if (scope === "outline") {
+            const outline = deriveOutline(spec.spec as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "outline", outline, spec.id);
+            await repo.createArtifact(req.params.id, "outline_validation", validateOutline(outline), spec.id);
+          }
+    
+          if (scope === "prose") {
+            const outline = await repo.getLatestArtifact(req.params.id, "outline");
+            const cast = await repo.getLatestArtifact(req.params.id, "cast");
+            if (!outline || !cast) {
+              res.status(409).json({ error: "Outline and cast artifacts required for prose regeneration" });
+              return;
             }
-            const latestRun = await repo.getLatestRun(req.params.id).catch(() => null);
-            const runId = latestRun?.id ?? null;
-            if (scope === "setting") {
-                const setting = deriveSetting(spec.spec);
-                await repo.createArtifact(req.params.id, "setting", setting, spec.id);
-                await repo.createArtifact(req.params.id, "setting_validation", validateSetting(setting), spec.id);
+            const prose = deriveProse(spec.spec as Record<string, unknown>, outline.payload as Record<string, unknown>, cast.payload as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "prose", prose, spec.id);
+          }
+    
+          if (scope === "game_pack") {
+            const cml = await repo.getLatestArtifact(req.params.id, "cml");
+            const cast = await repo.getLatestArtifact(req.params.id, "cast");
+            if (!cml || !cast) {
+              res.status(409).json({ error: "CML and cast artifacts required for game pack regeneration" });
+              return;
             }
-            if (scope === "cast") {
-                const cast = deriveCast(spec.spec);
-                await repo.createArtifact(req.params.id, "cast", cast, spec.id);
-                await repo.createArtifact(req.params.id, "cast_validation", validateCast(cast), spec.id);
+            const gamePack = deriveGamePack(spec.spec as Record<string, unknown>, cast.payload as Record<string, unknown>, cml.payload as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "game_pack", gamePack, spec.id);
+          }
+    
+          if (scope === "fair_play_report") {
+            const cml = await repo.getLatestArtifact(req.params.id, "cml");
+            const clues = await repo.getLatestArtifact(req.params.id, "clues");
+            if (!cml || !clues) {
+              res.status(409).json({ error: "CML and clues artifacts required for fair-play report regeneration" });
+              return;
             }
-            if (scope === "cml") {
-                const cml = deriveCml(spec.spec);
-                const cmlValidation = validateCml(cml);
-                await repo.createArtifact(req.params.id, "cml", cml, spec.id);
-                await repo.createArtifact(req.params.id, "cml_validation", cmlValidation, spec.id);
-                await repo.createArtifact(req.params.id, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, spec.id);
-            }
-            if (scope === "clues") {
-                const clues = deriveClues(spec.spec);
-                await repo.createArtifact(req.params.id, "clues", clues, spec.id);
-                await repo.createArtifact(req.params.id, "clues_validation", validateClues(clues), spec.id);
-                const cml = await repo.getLatestArtifact(req.params.id, "cml");
-                const fairPlayReport = deriveFairPlayReport(cml?.payload ?? {}, clues);
-                await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
-            }
-            if (scope === "outline") {
-                const outline = deriveOutline(spec.spec);
-                await repo.createArtifact(req.params.id, "outline", outline, spec.id);
-                await repo.createArtifact(req.params.id, "outline_validation", validateOutline(outline), spec.id);
-            }
-            if (scope === "prose") {
-                const outline = await repo.getLatestArtifact(req.params.id, "outline");
-                const cast = await repo.getLatestArtifact(req.params.id, "cast");
-                if (!outline || !cast) {
-                    res.status(409).json({ error: "Outline and cast artifacts required for prose regeneration" });
-                    return;
-                }
-                const prose = deriveProse(spec.spec, outline.payload, cast.payload);
-                await repo.createArtifact(req.params.id, "prose", prose, spec.id);
-            }
-            if (scope === "game_pack") {
-                const cml = await repo.getLatestArtifact(req.params.id, "cml");
-                const cast = await repo.getLatestArtifact(req.params.id, "cast");
-                if (!cml || !cast) {
-                    res.status(409).json({ error: "CML and cast artifacts required for game pack regeneration" });
-                    return;
-                }
-                const gamePack = deriveGamePack(spec.spec, cast.payload, cml.payload);
-                await repo.createArtifact(req.params.id, "game_pack", gamePack, spec.id);
-            }
-            if (scope === "fair_play_report") {
-                const cml = await repo.getLatestArtifact(req.params.id, "cml");
-                const clues = await repo.getLatestArtifact(req.params.id, "clues");
-                if (!cml || !clues) {
-                    res.status(409).json({ error: "CML and clues artifacts required for fair-play report regeneration" });
-                    return;
-                }
-                const fairPlayReport = deriveFairPlayReport(cml.payload, clues.payload);
-                await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
-            }
-            if (runId) {
-                await repo.addRunEvent(runId, `${scope}_regenerated`, `${scope} regenerated`);
-            }
-            res.status(200).json({ status: "ok", scope });
+            const fairPlayReport = deriveFairPlayReport(cml.payload as Record<string, unknown>, clues.payload as Record<string, unknown>);
+            await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
+          }
+    
+          if (runId) {
+            await repo.addRunEvent(runId, `${scope}_regenerated`, `${scope} regenerated`);
+          }
+    
+          res.status(200).json({ status: "ok", scope });
+        } catch (error) {
+          res.status(500).json({ error: "Failed to regenerate artifact" });
         }
-        catch (error) {
-            res.status(500).json({ error: "Failed to regenerate artifact" });
-        }
+        */ // END PLACEHOLDER CODE
     });
     app.post("/api/projects/:id/specs", (_req, res) => {
         repoPromise

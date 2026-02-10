@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "LLM prompt templates for all 8 mystery generation agents",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit"

@@ -8,7 +8,7 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
-import type { PromptComponents } from "@cml/prompts";
+import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
 

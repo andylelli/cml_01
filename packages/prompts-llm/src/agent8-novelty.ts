@@ -132,11 +132,11 @@ function summarizeCML(cml: CaseData, label: string): string {
   const victim = setup.crime.victim;
   const method = setup.crime.method;
 
-  const castSummary = cast.map((c) => `${c.name} (${c.role})`).join(", ");
+  const castSummary = cast.map((c: any) => `${c.name} (${c.role})`).join(", ");
   const castCount = cast.length;
 
   const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c) => c.character_id === culprit)?.name || "Unknown";
+  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
   const motive = solution.culprit.motive;
   const solutionMethod = solution.culprit.method;
   const falseAssumption = solution.false_assumption.description;
@@ -291,19 +291,25 @@ export async function auditNovelty(
   const prompt = buildNoveltyPrompt(inputs);
 
   // Call LLM with JSON mode
-  const response = await client.complete({
-    system: prompt.system,
-    developer: prompt.developer,
-    user: prompt.user,
+  const response = await client.chat({
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "developer", content: prompt.developer },
+      { role: "user", content: prompt.user }
+    ],
     temperature: 0.3, // Low - consistent, objective comparison
     maxTokens: 2500, // Moderate - detailed similarity report
-    responseFormat: { type: "json_object" },
-    runId: inputs.runId,
-    projectId: inputs.projectId,
+    jsonMode: true,
+    logContext: {
+      runId: inputs.runId || "unknown",
+      projectId: inputs.projectId || "unknown",
+      agent: "Agent8-NoveltyAuditor"
+    }
   });
 
   const durationMs = Date.now() - startTime;
-  const cost = response.cost;
+  const costTracker = client.getCostTracker();
+  const cost = costTracker.getSummary().byAgent["Agent8-NoveltyAuditor"] || 0;
 
   // Parse the novelty result
   let noveltyData: Omit<NoveltyAuditResult, "cost" | "durationMs">;

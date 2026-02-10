@@ -287,7 +287,7 @@ export async function generateCML(
           const revisionResult = await reviseCml(client, {
             originalPrompt: { 
               system: prompt.system, 
-              developer: prompt.developer, 
+              developer: prompt.developer || "", 
               user: prompt.user 
             },
             invalidCml: yaml.dump(cml),

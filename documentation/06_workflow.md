@@ -208,9 +208,10 @@ Users can regenerate individual artifacts without re-running the entire pipeline
 - ✅ SSE provides real-time status updates
 - ✅ CML access control is enforced
 - ✅ Validation is performed at each step
+- ✅ If Azure OpenAI credentials are missing, the pipeline falls back to deterministic placeholder generation
 
 ### What's Stubbed
-- ⚠️ **All generation is deterministic** - No LLM calls yet
+- ⚠️ **LLM pipeline requires Azure OpenAI credentials** - Without credentials, generation falls back to deterministic placeholders
 - ⚠️ **Worker jobs are placeholders** - All return `notImplemented`
 - ⚠️ **Novelty audit always passes** - No actual similarity checking
 - ⚠️ **In-memory storage** - No persistent database (data lost on restart)
