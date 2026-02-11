@@ -84,9 +84,50 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
     }
     savePromise = (async () => {
       await fs.mkdir(storeDir, { recursive: true });
-      const tempPath = `${storePath}.tmp`;
-      await fs.writeFile(tempPath, JSON.stringify(state, null, 2), "utf-8");
-      await fs.rename(tempPath, storePath);
+      const tempPath = `${storePath}.${randomUUID()}.tmp`;
+      const payload = JSON.stringify(state, null, 2);
+
+      const writeTemp = async () => {
+        await fs.writeFile(tempPath, payload, "utf-8");
+      };
+
+      const moveIntoPlace = async () => {
+        await fs.rename(tempPath, storePath);
+      };
+
+      const copyIntoPlace = async () => {
+        await fs.copyFile(tempPath, storePath);
+        await fs.unlink(tempPath).catch(() => undefined);
+      };
+
+      const attemptPersist = async () => {
+        await writeTemp();
+        try {
+          await moveIntoPlace();
+        } catch (error) {
+          const err = error as NodeJS.ErrnoException;
+          if (err.code === "EPERM" || err.code === "EBUSY") {
+            await copyIntoPlace();
+          } else {
+            throw error;
+          }
+        }
+      };
+
+      try {
+        await attemptPersist();
+      } catch (error) {
+        const err = error as NodeJS.ErrnoException;
+        if (err.code === "ENOENT") {
+          await fs.mkdir(storeDir, { recursive: true });
+          await attemptPersist();
+        } else if (err.code === "EPERM" || err.code === "EBUSY") {
+          await new Promise((resolve) => setTimeout(resolve, 25));
+          await attemptPersist();
+        } else {
+          throw error;
+        }
+      }
     })();
     await savePromise;
     savePromise = null;

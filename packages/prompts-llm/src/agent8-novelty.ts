@@ -122,33 +122,57 @@ ${seeds}`;
 }
 
 function summarizeCML(cml: CaseData, label: string): string {
-  const { meta, setup, cast, constraint_space, inference_path, solution } = cml;
+  const legacy = cml as any;
+  const cmlCase = (legacy?.CASE ?? {}) as any;
+  const meta = cmlCase.meta ?? legacy.meta ?? {};
+  const crimeClass = meta.crime_class ?? {};
 
   const title = meta?.title || "Untitled";
-  const primaryAxis = meta?.primary_axis || "unknown";
-  const era = `${setup.era.year} - ${setup.era.location}`;
-  const eraDetails = setup.era.key_details.slice(0, 3).join(", ");
-  const crime = setup.crime.description;
-  const victim = setup.crime.victim;
-  const method = setup.crime.method;
+  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
+  const era = meta?.era?.decade
+    ? `${meta.era.decade} - ${meta.setting?.location ?? "Unknown"}`
+    : legacy.setup?.era
+      ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
+      : "Unknown era";
+  const eraDetails = Array.isArray(meta?.era?.realism_constraints)
+    ? meta.era.realism_constraints.slice(0, 3).join(", ")
+    : legacy.setup?.era?.key_details?.slice(0, 3).join(", ") || "";
+  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
+  const victim = legacy.setup?.crime?.victim || "Unknown";
+  const method = legacy.setup?.crime?.method || crimeClass.subtype || "Unknown";
 
-  const castSummary = cast.map((c: any) => `${c.name} (${c.role})`).join(", ");
-  const castCount = cast.length;
+  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
+  const castSummary = castList.map((c: any) => c.name || "Unknown").join(", ");
+  const castCount = castList.length;
 
-  const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
-  const motive = solution.culprit.motive;
-  const solutionMethod = solution.culprit.method;
-  const falseAssumption = solution.false_assumption.description;
-  const discrimTest = inference_path.discriminating_test.test;
+  const culpritName =
+    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
+  const motive = legacy.solution?.culprit?.motive || "Unknown";
+  const solutionMethod = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
+  const falseAssumption =
+    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const discrimTest = cmlCase.discriminating_test?.design || legacy.inference_path?.discriminating_test?.test || "Unknown";
+
+  const timeConstraints = cmlCase.constraint_space?.time ?? legacy.constraint_space?.time ?? [];
+  const accessConstraints = cmlCase.constraint_space?.access ?? legacy.constraint_space?.access ?? [];
+  const physicalConstraints = cmlCase.constraint_space?.physical ?? legacy.constraint_space?.physical ?? [];
+
+  const countConstraintEntries = (value: any, keys: string[]) =>
+    keys.reduce((acc, key) => acc + (Array.isArray(value?.[key]) ? value[key].length : 0), 0);
 
   const constraintCount = {
-    time: constraint_space.time.length,
-    access: constraint_space.access.length,
-    physical: constraint_space.physical.length,
+    time: Array.isArray(timeConstraints)
+      ? timeConstraints.length
+      : countConstraintEntries(timeConstraints, ["anchors", "windows", "contradictions"]),
+    access: Array.isArray(accessConstraints)
+      ? accessConstraints.length
+      : countConstraintEntries(accessConstraints, ["actors", "objects", "permissions"]),
+    physical: Array.isArray(physicalConstraints)
+      ? physicalConstraints.length
+      : countConstraintEntries(physicalConstraints, ["laws", "traces"]),
   };
 
-  const inferenceSteps = inference_path.steps.length;
+  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).length;
 
   return `### ${label}
 **Title**: ${title}

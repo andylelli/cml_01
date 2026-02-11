@@ -17,6 +17,7 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { jsonrepair } from "jsonrepair";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
@@ -110,26 +111,35 @@ Your output is a JSON scene outline that prose generators can use to write the f
 }
 
 function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
-  const { meta, setup, cast, inference_path, solution, constraint_space } = caseData;
+  const legacy = caseData as any;
+  const cmlCase = (legacy?.CASE ?? {}) as any;
+  const meta = cmlCase.meta ?? legacy.meta ?? {};
+  const crimeClass = meta.crime_class ?? {};
+  const castRoster = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
 
   const title = meta?.title || "Untitled Mystery";
-  const primaryAxis = meta?.primary_axis || "unknown";
-  const era = `${setup.era.year} - ${setup.era.location}`;
-  const crime = setup.crime.description;
-  const victim = setup.crime.victim;
-  const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
-  const motive = solution.culprit.motive;
-  const method = solution.culprit.method;
-  const falseAssumption = solution.false_assumption.description;
-  const whenRevealed = solution.false_assumption.when_revealed;
+  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
+  const era = meta?.era?.decade
+    ? `${meta.era.decade} - ${meta.setting?.location ?? "Unknown"}`
+    : legacy.setup?.era
+      ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
+      : "Unknown era";
+  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
+  const victim = legacy.setup?.crime?.victim || "Unknown";
+  const culpritName =
+    cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
+  const motive = legacy.solution?.culprit?.motive || "Unknown motive";
+  const method = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown method";
+  const falseAssumption =
+    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const whenRevealed = legacy.solution?.false_assumption?.when_revealed || "final act";
 
   // Cast list
-  const detective = cast.find((c: any) => c.role === "detective");
-  const suspects = cast.filter((c: any) => c.role === "suspect");
-  const witnesses = cast.filter((c: any) => c.role === "witness");
+  const detective = castRoster.find((c: any) => c.role === "detective");
+  const suspects = castRoster.filter((c: any) => c.role === "suspect");
+  const witnesses = castRoster.filter((c: any) => c.role === "witness");
 
-  const castList = [
+  const castSummary = [
     detective ? `- **Detective**: ${detective.name} (${detective.character_id})` : "",
     ...suspects.map((s: any) => `- **Suspect**: ${s.name} (${s.character_id})`),
     ...witnesses.map((w: any) => `- **Witness**: ${w.name} (${w.character_id})`),
@@ -138,12 +148,19 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
     .join("\n");
 
   // Inference path
-  const inferenceSteps = inference_path.steps
-    .map((step: any, idx: number) => `${idx + 1}. **${step.type}**: ${step.observation} → ${step.reasoning}`)
+  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? [])
+    .map((step: any, idx: number) => {
+      const observation = step.observation || step.type || "Observation";
+      const correction = step.correction || step.reasoning || "Correction";
+      const effect = step.effect ? ` → ${step.effect}` : "";
+      return `${idx + 1}. **${observation}**: ${correction}${effect}`;
+    })
     .join("\n");
 
   // Discriminating test
-  const discrimTest = `**When**: ${inference_path.discriminating_test.when}\n**Test**: ${inference_path.discriminating_test.test}\n**Reveals**: ${inference_path.discriminating_test.reveals}`;
+  const discrimTest = cmlCase.discriminating_test
+    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
+    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**Test**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Reveals**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
 
   // Clue organization
   const earlyClues = clues.clues.filter((c) => c.placement === "early");
@@ -161,8 +178,19 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
     : "None";
 
   // Key constraints
-  const timeConstraints = constraint_space.time.slice(0, 3).map((t: any) => `- ${t.description}`).join("\n") || "None";
-  const accessConstraints = constraint_space.access.slice(0, 3).map((a: any) => `- ${a.description}`).join("\n") || "None";
+  const constraintSpace = cmlCase.constraint_space ?? legacy.constraint_space ?? {};
+  const formatConstraintList = (value: any, keys: string[]) => {
+    if (Array.isArray(value)) {
+      return value.slice(0, 3).map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
+    }
+    const lines = keys.flatMap((key) => (Array.isArray(value?.[key]) ? value[key] : []));
+    return lines.slice(0, 3).map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
+  };
+  const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
+  const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
+  const eraDetails = Array.isArray(meta?.era?.realism_constraints)
+    ? meta.era.realism_constraints.map((d: any) => `- ${d}`).join("\n")
+    : legacy.setup?.era?.key_details?.map((d: any) => `- ${d}`).join("\n") || "None";
 
   return `# Narrative Formatting Context
 
@@ -183,7 +211,7 @@ ${falseAssumption}
 ---
 
 ## Cast of Characters
-${castList}
+${castSummary}
 
 ---
 
@@ -221,7 +249,7 @@ ${accessConstraints}
 ---
 
 ## Era Details
-${setup.era.key_details.map((d: any) => `- ${d}`).join("\n")}`;
+${eraDetails}`;
 }
 
 function buildUserRequest(targetLength: string, narrativeStyle: string): string {
@@ -379,7 +407,24 @@ export async function formatNarrative(
   try {
     outlineData = JSON.parse(response.content);
   } catch (error) {
-    throw new Error(`Failed to parse narrative outline JSON: ${error}`);
+    try {
+      const repaired = jsonrepair(response.content);
+      outlineData = JSON.parse(repaired);
+    } catch {
+      const trimmed = response.content.trim();
+      const start = trimmed.indexOf("{");
+      const end = trimmed.lastIndexOf("}");
+      if (start !== -1 && end > start) {
+        const candidate = trimmed.slice(start, end + 1);
+        try {
+          outlineData = JSON.parse(candidate);
+        } catch (candidateError) {
+          throw new Error(`Failed to parse narrative outline JSON: ${candidateError}`);
+        }
+      } else {
+        throw new Error(`Failed to parse narrative outline JSON: ${error}`);
+      }
+    }
   }
 
   // Validate required fields

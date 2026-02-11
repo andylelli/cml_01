@@ -84,7 +84,7 @@ Spec extensions:
 - If `castNames` is omitted, the API generates a default list of readable names.
 
 Derived friendly projections now include:
-- `fair_play_report` (summary + checklist)
+- `fair_play_report` (overall status, summary, checklist items, violations, warnings)
 - `synopsis` (readable summary derived from CML)
 
 ## Prose + game pack (Phase 5)
@@ -127,6 +127,7 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - Services connect via `DATABASE_URL` (preferred) or split `PG*` environment variables.
 - The DB stores canonical CML, derived artifacts, versions, and run history.
 - When `DATABASE_URL` is not set, the API uses a simple JSON file-backed repository (default `data/store.json`, override with `CML_JSON_DB_PATH`).
+- The JSON file-backed repository writes via temporary files with retry logic for missing directories and Windows file-lock errors (EPERM/EBUSY), falling back to copy+unlink when rename fails.
 
 Provenance fields to add if needed:
 - artifact_versions.prompt_version

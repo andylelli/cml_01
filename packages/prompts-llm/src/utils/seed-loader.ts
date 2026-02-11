@@ -2,19 +2,26 @@
  * Load and analyze seed CML files for structural patterns
  */
 
-import { readFileSync, readdirSync } from "fs";
+import { existsSync, readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { parse as parseYAML } from "yaml";
 import type { SeedPattern } from "../types.js";
 
 export function loadSeedCMLFiles(examplesDir: string): any[] {
-  const files = readdirSync(examplesDir).filter(f => f.endsWith(".yaml") || f.endsWith(".yml"));
-  
-  return files.map(file => {
-    const content = readFileSync(join(examplesDir, file), "utf-8");
-    const cml = parseYAML(content);
-    return { filename: file, cml };
-  });
+  if (!examplesDir || !existsSync(examplesDir)) {
+    return [];
+  }
+
+  try {
+    const files = readdirSync(examplesDir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
+    return files.map((file) => {
+      const content = readFileSync(join(examplesDir, file), "utf-8");
+      const cml = parseYAML(content);
+      return { filename: file, cml };
+    });
+  } catch {
+    return [];
+  }
 }
 
 export function extractStructuralPatterns(cmlFiles: any[]): SeedPattern[] {

@@ -7,6 +7,7 @@ import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { parse as parseYAML } from "yaml";
 import { validateCml } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
+import { jsonrepair } from "jsonrepair";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
@@ -294,6 +295,14 @@ export async function generateCML(
     const names = inputs.castNames?.length ? inputs.castNames : castArray.map((c) => (c as any)?.name).filter(Boolean);
     const normalizedCast = (names.length ? names : castArray.map((c) => (c as any)?.name).filter(Boolean)).map((name, index) => {
       const existing = ensureObject(castArray[index]);
+      const eligibility = ensureString(existing.culprit_eligibility, "eligible");
+      const normalizedEligibility = ["eligible", "ineligible", "locked"].includes(eligibility)
+        ? eligibility
+        : "eligible";
+      const culpability = ensureString(existing.culpability, "unknown");
+      const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
+        ? culpability
+        : "unknown";
       return {
         name: ensureString(existing.name, name || `Suspect ${index + 1}`),
         age_range: ensureString(existing.age_range, "adult"),
@@ -309,8 +318,8 @@ export async function generateCML(
         behavioral_tells: ensureArray(existing.behavioral_tells),
         stakes: ensureString(existing.stakes, "reputation"),
         evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
-        culprit_eligibility: ensureString(existing.culprit_eligibility, "eligible"),
-        culpability: ensureString(existing.culpability, "unknown"),
+        culprit_eligibility: normalizedEligibility,
+        culpability: normalizedCulpability,
       };
     });
     caseBlock.cast = normalizedCast;
@@ -379,7 +388,15 @@ export async function generateCML(
 
     const discriminatingTest = ensureObject(caseBlock.discriminating_test);
     caseBlock.discriminating_test = discriminatingTest;
-    discriminatingTest.method = ensureString(discriminatingTest.method, "trap");
+    const method = ensureString(discriminatingTest.method, "trap");
+    discriminatingTest.method = [
+      "reenactment",
+      "trap",
+      "constraint_proof",
+      "administrative_pressure",
+    ].includes(method)
+      ? method
+      : "trap";
     discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
     discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
     discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
@@ -460,6 +477,13 @@ export async function generateCML(
           jsonParseError = error as Error;
         }
 
+        try {
+          const repaired = jsonrepair(raw);
+          return JSON.parse(repaired);
+        } catch {
+          // ignore repair failure
+        }
+
         const trimmed = raw.trim();
         const start = trimmed.indexOf("{");
         const end = trimmed.lastIndexOf("}");
@@ -469,6 +493,13 @@ export async function generateCML(
             return JSON.parse(candidate);
           } catch (error) {
             jsonParseError = error as Error;
+          }
+
+          try {
+            const repaired = jsonrepair(candidate);
+            return JSON.parse(repaired);
+          } catch {
+            // ignore repair failure
           }
         }
 

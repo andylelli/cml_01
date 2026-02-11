@@ -132,7 +132,8 @@ export class LLMLogger {
     }
 
     if (!entry.success) {
-      return `${timestamp} [${levelStr}] ${entry.agent} | ${entry.operation} | ERROR: ${entry.errorMessage}`;
+      const message = entry.errorMessage?.trim() || "Unknown error";
+      return `${timestamp} [${levelStr}] ${entry.agent} | ${entry.operation} | ERROR: ${message}`;
     }
 
     return `${timestamp} [${levelStr}] ${entry.agent} | ${entry.operation}`;

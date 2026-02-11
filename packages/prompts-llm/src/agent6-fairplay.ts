@@ -87,24 +87,56 @@ Your goal is to ensure a reader, armed with the clues, can deduce the solution u
 }
 
 function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
-  const { meta, setup, cast, constraint_space, inference_path, solution } = caseData;
+  const legacy = caseData as any;
+  const cmlCase = (legacy?.CASE ?? {}) as any;
+  const meta = cmlCase.meta ?? legacy.meta ?? {};
+  const crimeClass = meta.crime_class ?? {};
+  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
 
   // Extract essential information
   const title = meta?.title || "Untitled Mystery";
-  const primaryAxis = meta?.primary_axis || "unknown";
-  const crime = setup.crime.description;
-  const victim = setup.crime.victim;
-  const culprit = solution.culprit.character_id;
-  const culpritName = cast.find((c: any) => c.character_id === culprit)?.name || "Unknown";
-  const falseAssumption = solution.false_assumption.description;
+  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
+  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
+  const victim = legacy.setup?.crime?.victim || "Unknown";
+  const culpritName =
+    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
+  const falseAssumption =
+    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
 
   // Inference path steps
-  const inferenceSteps = inference_path.steps.map((step: any, idx: number) => {
-    return `${idx + 1}. **${step.type}**: ${step.observation} → ${step.reasoning}`;
-  });
+  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).map(
+    (step: any, idx: number) => {
+      const observation = step.observation || step.observation || step.type || "Observation";
+      const correction = step.correction || step.reasoning || "Correction";
+      const effect = step.effect ? ` → ${step.effect}` : "";
+      return `${idx + 1}. **${observation}**: ${correction}${effect}`;
+    },
+  );
 
   // Discriminating test
-  const discrimTest = `**When**: ${inference_path.discriminating_test.when}\n**What**: ${inference_path.discriminating_test.test}\n**Why**: ${inference_path.discriminating_test.reveals}`;
+  const discrimTest = cmlCase.discriminating_test
+    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
+    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**What**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Why**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
+
+  const constraintSpace = cmlCase.constraint_space ?? legacy.constraint_space ?? {};
+  const formatConstraintList = (value: any, keys: string[]) => {
+    if (Array.isArray(value)) {
+      return value.map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
+    }
+    const lines = keys.flatMap((key) => (Array.isArray(value?.[key]) ? value[key] : []));
+    return lines.map((entry: any) => `- ${entry.description ?? entry}`).join("\n") || "None";
+  };
+  const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
+  const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
+  const physicalConstraints = formatConstraintList(constraintSpace.physical, ["laws", "traces"]);
+  const castEvidence = castList
+    .filter((c: any) => c.evidence_sensitivity && c.evidence_sensitivity.length > 0)
+    .map((c: any) => {
+      const evidence = c.evidence_sensitivity!.map((e: any) => `${e.evidence_type ?? e}: ${e.vulnerability ?? ""}`)
+        .join(", ");
+      return `- **${c.name}**: ${evidence}`;
+    })
+    .join("\n");
 
   // Clue timeline
   const earlyClues = clues.clues.filter((c) => c.placement === "early");
@@ -161,24 +193,18 @@ ${redHerrings || "None"}
 The mystery establishes these constraints:
 
 ### Temporal Constraints
-${constraint_space.time.map((t: any) => `- ${t.description} (${t.constraint_type})`).join("\n")}
+${timeConstraints}
 
 ### Access Constraints
-${constraint_space.access.map((a: any) => `- ${a.description} (${a.constraint_type})`).join("\n")}
+${accessConstraints}
 
 ### Physical Evidence
-${constraint_space.physical.map((p: any) => `- ${p.description} (${p.constraint_type})`).join("\n")}
+${physicalConstraints}
 
 ---
 
 ## Cast Evidence Sensitivity
-${cast
-  .filter((c: any) => c.evidence_sensitivity && c.evidence_sensitivity.length > 0)
-  .map((c: any) => {
-    const evidence = c.evidence_sensitivity!.map((e: any) => `${e.evidence_type}: ${e.vulnerability}`).join(", ");
-    return `- **${c.name}**: ${evidence}`;
-  })
-  .join("\n")}`;
+${castEvidence || "None"}`;
 }
 
 function buildUserRequest(): string {

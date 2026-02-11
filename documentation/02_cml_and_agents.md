@@ -43,17 +43,18 @@ Runs a novelty/similarity audit against selected seeds; if too similar to a sing
 ### Agent 5 — Clue & Red Herrings
 Derives clue list by category and creates red herrings that support the false assumption without breaking fairness.
 
-### Agent 6 — Narrative Outliner
+### Agent 6 — Fair Play Auditor
+Produces a structured fair-play audit (overall status, checklist items, violations, summary) based on CML + clue distribution.
+Missing required fields cause the pipeline to fail fast.
+
+### Agent 7 — Narrative Outliner
 Creates outline with clue placement and discriminating test timing.
 
-### Agent 7 — Prose Writer
-Produces prose constrained by CML facts. Uses style input to match tone/voice without copying copyrighted text.
-Never alters CML logic; prose is always downstream of validated CML.
-Current build: deterministic placeholder prose is generated from outline and cast (no LLM yet).
+### Agent 8 — Novelty Auditor
+Scores similarity vs selected seed CMLs and summarizes novelty risks.
 
-### Agent 8 — Game Pack (optional)
-Creates suspect cards, host packet, timeline sheet, and handouts.
-Current build: deterministic placeholder game pack is generated from CML and cast (no LLM yet).
+### Prose & Game Pack (deterministic placeholders)
+Prose and game pack outputs are currently generated deterministically from outline/CML + cast (no LLM agents yet).
 
 ## Validator gates
 - Structural integrity

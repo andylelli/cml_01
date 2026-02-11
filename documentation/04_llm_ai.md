@@ -20,6 +20,7 @@
 **Input:** cast size + roles + relationship preset
 **Output:** cast section matching schema; uses culpability = unknown until CML is finalized
 **Validation:** required fields present; no stereotype or protected-class harm
+**Fallbacks:** if the model returns too few characters or missing fields, the system pads and normalizes the cast with safe defaults to keep the pipeline moving.
 
 ### 3) CML generation (core)
 **Purpose:** Generate CML 2.0-compliant case.
@@ -27,7 +28,7 @@
 **Output:** full CML 2.0 draft including false_assumption and discriminating_test
 **Validation:** schema + checklist, and “one primary axis” rule
 **Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths.
-**Parsing safety:** JSON parsing attempts include extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
+**Parsing safety:** JSON parsing attempts include JSON repair and extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
 **Output guardrails:** Agent 3 includes a required YAML skeleton to avoid missing mandatory fields.
 **Schema normalization:** After parsing, missing required fields are filled with safe defaults before validation to stabilize runs.
 
@@ -37,7 +38,7 @@
 **Output:** corrected CML; no new facts outside constraint space
 **Validation:** rerun schema + checklist, plus novelty audit vs selected seeds
 **Schema normalization:** Agent 4 normalizes parsed CML to fill required fields, including inference_path step fields (observation/correction/effect) and valid discriminating_test.method enums before validation.
-**Parsing safety:** If strict JSON parsing fails, Agent 4 sanitizes and parses YAML output before retrying.
+**Parsing safety:** If strict JSON parsing fails, Agent 4 attempts JSON repair and YAML sanitization before retrying.
 
 ### 5) Clue & red herring generation
 **Purpose:** Derive fair-play clue list from CML.
@@ -45,32 +46,43 @@
 **Output:** clues grouped by category; red herrings tied to false assumption
 **Validation:** all clues grounded in CML facts; no new facts added
 
-### 6) Outline generation
+### 6) Fair-play audit
+**Purpose:** Evaluate fairness and reader-solvability against CML + clue distribution.
+**Input:** validated CML + clues
+**Output:** structured audit (overall status, checklist items, violations, summary)
+**Validation:** required fields and status enums; missing fields cause a hard failure.
+
+### 7) Outline generation
 **Purpose:** Build chapter/act outline with proper clue placement.
 **Input:** validated CML + clues + cast
 **Output:** outline with clue placement markers
 **Validation:** load-bearing clues appear before solution; discriminating test placed late
+**CML compatibility:** downstream agents derive context from CML 2.0 fields when legacy setup/crime fields are missing.
+**Parsing safety:** narrative outline parsing uses JSON repair and JSON extraction when needed.
 
-### 7) Prose generation (optional)
+### 8) Prose generation (optional)
 **Purpose:** Produce narrative prose without altering logic.
 **Input:** outline + style capture
 **Output:** prose chapters
 **Validation:** must not introduce new facts; style must not copy copyrighted text
 **Current build:** deterministic placeholder prose (multi-paragraph per chapter) is generated from outline and cast (no LLM yet).
+**CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
 
-### 8) Game pack generation (optional)
+### 9) Game pack generation (optional)
 **Purpose:** Create suspect cards and host packet.
 **Input:** CML + cast
 **Output:** printable assets
 **Validation:** all facts consistent with CML
 **Current build:** deterministic placeholder game pack is generated from CML and cast (no LLM yet).
+**CML compatibility:** novelty/fair-play context tolerates missing legacy fields by falling back to CML 2.0 fields.
 
-### 9) Sample CML analysis (optional)
+### 10) Sample CML analysis (optional)
 **Purpose:** Summarize or normalize examples for seeds and regression tests.
 **Input:** examples/ CML files
 **Output:** summaries, normalized variants (if required)
 **Validation:** schema compatibility checks
 **Constraint:** outputs must not be used as templates or copied into generated CMLs
+**Resilience:** missing or empty examples directories are handled gracefully (no error, no seed patterns).
 
 ---
 

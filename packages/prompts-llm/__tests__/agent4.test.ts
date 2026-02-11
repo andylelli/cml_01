@@ -162,7 +162,7 @@ describe("Agent 4: CML Revision Agent", () => {
       expect(prompt.user).toContain("Fix ALL validation errors");
       expect(prompt.user).toContain("Add ALL missing required fields");
       expect(prompt.user).toContain("Return COMPLETE YAML");
-      expect(prompt.user).toContain("Return ONLY the corrected YAML");
+      expect(prompt.user).toContain("Return ONLY the corrected JSON");
     });
 
     describe("error categorization edge cases", () => {

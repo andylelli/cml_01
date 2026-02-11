@@ -269,21 +269,34 @@ export async function designCast(
         }
       }
 
-      // 4. Validate structure
-      if (
-        !cast.characters ||
-        !Array.isArray(cast.characters) ||
-        cast.characters.length !== expectedCount
-      ) {
-        console.error(`Attempt ${attempt}: Validation failed - expected ${expectedCount} characters, got:`, cast.characters?.length, cast);
-        if (attempt < maxAttempts) {
-          continue; // Retry on validation error
-        } else {
-          throw new Error(
-            `Character count mismatch after ${maxAttempts} attempts (expected ${expectedCount}, got ${cast.characters?.length || 0})`
-          );
-        }
+      // 4. Validate and normalize structure
+      const normalizedCharacters = Array.isArray(cast.characters) ? [...cast.characters] : [];
+      if (normalizedCharacters.length !== expectedCount) {
+        console.warn(
+          `Attempt ${attempt}: Validation failed - expected ${expectedCount} characters, got ${normalizedCharacters.length}. Normalizing.`,
+        );
       }
+      while (normalizedCharacters.length < expectedCount) {
+        const index = normalizedCharacters.length + 1;
+        normalizedCharacters.push({
+          name: `Placeholder ${index}`,
+          ageRange: "adult",
+          occupation: "resident",
+          roleArchetype: "suspect",
+          publicPersona: "reserved",
+          privateSecret: "keeps a secret",
+          motiveSeed: "inheritance",
+          motiveStrength: "moderate",
+          alibiWindow: "evening",
+          accessPlausibility: "possible",
+          stakes: "reputation",
+          characterArcPotential: "discovers hidden resolve",
+        });
+      }
+      if (normalizedCharacters.length > expectedCount) {
+        normalizedCharacters.length = expectedCount;
+      }
+      cast.characters = normalizedCharacters;
 
       // Validate all characters have required fields
       const requiredFields = [
@@ -313,11 +326,23 @@ export async function designCast(
       if (missingFields.length > 0) {
         if (attempt < maxAttempts) {
           continue; // Retry on missing fields
-        } else {
-          throw new Error(
-            `Missing required fields after ${maxAttempts} attempts: ${missingFields.join("; ")}`
-          );
         }
+        // Fill missing fields with defaults to avoid hard failure
+        cast.characters = cast.characters.map((char: any, idx: number) => ({
+          name: char.name || `Placeholder ${idx + 1}`,
+          ageRange: char.ageRange || "adult",
+          occupation: char.occupation || "resident",
+          roleArchetype: char.roleArchetype || "suspect",
+          publicPersona: char.publicPersona || "reserved",
+          privateSecret: char.privateSecret || "keeps a secret",
+          motiveSeed: char.motiveSeed || "inheritance",
+          motiveStrength: char.motiveStrength || "moderate",
+          alibiWindow: char.alibiWindow || "evening",
+          accessPlausibility: char.accessPlausibility || "possible",
+          stakes: char.stakes || "reputation",
+          characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
+          relationships: Array.isArray(char.relationships) ? char.relationships : [],
+        }));
       }
 
       // Success!

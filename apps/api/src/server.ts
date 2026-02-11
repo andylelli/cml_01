@@ -575,9 +575,13 @@ const runPipeline = async (
     await repo.addRunEvent(runId, "cml_done", "CML generated");
 
     // Generate synopsis from CML
+    const caseMeta = (result.cml as any)?.CASE?.meta ?? {};
+    const crimeClass = caseMeta.crime_class ?? {};
     const synopsis = {
-      title: result.cml.title || "Untitled Mystery",
-      summary: result.cml.crime?.description || "A mysterious crime has occurred.",
+      title: caseMeta.title || "Untitled Mystery",
+      summary: crimeClass.subtype
+        ? `A ${String(crimeClass.subtype)} case unfolds.`
+        : "A mysterious crime has occurred.",
     };
     await repo.createArtifact(projectId, "synopsis", synopsis, null);
     await repo.addRunEvent(runId, "synopsis_done", "Synopsis generated");

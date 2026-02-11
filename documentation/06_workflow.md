@@ -94,13 +94,12 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Event**: `clues_done` - "Clues generated"
 
 ### Step 7: Fair Play Report Generation
-- **Derives**: Validation checks from CML + clues:
-  - `all_clues_visible` - All clues are visible
-  - `no_late_information` - No late information
-  - `reader_can_solve` - Reader can solve with given clues
-  - `red_herrings_controlled` - Red herrings are clearly flagged
+- **Derives**: LLM-based fair-play audit from CML + clues, including:
+  - overall status (pass/fail/needs-revision)
+  - checklist items with per-rule status
+  - violations and recommendations
 - **Artifacts Created**:
-  - `fair_play_report` - `{ status, summary, checks[] }`
+  - `fair_play_report` - `{ overallStatus, summary, checks[], violations[], warnings[], recommendations[] }`
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
 
 ### Step 8: Outline Generation

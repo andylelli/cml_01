@@ -246,6 +246,7 @@ If cast names are left empty, the system generates a default list of readable na
 **Feedback:**
 - Spinner for active run
  - When run status returns to idle, the UI auto-refreshes artifacts.
+ - Auto-refresh uses a short polling window to wait for freshly generated artifacts to appear.
 - After a run starts, the UI polls for artifacts until they are available.
 
 ### Regenerate controls (V1)

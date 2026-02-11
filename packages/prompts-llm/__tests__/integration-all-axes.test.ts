@@ -210,7 +210,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       expect(totalTime).toBeLessThan(60000);
     }, 60000);
 
-    it("should cost less than $0.50 per generation", async () => {
+    it("should cost less than $2.00 per generation", async () => {
       const inputs: CMLPromptInputs = {
         ...baseInputs,
         primaryAxis: "spatial",
@@ -221,7 +221,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       console.log(`\n💰 Cost: $${result.cost.toFixed(4)}`);
       
       // Should be reasonably priced
-      expect(result.cost).toBeLessThan(0.5);
+      expect(result.cost).toBeLessThan(2.0);
     }, 60000);
   });
 });

@@ -11,6 +11,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
+import { jsonrepair } from "jsonrepair";
 
 export interface RevisionInputs {
   originalPrompt: PromptComponents;  // Original Agent 3 prompt for context
@@ -293,6 +294,14 @@ export async function reviseCml(
     caseBlock.cast = Array.isArray(caseBlock.cast)
       ? caseBlock.cast.map((member, index) => {
           const existing = ensureObject(member);
+          const eligibility = ensureString(existing.culprit_eligibility, "eligible");
+          const normalizedEligibility = ["eligible", "ineligible", "locked"].includes(eligibility)
+            ? eligibility
+            : "eligible";
+          const culpability = ensureString(existing.culpability, "unknown");
+          const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
+            ? culpability
+            : "unknown";
           return {
             name: ensureString(existing.name, `Suspect ${index + 1}`),
             age_range: ensureString(existing.age_range, "adult"),
@@ -308,8 +317,8 @@ export async function reviseCml(
             behavioral_tells: ensureArray(existing.behavioral_tells),
             stakes: ensureString(existing.stakes, "reputation"),
             evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
-            culprit_eligibility: ensureString(existing.culprit_eligibility, "eligible"),
-            culpability: ensureString(existing.culpability, "unknown"),
+            culprit_eligibility: normalizedEligibility,
+            culpability: normalizedCulpability,
           };
         })
       : [];
@@ -528,6 +537,13 @@ export async function reviseCml(
           jsonParseError = error as Error;
         }
 
+        try {
+          const repaired = jsonrepair(raw);
+          return JSON.parse(repaired) as Record<string, unknown>;
+        } catch {
+          // ignore repair failure
+        }
+
         const trimmed = raw.trim();
         const start = trimmed.indexOf("{");
         const end = trimmed.lastIndexOf("}");
@@ -537,6 +553,13 @@ export async function reviseCml(
             return JSON.parse(candidate) as Record<string, unknown>;
           } catch (error) {
             jsonParseError = error as Error;
+          }
+
+          try {
+            const repaired = jsonrepair(candidate);
+            return JSON.parse(repaired) as Record<string, unknown>;
+          } catch {
+            // ignore repair failure
           }
         }
 

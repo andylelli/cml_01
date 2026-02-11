@@ -802,10 +802,18 @@ const refreshArtifacts = async () => {
   await loadArtifacts();
 };
 
-const pollArtifacts = async (attempts = 8, delayMs = 1500) => {
+const pollArtifacts = async (attempts = 20, delayMs = 2000) => {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     await loadArtifacts();
-    if (castData.value?.suspects?.length || outlineArtifact.value) {
+    const hasArtifacts =
+      Boolean(settingData.value) ||
+      Boolean(castData.value?.suspects?.length) ||
+      Boolean(cmlArtifact.value) ||
+      Boolean(cluesData.value?.items?.length) ||
+      Boolean(outlineArtifact.value) ||
+      Boolean(proseData.value?.chapters?.length);
+
+    if (hasArtifacts) {
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, delayMs));
