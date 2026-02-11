@@ -34,6 +34,10 @@
 - GET /api/projects
 - GET /api/projects/:id
 
+### Admin
+- POST /api/admin/clear-store — clears JSON/Postgres persistence (projects, specs, artifacts, runs, logs)
+- GET /api/llm-logs?projectId=&limit= — returns recent LLM log entries from the JSONL log file
+
 ### Export
 - POST /api/projects/:id/export — Download a JSON file containing the latest version of selected artifacts (setting, cast, cml, clues, outline, fair_play_report, prose, game_pack). Accepts `{ artifactTypes: string[] }` in the body and returns a downloadable file. Used by the ExportPanel UI.
 

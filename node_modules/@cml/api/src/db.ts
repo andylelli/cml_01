@@ -50,6 +50,7 @@ export type ProjectRepository = {
   getLatestArtifact: (projectId: string, type: string) => Promise<
     { id: string; projectId: string; type: string; payload: unknown } | null
   >;
+  clearAllData: () => Promise<void>;
 };
 
 type FileState = {
@@ -258,6 +259,17 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
       const matches = artifacts.filter((artifact) => artifact.projectId === projectId && artifact.type === type);
       return matches[matches.length - 1] ?? null;
     },
+    async clearAllData() {
+      projects.clear();
+      specs.clear();
+      specOrder.length = 0;
+      runs.clear();
+      runOrder.length = 0;
+      runEvents.length = 0;
+      artifacts.length = 0;
+      logs.length = 0;
+      await persist();
+    },
   };
 };
 
@@ -443,6 +455,11 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
         [projectId, type],
       );
       return result.rows[0] ?? null;
+    },
+    async clearAllData() {
+      await pool.query(
+        "TRUNCATE TABLE activity_logs, artifact_versions, run_events, runs, spec_versions, projects RESTART IDENTITY CASCADE",
+      );
     },
   };
 };

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 export interface NoveltyAuditData {
   status: "pass" | "fail" | "warn";
-  seedIds: string[];
+  seedIds?: string[];
   patterns?: Array<{
     seed: string;
     similarity: number;
-    matches: string[];
+    matches?: string[];
   }>;
   summary?: string;
 }
@@ -81,7 +81,7 @@ const getStatusBadge = (status: string) => {
         {{ audit.summary }}
       </p>
 
-      <div v-if="audit.seedIds.length" class="mt-3">
+      <div v-if="audit.seedIds?.length" class="mt-3">
         <div class="text-xs font-semibold text-slate-500">Seeds Checked:</div>
         <div class="mt-1 flex flex-wrap gap-1">
           <span
@@ -116,7 +116,7 @@ const getStatusBadge = (status: string) => {
               {{ Math.round(pattern.similarity * 100) }}% similar
             </span>
           </div>
-          <ul v-if="pattern.matches.length" class="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-600">
+          <ul v-if="pattern.matches?.length" class="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-600">
             <li v-for="(match, mIdx) in pattern.matches" :key="mIdx">{{ match }}</li>
           </ul>
         </div>

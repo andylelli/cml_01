@@ -4,6 +4,7 @@
 - Vue 3 (Composition API)
 - Tailwind CSS for styling
 - Headless UI for accessible unstyled primitives
+- Pinia for centralized reactive state (artifacts, run history, validation)
 
 ## UX quality bar (non-negotiable)
 - Default experience is friendly and task-focused; CML is hidden unless Advanced/Expert is enabled.
@@ -53,6 +54,7 @@
 - Project setup includes a field to load an existing project by ID.
 - Project setup includes a dropdown list of existing projects fetched from the API for quick reload.
 - If a saved project ID is no longer available, the UI clears it and prompts the user to pick an existing project or create a new one.
+- Project setup includes a "Clear persistence" control that wipes the JSON/Postgres store and resets UI state.
 
 ### BuilderWizard
 - Stepper with Setting, Cast, Logic, Output
@@ -167,6 +169,17 @@ If cast names are left empty, the system generates a default list of readable na
  - Read-only in Advanced mode; editing only in Expert mode with explicit warning
 **Feedback:**
 - Toggle changes animate smoothly
+
+### LLM Logs (Advanced)
+**Purpose:** Inspect LLM operational logs (model, tokens, cost, latency).
+**Layout:**
+- List of entries with timestamp, agent, model, token usage, and cost
+- Empty state when no logs are available
+
+### Raw Artifacts (Advanced)
+**Purpose:** Provide full JSON payloads as stored in persistence for all artifacts.
+**Layout:**
+- Collapsible JSON blocks per artifact (setting, cast, clues, outline, prose, game pack)
 
 ### ValidationChecklistPanel
 **Purpose:** Show checklist compliance with actionable fixes.

@@ -56,5 +56,6 @@ export type ProjectRepository = {
         type: string;
         payload: unknown;
     } | null>;
+    clearAllData: () => Promise<void>;
 };
 export declare const createRepository: () => Promise<ProjectRepository>;

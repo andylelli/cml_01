@@ -191,6 +191,17 @@ const createMemoryRepository = async (filePath) => {
             const matches = artifacts.filter((artifact) => artifact.projectId === projectId && artifact.type === type);
             return matches[matches.length - 1] ?? null;
         },
+        async clearAllData() {
+            projects.clear();
+            specs.clear();
+            specOrder.length = 0;
+            runs.clear();
+            runOrder.length = 0;
+            runEvents.length = 0;
+            artifacts.length = 0;
+            logs.length = 0;
+            await persist();
+        },
     };
 };
 const createPostgresRepository = async (connectionString) => {
@@ -328,6 +339,9 @@ const createPostgresRepository = async (connectionString) => {
         async getLatestArtifact(projectId, type) {
             const result = await pool.query("SELECT id, project_id AS \"projectId\", type, payload_json AS payload FROM artifact_versions WHERE project_id = $1 AND type = $2 ORDER BY created_at DESC LIMIT 1", [projectId, type]);
             return result.rows[0] ?? null;
+        },
+        async clearAllData() {
+            await pool.query("TRUNCATE TABLE activity_logs, artifact_versions, run_events, runs, spec_versions, projects RESTART IDENTITY CASCADE");
         },
     };
 };

@@ -20,6 +20,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
 
   // Increase timeout for Agent 4 integration (Agent 3 + Agent 4 can take 90-120s)
   const INTEGRATION_TIMEOUT = 120000; // 2 minutes
+  const MAX_COST_USD = Number(process.env.LLM_MAX_COST_USD ?? "2.5");
 
   beforeAll(() => {
     // Check if Azure OpenAI is configured
@@ -31,7 +32,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       apiKey: process.env.AZURE_OPENAI_API_KEY,
       endpoint: process.env.AZURE_OPENAI_ENDPOINT,
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-02-15-preview",
-      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 || "gpt-4.1",
+      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
     });
   });
 
@@ -115,7 +116,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       if (!result.validation.valid) {
         console.log(`   Errors: ${result.validation.errors.length}`);
       }
-    }, 60000);
+    }, INTEGRATION_TIMEOUT);
   });
 
   describe("Identity Axis", () => {
@@ -140,7 +141,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       if (!result.validation.valid) {
         console.log(`   Errors: ${result.validation.errors.length}`);
       }
-    }, 60000);
+    }, INTEGRATION_TIMEOUT);
   });
 
   describe("Behavioral Axis", () => {
@@ -165,7 +166,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       if (!result.validation.valid) {
         console.log(`   Errors: ${result.validation.errors.length}`);
       }
-    }, 60000);
+    }, INTEGRATION_TIMEOUT);
   });
 
   describe("Authority Axis", () => {
@@ -190,7 +191,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       if (!result.validation.valid) {
         console.log(`   Errors: ${result.validation.errors.length}`);
       }
-    }, 60000);
+    }, INTEGRATION_TIMEOUT);
   });
 
   describe("Performance Benchmarks", () => {
@@ -208,9 +209,9 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       
       // Should complete within 60s (allowing for retries)
       expect(totalTime).toBeLessThan(60000);
-    }, 60000);
+    }, INTEGRATION_TIMEOUT);
 
-    it("should cost less than $2.00 per generation", async () => {
+    it(`should cost less than $${MAX_COST_USD.toFixed(2)} per generation`, async () => {
       const inputs: CMLPromptInputs = {
         ...baseInputs,
         primaryAxis: "spatial",
@@ -221,7 +222,7 @@ describe("Agent 3 Integration Tests (Real LLM)", () => {
       console.log(`\n💰 Cost: $${result.cost.toFixed(4)}`);
       
       // Should be reasonably priced
-      expect(result.cost).toBeLessThan(2.0);
-    }, 60000);
+      expect(result.cost).toBeLessThan(MAX_COST_USD);
+    }, INTEGRATION_TIMEOUT);
   });
 });

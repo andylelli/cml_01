@@ -100,6 +100,10 @@ export interface RateLimitConfig {
 export interface CostConfig {
   gpt4PromptCostPer1k: number;
   gpt4CompletionCostPer1k: number;
+  gpt4oPromptCostPer1k: number;
+  gpt4oCompletionCostPer1k: number;
+  gpt4oMiniPromptCostPer1k: number;
+  gpt4oMiniCompletionCostPer1k: number;
   gpt35PromptCostPer1k: number;
   gpt35CompletionCostPer1k: number;
 }

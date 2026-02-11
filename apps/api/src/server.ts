@@ -527,10 +527,7 @@ const runPipeline = async (
     const config = {
       endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
       apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-      defaultModel:
-        process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
-        process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
-        "gpt-4o",
+      defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
       requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
       logger: buildLlmLogger(),
@@ -698,6 +695,16 @@ export const createServer = () => {
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", service: "api" });
+  });
+
+  app.post("/api/admin/clear-store", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      await repo.clearAllData();
+      res.status(200).json({ status: "ok" });
+    } catch {
+      res.status(500).json({ error: "Failed to clear persistence store" });
+    }
   });
 
   app.post("/api/projects", (_req, res) => {
@@ -1210,6 +1217,30 @@ export const createServer = () => {
       res.status(201).json(log);
     } catch (error) {
       res.status(500).json({ error: "Failed to create log" });
+    }
+  });
+
+  app.get("/api/llm-logs", async (req, res) => {
+    try {
+      const limit = Number(req.query.limit ?? 200);
+      const projectId = typeof req.query.projectId === "string" ? req.query.projectId : null;
+      const logPath = process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl");
+      const raw = await fs.readFile(logPath, "utf-8");
+      const lines = raw.trim().split("\n").filter(Boolean);
+      const entries = lines
+        .map((line) => {
+          try {
+            return JSON.parse(line) as Record<string, unknown>;
+          } catch {
+            return null;
+          }
+        })
+        .filter((entry): entry is Record<string, unknown> => Boolean(entry));
+      const filtered = projectId ? entries.filter((entry) => entry.projectId === projectId) : entries;
+      const sliced = filtered.slice(-Math.max(1, limit));
+      res.json({ entries: sliced });
+    } catch {
+      res.status(404).json({ error: "LLM log file not found" });
     }
   });
 

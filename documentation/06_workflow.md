@@ -33,6 +33,11 @@ This document describes the current implementation of the mystery generation wor
 - **Action**: Re-generates a specific artifact type using the latest spec
 - **Response**: `{ status: "ok", scope }`
 
+### 5. Clear Persistence (Admin)
+- **Endpoint**: `POST /api/admin/clear-store`
+- **Action**: Wipes the JSON/Postgres persistence store and resets projects/specs/artifacts/runs/logs
+- **Response**: `{ status: "ok" }`
+
 ## Pipeline Execution Flow
 
 When a user triggers the pipeline via `POST /api/projects/:id/run`, the system executes the following steps synchronously:

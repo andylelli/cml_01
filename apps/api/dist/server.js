@@ -455,9 +455,7 @@ const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
         const config = {
             endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
             apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-            defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
-                process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
-                "gpt-4o",
+            defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
             apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
             requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
             logger: buildLlmLogger(),
@@ -594,6 +592,16 @@ export const createServer = () => {
     });
     app.get("/api/health", (_req, res) => {
         res.json({ status: "ok", service: "api" });
+    });
+    app.post("/api/admin/clear-store", async (_req, res) => {
+        try {
+            const repo = await repoPromise;
+            await repo.clearAllData();
+            res.status(200).json({ status: "ok" });
+        }
+        catch {
+            res.status(500).json({ error: "Failed to clear persistence store" });
+        }
     });
     app.post("/api/projects", (_req, res) => {
         const name = typeof _req.body?.name === "string" ? _req.body.name : "Untitled project";

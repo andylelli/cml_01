@@ -259,6 +259,14 @@ export const fetchSynopsis = async (projectId: string): Promise<Artifact> => {
   return response.json() as Promise<Artifact>;
 };
 
+export const fetchNoveltyAudit = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/novelty-audit/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch novelty audit failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
 export const downloadGamePackPdf = async (projectId: string): Promise<Blob> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/game-pack/pdf`);
   if (!response.ok) {
@@ -309,4 +317,42 @@ export const fetchProjectStatus = async (projectId: string): Promise<ProjectStat
     throw new Error(`Status check failed (${response.status})`);
   }
   return response.json() as Promise<ProjectStatus>;
+};
+
+export const clearPersistenceStore = async (): Promise<{ status: string }> => {
+  const response = await fetch(`${apiBase}/api/admin/clear-store`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Clear store failed (${response.status})`);
+  }
+  return response.json() as Promise<{ status: string }>;
+};
+
+export type LlmLogEntry = {
+  timestamp: string;
+  runId: string;
+  projectId: string;
+  agent: string;
+  operation: string;
+  model?: string;
+  latencyMs?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  estimatedCost?: number;
+  errorMessage?: string;
+  validationStatus?: string;
+};
+
+export const fetchLlmLogs = async (projectId?: string | null, limit = 200): Promise<LlmLogEntry[]> => {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  if (projectId) params.set("projectId", projectId);
+  const response = await fetch(`${apiBase}/api/llm-logs?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error(`Fetch LLM logs failed (${response.status})`);
+  }
+  const data = (await response.json()) as { entries: LlmLogEntry[] };
+  return data.entries;
 };

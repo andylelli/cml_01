@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import ExportPanel from "./components/ExportPanel.vue";
 import ErrorNotification from "./components/ErrorNotification.vue";
 import ValidationPanel from "./components/ValidationPanel.vue";
@@ -11,49 +12,41 @@ import TabPanel from "./components/TabPanel.vue";
 import type {
   ErrorItem,
   ErrorSeverity,
-  AllValidation,
-  ValidationResult,
-  ProseData,
-  RunEvent,
-  NoveltyAuditData,
   Tab,
   TabStatus,
 } from "./components/types";
+import { useProjectStore } from "./stores/projectStore";
 import {
   createProject,
+  clearPersistenceStore,
   downloadGamePackPdf,
   fetchProject,
   fetchProjects,
-  fetchCast,
-  fetchCastValidation,
-  fetchCml,
-  fetchCmlValidation,
-  fetchClues,
-  fetchCluesValidation,
   fetchHealth,
-  fetchFairPlayReport,
-  fetchGamePack,
-  fetchSynopsis,
-  fetchLatestRun,
-  fetchOutline,
-  fetchOutlineValidation,
   fetchSampleContent,
   fetchSamples,
-  fetchSetting,
-  fetchSettingValidation,
-  fetchProse,
-  fetchRunEvents,
   logActivity,
   regenerateArtifact,
   runPipeline,
   saveSpec,
-  type Artifact,
   type Project,
 } from "./services/api";
 import { subscribeToRunEvents } from "./services/sse";
 
 type Mode = "user" | "advanced" | "expert";
-type View = "dashboard" | "builder" | "generate" | "cast" | "clues" | "outline" | "samples" | "cml" | "prose" | "history";
+type View =
+  | "dashboard"
+  | "builder"
+  | "generate"
+  | "cast"
+  | "clues"
+  | "outline"
+  | "samples"
+  | "cml"
+  | "prose"
+  | "history"
+  | "artifacts"
+  | "logs";
 
 const mode = ref<Mode>("user");
 const currentView = ref<View>("dashboard");
@@ -84,9 +77,36 @@ const reviewTabs = computed<Tab[]>(() => [
 // Define advanced sub-tabs
 const advancedTabs = computed<Tab[]>(() => [
   { id: "cml", label: "CML" },
+  { id: "artifacts", label: "Artifacts" },
+  { id: "logs", label: "LLM Logs" },
   { id: "samples", label: "Samples" },
   { id: "history", label: "History" },
 ]);
+
+const projectStore = useProjectStore();
+const {
+  artifactsStatus,
+  cmlArtifact,
+  cluesArtifact,
+  outlineArtifact,
+  proseArtifact,
+  gamePackArtifact,
+  settingArtifact,
+  castArtifact,
+  settingData,
+  castData,
+  cluesData,
+  fairPlayReport,
+  outlineData,
+  synopsisData,
+  proseData,
+  noveltyAuditData,
+  gamePackData,
+  runEventsData,
+  latestRunId,
+  allValidation,
+  llmLogs,
+} = storeToRefs(projectStore);
 
 // Tab status tracking
 const tabStatuses = ref<Record<string, TabStatus>>({
@@ -193,6 +213,16 @@ const setView = (nextView: View) => {
   });
 };
 
+const handleReviewTabChange = (tabId: string) => {
+  activeReviewTab.value = tabId;
+  setView(tabId as View);
+};
+
+const handleAdvancedTabChange = (tabId: string) => {
+  activeAdvancedTab.value = tabId;
+  setView(tabId as View);
+};
+
 const healthStatus = ref<"idle" | "ok" | "error">("idle");
 const healthMessage = ref("Not checked");
 const runStatus = ref("Idle • No active run");
@@ -209,36 +239,7 @@ const spec = ref({
   primaryAxis: "temporal",
 });
 
-// Artifact state
-const cmlArtifact = ref<string | null>(null);
-const cluesArtifact = ref<string | null>(null);
-const outlineArtifact = ref<string | null>(null);
-const proseArtifact = ref<string | null>(null);
-const gamePackArtifact = ref<string | null>(null);
-const gamePackData = ref<{ title?: string; suspects?: string[]; materials?: string[] } | null>(null);
-const settingArtifact = ref<string | null>(null);
-const settingData = ref<{ decade?: string; locationPreset?: string; weather?: string; socialStructure?: string } | null>(null);
-const castArtifact = ref<string | null>(null);
-const castData = ref<{ suspects?: string[] } | null>(null);
-const cluesData = ref<{ summary?: string; items?: Array<{ id: string; category: string; text: string; pointsTo: string; redHerring: boolean; revealChapter?: number }> } | null>(null);
-const fairPlayReport = ref<{ summary?: string; checks?: Array<{ id: string; label: string; status: string }> } | null>(null);
-const outlineData = ref<{ chapters?: unknown } | null>(null);
-const synopsisData = ref<{ title?: string; summary?: string } | null>(null);
-
-// New artifact state
-const proseData = ref<ProseData | null>(null);
-const noveltyAuditData = ref<NoveltyAuditData | null>(null);
-const runEventsData = ref<RunEvent[]>([]);
-const latestRunId = ref<string | null>(null);
-
-// Validation state
-const allValidation = ref<AllValidation>({
-  setting: { valid: true, errors: [], warnings: [] },
-  cast: { valid: true, errors: [], warnings: [] },
-  cml: { valid: true, errors: [], warnings: [] },
-  clues: { valid: true, errors: [], warnings: [] },
-  outline: { valid: true, errors: [], warnings: [] },
-});
+// Artifact + validation state lives in Pinia store
 
 // UI state
 const showRedHerrings = ref(true);
@@ -249,7 +250,6 @@ const selectedSample = ref<{ id: string; name: string; content: string } | null>
 const projectsList = ref<Project[]>([]);
 const selectedProjectId = ref("");
 const missingProjectNotified = ref(false);
-const artifactsStatus = ref<"idle" | "loading" | "ready" | "partial" | "error">("idle");
 const lastProjectStatus = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
 
@@ -337,6 +337,10 @@ const viewLabel = computed(() => {
       return "Samples";
     case "cml":
       return "CML Viewer";
+    case "artifacts":
+      return "Artifacts";
+    case "logs":
+      return "LLM Logs";
     default:
       return "Dashboard";
   }
@@ -487,6 +491,16 @@ watch(activeAdvancedTab, (newTab) => {
   }
 });
 
+watch([activeMainTab, activeAdvancedTab, projectId], async ([mainTab, advancedTab, currentProject]) => {
+  if (mainTab === "advanced" && advancedTab === "logs") {
+    try {
+      await projectStore.loadLlmLogs(currentProject, 200);
+    } catch {
+      // handled via error banner if needed
+    }
+  }
+});
+
 // Sync currentView changes back to tabs (for sidebar navigation)
 watch(currentView, (newView) => {
   switch (newView) {
@@ -507,6 +521,8 @@ watch(currentView, (newView) => {
     case "cml":
     case "samples":
     case "history":
+    case "artifacts":
+    case "logs":
       activeMainTab.value = "advanced";
       activeAdvancedTab.value = newView;
       break;
@@ -539,13 +555,7 @@ const handleCreateProject = async () => {
     runStatus.value = `idle • project ${project.id}`;
     
     // Reset validation state for new project (no artifacts yet)
-    allValidation.value = {
-      setting: { valid: true, errors: [], warnings: [] },
-      cast: { valid: true, errors: [], warnings: [] },
-      cml: { valid: true, errors: [], warnings: [] },
-      clues: { valid: true, errors: [], warnings: [] },
-      outline: { valid: true, errors: [], warnings: [] },
-    };
+    projectStore.resetValidation();
     
     connectSse();
     addError("info", "project", `Project created: ${project.id}. Configure your spec, then click Generate.`);
@@ -626,172 +636,79 @@ const handleSaveSpec = async () => {
   }
 };
 
+const handleClearStore = async () => {
+  if (!confirm("This will delete all persisted projects, artifacts, and runs. Continue?")) {
+    return;
+  }
+  clearErrors("project");
+  clearErrors("artifacts");
+  try {
+    await clearPersistenceStore();
+    projectStore.clearAll();
+    projectId.value = null;
+    latestSpecId.value = null;
+    projectIdInput.value = "";
+    selectedProjectId.value = "";
+    projectsList.value = [];
+    runStatus.value = "Idle • No active run";
+    missingProjectNotified.value = false;
+    persistState();
+    addError("info", "project", "Persistence cleared");
+    logActivity({ projectId: null, scope: "ui", message: "clear_store" });
+  } catch (error) {
+    addError("error", "project", "Failed to clear persistence", error instanceof Error ? error.message : String(error));
+  }
+};
+
 const loadArtifacts = async () => {
   if (!projectId.value) return;
-  artifactsStatus.value = "loading";
   clearErrors("artifacts");
-  
-  const [
-    setting,
-    cast,
-    cml,
-    validation,
-    clues,
-    fairPlay,
-    outline,
-    prose,
-    gamePack,
-    synopsis,
-    settingValidation,
-    castValidation,
-    cluesValidation,
-    outlineValidation,
-    noveltyAudit,
-  ] = await Promise.allSettled([
-    fetchSetting(projectId.value),
-    fetchCast(projectId.value),
-    fetchCml(projectId.value),
-    fetchCmlValidation(projectId.value),
-    fetchClues(projectId.value),
-    fetchFairPlayReport(projectId.value),
-    fetchOutline(projectId.value),
-    fetchProse(projectId.value),
-    fetchGamePack(projectId.value),
-    fetchSynopsis(projectId.value),
-    fetchSettingValidation(projectId.value),
-    fetchCastValidation(projectId.value),
-    fetchCluesValidation(projectId.value),
-    fetchOutlineValidation(projectId.value),
-    // New: fetch novelty audit
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3005"}/api/projects/${projectId.value}/novelty-audit/latest`)
-      .then(r => r.ok ? r.json() as Promise<Artifact> : Promise.reject(new Error(`${r.status}`))),
-  ]);
-
-  settingArtifact.value = setting.status === "fulfilled" ? JSON.stringify(setting.value.payload, null, 2) : null;
-  settingData.value = setting.status === "fulfilled" ? (setting.value.payload as typeof settingData.value) : null;
-  castArtifact.value = cast.status === "fulfilled" ? JSON.stringify(cast.value.payload, null, 2) : null;
-  castData.value = cast.status === "fulfilled" ? (cast.value.payload as { suspects?: string[] }) : null;
-  cmlArtifact.value = cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
-  
-  // Update validation state
-  allValidation.value = {
-    setting: settingValidation.status === "fulfilled" 
-      ? (settingValidation.value.payload as ValidationResult)
-      : { valid: true, errors: [], warnings: [] },
-    cast: castValidation.status === "fulfilled"
-      ? (castValidation.value.payload as ValidationResult)
-      : { valid: true, errors: [], warnings: [] },
-    cml: validation.status === "fulfilled"
-      ? (validation.value.payload as ValidationResult)
-      : { valid: true, errors: [], warnings: [] },
-    clues: cluesValidation.status === "fulfilled"
-      ? (cluesValidation.value.payload as ValidationResult)
-      : { valid: true, errors: [], warnings: [] },
-    outline: outlineValidation.status === "fulfilled"
-      ? (outlineValidation.value.payload as ValidationResult)
-      : { valid: true, errors: [], warnings: [] },
-  };
-  
-  cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
-  cluesData.value = clues.status === "fulfilled" ? (clues.value.payload as typeof cluesData.value) : null;
-  fairPlayReport.value = fairPlay.status === "fulfilled" ? (fairPlay.value.payload as typeof fairPlayReport.value) : null;
-  outlineArtifact.value = outline.status === "fulfilled" ? JSON.stringify(outline.value.payload, null, 2) : null;
-  outlineData.value = outline.status === "fulfilled" ? (outline.value.payload as typeof outlineData.value) : null;
-  proseArtifact.value = prose.status === "fulfilled" ? JSON.stringify(prose.value.payload, null, 2) : null;
-  
-  // Parse prose into structured format
-  proseData.value = prose.status === "fulfilled" ? (prose.value.payload as ProseData) : null;
-  
-  gamePackArtifact.value = gamePack.status === "fulfilled" ? JSON.stringify(gamePack.value.payload, null, 2) : null;
-  gamePackData.value = gamePack.status === "fulfilled" ? (gamePack.value.payload as typeof gamePackData.value) : null;
-  synopsisData.value = synopsis.status === "fulfilled" ? (synopsis.value.payload as typeof synopsisData.value) : null;
-  
-  // Parse novelty audit
-  noveltyAuditData.value = noveltyAudit.status === "fulfilled" ? (noveltyAudit.value.payload as NoveltyAuditData) : null;
-
-  // Fetch run events
-  const latestRun = await fetchLatestRun(projectId.value).catch(() => null);
-  if (latestRun) {
-    latestRunId.value = latestRun.id;
-    const events = await fetchRunEvents(latestRun.id).catch(() => []);
-    runEventsData.value = events;
-  }
-
-  const failures = [
-    setting,
-    cast,
-    cml,
-    validation,
-    clues,
-    fairPlay,
-    outline,
-    prose,
-    gamePack,
-    synopsis,
-    settingValidation,
-    castValidation,
-    cluesValidation,
-    outlineValidation,
-    noveltyAudit,
-  ].filter((result) => result.status === "rejected");
-
-  const failureReasons = failures
-    .map((result) => (result.status === "rejected" ? result.reason : null))
-    .filter((reason): reason is Error => reason instanceof Error);
-  const hasNotFound = failureReasons.some((reason) => reason.message.includes("(404)"));
-  const hasNetworkError = failureReasons.some((reason) => reason.message.toLowerCase().includes("failed to fetch"));
+  const { failures, hasNotFound, hasNetworkError, notFoundCount } = await projectStore.loadArtifacts(projectId.value, {
+    includeCml: isAdvanced.value,
+  });
 
   if (failures.length === 0) {
-    artifactsStatus.value = "ready";
     addError("info", "artifacts", "All artifacts loaded successfully");
-  } else if (failures.length === 15) {
-    if (hasNotFound) {
-      const projectMissing = projectId.value
-        ? !projectsList.value.some((project) => project.id === projectId.value)
-        : false;
-      if (projectMissing && !missingProjectNotified.value) {
-        missingProjectNotified.value = true;
-        projectId.value = null;
-        latestSpecId.value = null;
-        selectedProjectId.value = "";
-        runStatus.value = "Idle • No active run";
-        persistState();
-        addError(
-          "warning",
-          "project",
-          "Saved project not found",
-          "The API was restarted or the project was deleted. Create a new project or select an existing one."
-        );
-      } else if (!missingProjectNotified.value) {
-        artifactsStatus.value = "error";
-        addError(
-          "error",
-          "artifacts",
-          "No artifacts found for this project",
-          "The API may have restarted or the project ID is invalid. Load the project again or rerun the pipeline."
-        );
-        missingProjectNotified.value = true;
-      }
-    } else if (hasNetworkError) {
-      artifactsStatus.value = "error";
-      addError(
-        "error",
-        "artifacts",
-        "API unreachable",
-        "Check that the API server is running and refresh the page."
-      );
-    } else {
-      // All artifacts failed - likely a new project with no generated content yet
-      artifactsStatus.value = "idle";
-      // Don't show error - this is expected for new projects
-    }
-  } else if (failures.length < 5) {
-    artifactsStatus.value = "partial";
-    addError("warning", "artifacts", `${failures.length} artifacts failed to load`, "Some content may be unavailable. Refresh to retry.");
-  } else {
-    artifactsStatus.value = "error";
-    addError("error", "artifacts", "Failed to load most artifacts", "Check API connection and try refreshing.");
+    return;
   }
+
+  if (hasNetworkError) {
+    addError(
+      "error",
+      "artifacts",
+      "API unreachable",
+      "Check that the API server is running and refresh the page."
+    );
+    return;
+  }
+
+  if (hasNotFound && notFoundCount === failures.length) {
+    const projectMissing = projectId.value
+      ? !projectsList.value.some((project) => project.id === projectId.value)
+      : false;
+    if (projectMissing && !missingProjectNotified.value) {
+      missingProjectNotified.value = true;
+      projectId.value = null;
+      latestSpecId.value = null;
+      selectedProjectId.value = "";
+      runStatus.value = "Idle • No active run";
+      persistState();
+      addError(
+        "warning",
+        "project",
+        "Saved project not found",
+        "The API was restarted or the project was deleted. Create a new project or select an existing one."
+      );
+    }
+    return;
+  }
+
+  if (failures.length < 5) {
+    addError("warning", "artifacts", `${failures.length} artifacts failed to load`, "Some content may be unavailable. Refresh to retry.");
+    return;
+  }
+
+  addError("error", "artifacts", "Failed to load most artifacts", "Check API connection and try refreshing.");
 };
 
 const refreshArtifacts = async () => {
@@ -1024,9 +941,8 @@ onBeforeUnmount(() => {
         <!-- Main Tab Navigation -->
         <TabBar
           :tabs="mainTabs"
-          :active-tab="activeMainTab"
+          v-model:activeTab="activeMainTab"
           :tab-statuses="tabStatuses"
-          @update:active-tab="activeMainTab = $event"
         />
 
         <!-- Sub-tab Navigation for Review -->
@@ -1034,7 +950,7 @@ onBeforeUnmount(() => {
           v-if="activeMainTab === 'review'"
           :tabs="reviewTabs"
           :active-tab="activeReviewTab"
-          @update:active-tab="activeReviewTab = $event"
+          @update:activeTab="handleReviewTabChange"
           class="bg-slate-50"
         />
 
@@ -1043,7 +959,7 @@ onBeforeUnmount(() => {
           v-if="activeMainTab === 'advanced' && isAdvanced"
           :tabs="advancedTabs"
           :active-tab="activeAdvancedTab"
-          @update:active-tab="activeAdvancedTab = $event"
+          @update:activeTab="handleAdvancedTabChange"
           class="bg-slate-50"
         />
 
@@ -1151,6 +1067,17 @@ onBeforeUnmount(() => {
                     Load selected
                   </button>
                 </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between rounded-md border border-rose-200 bg-rose-50 px-4 py-3">
+                <div class="text-xs text-rose-700">
+                  Clears the JSON persistence store and resets the UI state.
+                </div>
+                <button
+                  class="rounded-md border border-rose-300 bg-white px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                  @click="handleClearStore"
+                >
+                  Clear persistence
+                </button>
               </div>
               <div class="mt-3 text-xs text-slate-500">
                 Project ID: {{ projectId ?? "not created" }} • Spec: {{ latestSpecId ?? "not saved" }}
@@ -1411,7 +1338,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'prose'">
-              <ProseReader v-if="proseData" :prose-data="proseData" />
+              <ProseReader v-if="proseData" :prose="proseData" />
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 Prose not yet generated
               </div>
@@ -1427,6 +1354,8 @@ onBeforeUnmount(() => {
               <div class="text-sm font-semibold text-amber-900">Advanced Mode</div>
               <div class="mt-2 text-sm text-amber-800">
                 <span v-if="activeAdvancedTab === 'cml'">View the raw CML (Compositional Mystery Language) structure. Expert mode enables editing.</span>
+                <span v-else-if="activeAdvancedTab === 'artifacts'">Inspect the raw JSON artifacts saved from the pipeline.</span>
+                <span v-else-if="activeAdvancedTab === 'logs'">Review LLM operational logs (model, tokens, cost, latency).</span>
                 <span v-else-if="activeAdvancedTab === 'samples'">Browse example mystery structures for inspiration. Use these as patterns, not templates to copy.</span>
                 <span v-else-if="activeAdvancedTab === 'history'">View the complete run history and event log for this project.</span>
               </div>
@@ -1468,6 +1397,62 @@ onBeforeUnmount(() => {
               <div v-if="selectedSample" class="mt-4">
                 <pre class="overflow-auto rounded-md bg-slate-900 p-4 text-xs text-slate-100">{{ selectedSample.content }}</pre>
               </div>
+            </div>
+
+            <div v-if="currentView === 'artifacts'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Raw Artifacts</div>
+              <div class="mt-2 text-xs text-slate-500">Full JSON payloads as stored in the persistence layer.</div>
+              <div class="mt-4 space-y-4 text-xs">
+                <div>
+                  <div class="font-semibold text-slate-600">Setting</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ settingArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Cast</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ castArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Clues</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ cluesArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Outline</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ outlineArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Prose</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ proseArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Game Pack</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ gamePackArtifact ?? "Not available" }}</pre>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="currentView === 'logs'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">LLM Log Entries</div>
+              <div class="mt-2 text-xs text-slate-500">Operational log entries (model, tokens, cost, latency). Raw prompts are not stored.</div>
+              <div v-if="llmLogs.length" class="mt-4 space-y-2 text-xs">
+                <div
+                  v-for="(entry, idx) in llmLogs"
+                  :key="`${entry.timestamp}-${idx}`"
+                  class="rounded border border-slate-200 bg-slate-50 px-3 py-2"
+                >
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-slate-600">
+                    <span class="font-semibold text-slate-700">{{ entry.agent }}</span>
+                    <span>{{ entry.operation }}</span>
+                    <span>{{ entry.model }}</span>
+                    <span v-if="entry.totalTokens">{{ entry.totalTokens }} tokens</span>
+                    <span v-if="entry.estimatedCost">${{ entry.estimatedCost.toFixed(4) }}</span>
+                  </div>
+                  <div class="mt-1 text-[11px] text-slate-500">
+                    {{ entry.timestamp }} • {{ entry.projectId }} • {{ entry.runId }}
+                  </div>
+                  <div v-if="entry.errorMessage" class="mt-1 text-[11px] text-rose-600">{{ entry.errorMessage }}</div>
+                </div>
+              </div>
+              <div v-else class="mt-4 text-sm text-slate-500">No LLM logs available.</div>
             </div>
 
             <div v-if="currentView === 'history'">

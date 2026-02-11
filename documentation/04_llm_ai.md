@@ -91,6 +91,7 @@
 - Handles retries, timeouts, rate limits, and logging
 - Supports model routing per agent (e.g., reasoning model for CML validation, fast model for outline)
 - Enforces JSON mode and schema constraints
+- The deployment name is always taken from `AZURE_OPENAI_DEPLOYMENT_NAME` (set to GPT-4o-mini)
 
 ## Prompting strategy
 - System + developer instructions per agent
@@ -119,6 +120,8 @@
 - Attach run_id and artifact_id to each response
 - LLM logging uses environment configuration (LOG_LEVEL, LOG_TO_FILE, LOG_FILE_PATH, LOG_TO_CONSOLE)
 - API loads .env.local at startup to populate Azure OpenAI and logging settings
+- Cost tracking uses model-aware rates (GPT-4, GPT-4o, GPT-4o-mini) to avoid inflated estimates when running mini deployments
+- Advanced UI exposes LLM operational logs (metadata only; raw prompts/responses are not stored)
 
 ## Failure handling
 - Retry policy with exponential backoff
