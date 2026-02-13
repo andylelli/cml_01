@@ -6,6 +6,7 @@ const props = defineProps<{
   available: {
     setting: boolean;
     cast: boolean;
+    characterProfiles: boolean;
     cml: boolean;
     clues: boolean;
     outline: boolean;
@@ -18,6 +19,7 @@ const props = defineProps<{
 const selection = ref({
   setting: true,
   cast: true,
+  characterProfiles: false,
   cml: false,
   clues: true,
   outline: true,
@@ -32,12 +34,20 @@ const canExport = computed(() =>
 
 
 import { exportArtifacts } from "../services/api";
+const isExporting = ref(false);
+const exportMessage = ref<string | null>(null);
+const exportError = ref<string | null>(null);
 
 const handleExport = async () => {
   if (!props.projectId) return;
+  if (!canExport.value) return;
+  exportMessage.value = null;
+  exportError.value = null;
+  isExporting.value = true;
   const typeMap: Record<string, string> = {
     setting: "setting",
     cast: "cast",
+    characterProfiles: "character_profiles",
     cml: "cml",
     clues: "clues",
     outline: "outline",
@@ -60,8 +70,11 @@ const handleExport = async () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
+    exportMessage.value = "Your export is ready.";
   } catch (err) {
-    alert("Export failed: " + (err instanceof Error ? err.message : err));
+    exportError.value = "We couldn’t create the export. Please try again.";
+  } finally {
+    isExporting.value = false;
   }
 };
 </script>
@@ -78,6 +91,10 @@ const handleExport = async () => {
       <label class="flex items-center gap-2">
         <input v-model="selection.cast" type="checkbox" />
         Cast
+      </label>
+      <label class="flex items-center gap-2">
+        <input v-model="selection.characterProfiles" type="checkbox" :disabled="!available.characterProfiles" />
+        Character profiles
       </label>
       <label class="flex items-center gap-2">
         <input v-model="selection.cml" type="checkbox" :disabled="!available.cml" />
@@ -106,10 +123,22 @@ const handleExport = async () => {
     </div>
     <button
       class="mt-4 w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-      :disabled="!canExport"
+      :disabled="!canExport || isExporting"
       @click="handleExport"
     >
-      Export selected
+      <span class="inline-flex items-center justify-center gap-2">
+        <font-awesome-icon v-if="isExporting" icon="spinner" spin />
+        {{ isExporting ? "Preparing export..." : "Export selected" }}
+      </span>
     </button>
+    <div v-if="isExporting" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+      <div class="h-full w-1/2 animate-pulse rounded-full bg-slate-600"></div>
+    </div>
+    <div v-if="exportMessage" class="mt-3 text-xs text-emerald-700">
+      {{ exportMessage }}
+    </div>
+    <div v-if="exportError" class="mt-3 text-xs text-rose-700">
+      {{ exportError }}
+    </div>
   </div>
 </template>

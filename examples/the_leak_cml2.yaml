@@ -1,0 +1,134 @@
+cml_version: "2.0"
+
+case_metadata:
+  title: "The Leak"
+  author: "Jacques Futrelle"
+  publication_year: 1907
+  source_status: "Public Domain"
+  license: "Public Domain"
+  url: "Unknown"
+  short_title: "the_leak"
+
+crime:
+  type: "Theft of confidential information"
+  subtype: "Political/financial leak"
+  location: "United States Government Department, Washington, D.C."
+  time_frame: "Contemporary to publication (early 20th century)"
+  victim: "United States Government (confidential departmental information)"
+  harm: "Unauthorized disclosure of sensitive government information affecting markets"
+
+culprit:
+  name: "Clerk in the department (exact name Unknown)"
+  role: "Government employee with access to confidential documents"
+  motive: "Financial gain through speculative trading based on advance information"
+  method: "Secretly transmitting advance government information to outside speculators"
+
+solution:
+  summary: >
+    The Thinking Machine deduces that the leak could not have come from high-ranking officials,
+    as assumed, but from a lower-level clerk who handled document preparation. By analyzing
+    physical access, document handling procedures, and the precise timing of market movements,
+    he demonstrates that the clerk had both opportunity and motive. The culprit is exposed
+    when confronted with the logical impossibility of the leak originating elsewhere.
+
+  false_assumption: >
+    The leak must have come from a high-ranking official present at confidential meetings.
+
+  actual_mechanism: >
+    A lower-level clerk with routine access to draft documents obtained advance information
+    before official release and passed it to speculators, enabling market manipulation.
+
+  discriminating_test: >
+    Analysis of the exact timing between document preparation, internal circulation, and
+    market fluctuations shows that the leak occurred before high-level review, limiting
+    possible sources to clerical staff who handled drafts.
+
+  inference_path:
+    - step: 1
+      observation: "Market movements occurred immediately after certain documents were drafted but before official release."
+      correction: "The leak must have occurred during document preparation, not after high-level meetings."
+      effect: "Narrows suspect pool to individuals with early document access."
+
+    - step: 2
+      observation: "High-ranking officials had limited physical handling of draft documents."
+      correction: "Assuming senior officials leaked the information ignores actual document workflow."
+      effect: "Focus shifts to clerical staff who physically handled drafts."
+
+    - step: 3
+      observation: "One clerk had both consistent access to drafts and unexplained financial activity."
+      correction: "Opportunity and motive coincide in the same individual."
+      effect: "Identifies the clerk as the logical source of the leak."
+
+    - step: 4
+      observation: "No other staff member had comparable access during the critical time window."
+      correction: "Eliminates alternative suspects based on time and access constraints."
+      effect: "Confirms the clerk as the sole viable culprit."
+
+suspects:
+  - name: "Senior Official A"
+    role: "High-ranking department official"
+    motive: "Unknown"
+    opportunity: "Present at confidential meetings"
+    alibi: "No direct handling of draft documents before market movement"
+    status: "Eliminated"
+
+  - name: "Senior Official B"
+    role: "Cabinet-level official"
+    motive: "Unknown"
+    opportunity: "Access to final reports"
+    alibi: "Received documents only after leak timing window"
+    status: "Eliminated"
+
+  - name: "Department Clerk"
+    role: "Clerical staff member handling drafts"
+    motive: "Financial gain"
+    opportunity: "Direct access to draft documents prior to official release"
+    alibi: "None sufficient"
+    status: "Culprit"
+
+clues:
+  - description: "Precise timing of market speculation relative to document drafting."
+    type: "Temporal"
+    visibility: "Explicit"
+
+  - description: "Document handling procedures limited early access to clerical staff."
+    type: "Procedural"
+    visibility: "Explicit"
+
+  - description: "Financial irregularities associated with a clerk."
+    type: "Behavioral"
+    visibility: "Implicit"
+
+red_herrings:
+  - description: "Suspicion directed toward high-ranking officials due to their authority."
+    basis: "Assumption that only senior officials had meaningful access."
+
+constraint_space:
+  time_constraints:
+    - "Leak occurred before official publication."
+    - "Market reacted within hours of draft completion."
+
+  access_constraints:
+    - "Only document preparers handled drafts before review."
+    - "Senior officials saw documents after drafting phase."
+
+  physical_constraints:
+    - "Documents physically passed through clerical hands before circulation."
+
+fair_play:
+  all_clues_presented: true
+  no_hidden_information: true
+  specialist_knowledge_required: false
+  justification: >
+    All logical deductions rely on document workflow, timing of events,
+    and observable financial behavior presented within the narrative.
+
+quality_controls:
+  inference_steps: 4
+  discriminating_test_present: true
+  constraint_types_present:
+    - "time"
+    - "access"
+    - "physical"
+  red_herrings_present: true
+  fair_play_compliance: true

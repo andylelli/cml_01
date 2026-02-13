@@ -9,6 +9,7 @@ describe("App shell (phase 1)", () => {
     const wrapper = mount(App, {
       global: {
         plugins: [createPinia()],
+        stubs: { "font-awesome-icon": true },
       },
     });
     expect(wrapper.text()).not.toContain("CML Viewer");
@@ -18,6 +19,7 @@ describe("App shell (phase 1)", () => {
     const wrapper = mount(App, {
       global: {
         plugins: [createPinia()],
+        stubs: { "font-awesome-icon": true },
       },
     });
     const toggle = wrapper.find("[data-testid=\"advanced-toggle\"]");
@@ -30,6 +32,7 @@ describe("App shell (phase 1)", () => {
     const wrapper = mount(App, {
       global: {
         plugins: [createPinia()],
+        stubs: { "font-awesome-icon": true },
       },
     });
     expect(wrapper.text()).toContain("Export selected");
@@ -39,6 +42,7 @@ describe("App shell (phase 1)", () => {
     const wrapper = mount(App, {
       global: {
         plugins: [createPinia()],
+        stubs: { "font-awesome-icon": true },
       },
     });
 
@@ -58,6 +62,6 @@ describe("App shell (phase 1)", () => {
     await wrapper.findAll("button").find((btn) => btn.text().trim() === "Prose")?.trigger("click");
     await nextTick();
 
-    expect(wrapper.text()).toContain("Prose not yet generated");
+    expect(wrapper.text()).toContain("No story text yet. Generate to create it.");
   });
 });

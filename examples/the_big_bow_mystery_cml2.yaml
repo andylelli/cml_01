@@ -1,0 +1,280 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "The Big Bow Mystery"
+    author: "Israel Zangwill"
+    license: "Public domain in the USA (Project Gutenberg eBook #28164)"
+    era:
+      decade: "1890s"
+      realism_constraints:
+        - "Victorian London policing and forensic limits (no modern forensics/DNA)."
+        - "Time-of-death estimates are imprecise by hours."
+        - "Common household access (razors, bolting doors, gaslight) and contemporary drugs (e.g., sulfonal) are plausible."
+    setting:
+      location: "11 Glover Street, Bow, East London, England"
+      institution: "A working-class lodging house; Scotland Yard investigation; public inquest and later trial"
+    crime_class:
+      category: "murder"
+      subtype: "locked-room throat-cutting staged as an 'impossible crime'"
+  cast:
+    - name: "George Grodman"
+      age_range: "late middle-aged / elderly"
+      role_archetype: "retired detective; rival investigator; hidden culprit"
+      relationships:
+        - "Neighbor to Mrs. Drabdump"
+        - "Cultivates acquaintance with Arthur Constant"
+      public_persona: "Respected retired Scotland Yard man and amateur sleuth, confident and authoritative."
+      private_secret: "Obsessed with committing a theoretically perfect, undetectable crime to vindicate his ideas about evidence."
+      motive_seed: "Intellectual vanity; desire to baffle the world and prove the limits of detection."
+      motive_strength: "high"
+      alibi_window: "Present at/near the discovery and first entry; treated as rescuer and witness rather than suspect."
+      access_plausibility: "Very high: lives nearby, is summoned immediately, forces entry, and controls the scene."
+      opportunity_channels:
+        - "First entry into the 'locked' bedroom with the landlady as a suggestible witness."
+        - "Possesses and can conceal a razor; can remove the sleeping-draught phial."
+      behavioral_tells:
+        - "Overconfident lecturing about evidence; positions himself as the natural authority."
+        - "Steers attention to surface impossibility while controlling what the first witness 'sees.'"
+      stakes: "If exposed, becomes the criminal he spent a career pursuing; public disgrace and legal punishment."
+      evidence_sensitivity:
+        - "Any proof the victim was alive when the door first opened."
+        - "Any trace of a sleeping-draught administered via Grodman."
+        - "Any proof the cutting instrument was removed by the first entrant."
+      culprit_eligibility: "eligible"
+      culpability: "culprit"
+    - name: "Mrs. Drabdump"
+      age_range: "middle-aged"
+      role_archetype: "landlady; primary witness; suggestible observer"
+      relationships:
+        - "Landlady to Arthur Constant and Tom Mortlake"
+        - "Neighbor of Grodman"
+      public_persona: "Cheerless, anxious widow running a lodging house; quick to forebode disaster."
+      private_secret: "None material to the mechanism (her fear-driven certainty substitutes inference for observation)."
+      motive_seed: "None"
+      motive_strength: "low"
+      alibi_window: "Raising the house; knocking; fetching Grodman; present at first entry."
+      access_plausibility: "High physical access, but low practical capacity/intent within the story logic."
+      opportunity_channels:
+        - "Can summon help and frame the first narrative of events."
+      behavioral_tells:
+        - "Treats preconceptions as facts; 'sees' what she expects under shock."
+      stakes: "Avoid being blamed; protect her livelihood and reputation."
+      evidence_sensitivity:
+        - "Any admission that she did not actually see the first moment clearly."
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+    - name: "Arthur Constant"
+      age_range: "young adult"
+      role_archetype: "victim; idealist lodger"
+      relationships:
+        - "Lodger of Mrs. Drabdump"
+        - "Acquaintance cultivated by Grodman"
+        - "Connected to Jessie Dymond through private financial help"
+      public_persona: "Educated reformer/agitator, concerned with working men's causes."
+      private_secret: "Secretly lent money to a young woman who later disappears."
+      motive_seed: "N/A (victim)"
+      motive_strength: "N/A"
+      alibi_window: "Drugged asleep during the critical period."
+      access_plausibility: "N/A"
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: "Life."
+      evidence_sensitivity:
+        - "Evidence of drug-induced sleep before the supposed 'murder time.'"
+      culprit_eligibility: "ineligible"
+      culpability: "unknown"
+    - name: "Tom Mortlake"
+      age_range: "young adult"
+      role_archetype: "primary suspect; scapegoat; fellow lodger"
+      relationships:
+        - "Lodger of Mrs. Drabdump"
+        - "Entangled (circumstantially) with Jessie Dymond"
+      public_persona: "Working-class lodger with suspicious circumstances around travel and timing."
+      private_secret: "Unknown"
+      motive_seed: "Framed via circumstance and public narrative pressure to 'solve' the impossible crime."
+      motive_strength: "medium"
+      alibi_window: "Complicated by travel timing and circumstantial links; treated as inadequate by authorities."
+      access_plausibility: "Medium: has ordinary access as a lodger but not to the sealed-room conditions."
+      opportunity_channels:
+        - "Public suspicion fueled by coincidence and inference."
+      behavioral_tells:
+        - "Becomes defensive under pressure; easy for officials to interpret as guilt."
+      stakes: "Capital conviction; social ruin."
+      evidence_sensitivity:
+        - "Any proof the murder occurred after the door was forced open (collapsing the locked-room premise)."
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+    - name: "Inspector Edward Wimp"
+      age_range: "middle-aged"
+      role_archetype: "official investigator; rival to Grodman"
+      relationships:
+        - "Scotland Yard officer opposing Grodman"
+      public_persona: "Dogmatic, status-driven policeman eager to close the case."
+      private_secret: "Institutional pride; resents Grodman’s public stature."
+      motive_seed: "Careerism; need for a clean solution."
+      motive_strength: "medium"
+      alibi_window: "Arrives after discovery; relies on witness statements and surface constraints."
+      access_plausibility: "Low at the moment of the act; high afterward."
+      opportunity_channels:
+        - "Shapes narrative toward a convenient suspect."
+      behavioral_tells:
+        - "Overweights circumstantial chains that match his theory."
+      stakes: "Reputation and authority."
+      evidence_sensitivity:
+        - "Anything showing the case theory is built on a false starting premise."
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+    - name: "Jessie Dymond"
+      age_range: "young adult"
+      role_archetype: "missing woman; motive/pressure vector"
+      relationships:
+        - "Secretly aided financially by Arthur Constant"
+      public_persona: "Young woman whose disappearance becomes a thread in the case."
+      private_secret: "Unknown (details of her circumstances are not essential to the murder mechanism)."
+      motive_seed: "Catalyst for Constant’s confidential meeting and worry."
+      motive_strength: "low"
+      alibi_window: "Unknown"
+      access_plausibility: "Unknown"
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: "Safety and reputation."
+      evidence_sensitivity: []
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+  culpability:
+    culprit_count: 1
+    culprits:
+      - "George Grodman"
+  surface_model:
+    narrative:
+      summary: >
+        In foggy early December, Mrs. Drabdump cannot rouse her lodger Arthur Constant, whose bedroom door is locked and bolted.
+        She fetches retired detective George Grodman, who forces the door and reveals Constant apparently murdered—his throat cut—
+        in a room sealed from within and with no weapon present. Scotland Yard’s Inspector Wimp investigates an “impossible” locked-room
+        killing. Public pressure builds, and the evidence chain hardens around fellow lodger Tom Mortlake, who is committed for trial as
+        the presumed murderer despite the baffling mechanics.
+    accepted_facts:
+      - "Arthur Constant is found in his bed with his throat cut."
+      - "The bedroom appears inaccessible: door locked/bolted; windows fastened; no weapon in the room."
+      - "Mrs. Drabdump and Grodman are the first to enter after forcing the door."
+      - "Authorities and public treat the case as a locked-room murder requiring an external killer."
+      - "Tom Mortlake becomes the prime suspect via circumstantial evidence and narrative momentum."
+    inferred_conclusions:
+      - "The killer must have entered and exited without leaving an obvious route."
+      - "Mortlake is the only plausible suspect who could have managed the feat (official theory)."
+  hidden_model:
+    mechanism:
+      description: >
+        The “locked-room murder” is staged: Grodman ensures Constant will be in a deep drugged sleep, then uses Mrs. Drabdump’s
+        expectation of murder to mask the true timing. When he forces the door, Constant is still alive (asleep). In the instant
+        Mrs. Drabdump recoils and covers her eyes, Grodman cuts Constant’s throat with a razor, immediately removes the razor and
+        the sleeping-draught phial, and then guides the witness’s perception so the room is remembered as a sealed murder scene.
+      delivery_path:
+        - step: "Night before: Grodman cultivates Constant’s trust and gives him sulfonal as a sleeping-draught."
+        - step: "Grodman urges Constant to secure the room tightly (bolt/bar/lock; close windows) to preserve the sealed-room conditions."
+        - step: "Morning: Mrs. Drabdump fails to rouse Constant and summons Grodman as nearest authoritative help."
+        - step: "Grodman forces the door; at first opening Constant is alive but deeply asleep."
+        - step: "In the split-second the shocked witness cannot look, Grodman uses a razor to cut Constant’s throat."
+        - step: "Grodman conceals the razor and the emptied drug phial, then controls the post-entry narrative and timings."
+    outcome:
+      result: "George Grodman is the murderer; Tom Mortlake is falsely accused until Grodman confesses to save him."
+  false_assumption:
+    statement: "Arthur Constant was already dead when the locked, bolted bedroom door was first forced open."
+    type: "timing_error / witness_suggestion"
+    why_it_seems_reasonable: >
+      Mrs. Drabdump expects catastrophe when knocking fails; the room appears sealed; Grodman’s exclamation and rapid covering
+      of the face fix the perception of a corpse discovered, not a killing committed at the threshold.
+    what_it_hides: >
+      The murder happens after the first entry—by the first entrant—so the locked-room problem is an illusion created by shifting
+      the time of death and removing the weapon immediately.
+  constraint_space:
+    time:
+      anchors:
+        - "Night of Dec 3: Constant visits Grodman privately before retiring."
+        - "Early morning Dec 4: Drabdump attempts wake-up; soon after, Grodman forces entry; discovery follows."
+      windows:
+        - "Administration of sleeping-draught: late evening Dec 3 (before Constant sleeps)."
+        - "Actual killing: the instant the bedroom door is forced and the witness is momentarily unable to observe."
+      contradictions:
+        - "Medical estimates of time of death are too coarse to disprove a very recent killing at the moment of entry."
+        - "Witness certainty about 'finding him murdered' is inference shaped by expectation and shock, not a timed observation."
+    access:
+      actors:
+        - "Only Mrs. Drabdump and George Grodman are present at the first entry to the bedroom."
+        - "Inspector Wimp and other officials arrive after the scene narrative is established."
+      objects:
+        - "A razor (weapon) carried by Grodman and removed immediately."
+        - "A sulfonal phial used to induce deep sleep and later pocketed by Grodman."
+        - "Locks/bolts/windows used to create the sealed-room appearance."
+      permissions:
+        - "Grodman gains legitimate access as summoned help and is trusted as a retired detective."
+    physical:
+      laws:
+        - "A deeply sedated sleeper will not respond to knocking and may appear inert."
+        - "A razor can inflict a lethal throat wound quickly; immediate removal leaves no weapon at the scene."
+      traces:
+        - "Absence of the weapon is explained by removal during the first moments after entry."
+        - "Sealed-room conditions can be created by having the victim lock/bolt up before sleeping."
+    social:
+      trust_channels:
+        - "Deference to Grodman’s expertise as a famous retired detective."
+        - "Reliance on Mrs. Drabdump’s emotionally charged testimony."
+      authority_sources:
+        - "Scotland Yard and the inquest prioritize a coherent public explanation under pressure."
+  inference_path:
+    steps:
+      - observation: "The room’s ‘impossibility’ depends on the premise that the murder occurred before anyone entered."
+        correction: "Treat the time of death as uncertain and consider the earliest moment after entry as a candidate window."
+        effect: "Reframes the locked-room puzzle into a timing puzzle: who had the first unobserved second after entry?"
+      - observation: "Only Mrs. Drabdump and Grodman are present at first entry; both are treated as witnesses, not suspects."
+        correction: "First entrants have maximal opportunity and can also shape what the primary witness believes she saw."
+        effect: "Moves suspicion to the scene-controlling rescuer: Grodman."
+      - observation: "No weapon is found in the sealed bedroom."
+        correction: "A weapon can be removed immediately by the first entrant before others arrive."
+        effect: "Explains weapon absence without requiring supernatural entry/exit."
+      - observation: "Constant fails to respond to loud knocking despite expecting to rise early."
+        correction: "A deep sleeping-draught could create unusually prolonged, unarousable sleep."
+        effect: "Introduces a plausible precondition: someone ensured Constant would sleep through the knock."
+      - observation: "The sealed-room conditions are unusually ‘perfect’ (locked/bolted/windows fastened), as if arranged to be a puzzle."
+        correction: "The killer could have induced the victim to secure the room himself, strengthening the future illusion."
+        effect: "Targets someone with influence over Constant and interest in an ‘undetectable’ experiment: Grodman."
+      - observation: "The decisive fact is whether Constant was alive when the door first opened."
+        correction: "If alive then, the killer must be one of the two people at the threshold—and the act can occur in a blink when the witness recoils."
+        effect: "Uniquely identifies Grodman as capable (weapon, composure, narrative control) and explains the entire ‘impossible’ structure."
+      - observation: "Grodman possesses detailed knowledge of a private late-night visit and the administration of sulfonal, which the case record lacks."
+        correction: "Such knowledge implies direct involvement in creating the sleep condition and controlling disclosures."
+        effect: "Forces resolution: Grodman can either explain innocently (with corroboration) or is the architect of the crime—leading to confession."
+  discriminating_test:
+    method: "trap"
+    design: >
+      A closed-door confrontation is arranged at the highest level (to prevent public panic) in which Grodman is forced to account for
+      (1) Constant’s unexplained deep sleep, (2) the missing weapon, and (3) the exact timing at first entry—points that converge only if
+      Constant was alive when the door opened. The “trap” is that an innocent witness cannot supply the internal details (drug, private visit,
+      razor removal, moment-of-entry cut) without revealing prior undisclosed knowledge and planning.
+    knowledge_revealed: >
+      Only the murderer can truthfully explain how the sealed-room conditions were created by the victim himself, why the victim did not wake,
+      and why no weapon was found—by admitting the drugging, the timing shift, and the immediate concealment of the razor and phial.
+    pass_condition: "Grodman provides specific, verifiable details of the drugging and the instant-of-entry killing (amounting to a confession)."
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: >
+      The narrative supplies the key constraints (sealed room, missing weapon, first entry limited to Drabdump and Grodman) and the pivotal pivot
+      that witness expectation can masquerade as observation. The possibility of drugged sleep is foreshadowed by Constant’s failure to wake.
+      Once the reader questions the assumed time of death, the solution “first entrant kills after entry, removes weapon” follows by ordinary logic.
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 3
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: "early_act3"
+      must_reference_inference_step: true

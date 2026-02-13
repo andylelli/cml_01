@@ -4,83 +4,113 @@
 
 export const CML_2_0_SCHEMA_SUMMARY = `CML 2.0 Structure (Required Sections):
 
-1. CML_VERSION: "2.0"
+1. CML_VERSION: 2.0
 
 2. CASE:
    meta:
      title: string
      author: string
-     primaryAxis: temporal | spatial | identity | behavioral | authority
-     difficulty: string
-     estimatedDurationMinutes: number
-   
-   cast:
-     - name: string
-       role: victim | detective | suspect | witness | culprit
-       publicRole: string
-       secrets?: string[]
-       motive?: string
-       alibi?: string
-   
+     license: string
+     era:
+       decade: string
+       realism_constraints: string[]
+     setting:
+       location: string
+       institution: string
+     crime_class:
+       category: murder | theft | disappearance | fraud
+       subtype: string
+
+   cast: [
+     {
+       name: string
+       age_range: string
+       role_archetype: string
+       relationships: string[]
+       public_persona: string
+       private_secret: string
+       motive_seed: string
+       motive_strength: string
+       alibi_window: string
+       access_plausibility: string
+       opportunity_channels: string[]
+       behavioral_tells: string[]
+       stakes: string
+       evidence_sensitivity: string[]
+       culprit_eligibility: eligible | ineligible | locked
+       culpability: guilty | innocent | unknown
+     }
+   ]
+
    culpability:
-     culprit: string (name from cast)
-     motive: string
-     method: string
-     opportunity: string
-   
+     culprit_count: 1 | 2
+     culprits: string[]
+
    surface_model:
-     publicNarrative: string
-     apparentMotive: string
-     obviousSuspects: string[]
-     misdirection: string
-   
+     narrative:
+       summary: string
+     accepted_facts: string[]
+     inferred_conclusions: string[]
+
    hidden_model:
      mechanism:
-       type: string
        description: string
-       components: string[]
-     actualConstraints:
-       temporal?: object
-       spatial?: object
-       knowledge?: object
-       physical?: object
-   
+       delivery_path: [{ step: string }]
+     outcome:
+       result: string
+
    false_assumption:
+     statement: string
      type: temporal | spatial | identity | behavioral | authority
-     assumption: string
-     why_believed: string
-     actual_truth: string
-   
+     why_it_seems_reasonable: string
+     what_it_hides: string
+
    constraint_space:
-     category: temporal | spatial | identity | behavioral | authority
-     constraints:
-       - id: string
-         rule: string
-         apparent_compliance: string
-         actual_violation: string
-   
+     time:
+       anchors: string[]
+       windows: string[]
+       contradictions: string[]
+     access:
+       actors: string[]
+       objects: string[]
+       permissions: string[]
+     physical:
+       laws: string[]
+       traces: string[]
+     social:
+       trust_channels: string[]
+       authority_sources: string[]
+
    inference_path:
-     - step: number
-       observation: string
-       reasoning: string
-       conclusion: string
-   
+     steps: [{ observation: string, correction: string, effect: string }]
+
    discriminating_test:
-     method: physical_reconstruction | timeline_analysis | forced_choice | 
-             knowledge_trap | behavioral_inconsistency
-     description: string
-     reveals: string
-     proves_guilt: string
-   
+     method: reenactment | trap | constraint_proof | administrative_pressure
+     design: string
+     knowledge_revealed: string
+     pass_condition: string
+
    fair_play:
-     all_clues_available: boolean
-     load_bearing_clues_early: boolean
-     no_deus_ex_machina: boolean
-     detective_knowledge_public: boolean
+     all_clues_visible: boolean
+     no_special_knowledge_required: boolean
+     no_late_information: boolean
      reader_can_solve: boolean
-     solution_logical: boolean
-     no_supernatural: boolean
-     culprit_determinable: boolean`;
+     explanation: string
+
+   quality_controls:
+     inference_path_requirements:
+       min_steps: number
+       max_steps: number
+       require_observation_correction_effect: boolean
+     clue_visibility_requirements:
+       essential_clues_min: number
+       essential_clues_before_test: boolean
+       early_clues_min: number
+       mid_clues_min: number
+       late_clues_min: number
+     discriminating_test_requirements:
+       timing: late_act2 | early_act3 | mid_act3
+       must_reference_inference_step: boolean`;
 
 export const AXIS_TYPE_DESCRIPTIONS = `Primary Axis Types:
 

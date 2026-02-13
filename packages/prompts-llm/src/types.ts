@@ -26,6 +26,7 @@ export interface CMLPromptInputs {
   tone: string;
   weather: string;
   socialStructure: string;
+  theme?: string;
   
   // Mystery structure
   primaryAxis: "temporal" | "spatial" | "identity" | "behavioral" | "authority";

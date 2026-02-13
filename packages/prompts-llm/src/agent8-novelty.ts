@@ -64,7 +64,7 @@ export interface NoveltyAuditResult {
 // ============================================================================
 
 export function buildNoveltyPrompt(inputs: NoveltyAuditInputs): PromptComponents {
-  const { generatedCML, seedCMLs, similarityThreshold = 0.7 } = inputs;
+  const { generatedCML, seedCMLs, similarityThreshold = 0.9 } = inputs;
 
   // System: Define the novelty auditor role
   const system = `You are an expert plagiarism and similarity detection specialist for mystery fiction. Your role is to compare a newly generated mystery (CML) against a set of seed examples to ensure sufficient novelty.
@@ -255,8 +255,8 @@ For each seed CML, evaluate:
 ## Pass/Fail Threshold
 
 - **Pass**: Overall similarity < ${thresholdPercent}% for ALL seeds
-- **Warning**: Overall similarity ${thresholdPercent}-${thresholdPercent + 10}% for any seed
-- **Fail**: Overall similarity > ${thresholdPercent + 10}% for any seed
+- **Warning**: Overall similarity ${thresholdPercent}-${Math.min(100, thresholdPercent + 10)}% for any seed
+- **Fail**: Overall similarity > ${Math.min(100, thresholdPercent + 10)}% for any seed
 
 ## Output Format
 
@@ -335,6 +335,14 @@ export async function auditNovelty(
   const costTracker = client.getCostTracker();
   const cost = costTracker.getSummary().byAgent["Agent8-NoveltyAuditor"] || 0;
 
+  const clamp = (value: number) => Math.min(1, Math.max(0, value));
+  const computeOverallSimilarity = (score: SimilarityScore) =>
+    0.3 * score.plotSimilarity
+    + 0.25 * score.characterSimilarity
+    + 0.15 * score.settingSimilarity
+    + 0.25 * score.solutionSimilarity
+    + 0.05 * score.structuralSimilarity;
+
   // Parse the novelty result
   let noveltyData: Omit<NoveltyAuditResult, "cost" | "durationMs">;
   try {
@@ -348,8 +356,85 @@ export async function auditNovelty(
     throw new Error("Invalid novelty audit result: missing required fields (status, similarityScores, summary)");
   }
 
+  const similarityThreshold = typeof inputs.similarityThreshold === "number" ? inputs.similarityThreshold : 0.9;
+  const failThreshold = Math.min(1, similarityThreshold + 0.1);
+
+  const normalizedScores = noveltyData.similarityScores.map((score) => {
+    const normalized: SimilarityScore = {
+      ...score,
+      overallSimilarity: clamp(score.overallSimilarity),
+      plotSimilarity: clamp(score.plotSimilarity),
+      characterSimilarity: clamp(score.characterSimilarity),
+      settingSimilarity: clamp(score.settingSimilarity),
+      solutionSimilarity: clamp(score.solutionSimilarity),
+      structuralSimilarity: clamp(score.structuralSimilarity),
+    };
+    return {
+      ...normalized,
+      overallSimilarity: computeOverallSimilarity(normalized),
+    };
+  });
+
+  const highestSimilarity = normalizedScores.reduce((max, score) => Math.max(max, score.overallSimilarity), 0);
+  const mostSimilarSeed = normalizedScores.find((score) => score.overallSimilarity === highestSimilarity)?.seedTitle
+    ?? normalizedScores[0]?.seedTitle
+    ?? "Unknown";
+  const overallNovelty = clamp(1 - highestSimilarity);
+
+  let status: "pass" | "fail" | "warning" = "pass";
+  if (similarityThreshold >= 1) {
+    status = "pass";
+  } else if (highestSimilarity >= failThreshold) {
+    status = "fail";
+  } else if (highestSimilarity >= similarityThreshold) {
+    status = "warning";
+  }
+
+  const topScore = normalizedScores.find((score) => score.seedTitle === mostSimilarSeed) ?? normalizedScores[0];
+  const weights = {
+    plot: 0.3,
+    character: 0.25,
+    setting: 0.15,
+    solution: 0.25,
+    structural: 0.05,
+  };
+
+  await client.getLogger().logResponse({
+    runId: inputs.runId || "unknown",
+    projectId: inputs.projectId || "unknown",
+    agent: "Agent8-NoveltyAuditor",
+    operation: "novelty_math",
+    model: "n/a",
+    success: true,
+    timestamp: new Date().toISOString(),
+    metadata: {
+      weights,
+      similarityThreshold,
+      failThreshold,
+      mostSimilarSeed,
+      highestSimilarity,
+      overallNovelty,
+      topScore: topScore
+        ? {
+            seedTitle: topScore.seedTitle,
+            overallSimilarity: topScore.overallSimilarity,
+            plotSimilarity: topScore.plotSimilarity,
+            characterSimilarity: topScore.characterSimilarity,
+            settingSimilarity: topScore.settingSimilarity,
+            solutionSimilarity: topScore.solutionSimilarity,
+            structuralSimilarity: topScore.structuralSimilarity,
+          }
+        : null,
+    },
+  });
+
   return {
     ...noveltyData,
+    status,
+    overallNovelty,
+    mostSimilarSeed,
+    highestSimilarity,
+    similarityScores: normalizedScores,
     cost,
     durationMs,
   };

@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { AllValidation, ProseData, RunEvent, ValidationResult, NoveltyAuditData } from "../components/types";
+import type { AllValidation, ProseData, RunEvent, ValidationResult, NoveltyAuditData, CharacterProfilesData } from "../components/types";
 import {
+  fetchCharacterProfiles,
   fetchCast,
   fetchCastValidation,
   fetchClues,
@@ -43,6 +44,7 @@ export const useProjectStore = defineStore("project", () => {
   const gamePackArtifact = ref<string | null>(null);
   const settingArtifact = ref<string | null>(null);
   const castArtifact = ref<string | null>(null);
+  const characterProfilesArtifact = ref<string | null>(null);
 
   const settingData = ref<{ decade?: string; locationPreset?: string; weather?: string; socialStructure?: string } | null>(null);
   const castData = ref<{ suspects?: string[] } | null>(null);
@@ -51,6 +53,7 @@ export const useProjectStore = defineStore("project", () => {
   const outlineData = ref<{ chapters?: unknown } | null>(null);
   const synopsisData = ref<{ title?: string; summary?: string } | null>(null);
   const proseData = ref<ProseData | null>(null);
+  const characterProfilesData = ref<CharacterProfilesData | null>(null);
   const noveltyAuditData = ref<NoveltyAuditData | null>(null);
   const gamePackData = ref<{ title?: string; suspects?: string[]; materials?: string[] } | null>(null);
 
@@ -165,6 +168,37 @@ export const useProjectStore = defineStore("project", () => {
     };
   };
 
+  const normalizeCharacterProfiles = (payload: any): CharacterProfilesData | null => {
+    if (!payload || typeof payload !== "object") return null;
+    const profiles = Array.isArray(payload.profiles) ? payload.profiles : [];
+    const normalizedProfiles = profiles.map((profile: any, index: number) => {
+      const paragraphs = Array.isArray(profile.paragraphs)
+        ? profile.paragraphs
+        : typeof profile.text === "string"
+          ? profile.text.split(/\n\n+/).filter(Boolean)
+          : [];
+      return {
+        name: profile.name ?? `Character ${index + 1}`,
+        summary: profile.summary,
+        publicPersona: profile.publicPersona,
+        privateSecret: profile.privateSecret,
+        motiveSeed: profile.motiveSeed,
+        alibiWindow: profile.alibiWindow,
+        accessPlausibility: profile.accessPlausibility,
+        stakes: profile.stakes,
+        paragraphs,
+        order: profile.order ?? index + 1,
+      };
+    });
+    return {
+      status: payload.status ?? "draft",
+      tone: payload.tone,
+      targetWordCount: payload.targetWordCount,
+      profiles: normalizedProfiles,
+      note: payload.note,
+    };
+  };
+
   const loadArtifacts = async (
     projectId: string,
     options: { includeCml?: boolean } = {},
@@ -182,6 +216,7 @@ export const useProjectStore = defineStore("project", () => {
       fairPlay,
       outline,
       prose,
+      characterProfiles,
       gamePack,
       synopsis,
       settingValidation,
@@ -198,6 +233,7 @@ export const useProjectStore = defineStore("project", () => {
       fetchFairPlayReport(projectId),
       fetchOutline(projectId),
       fetchProse(projectId),
+      fetchCharacterProfiles(projectId),
       fetchGamePack(projectId),
       fetchSynopsis(projectId),
       fetchSettingValidation(projectId),
@@ -212,6 +248,7 @@ export const useProjectStore = defineStore("project", () => {
     const cluesPayload = clues.status === "fulfilled" ? clues.value.payload : null;
     const outlinePayload = outline.status === "fulfilled" ? outline.value.payload : null;
     const prosePayload = prose.status === "fulfilled" ? prose.value.payload : null;
+    const characterProfilesPayload = characterProfiles.status === "fulfilled" ? characterProfiles.value.payload : null;
     const synopsisPayload = synopsis.status === "fulfilled" ? (synopsis.value.payload as typeof synopsisData.value) : null;
 
     settingArtifact.value = setting.status === "fulfilled" ? JSON.stringify(setting.value.payload, null, 2) : null;
@@ -244,6 +281,13 @@ export const useProjectStore = defineStore("project", () => {
     synopsisData.value = synopsisPayload;
     proseData.value = prose.status === "fulfilled" ? normalizeProse(prosePayload, synopsisPayload?.title) : null;
 
+    characterProfilesArtifact.value = characterProfiles.status === "fulfilled"
+      ? JSON.stringify(characterProfiles.value.payload, null, 2)
+      : null;
+    characterProfilesData.value = characterProfiles.status === "fulfilled"
+      ? normalizeCharacterProfiles(characterProfilesPayload)
+      : null;
+
     gamePackArtifact.value = gamePack.status === "fulfilled" ? JSON.stringify(gamePack.value.payload, null, 2) : null;
     gamePackData.value = gamePack.status === "fulfilled" ? (gamePack.value.payload as typeof gamePackData.value) : null;
 
@@ -267,6 +311,7 @@ export const useProjectStore = defineStore("project", () => {
       fairPlay,
       outline,
       prose,
+      characterProfiles,
       gamePack,
       synopsis,
       settingValidation,
@@ -287,7 +332,7 @@ export const useProjectStore = defineStore("project", () => {
 
     if (failures.length === 0) {
       artifactsStatus.value = "ready";
-    } else if (failures.length === 15) {
+    } else if (failures.length === 16) {
       if (hasNotFound || hasNetworkError) {
         artifactsStatus.value = "error";
       } else {
@@ -300,6 +345,18 @@ export const useProjectStore = defineStore("project", () => {
     }
 
     return { failures, hasNotFound, hasNetworkError, notFoundCount };
+  };
+
+  const loadRunEvents = async (projectId: string) => {
+    const latestRun = await fetchLatestRun(projectId).catch(() => null);
+    if (latestRun) {
+      latestRunId.value = latestRun.id;
+      const events = await fetchRunEvents(latestRun.id).catch(() => []);
+      runEventsData.value = events;
+      return;
+    }
+    latestRunId.value = null;
+    runEventsData.value = [];
   };
 
   const resetValidation = () => {
@@ -322,6 +379,7 @@ export const useProjectStore = defineStore("project", () => {
     cluesArtifact.value = null;
     outlineArtifact.value = null;
     proseArtifact.value = null;
+    characterProfilesArtifact.value = null;
     gamePackArtifact.value = null;
     settingArtifact.value = null;
     castArtifact.value = null;
@@ -332,6 +390,7 @@ export const useProjectStore = defineStore("project", () => {
     outlineData.value = null;
     synopsisData.value = null;
     proseData.value = null;
+    characterProfilesData.value = null;
     noveltyAuditData.value = null;
     gamePackData.value = null;
     runEventsData.value = [];
@@ -346,6 +405,7 @@ export const useProjectStore = defineStore("project", () => {
     cluesArtifact,
     outlineArtifact,
     proseArtifact,
+    characterProfilesArtifact,
     gamePackArtifact,
     settingArtifact,
     castArtifact,
@@ -356,6 +416,7 @@ export const useProjectStore = defineStore("project", () => {
     outlineData,
     synopsisData,
     proseData,
+    characterProfilesData,
     noveltyAuditData,
     gamePackData,
     runEventsData,
@@ -363,6 +424,7 @@ export const useProjectStore = defineStore("project", () => {
     llmLogs,
     allValidation,
     loadArtifacts,
+    loadRunEvents,
     loadLlmLogs,
     resetValidation,
     clearAll,

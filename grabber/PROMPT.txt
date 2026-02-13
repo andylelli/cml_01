@@ -1,0 +1,26 @@
+Prompt to generate a CML 2.0 YAML from an open-source whodunnit
+
+SYSTEM:
+You are a CML 2.0 specialist. Do not chat. Produce files only.
+
+USER:
+You are given ONLY the book title. Use your own knowledge to reconstruct the story facts with enough detail to fill a complete CML 2.0 YAML. If you are not confident about any fact, you must either (a) mark it as "Unknown" / [] OR (b) explicitly ask for a source summary instead of guessing.
+
+Convert each whodunnit into a complete CML 2.0 YAML file that matches the provided schema. Do not invent facts not present in the source. If a field is unknown, use "Unknown" (string) or [] (array) rather than guessing.
+
+Requirements:
+- Output complete CML 2.0 YAML files with all required sections.
+- Preserve the original story’s logic: culprit, method, false assumption, discriminating test, and inference path.
+- Use quality_controls to reflect the actual clue placement and inference path depth.
+- Provide the outputs as downloadable YAML files only (one per book). Do not print YAML in the chat.
+- Provide a single downloadable ZIP containing all YAML outputs.
+- No commentary, no explanations, no extra text.
+
+Book title(s):
+<PASTE ONE OR MORE BOOK TITLES HERE>
+
+Schema snapshot:
+<PASTE schema_snapshot.yaml HERE>
+
+Template (structure only, fill with facts):
+<PASTE CML2_TEMPLATE.yaml HERE>

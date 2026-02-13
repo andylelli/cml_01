@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@cml/cml": "file:../../packages/cml",
+    "@cml/prompts-llm": "file:../../packages/prompts-llm",
     "@cml/worker": "file:../worker",
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
@@ -11,9 +12,7 @@
     "pg": "^8.13.1"
   },
   "scripts": {
-    "prebuild": "npm run -w @cml/cml build && npm run -w @cml/worker build",
     "build": "tsc -p tsconfig.json",
-    "predev": "npm run -w @cml/cml build && npm run -w @cml/worker build && npm run build",
     "dev": "node dist/index.js",
     "test": "vitest run"
   },

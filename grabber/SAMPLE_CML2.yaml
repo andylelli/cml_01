@@ -1,0 +1,146 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: "Sample Case (Formatting Only)"
+    author: "Community"
+    license: "CC0"
+    era:
+      decade: "1930s"
+      realism_constraints:
+        - "No modern forensics"
+    setting:
+      location: "Country estate"
+      institution: "Manor house"
+    crime_class:
+      category: "murder"
+      subtype: "poisoning"
+  cast:
+    - name: "Inspector Hale"
+      age_range: "adult"
+      role_archetype: "detective"
+      relationships: ["household"]
+      public_persona: "methodical"
+      private_secret: "Unknown"
+      motive_seed: "Unknown"
+      motive_strength: "low"
+      alibi_window: "n/a"
+      access_plausibility: "high"
+      opportunity_channels: ["interviews"]
+      behavioral_tells: []
+      stakes: "justice"
+      evidence_sensitivity: []
+      culprit_eligibility: "ineligible"
+      culpability: "innocent"
+    - name: "Lady Arden"
+      age_range: "adult"
+      role_archetype: "suspect"
+      relationships: ["victim"]
+      public_persona: "charming"
+      private_secret: "Unknown"
+      motive_seed: "inheritance"
+      motive_strength: "moderate"
+      alibi_window: "evening"
+      access_plausibility: "medium"
+      opportunity_channels: ["tea service"]
+      behavioral_tells: ["avoids eye contact"]
+      stakes: "reputation"
+      evidence_sensitivity: ["poison"]
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+  culpability:
+    culprit_count: 1
+    culprits: ["Lady Arden"]
+  surface_model:
+    narrative:
+      summary: "A respected host dies after an evening gathering. The household assumes a sudden illness."
+    accepted_facts:
+      - "The victim collapsed after tea."
+      - "Guests were present in the drawing room."
+    inferred_conclusions:
+      - "The death was natural."
+  hidden_model:
+    mechanism:
+      description: "Poison introduced into a personal cup during service."
+      delivery_path:
+        - step: "Tea prepared in the kitchen."
+        - step: "Cup swapped during service."
+    outcome:
+      result: "Victim poisoned."
+  false_assumption:
+    statement: "The victim died of a sudden natural illness."
+    type: "temporal"
+    why_it_seems_reasonable: "Symptoms mimic a medical episode."
+    what_it_hides: "A delayed poison and a swapped cup."
+  constraint_space:
+    time:
+      anchors:
+        - "Tea was served at 8:00 PM."
+      windows:
+        - "Service window between 7:50–8:10 PM."
+      contradictions:
+        - "The culprit claims to have been outside during service."
+    access:
+      actors:
+        - "Only staff handled the tray."
+      objects:
+        - "Two identical cups were present."
+      permissions:
+        - "Guests could not enter the kitchen."
+    physical:
+      laws:
+        - "Poison requires ingestion."
+      traces:
+        - "Residue on the cup rim."
+    social:
+      trust_channels:
+        - "House guests trust the host’s routine."
+      authority_sources:
+        - "Inspector’s interview authority."
+  inference_path:
+    steps:
+      - observation: "Symptoms appeared later than expected for illness."
+        correction: "Poison with delayed onset was used."
+        effect: "Timeline narrows to tea service."
+      - observation: "Two cups were left on the tray."
+        correction: "A swap could occur unnoticed."
+        effect: "Access focused on servers."
+      - observation: "The culprit’s alibi conflicts with service timing."
+        correction: "Alibi was staged."
+        effect: "Culprit isolated."
+      - observation: "Residue appears only on one cup rim."
+        correction: "Only one cup was prepared with poison."
+        effect: "Swap hypothesis reinforced."
+      - observation: "The kitchen log omits a service entry."
+        correction: "Service was handled informally."
+        effect: "Opportunity window expands."
+      - observation: "A witness recalls a hesitation at pouring."
+        correction: "The server recognized the altered cup."
+        effect: "Knowledge of the swap narrows suspects."
+      - observation: "The culprit avoids the reenactment setup."
+        correction: "They fear exposure by the test."
+        effect: "Final proof aligns with the trap."
+  discriminating_test:
+    method: "trap"
+    design: "Repeat the service with controlled cups and observe reactions."
+    knowledge_revealed: "Only someone who knew the swap would object."
+    pass_condition: "Culprit reacts to the decoy cup."
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: "All clues appear before the reenactment."
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 3
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: "early_act3"
+      must_reference_inference_step: true

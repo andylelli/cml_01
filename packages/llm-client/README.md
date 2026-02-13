@@ -222,9 +222,10 @@ Circuit breaker opens after 5 consecutive failures and resets after 60 seconds.
 
 ## Cost Optimization
 
-Costs are calculated based on model pricing:
-- **GPT-4**: $0.03/1K prompt tokens, $0.06/1K completion tokens
-- **GPT-3.5-turbo**: $0.0005/1K prompt tokens, $0.0015/1K completion tokens
+Costs are calculated in GBP based on the default config in `cost-tracker.ts`:
+- **GPT-4**: £0.0237/1K prompt tokens, £0.0474/1K completion tokens
+- **GPT-4o-mini (default)**: £0.00013035/1K prompt tokens, £0.00052140/1K completion tokens
+- **GPT-3.5-turbo**: £0.000395/1K prompt tokens, £0.001185/1K completion tokens
 
 Track costs by agent to optimize prompt design and model selection.
 

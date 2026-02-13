@@ -9,6 +9,8 @@ export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
 export { buildCluePrompt, extractClues } from "./agent5-clues.js";
 export { buildFairPlayPrompt, auditFairPlay } from "./agent6-fairplay.js";
 export { buildNarrativePrompt, formatNarrative } from "./agent7-narrative.js";
+export { generateCharacterProfiles } from "./agent2b-character-profiles.js";
+export { generateProse } from "./agent9-prose.js";
 export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
 
 export type {
@@ -35,6 +37,8 @@ export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAud
 
 // Agent 7 types
 export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";
+export type { CharacterProfilesInputs, CharacterProfilesResult, CharacterProfileOutput } from "./agent2b-character-profiles.js";
+export type { ProseGenerationInputs, ProseGenerationResult, ProseChapter } from "./agent9-prose.js";
 
 // Agent 8 types
 export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./agent8-novelty.js";

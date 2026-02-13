@@ -1,0 +1,15 @@
+CML 2.0 Sample Checklist
+
+Before adding to examples/:
+- Source is public-domain or open-source; license recorded.
+- All required schema sections present.
+- Required fields are filled with concrete details, not placeholders.
+- No new facts invented beyond the source.
+- Inference path has 6–7 steps with observation/correction/effect (edge-case testing).
+- Clue descriptions are specific and actionable (what/where/when).
+- Discriminating test is concrete and late-act appropriate.
+- Constraint space includes time/access/physical elements.
+- Constraints are concrete and testable.
+- Fair-play fields are justified in the explanation.
+- quality_controls targets match the actual case.
+- YAML validates against schema/cml_2_0.schema.yaml.

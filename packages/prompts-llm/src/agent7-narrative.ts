@@ -124,6 +124,7 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
     : legacy.setup?.era
       ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
       : "Unknown era";
+  const settingLocation = meta?.setting?.location ?? legacy.setup?.era?.location ?? "Unknown setting";
   const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
   const victim = legacy.setup?.crime?.victim || "Unknown";
   const culpritName =
@@ -197,6 +198,7 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
 ## Mystery Overview
 **Title**: ${title}
 **Era & Setting**: ${era}
+**Setting Lock**: All scenes must remain within this setting: ${settingLocation}. Do not move to a different location type.
 **Primary Axis**: ${primaryAxis}
 **Crime**: ${crime}
 **Victim**: ${victim}
@@ -433,7 +435,19 @@ export async function formatNarrative(
   }
 
   if (!outlineData.totalScenes || !outlineData.estimatedTotalWords) {
-    throw new Error("Invalid narrative outline: missing totalScenes or estimatedTotalWords");
+    const acts = outlineData.acts ?? [];
+    const allScenes = acts.flatMap((act: any) => (Array.isArray(act.scenes) ? act.scenes : []));
+    const computedTotalScenes = allScenes.length;
+    const computedTotalWords = allScenes.reduce(
+      (sum: number, scene: any) => sum + (typeof scene.estimatedWordCount === "number" ? scene.estimatedWordCount : 0),
+      0,
+    );
+
+    outlineData = {
+      ...outlineData,
+      totalScenes: outlineData.totalScenes ?? computedTotalScenes,
+      estimatedTotalWords: outlineData.estimatedTotalWords ?? computedTotalWords,
+    };
   }
 
   return {

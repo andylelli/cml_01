@@ -14,6 +14,12 @@ export interface ClueExtractionInputs {
   cml: Record<string, unknown>;    // Validated CML object
   clueDensity: "minimal" | "moderate" | "dense"; // How many clues to surface
   redHerringBudget: number;         // Number of red herrings (0-3)
+  fairPlayFeedback?: {
+    overallStatus?: "pass" | "fail" | "needs-revision";
+    violations?: Array<{ severity: "critical" | "moderate" | "minor"; rule: string; description: string; suggestion: string }>;
+    warnings?: string[];
+    recommendations?: string[];
+  };
   runId?: string;
   projectId?: string;
 }
@@ -222,6 +228,47 @@ The inference_path contains the logical steps the detective takes. Each step's "
 
 `;
 
+  const qualityControls = caseData?.quality_controls ?? {};
+  const clueTargets = qualityControls?.clue_visibility_requirements ?? {};
+  if (Object.keys(qualityControls).length > 0) {
+    developer += `## Quality Controls (from CML)
+
+Use these targets to shape clue counts and placement:
+- Essential clues minimum: ${clueTargets.essential_clues_min ?? "N/A"}
+- Essential clues before test: ${String(clueTargets.essential_clues_before_test ?? "N/A")}
+- Early clues minimum: ${clueTargets.early_clues_min ?? "N/A"}
+- Mid clues minimum: ${clueTargets.mid_clues_min ?? "N/A"}
+- Late clues minimum: ${clueTargets.late_clues_min ?? "N/A"}
+
+If targets conflict with clue density, prioritize fair play (essential clues and early placement).
+
+`;
+  }
+
+  if (inputs.fairPlayFeedback) {
+    const { overallStatus, violations = [], warnings = [], recommendations = [] } = inputs.fairPlayFeedback;
+    developer += `## Fair Play Audit Feedback
+
+The previous fair-play audit returned **${overallStatus ?? "needs-review"}**. Regenerate the clue distribution to resolve these issues:
+
+### Violations
+${violations.length > 0 ? violations.map((v, i) => `${i + 1}. [${v.severity}] ${v.rule}: ${v.description} (Fix: ${v.suggestion})`).join("\n") : "None"}
+
+### Warnings
+${warnings.length > 0 ? warnings.map((w) => `- ${w}`).join("\n") : "None"}
+
+### Recommendations
+${recommendations.length > 0 ? recommendations.map((r) => `- ${r}`).join("\n") : "None"}
+
+**Regeneration Guidance**:
+- Keep all clues grounded in existing CML facts (no new facts).
+- Adjust clue placement (early/mid/late) so essential clues appear before the discriminating test.
+- Ensure the inference path is supported by explicit, discoverable clues.
+- If necessary, increase essential clues derived from inference path observations.
+
+`;
+  }
+
   // Output schema
   developer += `## Output JSON Schema
 
@@ -365,12 +412,14 @@ export async function extractClues(
     const costTracker = client.getCostTracker();
     const cost = costTracker.getSummary().byAgent["Agent5-ClueExtraction"] || 0;
 
+    const modelName = response.model || "unknown";
+
     await logger.logResponse({
       runId,
       projectId,
       agent: "Agent5-ClueExtraction",
       operation: "extract_clues",
-      model: "gpt-4",
+      model: modelName,
       success: true,
       latencyMs,
       metadata: {

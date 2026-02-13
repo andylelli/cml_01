@@ -1,0 +1,97 @@
+CML_VERSION: 2.0
+CASE:
+  meta:
+    title: ""
+    author: ""
+    license: ""
+    era:
+      decade: ""
+      realism_constraints: []
+    setting:
+      location: ""
+      institution: ""
+    crime_class:
+      category: "murder"
+      subtype: ""
+  cast:
+    - name: ""
+      age_range: ""
+      role_archetype: ""
+      relationships: []
+      public_persona: ""
+      private_secret: ""
+      motive_seed: ""
+      motive_strength: ""
+      alibi_window: ""
+      access_plausibility: ""
+      opportunity_channels: []
+      behavioral_tells: []
+      stakes: ""
+      evidence_sensitivity: []
+      culprit_eligibility: "eligible"
+      culpability: "unknown"
+  culpability:
+    culprit_count: 1
+    culprits: []
+  surface_model:
+    narrative:
+      summary: ""
+    accepted_facts: []
+    inferred_conclusions: []
+  hidden_model:
+    mechanism:
+      description: ""
+      delivery_path:
+        - step: ""
+    outcome:
+      result: ""
+  false_assumption:
+    statement: ""
+    type: ""
+    why_it_seems_reasonable: ""
+    what_it_hides: ""
+  constraint_space:
+    time:
+      anchors: []
+      windows: []
+      contradictions: []
+    access:
+      actors: []
+      objects: []
+      permissions: []
+    physical:
+      laws: []
+      traces: []
+    social:
+      trust_channels: []
+      authority_sources: []
+  inference_path:
+    steps:
+      - observation: ""
+        correction: ""
+        effect: ""
+  discriminating_test:
+    method: "trap"
+    design: ""
+    knowledge_revealed: ""
+    pass_condition: ""
+  fair_play:
+    all_clues_visible: true
+    no_special_knowledge_required: true
+    no_late_information: true
+    reader_can_solve: true
+    explanation: ""
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 6
+      max_steps: 7
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 3
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: "early_act3"
+      must_reference_inference_step: true

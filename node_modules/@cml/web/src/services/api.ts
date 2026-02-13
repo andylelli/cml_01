@@ -235,6 +235,14 @@ export const fetchProse = async (projectId: string): Promise<Artifact> => {
   return response.json() as Promise<Artifact>;
 };
 
+export const fetchCharacterProfiles = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/character-profiles/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch character profiles failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
 export const fetchFairPlayReport = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/fair-play/latest`);
   if (!response.ok) {
@@ -271,6 +279,31 @@ export const downloadGamePackPdf = async (projectId: string): Promise<Blob> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/game-pack/pdf`);
   if (!response.ok) {
     throw new Error(`Download game pack PDF failed (${response.status})`);
+  }
+  return response.blob();
+};
+
+export const downloadStoryPdf = async (projectId: string): Promise<Blob> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/prose/pdf`);
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type") || "";
+    let details = "";
+    if (contentType.includes("application/json")) {
+      try {
+        const data = (await response.json()) as { error?: string };
+        details = data?.error ? `: ${data.error}` : "";
+      } catch {
+        details = "";
+      }
+    } else {
+      try {
+        const text = await response.text();
+        details = text ? `: ${text}` : "";
+      } catch {
+        details = "";
+      }
+    }
+    throw new Error(`Download story PDF failed (${response.status})${details}`);
   }
   return response.blob();
 };

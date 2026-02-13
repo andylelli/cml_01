@@ -15,7 +15,7 @@ export interface SettingInputs {
   projectId: string;
   decade: string; // "1920s", "1930s", etc.
   location: string; // "Country manor", "Ocean liner", etc.
-  institution?: string; // "Private residence", "Hotel", etc.
+  institution?: string; // "Manor", "Hotel", etc.
   weather?: string; // "Stormy night", "Sunny afternoon", etc.
   socialStructure?: string; // "English aristocracy", "American upper class", etc.
   tone?: string; // "Dark and gritty", "Cozy golden age", etc.
@@ -89,7 +89,11 @@ You have expertise in:
   const eraConstraints = buildEraConstraints(inputs.decade);
   const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location as string, inputs.institution as string) : null;
 
-  const developer = `**Era Constraints Template**
+  const developer = `You are a historical setting expert specializing in Golden Age detective fiction.
+Uniqueness Seed: ${inputs.runId}-${inputs.projectId}
+Use this seed to vary the setting details while staying within the requested era and location.
+
+**Era Constraints Template**
 
 ${JSON.stringify(eraConstraints, null, 2)}
 
@@ -137,8 +141,9 @@ Generate a JSON object with the following structure:
 1. Use the era constraints template to guide technology/forensics/social norms
 2. Identify any anachronisms in the user's spec (technology too advanced, social norms wrong)
 3. Add realistic physical constraints for the location
-4. Provide atmosphere details for immersion
-5. Include 3-5 specific recommendations for authenticity`;
+4. Provide atmosphere details for immersion, including 2-3 period-accurate anchors (politics, science, current affairs)
+5. Include 3-5 specific recommendations for authenticity, referencing period-accurate politics/science/current affairs
+6. Resolve any detected anachronisms/implausibilities and return empty lists in the final output`;
 
   // User prompt with specific settings
   const user = `Refine the following mystery setting:
@@ -149,9 +154,10 @@ Generate a JSON object with the following structure:
 Analyze this setting and provide:
 1. Complete era constraints (technology, forensics, social norms, policing)
 2. Detailed location description and physical constraints
-3. Atmosphere details for immersion
+3. Atmosphere details for immersion, including 2-3 period-accurate anchors (politics, science, current affairs)
 4. Any anachronisms or implausibilities to avoid
-5. Specific recommendations for authenticity
+5. Specific recommendations for authenticity that reference period-accurate politics/science/current affairs
+6. Ensure realism.anachronisms and realism.implausibilities are empty in the final JSON by correcting issues pre-output
 
 Output JSON only.`;
 
@@ -246,17 +252,36 @@ export async function refineSetting(
         }
       }
 
+      if (setting.realism.anachronisms.length > 0 || setting.realism.implausibilities.length > 0) {
+        await logger.logError({
+          runId: inputs.runId,
+          projectId: inputs.projectId,
+          agent: "Agent1-SettingRefiner",
+          operation: "validate_realism",
+          errorMessage: `Non-empty realism lists (anachronisms=${setting.realism.anachronisms.length}, implausibilities=${setting.realism.implausibilities.length})`,
+          retryAttempt: attempt,
+        });
+
+        if (attempt < maxAttempts) {
+          continue;
+        } else {
+          throw new Error("Setting refinement still contains anachronisms or implausibilities after all attempts");
+        }
+      }
+
       const latencyMs = Date.now() - startTime;
       const costTracker = client.getCostTracker();
       const cost = costTracker.getSummary().byAgent["Agent1-SettingRefiner"] || 0;
 
       // Success!
+      const modelName = response.model || "unknown";
+
       await logger.logResponse({
         runId: inputs.runId,
         projectId: inputs.projectId,
         agent: "Agent1-SettingRefiner",
         operation: "refine_setting",
-        model: "gpt-4",
+        model: modelName,
         success: true,
         validationStatus: "pass",
         retryAttempt: attempt,

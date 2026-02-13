@@ -35,25 +35,28 @@
 ### Results (default)
 - Setting overview
 - Cast cards + relationship map
+- Character profiles (per suspect; private details gated to Advanced/Expert; LLM-generated)
 - Mystery “bones” overview
 - Clue board
 - Outline/timeline
 - Fair-play summary
 - Game pack preview (materials + suspect cards summary)
 - Game pack PDF download action
+- Story PDF download action (from the Story/Prose view)
+- PDF download buttons show a spinner and disable while downloading
+- Prose reader displays clear paragraph spacing for readability
 - Setting/cast/outline cards render generated content when available.
 - Synopsis card shows a readable summary after CML generation.
 - Synopsis card includes quick links to detailed views (Clues, Outline, CML) and a jump to the dashboard detail panels.
-- Status panel includes a “Refresh data” action and a compact artifact availability summary.
+- Status panel shows a friendly run state and auto-updates when results are ready.
+- “What’s next?” panel offers quick actions to explore clues, outline, or story.
+- Section headers include small “Ready/Pending” chips with iconography.
+- Status panel shows “Updated just now” / relative timestamp after refresh.
+- Fix Suggestions panel (default) shows plain-language guidance when issues are detected.
+- Fix Suggestions map common validation wording to concrete next steps.
 
 ### ProjectDashboard
-- Create/import project
-- Recent versions
-- Quick actions: regenerate/export
- - Creating a project auto-starts the pipeline so artifacts appear without extra steps.
-- Project setup includes a field to load an existing project by ID.
-- Project setup includes a dropdown list of existing projects fetched from the API for quick reload.
-- If a saved project ID is no longer available, the UI clears it and prompts the user to pick an existing project or create a new one.
+ Creating a project clears prior artifacts and starts in a pending state until Generate is run.
 - Project setup includes a "Clear persistence" control that wipes the JSON/Postgres store and resets UI state.
 
 ### BuilderWizard
@@ -63,8 +66,11 @@
 
 ### Generate
 - Dedicated main tab for running the pipeline and monitoring progress.
-- Shows API health, artifact readiness summary, and regenerate controls.
+- Shows a friendly status area with spinner/loader bar during active runs.
+- Loader bar advances based on the latest run-event stage (agent progress), not a fixed timer.
+- Shows artifact readiness summary and regenerate controls.
 - Does not replace or duplicate Project setup; it is its own view.
+- Generate auto-saves the latest spec before starting the pipeline.
 
 ### CmlViewer (Advanced/Expert only)
 - Tree view with YAML/JSON toggle
@@ -91,6 +97,7 @@
 ### Advanced/Expert toggles
 - Advanced mode enables read-only CML viewing and export.
 - Expert mode enables CML editing with warnings and full validation output.
+- Advanced/Expert expose run history, validation details, novelty audit, logs, and raw artifacts.
 - Current build uses native checkbox toggles for reliability.
 
 ## Components
@@ -100,7 +107,7 @@
 - LogicForm
 - OutputForm
 - CmlTreeView (Advanced/Expert only)
-- ValidationChecklistPanel
+- ValidationChecklistPanel (Advanced/Expert only)
 - ClueTable
 - OutlineTimeline
 - ArtifactVersionTimeline
@@ -155,8 +162,9 @@
 **Feedback:**
 - On change: show “unsaved changes” badge until saved
 
-Spec draft inputs include a comma-separated cast names field that overrides the placeholder cast list.
-If cast names are left empty, the system generates a default list of readable names.
+Spec draft inputs include a comma-separated cast names field stored with the spec for future LLM conditioning.
+Spec draft inputs include an optional theme field with a one-click random suggestion to jolt plot direction.
+Direct deterministic cast overrides are not used in the current LLM-only pipeline.
 
 ### CmlTreeView
 **Purpose:** View CML with spoiler-safe controls.
@@ -175,11 +183,12 @@ If cast names are left empty, the system generates a default list of readable na
 **Layout:**
 - List of entries with timestamp, agent, model, token usage, and cost
 - Empty state when no logs are available
+- Logs auto-refresh while a run is active and when the Logs tab is open
 
 ### Raw Artifacts (Advanced)
 **Purpose:** Provide full JSON payloads as stored in persistence for all artifacts.
 **Layout:**
-- Collapsible JSON blocks per artifact (setting, cast, clues, outline, prose, game pack)
+- Collapsible JSON blocks per artifact (setting, cast, character profiles, clues, outline, prose, game pack)
 
 ### ValidationChecklistPanel
 **Purpose:** Show checklist compliance with actionable fixes.
@@ -191,7 +200,8 @@ If cast names are left empty, the system generates a default list of readable na
 - Failures highlight related fields in forms
  - Phase 2 placeholder: show validation error list from CML validation artifact
 - Phase 3 placeholder: show step validation status for setting/cast/clues/outline
-- Fair-play report renders checklist items with pass/warn indicators.
+- Fair-play report renders checklist items with pass/warn indicators (Advanced/Expert only).
+- Advanced/Expert users must explicitly expand Validation details to see full output.
 
 ### ClueTable
 **Purpose:** Manage clues and red herrings.
@@ -231,7 +241,7 @@ If cast names are left empty, the system generates a default list of readable na
 ### ExportPanel
 **Purpose:** Select artifacts for export packaging and trigger download.
 **Layout:**
-- Checkbox list for setting/cast/clues/outline/fair-play/prose/game pack/CML
+- Checkbox list for setting/cast/character profiles/clues/outline/fair-play/prose/game pack/CML
 - Export button (disabled until selections available)
 **Feedback:**
 - Calls the export API endpoint with selected artifact types and downloads a JSON file containing the latest versions.
@@ -258,17 +268,20 @@ If cast names are left empty, the system generates a default list of readable na
 - Actions: cancel run, retry failed step
 **Feedback:**
 - Spinner for active run
+- Indeterminate loader bar during active work
  - When run status returns to idle, the UI auto-refreshes artifacts.
  - Auto-refresh uses a short polling window to wait for freshly generated artifacts to appear.
-- After a run starts, the UI polls for artifacts until they are available.
+- After a run starts, show a “Pipeline started” toast and wait for the run status to return to idle before surfacing a “Pipeline completed successfully” toast.
+- Run History updates live by polling run events while a run is active.
 
-### Regenerate controls (V1)
-**Purpose:** Allow granular regeneration of individual artifacts.
+### Update controls (V1)
+**Purpose:** Allow granular updates of individual sections.
 **Layout:**
 - Sidebar buttons for setting, cast, clues, outline, prose.
 **Feedback:**
 - Success message on completion; error message on failure.
-- Regenerate actions refresh the current artifact previews.
+- Update actions refresh the current previews.
+- Update actions show a spinner and loader bar while running.
 
 ## Interaction feedback
 - Buttons: hover (bg + shadow), active (pressed), focus-visible (ring)
@@ -283,6 +296,9 @@ If cast names are left empty, the system generates a default list of readable na
 - Errors: show inline + top summary; avoid modal-only errors
 - Retry: provide retry button per step
 - Long-running tasks: show estimated step name and last completed step
+- Error toasts include a primary action (“Try again” or “Save draft”) and simple iconography.
+- Advanced/Expert can expand error details; default users see summary only.
+- Export uses a spinner + loader bar and inline success/error messaging.
 
 ## Component-by-component framework mapping (Tailwind + Headless UI + Vue)
 

@@ -5,21 +5,21 @@
 import type { CostConfig, TokenUsage } from "./types.js";
 
 export const defaultCostConfig: CostConfig = {
-  // GPT-4 pricing (as of Feb 2026)
-  gpt4PromptCostPer1k: 0.03,
-  gpt4CompletionCostPer1k: 0.06,
+  // GPT-4 pricing (as of Feb 2026, converted to GBP)
+  gpt4PromptCostPer1k: 0.0237,
+  gpt4CompletionCostPer1k: 0.0474,
 
-  // GPT-4o pricing (approximate, configurable if needed)
-  gpt4oPromptCostPer1k: 0.005,
-  gpt4oCompletionCostPer1k: 0.015,
+  // GPT-4o pricing (approximate, converted to GBP)
+  gpt4oPromptCostPer1k: 0.0021725,
+  gpt4oCompletionCostPer1k: 0.00869,
 
-  // GPT-4o-mini pricing (approximate, configurable if needed)
-  gpt4oMiniPromptCostPer1k: 0.0005,
-  gpt4oMiniCompletionCostPer1k: 0.0015,
+  // GPT-4o-mini pricing (Sweden Central regional, per 1K tokens, GBP)
+  gpt4oMiniPromptCostPer1k: 0.00013035,
+  gpt4oMiniCompletionCostPer1k: 0.0005214,
 
-  // GPT-3.5-turbo pricing
-  gpt35PromptCostPer1k: 0.0005,
-  gpt35CompletionCostPer1k: 0.0015,
+  // GPT-3.5-turbo pricing (converted to GBP)
+  gpt35PromptCostPer1k: 0.000395,
+  gpt35CompletionCostPer1k: 0.001185,
 };
 
 export class CostTracker {

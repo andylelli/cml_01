@@ -19,6 +19,7 @@ This document describes the current implementation of the mystery generation wor
 ### 2. Save Spec
 - **Endpoint**: `POST /api/projects/:id/specs`
 - **Action**: Stores user input specification (decade, cast size, tone, clue density, etc.)
+- **Notes**: Spec may include an optional theme prompt to steer plot direction.
 - **Response**: `{ id, projectId, spec }`
 
 ### 3. Run Pipeline
@@ -26,12 +27,14 @@ This document describes the current implementation of the mystery generation wor
 - **Action**: Initiates the full mystery generation pipeline
 - **Response**: `{ status: "running", projectId, runId }`
 - **Side Effects**: Creates a run record, sets project status to `running`
+- **Requirement**: Azure OpenAI credentials must be configured; no deterministic fallback artifacts are produced.
+- **UI Behavior**: Generate auto-saves the latest spec before starting the run.
 
 ### 4. Regenerate Artifact
 - **Endpoint**: `POST /api/projects/:id/regenerate`
-- **Body**: `{ scope: "setting" | "cast" | "cml" | "clues" | "outline" | "prose" | "game_pack" | "fair_play_report" }`
-- **Action**: Re-generates a specific artifact type using the latest spec
-- **Response**: `{ status: "ok", scope }`
+- **Body**: `{ scope: "setting" | "cast" | "character_profiles" | "cml" | "clues" | "outline" | "prose" | "game_pack" | "fair_play_report" }`
+- **Action**: Regenerates LLM-backed artifacts. Currently supported only for `character_profiles`; other scopes require a full pipeline run.
+- **Response**: `{ status: "ok", scope }` or `{ error }` when regeneration requires a full run.
 
 ### 5. Clear Persistence (Admin)
 - **Endpoint**: `POST /api/admin/clear-store`
@@ -40,7 +43,8 @@ This document describes the current implementation of the mystery generation wor
 
 ## Pipeline Execution Flow
 
-When a user triggers the pipeline via `POST /api/projects/:id/run`, the system executes the following steps synchronously:
+When a user triggers the pipeline via `POST /api/projects/:id/run`, the system executes the following LLM-backed steps:
+No deterministic stub artifacts are created; each artifact is stored as the corresponding LLM step completes.
 
 ### Step 1: Setting Generation
 - **Derives**: `{ decade, locationPreset, weather, socialStructure, institution }`
@@ -48,6 +52,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
   - `setting` - The derived setting data
   - `setting_validation` - Validation result
 - **Event**: `setting_done` - "Setting generated"
+- **Guardrail**: Non-empty anachronisms/implausibilities trigger retry and block pipeline if unresolved
 
 ### Step 2: Cast Generation
 - **Derives**: `{ size, detectiveType, victimArchetype, suspects[] }`
@@ -55,6 +60,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
   - `cast` - The derived cast data with suspect names
   - `cast_validation` - Validation result
 - **Event**: `cast_done` - "Cast generated"
+- **Guardrail**: Non-empty stereotypeCheck triggers retry and block pipeline if unresolved
 
 ### Step 3: CML Generation
 - **Derives**: Full CML 2.0 structure including:
@@ -68,6 +74,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
   - Inference path
   - Discriminating test
   - Fair play checklist
+  - Quality controls (inference path requirements, clue visibility targets, discriminating test timing)
 - **Validation**: Uses `@cml/cml` validator
   - If validation fails, retries once with temporal axis
 - **Artifacts Created**:
@@ -76,6 +83,14 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Events**: 
   - `cml_retry` - "CML failed validation; retrying" (if needed)
   - `cml_validated` - "CML validated"
+- **Spec adherence**: CML generation must honor the spec parameters (decade, location preset, tone, theme, cast size/names, primary axis).
+
+### Step 3b: Character Profile Generation
+- **Derives**: Per-character narrative profiles from cast (LLM)
+  - Each profile: `{ name, summary, publicPersona, privateSecret, motiveSeed, paragraphs[] }`
+- **Artifacts Created**:
+  - `character_profiles` - `{ status, tone, targetWordCount, profiles[], note }`
+- **Event**: `character_profiles_done` - "Character profiles generated"
 
 ### Step 4: Synopsis Generation
 - **Derives**: `{ status, title, summary }` from CML metadata
@@ -84,10 +99,14 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Event**: `synopsis_done` - "Synopsis generated"
 
 ### Step 5: Novelty Audit
-- **Current Implementation**: Stub that always passes
+- **Current Implementation**: LLM-based similarity audit against seed CMLs
 - **Artifacts Created**:
-  - `novelty_audit` - `{ status: "pass", seedIds: [], patterns: [] }`
-- **Event**: `novelty_audit` - "Novelty audit passed (no seeds selected)"
+  - `novelty_audit` - `{ status: "pass"|"warning"|"fail", seedIds: [], patterns: [], highestSimilarity, recommendations[] }`
+- **Event**: `novelty_audit_done` - "Novelty audit: <status>" with summary and top-match details when available
+- **Guardrail**: CML generation includes explicit divergence constraints from seed patterns.
+- **Configuration**: Similarity threshold is configurable via `NOVELTY_SIMILARITY_THRESHOLD` (default 0.9, higher values are more lenient). Set `NOVELTY_SKIP=true` (or use a threshold >= 1.0) to skip the novelty check. Use `NOVELTY_HARD_FAIL=true` to make similarity failures block the pipeline; otherwise failures continue as warnings.
+- **Normalization**: Weighted overall similarity is recomputed from the category scores, and pass/warn/fail status is enforced from the threshold.
+- **Feedback Loop**: On novelty failure, the system regenerates CML once with stronger divergence constraints, then re-audits
 
 ### Step 6: Clues Generation
 - **Derives**: `{ status, density, axis, summary, items[] }`
@@ -97,6 +116,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
   - `clues` - All clue data
   - `clues_validation` - Validation result
 - **Event**: `clues_done` - "Clues generated"
+- **Feedback Loop**: If the fair-play audit fails, clues are regenerated once using the audit’s violations and recommendations before re-auditing.
 
 ### Step 7: Fair Play Report Generation
 - **Derives**: LLM-based fair-play audit from CML + clues, including:
@@ -106,6 +126,7 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Artifacts Created**:
   - `fair_play_report` - `{ overallStatus, summary, checks[], violations[], warnings[], recommendations[] }`
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
+- **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit, then is captured as warnings without blocking the pipeline
 
 ### Step 8: Outline Generation
 - **Derives**: `{ status, tone, chapters, summary }`
@@ -115,18 +136,14 @@ When a user triggers the pipeline via `POST /api/projects/:id/run`, the system e
 - **Event**: `outline_done` - "Outline generated"
 
 ### Step 9: Prose Generation
-- **Derives**: Chapter-by-chapter narrative from outline + cast
+- **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
   - Each chapter: `{ title, summary, paragraphs[] }`
 - **Artifacts Created**:
   - `prose` - `{ status, tone, chapters[], cast[], note }`
 - **Event**: `prose_done` - "Prose generated"
 
 ### Step 10: Game Pack Generation
-- **Derives**: Interactive game materials from CML + cast
-  - `{ title, suspects[], hostPacket, materials[] }`
-- **Artifacts Created**:
-  - `game_pack` - Complete game pack data
-- **Event**: `game_pack_done` - "Game pack generated"
+**Status:** Planned. Game pack generation is not yet available without LLM support and is not produced in the current pipeline run.
 
 ### Pipeline Completion
 - After the pipeline finishes (success or failure), project status returns to `idle`
@@ -141,6 +158,10 @@ All pipeline steps emit events that are stored and queryable:
 - **Response**: `{ runId, events: [{ step, message }] }`
 
 Events provide a complete audit trail of what happened during a pipeline run.
+Cost values in run events are reported in GBP.
+The web UI polls the latest run events while a run is active to show live progress in Run History.
+Progress indicators in the UI advance based on the latest run-event stage.
+Novelty run events include a `novelty_math` step that records the weighting, threshold, and most-similar seed score.
 
 ## Server-Sent Events (SSE)
 
@@ -177,10 +198,12 @@ All generated artifacts are accessible via GET endpoints:
 ### Public Artifacts (no access control)
 - `GET /api/projects/:id/setting/latest`
 - `GET /api/projects/:id/cast/latest`
+- `GET /api/projects/:id/character-profiles/latest`
 - `GET /api/projects/:id/clues/latest`
 - `GET /api/projects/:id/outline/latest`
 - `GET /api/projects/:id/prose/latest`
 - `GET /api/projects/:id/synopsis/latest`
+- `GET /api/projects/:id/prose/pdf`
 - `GET /api/projects/:id/fair-play/latest`
 - `GET /api/projects/:id/game-pack/latest`
 
@@ -203,6 +226,7 @@ Users can regenerate individual artifacts without re-running the entire pipeline
 3. **Regenerate**: Derives new artifact using current derivation logic
 4. **Dependencies**: Some artifacts require dependencies:
    - `prose` requires `outline` and `cast`
+  - `character_profiles` requires `cast` (uses LLM when Azure credentials are configured)
    - `game_pack` requires `cml` and `cast`
    - `fair_play_report` requires `cml` and `clues`
 5. **Event**: If a run exists, adds event `${scope}_regenerated`
@@ -217,11 +241,10 @@ Users can regenerate individual artifacts without re-running the entire pipeline
 - ✅ SSE provides real-time status updates
 - ✅ CML access control is enforced
 - ✅ Validation is performed at each step
+- ✅ Character profiles and prose are LLM-generated when Azure credentials are configured
+- ✅ Worker job registry handlers are implemented and invoke the full pipeline with a default theme
 
 ### What's Stubbed
-- ⚠️ **LLM pipeline requires Azure OpenAI credentials** - Runs fail fast if credentials are missing
-- ⚠️ **Worker jobs are placeholders** - All return `notImplemented`
-- ⚠️ **Novelty audit always passes** - No actual similarity checking
 - ⚠️ **In-memory storage** - No persistent database (data lost on restart)
 
 ### Architecture Readiness
@@ -231,11 +254,10 @@ The system is architected for:
 - Event-driven workflows (SSE infrastructure)
 - Scalable storage (repository pattern with db.ts interface)
 
-The transition from deterministic to LLM-powered generation will primarily involve:
-1. Implementing actual job handlers in `apps/worker/src/jobs/index.ts`
-2. Integrating prompts from `@cml/prompts` package
-3. Calling LLM APIs within each job
-4. Potentially switching to async job queue (vs. synchronous pipeline)
+Future scaling work will primarily involve:
+1. Adding a job queue and async processing model
+2. Passing user specs into worker jobs (rather than a default theme)
+3. Implementing persistent storage for runs and artifacts
 
 ## Activity Logging
 

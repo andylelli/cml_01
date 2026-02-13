@@ -6,6 +6,7 @@
 - Support reproducibility and traceability
 - Guarantee CML-first ordering and fair-play constraints
 - Enforce novelty vs seed CMLs and prevent copying
+- Pipeline runs require Azure OpenAI credentials; no deterministic fallback artifacts are produced.
 
 ## Where LLM interaction is required (by pipeline stage)
 
@@ -13,7 +14,9 @@
 **Purpose:** Generate era constraints, setting bible, and realism constraints.
 **Input:** decade + location preset + user notes
 **Output:** setting bible (constraints on tech, travel, policing, social norms)
-**Validation:** check for anachronisms; must not alter user inputs
+**Validation:** check for anachronisms/implausibilities; non-empty realism lists trigger retry and block pipeline
+**Uniqueness:** prompts include a per-run uniqueness seed (runId/projectId) to encourage varied settings within the spec.
+**Period accuracy:** prompts require 2–3 period-accurate anchors (politics, science, current affairs) in atmosphere/recommendations.
 
 ### 2) Cast generation
 **Purpose:** Generate cast list with secrets, motives, alibis, and access.
@@ -21,13 +24,21 @@
 **Output:** cast section matching schema; uses culpability = unknown until CML is finalized
 **Validation:** required fields present; no stereotype or protected-class harm
 **Fallbacks:** if the model returns too few characters or missing fields, the system pads and normalizes the cast with safe defaults to keep the pipeline moving.
+**Guardrail:** non-empty stereotypeCheck triggers retry and blocks pipeline if unresolved.
+**Uniqueness:** prompts include a per-run uniqueness seed (runId/projectId) to encourage varied casts within the spec.
+
 
 ### 3) CML generation (core)
 **Purpose:** Generate CML 2.0-compliant case.
 **Input:** setting bible + cast + logic knobs
-**Output:** full CML 2.0 draft including false_assumption and discriminating_test
+**Output:** full CML 2.0 draft including false_assumption, discriminating_test, and quality_controls targets for fair-play and clue visibility
 **Validation:** schema + checklist, and “one primary axis” rule
-**Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths.
+**Setting fidelity:** enforce a setting lock in CML generation so all downstream artifacts stay in the specified location type.
+**Spec adherence:** CML generation explicitly incorporates the spec parameters (decade, location preset, tone, theme, cast size/names, primary axis) and must reflect them in meta and narrative summary.
+**Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths. Similarity threshold is configurable via `NOVELTY_SIMILARITY_THRESHOLD` (default 0.9, lenient). Set `NOVELTY_SKIP=true` (or use a threshold >= 1.0) to skip the novelty check entirely. Returned similarity scores are normalized by recomputing the weighted overall similarity and enforcing pass/warn/fail thresholds, and the math is logged to run events and LLM logs.
+**Imagination:** the CML generator must use inventive, non-obvious combinations of setting details, false assumptions, access paths, and discriminating tests while staying fair-play and era-accurate.
+**Divergence constraints:** CML generation receives explicit divergence constraints derived from seed patterns (era/location, method, false assumption, discriminating test) to avoid overlap.
+**Recovery:** If novelty audit fails, CML is regenerated once with stronger divergence constraints, then re-audited.
 **Parsing safety:** JSON parsing attempts include JSON repair and extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
 **Output guardrails:** Agent 3 includes a required YAML skeleton to avoid missing mandatory fields.
 **Schema normalization:** After parsing, missing required fields are filled with safe defaults before validation to stabilize runs.
@@ -45,27 +56,40 @@
 **Input:** validated CML + clue density + red-herring budget
 **Output:** clues grouped by category; red herrings tied to false assumption
 **Validation:** all clues grounded in CML facts; no new facts added
+**Quality controls:** uses CML quality_controls targets (essential clue minimums and placement counts) when present
 
 ### 6) Fair-play audit
 **Purpose:** Evaluate fairness and reader-solvability against CML + clue distribution.
 **Input:** validated CML + clues
 **Output:** structured audit (overall status, checklist items, violations, summary)
-**Validation:** required fields and status enums; missing fields cause a hard failure.
+**Validation:** required fields and status enums; missing fields cause a hard failure. `fail` or `needs-revision` triggers a single clue-regeneration pass with audit feedback, then continues with warnings.
 
 ### 7) Outline generation
 **Purpose:** Build chapter/act outline with proper clue placement.
 **Input:** validated CML + clues + cast
 **Output:** outline with clue placement markers
 **Validation:** load-bearing clues appear before solution; discriminating test placed late
+**Setting fidelity:** all scenes must remain within the CML setting; no location-type drift.
 **CML compatibility:** downstream agents derive context from CML 2.0 fields when legacy setup/crime fields are missing.
 **Parsing safety:** narrative outline parsing uses JSON repair and JSON extraction when needed.
+**Fallbacks:** if totals are missing, total scenes/words are derived from scene estimates to avoid run failure.
+
+### 7b) Character profile generation (optional)
+**Purpose:** Produce full character profiles without altering CML logic.
+**Input:** cast list (+ optional setting tone)
+**Output:** per-character narrative profiles (target ~1000 words each), including private secrets and motive context
+**Validation:** must not introduce new facts or contradict CML; private details must align with cast/CML
+**Current build:** LLM-generated profiles (implemented).
 
 ### 8) Prose generation (optional)
 **Purpose:** Produce narrative prose without altering logic.
 **Input:** outline + style capture
 **Output:** prose chapters
 **Validation:** must not introduce new facts; style must not copy copyrighted text
-**Current build:** deterministic placeholder prose (multi-paragraph per chapter) is generated from outline and cast (no LLM yet).
+**Setting fidelity:** prose must stay consistent with the CML setting (e.g., a liner remains a liner).
+**Completeness:** prose must include one chapter per outline scene; missing chapters trigger a retry.
+Long outlines are generated in scene batches to ensure all chapters are produced within token limits.
+**Current build:** LLM-generated prose from outline + cast (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
 
 ### 9) Game pack generation (optional)
@@ -73,7 +97,7 @@
 **Input:** CML + cast
 **Output:** printable assets
 **Validation:** all facts consistent with CML
-**Current build:** deterministic placeholder game pack is generated from CML and cast (no LLM yet).
+**Current build:** game pack generation is planned and not yet available without LLM support.
 **CML compatibility:** novelty/fair-play context tolerates missing legacy fields by falling back to CML 2.0 fields.
 
 ### 10) Sample CML analysis (optional)
@@ -105,7 +129,7 @@
 - Reject and retry if invalid
 - Log raw responses for audit
 - Diff checker: detect unintended changes outside requested sections
-- Novelty audit: compare generated CML to selected seeds and force regeneration if too similar to any single seed
+- Novelty audit: compare generated CML to selected seeds (configurable similarity threshold) and force regeneration with stronger divergence constraints if too similar to any single seed. Set `NOVELTY_HARD_FAIL=true` to make similarity failures block the pipeline; otherwise failures continue as warnings.
 - Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
 
 ## Safety & compliance
@@ -121,6 +145,7 @@
 - LLM logging uses environment configuration (LOG_LEVEL, LOG_TO_FILE, LOG_FILE_PATH, LOG_TO_CONSOLE)
 - API loads .env.local at startup to populate Azure OpenAI and logging settings
 - Cost tracking uses model-aware rates (GPT-4, GPT-4o, GPT-4o-mini) to avoid inflated estimates when running mini deployments
+- Current defaults use Sweden Central GPT-4o-mini regional rates in GBP
 - Advanced UI exposes LLM operational logs (metadata only; raw prompts/responses are not stored)
 
 ## Failure handling
@@ -214,11 +239,12 @@
 ### AI-generated outputs
 - Setting bible and realism constraints
 - Cast list with secrets, motives, and access notes
+- Character profiles (optional, implemented)
 - CML 2.0 case draft
 - CML corrections after validation
 - Clue list and red herrings
 - Outline with clue placement
-- Prose chapters (optional)
+- Prose chapters (optional, implemented)
 - Game pack assets (optional)
 - Sample summaries or normalized variants (optional)
 

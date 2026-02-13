@@ -130,6 +130,7 @@ Generate pairs of relationships:
 
 - **stereotypeCheck**: List any potential stereotypes to avoid
 - **recommendations**: Suggestions for authentic, diverse representation
+ - **Requirement**: Final stereotypeCheck must be empty; resolve any issues before output
 
 # Crime Dynamics
 
@@ -192,6 +193,9 @@ Return JSON only:
 
   const user = `Design detailed character profiles for the following mystery:
 
+**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
+Use this seed to ensure the cast details and relationships differ from prior runs while staying within the spec.
+
 ${namesSection}
 **Setting**: ${inputs.setting}
 **Crime Type**: ${inputs.crimeType}
@@ -207,6 +211,7 @@ Requirements:
 6. Create 1-2 effective red herrings
 7. Avoid stereotypes and clichés
 8. Ensure each character has both public facade and private secrets
+9. Resolve any potential stereotypes; output stereotypeCheck as []
 
 Output JSON only.`;
 

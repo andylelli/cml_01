@@ -23,10 +23,12 @@
 - GET /api/projects/:id/clues/validation/latest
 - GET /api/projects/:id/outline/latest
 - GET /api/projects/:id/outline/validation/latest
+- GET /api/projects/:id/character-profiles/latest
 - GET /api/projects/:id/prose/latest
 - GET /api/projects/:id/game-pack/latest
 - GET /api/projects/:id/fair-play/latest
 - GET /api/projects/:id/game-pack/pdf
+- GET /api/projects/:id/prose/pdf
 - GET /api/projects/:id/synopsis/latest
 
 ### Projects
@@ -43,6 +45,7 @@
 
 ### Regenerate
 - POST /api/projects/:id/regenerate — Regenerate a single artifact scope from the latest spec. Accepts `{ scope: string }` where scope is one of: setting, cast, cml, clues, outline, prose, game_pack, fair_play_report.
+- LLM-only regeneration currently supports `character_profiles`; other scopes require a full pipeline run to ensure fresh LLM output.
 
 ### Samples
 - GET /api/samples
@@ -65,35 +68,39 @@
 
 ## Orchestration pattern
 State machine with retries:
-SPEC_READY → SETTING_DONE → CAST_DONE → CML_DRAFT → CML_VALIDATED → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
+SPEC_READY → SETTING_DONE → CAST_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
 
-Phase 2 placeholder behavior:
-- Run initiation stores a stub CML, validation result, and placeholder artifacts for clues/outline/prose.
-Phase 3 start:
-- Setting/cast/CML/clues/outline deterministic artifacts are derived from the latest saved spec when present.
-Phase 3 completion:
-- Pipeline executes deterministic step order with run events and stores a novelty audit artifact (pass when no seeds selected).
+Current behavior:
+- Run initiation creates a run record, sets project status to running, and starts the LLM pipeline.
+- Artifacts are written as each LLM step completes; no deterministic stub artifacts are created.
+- Pipeline execution requires Azure OpenAI credentials; no deterministic fallback artifacts are produced.
 
 Phase 5 completion:
-- Prose and game pack artifacts are generated deterministically (placeholder content) after outline.
+- Prose and character profile artifacts are LLM-generated after outline.
+- Game pack artifact is generated deterministically (placeholder content) after outline.
 - Game pack artifact is available via a dedicated API endpoint.
 
 Artifact roles:
 - **Canonical:** CML (always generated and stored).
-- **Derived:** clues, outline, prose, and all friendly projections.
+- **Derived:** clues, outline, prose, character_profiles, and all friendly projections.
 - UI defaults to derived artifacts; CML is hidden unless Advanced/Expert mode is enabled.
 
 Spec extensions:
-- `castNames` (optional array or comma-separated string) overrides the placeholder cast list in deterministic generation.
-- If `castNames` is omitted, the API generates a default list of readable names.
+- `castNames` (optional array or comma-separated string) is stored in the spec for future LLM conditioning; direct deterministic overrides are not used.
 
 Derived friendly projections now include:
 - `fair_play_report` (overall status, summary, checklist items, violations, warnings)
 - `synopsis` (readable summary derived from CML)
 
+PDF export notes:
+- Story PDF generation sanitizes paragraph content to avoid invalid PDF text tokens (non-string values and embedded newlines are normalized).
+- Story and game pack PDFs wrap long lines and paginate across multiple pages.
+- Story and game pack PDFs render markdown-style headings for titles and sections.
+
 ## Prose + game pack (Phase 5)
-- Prose generation is currently deterministic placeholder output derived from outline and cast.
-- Game pack generation is currently deterministic placeholder output derived from CML and cast.
+- Prose generation is LLM output derived from outline and cast.
+- Character profiles are LLM output derived from cast (target ~1000 words each).
+- Game pack generation is planned and not yet available without LLM support.
 
 Functional policies:
 - One active run per project (queue additional runs)

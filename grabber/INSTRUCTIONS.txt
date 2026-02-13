@@ -1,0 +1,44 @@
+Workflow: Create a CML 2.0 Sample from an Open-Source Whodunnit
+
+1) Verify the source is public-domain or open-source.
+   - Record title, author, license, and a URL.
+   - Do NOT use copyrighted works.
+
+2) Extract story facts.
+   - Crime type and method
+   - Victim, culprit, motives
+   - Timeline anchors and alibis
+   - Key clues and red herrings
+   - False assumption and how it is disproved
+
+If you only provide a book title, the AI must rely on its own knowledge. If details are missing or uncertain, the AI must either ask for a factual summary or mark fields as "Unknown" / [].
+
+3) Fill CML2_TEMPLATE.yaml using those facts.
+   - Ensure every required field is present and non-empty where possible.
+   - Use only details present in the source.
+   - Use "Unknown" when the source is ambiguous.
+   - Keep CML 2.0 structure intact and complete.
+   - Aim for rich, specific phrasing in narrative/constraints while staying factual.
+
+4) Run schema validation (optional but recommended).
+   - Use @cml/cml validator or API validation endpoint if available.
+
+5) Save the final YAML to examples/<short_title>_cml2.yaml
+   - Keep file names lowercase with underscores.
+
+6) Add a provenance note (recommended).
+   - Include source title, author, license, URL, and date.
+   - Store in a sidecar text file or in a repo log if required by your process.
+
+Quality goals:
+- Inference path: 6–7 steps, each with observation/correction/effect (edge-case testing).
+- Discriminating test: concrete, late-act proof.
+- Constraint space: include at least a few time/access/physical constraints.
+- Fair play: all clues visible, no special knowledge needed.
+- Quality controls: set targets that match the actual content.
+- Completeness: no empty required fields; avoid placeholder text unless genuinely unknown.
+
+Do not:
+- Add new facts not present in the source.
+- Copy copyrighted text verbatim.
+- Change core logic to make it “more interesting.”

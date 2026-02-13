@@ -40,6 +40,27 @@ export interface ProseData {
   note?: string;
 }
 
+export interface CharacterProfile {
+  name: string;
+  summary?: string;
+  publicPersona?: string;
+  privateSecret?: string;
+  motiveSeed?: string;
+  alibiWindow?: string;
+  accessPlausibility?: string;
+  stakes?: string;
+  paragraphs: string[];
+  order?: number;
+}
+
+export interface CharacterProfilesData {
+  status: string;
+  tone?: string;
+  targetWordCount?: number;
+  profiles: CharacterProfile[];
+  note?: string;
+}
+
 export interface RunEvent {
   step: string;
   message: string;

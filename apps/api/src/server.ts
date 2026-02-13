@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
 import { AzureOpenAIClient, LLMLogger, LogLevel } from "@cml/llm-client";
+import { generateCharacterProfiles } from "@cml/prompts-llm";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
 
@@ -58,37 +59,140 @@ const toTitle = (id: string) =>
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const escapePdfText = (value: string) => value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+const sanitizePdfLine = (value: unknown) => {
+  const text = typeof value === "string" ? value : value == null ? "" : String(value);
+  return text.replace(/\r?\n/g, " ").replace(/\t/g, " ");
+};
+const wrapPdfLine = (value: string, maxLength = 92) => {
+  const words = value.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [""];
+  const lines: string[] = [];
+  let current = "";
 
-const buildGamePackPdf = (gamePack: Record<string, unknown>) => {
-  const title = (gamePack.title as string) ?? "Mystery Game Pack";
-  const suspects = Array.isArray(gamePack.suspects) ? (gamePack.suspects as string[]) : [];
-  const hostPacket = (gamePack.hostPacket as Record<string, unknown>) ?? {};
-  const materials = Array.isArray(gamePack.materials) ? (gamePack.materials as string[]) : [];
+  for (const word of words) {
+    if (!current) {
+      current = word;
+      continue;
+    }
 
-  const lines = [
-    title,
-    "",
-    "Suspects",
-    ...(suspects.length ? suspects.map((suspect) => `• ${suspect}`) : ["• No suspects available yet."]),
-    "",
-    "Host Packet",
-    (hostPacket.summary as string) ?? "Host packet summary pending.",
-    `Culprit count: ${hostPacket.culpritCount ?? 1}`,
-    "",
-    "Materials",
-    ...(materials.length ? materials.map((material) => `• ${material}`) : ["• No materials listed yet."]),
-  ];
+    if (`${current} ${word}`.length <= maxLength) {
+      current = `${current} ${word}`;
+      continue;
+    }
 
-  const contentLines = lines.map((line) => `(${escapePdfText(line)}) Tj T*`).join("\n");
-  const stream = `BT\n/F1 12 Tf\n72 720 Td\n14 TL\n${contentLines}\nET`;
+    lines.push(current);
+    current = word;
+  }
 
-  const objects = [
-    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj",
-    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj",
-    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj",
-    `4 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj`,
-    "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj",
-  ];
+  if (current) lines.push(current);
+  return lines;
+};
+type PdfLine = { text: string; size: number; leading: number };
+
+const wrapPdfLineSized = (value: string, size: number) => {
+  const base = 92;
+  const maxLength = Math.max(40, Math.floor((base * 12) / size));
+  return wrapPdfLine(value, maxLength);
+};
+
+const markdownToPdfLines = (markdown: string): PdfLine[] => {
+  const rawLines = markdown.split(/\r?\n/);
+  const lines: PdfLine[] = [];
+
+  const pushWrapped = (text: string, size: number) => {
+    const cleaned = sanitizePdfLine(text);
+    const wrapped = cleaned ? wrapPdfLineSized(cleaned, size) : [""];
+    wrapped.forEach((line) => {
+      lines.push({ text: line, size, leading: size + 4 });
+    });
+  };
+
+  for (const raw of rawLines) {
+    const line = raw.trimEnd();
+    if (!line.trim()) {
+      lines.push({ text: "", size: 12, leading: 16 });
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      pushWrapped(line.replace(/^###\s+/, ""), 14);
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      pushWrapped(line.replace(/^##\s+/, ""), 16);
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      pushWrapped(line.replace(/^#\s+/, ""), 20);
+      continue;
+    }
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      pushWrapped(`• ${line.replace(/^[-*]\s+/, "")}`, 12);
+      continue;
+    }
+
+    pushWrapped(line, 12);
+  }
+
+  return lines;
+};
+
+const paginatePdfLines = (lines: PdfLine[], startY = 720, bottomY = 72) => {
+  const pages: PdfLine[][] = [];
+  let current: PdfLine[] = [];
+  let y = startY;
+
+  lines.forEach((line) => {
+    if (y - line.leading < bottomY) {
+      pages.push(current);
+      current = [];
+      y = startY;
+    }
+    current.push(line);
+    y -= line.leading;
+  });
+
+  if (current.length) pages.push(current);
+  return pages.length ? pages : [[]];
+};
+
+const buildPdfFromLinePages = (pages: PdfLine[][]) => {
+  const contentStreams = pages.map((pageLines) => {
+    const commands: string[] = ["BT", "/F1 12 Tf", "72 720 Td", "16 TL"];
+    pageLines.forEach((line) => {
+      commands.push(`/F1 ${line.size} Tf`);
+      commands.push(`${line.leading} TL`);
+      commands.push(`(${escapePdfText(line.text)}) Tj`);
+      commands.push(`0 -${line.leading} Td`);
+    });
+    commands.push("ET");
+    return commands.join("\n");
+  });
+
+  const objects: string[] = [];
+  const pageCount = pages.length;
+  const pageObjectStart = 3;
+  const contentObjectStart = pageObjectStart + pageCount;
+  const fontObjectNum = contentObjectStart + pageCount;
+
+  objects.push("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj");
+  const kids = Array.from({ length: pageCount }, (_, idx) => `${pageObjectStart + idx} 0 R`).join(" ");
+  objects.push(`2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pageCount} >>\nendobj`);
+
+  for (let i = 0; i < pageCount; i += 1) {
+    const pageObjNum = pageObjectStart + i;
+    const contentObjNum = contentObjectStart + i;
+    objects.push(
+      `${pageObjNum} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${contentObjNum} 0 R /Resources << /Font << /F1 ${fontObjectNum} 0 R >> >> >>\nendobj`
+    );
+  }
+
+  contentStreams.forEach((stream, i) => {
+    const contentObjNum = contentObjectStart + i;
+    objects.push(`${contentObjNum} 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj`);
+  });
+
+  objects.push(`${fontObjectNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
 
   let offset = 0;
   const xref: string[] = ["0000000000 65535 f "];
@@ -110,387 +214,121 @@ const buildGamePackPdf = (gamePack: Record<string, unknown>) => {
   return Buffer.from(pdf, "utf-8");
 };
 
-const deriveSetting = (spec?: Record<string, unknown>) => ({
-  decade: (spec?.decade as string) ?? "1930s",
-  locationPreset: (spec?.locationPreset as string) ?? "CountryHouse",
-  weather: "Autumn storm",
-  socialStructure: "aristocracy",
-  institution: "Estate",
-});
+const buildGamePackPdf = (gamePack: Record<string, unknown>) => {
+  const title = (gamePack.title as string) ?? "Mystery Game Pack";
+  const suspects = Array.isArray(gamePack.suspects) ? (gamePack.suspects as string[]) : [];
+  const hostPacket = (gamePack.hostPacket as Record<string, unknown>) ?? {};
+  const materials = Array.isArray(gamePack.materials) ? (gamePack.materials as string[]) : [];
 
-const deriveCast = (spec?: Record<string, unknown>) => {
-  const rawNames = spec?.castNames;
-  const normalizedNames = Array.isArray(rawNames)
-    ? rawNames.map((name) => String(name).trim()).filter(Boolean)
-    : typeof rawNames === "string"
-      ? rawNames
-          .split(",")
-          .map((name) => name.trim())
-          .filter(Boolean)
-      : [];
+  const markdown = [
+    `# ${title}`,
+    "",
+    "## Suspects",
+    ...(suspects.length ? suspects.map((suspect) => `- ${suspect}`) : ["- No suspects available yet."]),
+    "",
+    "## Host Packet",
+    (hostPacket.summary as string) ?? "Host packet summary pending.",
+    `Culprit count: ${hostPacket.culpritCount ?? 1}`,
+    "",
+    "## Materials",
+    ...(materials.length ? materials.map((material) => `- ${material}`) : ["- No materials listed yet."]),
+  ].join("\n");
 
-  const requestedSize = (spec?.castSize as number) ?? 6;
-  const baseSize = normalizedNames.length ? normalizedNames.length : requestedSize;
-  const targetSize = Math.max(3, Math.min(baseSize, 8));
-  const fillCount = Math.max(0, targetSize - normalizedNames.length);
-  const defaultNames = [
-    "Avery",
-    "Blair",
-    "Casey",
-    "Dana",
-    "Ellis",
-    "Finley",
-    "Harper",
-    "Jordan",
-    "Morgan",
-    "Quinn",
-  ];
-  const filler = Array.from({ length: fillCount }, (_, index) => {
-    return defaultNames[index] ?? `Suspect ${index + 1}`;
+  const lines = markdownToPdfLines(markdown);
+  const pages = paginatePdfLines(lines);
+  return buildPdfFromLinePages(pages);
+};
+
+const buildProsePdf = (prose: Record<string, unknown>, fallbackTitle?: string) => {
+  const title = sanitizePdfLine(
+    (prose.title as string) || (prose.note as string) || fallbackTitle || "Mystery Story"
+  );
+  const chapters = Array.isArray(prose.chapters) ? (prose.chapters as Array<Record<string, unknown>>) : [];
+
+  const proseLines: string[] = [`# ${title}`, "", "## Chapters"];
+  if (!chapters.length) {
+    proseLines.push("", "No story chapters available yet.");
+  }
+
+  chapters.forEach((chapter, index) => {
+    const chapterTitle = sanitizePdfLine((chapter.title as string) || `Chapter ${index + 1}`);
+    proseLines.push("", `### ${chapterTitle}`);
+    const summary = sanitizePdfLine(chapter.summary as string | undefined);
+    if (summary) {
+      proseLines.push(`Summary: ${summary}`);
+      proseLines.push("");
+    }
+    const paragraphs = Array.isArray(chapter.paragraphs) ? chapter.paragraphs : [];
+    paragraphs.forEach((para, idx) => {
+      const cleaned = sanitizePdfLine(para);
+      if (cleaned) {
+        proseLines.push(cleaned);
+      }
+      if (idx < paragraphs.length - 1) {
+        proseLines.push("");
+      }
+    });
   });
-  const suspects = (normalizedNames.length ? [...normalizedNames, ...filler] : filler).slice(0, targetSize);
 
-  return {
-    size: suspects.length,
-    detectiveType: "amateur sleuth",
-    victimArchetype: "blackmailer",
-    suspects,
-  };
+  const lines = markdownToPdfLines(proseLines.join("\n"));
+  const pages = paginatePdfLines(lines);
+  return buildPdfFromLinePages(pages);
 };
-
-const deriveCml = (spec?: Record<string, unknown>) => ({
-  CML_VERSION: 2.0,
-  CASE: {
-    meta: {
-      title: "Phase 3 Deterministic",
-      author: "CML",
-      license: "internal",
-      era: {
-        decade: (spec?.decade as string) ?? "1930s",
-        realism_constraints: ["no modern forensics"],
-      },
-      setting: {
-        location: (spec?.locationPreset as string) ?? "Country House",
-        institution: "Estate",
-      },
-      crime_class: {
-        category: "murder",
-        subtype: "poisoning",
-      },
-    },
-    cast: deriveCast(spec).suspects.map((name) => ({
-      name,
-      age_range: "adult",
-      role_archetype: "suspect",
-      relationships: ["victim"],
-      public_persona: "reserved",
-      private_secret: "debts",
-      motive_seed: "inheritance",
-      motive_strength: "medium",
-      alibi_window: "evening",
-      access_plausibility: "medium",
-      opportunity_channels: ["kitchen"],
-      behavioral_tells: ["hesitation"],
-      stakes: "inheritance",
-      evidence_sensitivity: ["poison"],
-      culprit_eligibility: "eligible",
-      culpability: "unknown",
-    })),
-    culpability: {
-      culprit_count: 1,
-      culprits: [deriveCast(spec).suspects[0] ?? "A. Example"],
-    },
-    surface_model: {
-      narrative: { summary: "A simple surface summary." },
-      accepted_facts: ["Victim found deceased."],
-      inferred_conclusions: ["Death appears natural."],
-    },
-    hidden_model: {
-      mechanism: {
-        description: "Poisoned tea.",
-        delivery_path: [{ step: "Tea prepared" }],
-      },
-      outcome: { result: "Victim poisoned" },
-    },
-    false_assumption: {
-      statement: "Death was natural.",
-      type: (spec?.primaryAxis as string) ?? "temporal",
-      why_it_seems_reasonable: "Symptoms resemble illness.",
-      what_it_hides: "Poisoning timeline.",
-    },
-    constraint_space: {
-      time: { anchors: [], windows: [], contradictions: [] },
-      access: { actors: [], objects: [], permissions: [] },
-      physical: { laws: [], traces: [] },
-      social: { trust_channels: [], authority_sources: [] },
-    },
-    inference_path: {
-      steps: [{ observation: "Symptom onset", correction: "Poison delay", effect: "Alibi breaks" }],
-    },
-    discriminating_test: {
-      method: "trap",
-      design: "Reveal poison source",
-      knowledge_revealed: "Access window",
-      pass_condition: "Culprit reacts",
-    },
-    fair_play: {
-      all_clues_visible: true,
-      no_special_knowledge_required: true,
-      no_late_information: true,
-      reader_can_solve: true,
-      explanation: "All clues shown early.",
-    },
-  },
-});
-
-const deriveClues = (spec?: Record<string, unknown>) => {
-  const density = (spec?.clueDensity as string) ?? "medium";
-  const axis = (spec?.primaryAxis as string) ?? "temporal";
-  const decade = (spec?.decade as string) ?? "1930s";
-  const location = (spec?.locationPreset as string) ?? "CountryHouse";
-  const cast = deriveCast(spec);
-  const firstSuspect = cast.suspects[0] ?? "the suspect";
-  const secondSuspect = cast.suspects[1] ?? "another guest";
-
-  // Generate axis-specific clues that vary by project settings
-  const axisClues: Record<string, { category: string; text: string; pointsTo: string }> = {
-    temporal: {
-      category: "time",
-      text: `A clock was stopped at ${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}.`,
-      pointsTo: "timeline discrepancy",
-    },
-    spatial: {
-      category: "access",
-      text: `Only ${firstSuspect} had access to the ${location === "CountryHouse" ? "library" : location === "SeasideHotel" ? "suite" : "restricted area"}.`,
-      pointsTo: "restricted access",
-    },
-    identity: {
-      category: "testimony",
-      text: `${secondSuspect} was seen in two places at once according to witness statements.`,
-      pointsTo: "identity confusion",
-    },
-    behavioral: {
-      category: "behavior",
-      text: `${firstSuspect} exhibited unusual nervous behavior when questioned about the evening.`,
-      pointsTo: "suspicious behavior",
-    },
-    authority: {
-      category: "circumstantial",
-      text: `A forged ${decade === "1930s" ? "telegram" : decade === "1940s" ? "letter" : "document"} was found claiming official authority.`,
-      pointsTo: "authority misuse",
-    },
-  };
-
-  const primaryClue = axisClues[axis] ?? axisClues.temporal;
-
-  const baseClues = [
-    {
-      id: "clue-1",
-      category: primaryClue.category,
-      text: primaryClue.text,
-      pointsTo: primaryClue.pointsTo,
-      redHerring: false,
-      revealChapter: 1,
-    },
-    {
-      id: "clue-2",
-      category: "physical",
-      text: `A ${decade === "1930s" ? "cigarette stub" : decade === "1940s" ? "matchbook" : "lighter"} was found at the scene.`,
-      pointsTo: "physical evidence",
-      redHerring: false,
-      revealChapter: 2,
-    },
-    {
-      id: "clue-3",
-      category: "document",
-      text: `A diary entry from ${firstSuspect} mentions a secret meeting.`,
-      pointsTo: "motive evidence",
-      redHerring: false,
-      revealChapter: 2,
-    },
-  ];
-
-  const redHerrings = [
-    {
-      id: "red-1",
-      category: "testimony",
-      text: `${secondSuspect} was reportedly seen near the ${location === "CountryHouse" ? "greenhouse" : location === "SeasideHotel" ? "beach" : "garden"}.`,
-      pointsTo: "false lead",
-      redHerring: true,
-      revealChapter: 1,
-    },
-  ];
-
-  const items = density === "sparse" ? baseClues : density === "rich" ? [...baseClues, ...redHerrings] : [...baseClues, ...redHerrings];
-
-  return {
-    status: "ready",
-    density,
-    axis,
-    summary: `Clues generated based on ${axis} axis in ${decade} ${location} setting.`,
-    items,
-  };
-};
-
-const deriveSynopsis = (cml: Record<string, unknown>) => {
-  const caseBlock = (cml?.CASE as Record<string, unknown>) ?? {};
-  const meta = (caseBlock.meta as Record<string, unknown>) ?? {};
-  const title = (meta.title as string) ?? "Untitled Mystery";
-  const era = (meta.era as Record<string, unknown>) ?? {};
-  const decade = (era.decade as string) ?? "unknown era";
-  const setting = (meta.setting as Record<string, unknown>) ?? {};
-  const location = (setting.location as string) ?? "unknown location";
-  const crimeClass = (meta.crime_class as Record<string, unknown>) ?? {};
-  const category = (crimeClass.category as string) ?? "crime";
-  const falseAssumption = (caseBlock.false_assumption as Record<string, unknown>) ?? {};
-  const assumption = (falseAssumption.statement as string) ?? "a false assumption";
-
-  return {
-    status: "ready",
-    title,
-    summary: `${title} is a ${decade} ${category} in ${location}. The case hinges on ${assumption.toLowerCase()}.`,
-  };
-};
-
-const deriveOutline = (spec?: Record<string, unknown>) => ({
-  status: "pending",
-  tone: (spec?.tone as string) ?? "Cozy",
-  chapters: spec?.chapters ?? null,
-  summary: "Deterministic placeholder outline derived from spec.",
-});
-
-const deriveFairPlayReport = (cml?: Record<string, unknown>, clues?: Record<string, unknown>) => {
-  const fairPlay = (cml?.CASE as Record<string, unknown>)?.fair_play as Record<string, unknown> | undefined;
-  const clueItems = (clues?.items as Array<Record<string, unknown>> | undefined) ?? [];
-  const hasRedHerrings = clueItems.some((item) => item.redHerring === true);
-
-  return {
-    status: "ready",
-    summary: "Deterministic placeholder fair-play report derived from CML and clues.",
-    checks: [
-      {
-        id: "all_clues_visible",
-        label: "All clues are visible",
-        status: fairPlay?.all_clues_visible ? "pass" : "warn",
-      },
-      {
-        id: "no_late_information",
-        label: "No late information",
-        status: fairPlay?.no_late_information ? "pass" : "warn",
-      },
-      {
-        id: "reader_can_solve",
-        label: "Reader can solve with given clues",
-        status: fairPlay?.reader_can_solve ? "pass" : "warn",
-      },
-      {
-        id: "red_herrings_controlled",
-        label: "Red herrings are clearly flagged",
-        status: hasRedHerrings ? "pass" : "warn",
-      },
-    ],
-  };
-};
-
-const deriveProse = (
-  spec?: Record<string, unknown>,
-  outline?: Record<string, unknown>,
-  cast?: Record<string, unknown>,
-) => {
-  const outlineChapters = outline?.chapters as unknown[] | null | undefined;
-  const suspects = Array.isArray(cast?.suspects) ? (cast?.suspects as string[]) : [];
-  const chapters = Array.isArray(outlineChapters)
-    ? outlineChapters.map((chapter, index) => ({
-        title: `Chapter ${index + 1}`,
-        summary: typeof chapter === "string" ? chapter : `Chapter ${index + 1} beats derived from outline.`,
-        paragraphs: [
-          `The story advances as the investigator tracks a new thread in chapter ${index + 1}.`,
-          suspects.length
-            ? `Suspicion brushes against ${suspects[index % suspects.length]} while new details surface.`
-            : "Suspicion gathers as new details surface.",
-        ],
-      }))
-    : [
-        {
-          title: "Chapter 1",
-          summary: (outline?.summary as string) ?? "Opening beats derived from outline.",
-          paragraphs: [
-            "The case opens with a quiet routine shattered by a startling discovery.",
-            suspects.length ? `Attention turns to ${suspects[0]} as the first clue emerges.` : "Attention turns as the first clue emerges.",
-          ],
-        },
-        {
-          title: "Chapter 2",
-          summary: "Investigation beats derived from outline.",
-          paragraphs: [
-            "Interviews reveal fractures in alibis and motives.",
-            suspects.length ? `A second inquiry puts ${suspects[1] ?? suspects[0]} under pressure.` : "A second inquiry puts the household under pressure.",
-          ],
-        },
-      ];
-
-  return {
-    status: "draft",
-    tone: (outline?.tone as string) ?? (spec?.tone as string) ?? "Cozy",
-    chapters,
-    cast: suspects,
-    note: "Deterministic placeholder prose derived from outline and cast.",
-  };
-};
-
-const deriveGamePack = (
-  _spec?: Record<string, unknown>,
-  cast?: Record<string, unknown>,
-  cml?: Record<string, unknown>,
-) => {
-  const caseBlock = (cml?.CASE as Record<string, unknown>) ?? {};
-  const meta = (caseBlock.meta as Record<string, unknown>) ?? {};
-  const title = (meta.title as string) ?? "Untitled Mystery";
-
-  return {
-    status: "draft",
-    title,
-    suspects: Array.isArray(cast?.suspects) ? (cast?.suspects as string[]) : [],
-    hostPacket: {
-      summary: "Deterministic placeholder host packet derived from CML and cast.",
-      culpritCount: (caseBlock.culpability as Record<string, unknown>)?.culprit_count ?? 1,
-    },
-    materials: ["suspect_cards", "host_packet", "timeline_sheet"],
-    note: "Deterministic placeholder game pack derived from CML and cast.",
-  };
-};
-
-const validateSetting = (setting: Record<string, unknown>) => ({
-  valid: Boolean(setting.decade && setting.locationPreset),
-  errors: setting.decade && setting.locationPreset ? [] : ["Setting must include decade and locationPreset"],
-});
-
-const validateCast = (cast: Record<string, unknown>) => ({
-  valid: Array.isArray(cast.suspects) && (cast.suspects as unknown[]).length >= 3,
-  errors:
-    Array.isArray(cast.suspects) && (cast.suspects as unknown[]).length >= 3
-      ? []
-      : ["Cast must include at least 3 suspects"],
-});
-
-const validateClues = (clues: Record<string, unknown>) => {
-  const hasBasics = Boolean(clues.density && clues.axis);
-  const items = (clues.items as Array<Record<string, unknown>> | undefined) ?? [];
-  const hasItems = Array.isArray(items) && items.length > 0;
-  return {
-    valid: hasBasics && hasItems,
-    errors: hasBasics && hasItems ? [] : ["Clues must include density, axis, and at least one item"],
-  };
-};
-
-const validateOutline = (outline: Record<string, unknown>) => ({
-  valid: Boolean(outline.tone),
-  errors: outline.tone ? [] : ["Outline must include tone"],
-});
 
 const parseEnvBool = (value: string | undefined, defaultValue: boolean) => {
   if (value === undefined) return defaultValue;
   return value.toLowerCase() === "true";
+};
+
+const buildLlmClient = () => {
+  const config = {
+    endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
+    apiKey: process.env.AZURE_OPENAI_API_KEY || "",
+    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini",
+    apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-10-21",
+    requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE || 60),
+    logger: buildLlmLogger(),
+  };
+
+  if (!config.endpoint || !config.apiKey) {
+    return null;
+  }
+
+  return new AzureOpenAIClient(config);
+};
+
+const normalizeCastForProfiles = (castPayload: Record<string, unknown>) => {
+  const cast = (castPayload as any)?.cast ?? castPayload;
+  const characters = Array.isArray(cast?.characters)
+    ? cast.characters
+    : Array.isArray(cast?.suspects)
+      ? cast.suspects.map((name: string) => ({
+          name,
+          ageRange: "adult",
+          occupation: "resident",
+          roleArchetype: "suspect",
+          publicPersona: "reserved",
+          privateSecret: "keeps a secret",
+          motiveSeed: "inheritance",
+          motiveStrength: "moderate",
+          alibiWindow: "evening",
+          accessPlausibility: "possible",
+          stakes: "reputation",
+          characterArcPotential: "discovers hidden resolve",
+        }))
+      : [];
+
+  return {
+    characters,
+    relationships: { pairs: [] },
+    diversity: { stereotypeCheck: [], recommendations: [] },
+    crimeDynamics: {
+      possibleCulprits: [],
+      redHerrings: [],
+      victimCandidates: [],
+      detectiveCandidates: [],
+    },
+  };
 };
 
 const buildLlmLogger = () =>
@@ -534,19 +372,31 @@ const runPipeline = async (
     };
 
     if (!config.endpoint || !config.apiKey) {
-      throw new Error("Azure OpenAI credentials not configured. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY environment variables.");
+      throw new Error("Azure OpenAI credentials missing; pipeline requires LLM access.");
     }
 
     const client = new AzureOpenAIClient(config);
 
     // Build mystery generation inputs from spec
+    const similarityThreshold = Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || 0.9);
+    const skipNoveltyCheck = String(process.env.NOVELTY_SKIP || "").toLowerCase() === "true" || similarityThreshold >= 1;
+
+    const tone = (specPayload?.tone as string | undefined) ?? undefined;
+    const narrativeStyle = (specPayload?.narrativeStyle as "classic" | "modern" | "atmospheric")
+      || (tone === "Dark" ? "atmospheric" : "classic");
+
     const inputs: MysteryGenerationInputs = {
       theme: (specPayload?.theme as string) || "A classic murder mystery",
       eraPreference: specPayload?.decade as string,
+      locationPreset: specPayload?.locationPreset as string,
+      tone,
       primaryAxis: specPayload?.primaryAxis as "temporal" | "spatial" | "social" | "psychological" | "mechanical",
       castSize: specPayload?.castSize as number,
+      castNames: Array.isArray(specPayload?.castNames) ? (specPayload?.castNames as string[]) : undefined,
       targetLength: (specPayload?.targetLength as "short" | "medium" | "long") || "medium",
-      narrativeStyle: (specPayload?.narrativeStyle as "classic" | "modern" | "atmospheric") || "classic",
+      narrativeStyle,
+      similarityThreshold,
+      skipNoveltyCheck,
       runId,
       projectId,
     };
@@ -571,6 +421,9 @@ const runPipeline = async (
     await repo.createArtifact(projectId, "cml", result.cml, null);
     await repo.addRunEvent(runId, "cml_done", "CML generated");
 
+    await repo.createArtifact(projectId, "character_profiles", result.characterProfiles, null);
+    await repo.addRunEvent(runId, "character_profiles_done", "Character profiles generated");
+
     // Generate synopsis from CML
     const caseMeta = (result.cml as any)?.CASE?.meta ?? {};
     const crimeClass = caseMeta.crime_class ?? {};
@@ -594,35 +447,33 @@ const runPipeline = async (
 
     if (result.noveltyAudit) {
       await repo.createArtifact(projectId, "novelty_audit", result.noveltyAudit, null);
-      await repo.addRunEvent(runId, "novelty_audit_done", `Novelty audit: ${result.noveltyAudit.status}`);
+      const summary = result.noveltyAudit.summary?.trim();
+      const scores = Array.isArray(result.noveltyAudit.similarityScores)
+        ? [...result.noveltyAudit.similarityScores]
+        : [];
+      const topScore = scores.sort((a, b) => (b.overallSimilarity ?? 0) - (a.overallSimilarity ?? 0))[0];
+      const detailParts = [summary].filter(Boolean) as string[];
+      if (topScore?.seedTitle) {
+        const similarityPct = typeof topScore.overallSimilarity === "number"
+          ? Math.round(topScore.overallSimilarity * 100)
+          : null;
+        detailParts.push(`Top match: ${topScore.seedTitle}${similarityPct !== null ? ` (${similarityPct}%)` : ""}`);
+      }
+      const detailSuffix = detailParts.length > 0 ? ` — ${detailParts.join(" | ")}` : "";
+      await repo.addRunEvent(
+        runId,
+        "novelty_audit_done",
+        `Novelty audit: ${result.noveltyAudit.status}${detailSuffix}`
+      );
     }
 
-    // Generate prose placeholder (Agent 7 outputs outline, actual prose is future work)
-    const allScenes = result.narrative.acts?.flatMap(act => act.scenes) || [];
-    const prose = {
-      title: synopsis.title,
-      chapters: allScenes.map((scene, idx) => ({
-        number: idx + 1,
-        title: `Scene ${idx + 1}`,
-        content: scene.summary || "",
-      })),
-    };
-    await repo.createArtifact(projectId, "prose", prose, null);
-    await repo.addRunEvent(runId, "prose_done", "Prose structure generated");
-
-    // Generate game pack
-    const gamePack = {
-      title: synopsis.title,
-      suspects: result.cast.cast.characters?.map((c: { name: string }) => c.name) || [],
-      materials: ["Character cards", "Clue cards", "Investigation guide"],
-    };
-    await repo.createArtifact(projectId, "game_pack", gamePack, null);
-    await repo.addRunEvent(runId, "game_pack_done", "Game pack generated");
+    await repo.createArtifact(projectId, "prose", result.prose, null);
+    await repo.addRunEvent(runId, "prose_done", "Prose generated");
 
     await repo.addRunEvent(
       runId,
       "pipeline_complete",
-      `Mystery generation complete! Total cost: $${result.metadata.totalCost.toFixed(4)} | Duration: ${(result.metadata.totalDurationMs / 1000).toFixed(1)}s | Status: ${result.status}`
+      `Mystery generation complete! Total cost: £${result.metadata.totalCost.toFixed(4)} | Duration: ${(result.metadata.totalDurationMs / 1000).toFixed(1)}s | Status: ${result.status}`
     );
 
     if (result.warnings.length > 0) {
@@ -735,20 +586,12 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch project" }));
   });
 
-  // DISABLED: Regenerate endpoint uses placeholder functions
-  // Individual regeneration will be implemented later with real LLM agents
   app.post("/api/projects/:id/regenerate", express.json(), async (req, res) => {
-    res.status(501).json({ 
-      error: "Individual regeneration not yet implemented",
-      message: "Use the main Generate button to regenerate the full mystery with real AI agents"
-    });
-    return;
-
-    /* PLACEHOLDER CODE DISABLED
     const scope = typeof req.body?.scope === "string" ? req.body.scope : "";
     const allowedScopes = new Set([
       "setting",
       "cast",
+      "character_profiles",
       "cml",
       "clues",
       "outline",
@@ -757,7 +600,7 @@ export const createServer = () => {
       "fair_play_report",
     ]);
     if (!allowedScopes.has(scope)) {
-      res.status(400).json({ error: "scope must be one of setting, cast, cml, clues, outline, prose, game_pack, fair_play_report" });
+      res.status(400).json({ error: "scope must be one of setting, cast, character_profiles, cml, clues, outline, prose, game_pack, fair_play_report" });
       return;
     }
 
@@ -772,72 +615,31 @@ export const createServer = () => {
       const latestRun = await repo.getLatestRun(req.params.id).catch(() => null);
       const runId = latestRun?.id ?? null;
 
-      if (scope === "setting") {
-        const setting = deriveSetting(spec.spec as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "setting", setting, spec.id);
-        await repo.createArtifact(req.params.id, "setting_validation", validateSetting(setting), spec.id);
+      const client = buildLlmClient();
+      if (!client) {
+        res.status(503).json({ error: "Azure OpenAI credentials missing; regeneration requires LLM access." });
+        return;
       }
 
-      if (scope === "cast") {
-        const cast = deriveCast(spec.spec as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "cast", cast, spec.id);
-        await repo.createArtifact(req.params.id, "cast_validation", validateCast(cast), spec.id);
-      }
-
-      if (scope === "cml") {
-        const cml = deriveCml(spec.spec as Record<string, unknown>);
-        const cmlValidation = validateCml(cml);
-        await repo.createArtifact(req.params.id, "cml", cml, spec.id);
-        await repo.createArtifact(req.params.id, "cml_validation", cmlValidation, spec.id);
-        await repo.createArtifact(req.params.id, "novelty_audit", { status: "pass", seedIds: [], patterns: [] }, spec.id);
-      }
-
-      if (scope === "clues") {
-        const clues = deriveClues(spec.spec as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "clues", clues, spec.id);
-        await repo.createArtifact(req.params.id, "clues_validation", validateClues(clues), spec.id);
-        const cml = await repo.getLatestArtifact(req.params.id, "cml");
-        const fairPlayReport = deriveFairPlayReport((cml?.payload as Record<string, unknown>) ?? {}, clues);
-        await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
-      }
-
-      if (scope === "outline") {
-        const outline = deriveOutline(spec.spec as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "outline", outline, spec.id);
-        await repo.createArtifact(req.params.id, "outline_validation", validateOutline(outline), spec.id);
-      }
-
-      if (scope === "prose") {
-        const outline = await repo.getLatestArtifact(req.params.id, "outline");
+      if (scope === "character_profiles") {
         const cast = await repo.getLatestArtifact(req.params.id, "cast");
-        if (!outline || !cast) {
-          res.status(409).json({ error: "Outline and cast artifacts required for prose regeneration" });
-          return;
-        }
-        const prose = deriveProse(spec.spec as Record<string, unknown>, outline.payload as Record<string, unknown>, cast.payload as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "prose", prose, spec.id);
-      }
-
-      if (scope === "game_pack") {
         const cml = await repo.getLatestArtifact(req.params.id, "cml");
-        const cast = await repo.getLatestArtifact(req.params.id, "cast");
-        if (!cml || !cast) {
-          res.status(409).json({ error: "CML and cast artifacts required for game pack regeneration" });
+        if (!cast || !cml) {
+          res.status(409).json({ error: "Cast and CML artifacts required for character profiles regeneration" });
           return;
         }
-        const gamePack = deriveGamePack(spec.spec as Record<string, unknown>, cast.payload as Record<string, unknown>, cml.payload as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "game_pack", gamePack, spec.id);
-      }
-
-      if (scope === "fair_play_report") {
-        const cml = await repo.getLatestArtifact(req.params.id, "cml");
-        const clues = await repo.getLatestArtifact(req.params.id, "clues");
-        if (!cml || !clues) {
-          res.status(409).json({ error: "CML and clues artifacts required for fair-play report regeneration" });
-          return;
-        }
-        const fairPlayReport = deriveFairPlayReport(cml.payload as Record<string, unknown>, clues.payload as Record<string, unknown>);
-        await repo.createArtifact(req.params.id, "fair_play_report", fairPlayReport, spec.id);
+        const profiles = await generateCharacterProfiles(client, {
+          caseData: cml.payload as any,
+          cast: normalizeCastForProfiles(cast.payload as Record<string, unknown>),
+          tone: (spec.spec as Record<string, unknown>)?.tone as string | undefined,
+          targetWordCount: 1000,
+          runId: runId ?? undefined,
+          projectId: req.params.id,
+        });
+        await repo.createArtifact(req.params.id, "character_profiles", profiles, spec.id);
+      } else {
+        res.status(409).json({ error: "Regeneration for this scope requires a full pipeline run to ensure fresh LLM output." });
+        return;
       }
 
       if (runId) {
@@ -848,7 +650,6 @@ export const createServer = () => {
     } catch (error) {
       res.status(500).json({ error: "Failed to regenerate artifact" });
     }
-    */ // END PLACEHOLDER CODE
   });
 
   app.post("/api/projects/:id/specs", (_req, res) => {
@@ -890,6 +691,13 @@ export const createServer = () => {
           res.status(404).json({ error: "Project not found" });
           return null;
         }
+
+        const hasAzureCreds = Boolean(process.env.AZURE_OPENAI_ENDPOINT && process.env.AZURE_OPENAI_API_KEY);
+        if (!hasAzureCreds) {
+          res.status(503).json({ error: "Azure OpenAI credentials missing; pipeline requires LLM access." });
+          return null;
+        }
+
         return repoPromise.then(async (repo) => {
           const run = await repo.createRun(project.id, "running");
           await repo.setProjectStatus(project.id, "running");
@@ -1143,6 +951,19 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch prose artifact" }));
   });
 
+  app.get("/api/projects/:id/character-profiles/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "character_profiles"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Character profiles artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch character profiles artifact" }));
+  });
+
   app.get("/api/projects/:id/fair-play/latest", (_req, res) => {
     repoPromise
       .then((repo) => repo.getLatestArtifact(_req.params.id, "fair_play_report"))
@@ -1269,6 +1090,27 @@ export const createServer = () => {
       res.status(200).send(pdfBuffer);
     } catch (error) {
       res.status(500).json({ error: "Failed to generate game pack PDF" });
+    }
+  });
+
+  app.get("/api/projects/:id/prose/pdf", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      const artifact = await repo.getLatestArtifact(_req.params.id, "prose");
+      if (!artifact) {
+        res.status(404).json({ error: "Prose artifact not found" });
+        return;
+      }
+      const synopsis = await repo.getLatestArtifact(_req.params.id, "synopsis");
+      const fallbackTitle = synopsis?.payload && typeof synopsis.payload === "object"
+        ? (synopsis.payload as Record<string, unknown>).title
+        : undefined;
+      const pdfBuffer = await buildProsePdf(artifact.payload as Record<string, unknown>, fallbackTitle as string | undefined);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=\"story_${_req.params.id}.pdf\"`);
+      res.status(200).send(pdfBuffer);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate story PDF" });
     }
   });
 

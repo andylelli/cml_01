@@ -417,6 +417,37 @@ export async function reviseCml(
     fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
     fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
 
+    const qualityControls = ensureObject(caseBlock.quality_controls);
+    caseBlock.quality_controls = qualityControls;
+    const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
+    qualityControls.inference_path_requirements = inferenceRequirements;
+    inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
+    inferenceRequirements.max_steps = typeof inferenceRequirements.max_steps === "number" ? inferenceRequirements.max_steps : 5;
+    inferenceRequirements.require_observation_correction_effect =
+      typeof inferenceRequirements.require_observation_correction_effect === "boolean"
+        ? inferenceRequirements.require_observation_correction_effect
+        : true;
+
+    const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
+    qualityControls.clue_visibility_requirements = clueVisibility;
+    clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
+    clueVisibility.essential_clues_before_test =
+      typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
+    clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
+    clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
+    clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
+
+    const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
+    qualityControls.discriminating_test_requirements = discriminatingRequirements;
+    const timing = ensureString(discriminatingRequirements.timing, "early_act3");
+    discriminatingRequirements.timing = ["late_act2", "early_act3", "mid_act3"].includes(timing)
+      ? timing
+      : "early_act3";
+    discriminatingRequirements.must_reference_inference_step =
+      typeof discriminatingRequirements.must_reference_inference_step === "boolean"
+        ? discriminatingRequirements.must_reference_inference_step
+        : true;
+
     return cml;
   };
 
@@ -479,6 +510,8 @@ export async function reviseCml(
           retryAttempt: attempt,
         },
       });
+
+      const modelName = response.model || "unknown";
 
       await logger.logResponse({
         runId,
@@ -635,7 +668,7 @@ export async function reviseCml(
           projectId,
           agent: "Agent4-Revision",
           operation: "revise_cml",
-          model: "gpt-4",
+          model: modelName,
           success: true,
           validationStatus: "pass",
           retryAttempt: attempt,
@@ -663,7 +696,7 @@ export async function reviseCml(
         projectId,
         agent: "Agent4-Revision",
         operation: "revise_cml",
-        model: "gpt-4",
+        model: modelName,
         success: false,
         validationStatus: "fail",
         errorMessage: `Validation errors: ${validation.errors.join("; ")}`,

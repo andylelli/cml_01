@@ -61,7 +61,11 @@ ${inputs.noveltyConstraints.areas.map(area => `- ${area}`).join("\n")}
 Specific patterns to avoid:
 ${inputs.noveltyConstraints.avoidancePatterns.map(pattern => `- ${pattern}`).join("\n")}
 
-Your mystery must be structurally novel - use seeds for CML format only, not content.`;
+Your mystery must be structurally novel - use seeds for CML format only, not content.
+
+**Imagination requirement**:
+Think of something clever, cunning, imaginative, and logical. Use inventive, non-obvious combinations of setting details, false assumptions, culprit access paths, and discriminating tests.
+Aim for fresh logic while staying fair-play and coherent with the era/location constraints.`;
   }
 
   // System message
@@ -87,6 +91,9 @@ ${seedPatternsText}
 
 ${noveltyText}
 
+**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
+Use this seed to ensure the case details and logic differ meaningfully from prior runs.
+
 ---
 
 **Era Constraints**:
@@ -96,6 +103,11 @@ ${buildEraConstraints(inputs.decade)}
 
 **Location Constraints**:
 ${buildLocationConstraints(inputs.location, inputs.institution)}
+
+---
+
+**Setting Lock**:
+All story elements must remain consistent with the specified setting type and location. Do not switch to a different location type.
 
 ---
 
@@ -183,6 +195,20 @@ CASE:
     no_late_information: true
     reader_can_solve: true
     explanation: ""
+  quality_controls:
+    inference_path_requirements:
+      min_steps: 3
+      max_steps: 5
+      require_observation_correction_effect: true
+    clue_visibility_requirements:
+      essential_clues_min: 3
+      essential_clues_before_test: true
+      early_clues_min: 2
+      mid_clues_min: 2
+      late_clues_min: 1
+    discriminating_test_requirements:
+      timing: "early_act3"
+      must_reference_inference_step: true
 `;
 
   // User message with specific requirements
@@ -195,6 +221,7 @@ CASE:
 - Weather: ${inputs.weather}
 - Social Structure: ${inputs.socialStructure}
 - Tone: ${inputs.tone}
+- Theme: ${inputs.theme ?? "(none specified)"}
 
 **Cast Requirements**:
 - Cast Size: ${inputs.castSize} characters
@@ -219,7 +246,9 @@ CASE:
 8. Build inference path with 3-5 logical steps
 9. Create discriminating test appropriate for ${inputs.primaryAxis} axis
 10. Ensure all fair-play checklist items are true
-11. Ground every clue in mechanism or constraint violations
+11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
+12. Ground every clue in mechanism or constraint violations
+13. Weave the Theme into the title and narrative summary without adding new keys
 
 **Output Format**:
 Respond with ONLY valid JSON matching the CML 2.0 schema. No explanations, no markdown code blocks, no commentary.
@@ -410,6 +439,37 @@ export async function generateCML(
     fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
     fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
 
+    const qualityControls = ensureObject(caseBlock.quality_controls);
+    caseBlock.quality_controls = qualityControls;
+    const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
+    qualityControls.inference_path_requirements = inferenceRequirements;
+    inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
+    inferenceRequirements.max_steps = typeof inferenceRequirements.max_steps === "number" ? inferenceRequirements.max_steps : 5;
+    inferenceRequirements.require_observation_correction_effect =
+      typeof inferenceRequirements.require_observation_correction_effect === "boolean"
+        ? inferenceRequirements.require_observation_correction_effect
+        : true;
+
+    const clueVisibility = ensureObject(qualityControls.clue_visibility_requirements);
+    qualityControls.clue_visibility_requirements = clueVisibility;
+    clueVisibility.essential_clues_min = typeof clueVisibility.essential_clues_min === "number" ? clueVisibility.essential_clues_min : 3;
+    clueVisibility.essential_clues_before_test =
+      typeof clueVisibility.essential_clues_before_test === "boolean" ? clueVisibility.essential_clues_before_test : true;
+    clueVisibility.early_clues_min = typeof clueVisibility.early_clues_min === "number" ? clueVisibility.early_clues_min : 2;
+    clueVisibility.mid_clues_min = typeof clueVisibility.mid_clues_min === "number" ? clueVisibility.mid_clues_min : 2;
+    clueVisibility.late_clues_min = typeof clueVisibility.late_clues_min === "number" ? clueVisibility.late_clues_min : 1;
+
+    const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
+    qualityControls.discriminating_test_requirements = discriminatingRequirements;
+    const timing = ensureString(discriminatingRequirements.timing, "early_act3");
+    discriminatingRequirements.timing = ["late_act2", "early_act3", "mid_act3"].includes(timing)
+      ? timing
+      : "early_act3";
+    discriminatingRequirements.must_reference_inference_step =
+      typeof discriminatingRequirements.must_reference_inference_step === "boolean"
+        ? discriminatingRequirements.must_reference_inference_step
+        : true;
+
     return cml;
   };
 
@@ -506,6 +566,7 @@ export async function generateCML(
         return undefined;
       };
 
+      const modelName = response.model || "unknown";
       cml = tryParseJson(response.content);
 
       if (!cml) {
@@ -518,7 +579,7 @@ export async function generateCML(
             projectId: inputs.projectId,
             agent: "Agent3-CMLGenerator",
             operation: "parse_output_sanitized",
-            model: "gpt-4",
+            model: modelName,
             success: true,
             validationStatus: "pass",
             retryAttempt: attempt,
@@ -568,7 +629,7 @@ export async function generateCML(
           projectId: inputs.projectId,
           agent: "Agent3-CMLGenerator",
           operation: "generate_cml",
-          model: "gpt-4",
+          model: modelName,
           success: true,
           validationStatus: "pass",
           retryAttempt: attempt,
@@ -595,7 +656,7 @@ export async function generateCML(
         projectId: inputs.projectId,
         agent: "Agent3-CMLGenerator",
         operation: "generate_cml",
-        model: "gpt-4",
+        model: modelName,
         success: false,
         validationStatus: "fail",
         errorMessage: `Validation errors: ${validation.errors.join("; ")}`,
@@ -648,7 +709,7 @@ export async function generateCML(
             projectId: inputs.projectId,
             agent: "Agent3-CMLGenerator",
             operation: "generate_cml_with_revision",
-            model: "gpt-4",
+            model: modelName,
             success: true,
             validationStatus: "pass",
             retryAttempt: attempt,

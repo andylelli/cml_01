@@ -4,6 +4,18 @@ import { nextTick } from "vue";
 import ErrorNotification from "../ErrorNotification.vue";
 import type { ErrorItem } from "../types";
 
+const mountWithStubs = (options: Parameters<typeof mount>[1]) =>
+  mount(ErrorNotification, {
+    ...options,
+    global: {
+      ...(options?.global ?? {}),
+      stubs: {
+        "font-awesome-icon": true,
+        ...(options?.global?.stubs ?? {}),
+      },
+    },
+  });
+
 describe("ErrorNotification.vue", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -14,7 +26,7 @@ describe("ErrorNotification.vue", () => {
   });
 
   it("renders empty state when no errors", () => {
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors: [] },
     });
     expect(wrapper.find(".error-notification").exists()).toBe(false);
@@ -30,7 +42,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test error",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -49,7 +61,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test warning",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -68,7 +80,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test info",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -77,7 +89,7 @@ describe("ErrorNotification.vue", () => {
     expect(infoCard.text()).toContain("Test info");
   });
 
-  it("shows error details when provided", () => {
+  it("shows error details when provided", async () => {
     const errors: ErrorItem[] = [
       {
         id: "1",
@@ -88,9 +100,11 @@ describe("ErrorNotification.vue", () => {
         details: "Detailed error information",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
-      props: { errors },
+    const wrapper = mountWithStubs({
+      props: { errors, showDetails: true },
     });
+
+    await wrapper.find('[data-testid="toggle-details"]').trigger("click");
 
     expect(wrapper.text()).toContain("Detailed error information");
   });
@@ -105,11 +119,11 @@ describe("ErrorNotification.vue", () => {
         message: "Test error",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
-    await wrapper.find("button").trigger("click");
+    await wrapper.find('[data-testid="dismiss-error"]').trigger("click");
     expect(wrapper.emitted("dismiss")).toBeTruthy();
     expect(wrapper.emitted("dismiss")?.[0]).toEqual(["1"]);
   });
@@ -138,7 +152,7 @@ describe("ErrorNotification.vue", () => {
         message: "Error 3",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -154,7 +168,7 @@ describe("ErrorNotification.vue", () => {
       { id: "3", timestamp: Date.now(), severity: "error", scope: "test", message: "Error 3" },
       { id: "4", timestamp: Date.now(), severity: "error", scope: "test", message: "Error 4" },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -172,7 +186,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test info",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -195,7 +209,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test error",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -215,7 +229,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test warning",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -235,7 +249,7 @@ describe("ErrorNotification.vue", () => {
         message: "Test error",
       },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 
@@ -248,7 +262,7 @@ describe("ErrorNotification.vue", () => {
       { id: "2", timestamp: 3000, severity: "error", scope: "test", message: "New error" },
       { id: "3", timestamp: 2000, severity: "error", scope: "test", message: "Middle error" },
     ];
-    const wrapper = mount(ErrorNotification, {
+    const wrapper = mountWithStubs({
       props: { errors },
     });
 

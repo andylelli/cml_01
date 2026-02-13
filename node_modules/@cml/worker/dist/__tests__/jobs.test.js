@@ -11,10 +11,21 @@ describe("worker job registry (phase 1)", () => {
             "outlineJob",
             "proseJob",
             "gamePackJob",
+            "fullPipelineJob",
         ]);
     });
     it("runs placeholder job handlers", async () => {
-        await expect(jobRegistry.settingJob({})).resolves.toBeUndefined();
+        const originalEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
+        const originalApiKey = process.env.AZURE_OPENAI_API_KEY;
+        process.env.AZURE_OPENAI_ENDPOINT = "";
+        process.env.AZURE_OPENAI_API_KEY = "";
+        try {
+            await expect(jobRegistry.settingJob({})).rejects.toThrow(/Azure OpenAI credentials/i);
+        }
+        finally {
+            process.env.AZURE_OPENAI_ENDPOINT = originalEndpoint;
+            process.env.AZURE_OPENAI_API_KEY = originalApiKey;
+        }
     });
 });
 //# sourceMappingURL=jobs.test.js.map

@@ -1,0 +1,140 @@
+schema_version: "2.0"
+
+case_metadata:
+  title: "Trent’s Last Case"
+  author: "E. C. Bentley"
+  publication_year: 1913
+  source_license: "Public Domain (1913 publication)"
+  source_url: "Unknown"
+  genre: "Detective novel / Inverted expectation mystery"
+
+crime:
+  type: "Murder (shooting)"
+  primary_victim: "Sigsbee Manderson"
+  secondary_victims: []
+  stakes: "Determination of true killer and exposure of mistaken deduction"
+
+setting:
+  country: "United Kingdom"
+  primary_location: "Country estate near Bishopsbridge"
+  timeframe: "Early 20th century (contemporary to publication)"
+  key_locations:
+    - "Manderson’s country house"
+    - "Estate grounds"
+    - "Railway line near property"
+    - "Village of Bishopsbridge"
+
+detective:
+  name: "Philip Trent"
+  partner: "Inspector Murch"
+  professional_status: "Amateur investigator (artist and journalist)"
+  affiliation: "Independent; assisting local police"
+
+suspects:
+  - name: "Marjorie Manderson"
+    role: "Wife of the victim"
+    motive: "Marital discord and desire for independence"
+    alibi: "Claims to have been in house; movements partially unverified"
+  - name: "Caleb Simmonds"
+    role: "Secretary to Manderson"
+    motive: "Professional resentment"
+    alibi: "Working on estate business"
+  - name: "Unknown assailant"
+    role: "Possible external attacker"
+    motive: "Financial or personal enmity"
+    alibi: "Unknown"
+
+culprit:
+  name: "Sigsbee Manderson"
+  revealed_identity: "Victim himself (suicide staged as murder)"
+  motive: "To implicate his wife and destroy her reputation out of spite and jealousy"
+  method: "Self-inflicted gunshot wound; staging of scene to simulate murder"
+  opportunity: "Alone on estate grounds prior to discovery of body"
+
+crime_mechanics:
+  method_description: "Manderson shot himself on the estate grounds, arranging physical evidence (including body position, weapon placement, and altered clothing) to suggest he had been murdered by another—particularly to cast suspicion on his wife."
+  weapon_or_means: "Firearm (pistol)"
+  body_disposal: "None; body left where staged"
+  staging_elements: "Deliberate repositioning, manipulated clothing details, and planted signs to suggest external assailant"
+
+clues:
+  - id: "C1"
+    description: "Inconsistencies in position of body and trajectory of bullet."
+    location: "Estate grounds near railway"
+    significance: "Suggests scene manipulation."
+  - id: "C2"
+    description: "Unusual clothing details (boots and garments inconsistent with narrative of attack)."
+    location: "Victim’s attire"
+    significance: "Indicates deliberate preparation."
+  - id: "C3"
+    description: "Absence of credible external suspect despite apparent signs."
+    location: "Investigation findings"
+    significance: "Weakens murder hypothesis."
+  - id: "C4"
+    description: "Victim’s volatile personality and jealousy."
+    location: "Witness testimony"
+    significance: "Provides motive for elaborate spiteful act."
+  - id: "C5"
+    description: "Ballistic and positional analysis inconsistent with third-party shooting."
+    location: "Medical and physical examination"
+    significance: "Points toward self-inflicted wound."
+
+false_assumption:
+  description: "Manderson was murdered by his wife or another party."
+  correction: "Manderson committed suicide and staged the crime to appear as murder."
+  effect_on_case: "Overturns detective’s original confident accusation and reframes entire investigation."
+
+discriminating_test:
+  description: "Reconstruction of shooting angles and body mechanics demonstrating that only self-infliction fits physical evidence."
+  timing: "Late-stage analytical review after Trent’s mistaken accusation."
+  result: "Establishes suicide as sole viable explanation."
+
+constraints:
+  time_constraints:
+    - "Narrow early-morning window before body discovered."
+  access_constraints:
+    - "Victim alone on grounds prior to discovery."
+  physical_constraints:
+    - "Bullet trajectory and powder evidence limit shooter position."
+    - "Clothing arrangement inconsistent with surprise attack."
+
+inference_path:
+  - step: 1
+    observation: "Victim found shot on estate grounds."
+    correction: "Initial appearance suggests homicide."
+    effect: "Focus on wife and associates."
+  - step: 2
+    observation: "Physical inconsistencies in clothing and body placement."
+    correction: "Scene may have been arranged."
+    effect: "Raises doubt about straightforward murder."
+  - step: 3
+    observation: "Lack of compelling external suspect."
+    correction: "External attack theory weak."
+    effect: "Narrows plausible explanations."
+  - step: 4
+    observation: "Ballistic angles inconsistent with attacker’s position."
+    correction: "Self-infliction mechanically possible."
+    effect: "Introduces suicide hypothesis."
+  - step: 5
+    observation: "Victim’s personality marked by vindictiveness."
+    correction: "Provides motive for framing wife."
+    effect: "Explains elaborate staging."
+  - step: 6
+    observation: "Full reconstruction aligns with suicide mechanics only."
+    correction: "Homicide theory untenable."
+    effect: "Conclusive determination of staged suicide."
+
+fair_play:
+  clue_visibility: "Physical evidence and character testimony presented prior to final correction."
+  special_knowledge_required: false
+  justification: "Reader has access to ballistic observations, clothing inconsistencies, and character motives before final reveal."
+
+quality_controls:
+  inference_steps_target: 6
+  discriminating_test_present: true
+  constraint_types_present:
+    - "time"
+    - "access"
+    - "physical"
+  red_herrings_present: true
+  schema_completeness: "All required sections populated."

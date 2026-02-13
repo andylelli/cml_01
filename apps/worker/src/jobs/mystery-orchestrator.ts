@@ -18,6 +18,8 @@ import {
   extractClues,
   auditFairPlay,
   formatNarrative,
+  generateCharacterProfiles,
+  generateProse,
   auditNovelty,
   loadSeedCMLFiles,
 } from "@cml/prompts-llm";
@@ -28,21 +30,25 @@ import type {
   ClueDistributionResult,
   FairPlayAuditResult,
   NarrativeOutline,
+  CharacterProfilesResult,
+  ProseGenerationResult,
   NoveltyAuditResult,
 } from "@cml/prompts-llm";
 
 // ============================================================================
 // Types
 // ============================================================================
-
 export interface MysteryGenerationInputs {
   // User preferences
   theme: string; // e.g., "locked room murder in a manor"
   eraPreference?: string; // e.g., "Victorian England" or "1920s America"
+  locationPreset?: string; // e.g., "Liner", "CountryHouse"
+  tone?: string; // e.g., "Cozy", "Classic", "Dark"
   primaryAxis?: "temporal" | "spatial" | "social" | "psychological" | "mechanical";
   
   // Optional refinements
   castSize?: number; // 6-12 characters
+  castNames?: string[]; // Optional user-provided names
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
   
@@ -55,8 +61,53 @@ export interface MysteryGenerationInputs {
   projectId?: string;
 }
 
+const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: CaseData }>) => {
+  const titles = seedEntries
+    .map((seed) => {
+      const meta = (seed.cml as any)?.CASE?.meta ?? (seed.cml as any)?.meta ?? {};
+      return meta?.title || seed.filename;
+    })
+    .filter((title): title is string => Boolean(title));
+
+  const avoidancePatterns = seedEntries.flatMap((seed) => {
+    const cmlCase = (seed.cml as any)?.CASE ?? {};
+    const meta = cmlCase.meta ?? {};
+    const crimeClass = meta.crime_class ?? {};
+    const era = meta?.era?.decade ?? "";
+    const location = meta?.setting?.location ?? "";
+    const falseAssumption = cmlCase?.false_assumption?.statement ?? "";
+    const discrimMethod = cmlCase?.discriminating_test?.method ?? "";
+    const discrimDesign = cmlCase?.discriminating_test?.design ?? "";
+    const crimeSubtype = crimeClass?.subtype ?? "";
+    const axis = cmlCase?.false_assumption?.type ?? "";
+    return [
+      era && location ? `Era+location combo: ${era} / ${location}` : "",
+      crimeSubtype ? `Crime method/subtype: ${crimeSubtype}` : "",
+      axis ? `False assumption type: ${axis}` : "",
+      falseAssumption ? `False assumption statement: ${falseAssumption}` : "",
+      discrimMethod ? `Discriminating test method: ${discrimMethod}` : "",
+      discrimDesign ? `Discriminating test design: ${discrimDesign}` : "",
+    ].filter(Boolean);
+  });
+
+  const uniqueAvoidance = Array.from(new Set(avoidancePatterns)).slice(0, 12);
+
+  return {
+    divergeFrom: titles.slice(0, 8),
+    areas: [
+      "crime method + motive combination",
+      "false assumption statement and justification",
+      "discriminating test design and trigger",
+      "era + location pairing",
+      "culprit access path and opportunity channel",
+      "constraint-space anchors and contradictions",
+    ],
+    avoidancePatterns: uniqueAvoidance,
+  };
+};
+
 export interface MysteryGenerationProgress {
-  stage: "setting" | "cast" | "cml" | "clues" | "fairplay" | "narrative" | "novelty" | "complete";
+  stage: "setting" | "cast" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "prose" | "novelty" | "novelty_math" | "complete";
   message: string;
   percentage: number; // 0-100
   timestamp: Date;
@@ -68,6 +119,8 @@ export interface MysteryGenerationResult {
   clues: ClueDistributionResult;
   fairPlayAudit: FairPlayAuditResult;
   narrative: NarrativeOutline;
+  characterProfiles: CharacterProfilesResult;
+  prose: ProseGenerationResult;
   noveltyAudit?: NoveltyAuditResult;
   
   // Intermediate results (for debugging/review)
@@ -142,6 +195,25 @@ export async function generateMystery(
   };
 
   try {
+    const resolveLocationPreset = (preset?: string) => {
+      switch ((preset || "").toLowerCase()) {
+        case "countryhouse":
+          return { location: "Country house estate", institution: "Manor house" };
+        case "seasidehotel":
+          return { location: "Seaside hotel", institution: "Hotel" };
+        case "village":
+          return { location: "Rural village", institution: "Village" };
+        case "liner":
+          return { location: "Ocean liner", institution: "Passenger liner" };
+        case "theatre":
+          return { location: "Theatre district", institution: "Theatre" };
+        default:
+          return { location: preset || "Unspecified Location", institution: "Estate" };
+      }
+    };
+
+    const locationSpec = resolveLocationPreset(inputs.locationPreset);
+
     // ========================================================================
     // Agent 1: Era & Setting Refiner
     // ========================================================================
@@ -150,7 +222,9 @@ export async function generateMystery(
     const settingStart = Date.now();
     const setting = await refineSetting(client, {
       decade: inputs.eraPreference || "1930s",
-      location: "Unspecified Location",
+      location: locationSpec.location,
+      institution: locationSpec.institution,
+      tone: inputs.tone,
       runId,
       projectId: projectId || "",
     });
@@ -158,10 +232,14 @@ export async function generateMystery(
     agentCosts["agent1_setting"] = setting.cost;
     agentDurations["agent1_setting"] = Date.now() - settingStart;
     
-    if (setting.setting.realism.anachronisms.length > 0) {
-      warnings.push(
-        `Agent 1: Found ${setting.setting.realism.anachronisms.length} potential anachronisms (corrected)`
+    if (
+      setting.setting.realism.anachronisms.length > 0 ||
+      setting.setting.realism.implausibilities.length > 0
+    ) {
+      errors.push(
+        `Agent 1: Setting realism issues detected (anachronisms=${setting.setting.realism.anachronisms.length}, implausibilities=${setting.setting.realism.implausibilities.length})`
       );
+      throw new Error("Setting refinement still contains realism issues");
     }
     
     reportProgress("setting", "Era and setting refined", 12);
@@ -173,10 +251,12 @@ export async function generateMystery(
     
     const castStart = Date.now();
     const cast = await designCast(client, {
+      characterNames: inputs.castNames,
       castSize: inputs.castSize || 6,
       setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
       crimeType: "Murder",
-      tone: inputs.narrativeStyle || "Golden Age Mystery",
+      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+      socialContext: setting.setting.era.socialNorms.join(", "),
       runId,
       projectId: projectId || "",
     });
@@ -185,7 +265,8 @@ export async function generateMystery(
     agentDurations["agent2_cast"] = Date.now() - castStart;
     
     if (cast.cast.diversity.stereotypeCheck.length > 0) {
-      warnings.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
+      errors.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
+      throw new Error("Cast design failed stereotype guardrails");
     }
     
     reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
@@ -194,15 +275,20 @@ export async function generateMystery(
     // Agent 3: CML Generator (+ Agent 4 auto-revision)
     // ========================================================================
     reportProgress("cml", "Generating mystery structure (CML)...", 25);
+
+    const examplesDir = join(process.cwd(), "examples");
+    const seedEntries = await loadSeedCMLFiles(examplesDir);
+    const noveltyConstraints = buildNoveltyConstraints(seedEntries as Array<{ filename: string; cml: CaseData }>);
     
     const cmlStart = Date.now();
-    const cmlResult = await generateCML(client, {
+    let cmlResult = await generateCML(client, {
       decade: setting.setting.era.decade,
       location: setting.setting.location.description,
       institution: setting.setting.location.type,
-      tone: inputs.narrativeStyle || "Golden Age Mystery",
+      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
       weather: setting.setting.atmosphere.weather,
       socialStructure: setting.setting.era.socialNorms.join(", "),
+      theme: inputs.theme,
       castSize: cast.cast.characters.length,
       castNames: cast.cast.characters.map((c: any) => c.name),
       detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
@@ -210,9 +296,10 @@ export async function generateMystery(
       complexityLevel: "moderate",
       mechanismFamilies: [],
       primaryAxis: (inputs.primaryAxis || "temporal") as "temporal" | "spatial" | "identity" | "behavioral" | "authority",
+      noveltyConstraints,
       runId,
       projectId: projectId || "",
-    });
+    }, examplesDir);
     
     agentCosts["agent3_cml"] = cmlResult.cost;
     agentDurations["agent3_cml"] = Date.now() - cmlStart;
@@ -230,8 +317,126 @@ export async function generateMystery(
       );
     }
     
-    const cml = cmlResult.cml;
+    let cml = cmlResult.cml;
     reportProgress("cml", "Mystery structure generated and validated", 50);
+
+    // ========================================================================
+    // Agent 8: Novelty Auditor (optional, early)
+    // ========================================================================
+    let noveltyAudit: NoveltyAuditResult | undefined;
+
+    const similarityThreshold =
+      typeof inputs.similarityThreshold === "number"
+        ? inputs.similarityThreshold
+        : Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || 0.9);
+    const shouldSkipNovelty = Boolean(inputs.skipNoveltyCheck) || similarityThreshold >= 1;
+
+    if (!shouldSkipNovelty) {
+      reportProgress("novelty", "Checking novelty vs seed patterns...", 52);
+
+      const runNoveltyAudit = async (candidate: CaseData) => {
+        const noveltyStart = Date.now();
+        const result = await auditNovelty(client, {
+          generatedCML: candidate,
+          seedCMLs: seedEntries.map((s: any) => s.cml),
+          similarityThreshold,
+          runId,
+          projectId: projectId || "",
+        });
+        agentCosts["agent8_novelty"] = result.cost;
+        agentDurations["agent8_novelty"] = Date.now() - noveltyStart;
+        return result;
+      };
+
+      noveltyAudit = await runNoveltyAudit(cml);
+
+      if (noveltyAudit.status === "fail") {
+        warnings.push("Agent 8: Novelty audit failed; regenerating CML with stronger divergence constraints");
+        noveltyAudit.violations.forEach((v) => warnings.push(`  - ${v}`));
+
+        const strongerConstraints = {
+          ...noveltyConstraints,
+          areas: Array.from(
+            new Set([
+              ...noveltyConstraints.areas,
+              "culprit identity and motive structure",
+              "constraint-space shape and contradictions",
+              "discriminating test trigger conditions",
+            ])
+          ),
+          avoidancePatterns: Array.from(
+            new Set([
+              ...noveltyConstraints.avoidancePatterns,
+              ...noveltyAudit.violations,
+              ...noveltyAudit.warnings,
+              ...noveltyAudit.recommendations,
+              `Most similar seed: ${noveltyAudit.mostSimilarSeed}`,
+            ])
+          ).slice(0, 16),
+        };
+
+        reportProgress("cml", "Regenerating CML with stronger novelty constraints...", 54);
+        const cmlRetryStart = Date.now();
+        cmlResult = await generateCML(client, {
+          decade: setting.setting.era.decade,
+          location: setting.setting.location.description,
+          institution: setting.setting.location.type,
+          tone: inputs.narrativeStyle || "Golden Age Mystery",
+          weather: setting.setting.atmosphere.weather,
+          socialStructure: setting.setting.era.socialNorms.join(", "),
+          castSize: cast.cast.characters.length,
+          castNames: cast.cast.characters.map((c: any) => c.name),
+          detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
+          victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
+          complexityLevel: "moderate",
+          mechanismFamilies: [],
+          primaryAxis: (inputs.primaryAxis || "temporal") as "temporal" | "spatial" | "identity" | "behavioral" | "authority",
+          noveltyConstraints: strongerConstraints,
+          runId,
+          projectId: projectId || "",
+        }, examplesDir);
+
+        agentCosts["agent3_cml"] = cmlResult.cost;
+        agentDurations["agent3_cml"] += Date.now() - cmlRetryStart;
+
+        if (!cmlResult.validation.valid) {
+          errors.push(`Agent 3: Generated invalid CML after novelty retry`);
+          throw new Error("CML generation failed validation after novelty retry");
+        }
+
+        cml = cmlResult.cml;
+        noveltyAudit = await runNoveltyAudit(cml);
+      }
+
+      if (noveltyAudit.status === "fail") {
+        const hardFail = String(process.env.NOVELTY_HARD_FAIL || "false").toLowerCase() === "true";
+        if (hardFail) {
+          errors.push("Agent 8: Novelty audit FAILED - too similar to seed patterns");
+          noveltyAudit.violations.forEach((v) => errors.push(`  - ${v}`));
+          throw new Error("Novelty audit failed");
+        }
+        warnings.push("Agent 8: Novelty audit failed; continuing with warning");
+        noveltyAudit.violations.forEach((v) => warnings.push(`  - ${v}`));
+        noveltyAudit = { ...noveltyAudit, status: "warning" };
+      } else if (noveltyAudit.status === "warning") {
+        warnings.push("Agent 8: Moderate similarity detected");
+        noveltyAudit.warnings.forEach((w) => warnings.push(`  - ${w}`));
+      }
+
+      reportProgress(
+        "novelty_math",
+        `Novelty math: weights plot 0.30, character 0.25, setting 0.15, solution 0.25, structural 0.05 | threshold ${similarityThreshold.toFixed(2)} | most similar ${noveltyAudit.mostSimilarSeed} (${noveltyAudit.highestSimilarity.toFixed(2)})`,
+        57
+      );
+
+      reportProgress("novelty", `Novelty check: ${noveltyAudit.status}`, 58);
+    } else {
+      reportProgress(
+        "novelty",
+        similarityThreshold >= 1 ? "Novelty check skipped (threshold >= 1.0)" : "Novelty check skipped",
+        58
+      );
+    }
 
     // ========================================================================
     // Agent 5: Clue Distribution
@@ -239,7 +444,7 @@ export async function generateMystery(
     reportProgress("clues", "Extracting and organizing clues...", 50);
     
     const cluesStart = Date.now();
-    const clues = await extractClues(client, {
+    let clues = await extractClues(client, {
       cml,
       clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
       redHerringBudget: 2, // Standard 2 red herrings
@@ -257,29 +462,68 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("fairplay", "Auditing fair play compliance...", 62);
     
+    let fairPlayAudit: FairPlayAuditResult | null = null;
+    let fairPlayAttempt = 0;
     const fairPlayStart = Date.now();
-    const fairPlayAudit = await auditFairPlay(client, {
-      caseData: cml,
-      clues: clues,
-      runId,
-      projectId: projectId || "",
-    });
-    
+
+    while (fairPlayAttempt < 2) {
+      fairPlayAttempt += 1;
+      fairPlayAudit = await auditFairPlay(client, {
+        caseData: cml,
+        clues: clues,
+        runId,
+        projectId: projectId || "",
+      });
+
+      if (fairPlayAudit.overallStatus === "pass") {
+        break;
+      }
+
+      if (fairPlayAttempt < 2) {
+        warnings.push(
+          `Agent 6: Fair play audit ${fairPlayAudit.overallStatus}; regenerating clues to address feedback (attempt ${
+            fairPlayAttempt + 1
+          } of 2)`
+        );
+
+        reportProgress("clues", "Regenerating clues to address fair play feedback...", 60);
+        const retryCluesStart = Date.now();
+        clues = await extractClues(client, {
+          cml,
+          clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+          redHerringBudget: 2,
+          fairPlayFeedback: {
+            overallStatus: fairPlayAudit.overallStatus,
+            violations: fairPlayAudit.violations,
+            warnings: fairPlayAudit.warnings,
+            recommendations: fairPlayAudit.recommendations,
+          },
+          runId,
+          projectId: projectId || "",
+        });
+
+        agentCosts["agent5_clues"] = clues.cost;
+        agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
+      }
+    }
+
+    if (!fairPlayAudit) {
+      throw new Error("Fair play audit failed to produce a report");
+    }
+
     agentCosts["agent6_fairplay"] = fairPlayAudit.cost;
     agentDurations["agent6_fairplay"] = Date.now() - fairPlayStart;
-    
+
     if (fairPlayAudit.overallStatus === "fail") {
-      errors.push("Agent 6: Fair play audit FAILED");
+      warnings.push("Agent 6: Fair play audit FAILED after clue regeneration");
       fairPlayAudit.violations.forEach((v) => {
-        errors.push(`  - [${v.severity}] ${v.description}`);
+        warnings.push(`  - [${v.severity}] ${v.description}`);
       });
-      // Don't throw - continue pipeline but mark as warning
-      warnings.push("Fair play issues detected - manual review required");
     } else if (fairPlayAudit.overallStatus === "needs-revision") {
-      warnings.push("Agent 6: Fair play needs minor revisions");
+      warnings.push("Agent 6: Fair play needs minor revisions after clue regeneration");
       fairPlayAudit.warnings.forEach((w) => warnings.push(`  - ${w}`));
     }
-    
+
     reportProgress("fairplay", `Fair play audit: ${fairPlayAudit.overallStatus}`, 75);
 
     // ========================================================================
@@ -307,43 +551,45 @@ export async function generateMystery(
     );
 
     // ========================================================================
-    // Agent 8: Novelty Auditor (optional)
+    // Agent 2b: Character Profiles
     // ========================================================================
-    let noveltyAudit: NoveltyAuditResult | undefined;
-    
-    if (!inputs.skipNoveltyCheck) {
-      reportProgress("novelty", "Checking novelty vs seed patterns...", 87);
-      
-      const noveltyStart = Date.now();
-      
-      // Load seed CMLs from examples directory
-      const examplesDir = join(process.cwd(), "examples");
-      const seedCMLs = await loadSeedCMLFiles(examplesDir);
-      
-      noveltyAudit = await auditNovelty(client, {
-        generatedCML: cml,
-        seedCMLs: seedCMLs.map((s: any) => s.cml),
-        similarityThreshold: inputs.similarityThreshold,
-        runId,
-        projectId: projectId || "",
-      });
-      
-      agentCosts["agent8_novelty"] = noveltyAudit.cost;
-      agentDurations["agent8_novelty"] = Date.now() - noveltyStart;
-      
-      if (noveltyAudit.status === "fail") {
-        errors.push("Agent 8: Novelty audit FAILED - too similar to seed patterns");
-        noveltyAudit.violations.forEach((v) => errors.push(`  - ${v}`));
-        warnings.push("Generated mystery may be too similar to examples");
-      } else if (noveltyAudit.status === "warning") {
-        warnings.push("Agent 8: Moderate similarity detected");
-        noveltyAudit.warnings.forEach((w) => warnings.push(`  - ${w}`));
-      }
-      
-      reportProgress("novelty", `Novelty check: ${noveltyAudit.status}`, 100);
-    } else {
-      reportProgress("novelty", "Novelty check skipped", 100);
-    }
+    reportProgress("profiles", "Generating character profiles...", 88);
+
+    const profilesStart = Date.now();
+    const characterProfiles = await generateCharacterProfiles(client, {
+      caseData: cml,
+      cast: cast.cast,
+      tone: inputs.narrativeStyle || "classic",
+      targetWordCount: 1000,
+      runId,
+      projectId: projectId || "",
+    });
+
+    agentCosts["agent2b_profiles"] = characterProfiles.cost;
+    agentDurations["agent2b_profiles"] = Date.now() - profilesStart;
+
+    reportProgress("profiles", `Character profiles generated (${characterProfiles.profiles.length})`, 91);
+
+    // ========================================================================
+    // Agent 9: Prose Generator
+    // ========================================================================
+    reportProgress("prose", "Generating full prose...", 91);
+
+    const proseStart = Date.now();
+    const prose = await generateProse(client, {
+      caseData: cml,
+      outline: narrative,
+      cast: cast.cast,
+      targetLength: inputs.targetLength,
+      narrativeStyle: inputs.narrativeStyle,
+      runId,
+      projectId: projectId || "",
+    });
+
+    agentCosts["agent9_prose"] = prose.cost;
+    agentDurations["agent9_prose"] = Date.now() - proseStart;
+
+    reportProgress("prose", `Prose generated (${prose.chapters.length} chapters)`, 94);
 
     // ========================================================================
     // Complete
@@ -366,6 +612,8 @@ export async function generateMystery(
       clues,
       fairPlayAudit,
       narrative,
+      characterProfiles,
+      prose,
       noveltyAudit,
       setting,
       cast,

@@ -12,22 +12,27 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Sample CMLs in examples/ are used as structural inspiration only, never copied.
 - Full activity logging is captured for debugging across UI and API.
 - The UI restores the last project/spec/session state after refresh.
+- Default UI avoids technical controls (no API health checks or manual refresh actions).
+- Pipeline runs require Azure OpenAI credentials; no deterministic fallback artifacts are produced.
 - When the API is not connected to Postgres, a simple JSON file-backed store preserves projects and artifacts across restarts.
 
 ## Information access levels
 **Level 1 — User (Default)**
 - No raw CML visible.
 - User sees friendly, human-readable projections: setting summary, cast cards + relationships, mystery “bones” overview, clue board with explanations, outline/timeline, fair-play report in plain language.
+- Character profiles are visible, but private details are hidden.
 
 **Level 2 — Advanced (Opt-in)**
 - Read-only CML viewer.
 - CML can be inspected and exported.
 - No direct editing.
+- Character profiles reveal private details.
 
 **Level 3 — Expert (Explicit Opt-in)**
 - Direct CML editing.
 - Full validation output and warnings.
 - Regeneration scope control.
+- Character profiles reveal private details.
 
 ## Canonical user flow
 ### Input stage
@@ -43,7 +48,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ### Output stage
 - Default UI shows friendly projections derived from CML.
 - CML exists internally and is visible only in Advanced/Expert modes.
-- Prose and game pack outputs are currently deterministic placeholders derived from outline/CML and cast.
+- Prose and character profiles are LLM-generated from CML + outline + cast (implemented).
+- Game pack generation is planned and currently unavailable without LLM support.
 - Play mode allows chapter-based clue reveal in the UI.
 - Community templates are listed from examples/ for structural inspiration.
 - Printable party kit PDF is available from the game pack panel.
@@ -61,6 +67,7 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ## Configurable inputs (user knobs)
 ### Setting
 - Decade, region flavor, weather/season, social structure, institutional backdrop.
+ - Optional theme prompt to steer the mystery.
 
 ### Cast
 - Cast size, role palette, relationship graph, secret intensity, motive distribution.
@@ -74,7 +81,7 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Clue density and red-herring budget.
 
 ### Output
-- Format: outline, chapter beats, full prose, party kit.
+- Format: outline, chapter beats, character profiles, full prose, party kit.
 - POV, tone, violence level, length.
 - Writing style capture (sample/descriptor) for prose only.
 
@@ -91,7 +98,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Granular regenerate
 
 ### V2
-- Full prose generation
+- Full prose generation (implemented)
+- Character profiles (implemented)
 - Printable party kit
 - Play Mode and templates
 

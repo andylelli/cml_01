@@ -20,9 +20,9 @@ import {
   createProject,
   clearPersistenceStore,
   downloadGamePackPdf,
+  downloadStoryPdf,
   fetchProject,
   fetchProjects,
-  fetchHealth,
   fetchSampleContent,
   fetchSamples,
   logActivity,
@@ -90,6 +90,7 @@ const {
   cluesArtifact,
   outlineArtifact,
   proseArtifact,
+  characterProfilesArtifact,
   gamePackArtifact,
   settingArtifact,
   castArtifact,
@@ -100,6 +101,7 @@ const {
   outlineData,
   synopsisData,
   proseData,
+  characterProfilesData,
   noveltyAuditData,
   gamePackData,
   runEventsData,
@@ -134,6 +136,7 @@ const expertChecked = computed({
 // Error management
 const errors = ref<ErrorItem[]>([]);
 let errorIdCounter = 0;
+const lastFailedAction = ref<null | { type: "pipeline" | "regenerate" | "spec"; scope?: "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles" }>(null);
 
 const addError = (severity: ErrorSeverity, scope: string, message: string, details?: string) => {
   const error: ErrorItem = {
@@ -159,6 +162,35 @@ const addError = (severity: ErrorSeverity, scope: string, message: string, detai
     message: `${severity}: ${message}`,
     payload: { scope, details },
   });
+};
+
+const handleErrorAction = async (item: ErrorItem) => {
+  if (item.severity === "info") {
+    dismissError(item.id);
+    return;
+  }
+
+  if (!lastFailedAction.value) {
+    dismissError(item.id);
+    return;
+  }
+
+  const action = lastFailedAction.value;
+  dismissError(item.id);
+
+  if (action.type === "pipeline") {
+    await handleRunPipeline();
+    return;
+  }
+
+  if (action.type === "spec") {
+    await handleSaveSpec();
+    return;
+  }
+
+  if (action.type === "regenerate" && action.scope) {
+    await handleRegenerate(action.scope);
+  }
 };
 
 const dismissError = (id: string) => {
@@ -223,9 +255,8 @@ const handleAdvancedTabChange = (tabId: string) => {
   setView(tabId as View);
 };
 
-const healthStatus = ref<"idle" | "ok" | "error">("idle");
-const healthMessage = ref("Not checked");
-const runStatus = ref("Idle • No active run");
+const runStatus = ref("Ready to generate");
+const isCreatingProject = ref(false);
 const projectName = ref("Golden Age Prototype");
 const projectId = ref<string | null>(null);
 const projectIdInput = ref("");
@@ -234,6 +265,7 @@ const spec = ref({
   decade: "1930s",
   locationPreset: "CountryHouse",
   tone: "Cozy",
+  theme: "",
   castSize: 6,
   castNames: [] as string[],
   primaryAxis: "temporal",
@@ -251,7 +283,10 @@ const projectsList = ref<Project[]>([]);
 const selectedProjectId = ref("");
 const missingProjectNotified = ref(false);
 const lastProjectStatus = ref<string | null>(null);
+const showAdvancedValidation = ref(false);
+const updateInProgress = ref<string | null>(null);
 let unsubscribe: (() => void) | null = null;
+let runEventsInterval: ReturnType<typeof setInterval> | null = null;
 
 const STORAGE_KEY = "cml_ui_state";
 
@@ -321,6 +356,26 @@ const castNamesInput = computed({
   },
 });
 
+const themeSuggestions = [
+  "A charity gala with hidden rivalries",
+  "A missing heirloom tied to a wartime secret",
+  "A seaside storm and a vanishing alibi",
+  "A theatrical troupe with tangled debts",
+  "A country house with a sealed-off wing",
+  "A transatlantic liner with a false identity",
+  "A village fête hiding a decades-old feud",
+  "An aristocratic engagement with a sabotaged will",
+  "A museum exhibition and a forged provenance",
+  "A blackout revealing a staged scene",
+];
+
+const handleSuggestTheme = () => {
+  const next = themeSuggestions[Math.floor(Math.random() * themeSuggestions.length)];
+  if (next) {
+    spec.value.theme = next;
+  }
+};
+
 const viewLabel = computed(() => {
   switch (currentView.value) {
     case "dashboard":
@@ -366,9 +421,181 @@ const maxChapter = computed(() => chapterOptions.value[chapterOptions.value.leng
 
 const castCount = computed(() => castData.value?.suspects?.length ?? 0);
 const cluesCount = computed(() => cluesData.value?.items?.length ?? 0);
-const outlineReady = computed(() => Boolean(outlineArtifact));
-const fairPlayReady = computed(() => Boolean(fairPlayReport));
-const gamePackReady = computed(() => Boolean(gamePackData));
+const outlineReady = computed(() => Boolean(outlineArtifact.value));
+const fairPlayReady = computed(() => Boolean(fairPlayReport.value));
+const gamePackReady = computed(() => Boolean(gamePackData.value));
+const settingReady = computed(() => Boolean(settingData.value));
+const castReady = computed(() => Boolean(castData.value?.suspects?.length));
+const cluesReady = computed(() => Boolean(cluesData.value?.items?.length));
+const proseReady = computed(() => Boolean(proseData.value?.chapters?.length));
+const isRunning = computed(() => lastProjectStatus.value === "running");
+const isStartingRun = ref(false);
+const isDownloadingStoryPdf = ref(false);
+const isDownloadingGamePackPdf = ref(false);
+const lastUpdatedAt = ref<number | null>(null);
+
+const lastUpdatedLabel = computed(() => {
+  if (!lastUpdatedAt.value) return "Not updated yet";
+  const diffMs = Date.now() - lastUpdatedAt.value;
+  if (diffMs < 60_000) return "Updated just now";
+  const diffMinutes = Math.floor(diffMs / 60_000);
+  if (diffMinutes < 60) return `Updated ${diffMinutes} min ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  return `Updated ${diffHours} hr ago`;
+});
+
+const progressPercentFromEvent = (event: { step: string; message: string }) => {
+  const step = event.step.toLowerCase();
+  const message = event.message.toLowerCase();
+
+  switch (step) {
+    case "pipeline_started":
+    case "run_started":
+      return 2;
+    case "setting_done":
+      return 12;
+    case "setting":
+      return message.includes("refined") ? 12 : 0;
+    case "cast_done":
+      return 25;
+    case "cast":
+      return message.includes("designed") ? 25 : 12;
+    case "cml_done":
+      return 50;
+    case "cml":
+      if (message.includes("regenerating")) return 54;
+      if (message.includes("validated") || message.includes("generated")) return 50;
+      return 25;
+    case "novelty_audit_done":
+    case "novelty":
+      return message.includes("skipped") || message.includes("check") ? 58 : 52;
+    case "clues_done":
+      return 62;
+    case "clues":
+      if (message.includes("regenerating")) return 60;
+      return message.includes("distributed") ? 62 : 50;
+    case "fair_play_report_done":
+      return 75;
+    case "fairplay":
+      return message.includes("audit") ? 75 : 62;
+    case "outline_done":
+      return 87;
+    case "narrative":
+      return message.includes("scenes") || message.includes("structured") ? 87 : 75;
+    case "character_profiles_done":
+      return 91;
+    case "profiles":
+      return message.includes("generated") ? 91 : 88;
+    case "prose_done":
+      return 94;
+    case "prose":
+      return message.includes("generated") ? 94 : 91;
+    case "pipeline_complete":
+    case "run_finished":
+    case "complete":
+      return 100;
+    default:
+      return null;
+  }
+};
+
+const runProgress = computed(() => {
+  let percent = 0;
+  let label = "Starting generation...";
+
+  for (const event of runEventsData.value) {
+    const eventPercent = progressPercentFromEvent(event);
+    if (typeof eventPercent === "number" && eventPercent >= percent) {
+      percent = eventPercent;
+      label = event.message || label;
+    }
+  }
+
+  return { percent, label };
+});
+
+const runProgressPercent = computed(() => runProgress.value.percent);
+const runProgressLabel = computed(() => {
+  if (isRunning.value || isStartingRun.value) {
+    return runProgress.value.label || "Starting generation...";
+  }
+  return runStatus.value;
+});
+
+const fixSuggestions = computed(() => {
+  const suggestions: string[] = [];
+  const validationEntries = Object.entries(allValidation.value ?? {});
+  const seen = new Set<string>();
+
+  const labelMap: Record<string, string> = {
+    setting: "setting details",
+    cast: "cast setup",
+    cml: "mystery logic",
+    clues: "clues",
+    outline: "outline",
+  };
+
+  const addSuggestion = (text: string) => {
+    if (!seen.has(text)) {
+      seen.add(text);
+      suggestions.push(text);
+    }
+  };
+
+  for (const [key, value] of validationEntries) {
+    if (!value) continue;
+    const issues = [...(value.errors ?? []), ...(value.warnings ?? [])];
+    if (!issues.length) continue;
+
+    const label = labelMap[key] ?? key;
+    const allText = issues.join(" ").toLowerCase();
+
+    if (allText.includes("required") || allText.includes("missing")) {
+      addSuggestion(`We’re missing details in ${label}. Add the required information and try again.`);
+    }
+
+    if (allText.includes("anachron") || allText.includes("implausible")) {
+      addSuggestion("Adjust the setting to remove anachronisms or implausible details.");
+    }
+
+    if (allText.includes("discriminating test")) {
+      addSuggestion("Ensure the discriminating test appears late and clearly resolves the mystery.");
+    }
+
+    if (allText.includes("inference path")) {
+      addSuggestion("Tighten the inference path so each step has observation, correction, and effect.");
+    }
+
+    if (allText.includes("false assumption")) {
+      addSuggestion("Clarify the mistaken belief and how the clues dismantle it.");
+    }
+
+    if (allText.includes("clue") && (allText.includes("late") || allText.includes("reveal"))) {
+      addSuggestion("Move key clues earlier so the solution is fair.");
+    }
+
+    if (allText.includes("red herring")) {
+      addSuggestion("Ensure red herrings support the false assumption without hiding key evidence.");
+    }
+
+    if (key === "cast") {
+      addSuggestion("Review roles and relationships, then update the cast if needed.");
+    } else if (key === "setting") {
+      addSuggestion("Adjust the setting details or update the setting section.");
+    } else if (key === "cml") {
+      addSuggestion("Update the mystery logic to resolve inconsistencies.");
+    } else if (key === "clues") {
+      addSuggestion("Update clues to improve fairness and placement.");
+    } else if (key === "outline") {
+      addSuggestion("Update the outline to align pacing and reveals.");
+    }
+  }
+
+  if (!suggestions.length) {
+    suggestions.push("Everything looks good so far.");
+  }
+  return suggestions;
+});
 
 const nextChapter = () => {
   if (!playModeEnabled.value) return;
@@ -406,7 +633,7 @@ watch(
 
 const connectSse = () => {
   if (!projectId.value) {
-    runStatus.value = "No project • create one first";
+    runStatus.value = "Create a project to begin";
     return;
   }
   if (unsubscribe) {
@@ -415,15 +642,23 @@ const connectSse = () => {
   unsubscribe = subscribeToRunEvents(
     projectId.value,
     (payload) => {
-      runStatus.value = `${payload.status} • project ${payload.projectId}`;
+      runStatus.value = payload.status === "running" ? "Building your mystery..." : "All set. Explore your results.";
       const previous = lastProjectStatus.value;
       lastProjectStatus.value = payload.status;
+      if (payload.status === "running") {
+        startRunEventsPolling();
+      }
       if (previous === "running" && payload.status === "idle") {
+        isStartingRun.value = false;
+        stopRunEventsPolling();
+        loadRunEventsForProject();
         pollArtifacts();
+        addError("info", "pipeline", "Your mystery is ready.");
+        logActivity({ projectId: projectId.value, scope: "ui", message: "run_completed" });
       }
     },
     () => {
-      runStatus.value = "Disconnected • retrying";
+      runStatus.value = "Reconnecting...";
     },
   );
 };
@@ -433,6 +668,40 @@ const disconnectSse = () => {
     unsubscribe();
     unsubscribe = null;
   }
+  stopRunEventsPolling();
+};
+
+const maybeRefreshLlmLogs = async () => {
+  if (!projectId.value) return;
+  const shouldRefresh = (activeMainTab.value === "advanced" && activeAdvancedTab.value === "logs") || isRunning.value;
+  if (!shouldRefresh) return;
+  try {
+    await projectStore.loadLlmLogs(projectId.value, 200);
+  } catch {
+    // handled via error banner if needed
+  }
+};
+
+const loadRunEventsForProject = async () => {
+  if (!projectId.value) return;
+  await projectStore.loadRunEvents(projectId.value);
+  if (runEventsData.value.length) {
+    isStartingRun.value = false;
+  }
+  await maybeRefreshLlmLogs();
+};
+
+const startRunEventsPolling = () => {
+  if (runEventsInterval) return;
+  runEventsInterval = setInterval(() => {
+    loadRunEventsForProject();
+  }, 3000);
+};
+
+const stopRunEventsPolling = () => {
+  if (!runEventsInterval) return;
+  clearInterval(runEventsInterval);
+  runEventsInterval = null;
 };
 
 // Watchers for tab navigation sync
@@ -529,36 +798,23 @@ watch(currentView, (newView) => {
   }
 });
 
-const checkHealth = async () => {
-  healthStatus.value = "idle";
-  try {
-    const health = await fetchHealth();
-    healthStatus.value = "ok";
-    healthMessage.value = `${health.service} • ${health.status}`;
-    addError("info", "system", "API connection successful");
-  } catch (error) {
-    healthStatus.value = "error";
-    healthMessage.value = "API unreachable";
-    addError("error", "system", "API unreachable", "Check that the API server is running on the correct port");
-  }
-};
-
 const handleCreateProject = async () => {
   clearErrors("project");
   try {
+    isCreatingProject.value = true;
     const project = await createProject(projectName.value.trim() || "Untitled project");
     projectId.value = project.id;
     projectIdInput.value = project.id;
     selectedProjectId.value = project.id;
     missingProjectNotified.value = false;
     projectsList.value = [project, ...projectsList.value.filter((entry) => entry.id !== project.id)];
-    runStatus.value = `idle • project ${project.id}`;
+    runStatus.value = "Ready to generate";
     
-    // Reset validation state for new project (no artifacts yet)
-    projectStore.resetValidation();
+    // Clear any prior artifacts so the new project starts pending
+    projectStore.clearAll();
     
     connectSse();
-    addError("info", "project", `Project created: ${project.id}. Configure your spec, then click Generate.`);
+    addError("info", "project", "Project created. Choose your settings, then select Generate.");
     persistState();
     logActivity({ projectId: project.id, scope: "ui", message: "project_created" });
     await loadProjects();
@@ -566,6 +822,8 @@ const handleCreateProject = async () => {
   } catch (error) {
     addError("error", "project", "Failed to create project", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "project_create_failed" });
+  } finally {
+    isCreatingProject.value = false;
   }
 };
 
@@ -580,14 +838,15 @@ const loadProjects = async () => {
       projectId.value = null;
       latestSpecId.value = null;
       selectedProjectId.value = "";
-      runStatus.value = "Idle • No active run";
+      runStatus.value = "Ready to generate";
       missingProjectNotified.value = true;
+      showAdvancedValidation.value = false;
       persistState();
       addError(
         "warning",
         "project",
         "Saved project not found",
-        "The API was restarted or the project was deleted. Create a new project or select an existing one."
+        "That saved project is no longer available. Create a new project or select another."
       );
     }
   } catch (error) {
@@ -606,11 +865,11 @@ const handleLoadProject = async () => {
     const project = await fetchProject(nextId);
     projectId.value = project.id;
     projectName.value = project.name;
-    runStatus.value = `idle • project ${project.id}`;
+    runStatus.value = "Ready to generate";
     connectSse();
     persistState();
     await pollArtifacts();
-    addError("info", "project", `Project loaded: ${project.id}`);
+    addError("info", "project", "Project loaded.");
     logActivity({ projectId: project.id, scope: "ui", message: "project_loaded" });
   } catch (error) {
     addError("error", "project", "Failed to load project", error instanceof Error ? error.message : String(error));
@@ -630,14 +889,16 @@ const handleSaveSpec = async () => {
     addError("info", "spec", `Spec saved: ${saved.id}`);
     persistState();
     logActivity({ projectId: projectId.value, scope: "ui", message: "spec_saved", payload: { specId: saved.id } });
+    lastFailedAction.value = null;
   } catch (error) {
     addError("error", "spec", "Failed to save spec", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "spec_save_failed" });
+    lastFailedAction.value = { type: "spec" };
   }
 };
 
 const handleClearStore = async () => {
-  if (!confirm("This will delete all persisted projects, artifacts, and runs. Continue?")) {
+  if (!confirm("This will delete all saved projects and results. Continue?")) {
     return;
   }
   clearErrors("project");
@@ -650,10 +911,11 @@ const handleClearStore = async () => {
     projectIdInput.value = "";
     selectedProjectId.value = "";
     projectsList.value = [];
-    runStatus.value = "Idle • No active run";
+    runStatus.value = "Ready to generate";
     missingProjectNotified.value = false;
+    showAdvancedValidation.value = false;
     persistState();
-    addError("info", "project", "Persistence cleared");
+    addError("info", "project", "All saved work was cleared.");
     logActivity({ projectId: null, scope: "ui", message: "clear_store" });
   } catch (error) {
     addError("error", "project", "Failed to clear persistence", error instanceof Error ? error.message : String(error));
@@ -668,17 +930,13 @@ const loadArtifacts = async () => {
   });
 
   if (failures.length === 0) {
-    addError("info", "artifacts", "All artifacts loaded successfully");
+    addError("info", "artifacts", "Everything is up to date");
+    lastUpdatedAt.value = Date.now();
     return;
   }
 
   if (hasNetworkError) {
-    addError(
-      "error",
-      "artifacts",
-      "API unreachable",
-      "Check that the API server is running and refresh the page."
-    );
+    addError("error", "artifacts", "We couldn't connect", "We’ll keep trying in the background.");
     return;
   }
 
@@ -697,26 +955,18 @@ const loadArtifacts = async () => {
         "warning",
         "project",
         "Saved project not found",
-        "The API was restarted or the project was deleted. Create a new project or select an existing one."
+        "That saved project is no longer available. Create a new project or select another."
       );
     }
     return;
   }
 
   if (failures.length < 5) {
-    addError("warning", "artifacts", `${failures.length} artifacts failed to load`, "Some content may be unavailable. Refresh to retry.");
+    addError("warning", "artifacts", "Some sections are still loading", "We’ll keep checking and update automatically.");
     return;
   }
 
-  addError("error", "artifacts", "Failed to load most artifacts", "Check API connection and try refreshing.");
-};
-
-const refreshArtifacts = async () => {
-  if (!projectId.value) {
-    addError("warning", "artifacts", "Create a project first");
-    return;
-  }
-  await loadArtifacts();
+  addError("error", "artifacts", "Some items are still unavailable", "We’ll retry automatically.");
 };
 
 const pollArtifacts = async (attempts = 20, delayMs = 2000) => {
@@ -728,47 +978,74 @@ const pollArtifacts = async (attempts = 20, delayMs = 2000) => {
       Boolean(cmlArtifact.value) ||
       Boolean(cluesData.value?.items?.length) ||
       Boolean(outlineArtifact.value) ||
-      Boolean(proseData.value?.chapters?.length);
+      Boolean(proseData.value?.chapters?.length) ||
+      Boolean(characterProfilesData.value?.profiles?.length);
 
     if (hasArtifacts) {
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
-  addError("warning", "artifacts", "Generated data not ready yet", "Please refresh again in a moment");
+  addError("warning", "artifacts", "We’re still preparing your results", "We’ll keep checking and update soon.");
 };
 
 const handleRunPipeline = async () => {
   if (!projectId.value) {
     addError("warning", "pipeline", "Create a project first");
+    runStatus.value = "Create a project to begin";
     return;
   }
   clearErrors("pipeline");
   try {
+    isStartingRun.value = true;
+    runStatus.value = "Saving your settings...";
+    const saved = await saveSpec(projectId.value, spec.value);
+    latestSpecId.value = saved.id;
+    persistState();
+    logActivity({ projectId: projectId.value, scope: "ui", message: "spec_saved", payload: { specId: saved.id } });
+    runStatus.value = "Starting generation...";
     await runPipeline(projectId.value);
-    await pollArtifacts();
-    addError("info", "pipeline", "Pipeline completed successfully");
+    addError("info", "pipeline", "Generation started");
     logActivity({ projectId: projectId.value, scope: "ui", message: "run_started" });
+    startRunEventsPolling();
+    lastFailedAction.value = null;
   } catch (error) {
-    addError("error", "pipeline", "Failed to start pipeline", error instanceof Error ? error.message : String(error));
+    isStartingRun.value = false;
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("503")) {
+      runStatus.value = "Generation unavailable (missing Azure OpenAI credentials)";
+      addError("error", "pipeline", "We couldn’t start generation", "Azure OpenAI credentials are required to generate a mystery.");
+    } else {
+      runStatus.value = "Generation failed to start";
+      addError("error", "pipeline", "We couldn’t start generation", message);
+    }
     logActivity({ projectId: projectId.value, scope: "ui", message: "run_failed" });
+    lastFailedAction.value = { type: "pipeline" };
   }
 };
 
-const handleRegenerate = async (scope: "setting" | "cast" | "clues" | "outline" | "prose") => {
+const handleRegenerate = async (scope: "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles") => {
   if (!projectId.value) {
     addError("warning", "regenerate", "Create a project first");
     return;
   }
   clearErrors("regenerate");
   try {
+    updateInProgress.value = scope;
     await regenerateArtifact(projectId.value, scope);
     await loadArtifacts();
-    addError("info", "regenerate", `${scope} regenerated successfully`);
+    lastUpdatedAt.value = Date.now();
+    addError("info", "regenerate", "Section updated");
     logActivity({ projectId: projectId.value, scope: "ui", message: "regenerate", payload: { scope } });
+    lastFailedAction.value = null;
   } catch (error) {
-    addError("error", "regenerate", `Failed to regenerate ${scope}`, error instanceof Error ? error.message : String(error));
+    addError("error", "regenerate", "We couldn’t update that section", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "regenerate_failed", payload: { scope } });
+    lastFailedAction.value = { type: "regenerate", scope };
+  } finally {
+    if (updateInProgress.value === scope) {
+      updateInProgress.value = null;
+    }
   }
 };
 
@@ -778,6 +1055,7 @@ const handleDownloadGamePackPdf = async () => {
     return;
   }
   try {
+    isDownloadingGamePackPdf.value = true;
     const blob = await downloadGamePackPdf(projectId.value);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -792,8 +1070,38 @@ const handleDownloadGamePackPdf = async () => {
     addError("info", "export", "Game pack PDF downloaded");
     logActivity({ projectId: projectId.value, scope: "ui", message: "download_game_pack_pdf" });
   } catch (error) {
-    addError("error", "export", "Failed to download game pack", error instanceof Error ? error.message : String(error));
+    addError("error", "export", "We couldn’t download the game pack", error instanceof Error ? error.message : String(error));
     logActivity({ projectId: projectId.value, scope: "ui", message: "download_game_pack_failed" });
+  } finally {
+    isDownloadingGamePackPdf.value = false;
+  }
+};
+
+const handleDownloadStoryPdf = async () => {
+  if (!projectId.value) {
+    addError("warning", "export", "Create a project first");
+    return;
+  }
+  try {
+    isDownloadingStoryPdf.value = true;
+    const blob = await downloadStoryPdf(projectId.value);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `story_${projectId.value}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    addError("info", "export", "Story PDF downloaded");
+    logActivity({ projectId: projectId.value, scope: "ui", message: "download_story_pdf" });
+  } catch (error) {
+    addError("error", "export", "We couldn’t download the story", error instanceof Error ? error.message : String(error));
+    logActivity({ projectId: projectId.value, scope: "ui", message: "download_story_pdf_failed" });
+  } finally {
+    isDownloadingStoryPdf.value = false;
   }
 };
 
@@ -819,7 +1127,6 @@ const handleSampleSelect = async (id: string) => {
 
 onMounted(async () => {
   hydrateState();
-  checkHealth();
   connectSse();
   await loadProjects();
   loadSamples();
@@ -835,7 +1142,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen">
-    <div class="flex h-screen">
+    <div class="flex min-h-screen">
       <aside class="hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 md:flex">
         <div class="text-lg font-semibold">CML Whodunit Builder</div>
         <nav class="mt-6 space-y-1 text-sm">
@@ -907,7 +1214,13 @@ onBeforeUnmount(() => {
       </aside>
 
       <!-- Error Notifications -->
-      <ErrorNotification :errors="errors" @dismiss="dismissError" @clear="clearErrors" />
+      <ErrorNotification
+        :errors="errors"
+        :show-details="isAdvanced"
+        @dismiss="dismissError"
+        @clear="clearErrors"
+        @action="handleErrorAction"
+      />
 
       <div class="flex min-w-0 flex-1 flex-col">
         <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
@@ -963,8 +1276,8 @@ onBeforeUnmount(() => {
           class="bg-slate-50"
         />
 
-        <main class="flex min-h-0 flex-1 gap-6 overflow-hidden bg-slate-50 px-6 py-6">
-          <section class="flex min-w-0 flex-1 flex-col gap-6 overflow-auto relative">
+        <main class="flex min-h-0 flex-1 gap-6 overflow-auto bg-slate-50 px-6 py-6">
+          <section class="flex min-w-0 flex-1 flex-col gap-6">
             <!-- Project Tab -->
             <TabPanel id="project-tab" :active="activeMainTab === 'project'" :lazy="true">
               <div class="flex flex-col gap-6">
@@ -1024,10 +1337,14 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="flex items-end">
                   <button
-                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="isCreatingProject"
                     @click="handleCreateProject"
                   >
-                    Create project
+                    <span class="inline-flex items-center gap-2">
+                      <font-awesome-icon v-if="isCreatingProject" icon="spinner" spin />
+                      {{ isCreatingProject ? "Creating..." : "Create project" }}
+                    </span>
                   </button>
                 </div>
                 <div>
@@ -1121,6 +1438,26 @@ onBeforeUnmount(() => {
                       <option>Dark</option>
                     </select>
                   </div>
+                  <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-500">Theme (optional)</label>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      <input
+                        v-model="spec.theme"
+                        class="flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm"
+                        placeholder="A charity gala with hidden rivalries"
+                      />
+                      <button
+                        class="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        type="button"
+                        @click="handleSuggestTheme"
+                      >
+                        Suggest theme
+                      </button>
+                    </div>
+                    <div class="mt-1 text-[11px] text-slate-400">
+                      Optional. Adds a thematic jolt to steer the mystery.
+                    </div>
+                  </div>
                   <div>
                     <label class="text-xs font-semibold text-slate-500">Cast size</label>
                     <input
@@ -1162,30 +1499,24 @@ onBeforeUnmount(() => {
             <!-- Generate Tab -->
             <TabPanel id="generate-tab" :active="activeMainTab === 'generate'" :lazy="true">
               <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Generate Content</div>
+                <div class="text-sm font-semibold text-slate-700">Generate</div>
                 <div class="mt-4 text-sm text-slate-600">
-                  Run the pipeline to generate all artifacts. Monitor progress below.
+                  Generate your mystery in one click. We handle the rest.
                 </div>
 
-                <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                  <span
-                    :class="[
-                      'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
-                      healthStatus === 'ok' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
-                    ]"
-                  >
-                    API: {{ healthMessage }}
-                  </span>
-                  <button class="text-xs font-semibold text-slate-600 underline" @click="checkHealth">
-                    Recheck API
-                  </button>
-                  <button
-                    class="text-xs font-semibold text-slate-600 underline"
-                    :disabled="!projectId || artifactsStatus === 'loading'"
-                    @click="refreshArtifacts"
-                  >
-                    Refresh data
-                  </button>
+                <div class="mt-4 flex items-center gap-2 text-sm text-slate-600">
+                  <font-awesome-icon v-if="isRunning || isStartingRun" icon="spinner" spin class="text-slate-500" />
+                  <font-awesome-icon v-else icon="circle-check" class="text-emerald-600" />
+                  <span>{{ isRunning || isStartingRun ? runProgressLabel : "Ready to generate." }}</span>
+                </div>
+                <div v-if="isRunning || isStartingRun" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+                  <div
+                    class="h-full rounded-full bg-slate-600 transition-all duration-500"
+                    :style="{ width: `${runProgressPercent}%` }"
+                  ></div>
+                </div>
+                <div v-if="isRunning || isStartingRun" class="mt-2 text-xs text-slate-500">
+                  {{ Math.round(runProgressPercent) }}% complete
                 </div>
 
                 <div class="mt-3 text-xs text-slate-500">
@@ -1195,10 +1526,14 @@ onBeforeUnmount(() => {
 
                 <div class="mt-4 flex flex-wrap gap-3">
                   <button
-                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!projectId || isRunning || isStartingRun"
                     @click="handleRunPipeline"
                   >
-                    Generate
+                    <span class="inline-flex items-center gap-2">
+                      <font-awesome-icon v-if="isRunning || isStartingRun" icon="spinner" spin />
+                      Generate
+                    </span>
                   </button>
                   <button
                     class="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -1210,46 +1545,74 @@ onBeforeUnmount(() => {
 
                 <!-- Regenerate Controls -->
                 <div class="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Regenerate Individual Artifacts</div>
+                  <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Update sections</div>
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      :disabled="!projectId"
+                      :disabled="!projectId || updateInProgress !== null"
                       @click="handleRegenerate('setting')"
                     >
-                      Setting
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'setting'" icon="spinner" spin />
+                        Update setting
+                      </span>
                     </button>
                     <button
                       class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      :disabled="!projectId"
+                      :disabled="!projectId || updateInProgress !== null"
                       @click="handleRegenerate('cast')"
                     >
-                      Cast
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'cast'" icon="spinner" spin />
+                        Update cast
+                      </span>
                     </button>
                     <button
                       class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      :disabled="!projectId"
+                      :disabled="!projectId || updateInProgress !== null"
+                      @click="handleRegenerate('character_profiles')"
+                    >
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'character_profiles'" icon="spinner" spin />
+                        Update profiles
+                      </span>
+                    </button>
+                    <button
+                      class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      :disabled="!projectId || updateInProgress !== null"
                       @click="handleRegenerate('clues')"
                     >
-                      Clues
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'clues'" icon="spinner" spin />
+                        Update clues
+                      </span>
                     </button>
                     <button
                       class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      :disabled="!projectId"
+                      :disabled="!projectId || updateInProgress !== null"
                       @click="handleRegenerate('outline')"
                     >
-                      Outline
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'outline'" icon="spinner" spin />
+                        Update outline
+                      </span>
                     </button>
                     <button
                       class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      :disabled="!projectId"
+                      :disabled="!projectId || updateInProgress !== null"
                       @click="handleRegenerate('prose')"
                     >
-                      Generate Story
+                      <span class="inline-flex items-center gap-2">
+                        <font-awesome-icon v-if="updateInProgress === 'prose'" icon="spinner" spin />
+                        Update story
+                      </span>
                     </button>
                   </div>
+                  <div v-if="updateInProgress" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+                    <div class="h-full w-1/2 animate-pulse rounded-full bg-slate-600"></div>
+                  </div>
                   <div class="mt-2 text-xs text-slate-500">
-                    Regenerate a specific artifact without running the full pipeline.
+                    Update a single section without rerunning everything.
                   </div>
                 </div>
               </div>
@@ -1262,7 +1625,7 @@ onBeforeUnmount(() => {
             <div class="rounded-lg border border-purple-100 bg-purple-50 p-4 shadow-sm">
               <div class="text-sm font-semibold text-purple-900">Review Generated Content</div>
               <div class="mt-2 text-sm text-purple-800">
-                <span v-if="activeReviewTab === 'cast'">Review the cast of suspects with their roles and relationships.</span>
+                <span v-if="activeReviewTab === 'cast'">Review the cast of suspects with their roles, relationships, and profiles.</span>
                 <span v-else-if="activeReviewTab === 'clues'">Browse all clues with red herring filtering and play mode to reveal by chapter.</span>
                 <span v-else-if="activeReviewTab === 'outline'">View the story structure broken down by chapters and events.</span>
                 <span v-else-if="activeReviewTab === 'prose'">Read the full narrative story text.</span>
@@ -1279,7 +1642,46 @@ onBeforeUnmount(() => {
                   {{ suspect }}
                 </div>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">Cast not yet generated.</div>
+              <div v-else class="mt-4 text-sm text-slate-500">No cast yet. Select Generate to create one.</div>
+
+              <div class="mt-6 border-t border-slate-200 pt-4">
+                <div class="text-sm font-semibold text-slate-700">Character Profiles</div>
+                <div class="mt-1 text-xs text-slate-500">
+                  {{ characterProfilesData?.note ?? "Character profiles are derived from the cast." }}
+                </div>
+                <div v-if="characterProfilesData?.profiles?.length" class="mt-4 space-y-3">
+                  <details
+                    v-for="profile in characterProfilesData.profiles"
+                    :key="profile.name"
+                    class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <summary class="cursor-pointer text-sm font-semibold text-slate-700">
+                      {{ profile.name }}
+                    </summary>
+                    <div class="mt-2 space-y-3 text-sm text-slate-600">
+                      <p v-if="profile.summary" class="italic">{{ profile.summary }}</p>
+                      <div v-if="profile.publicPersona" class="text-xs text-slate-500">
+                        <span class="font-semibold">Public:</span> {{ profile.publicPersona }}
+                      </div>
+                      <div v-if="isAdvanced" class="space-y-1 text-xs text-slate-500">
+                        <div v-if="profile.privateSecret"><span class="font-semibold">Private:</span> {{ profile.privateSecret }}</div>
+                        <div v-if="profile.motiveSeed"><span class="font-semibold">Motive:</span> {{ profile.motiveSeed }}</div>
+                        <div v-if="profile.alibiWindow"><span class="font-semibold">Alibi:</span> {{ profile.alibiWindow }}</div>
+                        <div v-if="profile.accessPlausibility"><span class="font-semibold">Access:</span> {{ profile.accessPlausibility }}</div>
+                        <div v-if="profile.stakes"><span class="font-semibold">Stakes:</span> {{ profile.stakes }}</div>
+                      </div>
+                      <div
+                        v-else-if="profile.privateSecret || profile.motiveSeed || profile.alibiWindow || profile.accessPlausibility || profile.stakes"
+                        class="text-xs text-slate-400"
+                      >
+                        Private details hidden. Enable Advanced mode to view.
+                      </div>
+                      <p v-for="(para, idx) in profile.paragraphs" :key="`${profile.name}-para-${idx}`">{{ para }}</p>
+                    </div>
+                  </details>
+                </div>
+                <div v-else class="mt-4 text-sm text-slate-500">Profiles will appear after generation.</div>
+              </div>
             </div>
 
             <div v-if="currentView === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -1317,7 +1719,7 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">Clues not yet generated.</div>
+              <div v-else class="mt-4 text-sm text-slate-500">No clues yet. Generate to create them.</div>
             </div>
 
             <div v-if="currentView === 'outline'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -1334,13 +1736,25 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">Outline not yet generated.</div>
+              <div v-else class="mt-4 text-sm text-slate-500">No outline yet. Generate to create it.</div>
             </div>
 
             <div v-if="currentView === 'prose'">
+              <div class="mb-4 flex items-center justify-end">
+                <button
+                  class="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="!proseData || !projectId || isDownloadingStoryPdf"
+                  @click="handleDownloadStoryPdf"
+                >
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="isDownloadingStoryPdf" icon="spinner" spin />
+                    Export story PDF
+                  </span>
+                </button>
+              </div>
               <ProseReader v-if="proseData" :prose="proseData" />
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-                Prose not yet generated
+                No story text yet. Generate to create it.
               </div>
             </div>
               </div>
@@ -1375,7 +1789,7 @@ onBeforeUnmount(() => {
               <div v-if="cmlArtifact" class="mt-4">
                 <pre class="overflow-auto rounded-md bg-slate-900 p-4 text-xs text-slate-100">{{ cmlArtifact }}</pre>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">CML not yet generated.</div>
+              <div v-else class="mt-4 text-sm text-slate-500">CML will appear after generation.</div>
             </div>
 
             <div v-if="currentView === 'samples'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -1410,6 +1824,10 @@ onBeforeUnmount(() => {
                 <div>
                   <div class="font-semibold text-slate-600">Cast</div>
                   <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ castArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Character Profiles</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ characterProfilesArtifact ?? "Not available" }}</pre>
                 </div>
                 <div>
                   <div class="font-semibold text-slate-600">Clues</div>
@@ -1452,7 +1870,7 @@ onBeforeUnmount(() => {
                   <div v-if="entry.errorMessage" class="mt-1 text-[11px] text-rose-600">{{ entry.errorMessage }}</div>
                 </div>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">No LLM logs available.</div>
+              <div v-else class="mt-4 text-sm text-slate-500">No activity yet. Run generation to see entries.</div>
             </div>
 
             <div v-if="currentView === 'history'">
@@ -1468,8 +1886,8 @@ onBeforeUnmount(() => {
             <TabPanel id="export-tab" :active="activeMainTab === 'export'" :lazy="true">
               <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
                 <div class="text-sm font-semibold text-slate-700">Export Your Mystery</div>
-                <div class="mt-4 text-sm text-slate-600">
-                  Download your complete game pack as a PDF. This includes suspect cards, clue materials, and all content needed to run your mystery game.
+                <div class="mt-4 text-sm text-slate-500">
+                  No run history yet. Generate to start tracking it.
                 </div>
                 <div class="mt-2 text-xs text-slate-500">
                   Game pack status: {{ gamePackReady ? 'Ready to download' : 'Generate content first to enable export' }}
@@ -1488,7 +1906,16 @@ onBeforeUnmount(() => {
             <!-- Dashboard details shown in Project tab only -->
             <div v-if="activeMainTab === 'project'" id="dashboard-details" class="grid gap-6 md:grid-cols-2">
               <div v-if="settingData" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Setting overview</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Setting overview</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="settingReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="settingReady ? 'circle-check' : 'circle-info'" />
+                    {{ settingReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div class="mt-2 text-sm text-slate-600">
                   {{ settingData.decade ?? "Unknown era" }} •
                   {{ settingData.locationPreset ?? "Unknown location" }} •
@@ -1499,7 +1926,16 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Cast cards</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Cast cards</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="castReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="castReady ? 'circle-check' : 'circle-info'" />
+                    {{ castReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div v-if="castData?.suspects?.length" class="mt-3 grid gap-2 text-xs text-slate-700">
                   <div
                     v-for="suspect in castData.suspects"
@@ -1511,18 +1947,20 @@ onBeforeUnmount(() => {
                   </div>
                 </div>
                 <div v-else class="mt-2 text-sm text-slate-600">
-                  Cast not loaded yet. Run the pipeline, then refresh data.
-                  <button
-                    class="ml-2 text-xs font-semibold text-slate-600 underline"
-                    :disabled="!projectId || artifactsStatus === 'loading'"
-                    @click="refreshArtifacts"
-                  >
-                    Refresh data
-                  </button>
+                  Cast not available yet. Select Generate to create your cast.
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Clue board</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Clue board</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="cluesReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="cluesReady ? 'circle-check' : 'circle-info'" />
+                    {{ cluesReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div class="mt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
                   <div>{{ cluesData?.items?.length ? `${cluesData.items.length} clues` : "No clues generated yet" }}</div>
                   <div class="flex items-center gap-3">
@@ -1581,13 +2019,99 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Outline</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Outline</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="outlineReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="outlineReady ? 'circle-check' : 'circle-info'" />
+                    {{ outlineReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div class="mt-2 text-sm text-slate-600">
-                  {{ outlineArtifact ? "Outline placeholder stored" : "Outline will appear after validation" }}
+                  {{ outlineReady ? "Your story outline is ready." : "Outline will appear after generation." }}
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Fair-play report</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Story</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="proseReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="proseReady ? 'circle-check' : 'circle-info'" />
+                    {{ proseReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ proseReady ? "Your story is ready to read." : "Story text will appear after generation." }}
+                </div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">What’s next?</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="cluesReady || outlineReady || proseReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="cluesReady || outlineReady || proseReady ? 'circle-check' : 'circle-info'" />
+                    {{ cluesReady || outlineReady || proseReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ cluesReady || outlineReady || proseReady ? "Pick a place to explore your mystery." : "Generate results to unlock these next steps." }}
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button
+                    class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!cluesReady"
+                    @click="setView('clues')"
+                  >
+                    Explore clues
+                  </button>
+                  <button
+                    class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!outlineReady"
+                    @click="setView('outline')"
+                  >
+                    Read outline
+                  </button>
+                  <button
+                    class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!proseReady"
+                    @click="setView('prose')"
+                  >
+                    Open story
+                  </button>
+                </div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Outline</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="outlineReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="outlineReady ? 'circle-check' : 'circle-info'" />
+                    {{ outlineReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
+                <div class="mt-2 text-sm text-slate-600">
+                  {{ outlineReady ? "Outline stored" : "Outline will appear after generation" }}
+                </div>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Fair-play report</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="fairPlayReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="fairPlayReady ? 'circle-check' : 'circle-info'" />
+                    {{ fairPlayReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div class="mt-2 text-sm text-slate-600">
                   {{ fairPlayReport ? fairPlayReport.summary : "Report will appear after clues" }}
                 </div>
@@ -1599,19 +2123,31 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Game pack</div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Game pack</div>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
+                    :class="gamePackReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
+                  >
+                    <font-awesome-icon :icon="gamePackReady ? 'circle-check' : 'circle-info'" />
+                    {{ gamePackReady ? "Ready" : "Pending" }}
+                  </span>
+                </div>
                 <div class="mt-2 text-sm text-slate-600">
-                  {{ gamePackData?.title ?? "Game pack pending" }}
+                  {{ gamePackData?.title ?? "Game pack will appear after generation." }}
                 </div>
                 <div class="mt-2 text-xs text-slate-500">
                   {{ gamePackData?.suspects?.length ?? 0 }} suspects · {{ gamePackData?.materials?.length ?? 0 }} materials
                 </div>
                 <button
                   class="mt-3 rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!gamePackData || !projectId"
+                  :disabled="!gamePackData || !projectId || isDownloadingGamePackPdf"
                   @click="handleDownloadGamePackPdf"
                 >
-                  Download PDF
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="isDownloadingGamePackPdf" icon="spinner" spin />
+                    Download PDF
+                  </span>
                 </button>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -1636,62 +2172,124 @@ onBeforeUnmount(() => {
           </section>
 
           <aside class="hidden w-80 flex-shrink-0 flex-col gap-4 md:flex">
-            <RunHistory :events="runEventsData.slice(-5)" :run-id="latestRunId ?? undefined" />
-            
-            <ValidationPanel :validation="allValidation" />
-            
-            <NoveltyAudit :audit="noveltyAuditData" />
-            
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Run status</div>
-              <div class="mt-2 text-sm text-slate-600">{{ runStatus }}</div>
-              <div class="mt-3 flex gap-2">
-                <button class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold" @click="connectSse">
-                  Connect
-                </button>
-                <button class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold" @click="disconnectSse">
-                  Disconnect
-                </button>
+              <div class="text-sm font-semibold text-slate-700">Status</div>
+              <div class="mt-2 text-sm text-slate-600">{{ runProgressLabel }}</div>
+              <div v-if="isRunning || isStartingRun" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+                <div
+                  class="h-full rounded-full bg-slate-600 transition-all duration-500"
+                  :style="{ width: `${runProgressPercent}%` }"
+                ></div>
+              </div>
+              <div v-if="isRunning || isStartingRun" class="mt-2 text-xs text-slate-500">
+                {{ Math.round(runProgressPercent) }}% complete
+              </div>
+              <div class="mt-3 text-xs text-slate-500">{{ lastUpdatedLabel }}</div>
+            </div>
+
+            <div v-if="!isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-sm font-semibold text-slate-700">Helpful fixes</div>
+              <ul class="mt-2 space-y-1 text-xs text-slate-600">
+                <li v-for="(suggestion, index) in fixSuggestions" :key="index">{{ suggestion }}</li>
+              </ul>
+            </div>
+
+            <div v-if="isAdvanced" class="space-y-4">
+              <RunHistory :events="runEventsData.slice(-5)" :run-id="latestRunId ?? undefined" />
+              <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Validation details</div>
+                  <button
+                    class="text-xs font-semibold text-slate-600 underline"
+                    @click="showAdvancedValidation = !showAdvancedValidation"
+                  >
+                    {{ showAdvancedValidation ? "Hide" : "Show" }} details
+                  </button>
+                </div>
+                <div v-if="showAdvancedValidation" class="mt-3">
+                  <ValidationPanel :validation="allValidation" />
+                </div>
+              </div>
+              <NoveltyAudit :audit="noveltyAuditData" />
+              <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="text-sm font-semibold text-slate-700">Connection</div>
+                <div class="mt-2 text-xs text-slate-500">Advanced diagnostics</div>
+                <div class="mt-3 flex gap-2">
+                  <button class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold" @click="connectSse">
+                    Reconnect
+                  </button>
+                  <button class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold" @click="disconnectSse">
+                    Disconnect
+                  </button>
+                </div>
               </div>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Regenerate</div>
+              <div class="text-sm font-semibold text-slate-700">Update sections</div>
               <div class="mt-3 grid gap-2">
                 <button
                   class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId"
+                  :disabled="!projectId || updateInProgress !== null"
                   @click="handleRegenerate('setting')"
                 >
-                  Regenerate setting
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'setting'" icon="spinner" spin />
+                    Update setting
+                  </span>
                 </button>
                 <button
                   class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId"
+                  :disabled="!projectId || updateInProgress !== null"
                   @click="handleRegenerate('cast')"
                 >
-                  Regenerate cast
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'cast'" icon="spinner" spin />
+                    Update cast
+                  </span>
                 </button>
                 <button
                   class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId"
+                  :disabled="!projectId || updateInProgress !== null"
+                  @click="handleRegenerate('character_profiles')"
+                >
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'character_profiles'" icon="spinner" spin />
+                    Update profiles
+                  </span>
+                </button>
+                <button
+                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
+                  :disabled="!projectId || updateInProgress !== null"
                   @click="handleRegenerate('clues')"
                 >
-                  Regenerate clues
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'clues'" icon="spinner" spin />
+                    Update clues
+                  </span>
                 </button>
                 <button
                   class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId"
+                  :disabled="!projectId || updateInProgress !== null"
                   @click="handleRegenerate('outline')"
                 >
-                  Regenerate outline
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'outline'" icon="spinner" spin />
+                    Update outline
+                  </span>
                 </button>
                 <button
                   class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId"
+                  :disabled="!projectId || updateInProgress !== null"
                   @click="handleRegenerate('prose')"
                 >
-                  Regenerate prose
+                  <span class="inline-flex items-center gap-2">
+                    <font-awesome-icon v-if="updateInProgress === 'prose'" icon="spinner" spin />
+                    Update story
+                  </span>
                 </button>
+              </div>
+              <div v-if="updateInProgress" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+                <div class="h-full w-1/2 animate-pulse rounded-full bg-slate-600"></div>
               </div>
             </div>
             <ExportPanel
@@ -1699,6 +2297,7 @@ onBeforeUnmount(() => {
               :available="{
                 setting: Boolean(settingArtifact),
                 cast: Boolean(castArtifact),
+                characterProfiles: Boolean(characterProfilesArtifact),
                 cml: isAdvanced && Boolean(cmlArtifact),
                 clues: Boolean(cluesArtifact),
                 outline: Boolean(outlineArtifact),
@@ -1710,7 +2309,7 @@ onBeforeUnmount(() => {
             <div v-if="isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">CML preview</div>
               <pre class="mt-2 max-h-48 overflow-auto rounded bg-slate-900/5 p-2 text-xs text-slate-700">
-{{ cmlArtifact ?? "No CML available" }}
+{{ cmlArtifact ?? "CML will appear after generation." }}
               </pre>
             </div>
           </aside>
