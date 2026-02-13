@@ -71,8 +71,6 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const storeFileName = path.basename(storePath);
   let savePromise: Promise<void> | null = null;
 
-  const STALE_TMP_AGE_MS = 10 * 60 * 1000;
-
   const removeTempFileBestEffort = async (tempPath: string) => {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
@@ -94,7 +92,6 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const cleanupStaleTempFiles = async () => {
     try {
       const entries = await fs.readdir(storeDir, { withFileTypes: true });
-      const now = Date.now();
       const tmpPrefix = `${storeFileName}.`;
 
       await Promise.all(
@@ -103,12 +100,9 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
           .map(async (entry) => {
             const candidate = path.join(storeDir, entry.name);
             try {
-              const stat = await fs.stat(candidate);
-              if (now - stat.mtimeMs >= STALE_TMP_AGE_MS) {
-                await removeTempFileBestEffort(candidate);
-              }
+              await removeTempFileBestEffort(candidate);
             } catch {
-              // Ignore stale temp cleanup failures; normal persistence can continue.
+              // Ignore cleanup failures; normal persistence can continue.
             }
           })
       );
@@ -132,34 +126,10 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
     }
     savePromise = (async () => {
       await fs.mkdir(storeDir, { recursive: true });
-      const tempPath = `${storePath}.${randomUUID()}.tmp`;
       const payload = JSON.stringify(state, null, 2);
 
-      const writeTemp = async () => {
-        await fs.writeFile(tempPath, payload, "utf-8");
-      };
-
-      const moveIntoPlace = async () => {
-        await fs.rename(tempPath, storePath);
-      };
-
-      const copyIntoPlace = async () => {
-        await fs.copyFile(tempPath, storePath);
-        await removeTempFileBestEffort(tempPath);
-      };
-
       const attemptPersist = async () => {
-        await writeTemp();
-        try {
-          await moveIntoPlace();
-        } catch (error) {
-          const err = error as NodeJS.ErrnoException;
-          if (err.code === "EPERM" || err.code === "EBUSY") {
-            await copyIntoPlace();
-          } else {
-            throw error;
-          }
-        }
+        await fs.writeFile(storePath, payload, "utf-8");
       };
 
       try {
@@ -170,7 +140,7 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
           await fs.mkdir(storeDir, { recursive: true });
           await attemptPersist();
         } else if (err.code === "EPERM" || err.code === "EBUSY") {
-          await new Promise((resolve) => setTimeout(resolve, 25));
+          await new Promise((resolve) => setTimeout(resolve, 50));
           await attemptPersist();
         } else {
           throw error;

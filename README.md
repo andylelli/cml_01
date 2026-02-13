@@ -62,7 +62,7 @@ Pull requests welcome.
 This project uses PostgreSQL as the system of record. You can run Postgres in Docker and point the API/worker to it with a standard connection string.
 
 If `DATABASE_URL` is not set, the API falls back to a simple JSON file-backed store (default `data/store.json`, configurable via `CML_JSON_DB_PATH`).
-The JSON store uses atomic writes via temporary `store.json.<uuid>.tmp` files; stale temp files are cleaned up automatically on repository startup.
+The JSON store now writes directly to `store.json` (with retry handling for transient file-lock errors on Windows) and cleans up any legacy `store.json.*.tmp` files on startup.
 
 Recommended environment variables:
 - `DATABASE_URL` (e.g., `postgres://user:password@localhost:5432/cml`)
