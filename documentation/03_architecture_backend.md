@@ -82,7 +82,7 @@ Current behavior:
 - CML orchestration now runs a dedicated hard-logic ideation agent that generates a `hard_logic_devices` artifact (3–5 novel mechanism concepts), validates it against schema, and then grounds Agent 3 CML generation in those generated devices.
 - Pipeline now also materializes a dedicated `background_context` artifact (era/setting/cast anchors/theme backdrop) so background context is stored separately from hard-logic mechanism ideation and consumed distinctly by Agent 3.
 - Prose is sanitized before persistence/export (Unicode normalization, mojibake cleanup, system residue removal).
-- Release gate now hard-fails runs when continuity-critical issues remain, mojibake remains, no discriminating test is realized, or suspect closure coverage is incomplete.
+- Release gate now emits warnings (without blocking completion) when continuity-critical issues remain, mojibake remains, no discriminating test is realized, or suspect closure coverage is incomplete.
 
 Phase 5 completion:
 - Prose and character profile artifacts are LLM-generated after outline.

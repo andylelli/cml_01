@@ -31,6 +31,7 @@ export interface NarrativeFormattingInputs {
   clues: ClueDistributionResult;
   targetLength?: "short" | "medium" | "long"; // Story length preference
   narrativeStyle?: "classic" | "modern" | "atmospheric"; // Style preference
+  qualityGuardrails?: string[];
   runId?: string;
   projectId?: string;
 }
@@ -105,7 +106,7 @@ Your output is a JSON scene outline that prose generators can use to write the f
   const developer = buildDeveloperContext(caseData, clues);
 
   // User: Request the narrative outline
-  const user = buildUserRequest(targetLength, narrativeStyle);
+  const user = buildUserRequest(targetLength, narrativeStyle, inputs.qualityGuardrails ?? []);
 
   return { system, developer, user };
 }
@@ -254,7 +255,7 @@ ${accessConstraints}
 ${eraDetails}`;
 }
 
-function buildUserRequest(targetLength: string, narrativeStyle: string): string {
+function buildUserRequest(targetLength: string, narrativeStyle: string, qualityGuardrails: string[]): string {
   const lengthGuidance = {
     short: "15-25 scenes, ~15,000-25,000 words (novella)",
     medium: "25-35 scenes, ~40,000-60,000 words (novel)",
@@ -269,6 +270,10 @@ function buildUserRequest(targetLength: string, narrativeStyle: string): string 
     atmospheric:
       "Gothic/noir style - mood and setting prominent, shadows and secrets, poetic prose, emphasis on dread and revelation",
   };
+
+  const guardrailBlock = qualityGuardrails.length > 0
+    ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
+    : "";
 
   return `# Narrative Outline Task
 
@@ -323,6 +328,7 @@ Each scene must include:
 - Discriminating test appears in late Act II or early Act III
 - Save essential clues for when inference path requires them
 - Do not introduce detective-private insights; avoid reveals unsupported by previously listed clue IDs
+${guardrailBlock}
 
 ## Output Format
 

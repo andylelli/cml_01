@@ -67,6 +67,16 @@ Generates rich temporal/cultural context including:
 - Validates against temporal_context.schema.yaml
 - Used by Agent 9 for period authenticity and cultural references
 
+### Agent 2e — Background Context (LLM)
+Generates a dedicated `background_context` artifact before CML generation:
+- Canonical backdrop summary (era + setting + mood coherence)
+- Era/social-structure anchor for scene grounding
+- Setting anchor (location/institution/weather)
+- Cast anchors (existing cast names only; no new names)
+- Theme carry-through for narrative backdrop consistency
+- Validates against background_context.schema.yaml
+- Consumed by Agent 3 separately from hard-logic ideation
+
 ### Agent 3 — Crime Designer (CML generator)
 Produces a full CML 2.0-compliant draft that is novel and not traceable to any single seed.
 Uses seed CMLs for abstract structure patterns only (axis, mechanism families, cadence), never for specific characters, events, or clue chains.
@@ -106,6 +116,7 @@ Critical fair-play violations (Clue Visibility, Information Parity, No Withholdi
 
 ### Agent 7 — Narrative Outliner
 Creates outline with clue placement and discriminating test timing.
+Runs a preventive coverage gate before prose to ensure explicit discriminating-test and suspect-elimination beats; regenerates outline once with targeted guardrails if needed.
 
 ### Agent 8 — Novelty Auditor
 Scores similarity vs selected seed CMLs and summarizes novelty risks.
@@ -124,7 +135,8 @@ Generates novel-quality prose with full context integration:
 - 8 quality requirements: scene-setting, show-don't-tell, varied structure, character-revealing dialogue, sensory immersion, paragraph structure, pacing variation, emotional subtext
 - Validates against prose.schema.yaml
 - Must not introduce new facts or override CML logic
-- Post-generation guardrail detects role-alias identity drift after confession/arrest and triggers a one-time prose regeneration.
+- Post-generation guardrail detects role-alias identity drift after confession/arrest and triggers a one-time prose regeneration; unresolved drift is surfaced as a warning.
+- Validation-guided repair pass: when validation flags missing discriminating-test realization or suspect-elimination/closure gaps, Agent 9 regenerates prose once with explicit guardrails for on-page test execution and suspect ledger closure.
 
 ### Prose (LLM) & Game Pack (planned)
 Prose is generated from outline + CML + cast using an LLM (implemented). Game pack generation is planned and not yet available without LLM support.
@@ -135,6 +147,7 @@ All artifacts validate against YAML schemas in schema/ directory:
 - **character_profiles.schema.yaml** - Character psychological profiles
 - **location_profiles.schema.yaml** - Location profiles with sensory details and geographic context
 - **temporal_context.schema.yaml** - Date, fashion, cultural context
+- **background_context.schema.yaml** - Canonical backdrop context for CML grounding
 - **hard_logic_devices.schema.yaml** - Novel hard-logic device ideation artifact
 - **cast_design.schema.yaml** - Character design and relationships
 - **setting_refinement.schema.yaml** - Era constraints

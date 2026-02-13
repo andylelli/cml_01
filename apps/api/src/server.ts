@@ -488,6 +488,7 @@ const runPipeline = async (
     await repo.createArtifact(projectId, "cast", result.cast, null);
     await repo.addRunEvent(runId, "cast_done", "Cast generated");
 
+    await repo.addRunEvent(runId, "background_context_llm_done", "Background context LLM generation complete");
     await repo.createArtifact(projectId, "background_context", result.backgroundContext, null);
     await repo.addRunEvent(runId, "background_context_done", "Background context generated");
 

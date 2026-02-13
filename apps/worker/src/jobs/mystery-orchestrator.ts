@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Mystery Generation Orchestrator
  *
  * Connects all 8 agents into a complete mystery generation pipeline:
- * Agent 1 → Agent 2 → Agent 3 (+Agent 4) → Agent 5 → Agent 6 → Agent 7 → Agent 8
+ * Agent 1 â†’ Agent 2 â†’ Agent 3 (+Agent 4) â†’ Agent 5 â†’ Agent 6 â†’ Agent 7 â†’ Agent 8
  *
  * Handles progress tracking, error recovery, cost tracking, and result aggregation.
  */
@@ -21,6 +21,7 @@ import {
   generateCharacterProfiles,
   generateLocationProfiles,
   generateTemporalContext,
+  generateBackgroundContext,
   generateHardLogicDevices,
   generateProse,
   auditNovelty,
@@ -38,6 +39,7 @@ import type {
   CharacterProfilesResult,
   LocationProfilesResult,
   TemporalContextResult,
+  BackgroundContextArtifact,
   HardLogicDeviceResult,
   HardLogicDeviceIdea,
   ProseGenerationResult,
@@ -80,22 +82,6 @@ type HardLogicDirectives = {
 };
 
 type CmlPrimaryAxis = "temporal" | "spatial" | "identity" | "behavioral" | "authority";
-
-type BackgroundContextResult = {
-  status: "ok";
-  backdropSummary: string;
-  era: {
-    decade: string;
-    socialStructure?: string;
-  };
-  setting: {
-    location: string;
-    institution: string;
-    weather?: string;
-  };
-  castAnchors: string[];
-  theme?: string;
-};
 
 const normalizePrimaryAxis = (
   axis: MysteryGenerationInputs["primaryAxis"] | undefined,
@@ -361,14 +347,14 @@ const applyClueGuardrails = (cml: CaseData, clues: ClueDistributionResult) => {
 };
 
 const proseMojibakeReplacements: Array<[RegExp, string]> = [
-  [/â€™/g, "'"],
-  [/â€˜/g, "'"],
-  [/â€œ|â€\x9d/g, '"'],
-  [/â€"|â€”/g, "—"],
-  [/â€“/g, "–"],
-  [/â€¦/g, "…"],
-  [/faˆ§ade/g, "façade"],
-  [/Â/g, ""],
+  [/Ã¢â‚¬â„¢/g, "'"],
+  [/Ã¢â‚¬Ëœ/g, "'"],
+  [/Ã¢â‚¬Å“|Ã¢â‚¬\x9d/g, '"'],
+  [/Ã¢â‚¬"|Ã¢â‚¬â€/g, "â€”"],
+  [/Ã¢â‚¬â€œ/g, "â€“"],
+  [/Ã¢â‚¬Â¦/g, "â€¦"],
+  [/faË†Â§ade/g, "faÃ§ade"],
+  [/Ã‚/g, ""],
   [/\uFFFD/g, ""],
 ];
 
@@ -479,7 +465,7 @@ const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: Cas
 };
 
 export interface MysteryGenerationProgress {
-  stage: "setting" | "cast" | "hard_logic_devices" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "location-profiles" | "temporal-context" | "prose" | "validation" | "novelty" | "novelty_math" | "complete";
+  stage: "setting" | "cast" | "background-context" | "hard_logic_devices" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "location-profiles" | "temporal-context" | "prose" | "validation" | "novelty" | "novelty_math" | "complete";
   message: string;
   percentage: number; // 0-100
   timestamp: Date;
@@ -494,7 +480,7 @@ export interface MysteryGenerationResult {
   characterProfiles: CharacterProfilesResult;
   locationProfiles: LocationProfilesResult;
   temporalContext: TemporalContextResult;
-  backgroundContext: BackgroundContextResult;
+  backgroundContext: BackgroundContextArtifact;
   hardLogicDevices: HardLogicDeviceResult;
   prose: ProseGenerationResult;
   noveltyAudit?: NoveltyAuditResult;
@@ -569,41 +555,6 @@ export async function generateMystery(
     if (onProgress) {
       onProgress({ stage, message, percentage, timestamp: new Date() });
     }
-  };
-
-  const buildBackgroundContext = (
-    settingRefinement: SettingRefinementResult,
-    castDesign: CastDesignResult,
-    specInputs: MysteryGenerationInputs,
-  ): BackgroundContextResult => {
-    const settingData = settingRefinement.setting;
-    const castAnchors = castDesign.cast.characters
-      .map((character) => character?.name)
-      .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
-      .slice(0, 6);
-
-    return {
-      status: "ok",
-      backdropSummary: [
-        `${settingData.era.decade}`,
-        settingData.location.description,
-        settingData.location.type,
-        settingData.atmosphere.mood,
-      ]
-        .filter(Boolean)
-        .join(" • "),
-      era: {
-        decade: settingData.era.decade,
-        socialStructure: settingData.era.socialNorms.join(", "),
-      },
-      setting: {
-        location: settingData.location.description,
-        institution: settingData.location.type,
-        weather: settingData.atmosphere.weather,
-      },
-      castAnchors,
-      theme: specInputs.theme,
-    };
   };
 
   try {
@@ -692,8 +643,22 @@ export async function generateMystery(
     }
     
     reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
+    reportProgress("background-context", "Generating background context...", 25);
 
-    const backgroundContext = buildBackgroundContext(setting, cast, inputs);
+    const backgroundContextStart = Date.now();
+    const backgroundContextResult = await generateBackgroundContext(client, {
+      settingRefinement: setting.setting,
+      cast: cast.cast,
+      theme: inputs.theme,
+      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+      runId,
+      projectId: projectId || "",
+    });
+
+    agentCosts["agent2e_background_context"] = backgroundContextResult.cost;
+    agentDurations["agent2e_background_context"] = Date.now() - backgroundContextStart;
+
+    const backgroundContext = backgroundContextResult.backgroundContext;
     const backgroundContextValidation = validateArtifact("background_context", backgroundContext);
     if (!backgroundContextValidation.valid) {
       backgroundContextValidation.errors.forEach((error) => errors.push(`Background context schema failure: ${error}`));
@@ -701,10 +666,12 @@ export async function generateMystery(
     }
     backgroundContextValidation.warnings.forEach((warning) => warnings.push(`Background context schema warning: ${warning}`));
 
+    reportProgress("background-context", "Background context generated", 28);
+
     // ========================================================================
     // Agent 3b: Hard-Logic Device Ideation (novel mechanism concepts)
     // ========================================================================
-    reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 25);
+    reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 28);
 
     const hardLogicStart = Date.now();
     const hardLogicDevices = await generateHardLogicDevices(client, {
@@ -1259,7 +1226,7 @@ export async function generateMystery(
       })),
     };
     
-    const validationReport = await validationPipeline.validate(storyForValidation, cml);
+    let validationReport = await validationPipeline.validate(storyForValidation, cml);
     agentDurations["validation"] = Date.now() - validationStart;
 
     // Log validation results
@@ -1300,7 +1267,7 @@ export async function generateMystery(
     const releaseGateReasons: string[] = [];
     const validationErrorTypes = new Set(validationReport.errors.map((error) => error.type));
     const proseContainsMojibake = prose.chapters.some((chapter) =>
-      chapter.paragraphs.some((paragraph) => /(?:â€™|â€˜|â€œ|â€\x9d|â€"|â€”|â€“|â€¦|Â|ˆ§|\uFFFD)/.test(paragraph)),
+      chapter.paragraphs.some((paragraph) => /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å“|Ã¢â‚¬\x9d|Ã¢â‚¬"|Ã¢â‚¬â€|Ã¢â‚¬â€œ|Ã¢â‚¬Â¦|Ã‚|Ë†Â§|\uFFFD)/.test(paragraph)),
     );
 
     if (validationErrorTypes.has("identity_role_alias_break") || validationErrorTypes.has("missing_case_transition_bridge") || validationErrorTypes.has("case_transition_missing")) {

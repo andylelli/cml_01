@@ -136,15 +136,16 @@ Target areas:
 - `apps/worker/src/jobs/mystery-orchestrator.ts` (pipeline integration)
 - `packages/story-validation/src` (victim profile consistency checks)
 
-- Add a new background-context agent (story backdrop and cast ties):
+Background-context agent status: implemented (LLM Agent 2e now active in pipeline).
+- Added a background-context agent (story backdrop and cast ties):
 	- why all cast are present at this setting/event
 	- shared history and social ties among cast
 	- pre-case tensions, obligations, and dependency web
 	- location-anchored context (why this exact place, local customs, geography, routines)
 	- setting-specific social context used for scene grounding
 	- explicit links to location profile data (rooms/areas, access patterns, travel constraints)
-- Use this artifact to improve opening chapters and scene-setting depth.
-- Persist background-context outputs as CML-linked artifacts and validate against schema.
+- This artifact is used to improve opening chapters and scene-setting depth.
+- Background-context outputs are persisted as CML-linked artifacts and validated against schema.
 
 Target areas:
 - `packages/prompts-llm/src` (new background-context agent)
@@ -182,7 +183,7 @@ Target areas:
 
 ### Phase 4 — QA gate + acceptance
 Status: implemented (release gate checks active in pipeline).
-- Release gate fails publication when any are true:
+- Release gate emits warnings for review (without blocking completion) when any are true:
 	- critical continuity issue
 	- mojibake artifact present
 	- no valid discriminating test

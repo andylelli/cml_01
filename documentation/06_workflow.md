@@ -86,8 +86,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Spec adherence**: CML generation must honor the spec parameters (decade, location preset, tone, theme, cast size/names, primary axis).
 - **Grounding split**: CML generation consumes `background_context` for backdrop coherence and `hard_logic_devices` for mechanism proof logic.
 
-### Step 2b (pre-step): Background Context Assembly
-- **Derives**: canonical backdrop context from setting + cast anchors + theme
+### Step 2e (pre-step): Background Context Generation (LLM)
+- **Derives**: canonical backdrop context from setting + cast anchors + theme via LLM Agent 2e (not deterministic assembly)
 - **Validation**: `background_context.schema.yaml` must pass before CML generation proceeds
 - **Artifacts Created**:
   - `background_context` - `{ status, backdropSummary, era, setting, castAnchors, theme? }`
