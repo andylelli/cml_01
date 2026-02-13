@@ -68,6 +68,61 @@ Think of something clever, cunning, imaginative, and logical. Use inventive, non
 Aim for fresh logic while staying fair-play and coherent with the era/location constraints.`;
   }
 
+  const hardLogicModes = inputs.hardLogicModes ?? [];
+  const difficultyMode = inputs.difficultyMode ?? "standard";
+  const backgroundContext = inputs.backgroundContext;
+  const backgroundContextText = backgroundContext
+    ? [
+        `Backdrop: ${backgroundContext.backdropSummary}`,
+        `Era: ${backgroundContext.era.decade}${backgroundContext.era.socialStructure ? ` (${backgroundContext.era.socialStructure})` : ""}`,
+        `Setting: ${backgroundContext.setting.location} • ${backgroundContext.setting.institution}${backgroundContext.setting.weather ? ` • ${backgroundContext.setting.weather}` : ""}`,
+        `Cast anchors: ${backgroundContext.castAnchors.join(", ") || "none"}`,
+        backgroundContext.theme ? `Theme pressure: ${backgroundContext.theme}` : "",
+      ].filter(Boolean).join("\n")
+    : "(No dedicated background context artifact provided. Use setting/cast constraints.)";
+  const hardLogicDevices = Array.isArray(inputs.hardLogicDevices) ? inputs.hardLogicDevices : [];
+  const hardLogicDeviceText = hardLogicDevices.length > 0
+    ? hardLogicDevices
+        .map((device, index) => {
+          const clues = device.fairPlayClues.slice(0, 4).join("; ");
+          return `${index + 1}. ${device.title}\n   - principle: ${device.principleType} | ${device.corePrinciple}\n   - illusion: ${device.surfaceIllusion}\n   - reality: ${device.underlyingReality}\n   - fair clues: ${clues}\n   - anti-trope: ${device.whyNotTrope}`;
+        })
+        .join("\n")
+    : "(No dedicated hard-logic ideation artifact provided. Use hard-logic tags and mechanism family hints.)";
+  const hardLogicSection = `
+**Golden Age Hard-Logic Device Constraints**:
+- Build mechanism around a physical law, mathematical principle, cognitive bias, or social-logic mechanism.
+- Avoid overused stock devices unless fundamentally reimagined (no twins-as-shortcut, no generic gimmicks).
+- No modern technology or post-1945 science.
+- Keep all reasoning period-solvable (1920-1945 knowledge).
+- Make contradiction explicit between testimony and measurable fact.
+
+Hard-logic focus tags: ${hardLogicModes.length > 0 ? hardLogicModes.join(", ") : "standard varied mix"}
+Difficulty mode: ${difficultyMode}
+
+Escalation behavior:
+- standard: single-principle elegant construction
+- increase: multi-step reasoning, at least one fair cognitive misdirection
+- extreme: near-impossible appearance with rigorous logical mechanism and timing/geometry precision`;
+
+  const hardLogicGroundingSection = `
+**Hard-Logic Ideation Artifact (must ground final mechanism design)**:
+${hardLogicDeviceText}
+
+Grounding rule:
+- Select one primary device (or a coherent hybrid of two) from this list as the mechanism backbone.
+- Preserve its contradiction structure in false_assumption + constraint_space + inference_path + discriminating_test.
+- Keep clues observable and fair-play deducible from the selected device logic.`;
+
+  const backgroundGroundingSection = `
+**Background Context Artifact (must remain separate from mechanism logic)**:
+${backgroundContextText}
+
+Background rule:
+- Keep backdrop coherence in CASE.meta (era/setting), cast social dynamics, and narrative atmosphere.
+- Do NOT use background details as a substitute for mechanism logic.
+- Mechanism proof must still come from hard-logic device constraints and fair-play clues.`;
+
   // System message
   const system = `${CML_SPECIALIST_SYSTEM}
 
@@ -111,6 +166,18 @@ All story elements must remain consistent with the specified setting type and lo
 
 ---
 
+${hardLogicSection}
+
+---
+
+${backgroundGroundingSection}
+
+---
+
+${hardLogicGroundingSection}
+
+---
+
 ${FAIR_PLAY_CHECKLIST}`;
 
   const requiredSkeleton = `
@@ -127,6 +194,8 @@ CASE:
       realism_constraints: []
     setting:
       location: ""
+      place: ""
+      country: ""
       institution: ""
     crime_class:
       category: "murder"
@@ -223,6 +292,14 @@ CASE:
 - Tone: ${inputs.tone}
 - Theme: ${inputs.theme ?? "(none specified)"}
 
+IMPORTANT - Geographic Specificity:
+Fill the "place" and "country" fields in meta.setting with specific location:
+- For country estates/manor houses: Choose a specific English village or county (e.g., "Little Middleton, Yorkshire")
+- For Riviera settings: Specify French Riviera (Nice, Cannes, Monaco) or Italian Riviera
+- For ocean liners: Specify route (e.g., "Southampton to New York route", "Atlantic Ocean")
+- For trains: Specify route (e.g., "London to Edinburgh route", "England")
+- Always include country (usually "England", "France", "Italy", or route description)
+
 **Cast Requirements**:
 - Cast Size: ${inputs.castSize} characters
 - Use these exact names: ${inputs.castNames.join(", ")}
@@ -234,6 +311,11 @@ CASE:
 - False Assumption Type: Must be ${inputs.primaryAxis} (matching axis)
 - Complexity Level: ${inputs.complexityLevel}
 - Mechanism Families: ${inputs.mechanismFamilies.join(", ")}
+- Hard-Logic Focus Tags: ${hardLogicModes.length > 0 ? hardLogicModes.join(", ") : "standard varied mix"}
+- Escalation Difficulty: ${difficultyMode}
+
+**Hard-Logic Device Grounding Candidates**:
+${hardLogicDeviceText}
 
 **Requirements**:
 1. Generate complete CML 2.0 YAML document
@@ -249,6 +331,8 @@ CASE:
 11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
 12. Ground every clue in mechanism or constraint violations
 13. Weave the Theme into the title and narrative summary without adding new keys
+14. Ensure mechanism is diagrammable and contradiction-driven (assumption vs measurable fact)
+15. If Escalation Difficulty is "increase" or "extreme", require multi-step inference with at least one fair misdirection
 
 **Output Format**:
 Respond with ONLY valid JSON matching the CML 2.0 schema. No explanations, no markdown code blocks, no commentary.

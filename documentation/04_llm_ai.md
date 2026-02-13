@@ -30,7 +30,7 @@
 
 ### 3) CML generation (core)
 **Purpose:** Generate CML 2.0-compliant case.
-**Input:** setting bible + cast + logic knobs
+**Input:** setting bible + cast + background context artifact + logic knobs + hard-logic ideation artifact
 **Output:** full CML 2.0 draft including false_assumption, discriminating_test, and quality_controls targets for fair-play and clue visibility
 **Validation:** schema + checklist, and “one primary axis” rule
 **Setting fidelity:** enforce a setting lock in CML generation so all downstream artifacts stay in the specified location type.
@@ -38,10 +38,21 @@
 **Novelty:** seeds may guide abstract structure only (axis, mechanism families, cadence); never copy specific characters, events, clue wording, reveal logic, or inference paths. Similarity threshold is configurable via `NOVELTY_SIMILARITY_THRESHOLD` (default 0.9, lenient). Set `NOVELTY_SKIP=true` (or use a threshold >= 1.0) to skip the novelty check entirely. Returned similarity scores are normalized by recomputing the weighted overall similarity and enforcing pass/warn/fail thresholds, and the math is logged to run events and LLM logs.
 **Imagination:** the CML generator must use inventive, non-obvious combinations of setting details, false assumptions, access paths, and discriminating tests while staying fair-play and era-accurate.
 **Divergence constraints:** CML generation receives explicit divergence constraints derived from seed patterns (era/location, method, false assumption, discriminating test) to avoid overlap.
+**Hard-logic constraints:** CML prompt requires contradiction-driven mechanism design based on physical law, mathematics, cognitive bias, or social logic; no post-1945 tech/science.
+**Grounding:** Agent 3 consumes generated `hard_logic_devices` concepts (surface illusion, underlying reality, fair-play clues, anti-trope rationale) and grounds the final mechanism in one selected/coherent hybrid device.
+**Background grounding:** Agent 3 separately consumes `background_context` (era, setting, social backdrop, cast anchors) and keeps this distinct from mechanism proof logic.
+**Escalation modes:** theme phrases `increase difficulty` and `make it brutal` raise complexity and require multi-step inference / near-impossible but rigorously logical constructions.
 **Recovery:** If novelty audit fails, CML is regenerated once with stronger divergence constraints, then re-audited.
 **Parsing safety:** JSON parsing attempts include JSON repair and extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
 **Output guardrails:** Agent 3 includes a required YAML skeleton to avoid missing mandatory fields.
 **Schema normalization:** After parsing, missing required fields are filled with safe defaults before validation to stabilize runs.
+
+### 3b) Hard-logic device ideation (new)
+**Purpose:** Generate novel hard-logic mechanism devices before CML drafting.
+**Input:** setting context + theme + axis + hard-logic tags + novelty constraints.
+**Output:** `hard_logic_devices` artifact with 3–5 concepts containing title, principle type, illusion vs reality, fair-play clues, anti-trope note, and escalation variation.
+**Validation:** artifact must pass `hard_logic_devices.schema.yaml` before Agent 3 executes.
+**Guardrail:** ensures novelty mechanisms are explicitly generated, rather than inferred only from keyword parsing.
 
 ### 4) CML revision
 **Purpose:** Fix validator failures in a targeted manner.
@@ -57,12 +68,14 @@
 **Output:** clues grouped by category; red herrings tied to false assumption
 **Validation:** all clues grounded in CML facts; no new facts added
 **Quality controls:** uses CML quality_controls targets (essential clue minimums and placement counts) when present
+**Deterministic guardrails:** enforce no late essential clues, unique clue IDs, and no detective-only/private clue phrasing; a failed guardrail triggers one targeted clue regeneration.
 
 ### 6) Fair-play audit
 **Purpose:** Evaluate fairness and reader-solvability against CML + clue distribution.
 **Input:** validated CML + clues
 **Output:** structured audit (overall status, checklist items, violations, summary)
-**Validation:** required fields and status enums; missing fields cause a hard failure. `fail` or `needs-revision` triggers a single clue-regeneration pass with audit feedback, then continues with warnings.
+**Validation:** required fields and status enums; missing fields cause a hard failure. `fail` or `needs-revision` triggers a single clue-regeneration pass with audit feedback.
+**Hard gate:** critical violations in clue visibility/information parity/no-withholding/logical deducibility fail the pipeline after retry.
 
 ### 7) Outline generation
 **Purpose:** Build chapter/act outline with proper clue placement.
@@ -75,21 +88,67 @@
 **Fallbacks:** if totals are missing, total scenes/words are derived from scene estimates to avoid run failure.
 
 ### 7b) Character profile generation (optional)
-**Purpose:** Produce full character profiles without altering CML logic.
-**Input:** cast list (+ optional setting tone)
-**Output:** per-character narrative profiles (target ~1000 words each), including private secrets and motive context
-**Validation:** must not introduce new facts or contradict CML; private details must align with cast/CML
-**Current build:** LLM-generated profiles (implemented).
+**Purpose:** Produce rich psychological character profiles for prose generation.
+**Input:** cast list + CML + setting tone
+**Output:** per-character profiles (4-6 paragraphs, ~1000 words each) including:
+  - Public persona and private secrets
+  - Personality traits and emotional stakes
+  - Voice hints (formal vs informal, class-based speech patterns)
+  - Motive context and alibi windows
+**Validation:** must not introduce new facts or contradict CML; private details must align with cast/CML; validates against character_profiles.schema.yaml
+**Usage:** Agent 9 uses profiles to create distinct character voices, dialogue patterns, and emotional subtext
+**Current build:** LLM-generated profiles with voice/personality extraction (implemented).
+
+### 7c) Location profile generation (optional)
+**Purpose:** Generate comprehensive location profiles with sensory details.
+**Input:** setting refinement + CML + narrative outline
+**Output:** location profiles including:
+  - Primary location with geographic specificity (place, country)
+  - 2-3 key locations with full sensory palettes (sights, sounds, smells, tactile details)
+  - Atmospheric context (mood, weather, era markers)
+  - 3-6 paragraphs per location
+**Validation:** must align with setting refinement and CML; validates against location_profiles.schema.yaml
+**Usage:** Agent 9 uses sensory palettes for scene-setting and multi-sensory immersion
+**Current build:** LLM-generated profiles with comprehensive sensory details (implemented).
+
+### 7d) Temporal context generation (optional)
+**Purpose:** Generate rich temporal/cultural context for period authenticity.
+**Input:** setting refinement + CML (decade from meta.era)
+**Output:** temporal context including:
+  - Specific date (month + year) and season with weather patterns
+  - Period fashion (formal/casual/accessories for men and women)
+  - Cultural touchstones (popular music, films, theater)
+  - Typical prices and daily life details
+  - Current affairs and major events
+  - Social attitudes (class, gender, general norms)
+**Validation:** must be historically accurate for the specified date; validates against temporal_context.schema.yaml
+**Usage:** Agent 9 uses for fashion descriptions, cultural references, and period-authentic details
+**Current build:** LLM-generated context with comprehensive period details (implemented).
 
 ### 8) Prose generation (optional)
-**Purpose:** Produce narrative prose without altering logic.
-**Input:** outline + style capture
-**Output:** prose chapters
-**Validation:** must not introduce new facts; style must not copy copyrighted text
-**Setting fidelity:** prose must stay consistent with the CML setting (e.g., a liner remains a liner).
+**Purpose:** Produce novel-quality narrative prose with full context integration.
+**Input:** outline + CML + cast + character profiles + location profiles + temporal context
+**Output:** prose chapters (3-6 paragraphs each, varied pacing)
+**Context integration:**
+  - Character profiles provide personality traits and voice hints for distinct dialogue
+  - Location profiles provide sensory palettes (sights, sounds, smells, tactile) and geographic specificity (place, country)
+  - Temporal context provides fashion details, cultural touchstones, period prices, current events
+  - All context injected into system prompt with usage guidelines
+**Quality requirements:**
+  1. Scene-setting with atmospheric description using location/temporal context
+  2. Show-don't-tell with concrete physical details
+  3. Varied sentence structure for pacing control
+  4. Character-revealing dialogue with distinct voices per character
+  5. Multi-sensory immersion (2-3 senses per scene minimum)
+  6. Strong paragraph structure (hook, develop, close)
+  7. Pacing variation (short for action, long for atmosphere)
+  8. Emotional subtext using character secrets and stakes
+**Validation:** must not introduce new facts; style must not copy copyrighted text; validates against prose.schema.yaml
+**Setting fidelity:** prose references specific geographic location (e.g., "Little Middleton, England") and stays within CML setting type
+**Period authenticity:** fashion descriptions, cultural references, and prices match temporal context; no anachronisms
 **Completeness:** prose must include one chapter per outline scene; missing chapters trigger a retry.
 Long outlines are generated in scene batches to ensure all chapters are produced within token limits.
-**Current build:** LLM-generated prose from outline + cast (implemented).
+**Current build:** LLM-generated prose with full artifact context integration (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
 
 ### 9) Game pack generation (optional)
@@ -131,6 +190,8 @@ Long outlines are generated in scene batches to ensure all chapters are produced
 - Diff checker: detect unintended changes outside requested sections
 - Novelty audit: compare generated CML to selected seeds (configurable similarity threshold) and force regeneration with stronger divergence constraints if too similar to any single seed. Set `NOVELTY_HARD_FAIL=true` to make similarity failures block the pipeline; otherwise failures continue as warnings.
 - Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
+- Story validation now includes `NarrativeContinuityValidator`, `CaseTransitionValidator`, `DiscriminatingTestValidator`, and `SuspectClosureValidator`.
+- Release gate enforcement now blocks run completion when continuity-critical issues remain, mojibake remains, discriminating-test scenes are missing, or suspect closure is incomplete.
 
 ## Safety & compliance
 - Avoid copyrighted text replication

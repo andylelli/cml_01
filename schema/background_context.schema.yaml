@@ -1,0 +1,46 @@
+# Background Context Artifact Schema
+# Canonical backdrop context (separate from hard-logic mechanism ideation)
+
+status:
+  type: string
+  required: true
+  allowed:
+    - ok
+
+backdropSummary:
+  type: string
+  required: true
+
+era:
+  type: object
+  required: true
+  fields:
+    decade:
+      type: string
+      required: true
+    socialStructure:
+      type: string
+      required: false
+
+setting:
+  type: object
+  required: true
+  fields:
+    location:
+      type: string
+      required: true
+    institution:
+      type: string
+      required: true
+    weather:
+      type: string
+      required: false
+
+castAnchors:
+  type: array
+  required: true
+  items: string
+
+theme:
+  type: string
+  required: false

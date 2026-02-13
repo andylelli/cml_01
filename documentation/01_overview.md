@@ -42,13 +42,20 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 
 ### Generate action
 - System combines user selections, accepted suggestions, and structural patterns learned from seed CMLs.
+- System generates a dedicated hard-logic ideation artifact (`hard_logic_devices`) to propose novel mechanism concepts before CML generation.
 - Generates a completely new CML (full logical structure, no prose, no copied plot).
 - Creating a project auto-starts the pipeline to generate initial artifacts.
 
 ### Output stage
 - Default UI shows friendly projections derived from CML.
+- Review now includes a dedicated Background view that surfaces generated hard-logic devices (`hard_logic_devices`) used to ground mechanism design.
 - CML exists internally and is visible only in Advanced/Expert modes.
 - Prose and character profiles are LLM-generated from CML + outline + cast (implemented).
+- Story length is user-selectable (`short`, `medium`, `long`) and can be changed between runs.
+- Prose versions generated at different lengths are retained for PDF export.
+- Clue generation now enforces deterministic fair-play guardrails (essential clues before discriminating test and no detective-only clue phrasing), with critical failures blocking completion.
+- Prose output is now sanitized before persistence/export (mojibake cleanup, system-residue stripping, Unicode normalization).
+- Story validation now includes continuity/transition/discriminating-test/suspect-closure validators and blocks release-gate failures.
 - Game pack generation is planned and currently unavailable without LLM support.
 - Play mode allows chapter-based clue reveal in the UI.
 - Community templates are listed from examples/ for structural inspiration.
@@ -68,6 +75,8 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 ### Setting
 - Decade, region flavor, weather/season, social structure, institutional backdrop.
  - Optional theme prompt to steer the mystery.
+ - Theme text can include hard-logic directives (e.g., locked-room, mathematics, botanical, train/seaside) plus escalation phrases (`increase difficulty`, `make it brutal`).
+- Hard-logic directives are now only a starting hint; the pipeline must first generate novel hard-logic device concepts via LLM and then ground CML generation in those device outputs.
 
 ### Cast
 - Cast size, role palette, relationship graph, secret intensity, motive distribution.

@@ -28,13 +28,17 @@ describe("App shell (phase 1)", () => {
     expect(wrapper.text()).toContain("CML Viewer");
   });
 
-  it("shows export panel", () => {
+  it("shows export panel in export tab", async () => {
     const wrapper = mount(App, {
       global: {
         plugins: [createPinia()],
         stubs: { "font-awesome-icon": true },
       },
     });
+
+    await wrapper.findAll("button").find((btn) => btn.text().trim() === "Export")?.trigger("click");
+    await nextTick();
+
     expect(wrapper.text()).toContain("Export selected");
   });
 

@@ -10,7 +10,7 @@
 import { join } from "path";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
-import { validateCaseData } from "@cml/cml";
+import { validateCaseData, validateArtifact } from "@cml/cml";
 import {
   refineSetting,
   designCast,
@@ -19,10 +19,15 @@ import {
   auditFairPlay,
   formatNarrative,
   generateCharacterProfiles,
+  generateLocationProfiles,
+  generateTemporalContext,
+  generateHardLogicDevices,
   generateProse,
   auditNovelty,
   loadSeedCMLFiles,
 } from "@cml/prompts-llm";
+import { StoryValidationPipeline } from "@cml/story-validation";
+import type { ValidationReport } from "@cml/story-validation";
 import type {
   SettingRefinementResult,
   CastDesignResult,
@@ -31,6 +36,10 @@ import type {
   FairPlayAuditResult,
   NarrativeOutline,
   CharacterProfilesResult,
+  LocationProfilesResult,
+  TemporalContextResult,
+  HardLogicDeviceResult,
+  HardLogicDeviceIdea,
   ProseGenerationResult,
   NoveltyAuditResult,
 } from "@cml/prompts-llm";
@@ -60,6 +69,369 @@ export interface MysteryGenerationInputs {
   runId?: string;
   projectId?: string;
 }
+
+type DifficultyMode = "standard" | "increase" | "extreme";
+
+type HardLogicDirectives = {
+  mechanismFamilies: string[];
+  complexityLevel: "simple" | "moderate" | "complex";
+  hardLogicModes: string[];
+  difficultyMode: DifficultyMode;
+};
+
+type CmlPrimaryAxis = "temporal" | "spatial" | "identity" | "behavioral" | "authority";
+
+type BackgroundContextResult = {
+  status: "ok";
+  backdropSummary: string;
+  era: {
+    decade: string;
+    socialStructure?: string;
+  };
+  setting: {
+    location: string;
+    institution: string;
+    weather?: string;
+  };
+  castAnchors: string[];
+  theme?: string;
+};
+
+const normalizePrimaryAxis = (
+  axis: MysteryGenerationInputs["primaryAxis"] | undefined,
+): CmlPrimaryAxis => {
+  switch (axis) {
+    case "temporal":
+    case "spatial":
+      return axis;
+    case "social":
+      return "authority";
+    case "psychological":
+      return "behavioral";
+    case "mechanical":
+      return "identity";
+    default:
+      return "temporal";
+  }
+};
+
+const mergeHardLogicDirectives = (
+  base: HardLogicDirectives,
+  hardLogicDevices: HardLogicDeviceIdea[],
+): HardLogicDirectives => {
+  const mechanismFamilies = new Set(base.mechanismFamilies);
+  const hardLogicModes = new Set(base.hardLogicModes);
+
+  for (const device of hardLogicDevices) {
+    for (const family of device.mechanismFamilyHints ?? []) {
+      if (family.trim().length > 0) {
+        mechanismFamilies.add(family.trim());
+      }
+    }
+
+    for (const mode of device.modeTags ?? []) {
+      if (mode.trim().length > 0) {
+        hardLogicModes.add(mode.trim());
+      }
+    }
+
+    switch (device.principleType) {
+      case "mathematical_principle":
+        mechanismFamilies.add("quantitative contradiction");
+        break;
+      case "cognitive_bias":
+        mechanismFamilies.add("cognitive-bias exploitation");
+        break;
+      case "social_logic":
+        mechanismFamilies.add("authority-channel manipulation");
+        break;
+      default:
+        mechanismFamilies.add("physical-constraint proof");
+        break;
+    }
+  }
+
+  return {
+    mechanismFamilies: Array.from(mechanismFamilies),
+    hardLogicModes: Array.from(hardLogicModes),
+    complexityLevel: base.complexityLevel,
+    difficultyMode: base.difficultyMode,
+  };
+};
+
+const deriveHardLogicDirectives = (
+  theme: string | undefined,
+  primaryAxis: MysteryGenerationInputs["primaryAxis"] | undefined,
+  locationPreset: string | undefined,
+): HardLogicDirectives => {
+  const text = `${theme ?? ""} ${locationPreset ?? ""}`.toLowerCase();
+  const familySet = new Set<string>();
+  const modeSet = new Set<string>();
+
+  const addFamily = (value: string) => familySet.add(value);
+  const addMode = (value: string) => modeSet.add(value);
+
+  switch (primaryAxis) {
+    case "temporal":
+      addFamily("schedule contradiction");
+      addFamily("timing window trap");
+      break;
+    case "spatial":
+      addFamily("access path illusion");
+      addFamily("geometry-based movement");
+      break;
+    case "social":
+      addFamily("authority-channel manipulation");
+      addFamily("status-based witness distortion");
+      break;
+    case "psychological":
+      addFamily("cognitive bias exploitation");
+      addFamily("memory anchoring misdirection");
+      break;
+    case "mechanical":
+      addFamily("mechanical sequence trigger");
+      addFamily("acoustic or pressure misread");
+      break;
+    default:
+      break;
+  }
+
+  if (/(locked[-\s]?room|impossible crime)/.test(text)) {
+    addMode("locked-room");
+    addFamily("sealed-space constraint proof");
+  }
+  if (/train|rail|liner|ship|seaside|hotel/.test(text)) {
+    addMode("transit or seaside topology");
+    addFamily("timetable dependency");
+  }
+  if (/inheritance|will|estate/.test(text)) {
+    addMode("inheritance pressure logic");
+    addFamily("document-chain contradiction");
+  }
+  if (/(math|mathematics|geometry|probability|pure mathematics)/.test(text)) {
+    addMode("mathematical principle");
+    addFamily("probability misdirection");
+    addFamily("geometric visibility constraint");
+  }
+  if (/(botanical|medical|toxin|toxicology|botany)/.test(text)) {
+    addMode("botanical or medical mechanism");
+    addFamily("dose-timing asymmetry");
+  }
+  if (/acoustic|sound|echo/.test(text)) {
+    addMode("acoustics");
+    addFamily("acoustic mislocalization");
+  }
+  if (/(multi-layer|double-bluff|double bluff|nested)/.test(text)) {
+    addMode("multi-layer deception");
+    addFamily("stacked false assumptions");
+  }
+
+  let difficultyMode: DifficultyMode = "standard";
+  if (/make it brutal|extreme mode/.test(text)) {
+    difficultyMode = "extreme";
+    addMode("near-impossible construction");
+    addFamily("precision timing geometry");
+  } else if (/increase difficulty|escalation mode/.test(text)) {
+    difficultyMode = "increase";
+    addMode("multi-step reasoning");
+    addFamily("dual-principle contradiction");
+  }
+
+  const complexityLevel: "simple" | "moderate" | "complex" =
+    difficultyMode === "standard" ? "moderate" : "complex";
+
+  if (familySet.size === 0) {
+    addFamily("constraint contradiction");
+    addFamily("inference-path trap");
+  }
+
+  return {
+    mechanismFamilies: Array.from(familySet).slice(0, 6),
+    complexityLevel,
+    hardLogicModes: Array.from(modeSet).slice(0, 6),
+    difficultyMode,
+  };
+};
+
+type ClueGuardrailIssue = {
+  severity: "critical" | "warning";
+  message: string;
+};
+
+const getCaseQualityControls = (cml: CaseData) => {
+  const legacy = cml as any;
+  const cmlCase = (legacy?.CASE ?? {}) as any;
+  return cmlCase.quality_controls?.clue_visibility_requirements ?? {};
+};
+
+const normalizeClueTimeline = (clues: ClueDistributionResult) => {
+  clues.clueTimeline = {
+    early: clues.clues.filter((c) => c.placement === "early").map((c) => c.id),
+    mid: clues.clues.filter((c) => c.placement === "mid").map((c) => c.id),
+    late: clues.clues.filter((c) => c.placement === "late").map((c) => c.id),
+  };
+};
+
+const applyClueGuardrails = (cml: CaseData, clues: ClueDistributionResult) => {
+  const requirements = getCaseQualityControls(cml);
+  const issues: ClueGuardrailIssue[] = [];
+  const fixes: string[] = [];
+
+  const essential = clues.clues.filter((c) => c.criticality === "essential");
+  const essentialMin = Number(requirements?.essential_clues_min ?? 3);
+
+  if (essential.length < essentialMin) {
+    issues.push({
+      severity: "critical",
+      message: `Essential clue count ${essential.length} is below required minimum ${essentialMin}`,
+    });
+  }
+
+  const essentialLate = essential.filter((c) => c.placement === "late");
+  if (essentialLate.length > 0) {
+    essentialLate.forEach((clue, index) => {
+      clue.placement = index % 2 === 0 ? "mid" : "early";
+    });
+    fixes.push(`Repositioned ${essentialLate.length} essential clue(s) from late to early/mid placement`);
+  }
+
+  const earlyMin = Number(requirements?.early_clues_min ?? 1);
+  const midMin = Number(requirements?.mid_clues_min ?? 1);
+  const lateMin = Number(requirements?.late_clues_min ?? 1);
+
+  const counts = {
+    early: clues.clues.filter((c) => c.placement === "early").length,
+    mid: clues.clues.filter((c) => c.placement === "mid").length,
+    late: clues.clues.filter((c) => c.placement === "late").length,
+  };
+
+  if (counts.early < earlyMin) {
+    issues.push({
+      severity: "critical",
+      message: `Early clue count ${counts.early} is below required minimum ${earlyMin}`,
+    });
+  }
+  if (counts.mid < midMin) {
+    issues.push({
+      severity: "critical",
+      message: `Mid clue count ${counts.mid} is below required minimum ${midMin}`,
+    });
+  }
+  if (counts.late < lateMin) {
+    issues.push({
+      severity: "warning",
+      message: `Late clue count ${counts.late} is below preferred minimum ${lateMin}`,
+    });
+  }
+
+  const detectiveOnlyPattern = /(detective[-\s]?only|only\s+the\s+detective|private\s+insight|withheld\s+from\s+reader)/i;
+  const detectiveOnlyClues = clues.clues.filter(
+    (c) => detectiveOnlyPattern.test(c.description) || detectiveOnlyPattern.test(c.pointsTo),
+  );
+
+  if (detectiveOnlyClues.length > 0) {
+    issues.push({
+      severity: "critical",
+      message: `Detected ${detectiveOnlyClues.length} clue(s) implying detective-only/private information`,
+    });
+  }
+
+  const duplicateIds = new Set<string>();
+  const seenIds = new Set<string>();
+  for (const clue of clues.clues) {
+    if (seenIds.has(clue.id)) {
+      duplicateIds.add(clue.id);
+    }
+    seenIds.add(clue.id);
+  }
+  if (duplicateIds.size > 0) {
+    issues.push({
+      severity: "critical",
+      message: `Duplicate clue IDs detected: ${Array.from(duplicateIds).join(", ")}`,
+    });
+  }
+
+  normalizeClueTimeline(clues);
+
+  return {
+    issues,
+    fixes,
+    hasCriticalIssues: issues.some((i) => i.severity === "critical"),
+  };
+};
+
+const proseMojibakeReplacements: Array<[RegExp, string]> = [
+  [/â€™/g, "'"],
+  [/â€˜/g, "'"],
+  [/â€œ|â€\x9d/g, '"'],
+  [/â€"|â€”/g, "—"],
+  [/â€“/g, "–"],
+  [/â€¦/g, "…"],
+  [/faˆ§ade/g, "façade"],
+  [/Â/g, ""],
+  [/\uFFFD/g, ""],
+];
+
+const sanitizeProseText = (value: unknown) => {
+  let text = typeof value === "string" ? value : value == null ? "" : String(value);
+  text = text.normalize("NFC");
+  for (const [pattern, replacement] of proseMojibakeReplacements) {
+    text = text.replace(pattern, replacement);
+  }
+  return text
+    .replace(/^Generated in scene batches\.?$/gim, "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+$/gm, "")
+    .trim();
+};
+
+const sanitizeProseResult = (prose: ProseGenerationResult): ProseGenerationResult => ({
+  ...prose,
+  note: prose.note ? sanitizeProseText(prose.note) || undefined : prose.note,
+  chapters: prose.chapters.map((chapter) => ({
+    ...chapter,
+    title: sanitizeProseText(chapter.title),
+    summary: chapter.summary ? sanitizeProseText(chapter.summary) || undefined : chapter.summary,
+    paragraphs: chapter.paragraphs.map((paragraph) => sanitizeProseText(paragraph)).filter((p) => p.length > 0),
+  })),
+});
+
+const detectIdentityAliasBreaks = (prose: ProseGenerationResult, cml: CaseData) => {
+  const cmlCase = (cml as any)?.CASE ?? {};
+  const culprits = Array.isArray(cmlCase?.culpability?.culprits)
+    ? (cmlCase.culpability.culprits as string[])
+    : [];
+
+  if (culprits.length === 0) {
+    return [] as string[];
+  }
+
+  const confessionOrArrest = /\b(confess(?:ed|ion)|admitted\s+it|under\s+arrest|arrested|revealed\s+the\s+culprit)\b/i;
+  const roleOnlyAlias = /\b(the\s+(killer|murderer|culprit|criminal))\b/i;
+
+  const issues: string[] = [];
+  let revealChapter = -1;
+
+  for (let index = 0; index < prose.chapters.length; index += 1) {
+    const chapter = prose.chapters[index];
+    const chapterText = chapter.paragraphs.join("\n");
+
+    if (revealChapter < 0 && confessionOrArrest.test(chapterText)) {
+      revealChapter = index;
+      continue;
+    }
+
+    if (revealChapter >= 0 && index > revealChapter) {
+      const mentionsCulpritByName = culprits.some((name) => chapterText.includes(name));
+      if (roleOnlyAlias.test(chapterText) && !mentionsCulpritByName) {
+        issues.push(`Chapter ${index + 1} uses role-only culprit aliases without stable culprit name references`);
+      }
+    }
+  }
+
+  return issues;
+};
 
 const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: CaseData }>) => {
   const titles = seedEntries
@@ -107,7 +479,7 @@ const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: Cas
 };
 
 export interface MysteryGenerationProgress {
-  stage: "setting" | "cast" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "prose" | "novelty" | "novelty_math" | "complete";
+  stage: "setting" | "cast" | "hard_logic_devices" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "location-profiles" | "temporal-context" | "prose" | "validation" | "novelty" | "novelty_math" | "complete";
   message: string;
   percentage: number; // 0-100
   timestamp: Date;
@@ -120,8 +492,13 @@ export interface MysteryGenerationResult {
   fairPlayAudit: FairPlayAuditResult;
   narrative: NarrativeOutline;
   characterProfiles: CharacterProfilesResult;
+  locationProfiles: LocationProfilesResult;
+  temporalContext: TemporalContextResult;
+  backgroundContext: BackgroundContextResult;
+  hardLogicDevices: HardLogicDeviceResult;
   prose: ProseGenerationResult;
   noveltyAudit?: NoveltyAuditResult;
+  validationReport: ValidationReport;
   
   // Intermediate results (for debugging/review)
   setting: SettingRefinementResult;
@@ -194,6 +571,41 @@ export async function generateMystery(
     }
   };
 
+  const buildBackgroundContext = (
+    settingRefinement: SettingRefinementResult,
+    castDesign: CastDesignResult,
+    specInputs: MysteryGenerationInputs,
+  ): BackgroundContextResult => {
+    const settingData = settingRefinement.setting;
+    const castAnchors = castDesign.cast.characters
+      .map((character) => character?.name)
+      .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
+      .slice(0, 6);
+
+    return {
+      status: "ok",
+      backdropSummary: [
+        `${settingData.era.decade}`,
+        settingData.location.description,
+        settingData.location.type,
+        settingData.atmosphere.mood,
+      ]
+        .filter(Boolean)
+        .join(" • "),
+      era: {
+        decade: settingData.era.decade,
+        socialStructure: settingData.era.socialNorms.join(", "),
+      },
+      setting: {
+        location: settingData.location.description,
+        institution: settingData.location.type,
+        weather: settingData.atmosphere.weather,
+      },
+      castAnchors,
+      theme: specInputs.theme,
+    };
+  };
+
   try {
     const resolveLocationPreset = (preset?: string) => {
       switch ((preset || "").toLowerCase()) {
@@ -213,6 +625,16 @@ export async function generateMystery(
     };
 
     const locationSpec = resolveLocationPreset(inputs.locationPreset);
+    const initialHardLogicDirectives = deriveHardLogicDirectives(
+      inputs.theme,
+      inputs.primaryAxis,
+      inputs.locationPreset,
+    );
+    const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis);
+
+    const examplesDir = join(process.cwd(), "examples");
+    const seedEntries = await loadSeedCMLFiles(examplesDir);
+    const noveltyConstraints = buildNoveltyConstraints(seedEntries as Array<{ filename: string; cml: CaseData }>);
 
     // ========================================================================
     // Agent 1: Era & Setting Refiner
@@ -271,14 +693,56 @@ export async function generateMystery(
     
     reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
 
+    const backgroundContext = buildBackgroundContext(setting, cast, inputs);
+    const backgroundContextValidation = validateArtifact("background_context", backgroundContext);
+    if (!backgroundContextValidation.valid) {
+      backgroundContextValidation.errors.forEach((error) => errors.push(`Background context schema failure: ${error}`));
+      throw new Error("Background context artifact failed schema validation");
+    }
+    backgroundContextValidation.warnings.forEach((warning) => warnings.push(`Background context schema warning: ${warning}`));
+
+    // ========================================================================
+    // Agent 3b: Hard-Logic Device Ideation (novel mechanism concepts)
+    // ========================================================================
+    reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 25);
+
+    const hardLogicStart = Date.now();
+    const hardLogicDevices = await generateHardLogicDevices(client, {
+      runId,
+      projectId: projectId || "",
+      decade: setting.setting.era.decade,
+      location: setting.setting.location.description,
+      institution: setting.setting.location.type,
+      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+      theme: inputs.theme,
+      primaryAxis,
+      mechanismFamilies: initialHardLogicDirectives.mechanismFamilies,
+      hardLogicModes: initialHardLogicDirectives.hardLogicModes,
+      difficultyMode: initialHardLogicDirectives.difficultyMode,
+      noveltyConstraints,
+    });
+
+    agentCosts["agent3b_hard_logic_devices"] = hardLogicDevices.cost;
+    agentDurations["agent3b_hard_logic_devices"] = Date.now() - hardLogicStart;
+
+    const hardLogicValidation = validateArtifact("hard_logic_devices", hardLogicDevices);
+    if (!hardLogicValidation.valid) {
+      hardLogicValidation.errors.forEach((error) => errors.push(`Agent 3b schema failure: ${error}`));
+      throw new Error("Hard-logic device artifact failed schema validation");
+    }
+    hardLogicValidation.warnings.forEach((warning) => warnings.push(`Agent 3b schema warning: ${warning}`));
+
+    const hardLogicDirectives = mergeHardLogicDirectives(
+      initialHardLogicDirectives,
+      hardLogicDevices.devices,
+    );
+
+    reportProgress("hard_logic_devices", `Generated ${hardLogicDevices.devices.length} novel hard-logic devices`, 31);
+
     // ========================================================================
     // Agent 3: CML Generator (+ Agent 4 auto-revision)
     // ========================================================================
-    reportProgress("cml", "Generating mystery structure (CML)...", 25);
-
-    const examplesDir = join(process.cwd(), "examples");
-    const seedEntries = await loadSeedCMLFiles(examplesDir);
-    const noveltyConstraints = buildNoveltyConstraints(seedEntries as Array<{ filename: string; cml: CaseData }>);
+    reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
     
     const cmlStart = Date.now();
     let cmlResult = await generateCML(client, {
@@ -288,14 +752,21 @@ export async function generateMystery(
       tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
       weather: setting.setting.atmosphere.weather,
       socialStructure: setting.setting.era.socialNorms.join(", "),
-      theme: inputs.theme,
+      theme:
+        inputs.theme && inputs.theme.trim().length > 0
+          ? `${inputs.theme} | hard-logic modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`
+          : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
       castSize: cast.cast.characters.length,
       castNames: cast.cast.characters.map((c: any) => c.name),
       detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
       victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
-      complexityLevel: "moderate",
-      mechanismFamilies: [],
-      primaryAxis: (inputs.primaryAxis || "temporal") as "temporal" | "spatial" | "identity" | "behavioral" | "authority",
+      complexityLevel: hardLogicDirectives.complexityLevel,
+      mechanismFamilies: hardLogicDirectives.mechanismFamilies,
+      primaryAxis,
+      hardLogicModes: hardLogicDirectives.hardLogicModes,
+      difficultyMode: hardLogicDirectives.difficultyMode,
+      hardLogicDevices: hardLogicDevices.devices,
+      backgroundContext,
       noveltyConstraints,
       runId,
       projectId: projectId || "",
@@ -384,13 +855,21 @@ export async function generateMystery(
           tone: inputs.narrativeStyle || "Golden Age Mystery",
           weather: setting.setting.atmosphere.weather,
           socialStructure: setting.setting.era.socialNorms.join(", "),
+          theme:
+            inputs.theme && inputs.theme.trim().length > 0
+              ? `${inputs.theme} | hard-logic modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`
+              : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
           castSize: cast.cast.characters.length,
           castNames: cast.cast.characters.map((c: any) => c.name),
           detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
           victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
-          complexityLevel: "moderate",
-          mechanismFamilies: [],
-          primaryAxis: (inputs.primaryAxis || "temporal") as "temporal" | "spatial" | "identity" | "behavioral" | "authority",
+          complexityLevel: hardLogicDirectives.complexityLevel,
+          mechanismFamilies: hardLogicDirectives.mechanismFamilies,
+          primaryAxis,
+          hardLogicModes: hardLogicDirectives.hardLogicModes,
+          difficultyMode: hardLogicDirectives.difficultyMode,
+          hardLogicDevices: hardLogicDevices.devices,
+          backgroundContext,
           noveltyConstraints: strongerConstraints,
           runId,
           projectId: projectId || "",
@@ -457,6 +936,56 @@ export async function generateMystery(
     
     reportProgress("clues", `${clues.clues.length} clues distributed`, 62);
 
+    const clueGuardrails = applyClueGuardrails(cml, clues);
+    if (clueGuardrails.fixes.length > 0) {
+      clueGuardrails.fixes.forEach((fix) => warnings.push(`Agent 5: Guardrail auto-fix - ${fix}`));
+    }
+
+    if (clueGuardrails.hasCriticalIssues) {
+      warnings.push("Agent 5: Deterministic clue guardrails found critical issues; regenerating clues");
+      clueGuardrails.issues.forEach((issue) => warnings.push(`  - [${issue.severity}] ${issue.message}`));
+
+      const retryCluesStart = Date.now();
+      clues = await extractClues(client, {
+        cml,
+        clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+        redHerringBudget: 2,
+        fairPlayFeedback: {
+          overallStatus: "fail",
+          violations: clueGuardrails.issues
+            .filter((issue) => issue.severity === "critical")
+            .map((issue) => ({
+              severity: "critical" as const,
+              rule: "Deterministic Guardrail",
+              description: issue.message,
+              suggestion: "Regenerate clues so all essential clues are visible before the discriminating test and avoid detective-only information",
+            })),
+          warnings: clueGuardrails.issues
+            .filter((issue) => issue.severity !== "critical")
+            .map((issue) => issue.message),
+          recommendations: [
+            "Move essential clues to early/mid placement",
+            "Avoid private/detective-only clue phrasing",
+            "Ensure clue IDs are unique and timeline is balanced",
+          ],
+        },
+        runId,
+        projectId: projectId || "",
+      });
+
+      agentCosts["agent5_clues"] = clues.cost;
+      agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
+
+      const secondGuardrailPass = applyClueGuardrails(cml, clues);
+      if (secondGuardrailPass.fixes.length > 0) {
+        secondGuardrailPass.fixes.forEach((fix) => warnings.push(`Agent 5: Guardrail auto-fix - ${fix}`));
+      }
+      if (secondGuardrailPass.hasCriticalIssues) {
+        secondGuardrailPass.issues.forEach((issue) => errors.push(`Agent 5 guardrail failure: ${issue.message}`));
+        throw new Error("Clue generation failed deterministic fair-play guardrails");
+      }
+    }
+
     // ========================================================================
     // Agent 6: Fair Play Auditor
     // ========================================================================
@@ -514,12 +1043,29 @@ export async function generateMystery(
     agentCosts["agent6_fairplay"] = fairPlayAudit.cost;
     agentDurations["agent6_fairplay"] = Date.now() - fairPlayStart;
 
+    const criticalFairPlayRules = new Set(["Clue Visibility", "Information Parity", "No Withholding", "Logical Deducibility"]);
+    const hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
+      (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
+    );
+
     if (fairPlayAudit.overallStatus === "fail") {
+      if (hasCriticalFairPlayFailure) {
+        errors.push("Agent 6: Fair play audit failed on critical rules after clue regeneration");
+        fairPlayAudit.violations.forEach((v) => errors.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
+        throw new Error("Critical fair-play violations remain after clue regeneration");
+      }
+
       warnings.push("Agent 6: Fair play audit FAILED after clue regeneration");
       fairPlayAudit.violations.forEach((v) => {
         warnings.push(`  - [${v.severity}] ${v.description}`);
       });
     } else if (fairPlayAudit.overallStatus === "needs-revision") {
+      if (hasCriticalFairPlayFailure) {
+        errors.push("Agent 6: Fair play needs revision due to critical clue visibility/information parity issues");
+        fairPlayAudit.violations.forEach((v) => errors.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
+        throw new Error("Critical fair-play rules not satisfied");
+      }
+
       warnings.push("Agent 6: Fair play needs minor revisions after clue regeneration");
       fairPlayAudit.warnings.forEach((w) => warnings.push(`  - ${w}`));
     }
@@ -568,7 +1114,76 @@ export async function generateMystery(
     agentCosts["agent2b_profiles"] = characterProfiles.cost;
     agentDurations["agent2b_profiles"] = Date.now() - profilesStart;
 
-    reportProgress("profiles", `Character profiles generated (${characterProfiles.profiles.length})`, 91);
+    // Validate character profiles against schema
+    const characterProfilesValidation = validateArtifact("character_profiles", characterProfiles);
+    if (!characterProfilesValidation.valid) {
+      warnings.push("Agent 2b: Character profiles validation warnings:");
+      characterProfilesValidation.errors.forEach(e => warnings.push(`  - ${e}`));
+    }
+    if (characterProfilesValidation.warnings.length > 0) {
+      characterProfilesValidation.warnings.forEach(w => warnings.push(`  - Schema warning: ${w}`));
+    }
+
+    reportProgress("profiles", `Character profiles generated (${characterProfiles.profiles.length})`, 89);
+
+    // ========================================================================
+    // Agent 2c: Location Profiles
+    // ========================================================================
+    reportProgress("location-profiles", "Generating location profiles...", 89);
+
+    const locationProfilesStart = Date.now();
+    const locationProfiles = await generateLocationProfiles(client, {
+      settingRefinement: setting.setting,
+      caseData: cml,
+      narrative: narrative,
+      tone: inputs.tone || "Classic",
+      targetWordCount: 1000,
+      runId,
+      projectId: projectId || "",
+    });
+
+    agentCosts["agent2c_location_profiles"] = locationProfiles.cost;
+    agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
+
+    // Validate location profiles against schema
+    const locationProfilesValidation = validateArtifact("location_profiles", locationProfiles);
+    if (!locationProfilesValidation.valid) {
+      warnings.push("Agent 2c: Location profiles validation warnings:");
+      locationProfilesValidation.errors.forEach(e => warnings.push(`  - ${e}`));
+    }
+    if (locationProfilesValidation.warnings.length > 0) {
+      locationProfilesValidation.warnings.forEach(w => warnings.push(`  - Schema warning: ${w}`));
+    }
+
+    reportProgress("location-profiles", `Location profiles generated (${locationProfiles.keyLocations.length} locations)`, 89);
+
+    // ========================================================================
+    // Agent 2d: Temporal Context
+    // ========================================================================
+    reportProgress("temporal-context", "Generating temporal context...", 89);
+
+    const temporalContextStart = Date.now();
+    const temporalContext = await generateTemporalContext(client, {
+      settingRefinement: setting.setting,
+      caseData: cml,
+      runId,
+      projectId: projectId || "",
+    });
+
+    agentCosts["agent2d_temporal_context"] = temporalContext.cost;
+    agentDurations["agent2d_temporal_context"] = Date.now() - temporalContextStart;
+
+    // Validate temporal context against schema
+    const temporalContextValidation = validateArtifact("temporal_context", temporalContext);
+    if (!temporalContextValidation.valid) {
+      warnings.push("Agent 2d: Temporal context validation warnings:");
+      temporalContextValidation.errors.forEach(e => warnings.push(`  - ${e}`));
+    }
+    if (temporalContextValidation.warnings.length > 0) {
+      temporalContextValidation.warnings.forEach(w => warnings.push(`  - Schema warning: ${w}`));
+    }
+
+    reportProgress("temporal-context", `Temporal context generated (${temporalContext.specificDate.month} ${temporalContext.specificDate.year})`, 91);
 
     // ========================================================================
     // Agent 9: Prose Generator
@@ -576,20 +1191,137 @@ export async function generateMystery(
     reportProgress("prose", "Generating full prose...", 91);
 
     const proseStart = Date.now();
-    const prose = await generateProse(client, {
+    let prose = await generateProse(client, {
       caseData: cml,
       outline: narrative,
       cast: cast.cast,
+      characterProfiles: characterProfiles,
+      locationProfiles: locationProfiles,
+      temporalContext: temporalContext,
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
       runId,
       projectId: projectId || "",
     });
 
+    prose = sanitizeProseResult(prose);
+
+    const identityAliasIssues = detectIdentityAliasBreaks(prose, cml);
+    if (identityAliasIssues.length > 0) {
+      warnings.push("Agent 9: Identity continuity guardrail detected role-alias drift; regenerating prose once");
+      identityAliasIssues.forEach((issue) => warnings.push(`  - ${issue}`));
+
+      const proseRetryStart = Date.now();
+      const retriedProse = await generateProse(client, {
+        caseData: cml,
+        outline: narrative,
+        cast: cast.cast,
+        characterProfiles: characterProfiles,
+        locationProfiles: locationProfiles,
+        temporalContext: temporalContext,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        runId,
+        projectId: projectId || "",
+      });
+      prose = sanitizeProseResult(retriedProse);
+      agentCosts["agent9_prose"] = retriedProse.cost;
+      agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
+
+      const retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
+      if (retryIdentityIssues.length > 0) {
+        retryIdentityIssues.forEach((issue) => errors.push(`Identity continuity failure: ${issue}`));
+        throw new Error("Prose identity continuity guardrail failed after retry");
+      }
+    }
+
     agentCosts["agent9_prose"] = prose.cost;
     agentDurations["agent9_prose"] = Date.now() - proseStart;
 
     reportProgress("prose", `Prose generated (${prose.chapters.length} chapters)`, 94);
+
+    // ========================================================================
+    // Story Validation
+    // ========================================================================
+    reportProgress("validation", "Validating story quality...", 96);
+
+    const validationStart = Date.now();
+    const validationPipeline = new StoryValidationPipeline();
+    
+    // Build story object from prose for validation
+    // Convert prose chapters (paragraphs) to scenes (text blocks)
+    const storyForValidation = {
+      id: runId,
+      projectId: projectId || runId,
+
+      scenes: prose.chapters.map((ch: any, idx: number) => ({
+        number: idx + 1,
+        title: ch.title,
+        text: ch.paragraphs.join('\n\n'),
+      })),
+    };
+    
+    const validationReport = await validationPipeline.validate(storyForValidation, cml);
+    agentDurations["validation"] = Date.now() - validationStart;
+
+    // Log validation results
+    if (validationReport.status === "passed") {
+      reportProgress("validation", "Story validation passed!", 98);
+    } else if (validationReport.status === "needs_review") {
+      warnings.push(`Story validation: ${validationReport.status} - ${validationReport.summary.major} major issues`);
+      reportProgress("validation", `Story needs review (${validationReport.summary.major} major issues)`, 98);
+    } else if (validationReport.status === "needs_revision") {
+      warnings.push(`Story validation: ${validationReport.status} - ${validationReport.summary.major} major, ${validationReport.summary.critical} critical issues`);
+      reportProgress("validation", `Story needs revision`, 98);
+    } else {
+      errors.push(`Story validation failed: ${validationReport.summary.critical} critical errors`);
+      reportProgress("validation", "Story validation failed", 98);
+    }
+
+    // Auto-fix encoding issues
+    const fixedStory = validationPipeline.autoFix(storyForValidation);
+    let encodingFixesApplied = false;
+    
+    // Check if any scene text was changed
+    for (let i = 0; i < fixedStory.scenes.length; i++) {
+      if (fixedStory.scenes[i].text !== storyForValidation.scenes[i].text) {
+        encodingFixesApplied = true;
+        // Update prose chapters with fixed text
+        const fixedParagraphs = fixedStory.scenes[i].text.split('\n\n');
+        prose.chapters[i] = {
+          ...prose.chapters[i],
+          paragraphs: fixedParagraphs,
+        };
+      }
+    }
+    
+    if (encodingFixesApplied) {
+      reportProgress("validation", "Applied auto-fixes for encoding issues", 99);
+    }
+
+    const releaseGateReasons: string[] = [];
+    const validationErrorTypes = new Set(validationReport.errors.map((error) => error.type));
+    const proseContainsMojibake = prose.chapters.some((chapter) =>
+      chapter.paragraphs.some((paragraph) => /(?:â€™|â€˜|â€œ|â€\x9d|â€"|â€”|â€“|â€¦|Â|ˆ§|\uFFFD)/.test(paragraph)),
+    );
+
+    if (validationErrorTypes.has("identity_role_alias_break") || validationErrorTypes.has("missing_case_transition_bridge") || validationErrorTypes.has("case_transition_missing")) {
+      releaseGateReasons.push("critical continuity issue detected");
+    }
+    if (proseContainsMojibake) {
+      releaseGateReasons.push("mojibake/encoding artifact remains");
+    }
+    if (validationErrorTypes.has("missing_discriminating_test") || validationErrorTypes.has("cml_test_not_realized")) {
+      releaseGateReasons.push("no valid discriminating test scene");
+    }
+    if (validationErrorTypes.has("suspect_closure_missing") || validationErrorTypes.has("culprit_evidence_chain_missing")) {
+      releaseGateReasons.push("suspect elimination coverage incomplete");
+    }
+
+    if (releaseGateReasons.length > 0) {
+      releaseGateReasons.forEach((reason) => errors.push(`Release gate failed: ${reason}`));
+      throw new Error(`Release gate failure: ${releaseGateReasons.join('; ')}`);
+    }
 
     // ========================================================================
     // Complete
@@ -613,8 +1345,13 @@ export async function generateMystery(
       fairPlayAudit,
       narrative,
       characterProfiles,
+      locationProfiles,
+      temporalContext,
+      backgroundContext,
+      hardLogicDevices,
       prose,
       noveltyAudit,
+      validationReport,
       setting,
       cast,
       metadata: {

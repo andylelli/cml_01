@@ -216,7 +216,7 @@ describe("ValidationPanel.vue", () => {
     expect(wrapper.text()).toContain("setting");
   });
 
-  it("does not expand when valid and no warnings", async () => {
+  it("shows no-issues message when valid section is expanded", async () => {
     const validation: AllValidation = {
       setting: { valid: true, errors: [], warnings: [] },
       cast: { valid: true, errors: [], warnings: [] },
@@ -232,8 +232,7 @@ describe("ValidationPanel.vue", () => {
     await settingButton?.trigger("click");
     await nextTick();
 
-    // Component doesn't show expanded content when valid with no warnings
-    expect(wrapper.text()).toContain("setting");
+    expect(wrapper.text()).toContain("No issues found.");
   });
 
   it("can expand multiple sections simultaneously", async () => {

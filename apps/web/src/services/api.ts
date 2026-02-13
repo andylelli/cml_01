@@ -243,6 +243,38 @@ export const fetchCharacterProfiles = async (projectId: string): Promise<Artifac
   return response.json() as Promise<Artifact>;
 };
 
+export const fetchLocationProfiles = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/location-profiles/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch location profiles failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchTemporalContext = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/temporal-context/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch temporal context failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchBackgroundContext = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/background-context/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch background context failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
+export const fetchHardLogicDevices = async (projectId: string): Promise<Artifact> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/hard-logic-devices/latest`);
+  if (!response.ok) {
+    throw new Error(`Fetch hard-logic devices failed (${response.status})`);
+  }
+  return response.json() as Promise<Artifact>;
+};
+
 export const fetchFairPlayReport = async (projectId: string): Promise<Artifact> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/fair-play/latest`);
   if (!response.ok) {
@@ -283,8 +315,11 @@ export const downloadGamePackPdf = async (projectId: string): Promise<Blob> => {
   return response.blob();
 };
 
-export const downloadStoryPdf = async (projectId: string): Promise<Blob> => {
-  const response = await fetch(`${apiBase}/api/projects/${projectId}/prose/pdf`);
+export const downloadStoryPdf = async (projectId: string, length?: string): Promise<Blob> => {
+  const url = length 
+    ? `${apiBase}/api/projects/${projectId}/prose/pdf?length=${length}`
+    : `${apiBase}/api/projects/${projectId}/prose/pdf`;
+  const response = await fetch(url);
   if (!response.ok) {
     const contentType = response.headers.get("content-type") || "";
     let details = "";
@@ -306,6 +341,15 @@ export const downloadStoryPdf = async (projectId: string): Promise<Blob> => {
     throw new Error(`Download story PDF failed (${response.status})${details}`);
   }
   return response.blob();
+};
+
+export const fetchProseVersions = async (projectId: string): Promise<Record<string, Artifact>> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/prose/all`);
+  if (!response.ok) {
+    throw new Error(`Fetch prose versions failed (${response.status})`);
+  }
+  const data = (await response.json()) as { versions: Record<string, Artifact> };
+  return data.versions;
 };
 
 export type SampleSummary = { id: string; name: string; filename: string };

@@ -30,6 +30,8 @@ CASE:
           required: true
           fields:
             location: { type: string, required: true }
+            place: { type: string, required: false }
+            country: { type: string, required: false }
             institution: { type: string, required: true }
         crime_class:
           type: object

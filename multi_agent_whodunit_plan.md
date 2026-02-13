@@ -86,6 +86,20 @@ This is where you outclass generic story generators.
 - Object routing (shared implement; swapped item)
 - Social engineering (who is believed; coerced statement; rumor trap)
 
+**Hard-logic device modes (optional, high novelty):**
+
+- Locked-room reimagined (constraint-proof, not gimmick)
+- Train timetable contradiction (schedule/probability logic)
+- Seaside acoustics/visibility distortion
+- Botanical or medical dose-timing asymmetry (period-accurate)
+- Pure geometry / measurement contradiction
+- Social-logic mechanism (authority chain or testimony bottleneck)
+
+**Escalation directives (optional):**
+
+- `increase difficulty` → multi-step reasoning + one fair cognitive misdirection
+- `make it brutal` → near-impossible appearance with rigorous timing/geometry logic
+
 **Fair-play constraints (highly recommended):**
 
 - “All clues visible” mode
@@ -131,6 +145,8 @@ type MysterySpec = {
   logic: {
     primaryAxis: "temporal"|"spatial"|"identity"|"behavioral"|"authority";
     mechanismFamilies: string[];
+    hardLogicModes?: string[];
+    difficultyMode?: "standard"|"increase"|"extreme";
     fairPlay: { allCluesVisible: boolean; noModernTech: boolean; };
     clueDensity: "sparse"|"medium"|"rich";
     redHerringBudget: number;
@@ -192,6 +208,7 @@ This prevents anachronisms and drives believable constraints.
 - fair_play (all_clues_visible/no_special_knowledge_required/no_late_information/reader_can_solve/explanation)
 
 This agent must produce one primary axis. Seeds may inform abstract structure only (axis, mechanism families, cadence), never specific characters, events, clue wording, reveal logic, or inference paths.
+This agent should optionally parse hard-logic directives from theme/spec and map them to mechanism families. Examples: locked-room, train timetable, geometry, botanical/medical, acoustics, inheritance pressure. Escalation directives (`increase difficulty`, `make it brutal`) should raise complexity while preserving fair-play solvability.
 
 ### Agent 4 — CML Validator Agent (the “referee”)
 **Input:** CML + spec  
@@ -864,6 +881,156 @@ Each agent prompt must:
 
 ### H) State management & flow
 - Create project → open BuilderWizard → save spec → run pipeline
+
+---
+
+## 15) Current implementation snapshot + phased hardening plan
+
+This section consolidates what was just implemented and what is planned next.
+
+### Implemented in current cycle
+
+#### A) Novel hard-logic scenario steering (implemented)
+- Added hard-logic directive parsing in orchestrator from theme/location text.
+- Added mechanism-family derivation for concepts such as:
+  - locked-room constraint proof
+  - timetable/schedule contradiction
+  - geometry/probability contradiction
+  - botanical/medical dose-timing asymmetry
+  - acoustics/social-logic witness distortion
+- Added escalation parsing:
+  - `increase difficulty` → complex multi-step reasoning mode
+  - `make it brutal` → extreme near-impossible construction mode
+- Passed derived controls into Agent 3 CML generation (`mechanismFamilies`, hard-logic tags, difficulty mode).
+- Updated Agent 3 prompt to require contradiction-driven hard-logic mechanisms that remain Golden Age feasible.
+
+#### B) Fair-play reliability hardening (implemented)
+- Deterministic clue guardrails now run before/after fair-play retry:
+  - essential clues before discriminating test
+  - no detective-only/private clue phrasing
+  - duplicate clue ID detection
+- Critical fair-play violations now fail the pipeline after retry instead of shipping warning-only output.
+- Character profile schema aligned with `motiveStrength` field to remove recurring schema warning noise.
+
+---
+
+### Phase 0 — Immediate Hotfix (same day)
+
+#### 0.1 Clean output text before save/export
+Add a final sanitizer step for prose:
+- remove system residue (example: “Generated in scene batches.”)
+- normalize mojibake (`â`, `faˆ§ade`, odd spacing characters)
+- optionally strip `Summary:` scaffolding for final prose mode
+
+Target files:
+- [apps/api/src/server.ts](apps/api/src/server.ts)
+- [apps/worker/src/jobs/mystery-orchestrator.ts](apps/worker/src/jobs/mystery-orchestrator.ts)
+
+#### 0.2 Patch identity continuity bug pattern
+Add post-check for “same entity renamed as role alias after arrest/confession” (example: Clara vs hotel manager).
+If detected, force regeneration of affected chapters.
+
+Target files:
+- [apps/worker/src/jobs/mystery-orchestrator.ts](apps/worker/src/jobs/mystery-orchestrator.ts)
+- [packages/story-validation/src/pipeline.ts](packages/story-validation/src/pipeline.ts)
+
+---
+
+### Phase 1 — Story Logic Reliability (1–2 days)
+
+#### 1.1 Enforce disappearance → murder bridge
+Add required narrative transition: explicit scene/event showing when disappearance becomes confirmed murder.
+Implement as prompt rule + validator.
+
+Target files:
+- [packages/prompts-llm/src/agent9-prose.ts](packages/prompts-llm/src/agent9-prose.ts)
+- [packages/story-validation/src/pipeline.ts](packages/story-validation/src/pipeline.ts)
+
+#### 1.2 Require discriminating test scene content
+Add hard requirement: at least one falsifiable test that excludes all but one suspect.
+Reject prose draft if it only does dramatic confrontation without evidential exclusion.
+
+Target files:
+- [packages/prompts-llm/src/agent9-prose.ts](packages/prompts-llm/src/agent9-prose.ts)
+- [packages/story-validation/src](packages/story-validation/src)
+
+#### 1.3 Require suspect elimination ledger
+Add structured closure checks:
+- each prime suspect cleared with explicit evidence
+- culprit tied with non-ambiguous evidence chain
+
+Target files:
+- [packages/prompts-llm/src/agent9-prose.ts](packages/prompts-llm/src/agent9-prose.ts)
+- [packages/story-validation/src](packages/story-validation/src)
+
+---
+
+### Phase 2 — Validation Expansion (2–3 days)
+
+#### 2.1 Add new validators
+- `NarrativeContinuityValidator` (entity/role identity consistency)
+- `CaseTransitionValidator` (missing → murder bridge)
+- `DiscriminatingTestValidator` (must be logically discriminating)
+- `SuspectClosureValidator` (explicit elimination coverage)
+
+Integrate into `StoryValidationPipeline`.
+
+Target files:
+- [packages/story-validation/src/index.ts](packages/story-validation/src/index.ts)
+- [packages/story-validation/src/pipeline.ts](packages/story-validation/src/pipeline.ts)
+
+#### 2.2 Strengthen encoding validator
+Expand replacement table and add Unicode normalization (NFC).
+
+Target files:
+- [packages/story-validation/src/encoding-validator.ts](packages/story-validation/src/encoding-validator.ts)
+
+---
+
+### Phase 3 — Prompt/Style Quality (1 day)
+
+#### 3.1 Reduce repetitive atmospheric language
+Add anti-repetition constraints:
+- block repeated motif phrases over threshold
+- enforce lexical variety across adjacent chapters
+
+Target files:
+- [packages/prompts-llm/src/agent9-prose.ts](packages/prompts-llm/src/agent9-prose.ts)
+
+#### 3.2 Dialogue punctuation normalization
+Add post-pass to normalize quotes/apostrophes after generation.
+
+Target files:
+- [apps/worker/src/jobs/mystery-orchestrator.ts](apps/worker/src/jobs/mystery-orchestrator.ts)
+
+---
+
+### Phase 4 — QA Gate + Acceptance (1 day)
+
+#### 4.1 Release gate
+Fail publication if any of the following are true:
+- any critical continuity issue
+- any mojibake artifact
+- no valid discriminating test
+- missing suspect elimination coverage
+
+Emit compact report per run.
+
+#### 4.2 Acceptance criteria
+- zero encoding artifacts
+- zero identity/role continuity breaks
+- explicit disappearance → murder bridge present
+- one clear discriminating test scene
+- every major suspect explicitly resolved
+
+#### 4.3 Suggested execution order
+1. Phase 0
+2. Phase 2 (validators)
+3. Phase 1 (prompt logic)
+4. Phase 3 (style)
+5. Phase 4 (gate)
+
+Status: planned (execution-ready).
 - SSE updates runStore and artifactStore
 - Versions shown in ArtifactVersionTimeline
 - ExportPanel allows users to select and download packaged artifacts (setting, cast, cml, clues, outline, prose) via the backend export API endpoint (implemented).

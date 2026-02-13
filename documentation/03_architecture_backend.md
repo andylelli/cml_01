@@ -24,11 +24,14 @@
 - GET /api/projects/:id/outline/latest
 - GET /api/projects/:id/outline/validation/latest
 - GET /api/projects/:id/character-profiles/latest
+- GET /api/projects/:id/background-context/latest
+- GET /api/projects/:id/hard-logic-devices/latest
 - GET /api/projects/:id/prose/latest
+- GET /api/projects/:id/prose/all
 - GET /api/projects/:id/game-pack/latest
 - GET /api/projects/:id/fair-play/latest
 - GET /api/projects/:id/game-pack/pdf
-- GET /api/projects/:id/prose/pdf
+- GET /api/projects/:id/prose/pdf (supports optional `?length=short|medium|long`)
 - GET /api/projects/:id/synopsis/latest
 
 ### Projects
@@ -68,12 +71,18 @@
 
 ## Orchestration pattern
 State machine with retries:
-SPEC_READY → SETTING_DONE → CAST_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
+SPEC_READY → SETTING_DONE → CAST_DONE → HARD_LOGIC_DEVICES_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
 
 Current behavior:
 - Run initiation creates a run record, sets project status to running, and starts the LLM pipeline.
 - Artifacts are written as each LLM step completes; no deterministic stub artifacts are created.
 - Pipeline execution requires Azure OpenAI credentials; no deterministic fallback artifacts are produced.
+- Clue generation now includes a deterministic guardrail pass (essential clue placement, duplicate clue IDs, and detective-only clue phrasing checks) before fair-play auditing.
+- Critical fair-play failures after retry are treated as hard pipeline failures.
+- CML orchestration now runs a dedicated hard-logic ideation agent that generates a `hard_logic_devices` artifact (3–5 novel mechanism concepts), validates it against schema, and then grounds Agent 3 CML generation in those generated devices.
+- Pipeline now also materializes a dedicated `background_context` artifact (era/setting/cast anchors/theme backdrop) so background context is stored separately from hard-logic mechanism ideation and consumed distinctly by Agent 3.
+- Prose is sanitized before persistence/export (Unicode normalization, mojibake cleanup, system residue removal).
+- Release gate now hard-fails runs when continuity-critical issues remain, mojibake remains, no discriminating test is realized, or suspect closure coverage is incomplete.
 
 Phase 5 completion:
 - Prose and character profile artifacts are LLM-generated after outline.
@@ -83,6 +92,7 @@ Phase 5 completion:
 Artifact roles:
 - **Canonical:** CML (always generated and stored).
 - **Derived:** clues, outline, prose, character_profiles, and all friendly projections.
+- **Prose versioning:** prose artifacts are stored by target length (`prose_short`, `prose_medium`, `prose_long`) so users can regenerate with different lengths and keep exportable versions.
 - UI defaults to derived artifacts; CML is hidden unless Advanced/Expert mode is enabled.
 
 Spec extensions:

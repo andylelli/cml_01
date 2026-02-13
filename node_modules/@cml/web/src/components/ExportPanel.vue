@@ -7,6 +7,7 @@ const props = defineProps<{
     setting: boolean;
     cast: boolean;
     characterProfiles: boolean;
+    hardLogicDevices: boolean;
     cml: boolean;
     clues: boolean;
     outline: boolean;
@@ -20,6 +21,7 @@ const selection = ref({
   setting: true,
   cast: true,
   characterProfiles: false,
+  hardLogicDevices: false,
   cml: false,
   clues: true,
   outline: true,
@@ -48,6 +50,7 @@ const handleExport = async () => {
     setting: "setting",
     cast: "cast",
     characterProfiles: "character_profiles",
+    hardLogicDevices: "hard_logic_devices",
     cml: "cml",
     clues: "clues",
     outline: "outline",
@@ -95,6 +98,10 @@ const handleExport = async () => {
       <label class="flex items-center gap-2">
         <input v-model="selection.characterProfiles" type="checkbox" :disabled="!available.characterProfiles" />
         Character profiles
+      </label>
+      <label class="flex items-center gap-2">
+        <input v-model="selection.hardLogicDevices" type="checkbox" :disabled="!available.hardLogicDevices" />
+        Hard-logic devices
       </label>
       <label class="flex items-center gap-2">
         <input v-model="selection.cml" type="checkbox" :disabled="!available.cml" />

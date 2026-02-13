@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { AllValidation, ProseData, RunEvent, ValidationResult, NoveltyAuditData, CharacterProfilesData } from "../components/types";
+import type { AllValidation, ProseData, RunEvent, ValidationResult, NoveltyAuditData, CharacterProfilesData, LocationProfilesData, TemporalContextData, HardLogicDevicesData, BackgroundContextData } from "../components/types";
 import {
+  fetchBackgroundContext,
   fetchCharacterProfiles,
   fetchCast,
   fetchCastValidation,
@@ -11,8 +12,10 @@ import {
   fetchCmlValidation,
   fetchFairPlayReport,
   fetchGamePack,
+  fetchHardLogicDevices,
   fetchLatestRun,
   fetchLlmLogs,
+  fetchLocationProfiles,
   fetchOutline,
   fetchOutlineValidation,
   fetchProse,
@@ -20,6 +23,7 @@ import {
   fetchSetting,
   fetchSettingValidation,
   fetchSynopsis,
+  fetchTemporalContext,
   fetchNoveltyAudit,
   type Artifact,
   type LlmLogEntry,
@@ -45,6 +49,10 @@ export const useProjectStore = defineStore("project", () => {
   const settingArtifact = ref<string | null>(null);
   const castArtifact = ref<string | null>(null);
   const characterProfilesArtifact = ref<string | null>(null);
+  const locationProfilesArtifact = ref<string | null>(null);
+  const temporalContextArtifact = ref<string | null>(null);
+  const backgroundContextArtifact = ref<string | null>(null);
+  const hardLogicDevicesArtifact = ref<string | null>(null);
 
   const settingData = ref<{ decade?: string; locationPreset?: string; weather?: string; socialStructure?: string } | null>(null);
   const castData = ref<{ suspects?: string[] } | null>(null);
@@ -54,6 +62,10 @@ export const useProjectStore = defineStore("project", () => {
   const synopsisData = ref<{ title?: string; summary?: string } | null>(null);
   const proseData = ref<ProseData | null>(null);
   const characterProfilesData = ref<CharacterProfilesData | null>(null);
+  const locationProfilesData = ref<LocationProfilesData | null>(null);
+  const temporalContextData = ref<TemporalContextData | null>(null);
+  const backgroundContextData = ref<BackgroundContextData | null>(null);
+  const hardLogicDevicesData = ref<HardLogicDevicesData | null>(null);
   const noveltyAuditData = ref<NoveltyAuditData | null>(null);
   const gamePackData = ref<{ title?: string; suspects?: string[]; materials?: string[] } | null>(null);
 
@@ -199,6 +211,18 @@ export const useProjectStore = defineStore("project", () => {
     };
   };
 
+  const normalizeHardLogicDevices = (payload: any): HardLogicDevicesData | null => {
+    if (!payload || typeof payload !== "object") return null;
+    const devices = Array.isArray(payload.devices)
+      ? payload.devices
+      : [];
+    return {
+      status: payload.status ?? "ok",
+      overview: typeof payload.overview === "string" ? payload.overview : "",
+      devices,
+    };
+  };
+
   const loadArtifacts = async (
     projectId: string,
     options: { includeCml?: boolean } = {},
@@ -217,6 +241,10 @@ export const useProjectStore = defineStore("project", () => {
       outline,
       prose,
       characterProfiles,
+      locationProfiles,
+      temporalContext,
+      backgroundContext,
+      hardLogicDevices,
       gamePack,
       synopsis,
       settingValidation,
@@ -234,6 +262,10 @@ export const useProjectStore = defineStore("project", () => {
       fetchOutline(projectId),
       fetchProse(projectId),
       fetchCharacterProfiles(projectId),
+      fetchLocationProfiles(projectId),
+      fetchTemporalContext(projectId),
+      fetchBackgroundContext(projectId),
+      fetchHardLogicDevices(projectId),
       fetchGamePack(projectId),
       fetchSynopsis(projectId),
       fetchSettingValidation(projectId),
@@ -288,6 +320,34 @@ export const useProjectStore = defineStore("project", () => {
       ? normalizeCharacterProfiles(characterProfilesPayload)
       : null;
 
+    locationProfilesArtifact.value = locationProfiles.status === "fulfilled"
+      ? JSON.stringify(locationProfiles.value.payload, null, 2)
+      : null;
+    locationProfilesData.value = locationProfiles.status === "fulfilled"
+      ? (locationProfiles.value.payload as LocationProfilesData)
+      : null;
+
+    temporalContextArtifact.value = temporalContext.status === "fulfilled"
+      ? JSON.stringify(temporalContext.value.payload, null, 2)
+      : null;
+    temporalContextData.value = temporalContext.status === "fulfilled"
+      ? (temporalContext.value.payload as TemporalContextData)
+      : null;
+
+    backgroundContextArtifact.value = backgroundContext.status === "fulfilled"
+      ? JSON.stringify(backgroundContext.value.payload, null, 2)
+      : null;
+    backgroundContextData.value = backgroundContext.status === "fulfilled"
+      ? (backgroundContext.value.payload as BackgroundContextData)
+      : null;
+
+    hardLogicDevicesArtifact.value = hardLogicDevices.status === "fulfilled"
+      ? JSON.stringify(hardLogicDevices.value.payload, null, 2)
+      : null;
+    hardLogicDevicesData.value = hardLogicDevices.status === "fulfilled"
+      ? normalizeHardLogicDevices(hardLogicDevices.value.payload)
+      : null;
+
     gamePackArtifact.value = gamePack.status === "fulfilled" ? JSON.stringify(gamePack.value.payload, null, 2) : null;
     gamePackData.value = gamePack.status === "fulfilled" ? (gamePack.value.payload as typeof gamePackData.value) : null;
 
@@ -312,6 +372,10 @@ export const useProjectStore = defineStore("project", () => {
       outline,
       prose,
       characterProfiles,
+      locationProfiles,
+      temporalContext,
+      backgroundContext,
+      hardLogicDevices,
       gamePack,
       synopsis,
       settingValidation,
@@ -332,7 +396,7 @@ export const useProjectStore = defineStore("project", () => {
 
     if (failures.length === 0) {
       artifactsStatus.value = "ready";
-    } else if (failures.length === 16) {
+    } else if (failures.length === candidates.length) {
       if (hasNotFound || hasNetworkError) {
         artifactsStatus.value = "error";
       } else {
@@ -380,6 +444,10 @@ export const useProjectStore = defineStore("project", () => {
     outlineArtifact.value = null;
     proseArtifact.value = null;
     characterProfilesArtifact.value = null;
+    locationProfilesArtifact.value = null;
+    temporalContextArtifact.value = null;
+    backgroundContextArtifact.value = null;
+    hardLogicDevicesArtifact.value = null;
     gamePackArtifact.value = null;
     settingArtifact.value = null;
     castArtifact.value = null;
@@ -391,6 +459,10 @@ export const useProjectStore = defineStore("project", () => {
     synopsisData.value = null;
     proseData.value = null;
     characterProfilesData.value = null;
+    locationProfilesData.value = null;
+    temporalContextData.value = null;
+    backgroundContextData.value = null;
+    hardLogicDevicesData.value = null;
     noveltyAuditData.value = null;
     gamePackData.value = null;
     runEventsData.value = [];
@@ -406,6 +478,10 @@ export const useProjectStore = defineStore("project", () => {
     outlineArtifact,
     proseArtifact,
     characterProfilesArtifact,
+    locationProfilesArtifact,
+    temporalContextArtifact,
+    backgroundContextArtifact,
+    hardLogicDevicesArtifact,
     gamePackArtifact,
     settingArtifact,
     castArtifact,
@@ -417,6 +493,10 @@ export const useProjectStore = defineStore("project", () => {
     synopsisData,
     proseData,
     characterProfilesData,
+    locationProfilesData,
+    temporalContextData,
+    backgroundContextData,
+    hardLogicDevicesData,
     noveltyAuditData,
     gamePackData,
     runEventsData,

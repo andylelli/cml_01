@@ -68,7 +68,54 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const defaultPath = path.resolve(process.cwd(), "data", "store.json");
   const storePath = filePath ?? process.env.CML_JSON_DB_PATH ?? defaultPath;
   const storeDir = path.dirname(storePath);
+  const storeFileName = path.basename(storePath);
   let savePromise: Promise<void> | null = null;
+
+  const STALE_TMP_AGE_MS = 10 * 60 * 1000;
+
+  const removeTempFileBestEffort = async (tempPath: string) => {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await fs.unlink(tempPath);
+        return;
+      } catch (error) {
+        const err = error as NodeJS.ErrnoException;
+        if (err.code === "ENOENT") {
+          return;
+        }
+        if (err.code !== "EPERM" && err.code !== "EBUSY") {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 25 * (attempt + 1)));
+      }
+    }
+  };
+
+  const cleanupStaleTempFiles = async () => {
+    try {
+      const entries = await fs.readdir(storeDir, { withFileTypes: true });
+      const now = Date.now();
+      const tmpPrefix = `${storeFileName}.`;
+
+      await Promise.all(
+        entries
+          .filter((entry) => entry.isFile() && entry.name.startsWith(tmpPrefix) && entry.name.endsWith(".tmp"))
+          .map(async (entry) => {
+            const candidate = path.join(storeDir, entry.name);
+            try {
+              const stat = await fs.stat(candidate);
+              if (now - stat.mtimeMs >= STALE_TMP_AGE_MS) {
+                await removeTempFileBestEffort(candidate);
+              }
+            } catch {
+              // Ignore stale temp cleanup failures; normal persistence can continue.
+            }
+          })
+      );
+    } catch {
+      // Directory may not exist yet; ignore.
+    }
+  };
 
   const loadState = async (): Promise<FileState | null> => {
     try {
@@ -98,7 +145,7 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
 
       const copyIntoPlace = async () => {
         await fs.copyFile(tempPath, storePath);
-        await fs.unlink(tempPath).catch(() => undefined);
+        await removeTempFileBestEffort(tempPath);
       };
 
       const attemptPersist = async () => {
@@ -135,6 +182,7 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   };
 
   const restored = await loadState();
+  await cleanupStaleTempFiles();
   const projects = new Map<string, Project>();
   const specs = new Map<string, Spec>();
   const specOrder: Array<{ id: string; projectId: string }> = [];

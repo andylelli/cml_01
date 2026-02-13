@@ -395,13 +395,13 @@ describe("Agent 8: Novelty Auditor - Prompt Building", () => {
     expect(prompt.user).toContain("Solution: 25%");
   });
 
-  it("uses default similarity threshold of 0.7 (70%)", () => {
+  it("uses default similarity threshold of 0.9 (90%)", () => {
     const prompt = buildNoveltyPrompt({
       generatedCML: mockGeneratedCML,
       seedCMLs: mockSeedCMLs,
     });
 
-    expect(prompt.user).toContain("70%");
+    expect(prompt.user).toContain("90%");
     expect(prompt.user).toContain("Pass/Fail Threshold");
   });
 

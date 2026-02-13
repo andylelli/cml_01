@@ -313,6 +313,7 @@ Each scene must include:
 4. **Clues revealed**: Which clue IDs are naturally woven in
 5. **Dramatic elements**: Conflict, tension, revelation, or misdirection
 6. **Summary**: 2-3 sentence description of what happens
+7. **Fair-play parity**: Key deductions must reference clue IDs already revealed to the reader
 
 ## Pacing Principles
 - Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
@@ -321,6 +322,7 @@ Each scene must include:
 - Use red herrings in Act I and early Act II
 - Discriminating test appears in late Act II or early Act III
 - Save essential clues for when inference path requires them
+- Do not introduce detective-private insights; avoid reveals unsupported by previously listed clue IDs
 
 ## Output Format
 

@@ -22,7 +22,8 @@
   "dependencies": {
     "@cml/cml": "file:../../packages/cml",
     "@cml/llm-client": "file:../../packages/llm-client",
-    "@cml/prompts-llm": "file:../../packages/prompts-llm"
+    "@cml/prompts-llm": "file:../../packages/prompts-llm",
+    "@cml/story-validation": "file:../../packages/story-validation"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

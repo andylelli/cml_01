@@ -38,6 +38,10 @@ export interface CMLPromptInputs {
   // Complexity
   complexityLevel: "simple" | "moderate" | "complex";
   mechanismFamilies: string[];
+  hardLogicModes?: string[];
+  difficultyMode?: "standard" | "increase" | "extreme";
+  hardLogicDevices?: HardLogicDeviceIdea[];
+  backgroundContext?: BackgroundContextInput;
   
   // Novelty constraints
   noveltyConstraints?: {
@@ -49,6 +53,35 @@ export interface CMLPromptInputs {
   // Context
   runId: string;
   projectId: string;
+}
+
+export interface HardLogicDeviceIdea {
+  title: string;
+  corePrinciple: string;
+  principleType: "physical_law" | "mathematical_principle" | "cognitive_bias" | "social_logic";
+  surfaceIllusion: string;
+  underlyingReality: string;
+  fairPlayClues: string[];
+  whyNotTrope: string;
+  variationEscalation: string;
+  mechanismFamilyHints: string[];
+  modeTags?: string[];
+}
+
+export interface BackgroundContextInput {
+  status: "ok" | string;
+  backdropSummary: string;
+  era: {
+    decade: string;
+    socialStructure?: string;
+  };
+  setting: {
+    location: string;
+    institution: string;
+    weather?: string;
+  };
+  castAnchors: string[];
+  theme?: string;
 }
 
 export interface CMLGenerationResult {

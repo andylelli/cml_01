@@ -84,6 +84,21 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `cml_retry` - "CML failed validation; retrying" (if needed)
   - `cml_validated` - "CML validated"
 - **Spec adherence**: CML generation must honor the spec parameters (decade, location preset, tone, theme, cast size/names, primary axis).
+- **Grounding split**: CML generation consumes `background_context` for backdrop coherence and `hard_logic_devices` for mechanism proof logic.
+
+### Step 2b (pre-step): Background Context Assembly
+- **Derives**: canonical backdrop context from setting + cast anchors + theme
+- **Validation**: `background_context.schema.yaml` must pass before CML generation proceeds
+- **Artifacts Created**:
+  - `background_context` - `{ status, backdropSummary, era, setting, castAnchors, theme? }`
+- **Event**: `background_context_done` - "Background context generated"
+
+### Step 3 (pre-step): Hard-Logic Device Ideation
+- **Derives**: 3–5 novel mechanism concepts, each with title, principle type, illusion/reality, fair-play clues, anti-trope rationale, and escalation variation
+- **Validation**: `hard_logic_devices.schema.yaml` must pass before CML generation proceeds
+- **Artifacts Created**:
+  - `hard_logic_devices` - `{ status, overview, devices[] }`
+- **Event**: `hard_logic_devices_done` - "Hard-logic devices generated (<count>)"
 
 ### Step 3b: Character Profile Generation
 - **Derives**: Per-character narrative profiles from cast (LLM)
@@ -117,6 +132,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `clues_validation` - Validation result
 - **Event**: `clues_done` - "Clues generated"
 - **Feedback Loop**: If the fair-play audit fails, clues are regenerated once using the audit’s violations and recommendations before re-auditing.
+- **Deterministic Guardrails**: Before fair-play audit, clues are checked for early/mid essential placement, unique clue IDs, and detective-only/private clue phrasing; critical guardrail failures trigger one targeted clue regeneration and then fail if still unresolved.
 
 ### Step 7: Fair Play Report Generation
 - **Derives**: LLM-based fair-play audit from CML + clues, including:
@@ -126,7 +142,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Artifacts Created**:
   - `fair_play_report` - `{ overallStatus, summary, checks[], violations[], warnings[], recommendations[] }`
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
-- **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit, then is captured as warnings without blocking the pipeline
+- **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit.
+- **Critical Gate**: If critical violations remain (Clue Visibility, Information Parity, No Withholding, Logical Deducibility), the pipeline fails instead of continuing with warnings.
 
 ### Step 8: Outline Generation
 - **Derives**: `{ status, tone, chapters, summary }`
@@ -138,9 +155,11 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 ### Step 9: Prose Generation
 - **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
   - Each chapter: `{ title, summary, paragraphs[] }`
+- **Post-processing**: Prose is sanitized before persistence (Unicode NFC normalization, mojibake cleanup, system-residue stripping).
+- **Guardrail**: If post-reveal chapters drift into role-only culprit aliasing after arrest/confession, prose regenerates once; unresolved drift fails the run.
 - **Artifacts Created**:
-  - `prose` - `{ status, tone, chapters[], cast[], note }`
-- **Event**: `prose_done` - "Prose generated"
+  - `prose_<length>` - `{ status, tone, chapters[], cast[], note }` where `<length>` is `short`, `medium`, or `long`
+- **Event**: `prose_done` - "Prose generated (<length> format)"
 
 ### Step 10: Game Pack Generation
 **Status:** Planned. Game pack generation is not yet available without LLM support and is not produced in the current pipeline run.
@@ -148,6 +167,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 ### Pipeline Completion
 - After the pipeline finishes (success or failure), project status returns to `idle`
 - **Event**: `run_finished` - "Pipeline run finished"
+- **Release Gate**: pipeline completion is blocked when any of the following remain: critical continuity issue, mojibake artifact, missing discriminating test scene, or missing suspect-elimination coverage.
 
 ## Run Events
 
@@ -198,12 +218,15 @@ All generated artifacts are accessible via GET endpoints:
 ### Public Artifacts (no access control)
 - `GET /api/projects/:id/setting/latest`
 - `GET /api/projects/:id/cast/latest`
+- `GET /api/projects/:id/background-context/latest`
+- `GET /api/projects/:id/hard-logic-devices/latest`
 - `GET /api/projects/:id/character-profiles/latest`
 - `GET /api/projects/:id/clues/latest`
 - `GET /api/projects/:id/outline/latest`
 - `GET /api/projects/:id/prose/latest`
+- `GET /api/projects/:id/prose/all`
 - `GET /api/projects/:id/synopsis/latest`
-- `GET /api/projects/:id/prose/pdf`
+- `GET /api/projects/:id/prose/pdf` (optional query `length=short|medium|long`)
 - `GET /api/projects/:id/fair-play/latest`
 - `GET /api/projects/:id/game-pack/latest`
 

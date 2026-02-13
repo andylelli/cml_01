@@ -351,6 +351,76 @@ const describeError = (error: unknown) => {
   }
 };
 
+const MOJIBAKE_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/â€™/g, "'"],
+  [/â€˜/g, "'"],
+  [/â€œ|â€\x9d/g, '"'],
+  [/â€"|â€”/g, "—"],
+  [/â€“/g, "–"],
+  [/â€¦/g, "…"],
+  [/faˆ§ade/g, "façade"],
+  [/Â/g, ""],
+  [/\uFFFD/g, ""],
+];
+
+const stripSystemResidue = (value: string) => {
+  if (/^generated in scene batches\.?$/i.test(value.trim())) {
+    return "";
+  }
+  return value;
+};
+
+const normalizeProseText = (value: unknown, stripSummaryPrefix = false) => {
+  let text = typeof value === "string" ? value : value == null ? "" : String(value);
+  text = stripSystemResidue(text);
+  text = text.normalize("NFC");
+
+  for (const [pattern, replacement] of MOJIBAKE_REPLACEMENTS) {
+    text = text.replace(pattern, replacement);
+  }
+
+  text = text
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\u00A0/g, " ")
+    .replace(/\t/g, " ")
+    .replace(/\s+$/gm, "")
+    .replace(/^\s+/gm, (match) => (match.includes("\n") ? match : ""));
+
+  if (stripSummaryPrefix) {
+    text = text.replace(/^Summary:\s*/i, "");
+  }
+
+  return text;
+};
+
+const sanitizeProsePayload = (payload: Record<string, unknown>, stripSummaryPrefix = false) => {
+  const chapters = Array.isArray(payload.chapters)
+    ? payload.chapters.map((chapter) => {
+        const chapterRecord = chapter as Record<string, unknown>;
+        const paragraphs = Array.isArray(chapterRecord.paragraphs)
+          ? chapterRecord.paragraphs
+              .map((p) => normalizeProseText(p, stripSummaryPrefix))
+              .filter((p) => p.length > 0)
+          : [];
+        return {
+          ...chapterRecord,
+          title: normalizeProseText(chapterRecord.title),
+          summary: normalizeProseText(chapterRecord.summary, stripSummaryPrefix),
+          paragraphs,
+        };
+      })
+    : [];
+
+  const note = normalizeProseText(payload.note);
+
+  return {
+    ...payload,
+    title: normalizeProseText(payload.title),
+    note: note.length > 0 ? note : undefined,
+    chapters,
+  };
+};
+
 
 const runPipeline = async (
   repoPromise: ReturnType<typeof createRepository>,
@@ -418,11 +488,23 @@ const runPipeline = async (
     await repo.createArtifact(projectId, "cast", result.cast, null);
     await repo.addRunEvent(runId, "cast_done", "Cast generated");
 
+    await repo.createArtifact(projectId, "background_context", result.backgroundContext, null);
+    await repo.addRunEvent(runId, "background_context_done", "Background context generated");
+
+    await repo.createArtifact(projectId, "hard_logic_devices", result.hardLogicDevices, null);
+    await repo.addRunEvent(runId, "hard_logic_devices_done", `Hard-logic devices generated (${result.hardLogicDevices.devices.length})`);
+
     await repo.createArtifact(projectId, "cml", result.cml, null);
     await repo.addRunEvent(runId, "cml_done", "CML generated");
 
     await repo.createArtifact(projectId, "character_profiles", result.characterProfiles, null);
     await repo.addRunEvent(runId, "character_profiles_done", "Character profiles generated");
+
+    await repo.createArtifact(projectId, "location_profiles", result.locationProfiles, null);
+    await repo.addRunEvent(runId, "location_profiles_done", "Location profiles generated");
+
+    await repo.createArtifact(projectId, "temporal_context", result.temporalContext, null);
+    await repo.addRunEvent(runId, "temporal_context_done", "Temporal context generated");
 
     // Generate synopsis from CML
     const caseMeta = (result.cml as any)?.CASE?.meta ?? {};
@@ -467,8 +549,9 @@ const runPipeline = async (
       );
     }
 
-    await repo.createArtifact(projectId, "prose", result.prose, null);
-    await repo.addRunEvent(runId, "prose_done", "Prose generated");
+    const sanitizedProse = sanitizeProsePayload(result.prose as unknown as Record<string, unknown>);
+    await repo.createArtifact(projectId, `prose_${inputs.targetLength}`, sanitizedProse, null);
+    await repo.addRunEvent(runId, "prose_done", `Prose generated (${inputs.targetLength} format)`);
 
     await repo.addRunEvent(
       runId,
@@ -938,17 +1021,64 @@ export const createServer = () => {
       .catch(() => res.status(500).json({ error: "Failed to fetch outline validation artifact" }));
   });
 
-  app.get("/api/projects/:id/prose/latest", (_req, res) => {
-    repoPromise
-      .then((repo) => repo.getLatestArtifact(_req.params.id, "prose"))
-      .then((artifact) => {
-        if (!artifact) {
-          res.status(404).json({ error: "Prose artifact not found" });
-          return;
+  app.get("/api/projects/:id/prose/latest", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      // Check for length-specific versions first, fall back to legacy "prose"
+      const lengths = ["medium", "short", "long"];
+      let artifact = null;
+      
+      for (const length of lengths) {
+        artifact = await repo.getLatestArtifact(_req.params.id, `prose_${length}`);
+        if (artifact) break;
+      }
+      
+      // Fallback to old-style prose artifact
+      if (!artifact) {
+        artifact = await repo.getLatestArtifact(_req.params.id, "prose");
+      }
+      
+      if (!artifact) {
+        res.status(404).json({ error: "Prose artifact not found" });
+        return;
+      }
+      const payload = sanitizeProsePayload(artifact.payload as Record<string, unknown>);
+      res.json({ ...artifact, payload });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch prose artifact" });
+    }
+  });
+
+  app.get("/api/projects/:id/prose/all", async (_req, res) => {
+    try {
+      const repo = await repoPromise;
+      const versions: Record<string, any> = {};
+      
+      // Check all length variants
+      const lengths = ["short", "medium", "long"];
+      for (const length of lengths) {
+        const artifact = await repo.getLatestArtifact(_req.params.id, `prose_${length}`);
+        if (artifact) {
+          versions[length] = {
+            ...artifact,
+            payload: sanitizeProsePayload(artifact.payload as Record<string, unknown>),
+          };
         }
-        res.json(artifact);
-      })
-      .catch(() => res.status(500).json({ error: "Failed to fetch prose artifact" }));
+      }
+      
+      // Include legacy prose if exists
+      const legacy = await repo.getLatestArtifact(_req.params.id, "prose");
+      if (legacy) {
+        versions.legacy = {
+          ...legacy,
+          payload: sanitizeProsePayload(legacy.payload as Record<string, unknown>),
+        };
+      }
+      
+      res.json({ versions });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch prose versions" });
+    }
   });
 
   app.get("/api/projects/:id/character-profiles/latest", (_req, res) => {
@@ -962,6 +1092,58 @@ export const createServer = () => {
         res.json(artifact);
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch character profiles artifact" }));
+  });
+
+  app.get("/api/projects/:id/location-profiles/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "location_profiles"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Location profiles artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch location profiles artifact" }));
+  });
+
+  app.get("/api/projects/:id/temporal-context/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "temporal_context"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Temporal context artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch temporal context artifact" }));
+  });
+
+  app.get("/api/projects/:id/background-context/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "background_context"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Background context artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch background context artifact" }));
+  });
+
+  app.get("/api/projects/:id/hard-logic-devices/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestArtifact(_req.params.id, "hard_logic_devices"))
+      .then((artifact) => {
+        if (!artifact) {
+          res.status(404).json({ error: "Hard-logic devices artifact not found" });
+          return;
+        }
+        res.json(artifact);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch hard-logic devices artifact" }));
   });
 
   app.get("/api/projects/:id/fair-play/latest", (_req, res) => {
@@ -1093,21 +1275,39 @@ export const createServer = () => {
     }
   });
 
-  app.get("/api/projects/:id/prose/pdf", async (_req, res) => {
+  app.get("/api/projects/:id/prose/pdf", async (req, res) => {
     try {
       const repo = await repoPromise;
-      const artifact = await repo.getLatestArtifact(_req.params.id, "prose");
+      const length = req.query.length as string | undefined;
+      
+      let artifact = null;
+      if (length && ["short", "medium", "long"].includes(length)) {
+        artifact = await repo.getLatestArtifact(req.params.id, `prose_${length}`);
+      } else {
+        // Try all lengths in order: medium, short, long, legacy
+        const lengths = ["medium", "short", "long"];
+        for (const len of lengths) {
+          artifact = await repo.getLatestArtifact(req.params.id, `prose_${len}`);
+          if (artifact) break;
+        }
+        if (!artifact) {
+          artifact = await repo.getLatestArtifact(req.params.id, "prose");
+        }
+      }
+      
       if (!artifact) {
         res.status(404).json({ error: "Prose artifact not found" });
         return;
       }
-      const synopsis = await repo.getLatestArtifact(_req.params.id, "synopsis");
+      const synopsis = await repo.getLatestArtifact(req.params.id, "synopsis");
       const fallbackTitle = synopsis?.payload && typeof synopsis.payload === "object"
         ? (synopsis.payload as Record<string, unknown>).title
         : undefined;
-      const pdfBuffer = await buildProsePdf(artifact.payload as Record<string, unknown>, fallbackTitle as string | undefined);
+      const sanitizedProse = sanitizeProsePayload(artifact.payload as Record<string, unknown>);
+      const pdfBuffer = await buildProsePdf(sanitizedProse, fallbackTitle as string | undefined);
+      const lengthSuffix = length ? `_${length}` : "";
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=\"story_${_req.params.id}.pdf\"`);
+      res.setHeader("Content-Disposition", `attachment; filename=\"story_${req.params.id}${lengthSuffix}.pdf\"`);
       res.status(200).send(pdfBuffer);
     } catch (error) {
       res.status(500).json({ error: "Failed to generate story PDF" });
@@ -1130,7 +1330,11 @@ export const createServer = () => {
         if (typeof type !== "string") continue;
         const artifact = await repo.getLatestArtifact(req.params.id, type);
         if (artifact) {
-          results[type] = artifact.payload;
+          if (type === "prose" || /^prose_(short|medium|long)$/.test(type)) {
+            results[type] = sanitizeProsePayload(artifact.payload as Record<string, unknown>);
+          } else {
+            results[type] = artifact.payload;
+          }
         }
       }
       const filename = `export_${req.params.id}_${Date.now()}.json`;

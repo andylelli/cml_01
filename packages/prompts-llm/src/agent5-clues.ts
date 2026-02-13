@@ -74,6 +74,8 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
 - Create red herrings that support the false assumption without breaking logic
 - Ensure essential clues are discoverable and properly distributed
 - Maintain fair play: reader must be able to solve the mystery
+- Never encode detective-only/private information that the reader cannot access
+- Essential clues must be placed in early or mid (never late)
 
 **Clue Categories**:
 - **Temporal**: Time anchors, alibi contradictions, timeline gaps
@@ -215,6 +217,7 @@ The inference_path contains the logical steps the detective takes. Each step's "
 - Must appear before the solution
 - Load-bearing for the inference path
 - Cannot be omitted without breaking fair play
+- Must be visible to the reader before the discriminating test (use early/mid only)
 
 **Supporting Clues** (criticality="supporting"):
 - Reinforce essential clues
@@ -265,6 +268,7 @@ ${recommendations.length > 0 ? recommendations.map((r) => `- ${r}`).join("\n") :
 - Adjust clue placement (early/mid/late) so essential clues appear before the discriminating test.
 - Ensure the inference path is supported by explicit, discoverable clues.
 - If necessary, increase essential clues derived from inference path observations.
+- Remove any clue phrasing that implies private detective-only insight or withheld reader information.
 
 `;
   }
@@ -312,6 +316,7 @@ Return a JSON object with this structure:
 6. Ensure fair play: reader can solve the mystery
 
 **Critical**: Do NOT invent new facts. Every clue must be traceable to CML.
+**Critical**: Never mark essential clues as late and never describe clues as detective-only/private.
 
 Return the complete JSON with clues and red herrings.`;
 

@@ -18,7 +18,8 @@
 
 ## Layout
 - App shell: left nav + top bar + main content
-- Right drawer: validation status, last run (CML hidden by default)
+- Right drawer: status and contextual helper panels
+- Right drawer uses a subtle tinted background and border so it is visually distinct from the central content area.
 - Responsive: single-column wizard on small screens
  - Sidebar navigation switches main content views (Dashboard, Builder, Cast, Clues, Outline, Samples, CML Viewer).
 - Active view header reflects the current selection.
@@ -36,6 +37,8 @@
 - Setting overview
 - Cast cards + relationship map
 - Character profiles (per suspect; private details gated to Advanced/Expert; LLM-generated)
+- Background context view (setting/place/period backdrop)
+- Hard Logic view (friendly rendering of generated mechanism concepts)
 - Mystery “bones” overview
 - Clue board
 - Outline/timeline
@@ -43,6 +46,9 @@
 - Game pack preview (materials + suspect cards summary)
 - Game pack PDF download action
 - Story PDF download action (from the Story/Prose view)
+- Story length selector in Spec (Short 15–25K, Medium 40–60K, Long 70–100K)
+- Story/Prose view supports exporting a selected prose length as PDF
+- Story/Prose view supports “Export all versions” when multiple prose lengths have been generated
 - PDF download buttons show a spinner and disable while downloading
 - Prose reader displays clear paragraph spacing for readability
 - Setting/cast/outline cards render generated content when available.
@@ -78,7 +84,6 @@
 - Read-only in Advanced mode
 - Edit controls only in Expert mode (with warning modal and validation panel)
 - Schema validation badge
- - Phase 2 placeholder: read-only CML preview panel in Advanced mode
 
 ### ClueBoard
 - Table with filters by category
@@ -164,6 +169,7 @@
 
 Spec draft inputs include a comma-separated cast names field stored with the spec for future LLM conditioning.
 Spec draft inputs include an optional theme field with a one-click random suggestion to jolt plot direction.
+Theme suggestions now include hard-logic options (locked-room geometry, train timetable paradox, botanical dose-timing, acoustics) and escalation phrasing (`increase difficulty`, `make it brutal`).
 Direct deterministic cast overrides are not used in the current LLM-only pipeline.
 
 ### CmlTreeView
@@ -188,7 +194,7 @@ Direct deterministic cast overrides are not used in the current LLM-only pipelin
 ### Raw Artifacts (Advanced)
 **Purpose:** Provide full JSON payloads as stored in persistence for all artifacts.
 **Layout:**
-- Collapsible JSON blocks per artifact (setting, cast, character profiles, clues, outline, prose, game pack)
+- Collapsible JSON blocks per artifact (setting, cast, background context, character profiles, hard-logic devices, clues, outline, prose, game pack)
 
 ### ValidationChecklistPanel
 **Purpose:** Show checklist compliance with actionable fixes.
@@ -241,11 +247,22 @@ Direct deterministic cast overrides are not used in the current LLM-only pipelin
 ### ExportPanel
 **Purpose:** Select artifacts for export packaging and trigger download.
 **Layout:**
-- Checkbox list for setting/cast/character profiles/clues/outline/fair-play/prose/game pack/CML
+- Checkbox list for setting/cast/character profiles/hard-logic devices/clues/outline/fair-play/prose/game pack/CML
 - Export button (disabled until selections available)
 **Feedback:**
 - Calls the export API endpoint with selected artifact types and downloads a JSON file containing the latest versions.
 - Shows error if export fails.
+
+### Export tab
+**Purpose:** Centralized place for all export actions.
+**Layout:**
+- Primary export summary card with quick PDF actions
+- Game pack PDF action (enabled when game pack exists)
+- Story PDF action (enabled when prose exists)
+- `ExportPanel` shown in the Export tab (not in the persistent sidebar)
+**Feedback:**
+- Buttons show loading state while downloads are in progress.
+- Disabled states clearly explain why exports are unavailable.
 
 ### SampleCard
 **Purpose:** Present sample CMLs with actions.
@@ -277,7 +294,7 @@ Direct deterministic cast overrides are not used in the current LLM-only pipelin
 ### Update controls (V1)
 **Purpose:** Allow granular updates of individual sections.
 **Layout:**
-- Sidebar buttons for setting, cast, clues, outline, prose.
+- Generate-tab buttons for setting, cast, clues, outline, prose.
 **Feedback:**
 - Success message on completion; error message on failure.
 - Update actions refresh the current previews.

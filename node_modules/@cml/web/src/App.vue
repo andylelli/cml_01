@@ -23,6 +23,7 @@ import {
   downloadStoryPdf,
   fetchProject,
   fetchProjects,
+  fetchProseVersions,
   fetchSampleContent,
   fetchSamples,
   logActivity,
@@ -39,6 +40,10 @@ type View =
   | "builder"
   | "generate"
   | "cast"
+  | "background"
+  | "hardLogic"
+  | "locations"
+  | "temporal"
   | "clues"
   | "outline"
   | "samples"
@@ -69,6 +74,10 @@ const mainTabs = computed<Tab[]>(() => [
 // Define review sub-tabs
 const reviewTabs = computed<Tab[]>(() => [
   { id: "cast", label: "Cast" },
+  { id: "background", label: "Background" },
+  { id: "hardLogic", label: "Hard Logic" },
+  { id: "locations", label: "Locations" },
+  { id: "temporal", label: "Era & Culture" },
   { id: "clues", label: "Clues" },
   { id: "outline", label: "Outline" },
   { id: "prose", label: "Prose" },
@@ -91,6 +100,10 @@ const {
   outlineArtifact,
   proseArtifact,
   characterProfilesArtifact,
+  locationProfilesArtifact,
+  temporalContextArtifact,
+  backgroundContextArtifact,
+  hardLogicDevicesArtifact,
   gamePackArtifact,
   settingArtifact,
   castArtifact,
@@ -102,6 +115,10 @@ const {
   synopsisData,
   proseData,
   characterProfilesData,
+  backgroundContextData,
+  hardLogicDevicesData,
+  locationProfilesData,
+  temporalContextData,
   noveltyAuditData,
   gamePackData,
   runEventsData,
@@ -269,6 +286,7 @@ const spec = ref({
   castSize: 6,
   castNames: [] as string[],
   primaryAxis: "temporal",
+  targetLength: "medium" as "short" | "medium" | "long",
 });
 
 // Artifact + validation state lives in Pinia store
@@ -285,6 +303,8 @@ const missingProjectNotified = ref(false);
 const lastProjectStatus = ref<string | null>(null);
 const showAdvancedValidation = ref(false);
 const updateInProgress = ref<string | null>(null);
+const selectedProseLength = ref<string | null>(null);
+const availableProseVersions = ref<string[]>([]);
 let unsubscribe: (() => void) | null = null;
 let runEventsInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -367,6 +387,13 @@ const themeSuggestions = [
   "An aristocratic engagement with a sabotaged will",
   "A museum exhibition and a forged provenance",
   "A blackout revealing a staged scene",
+  "Locked-room via geometric sightline contradiction",
+  "Train timetable paradox with probability misdirection",
+  "Botanical dose-timing trap in a country manor",
+  "Seaside hotel acoustic mislocalization under fog",
+  "Inheritance puzzle driven by social-status testimony bias",
+  "Country house pure-geometry mechanism, increase difficulty",
+  "Near-impossible manor crime with precision timing, make it brutal",
 ];
 
 const handleSuggestTheme = () => {
@@ -384,6 +411,10 @@ const viewLabel = computed(() => {
       return "Builder";
     case "cast":
       return "Cast";
+    case "background":
+      return "Background";
+    case "hardLogic":
+      return "Hard Logic";
     case "clues":
       return "Clue board";
     case "outline":
@@ -460,6 +491,10 @@ const progressPercentFromEvent = (event: { step: string; message: string }) => {
       return 25;
     case "cast":
       return message.includes("designed") ? 25 : 12;
+    case "hard_logic_devices_done":
+      return 38;
+    case "hard_logic_devices":
+      return message.includes("generated") ? 38 : 25;
     case "cml_done":
       return 50;
     case "cml":
@@ -620,7 +655,11 @@ watch([projectName, projectId, latestSpecId, currentView, mode], () => {
 watch(projectId, (nextId) => {
   if (nextId) {
     loadArtifacts();
+    return;
   }
+
+  availableProseVersions.value = [];
+  selectedProseLength.value = spec.value.targetLength;
 });
 
 watch(
@@ -629,6 +668,16 @@ watch(
     persistState();
   },
   { deep: true },
+);
+
+watch(
+  () => spec.value.targetLength,
+  (length) => {
+    if (length) {
+      selectedProseLength.value = length;
+    }
+  },
+  { immediate: true },
 );
 
 const connectSse = () => {
@@ -732,6 +781,10 @@ watch(activeMainTab, (newTab) => {
     case "review":
       // Use active review sub-tab
       if (activeReviewTab.value === "cast") setView("cast");
+      else if (activeReviewTab.value === "background") setView("background");
+      else if (activeReviewTab.value === "hardLogic") setView("hardLogic");
+      else if (activeReviewTab.value === "locations") setView("locations");
+      else if (activeReviewTab.value === "temporal") setView("temporal");
       else if (activeReviewTab.value === "clues") setView("clues");
       else if (activeReviewTab.value === "outline") setView("outline");
       else if (activeReviewTab.value === "prose") setView("prose");
@@ -781,6 +834,10 @@ watch(currentView, (newView) => {
       activeMainTab.value = "generate";
       break;
     case "cast":
+    case "background":
+    case "hardLogic":
+    case "locations":
+    case "temporal":
     case "clues":
     case "outline":
     case "prose":
@@ -929,6 +986,9 @@ const loadArtifacts = async () => {
     includeCml: isAdvanced.value,
   });
 
+  // Load prose versions after artifacts are loaded
+  await loadProseVersions();
+
   if (failures.length === 0) {
     addError("info", "artifacts", "Everything is up to date");
     lastUpdatedAt.value = Date.now();
@@ -975,6 +1035,7 @@ const pollArtifacts = async (attempts = 20, delayMs = 2000) => {
     const hasArtifacts =
       Boolean(settingData.value) ||
       Boolean(castData.value?.suspects?.length) ||
+      Boolean(hardLogicDevicesData.value?.devices?.length) ||
       Boolean(cmlArtifact.value) ||
       Boolean(cluesData.value?.items?.length) ||
       Boolean(outlineArtifact.value) ||
@@ -1084,11 +1145,12 @@ const handleDownloadStoryPdf = async () => {
   }
   try {
     isDownloadingStoryPdf.value = true;
-    const blob = await downloadStoryPdf(projectId.value);
+    const blob = await downloadStoryPdf(projectId.value, selectedProseLength.value || undefined);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `story_${projectId.value}.pdf`;
+    const lengthSuffix = selectedProseLength.value ? `_${selectedProseLength.value}` : "";
+    a.download = `story_${projectId.value}${lengthSuffix}.pdf`;
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
@@ -1102,6 +1164,53 @@ const handleDownloadStoryPdf = async () => {
     logActivity({ projectId: projectId.value, scope: "ui", message: "download_story_pdf_failed" });
   } finally {
     isDownloadingStoryPdf.value = false;
+  }
+};
+
+const handleDownloadAllProseVersions = async () => {
+  if (!projectId.value) {
+    addError("warning", "export", "Create a project first");
+    return;
+  }
+  if (availableProseVersions.value.length === 0) {
+    addError("warning", "export", "No prose versions available");
+    return;
+  }
+  try {
+    for (const length of availableProseVersions.value) {
+      const blob = await downloadStoryPdf(projectId.value, length);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `story_${projectId.value}_${length}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+      // Small delay between downloads
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    addError("info", "export", `Downloaded ${availableProseVersions.value.length} story versions`);
+    logActivity({ projectId: projectId.value, scope: "ui", message: "download_all_prose_versions" });
+  } catch (error) {
+    addError("error", "export", "Failed to download all versions", error instanceof Error ? error.message : String(error));
+  }
+};
+
+const loadProseVersions = async () => {
+  if (!projectId.value) return;
+  try {
+    const versions = await fetchProseVersions(projectId.value);
+    availableProseVersions.value = Object.keys(versions).filter(k => k !== 'legacy');
+    if (availableProseVersions.value.length > 0 && !selectedProseLength.value) {
+      selectedProseLength.value = availableProseVersions.value.includes('medium') 
+        ? 'medium' 
+        : availableProseVersions.value[0];
+    }
+  } catch {
+    availableProseVersions.value = [];
   }
 };
 
@@ -1166,6 +1275,34 @@ onBeforeUnmount(() => {
             @click="setView('cast')"
           >
             Cast
+          </button>
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'background' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('background')"
+          >
+            Background
+          </button>
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'hardLogic' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('hardLogic')"
+          >
+            Hard Logic
+          </button>
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'locations' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('locations')"
+          >
+            Locations
+          </button>
+          <button
+            class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
+            :class="currentView === 'temporal' ? 'bg-slate-100 text-slate-900' : 'text-slate-700'"
+            @click="setView('temporal')"
+          >
+            Era & Culture
           </button>
           <button
             class="flex w-full items-center rounded-md px-3 py-2 text-left font-medium hover:bg-slate-100"
@@ -1489,6 +1626,17 @@ onBeforeUnmount(() => {
                       <option>authority</option>
                     </select>
                   </div>
+                  <div>
+                    <label class="text-xs font-semibold text-slate-500">Story length</label>
+                    <select v-model="spec.targetLength" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
+                      <option value="short">Short (15-25K words)</option>
+                      <option value="medium">Medium (40-60K words)</option>
+                      <option value="long">Long (70-100K words)</option>
+                    </select>
+                    <div class="mt-1 text-[11px] text-slate-400">
+                      Story length affects scene count and narrative pacing.
+                    </div>
+                  </div>
                 </div>
                 <div class="mt-4 text-xs text-slate-500">
                   This is a minimal spec draft for Phase 1; additional fields will be added in later phases.
@@ -1625,7 +1773,11 @@ onBeforeUnmount(() => {
             <div class="rounded-lg border border-purple-100 bg-purple-50 p-4 shadow-sm">
               <div class="text-sm font-semibold text-purple-900">Review Generated Content</div>
               <div class="mt-2 text-sm text-purple-800">
-                <span v-if="activeReviewTab === 'cast'">Review the cast of suspects with their roles, relationships, and profiles.</span>
+                <span v-if="activeReviewTab === 'cast'">Review character profiles with public and private details.</span>
+                <span v-else-if="activeReviewTab === 'background'">Review setting, place, and period context for the mystery backdrop.</span>
+                <span v-else-if="activeReviewTab === 'hardLogic'">Inspect generated hard-logic devices that ground the mystery mechanism.</span>
+                <span v-else-if="activeReviewTab === 'locations'">Explore detailed location profiles with sensory details and atmosphere.</span>
+                <span v-else-if="activeReviewTab === 'temporal'">View the specific date, era, fashion, culture, and historical context.</span>
                 <span v-else-if="activeReviewTab === 'clues'">Browse all clues with red herring filtering and play mode to reveal by chapter.</span>
                 <span v-else-if="activeReviewTab === 'outline'">View the story structure broken down by chapters and events.</span>
                 <span v-else-if="activeReviewTab === 'prose'">Read the full narrative story text.</span>
@@ -1633,19 +1785,11 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'cast'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-700">Cast of Suspects</div>
-                <div class="text-xs text-slate-500">{{ castData?.suspects?.length || 0 }} suspects</div>
-              </div>
-              <div v-if="castData && castData.suspects && castData.suspects.length" class="mt-4 space-y-2 text-sm text-slate-600">
-                <div v-for="suspect in castData.suspects" :key="suspect" class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-                  {{ suspect }}
+              <div>
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-semibold text-slate-700">Character Profiles</div>
+                  <div class="text-xs text-slate-500">{{ castData?.suspects?.length || characterProfilesData?.profiles?.length || 0 }} total cast</div>
                 </div>
-              </div>
-              <div v-else class="mt-4 text-sm text-slate-500">No cast yet. Select Generate to create one.</div>
-
-              <div class="mt-6 border-t border-slate-200 pt-4">
-                <div class="text-sm font-semibold text-slate-700">Character Profiles</div>
                 <div class="mt-1 text-xs text-slate-500">
                   {{ characterProfilesData?.note ?? "Character profiles are derived from the cast." }}
                 </div>
@@ -1682,6 +1826,352 @@ onBeforeUnmount(() => {
                 </div>
                 <div v-else class="mt-4 text-sm text-slate-500">Profiles will appear after generation.</div>
               </div>
+            </div>
+
+            <div v-if="currentView === 'locations'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Location Profiles</div>
+                <div class="text-xs text-slate-500">
+                  {{ locationProfilesData ? `${locationProfilesData.keyLocations?.length || 0} key locations` : 'Not generated' }}
+                </div>
+              </div>
+
+              <div v-if="locationProfilesData" class="mt-4 space-y-6">
+                <!-- Primary Location -->
+                <div v-if="locationProfilesData.primary" class="rounded-md border border-slate-200 bg-slate-50 p-4">
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-semibold text-slate-700">{{ locationProfilesData.primary.name }}</div>
+                    <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Primary</span>
+                  </div>
+                  <div class="mt-1 text-xs text-slate-500">
+                    {{ locationProfilesData.primary.type }}
+                    <span v-if="locationProfilesData.primary.place || locationProfilesData.primary.country" class="text-slate-400"> • </span>
+                    <span v-if="locationProfilesData.primary.place">{{ locationProfilesData.primary.place }}</span>
+                    <span v-if="locationProfilesData.primary.place && locationProfilesData.primary.country">, </span>
+                    <span v-if="locationProfilesData.primary.country">{{ locationProfilesData.primary.country }}</span>
+                  </div>
+                  <p class="mt-2 text-sm italic text-slate-600">{{ locationProfilesData.primary.summary }}</p>
+                  <div class="mt-3 space-y-2 text-sm text-slate-600">
+                    <p v-for="(para, idx) in locationProfilesData.primary.paragraphs" :key="`primary-${idx}`">{{ para }}</p>
+                  </div>
+                </div>
+
+                <!-- Atmosphere -->
+                <div v-if="locationProfilesData.atmosphere" class="rounded-md border border-slate-200 bg-amber-50 p-4">
+                  <div class="text-sm font-semibold text-slate-700">Atmosphere</div>
+                  <div class="mt-2 grid gap-2 text-xs">
+                    <div><span class="font-semibold text-slate-600">Mood:</span> {{ locationProfilesData.atmosphere.mood }}</div>
+                    <div><span class="font-semibold text-slate-600">Weather:</span> {{ locationProfilesData.atmosphere.weather }}</div>
+                    <div v-if="locationProfilesData.atmosphere.eraMarkers?.length">
+                      <span class="font-semibold text-slate-600">Era Markers:</span>
+                      <span class="ml-1">{{ locationProfilesData.atmosphere.eraMarkers.join(', ') }}</span>
+                    </div>
+                    <div v-if="locationProfilesData.atmosphere.sensoryPalette?.length">
+                      <span class="font-semibold text-slate-600">Sensory Palette:</span>
+                      <span class="ml-1">{{ locationProfilesData.atmosphere.sensoryPalette.join(', ') }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Key Locations -->
+                <div v-if="locationProfilesData.keyLocations?.length" class="space-y-3">
+                  <div class="text-sm font-semibold text-slate-700">Key Locations</div>
+                  <details
+                    v-for="(location, idx) in locationProfilesData.keyLocations"
+                    :key="`location-${idx}`"
+                    class="rounded-md border border-slate-200 bg-white p-3"
+                  >
+                    <summary class="cursor-pointer text-sm font-semibold text-slate-700">
+                      {{ location.name }} <span class="text-xs font-normal text-slate-500">({{ location.type }})</span>
+                    </summary>
+                    <div class="mt-2 space-y-3">
+                      <p class="text-sm italic text-slate-600">{{ location.description }}</p>
+                      <div class="space-y-2 text-sm text-slate-600">
+                        <p v-for="(para, paraIdx) in location.paragraphs" :key="`loc-${idx}-para-${paraIdx}`">{{ para }}</p>
+                      </div>
+                      <div v-if="location.sensoryDetails" class="rounded bg-slate-50 p-2 text-xs">
+                        <div class="font-semibold text-slate-700">Sensory Details:</div>
+                        <div v-if="location.sensoryDetails.sights?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Sights:</span> {{ location.sensoryDetails.sights.join(', ') }}
+                        </div>
+                        <div v-if="location.sensoryDetails.sounds?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Sounds:</span> {{ location.sensoryDetails.sounds.join(', ') }}
+                        </div>
+                        <div v-if="location.sensoryDetails.smells?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Smells:</span> {{ location.sensoryDetails.smells.join(', ') }}
+                        </div>
+                        <div v-if="location.sensoryDetails.tactile?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Tactile:</span> {{ location.sensoryDetails.tactile.join(', ') }}
+                        </div>
+                      </div>
+                      <div v-if="location.accessibility" class="rounded bg-slate-50 p-2 text-xs">
+                        <div class="font-semibold text-slate-700">Access:</div>
+                        <div class="mt-1">
+                          <span class="font-semibold text-slate-600">Public:</span> {{ location.accessibility.publicAccess ? 'Yes' : 'No' }}
+                        </div>
+                        <div v-if="location.accessibility.whoCanEnter?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Who can enter:</span> {{ location.accessibility.whoCanEnter.join(', ') }}
+                        </div>
+                        <div v-if="location.accessibility.restrictions?.length" class="mt-1">
+                          <span class="font-semibold text-slate-600">Restrictions:</span> {{ location.accessibility.restrictions.join(', ') }}
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              </div>
+              <div v-else class="mt-4 text-sm text-slate-500">Location profiles will appear after generation.</div>
+            </div>
+
+            <div v-if="currentView === 'background'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Story Background</div>
+                <div class="text-xs text-slate-500">Background context</div>
+              </div>
+
+              <div v-if="backgroundContextData || settingData || locationProfilesData || temporalContextData" class="mt-4 space-y-4">
+                <div v-if="backgroundContextData?.backdropSummary" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                  {{ backgroundContextData.backdropSummary }}
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div class="rounded-md border border-slate-200 bg-slate-50 p-3">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Setting</div>
+                    <div class="mt-1 text-sm text-slate-700">{{ backgroundContextData?.setting?.location ?? settingData?.locationPreset ?? "Not generated" }}</div>
+                    <div class="mt-1 text-xs text-slate-500">{{ backgroundContextData?.setting?.institution ?? "Institution pending" }}</div>
+                  </div>
+                  <div class="rounded-md border border-slate-200 bg-slate-50 p-3">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Atmosphere</div>
+                    <div class="mt-1 text-sm text-slate-700">{{ backgroundContextData?.setting?.weather ?? settingData?.weather ?? locationProfilesData?.atmosphere?.weather ?? "Not generated" }}</div>
+                    <div class="mt-1 text-xs text-slate-500">{{ locationProfilesData?.atmosphere?.mood ?? "Mood pending" }}</div>
+                  </div>
+                  <div class="rounded-md border border-slate-200 bg-slate-50 p-3">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Period</div>
+                    <div class="mt-1 text-sm text-slate-700">
+                      {{ backgroundContextData?.era?.decade ?? (temporalContextData ? `${temporalContextData.specificDate.month} ${temporalContextData.specificDate.year}` : "Not generated") }}
+                    </div>
+                    <div class="mt-1 text-xs text-slate-500">{{ backgroundContextData?.era?.socialStructure ?? temporalContextData?.specificDate?.era ?? "Era pending" }}</div>
+                  </div>
+                </div>
+
+                <div v-if="backgroundContextData?.castAnchors?.length" class="rounded-md border border-slate-200 bg-white p-4">
+                  <div class="text-sm font-semibold text-slate-700">Cast anchors</div>
+                  <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                    <span
+                      v-for="name in backgroundContextData.castAnchors"
+                      :key="name"
+                      class="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-slate-600"
+                    >
+                      {{ name }}
+                    </span>
+                  </div>
+                </div>
+
+                <div v-if="locationProfilesData?.primary" class="rounded-md border border-slate-200 bg-white p-4">
+                  <div class="text-sm font-semibold text-slate-700">Primary location</div>
+                  <div class="mt-1 text-xs text-slate-500">
+                    {{ locationProfilesData.primary.name }}
+                    <span v-if="locationProfilesData.primary.place"> • {{ locationProfilesData.primary.place }}</span>
+                    <span v-if="locationProfilesData.primary.country">, {{ locationProfilesData.primary.country }}</span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-600">{{ locationProfilesData.primary.summary }}</p>
+                </div>
+
+                <div v-if="temporalContextData?.paragraphs?.length" class="rounded-md border border-slate-200 bg-white p-4">
+                  <div class="text-sm font-semibold text-slate-700">Backdrop notes</div>
+                  <p class="mt-2 text-sm text-slate-600">{{ temporalContextData.paragraphs[0] }}</p>
+                </div>
+              </div>
+              <div v-else class="mt-4 text-sm text-slate-500">Background context will appear after generation.</div>
+            </div>
+
+            <div v-if="currentView === 'hardLogic'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Hard-Logic Devices</div>
+                <div class="text-xs text-slate-500">{{ hardLogicDevicesData?.devices?.length || 0 }} devices</div>
+              </div>
+
+              <div v-if="hardLogicDevicesData" class="mt-4 space-y-4">
+                <div v-if="hardLogicDevicesData.overview" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                  {{ hardLogicDevicesData.overview }}
+                </div>
+                <details
+                  v-for="(device, idx) in hardLogicDevicesData.devices"
+                  :key="`${device.title}-${idx}`"
+                  class="rounded-md border border-slate-200 bg-white p-3"
+                >
+                  <summary class="cursor-pointer text-sm font-semibold text-slate-700">
+                    {{ device.title }}
+                    <span class="ml-2 text-xs font-normal text-slate-500">({{ device.principleType.replace('_', ' ') }})</span>
+                  </summary>
+                  <div class="mt-3 space-y-2 text-sm text-slate-600">
+                    <div><span class="font-semibold text-slate-700">Core principle:</span> {{ device.corePrinciple }}</div>
+                    <div><span class="font-semibold text-slate-700">Surface illusion:</span> {{ device.surfaceIllusion }}</div>
+                    <div><span class="font-semibold text-slate-700">Underlying reality:</span> {{ device.underlyingReality }}</div>
+                    <div><span class="font-semibold text-slate-700">Why it is not a trope:</span> {{ device.whyNotTrope }}</div>
+                    <div><span class="font-semibold text-slate-700">Variation:</span> {{ device.variationEscalation }}</div>
+                    <div v-if="device.mechanismFamilyHints?.length">
+                      <span class="font-semibold text-slate-700">Mechanism hints:</span>
+                      {{ device.mechanismFamilyHints.join(', ') }}
+                    </div>
+                    <div v-if="device.modeTags?.length">
+                      <span class="font-semibold text-slate-700">Mode tags:</span>
+                      {{ device.modeTags.join(', ') }}
+                    </div>
+                    <div v-if="device.fairPlayClues?.length">
+                      <div class="font-semibold text-slate-700">Fair-play clues</div>
+                      <ul class="ml-4 mt-1 list-disc text-xs text-slate-600">
+                        <li v-for="(clue, clueIdx) in device.fairPlayClues" :key="`${device.title}-clue-${clueIdx}`">{{ clue }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </details>
+              </div>
+              <div v-else class="mt-4 text-sm text-slate-500">Hard-logic devices will appear after generation.</div>
+            </div>
+
+            <div v-if="currentView === 'temporal'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-700">Era & Cultural Context</div>
+                <div v-if="temporalContextData" class="text-xs text-slate-500">
+                  {{ temporalContextData.specificDate.month }} {{ temporalContextData.specificDate.year }}
+                </div>
+              </div>
+
+              <div v-if="temporalContextData" class="mt-4 space-y-6">
+                <!-- Specific Date -->
+                <div class="rounded-md border border-slate-200 bg-blue-50 p-4">
+                  <div class="text-sm font-semibold text-slate-700">Specific Date</div>
+                  <div class="mt-2 text-sm text-slate-600">
+                    <span class="font-semibold">{{ temporalContextData.specificDate.month }}</span>
+                    <span v-if="temporalContextData.specificDate.day"> {{ temporalContextData.specificDate.day }},</span>
+                    {{ temporalContextData.specificDate.year }}
+                    <span class="text-xs text-slate-500">({{ temporalContextData.specificDate.era }})</span>
+                  </div>
+                </div>
+
+                <!-- Narrative Paragraphs -->
+                <div v-if="temporalContextData.paragraphs?.length" class="space-y-2 text-sm text-slate-600">
+                  <p v-for="(para, idx) in temporalContextData.paragraphs" :key="`temp-para-${idx}`">{{ para }}</p>
+                </div>
+
+                <!-- Seasonal Context -->
+                <div v-if="temporalContextData.seasonal" class="rounded-md border border-slate-200 bg-green-50 p-4">
+                  <div class="text-sm font-semibold text-slate-700">Seasonal Context</div>
+                  <div class="mt-2 space-y-2 text-xs">
+                    <div><span class="font-semibold text-slate-600">Season:</span> {{ temporalContextData.seasonal.season }}</div>
+                    <div><span class="font-semibold text-slate-600">Daylight:</span> {{ temporalContextData.seasonal.daylight }}</div>
+                    <div v-if="temporalContextData.seasonal.weather?.length">
+                      <span class="font-semibold text-slate-600">Weather:</span> {{ temporalContextData.seasonal.weather.join(', ') }}
+                    </div>
+                    <div v-if="temporalContextData.seasonal.holidays?.length">
+                      <span class="font-semibold text-slate-600">Holidays:</span> {{ temporalContextData.seasonal.holidays.join(', ') }}
+                    </div>
+                    <div v-if="temporalContextData.seasonal.seasonalActivities?.length">
+                      <span class="font-semibold text-slate-600">Activities:</span> {{ temporalContextData.seasonal.seasonalActivities.join(', ') }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fashion -->
+                <details v-if="temporalContextData.fashion" class="rounded-md border border-slate-200 bg-purple-50 p-3">
+                  <summary class="cursor-pointer text-sm font-semibold text-slate-700">Fashion & Attire</summary>
+                  <div class="mt-3 space-y-3 text-xs">
+                    <div>
+                      <div class="font-semibold text-slate-600">Men's Formal:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.fashion.mensWear.formal?.join(', ') }}</div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-slate-600">Men's Casual:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.fashion.mensWear.casual?.join(', ') }}</div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-slate-600">Women's Formal:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.fashion.womensWear.formal?.join(', ') }}</div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-slate-600">Women's Casual:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.fashion.womensWear.casual?.join(', ') }}</div>
+                    </div>
+                    <div v-if="temporalContextData.fashion.trendsOfTheMoment?.length">
+                      <div class="font-semibold text-slate-600">Trends:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.fashion.trendsOfTheMoment.join(', ') }}</div>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- Current Affairs -->
+                <details v-if="temporalContextData.currentAffairs" class="rounded-md border border-slate-200 bg-red-50 p-3">
+                  <summary class="cursor-pointer text-sm font-semibold text-slate-700">Current Affairs</summary>
+                  <div class="mt-3 space-y-2 text-xs">
+                    <div v-if="temporalContextData.currentAffairs.politicalClimate">
+                      <div class="font-semibold text-slate-600">Political Climate:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.currentAffairs.politicalClimate }}</div>
+                    </div>
+                    <div v-if="temporalContextData.currentAffairs.economicConditions">
+                      <div class="font-semibold text-slate-600">Economic Conditions:</div>
+                      <div class="ml-2 mt-1">{{ temporalContextData.currentAffairs.economicConditions }}</div>
+                    </div>
+                    <div v-if="temporalContextData.currentAffairs.majorEvents?.length">
+                      <div class="font-semibold text-slate-600">Major Events:</div>
+                      <ul class="ml-4 mt-1 list-disc">
+                        <li v-for="(event, idx) in temporalContextData.currentAffairs.majorEvents" :key="`event-${idx}`">{{ event }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- Cultural Context -->
+                <details v-if="temporalContextData.cultural" class="rounded-md border border-slate-200 bg-yellow-50 p-3">
+                  <summary class="cursor-pointer text-sm font-semibold text-slate-700">Cultural Context</summary>
+                  <div class="mt-3 space-y-3 text-xs">
+                    <div v-if="temporalContextData.cultural.entertainment">
+                      <div class="font-semibold text-slate-600">Entertainment:</div>
+                      <div class="ml-2 mt-1 space-y-1">
+                        <div v-if="temporalContextData.cultural.entertainment.popularMusic?.length">
+                          <span class="font-semibold">Music:</span> {{ temporalContextData.cultural.entertainment.popularMusic.join(', ') }}
+                        </div>
+                        <div v-if="temporalContextData.cultural.entertainment.films?.length">
+                          <span class="font-semibold">Films:</span> {{ temporalContextData.cultural.entertainment.films.join(', ') }}
+                        </div>
+                        <div v-if="temporalContextData.cultural.entertainment.theater?.length">
+                          <span class="font-semibold">Theater:</span> {{ temporalContextData.cultural.entertainment.theater.join(', ') }}
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="temporalContextData.cultural.technology">
+                      <div class="font-semibold text-slate-600">Technology:</div>
+                      <div class="ml-2 mt-1 space-y-1">
+                        <div v-if="temporalContextData.cultural.technology.commonDevices?.length">
+                          <span class="font-semibold">Common Devices:</span> {{ temporalContextData.cultural.technology.commonDevices.join(', ') }}
+                        </div>
+                        <div v-if="temporalContextData.cultural.technology.recentInventions?.length">
+                          <span class="font-semibold">Recent Inventions:</span> {{ temporalContextData.cultural.technology.recentInventions.join(', ') }}
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="temporalContextData.cultural.dailyLife">
+                      <div class="font-semibold text-slate-600">Daily Life:</div>
+                      <div class="ml-2 mt-1 space-y-1">
+                        <div v-if="temporalContextData.cultural.dailyLife.typicalPrices?.length">
+                          <span class="font-semibold">Typical Prices:</span> {{ temporalContextData.cultural.dailyLife.typicalPrices.join(', ') }}
+                        </div>
+                        <div v-if="temporalContextData.cultural.dailyLife.socialRituals?.length">
+                          <span class="font-semibold">Social Rituals:</span> {{ temporalContextData.cultural.dailyLife.socialRituals.join(', ') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- Atmospheric Details -->
+                <div v-if="temporalContextData.atmosphericDetails?.length" class="rounded-md border border-slate-200 bg-slate-50 p-4">
+                  <div class="text-sm font-semibold text-slate-700">Atmospheric Details</div>
+                  <ul class="ml-4 mt-2 list-disc space-y-1 text-xs text-slate-600">
+                    <li v-for="(detail, idx) in temporalContextData.atmosphericDetails" :key="`atm-${idx}`">{{ detail }}</li>
+                  </ul>
+                </div>
+              </div>
+              <div v-else class="mt-4 text-sm text-slate-500">Temporal context will appear after generation.</div>
             </div>
 
             <div v-if="currentView === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -1740,17 +2230,35 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'prose'">
-              <div class="mb-4 flex items-center justify-end">
-                <button
-                  class="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="!proseData || !projectId || isDownloadingStoryPdf"
-                  @click="handleDownloadStoryPdf"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="isDownloadingStoryPdf" icon="spinner" spin />
-                    Export story PDF
-                  </span>
-                </button>
+              <div class="mb-4 flex items-center justify-between gap-3">
+                <div v-if="availableProseVersions.length > 1" class="flex items-center gap-2">
+                  <label class="text-xs font-semibold text-slate-500">PDF version:</label>
+                  <select v-model="selectedProseLength" class="rounded-md border border-slate-200 px-3 py-1 text-xs">
+                    <option v-for="length in availableProseVersions" :key="length" :value="length">
+                      {{ length === 'short' ? 'Short (15-25K)' : length === 'medium' ? 'Medium (40-60K)' : 'Long (70-100K)' }}
+                    </option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    v-if="availableProseVersions.length > 1"
+                    class="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!proseData || !projectId"
+                    @click="handleDownloadAllProseVersions"
+                  >
+                    Export all versions
+                  </button>
+                  <button
+                    class="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="!proseData || !projectId || isDownloadingStoryPdf"
+                    @click="handleDownloadStoryPdf"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <font-awesome-icon v-if="isDownloadingStoryPdf" icon="spinner" spin />
+                      Export story PDF
+                    </span>
+                  </button>
+                </div>
               </div>
               <ProseReader v-if="proseData" :prose="proseData" />
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
@@ -1830,6 +2338,22 @@ onBeforeUnmount(() => {
                   <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ characterProfilesArtifact ?? "Not available" }}</pre>
                 </div>
                 <div>
+                  <div class="font-semibold text-slate-600">Location Profiles</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ locationProfilesArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Temporal Context</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ temporalContextArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Background Context</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ backgroundContextArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-600">Hard-Logic Devices</div>
+                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ hardLogicDevicesArtifact ?? "Not available" }}</pre>
+                </div>
+                <div>
                   <div class="font-semibold text-slate-600">Clues</div>
                   <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ cluesArtifact ?? "Not available" }}</pre>
                 </div>
@@ -1884,22 +2408,65 @@ onBeforeUnmount(() => {
 
             <!-- Export Tab -->
             <TabPanel id="export-tab" :active="activeMainTab === 'export'" :lazy="true">
-              <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Export Your Mystery</div>
-                <div class="mt-4 text-sm text-slate-500">
-                  No run history yet. Generate to start tracking it.
+              <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                  <div class="text-sm font-semibold text-slate-700">Export your mystery</div>
+                  <div class="mt-2 text-sm text-slate-500">
+                    Download artifacts as JSON, or export reader-ready PDFs when available.
+                  </div>
+
+                  <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-md border border-slate-200 bg-slate-50 p-4">
+                      <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Game pack PDF</div>
+                      <div class="mt-2 text-xs text-slate-500">
+                        {{ gamePackReady ? 'Ready to download' : 'Generate content first to enable export' }}
+                      </div>
+                      <button
+                        class="mt-3 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="!gamePackData || !projectId || isDownloadingGamePackPdf"
+                        @click="handleDownloadGamePackPdf"
+                      >
+                        <span class="inline-flex items-center gap-2">
+                          <font-awesome-icon v-if="isDownloadingGamePackPdf" icon="spinner" spin />
+                          Download game pack PDF
+                        </span>
+                      </button>
+                    </div>
+
+                    <div class="rounded-md border border-slate-200 bg-slate-50 p-4">
+                      <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Story PDF</div>
+                      <div class="mt-2 text-xs text-slate-500">
+                        {{ proseReady ? 'Ready to download' : 'Generate prose first to enable export' }}
+                      </div>
+                      <button
+                        class="mt-3 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="!proseReady || !projectId || isDownloadingStoryPdf"
+                        @click="handleDownloadStoryPdf"
+                      >
+                        <span class="inline-flex items-center gap-2">
+                          <font-awesome-icon v-if="isDownloadingStoryPdf" icon="spinner" spin />
+                          Download story PDF
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div class="mt-2 text-xs text-slate-500">
-                  Game pack status: {{ gamePackReady ? 'Ready to download' : 'Generate content first to enable export' }}
-                </div>
-                <div class="mt-4">
-                  <button
-                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                    @click="handleDownloadGamePackPdf"
-                  >
-                    Download PDF
-                  </button>
-                </div>
+
+                <ExportPanel
+                  :project-id="projectId"
+                  :available="{
+                    setting: Boolean(settingArtifact),
+                    cast: Boolean(castArtifact),
+                    characterProfiles: Boolean(characterProfilesArtifact),
+                    hardLogicDevices: Boolean(hardLogicDevicesArtifact),
+                    cml: isAdvanced && Boolean(cmlArtifact),
+                    clues: Boolean(cluesArtifact),
+                    outline: Boolean(outlineArtifact),
+                    prose: Boolean(proseArtifact),
+                    gamePack: Boolean(gamePackArtifact),
+                    fairPlay: Boolean(fairPlayReport),
+                  }"
+                />
               </div>
             </TabPanel>
 
@@ -2088,21 +2655,6 @@ onBeforeUnmount(() => {
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
-                  <div class="text-sm font-semibold text-slate-700">Outline</div>
-                  <span
-                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
-                    :class="outlineReady ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'"
-                  >
-                    <font-awesome-icon :icon="outlineReady ? 'circle-check' : 'circle-info'" />
-                    {{ outlineReady ? "Ready" : "Pending" }}
-                  </span>
-                </div>
-                <div class="mt-2 text-sm text-slate-600">
-                  {{ outlineReady ? "Outline stored" : "Outline will appear after generation" }}
-                </div>
-              </div>
-              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="flex items-center justify-between">
                   <div class="text-sm font-semibold text-slate-700">Fair-play report</div>
                   <span
                     class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition"
@@ -2150,28 +2702,15 @@ onBeforeUnmount(() => {
                   </span>
                 </button>
               </div>
-              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <div class="text-sm font-semibold text-slate-700">Community templates</div>
-                <div class="mt-3 grid gap-2 text-xs text-slate-600">
-                  <button
-                    v-for="sample in samples"
-                    :key="sample.id"
-                    class="rounded-md border border-slate-200 px-3 py-2 text-left hover:bg-slate-50"
-                    @click="handleSampleSelect(sample.id)"
-                  >
-                    {{ sample.name }}
-                  </button>
-                </div>
-                <pre
-                  v-if="selectedSample"
-                  class="mt-3 max-h-40 overflow-auto rounded bg-slate-900/5 p-2 text-[11px] text-slate-600"
-                >{{ selectedSample.content }}</pre>
-              </div>
             </div>
 
           </section>
 
-          <aside class="hidden w-80 flex-shrink-0 flex-col gap-4 md:flex">
+          <aside class="hidden w-80 flex-shrink-0 flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50/80 p-3 md:flex md:self-start md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto">
+            <div class="px-1 pt-1">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Workspace panel</div>
+              <div class="mt-1 text-[11px] text-slate-500">Status, validation, and diagnostics</div>
+            </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Status</div>
               <div class="mt-2 text-sm text-slate-600">{{ runProgressLabel }}</div>
@@ -2195,7 +2734,6 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="isAdvanced" class="space-y-4">
-              <RunHistory :events="runEventsData.slice(-5)" :run-id="latestRunId ?? undefined" />
               <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between">
                   <div class="text-sm font-semibold text-slate-700">Validation details</div>
@@ -2223,94 +2761,6 @@ onBeforeUnmount(() => {
                   </button>
                 </div>
               </div>
-            </div>
-            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Update sections</div>
-              <div class="mt-3 grid gap-2">
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('setting')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'setting'" icon="spinner" spin />
-                    Update setting
-                  </span>
-                </button>
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('cast')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'cast'" icon="spinner" spin />
-                    Update cast
-                  </span>
-                </button>
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('character_profiles')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'character_profiles'" icon="spinner" spin />
-                    Update profiles
-                  </span>
-                </button>
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('clues')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'clues'" icon="spinner" spin />
-                    Update clues
-                  </span>
-                </button>
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('outline')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'outline'" icon="spinner" spin />
-                    Update outline
-                  </span>
-                </button>
-                <button
-                  class="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold"
-                  :disabled="!projectId || updateInProgress !== null"
-                  @click="handleRegenerate('prose')"
-                >
-                  <span class="inline-flex items-center gap-2">
-                    <font-awesome-icon v-if="updateInProgress === 'prose'" icon="spinner" spin />
-                    Update story
-                  </span>
-                </button>
-              </div>
-              <div v-if="updateInProgress" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
-                <div class="h-full w-1/2 animate-pulse rounded-full bg-slate-600"></div>
-              </div>
-            </div>
-            <ExportPanel
-              :project-id="projectId"
-              :available="{
-                setting: Boolean(settingArtifact),
-                cast: Boolean(castArtifact),
-                characterProfiles: Boolean(characterProfilesArtifact),
-                cml: isAdvanced && Boolean(cmlArtifact),
-                clues: Boolean(cluesArtifact),
-                outline: Boolean(outlineArtifact),
-                prose: Boolean(proseArtifact),
-                gamePack: Boolean(gamePackArtifact),
-                fairPlay: Boolean(fairPlayReport),
-              }"
-            />
-            <div v-if="isAdvanced" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">CML preview</div>
-              <pre class="mt-2 max-h-48 overflow-auto rounded bg-slate-900/5 p-2 text-xs text-slate-700">
-{{ cmlArtifact ?? "CML will appear after generation." }}
-              </pre>
             </div>
           </aside>
         </main>

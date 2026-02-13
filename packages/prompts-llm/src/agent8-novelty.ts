@@ -29,7 +29,7 @@ import type { PromptComponents } from "./types.js";
 export interface NoveltyAuditInputs {
   generatedCML: CaseData;
   seedCMLs: CaseData[]; // All seed examples to compare against
-  similarityThreshold?: number; // 0-1, default 0.7 (70% similarity = fail)
+  similarityThreshold?: number; // 0-1, default 0.9 (90% similarity = warning/fail window)
   runId?: string;
   projectId?: string;
 }
