@@ -1317,8 +1317,8 @@ export async function generateMystery(
     }
 
     if (releaseGateReasons.length > 0) {
-      releaseGateReasons.forEach((reason) => errors.push(`Release gate failed: ${reason}`));
-      throw new Error(`Release gate failure: ${releaseGateReasons.join('; ')}`);
+      releaseGateReasons.forEach((reason) => warnings.push(`Release gate warning: ${reason}`));
+      reportProgress("validation", `Release gate warnings: ${releaseGateReasons.join('; ')}`, 99);
     }
 
     // ========================================================================

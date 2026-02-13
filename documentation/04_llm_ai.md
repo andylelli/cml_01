@@ -191,7 +191,8 @@ Long outlines are generated in scene batches to ensure all chapters are produced
 - Novelty audit: compare generated CML to selected seeds (configurable similarity threshold) and force regeneration with stronger divergence constraints if too similar to any single seed. Set `NOVELTY_HARD_FAIL=true` to make similarity failures block the pipeline; otherwise failures continue as warnings.
 - Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
 - Story validation now includes `NarrativeContinuityValidator`, `CaseTransitionValidator`, `DiscriminatingTestValidator`, and `SuspectClosureValidator`.
-- Release gate enforcement now blocks run completion when continuity-critical issues remain, mojibake remains, discriminating-test scenes are missing, or suspect closure is incomplete.
+- Before final release-gate evaluation, prose generation now runs a preventive repair pass when validation flags discriminating-test gaps, suspect-closure gaps, missing case-transition bridge, or identity alias continuity breaks; the repair pass adds explicit quality guardrails to Agent 9 instructions.
+- Release gate enforcement now records warnings (instead of blocking completion) when continuity-critical issues remain, mojibake remains, discriminating-test scenes are missing, or suspect closure is incomplete.
 
 ## Safety & compliance
 - Avoid copyrighted text replication

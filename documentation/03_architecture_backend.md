@@ -148,7 +148,7 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - Services connect via `DATABASE_URL` (preferred) or split `PG*` environment variables.
 - The DB stores canonical CML, derived artifacts, versions, and run history.
 - When `DATABASE_URL` is not set, the API uses a simple JSON file-backed repository (default `data/store.json`, override with `CML_JSON_DB_PATH`).
-- The JSON file-backed repository writes via temporary files with retry logic for missing directories and Windows file-lock errors (EPERM/EBUSY), falling back to copy+unlink when rename fails.
+- The JSON file-backed repository writes directly to `store.json` with retry logic for missing directories and Windows file-lock errors (EPERM/EBUSY), and removes legacy `store.json.*.tmp` files at startup.
 
 Provenance fields to add if needed:
 - artifact_versions.prompt_version

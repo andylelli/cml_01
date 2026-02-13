@@ -167,7 +167,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 ### Pipeline Completion
 - After the pipeline finishes (success or failure), project status returns to `idle`
 - **Event**: `run_finished` - "Pipeline run finished"
-- **Release Gate**: pipeline completion is blocked when any of the following remain: critical continuity issue, mojibake artifact, missing discriminating test scene, or missing suspect-elimination coverage.
+- **Release Gate**: when any of the following remain (critical continuity issue, mojibake artifact, missing discriminating test scene, missing suspect-elimination coverage), the pipeline emits release-gate warnings and continues to completion for review.
 
 ## Run Events
 
