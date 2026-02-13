@@ -128,7 +128,7 @@ export const runPipeline = async (projectId: string) => {
   if (!response.ok) {
     throw new Error(`Run pipeline failed (${response.status})`);
   }
-  return response.json() as Promise<{ status: string; projectId: string }>;
+  return response.json() as Promise<{ status: string; projectId: string; runId?: string }>;
 };
 
 export const regenerateArtifact = async (projectId: string, scope: string) => {

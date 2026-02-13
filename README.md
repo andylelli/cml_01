@@ -48,7 +48,7 @@ Phase 5: Prose and character profiles are LLM-generated; game pack generation is
 V1 complete: clue list with red herrings, fair-play report, simple suspect cards, and granular regenerate controls are now visible in the UI.
 V2 complete: play mode chapter reveal, printable party kit PDF download, and community templates are available.
 Story length selection is available in the spec (short/medium/long), and generated prose lengths can be exported as PDFs (single selected version or all available versions).
-Deterministic fair-play guardrails now run before/after clue regeneration; critical clue-visibility or information-parity violations fail the pipeline instead of shipping warning-only output.
+Deterministic fair-play guardrails now run before/after clue regeneration; one fair-play retry is attempted, and unresolved violations continue as warnings so downstream generation can complete.
 Theme prompts can steer hard-logic construction (locked-room, timetable/math, botanical, acoustics, inheritance) and accept escalation phrases (`increase difficulty`, `make it brutal`) for more complex mechanism design.
 Novel hard-logic device ideation is now a dedicated LLM stage: the pipeline generates a `hard_logic_devices` artifact first, while a separate `background_context` artifact captures backdrop context. CML generation consumes both with explicit separation (background coherence vs mechanism proof).
 The web UI now surfaces this artifact in Review (Hard Logic tab), Advanced raw artifacts, and export selection.

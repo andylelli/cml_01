@@ -143,7 +143,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `fair_play_report` - `{ overallStatus, summary, checks[], violations[], warnings[], recommendations[] }`
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
 - **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit.
-- **Critical Gate**: If critical violations remain (Clue Visibility, Information Parity, No Withholding, Logical Deducibility), the pipeline fails instead of continuing with warnings.
+- **Continuation rule**: If violations remain after retry, they are surfaced as warnings and the pipeline continues to later stages.
 
 ### Step 8: Outline Generation
 - **Derives**: `{ status, tone, chapters, summary }`

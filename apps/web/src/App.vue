@@ -301,6 +301,7 @@ const projectsList = ref<Project[]>([]);
 const selectedProjectId = ref("");
 const missingProjectNotified = ref(false);
 const lastProjectStatus = ref<string | null>(null);
+const pendingRunId = ref<string | null>(null);
 const showAdvancedValidation = ref(false);
 const updateInProgress = ref<string | null>(null);
 const selectedProseLength = ref<string | null>(null);
@@ -690,20 +691,40 @@ const connectSse = () => {
   }
   unsubscribe = subscribeToRunEvents(
     projectId.value,
-    (payload) => {
-      runStatus.value = payload.status === "running" ? "Building your mystery..." : "All set. Explore your results.";
+    async (payload) => {
       const previous = lastProjectStatus.value;
       lastProjectStatus.value = payload.status;
+
       if (payload.status === "running") {
+        runStatus.value = "Building your mystery...";
         startRunEventsPolling();
+        return;
       }
+
       if (previous === "running" && payload.status === "idle") {
         isStartingRun.value = false;
         stopRunEventsPolling();
-        loadRunEventsForProject();
+        await loadRunEventsForProject();
+
+        const latestEvent = runEventsData.value[runEventsData.value.length - 1];
+        const failed = latestEvent?.step === "pipeline_error" || latestEvent?.step === "run_failed";
+
+        if (failed) {
+          runStatus.value = "Generation stopped before completion. Check run history and retry.";
+          addError("warning", "pipeline", "Generation stopped before completion", "Open History/Logs for details, then retry.");
+          logActivity({ projectId: projectId.value, scope: "ui", message: "run_failed" });
+          return;
+        }
+
+        runStatus.value = "All set. Explore your results.";
         pollArtifacts();
         addError("info", "pipeline", "Your mystery is ready.");
         logActivity({ projectId: projectId.value, scope: "ui", message: "run_completed" });
+        return;
+      }
+
+      if (payload.status === "idle" && !isStartingRun.value && runStatus.value === "Building your mystery...") {
+        runStatus.value = "Ready to generate";
       }
     },
     () => {
@@ -735,7 +756,15 @@ const loadRunEventsForProject = async () => {
   if (!projectId.value) return;
   await projectStore.loadRunEvents(projectId.value);
   if (runEventsData.value.length) {
-    isStartingRun.value = false;
+    const hasMatchedPendingRun = !pendingRunId.value || latestRunId.value === pendingRunId.value;
+    if (hasMatchedPendingRun) {
+      isStartingRun.value = false;
+      pendingRunId.value = null;
+      const latestEvent = runEventsData.value[runEventsData.value.length - 1];
+      if (latestEvent?.step === "pipeline_error") {
+        runStatus.value = "Generation failed. Review run history and try again.";
+      }
+    }
   }
   await maybeRefreshLlmLogs();
 };
@@ -1064,14 +1093,16 @@ const handleRunPipeline = async () => {
     latestSpecId.value = saved.id;
     persistState();
     logActivity({ projectId: projectId.value, scope: "ui", message: "spec_saved", payload: { specId: saved.id } });
-    runStatus.value = "Starting generation...";
-    await runPipeline(projectId.value);
+    runStatus.value = "Starting mystery generation pipeline...";
+    const started = await runPipeline(projectId.value);
+    pendingRunId.value = started.runId ?? null;
     addError("info", "pipeline", "Generation started");
     logActivity({ projectId: projectId.value, scope: "ui", message: "run_started" });
     startRunEventsPolling();
     lastFailedAction.value = null;
   } catch (error) {
     isStartingRun.value = false;
+    pendingRunId.value = null;
     const message = error instanceof Error ? error.message : String(error);
     if (message.includes("503")) {
       runStatus.value = "Generation unavailable (missing Azure OpenAI credentials)";

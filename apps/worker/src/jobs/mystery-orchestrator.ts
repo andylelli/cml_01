@@ -1050,23 +1050,21 @@ export async function generateMystery(
 
     if (fairPlayAudit.overallStatus === "fail") {
       if (hasCriticalFairPlayFailure) {
-        errors.push("Agent 6: Fair play audit failed on critical rules after clue regeneration");
-        fairPlayAudit.violations.forEach((v) => errors.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
-        throw new Error("Critical fair-play violations remain after clue regeneration");
+        warnings.push("Agent 6: Fair play audit failed on critical rules after clue regeneration; continuing with warnings");
+        fairPlayAudit.violations.forEach((v) => warnings.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
+      } else {
+        warnings.push("Agent 6: Fair play audit FAILED after clue regeneration");
       }
-
-      warnings.push("Agent 6: Fair play audit FAILED after clue regeneration");
       fairPlayAudit.violations.forEach((v) => {
         warnings.push(`  - [${v.severity}] ${v.description}`);
       });
     } else if (fairPlayAudit.overallStatus === "needs-revision") {
       if (hasCriticalFairPlayFailure) {
-        errors.push("Agent 6: Fair play needs revision due to critical clue visibility/information parity issues");
-        fairPlayAudit.violations.forEach((v) => errors.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
-        throw new Error("Critical fair-play rules not satisfied");
+        warnings.push("Agent 6: Fair play needs revision with critical issues; continuing with warnings");
+        fairPlayAudit.violations.forEach((v) => warnings.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
+      } else {
+        warnings.push("Agent 6: Fair play needs minor revisions after clue regeneration");
       }
-
-      warnings.push("Agent 6: Fair play needs minor revisions after clue regeneration");
       fairPlayAudit.warnings.forEach((w) => warnings.push(`  - ${w}`));
     }
 

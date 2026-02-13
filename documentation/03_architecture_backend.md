@@ -78,7 +78,7 @@ Current behavior:
 - Artifacts are written as each LLM step completes; no deterministic stub artifacts are created.
 - Pipeline execution requires Azure OpenAI credentials; no deterministic fallback artifacts are produced.
 - Clue generation now includes a deterministic guardrail pass (essential clue placement, duplicate clue IDs, and detective-only clue phrasing checks) before fair-play auditing.
-- Critical fair-play failures after retry are treated as hard pipeline failures.
+- Fair-play audit retries clues once; unresolved fair-play violations are recorded as warnings and pipeline execution continues.
 - CML orchestration now runs a dedicated hard-logic ideation agent that generates a `hard_logic_devices` artifact (3–5 novel mechanism concepts), validates it against schema, and then grounds Agent 3 CML generation in those generated devices.
 - Pipeline now also materializes a dedicated `background_context` artifact (era/setting/cast anchors/theme backdrop) so background context is stored separately from hard-logic mechanism ideation and consumed distinctly by Agent 3.
 - Prose is sanitized before persistence/export (Unicode normalization, mojibake cleanup, system residue removal).
