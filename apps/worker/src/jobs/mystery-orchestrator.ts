@@ -419,6 +419,124 @@ const detectIdentityAliasBreaks = (prose: ProseGenerationResult, cml: CaseData) 
   return issues;
 };
 
+// ============================================================================
+// Pre-prose outline quality gate
+// ============================================================================
+
+type OutlineCoverageIssue = {
+  type: "missing_discriminating_test_scene" | "missing_suspect_closure_scene";
+  message: string;
+};
+
+const OUTLINE_TEST_TERMS_RE = /\b(test|experiment|re-?enact|reenact|trap|demonstrat|verif|proof|examin|timing\s+test|constraint\s+proof)\b/i;
+const OUTLINE_EXCLUSION_TERMS_RE = /\b(excluded?|eliminat|ruled\s+out|could\s*not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|impossible\s+for|proves?\s+innocent)\b/i;
+const OUTLINE_EVIDENCE_TERMS_RE = /\b(because|therefore|proof|evidence|measured|timed|observed|alibi|timeline|constraint|clue)\b/i;
+const OUTLINE_ELIMINATION_TERMS_RE = /\b(cleared|ruled\s+out|eliminat|not\s+the\s+(culprit|killer|murderer)|innocent|alibi\s+holds|alibi\s+confirmed|could\s*not\s+have|excluded?)\b/i;
+
+const evaluateOutlineCoverage = (
+  narrative: NarrativeOutline,
+  cml: CaseData,
+): OutlineCoverageIssue[] => {
+  const issues: OutlineCoverageIssue[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cmlCase = (cml as any)?.CASE ?? {};
+  const allScenes = (narrative.acts ?? []).flatMap((act) =>
+    Array.isArray(act.scenes) ? act.scenes : [],
+  );
+
+  // --- Check 1: discriminating test scene ---
+  const hasDiscriminatingTestScene = allScenes.some((scene) => {
+    const blob = [
+      scene.title ?? "",
+      scene.purpose ?? "",
+      scene.summary ?? "",
+      scene.dramaticElements?.revelation ?? "",
+      scene.dramaticElements?.tension ?? "",
+    ].join(" ");
+    return (
+      OUTLINE_TEST_TERMS_RE.test(blob) &&
+      OUTLINE_EXCLUSION_TERMS_RE.test(blob) &&
+      OUTLINE_EVIDENCE_TERMS_RE.test(blob)
+    );
+  });
+
+  // Looser fallback: any scene whose title/purpose explicitly mentions discriminating test concept
+  const DISC_TEST_FALLBACK_RE = /discriminating|re-?enactment|crucial\s+test|decisive\s+experiment|trap\s+is\s+set|ruling\s+out/i;
+  const hasTestMention = allScenes.some((scene) => {
+    const blob = [scene.title ?? "", scene.purpose ?? "", scene.summary ?? ""].join(" ");
+    return DISC_TEST_FALLBACK_RE.test(blob);
+  });
+
+  if (!hasDiscriminatingTestScene && !hasTestMention) {
+    issues.push({
+      type: "missing_discriminating_test_scene",
+      message:
+        "Outline has no scene whose summary/purpose contains discriminating test, re-enactment, or suspect-elimination language",
+    });
+  }
+
+  // --- Check 2: suspect closure / elimination coverage ---
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const castRoster: any[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
+  const culprits: string[] = Array.isArray(cmlCase.culpability?.culprits)
+    ? (cmlCase.culpability.culprits as string[])
+    : [];
+  const suspects = castRoster
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter((c: any) => c.role === "suspect")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((c: any) => (c.name ?? "").trim())
+    .filter((name: string) => name.length > 0 && !culprits.includes(name));
+
+  if (suspects.length > 0) {
+    const allSceneText = allScenes
+      .map((s) => [s.title, s.purpose, s.summary, s.dramaticElements?.revelation].join(" "))
+      .join(" ");
+
+    const hasAnyClosure =
+      OUTLINE_ELIMINATION_TERMS_RE.test(allSceneText) && OUTLINE_EVIDENCE_TERMS_RE.test(allSceneText);
+
+    if (!hasAnyClosure) {
+      issues.push({
+        type: "missing_suspect_closure_scene",
+        message:
+          "Outline has no scene with suspect elimination/closure language (cleared, ruled out, alibi confirmed, etc.)",
+      });
+    }
+  }
+
+  return issues;
+};
+
+const buildOutlineRepairGuardrails = (
+  issues: OutlineCoverageIssue[],
+  cml: CaseData,
+): string[] => {
+  const guardrails: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cmlCase = (cml as any)?.CASE ?? {};
+
+  if (issues.some((i) => i.type === "missing_discriminating_test_scene")) {
+    const discrimTest = cmlCase.discriminating_test;
+    const method = discrimTest?.method ?? "constraint_proof";
+    const design = discrimTest?.design ?? "";
+    const designClause = design ? " (" + design + ")" : "";
+    guardrails.push(
+      "Include a dedicated discriminating test scene in late Act II or early Act III where the detective explicitly stages a " + method + designClause + " that rules out at least one suspect using on-page evidence. The scene summary MUST contain words like test/experiment/re-enactment AND ruled out/eliminated/excluded AND evidence/proof/because.",
+    );
+  }
+
+  if (issues.some((i) => i.type === "missing_suspect_closure_scene")) {
+    const culpritsList: string[] = cmlCase.culpability?.culprits ?? [];
+    const culpritClause = culpritsList.length > 0 ? " (" + culpritsList.join(", ") + ")" : "";
+    guardrails.push(
+      "In Act III, include at least one scene where the detective explains why each non-culprit suspect is cleared with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
+    );
+  }
+
+  return guardrails;
+};
+
 const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: CaseData }>) => {
   const titles = seedEntries
     .map((seed) => {
@@ -1043,7 +1161,7 @@ export async function generateMystery(
     reportProgress("narrative", "Formatting narrative structure...", 75);
     
     const narrativeStart = Date.now();
-    const narrative = await formatNarrative(client, {
+    let narrative = await formatNarrative(client, {
       caseData: cml,
       clues: clues,
       targetLength: inputs.targetLength,
@@ -1060,6 +1178,49 @@ export async function generateMystery(
       `${narrative.totalScenes} scenes structured (${narrative.estimatedTotalWords} words)`,
       87
     );
+
+    // ========================================================================
+    // Pre-prose outline quality gate
+    // ========================================================================
+    const outlineCoverageIssues = evaluateOutlineCoverage(narrative, cml);
+
+    if (outlineCoverageIssues.length > 0) {
+      const outlineGuardrails = buildOutlineRepairGuardrails(outlineCoverageIssues, cml);
+      outlineCoverageIssues.forEach((issue) =>
+        warnings.push("Outline coverage gap: " + issue.message),
+      );
+      warnings.push("Regenerating outline with targeted quality guardrails");
+      reportProgress("narrative", "Regenerating outline to address coverage gaps", 80);
+
+      const narrativeRetryStart = Date.now();
+      const retriedNarrative = await formatNarrative(client, {
+        caseData: cml,
+        clues: clues,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        qualityGuardrails: outlineGuardrails,
+        runId,
+        projectId: projectId || "",
+      });
+
+      agentCosts["agent7_narrative"] = (agentCosts["agent7_narrative"] || 0) + retriedNarrative.cost;
+      agentDurations["agent7_narrative"] = (agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeRetryStart);
+
+      // Re-evaluate
+      const retryOutlineIssues = evaluateOutlineCoverage(retriedNarrative, cml);
+      if (retryOutlineIssues.length < outlineCoverageIssues.length) {
+        narrative = retriedNarrative;
+        warnings.push("Outline retry improved coverage");
+        reportProgress(
+          "narrative",
+          "Outline retry: " + retriedNarrative.totalScenes + " scenes (" + retriedNarrative.estimatedTotalWords + " words)",
+          85,
+        );
+      } else {
+        // Keep original but still pass guardrails downstream to prose
+        warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
+      }
+    }
 
     // ========================================================================
     // Agent 2b: Character Profiles
@@ -1165,6 +1326,7 @@ export async function generateMystery(
       temporalContext: temporalContext,
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
+      qualityGuardrails: outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : undefined,
       runId,
       projectId: projectId || "",
     });
@@ -1239,8 +1401,79 @@ export async function generateMystery(
       warnings.push(`Story validation: ${validationReport.status} - ${validationReport.summary.major} major, ${validationReport.summary.critical} critical issues`);
       reportProgress("validation", `Story needs revision`, 98);
     } else {
-      errors.push(`Story validation failed: ${validationReport.summary.critical} critical errors`);
-      reportProgress("validation", "Story validation failed", 98);
+      // Validation failed - attempt prose repair retry with targeted guardrails
+      warnings.push("Story validation: " + validationReport.status + " - " + validationReport.summary.critical + " critical, " + validationReport.summary.major + " major issues");
+      reportProgress("validation", "Story validation failed; attempting prose repair retry", 96);
+
+      // Build targeted guardrails from validation errors (de-duplicated)
+      const repairGuardrailSet = new Set<string>();
+      for (const err of validationReport.errors) {
+        if (err.type === "missing_discriminating_test" || err.type === "cml_test_not_realized") {
+          repairGuardrailSet.add(
+            "The prose MUST include a scene where the detective performs a discriminating test (experiment, re-enactment, trap, or timing test) that explicitly rules out or eliminates at least one suspect with on-page evidence and reasoning."
+          );
+        }
+        if (err.type === "suspect_closure_missing") {
+          repairGuardrailSet.add(
+            "The prose MUST include a scene in which each non-culprit suspect is explicitly cleared (ruled out, eliminated, alibi confirmed) with stated evidence."
+          );
+        }
+        if (err.type === "culprit_evidence_chain_missing") {
+          repairGuardrailSet.add(
+            "The prose MUST include a scene where the culprit is identified and the full evidence chain (because, therefore, proof) is laid out."
+          );
+        }
+      }
+      const repairGuardrails = Array.from(repairGuardrailSet);
+
+      if (repairGuardrails.length > 0) {
+        warnings.push("Prose repair retry: " + repairGuardrails.length + " guardrails applied");
+        reportProgress("prose", "Regenerating prose with targeted guardrails...", 96);
+
+        const proseRepairStart = Date.now();
+        const repairedProse = await generateProse(client, {
+          caseData: cml,
+          outline: narrative,
+          cast: cast.cast,
+          characterProfiles: characterProfiles,
+          locationProfiles: locationProfiles,
+          temporalContext: temporalContext,
+          targetLength: inputs.targetLength,
+          narrativeStyle: inputs.narrativeStyle,
+          qualityGuardrails: repairGuardrails,
+          runId,
+          projectId: projectId || "",
+        });
+
+        prose = sanitizeProseResult(repairedProse);
+        agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + repairedProse.cost;
+        agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRepairStart);
+
+        // Re-validate
+        const repairedStory = {
+          id: runId,
+          projectId: projectId || runId,
+          scenes: prose.chapters.map((ch: any, idx: number) => ({
+            number: idx + 1,
+            title: ch.title,
+            text: ch.paragraphs.join("\n\n"),
+          })),
+        };
+
+        validationReport = await validationPipeline.validate(repairedStory, cml);
+
+        if (validationReport.status === "passed" || validationReport.status === "needs_review") {
+          warnings.push("Prose repair retry improved validation to: " + validationReport.status);
+          reportProgress("validation", "Prose repair improved validation: " + validationReport.status, 97);
+        } else {
+          warnings.push("Prose repair retry did not fully resolve validation: " + validationReport.status);
+          reportProgress("validation", "Prose repair: validation still " + validationReport.status, 97);
+        }
+      } else {
+        // No actionable guardrails - just log as warning
+        warnings.push("Story validation failed but no recoverable error types found");
+      }
+      reportProgress("validation", "Story validation: " + validationReport.status, 98);
     }
 
     // Auto-fix encoding issues

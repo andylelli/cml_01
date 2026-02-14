@@ -116,7 +116,11 @@ Critical fair-play violations (Clue Visibility, Information Parity, No Withholdi
 
 ### Agent 7 — Narrative Outliner
 Creates outline with clue placement and discriminating test timing.
-Runs a preventive coverage gate before prose to ensure explicit discriminating-test and suspect-elimination beats; regenerates outline once with targeted guardrails if needed.
+- Accepts optional `qualityGuardrails` parameter to steer outline generation.
+- **Pre-prose outline quality gate (implemented)**: After outline generation, a deterministic checker (`evaluateOutlineCoverage`) scans all scene fields (title, purpose, summary, dramatic elements) for two categories:
+  1. **Discriminating test coverage** — requires test/experiment/re-enactment language co-occurring with exclusion and evidence terms, or an explicit "discriminating test" mention.
+  2. **Suspect closure coverage** — requires elimination/cleared/ruled-out language co-occurring with evidence terms (when CML has non-culprit suspects).
+- If either check fails, the outline is regenerated once with targeted `qualityGuardrails` derived from the specific CML data (method, design, culprit names). The retried outline replaces the original if coverage improves; otherwise guardrails propagate to prose generation.
 
 ### Agent 8 — Novelty Auditor
 Scores similarity vs selected seed CMLs and summarizes novelty risks.
@@ -126,6 +130,7 @@ Guardrail: status fail blocks the pipeline.
 Generates novel-quality prose with full context integration:
 - Input: outline + CML + cast + character profiles + location profiles + temporal context
 - Output: 3-6 paragraphs per chapter with varied pacing
+- **Outline gap passthrough**: If the outline quality gate (Agent 7) detected coverage gaps, the initial prose call receives targeted `qualityGuardrails` so the LLM is explicitly instructed to include missing discriminating-test or suspect-closure beats.
 - Character voice: Distinct speech patterns based on class, role, background (from profiles)
 - Sensory immersion: Multi-sensory scene descriptions using location sensory palettes
 - Period authenticity: Fashion, cultural references, prices from temporal context
