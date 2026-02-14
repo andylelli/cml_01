@@ -106,7 +106,7 @@ Your output is a JSON scene outline that prose generators can use to write the f
   const developer = buildDeveloperContext(caseData, clues);
 
   // User: Request the narrative outline
-  const user = buildUserRequest(targetLength, narrativeStyle, inputs.qualityGuardrails ?? []);
+  const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? []);
 
   return { system, developer, user };
 }
@@ -252,10 +252,85 @@ ${accessConstraints}
 ---
 
 ## Era Details
-${eraDetails}`;
+${eraDetails}
+
+---
+
+## Prose Requirements (CRITICAL - Must be reflected in outline)
+${buildProseRequirements(caseData)}`;
 }
 
-function buildUserRequest(targetLength: string, narrativeStyle: string, qualityGuardrails: string[]): string {
+function buildProseRequirements(caseData: CaseData): string {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const proseReq = cmlCase.prose_requirements;
+  
+  if (!proseReq) {
+    return "No explicit prose requirements specified. Follow standard mystery structure.";
+  }
+
+  let reqText = "";
+
+  // Discriminating test scene
+  if (proseReq.discriminating_test_scene) {
+    const dt = proseReq.discriminating_test_scene;
+    reqText += `### Discriminating Test Scene (REQUIRED)\n`;
+    reqText += `- **Must appear in:** Act ${dt.act_number}, Scene ${dt.scene_number}\n`;
+    reqText += `- **Test type:** ${dt.test_type}\n`;
+    reqText += `- **Required elements:** ${(dt.required_elements || []).join(", ")}\n\n`;
+  }
+
+  // Suspect clearance scenes
+  if (proseReq.suspect_clearance_scenes && proseReq.suspect_clearance_scenes.length > 0) {
+    reqText += `### Suspect Clearance Scenes (REQUIRED)\n`;
+    proseReq.suspect_clearance_scenes.forEach((clearance: any) => {
+      reqText += `- **${clearance.suspect_name}**: Act ${clearance.act_number}, Scene ${clearance.scene_number}\n`;
+      reqText += `  - Method: ${clearance.clearance_method}\n`;
+      if (clearance.supporting_clues && clearance.supporting_clues.length > 0) {
+        reqText += `  - Clues: ${clearance.supporting_clues.join(", ")}\n`;
+      }
+    });
+    reqText += "\n";
+  }
+
+  // Culprit revelation
+  if (proseReq.culprit_revelation_scene) {
+    const rev = proseReq.culprit_revelation_scene;
+    reqText += `### Culprit Revelation Scene (REQUIRED)\n`;
+    reqText += `- **Must appear in:** Act ${rev.act_number}, Scene ${rev.scene_number}\n`;
+    reqText += `- **Revelation method:** ${rev.revelation_method}\n\n`;
+  }
+
+  // Identity rules
+  if (proseReq.identity_rules && proseReq.identity_rules.length > 0) {
+    reqText += `### Identity Reference Rules\n`;
+    proseReq.identity_rules.forEach((rule: any) => {
+      reqText += `- **${rule.character_name}**:\n`;
+      reqText += `  - Before reveal (Acts 1-${rule.revealed_in_act - 1}): "${rule.before_reveal_reference}"\n`;
+      reqText += `  - After reveal (Act ${rule.revealed_in_act}+): "${rule.after_reveal_reference}"\n`;
+    });
+    reqText += "\n";
+  }
+
+  // Clue to scene mapping
+  if (proseReq.clue_to_scene_mapping && proseReq.clue_to_scene_mapping.length > 0) {
+    reqText += `### Clue Placement Guidelines\n`;
+    const mapped = proseReq.clue_to_scene_mapping.slice(0, 5); // Show first 5
+    mapped.forEach((mapping: any) => {
+      reqText += `- **${mapping.clue_id}**: Act ${mapping.act_number}`;
+      if (mapping.scene_number) {
+        reqText += `, Scene ${mapping.scene_number}`;
+      }
+      if (mapping.delivery_method) {
+        reqText += ` (${mapping.delivery_method})`;
+      }
+      reqText += `\n`;
+    });
+  }
+
+  return reqText || "No prose requirements specified.";
+}
+
+function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[]): string {
   const lengthGuidance = {
     short: "15-25 scenes, ~15,000-25,000 words (novella)",
     medium: "25-35 scenes, ~40,000-60,000 words (novel)",
@@ -275,6 +350,8 @@ function buildUserRequest(targetLength: string, narrativeStyle: string, qualityG
     ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
     : "";
 
+  const proseRequirementsBlock = buildProseRequirements(caseData);
+
   return `# Narrative Outline Task
 
 Create a scene-by-scene outline for this mystery story.
@@ -282,6 +359,7 @@ Create a scene-by-scene outline for this mystery story.
 ## Target Specifications
 - **Length**: ${targetLength} (${lengthGuidance[targetLength as keyof typeof lengthGuidance]})
 - **Style**: ${narrativeStyle} (${styleGuidance[narrativeStyle as keyof typeof styleGuidance]})
+${proseRequirementsBlock}
 
 ## Scene Construction Guidelines
 
@@ -328,6 +406,14 @@ Each scene must include:
 - Discriminating test appears in late Act II or early Act III
 - Save essential clues for when inference path requires them
 - Do not introduce detective-private insights; avoid reveals unsupported by previously listed clue IDs
+
+## CRITICAL: Follow Prose Requirements
+**You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
+- If a discriminating test scene is specified, that scene must appear at that position
+- If suspect clearance scenes are specified, each must appear at their designated positions
+- If a culprit revelation scene is specified, it must appear at that position
+- Scene descriptions must mention the required elements and clues indicated
+- These requirements are mandatory for story validation - missing them will cause generation failure
 ${guardrailBlock}
 
 ## Output Format

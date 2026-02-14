@@ -7,7 +7,9 @@
  * Handles progress tracking, error recovery, cost tracking, and result aggregation.
  */
 
-import { join } from "path";
+import { join, dirname, resolve as pathResolve } from "path";
+import { readFileSync, existsSync } from "fs";
+import { fileURLToPath } from "url";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateCaseData, validateArtifact } from "@cml/cml";
@@ -15,6 +17,7 @@ import {
   refineSetting,
   designCast,
   generateCML,
+  buildCMLPrompt,
   extractClues,
   auditFairPlay,
   formatNarrative,
@@ -26,6 +29,8 @@ import {
   generateProse,
   auditNovelty,
   loadSeedCMLFiles,
+  blindReaderSimulation,
+  reviseCml,
 } from "@cml/prompts-llm";
 import { StoryValidationPipeline } from "@cml/story-validation";
 import type { ValidationReport } from "@cml/story-validation";
@@ -44,6 +49,7 @@ import type {
   HardLogicDeviceIdea,
   ProseGenerationResult,
   NoveltyAuditResult,
+  BlindReaderResult,
 } from "@cml/prompts-llm";
 
 // ============================================================================
@@ -344,6 +350,323 @@ const applyClueGuardrails = (cml: CaseData, clues: ClueDistributionResult) => {
     fixes,
     hasCriticalIssues: issues.some((i) => i.severity === "critical"),
   };
+};
+
+// ============================================================================
+// WP6: Failure Classification
+// ============================================================================
+
+type FairPlayFailureClass = "clue_coverage" | "inference_path_abstract" | "constraint_space_insufficient" | "clue_only";
+
+const classifyFairPlayFailure = (
+  coverageResult: InferenceCoverageResult,
+  fairPlayAudit: FairPlayAuditResult | null,
+  cml: CaseData
+): FairPlayFailureClass => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const steps = caseBlock?.inference_path?.steps ?? [];
+
+  const abstractSteps = steps.filter((s: any) => {
+    const obs = (s.observation || "").trim();
+    const hasEvidence = Array.isArray(s.required_evidence) && s.required_evidence.length > 0;
+    return obs.length < 30 || !hasEvidence;
+  });
+
+  if (abstractSteps.length >= Math.ceil(steps.length * 0.5)) {
+    return "inference_path_abstract";
+  }
+
+  const cs = caseBlock?.constraint_space ?? {};
+  const totalConstraints = [
+    ...(cs.time?.contradictions ?? []),
+    ...(cs.time?.anchors ?? []),
+    ...(cs.access?.actors ?? []),
+    ...(cs.physical?.traces ?? []),
+  ].length;
+
+  if (totalConstraints < 4) {
+    return "constraint_space_insufficient";
+  }
+
+  if (coverageResult.hasCriticalGaps) {
+    return "clue_coverage";
+  }
+
+  return "clue_only";
+};
+
+// ============================================================================
+// WP4: Inference Path Coverage Guardrails
+// ============================================================================
+
+interface InferenceCoverageResult {
+  issues: ClueGuardrailIssue[];
+  coverageMap: Map<number, { observation: boolean; contradiction: boolean; elimination: boolean }>;
+  uncoveredSteps: number[];
+  hasCriticalGaps: boolean;
+}
+
+const checkInferencePathCoverage = (
+  cml: CaseData,
+  clues: ClueDistributionResult
+): InferenceCoverageResult => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const steps = caseBlock?.inference_path?.steps ?? [];
+  
+  if (!Array.isArray(steps) || steps.length === 0) {
+    issues.push({
+      severity: "critical",
+      message: "No inference_path steps found in CML",
+    });
+    return { issues, coverageMap: new Map(), uncoveredSteps: [], hasCriticalGaps: true };
+  }
+
+  const coverageMap = new Map<number, { observation: boolean; contradiction: boolean; elimination: boolean }>();
+  for (let i = 0; i < steps.length; i++) {
+    coverageMap.set(i + 1, { observation: false, contradiction: false, elimination: false });
+  }
+
+  for (const clue of clues.clues) {
+    const stepNum = (clue as any).supportsInferenceStep;
+    if (stepNum && coverageMap.has(stepNum)) {
+      const coverage = coverageMap.get(stepNum)!;
+      const evidenceType = (clue as any).evidenceType || "observation";
+      if (evidenceType in coverage) {
+        (coverage as any)[evidenceType] = true;
+      }
+    }
+  }
+
+  // Fuzzy matching fallback
+  for (const clue of clues.clues) {
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const stepNum = i + 1;
+      const coverage = coverageMap.get(stepNum)!;
+      
+      const clueText = (clue.description + " " + (clue as any).sourceInCML).toLowerCase();
+      const obsText = (step.observation || "").toLowerCase();
+      
+      const obsWords = obsText.split(/\s+/).filter((w: string) => w.length > 4);
+      const matchCount = obsWords.filter((w: string) => clueText.includes(w)).length;
+      if (obsWords.length > 0 && matchCount >= Math.ceil(obsWords.length * 0.4)) {
+        coverage.observation = true;
+      }
+
+      if (Array.isArray(step.required_evidence)) {
+        for (const ev of step.required_evidence) {
+          const evWords = (ev as string).toLowerCase().split(/\s+/).filter((w: string) => w.length > 4);
+          const evMatch = evWords.filter((w: string) => clueText.includes(w)).length;
+          if (evWords.length > 0 && evMatch >= Math.ceil(evWords.length * 0.4)) {
+            coverage.observation = true;
+          }
+        }
+      }
+    }
+  }
+
+  const uncoveredSteps: number[] = [];
+  for (const [stepNum, coverage] of coverageMap) {
+    if (!coverage.observation) {
+      uncoveredSteps.push(stepNum);
+      const step = steps[stepNum - 1];
+      issues.push({
+        severity: "critical",
+        message: "Inference step " + stepNum + ' ("' + (step.observation || "").substring(0, 60) + '") has NO covering clue',
+      });
+    }
+    if (!coverage.contradiction) {
+      issues.push({
+        severity: "warning",
+        message: "Inference step " + stepNum + " has no contradiction clue",
+      });
+    }
+  }
+
+  return {
+    issues,
+    coverageMap,
+    uncoveredSteps,
+    hasCriticalGaps: uncoveredSteps.length > 0,
+  };
+};
+
+const checkContradictionPairs = (
+  cml: CaseData,
+  clues: ClueDistributionResult
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const steps = caseBlock?.inference_path?.steps ?? [];
+  
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    const stepNum = i + 1;
+    
+    const stepClues = clues.clues.filter((c: any) => c.supportsInferenceStep === stepNum);
+    const evidenceTypes = new Set(stepClues.map((c: any) => c.evidenceType || "observation"));
+    
+    if (stepClues.length >= 2 && evidenceTypes.has("observation") && 
+        (evidenceTypes.has("contradiction") || evidenceTypes.has("elimination"))) {
+      continue;
+    }
+    
+    if (stepClues.length < 2) {
+      issues.push({
+        severity: "warning",
+        message: "Inference step " + stepNum + ' ("' + (step.observation || "").substring(0, 60) + '") has only ' + stepClues.length + " mapped clue(s)",
+      });
+    } else if (!evidenceTypes.has("contradiction") && !evidenceTypes.has("elimination")) {
+      issues.push({
+        severity: "warning",
+        message: "Inference step " + stepNum + " has clues but no contradiction/elimination evidence",
+      });
+    }
+  }
+
+  return issues;
+};
+
+const checkFalseAssumptionContradiction = (
+  cml: CaseData,
+  clues: ClueDistributionResult
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const falseAssumption = caseBlock?.false_assumption?.statement || "";
+  
+  if (!falseAssumption) {
+    issues.push({
+      severity: "critical",
+      message: "No false_assumption.statement in CML",
+    });
+    return issues;
+  }
+
+  const contradictionClues = clues.clues.filter((c: any) => c.evidenceType === "contradiction");
+  if (contradictionClues.length === 0) {
+    issues.push({
+      severity: "critical",
+      message: "No clue with evidenceType=\"contradiction\" found. Reader needs evidence challenging: \"" + falseAssumption.substring(0, 80) + "\"",
+    });
+  }
+
+  const suspiciousRedHerrings = clues.redHerrings.filter((rh: any) => {
+    const desc = (rh.description + " " + rh.supportsAssumption).toLowerCase();
+    return caseBlock?.inference_path?.steps?.some((step: any) => {
+      const corrWords = (step.correction || "").toLowerCase().split(/\s+/).filter((w: string) => w.length > 5);
+      return corrWords.some((w: string) => desc.includes(w));
+    });
+  });
+
+  if (suspiciousRedHerrings.length > 0) {
+    issues.push({
+      severity: "warning",
+      message: suspiciousRedHerrings.length + " red herring(s) may accidentally support the true solution",
+    });
+  }
+
+  return issues;
+};
+
+const checkDiscriminatingTestReachability = (
+  cml: CaseData,
+  clues: ClueDistributionResult
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const discrimTest = caseBlock?.discriminating_test;
+  
+  if (!discrimTest?.design) {
+    issues.push({
+      severity: "critical",
+      message: "No discriminating_test.design in CML",
+    });
+    return issues;
+  }
+
+  const designText = (discrimTest.design || "").toLowerCase();
+  const knowledgeText = (discrimTest.knowledge_revealed || "").toLowerCase();
+  const combinedTestText = designText + " " + knowledgeText;
+
+  const relevantClues = clues.clues.filter((c: any) => {
+    const clueText = c.description.toLowerCase();
+    const testWords = combinedTestText.split(/\s+/).filter((w: string) => w.length > 4);
+    const matchCount = testWords.filter((w: string) => clueText.includes(w)).length;
+    return testWords.length > 0 && matchCount >= Math.ceil(testWords.length * 0.2);
+  });
+
+  if (relevantClues.length === 0) {
+    issues.push({
+      severity: "critical",
+      message: "Discriminating test references no evidence found in the clue set",
+    });
+  }
+
+  const earlyMidRelevant = relevantClues.filter((c: any) => c.placement === "early" || c.placement === "mid");
+  if (relevantClues.length > 0 && earlyMidRelevant.length === 0) {
+    issues.push({
+      severity: "warning",
+      message: "All clues related to the discriminating test are in late placement",
+    });
+  }
+
+  return issues;
+};
+
+const checkSuspectElimination = (
+  cml: CaseData,
+  clues: ClueDistributionResult
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const culprits = caseBlock?.culpability?.culprits ?? [];
+  
+  const suspects = cast.filter((c: any) => 
+    c.culprit_eligibility === "eligible" && !culprits.includes(c.name)
+  );
+
+  if (suspects.length === 0) return issues;
+
+  const allClueText = clues.clues.map((c: any) => c.description.toLowerCase()).join(" ");
+  
+  const uneliminable = suspects.filter((suspect: any) => {
+    const name = (suspect.name || "").toLowerCase();
+    const nameWords = name.split(/\s+/);
+    return !nameWords.some((w: string) => w.length > 2 && allClueText.includes(w));
+  });
+
+  if (uneliminable.length > 0) {
+    issues.push({
+      severity: "warning",
+      message: uneliminable.length + " suspect(s) (" + uneliminable.map((s: any) => s.name).join(", ") + ") are never referenced in any clue",
+    });
+  }
+
+  return issues;
+};
+
+
+// Load writing guide notes for prose generation
+const loadWritingGuides = (): { humour?: string; craft?: string } => {
+  const guides: { humour?: string; craft?: string } = {};
+  const currentDir = dirname(fileURLToPath(import.meta.url));
+  const notesDir = pathResolve(currentDir, "../../../../notes");
+  try {
+    const humourPath = join(notesDir, "DEFINITIVE_GUIDE_TO_HUMOUR.md");
+    if (existsSync(humourPath)) {
+      guides.humour = readFileSync(humourPath, "utf8");
+    }
+  } catch { /* optional guide */ }
+  try {
+    const craftPath = join(notesDir, "WHAT_MAKES_A_GOOD_WHODUNNIT.md");
+    if (existsSync(craftPath)) {
+      guides.craft = readFileSync(craftPath, "utf8");
+    }
+  } catch { /* optional guide */ }
+  return guides;
 };
 
 const proseMojibakeReplacements: Array<[RegExp, string]> = [
@@ -1072,6 +1395,74 @@ export async function generateMystery(
     }
 
     // ========================================================================
+    // WP4: Inference Path Coverage Gate
+    // ========================================================================
+    const coverageResult = checkInferencePathCoverage(cml, clues);
+    const contradictionIssues = checkContradictionPairs(cml, clues);
+    const falseAssumptionIssues = checkFalseAssumptionContradiction(cml, clues);
+    const discrimTestIssues = checkDiscriminatingTestReachability(cml, clues);
+    const eliminationIssues = checkSuspectElimination(cml, clues);
+
+    const allCoverageIssues = [
+      ...coverageResult.issues,
+      ...contradictionIssues,
+      ...falseAssumptionIssues,
+      ...discrimTestIssues,
+      ...eliminationIssues,
+    ];
+
+    allCoverageIssues.forEach(issue => {
+      warnings.push("Inference coverage: [" + issue.severity + "] " + issue.message);
+    });
+
+    if (coverageResult.hasCriticalGaps || 
+        falseAssumptionIssues.some(i => i.severity === "critical") ||
+        discrimTestIssues.some(i => i.severity === "critical")) {
+      
+      warnings.push("Inference coverage gate: critical gaps found; regenerating clues with coverage feedback");
+      
+      const coverageFeedback = {
+        overallStatus: "fail" as const,
+        violations: allCoverageIssues
+          .filter(i => i.severity === "critical")
+          .map(i => ({
+            severity: "critical" as const,
+            rule: "Inference Path Coverage",
+            description: i.message,
+            suggestion: "Ensure every inference step has at least one clue that makes its observation reader-visible. Map each clue to a specific step via supportsInferenceStep.",
+          })),
+        warnings: allCoverageIssues
+          .filter(i => i.severity === "warning")
+          .map(i => i.message),
+        recommendations: [
+          "Every inference step needs at least one observation clue and one contradiction clue",
+          "Set supportsInferenceStep on every essential clue",
+          "Include at least one clue that explicitly contradicts the false assumption",
+          "Uncovered steps: " + coverageResult.uncoveredSteps.join(", "),
+        ],
+      };
+
+      reportProgress("clues", "Regenerating clues to address coverage gaps...", 58);
+      const coverageRetryStart = Date.now();
+      clues = await extractClues(client, {
+        cml,
+        clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+        redHerringBudget: 2,
+        fairPlayFeedback: coverageFeedback,
+        runId,
+        projectId: projectId || "",
+      });
+
+      agentCosts["agent5_clues"] = (agentCosts["agent5_clues"] || 0) + clues.cost;
+      agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - coverageRetryStart);
+
+      const postCoverageGuardrails = applyClueGuardrails(cml, clues);
+      if (postCoverageGuardrails.fixes.length > 0) {
+        postCoverageGuardrails.fixes.forEach(fix => warnings.push("Post-coverage guardrail auto-fix: " + fix));
+      }
+    }
+
+    // ========================================================================
     // Agent 6: Fair Play Auditor
     // ========================================================================
     reportProgress("fairplay", "Auditing fair play compliance...", 62);
@@ -1154,6 +1545,192 @@ export async function generateMystery(
     }
 
     reportProgress("fairplay", `Fair play audit: ${fairPlayAudit.overallStatus}`, 75);
+
+    // ========================================================================
+    // WP5B: Blind Reader Simulation
+    // ========================================================================
+    const caseBlockForBlind = (cml as any)?.CASE ?? cml;
+    const castNamesForBlind = (caseBlockForBlind?.cast ?? []).map((c: any) => c.name).filter(Boolean);
+    const falseAssumptionStatement = caseBlockForBlind?.false_assumption?.statement || "";
+    const actualCulpritName = caseBlockForBlind?.culpability?.culprits?.[0] || "";
+
+    if (castNamesForBlind.length > 0 && falseAssumptionStatement && actualCulpritName) {
+      reportProgress("fairplay", "Running blind reader simulation...", 73);
+      
+      const blindResult = await blindReaderSimulation(
+        client, clues, falseAssumptionStatement, castNamesForBlind,
+        { runId, projectId: projectId || "" }
+      );
+
+      agentCosts["agent6_blind_reader"] = blindResult.cost;
+      agentDurations["agent6_blind_reader"] = blindResult.durationMs;
+
+      const readerGotItRight = blindResult.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
+        actualCulpritName.toLowerCase().includes(blindResult.suspectedCulprit.toLowerCase());
+
+      if (readerGotItRight && (blindResult.confidenceLevel === "certain" || blindResult.confidenceLevel === "likely")) {
+        reportProgress("fairplay", "Blind reader simulation: PASS", 74);
+      } else {
+        warnings.push(
+          "Blind reader simulation: reader suspected \"" + blindResult.suspectedCulprit +
+          "\" (confidence: " + blindResult.confidenceLevel + "), actual culprit is \"" + actualCulpritName + "\""
+        );
+        if (blindResult.missingInformation.length > 0) {
+          warnings.push("Blind reader missing info: " + blindResult.missingInformation.join("; "));
+        }
+
+        if (blindResult.confidenceLevel === "impossible" || !readerGotItRight) {
+          warnings.push(
+            "CRITICAL: Blind reader cannot identify culprit. " +
+            "The clue set does not contain enough evidence for deduction."
+          );
+          
+          reportProgress("clues", "Regenerating clues based on blind reader feedback...", 60);
+          const blindRetryStart = Date.now();
+          clues = await extractClues(client, {
+            cml,
+            clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+            redHerringBudget: 2,
+            fairPlayFeedback: {
+              overallStatus: "fail",
+              violations: [{
+                severity: "critical" as const,
+                rule: "Information Parity",
+                description: "A blind reader using only the clues suspected \"" + blindResult.suspectedCulprit +
+                              "\" instead of the actual culprit \"" + actualCulpritName + "\". Reasoning: " + blindResult.reasoning,
+                suggestion: "Add clues that make the following deducible: " + blindResult.missingInformation.join("; "),
+              }],
+              warnings: [],
+              recommendations: blindResult.missingInformation.map((info: string) => "Provide evidence for: " + info),
+            },
+            runId,
+            projectId: projectId || "",
+          });
+
+          agentCosts["agent5_clues"] = (agentCosts["agent5_clues"] || 0) + clues.cost;
+          agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - blindRetryStart);
+          applyClueGuardrails(cml, clues);
+        }
+      }
+    }
+
+    // ========================================================================
+    // WP6B + WP8: CML Retry on Structural Failure + Hard Stop
+    // ========================================================================
+    const MAX_FAIR_PLAY_RETRY_COST = 0.15;
+    let fairPlayRetryCost = 0;
+
+    if (fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure) {
+      const failureClass = classifyFairPlayFailure(coverageResult, fairPlayAudit, cml);
+      
+      if ((failureClass === "inference_path_abstract" || failureClass === "constraint_space_insufficient") &&
+          fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST) {
+        warnings.push(
+          "Fair play failure classified as \"" + failureClass + "\" — retrying CML generation (Agent 4) " +
+          "to fix upstream structural problems"
+        );
+        
+        const revisionInstructions = failureClass === "inference_path_abstract"
+          ? "The inference_path steps are too abstract. Rewrite each step with: " +
+            "(1) a concrete, scene-level observation the reader can witness, " +
+            "(2) a correction that follows from stated evidence, " +
+            "(3) an effect that names the suspect eliminated, " +
+            "(4) required_evidence listing 2-4 specific facts."
+          : "The constraint_space is too sparse. Add: " +
+            "(1) at least one temporal contradiction, " +
+            "(2) at least 2 access constraints, " +
+            "(3) at least 2 physical traces. " +
+            "Each constraint must be concrete enough to become a reader-visible clue.";
+
+        reportProgress("cml", "Revising CML to fix structural fair play issues...", 55);
+        const revisionStart = Date.now();
+
+        // Build revision inputs matching the RevisionInputs type
+        const cmlYaml = typeof cml === "string" ? cml : JSON.stringify(cml, null, 2);
+        const revisionPrompt = buildCMLPrompt({
+          decade: setting.setting.era.decade,
+          location: setting.setting.location.description,
+          institution: setting.setting.location.type,
+          tone: inputs.tone || "Golden Age Mystery",
+          weather: setting.setting.atmosphere.weather,
+          socialStructure: setting.setting.era.socialNorms.join(", "),
+          theme: inputs.theme || "mystery",
+          castSize: cast.cast.characters.length,
+          castNames: cast.cast.characters.map((c: any) => c.name),
+          detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
+          victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
+          complexityLevel: hardLogicDirectives.complexityLevel,
+          mechanismFamilies: hardLogicDirectives.mechanismFamilies,
+          primaryAxis,
+          hardLogicModes: hardLogicDirectives.hardLogicModes,
+          difficultyMode: hardLogicDirectives.difficultyMode,
+          hardLogicDevices: hardLogicDevices.devices,
+          backgroundContext,
+          noveltyConstraints,
+          runId,
+          projectId: projectId || "",
+        });
+        
+        const revisedResult = await reviseCml(client, {
+          originalPrompt: { system: revisionPrompt.system, developer: revisionPrompt.developer || "", user: revisionPrompt.user },
+          invalidCml: cmlYaml,
+          validationErrors: [revisionInstructions],
+          attempt: 1,
+          runId,
+          projectId: projectId || "",
+        });
+
+        agentCosts["agent4_fairplay_revision"] = revisedResult.cost;
+        agentDurations["agent4_fairplay_revision"] = Date.now() - revisionStart;
+        fairPlayRetryCost += revisedResult.cost;
+
+        const revisedSteps = ((revisedResult.cml as any)?.CASE ?? revisedResult.cml)?.inference_path?.steps ?? [];
+        if (revisedSteps.length >= 3) {
+          cml = revisedResult.cml as CaseData;
+          warnings.push("CML revised — re-running clue extraction and fair play audit");
+
+          const reCluesStart = Date.now();
+          clues = await extractClues(client, {
+            cml,
+            clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+            redHerringBudget: 2,
+            runId,
+            projectId: projectId || "",
+          });
+          agentCosts["agent5_clues"] = (agentCosts["agent5_clues"] || 0) + clues.cost;
+          agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - reCluesStart);
+          fairPlayRetryCost += clues.cost;
+          applyClueGuardrails(cml, clues);
+
+          const reAuditStart = Date.now();
+          fairPlayAudit = await auditFairPlay(client, {
+            caseData: cml,
+            clues,
+            runId,
+            projectId: projectId || "",
+          });
+          agentCosts["agent6_fairplay"] = (agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+          agentDurations["agent6_fairplay"] = (agentDurations["agent6_fairplay"] || 0) + (Date.now() - reAuditStart);
+          fairPlayRetryCost += fairPlayAudit.cost;
+        }
+      }
+      
+      // WP8A: Hard stop if still failing after all retries
+      if (fairPlayAudit!.overallStatus === "fail") {
+        const criticalViolations = fairPlayAudit!.violations
+          .filter(v => v.severity === "critical" || criticalFairPlayRules.has(v.rule))
+          .map(v => v.rule + ": " + v.description)
+          .join("; ");
+        
+        if (criticalViolations) {
+          warnings.push("Fair play HARD STOP: critical failures persist after all retries: " + criticalViolations);
+        }
+      }
+
+      if (fairPlayRetryCost > MAX_FAIR_PLAY_RETRY_COST) {
+        warnings.push("Fair play retry cost limit reached ($" + fairPlayRetryCost.toFixed(3) + ") — proceeding with best result");
+      }
+    }
 
     // ========================================================================
     // Agent 7: Narrative Formatter
@@ -1327,6 +1904,7 @@ export async function generateMystery(
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
       qualityGuardrails: outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : undefined,
+      writingGuides: loadWritingGuides(),
       runId,
       projectId: projectId || "",
     });
@@ -1348,6 +1926,7 @@ export async function generateMystery(
         temporalContext: temporalContext,
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
+        writingGuides: loadWritingGuides(),
         runId,
         projectId: projectId || "",
       });
@@ -1373,7 +1952,7 @@ export async function generateMystery(
     reportProgress("validation", "Validating story quality...", 96);
 
     const validationStart = Date.now();
-    const validationPipeline = new StoryValidationPipeline();
+    const validationPipeline = new StoryValidationPipeline(client);
     
     // Build story object from prose for validation
     // Convert prose chapters (paragraphs) to scenes (text blocks)
@@ -1441,6 +2020,7 @@ export async function generateMystery(
           targetLength: inputs.targetLength,
           narrativeStyle: inputs.narrativeStyle,
           qualityGuardrails: repairGuardrails,
+          writingGuides: loadWritingGuides(),
           runId,
           projectId: projectId || "",
         });

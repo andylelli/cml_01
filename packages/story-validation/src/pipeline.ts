@@ -4,6 +4,7 @@
  */
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError } from './types.js';
+import type { AzureOpenAIClient } from '@cml/llm-client';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
 import { PhysicalPlausibilityValidator } from './physical-validator.js';
@@ -30,14 +31,14 @@ export interface ValidationReport {
 export class StoryValidationPipeline {
   private validators: Validator[];
 
-  constructor() {
+  constructor(llmClient?: AzureOpenAIClient) {
     this.validators = [
       new EncodingValidator(),
       new CharacterConsistencyValidator(),
       new NarrativeContinuityValidator(),
       new CaseTransitionValidator(),
-      new DiscriminatingTestValidator(),
-      new SuspectClosureValidator(),
+      new DiscriminatingTestValidator(llmClient),
+      new SuspectClosureValidator(llmClient),
       new PhysicalPlausibilityValidator(),
       new EraAuthenticityValidator()
     ];

@@ -49,6 +49,9 @@ export interface CharacterProfile {
   alibiWindow?: string;
   accessPlausibility?: string;
   stakes?: string;
+  humourStyle?: string;
+  humourLevel?: number;
+  speechMannerisms?: string;
   paragraphs: string[];
   order?: number;
 }

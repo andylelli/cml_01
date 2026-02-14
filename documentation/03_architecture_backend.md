@@ -71,7 +71,7 @@
 
 ## Orchestration pattern
 State machine with retries:
-SPEC_READY → SETTING_DONE → CAST_DONE → HARD_LOGIC_DEVICES_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → OUTLINE_DONE → PROSE_DONE
+SPEC_READY → SETTING_DONE → CAST_DONE → HARD_LOGIC_DEVICES_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → COVERAGE_GATE → FAIR_PLAY_AUDIT → BLIND_READER_CHECK → CML_RETRY_OR_PASS → OUTLINE_DONE → PROSE_DONE
 
 Current behavior:
 - Run initiation creates a run record, sets project status to running, and starts the LLM pipeline.
@@ -79,6 +79,11 @@ Current behavior:
 - Pipeline execution requires Azure OpenAI credentials; no deterministic fallback artifacts are produced.
 - Clue generation now includes a deterministic guardrail pass (essential clue placement, duplicate clue IDs, and detective-only clue phrasing checks) before fair-play auditing.
 - Fair-play audit retries clues once; unresolved fair-play violations are recorded as warnings and pipeline execution continues.
+- **Deterministic coverage gate (implemented):** Five guardrail functions (inference path coverage, contradiction pairs, false assumption contradiction, discriminating test reachability, suspect elimination) run after clue extraction. Critical gaps trigger one Agent 5 retry before the fair-play audit.
+- **Blind reader simulation (implemented):** After the fair-play audit, an LLM-only-clues simulation tests whether a reader can identify the culprit without seeing the solution. Failure triggers Agent 5 retry with blind reader feedback.
+- **CML-level feedback loop (implemented):** Structural fair-play failures (abstract inference path, insufficient constraint space) escalate to Agent 4 CML revision, then re-run Agent 5 + Agent 6 on the revised CML.
+- **Pipeline hard stop (implemented):** Persistent critical fair-play failures after CML retry abort the pipeline instead of producing an unsolvable mystery.
+- **Cost circuit breaker (implemented):** Fair-play retry cost is capped at $0.15 to prevent runaway LLM spend.
 - CML orchestration now runs a dedicated hard-logic ideation agent that generates a `hard_logic_devices` artifact (3–5 novel mechanism concepts), validates it against schema, and then grounds Agent 3 CML generation in those generated devices.
 - Pipeline now also materializes a dedicated `background_context` artifact (era/setting/cast anchors/theme backdrop) so background context is stored separately from hard-logic mechanism ideation and consumed distinctly by Agent 3.
 - Prose is sanitized before persistence/export (Unicode normalization, mojibake cleanup, system residue removal).

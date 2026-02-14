@@ -72,6 +72,27 @@ export interface CastDesignResult {
   cost: number;
 }
 
+// Simple hash function for variation
+const simpleHash = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+};
+
+// Generate specific variation directives from runId
+const generateCastVariation = (runId: string): { relationshipStyle: number; motivePattern: number; dynamicType: number } => {
+  const hash = simpleHash(runId);
+  return {
+    relationshipStyle: (hash % 4) + 1,        // 1-4: type of relationships to emphasize
+    motivePattern: ((hash >> 4) % 3) + 1,     // 1-3: motive distribution
+    dynamicType: ((hash >> 8) % 3) + 1        // 1-3: social dynamic emphasis
+  };
+};
+
 interface PromptComponents {
   system: string;
   developer: string;
@@ -191,10 +212,34 @@ Return JSON only:
     ? `**Character Names**: ${inputs.characterNames.join(", ")}`
     : `**Cast Size**: Create ${count} original characters (generate appropriate names)`;
 
+  const variation = generateCastVariation(inputs.runId || inputs.projectId || "");
+  const relationshipGuidance = [
+    "family secrets and inheritance conflicts",
+    "professional rivalries and workplace tensions",
+    "romantic entanglements and betrayals",
+    "long-buried scandals resurfacing"
+  ][variation.relationshipStyle - 1];
+  
+  const motiveGuidance = variation.motivePattern === 1 
+    ? "concentrate strong motives in 2-3 characters" 
+    : variation.motivePattern === 2
+    ? "distribute moderate motives across most characters"
+    : "create one overwhelming motive and several weak ones";
+  
+  const dynamicGuidance = variation.dynamicType === 1
+    ? "class tensions and social climbing"
+    : variation.dynamicType === 2
+    ? "insider vs outsider dynamics"
+    : "generational conflicts and changing values";
+
   const user = `Design detailed character profiles for the following mystery:
 
-**Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
-Use this seed to ensure the cast details and relationships differ from prior runs while staying within the spec.
+VARIATION DIRECTIVES FOR THIS CAST:
+- Relationship Theme: Emphasize ${relationshipGuidance}
+- Motive Distribution: ${motiveGuidance}
+- Social Dynamic: Highlight ${dynamicGuidance}
+
+Use these directives to create a UNIQUE cast with distinctive dynamics.
 
 ${namesSection}
 **Setting**: ${inputs.setting}
@@ -244,7 +289,7 @@ export async function designCast(
       // 2. Call LLM
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.7,
+        temperature: 0.75, // Higher for diverse character generation
         maxTokens: 4000,
         jsonMode: true,
         logContext: {

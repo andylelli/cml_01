@@ -1838,6 +1838,23 @@ onBeforeUnmount(() => {
                       <div v-if="profile.publicPersona" class="text-xs text-slate-500">
                         <span class="font-semibold">Public:</span> {{ profile.publicPersona }}
                       </div>
+                      <div v-if="profile.humourStyle && profile.humourStyle !== 'none'" class="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                        <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800">
+                          {{ profile.humourStyle.replace(/_/g, ' ') }}
+                        </span>
+                        <span v-if="typeof profile.humourLevel === 'number'" class="text-slate-400">
+                          {{ profile.humourLevel >= 0.7 ? 'Frequently witty' : profile.humourLevel >= 0.4 ? 'Occasionally witty' : 'Rarely witty' }}
+                        </span>
+                        <span class="inline-flex items-center gap-0.5" :title="`Humour level: ${profile.humourLevel}`">
+                          <span v-for="n in 5" :key="n" class="inline-block h-1.5 w-3 rounded-sm" :class="n <= Math.round((profile.humourLevel || 0) * 5) ? 'bg-amber-400' : 'bg-slate-200'"></span>
+                        </span>
+                      </div>
+                      <div v-else-if="profile.humourStyle === 'none'" class="mt-1 text-xs text-slate-400 italic">
+                        Plays it straight — no humour
+                      </div>
+                      <div v-if="profile.speechMannerisms" class="mt-1 text-xs text-slate-500">
+                        <span class="font-semibold">Voice:</span> {{ profile.speechMannerisms }}
+                      </div>
                       <div v-if="isAdvanced" class="space-y-1 text-xs text-slate-500">
                         <div v-if="profile.privateSecret"><span class="font-semibold">Private:</span> {{ profile.privateSecret }}</div>
                         <div v-if="profile.motiveSeed"><span class="font-semibold">Motive:</span> {{ profile.motiveSeed }}</div>

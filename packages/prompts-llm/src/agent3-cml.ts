@@ -14,6 +14,7 @@ import {
   MYSTERY_EXPERT_SYSTEM,
   CML_SPECIALIST_SYSTEM,
   FAIR_PLAY_CHECKLIST,
+  INFERENCE_PATH_QUALITY,
 } from "./shared/system.js";
 import {
   buildEraConstraints,
@@ -178,7 +179,24 @@ ${hardLogicGroundingSection}
 
 ---
 
-${FAIR_PLAY_CHECKLIST}`;
+${FAIR_PLAY_CHECKLIST}
+
+${INFERENCE_PATH_QUALITY}
+
+**Inference Path Construction Rules**:
+1. Every observation must describe something the reader can WITNESS in a scene - 
+   a physical object, a statement, a visible action, a document - NOT a conclusion
+2. Every correction must follow from STATED EVIDENCE in constraint_space or cast, 
+   not from detective intuition
+3. Every effect must produce a NAMED consequence: "Eliminates [suspect]" or 
+   "Narrows administration window to [time range]"
+4. required_evidence must list 2-4 CML facts per step. These are the facts that 
+   Agent 5 MUST surface as clues for the reader. If you cannot list concrete evidence, 
+   the observation is too abstract - rewrite it.
+5. The constraint_space MUST contain at least one contradiction per inference step - 
+   a pair of facts that create logical tension the reader can resolve
+6. The discriminating_test.design MUST reference specific evidence the reader has 
+   already seen in earlier inference steps`;
 
   const requiredSkeleton = `
 **Required YAML Skeleton (do not omit any keys)**:
@@ -252,7 +270,14 @@ CASE:
       trust_channels: []
       authority_sources: []
   inference_path:
-    steps: []
+    steps:
+      - observation: "Concrete scene-level observation the reader can witness"
+        correction: "Conclusion derivable from stated evidence"
+        effect: "Named suspect eliminated or constraint tightened"
+        required_evidence:
+          - "Specific CML fact the reader must witness"
+          - "Another specific CML fact"
+        reader_observable: true
   discriminating_test:
     method: "trap"
     design: ""
@@ -278,6 +303,35 @@ CASE:
     discriminating_test_requirements:
       timing: "early_act3"
       must_reference_inference_step: true
+  prose_requirements:
+    discriminating_test_scene:
+      act_number: 3
+      scene_number: 4
+      required_elements:
+        - "Execute the discriminating test"
+        - "Observe the culprit's reaction or result"
+        - "Draw conclusion about guilt"
+      test_type: ""
+    suspect_clearance_scenes:
+      - suspect_name: "(each non-culprit suspect)"
+        act_number: 3
+        scene_number: 5
+        clearance_method: "Specific alibi or evidence that eliminates them"
+        supporting_clues: ["clue_id_1", "clue_id_2"]
+    culprit_revelation_scene:
+      act_number: 3
+      scene_number: 6
+      revelation_method: "Confrontation with evidence"
+    identity_rules:
+      - character_name: "(if identity axis)"
+        revealed_in_act: 3
+        before_reveal_reference: "the stranger" 
+        after_reveal_reference: "Lord Ashford"
+    clue_to_scene_mapping:
+      - clue_id: "clue_early_1"
+        act_number: 1
+        scene_number: 3
+        delivery_method: "Direct observation"
 `;
 
   // User message with specific requirements
@@ -325,7 +379,17 @@ ${hardLogicDeviceText}
 5. Use ALL provided character names in cast section
 6. Create mechanism that exploits the false assumption
 7. Design constraint space with 5-8 constraints that hide the truth
-8. Build inference path with 3-5 logical steps
+8. Build inference path with 3-5 logical steps. EACH step must satisfy ALL of:
+   a. observation: A CONCRETE, SCENE-LEVEL fact the reader can witness
+      (e.g., "Medicine bottle label shows Dr. Bauerstein's prescription filled on Tuesday")
+      NOT abstract summaries (e.g., "Timeline discrepancies in witness accounts")
+   b. correction: A conclusion the reader can DERIVE from the observation + one or more
+      pieces of stated evidence - never a leap of logic
+   c. effect: A TESTABLE narrowing of the suspect pool (name the suspect eliminated or the
+      constraint that tightens)
+   d. required_evidence: An array of 2-4 specific CML facts the reader must see to make this
+      correction. Each entry must be a concrete observation witnessable in a scene.
+   e. reader_observable: true (all steps must be reader-observable for fair play)
 9. Create discriminating test appropriate for ${inputs.primaryAxis} axis
 10. Ensure all fair-play checklist items are true
 11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
@@ -333,6 +397,19 @@ ${hardLogicDeviceText}
 13. Weave the Theme into the title and narrative summary without adding new keys
 14. Ensure mechanism is diagrammable and contradiction-driven (assumption vs measurable fact)
 15. If Escalation Difficulty is "increase" or "extreme", require multi-step inference with at least one fair misdirection
+16. The fair_play.explanation field must NOT be a generic statement like "All evidence
+    supports the solution." It MUST specifically name which evidence supports each
+    inference step, e.g.: "Step 1: The poison timing report (early) and housekeeper's
+    testimony (mid) let the reader separate symptom onset from administration.
+    Step 2: Dr. Bauerstein's hospital alibi (mid) eliminates him. Step 3: Mary's
+    contradictory medicine account (discriminating test) identifies her as culprit."
+17. **Generate prose_requirements section** to guide Agent 9 prose generation:
+    - discriminating_test_scene: Specify which act/scene will contain the discriminating test execution
+    - suspect_clearance_scenes: For each non-culprit suspect, specify which act/scene will explicitly clear them and by what method
+    - culprit_revelation_scene: Specify which act/scene reveals the culprit's identity
+    - identity_rules: If using identity axis, specify how characters should be referenced before/after identity reveal
+    - clue_to_scene_mapping: Map key clues to specific acts (scene number optional)
+    This ensures Agent 9 knows exactly where to place validation-critical content.
 
 **Output Format**:
 Respond with ONLY valid JSON matching the CML 2.0 schema. No explanations, no markdown code blocks, no commentary.
@@ -491,13 +568,22 @@ export async function generateCML(
 
     const inferencePath = ensureObject(caseBlock.inference_path);
     caseBlock.inference_path = inferencePath;
-    inferencePath.steps = Array.isArray(inferencePath.steps) && inferencePath.steps.length
-      ? inferencePath.steps
-      : [
-          { observation: "Symptom onset", correction: "Poison delay", effect: "Alibi weakens" },
-          { observation: "Access log", correction: "Hidden entry", effect: "Access narrowed" },
-          { observation: "Motive clue", correction: "Blackmail reveal", effect: "Suspect isolated" },
-        ];
+    if (!Array.isArray(inferencePath.steps) || inferencePath.steps.length < 3) {
+      throw new Error(
+        "CML generation produced " + (Array.isArray(inferencePath.steps) ? inferencePath.steps.length : 0) +
+        " inference_path steps (minimum 3 required). " +
+        "The LLM must produce concrete inference steps - placeholder injection is no longer supported."
+      );
+    }
+    // Ensure each step has required_evidence array and reader_observable
+    for (const step of inferencePath.steps as any[]) {
+      if (!Array.isArray(step.required_evidence)) {
+        step.required_evidence = [];
+      }
+      if (typeof step.reader_observable !== "boolean") {
+        step.reader_observable = true;
+      }
+    }
 
     const discriminatingTest = ensureObject(caseBlock.discriminating_test);
     caseBlock.discriminating_test = discriminatingTest;

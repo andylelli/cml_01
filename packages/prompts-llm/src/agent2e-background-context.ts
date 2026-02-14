@@ -6,9 +6,11 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { validateArtifact } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { CastDesign } from "./agent2-cast.js";
+import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface BackgroundContextArtifact {
   status: "ok";
@@ -42,10 +44,11 @@ export interface BackgroundContextResult {
   attempt: number;
 }
 
-const buildBackgroundContextPrompt = (inputs: BackgroundContextInputs) => {
+const buildBackgroundContextPrompt = (inputs: BackgroundContextInputs, previousErrors?: string[]) => {
   const setting = inputs.settingRefinement;
   const cast = inputs.cast;
   const anchors = cast.characters.map((c) => c.name).filter(Boolean).slice(0, 8);
+  const validationFeedback = buildValidationFeedback(previousErrors);
 
   const system = `You are a narrative grounding specialist for Golden Age mystery design.
 Generate a concise, canonical background-context artifact that explains why this cast is here, what social backdrop binds them, and how setting context should shape scene grounding.
@@ -74,7 +77,9 @@ Requirements:
 - setting.location and setting.institution must align to provided setting data
 - castAnchors must contain 4-8 names from the cast (no new names)
 - no mechanism design, no culprit hints, no hard-logic details
-- keep this artifact focused on backdrop coherence only`;
+- keep this artifact focused on backdrop coherence only
+
+CRITICAL: Ensure castAnchors is an array of strings (character names), not empty${validationFeedback}`;
 
   const user = `Generate background context for this mystery setup.
 
@@ -108,12 +113,21 @@ export async function generateBackgroundContext(
   maxAttempts = 2,
 ): Promise<BackgroundContextResult> {
   const start = Date.now();
-  const prompt = buildBackgroundContextPrompt(inputs);
 
-  let lastError: Error | undefined;
+  const retryResult = await withValidationRetry({
+    maxAttempts,
+    agentName: "Agent 2e (Background Context)",
+    validationFn: (data) => {
+      const validation = validateArtifact("background_context", data);
+      return {
+        valid: validation.valid,
+        errors: validation.errors,
+        warnings: validation.warnings,
+      };
+    },
+    generateFn: async (attempt, previousErrors) => {
+      const prompt = buildBackgroundContextPrompt(inputs, previousErrors);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
       const response = await client.chat({
         messages: prompt.messages,
         temperature: 0.4,
@@ -144,22 +158,35 @@ export async function generateBackgroundContext(
         throw new Error("Invalid background context output: missing castAnchors");
       }
 
-      const durationMs = Date.now() - start;
       const cost = client.getCostTracker().getSummary().byAgent["Agent2e-BackgroundContext"] || 0;
 
-      return {
-        backgroundContext: parsed,
-        cost,
-        durationMs,
-        attempt,
-      };
-    } catch (error) {
-      lastError = error as Error;
-      if (attempt >= maxAttempts) {
-        throw error;
-      }
-    }
+      return { result: parsed, cost };
+    },
+  });
+
+  // Log validation warnings if any
+  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
+    console.warn(
+      `[Agent 2e] Background context validation warnings:\n` +
+      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
+    );
   }
 
-  throw lastError || new Error("Background context generation failed after all attempts");
+  // If validation failed after all retries, log errors but continue
+  if (!retryResult.validationResult.valid) {
+    console.error(
+      `[Agent 2e] Background context failed validation after ${maxAttempts} attempts:\n` +
+      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
+    );
+  }
+
+  const durationMs = Date.now() - start;
+  const validatedResult = retryResult.result as BackgroundContextArtifact;
+
+  return {
+    backgroundContext: validatedResult,
+    cost: retryResult.totalCost,
+    durationMs,
+    attempt: retryResult.attempts,
+  };
 }

@@ -7,8 +7,10 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { validateArtifact } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
+import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface SeasonalContext {
   season: "spring" | "summer" | "fall" | "winter";
@@ -97,14 +99,50 @@ export interface TemporalContextInputs {
   projectId?: string;
 }
 
-const buildTemporalContextPrompt = (inputs: TemporalContextInputs) => {
+// Simple hash function to convert string to number
+const simpleHash = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+};
+
+// Generate specific year and month from runId to ensure variation
+const generateSpecificDate = (decade: string, runId: string): { year: number; month: string } => {
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
+  // Parse decade (e.g., "1950s" -> 1950)
+  const decadeStart = parseInt(decade.replace(/s$/, ''), 10) || 1950;
+  
+  // Use hash to deterministically select year and month
+  const hash = simpleHash(runId || Math.random().toString());
+  const yearOffset = hash % 10; // 0-9
+  const monthIndex = (hash >> 4) % 12; // Use different bits for month
+  
+  return {
+    year: decadeStart + yearOffset,
+    month: monthNames[monthIndex]
+  };
+};
+
+const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
+  const validationFeedback = buildValidationFeedback(previousErrors);
   const decade = inputs.settingRefinement.era.decade ?? "1950s";
   const location = inputs.settingRefinement.location.type ?? "Unknown location";
   const weather = inputs.settingRefinement.atmosphere.weather ?? "Clear";
   const mood = inputs.settingRefinement.atmosphere.mood ?? "Tense";
+  
+  // Generate specific date for this mystery to ensure variation
+  const specificDate = generateSpecificDate(decade, inputs.runId || inputs.projectId || "");
   
   // Extract technology and social norms from setting
   const technology = (inputs.settingRefinement.era.technology || []).slice(0, 5);
@@ -128,89 +166,99 @@ Return JSON with this structure:
 {
   "status": "draft",
   "specificDate": {
-    "year": 1954,
-    "month": "October",
-    "day": 15,
-    "era": "1950s"
+    "year": ${specificDate.year},
+    "month": "${specificDate.month}",
+    "day": <OPTIONAL_DAY_NUMBER>,
+    "era": "${decade}"
   },
   "seasonal": {
-    "season": "fall",
-    "month": "October",
-    "weather": ["Cool evenings", "Misty mornings", "Occasional rain"],
-    "daylight": "Shortening days, darkness by 6pm",
-    "holidays": ["Halloween approaching"],
-    "seasonalActivities": ["Harvest festivals", "Apple picking", "Indoor gatherings"]
+    "season": "spring|summer|fall|winter",
+    "month": "month name",
+    "weather": ["weather detail 1", "weather detail 2", "weather detail 3"],
+    "daylight": "daylight description for this season",
+    "holidays": ["any holidays this month"],
+    "seasonalActivities": ["activity 1", "activity 2", "activity 3"]
   },
   "fashion": {
     "mensWear": {
-      "formal": ["Three-piece suits", "Fedora hats", "Wing-tip shoes"],
-      "casual": ["Cardigan sweaters", "Flannel shirts", "Slacks"],
-      "accessories": ["Pocket watches", "Tie clips", "Leather gloves"]
+      "formal": ["formal item 1", "formal item 2", "formal item 3"],
+      "casual": ["casual item 1", "casual item 2", "casual item 3"],
+      "accessories": ["accessory 1", "accessory 2", "accessory 3"]
     },
     "womensWear": {
-      "formal": ["New Look silhouette", "Pearl necklaces", "Kitten heels"],
-      "casual": ["Circle skirts", "Cardigans", "Saddle shoes"],
-      "accessories": ["Gloves", "Small clutch bags", "Pillbox hats"]
+      "formal": ["formal item 1", "formal item 2", "formal item 3"],
+      "casual": ["casual item 1", "casual item 2", "casual item 3"],
+      "accessories": ["accessory 1", "accessory 2", "accessory 3"]
     },
-    "trendsOfTheMoment": ["Dior influence", "Full skirts", "Fitted bodices"],
-    "socialExpectations": ["Hats required in public", "Gloves for ladies", "Formal dress for dinner"]
+    "trendsOfTheMoment": ["trend 1", "trend 2", "trend 3"],
+    "socialExpectations": ["expectation 1", "expectation 2", "expectation 3"]
   },
   "currentAffairs": {
-    "majorEvents": ["Post-war recovery", "Cold War tensions", "Specific 1954 events"],
-    "politicalClimate": "Description of 1954 political atmosphere",
-    "economicConditions": "Description of 1954 economy",
-    "socialIssues": ["Conformity pressure", "Suburban expansion", "Race relations"],
-    "internationalNews": ["International events of October 1954"]
+    "majorEvents": ["event 1", "event 2", "event 3"],
+    "politicalClimate": "political climate description",
+    "economicConditions": "economic conditions description",
+    "socialIssues": ["issue 1", "issue 2", "issue 3"],
+    "internationalNews": ["news item 1", "news item 2"]
   },
   "cultural": {
     "entertainment": {
-      "popularMusic": ["Perry Como", "Doris Day", "Frank Sinatra"],
-      "films": ["Films released in 1954"],
-      "theater": ["Broadway shows of 1954"],
-      "radio": ["Popular radio programs"]
+      "popularMusic": ["artist/song 1", "artist/song 2", "artist/song 3"],
+      "films": ["film 1", "film 2", "film 3"],
+      "theater": ["show 1", "show 2", "show 3"],
+      "radio": ["program 1", "program 2", "program 3"]
     },
     "literature": {
-      "recentPublications": ["Books published in 1954"],
-      "popularGenres": ["Mystery", "Romance", "Western"]
+      "recentPublications": ["book 1", "book 2", "book 3"],
+      "popularGenres": ["genre 1", "genre 2", "genre 3"]
     },
     "technology": {
-      "recentInventions": ["Color TV emerging", "Transistor radio"],
-      "commonDevices": ["Rotary phones", "Refrigerators", "Washing machines"],
-      "emergingTrends": ["Suburban appliances", "Car culture"]
+      "recentInventions": ["invention 1", "invention 2", "invention 3"],
+      "commonDevices": ["device 1", "device 2", "device 3"],
+      "emergingTrends": ["trend 1", "trend 2", "trend 3"]
     },
     "dailyLife": {
-      "typicalPrices": ["Coffee: 5 cents", "Movie ticket: 50 cents", "Gallon of gas: 22 cents"],
-      "commonActivities": ["Watching TV", "Drive-in movies", "Church socials"],
-      "socialRituals": ["Formal dining", "Calling cards", "Tea time"]
+      "typicalPrices": ["item: price", "item: price", "item: price"],
+      "commonActivities": ["activity 1", "activity 2", "activity 3"],
+      "socialRituals": ["ritual 1", "ritual 2", "ritual 3"]
     }
   },
   "socialAttitudes": {
-    "class": ["Rigid class boundaries", "Suburban middle class ideal"],
-    "gender": ["Traditional gender roles", "Women as homemakers", "Men as breadwinners"],
-    "race": ["Segregation still common", "Civil rights movement building"],
-    "generalNorms": ["Conformity valued", "Authority respected", "Propriety essential"]
+    "class": ["attitude 1", "attitude 2"],
+    "gender": ["attitude 1", "attitude 2", "attitude 3"],
+    "race": ["attitude 1", "attitude 2"],
+    "generalNorms": ["norm 1", "norm 2", "norm 3"]
   },
   "atmosphericDetails": [
-    "The crisp October air carried the scent of burning leaves",
-    "Women's heels clicked on sidewalks as they hurried home before dark",
-    "Radio voices drifted from open windows, mixing with dinner preparations"
+    "sensory detail 1 for this specific season/month",
+    "sensory detail 2 specific to this time and place",
+    "sensory detail 3 capturing the era's atmosphere"
   ],
   "paragraphs": [
-    "October 1954 found Britain in a peculiar moment of transition...",
-    "Fashion that autumn reflected the optimism of post-war recovery...",
-    "The cultural landscape was dominated by..."
+    "First narrative paragraph synthesizing the chosen date's context...",
+    "Second paragraph on fashion and cultural atmosphere...",
+    "Third paragraph on daily life and social attitudes..."
   ],
   "note": ""
 }
 
+CRITICAL DATE REQUIREMENT:
+- YOU MUST use the exact year and month specified above: ${specificDate.month} ${specificDate.year}
+- This date has been specifically selected for THIS mystery to ensure uniqueness
+- DO NOT change the year or month - use ${specificDate.month} ${specificDate.year} exactly
+- You may optionally choose a specific day number (1-31) appropriate for the month
+
 Requirements:
-- Choose a specific date within the decade (exact year, month, optional day)
 - All details must be historically accurate or plausible for that specific time
 - Include 3-5 narrative paragraphs synthesizing the temporal context
 - Provide rich sensory and atmospheric details specific to that season
 - Reference real cultural touchstones of that period
 - Match tone and setting requirements
-- No anachronisms whatsoever`;
+- No anachronisms whatsoever
+- All details must be historically accurate for ${specificDate.month} ${specificDate.year} specifically
+- Generate fresh, original descriptions - do not copy example phrasing
+- Make this feel like the specific moment of ${specificDate.month} ${specificDate.year}
+
+CRITICAL: Ensure all nested objects and arrays match the schema structure exactly${validationFeedback}`;
 
   const user = `Generate temporal context for this mystery.
 
@@ -226,8 +274,8 @@ Era constraints already established:
 - Social norms: ${socialNorms.join(', ')}
 
 Task:
-1. Choose a specific year and month within ${decade}
-2. Provide seasonal context for that month (weather, holidays, activities)
+1. Use the specified date: ${specificDate.month} ${specificDate.year}
+2. Provide seasonal context for ${specificDate.month} (weather, holidays, activities appropriate for this specific month)
 3. Detail fashion trends of that specific period
 4. Reference plausible current affairs and news of that time
 5. Describe cultural atmosphere (entertainment, music, literature, technology state)
@@ -250,15 +298,24 @@ export async function generateTemporalContext(
   maxAttempts = 2
 ): Promise<TemporalContextResult> {
   const start = Date.now();
-  const prompt = buildTemporalContextPrompt(inputs);
 
-  let lastError: Error | undefined;
+  const retryResult = await withValidationRetry({
+    maxAttempts,
+    agentName: "Agent 2d (Temporal Context)",
+    validationFn: (data) => {
+      const validation = validateArtifact("temporal_context", data);
+      return {
+        valid: validation.valid,
+        errors: validation.errors,
+        warnings: validation.warnings,
+      };
+    },
+    generateFn: async (attempt, previousErrors) => {
+      const prompt = buildTemporalContextPrompt(inputs, previousErrors);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.5,
+        temperature: 0.7,
         maxTokens: 4500,
         jsonMode: true,
         logContext: {
@@ -277,7 +334,7 @@ export async function generateTemporalContext(
         context = JSON.parse(repaired);
       }
 
-      // Validate structure
+      // Basic structure validation
       if (!context.specificDate || !context.specificDate.year || !context.specificDate.month) {
         throw new Error("Invalid temporal context output: missing specific date");
       }
@@ -290,22 +347,35 @@ export async function generateTemporalContext(
         throw new Error("Invalid temporal context output: missing paragraphs");
       }
 
-      const durationMs = Date.now() - start;
       const costTracker = client.getCostTracker();
       const cost = costTracker.getSummary().byAgent["Agent2d-TemporalContext"] || 0;
 
-      return {
-        ...context,
-        cost,
-        durationMs,
-      };
-    } catch (error) {
-      lastError = error as Error;
-      if (attempt >= maxAttempts) {
-        throw error;
-      }
-    }
+      return { result: context, cost };
+    },
+  });
+
+  // Log validation warnings if any
+  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
+    console.warn(
+      `[Agent 2d] Temporal context validation warnings:\n` +
+      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
+    );
   }
 
-  throw lastError || new Error("Temporal context generation failed after all attempts");
+  // If validation failed after all retries, log errors but continue
+  if (!retryResult.validationResult.valid) {
+    console.error(
+      `[Agent 2d] Temporal context failed validation after ${maxAttempts} attempts:\n` +
+      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
+    );
+  }
+
+  const durationMs = Date.now() - start;
+  const validatedResult = retryResult.result as TemporalContextResult;
+
+  return {
+    ...validatedResult,
+    cost: retryResult.totalCost,
+    durationMs,
+  };
 }

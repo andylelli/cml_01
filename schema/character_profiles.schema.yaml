@@ -49,6 +49,16 @@ profiles:
       stakes:
         type: string
         required: false
+      humourStyle:
+        type: string
+        required: false
+        allowed: [understatement, dry_wit, polite_savagery, self_deprecating, observational, deadpan, sardonic, blunt, none]
+      humourLevel:
+        type: number
+        required: false
+      speechMannerisms:
+        type: string
+        required: false
       paragraphs:
         type: array
         required: true

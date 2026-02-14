@@ -12,6 +12,7 @@ export * from './discriminating-test-validator.js';
 export * from './suspect-closure-validator.js';
 export * from './physical-validator.js';
 export * from './era-validator.js';
+export * from './semantic-validator.js';
 export * from './pipeline.js';
 
 // Convenience exports
@@ -24,3 +25,4 @@ export { DiscriminatingTestValidator } from './discriminating-test-validator.js'
 export { SuspectClosureValidator } from './suspect-closure-validator.js';
 export { PhysicalPlausibilityValidator } from './physical-validator.js';
 export { EraAuthenticityValidator } from './era-validator.js';
+export { semanticValidateDiscriminatingTest, semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';

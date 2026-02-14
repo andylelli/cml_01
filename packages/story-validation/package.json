@@ -15,7 +15,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cml/cml": "file:../cml"
+    "@cml/cml": "file:../cml",
+    "@cml/llm-client": "file:../llm-client"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

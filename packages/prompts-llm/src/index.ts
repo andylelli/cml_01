@@ -7,7 +7,7 @@ export { designCast } from "./agent2-cast.js";
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
 export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
 export { buildCluePrompt, extractClues } from "./agent5-clues.js";
-export { buildFairPlayPrompt, auditFairPlay } from "./agent6-fairplay.js";
+export { buildFairPlayPrompt, auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { buildNarrativePrompt, formatNarrative } from "./agent7-narrative.js";
 export { generateCharacterProfiles } from "./agent2b-character-profiles.js";
 export { generateLocationProfiles } from "./agent2c-location-profiles.js";
@@ -37,7 +37,7 @@ export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";
 export type { ClueExtractionInputs, Clue, RedHerring, ClueDistributionResult } from "./agent5-clues.js";
 
 // Agent 6 types
-export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult } from "./agent6-fairplay.js";
+export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult, BlindReaderResult } from "./agent6-fairplay.js";
 
 // Agent 7 types
 export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";

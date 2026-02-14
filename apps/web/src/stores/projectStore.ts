@@ -198,6 +198,9 @@ export const useProjectStore = defineStore("project", () => {
         alibiWindow: profile.alibiWindow,
         accessPlausibility: profile.accessPlausibility,
         stakes: profile.stakes,
+        humourStyle: profile.humourStyle,
+        humourLevel: typeof profile.humourLevel === "number" ? profile.humourLevel : undefined,
+        speechMannerisms: profile.speechMannerisms,
         paragraphs,
         order: profile.order ?? index + 1,
       };

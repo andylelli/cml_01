@@ -66,6 +66,27 @@ export interface SettingRefinementResult {
   cost: number;
 }
 
+// Simple hash function to generate variation seeds
+const simpleHash = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+};
+
+// Generate variation guidance from runId
+const generateVariationSeed = (runId: string): { archStyle: number; nameStyle: number; focusArea: number } => {
+  const hash = simpleHash(runId);
+  return {
+    archStyle: (hash % 5) + 1,        // 1-5: architectural emphasis
+    nameStyle: ((hash >> 4) % 5) + 1, // 1-5: naming convention style
+    focusArea: ((hash >> 8) % 3) + 1  // 1-3: which detail area to emphasize
+  };
+};
+
 /**
  * Build prompt for setting refinement
  */
@@ -88,10 +109,19 @@ You have expertise in:
   // Developer prompt with constraints
   const eraConstraints = buildEraConstraints(inputs.decade);
   const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location as string, inputs.institution as string) : null;
+  const variationSeed = generateVariationSeed(inputs.runId || inputs.projectId || "");
 
   const developer = `You are a historical setting expert specializing in Golden Age detective fiction.
-Uniqueness Seed: ${inputs.runId}-${inputs.projectId}
-Use this seed to vary the setting details while staying within the requested era and location.
+
+VARIATION DIRECTIVES FOR THIS MYSTERY:
+- Architectural Style Emphasis: ${variationSeed.archStyle}/5 (1=minimal, 3=moderate, 5=highly detailed)
+- Naming Convention: ${variationSeed.nameStyle}/5 (1=simple/traditional, 5=distinctive/unusual)
+- Detail Focus Area: ${variationSeed.focusArea === 1 ? 'Social Hierarchy' : variationSeed.focusArea === 2 ? 'Physical Spaces' : 'Atmospheric Elements'}
+
+Apply these directives to create a UNIQUE setting:
+- If architectural emphasis is high (4-5), provide extensive architectural detail
+- If naming style is high (4-5), choose distinctive property names (not generic "Manor House")
+- Focus extra detail on the specified focus area
 
 **Era Constraints Template**
 
@@ -201,7 +231,7 @@ export async function refineSetting(
           process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
           process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
           "gpt-4o",
-        temperature: 0.3, // Lower temperature for factual accuracy
+        temperature: 0.6, // Moderate - allow variation in setting details
         maxTokens: 2000,
         jsonMode: true, // JSON mode for structured output
         logContext: {

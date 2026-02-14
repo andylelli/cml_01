@@ -82,8 +82,8 @@ const goToChapter = (index: number) => {
         <p v-if="currentChapter.summary" class="mb-6 italic text-slate-600">
           {{ currentChapter.summary }}
         </p>
-        <div class="space-y-6 font-serif text-slate-800 leading-relaxed">
-          <p v-for="(para, idx) in currentChapter.paragraphs" :key="idx" class="text-base">
+        <div class="font-serif text-slate-800 leading-relaxed">
+          <p v-for="(para, idx) in currentChapter.paragraphs" :key="idx" class="mb-6 text-base indent-8 first:indent-0">
             {{ para }}
           </p>
         </div>

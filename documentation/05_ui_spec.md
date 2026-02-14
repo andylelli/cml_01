@@ -37,6 +37,10 @@
 - Setting overview
 - Cast cards + relationship map
 - Character profiles (per suspect; private details gated to Advanced/Expert; LLM-generated)
+  - Always-visible: public persona, humour badge (style label + 5-bar level indicator), speech mannerisms ("Voice: …")
+  - Humour badge shows a rounded pill with the style name (underscores → spaces), a textual frequency hint (Rarely / Occasionally / Frequently witty), and a five-segment amber bar for humour level
+  - Characters with `humourStyle: none` show a muted italic note ("Plays it straight — no humour")
+  - Advanced-only: private secret, motive seed, alibi window, access plausibility, stakes
 - Background context view (setting/place/period backdrop)
 - Hard Logic view (friendly rendering of generated mechanism concepts)
 - Mystery “bones” overview

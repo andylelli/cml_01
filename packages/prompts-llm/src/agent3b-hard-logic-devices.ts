@@ -7,7 +7,9 @@
  */
 
 import type { AzureOpenAIClient, Message } from "@cml/llm-client";
+import { validateArtifact } from "@cml/cml";
 import type { HardLogicDeviceIdea } from "./types.js";
+import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface HardLogicDeviceInputs {
   runId: string;
@@ -77,7 +79,7 @@ const normalizeDevice = (value: unknown, index: number): HardLogicDeviceIdea => 
   };
 };
 
-export function buildHardLogicDevicePrompt(inputs: HardLogicDeviceInputs): {
+export function buildHardLogicDevicePrompt(inputs: HardLogicDeviceInputs, previousErrors?: string[]): {
   system: string;
   developer: string;
   user: string;
@@ -86,6 +88,7 @@ export function buildHardLogicDevicePrompt(inputs: HardLogicDeviceInputs): {
   const hardLogicModes = inputs.hardLogicModes ?? [];
   const mechanismFamilies = inputs.mechanismFamilies ?? [];
   const difficultyMode = inputs.difficultyMode ?? "standard";
+  const validationFeedback = buildValidationFeedback(previousErrors);
 
   const noveltySection = inputs.noveltyConstraints
     ? `
@@ -141,7 +144,9 @@ Output JSON only, with this exact structure:
 }
 
 Default target is 5 varied devices.
-Do not include markdown fences or extra commentary.`;
+Do not include markdown fences or extra commentary.
+
+CRITICAL: Ensure principleType is one of the four exact values: "physical_law", "mathematical_principle", "cognitive_bias", "social_logic"${validationFeedback}`;
 
   const user = `Generate novel hard-logic mechanism devices now.
 
@@ -170,12 +175,21 @@ export async function generateHardLogicDevices(
 ): Promise<HardLogicDeviceResult> {
   const logger = client.getLogger();
   const startTime = Date.now();
-  const prompt = buildHardLogicDevicePrompt(inputs);
 
-  let lastError: Error | undefined;
+  const retryResult = await withValidationRetry({
+    maxAttempts,
+    agentName: "Agent 3b (Hard Logic Devices)",
+    validationFn: (data) => {
+      const validation = validateArtifact("hard_logic_devices", data);
+      return {
+        valid: validation.valid,
+        errors: validation.errors,
+        warnings: validation.warnings,
+      };
+    },
+    generateFn: async (attempt, previousErrors) => {
+      const prompt = buildHardLogicDevicePrompt(inputs, previousErrors);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
       const response = await client.chatWithRetry({
         messages: prompt.messages,
         model:
@@ -205,11 +219,7 @@ export async function generateHardLogicDevices(
           errorMessage: `JSON parse failed: ${(parseError as Error).message}`,
           retryAttempt: attempt,
         });
-
-        if (attempt < maxAttempts) {
-          continue;
-        }
-        throw new Error(`Hard-logic device JSON parsing failed after ${maxAttempts} attempts`);
+        throw new Error(`Hard-logic device JSON parsing failed: ${(parseError as Error).message}`);
       }
 
       const rawDevices = Array.isArray(parsed.devices) ? parsed.devices : [];
@@ -224,15 +234,9 @@ export async function generateHardLogicDevices(
           errorMessage: `Expected at least 3 devices, got ${devices.length}`,
           retryAttempt: attempt,
         });
-
-        if (attempt < maxAttempts) {
-          continue;
-        }
-
         throw new Error("Hard-logic device generation returned too few valid devices");
       }
 
-      const latencyMs = Date.now() - startTime;
       const costTracker = client.getCostTracker();
       const cost = costTracker.getSummary().byAgent["Agent3b-HardLogicDeviceGenerator"] || 0;
 
@@ -245,7 +249,7 @@ export async function generateHardLogicDevices(
         success: true,
         validationStatus: "pass",
         retryAttempt: attempt,
-        latencyMs,
+        latencyMs: Date.now() - startTime,
         metadata: {
           primaryAxis: inputs.primaryAxis,
           deviceCount: devices.length,
@@ -254,31 +258,35 @@ export async function generateHardLogicDevices(
       });
 
       return {
-        status: "ok",
-        overview: asString(parsed.overview, "Novel hard-logic devices prepared for CML grounding."),
-        devices,
-        rawResponse: response.content,
-        attempt,
-        latencyMs,
+        result: {
+          status: "ok" as const,
+          overview: asString(parsed.overview, "Novel hard-logic devices prepared for CML grounding."),
+          devices,
+          rawResponse: response.content,
+          attempt,
+          latencyMs: Date.now() - startTime,
+          cost,
+        },
         cost,
       };
-    } catch (error) {
-      lastError = error as Error;
+    },
+  });
 
-      await logger.logError({
-        runId: inputs.runId,
-        projectId: inputs.projectId,
-        agent: "Agent3b-HardLogicDeviceGenerator",
-        operation: "generate_hard_logic_devices",
-        errorMessage: (error as Error).message,
-        retryAttempt: attempt,
-      });
-
-      if (attempt >= maxAttempts) {
-        break;
-      }
-    }
+  // Log validation warnings if any
+  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
+    console.warn(
+      `[Agent 3b] Hard logic devices validation warnings:\n` +
+      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
+    );
   }
 
-  throw new Error(`Hard-logic device generation failed: ${lastError?.message || "Unknown error"}`);
+  // If validation failed after all retries, log errors but continue
+  if (!retryResult.validationResult.valid) {
+    console.error(
+      `[Agent 3b] Hard logic devices failed validation after ${maxAttempts} attempts:\n` +
+      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
+    );
+  }
+
+  return retryResult.result as HardLogicDeviceResult;
 }

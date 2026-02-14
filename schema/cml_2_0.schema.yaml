@@ -173,12 +173,20 @@ CASE:
         steps:
           type: array
           required: true
+          min_items: 3
           items:
             type: object
             fields:
               observation: { type: string, required: true }
               correction: { type: string, required: true }
               effect: { type: string, required: true }
+              required_evidence:
+                type: array
+                required: false
+                items: string
+              reader_observable:
+                type: boolean
+                required: false
 
     discriminating_test:
       required: true
@@ -230,3 +238,64 @@ CASE:
               required: true
               allowed: [late_act2, early_act3, mid_act3]
             must_reference_inference_step: { type: boolean, required: true }
+    prose_requirements:
+      required: false
+      type: object
+      description: "Explicit prose validation requirements to guide Agent 9 generation"
+      fields:
+        discriminating_test_scene:
+          type: object
+          required: false
+          fields:
+            act_number: { type: number, required: true }
+            scene_number: { type: number, required: true }
+            required_elements:
+              type: array
+              required: true
+              items: string
+            test_type: { type: string, required: true }
+        
+        suspect_clearance_scenes:
+          type: array
+          required: false
+          items:
+            type: object
+            fields:
+              suspect_name: { type: string, required: true }
+              act_number: { type: number, required: true }
+              scene_number: { type: number, required: true }
+              clearance_method: { type: string, required: true }
+              supporting_clues:
+                type: array
+                required: false
+                items: string
+        
+        culprit_revelation_scene:
+          type: object
+          required: false
+          fields:
+            act_number: { type: number, required: true }
+            scene_number: { type: number, required: true }
+            revelation_method: { type: string, required: true }
+        
+        identity_rules:
+          type: array
+          required: false
+          items:
+            type: object
+            fields:
+              character_name: { type: string, required: true }
+              revealed_in_act: { type: number, required: false }
+              before_reveal_reference: { type: string, required: true }
+              after_reveal_reference: { type: string, required: true }
+        
+        clue_to_scene_mapping:
+          type: array
+          required: false
+          items:
+            type: object
+            fields:
+              clue_id: { type: string, required: true }
+              act_number: { type: number, required: true }
+              scene_number: { type: number, required: false }
+              delivery_method: { type: string, required: false }

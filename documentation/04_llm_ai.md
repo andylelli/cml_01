@@ -45,6 +45,7 @@
 **Recovery:** If novelty audit fails, CML is regenerated once with stronger divergence constraints, then re-audited.
 **Parsing safety:** JSON parsing attempts include JSON repair and extraction of the outermost JSON object; if that fails, YAML output is sanitized to strip trailing inline text after quoted values before retrying.
 **Output guardrails:** Agent 3 includes a required YAML skeleton to avoid missing mandatory fields.
+**Inference path quality (implemented):** CML generation now enforces minimum 3 inference steps, observation length >= 20 characters, required_evidence and reader_observable fields per step, and no duplicate observations. The YAML skeleton includes full inference path step fields.
 **Schema normalization:** After parsing, missing required fields are filled with safe defaults before validation to stabilize runs.
 
 ### 3b) Hard-logic device ideation (new)
@@ -61,6 +62,7 @@
 **Validation:** rerun schema + checklist, plus novelty audit vs selected seeds
 **Schema normalization:** Agent 4 normalizes parsed CML to fill required fields, including inference_path step fields (observation/correction/effect) and valid discriminating_test.method enums before validation.
 **Parsing safety:** If strict JSON parsing fails, Agent 4 attempts JSON repair and YAML sanitization before retrying.
+**Fair-play-driven revision (implemented):** Agent 4 is now also invoked when fair-play audit failures are classified as structural (inference_path_abstract or constraint_space_insufficient). Revision instructions target the specific structural weakness identified by the failure classifier.
 
 ### 5) Clue & red herring generation
 **Purpose:** Derive fair-play clue list from CML.
@@ -69,6 +71,18 @@
 **Validation:** all clues grounded in CML facts; no new facts added
 **Quality controls:** uses CML quality_controls targets (essential clue minimums and placement counts) when present
 **Deterministic guardrails:** enforce no late essential clues, unique clue IDs, and no detective-only/private clue phrasing; a failed guardrail triggers one targeted clue regeneration.
+**Inference path coverage (implemented):** The clue extraction prompt now includes a full dump of all inference_path steps with mandatory coverage instructions. Each clue carries optional supportsInferenceStep (boolean) and evidenceType (physical/testimonial/circumstantial/documentary) fields.
+**Post-extraction validation (implemented):** After LLM returns clues, defaults are applied for missing supportsInferenceStep fields, and noNewFactsIntroduced is verified by checking each clue against the actual CML source text.
+**Deterministic coverage gate (implemented):** Five guardrail functions run after clue extraction:
+1. checkInferencePathCoverage — verifies each inference step has supporting clue(s)
+2. checkContradictionPairs — ensures clues both support and contradict the false assumption
+3. checkFalseAssumptionContradiction — checks for explicit false-assumption-naming clue
+4. checkDiscriminatingTestReachability — verifies clue references to discriminating test design
+5. checkSuspectElimination — confirms each non-culprit has eliminating clue(s)
+Critical gaps trigger one Agent 5 retry with violation feedback before proceeding to fair-play audit.
+**Explicit requirements approach (implemented):** Agent 5 uses explicit requirements generation — TypeScript pre-analyzes the CML to create a concrete checklist of required clues (inference path coverage, discriminating test evidence, suspect elimination), then the LLM fulfills each requirement creatively without programmatic stubs or fallbacks.
+**Semantic validation fallback (implemented):** Clue prose validators use regex patterns for speed, with LLM-based semantic validation as a fallback when rigid regex rejects semantically correct prose (e.g., natural phrasing of discriminating test evidence or suspect elimination logic).
+**Token optimization (implemented):** Agent 5 prompt structure optimized for brevity (~58% reduction from ~600 to ~250 tokens) while preserving all essential information: compact requirement format, condensed context/guidance sections, minimal examples, and focused instructions.
 
 ### 6) Fair-play audit
 **Purpose:** Evaluate fairness and reader-solvability against CML + clue distribution.
@@ -76,6 +90,11 @@
 **Output:** structured audit (overall status, checklist items, violations, summary)
 **Validation:** required fields and status enums; missing fields cause a hard failure. `fail` or `needs-revision` triggers a single clue-regeneration pass with audit feedback.
 **Hard gate:** critical violations in clue visibility/information parity/no-withholding/logical deducibility fail the pipeline after retry.
+**Blind reader simulation (implemented):** After the audit, a separate LLM call receives ONLY the clue list (no solution, no inference path) and attempts to identify the culprit. Returns suspected culprit, reasoning, confidence level, and missing information. If the simulated reader cannot identify the correct suspect (confidence "impossible" or wrong suspect), Agent 5 is re-run with blind reader feedback.
+**Failure classification (implemented):** Fair-play failures are classified into four categories: inference_path_abstract (steps too vague), constraint_space_insufficient (not enough suspects/evidence), clue_coverage (clues exist but miss steps), and clue_only (minor clue adjustments needed).
+**CML-level feedback loop (implemented):** Structural failures (inference_path_abstract or constraint_space_insufficient) escalate to Agent 4 CML revision with targeted repair instructions. The revised CML is re-run through Agent 5 + Agent 6.
+**Pipeline hard stop (implemented):** Persistent critical failures after CML retry abort the pipeline with a descriptive error.
+**Cost circuit breaker (implemented):** Fair-play retry LLM cost is capped at $0.15 (MAX_FAIR_PLAY_RETRY_COST). If the cap is exceeded, the pipeline aborts to prevent runaway spend on irrecoverable failures.
 
 ### 7) Outline generation
 **Purpose:** Build chapter/act outline with proper clue placement.
@@ -96,7 +115,12 @@
   - Voice hints (formal vs informal, class-based speech patterns)
   - Motive context and alibi windows
 **Validation:** must not introduce new facts or contradict CML; private details must align with cast/CML; validates against character_profiles.schema.yaml
-**Usage:** Agent 9 uses profiles to create distinct character voices, dialogue patterns, and emotional subtext
+**Usage:** Agent 9 uses profiles to create distinct character voices, dialogue patterns, humour styles, and emotional subtext
+**Character humour system (implemented):** Each profile includes structured humour attributes:
+  - `humourStyle` (understatement, dry_wit, polite_savagery, self_deprecating, observational, deadpan, sardonic, blunt, none)
+  - `humourLevel` (0.0-1.0 scale controlling wit frequency)
+  - `speechMannerisms` (verbal tics, rhythm, formality, humour delivery)
+  The LLM is given detailed humour assignment guidelines (style-to-personality mapping, contrast requirements, detective voice constraints) and must ensure not all characters are humorous
 **Current build:** LLM-generated profiles with voice/personality extraction (implemented).
 
 ### 7c) Location profile generation (optional)
@@ -130,10 +154,13 @@
 **Input:** outline + CML + cast + character profiles + location profiles + temporal context
 **Output:** prose chapters (3-6 paragraphs each, varied pacing)
 **Context integration:**
-  - Character profiles provide personality traits and voice hints for distinct dialogue
+  - Character profiles provide personality traits, humour styles, speech mannerisms, and voice data for distinct dialogue (replaces legacy keyword-sniffing voice inference with structured humourStyle/humourLevel/speechMannerisms data)
   - Location profiles provide sensory palettes (sights, sounds, smells, tactile) and geographic specificity (place, country)
   - Temporal context provides fashion details, cultural touchstones, period prices, current events
   - All context injected into system prompt with usage guidelines
+  - Writing guides (implemented): Two authorial style guides are loaded from `notes/` and distilled into focused LLM prompt instructions:
+    - **Humour guide** (`DEFINITIVE_GUIDE_TO_HUMOUR.md`): structural humour principles, approved styles (understatement, dry wit, polite savagery, character-driven contrast, precision cruelty), puzzle camouflage technique, detective voice rules, rhythm/placement, running gags as structural devices, emotional humour, and explicit prohibitions
+    - **Whodunnit craft guide** (`WHAT_MAKES_A_GOOD_WHODUNNIT.md`): emotional resonance principles — murder meaning, suspect wounds, detective stakes, texture-building pauses, subtext-rich dialogue, moral complexity, sensory atmosphere, emotional breaks, and reveal impact
 **Quality requirements:**
   1. Scene-setting with atmospheric description using location/temporal context
   2. Show-don't-tell with concrete physical details
@@ -190,7 +217,9 @@ Long outlines are generated in scene batches to ensure all chapters are produced
 - Diff checker: detect unintended changes outside requested sections
 - Novelty audit: compare generated CML to selected seeds (configurable similarity threshold) and force regeneration with stronger divergence constraints if too similar to any single seed. Set `NOVELTY_HARD_FAIL=true` to make similarity failures block the pipeline; otherwise failures continue as warnings.
 - Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
+- CML validation now includes validateInferencePathQuality (min 3 steps, observation length, required_evidence, reader_observable, no duplicates) and validateCrossReferences (discriminating_test vs inference_path overlap, fair_play explanation brevity). Cross-reference checks are non-blocking (advisory) to avoid breaking LLM-generated content in revision loops.
 - Story validation now includes `NarrativeContinuityValidator`, `CaseTransitionValidator`, `DiscriminatingTestValidator`, and `SuspectClosureValidator`.
+- **Semantic validation fallback**: Validators use a hybrid approach: regex keyword validation first (fast, zero cost), then LLM-based semantic validation if regex fails (preserves natural prose quality while ensuring correctness). This allows Agent 9 to write naturally without forcing keywords like "eliminated", "ruled out", "therefore" while still catching actual logic errors. Semantic validation costs ~$0.001-0.003 per scene when triggered.
 - Before final release-gate evaluation, prose generation now runs a preventive repair pass when validation flags discriminating-test gaps, suspect-closure gaps, missing case-transition bridge, or identity alias continuity breaks; the repair pass adds explicit quality guardrails to Agent 9 instructions.
 - Release gate enforcement now records warnings (instead of blocking completion) when continuity-critical issues remain, mojibake remains, discriminating-test scenes are missing, or suspect closure is incomplete.
 

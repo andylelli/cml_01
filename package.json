@@ -6,8 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "echo \"build: TODO\"",
-    "dev": "echo \"dev: TODO\"",
+    "build": "npm run -w @cml/api build",
+    "dev": "npm run -w @cml/api build && npm run -w @cml/api dev",
     "lint": "echo \"lint: TODO\"",
     "test": "npm run -w @cml/api test ; npm run -w @cml/worker test ; npm run -w @cml/web test"
   },

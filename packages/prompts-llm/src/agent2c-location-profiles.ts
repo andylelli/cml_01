@@ -7,9 +7,11 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { validateArtifact } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { NarrativeOutline } from "./agent7-narrative.js";
+import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
 export interface SensoryDetails {
   sights: string[];
@@ -74,7 +76,7 @@ export interface LocationProfilesInputs {
   projectId?: string;
 }
 
-const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs) => {
+const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";
@@ -102,6 +104,8 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs) => {
     ...(inputs.settingRefinement.era.transportation || []),
     ...(inputs.settingRefinement.era.communication || []),
   ].slice(0, 8);
+
+  const validationFeedback = buildValidationFeedback(previousErrors);
 
   const system = `You are a setting and atmosphere specialist for classic mystery fiction. Your task is to create vivid, evocative location profiles that bring mystery settings to life through sensory details, authentic period atmosphere, and physical descriptions that serve the mystery plot.
 
@@ -169,7 +173,14 @@ Requirements:
 - Era-authentic markers: ${eraMarkers.join(', ')}
 - Tone: ${tone}
 - No anachronisms
-- Physical details that support mystery logic (access, isolation, layout)`;
+- Physical details that support mystery logic (access, isolation, layout)
+
+CRITICAL FIELD REQUIREMENTS:
+- keyLocations MUST be an array of OBJECTS (not strings)
+- Each keyLocation object MUST have: id, name, type, purpose, visualDetails, sensoryDetails, accessControl, paragraphs
+- sensoryDetails MUST be an object with arrays: sights, sounds, smells, tactile
+- type field MUST be one of: "interior", "exterior", "transitional"
+- Do NOT return location names as strings - always return complete objects with all required fields${validationFeedback}`;
 
   const user = `Generate location profiles for this mystery.
 
@@ -218,12 +229,22 @@ export async function generateLocationProfiles(
   maxAttempts = 2
 ): Promise<LocationProfilesResult> {
   const start = Date.now();
-  const prompt = buildLocationProfilesPrompt(inputs);
 
-  let lastError: Error | undefined;
+  const retryResult = await withValidationRetry({
+    maxAttempts,
+    agentName: "Agent 2c (Location Profiles)",
+    validationFn: (data) => {
+      // Validate against location_profiles schema
+      const validation = validateArtifact("location_profiles", data);
+      return {
+        valid: validation.valid,
+        errors: validation.errors,
+        warnings: validation.warnings,
+      };
+    },
+    generateFn: async (attempt, previousErrors) => {
+      const prompt = buildLocationProfilesPrompt(inputs, previousErrors);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
       const response = await client.chat({
         messages: prompt.messages,
         temperature: 0.6,
@@ -245,7 +266,7 @@ export async function generateLocationProfiles(
         profiles = JSON.parse(repaired);
       }
 
-      // Validate structure
+      // Basic structure validation
       if (!profiles.primary || !Array.isArray(profiles.primary.paragraphs) || profiles.primary.paragraphs.length === 0) {
         throw new Error("Invalid location profiles output: missing primary location");
       }
@@ -254,22 +275,35 @@ export async function generateLocationProfiles(
         throw new Error("Invalid location profiles output: missing key locations");
       }
 
-      const durationMs = Date.now() - start;
       const costTracker = client.getCostTracker();
       const cost = costTracker.getSummary().byAgent["Agent2c-LocationProfiles"] || 0;
 
-      return {
-        ...profiles,
-        cost,
-        durationMs,
-      };
-    } catch (error) {
-      lastError = error as Error;
-      if (attempt >= maxAttempts) {
-        throw error;
-      }
-    }
+      return { result: profiles, cost };
+    },
+  });
+
+  // Log validation warnings if any
+  if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
+    console.warn(
+      `[Agent 2c] Location profiles validation warnings:\n` +
+      retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n")
+    );
   }
 
-  throw lastError || new Error("Location profile generation failed after all attempts");
+  // If validation failed after all retries, log errors but continue
+  if (!retryResult.validationResult.valid) {
+    console.error(
+      `[Agent 2c] Location profiles failed validation after ${maxAttempts} attempts:\n` +
+      retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
+    );
+  }
+
+  const durationMs = Date.now() - start;
+  const validatedResult = retryResult.result as LocationProfilesResult;
+
+  return {
+    ...validatedResult,
+    cost: retryResult.totalCost,
+    durationMs,
+  };
 }

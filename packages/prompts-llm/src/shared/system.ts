@@ -47,7 +47,25 @@ export const FAIR_PLAY_CHECKLIST = `Fair-Play Requirements:
 ✓ Load-bearing clues appear early (first 1/3 of story)
 ✓ No deus ex machina or last-minute revelations
 ✓ Detective uses only publicly available information
-✓ Reader has same information as detective
-✓ Solution follows logically from presented clues
+✓ Reader has same information as detective (INFORMATION PARITY)
+✓ Solution follows logically from presented clues (LOGICAL DEDUCIBILITY)
 ✓ No supernatural elements or impossible coincidences
-✓ Murderer's identity determinable through deduction`;
+✓ Murderer's identity determinable through deduction
+✓ Every inference step has reader-visible evidence (no detective-only reasoning)
+✓ At least one clue must CONTRADICT the false assumption
+✓ Each non-culprit suspect can be ELIMINATED using available clues
+✓ The discriminating test references evidence the reader has already seen`;
+
+export const INFERENCE_PATH_QUALITY = `Inference Path Quality Standard:
+Each step MUST have:
+1. OBSERVATION: A concrete, scene-level fact (object, document, statement, physical evidence)
+   that the reader can WITNESS — not an abstract summary
+2. CORRECTION: A conclusion that follows from the observation PLUS other stated evidence —
+   not a logical leap
+3. EFFECT: A named consequence ("eliminates [suspect]" or "narrows [constraint] to [range]")
+4. REQUIRED_EVIDENCE: 2-4 specific facts from the CML that the reader needs to see
+
+Anti-patterns to avoid:
+✗ "Timeline discrepancies" → ✓ "Clock in study shows 9:15, witness heard crash at 9:45"
+✗ "Access patterns suggest hidden entry" → ✓ "Mud on library windowsill matches garden soil, but window was locked from inside"
+✗ "Behavioral tells indicate deception" → ✓ "Mrs. Harrison claims she was reading, but the library lamp was cold when checked at 10 PM"`;

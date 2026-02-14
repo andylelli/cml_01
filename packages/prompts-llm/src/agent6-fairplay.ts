@@ -310,3 +310,77 @@ export async function auditFairPlay(
     durationMs,
   };
 }
+
+// ============================================================================
+// WP5: Blind Reader Simulation
+// ============================================================================
+
+export interface BlindReaderResult {
+  suspectedCulprit: string;
+  reasoning: string;
+  confidenceLevel: "certain" | "likely" | "uncertain" | "impossible";
+  missingInformation: string[];
+  cost: number;
+  durationMs: number;
+}
+
+export async function blindReaderSimulation(
+  client: AzureOpenAIClient,
+  clues: ClueDistributionResult,
+  falseAssumption: string,
+  castNames: string[],
+  inputs: { runId?: string; projectId?: string }
+): Promise<BlindReaderResult> {
+  const startTime = Date.now();
+
+  const system = "You are a careful reader of Golden Age detective fiction. You are reading a mystery " +
+    "and trying to deduce who committed the crime. You will be given ONLY the clues presented in the " +
+    "story. You do NOT know the solution, the inference path, or the detective reasoning. " +
+    "You must work it out from the clues alone.";
+
+  const clueList = clues.clues
+    .slice()
+    .sort((a, b) => {
+      const order: Record<string, number> = { early: 0, mid: 1, late: 2 };
+      return (order[a.placement] ?? 1) - (order[b.placement] ?? 1);
+    })
+    .map((c, i) => (i + 1) + ". [" + c.placement + "] " + c.description)
+    .join("\n");
+
+  const redHerringList = clues.redHerrings
+    .map((rh, i) => (i + 1) + ". " + rh.description)
+    .join("\n");
+
+  const user = "Here are all the clues you encountered while reading this mystery:\n\n" +
+    clueList + "\n\n" +
+    (redHerringList ? "Additional observations:\n" + redHerringList + "\n\n" : "") +
+    "The suspects are: " + castNames.join(", ") + "\n\n" +
+    "The initial assumption is: \"" + falseAssumption + "\"\n\n" +
+    "Based ONLY on these clues, who do you think committed the crime and why? " +
+    "If you cannot determine the culprit, explain what information is missing.\n\n" +
+    'Return JSON: { "suspectedCulprit": "name", "reasoning": "step by step", ' +
+    '"confidenceLevel": "certain|likely|uncertain|impossible", ' +
+    '"missingInformation": ["what you would need to know"] }';
+
+  const response = await client.chat({
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    temperature: 0.2,
+    maxTokens: 1500,
+    jsonMode: true,
+    logContext: {
+      runId: inputs.runId || "unknown",
+      projectId: inputs.projectId || "unknown",
+      agent: "Agent6-BlindReader",
+    },
+  });
+
+  const durationMs = Date.now() - startTime;
+  const costTracker = client.getCostTracker();
+  const cost = costTracker.getSummary().byAgent["Agent6-BlindReader"] || 0;
+
+  const result = JSON.parse(response.content);
+  return { ...result, cost, durationMs };
+}

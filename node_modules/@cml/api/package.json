@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "node dist/index.js",
+    "watch": "tsc -p tsconfig.json --watch",
     "test": "vitest run"
   },
   "devDependencies": {
