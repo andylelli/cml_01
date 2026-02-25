@@ -10,11 +10,20 @@ import type { CaseData } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
 import type { NarrativeOutline } from "./agent7-narrative.js";
 import type { CastDesign } from "./agent2-cast.js";
+import { ChapterValidator } from "@cml/story-validation";
 
 export interface ProseChapter {
   title: string;
   summary?: string;
   paragraphs: string[];
+}
+
+export interface ChapterSummary {
+  chapterNumber: number;
+  title: string;
+  charactersPresent: string[];
+  settingTerms: string[];
+  keyEvents: string[];
 }
 
 export interface ProseGenerationInputs {
@@ -30,6 +39,7 @@ export interface ProseGenerationInputs {
   writingGuides?: { humour?: string; craft?: string };
   runId?: string;
   projectId?: string;
+  onProgress?: (phase: string, message: string, percentage: number) => void;
 }
 
 export interface ProseGenerationResult {
@@ -40,6 +50,16 @@ export interface ProseGenerationResult {
   note?: string;
   cost: number;
   durationMs: number;
+  validationDetails?: {
+    totalBatches: number;
+    batchesWithRetries: number;
+    failureHistory: Array<{
+      batchIndex: number;
+      chapterRange: string;
+      attempt: number;
+      errors: string[];
+    }>;
+  };
 }
 
 const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
@@ -137,7 +157,7 @@ const buildProseRequirements = (caseData: CaseData, scenesForChapter?: unknown[]
   return output;
 };
 
-const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1) => {
+const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
   const scenes = Array.isArray(scenesOverride)
@@ -148,7 +168,7 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   const era = cmlCase.meta?.era?.decade ?? "Unknown era";
   const cast = inputs.cast.characters || [];
 
-  const system = `You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.\n\nRules:\n- Do not introduce new facts beyond the CML and outline.\n- Preserve all clues, alibis, and the core mystery logic.\n- Maintain strict setting fidelity to the specified location and era.\n- Write immersive, sensory-rich prose that transports readers to the setting\n- Include scene-setting passages that establish atmosphere, time, and place\n- Use varied sentence structure and sophisticated vocabulary\n- Show character emotions through actions and dialogue, not just telling\n- Create distinct character voices and personalities based on their profiles\n- Avoid stereotypes and reduce bias.\n- Keep language original; do not copy copyrighted text.\n- Output valid JSON only.`;
+  const system = `You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.\n\nRules:\n- Do not introduce new facts beyond the CML and outline.\n- Preserve all clues, alibis, and the core mystery logic.\n- Maintain strict setting fidelity to the specified location and era.\n- Write immersive, sensory-rich prose that transports readers to the setting\n- Include scene-setting passages that establish atmosphere, time, and place\n- Use varied sentence structure and sophisticated vocabulary\n- Show character emotions through actions and dialogue, not just telling\n- Create distinct character voices and personalities based on their profiles\n- Avoid stereotypes and reduce bias.\n- Keep language original; do not copy copyrighted text.\n- Output valid JSON only.\n- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.\n- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. Flag any phrase used more than twice in the same batch with a paraphrase.`;
 
   const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Never vary it.\n   Cast names: ${cast.map((c: any) => c.name).join(', ')}\n   - Use these EXACT names throughout - no variations\n   - If detective exists, choose ONE name and use consistently\n\n2. Gender pronouns must match character definition:\n${cast.map((c: any) => {
     const gender = c.gender?.toLowerCase();
@@ -264,6 +284,20 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   }
 
 
+  // Build continuity context for chapters 11+ (character names, setting terms from earlier chapters)
+  let continuityBlock = '';
+  if (chapterStart >= 11) {
+    continuityBlock = buildContinuityContext(chapterSummaries, chapterStart);
+  }
+
+  // Build discriminating test checklist for late chapters (15-18)
+  let discriminatingTestBlock = '';
+  const chapterEnd = chapterStart + scenes.length - 1;
+  if (chapterEnd >= 15) {
+    const chapterRange = `${chapterStart}-${chapterEnd}`;
+    discriminatingTestBlock = buildDiscriminatingTestChecklist(inputs.caseData, chapterRange, inputs.outline);
+  }
+
   // Build humour guide block from writing guides
   let humourGuideBlock = '';
   if (inputs.writingGuides?.humour) {
@@ -321,7 +355,7 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   const user = `Write the full prose following the outline scenes.\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenes, null, 2)}`;
 
   const messages = [
-    { role: "system" as const, content: `${system}\n\n${characterConsistencyRules}${characterPersonalityContext}\n\n${physicalPlausibilityRules}${eraAuthenticityRules}${locationProfilesContext}${temporalContextBlock}${humourGuideBlock}${craftGuideBlock}\n\n${developer}` },
+    { role: "system" as const, content: `${system}\n\n${characterConsistencyRules}${characterPersonalityContext}\n\n${physicalPlausibilityRules}${eraAuthenticityRules}${locationProfilesContext}${temporalContextBlock}${continuityBlock}${discriminatingTestBlock}${humourGuideBlock}${craftGuideBlock}\n\n${developer}` },
     { role: "user" as const, content: user },
   ];
 
@@ -354,6 +388,438 @@ const validateChapterCount = (chapters: ProseChapter[], expected: number) => {
   }
 };
 
+/**
+ * Extract chapter summary for continuity tracking
+ * Captures character names, setting vocabulary, and key events from completed chapters
+ */
+function extractChapterSummary(chapter: ProseChapter, chapterNumber: number, castNames: string[]): ChapterSummary {
+  const text = chapter.paragraphs.join(' ');
+  
+  // Extract character names that actually appear in this chapter
+  const charactersPresent = castNames.filter(name => {
+    const regex = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    return regex.test(text);
+  });
+  
+  // Extract setting-related terms (common location vocabulary)
+  const settingPatterns = [
+    /\b(library|drawing[- ]room|study|parlour|parlor|dining[- ]room|ballroom|conservatory|terrace|garden|stable|kitchen|servants?'? quarters?)\b/gi,
+    /\b(cabin|stateroom|deck|gangway|saloon|smoking[- ]room|promenade)\b/gi,
+    /\b(compartment|corridor|dining[- ]car|sleeping[- ]car|platform|station)\b/gi,
+    /\b(lobby|suite|bedroom|restaurant|bar|lounge)\b/gi,
+    /\b(estate|manor|cottage|villa|townhouse|apartment|flat)\b/gi
+  ];
+  
+  const settingTerms: string[] = [];
+  settingPatterns.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    matches.forEach(match => {
+      const normalized = match.toLowerCase().trim();
+      if (!settingTerms.includes(normalized)) {
+        settingTerms.push(normalized);
+      }
+    });
+  });
+  
+  // Extract first sentence of each paragraph as key events (simple heuristic)
+  const keyEvents: string[] = [];
+  chapter.paragraphs.slice(0, 3).forEach(para => {
+    const firstSentence = para.match(/^[^.!?]+[.!?]/);
+    if (firstSentence && firstSentence[0].length < 150) {
+      keyEvents.push(firstSentence[0].trim());
+    }
+  });
+  
+  return {
+    chapterNumber,
+    title: chapter.title,
+    charactersPresent: charactersPresent.slice(0, 8), // Limit to top 8
+    settingTerms: settingTerms.slice(0, 10), // Limit to 10 terms
+    keyEvents: keyEvents.slice(0, 3) // Max 3 events
+  };
+}
+
+/**
+ * Build continuity context from previous chapter summaries
+ * Provides character name consistency and setting vocabulary for late chapters
+ */
+function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart: number): string {
+  if (summaries.length === 0 || currentChapterStart < 11) {
+    return ''; // Only provide continuity for chapters 11+
+  }
+  
+  // Get summaries from chapters 1-10 or all previous chapters if fewer
+  const relevantSummaries = summaries.slice(0, Math.min(10, summaries.length));
+  
+  // Aggregate character names across all previous chapters
+  const allCharacters = new Set<string>();
+  relevantSummaries.forEach(s => s.charactersPresent.forEach(c => allCharacters.add(c)));
+  
+  // Aggregate setting terms
+  const allSettingTerms = new Set<string>();
+  relevantSummaries.forEach(s => s.settingTerms.forEach(t => allSettingTerms.add(t)));
+  
+  let context = '\n\n═══════════════════════════════════════════════════════════\n';
+  context += '📚 CONTINUITY CONTEXT - CHARACTER & SETTING CONSISTENCY\n';
+  context += '═══════════════════════════════════════════════════════════\n\n';
+  context += '**CRITICAL: You are writing chapters ' + currentChapterStart + '+. Maintain consistency with earlier chapters.**\n\n';
+  
+  // Character names section
+  if (allCharacters.size > 0) {
+    context += '**Character Names Used in Chapters 1-' + Math.max(...relevantSummaries.map(s => s.chapterNumber)) + ':**\n';
+    const charList = Array.from(allCharacters).slice(0, 12).join(', ');
+    context += charList + '\n\n';
+    context += '✓ RULE: Use EXACTLY these names. Do NOT vary spelling, titles, or introduce new forms.\n';
+    context += '✓ If you used "Inspector Brown" in chapter 3, continue using "Inspector Brown" (not "Brown", not "The Inspector").\n\n';
+  }
+  
+  // Setting vocabulary section
+  if (allSettingTerms.size > 0) {
+    context += '**Setting Vocabulary Established in Earlier Chapters:**\n';
+    const termList = Array.from(allSettingTerms).slice(0, 15).join(', ');
+    context += termList + '\n\n';
+    context += '✓ RULE: Continue using this location vocabulary. Maintain consistency with established setting type.\n';
+    context += '✓ Do NOT introduce new location types that contradict earlier chapters.\n\n';
+  }
+  
+  // Recent chapter summaries for narrative flow
+  const recentSummaries = summaries.slice(Math.max(0, summaries.length - 3), summaries.length);
+  if (recentSummaries.length > 0) {
+    context += '**Recent Chapter Summary (for narrative continuity):**\n';
+    recentSummaries.forEach(summary => {
+      context += `Chapter ${summary.chapterNumber}: ${summary.title}\n`;
+      if (summary.keyEvents.length > 0) {
+        context += `  Events: ${summary.keyEvents[0]}\n`;
+      }
+    });
+    context += '\n';
+  }
+  
+  context += '⚠️ **VALIDATION:** Character name mismatches and setting drift are COMMON LATE-CHAPTER FAILURES.\n';
+  context += 'Double-check every character name against the list above before using it.\n';
+  context += '═══════════════════════════════════════════════════════════\n';
+  
+  return context;
+}
+
+/**
+ * Build cross-batch warning message from recurring error patterns
+ * Helps LLM avoid repeating mistakes from earlier batches
+ */
+function buildCrossBatchWarnings(errorPatterns: { type: string; count: number; examples: string[] }[]): string {
+  if (errorPatterns.length === 0) return '';
+  
+  // Only warn if pattern occurs 2+ times
+  const significant = errorPatterns.filter(p => p.count >= 2);
+  if (significant.length === 0) return '';
+  
+  let warning = '\n\n⚠️ CRITICAL: RECURRING ERROR PATTERNS DETECTED ⚠️\n\n';
+  warning += 'Previous batches in THIS generation have made these mistakes multiple times.\n';
+  warning += 'DO NOT REPEAT THESE ERRORS:\n\n';
+  
+  significant.forEach(pattern => {
+    warning += `❌ ${pattern.type.toUpperCase().replace('_', ' ')} (occurred ${pattern.count} times):\n`;
+    pattern.examples.slice(0, 2).forEach(example => {
+      warning += `   • ${example}\n`;
+    });
+    warning += '\n';
+  });
+  
+  warning += '✓ Double-check your output against the errors above BEFORE submitting.\n';
+  warning += '✓ These are YOUR previous mistakes in earlier chapters - do not repeat them.\n';
+  
+  return warning;
+}
+
+/**
+ * Validate that discriminating test requirements can be satisfied by CML
+ * Returns error message if validation fails, empty string if OK
+ */
+function validateChecklistRequirements(caseData: CaseData): string {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const discriminatingTest = cmlCase.discriminating_test;
+  
+  if (!discriminatingTest || !discriminatingTest.design) {
+    return ''; // No test to validate
+  }
+  
+  const evidenceClues = discriminatingTest.evidence_clues || [];
+  const clueRegistry = cmlCase.clue_registry || [];
+  
+  // Check that all evidence clues exist in clue registry
+  const missingClues: string[] = [];
+  evidenceClues.forEach((clue: any) => {
+    const clueId = typeof clue === 'string' ? clue : clue.clue_id;
+    const exists = clueRegistry.some((registryClue: any) => 
+      registryClue.clue_id === clueId
+    );
+    if (!exists) {
+      missingClues.push(clueId);
+    }
+  });
+  
+  if (missingClues.length > 0) {
+    return `❌ CHECKLIST VALIDATION FAILED: Discriminating test references clues that don't exist in clue_registry: ${missingClues.join(', ')}. Cannot generate checklist with invalid clue references.`;
+  }
+  
+  // Check that eliminated suspects exist in cast
+  const eliminated = discriminatingTest.eliminated_suspects || [];
+  const cast = cmlCase.cast || [];
+  const missingCast: string[] = [];
+  
+  eliminated.forEach((suspect: any) => {
+    const suspectName = typeof suspect === 'string' ? suspect : suspect.name;
+    const exists = cast.some((member: any) => member.name === suspectName);
+    if (!exists) {
+      missingCast.push(suspectName);
+    }
+  });
+  
+  if (missingCast.length > 0) {
+    return `❌ CHECKLIST VALIDATION FAILED: Discriminating test eliminates suspects not in cast: ${missingCast.join(', ')}. Cannot eliminate non-existent characters.`;
+  }
+  
+  return ''; // Validation passed
+}
+
+/**
+ * Build discriminating test checklist from CML
+ * Provides explicit checkbox requirements for late chapters (15-18) where test appears
+ * Breaks down complex multi-step reasoning into concrete requirements
+ */
+function buildDiscriminatingTestChecklist(
+  caseData: CaseData, 
+  chapterRange: string, 
+  outline: NarrativeOutline
+): string {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const discriminatingTest = cmlCase.discriminating_test;
+  
+  if (!discriminatingTest || !discriminatingTest.design) {
+    return '';
+  }
+  
+  // Validate checklist requirements before building
+  const validationError = validateChecklistRequirements(caseData);
+  if (validationError) {
+    return '\n\n' + validationError + '\n';
+  }
+  
+  const testDesign = discriminatingTest.design;
+  const testType = testDesign.test_type || 'unknown';
+  const testDescription = testDesign.description || '';
+  const evidenceClues = discriminatingTest.evidence_clues || [];
+  const eliminated = discriminatingTest.eliminated_suspects || [];
+  
+  // Only show checklist for late chapters (15-18) where discriminating test should appear
+  const chapterNumbers = chapterRange.split('-').map(n => parseInt(n, 10));
+  const isLateChapter = chapterNumbers.some(n => n >= 15);
+  
+  if (!isLateChapter) {
+    return '';
+  }
+  
+  // Extract clue locations from outline
+  const clueLocations = extractClueLocations(caseData, outline);
+  
+  let checklist = '\n\n═══════════════════════════════════════════════════════════\n';
+  checklist += '🎯 DISCRIMINATING TEST CHECKLIST - CRITICAL REQUIREMENTS\n';
+  checklist += '═══════════════════════════════════════════════════════════\n\n';
+  checklist += `This is a **${testType}** test. The detective must:\n\n`;
+  checklist += `**Test Description:**\n${testDescription}\n\n`;
+  checklist += `**MANDATORY CHECKLIST - Every box must be checked:**\n\n`;
+  
+  // Evidence clue requirements with locations
+  if (evidenceClues.length > 0) {
+    checklist += `☐ **Evidence Integration**\n`;
+    evidenceClues.forEach((clue: any) => {
+      const clueId = typeof clue === 'string' ? clue : clue.clue_id;
+      const clueType = typeof clue === 'object' ? clue.type || 'clue' : 'clue';
+      const location = clueLocations.get(clueId);
+      const locationStr = location ? ` (appears in ${location})` : '';
+      checklist += `  ☐ Explicitly reference or use clue: "${clueId}" (${clueType})${locationStr}\n`;
+    });
+    checklist += `\n`;
+  }
+  
+  // Test execution requirements based on type
+  checklist += `☐ **Test Execution**\n`;
+  if (testType === 'timing_test' || testType === 'timeline_test') {
+    checklist += `  ☐ Detective reviews or reconstructs the timeline\n`;
+    checklist += `  ☐ Show calculation or reasoning about time windows\n`;
+    checklist += `  ☐ Demonstrate which suspects had/lacked opportunity\n`;
+  } else if (testType === 'physical_test' || testType === 'capability_test') {
+    checklist += `  ☐ Detective tests or demonstrates the physical requirement\n`;
+    checklist += `  ☐ Show measurement, demonstration, or verification\n`;
+    checklist += `  ☐ Clearly show which suspects can/cannot meet requirement\n`;
+  } else if (testType === 'knowledge_test' || testType === 'specialized_knowledge') {
+    checklist += `  ☐ Detective identifies what specialized knowledge is required\n`;
+    checklist += `  ☐ Show investigation of who has this knowledge\n`;
+    checklist += `  ☐ Demonstrate which suspects possess/lack the knowledge\n`;
+  } else if (testType === 'access_test' || testType === 'opportunity_test') {
+    checklist += `  ☐ Detective maps who had access at critical time\n`;
+    checklist += `  ☐ Show verification of alibis or access records\n`;
+    checklist += `  ☐ Clearly eliminate suspects who lacked access\n`;
+  } else {
+    checklist += `  ☐ Detective performs the test or verification\n`;
+    checklist += `  ☐ Show clear reasoning and evidence evaluation\n`;
+    checklist += `  ☐ Demonstrate which suspects pass/fail the test\n`;
+  }
+  checklist += `\n`;
+  
+  // Suspect elimination requirements
+  if (eliminated.length > 0) {
+    checklist += `☐ **Suspect Elimination**\n`;
+    eliminated.forEach((suspect: any) => {
+      const suspectName = typeof suspect === 'string' ? suspect : suspect.name;
+      checklist += `  ☐ Clearly eliminate "${suspectName}" from suspicion\n`;
+    });
+    checklist += `\n`;
+  }
+  
+  // Detective reasoning requirements
+  checklist += `☐ **Detective Reasoning**\n`;
+  checklist += `  ☐ Detective explicitly states the test logic\n`;
+  checklist += `  ☐ Show step-by-step deduction process\n`;
+  checklist += `  ☐ Connect test results to innocence/guilt determination\n`;
+  checklist += `\n`;
+  
+  // Prose quality requirements
+  checklist += `☐ **Prose Integration**\n`;
+  checklist += `  ☐ Scene is dramatic and engaging (not dry exposition)\n`;
+  checklist += `  ☐ Use dialogue to reveal test logic naturally\n`;
+  checklist += `  ☐ Build tension as test proceeds\n`;
+  checklist += `  ☐ Clear moment of revelation when test succeeds\n`;
+  checklist += `\n`;
+  
+  checklist += `⚠️ **VALIDATION:** If ANY checkbox above is unchecked in your prose, the chapter will FAIL validation.\n`;
+  checklist += `This test is THE HARDEST element to get right. Take your time. Check every box.\n`;
+  checklist += `═══════════════════════════════════════════════════════════\n`;
+  
+  return checklist;
+}
+
+/**
+ * Extract evidence clue locations from narrative outline
+ * Returns map of clue_id to Act/Scene location for checklist injection
+ */
+function extractClueLocations(caseData: CaseData, outline: NarrativeOutline): Map<string, string> {
+  const clueLocations = new Map<string, string>();
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const clueRegistry = cmlCase.clue_registry || [];
+  
+  // Build set of clue IDs we're looking for
+  const clueIds = new Set<string>(clueRegistry.map((c: any) => String(c.clue_id || '')));
+  
+  // Search through outline acts and scenes
+  outline.acts?.forEach((act: any) => {
+    const actNum = act.act_number;
+    act.scenes?.forEach((scene: any) => {
+      const sceneNum = scene.scene_number;
+      const sceneText = JSON.stringify(scene).toLowerCase();
+      
+      // Check each clue ID
+      clueIds.forEach((clueId: string) => {
+        if (clueId && sceneText.includes(clueId.toLowerCase())) {
+          const location = `Act ${actNum}, Scene ${sceneNum}`;
+          // Store first occurrence (could track multiple if needed)
+          if (!clueLocations.has(clueId)) {
+            clueLocations.set(clueId, location);
+          }
+        }
+      });
+    });
+  });
+  
+  return clueLocations;
+}
+
+/**
+ * Build enhanced, categorized retry feedback
+ * Helps LLM understand exactly what to fix
+ */
+const buildEnhancedRetryFeedback = (
+  errors: string[],
+  caseData: CaseData,
+  chapterRange: string,
+  attempt: number,
+  maxAttempts: number
+): string => {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const cast = cmlCase.cast || [];
+  const castNames = cast.map((c: any) => c.name);
+  const locationType = cmlCase.meta?.setting?.location_type || '';
+  
+  // Categorize errors
+  const characterErrors = errors.filter(e => e.toLowerCase().includes('character') || e.toLowerCase().includes('name'));
+  const settingErrors = errors.filter(e => e.toLowerCase().includes('setting') || e.toLowerCase().includes('location'));
+  const testErrors = errors.filter(e => e.toLowerCase().includes('discriminating test'));
+  const qualityErrors = errors.filter(e => e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'));
+  const otherErrors = errors.filter(e => 
+    !characterErrors.includes(e) && 
+    !settingErrors.includes(e) && 
+    !testErrors.includes(e) && 
+    !qualityErrors.includes(e)
+  );
+  
+  let feedback = `⚠️ CRITICAL: Attempt ${attempt}/${maxAttempts} for chapters ${chapterRange} had ${errors.length} validation error(s).\n\n`;
+  feedback += `You MUST fix ALL of these issues. This is your ${attempt === maxAttempts ? 'FINAL' : 'last'} chance before generation fails.\n\n`;
+  
+  if (characterErrors.length > 0) {
+    feedback += `═══ CHARACTER NAME ERRORS (${characterErrors.length}) ═══\n`;
+    characterErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n✓ SOLUTION: Use ONLY these exact names: ${castNames.join(', ')}\n`;
+    feedback += `✓ DO NOT vary names, invent new characters, or use different titles\n`;
+    feedback += `✓ If you used "Inspector Brown" in earlier chapters, continue using "Inspector Brown"\n\n`;
+  }
+  
+  if (settingErrors.length > 0) {
+    feedback += `═══ SETTING DRIFT ERRORS (${settingErrors.length}) ═══\n`;
+    settingErrors.forEach(e => feedback += `• ${e}\n`);
+    if (locationType) {
+      feedback += `\n✓ SOLUTION: This story is set in a "${locationType}"\n`;
+      feedback += `✓ Use ONLY location vocabulary appropriate for this setting type\n`;
+      feedback += `✓ DO NOT use terms from other settings (manor, train, hotel, etc.)\n\n`;
+    }
+  }
+  
+  if (testErrors.length > 0) {
+    feedback += `═══ DISCRIMINATING TEST ERRORS (${testErrors.length}) ═══\n`;
+    testErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n✓ SOLUTION: The discriminating test must be explicit and complete\n`;
+    feedback += `✓ Include the detective's reasoning, the test itself, and clear elimination of suspects\n`;
+    feedback += `✓ Reference specific evidence clues from the CML\n`;
+    
+    // Add full checklist for late chapters where test should appear (note: outline not available here)
+    const chapterNumbers = chapterRange.split('-').map(n => parseInt(n, 10));
+    const isLateChapter = chapterNumbers.some(n => n >= 15);
+    if (isLateChapter) {
+      feedback += '\n✓ See DISCRIMINATING TEST CHECKLIST above for complete requirements\n';
+    }
+    feedback += `\n`;
+  }
+  
+  if (qualityErrors.length > 0) {
+    feedback += `═══ PROSE QUALITY ERRORS (${qualityErrors.length}) ═══\n`;
+    qualityErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n✓ SOLUTION: Vary paragraph lengths (short, medium, long)\n`;
+    feedback += `✓ Include sensory details and atmospheric description\n`;
+    feedback += `✓ Ensure each chapter has substance (3+ paragraphs minimum)\n\n`;
+  }
+  
+  if (otherErrors.length > 0) {
+    feedback += `═══ OTHER ERRORS (${otherErrors.length}) ═══\n`;
+    otherErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n`;
+  }
+  
+  feedback += `═══════════════════════════════════\n`;
+  feedback += `REGENERATE chapters ${chapterRange} with ALL fixes applied.\n`;
+  feedback += `DO NOT skip any error. DO NOT partially fix. Fix EVERYTHING.\n`;
+  
+  return feedback;
+};
+
 export async function generateProse(
   client: AzureOpenAIClient,
   inputs: ProseGenerationInputs,
@@ -363,30 +829,96 @@ export async function generateProse(
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
   const sceneCount = scenes.length;
-  const chunkSize = sceneCount > 18 ? 4 : sceneCount > 10 ? 5 : sceneCount > 0 ? sceneCount : 1;
-  const batches = chunkScenes(scenes, chunkSize);
+  
+  // Adaptive batch sizing:
+  // - Chapters 15-18 (discriminating test): 2 chapters per batch (more focused)
+  // - Chapters 11-14: 3 chapters per batch
+  // - Chapters 1-10: Standard sizing (4-5)
+  const adaptiveBatches: unknown[][] = [];
+  let currentIndex = 0;
+  
+  while (currentIndex < scenes.length) {
+    const remainingChapters = scenes.length - currentIndex;
+    const chapterNumber = currentIndex + 1;
+    
+    let batchSize: number;
+    if (chapterNumber >= 15) {
+      // Late chapters with discriminating test: smallest batches for maximum focus
+      batchSize = 2;
+    } else if (chapterNumber >= 11) {
+      // Mid-late chapters: moderate batches
+      batchSize = 3;
+    } else {
+      // Early chapters: standard sizing
+      batchSize = sceneCount > 18 ? 4 : sceneCount > 10 ? 5 : remainingChapters;
+    }
+    
+    batchSize = Math.min(batchSize, remainingChapters);
+    adaptiveBatches.push(scenes.slice(currentIndex, currentIndex + batchSize));
+    currentIndex += batchSize;
+  }
+  
+  const batches = adaptiveBatches;
 
   const chapters: ProseChapter[] = [];
+  const chapterSummaries: ChapterSummary[] = [];
   let chapterIndex = 1;
-  const batchValidationHistory: Array<{ batchIndex: number; attempt: number; errors: string[] }> = [];
+  const batchValidationHistory: Array<{ batchIndex: number; chapterRange: string; attempt: number; errors: string[] }> = [];
+  const chapterValidator = new ChapterValidator();
+  const progressCallback = inputs.onProgress || (() => {});
+  const castNames = inputs.cast.characters.map(c => c.name);
+  
+  // Track recurring error patterns across batches
+  const crossBatchErrors: { type: string; count: number; examples: string[] }[] = [];
 
-  // Generate each batch with per-batch validation and retry
+  // Generate each batch with per-batch AND per-chapter validation
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
     const batch = batches[batchIndex];
+    const maxAttempts = 2;
     let batchSuccess = false;
     let lastBatchError: string[] = [];
 
+    // Report progress: Starting this batch
+    const batchStartChapter = chapterIndex;
+    const batchEndChapter = chapterIndex + batch.length - 1;
+    const chapterRange = `${batchStartChapter}-${batchEndChapter}`;
+    const overallProgress = 91 + Math.floor((batchIndex / batches.length) * 3); // 91-94%
+    progressCallback('prose', `Generating chapters ${chapterRange} (batch ${batchIndex + 1}/${batches.length})...`, overallProgress);
+
     for (let batchAttempt = 1; batchAttempt <= maxAttempts; batchAttempt++) {
       try {
-        const prompt = buildProsePrompt(inputs, batch, chapterIndex);
+        const prompt = buildProsePrompt(inputs, batch, chapterIndex, chapterSummaries);
         
-        // Add validation feedback if this is a retry
+        // Add enhanced validation feedback if this is a retry
         if (batchAttempt > 1 && lastBatchError.length > 0) {
+          const feedback = buildEnhancedRetryFeedback(lastBatchError, inputs.caseData, chapterRange, batchAttempt, maxAttempts);
           const feedbackMessage = {
             role: "user" as const,
-            content: `Previous attempt had validation errors:\n${lastBatchError.map(e => `- ${e}`).join('\n')}\n\nPlease regenerate these chapters with corrections.`
+            content: feedback
           };
           prompt.messages.push(feedbackMessage);
+        }
+        
+        // Add cross-batch error warnings if patterns detected
+        if (batchIndex > 0 && crossBatchErrors.length > 0) {
+          const warningMessage = buildCrossBatchWarnings(crossBatchErrors);
+          if (warningMessage) {
+            prompt.messages.push({
+              role: "user" as const,
+              content: warningMessage
+            });
+          }
+        }
+        
+        // Add cross-batch error warnings if patterns detected
+        if (crossBatchErrors.length > 0) {
+          const warningMessage = buildCrossBatchWarnings(crossBatchErrors);
+          if (warningMessage) {
+            prompt.messages.push({
+              role: "user" as const,
+              content: warningMessage
+            });
+          }
         }
 
         const response = await client.chat({
@@ -404,10 +936,10 @@ export async function generateProse(
         const proseBatch = parseProseResponse(response.content);
         validateChapterCount(proseBatch.chapters, batch.length);
 
-        // Validate chapter structure (not full prose artifact - that comes later)
-        // Check that each chapter has required fields
+        // ENHANCED: Validate both structure AND content per chapter
         const batchErrors: string[] = [];
         proseBatch.chapters.forEach((chapter, idx) => {
+          // Structure validation
           if (!chapter.title || typeof chapter.title !== 'string') {
             batchErrors.push(`chapters[${idx}].title is required and must be a string`);
           }
@@ -422,36 +954,88 @@ export async function generateProse(
               }
             });
           }
+
+          // Content validation (NEW)
+          const chapterNum = chapterIndex + idx;
+          const contentValidation = chapterValidator.validateChapter({
+            title: chapter.title,
+            paragraphs: chapter.paragraphs,
+            chapterNumber: chapterNum
+          }, inputs.caseData);
+
+          // Add critical/major issues to batch errors
+          contentValidation.issues
+            .filter(issue => issue.severity === 'critical' || issue.severity === 'major')
+            .forEach(issue => {
+              batchErrors.push(`Chapter ${chapterNum}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
+            });
         });
         
         if (batchErrors.length > 0) {
           lastBatchError = batchErrors;
-          batchValidationHistory.push({ batchIndex, attempt: batchAttempt, errors: batchErrors });
+          batchValidationHistory.push({ batchIndex, chapterRange, attempt: batchAttempt, errors: batchErrors });
+          
+          // Track error patterns across batches for cross-batch learning
+          batchErrors.forEach(error => {
+            const errorLower = error.toLowerCase();
+            let errorType = 'other';
+            
+            if (errorLower.includes('character') || errorLower.includes('name')) {
+              errorType = 'character_names';
+            } else if (errorLower.includes('setting') || errorLower.includes('location')) {
+              errorType = 'setting_drift';
+            } else if (errorLower.includes('discriminating test')) {
+              errorType = 'discriminating_test';
+            } else if (errorLower.includes('paragraph') || errorLower.includes('quality')) {
+              errorType = 'prose_quality';
+            }
+            
+            const existing = crossBatchErrors.find(e => e.type === errorType);
+            if (existing) {
+              existing.count++;
+              if (existing.examples.length < 3) {
+                existing.examples.push(error);
+              }
+            } else {
+              crossBatchErrors.push({ type: errorType, count: 1, examples: [error] });
+            }
+          });
           
           console.warn(
             `[Agent 9] Batch ${batchIndex + 1}/${batches.length} validation failed (attempt ${batchAttempt}/${maxAttempts}):\n` +
             batchErrors.map(e => `  - ${e}`).join('\n')
           );
           
+          // Report validation failure
+          progressCallback('prose', `❌ Chapters ${chapterRange} validation failed (attempt ${batchAttempt}/${maxAttempts}): ${batchErrors.length} issue(s)`, overallProgress);
+          
           if (batchAttempt >= maxAttempts) {
-            console.error(
-              `[Agent 9] Batch ${batchIndex + 1} failed validation after ${maxAttempts} attempts. Continuing with errors.`
+            // Do NOT accept with warnings - throw clear error
+            const errorSummary = batchErrors.slice(0, 5).join('; ');
+            throw new Error(
+              `Chapters ${chapterRange} failed validation after ${maxAttempts} attempts. Issues: ${errorSummary}${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
             );
-            // Continue anyway to avoid blocking the entire generation
-            chapters.push(...proseBatch.chapters);
-            batchSuccess = true;
-            break;
           }
           // Retry this batch
           continue;
         }
 
-        // Validation passed - add chapters and continue
+        // Validation passed - add chapters and extract summaries for continuity
         chapters.push(...proseBatch.chapters);
+        
+        // Extract summaries from this batch for future continuity context
+        proseBatch.chapters.forEach((chapter, idx) => {
+          const summary = extractChapterSummary(chapter, chapterIndex + idx, castNames);
+          chapterSummaries.push(summary);
+        });
+        
         batchSuccess = true;
         
         if (batchAttempt > 1) {
           console.log(`[Agent 9] Batch ${batchIndex + 1}/${batches.length} validated successfully on attempt ${batchAttempt}`);
+          progressCallback('prose', `✅ Chapters ${chapterRange} validated (retry succeeded)`, overallProgress);
+        } else {
+          progressCallback('prose', `✅ Chapters ${chapterRange} validated`, overallProgress);
         }
         
         break;
@@ -492,5 +1076,10 @@ export async function generateProse(
     note,
     cost,
     durationMs,
+    validationDetails: batchValidationHistory.length > 0 ? {
+      totalBatches: batches.length,
+      batchesWithRetries: batchValidationHistory.length,
+      failureHistory: batchValidationHistory,
+    } : undefined,
   };
 }

@@ -7,13 +7,24 @@ import ValidationPanel from "./components/ValidationPanel.vue";
 import ProseReader from "./components/ProseReader.vue";
 import RunHistory from "./components/RunHistory.vue";
 import NoveltyAudit from "./components/NoveltyAudit.vue";
+import ScoreCard from "./components/ScoreCard.vue";
+import PhaseBreakdownTable from "./components/PhaseBreakdownTable.vue";
+import ScoreTrendChart from "./components/ScoreTrendChart.vue";
 import TabBar from "./components/TabBar.vue";
 import TabPanel from "./components/TabPanel.vue";
+import ProgressIndicator, { type PipelineStep } from "./components/ProgressIndicator.vue";
+import ArtifactStatusDashboard from "./components/ArtifactStatusDashboard.vue";
+import ErrorLogPanel from "./components/ErrorLogPanel.vue";
+import DebugPanel from "./components/DebugPanel.vue";
+import ContentSkeleton from "./components/ContentSkeleton.vue";
+import KeyboardShortcutHelp from "./components/KeyboardShortcutHelp.vue";
+import VirtualList from "./components/VirtualList.vue";
 import type {
   ErrorItem,
   ErrorSeverity,
   Tab,
   TabStatus,
+  GenerationReport,
 } from "./components/types";
 import { useProjectStore } from "./stores/projectStore";
 import {
@@ -26,6 +37,8 @@ import {
   fetchProseVersions,
   fetchSampleContent,
   fetchSamples,
+  fetchScoringReport,
+  fetchScoringHistory,
   logActivity,
   regenerateArtifact,
   runPipeline,
@@ -51,7 +64,8 @@ type View =
   | "prose"
   | "history"
   | "artifacts"
-  | "logs";
+  | "logs"
+  | "quality";
 
 const mode = ref<Mode>("user");
 const currentView = ref<View>("dashboard");
@@ -90,6 +104,7 @@ const advancedTabs = computed<Tab[]>(() => [
   { id: "logs", label: "LLM Logs" },
   { id: "samples", label: "Samples" },
   { id: "history", label: "History" },
+  { id: "quality", label: "Quality" },
 ]);
 
 const projectStore = useProjectStore();
@@ -273,6 +288,9 @@ const handleAdvancedTabChange = (tabId: string) => {
 };
 
 const runStatus = ref("Ready to generate");
+const scoringReport = ref<GenerationReport | null>(null);
+const scoringHistory = ref<GenerationReport[]>([]);
+const isScoringReportLoading = ref(false);
 const isCreatingProject = ref(false);
 const projectName = ref("Golden Age Prototype");
 const projectId = ref<string | null>(null);
@@ -308,6 +326,7 @@ const selectedProseLength = ref<string | null>(null);
 const availableProseVersions = ref<string[]>([]);
 let unsubscribe: (() => void) | null = null;
 let runEventsInterval: ReturnType<typeof setInterval> | null = null;
+let scoringPollInterval: ReturnType<typeof setInterval> | null = null;
 
 const STORAGE_KEY = "cml_ui_state";
 
@@ -698,12 +717,14 @@ const connectSse = () => {
       if (payload.status === "running") {
         runStatus.value = "Building your mystery...";
         startRunEventsPolling();
+        startScoringPoll();
         return;
       }
 
       if (previous === "running" && payload.status === "idle") {
         isStartingRun.value = false;
         stopRunEventsPolling();
+        stopScoringPoll();
         await loadRunEventsForProject();
 
         const latestEvent = runEventsData.value[runEventsData.value.length - 1];
@@ -718,6 +739,8 @@ const connectSse = () => {
 
         runStatus.value = "All set. Explore your results.";
         pollArtifacts();
+        void loadScoringReport();
+        void loadScoringHistory();
         addError("info", "pipeline", "Your mystery is ready.");
         logActivity({ projectId: projectId.value, scope: "ui", message: "run_completed" });
         return;
@@ -782,6 +805,21 @@ const stopRunEventsPolling = () => {
   runEventsInterval = null;
 };
 
+const startScoringPoll = () => {
+  if (scoringPollInterval) return;
+  scoringPollInterval = setInterval(() => {
+    if (projectId.value && latestRunId.value) {
+      void loadScoringReport();
+    }
+  }, 5000);
+};
+
+const stopScoringPoll = () => {
+  if (!scoringPollInterval) return;
+  clearInterval(scoringPollInterval);
+  scoringPollInterval = null;
+};
+
 // Watchers for tab navigation sync
 // Update tab status based on project state
 watch([projectId, isAdvanced], () => {
@@ -823,6 +861,7 @@ watch(activeMainTab, (newTab) => {
       if (activeAdvancedTab.value === "cml") setView("cml");
       else if (activeAdvancedTab.value === "samples") setView("samples");
       else if (activeAdvancedTab.value === "history") setView("history");
+      else if (activeAdvancedTab.value === "quality") setView("quality");
       break;
     case "export":
       setView("dashboard");
@@ -839,6 +878,10 @@ watch(activeReviewTab, (newTab) => {
 watch(activeAdvancedTab, (newTab) => {
   if (activeMainTab.value === "advanced") {
     setView(newTab as View);
+    if (newTab === "quality") {
+      void loadScoringReport();
+      void loadScoringHistory();
+    }
   }
 });
 
@@ -878,6 +921,7 @@ watch(currentView, (newView) => {
     case "history":
     case "artifacts":
     case "logs":
+    case "quality":
       activeMainTab.value = "advanced";
       activeAdvancedTab.value = newView;
       break;
@@ -1056,6 +1100,29 @@ const loadArtifacts = async () => {
   }
 
   addError("error", "artifacts", "Some items are still unavailable", "We’ll retry automatically.");
+};
+
+const loadScoringReport = async () => {
+  if (!projectId.value || !latestRunId.value) return;
+  isScoringReportLoading.value = true;
+  try {
+    const report = await fetchScoringReport(projectId.value, latestRunId.value);
+    scoringReport.value = report as GenerationReport;
+  } catch {
+    scoringReport.value = null; // scoring not enabled or no report yet
+  } finally {
+    isScoringReportLoading.value = false;
+  }
+};
+
+const loadScoringHistory = async () => {
+  if (!projectId.value) return;
+  try {
+    const history = await fetchScoringHistory(projectId.value, 10);
+    scoringHistory.value = history as GenerationReport[];
+  } catch {
+    scoringHistory.value = [];
+  }
 };
 
 const pollArtifacts = async (attempts = 20, delayMs = 2000) => {
@@ -1265,9 +1332,172 @@ const handleSampleSelect = async (id: string) => {
   }
 };
 
+// ── New UI state ────────────────────────────────────────────────────────────
+const showShortcutHelp = ref(false);
+
+// Maps runEventsData into a typed PipelineStep[] for ProgressIndicator
+const pipelineSteps = computed((): PipelineStep[] => {
+  // doneEvent: the part of the "*_done" event name (without "_done") emitted by server.ts
+  // runningStage: the progress stage name emitted by the orchestrator's reportProgress()
+  const steps: { id: string; label: string; doneEvent: string; runningStage: string }[] = [
+    { id: "setting",        label: "Setting",      doneEvent: "setting",          runningStage: "setting" },
+    { id: "cast",           label: "Cast",         doneEvent: "cast",             runningStage: "cast" },
+    { id: "hard_logic",     label: "Hard Logic",   doneEvent: "hard_logic_devices", runningStage: "hard_logic_devices" },
+    { id: "cml",            label: "CML",          doneEvent: "cml",              runningStage: "cml" },
+    { id: "novelty_audit",  label: "Novelty Audit", doneEvent: "novelty_audit",   runningStage: "novelty" },
+    { id: "clues",          label: "Clues",        doneEvent: "clues",            runningStage: "clues" },
+    { id: "fairplay",       label: "Fair-play",    doneEvent: "fair_play_report", runningStage: "fairplay" },
+    { id: "outline",        label: "Outline",      doneEvent: "outline",          runningStage: "narrative" },
+    { id: "profiles",       label: "Profiles",     doneEvent: "character_profiles", runningStage: "profiles" },
+    { id: "prose",          label: "Prose",        doneEvent: "prose",            runningStage: "prose" },
+  ];
+
+  const completedDoneEvents = new Set<string>();
+  const failedIds = new Set<string>();
+  let runningStage: string | null = null;
+
+  for (const event of runEventsData.value) {
+    const step = event.step.toLowerCase();
+    if (step.endsWith("_done")) {
+      completedDoneEvents.add(step.replace(/_done$/, ""));
+    } else if (["pipeline_complete", "run_finished", "complete"].includes(step)) {
+      steps.forEach((s) => completedDoneEvents.add(s.doneEvent));
+    } else if (["pipeline_error", "run_failed"].includes(step)) {
+      if (runningStage) {
+        const failedStep = steps.find((s) => s.runningStage === runningStage);
+        if (failedStep) failedIds.add(failedStep.id);
+      }
+    } else if (!step.includes("_done") && !["pipeline_started", "run_started", "pipeline_warnings"].includes(step)) {
+      runningStage = step;
+    }
+  }
+
+  return steps.map((s): PipelineStep => {
+    let status: PipelineStep["status"] = "pending";
+    if (completedDoneEvents.has(s.doneEvent)) status = "complete";
+    else if (failedIds.has(s.id)) status = "failed";
+    else if (runningStage === s.runningStage) status = "running";
+    return { id: s.id, label: s.label, status };
+  });
+});
+
+// Maps store artifact refs into ArtifactStatusDashboard entries
+const artifactEntries = computed(() => [
+  { id: "setting", label: "Setting", generatedAt: null, ready: Boolean(settingArtifact.value), dependsOn: [] },
+  { id: "cast", label: "Cast", generatedAt: null, ready: Boolean(castArtifact.value), dependsOn: ["setting"] },
+  { id: "hard_logic_devices", label: "Hard Logic", generatedAt: null, ready: Boolean(hardLogicDevicesArtifact.value), dependsOn: ["setting", "cast"] },
+  { id: "cml", label: "CML", generatedAt: null, ready: Boolean(cmlArtifact.value), dependsOn: ["cast", "hard_logic_devices"] },
+  { id: "clues", label: "Clues", generatedAt: null, ready: Boolean(cluesArtifact.value), dependsOn: ["cml"] },
+  { id: "outline", label: "Outline", generatedAt: null, ready: Boolean(outlineArtifact.value), dependsOn: ["clues"] },
+  { id: "character_profiles", label: "Profiles", generatedAt: null, ready: Boolean(characterProfilesArtifact.value), dependsOn: ["cast"] },
+  { id: "location_profiles", label: "Locations", generatedAt: null, ready: Boolean(locationProfilesArtifact.value), dependsOn: ["setting"] },
+  { id: "temporal_context", label: "Era & Culture", generatedAt: null, ready: Boolean(temporalContextArtifact.value), dependsOn: ["setting"] },
+  { id: "background_context", label: "Background", generatedAt: null, ready: Boolean(backgroundContextArtifact.value), dependsOn: ["setting"] },
+  { id: "prose", label: "Prose", generatedAt: null, ready: Boolean(proseArtifact.value), dependsOn: ["outline", "character_profiles"] },
+]);
+
+// Maps store llmLogs to DebugPanel's expected shape
+const debugLogs = computed(() =>
+  llmLogs.value.map((l, i) => ({
+    id: `${l.runId ?? "run"}-${i}`,
+    timestamp: l.timestamp,
+    agent: l.agent,
+    model: l.model,
+    promptTokens: l.promptTokens,
+    completionTokens: l.completionTokens,
+    totalTokens: l.totalTokens,
+    durationMs: l.latencyMs,
+    cost: l.estimatedCost,
+    status: l.errorMessage ? ("error" as const) : ("ok" as const),
+    errorMessage: l.errorMessage,
+  }))
+);
+
+const handleCancelRun = () => {
+  addError("warning", "pipeline", "Cancel is not available mid-run.", "Wait for completion or refresh the page.");
+};
+
+const handleArtifactView = (id: string) => {
+  const viewMap: Record<string, View> = {
+    setting: "background",
+    cast: "cast",
+    hard_logic_devices: "hardLogic",
+    cml: "cml",
+    clues: "clues",
+    outline: "outline",
+    character_profiles: "cast",
+    location_profiles: "locations",
+    temporal_context: "temporal",
+    background_context: "background",
+    prose: "prose",
+  };
+  const view = viewMap[id];
+  if (view) setView(view);
+};
+
+const handleArtifactRegenerate = (id: string) => {
+  const scopeMap: Partial<Record<string, "setting" | "cast" | "clues" | "outline" | "prose" | "character_profiles">> = {
+    setting: "setting",
+    cast: "cast",
+    clues: "clues",
+    outline: "outline",
+    character_profiles: "character_profiles",
+    prose: "prose",
+  };
+  const scope = scopeMap[id];
+  if (scope) {
+    handleRegenerate(scope);
+  } else {
+    addError("warning", "regenerate", `Regeneration for '${id}' is not available individually.`);
+  }
+};
+
+const handleValidationFieldFocus = (key: string) => {
+  // Jump to the spec tab so fields are visible
+  activeMainTab.value = "spec";
+  // After tab transition, scroll to the relevant field group
+  setTimeout(() => {
+    const fieldId = `field-${key}`;
+    const target = document.getElementById(fieldId);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("ring-2", "ring-blue-400", "ring-offset-1");
+      setTimeout(() => target.classList.remove("ring-2", "ring-blue-400", "ring-offset-1"), 2500);
+    }
+  }, 150);
+};
+
+const handleGlobalKeydown = (e: KeyboardEvent) => {
+  const tag = (e.target as HTMLElement).tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  // ? key – toggle shortcut help
+  if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    showShortcutHelp.value = !showShortcutHelp.value;
+    return;
+  }
+  // Esc – close shortcut help
+  if (e.key === "Escape") {
+    showShortcutHelp.value = false;
+    return;
+  }
+  // Ctrl/Cmd+1–6 – jump to main tab
+  if ((e.ctrlKey || e.metaKey) && e.key >= "1" && e.key <= "6") {
+    e.preventDefault();
+    const tabIds = ["project", "spec", "generate", "review", "advanced", "export"];
+    const idx = parseInt(e.key) - 1;
+    const tabId = tabIds[idx];
+    if (tabId) activeMainTab.value = tabId;
+    return;
+  }
+  // j/k – chapter navigation (play mode)
+  if (e.key === "j" && !e.ctrlKey && !e.metaKey) { nextChapter(); return; }
+  if (e.key === "k" && !e.ctrlKey && !e.metaKey) { prevChapter(); return; }
+};
+
 onMounted(async () => {
   hydrateState();
   connectSse();
+  window.addEventListener("keydown", handleGlobalKeydown);
   await loadProjects();
   loadSamples();
   if (projectId.value) {
@@ -1277,6 +1507,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   disconnectSse();
+  window.removeEventListener("keydown", handleGlobalKeydown);
 });
 </script>
 
@@ -1580,17 +1811,17 @@ onBeforeUnmount(() => {
                   Configure your mystery story settings. These specifications will guide the AI generation.
                 </div>
                 <div class="mt-6 grid gap-4 md:grid-cols-2">
-                  <div>
+                  <div id="field-setting">
                     <label class="text-xs font-semibold text-slate-500">Decade</label>
-                    <select v-model="spec.decade" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
+                    <select id="field-decade" v-model="spec.decade" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
                       <option>1930s</option>
                       <option>1940s</option>
                       <option>1950s</option>
                     </select>
                   </div>
-                  <div>
+                  <div id="field-location">
                     <label class="text-xs font-semibold text-slate-500">Location preset</label>
-                    <select v-model="spec.locationPreset" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
+                    <select id="field-locationPreset" v-model="spec.locationPreset" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
                       <option>CountryHouse</option>
                       <option>SeasideHotel</option>
                       <option>Village</option>
@@ -1598,7 +1829,7 @@ onBeforeUnmount(() => {
                       <option>Theatre</option>
                     </select>
                   </div>
-                  <div>
+                  <div id="field-tone">
                     <label class="text-xs font-semibold text-slate-500">Tone</label>
                     <select v-model="spec.tone" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
                       <option>Cozy</option>
@@ -1626,9 +1857,10 @@ onBeforeUnmount(() => {
                       Optional. Adds a thematic jolt to steer the mystery.
                     </div>
                   </div>
-                  <div>
+                  <div id="field-cast">
                     <label class="text-xs font-semibold text-slate-500">Cast size</label>
                     <input
+                      id="field-castSize"
                       v-model.number="spec.castSize"
                       type="number"
                       min="4"
@@ -1683,19 +1915,15 @@ onBeforeUnmount(() => {
                   Generate your mystery in one click. We handle the rest.
                 </div>
 
-                <div class="mt-4 flex items-center gap-2 text-sm text-slate-600">
-                  <font-awesome-icon v-if="isRunning || isStartingRun" icon="spinner" spin class="text-slate-500" />
-                  <font-awesome-icon v-else icon="circle-check" class="text-emerald-600" />
-                  <span>{{ isRunning || isStartingRun ? runProgressLabel : "Ready to generate." }}</span>
-                </div>
-                <div v-if="isRunning || isStartingRun" class="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    class="h-full rounded-full bg-slate-600 transition-all duration-500"
-                    :style="{ width: `${runProgressPercent}%` }"
-                  ></div>
-                </div>
-                <div v-if="isRunning || isStartingRun" class="mt-2 text-xs text-slate-500">
-                  {{ Math.round(runProgressPercent) }}% complete
+                <!-- Rich progress indicator (replaces simple spinner+bar) -->
+                <div class="mt-4">
+                  <ProgressIndicator
+                    :steps="pipelineSteps"
+                    :is-running="isRunning || isStartingRun"
+                    :progress-percent="runProgressPercent"
+                    :progress-label="runProgressLabel"
+                    @cancel="handleCancelRun"
+                  />
                 </div>
 
                 <div class="mt-3 text-xs text-slate-500">
@@ -1824,6 +2052,12 @@ onBeforeUnmount(() => {
                 <div class="mt-1 text-xs text-slate-500">
                   {{ characterProfilesData?.note ?? "Character profiles are derived from the cast." }}
                 </div>
+                <!-- Loading skeleton while cast data is being generated -->
+                <ContentSkeleton
+                  v-if="!characterProfilesData && (isRunning || isStartingRun || artifactsStatus === 'loading')"
+                  class="mt-4"
+                  :rows="5"
+                />
                 <div v-if="characterProfilesData?.profiles?.length" class="mt-4 space-y-3">
                   <details
                     v-for="profile in characterProfilesData.profiles"
@@ -2242,20 +2476,27 @@ onBeforeUnmount(() => {
                   </select>
                 </div>
               </div>
-              <div v-if="filteredClues.length" class="mt-4 space-y-2">
-                <div
-                  v-for="clue in filteredClues"
-                  :key="clue.id"
-                  class="rounded-md border px-3 py-2 text-sm"
-                  :class="clue.redHerring ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'"
-                >
-                  <div class="font-semibold text-slate-700">{{ clue.category }}</div>
-                  <div class="mt-1 text-slate-600">{{ clue.text }}</div>
-                  <div class="mt-1 text-xs text-slate-500">
-                    Points to: {{ clue.pointsTo }}
-                    <span v-if="clue.revealChapter"> • Reveal: Ch.{{ clue.revealChapter }}</span>
-                  </div>
-                </div>
+              <ContentSkeleton
+                v-if="!cluesData && (isRunning || isStartingRun || artifactsStatus === 'loading')"
+                class="mt-4"
+                :rows="6"
+              />
+              <div v-else-if="filteredClues.length" class="mt-4">
+                <VirtualList :items="filteredClues" :estimated-item-height="80" :overscan="4">
+                  <template #default="{ item: clue }">
+                    <div
+                      class="mb-2 rounded-md border px-3 py-2 text-sm"
+                      :class="clue.redHerring ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'"
+                    >
+                      <div class="font-semibold text-slate-700">{{ clue.category }}</div>
+                      <div class="mt-1 text-slate-600">{{ clue.text }}</div>
+                      <div class="mt-1 text-xs text-slate-500">
+                        Points to: {{ clue.pointsTo }}
+                        <span v-if="clue.revealChapter"> • Reveal: Ch.{{ clue.revealChapter }}</span>
+                      </div>
+                    </div>
+                  </template>
+                </VirtualList>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">No clues yet. Generate to create them.</div>
             </div>
@@ -2328,6 +2569,7 @@ onBeforeUnmount(() => {
                 <span v-else-if="activeAdvancedTab === 'logs'">Review LLM operational logs (model, tokens, cost, latency).</span>
                 <span v-else-if="activeAdvancedTab === 'samples'">Browse example mystery structures for inspiration. Use these as patterns, not templates to copy.</span>
                 <span v-else-if="activeAdvancedTab === 'history'">View the complete run history and event log for this project.</span>
+                <span v-else-if="activeAdvancedTab === 'quality'">Phase-by-phase quality scores from the most recent generation run. Enable <code class="font-mono text-xs">ENABLE_SCORING=true</code> to activate scoring.</span>
               </div>
             </div>
 
@@ -2369,80 +2611,96 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div v-if="currentView === 'artifacts'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">Raw Artifacts</div>
-              <div class="mt-2 text-xs text-slate-500">Full JSON payloads as stored in the persistence layer.</div>
-              <div class="mt-4 space-y-4 text-xs">
-                <div>
-                  <div class="font-semibold text-slate-600">Setting</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ settingArtifact ?? "Not available" }}</pre>
+            <div v-if="currentView === 'artifacts'" class="flex flex-col gap-4">
+              <!-- High-level artifact status dashboard -->
+              <ArtifactStatusDashboard
+                :artifacts="artifactEntries"
+                :is-running="isRunning || isStartingRun"
+                @view="handleArtifactView"
+                @regenerate="handleArtifactRegenerate"
+              />
+              <!-- Expert-only raw JSON dump -->
+              <details v-if="isExpert" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-700">Raw Artifacts (Expert)</summary>
+                <div class="mt-4 space-y-4 text-xs">
+                  <div>
+                    <div class="font-semibold text-slate-600">Setting</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ settingArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Cast</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ castArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Character Profiles</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ characterProfilesArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Location Profiles</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ locationProfilesArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Temporal Context</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ temporalContextArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Background Context</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ backgroundContextArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Hard-Logic Devices</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ hardLogicDevicesArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Clues</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ cluesArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Outline</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ outlineArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Prose</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ proseArtifact ?? "Not available" }}</pre>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-600">Game Pack</div>
+                    <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ gamePackArtifact ?? "Not available" }}</pre>
+                  </div>
                 </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Cast</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ castArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Character Profiles</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ characterProfilesArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Location Profiles</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ locationProfilesArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Temporal Context</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ temporalContextArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Background Context</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ backgroundContextArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Hard-Logic Devices</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ hardLogicDevicesArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Clues</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ cluesArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Outline</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ outlineArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Prose</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ proseArtifact ?? "Not available" }}</pre>
-                </div>
-                <div>
-                  <div class="font-semibold text-slate-600">Game Pack</div>
-                  <pre class="mt-2 max-h-64 overflow-auto rounded-md bg-slate-900 p-3 text-slate-100">{{ gamePackArtifact ?? "Not available" }}</pre>
-                </div>
-              </div>
+              </details>
             </div>
 
-            <div v-if="currentView === 'logs'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <div class="text-sm font-semibold text-slate-700">LLM Log Entries</div>
-              <div class="mt-2 text-xs text-slate-500">Operational log entries (model, tokens, cost, latency). Raw prompts are not stored.</div>
-              <div v-if="llmLogs.length" class="mt-4 space-y-2 text-xs">
-                <div
-                  v-for="(entry, idx) in llmLogs"
-                  :key="`${entry.timestamp}-${idx}`"
-                  class="rounded border border-slate-200 bg-slate-50 px-3 py-2"
-                >
-                  <div class="flex flex-wrap items-center justify-between gap-2 text-slate-600">
-                    <span class="font-semibold text-slate-700">{{ entry.agent }}</span>
-                    <span>{{ entry.operation }}</span>
-                    <span>{{ entry.model }}</span>
-                    <span v-if="entry.totalTokens">{{ entry.totalTokens }} tokens</span>
-                    <span v-if="entry.estimatedCost">${{ entry.estimatedCost.toFixed(4) }}</span>
+            <div v-if="currentView === 'logs'" class="flex flex-col gap-4">
+              <!-- Application error log -->
+              <ErrorLogPanel :errors="errors" @clear="clearErrors()" />
+              <!-- LLM operational log -->
+              <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="text-sm font-semibold text-slate-700">LLM Log Entries</div>
+                <div class="mt-2 text-xs text-slate-500">Operational log entries (model, tokens, cost, latency). Raw prompts are not stored.</div>
+                <div v-if="llmLogs.length" class="mt-4 space-y-2 text-xs">
+                  <div
+                    v-for="(entry, idx) in llmLogs"
+                    :key="`${entry.timestamp}-${idx}`"
+                    class="rounded border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-slate-600">
+                      <span class="font-semibold text-slate-700">{{ entry.agent }}</span>
+                      <span>{{ entry.operation }}</span>
+                      <span>{{ entry.model }}</span>
+                      <span v-if="entry.totalTokens">{{ entry.totalTokens }} tokens</span>
+                      <span v-if="entry.estimatedCost">${{ entry.estimatedCost.toFixed(4) }}</span>
+                    </div>
+                    <div class="mt-1 text-[11px] text-slate-500">
+                      {{ entry.timestamp }} • {{ entry.projectId }} • {{ entry.runId }}
+                    </div>
+                    <div v-if="entry.errorMessage" class="mt-1 text-[11px] text-rose-600">{{ entry.errorMessage }}</div>
                   </div>
-                  <div class="mt-1 text-[11px] text-slate-500">
-                    {{ entry.timestamp }} • {{ entry.projectId }} • {{ entry.runId }}
-                  </div>
-                  <div v-if="entry.errorMessage" class="mt-1 text-[11px] text-rose-600">{{ entry.errorMessage }}</div>
                 </div>
+                <div v-else class="mt-4 text-sm text-slate-500">No activity yet. Run generation to see entries.</div>
               </div>
-              <div v-else class="mt-4 text-sm text-slate-500">No activity yet. Run generation to see entries.</div>
+              <!-- Expert: raw LLM debug panel -->
+              <DebugPanel v-if="isExpert" :logs="debugLogs" />
             </div>
 
             <div v-if="currentView === 'history'">
@@ -2450,6 +2708,17 @@ onBeforeUnmount(() => {
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 No run history available
               </div>
+            </div>
+
+            <div v-if="currentView === 'quality'" class="space-y-4">
+              <div v-if="isScoringReportLoading" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                Loading quality report...
+              </div>
+              <template v-else>
+                <ScoreCard :report="scoringReport" />
+                <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
+                <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+              </template>
             </div>
               </div>
             </TabPanel>
@@ -2614,23 +2883,23 @@ onBeforeUnmount(() => {
                     </label>
                   </div>
                 </div>
-                <div v-if="filteredClues.length" class="mt-3 space-y-2 text-sm text-slate-700">
-                  <div
-                    v-for="clue in filteredClues"
-                    :key="clue.id"
-                    class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
-                  >
-                    <div class="flex items-center justify-between text-xs text-slate-500">
-                      <span class="uppercase">{{ clue.category }}</span>
-                      <span v-if="clue.redHerring" class="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                        Red herring
-                      </span>
-                    </div>
-                    <div class="mt-1 text-sm font-medium text-slate-700">{{ clue.text }}</div>
-                    <div class="mt-1 text-[11px] text-slate-500">
-                      Points to: {{ clue.pointsTo }} · Reveal: Chapter {{ clue.revealChapter ?? 1 }}
-                    </div>
-                  </div>
+                <div v-if="filteredClues.length" class="mt-3">
+                  <VirtualList :items="filteredClues" :estimated-item-height="72" :overscan="4">
+                    <template #default="{ item: clue }">
+                      <div class="mb-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                          <span class="uppercase">{{ clue.category }}</span>
+                          <span v-if="clue.redHerring" class="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            Red herring
+                          </span>
+                        </div>
+                        <div class="mt-1 text-sm font-medium text-slate-700">{{ clue.text }}</div>
+                        <div class="mt-1 text-[11px] text-slate-500">
+                          Points to: {{ clue.pointsTo }} · Reveal: Chapter {{ clue.revealChapter ?? 1 }}
+                        </div>
+                      </div>
+                    </template>
+                  </VirtualList>
                 </div>
               </div>
               <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -2793,7 +3062,7 @@ onBeforeUnmount(() => {
                   </button>
                 </div>
                 <div v-if="showAdvancedValidation" class="mt-3">
-                  <ValidationPanel :validation="allValidation" />
+                  <ValidationPanel :validation="allValidation" @field-focus="handleValidationFieldFocus" />
                 </div>
               </div>
               <NoveltyAudit :audit="noveltyAuditData" />
@@ -2815,4 +3084,6 @@ onBeforeUnmount(() => {
       </div>
     </div>
   </div>
+  <!-- Global keyboard shortcut help overlay (? key) -->
+  <KeyboardShortcutHelp v-if="showShortcutHelp" @close="showShortcutHelp = false" />
 </template>

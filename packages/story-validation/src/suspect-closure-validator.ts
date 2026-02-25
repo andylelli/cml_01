@@ -9,7 +9,7 @@ import type { AzureOpenAIClient } from '@cml/llm-client';
 import { semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';
 
 const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds)\b/i;
-const CULPRIT_TERMS = /\b(culprit|killer|murderer|responsible|did\s+it)\b/i;
+const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
 const EVIDENCE_TERMS = /\b(evidence|because|therefore|proof|alibi|timeline|constraint|observation)\b/i;
 
 const normalizeName = (name: string) => name.replace(/\s+/g, ' ').trim();

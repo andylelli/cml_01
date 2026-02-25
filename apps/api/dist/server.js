@@ -7,6 +7,7 @@ import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { generateCharacterProfiles } from "@cml/prompts-llm";
+import { FileReportRepository } from "@cml/story-validation";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"]);
 const withMode = (req, _res, next) => {
@@ -468,6 +469,24 @@ const appendActivityLog = async (entry) => {
 export const createServer = () => {
     const app = express();
     const repoPromise = createRepository();
+    const getReportRepository = async () => {
+        const cwd = process.cwd();
+        const candidateDirs = [
+            path.resolve(cwd, "apps", "api", "data", "reports"),
+            path.resolve(cwd, "data", "reports"),
+        ];
+        for (const dir of candidateDirs) {
+            try {
+                await fs.access(dir);
+                return new FileReportRepository(dir);
+            }
+            catch {
+                // try next
+            }
+        }
+        // Default to root-style path used by worker writes
+        return new FileReportRepository(candidateDirs[0]);
+    };
     app.use(cors());
     app.use(express.json());
     app.use(withMode);
@@ -702,6 +721,58 @@ export const createServer = () => {
             res.json(run);
         })
             .catch(() => res.status(500).json({ error: "Failed to fetch latest run" }));
+    });
+    /** GET /api/projects/:projectId/runs/:runId/report
+     * Returns the full GenerationReport for a specific run.
+     * Requires ENABLE_SCORING=true on the worker. Returns 404 if scoring was disabled or run not found.
+     */
+    app.get("/api/projects/:projectId/runs/:runId/report", async (req, res) => {
+        try {
+            const reportRepo = await getReportRepository();
+            const report = await reportRepo.get(req.params.projectId, req.params.runId);
+            if (!report) {
+                res.status(404).json({ error: "Scoring report not found" });
+                return;
+            }
+            res.json(report);
+        }
+        catch {
+            res.status(500).json({ error: "Failed to fetch scoring report" });
+        }
+    });
+    /** GET /api/projects/:projectId/reports/history?limit=N
+     * Returns the most recent N GenerationReports for a project (default 10, max 100), sorted newest first.
+     */
+    app.get("/api/projects/:projectId/reports/history", async (req, res) => {
+        try {
+            const parsed = Number(req.query.limit ?? 10);
+            const limit = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 100) : 10;
+            const reportRepo = await getReportRepository();
+            const reports = await reportRepo.list(req.params.projectId, limit);
+            res.json({
+                projectId: req.params.projectId,
+                limit,
+                count: reports.length,
+                reports,
+            });
+        }
+        catch {
+            res.status(500).json({ error: "Failed to fetch scoring report history" });
+        }
+    });
+    /** GET /api/reports/aggregate
+     * Returns aggregate AggregateStats across all projects:
+     * totalGenerations, successRate, averageScore, averageRetries, scoreDistribution (A-F), commonFailures.
+     */
+    app.get("/api/reports/aggregate", async (_req, res) => {
+        try {
+            const reportRepo = await getReportRepository();
+            const aggregate = await reportRepo.getAggregate();
+            res.json(aggregate);
+        }
+        catch {
+            res.status(500).json({ error: "Failed to fetch aggregate scoring report stats" });
+        }
     });
     app.get("/api/runs/:id/events", (_req, res) => {
         repoPromise

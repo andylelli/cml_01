@@ -13,7 +13,15 @@ export * from './suspect-closure-validator.js';
 export * from './physical-validator.js';
 export * from './era-validator.js';
 export * from './semantic-validator.js';
+export * from './chapter-validator.js';
 export * from './pipeline.js';
+
+// Scoring system
+export * from './scoring/index.js';
+
+// Report repository
+export { ReportRepository, FileReportRepository } from './report-repository.js';
+export type { AggregateStats } from './report-repository.js';
 
 // Convenience exports
 export { StoryValidationPipeline } from './pipeline.js';
@@ -25,4 +33,5 @@ export { DiscriminatingTestValidator } from './discriminating-test-validator.js'
 export { SuspectClosureValidator } from './suspect-closure-validator.js';
 export { PhysicalPlausibilityValidator } from './physical-validator.js';
 export { EraAuthenticityValidator } from './era-validator.js';
+export { ChapterValidator } from './chapter-validator.js';
 export { semanticValidateDiscriminatingTest, semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';

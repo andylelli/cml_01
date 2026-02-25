@@ -1,0 +1,68 @@
+# Retry limits for each agent phase
+# When a phase fails scoring, it will be regenerated up to max_retries times
+# before the entire generation is considered failed
+
+retry_limits:
+  # Foundational phases (expensive to redo downstream)
+  agent1-background:
+    max_retries: 2
+    backoff_strategy: exponential  # exponential, linear, none
+    backoff_delay_ms: 1000
+    
+  agent2-cast:
+    max_retries: 3
+    backoff_strategy: linear
+    backoff_delay_ms: 500
+    
+  agent3-character-profiles:
+    max_retries: 3
+    backoff_strategy: linear
+    backoff_delay_ms: 500
+    
+  # Logic phase (critical, allow more retries)
+  agent4-hard-logic:
+    max_retries: 4
+    backoff_strategy: exponential
+    backoff_delay_ms: 2000
+    reason: "Hard logic is critical and expensive to get right"
+    
+  agent5-location-profiles:
+    max_retries: 3
+    backoff_strategy: linear
+    backoff_delay_ms: 500
+    
+  agent6-temporal-context:
+    max_retries: 2
+    backoff_strategy: none
+    backoff_delay_ms: 0
+    
+  agent7-narrative:
+    max_retries: 3
+    backoff_strategy: exponential
+    backoff_delay_ms: 1000
+    
+  agent8-setting-refinement:
+    max_retries: 3
+    backoff_strategy: linear
+    backoff_delay_ms: 500
+    
+  # Prose (expensive, allow retries but limit)
+  agent9-prose:
+    max_retries: 2  # Already has internal batch retries
+    backoff_strategy: exponential
+    backoff_delay_ms: 3000
+    reason: "Prose has internal retry logic; limit phase-level retries"
+
+# Global retry settings
+global:
+  # Maximum total retries across all phases in a single generation
+  max_total_retries: 15
+  
+  # Whether to provide enhanced feedback on retry
+  enhanced_feedback: true
+  
+  # Log all retry attempts
+  log_retries: true
+  
+  # Abort entire generation if any phase exceeds max_retries
+  abort_on_max_retries: true

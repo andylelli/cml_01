@@ -41,6 +41,21 @@ This document describes the current implementation of the mystery generation wor
 - **Action**: Wipes the JSON/Postgres persistence store and resets projects/specs/artifacts/runs/logs
 - **Response**: `{ status: "ok" }`
 
+### 6. Fetch Scoring Reports (Phase 4)
+- **Endpoint**: `GET /api/projects/:projectId/runs/:runId/report`
+- **Action**: Returns the stored scoring report for a specific run
+- **Response**: `GenerationReport`
+
+### 7. Fetch Scoring Report History (Phase 4)
+- **Endpoint**: `GET /api/projects/:projectId/reports/history?limit=N`
+- **Action**: Returns most recent scoring reports for a project
+- **Response**: `{ projectId, limit, count, reports[] }`
+
+### 8. Fetch Aggregate Scoring Stats (Phase 4)
+- **Endpoint**: `GET /api/reports/aggregate`
+- **Action**: Returns aggregate scoring metrics across all stored reports
+- **Response**: `AggregateStats`
+
 ## Pipeline Execution Flow
 
 When a user triggers the pipeline via `POST /api/projects/:id/run`, the system executes the following LLM-backed steps:

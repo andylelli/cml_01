@@ -6,6 +6,10 @@ const props = defineProps<{
   validation: AllValidation | null;
 }>();
 
+const emit = defineEmits<{
+  fieldFocus: [key: string];
+}>();
+
 const validationEntries = computed(() => Object.entries(props.validation ?? {}));
 
 const expanded = ref<Record<string, boolean>>({
@@ -73,9 +77,18 @@ const hasIssues = (result: ValidationResult) => {
               {{ result.warnings.length }} {{ result.warnings.length === 1 ? 'warning' : 'warnings' }}
             </span>
           </div>
-          <span class="text-xs text-slate-400">
-            {{ expanded[String(key)] ? '▼' : '▶' }}
-          </span>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="hasIssues(result) && ['setting', 'cast', 'clues', 'outline'].includes(String(key))"
+              class="rounded border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100"
+              @click.stop="emit('fieldFocus', String(key))"
+            >
+              Fix →
+            </button>
+            <span class="text-xs text-slate-400">
+              {{ expanded[String(key)] ? '▼' : '▶' }}
+            </span>
+          </div>
         </button>
         <div
           v-if="expanded[String(key)]"

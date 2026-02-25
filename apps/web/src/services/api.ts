@@ -406,6 +406,31 @@ export const clearPersistenceStore = async (): Promise<{ status: string }> => {
   return response.json() as Promise<{ status: string }>;
 };
 
+export const fetchScoringReport = async (projectId: string, runId: string): Promise<unknown> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/runs/${runId}/report`);
+  if (!response.ok) {
+    throw new Error(`Fetch scoring report failed (${response.status})`);
+  }
+  return response.json();
+};
+
+export const fetchScoringHistory = async (projectId: string, limit = 10): Promise<unknown[]> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/reports/history?limit=${limit}`);
+  if (!response.ok) {
+    throw new Error(`Fetch scoring history failed (${response.status})`);
+  }
+  const data = (await response.json()) as { reports: unknown[] };
+  return data.reports;
+};
+
+export const fetchScoringAggregate = async (): Promise<unknown> => {
+  const response = await fetch(`${apiBase}/api/reports/aggregate`);
+  if (!response.ok) {
+    throw new Error(`Fetch aggregate scoring stats failed (${response.status})`);
+  }
+  return response.json();
+};
+
 export type LlmLogEntry = {
   timestamp: string;
   runId: string;

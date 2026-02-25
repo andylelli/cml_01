@@ -230,3 +230,85 @@ export interface Tab {
 export interface SubTab extends Tab {
   parentId: string;
 }
+
+// ============================================================================
+// Scoring & Reporting types (mirrors packages/story-validation/src/scoring/types.ts)
+// ============================================================================
+
+export interface ScoringTestResult {
+  name: string;
+  category: "validation" | "quality" | "completeness" | "consistency";
+  passed: boolean;
+  score: number;
+  weight: number;
+  message?: string;
+  severity?: "critical" | "major" | "moderate" | "minor";
+}
+
+export interface ScoringPhaseScore {
+  agent: string;
+  validation_score: number;
+  quality_score: number;
+  completeness_score: number;
+  consistency_score: number;
+  total: number;
+  grade: "A" | "B" | "C" | "D" | "F";
+  passed: boolean;
+  tests: ScoringTestResult[];
+  breakdown?: unknown;
+  component_failures?: string[];
+  failure_reason?: string;
+}
+
+export interface ScoringPhaseReport {
+  agent: string;
+  phase_name: string;
+  score: ScoringPhaseScore;
+  duration_ms: number;
+  cost: number;
+  threshold: number;
+  passed: boolean;
+  tests: ScoringTestResult[];
+  breakdown?: unknown;
+  retry_count?: number;
+  max_retries?: number;
+  retry_history?: Array<{
+    attempt: number;
+    timestamp: string;
+    reason: string;
+    score_before?: number;
+    backoff_ms?: number;
+  }>;
+  errors?: string[];
+}
+
+export interface GenerationReport {
+  project_id: string;
+  run_id: string;
+  generated_at: string;
+  total_duration_ms: number;
+  total_cost: number;
+  overall_score: number;
+  overall_grade: string;
+  passed: boolean;
+  phases: ScoringPhaseReport[];
+  summary: {
+    phases_passed: number;
+    phases_failed: number;
+    total_phases: number;
+    pass_rate: number;
+    weakest_phase: string;
+    strongest_phase: string;
+    retry_stats: {
+      total_retries: number;
+      phases_retried: number;
+      retry_rate: string;
+      retried_phases: Array<{ agent: string; retry_count: number; max_retries: number }>;
+    };
+    total_cost: number;
+  };
+  threshold_config: {
+    mode: "strict" | "standard" | "lenient";
+    overrides?: Record<string, number>;
+  };
+}

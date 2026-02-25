@@ -33,6 +33,9 @@
 - GET /api/projects/:id/game-pack/pdf
 - GET /api/projects/:id/prose/pdf (supports optional `?length=short|medium|long`)
 - GET /api/projects/:id/synopsis/latest
+- GET /api/projects/:projectId/runs/:runId/report
+- GET /api/projects/:projectId/reports/history?limit=N
+- GET /api/reports/aggregate
 
 ### Projects
 - POST /api/projects

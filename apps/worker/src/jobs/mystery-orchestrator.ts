@@ -34,6 +34,34 @@ import {
 } from "@cml/prompts-llm";
 import { StoryValidationPipeline } from "@cml/story-validation";
 import type { ValidationReport } from "@cml/story-validation";
+import {
+  ScoreAggregator,
+  RetryManager,
+  FileReportRepository,
+  SettingRefinementScorer,
+  CastDesignScorer,
+  BackgroundContextScorer,
+  CharacterProfilesScorer,
+  LocationProfilesScorer,
+  TemporalContextScorer,
+  HardLogicScorer,
+  NarrativeScorer,
+  ProseScorer,
+  buildRetryFeedback,
+} from "@cml/story-validation";
+import type { PhaseScore, GenerationReport } from "@cml/story-validation";
+import {
+  adaptSettingForScoring,
+  adaptCastForScoring,
+  adaptBackgroundContextForScoring,
+  adaptHardLogicForScoring,
+  adaptNarrativeForScoring,
+  adaptCharacterProfilesForScoring,
+  adaptLocationsForScoring,
+  adaptTemporalContextForScoring,
+  adaptProseForScoring,
+} from "./scoring-adapters.js";
+import { ScoringLogger } from "./scoring-logger.js";
 import type {
   SettingRefinementResult,
   CastDesignResult,
@@ -691,6 +719,13 @@ const sanitizeProseText = (value: unknown) => {
     .replace(/^Generated in scene batches\.?$/gim, "")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\u00A0/g, " ")
+    // Dialogue punctuation normalization (Phase 3.2)
+    // Straight quotes → curly quotes around dialogue
+    .replace(/"([^"]*)"/g, "\u201C$1\u201D")
+    // Straight apostrophes → curly apostrophes (contractions and possessives)
+    .replace(/(\w)'(\w)/g, "$1\u2019$2")
+    // Double-dash → em dash
+    .replace(/--/g, "\u2014")
     .replace(/\s+$/gm, "")
     .trim();
 };
@@ -926,6 +961,7 @@ export interface MysteryGenerationResult {
   prose: ProseGenerationResult;
   noveltyAudit?: NoveltyAuditResult;
   validationReport: ValidationReport;
+  scoringReport?: GenerationReport; // Optional for backward compatibility
   
   // Intermediate results (for debugging/review)
   setting: SettingRefinementResult;
@@ -968,6 +1004,138 @@ const describeError = (error: unknown) => {
 export type ProgressCallback = (progress: MysteryGenerationProgress) => void;
 
 // ============================================================================
+// Retry Helper
+// ============================================================================
+
+/**
+ * Delay execution for specified milliseconds
+ */
+async function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function appendRetryFeedback(base: string, retryFeedback?: string): string {
+  if (!retryFeedback || retryFeedback.trim().length === 0) {
+    return base;
+  }
+
+  const prefix = base.trim().length > 0 ? base : "";
+  return `${prefix}${prefix ? "\n\n" : ""}Retry guidance:\n${retryFeedback}`;
+}
+
+function appendRetryFeedbackOptional(base: string | undefined, retryFeedback?: string): string | undefined {
+  if (base === undefined) {
+    return undefined;
+  }
+  return appendRetryFeedback(base, retryFeedback);
+}
+
+/**
+ * Generic retry wrapper for agent execution with scoring
+ * @param agentId - Agent identifier (e.g., 'agent1_setting')
+ * @param phaseName - Human-readable phase name (e.g., 'Setting Refinement')
+ * @param executeAgent - Function that executes the agent and returns result + cost
+ * @param scoreOutput - Function that adapts output and runs scorer
+ * @param retryManager - RetryManager instance
+ * @param scoreAggregator - ScoreAggregator instance
+ * @param scoringLogger - ScoringLogger instance
+ * @param runId - Current run ID
+ * @param projectId - Current project ID
+ * @param warnings - Warnings array to append to
+ * @returns Tuple of [finalResult, totalDuration, totalCost, retryCount]
+ */
+async function executeAgentWithRetry<T>(
+  agentId: string,
+  phaseName: string,
+  executeAgent: (retryFeedback?: string) => Promise<{ result: T; cost: number }>,
+  scoreOutput: (result: T) => Promise<{ adapted: any; score: PhaseScore }>,
+  retryManager: RetryManager,
+  scoreAggregator: ScoreAggregator,
+  scoringLogger: ScoringLogger,
+  runId: string,
+  projectId: string,
+  warnings: string[],
+  onPhaseScored?: () => Promise<void>
+): Promise<{ result: T; duration: number; cost: number; retryCount: number }> {
+  let attempts = 0;
+  let totalCost = 0;
+  const startTime = Date.now();
+  let retryFeedback: string | undefined;
+
+  while (true) {
+    const attemptStart = Date.now();
+    
+    // Execute agent
+    const { result, cost } = await executeAgent(retryFeedback);
+    totalCost += cost;
+    
+    const attemptDuration = Date.now() - attemptStart;
+
+    // Score the output
+    try {
+      const { adapted, score } = await scoreOutput(result);
+
+      // Add to aggregator
+      scoreAggregator.addPhaseScore(agentId, phaseName, score, attemptDuration, cost);
+
+      // Log phase score
+      scoringLogger.logPhaseScore(agentId, phaseName, score, attemptDuration, cost, runId, projectId);
+
+      // Flush partial report to disk so UI can poll it
+      if (onPhaseScored) {
+        try { await onPhaseScored(); } catch { /* best-effort */ }
+      }
+
+      // Check if passed
+      if (score.passed) {
+        const totalDuration = Date.now() - startTime;
+        if (attempts > 0) {
+          warnings.push(`${phaseName}: ✓ Passed after ${attempts} retry(s) - ${score.grade} (${score.total}/100)`);
+        }
+        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
+      }
+
+      // Failed - check if we can retry
+      if (!retryManager.canRetry(agentId)) {
+        if (retryManager.shouldAbortOnMaxRetries()) {
+          throw new Error(
+            `${phaseName} failed after ${attempts + 1} attempt(s) and all retries are exhausted. ` +
+            `Aborting generation. Failure reason: ${score.failure_reason || `Score ${score.total}/100 (${score.grade}) below threshold`}`
+          );
+        }
+        warnings.push(`${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - Max retries exceeded`);
+        const totalDuration = Date.now() - startTime;
+        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
+      }
+
+      // Record retry
+      attempts++;
+      retryManager.recordRetry(agentId, score.failure_reason || "Score below threshold", score.total);
+
+      // Log retry attempt
+      const backoffMs = retryManager.getBackoffDelay(agentId);
+      const maxRetries = retryManager.getMaxRetries(agentId);
+      scoringLogger.logRetryAttempt(agentId, phaseName, attempts, score.failure_reason || "Score below threshold", backoffMs, maxRetries, runId, projectId);
+
+      retryFeedback = buildRetryFeedback(score, attempts);
+
+      warnings.push(`${phaseName}: ↻ Retry ${attempts}/${maxRetries} - Score: ${score.total}/100 (${score.grade}), waiting ${backoffMs}ms...`);
+
+      // Wait for backoff
+      if (backoffMs > 0) {
+        await delay(backoffMs);
+      }
+    } catch (scoringError) {
+      // Scoring failed - log and return without retry
+      scoringLogger.logScoringError(agentId, phaseName, scoringError, runId, projectId);
+      warnings.push(`${phaseName}: Scoring failed - ${describeError(scoringError)} - continuing without retry`);
+      const totalDuration = Date.now() - startTime;
+      return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
+    }
+  }
+}
+
+// ============================================================================
 // Main Orchestrator
 // ============================================================================
 
@@ -987,6 +1155,48 @@ export async function generateMystery(
 
   let revisedByAgent4 = false;
   let revisionAttempts: number | undefined;
+
+  // ========================================================================
+  // Initialize Scoring System (optional via env var)
+  // ========================================================================
+  const enableScoring = String(process.env.ENABLE_SCORING || "false").toLowerCase() === "true";
+  let scoreAggregator: ScoreAggregator | undefined;
+  let retryManager: RetryManager | undefined;
+  let reportRepository: FileReportRepository | undefined;
+  let scoringLogger: ScoringLogger | undefined;
+
+  if (enableScoring) {
+    try {
+      const retryConfigPath = join(process.cwd(), "apps", "worker", "config", "retry-limits.yaml");
+      retryManager = new RetryManager(retryConfigPath);
+      scoreAggregator = new ScoreAggregator({ mode: 'standard' }, retryManager);
+      
+      const reportsDir = join(process.cwd(), "apps", "api", "data", "reports");
+      reportRepository = new FileReportRepository(reportsDir);
+      
+      const logsDir = join(process.cwd(), "apps", "worker", "logs");
+      scoringLogger = new ScoringLogger(logsDir);
+      
+      warnings.push("Scoring system enabled - tracking quality metrics and retries");
+    } catch (error) {
+      warnings.push(`Scoring system initialization failed: ${describeError(error)} - continuing without scoring`);
+    }
+  }
+
+  // Saves an in-progress partial report after each phase so the UI can poll it
+  const savePartialReport = async () => {
+    if (!scoreAggregator || !reportRepository) return;
+    try {
+      const partial = scoreAggregator.generateReport({
+        story_id: runId,
+        started_at: new Date(startTime),
+        completed_at: new Date(),
+        user_id: projectId,
+      });
+      (partial as any).in_progress = true;
+      await reportRepository.save(partial);
+    } catch { /* best-effort */ }
+  };
 
   const reportProgress = (
     stage: MysteryGenerationProgress["stage"],
@@ -1033,18 +1243,60 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("setting", "Refining era and setting...", 0);
     
-    const settingStart = Date.now();
-    const setting = await refineSetting(client, {
-      decade: inputs.eraPreference || "1930s",
-      location: locationSpec.location,
-      institution: locationSpec.institution,
-      tone: inputs.tone,
-      runId,
-      projectId: projectId || "",
-    });
+    let setting: Awaited<ReturnType<typeof refineSetting>>;
     
-    agentCosts["agent1_setting"] = setting.cost;
-    agentDurations["agent1_setting"] = Date.now() - settingStart;
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      // Execute with retry logic based on scoring
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent1_setting",
+        "Setting Refinement",
+        async (retryFeedback?: string) => {
+          const settingResult = await refineSetting(client, {
+            decade: inputs.eraPreference || "1930s",
+            location: locationSpec.location,
+            institution: locationSpec.institution,
+            tone: appendRetryFeedbackOptional(inputs.tone, retryFeedback),
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: settingResult, cost: settingResult.cost };
+        },
+        async (settingResult) => {
+          const scorer = new SettingRefinementScorer();
+          const adapted = adaptSettingForScoring(settingResult.setting);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {},
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      
+      setting = result;
+      agentCosts["agent1_setting"] = cost;
+      agentDurations["agent1_setting"] = duration;
+    } else {
+      // No scoring - execute once
+      const settingStart = Date.now();
+      setting = await refineSetting(client, {
+        decade: inputs.eraPreference || "1930s",
+        location: locationSpec.location,
+        institution: locationSpec.institution,
+        tone: inputs.tone,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent1_setting"] = setting.cost;
+      agentDurations["agent1_setting"] = Date.now() - settingStart;
+    }
     
     if (
       setting.setting.realism.anachronisms.length > 0 ||
@@ -1063,20 +1315,61 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("cast", "Designing cast and motives...", 12);
     
-    const castStart = Date.now();
-    const cast = await designCast(client, {
-      characterNames: inputs.castNames,
-      castSize: inputs.castSize || 6,
-      setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
-      crimeType: "Murder",
-      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
-      socialContext: setting.setting.era.socialNorms.join(", "),
-      runId,
-      projectId: projectId || "",
-    });
+    let cast: Awaited<ReturnType<typeof designCast>>;
     
-    agentCosts["agent2_cast"] = cast.cost;
-    agentDurations["agent2_cast"] = Date.now() - castStart;
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent2_cast",
+        "Cast Design",
+        async (retryFeedback?: string) => {
+          const castResult = await designCast(client, {
+            characterNames: inputs.castNames,
+            castSize: inputs.castSize || 6,
+            setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+            crimeType: "Murder",
+            tone: appendRetryFeedback(inputs.tone || inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+            socialContext: setting.setting.era.socialNorms.join(", "),
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: castResult, cost: castResult.cost };
+        },
+        async (castResult) => {
+          const scorer = new CastDesignScorer();
+          const adapted = adaptCastForScoring(castResult.cast.characters);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: { agent1_setting: setting.setting },
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      cast = result;
+      agentCosts["agent2_cast"] = cost;
+      agentDurations["agent2_cast"] = duration;
+    } else {
+      const castStart = Date.now();
+      cast = await designCast(client, {
+        characterNames: inputs.castNames,
+        castSize: inputs.castSize || 6,
+        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+        crimeType: "Murder",
+        tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+        socialContext: setting.setting.era.socialNorms.join(", "),
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2_cast"] = cast.cost;
+      agentDurations["agent2_cast"] = Date.now() - castStart;
+    }
     
     if (cast.cast.diversity.stereotypeCheck.length > 0) {
       errors.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
@@ -1086,18 +1379,60 @@ export async function generateMystery(
     reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
     reportProgress("background-context", "Generating background context...", 25);
 
-    const backgroundContextStart = Date.now();
-    const backgroundContextResult = await generateBackgroundContext(client, {
-      settingRefinement: setting.setting,
-      cast: cast.cast,
-      theme: inputs.theme,
-      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
-      runId,
-      projectId: projectId || "",
-    });
-
-    agentCosts["agent2e_background_context"] = backgroundContextResult.cost;
-    agentDurations["agent2e_background_context"] = Date.now() - backgroundContextStart;
+    let backgroundContextResult: Awaited<ReturnType<typeof generateBackgroundContext>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent2e_background_context",
+        "Background Context",
+        async (retryFeedback?: string) => {
+          const bgResult = await generateBackgroundContext(client, {
+            settingRefinement: setting.setting,
+            cast: cast.cast,
+            theme: appendRetryFeedbackOptional(inputs.theme, retryFeedback),
+            tone: appendRetryFeedback(inputs.tone || inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: bgResult, cost: bgResult.cost };
+        },
+        async (bgResult) => {
+          const scorer = new BackgroundContextScorer();
+          const adapted = adaptBackgroundContextForScoring(bgResult.backgroundContext);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {
+              agent1_setting: setting.setting,
+              agent2_cast: cast.cast,
+            },
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      backgroundContextResult = result;
+      agentCosts["agent2e_background_context"] = cost;
+      agentDurations["agent2e_background_context"] = duration;
+    } else {
+      const backgroundContextStart = Date.now();
+      backgroundContextResult = await generateBackgroundContext(client, {
+        settingRefinement: setting.setting,
+        cast: cast.cast,
+        theme: inputs.theme,
+        tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2e_background_context"] = backgroundContextResult.cost;
+      agentDurations["agent2e_background_context"] = Date.now() - backgroundContextStart;
+    }
 
     const backgroundContext = backgroundContextResult.backgroundContext;
     const backgroundContextValidation = validateArtifact("background_context", backgroundContext);
@@ -1114,24 +1449,73 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 28);
 
-    const hardLogicStart = Date.now();
-    const hardLogicDevices = await generateHardLogicDevices(client, {
-      runId,
-      projectId: projectId || "",
-      decade: setting.setting.era.decade,
-      location: setting.setting.location.description,
-      institution: setting.setting.location.type,
-      tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
-      theme: inputs.theme,
-      primaryAxis,
-      mechanismFamilies: initialHardLogicDirectives.mechanismFamilies,
-      hardLogicModes: initialHardLogicDirectives.hardLogicModes,
-      difficultyMode: initialHardLogicDirectives.difficultyMode,
-      noveltyConstraints,
-    });
-
-    agentCosts["agent3b_hard_logic_devices"] = hardLogicDevices.cost;
-    agentDurations["agent3b_hard_logic_devices"] = Date.now() - hardLogicStart;
+    let hardLogicDevices: Awaited<ReturnType<typeof generateHardLogicDevices>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent3b_hard_logic_devices",
+        "Hard Logic Devices",
+        async (retryFeedback?: string) => {
+          const hlResult = await generateHardLogicDevices(client, {
+            runId,
+            projectId: projectId || "",
+            decade: setting.setting.era.decade,
+            location: setting.setting.location.description,
+            institution: setting.setting.location.type,
+            tone: appendRetryFeedback(inputs.tone || inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
+            theme: appendRetryFeedback(inputs.theme, retryFeedback),
+            primaryAxis,
+            mechanismFamilies: initialHardLogicDirectives.mechanismFamilies,
+            hardLogicModes: initialHardLogicDirectives.hardLogicModes,
+            difficultyMode: initialHardLogicDirectives.difficultyMode,
+            noveltyConstraints,
+          });
+          return { result: hlResult, cost: hlResult.cost };
+        },
+        async (hlResult) => {
+          const scorer = new HardLogicScorer();
+          const adapted = adaptHardLogicForScoring(hlResult.devices);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {
+              agent1_setting: setting.setting,
+              agent2_cast: cast.cast,
+              agent2e_background_context: backgroundContext,
+            },
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      hardLogicDevices = result;
+      agentCosts["agent3b_hard_logic_devices"] = cost;
+      agentDurations["agent3b_hard_logic_devices"] = duration;
+    } else {
+      const hardLogicStart = Date.now();
+      hardLogicDevices = await generateHardLogicDevices(client, {
+        runId,
+        projectId: projectId || "",
+        decade: setting.setting.era.decade,
+        location: setting.setting.location.description,
+        institution: setting.setting.location.type,
+        tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+        theme: inputs.theme,
+        primaryAxis,
+        mechanismFamilies: initialHardLogicDirectives.mechanismFamilies,
+        hardLogicModes: initialHardLogicDirectives.hardLogicModes,
+        difficultyMode: initialHardLogicDirectives.difficultyMode,
+        noveltyConstraints,
+      });
+      agentCosts["agent3b_hard_logic_devices"] = hardLogicDevices.cost;
+      agentDurations["agent3b_hard_logic_devices"] = Date.now() - hardLogicStart;
+    }
 
     const hardLogicValidation = validateArtifact("hard_logic_devices", hardLogicDevices);
     if (!hardLogicValidation.valid) {
@@ -1737,18 +2121,58 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("narrative", "Formatting narrative structure...", 75);
     
-    const narrativeStart = Date.now();
-    let narrative = await formatNarrative(client, {
-      caseData: cml,
-      clues: clues,
-      targetLength: inputs.targetLength,
-      narrativeStyle: inputs.narrativeStyle,
-      runId,
-      projectId: projectId || "",
-    });
+    let narrative: Awaited<ReturnType<typeof formatNarrative>>;
     
-    agentCosts["agent7_narrative"] = narrative.cost;
-    agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent7_narrative",
+        "Narrative Outline",
+        async (retryFeedback?: string) => {
+          const narrativeResult = await formatNarrative(client, {
+            caseData: cml,
+            clues: clues,
+            targetLength: inputs.targetLength,
+            narrativeStyle: inputs.narrativeStyle,
+            qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: narrativeResult, cost: narrativeResult.cost };
+        },
+        async (narrativeResult) => {
+          const scorer = new NarrativeScorer();
+          const adapted = adaptNarrativeForScoring(narrativeResult);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: { agent2_cast: cast.cast },
+            cml,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      narrative = result;
+      agentCosts["agent7_narrative"] = cost;
+      agentDurations["agent7_narrative"] = duration;
+    } else {
+      const narrativeStart = Date.now();
+      narrative = await formatNarrative(client, {
+        caseData: cml,
+        clues: clues,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent7_narrative"] = narrative.cost;
+      agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
+    }
     
     reportProgress(
       "narrative",
@@ -1804,18 +2228,57 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("profiles", "Generating character profiles...", 88);
 
-    const profilesStart = Date.now();
-    const characterProfiles = await generateCharacterProfiles(client, {
-      caseData: cml,
-      cast: cast.cast,
-      tone: inputs.narrativeStyle || "classic",
-      targetWordCount: 1000,
-      runId,
-      projectId: projectId || "",
-    });
-
-    agentCosts["agent2b_profiles"] = characterProfiles.cost;
-    agentDurations["agent2b_profiles"] = Date.now() - profilesStart;
+    let characterProfiles: Awaited<ReturnType<typeof generateCharacterProfiles>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent2b_profiles",
+        "Character Profiles",
+        async (retryFeedback?: string) => {
+          const profilesResult = await generateCharacterProfiles(client, {
+            caseData: cml,
+            cast: cast.cast,
+            tone: appendRetryFeedback(inputs.narrativeStyle || "classic", retryFeedback),
+            targetWordCount: 1000,
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: profilesResult, cost: profilesResult.cost };
+        },
+        async (profilesResult) => {
+          const scorer = new CharacterProfilesScorer();
+          const adapted = adaptCharacterProfilesForScoring(profilesResult.profiles);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: { agent2_cast: cast.cast },
+            cml,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      characterProfiles = result;
+      agentCosts["agent2b_profiles"] = cost;
+      agentDurations["agent2b_profiles"] = duration;
+    } else {
+      const profilesStart = Date.now();
+      characterProfiles = await generateCharacterProfiles(client, {
+        caseData: cml,
+        cast: cast.cast,
+        tone: inputs.narrativeStyle || "classic",
+        targetWordCount: 1000,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2b_profiles"] = characterProfiles.cost;
+      agentDurations["agent2b_profiles"] = Date.now() - profilesStart;
+    }
 
     // Validate character profiles against schema
     const characterProfilesValidation = validateArtifact("character_profiles", characterProfiles);
@@ -1834,19 +2297,62 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("location-profiles", "Generating location profiles...", 89);
 
-    const locationProfilesStart = Date.now();
-    const locationProfiles = await generateLocationProfiles(client, {
-      settingRefinement: setting.setting,
-      caseData: cml,
-      narrative: narrative,
-      tone: inputs.tone || "Classic",
-      targetWordCount: 1000,
-      runId,
-      projectId: projectId || "",
-    });
-
-    agentCosts["agent2c_location_profiles"] = locationProfiles.cost;
-    agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
+    let locationProfiles: Awaited<ReturnType<typeof generateLocationProfiles>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent2c_location_profiles",
+        "Location Profiles",
+        async (retryFeedback?: string) => {
+          const locResult = await generateLocationProfiles(client, {
+            settingRefinement: setting.setting,
+            caseData: cml,
+            narrative: narrative,
+            tone: appendRetryFeedback(inputs.tone || "Classic", retryFeedback),
+            targetWordCount: 1000,
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: locResult, cost: locResult.cost };
+        },
+        async (locResult) => {
+          const scorer = new LocationProfilesScorer();
+          const adapted = adaptLocationsForScoring(locResult.keyLocations);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {
+              agent1_setting: setting.setting,
+              agent2e_background_context: backgroundContext,
+            },
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      locationProfiles = result;
+      agentCosts["agent2c_location_profiles"] = cost;
+      agentDurations["agent2c_location_profiles"] = duration;
+    } else {
+      const locationProfilesStart = Date.now();
+      locationProfiles = await generateLocationProfiles(client, {
+        settingRefinement: setting.setting,
+        caseData: cml,
+        narrative: narrative,
+        tone: inputs.tone || "Classic",
+        targetWordCount: 1000,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2c_location_profiles"] = locationProfiles.cost;
+      agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
+    }
 
     // Validate location profiles against schema
     const locationProfilesValidation = validateArtifact("location_profiles", locationProfiles);
@@ -1865,16 +2371,56 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("temporal-context", "Generating temporal context...", 89);
 
-    const temporalContextStart = Date.now();
-    const temporalContext = await generateTemporalContext(client, {
-      settingRefinement: setting.setting,
-      caseData: cml,
-      runId,
-      projectId: projectId || "",
-    });
-
-    agentCosts["agent2d_temporal_context"] = temporalContext.cost;
-    agentDurations["agent2d_temporal_context"] = Date.now() - temporalContextStart;
+    let temporalContext: Awaited<ReturnType<typeof generateTemporalContext>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent2d_temporal_context",
+        "Temporal Context",
+        async (retryFeedback?: string) => {
+          const tempResult = await generateTemporalContext(client, {
+            settingRefinement: setting.setting,
+            caseData: cml,
+            runId,
+            projectId: projectId || "",
+          });
+          return { result: tempResult, cost: tempResult.cost };
+        },
+        async (tempResult) => {
+          const scorer = new TemporalContextScorer();
+          const adapted = adaptTemporalContextForScoring(tempResult);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {
+              agent1_setting: setting.setting,
+              agent2e_background_context: backgroundContext,
+            },
+            cml: undefined as any,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      temporalContext = result;
+      agentCosts["agent2d_temporal_context"] = cost;
+      agentDurations["agent2d_temporal_context"] = duration;
+    } else {
+      const temporalContextStart = Date.now();
+      temporalContext = await generateTemporalContext(client, {
+        settingRefinement: setting.setting,
+        caseData: cml,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2d_temporal_context"] = temporalContext.cost;
+      agentDurations["agent2d_temporal_context"] = Date.now() - temporalContextStart;
+    }
 
     // Validate temporal context against schema
     const temporalContextValidation = validateArtifact("temporal_context", temporalContext);
@@ -1889,34 +2435,148 @@ export async function generateMystery(
     reportProgress("temporal-context", `Temporal context generated (${temporalContext.specificDate.month} ${temporalContext.specificDate.year})`, 91);
 
     // ========================================================================
+    // CML Validation Gate: Ensure CML is ready for prose generation
+    // ========================================================================
+    // This prevents wasting $5-8 on prose generation from invalid CML
+    const cmlValidationErrors: string[] = [];
+    
+    // 1. Fair play audit must pass or have only minor issues
+    if (fairPlayAudit && fairPlayAudit.overallStatus === 'fail') {
+      const criticalViolations = fairPlayAudit.violations.filter(v => v.severity === 'critical');
+      if (criticalViolations.length > 0) {
+        cmlValidationErrors.push(`Fair play audit failed with ${criticalViolations.length} critical violation(s) - prose cannot realize a broken mystery structure`);
+      }
+    }
+    
+    // 2. Discriminating test must be fully specified
+    const discriminatingTest = (cml as any).CASE?.discriminating_test;
+    if (!discriminatingTest || !discriminatingTest.design) {
+      cmlValidationErrors.push('Discriminating test design is missing - prose generator cannot create test scene');
+    }
+    if (discriminatingTest && (!discriminatingTest.evidence_clues || discriminatingTest.evidence_clues.length === 0)) {
+      cmlValidationErrors.push('Discriminating test has no evidence clues - prose cannot reference supporting evidence');
+    }
+    
+    // 3. Critical clue coverage gaps block prose generation
+    if (coverageResult.hasCriticalGaps) {
+      const gapSummary = [];
+      const uncoveredCount = coverageResult.uncoveredSteps.length;
+      if (uncoveredCount > 0) {
+        gapSummary.push(`${uncoveredCount} inference step(s) without sufficient clues`);
+      }
+      
+      // Check for specific discriminating test and elimination issues from coverageResult.issues
+      const testIssues = coverageResult.issues.filter(i => i.message.includes('discriminating test'));
+      const eliminationIssues = coverageResult.issues.filter(i => i.message.includes('suspect') || i.message.includes('elimination'));
+      
+      if (testIssues.length > 0) {
+        gapSummary.push('discriminating test evidence incomplete');
+      }
+      if (eliminationIssues.length > 0) {
+        gapSummary.push(`suspect elimination issues (${eliminationIssues.length})`);
+      }
+      
+      if (gapSummary.length > 0) {
+        cmlValidationErrors.push(`Critical clue coverage gaps: ${gapSummary.join(', ')}`);
+      }
+    }
+    
+    // Stop if any validation errors exist
+    if (cmlValidationErrors.length > 0) {
+      const errorMsg = `CML validation failed before prose generation:\n${cmlValidationErrors.map(e => `  • ${e}`).join('\n')}\n\nFix CML structure before attempting prose generation.`;
+      errors.push(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    // ========================================================================
     // Agent 9: Prose Generator
     // ========================================================================
-    reportProgress("prose", "Generating full prose...", 91);
+    reportProgress("prose", "Generating prose in batches with per-chapter validation...", 91);
 
-    const proseStart = Date.now();
-    let prose = await generateProse(client, {
-      caseData: cml,
-      outline: narrative,
-      cast: cast.cast,
-      characterProfiles: characterProfiles,
-      locationProfiles: locationProfiles,
-      temporalContext: temporalContext,
-      targetLength: inputs.targetLength,
-      narrativeStyle: inputs.narrativeStyle,
-      qualityGuardrails: outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : undefined,
-      writingGuides: loadWritingGuides(),
-      runId,
-      projectId: projectId || "",
-    });
+    let prose: Awaited<ReturnType<typeof generateProse>>;
+    
+    if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      const { result, duration, cost } = await executeAgentWithRetry(
+        "agent9_prose",
+        "Prose Generation",
+        async (retryFeedback?: string) => {
+          const proseResult = await generateProse(client, {
+            caseData: cml,
+            outline: narrative,
+            cast: cast.cast,
+            characterProfiles: characterProfiles,
+            locationProfiles: locationProfiles,
+            temporalContext: temporalContext,
+            targetLength: inputs.targetLength,
+            narrativeStyle: inputs.narrativeStyle,
+            qualityGuardrails: [
+              ...(outlineCoverageIssues.length > 0
+                ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml)
+                : []),
+              ...(retryFeedback ? [retryFeedback] : []),
+            ],
+            writingGuides: loadWritingGuides(),
+            runId,
+            projectId: projectId || "",
+            onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+          });
+          return { result: sanitizeProseResult(proseResult), cost: proseResult.cost };
+        },
+        async (proseResult) => {
+          const scorer = new ProseScorer();
+          const adapted = adaptProseForScoring(proseResult.chapters);
+          const score = await scorer.score({}, adapted, {
+            previous_phases: {
+              agent2_cast: cast.cast,
+              agent2b_character_profiles: characterProfiles.profiles,
+              agent2c_location_profiles: locationProfiles.keyLocations,
+            },
+            cml,
+            threshold_config: { mode: 'standard' },
+          });
+          return { adapted, score };
+        },
+        retryManager,
+        scoreAggregator,
+        scoringLogger,
+        runId,
+        projectId || "",
+        warnings,
+        savePartialReport
+      );
+      prose = result;
+      agentCosts["agent9_prose"] = cost;
+      agentDurations["agent9_prose"] = duration;
+    } else {
+      const proseStart = Date.now();
+      prose = await generateProse(client, {
+        caseData: cml,
+        outline: narrative,
+        cast: cast.cast,
+        characterProfiles: characterProfiles,
+        locationProfiles: locationProfiles,
+        temporalContext: temporalContext,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        qualityGuardrails: outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : undefined,
+        writingGuides: loadWritingGuides(),
+        runId,
+        projectId: projectId || "",
+        onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+      });
+      prose = sanitizeProseResult(prose);
+      agentCosts["agent9_prose"] = prose.cost;
+      agentDurations["agent9_prose"] = Date.now() - proseStart;
+    }
 
-    prose = sanitizeProseResult(prose);
-
+    // Identity continuity check (separate from scoring retry)
     const identityAliasIssues = detectIdentityAliasBreaks(prose, cml);
     if (identityAliasIssues.length > 0) {
       warnings.push("Agent 9: Identity continuity guardrail detected role-alias drift; regenerating prose once");
       identityAliasIssues.forEach((issue) => warnings.push(`  - ${issue}`));
 
       const proseRetryStart = Date.now();
+      reportProgress("prose", "Regenerating all prose due to identity drift...", 92);
       const retriedProse = await generateProse(client, {
         caseData: cml,
         outline: narrative,
@@ -1929,9 +2589,10 @@ export async function generateMystery(
         writingGuides: loadWritingGuides(),
         runId,
         projectId: projectId || "",
+        onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
       });
       prose = sanitizeProseResult(retriedProse);
-      agentCosts["agent9_prose"] = retriedProse.cost;
+      agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
       agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
 
       const retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
@@ -1941,8 +2602,59 @@ export async function generateMystery(
       }
     }
 
-    agentCosts["agent9_prose"] = prose.cost;
-    agentDurations["agent9_prose"] = Date.now() - proseStart;
+    // Surface chapter validation issues to UI
+    if (prose.validationDetails && prose.validationDetails.batchesWithRetries > 0) {
+      const batchRetryMsg = `Prose generation: ${prose.validationDetails.batchesWithRetries}/${prose.validationDetails.totalBatches} batch(es) required retry due to validation issues`;
+      warnings.push(batchRetryMsg);
+      await client.getLogger()?.logError({
+        runId,
+        projectId,
+        agent: "Agent9-ProseGenerator",
+        operation: "batch_validation",
+        errorMessage: batchRetryMsg,
+        metadata: { batchesWithRetries: prose.validationDetails.batchesWithRetries, totalBatches: prose.validationDetails.totalBatches }
+      });
+      
+      // Add detailed failure information
+      prose.validationDetails.failureHistory.forEach((failure) => {
+        const failureMsg = `  - Chapters ${failure.chapterRange} (attempt ${failure.attempt}): ${failure.errors.join('; ')}`;
+        warnings.push(failureMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "Agent9-ProseGenerator",
+          operation: "chapter_validation_failure",
+          errorMessage: `Chapters ${failure.chapterRange} failed validation`,
+          metadata: { chapterRange: failure.chapterRange, attempt: failure.attempt, errors: failure.errors }
+        });
+      });
+
+      // Add context about what upstream issues may have contributed
+      if (outlineCoverageIssues.length > 0) {
+        const contextMsg = `  Context: Outline had ${outlineCoverageIssues.length} coverage issue(s) which may have affected prose quality`;
+        warnings.push(contextMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "Agent9-ProseGenerator",
+          operation: "context_issue",
+          errorMessage: contextMsg,
+          metadata: { outlineCoverageIssues }
+        });
+      }
+      if (coverageResult.hasCriticalGaps) {
+        const contextMsg = `  Context: CML had critical clue coverage gaps which may have affected prose scene content`;
+        warnings.push(contextMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "Agent9-ProseGenerator",
+          operation: "context_issue",
+          errorMessage: contextMsg,
+          metadata: { clueCoverageGaps: coverageResult }
+        });
+      }
+    }
 
     reportProgress("prose", `Prose generated (${prose.chapters.length} chapters)`, 94);
 
@@ -1981,7 +2693,131 @@ export async function generateMystery(
       reportProgress("validation", `Story needs revision`, 98);
     } else {
       // Validation failed - attempt prose repair retry with targeted guardrails
-      warnings.push("Story validation: " + validationReport.status + " - " + validationReport.summary.critical + " critical, " + validationReport.summary.major + " major issues");
+      const validationFailureMsg = "Story validation: " + validationReport.status + " - " + validationReport.summary.critical + " critical, " + validationReport.summary.major + " major issues";
+      warnings.push(validationFailureMsg);
+      await client.getLogger()?.logError({
+        runId,
+        projectId,
+        agent: "ValidationPipeline",
+        operation: "final_validation",
+        errorMessage: validationFailureMsg,
+        metadata: { status: validationReport.status, summary: validationReport.summary }
+      });
+      
+      // Add comprehensive failure context for UI
+      const separator1 = "═══ PROSE VALIDATION FAILURE DETAILS ═══";
+      warnings.push(separator1);
+      client.getLogger()?.logError({
+        runId,
+        projectId,
+        agent: "ValidationPipeline",
+        operation: "validation_details",
+        errorMessage: "Detailed validation failure breakdown",
+        metadata: { errorCount: validationReport.errors.length }
+      });
+      
+      // 1. Immediate validation errors
+      validationReport.errors.slice(0, 10).forEach((err) => {
+        const errMsg = `  [${err.severity}] ${err.type}: ${err.message}`;
+        warnings.push(errMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "validation_error",
+          errorMessage: err.message,
+          metadata: { severity: err.severity, type: err.type, fullError: err }
+        });
+      });
+      if (validationReport.errors.length > 10) {
+        const remainingMsg = `  ... and ${validationReport.errors.length - 10} more validation errors`;
+        warnings.push(remainingMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "validation_error_overflow",
+          errorMessage: remainingMsg,
+          metadata: { totalErrors: validationReport.errors.length }
+        });
+      }
+
+      // 2. Upstream contributing factors
+      const separator2 = "═══ CONTRIBUTING FACTORS ═══";
+      warnings.push(separator2);
+      client.getLogger()?.logError({
+        runId,
+        projectId,
+        agent: "ValidationPipeline",
+        operation: "contributing_factors",
+        errorMessage: "Analyzing upstream issues that contributed to validation failure"
+      });
+      
+      if (prose.validationDetails && prose.validationDetails.batchesWithRetries > 0) {
+        const batchMsg = `  • Chapter generation: ${prose.validationDetails.batchesWithRetries} batches had validation issues during generation`;
+        warnings.push(batchMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "contributing_factor",
+          errorMessage: batchMsg,
+          metadata: { batchValidationDetails: prose.validationDetails }
+        });
+      }
+      
+      if (coverageResult.hasCriticalGaps) {
+        const gapTypes = [];
+        if (coverageResult.issues.some(i => i.message.includes('inference step'))) {
+          gapTypes.push('inference path coverage');
+        }
+        if (coverageResult.issues.some(i => i.message.includes('discriminating test'))) {
+          gapTypes.push('discriminating test evidence');
+        }
+        if (coverageResult.issues.some(i => i.message.includes('suspect'))) {
+          gapTypes.push('suspect elimination');
+        }
+        const coverageMsg = `  • CML clue coverage: Critical gaps in ${gapTypes.join(', ')}`;
+        warnings.push(coverageMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "contributing_factor",
+          errorMessage: coverageMsg,
+          metadata: { coverageResult }
+        });
+      }
+      
+      if (outlineCoverageIssues.length > 0) {
+        const outlineMsg = `  • Outline: ${outlineCoverageIssues.length} coverage issues (${outlineCoverageIssues.slice(0, 2).join('; ')}${outlineCoverageIssues.length > 2 ? '...' : ''})`;
+        warnings.push(outlineMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "contributing_factor",
+          errorMessage: outlineMsg,
+          metadata: { outlineCoverageIssues }
+        });
+      }
+
+      if (fairPlayAudit && fairPlayAudit.overallStatus !== 'pass') {
+        const fairPlayMsg = `  • Fair play audit: ${fairPlayAudit.overallStatus} - may indicate structural CML issues`;
+        warnings.push(fairPlayMsg);
+        client.getLogger()?.logError({
+          runId,
+          projectId,
+          agent: "ValidationPipeline",
+          operation: "contributing_factor",
+          errorMessage: fairPlayMsg,
+          metadata: { fairPlayAudit }
+        });
+      }
+
+      const closingSeparator = "═══════════════════════════════════════";
+      warnings.push(closingSeparator);
+      
       reportProgress("validation", "Story validation failed; attempting prose repair retry", 96);
 
       // Build targeted guardrails from validation errors (de-duplicated)
@@ -2023,6 +2859,7 @@ export async function generateMystery(
           writingGuides: loadWritingGuides(),
           runId,
           projectId: projectId || "",
+          onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
         });
 
         prose = sanitizeProseResult(repairedProse);
@@ -2109,6 +2946,32 @@ export async function generateMystery(
     
     reportProgress("complete", "Mystery generation complete!", 100);
 
+    // ========================================================================
+    // Generate and Save Scoring Report
+    // ========================================================================
+    let scoringReport: GenerationReport | undefined;
+    
+    if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
+      try {
+        scoringReport = scoreAggregator.generateReport({
+          story_id: runId,
+          started_at: new Date(startTime),
+          completed_at: new Date(),
+          user_id: projectId,
+        });
+        await reportRepository.save(scoringReport);
+        scoringLogger.logReportGenerated(scoringReport, runId, projectId);
+        
+        const passedCount = scoringReport.summary.phases_passed;
+        const failedCount = scoringReport.summary.phases_failed;
+        const avgScore = scoringReport.overall_score.toFixed(1);
+        
+        warnings.push(`Scoring: ${passedCount}/${passedCount + failedCount} phases passed, avg score ${avgScore}/100 (${scoringReport.overall_grade})`);
+      } catch (reportError) {
+        warnings.push(`Scoring report generation failed: ${describeError(reportError)}`);
+      }
+    }
+
     // Determine overall status
     let status: "success" | "warning" | "failure" = "success";
     if (errors.length > 0) {
@@ -2130,6 +2993,7 @@ export async function generateMystery(
       prose,
       noveltyAudit,
       validationReport,
+      scoringReport,
       setting,
       cast,
       metadata: {
@@ -2150,6 +3014,25 @@ export async function generateMystery(
     // Catastrophic failure
     const errorMessage = describeError(error);
     errors.push(`Pipeline failure: ${errorMessage}`);
+
+    // Save a partial scoring report so aborted runs are visible in the UI
+    if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
+      try {
+        const partialReport = scoreAggregator.generateReport({
+          story_id: runId,
+          started_at: new Date(startTime),
+          completed_at: new Date(),
+          user_id: projectId,
+        });
+        // Tag the report so the UI can distinguish aborted from complete runs
+        (partialReport as any).aborted = true;
+        (partialReport as any).abort_reason = errorMessage;
+        await reportRepository.save(partialReport);
+        scoringLogger.logReportGenerated(partialReport, runId, projectId);
+      } catch {
+        // best-effort — don't mask the original error
+      }
+    }
 
     throw new Error(`Mystery generation failed: ${errorMessage}`);
   }

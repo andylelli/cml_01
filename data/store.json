@@ -1,0 +1,1264 @@
+{
+  "projects": {
+    "proj_423b128a-f97f-4e22-8686-c866c611b0a3": {
+      "id": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "name": "SmokeTest-Scoring",
+      "status": "idle",
+      "createdAt": "2026-02-24T20:23:09.431Z"
+    },
+    "proj_0406006e-4b28-47c9-8ab9-3e887977b377": {
+      "id": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "name": "live-scoring-verify",
+      "status": "running",
+      "createdAt": "2026-02-24T21:47:10.351Z"
+    },
+    "proj_91e6f059-98d1-44ba-bf2f-739090b55a09": {
+      "id": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "name": "scoring-path-fix-verify",
+      "status": "idle",
+      "createdAt": "2026-02-24T21:52:43.071Z"
+    }
+  },
+  "specs": {
+    "spec_d3689874-1ada-4eeb-ab1e-c557300f6ee8": {
+      "id": "spec_d3689874-1ada-4eeb-ab1e-c557300f6ee8",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "spec": {
+        "outputs": {
+          "format": [
+            "outline"
+          ]
+        },
+        "cast": {
+          "relationshipPreset": "inheritance",
+          "secretIntensity": "mild",
+          "roles": [
+            "detective",
+            "victim",
+            "suspect"
+          ],
+          "size": 6
+        },
+        "tone": "Classic",
+        "locationPreset": "CountryHouse",
+        "decade": "1930s",
+        "logic": {
+          "primaryAxis": "temporal",
+          "redHerringBudget": 2,
+          "mechanismFamilies": [
+            "staging"
+          ],
+          "clueDensity": "sparse",
+          "fairPlay": {
+            "allCluesVisible": true,
+            "noModernTech": true
+          }
+        }
+      }
+    },
+    "spec_4f41a067-9344-4e6b-9a65-a0089d013a37": {
+      "id": "spec_4f41a067-9344-4e6b-9a65-a0089d013a37",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "spec": {
+        "outputs": {
+          "format": [
+            "outline"
+          ]
+        },
+        "cast": {
+          "relationshipPreset": "inheritance",
+          "secretIntensity": "mild",
+          "roles": [
+            "detective",
+            "victim",
+            "suspect"
+          ],
+          "size": 6
+        },
+        "tone": "Classic",
+        "locationPreset": "CountryHouse",
+        "decade": "1930s",
+        "logic": {
+          "primaryAxis": "temporal",
+          "redHerringBudget": 2,
+          "mechanismFamilies": [
+            "staging"
+          ],
+          "clueDensity": "sparse",
+          "fairPlay": {
+            "allCluesVisible": true,
+            "noModernTech": true
+          }
+        }
+      }
+    },
+    "spec_dd17f2bf-05f9-48fc-8f3b-cd4fc2f2f575": {
+      "id": "spec_dd17f2bf-05f9-48fc-8f3b-cd4fc2f2f575",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "spec": {
+        "decade": "1930s",
+        "locationPreset": "CountryHouse",
+        "tone": "Classic",
+        "castSize": 5,
+        "primaryAxis": "temporal",
+        "targetLength": "short"
+      }
+    },
+    "spec_3ba83538-0967-48df-9dca-6cf117796c34": {
+      "id": "spec_3ba83538-0967-48df-9dca-6cf117796c34",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "spec": {
+        "decade": "1930s",
+        "locationPreset": "CountryHouse",
+        "tone": "Classic",
+        "castSize": 5,
+        "primaryAxis": "temporal",
+        "targetLength": "short"
+      }
+    }
+  },
+  "specOrder": [
+    {
+      "id": "spec_d3689874-1ada-4eeb-ab1e-c557300f6ee8",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3"
+    },
+    {
+      "id": "spec_4f41a067-9344-4e6b-9a65-a0089d013a37",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3"
+    },
+    {
+      "id": "spec_dd17f2bf-05f9-48fc-8f3b-cd4fc2f2f575",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377"
+    },
+    {
+      "id": "spec_3ba83538-0967-48df-9dca-6cf117796c34",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09"
+    }
+  ],
+  "runs": {
+    "run_2d166b76-d18f-4dc2-904d-d8e47ed89584": {
+      "id": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "status": "idle"
+    },
+    "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913": {
+      "id": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "status": "running"
+    },
+    "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b": {
+      "id": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "status": "idle"
+    }
+  },
+  "runOrder": [
+    {
+      "id": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3"
+    },
+    {
+      "id": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377"
+    },
+    {
+      "id": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09"
+    }
+  ],
+  "runEvents": [
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "run_started",
+      "message": "Pipeline run started"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "pipeline_started",
+      "message": "Starting mystery generation pipeline"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "setting",
+      "message": "Refining era and setting..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "setting",
+      "message": "Era and setting refined"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "cast",
+      "message": "Designing cast and motives..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "cast",
+      "message": "Cast designed (6 characters)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "background-context",
+      "message": "Generating background context..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "background-context",
+      "message": "Background context generated"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "hard_logic_devices",
+      "message": "Generating novel hard-logic device concepts..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "hard_logic_devices",
+      "message": "Generated 5 novel hard-logic devices"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "cml",
+      "message": "Generating mystery structure (CML) grounded in novel devices..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "cml",
+      "message": "Mystery structure generated and validated"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "novelty",
+      "message": "Novelty check skipped (threshold >= 1.0)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "clues",
+      "message": "Extracting and organizing clues..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "clues",
+      "message": "11 clues distributed"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "fairplay",
+      "message": "Auditing fair play compliance..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "fairplay",
+      "message": "Fair play audit: pass"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "fairplay",
+      "message": "Running blind reader simulation..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "clues",
+      "message": "Regenerating clues based on blind reader feedback..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "narrative",
+      "message": "Formatting narrative structure..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "narrative",
+      "message": "21 scenes structured (29700 words)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "profiles",
+      "message": "Generating character profiles..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "profiles",
+      "message": "Character profiles generated (5)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "location-profiles",
+      "message": "Generating location profiles..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "location-profiles",
+      "message": "Location profiles generated (3 locations)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "temporal-context",
+      "message": "Generating temporal context..."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "temporal-context",
+      "message": "Temporal context generated (August 1936)"
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "pipeline_error",
+      "message": "Pipeline failed: Mystery generation failed: CML validation failed before prose generation:\n  • Discriminating test has no evidence clues - prose cannot reference supporting evidence\n\nFix CML structure before attempting prose generation."
+    },
+    {
+      "runId": "run_2d166b76-d18f-4dc2-904d-d8e47ed89584",
+      "step": "run_failed",
+      "message": "Pipeline failed"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "run_started",
+      "message": "Pipeline run started"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "pipeline_started",
+      "message": "Starting mystery generation pipeline"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "setting",
+      "message": "Refining era and setting..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "setting",
+      "message": "Era and setting refined"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "cast",
+      "message": "Designing cast and motives..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "cast",
+      "message": "Cast designed (5 characters)"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "background-context",
+      "message": "Generating background context..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "background-context",
+      "message": "Background context generated"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "hard_logic_devices",
+      "message": "Generating novel hard-logic device concepts..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "hard_logic_devices",
+      "message": "Generated 5 novel hard-logic devices"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "cml",
+      "message": "Generating mystery structure (CML) grounded in novel devices..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "cml",
+      "message": "Mystery structure generated and validated"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "novelty",
+      "message": "Novelty check skipped (threshold >= 1.0)"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "clues",
+      "message": "Extracting and organizing clues..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "clues",
+      "message": "9 clues distributed"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "fairplay",
+      "message": "Auditing fair play compliance..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "fairplay",
+      "message": "Fair play audit: pass"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "fairplay",
+      "message": "Running blind reader simulation..."
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "fairplay",
+      "message": "Blind reader simulation: PASS"
+    },
+    {
+      "runId": "run_b0a3d5e7-a549-44c6-8291-a6b22c7c6913",
+      "step": "narrative",
+      "message": "Formatting narrative structure..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "run_started",
+      "message": "Pipeline run started"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "pipeline_started",
+      "message": "Starting mystery generation pipeline"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "setting",
+      "message": "Refining era and setting..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "setting",
+      "message": "Era and setting refined"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "cast",
+      "message": "Designing cast and motives..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "cast",
+      "message": "Cast designed (5 characters)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "background-context",
+      "message": "Generating background context..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "background-context",
+      "message": "Background context generated"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "hard_logic_devices",
+      "message": "Generating novel hard-logic device concepts..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "hard_logic_devices",
+      "message": "Generated 5 novel hard-logic devices"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "cml",
+      "message": "Generating mystery structure (CML) grounded in novel devices..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "cml",
+      "message": "Mystery structure generated and validated"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "novelty",
+      "message": "Novelty check skipped (threshold >= 1.0)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "clues",
+      "message": "Extracting and organizing clues..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "clues",
+      "message": "9 clues distributed"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "fairplay",
+      "message": "Auditing fair play compliance..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "fairplay",
+      "message": "Fair play audit: pass"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "fairplay",
+      "message": "Running blind reader simulation..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "fairplay",
+      "message": "Blind reader simulation: PASS"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "narrative",
+      "message": "Formatting narrative structure..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "narrative",
+      "message": "28 scenes structured (30000 words)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "profiles",
+      "message": "Generating character profiles..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "profiles",
+      "message": "Character profiles generated (5)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "location-profiles",
+      "message": "Generating location profiles..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "location-profiles",
+      "message": "Location profiles generated (3 locations)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "temporal-context",
+      "message": "Generating temporal context..."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "temporal-context",
+      "message": "Temporal context generated (July 1936)"
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "pipeline_error",
+      "message": "Pipeline failed: Mystery generation failed: CML validation failed before prose generation:\n  • Discriminating test has no evidence clues - prose cannot reference supporting evidence\n\nFix CML structure before attempting prose generation."
+    },
+    {
+      "runId": "run_1fda156c-ee37-4b7f-87ae-3dd810f44b5b",
+      "step": "run_failed",
+      "message": "Pipeline failed"
+    }
+  ],
+  "artifacts": [],
+  "logs": [
+    {
+      "id": "log_2dbcd8e0-b04b-4f50-92aa-e15912fb4376",
+      "createdAt": "2026-02-24T20:23:03.948Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "GET /api/health 200",
+      "payload": {
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "log_6b67e92e-e2b2-4bc5-87d9-d59e20a9a519",
+      "createdAt": "2026-02-24T20:23:09.439Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "POST /api/projects 201",
+      "payload": {
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "log_c13f3e99-83eb-480a-8da6-0cabdbb3c498",
+      "createdAt": "2026-02-24T20:23:18.463Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "POST /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/specs 201",
+      "payload": {
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "log_ab6624be-f5dd-4ea6-98b7-60b366f5ad8d",
+      "createdAt": "2026-02-24T20:23:24.677Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "POST /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/specs 201",
+      "payload": {
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "log_5a71d67f-614e-438e-b026-a87c0adfdd7e",
+      "createdAt": "2026-02-24T20:23:29.065Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "POST /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/run 202",
+      "payload": {
+        "durationMs": 25
+      }
+    },
+    {
+      "id": "log_9157b1b2-3257-4c2b-8d77-590209d3062c",
+      "createdAt": "2026-02-24T20:23:50.163Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "log_cd1f40d1-582d-4659-988e-280085a40923",
+      "createdAt": "2026-02-24T20:24:05.215Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "log_64b5b1b1-5afd-4941-850e-238fb582bb66",
+      "createdAt": "2026-02-24T20:24:20.249Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_45f7eda2-1160-4a6f-ae81-8290e640e5cb",
+      "createdAt": "2026-02-24T20:24:35.273Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_ed07fe03-5745-4f73-aec0-0baed5885a87",
+      "createdAt": "2026-02-24T20:24:50.299Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_1149359d-5117-4a43-a96f-3b892959e58d",
+      "createdAt": "2026-02-24T20:25:07.343Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_277973d0-5f50-4d14-a0ac-2e311e8f7ede",
+      "createdAt": "2026-02-24T20:25:22.375Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_b7fc5ddf-1be9-4304-8e76-69b0d96462f2",
+      "createdAt": "2026-02-24T20:25:37.418Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_9e4dcc7c-b69f-4886-82e2-b9e6591daa5d",
+      "createdAt": "2026-02-24T20:25:52.449Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_2236be08-d389-4fcf-a436-c30616374ead",
+      "createdAt": "2026-02-24T20:26:07.484Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "log_78929488-41c8-4baf-a7c3-3dee2d9a9e78",
+      "createdAt": "2026-02-24T20:26:22.506Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_416b9a95-703b-49ee-b82c-2bed09716fcd",
+      "createdAt": "2026-02-24T20:26:37.542Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "log_a48fa7ea-0656-47f1-82a9-94ee53498427",
+      "createdAt": "2026-02-24T20:26:52.563Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_beccf11e-b9d9-42e8-91a5-3f765564534c",
+      "createdAt": "2026-02-24T20:27:09.617Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "log_c3c151b8-247b-4ce4-87ee-9b09c07e3f9a",
+      "createdAt": "2026-02-24T20:27:24.632Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "log_1b5bd4bb-984f-45f0-82cf-d4de8b0c98b5",
+      "createdAt": "2026-02-24T20:27:39.662Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "log_03cc20ac-45ee-457c-b8ce-d25ff980da58",
+      "createdAt": "2026-02-24T20:27:54.686Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_8b708627-f0a0-4df3-be47-fad240c3c45d",
+      "createdAt": "2026-02-24T20:28:09.710Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_e9395172-9509-4173-9477-5ba278ac9785",
+      "createdAt": "2026-02-24T20:28:24.735Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_1da87dcf-2bca-4685-a290-9fe1b6d2b61c",
+      "createdAt": "2026-02-24T20:28:39.758Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_b3ea80bf-bccf-4b40-a635-911be7b9e889",
+      "createdAt": "2026-02-24T20:28:54.775Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_15c1b75c-b0dc-44d7-8523-0cb4e80ea8aa",
+      "createdAt": "2026-02-24T20:29:11.835Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_e96ef12f-7be3-41ce-8568-7093a3805827",
+      "createdAt": "2026-02-24T20:29:26.863Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_1652b1d2-306e-4dbc-9dc2-9d4b6aaa2601",
+      "createdAt": "2026-02-24T20:29:41.886Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_87989688-d107-4059-944b-66f300bb1c8a",
+      "createdAt": "2026-02-24T20:29:42.729Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_0a80cc5b-b737-43f7-9a57-0364fc8bef13",
+      "createdAt": "2026-02-24T20:30:13.514Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_2c574829-12aa-4f3f-a463-52c402dcfeb5",
+      "createdAt": "2026-02-24T20:31:15.885Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_ff363943-bb5f-45db-a77c-d4640ea76353",
+      "createdAt": "2026-02-24T20:32:45.996Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_77f15ef1-eba9-4e48-9f5a-59b45f6d3eed",
+      "createdAt": "2026-02-24T20:34:48.111Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_d654c417-4e0f-484f-8d91-7353386c7d6b",
+      "createdAt": "2026-02-24T20:37:50.389Z",
+      "projectId": "proj_423b128a-f97f-4e22-8686-c866c611b0a3",
+      "scope": "http",
+      "message": "GET /api/projects/proj_423b128a-f97f-4e22-8686-c866c611b0a3/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_9a924ba5-fdd6-4db4-b3aa-7660934b1784",
+      "createdAt": "2026-02-24T21:47:01.973Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "GET /api/health 200",
+      "payload": {
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "log_1eb5b48d-954c-40fd-9a2e-30512d5ba1d7",
+      "createdAt": "2026-02-24T21:47:10.357Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "POST /api/projects 201",
+      "payload": {
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "log_96244d73-e667-41af-8633-96d5143486f1",
+      "createdAt": "2026-02-24T21:47:10.390Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "POST /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/specs 201",
+      "payload": {
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "log_81e1b806-779b-4380-95ca-77f77938caa7",
+      "createdAt": "2026-02-24T21:47:10.415Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "POST /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/run 202",
+      "payload": {
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "log_591bb05d-69d1-4c18-a3ad-8eaf9da6a2f5",
+      "createdAt": "2026-02-24T21:47:33.091Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_44f0cbef-c1ca-4ec0-8935-f7f444750beb",
+      "createdAt": "2026-02-24T21:47:48.130Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_332a24c8-3ddf-4b85-b289-887d32b9abb3",
+      "createdAt": "2026-02-24T21:48:03.150Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_63cdbb86-5fe9-4e00-8094-a9614b180dc7",
+      "createdAt": "2026-02-24T21:48:18.182Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_a9d42941-d837-4b4f-9738-66215d09260e",
+      "createdAt": "2026-02-24T21:48:33.215Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_d4dd49a6-a27c-4188-b139-24ac455c2792",
+      "createdAt": "2026-02-24T21:48:48.242Z",
+      "projectId": "proj_0406006e-4b28-47c9-8ab9-3e887977b377",
+      "scope": "http",
+      "message": "GET /api/projects/proj_0406006e-4b28-47c9-8ab9-3e887977b377/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_fbba58b8-c430-4ae1-9478-7d9178ed9b37",
+      "createdAt": "2026-02-24T21:52:35.260Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "GET /api/health 200",
+      "payload": {
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "log_4d91609f-74dc-4f57-9464-36a60826eeb2",
+      "createdAt": "2026-02-24T21:52:43.074Z",
+      "projectId": null,
+      "scope": "http",
+      "message": "POST /api/projects 201",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_d5283238-4b13-4a80-97bb-faa2fef4f6a2",
+      "createdAt": "2026-02-24T21:52:43.093Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "POST /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/specs 201",
+      "payload": {
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "log_c3ab1207-fdf3-4e61-bd2a-45c2f2a75287",
+      "createdAt": "2026-02-24T21:52:43.112Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "POST /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/run 202",
+      "payload": {
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "log_dd865456-972c-41f9-950f-5f83c1dee1c9",
+      "createdAt": "2026-02-24T21:53:05.187Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_5dabd0ea-8721-4252-aad6-7ed100d7a60b",
+      "createdAt": "2026-02-24T21:53:20.348Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_0873dfed-1f68-4fe9-8993-ed3852a55fef",
+      "createdAt": "2026-02-24T21:53:35.454Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_ddf54086-1331-4e9d-a234-7e5bc15069b8",
+      "createdAt": "2026-02-24T21:53:50.552Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_30728e37-31fc-4d42-93bf-efdf905ff0f6",
+      "createdAt": "2026-02-24T21:54:05.680Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_510c4f58-949b-4fce-bbd8-1f27ee7e9340",
+      "createdAt": "2026-02-24T21:54:20.793Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_71344394-8759-49cb-875e-4c981ff170d8",
+      "createdAt": "2026-02-24T21:54:37.960Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_386cfdba-56b4-4c3d-bb0c-d3c1821b83e9",
+      "createdAt": "2026-02-24T21:54:53.083Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_87f7f7a9-4cf8-4ef4-8193-dd81bdb6f38e",
+      "createdAt": "2026-02-24T21:55:08.212Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_8f49320b-04c3-4c63-a356-9dc486e09d17",
+      "createdAt": "2026-02-24T21:55:23.326Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_1b62f3b6-a33b-47d3-a830-9547f0cc6a0c",
+      "createdAt": "2026-02-24T21:55:38.467Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_6586dc65-3c90-476c-b86a-4d39ce228ce9",
+      "createdAt": "2026-02-24T21:55:53.589Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_4582d701-e0dc-4745-a402-4a0d985231db",
+      "createdAt": "2026-02-24T21:56:08.689Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "log_32427e67-d94a-49a6-b892-1d5fdc6e82f7",
+      "createdAt": "2026-02-24T21:56:23.795Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_d7a9aa9f-d47a-4e3e-8dcf-240a0f11da5c",
+      "createdAt": "2026-02-24T21:56:40.961Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_e01e7ecc-8cc3-4559-9f01-e0280cf0b74d",
+      "createdAt": "2026-02-24T21:56:56.097Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "log_6310fe9f-c335-4475-99d7-28022cbd8fe5",
+      "createdAt": "2026-02-24T21:57:11.231Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_676c6403-ff72-4ce5-873d-2b6811ae42d3",
+      "createdAt": "2026-02-24T21:57:26.371Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_55a6b81e-3bb8-4f9d-8568-2fdad954bb1b",
+      "createdAt": "2026-02-24T21:57:41.501Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_af22df9a-1609-4cba-a1a0-f8faa5b30a65",
+      "createdAt": "2026-02-24T21:57:56.686Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "log_1d7f90e0-b2bd-4818-ba7e-96ab886dac60",
+      "createdAt": "2026-02-24T21:58:29.605Z",
+      "projectId": "proj_91e6f059-98d1-44ba-bf2f-739090b55a09",
+      "scope": "http",
+      "message": "GET /api/projects/proj_91e6f059-98d1-44ba-bf2f-739090b55a09/status 200",
+      "payload": {
+        "durationMs": 3
+      }
+    }
+  ]
+}

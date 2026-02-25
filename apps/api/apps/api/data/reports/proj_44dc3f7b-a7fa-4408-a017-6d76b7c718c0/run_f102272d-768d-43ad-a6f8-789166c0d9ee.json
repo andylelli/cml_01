@@ -1,0 +1,2794 @@
+{
+  "project_id": "proj_44dc3f7b-a7fa-4408-a017-6d76b7c718c0",
+  "run_id": "run_f102272d-768d-43ad-a6f8-789166c0d9ee",
+  "generated_at": "2026-02-25T18:43:53.981Z",
+  "total_duration_ms": 336763,
+  "total_cost": 0.03,
+  "overall_score": 60.38,
+  "overall_grade": "D",
+  "passed": false,
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 26,
+        "completeness_score": 66.66666666666667,
+        "consistency_score": 100,
+        "total": 71,
+        "grade": "C",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "Only 0/1 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 65,
+            "weight": 1,
+            "message": "65% average"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": false,
+            "score": 33.33333333333333,
+            "weight": 1.5,
+            "message": "Only 1 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ],
+        "component_failures": [
+          "quality"
+        ]
+      },
+      "duration_ms": 11356,
+      "cost": 0.0005365206000000001,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "Only 0/1 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 65,
+          "weight": 1,
+          "message": "65% average"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": false,
+          "score": 33.33333333333333,
+          "weight": 1.5,
+          "message": "Only 1 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 57.44680851063832,
+        "quality_score": 60,
+        "completeness_score": 35,
+        "consistency_score": 0,
+        "total": 48,
+        "grade": "F",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cecilia Hawthorne: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: culprit_eligibility",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing required field: culprit_eligibility",
+            "severity": "major"
+          },
+          {
+            "name": "Henry Ashworth: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: culprit_eligibility",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing required field: culprit_eligibility",
+            "severity": "major"
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: culprit_eligibility",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing required field: culprit_eligibility",
+            "severity": "major"
+          },
+          {
+            "name": "Edward Cartwright: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: culprit_eligibility",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing required field: culprit_eligibility",
+            "severity": "major"
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 2,
+            "message": "Only 0% of characters are valid (need 70%)",
+            "severity": "major"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 75%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Relationships don't reference other cast members",
+            "severity": "minor"
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": false,
+            "score": 40,
+            "weight": 1,
+            "message": "Insufficient items (4/6)",
+            "severity": "minor"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": false,
+            "score": 0,
+            "weight": 2,
+            "message": "No eligible suspects",
+            "severity": "critical"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "No eligible suspects defined",
+            "severity": "critical"
+          }
+        ],
+        "component_failures": [
+          "validation",
+          "completeness",
+          "consistency"
+        ],
+        "failure_reason": "2 critical failure(s); Components below minimum: validation, completeness, consistency"
+      },
+      "duration_ms": 16808,
+      "cost": 0,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cecilia Hawthorne: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: culprit_eligibility",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing required field: culprit_eligibility",
+          "severity": "major"
+        },
+        {
+          "name": "Henry Ashworth: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: culprit_eligibility",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing required field: culprit_eligibility",
+          "severity": "major"
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: culprit_eligibility",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing required field: culprit_eligibility",
+          "severity": "major"
+        },
+        {
+          "name": "Edward Cartwright: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: culprit_eligibility",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing required field: culprit_eligibility",
+          "severity": "major"
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 2,
+          "message": "Only 0% of characters are valid (need 70%)",
+          "severity": "major"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 75%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Relationships don't reference other cast members",
+          "severity": "minor"
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": false,
+          "score": 40,
+          "weight": 1,
+          "message": "Insufficient items (4/6)",
+          "severity": "minor"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": false,
+          "score": 0,
+          "weight": 2,
+          "message": "No eligible suspects",
+          "severity": "critical"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "No eligible suspects defined",
+          "severity": "critical"
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 45.45454545454545,
+        "quality_score": 11.11111111111111,
+        "completeness_score": 32.8,
+        "consistency_score": 100,
+        "total": 38,
+        "grade": "F",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Tech capabilities required",
+            "severity": "major"
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Forensic capabilities required",
+            "severity": "major"
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Physical constraints required",
+            "severity": "major"
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 50,
+            "weight": 1,
+            "message": "Only 1 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": false,
+            "score": 50,
+            "weight": 1,
+            "message": "Only 1 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": false,
+            "score": 25,
+            "weight": 2,
+            "message": "Era completeness: 25%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": false,
+            "score": 32,
+            "weight": 2,
+            "message": "Location completeness: 32%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ],
+        "component_failures": [
+          "validation",
+          "quality",
+          "completeness"
+        ],
+        "failure_reason": "Components below minimum: validation, quality, completeness"
+      },
+      "duration_ms": 2467,
+      "cost": 0.00017532075,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Tech capabilities required",
+          "severity": "major"
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Forensic capabilities required",
+          "severity": "major"
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Physical constraints required",
+          "severity": "major"
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 50,
+          "weight": 1,
+          "message": "Only 1 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": false,
+          "score": 50,
+          "weight": 1,
+          "message": "Only 1 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": false,
+          "score": 25,
+          "weight": 2,
+          "message": "Era completeness: 25%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": false,
+          "score": 32,
+          "weight": 2,
+          "message": "Location completeness: 32%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 unique types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 16159,
+      "cost": 0.00069672075,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 unique types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 70,
+        "quality_score": 83.33333333333333,
+        "completeness_score": 0,
+        "consistency_score": 48.78048780487805,
+        "total": 58,
+        "grade": "F",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 85,
+            "weight": 2,
+            "message": "15 chapters (expected 18)",
+            "severity": "major"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "Missing discriminating test scene",
+            "severity": "major"
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "90% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": false,
+            "score": 50,
+            "weight": 1,
+            "message": "4/15 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "15/15"
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": false,
+            "score": 31.70731707317073,
+            "weight": 1.5,
+            "message": "Only 32% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ],
+        "component_failures": [
+          "completeness",
+          "consistency"
+        ],
+        "failure_reason": "Components below minimum: completeness, consistency"
+      },
+      "duration_ms": 31722,
+      "cost": 0.00193243875,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 85,
+          "weight": 2,
+          "message": "15 chapters (expected 18)",
+          "severity": "major"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "Missing discriminating test scene",
+          "severity": "major"
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "90% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": false,
+          "score": 50,
+          "weight": 1,
+          "message": "4/15 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "15/15"
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": false,
+          "score": 31.70731707317073,
+          "weight": 1.5,
+          "message": "Only 32% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2b_profiles",
+      "phase_name": "Character Profiles",
+      "score": {
+        "agent": "agent2b-character-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 43.5,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 83,
+        "grade": "B",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cecilia Hawthorne: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cecilia Hawthorne: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Henry Ashworth: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Margaret 'Maggie' O'Reilly: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Edward Cartwright: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Profile narrative depth",
+            "category": "quality",
+            "passed": false,
+            "score": 37,
+            "weight": 2,
+            "message": "Average depth: 37%"
+          },
+          {
+            "name": "Humour style richness",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0/4 profiles"
+          },
+          {
+            "name": "Distinct personalities",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% distinct"
+          },
+          {
+            "name": "Minimum profiles",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "4 profiles"
+          },
+          {
+            "name": "Field completeness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% fields filled"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Names match cast",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% match"
+          }
+        ],
+        "component_failures": [
+          "quality"
+        ]
+      },
+      "duration_ms": 101528,
+      "cost": 0.0122200518,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cecilia Hawthorne: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cecilia Hawthorne: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Henry Ashworth: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Margaret 'Maggie' O'Reilly: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Edward Cartwright: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Profile narrative depth",
+          "category": "quality",
+          "passed": false,
+          "score": 37,
+          "weight": 2,
+          "message": "Average depth: 37%"
+        },
+        {
+          "name": "Humour style richness",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0/4 profiles"
+        },
+        {
+          "name": "Distinct personalities",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% distinct"
+        },
+        {
+          "name": "Minimum profiles",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "4 profiles"
+        },
+        {
+          "name": "Field completeness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% fields filled"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Names match cast",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% match"
+        }
+      ]
+    },
+    {
+      "agent": "agent2c_location_profiles",
+      "phase_name": "Location Profiles",
+      "score": {
+        "agent": "agent2c-location-profiles",
+        "validation_score": 7.407407407407407,
+        "quality_score": 0,
+        "completeness_score": 50,
+        "consistency_score": 100,
+        "total": 23,
+        "grade": "F",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "The Library: Visual sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing visual details",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Auditory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing auditory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Olfactory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing olfactory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Tactile sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing tactile details",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Taste sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing taste details",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Geographic grounding",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing geographic grounding",
+            "severity": "major"
+          },
+          {
+            "name": "The Library: Atmosphere",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing atmosphere description",
+            "severity": "minor"
+          },
+          {
+            "name": "The Drawing Room: Visual sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing visual details",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Auditory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing auditory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Olfactory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing olfactory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Tactile sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing tactile details",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Taste sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing taste details",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Geographic grounding",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing geographic grounding",
+            "severity": "major"
+          },
+          {
+            "name": "The Drawing Room: Atmosphere",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing atmosphere description",
+            "severity": "minor"
+          },
+          {
+            "name": "The Garden Path: Visual sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing visual details",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Auditory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing auditory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Olfactory sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing olfactory details",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Tactile sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing tactile details",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Taste sense",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing taste details",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Geographic grounding",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing geographic grounding",
+            "severity": "major"
+          },
+          {
+            "name": "The Garden Path: Atmosphere",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Missing atmosphere description",
+            "severity": "minor"
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 2,
+            "message": "Only 0% valid"
+          },
+          {
+            "name": "Sensory richness",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 2,
+            "message": "Average: 0%"
+          },
+          {
+            "name": "Geographic specificity",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0/3 specific"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "3 locations"
+          },
+          {
+            "name": "All senses covered",
+            "category": "completeness",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "Only 0/3 locations"
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ],
+        "component_failures": [
+          "validation",
+          "quality",
+          "completeness"
+        ],
+        "failure_reason": "Components below minimum: validation, quality, completeness"
+      },
+      "duration_ms": 64713,
+      "cost": 0.00854822265,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "The Library: Visual sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing visual details",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Auditory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing auditory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Olfactory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing olfactory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Tactile sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing tactile details",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Taste sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing taste details",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Geographic grounding",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing geographic grounding",
+          "severity": "major"
+        },
+        {
+          "name": "The Library: Atmosphere",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing atmosphere description",
+          "severity": "minor"
+        },
+        {
+          "name": "The Drawing Room: Visual sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing visual details",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Auditory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing auditory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Olfactory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing olfactory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Tactile sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing tactile details",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Taste sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing taste details",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Geographic grounding",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing geographic grounding",
+          "severity": "major"
+        },
+        {
+          "name": "The Drawing Room: Atmosphere",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing atmosphere description",
+          "severity": "minor"
+        },
+        {
+          "name": "The Garden Path: Visual sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing visual details",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Auditory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing auditory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Olfactory sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing olfactory details",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Tactile sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing tactile details",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Taste sense",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing taste details",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Geographic grounding",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing geographic grounding",
+          "severity": "major"
+        },
+        {
+          "name": "The Garden Path: Atmosphere",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Missing atmosphere description",
+          "severity": "minor"
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 2,
+          "message": "Only 0% valid"
+        },
+        {
+          "name": "Sensory richness",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 2,
+          "message": "Average: 0%"
+        },
+        {
+          "name": "Geographic specificity",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0/3 specific"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "3 locations"
+        },
+        {
+          "name": "All senses covered",
+          "category": "completeness",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "Only 0/3 locations"
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2d_temporal_context",
+      "phase_name": "Temporal Context",
+      "score": {
+        "agent": "agent2d-temporal-context",
+        "validation_score": 85,
+        "quality_score": 18.666666666666668,
+        "completeness_score": 62.5,
+        "consistency_score": 100,
+        "total": 62,
+        "grade": "D",
+        "passed": true,
+        "tests": [
+          {
+            "name": "specific_date present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "time_of_day present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "season present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "weather_patterns present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Date specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Full date specified"
+          },
+          {
+            "name": "Time specificity",
+            "category": "validation",
+            "passed": false,
+            "score": 40,
+            "weight": 1,
+            "message": "Time too vague"
+          },
+          {
+            "name": "Weather detail",
+            "category": "quality",
+            "passed": false,
+            "score": 20,
+            "weight": 1,
+            "message": "20% richness"
+          },
+          {
+            "name": "Fashion detail",
+            "category": "quality",
+            "passed": false,
+            "score": 20,
+            "weight": 1,
+            "message": "20% richness"
+          },
+          {
+            "name": "Temporal richness",
+            "category": "quality",
+            "passed": false,
+            "score": 16,
+            "weight": 1,
+            "message": "Only 32 words"
+          },
+          {
+            "name": "Optional fields",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All optional fields present"
+          },
+          {
+            "name": "Substantial content",
+            "category": "completeness",
+            "passed": false,
+            "score": 25,
+            "weight": 1.5,
+            "message": "1/4 fields detailed"
+          },
+          {
+            "name": "Season/weather consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ],
+        "component_failures": [
+          "quality"
+        ]
+      },
+      "duration_ms": 48526,
+      "cost": 0.005849977649999999,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "specific_date present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "time_of_day present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "season present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "weather_patterns present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Date specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Full date specified"
+        },
+        {
+          "name": "Time specificity",
+          "category": "validation",
+          "passed": false,
+          "score": 40,
+          "weight": 1,
+          "message": "Time too vague"
+        },
+        {
+          "name": "Weather detail",
+          "category": "quality",
+          "passed": false,
+          "score": 20,
+          "weight": 1,
+          "message": "20% richness"
+        },
+        {
+          "name": "Fashion detail",
+          "category": "quality",
+          "passed": false,
+          "score": 20,
+          "weight": 1,
+          "message": "20% richness"
+        },
+        {
+          "name": "Temporal richness",
+          "category": "quality",
+          "passed": false,
+          "score": 16,
+          "weight": 1,
+          "message": "Only 32 words"
+        },
+        {
+          "name": "Optional fields",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All optional fields present"
+        },
+        {
+          "name": "Substantial content",
+          "category": "completeness",
+          "passed": false,
+          "score": 25,
+          "weight": 1.5,
+          "message": "1/4 fields detailed"
+        },
+        {
+          "name": "Season/weather consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "phases_passed": 1,
+    "phases_failed": 7,
+    "total_phases": 8,
+    "pass_rate": 12.5,
+    "weakest_phase": "agent2c-location-profiles",
+    "strongest_phase": "agent4-hard-logic",
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.03
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "aborted": true,
+  "abort_reason": "CML validation failed before prose generation:\n  • Discriminating test has no evidence clues - prose cannot reference supporting evidence\n\nFix CML structure before attempting prose generation."
+}

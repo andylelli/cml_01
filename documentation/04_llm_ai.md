@@ -7,6 +7,7 @@
 - Guarantee CML-first ordering and fair-play constraints
 - Enforce novelty vs seed CMLs and prevent copying
 - Pipeline runs require Azure OpenAI credentials; no deterministic fallback artifacts are produced.
+- Scoring-driven retries now inject structured phase feedback into subsequent retry prompts for scored agents.
 
 ## Where LLM interaction is required (by pipeline stage)
 
@@ -175,7 +176,13 @@ Critical gaps trigger one Agent 5 retry with violation feedback before proceedin
 **Period authenticity:** fashion descriptions, cultural references, and prices match temporal context; no anachronisms
 **Completeness:** prose must include one chapter per outline scene; missing chapters trigger a retry.
 Long outlines are generated in scene batches to ensure all chapters are produced within token limits.
-**Current build:** LLM-generated prose with full artifact context integration (implemented).
+**Chapter-by-chapter validation (implemented):** Each batch of chapters is validated immediately after generation before moving to the next batch. Validation checks:
+  - Character name consistency (no invented names, matches CML cast)
+  - Setting fidelity (no location type drift, maintains CML setting)
+  - Discriminating test presence (late chapters must include test scene)
+  - Prose quality (paragraph count, length variation, sentence variety)
+Critical/major issues trigger automatic batch regeneration (max 2 attempts per batch) with specific feedback about what failed. This catch-and-fix approach prevents accumulation of errors across the full story.
+**Current build:** LLM-generated prose with full artifact context integration and per-batch content validation (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
 
 ### 9) Game pack generation (optional)

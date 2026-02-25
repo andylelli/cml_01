@@ -56,6 +56,72 @@ Full activity logging is enabled for API requests and UI actions (see /api/logs)
 The UI restores the last project/spec/session state after refresh.
 Spec draft supports optional comma-separated cast names for future LLM conditioning (no deterministic overrides).
 
+## Scoring & Quality Reports
+
+The pipeline includes an opt-in scoring system that evaluates each generation phase against measurable thresholds and produces a structured quality report.
+
+### Enabling Scoring
+
+Add to your `.env.local`:
+
+```
+ENABLE_SCORING=true
+```
+
+When disabled (default), the pipeline runs normally with no overhead. All scoring code is fully backward-compatible.
+
+### How It Works
+
+After each of the 9 generation agents completes, a scorer evaluates the output across four categories:
+
+| Category | Weight | Description |
+|---|---|---|
+| Validation | 40% | Structural and logical correctness |
+| Quality | 30% | Richness, specificity, and depth |
+| Completeness | 20% | Required fields and sections present |
+| Consistency | 10% | Internal coherence |
+
+A phase score (0–100) is computed as a weighted sum. A phase **passes** if:
+- Composite score ≥ phase threshold (default 75; strict phases use 85)
+- All four category scores meet their minimum floors: validation ≥ 60, quality ≥ 50, completeness ≥ 60, consistency ≥ 50
+
+### Retry Behaviour
+
+If a phase fails its threshold, the pipeline automatically retries the LLM call with structured feedback injected into the prompt explaining which tests failed and what is required. Retry limits are configured in `apps/worker/config/retry-limits.yaml`:
+
+- Per-phase retry limits: 2–4 retries depending on phase complexity
+- Global cap: 15 total retries across all phases
+- Backoff: exponential, linear, or none (per-phase config)
+- `abort_on_max_retries: true` — hard-fails the generation if a phase exhausts all retries
+
+### Threshold Modes
+
+| Mode | Threshold | Used for |
+|---|---|---|
+| Strict | 85 | Hard Logic, Prose |
+| Standard | 75 | Most phases |
+| Lenient | 70 | Background, Temporal |
+
+### Quality Tab in the UI
+
+After a generation run completes, open the **Advanced → Quality** tab to view:
+
+- **Score card** — overall grade (A–F), pass/fail summary, weakest/strongest phases, total retries
+- **Phase breakdown table** — all 9 phases with scores, grades, expandable category details, test results, and retry history
+- **Trend chart** — score history across the last 10 runs with pass/fail coloring and threshold reference line
+
+The Quality tab is only populated when `ENABLE_SCORING=true` is set and at least one run has completed.
+
+### API Endpoints
+
+```
+GET /api/projects/:projectId/runs/:runId/report    — Full report for a single run
+GET /api/projects/:projectId/reports/history       — Last N reports for a project (?limit=N, default 10)
+GET /api/reports/aggregate                         — Cross-project aggregate stats (success rate, grade distribution, common failures)
+```
+
+Reports are stored as JSON files in `apps/api/data/reports/{projectId}/{runId}.json`.
+
 Pull requests welcome.
 
 ## Database (Postgres)
