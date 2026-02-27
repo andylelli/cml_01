@@ -5,10 +5,6 @@
 import type { CostConfig, TokenUsage } from "./types.js";
 
 export const defaultCostConfig: CostConfig = {
-  // GPT-4 pricing (as of Feb 2026, converted to GBP)
-  gpt4PromptCostPer1k: 0.0237,
-  gpt4CompletionCostPer1k: 0.0474,
-
   // GPT-4o pricing (approximate, converted to GBP)
   gpt4oPromptCostPer1k: 0.0021725,
   gpt4oCompletionCostPer1k: 0.00869,
@@ -33,23 +29,18 @@ export class CostTracker {
     const modelName = model.toLowerCase();
     const isGpt4oMini = modelName.includes("gpt-4o-mini") || modelName.includes("4o-mini");
     const isGpt4o = !isGpt4oMini && (modelName.includes("gpt-4o") || modelName.includes("4o"));
-    const isGPT4 = !isGpt4o && !isGpt4oMini && modelName.includes("gpt-4");
 
     const promptCostPer1k = isGpt4oMini
       ? this.config.gpt4oMiniPromptCostPer1k
       : isGpt4o
         ? this.config.gpt4oPromptCostPer1k
-        : isGPT4
-          ? this.config.gpt4PromptCostPer1k
-          : this.config.gpt35PromptCostPer1k;
+        : this.config.gpt35PromptCostPer1k;
 
     const completionCostPer1k = isGpt4oMini
       ? this.config.gpt4oMiniCompletionCostPer1k
       : isGpt4o
         ? this.config.gpt4oCompletionCostPer1k
-        : isGPT4
-          ? this.config.gpt4CompletionCostPer1k
-          : this.config.gpt35CompletionCostPer1k;
+        : this.config.gpt35CompletionCostPer1k;
 
     const promptCost = (usage.promptTokens / 1000) * promptCostPer1k;
     const completionCost = (usage.completionTokens / 1000) * completionCostPer1k;

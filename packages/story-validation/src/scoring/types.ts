@@ -49,6 +49,16 @@ export interface ScoringContext {
   
   // Configuration
   threshold_config: ThresholdConfig;
+
+  // Story length selection — drives chapter counts and word count targets
+  targetLength?: 'short' | 'medium' | 'long';
+
+  /**
+   * Set to true when scoring an in-progress prose generation (e.g. inside onBatchComplete).
+   * Suppresses whole-story completeness checks (chapter count, total word count) that are
+   * meaningless until all chapters have been written.
+   */
+  partialGeneration?: boolean;
 }
 
 /**
@@ -127,6 +137,7 @@ export interface GenerationReport {
     pass_rate: number;        // percentage (as number, not string)
     weakest_phase: string;
     strongest_phase: string;
+    failure_reasons?: string[]; // Human-readable failure reason per failed phase
     retry_stats: {
       total_retries: number;
       phases_retried: number;

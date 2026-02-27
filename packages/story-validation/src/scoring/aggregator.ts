@@ -81,6 +81,60 @@ export class ScoreAggregator {
   }
 
   /**
+   * Upsert a phase score — replaces an existing entry with the same agent key,
+   * or appends if no entry exists yet. Use this for live-updating partial scores
+   * (e.g. prose quality after each chapter) so the report always has exactly one
+   * entry per agent rather than accumulating duplicates on retries.
+   */
+  upsertPhaseScore(
+    agent: string,
+    phaseName: string,
+    score: PhaseScore,
+    durationMs: number,
+    cost: number = 0,
+    errors?: string[]
+  ): void {
+    const threshold = this.getThresholdForAgent(agent);
+    const passed = passesThreshold(score, this.thresholdConfig);
+    const retryCount = this.retryManager?.getRetryCount(agent) || 0;
+    const maxRetries = this.retryManager?.getMaxRetries(agent) || 0;
+    const retryHistory = this.retryManager?.getRetryHistory(agent) || [];
+
+    const normalisedScore: PhaseScore = { ...score, passed };
+
+    const report: PhaseReport = {
+      agent,
+      phase_name: phaseName,
+      score: normalisedScore,
+      duration_ms: durationMs,
+      cost,
+      threshold,
+      passed,
+      tests: normalisedScore.tests,
+      retry_count: retryCount > 0 ? retryCount : undefined,
+      max_retries: retryCount > 0 ? maxRetries : undefined,
+      retry_history: retryHistory.length > 0 ? retryHistory : undefined,
+      errors: errors && errors.length > 0 ? errors : undefined,
+    };
+
+    const existingIndex = this.phases.findIndex(p => p.agent === agent);
+    if (existingIndex >= 0) {
+      this.phases[existingIndex] = report;
+    } else {
+      this.phases.push(report);
+    }
+  }
+
+  /**
+   * Check if a phase score passes the configured threshold.
+   * Use this instead of score.passed in retry loops to ensure the retry
+   * decision uses the same authoritative criteria as the final report.
+   */
+  passesThreshold(score: PhaseScore): boolean {
+    return passesThreshold(score, this.thresholdConfig);
+  }
+
+  /**
    * Generate the complete generation report
    */
   generateReport(metadata: GenerationMetadata): GenerationReport {
@@ -107,12 +161,14 @@ export class ScoreAggregator {
         ? parseFloat(((phasesPassed / this.phases.length) * 100).toFixed(1))
         : 0;
 
-    // Find weakest and strongest phases
+    // Find weakest and strongest phases (by phase_name for readability)
     const sortedPhases = [...this.phases].sort(
       (a, b) => a.score.total - b.score.total
     );
-    const weakestPhase = sortedPhases[0]?.score.agent;
-    const strongestPhase = sortedPhases[sortedPhases.length - 1]?.score.agent;
+    const weakestPhase = sortedPhases[0]?.phase_name ?? sortedPhases[0]?.score.agent;
+    const strongestPhase =
+      sortedPhases[sortedPhases.length - 1]?.phase_name ??
+      sortedPhases[sortedPhases.length - 1]?.score.agent;
 
     // Calculate retry statistics
     const retryStats = this.retryManager?.getRetryStats() || {
@@ -150,6 +206,7 @@ export class ScoreAggregator {
         pass_rate: passRate,
         weakest_phase: weakestPhase,
         strongest_phase: strongestPhase,
+        failure_reasons: failureReasons.length > 0 ? failureReasons : undefined,
         retry_stats: retryStats,
         total_cost: parseFloat(totalCost.toFixed(4)),
       },
@@ -160,27 +217,30 @@ export class ScoreAggregator {
   }
 
   /**
-   * Get threshold for a specific agent
+   * Get threshold for a specific agent (keyed by orchestrator agent ID, e.g. 'agent3b_hard_logic_devices').
+   * Mirrors DEFAULT_THRESHOLDS but uses the orchestrator's underscore naming convention.
    */
   private getThresholdForAgent(agent: string): number {
-    // Check for agent-specific override
-    if (
-      this.thresholdConfig.overrides &&
-      this.thresholdConfig.overrides[agent]
-    ) {
+    if (this.thresholdConfig.overrides?.[agent]) {
       return this.thresholdConfig.overrides[agent];
     }
 
-    // Use mode-based defaults
-    const mode = this.thresholdConfig.mode;
-    if (mode === 'strict') {
-      return 85;
-    } else if (mode === 'lenient') {
-      return 65;
-    } else {
-      // Standard mode
-      return 75;
+    // Orchestrator agent ID → threshold (only non-default values need listing)
+    const ORCHESTRATOR_THRESHOLDS: Record<string, number> = {
+      'agent3b_hard_logic_devices': 85,
+      'agent9_prose': 80,
+      'agent2d_temporal_context': 70,
+      'agent2e_background_context': 70,
+    };
+    if (ORCHESTRATOR_THRESHOLDS[agent] !== undefined) {
+      return ORCHESTRATOR_THRESHOLDS[agent];
     }
+
+    // Mode-based floor for everything else
+    const mode = this.thresholdConfig.mode;
+    if (mode === 'strict') return 85;
+    if (mode === 'lenient') return 65;
+    return 75; // standard
   }
 
   /**

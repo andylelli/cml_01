@@ -34,6 +34,7 @@ import {
   downloadStoryPdf,
   fetchProject,
   fetchProjects,
+  fetchLatestSpec,
   fetchProseVersions,
   fetchSampleContent,
   fetchSamples,
@@ -303,8 +304,10 @@ const spec = ref({
   theme: "",
   castSize: 6,
   castNames: [] as string[],
+  detectiveType: "police" as "police" | "private" | "amateur",
   primaryAxis: "temporal",
   targetLength: "medium" as "short" | "medium" | "long",
+  proseBatchSize: 1,
 });
 
 // Artifact + validation state lives in Pinia store
@@ -995,6 +998,18 @@ const handleLoadProject = async () => {
     const project = await fetchProject(nextId);
     projectId.value = project.id;
     projectName.value = project.name;
+    // Restore the spec settings (decade, tone, etc.) from the last saved spec
+    try {
+      const savedSpec = await fetchLatestSpec(nextId);
+      if (savedSpec) {
+        latestSpecId.value = savedSpec.id;
+        if (savedSpec.spec && typeof savedSpec.spec === "object") {
+          spec.value = { ...spec.value, ...(savedSpec.spec as typeof spec.value) };
+        }
+      }
+    } catch {
+      // spec restore is best-effort; don't block the rest of the load
+    }
     runStatus.value = "Ready to generate";
     connectSse();
     persistState();
@@ -1340,16 +1355,19 @@ const pipelineSteps = computed((): PipelineStep[] => {
   // doneEvent: the part of the "*_done" event name (without "_done") emitted by server.ts
   // runningStage: the progress stage name emitted by the orchestrator's reportProgress()
   const steps: { id: string; label: string; doneEvent: string; runningStage: string }[] = [
-    { id: "setting",        label: "Setting",      doneEvent: "setting",          runningStage: "setting" },
-    { id: "cast",           label: "Cast",         doneEvent: "cast",             runningStage: "cast" },
-    { id: "hard_logic",     label: "Hard Logic",   doneEvent: "hard_logic_devices", runningStage: "hard_logic_devices" },
-    { id: "cml",            label: "CML",          doneEvent: "cml",              runningStage: "cml" },
-    { id: "novelty_audit",  label: "Novelty Audit", doneEvent: "novelty_audit",   runningStage: "novelty" },
-    { id: "clues",          label: "Clues",        doneEvent: "clues",            runningStage: "clues" },
-    { id: "fairplay",       label: "Fair-play",    doneEvent: "fair_play_report", runningStage: "fairplay" },
-    { id: "outline",        label: "Outline",      doneEvent: "outline",          runningStage: "narrative" },
-    { id: "profiles",       label: "Profiles",     doneEvent: "character_profiles", runningStage: "profiles" },
-    { id: "prose",          label: "Prose",        doneEvent: "prose",            runningStage: "prose" },
+    { id: "setting",          label: "Setting",       doneEvent: "setting",            runningStage: "setting" },
+    { id: "cast",             label: "Cast",          doneEvent: "cast",               runningStage: "cast" },
+    { id: "background",       label: "Background",    doneEvent: "background_context", runningStage: "background-context" },
+    { id: "hard_logic",       label: "Hard Logic",    doneEvent: "hard_logic_devices", runningStage: "hard_logic_devices" },
+    { id: "cml",              label: "CML",           doneEvent: "cml",                runningStage: "cml" },
+    { id: "novelty_audit",    label: "Novelty Audit", doneEvent: "novelty_audit",      runningStage: "novelty" },
+    { id: "clues",            label: "Clues",         doneEvent: "clues",              runningStage: "clues" },
+    { id: "fairplay",         label: "Fair-play",     doneEvent: "fair_play_report",   runningStage: "fairplay" },
+    { id: "outline",          label: "Outline",       doneEvent: "outline",            runningStage: "narrative" },
+    { id: "profiles",         label: "Char. Profiles",doneEvent: "character_profiles", runningStage: "profiles" },
+    { id: "location_profiles",label: "Locations",     doneEvent: "location_profiles",  runningStage: "location-profiles" },
+    { id: "temporal_context", label: "Era & Culture", doneEvent: "temporal_context",   runningStage: "temporal-context" },
+    { id: "prose",            label: "Prose",         doneEvent: "prose",              runningStage: "prose" },
   ];
 
   const completedDoneEvents = new Set<string>();
@@ -1867,6 +1885,20 @@ onBeforeUnmount(() => {
                       max="12"
                       class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
                     />
+                    <div class="mt-1 text-[11px] text-slate-400">
+                      Suspects &amp; witnesses. The detective is always added as an extra character (+1).
+                    </div>
+                  </div>
+                  <div id="field-detectiveType">
+                    <label class="text-xs font-semibold text-slate-500">Detective type</label>
+                    <select v-model="spec.detectiveType" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm">
+                      <option value="police">Police Inspector / Detective</option>
+                      <option value="private">Private Investigator</option>
+                      <option value="amateur">Amateur / Layperson</option>
+                    </select>
+                    <div class="mt-1 text-[11px] text-slate-400">
+                      Amateur lets the AI invent anyone — a vicar, a schoolteacher, a nosy neighbour&hellip;
+                    </div>
                   </div>
                   <div class="md:col-span-2">
                     <label class="text-xs font-semibold text-slate-500">Cast names (comma-separated)</label>
@@ -1898,6 +1930,19 @@ onBeforeUnmount(() => {
                     </select>
                     <div class="mt-1 text-[11px] text-slate-400">
                       Story length affects scene count and narrative pacing.
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs font-semibold text-slate-500">Prose batch size</label>
+                    <input
+                      v-model.number="spec.proseBatchSize"
+                      type="number"
+                      min="1"
+                      max="10"
+                      class="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    />
+                    <div class="mt-1 text-[11px] text-slate-400">
+                      Chapters generated per LLM call (1–10). Higher = fewer API calls but coarser retries. Default: 1.
                     </div>
                   </div>
                 </div>

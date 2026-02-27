@@ -51,15 +51,22 @@ export interface NarrativeOutlineOutput {
 export class NarrativeScorer
   implements Scorer<any, NarrativeOutlineOutput>
 {
+  private getExpectedChapters(targetLength?: string): number {
+    if (targetLength === 'short') return 12;
+    if (targetLength === 'long') return 26;
+    return 18; // medium default
+  }
+
   async score(
     input: any,
     output: NarrativeOutlineOutput,
     context: ScoringContext
   ): Promise<PhaseScore> {
     const tests: TestResult[] = [];
+    const expectedChapters = this.getExpectedChapters(context.targetLength);
 
     // VALIDATION TESTS (40% weight)
-    tests.push(...this.validateStructure(output));
+    tests.push(...this.validateStructure(output, expectedChapters));
 
     // QUALITY TESTS (30% weight)
     tests.push(...this.assessQuality(output));
@@ -109,7 +116,7 @@ export class NarrativeScorer
     };
   }
 
-  private validateStructure(output: NarrativeOutlineOutput): TestResult[] {
+  private validateStructure(output: NarrativeOutlineOutput, expectedChapters: number): TestResult[] {
     const tests: TestResult[] = [];
 
     if (!output || !Array.isArray(output.chapters)) {
@@ -127,14 +134,15 @@ export class NarrativeScorer
 
     tests.push(pass('Chapters array exists', 'validation', 0.5));
 
-    // Expect 18 chapters (per spec)
+    // Expect chapter count based on story length
     const chapterCount = output.chapters.length;
+    const tolerance = Math.max(2, Math.round(expectedChapters * 0.1));
     tests.push(
-      chapterCount === 18
-        ? pass('Chapter count', 'validation', 2.0, '18 chapters')
-        : chapterCount >= 16 && chapterCount <= 20
-        ? partial('Chapter count', 'validation', 80, 2.0, `${chapterCount} chapters (expected 18)`, 'minor')
-        : partial('Chapter count', 'validation', Math.max(0, 100 - Math.abs(18 - chapterCount) * 5), 2.0, `${chapterCount} chapters (expected 18)`, 'major')
+      chapterCount === expectedChapters
+        ? pass('Chapter count', 'validation', 2.0, `${expectedChapters} chapters`)
+        : Math.abs(chapterCount - expectedChapters) <= tolerance
+        ? partial('Chapter count', 'validation', 80, 2.0, `${chapterCount} chapters (expected ${expectedChapters})`, 'minor')
+        : partial('Chapter count', 'validation', Math.max(0, 100 - Math.abs(expectedChapters - chapterCount) * 5), 2.0, `${chapterCount} chapters (expected ${expectedChapters})`, 'major')
     );
 
     // Validate chapter structure
@@ -398,9 +406,14 @@ export class NarrativeScorer
     }
 
     // Check that character names in scenes match cast
-    if (context.cml) {
-      const cast = (context.cml as any)?.CASE?.cast || [];
-      const castNames = cast.map((c: any) => c.name?.toLowerCase()).filter((n: string) => n);
+    if (context.cml || context.previous_phases?.agent2_cast) {
+      // Prefer the structured cast from previous_phases; fall back to raw CML CASE.cast
+      const castPhase = context.previous_phases?.agent2_cast;
+      const castArray: Array<{ name: string }> =
+        (castPhase?.characters ?? castPhase ?? (context.cml as any)?.CASE?.cast ?? []);
+      const castNames = castArray
+        .map((c: any) => c.name?.toLowerCase())
+        .filter((n: any): n is string => typeof n === 'string' && n.length > 0);
 
       let totalCharacterReferences = 0;
       let matchedReferences = 0;

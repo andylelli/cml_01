@@ -35,11 +35,17 @@ export interface ProseGenerationInputs {
   temporalContext?: any; // TemporalContextResult
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
+  detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings
   qualityGuardrails?: string[];
   writingGuides?: { humour?: string; craft?: string };
   runId?: string;
   projectId?: string;
   onProgress?: (phase: string, message: string, percentage: number) => void;
+  /** Number of scenes to process per LLM call (1–10, default 1). Higher values increase throughput at the cost of coarser retry granularity. */
+  batchSize?: number;
+  /** Called after each batch of chapters is successfully generated and validated.
+   *  The fourth argument contains validation issues from any failed attempts for this batch. */
+  onBatchComplete?: (chapters: ProseChapter[], batchStart: number, batchEnd: number, validationIssues: string[]) => Promise<void> | void;
 }
 
 export interface ProseGenerationResult {
@@ -157,6 +163,70 @@ const buildProseRequirements = (caseData: CaseData, scenesForChapter?: unknown[]
   return output;
 };
 
+/**
+ * Strip phantom character names from scene data.
+ *
+ * 1. Characters array — remove any name not in the valid cast list.
+ * 2. Summary / title text — replace any `Title Surname` pattern
+ *    whose surname is not a valid cast member with an anonymous equivalent.
+ *
+ * This prevents phantom names baked into the narrative outline (e.g. from stale
+ * LLM examples) from instructing the prose LLM to write about non-existent people.
+ * If filtering the characters array would leave it empty, the original is preserved
+ * so the scene still has context.
+ */
+function sanitizeScenesCharacters(scenes: any[], validCastNames: string[]): any[] {
+  const validSet = new Set(validCastNames);
+  // Build the set of valid surnames (last word of each cast name)
+  const validSurnames = new Set(validCastNames.map(n => n.split(' ').pop() ?? n));
+
+  // Same regex as ChapterValidator.checkCharacterNames
+  const titlePattern = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.|Mrs\.|Miss|Dr\.)\s+([A-Z][a-z]+)/g;
+  const anonMap: Record<string, string> = {
+    Inspector: 'an inspector',
+    Constable: 'a constable',
+    Sergeant: 'the sergeant',
+    Captain: 'the captain',
+    Detective: 'the detective',
+    'Mr.': 'a gentleman',
+    'Mrs.': 'a woman',
+    Miss: 'a young woman',
+    'Dr.': 'the doctor',
+  };
+
+  const sanitizeText = (text: string): string =>
+    text.replace(titlePattern, (match, title, surname) =>
+      validSurnames.has(surname) ? match : (anonMap[title] ?? 'an officer')
+    );
+
+  return scenes.map(scene => {
+    if (!scene) return scene;
+    const sanitized = Array.isArray(scene.characters)
+      ? scene.characters.filter((name: any) => typeof name === 'string' && validSet.has(name))
+      : scene.characters;
+
+    // Sanitize all free-text fields that the prose LLM reads — not just summary/title.
+    // The outline LLM commonly writes phantom names in purpose and dramaticElements too.
+    const sanitizedDramaticElements = scene.dramaticElements
+      ? Object.fromEntries(
+          Object.entries(scene.dramaticElements as Record<string, any>).map(([k, v]) => [
+            k,
+            typeof v === 'string' ? sanitizeText(v) : v,
+          ])
+        )
+      : scene.dramaticElements;
+
+    return {
+      ...scene,
+      characters: sanitized?.length > 0 ? sanitized : scene.characters,
+      summary: typeof scene.summary === 'string' ? sanitizeText(scene.summary) : scene.summary,
+      title: typeof scene.title === 'string' ? sanitizeText(scene.title) : scene.title,
+      purpose: typeof scene.purpose === 'string' ? sanitizeText(scene.purpose) : scene.purpose,
+      dramaticElements: sanitizedDramaticElements,
+    };
+  });
+}
+
 const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
@@ -168,13 +238,36 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   const era = cmlCase.meta?.era?.decade ?? "Unknown era";
   const cast = inputs.cast.characters || [];
 
-  const system = `You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.\n\nRules:\n- Do not introduce new facts beyond the CML and outline.\n- Preserve all clues, alibis, and the core mystery logic.\n- Maintain strict setting fidelity to the specified location and era.\n- Write immersive, sensory-rich prose that transports readers to the setting\n- Include scene-setting passages that establish atmosphere, time, and place\n- Use varied sentence structure and sophisticated vocabulary\n- Show character emotions through actions and dialogue, not just telling\n- Create distinct character voices and personalities based on their profiles\n- Avoid stereotypes and reduce bias.\n- Keep language original; do not copy copyrighted text.\n- Output valid JSON only.\n- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.\n- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. Flag any phrase used more than twice in the same batch with a paraphrase.`;
+  const system = `You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
 
-  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Never vary it.\n   Cast names: ${cast.map((c: any) => c.name).join(', ')}\n   - Use these EXACT names throughout - no variations\n   - If detective exists, choose ONE name and use consistently\n\n2. Gender pronouns must match character definition:\n${cast.map((c: any) => {
+⛔ ABSOLUTE RULE — CHARACTER NAMES:
+The ONLY characters who exist in this story are: ${cast.map((c: any) => c.name).join(', ')}.
+Do NOT invent, borrow, or introduce ANY character not on that list — no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
+Named characters that Golden Age LLMs commonly hallucinate and which are COMPLETELY FORBIDDEN in this story: Jennings, Jenkins, Hargrove, Thompson, Reed, Mills, Harlow, Brown, Wilson, Davies, Constable [anything], Inspector [anything not in the cast list], Mrs. [anything not in the cast list], Mr. [anything not in the cast list].
+Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
+⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: ${cast.map((c: any) => c.name).join(', ')}?" If not, remove them.
+Any invented named character will fail validation and abort the entire generation.
+
+Rules:
+- Do not introduce new facts beyond the CML and outline.
+- Preserve all clues, alibis, and the core mystery logic.
+- Maintain strict setting fidelity to the specified location and era.
+- Write immersive, sensory-rich prose that transports readers to the setting
+- Include scene-setting passages that establish atmosphere, time, and place
+- Use varied sentence structure and sophisticated vocabulary
+- Show character emotions through actions and dialogue, not just telling
+- Create distinct character voices and personalities based on their profiles
+- Avoid stereotypes and reduce bias.
+- Keep language original; do not copy copyrighted text.
+- Output valid JSON only.
+- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
+- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. Flag any phrase used more than twice in the same batch with a paraphrase.`;
+
+  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Gender pronouns must match character definition:\n${cast.map((c: any) => {
     const gender = c.gender?.toLowerCase();
     const pronouns = gender === 'male' ? 'he/him/his' : gender === 'female' ? 'she/her/her' : 'they/them/their';
     return `   - ${c.name}: ${pronouns}`;
-  }).join('\n')}\n   - Never switch pronouns mid-story\n\n3. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${c.role || 'passenger'}`).join('\n')}\n   - Passengers stay in passenger areas (cabins, lounges, dining room)\n   - Crew stays in crew areas unless working\n   - Never place passengers in "crew quarters"`;
+  }).join('\n')}\n   - Never switch pronouns mid-story\n\n3. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
 
   // Build character personality/voice/humour guidance from character profiles
   let characterPersonalityContext = '';
@@ -284,9 +377,9 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   }
 
 
-  // Build continuity context for chapters 11+ (character names, setting terms from earlier chapters)
+  // Build continuity context from chapter 2 onwards (character names, setting terms from earlier chapters)
   let continuityBlock = '';
-  if (chapterStart >= 11) {
+  if (chapterSummaries.length > 0) {
     continuityBlock = buildContinuityContext(chapterSummaries, chapterStart);
   }
 
@@ -346,16 +439,28 @@ const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknow
   // Build prose requirements block for this chapter batch
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
 
-  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has 3-6 paragraphs (vary length for pacing).\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Begin key scenes with atmospheric description\n   - Establish time of day, weather, lighting\n   - Describe location using sensory details (sight, sound, smell, touch)\n   - Set mood and atmosphere before action begins\n   - Use location and temporal context to ground reader\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+  const chapterWordGuidance: Record<string, string> = {
+    short: '4-6 substantial paragraphs — MINIMUM 1,300 words per chapter (short chapters fail quality validation)',
+    medium: '5-7 substantial paragraphs — MINIMUM 1,600 words per chapter (short chapters fail quality validation)',
+    long: '8-12 substantial paragraphs — MINIMUM 2,400 words per chapter (short chapters fail quality validation)',
+  };
+  const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
+
+  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Begin key scenes with atmospheric description\n   - Establish time of day, weather, lighting\n   - Describe location using sensory details (sight, sound, smell, touch)\n   - Set mood and atmosphere before action begins\n   - Use location and temporal context to ground reader\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
 
    ?? Generate NEW descriptions using actual location/character names from the provided profiles."\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
 
    ?? Use ONLY character names from the provided cast list.\n\n5. SENSORY IMMERSION:\n   - Include multiple senses per scene (2-3 minimum)\n   - Period-specific sensory details from location/temporal profiles\n   - Tactile details create immediacy\n   - Use sensory palette provided in location profiles\n   - Vary sensory focus: visual → auditory → olfactory → tactile\n\n6. PARAGRAPH STRUCTURE:\n   - Opening: Hook with action, dialogue, or atmospheric detail\n   - Middle: Develop scene, reveal information, build tension\n   - Closing: End with revelation, question, or transition\n   - Each paragraph should advance story or deepen character\n\n7. PACING VARIATION:\n   - Action scenes: Short paragraphs (2-4 lines), quick succession\n   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm\n   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description\n   - Revelation scenes: Build slowly with long paragraphs, climax with short punch\n\n8. EMOTIONAL SUBTEXT & TENSION:\n   - Characters have hidden secrets/stakes (see character profiles)\n   - Every interaction carries subtext based on relationships\n   - Build tension through: pauses, interrupted speech, avoided topics, body language\n   - Mystery atmosphere: Suspicion, unease, watchfulness\n   - Use weather/atmosphere to mirror emotional tension${qualityGuardrailBlock}${proseRequirementsBlock}`;
 
-  const user = `Write the full prose following the outline scenes.\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenes, null, 2)}`;
+  // Amateur detective extra warning — LLM tends to invent police officers for unnamed official response
+  const amateurPoliceWarning = inputs.detectiveType === 'amateur'
+    ? `\n\n⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.`
+    : '';
+
+  const user = `Write the full prose following the outline scenes.\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(sanitizeScenesCharacters(scenes, cast.map((c: any) => c.name)), null, 2)}`;
 
   const messages = [
-    { role: "system" as const, content: `${system}\n\n${characterConsistencyRules}${characterPersonalityContext}\n\n${physicalPlausibilityRules}${eraAuthenticityRules}${locationProfilesContext}${temporalContextBlock}${continuityBlock}${discriminatingTestBlock}${humourGuideBlock}${craftGuideBlock}\n\n${developer}` },
+    { role: "system" as const, content: `${system}${amateurPoliceWarning}\n\n${characterConsistencyRules}${characterPersonalityContext}\n\n${physicalPlausibilityRules}${eraAuthenticityRules}${locationProfilesContext}${temporalContextBlock}${continuityBlock}${discriminatingTestBlock}${humourGuideBlock}${craftGuideBlock}\n\n${developer}` },
     { role: "user" as const, content: user },
   ];
 
@@ -444,17 +549,17 @@ function extractChapterSummary(chapter: ProseChapter, chapterNumber: number, cas
  * Provides character name consistency and setting vocabulary for late chapters
  */
 function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart: number): string {
-  if (summaries.length === 0 || currentChapterStart < 11) {
-    return ''; // Only provide continuity for chapters 11+
+  if (summaries.length === 0) {
+    return '';
   }
-  
-  // Get summaries from chapters 1-10 or all previous chapters if fewer
-  const relevantSummaries = summaries.slice(0, Math.min(10, summaries.length));
-  
+
+  // Use all previous chapter summaries for name/setting aggregation
+  const relevantSummaries = summaries;
+
   // Aggregate character names across all previous chapters
   const allCharacters = new Set<string>();
   relevantSummaries.forEach(s => s.charactersPresent.forEach(c => allCharacters.add(c)));
-  
+
   // Aggregate setting terms
   const allSettingTerms = new Set<string>();
   relevantSummaries.forEach(s => s.settingTerms.forEach(t => allSettingTerms.add(t)));
@@ -469,8 +574,8 @@ function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart
     context += '**Character Names Used in Chapters 1-' + Math.max(...relevantSummaries.map(s => s.chapterNumber)) + ':**\n';
     const charList = Array.from(allCharacters).slice(0, 12).join(', ');
     context += charList + '\n\n';
-    context += '✓ RULE: Use EXACTLY these names. Do NOT vary spelling, titles, or introduce new forms.\n';
-    context += '✓ If you used "Inspector Brown" in chapter 3, continue using "Inspector Brown" (not "Brown", not "The Inspector").\n\n';
+    context += '✓ RULE: Use EXACTLY these names. Do NOT vary spelling, add titles, or introduce new forms.\n';
+    context += '✓ Example: if earlier chapters used "Clara Whitfield", keep using "Clara Whitfield" — never "Mrs. Whitfield" unless that is the character\'s canonical name in the list above.\n\n';
   }
   
   // Setting vocabulary section
@@ -495,7 +600,7 @@ function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart
     context += '\n';
   }
   
-  context += '⚠️ **VALIDATION:** Character name mismatches and setting drift are COMMON LATE-CHAPTER FAILURES.\n';
+  context += '⚠️ **VALIDATION:** Character name mismatches and setting drift are common failure modes.\n';
   context += 'Double-check every character name against the list above before using it.\n';
   context += '═══════════════════════════════════════════════════════════\n';
   
@@ -766,11 +871,22 @@ const buildEnhancedRetryFeedback = (
   feedback += `You MUST fix ALL of these issues. This is your ${attempt === maxAttempts ? 'FINAL' : 'last'} chance before generation fails.\n\n`;
   
   if (characterErrors.length > 0) {
+    // Extract specific phantom names from the error messages
+    const phantomNames = characterErrors
+      .map(e => {
+        const m = e.match(/Character name "([^"]+)" not found/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean);
+
     feedback += `═══ CHARACTER NAME ERRORS (${characterErrors.length}) ═══\n`;
     characterErrors.forEach(e => feedback += `• ${e}\n`);
-    feedback += `\n✓ SOLUTION: Use ONLY these exact names: ${castNames.join(', ')}\n`;
-    feedback += `✓ DO NOT vary names, invent new characters, or use different titles\n`;
-    feedback += `✓ If you used "Inspector Brown" in earlier chapters, continue using "Inspector Brown"\n\n`;
+    feedback += `\n✓ SOLUTION: The ONLY characters who exist are: ${castNames.join(', ')}\n`;
+    if (phantomNames.length > 0) {
+      feedback += `❌ PHANTOM CHARACTERS TO DELETE: ${phantomNames.join(', ')} — these people do NOT exist in this story.\n`;
+      feedback += `❌ Remove every mention of ${phantomNames.join(' and ')} from the chapter. Replace their dialogue, actions, or references with one of the real cast members, or cut the passage entirely.\n`;
+    }
+    feedback += `✓ Do NOT introduce any new named character. Walk-on figures must remain anonymous ("a constable", "the footman") — never Mr./Mrs./Inspector [surname].\n\n`;
   }
   
   if (settingErrors.length > 0) {
@@ -830,243 +946,209 @@ export async function generateProse(
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
   const sceneCount = scenes.length;
   
-  // Adaptive batch sizing:
-  // - Chapters 15-18 (discriminating test): 2 chapters per batch (more focused)
-  // - Chapters 11-14: 3 chapters per batch
-  // - Chapters 1-10: Standard sizing (4-5)
-  const adaptiveBatches: unknown[][] = [];
-  let currentIndex = 0;
-  
-  while (currentIndex < scenes.length) {
-    const remainingChapters = scenes.length - currentIndex;
-    const chapterNumber = currentIndex + 1;
-    
-    let batchSize: number;
-    if (chapterNumber >= 15) {
-      // Late chapters with discriminating test: smallest batches for maximum focus
-      batchSize = 2;
-    } else if (chapterNumber >= 11) {
-      // Mid-late chapters: moderate batches
-      batchSize = 3;
-    } else {
-      // Early chapters: standard sizing
-      batchSize = sceneCount > 18 ? 4 : sceneCount > 10 ? 5 : remainingChapters;
-    }
-    
-    batchSize = Math.min(batchSize, remainingChapters);
-    adaptiveBatches.push(scenes.slice(currentIndex, currentIndex + batchSize));
-    currentIndex += batchSize;
-  }
-  
-  const batches = adaptiveBatches;
-
   const chapters: ProseChapter[] = [];
   const chapterSummaries: ChapterSummary[] = [];
-  let chapterIndex = 1;
-  const batchValidationHistory: Array<{ batchIndex: number; chapterRange: string; attempt: number; errors: string[] }> = [];
+  const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
   const chapterValidator = new ChapterValidator();
   const progressCallback = inputs.onProgress || (() => {});
   const castNames = inputs.cast.characters.map(c => c.name);
-  
-  // Track recurring error patterns across batches
-  const crossBatchErrors: { type: string; count: number; examples: string[] }[] = [];
+  const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, 10));
 
-  // Generate each batch with per-batch AND per-chapter validation
-  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    const batch = batches[batchIndex];
-    const maxAttempts = 2;
+  // Track recurring error patterns across batches for cross-batch learning
+  const crossChapterErrors: { type: string; count: number; examples: string[] }[] = [];
+
+  // Generate and validate scenes in configurable batches.
+  // When batchSize=1 (default) this processes one chapter per LLM call;
+  // higher values group multiple scenes into a single call for throughput gains.
+  for (let batchStart = 0; batchStart < scenes.length; batchStart += batchSize) {
+    const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
+    const chapterStart = batchStart + 1;
+    const chapterEnd = batchStart + batchScenes.length;
+    const maxBatchAttempts = 3;
+    let lastBatchErrors: string[] = [];
     let batchSuccess = false;
-    let lastBatchError: string[] = [];
 
-    // Report progress: Starting this batch
-    const batchStartChapter = chapterIndex;
-    const batchEndChapter = chapterIndex + batch.length - 1;
-    const chapterRange = `${batchStartChapter}-${batchEndChapter}`;
-    const overallProgress = 91 + Math.floor((batchIndex / batches.length) * 3); // 91-94%
-    progressCallback('prose', `Generating chapters ${chapterRange} (batch ${batchIndex + 1}/${batches.length})...`, overallProgress);
+    const overallProgress = 91 + Math.floor((batchStart / sceneCount) * 3); // 91-94%
+    const batchLabel = batchScenes.length > 1 ? `${chapterStart}-${chapterEnd}` : `${chapterStart}`;
+    progressCallback('prose', `Generating chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel}/${sceneCount}...`, overallProgress);
 
-    for (let batchAttempt = 1; batchAttempt <= maxAttempts; batchAttempt++) {
+    for (let attempt = 1; attempt <= maxBatchAttempts; attempt++) {
       try {
-        const prompt = buildProsePrompt(inputs, batch, chapterIndex, chapterSummaries);
-        
-        // Add enhanced validation feedback if this is a retry
-        if (batchAttempt > 1 && lastBatchError.length > 0) {
-          const feedback = buildEnhancedRetryFeedback(lastBatchError, inputs.caseData, chapterRange, batchAttempt, maxAttempts);
-          const feedbackMessage = {
-            role: "user" as const,
-            content: feedback
-          };
-          prompt.messages.push(feedbackMessage);
+        // chapterSummaries already holds every committed chapter, so continuity
+        // context is always up-to-date when buildProsePrompt is called.
+        const prompt = buildProsePrompt(inputs, batchScenes, chapterStart, chapterSummaries);
+
+        // Add retry feedback on subsequent attempts
+        if (attempt > 1 && lastBatchErrors.length > 0) {
+          const feedback = buildEnhancedRetryFeedback(
+            lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts
+          );
+          prompt.messages.push({ role: "user" as const, content: feedback });
         }
-        
-        // Add cross-batch error warnings if patterns detected
-        if (batchIndex > 0 && crossBatchErrors.length > 0) {
-          const warningMessage = buildCrossBatchWarnings(crossBatchErrors);
-          if (warningMessage) {
-            prompt.messages.push({
-              role: "user" as const,
-              content: warningMessage
-            });
-          }
-        }
-        
-        // Add cross-batch error warnings if patterns detected
-        if (crossBatchErrors.length > 0) {
-          const warningMessage = buildCrossBatchWarnings(crossBatchErrors);
-          if (warningMessage) {
-            prompt.messages.push({
-              role: "user" as const,
-              content: warningMessage
-            });
+
+        // Warn about recurring patterns seen in earlier batches
+        if (batchStart > 0 && crossChapterErrors.length > 0) {
+          const warning = buildCrossBatchWarnings(crossChapterErrors);
+          if (warning) {
+            prompt.messages.push({ role: "user" as const, content: warning });
           }
         }
 
         const response = await client.chat({
           messages: prompt.messages,
           temperature: 0.7,
-          maxTokens: 4000,
+          maxTokens: Math.min(4000 * batchScenes.length, 16000),
           jsonMode: true,
           logContext: {
             runId: inputs.runId ?? "",
             projectId: inputs.projectId ?? "",
-            agent: `Agent9-ProseGenerator-Batch${batchIndex + 1}`,
+            agent: `Agent9-ProseGenerator-Ch${batchLabel}`,
           },
         });
 
         const proseBatch = parseProseResponse(response.content);
-        validateChapterCount(proseBatch.chapters, batch.length);
+        validateChapterCount(proseBatch.chapters, batchScenes.length);
 
-        // ENHANCED: Validate both structure AND content per chapter
+        // Validate each chapter in the batch individually
         const batchErrors: string[] = [];
-        proseBatch.chapters.forEach((chapter, idx) => {
+        for (let i = 0; i < proseBatch.chapters.length; i++) {
+          const chapter = proseBatch.chapters[i];
+          const chapterNumber = chapterStart + i;
+          const chapterErrors: string[] = [];
+
           // Structure validation
           if (!chapter.title || typeof chapter.title !== 'string') {
-            batchErrors.push(`chapters[${idx}].title is required and must be a string`);
+            chapterErrors.push(`chapter.title is required and must be a string`);
           }
           if (!Array.isArray(chapter.paragraphs)) {
-            batchErrors.push(`chapters[${idx}].paragraphs must be an array`);
+            chapterErrors.push(`chapter.paragraphs must be an array`);
           } else if (chapter.paragraphs.length === 0) {
-            batchErrors.push(`chapters[${idx}].paragraphs cannot be empty`);
+            chapterErrors.push(`chapter.paragraphs cannot be empty`);
           } else {
             chapter.paragraphs.forEach((para, pIdx) => {
               if (typeof para !== 'string') {
-                batchErrors.push(`chapters[${idx}].paragraphs[${pIdx}] must be a string`);
+                chapterErrors.push(`chapter.paragraphs[${pIdx}] must be a string`);
               }
             });
           }
 
-          // Content validation (NEW)
-          const chapterNum = chapterIndex + idx;
+          // Content validation (per-chapter ChapterValidator)
           const contentValidation = chapterValidator.validateChapter({
             title: chapter.title,
             paragraphs: chapter.paragraphs,
-            chapterNumber: chapterNum
+            chapterNumber,
           }, inputs.caseData);
 
-          // Add critical/major issues to batch errors
           contentValidation.issues
             .filter(issue => issue.severity === 'critical' || issue.severity === 'major')
             .forEach(issue => {
-              batchErrors.push(`Chapter ${chapterNum}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
+              chapterErrors.push(`Chapter ${chapterNumber}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
             });
-        });
-        
-        if (batchErrors.length > 0) {
-          lastBatchError = batchErrors;
-          batchValidationHistory.push({ batchIndex, chapterRange, attempt: batchAttempt, errors: batchErrors });
-          
-          // Track error patterns across batches for cross-batch learning
-          batchErrors.forEach(error => {
-            const errorLower = error.toLowerCase();
-            let errorType = 'other';
-            
-            if (errorLower.includes('character') || errorLower.includes('name')) {
-              errorType = 'character_names';
-            } else if (errorLower.includes('setting') || errorLower.includes('location')) {
-              errorType = 'setting_drift';
-            } else if (errorLower.includes('discriminating test')) {
-              errorType = 'discriminating_test';
-            } else if (errorLower.includes('paragraph') || errorLower.includes('quality')) {
-              errorType = 'prose_quality';
-            }
-            
-            const existing = crossBatchErrors.find(e => e.type === errorType);
-            if (existing) {
-              existing.count++;
-              if (existing.examples.length < 3) {
-                existing.examples.push(error);
+
+          if (chapterErrors.length > 0) {
+            // Track error patterns for cross-batch learning
+            chapterErrors.forEach(error => {
+              const errorLower = error.toLowerCase();
+              let errorType = 'other';
+              if (errorLower.includes('character') || errorLower.includes('name')) errorType = 'character_names';
+              else if (errorLower.includes('setting') || errorLower.includes('location')) errorType = 'setting_drift';
+              else if (errorLower.includes('discriminating test')) errorType = 'discriminating_test';
+              else if (errorLower.includes('paragraph') || errorLower.includes('quality')) errorType = 'prose_quality';
+
+              const existing = crossChapterErrors.find(e => e.type === errorType);
+              if (existing) {
+                existing.count++;
+                if (existing.examples.length < 3) existing.examples.push(error);
+              } else {
+                crossChapterErrors.push({ type: errorType, count: 1, examples: [error] });
               }
-            } else {
-              crossBatchErrors.push({ type: errorType, count: 1, examples: [error] });
-            }
-          });
-          
+            });
+
+            batchErrors.push(...chapterErrors);
+            chapterValidationHistory.push({ chapterNumber, attempt, errors: chapterErrors });
+          }
+        }
+
+        if (batchErrors.length > 0) {
+          lastBatchErrors = batchErrors;
+
           console.warn(
-            `[Agent 9] Batch ${batchIndex + 1}/${batches.length} validation failed (attempt ${batchAttempt}/${maxAttempts}):\n` +
+            `[Agent 9] Batch ch${batchLabel} validation failed (attempt ${attempt}/${maxBatchAttempts}):\n` +
             batchErrors.map(e => `  - ${e}`).join('\n')
           );
-          
-          // Report validation failure
-          progressCallback('prose', `❌ Chapters ${chapterRange} validation failed (attempt ${batchAttempt}/${maxAttempts}): ${batchErrors.length} issue(s)`, overallProgress);
-          
-          if (batchAttempt >= maxAttempts) {
-            // Do NOT accept with warnings - throw clear error
+          progressCallback(
+            'prose',
+            `❌ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} validation failed (attempt ${attempt}/${maxBatchAttempts}): ${batchErrors.length} issue(s)`,
+            overallProgress
+          );
+
+          if (attempt >= maxBatchAttempts) {
             const errorSummary = batchErrors.slice(0, 5).join('; ');
             throw new Error(
-              `Chapters ${chapterRange} failed validation after ${maxAttempts} attempts. Issues: ${errorSummary}${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
+              `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation after ${maxBatchAttempts} attempts. Issues: ${errorSummary}` +
+              `${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
             );
           }
-          // Retry this batch
           continue;
         }
 
-        // Validation passed - add chapters and extract summaries for continuity
-        chapters.push(...proseBatch.chapters);
-        
-        // Extract summaries from this batch for future continuity context
-        proseBatch.chapters.forEach((chapter, idx) => {
-          const summary = extractChapterSummary(chapter, chapterIndex + idx, castNames);
+        // All chapters in this batch passed validation — commit them
+        for (let i = 0; i < proseBatch.chapters.length; i++) {
+          const chapter = proseBatch.chapters[i];
+          const chapterNumber = chapterStart + i;
+          chapters.push(chapter);
+          // Extract summary immediately so the next batch's prompt has full continuity
+          const summary = extractChapterSummary(chapter, chapterNumber, castNames);
           chapterSummaries.push(summary);
-        });
-        
-        batchSuccess = true;
-        
-        if (batchAttempt > 1) {
-          console.log(`[Agent 9] Batch ${batchIndex + 1}/${batches.length} validated successfully on attempt ${batchAttempt}`);
-          progressCallback('prose', `✅ Chapters ${chapterRange} validated (retry succeeded)`, overallProgress);
-        } else {
-          progressCallback('prose', `✅ Chapters ${chapterRange} validated`, overallProgress);
         }
-        
+
+        // Notify caller — pass validation issues from any failed attempts so the
+        // orchestrator can surface them in the run history panel (§3.2).
+        if (inputs.onBatchComplete) {
+          await inputs.onBatchComplete(proseBatch.chapters, chapterStart, chapterEnd, lastBatchErrors);
+        }
+
+        batchSuccess = true;
+
+        if (attempt > 1) {
+          console.log(`[Agent 9] Batch ch${batchLabel} validated successfully on attempt ${attempt}`);
+          progressCallback('prose', `✅ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} validated (retry succeeded)`, overallProgress);
+        } else {
+          progressCallback('prose', `✅ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel}/${sceneCount} validated`, overallProgress);
+        }
+
         break;
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        lastBatchError = [errorMsg];
-        
-        if (batchAttempt >= maxAttempts) {
+        lastBatchErrors = [errorMsg];
+
+        if (attempt >= maxBatchAttempts) {
           throw new Error(
-            `Batch ${batchIndex + 1}/${batches.length} generation failed after ${maxAttempts} attempts: ${errorMsg}`
+            `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} generation failed after ${maxBatchAttempts} attempts: ${errorMsg}`
           );
         }
       }
     }
 
     if (!batchSuccess) {
-      throw new Error(`Failed to generate batch ${batchIndex + 1}/${batches.length} after all attempts`);
+      throw new Error(`Failed to generate chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} after all attempts`);
     }
-
-    chapterIndex += batch.length;
   }
 
   validateChapterCount(chapters, sceneCount);
 
   const durationMs = Date.now() - start;
   const costTracker = client.getCostTracker();
-  const cost = costTracker.getSummary().byAgent["Agent9-ProseGenerator"] || 0;
+  // Aggregate cost across all per-chapter agent keys (Agent9-ProseGenerator-Ch1, -Ch2, ...)
+  const allAgentCosts = costTracker.getSummary().byAgent;
+  const cost = Object.entries(allAgentCosts)
+    .filter(([key]) => key.startsWith("Agent9-ProseGenerator"))
+    .reduce((sum, [, val]) => sum + val, 0);
 
-  const note = batchValidationHistory.length > 0
-    ? `Generated in scene batches. ${batchValidationHistory.length} batch(es) required retry for validation.`
-    : "Generated in scene batches.";
+  const chaptersWithRetries = new Set(chapterValidationHistory.map(h => h.chapterNumber)).size;
+  const note = chapterValidationHistory.length > 0
+    ? `Generated chapter-by-chapter. ${chaptersWithRetries} chapter(s) required retry for validation.`
+    : "Generated chapter-by-chapter.";
 
   return {
     status: "draft",
@@ -1076,10 +1158,15 @@ export async function generateProse(
     note,
     cost,
     durationMs,
-    validationDetails: batchValidationHistory.length > 0 ? {
-      totalBatches: batches.length,
-      batchesWithRetries: batchValidationHistory.length,
-      failureHistory: batchValidationHistory,
+    validationDetails: chapterValidationHistory.length > 0 ? {
+      totalBatches: sceneCount,
+      batchesWithRetries: chaptersWithRetries,
+      failureHistory: chapterValidationHistory.map(h => ({
+        batchIndex: h.chapterNumber - 1,
+        chapterRange: `${h.chapterNumber}`,
+        attempt: h.attempt,
+        errors: h.errors,
+      })),
     } : undefined,
   };
 }

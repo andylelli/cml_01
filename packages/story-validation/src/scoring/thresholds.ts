@@ -9,19 +9,20 @@ import type { PhaseScore, ThresholdConfig } from './types.js';
  */
 export const DEFAULT_THRESHOLDS: Record<string, number> = {
   // Strict phases (logic-critical)
-  'agent4-hard-logic': 85,      // Must have near-perfect logic
-  'agent9-prose': 80,            // Final output must be high quality
-  
+  // Keys must match the `agent` field set by each scorer class
+  'agent4-hard-logic': 85,             // HardLogicScorer
+  'agent9-prose': 80,                  // ProseScorer
+
   // Standard phases (important but recoverable)
-  'agent2-cast': 75,
-  'agent3-character-profiles': 75,
-  'agent5-location-profiles': 75,
-  'agent7-narrative': 75,
-  'agent8-setting-refinement': 75,
-  
+  'agent2-cast': 75,                   // CastDesignScorer
+  'agent1-setting-refinement': 75,     // SettingRefinementScorer
+  'agent2b-character-profiles': 75,    // CharacterProfilesScorer
+  'agent2c-location-profiles': 75,     // LocationProfilesScorer
+  'agent7-narrative-outline': 75,      // NarrativeScorer
+
   // Lenient phases (foundational context)
-  'agent1-background': 70,
-  'agent6-temporal-context': 70,
+  'agent2d-temporal-context': 70,      // TemporalContextScorer
+  'agent2e-background': 70,            // BackgroundContextScorer
 };
 
 /**

@@ -193,9 +193,7 @@ export async function generateHardLogicDevices(
       const response = await client.chatWithRetry({
         messages: prompt.messages,
         model:
-          process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
-          process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
-          "gpt-4o",
+          process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
         temperature: 0.7,
         maxTokens: 2600,
         jsonMode: true,

@@ -464,8 +464,10 @@ const runPipeline = async (
       primaryAxis: specPayload?.primaryAxis as "temporal" | "spatial" | "social" | "psychological" | "mechanical",
       castSize: specPayload?.castSize as number,
       castNames: Array.isArray(specPayload?.castNames) ? (specPayload?.castNames as string[]) : undefined,
+      detectiveType: (specPayload?.detectiveType as 'police' | 'private' | 'amateur') || 'police',
       targetLength: (specPayload?.targetLength as "short" | "medium" | "long") || "medium",
       narrativeStyle,
+      proseBatchSize: specPayload?.proseBatchSize as number | undefined,
       similarityThreshold,
       skipNoveltyCheck,
       runId,
@@ -486,8 +488,34 @@ const runPipeline = async (
     await repo.createArtifact(projectId, "setting", result.setting, null);
     await repo.addRunEvent(runId, "setting_done", "Setting generated");
 
+    // Derive setting_validation from realism checks embedded in the setting result
+    const settingRealism = (result.setting as any)?.setting?.realism ?? {};
+    const settingValidationErrors: string[] = [
+      ...(settingRealism.anachronisms ?? []).map((a: string) => `Anachronism: ${a}`),
+      ...(settingRealism.implausibilities ?? []).map((i: string) => `Implausibility: ${i}`),
+    ];
+    await repo.createArtifact(projectId, "setting_validation", {
+      valid: settingValidationErrors.length === 0,
+      errors: settingValidationErrors,
+      warnings: [],
+    }, null);
+    await repo.addRunEvent(runId, "setting_validation_done",
+      `Setting validation: ${settingValidationErrors.length === 0 ? "\u2713 passed" : `${settingValidationErrors.length} issue(s)`}`);
+
     await repo.createArtifact(projectId, "cast", result.cast, null);
     await repo.addRunEvent(runId, "cast_done", "Cast generated");
+
+    // Derive cast_validation from diversity / stereotype checks embedded in the cast result
+    const castDiversity = (result.cast as any)?.cast?.diversity ?? {};
+    const castValidationErrors: string[] = castDiversity.stereotypeCheck ?? [];
+    const castValidationWarnings: string[] = castDiversity.recommendations ?? [];
+    await repo.createArtifact(projectId, "cast_validation", {
+      valid: castValidationErrors.length === 0,
+      errors: castValidationErrors,
+      warnings: castValidationWarnings,
+    }, null);
+    await repo.addRunEvent(runId, "cast_validation_done",
+      `Cast validation: ${castValidationErrors.length === 0 ? "\u2713 passed" : `${castValidationErrors.length} issue(s)`}`);
 
     await repo.addRunEvent(runId, "background_context_llm_done", "Background context LLM generation complete");
     await repo.createArtifact(projectId, "background_context", result.backgroundContext, null);
@@ -523,11 +551,35 @@ const runPipeline = async (
     await repo.createArtifact(projectId, "clues", result.clues, null);
     await repo.addRunEvent(runId, "clues_done", "Clues distributed");
 
+    // Derive clues_validation from inference-coverage warnings surfaced by the pipeline
+    const clueWarningLines = result.warnings.filter(
+      (w) => w.startsWith("Inference coverage:") || w.startsWith("Agent 5: Guardrail")
+    );
+    const clueValidationErrors = clueWarningLines.filter((w) => w.toLowerCase().includes("[critical]"));
+    const clueValidationWarnings = clueWarningLines.filter((w) => !w.toLowerCase().includes("[critical]"));
+    await repo.createArtifact(projectId, "clues_validation", {
+      valid: clueValidationErrors.length === 0,
+      errors: clueValidationErrors,
+      warnings: clueValidationWarnings,
+    }, null);
+    await repo.addRunEvent(runId, "clues_validation_done",
+      `Clues validation: ${clueValidationErrors.length === 0 ? "\u2713 passed" : `${clueValidationErrors.length} critical issue(s)`}`);
+
     await repo.createArtifact(projectId, "fair_play_report", result.fairPlayAudit, null);
     await repo.addRunEvent(runId, "fair_play_report_done", "Fair play audit complete");
 
     await repo.createArtifact(projectId, "outline", result.narrative, null);
     await repo.addRunEvent(runId, "outline_done", "Narrative outline generated");
+
+    // Derive outline_validation from outline-coverage-gap warnings surfaced by the pipeline
+    const outlineWarningLines = result.warnings.filter((w) => w.startsWith("Outline coverage gap:"));
+    await repo.createArtifact(projectId, "outline_validation", {
+      valid: outlineWarningLines.length === 0,
+      errors: [],
+      warnings: outlineWarningLines,
+    }, null);
+    await repo.addRunEvent(runId, "outline_validation_done",
+      `Outline validation: ${outlineWarningLines.length === 0 ? "\u2713 passed" : `${outlineWarningLines.length} coverage gap(s)`}`);
 
     if (result.noveltyAudit) {
       await repo.createArtifact(projectId, "novelty_audit", result.noveltyAudit, null);
@@ -587,10 +639,18 @@ export const createServer = () => {
   const repoPromise = createRepository();
 
   const getReportRepository = async () => {
+    // __dirname is anchored to the compiled server.js location (apps/api/dist),
+    // so this path is reliable regardless of process.cwd().
+    const primaryDir = path.resolve(__dirname, "..", "data", "reports");
+
+    // Legacy fallback paths for reports written by older worker versions.
     const cwd = process.cwd();
     const candidateDirs = [
+      primaryDir,
       path.resolve(cwd, "apps", "api", "data", "reports"),
       path.resolve(cwd, "data", "reports"),
+      // Doubled legacy path: worker was previously launched with cwd=apps/api.
+      path.resolve(cwd, "apps", "api", "apps", "api", "data", "reports"),
     ];
 
     for (const dir of candidateDirs) {
@@ -602,8 +662,8 @@ export const createServer = () => {
       }
     }
 
-    // Default to root-style path used by worker writes
-    return new FileReportRepository(candidateDirs[0]);
+    // Default to the __dirname-anchored path
+    return new FileReportRepository(primaryDir);
   };
 
   app.use(cors());
@@ -786,6 +846,19 @@ export const createServer = () => {
         res.json(spec);
       })
       .catch(() => res.status(500).json({ error: "Failed to fetch spec" }));
+  });
+
+  app.get("/api/projects/:id/specs/latest", (_req, res) => {
+    repoPromise
+      .then((repo) => repo.getLatestSpec(_req.params.id))
+      .then((spec) => {
+        if (!spec) {
+          res.status(404).json({ error: "No spec found for this project" });
+          return;
+        }
+        res.json(spec);
+      })
+      .catch(() => res.status(500).json({ error: "Failed to fetch latest spec" }));
   });
 
   app.post("/api/projects/:id/run", (_req, res) => {

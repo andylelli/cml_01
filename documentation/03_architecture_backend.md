@@ -126,6 +126,13 @@ Functional policies:
 - Retry policy by step with max attempts
 - Partial failure behavior: rollback or keep last valid artifact
 
+## Scoring and retry system
+- Each agent phase is scored by a dedicated `PhaseScorer` producing a `PhaseScore` with four component scores: `validation_score`, `quality_score`, `completeness_score`, `consistency_score`.
+- The authoritative pass/fail decision uses `passesThreshold()` from `packages/story-validation/src/scoring/thresholds.ts`, which requires **both** the composite total to meet the per-phase threshold **and** every component to meet its minimum (60/50/60/50).
+- `executeAgentWithRetry()` in the worker orchestrator uses `ScoreAggregator.passesThreshold(score)` for retry decisions — **not** `score.passed` from the scorer — to ensure retry decisions are always consistent with the final quality report.
+- When a phase fails due to component minimums rather than a composite score shortfall, `getFailedComponents()` produces the failure reason fed into the retry prompt.
+- Cast agent (`agent2-cast`): `maxTokens` is 6000 (7 fully-detailed characters exceed 4000). The agent retries internally when fewer characters than requested are returned or when `possibleCulprits` is below the required minimum of `min(3, count-1)`.
+
 ## Worker jobs
 - settingJob
 - castJob

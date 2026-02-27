@@ -55,36 +55,43 @@ const createMemoryRepository = async (filePath) => {
             return null;
         }
     };
-    const persistState = async (state) => {
-        if (savePromise) {
-            await savePromise;
+    const atomicWrite = async (payload) => {
+        const tempPath = path.join(storeDir, `${storeFileName}.${randomUUID()}.tmp`);
+        try {
+            await fs.writeFile(tempPath, payload, "utf-8");
+            await fs.rename(tempPath, storePath);
         }
-        savePromise = (async () => {
+        catch (error) {
+            await removeTempFileBestEffort(tempPath);
+            throw error;
+        }
+    };
+    const persistState = async (state) => {
+        // Chain onto the existing promise so writes are strictly serialised.
+        // Using .then() means a failed previous write doesn't block the next one.
+        const current = (savePromise ?? Promise.resolve()).then(async () => {
             await fs.mkdir(storeDir, { recursive: true });
             const payload = JSON.stringify(state, null, 2);
-            const attemptPersist = async () => {
-                await fs.writeFile(storePath, payload, "utf-8");
-            };
             try {
-                await attemptPersist();
+                await atomicWrite(payload);
             }
             catch (error) {
                 const err = error;
                 if (err.code === "ENOENT") {
                     await fs.mkdir(storeDir, { recursive: true });
-                    await attemptPersist();
+                    await atomicWrite(payload);
                 }
                 else if (err.code === "EPERM" || err.code === "EBUSY") {
                     await new Promise((resolve) => setTimeout(resolve, 50));
-                    await attemptPersist();
+                    await atomicWrite(payload);
                 }
                 else {
                     throw error;
                 }
             }
-        })();
-        await savePromise;
-        savePromise = null;
+        });
+        savePromise = current;
+        await current;
     };
     const restored = await loadState();
     await cleanupStaleTempFiles();

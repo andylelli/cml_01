@@ -40,14 +40,24 @@ export interface ProseOutput {
  * Completeness: Word count targets, all clues visible
  * Consistency: Character names match, setting fidelity, fair play
  */
+// Word count and chapter targets keyed by story length
+const LENGTH_TARGETS = {
+  short:  { chapters: 12, minWords: 15000, maxWords: 25000, chapterMinWords:  800, chapterIdealWords: 1700 },
+  medium: { chapters: 18, minWords: 40000, maxWords: 60000, chapterMinWords: 1500, chapterIdealWords: 2800 },
+  long:   { chapters: 26, minWords: 70000, maxWords: 100000, chapterMinWords: 2500, chapterIdealWords: 3800 },
+} as const;
+
 export class ProseScorer
   implements Scorer<any, ProseOutput>
 {
+  private targetLength: 'short' | 'medium' | 'long' = 'medium';
+
   async score(
     input: any,
     output: ProseOutput,
     context: ScoringContext
   ): Promise<PhaseScore> {
+    this.targetLength = (context.targetLength ?? 'medium') as 'short' | 'medium' | 'long';
     const tests: TestResult[] = [];
 
     // VALIDATION TESTS (40% weight)
@@ -119,17 +129,21 @@ export class ProseScorer
 
     tests.push(pass('Chapters array exists', 'validation', 0.5));
 
-    // Expect all chapters from outline (18 per spec)
-    const expectedChapters = 18;
-    const actualChapters = output.chapters.length;
+    // Expect chapter count based on story length.
+    // Skip during partial generation — chapter count is always low mid-generation.
+    if (!context.partialGeneration) {
+      const targets = LENGTH_TARGETS[this.targetLength];
+      const expectedChapters = targets.chapters;
+      const actualChapters = output.chapters.length;
 
-    tests.push(
-      actualChapters === expectedChapters
-        ? pass('All chapters present', 'validation', 2.0, `${actualChapters} chapters`)
-        : actualChapters >= expectedChapters - 2
-        ? partial('All chapters present', 'validation', 85, 2.0, `${actualChapters}/${expectedChapters} chapters`, 'minor')
-        : partial('All chapters present', 'validation', (actualChapters / expectedChapters) * 100, 2.0, `Only ${actualChapters}/${expectedChapters} chapters`, 'major')
-    );
+      tests.push(
+        actualChapters === expectedChapters
+          ? pass('All chapters present', 'validation', 2.0, `${actualChapters} chapters`)
+          : actualChapters >= expectedChapters - 2
+          ? partial('All chapters present', 'validation', 85, 2.0, `${actualChapters}/${expectedChapters} chapters`, 'minor')
+          : partial('All chapters present', 'validation', (actualChapters / expectedChapters) * 100, 2.0, `Only ${actualChapters}/${expectedChapters} chapters`, 'major')
+      );
+    }
 
     // Validate each chapter structure
     let validChapters = 0;
@@ -213,11 +227,12 @@ export class ProseScorer
   private scoreProseQuality(prose: string): number {
     let score = 0;
 
-    // Word count (expect 1500-3000 words per chapter)
+    // Word count — threshold based on story length
+    const targets = LENGTH_TARGETS[this.targetLength];
     const wordCount = prose.split(/\s+/).length;
-    if (wordCount >= 1500 && wordCount <= 3500) score += 30;
-    else if (wordCount >= 1000) score += 20;
-    else if (wordCount >= 500) score += 10;
+    if (wordCount >= targets.chapterMinWords) score += 30;
+    else if (wordCount >= Math.round(targets.chapterMinWords * 0.6)) score += 20;
+    else if (wordCount >= Math.round(targets.chapterMinWords * 0.35)) score += 10;
 
     // Paragraph structure (multiple paragraphs)
     const paragraphs = prose.split(/\n\s*\n/).filter(p => p.trim().length > 0);
@@ -289,18 +304,22 @@ export class ProseScorer
   private checkCompleteness(output: ProseOutput, context: ScoringContext): TestResult[] {
     const tests: TestResult[] = [];
 
-    // Check overall word count (expect ~35,000-50,000 words for 18 chapters)
-    const targetMin = 30000;
-    const targetMax = 60000;
-    const wordCount = output.overall_word_count || this.calculateTotalWordCount(output);
+    // Skip whole-story word count during partial generation — it will always fail
+    // mid-stream. Only score it once all chapters are present.
+    if (!context.partialGeneration) {
+      const targets = LENGTH_TARGETS[this.targetLength];
+      const targetMin = targets.minWords;
+      const targetMax = targets.maxWords;
+      const wordCount = output.overall_word_count || this.calculateTotalWordCount(output);
 
-    tests.push(
-      wordCount >= targetMin && wordCount <= targetMax
-        ? pass('Word count target', 'completeness', 1.5, `${wordCount.toLocaleString()} words`)
-        : wordCount >= targetMin * 0.8
-        ? partial('Word count target', 'completeness', 70, 1.5, `${wordCount.toLocaleString()} words (low)`, 'minor')
-        : partial('Word count target', 'completeness', Math.min(100, (wordCount / targetMin) * 100), 1.5, `Only ${wordCount.toLocaleString()} words`, 'major')
-    );
+      tests.push(
+        wordCount >= targetMin && wordCount <= targetMax
+          ? pass('Word count target', 'completeness', 1.5, `${wordCount.toLocaleString()} words`)
+          : wordCount >= targetMin * 0.8
+          ? partial('Word count target', 'completeness', 70, 1.5, `${wordCount.toLocaleString()} words (low)`, 'minor')
+          : partial('Word count target', 'completeness', Math.min(100, (wordCount / targetMin) * 100), 1.5, `Only ${wordCount.toLocaleString()} words`, 'major')
+      );
+    }
 
     // Check that all CML clues are visible in prose
     if (context.cml) {
@@ -382,8 +401,17 @@ export class ProseScorer
 
     // Check setting fidelity (locations match location profiles)
     if (context.previous_phases && context.previous_phases.agent2c_location_profiles) {
-      const profiles = (context.previous_phases.agent2c_location_profiles as any)?.location_profiles || [];
-      const profileNames = profiles.map((p: any) => p.location_name?.toLowerCase()).filter((n: string) => n);
+      // The orchestrator passes the full locationProfiles object; keyLocations is the array.
+      // KeyLocation objects use .name (not .location_name).
+      const rawProfiles = context.previous_phases.agent2c_location_profiles as any;
+      const profiles: any[] = Array.isArray(rawProfiles)
+        ? rawProfiles
+        : Array.isArray(rawProfiles?.keyLocations)
+          ? rawProfiles.keyLocations
+          : [];
+      const profileNames = profiles
+        .map((p: any) => (p.name ?? p.location_name ?? '').toLowerCase())
+        .filter((n: string) => n);
 
       const settingFidelity = this.checkSettingFidelity(output.chapters, profileNames);
 

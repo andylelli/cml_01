@@ -31,6 +31,7 @@ export interface NarrativeFormattingInputs {
   clues: ClueDistributionResult;
   targetLength?: "short" | "medium" | "long"; // Story length preference
   narrativeStyle?: "classic" | "modern" | "atmospheric"; // Style preference
+  detectiveType?: 'police' | 'private' | 'amateur'; // Determines how the detective enters the story
   qualityGuardrails?: string[];
   runId?: string;
   projectId?: string;
@@ -106,7 +107,7 @@ Your output is a JSON scene outline that prose generators can use to write the f
   const developer = buildDeveloperContext(caseData, clues);
 
   // User: Request the narrative outline
-  const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? []);
+  const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? [], inputs.detectiveType);
 
   return { system, developer, user };
 }
@@ -330,12 +331,15 @@ function buildProseRequirements(caseData: CaseData): string {
   return reqText || "No prose requirements specified.";
 }
 
-function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[]): string {
+function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[], detectiveType?: 'police' | 'private' | 'amateur'): string {
   const lengthGuidance = {
-    short: "15-25 scenes, ~15,000-25,000 words (novella)",
-    medium: "25-35 scenes, ~40,000-60,000 words (novel)",
-    long: "35-50 scenes, ~70,000-100,000 words (long novel)",
+    short: "exactly 12 scenes (one per chapter), ~15,000-25,000 words total",
+    medium: "exactly 18 scenes (one per chapter), ~40,000-60,000 words total",
+    long: "exactly 26 scenes (one per chapter), ~70,000-100,000 words total",
   };
+
+  const totalSceneCount = ({ short: 12, medium: 18, long: 26 } as Record<string, number>)[targetLength] ?? 18;
+  const minClueScenes = Math.ceil(totalSceneCount * 0.6);
 
   const styleGuidance = {
     classic:
@@ -345,6 +349,24 @@ function buildUserRequest(caseData: CaseData, targetLength: string, narrativeSty
     atmospheric:
       "Gothic/noir style - mood and setting prominent, shadows and secrets, poetic prose, emphasis on dread and revelation",
   };
+
+  // Act I entry-point rules based on detective type — this is non-negotiable story logic
+  const detectiveEntryRule = detectiveType === 'private'
+    ? `### Detective Entry (MANDATORY — Private Investigator)
+The private investigator is NOT present before the crime. A scene in Act I MUST show them being engaged by a client (one of the named cast members or a credible off-page party such as a solicitor or insurance agent). This scene must establish:
+- **Who the client is** and their relationship to the victim or the situation
+- **Why they are bypassing or supplementing the police** (distrust, desire for discretion, a specific question the police won't pursue)
+- **The PI's limited authority**: they cannot compel witnesses to speak; every interview must be earned through persuasion, charm, or the client's leverage
+Do NOT write Act I as if the PI was already on the scene. They arrive as an outsider, engaged after the fact.`
+    : detectiveType === 'amateur'
+    ? `### Detective Entry (MANDATORY — Amateur / Civilian)
+The amateur investigator has no official standing. Act I MUST establish, organically and plausibly:
+- **Why they were already present** (invited guest, local resident, stranded traveller, visiting relative) OR what specific event drew them in after the crime
+- **Why they are uniquely placed to investigate** despite having no authority (specialist knowledge, the victim's prior confidence in them, access to spaces or people the police can't reach socially)
+- **Their uneasy relationship with authority**: the official police (if present) may be dismissive, obstructive, or actively suspicious of their involvement. Other characters may refuse to cooperate.
+NEVER write the amateur as automatically welcomed or respected. Their involvement must be earned scene by scene.`
+    : `### Detective Entry (Police Inspector)
+The police detective/inspector is summoned in an official capacity following a formal report of the crime. They arrive at the scene with full investigative authority. Act I opens with or shortly after their official arrival. Witnesses are expected to cooperate; the detective can compel access.`;
 
   const guardrailBlock = qualityGuardrails.length > 0
     ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
@@ -370,6 +392,8 @@ ${proseRequirementsBlock}
 - **Plant early clues**: Subtle hints, initial observations
 - **Support false assumption**: Lead reader toward wrong conclusion
 - **End with**: Detective commits to investigation, stakes established
+
+${detectiveEntryRule}
 
 ### Act II: Investigation (45-50% of scenes)
 - **Interview scenes**: Suspects reveal information, alibis, motives
@@ -400,12 +424,24 @@ Each scene must include:
 
 ## Pacing Principles
 - Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
-- Space clues evenly within each act
+  - **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with ${totalSceneCount} scenes, at least ${minClueScenes} scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
+- Space clues evenly across all three acts — no act should be entirely clue-free
 - Build tension toward act breaks
 - Use red herrings in Act I and early Act II
 - Discriminating test appears in late Act II or early Act III
 - Save essential clues for when inference path requires them
 - Do not introduce detective-private insights; avoid reveals unsupported by previously listed clue IDs
+
+## CRITICAL: Character Names in Scenes
+In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
+**NEVER** use role labels such as "detective", "butler", "suspect", "constable", "witness" — these are placeholder examples in the JSON schema, not real names.
+Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.
+
+${detectiveType === 'amateur' || detectiveType === 'private'
+  ? `## CRITICAL: No Invented Police Officials
+This story has a **${detectiveType === 'amateur' ? 'civilian amateur' : 'private investigator'}** as the detective. Do NOT invent named police officials (no "Inspector [Surname]", no "Constable [Surname]", no "Sergeant [Surname]") anywhere in scene summaries, purposes, or dramaticElements. The only named characters are those in the Cast of Characters above. If police must appear, describe them anonymously: "a local constable", "the sergeant", "officers from the village". Any invented police name will be scrubbed automatically and will confuse the prose LLM.
+`
+  : ''}
 
 ## CRITICAL: Follow Prose Requirements
 **You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
@@ -433,19 +469,19 @@ Return a JSON object:
           "act": 1,
           "title": "Discovery",
           "setting": {
-            "location": "Lord Ashford's study",
-            "timeOfDay": "Morning after the murder",
-            "atmosphere": "Tense, somber, shocked"
+            "location": "[ACTUAL LOCATION FROM CML]",
+            "timeOfDay": "[TIME OF DAY]",
+            "atmosphere": "[ATMOSPHERE]"
           },
-          "characters": ["detective", "butler", "constable"],
+          "characters": ["[EXACT NAME FROM CAST LIST]", "[EXACT NAME FROM CAST LIST]"],
           "purpose": "Introduce the crime and detective",
           "cluesRevealed": ["clue_1", "clue_2"],
           "dramaticElements": {
-            "conflict": "Butler resistant to investigation",
-            "tension": "Locked room mystery established"
+            "conflict": "[DESCRIBE CONFLICT]",
+            "tension": "[DESCRIBE TENSION]"
           },
-          "summary": "Detective arrives at manor to find Lord Ashford dead in locked study. Initial survey reveals no obvious exit. Butler appears nervous.",
-          "estimatedWordCount": 1500
+          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
+          "estimatedWordCount": 1800
         }
       ],
       "estimatedWordCount": 12000

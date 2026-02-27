@@ -53,7 +53,7 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: 'gpt-4o'
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
     });
 
     const text = response.content?.trim() || '{}';
@@ -115,7 +115,7 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: 'gpt-4o'
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
     });
 
     const text = response.content?.trim() || '{}';
@@ -177,7 +177,7 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: 'gpt-4o'
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
     });
 
     const text = response.content?.trim() || '{}';

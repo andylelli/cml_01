@@ -76,10 +76,10 @@ describe("CostTracker", () => {
     tracker = new CostTracker();
   });
 
-  it("calculates GPT-4 costs correctly", () => {
+  it("calculates GPT-4o-mini costs correctly", () => {
     const usage = { promptTokens: 1000, completionTokens: 1000, totalTokens: 2000 };
-    const cost = tracker.calculateCost("gpt-4", usage);
-    expect(cost).toBeCloseTo(0.0711, 4); // 1k * £0.0237 + 1k * £0.0474
+    const cost = tracker.calculateCost("gpt-4o-mini", usage);
+    expect(cost).toBeCloseTo(0.00065175, 6); // 1k * £0.00013035 + 1k * £0.0005214
   });
 
   it("calculates GPT-3.5 costs correctly", () => {
@@ -90,19 +90,19 @@ describe("CostTracker", () => {
 
   it("tracks costs by model", () => {
     const usage = { promptTokens: 1000, completionTokens: 1000, totalTokens: 2000 };
-    tracker.trackCost("gpt-4", usage);
-    tracker.trackCost("gpt-4", usage);
+    tracker.trackCost("gpt-4o-mini", usage);
+    tracker.trackCost("gpt-4o-mini", usage);
 
     const summary = tracker.getSummary();
-    expect(summary.byModel["gpt-4"]).toBeCloseTo(0.1422, 4);
+    expect(summary.byModel["gpt-4o-mini"]).toBeCloseTo(0.0013035, 6);
   });
 
   it("tracks costs by agent", () => {
     const usage = { promptTokens: 1000, completionTokens: 1000, totalTokens: 2000 };
-    tracker.trackCost("gpt-4", usage, "Agent3-CMLGenerator");
+    tracker.trackCost("gpt-4o-mini", usage, "Agent3-CMLGenerator");
 
     const summary = tracker.getSummary();
-    expect(summary.byAgent["Agent3-CMLGenerator"]).toBeCloseTo(0.0711, 4);
+    expect(summary.byAgent["Agent3-CMLGenerator"]).toBeCloseTo(0.00065175, 6);
   });
 });
 

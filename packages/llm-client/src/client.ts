@@ -34,7 +34,7 @@ export class AzureOpenAIClient {
       }
     );
 
-    this.defaultModel = config.defaultModel || "gpt-4";
+    this.defaultModel = config.defaultModel || process.env.AZURE_OPENAI_DEPLOYMENT_NAME!;
 
     this.circuitBreaker = new CircuitBreaker(
       parseInt(process.env.CIRCUIT_BREAKER_FAILURE_THRESHOLD || "5"),

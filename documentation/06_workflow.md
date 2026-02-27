@@ -76,6 +76,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `cast_validation` - Validation result
 - **Event**: `cast_done` - "Cast generated"
 - **Guardrail**: Non-empty stereotypeCheck triggers retry and block pipeline if unresolved
+- **Scoring guardrails** (implemented): Phase fails if `completeness_score < 60`, which requires ≥ 5 characters (when 7 requested) and ≥ 3 eligible suspects. The agent internally retries when the LLM returns fewer characters than `expectedCount - 1` or when `possibleCulprits` has fewer than `min(3, count-1)` names. `maxTokens` is 6000 to accommodate 7 fully-detailed character profiles.
 
 ### Step 3: CML Generation
 - **Derives**: Full CML 2.0 structure including:

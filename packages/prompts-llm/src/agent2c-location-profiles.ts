@@ -141,10 +141,10 @@ Return JSON with this structure:
       "purpose": "Crime scene|Clue discovery|Gathering space",
       "visualDetails": "Physical description",
       "sensoryDetails": {
-        "sights": ["Visual element 1", "Visual element 2"],
-        "sounds": ["Sound 1", "Sound 2"],
-        "smells": ["Scent 1", "Scent 2"],
-        "tactile": ["Texture 1", "Temperature note"]
+        "sights": ["Full 2-sentence visual description of what you see", "Second visual detail with specific period-authentic imagery"],
+        "sounds": ["Full 2-sentence sound description — ambient and specific noises", "A second distinct sound with texture and context"],
+        "smells": ["Full 2-sentence olfactory description — at least 3 specific scents named", "A secondary smell that reinforces the mood"],
+        "tactile": ["Full 2-sentence tactile description — temperature, texture, humidity", "A second tactile detail relevant to the space"]
       },
       "accessControl": "Who can access this location and when",
       "paragraphs": ["Paragraph 1", "Paragraph 2"]
@@ -169,7 +169,8 @@ Requirements:
 - Primary location: 3-5 narrative paragraphs (~${targetWordCount} words total)
 - Key locations: 2-3 paragraphs each (include crime scene + 2-4 other important locations)
 - Atmosphere: 2-3 paragraphs
-- Rich sensory details in every location (sight, sound, smell, touch)
+- **CRITICAL — Sensory Richness**: Each sensory detail entry MUST be a full 2-sentence description (minimum 20 words per entry). Arrays of one-word items or short phrases WILL be rejected. Aim for 50+ words total per sense field across the array.
+- All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)
 - Era-authentic markers: ${eraMarkers.join(', ')}
 - Tone: ${tone}
 - No anachronisms

@@ -652,11 +652,9 @@ export async function generateCML(
       const response = await client.chatWithRetry({
         messages: prompt.messages,
         model:
-          process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
-          process.env.AZURE_OPENAI_DEPLOYMENT_GPT4 ||
-          "gpt-4o",
+          process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
         temperature: 0.7,
-        maxTokens: 8000, // gpt-4.1 supports higher token limits
+        maxTokens: 8000,
         jsonMode: true, // JSON output
         logContext: {
           runId: inputs.runId,

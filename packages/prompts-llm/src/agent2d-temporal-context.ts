@@ -175,7 +175,8 @@ Return JSON with this structure:
     "season": "spring|summer|fall|winter",
     "month": "month name",
     "weather": ["weather detail 1", "weather detail 2", "weather detail 3"],
-    "daylight": "daylight description for this season",
+    "daylight": "daylight description for this season (e.g. 'Long summer evenings, sunset after 9 PM, darkness falls around 10 PM')",
+    "time_of_day_of_crime": "Specific period when the crime occurs — use period words like 'late evening', 'after midnight', 'morning', 'afternoon' (e.g. 'Late evening — between 9 PM and 11 PM, after dinner has concluded')",
     "holidays": ["any holidays this month"],
     "seasonalActivities": ["activity 1", "activity 2", "activity 3"]
   },

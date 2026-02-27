@@ -20,6 +20,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "dotenv": "*",
     "@cml/cml": "file:../../packages/cml",
     "@cml/llm-client": "file:../../packages/llm-client",
     "@cml/prompts-llm": "file:../../packages/prompts-llm",

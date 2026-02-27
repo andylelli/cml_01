@@ -121,6 +121,15 @@ export const saveSpec = async (projectId: string, spec: unknown): Promise<Spec> 
   return response.json() as Promise<Spec>;
 };
 
+export const fetchLatestSpec = async (projectId: string): Promise<Spec | null> => {
+  const response = await fetch(`${apiBase}/api/projects/${projectId}/specs/latest`);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Fetch latest spec failed (${response.status})`);
+  }
+  return response.json() as Promise<Spec>;
+};
+
 export const runPipeline = async (projectId: string) => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/run`, {
     method: "POST",

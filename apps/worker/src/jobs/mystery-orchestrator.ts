@@ -49,7 +49,8 @@ import {
   ProseScorer,
   buildRetryFeedback,
 } from "@cml/story-validation";
-import type { PhaseScore, GenerationReport } from "@cml/story-validation";
+import type { PhaseScore, TestResult, GenerationReport } from "@cml/story-validation";
+import { getFailedComponents } from "@cml/story-validation";
 import {
   adaptSettingForScoring,
   adaptCastForScoring,
@@ -92,8 +93,9 @@ export interface MysteryGenerationInputs {
   primaryAxis?: "temporal" | "spatial" | "social" | "psychological" | "mechanical";
   
   // Optional refinements
-  castSize?: number; // 6-12 characters
+  castSize?: number; // suspects + witnesses (detective always added as +1)
   castNames?: string[]; // Optional user-provided names
+  detectiveType?: 'police' | 'private' | 'amateur'; // Archetype of the investigator
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
   
@@ -101,6 +103,9 @@ export interface MysteryGenerationInputs {
   skipNoveltyCheck?: boolean; // Skip Agent 8 if desired
   similarityThreshold?: number; // For Agent 8, default 0.7
   
+  // Prose generation
+  proseBatchSize?: number; // chapters per LLM call (1–10, default 1)
+
   // Tracking
   runId?: string;
   projectId?: string;
@@ -1075,8 +1080,8 @@ async function executeAgentWithRetry<T>(
     try {
       const { adapted, score } = await scoreOutput(result);
 
-      // Add to aggregator
-      scoreAggregator.addPhaseScore(agentId, phaseName, score, attemptDuration, cost);
+      // Add to aggregator (upsert so retries replace rather than duplicate)
+      scoreAggregator.upsertPhaseScore(agentId, phaseName, score, attemptDuration, cost);
 
       // Log phase score
       scoringLogger.logPhaseScore(agentId, phaseName, score, attemptDuration, cost, runId, projectId);
@@ -1086,8 +1091,12 @@ async function executeAgentWithRetry<T>(
         try { await onPhaseScored(); } catch { /* best-effort */ }
       }
 
-      // Check if passed
-      if (score.passed) {
+      // Check if passed — use the aggregator's authoritative passesThreshold()
+      // rather than score.passed (which uses the scorer's internal 60-point
+      // threshold and ignores component minimums). This ensures retry decisions
+      // are always consistent with what the final report records as passed/failed.
+      const phasePassed = scoreAggregator.passesThreshold(score);
+      if (phasePassed) {
         const totalDuration = Date.now() - startTime;
         if (attempts > 0) {
           warnings.push(`${phaseName}: ✓ Passed after ${attempts} retry(s) - ${score.grade} (${score.total}/100)`);
@@ -1108,14 +1117,22 @@ async function executeAgentWithRetry<T>(
         return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
       }
 
+      // Build failure reason: prefer the scorer's own explanation, fall back to
+      // a description of which component minimums were not met.
+      const failedComponents = getFailedComponents(score);
+      const effectiveFailureReason = score.failure_reason
+        || (failedComponents.length > 0
+            ? `Component minimums not met: ${failedComponents.join('; ')}`
+            : `Score ${score.total}/100 (${score.grade}) below threshold`);
+
       // Record retry
       attempts++;
-      retryManager.recordRetry(agentId, score.failure_reason || "Score below threshold", score.total);
+      retryManager.recordRetry(agentId, effectiveFailureReason, score.total);
 
       // Log retry attempt
       const backoffMs = retryManager.getBackoffDelay(agentId);
       const maxRetries = retryManager.getMaxRetries(agentId);
-      scoringLogger.logRetryAttempt(agentId, phaseName, attempts, score.failure_reason || "Score below threshold", backoffMs, maxRetries, runId, projectId);
+      scoringLogger.logRetryAttempt(agentId, phaseName, attempts, effectiveFailureReason, backoffMs, maxRetries, runId, projectId);
 
       retryFeedback = buildRetryFeedback(score, attempts);
 
@@ -1171,8 +1188,13 @@ export async function generateMystery(
       retryManager = new RetryManager(retryConfigPath);
       scoreAggregator = new ScoreAggregator({ mode: 'standard' }, retryManager);
       
-      const reportsDir = join(process.cwd(), "apps", "api", "data", "reports");
-      reportRepository = new FileReportRepository(reportsDir);
+      // Resolve from the monorepo root regardless of which directory the process
+      // was launched from. fileURLToPath(import.meta.url) is the compiled JS file
+      // at apps/worker/dist/jobs/mystery-orchestrator.js — four levels up is the
+      // workspace root (c:\CML).
+      const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+      const resolvedReportsDir = join(workspaceRoot, "apps", "api", "data", "reports");
+      reportRepository = new FileReportRepository(resolvedReportsDir);
       
       const logsDir = join(process.cwd(), "apps", "worker", "logs");
       scoringLogger = new ScoringLogger(logsDir);
@@ -1324,11 +1346,13 @@ export async function generateMystery(
         async (retryFeedback?: string) => {
           const castResult = await designCast(client, {
             characterNames: inputs.castNames,
-            castSize: inputs.castSize || 6,
+            // When names not provided: castSize (suspects) + 1 detective = total cast
+            castSize: inputs.castNames?.length || (inputs.castSize || 6) + 1,
             setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
             crimeType: "Murder",
             tone: appendRetryFeedback(inputs.tone || inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
             socialContext: setting.setting.era.socialNorms.join(", "),
+            detectiveType: inputs.detectiveType,
             runId,
             projectId: projectId || "",
           });
@@ -1336,8 +1360,11 @@ export async function generateMystery(
         },
         async (castResult) => {
           const scorer = new CastDesignScorer();
-          const adapted = adaptCastForScoring(castResult.cast.characters);
-          const score = await scorer.score({}, adapted, {
+          const adapted = adaptCastForScoring(castResult.cast);
+          const scorerInput = {
+            cast_size: inputs.castNames?.length || (inputs.castSize || 6) + 1,
+          };
+          const score = await scorer.score(scorerInput, adapted, {
             previous_phases: { agent1_setting: setting.setting },
             cml: undefined as any,
             threshold_config: { mode: 'standard' },
@@ -1359,11 +1386,12 @@ export async function generateMystery(
       const castStart = Date.now();
       cast = await designCast(client, {
         characterNames: inputs.castNames,
-        castSize: inputs.castSize || 6,
+        castSize: inputs.castNames?.length || (inputs.castSize || 6) + 1,
         setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
         crimeType: "Murder",
         tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
         socialContext: setting.setting.era.socialNorms.join(", "),
+        detectiveType: inputs.detectiveType,
         runId,
         projectId: projectId || "",
       });
@@ -1398,7 +1426,7 @@ export async function generateMystery(
         },
         async (bgResult) => {
           const scorer = new BackgroundContextScorer();
-          const adapted = adaptBackgroundContextForScoring(bgResult.backgroundContext);
+          const adapted = adaptBackgroundContextForScoring(bgResult.backgroundContext, setting.setting);
           const score = await scorer.score({}, adapted, {
             previous_phases: {
               agent1_setting: setting.setting,
@@ -1583,6 +1611,51 @@ export async function generateMystery(
     let cml = cmlResult.cml;
     reportProgress("cml", "Mystery structure generated and validated", 50);
 
+    // Record CML generation quality score
+    if (enableScoring && scoreAggregator) {
+      const cmlRevisedByAgent4 = cmlResult.revisedByAgent4 ?? false;
+      const cmlAttemptCount = cmlResult.attempt ?? 1;
+      const cmlQualityScore = cmlRevisedByAgent4 ? 60 : 100;
+      const cmlTotal = Math.round(100 * 0.5 + cmlQualityScore * 0.3 + 100 * 0.2);
+      scoreAggregator.upsertPhaseScore(
+        "agent3_cml",
+        "CML Generation",
+        {
+          agent: "agent3-cml-generation",
+          validation_score: 100,
+          quality_score: cmlQualityScore,
+          completeness_score: 100,
+          consistency_score: 100,
+          total: cmlTotal,
+          grade: (cmlTotal >= 90 ? 'A' : cmlTotal >= 80 ? 'B' : cmlTotal >= 70 ? 'C' : cmlTotal >= 60 ? 'D' : 'F') as PhaseScore['grade'],
+          passed: true,
+          tests: [
+            {
+              name: "Schema validation",
+              category: "validation" as const,
+              passed: true,
+              score: 100,
+              weight: 2,
+              message: `Valid after ${cmlAttemptCount} attempt(s)`,
+            },
+            {
+              name: "Structural revision (Agent 4)",
+              category: "quality" as const,
+              passed: !cmlRevisedByAgent4,
+              score: cmlQualityScore,
+              weight: 1,
+              message: cmlRevisedByAgent4
+                ? `Required structural revision (${cmlResult.revisionDetails?.attempts ?? 1} revision(s))`
+                : "No structural revision needed",
+            },
+          ],
+        },
+        agentDurations["agent3_cml"] ?? 0,
+        agentCosts["agent3_cml"] ?? 0,
+      );
+      try { await savePartialReport(); } catch { /* best-effort */ }
+    }
+
     // ========================================================================
     // Agent 8: Novelty Auditor (optional, early)
     // ========================================================================
@@ -1707,6 +1780,84 @@ export async function generateMystery(
         similarityThreshold >= 1 ? "Novelty check skipped (threshold >= 1.0)" : "Novelty check skipped",
         58
       );
+    }
+
+    // Record novelty audit phase score
+    if (enableScoring && scoreAggregator) {
+      if (noveltyAudit) {
+        const highestSim = noveltyAudit.highestSimilarity ?? 0;
+        const noveltyStatus = noveltyAudit.status;
+        const noveltyTotal = noveltyStatus === "pass"
+          ? Math.max(80, Math.round((1 - highestSim) * 100))
+          : noveltyStatus === "warning" ? 70 : 45;
+        const noveltyViolationTests: TestResult[] = noveltyAudit.violations.map((v) => ({
+          name: "Novelty violation",
+          category: "quality" as const,
+          passed: false,
+          score: 0,
+          weight: 0.5,
+          message: v,
+        }));
+        scoreAggregator.upsertPhaseScore(
+          "agent8_novelty",
+          "Novelty Audit",
+          {
+            agent: "agent8-novelty-audit",
+            validation_score: Math.round((1 - highestSim) * 100),
+            quality_score: noveltyAudit.violations.length === 0 ? 100 : Math.max(0, 100 - noveltyAudit.violations.length * 20),
+            completeness_score: 100,
+            consistency_score: 100,
+            total: noveltyTotal,
+            grade: (noveltyTotal >= 90 ? 'A' : noveltyTotal >= 80 ? 'B' : noveltyTotal >= 70 ? 'C' : noveltyTotal >= 60 ? 'D' : 'F') as PhaseScore['grade'],
+            passed: noveltyStatus !== "fail",
+            failure_reason: noveltyStatus === "fail"
+              ? `Too similar to seed patterns (${Math.round(highestSim * 100)}% match with "${noveltyAudit.mostSimilarSeed}")`
+              : undefined,
+            tests: [
+              {
+                name: "Similarity below threshold",
+                category: "validation" as const,
+                passed: noveltyStatus !== "fail",
+                score: Math.round((1 - highestSim) * 100),
+                weight: 2,
+                message: `${Math.round(highestSim * 100)}% similar to "${noveltyAudit.mostSimilarSeed}" — ${noveltyStatus}`,
+              },
+              ...noveltyViolationTests,
+            ],
+          },
+          agentDurations["agent8_novelty"] ?? 0,
+          agentCosts["agent8_novelty"] ?? 0,
+        );
+      } else {
+        // Novelty check skipped
+        scoreAggregator.upsertPhaseScore(
+          "agent8_novelty",
+          "Novelty Audit",
+          {
+            agent: "agent8-novelty-audit",
+            validation_score: 100,
+            quality_score: 100,
+            completeness_score: 100,
+            consistency_score: 100,
+            total: 100,
+            grade: 'A' as PhaseScore['grade'],
+            passed: true,
+            tests: [
+              {
+                name: "Novelty check",
+                category: "validation" as const,
+                passed: true,
+                score: 100,
+                weight: 1,
+                message: "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)",
+              },
+            ],
+          },
+          0,
+          0,
+        );
+      }
+      try { await savePartialReport(); } catch { /* best-effort */ }
     }
 
     // ========================================================================
@@ -1846,6 +1997,65 @@ export async function generateMystery(
       }
     }
 
+    // Record clue distribution phase score
+    if (enableScoring && scoreAggregator) {
+      const guardrailTriggered = clueGuardrails.hasCriticalIssues;
+      const coverageGapsFound = coverageResult.hasCriticalGaps;
+      const clueCount = clues.clues.length;
+      const clueCountScore = clueCount >= 8 ? 100 : Math.round((clueCount / 8) * 100);
+      const guardrailScore = guardrailTriggered ? 75 : 100;
+      const coverageScore = coverageGapsFound ? 75 : 100;
+      const clueValidation = Math.round((guardrailScore + coverageScore) / 2);
+      const clueTotal = Math.round(clueValidation * 0.5 + clueCountScore * 0.3 + 100 * 0.2);
+      scoreAggregator.upsertPhaseScore(
+        "agent5_clues",
+        "Clue Distribution",
+        {
+          agent: "agent5-clue-distribution",
+          validation_score: clueValidation,
+          quality_score: 100,
+          completeness_score: clueCountScore,
+          consistency_score: 100,
+          total: clueTotal,
+          grade: (clueTotal >= 90 ? 'A' : clueTotal >= 80 ? 'B' : clueTotal >= 70 ? 'C' : clueTotal >= 60 ? 'D' : 'F') as PhaseScore['grade'],
+          passed: clueTotal >= 75,
+          tests: [
+            {
+              name: "Clue count",
+              category: "completeness" as const,
+              passed: clueCount >= 8,
+              score: clueCountScore,
+              weight: 1.5,
+              message: `${clueCount} clues distributed`,
+            },
+            {
+              name: "Guardrail compliance",
+              category: "validation" as const,
+              passed: !guardrailTriggered,
+              score: guardrailScore,
+              weight: 2,
+              message: guardrailTriggered
+                ? `Guardrail issues detected and auto-fixed (${clueGuardrails.fixes.length} fix(es))`
+                : "All guardrails passed",
+            },
+            {
+              name: "Inference coverage",
+              category: "validation" as const,
+              passed: !coverageGapsFound,
+              score: coverageScore,
+              weight: 2,
+              message: coverageGapsFound
+                ? `Coverage gaps found and addressed (${allCoverageIssues.length} issue(s))`
+                : `Full inference coverage (${allCoverageIssues.length} minor issues)`,
+            },
+          ],
+        },
+        agentDurations["agent5_clues"] ?? 0,
+        agentCosts["agent5_clues"] ?? 0,
+      );
+      try { await savePartialReport(); } catch { /* best-effort */ }
+    }
+
     // ========================================================================
     // Agent 6: Fair Play Auditor
     // ========================================================================
@@ -1929,6 +2139,51 @@ export async function generateMystery(
     }
 
     reportProgress("fairplay", `Fair play audit: ${fairPlayAudit.overallStatus}`, 75);
+
+    // Record fair-play audit phase score
+    if (enableScoring && scoreAggregator && fairPlayAudit) {
+      const fpStatus = fairPlayAudit.overallStatus;
+      const fpValidation = fpStatus === "pass" ? 100 : fpStatus === "needs-revision" ? 70 : 45;
+      scoreAggregator.upsertPhaseScore(
+        "agent6_fairplay",
+        "Fair-play Audit",
+        {
+          agent: "agent6-fair-play-audit",
+          validation_score: fpValidation,
+          quality_score: 100,
+          completeness_score: 100,
+          consistency_score: 100,
+          total: fpValidation,
+          grade: (fpValidation >= 90 ? 'A' : fpValidation >= 80 ? 'B' : fpValidation >= 70 ? 'C' : fpValidation >= 60 ? 'D' : 'F') as PhaseScore['grade'],
+          passed: fpStatus === "pass" || fpStatus === "needs-revision",
+          failure_reason: fpStatus === "fail"
+            ? `Fair play audit failed (${fairPlayAudit.violations.length} violation(s))`
+            : undefined,
+          tests: [
+            {
+              name: "Overall fair play status",
+              category: "validation" as const,
+              passed: fpStatus === "pass",
+              score: fpValidation,
+              weight: 2,
+              message: `Status: ${fpStatus}${fairPlayAudit.violations.length > 0 ? ` (${fairPlayAudit.violations.length} violation(s))` : ""}`,
+            },
+            ...fairPlayAudit.violations.map((v) => ({
+              name: v.rule || "Fair play rule",
+              category: "validation" as const,
+              passed: false,
+              score: v.severity === "critical" ? 0 : 50,
+              weight: v.severity === "critical" ? 1.5 : 0.5,
+              message: v.description,
+              severity: v.severity as TestResult['severity'],
+            })),
+          ],
+        },
+        agentDurations["agent6_fairplay"] ?? 0,
+        agentCosts["agent6_fairplay"] ?? 0,
+      );
+      try { await savePartialReport(); } catch { /* best-effort */ }
+    }
 
     // ========================================================================
     // WP5B: Blind Reader Simulation
@@ -2133,6 +2388,7 @@ export async function generateMystery(
             clues: clues,
             targetLength: inputs.targetLength,
             narrativeStyle: inputs.narrativeStyle,
+            detectiveType: inputs.detectiveType,
             qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
             runId,
             projectId: projectId || "",
@@ -2141,11 +2397,16 @@ export async function generateMystery(
         },
         async (narrativeResult) => {
           const scorer = new NarrativeScorer();
-          const adapted = adaptNarrativeForScoring(narrativeResult);
+          const adapted = adaptNarrativeForScoring(
+            narrativeResult,
+            (cml as any).CASE?.cast ?? [],       // for character ID → full name normalisation
+            (cml as any).CASE?.clues ?? [],       // for clue distribution by placement band
+          );
           const score = await scorer.score({}, adapted, {
             previous_phases: { agent2_cast: cast.cast },
             cml,
             threshold_config: { mode: 'standard' },
+            targetLength: inputs.targetLength ?? 'medium',
           });
           return { adapted, score };
         },
@@ -2167,6 +2428,7 @@ export async function generateMystery(
         clues: clues,
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
+        detectiveType: inputs.detectiveType,
         runId,
         projectId: projectId || "",
       });
@@ -2199,6 +2461,7 @@ export async function generateMystery(
         clues: clues,
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
+        detectiveType: inputs.detectiveType,
         qualityGuardrails: outlineGuardrails,
         runId,
         projectId: projectId || "",
@@ -2317,7 +2580,7 @@ export async function generateMystery(
         },
         async (locResult) => {
           const scorer = new LocationProfilesScorer();
-          const adapted = adaptLocationsForScoring(locResult.keyLocations);
+          const adapted = adaptLocationsForScoring(locResult);
           const score = await scorer.score({}, adapted, {
             previous_phases: {
               agent1_setting: setting.setting,
@@ -2388,7 +2651,7 @@ export async function generateMystery(
         },
         async (tempResult) => {
           const scorer = new TemporalContextScorer();
-          const adapted = adaptTemporalContextForScoring(tempResult);
+          const adapted = adaptTemporalContextForScoring(tempResult, setting.setting);
           const score = await scorer.score({}, adapted, {
             previous_phases: {
               agent1_setting: setting.setting,
@@ -2439,7 +2702,21 @@ export async function generateMystery(
     // ========================================================================
     // This prevents wasting $5-8 on prose generation from invalid CML
     const cmlValidationErrors: string[] = [];
-    
+
+    // Pre-gate: back-fill discriminating_test.evidence_clues from finalised clues if missing.
+    // Agent 3 generates the skeleton without clue IDs (clues don't exist yet at CML generation
+    // time). We populate evidence_clues here after Agent 5 has finalised the clue set.
+    const discrimTestNode = (cml as any).CASE?.discriminating_test;
+    if (discrimTestNode && (!discrimTestNode.evidence_clues || discrimTestNode.evidence_clues.length === 0)) {
+      const essentialIds = clues.clues
+        .filter(c => c.criticality === 'essential')
+        .map(c => c.id);
+      if (essentialIds.length > 0) {
+        discrimTestNode.evidence_clues = essentialIds;
+        warnings.push(`CML gate: back-filled evidence_clues with ${essentialIds.length} essential clue(s)`);
+      }
+    }
+
     // 1. Fair play audit must pass or have only minor issues
     if (fairPlayAudit && fairPlayAudit.overallStatus === 'fail') {
       const criticalViolations = fairPlayAudit.violations.filter(v => v.severity === 'critical');
@@ -2491,19 +2768,31 @@ export async function generateMystery(
     // ========================================================================
     // Agent 9: Prose Generator
     // ========================================================================
-    reportProgress("prose", "Generating prose in batches with per-chapter validation...", 91);
+    reportProgress("prose", "Generating prose chapter by chapter with per-chapter validation...", 91);
 
     let prose: Awaited<ReturnType<typeof generateProse>>;
+    const totalSceneCount = narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
+    const prosePhaseStartTime = Date.now();
     
     if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
+      // Populated by onBatchComplete; read by scoreOutput to carry into final score.
+      const proseChapterScores: Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> = [];
       const { result, duration, cost } = await executeAgentWithRetry(
         "agent9_prose",
         "Prose Generation",
         async (retryFeedback?: string) => {
+          // Accumulate chapters as they complete so per-chapter scoring can run
+          const accumulatedChapters: any[] = [];
+          // On retries the aggregator already has the first attempt's committed
+          // score from executeAgentWithRetry's own upsert after scoreOutput ran.
+          // Don't overwrite it with partial per-chapter progress scores.
+          const isRetry = !!retryFeedback;
+
           const proseResult = await generateProse(client, {
             caseData: cml,
             outline: narrative,
             cast: cast.cast,
+            detectiveType: inputs.detectiveType,
             characterProfiles: characterProfiles,
             locationProfiles: locationProfiles,
             temporalContext: temporalContext,
@@ -2519,21 +2808,123 @@ export async function generateMystery(
             runId,
             projectId: projectId || "",
             onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+            batchSize: inputs.proseBatchSize,
+            onBatchComplete: async (batchChapters, batchStart, batchEnd, validationIssues) => {
+              // Add completed chapter to accumulator
+              accumulatedChapters.push(...batchChapters);
+
+              // Score all chapters generated so far
+              try {
+                const scorer = new ProseScorer();
+
+                // Individual score: just the chapters in this batch
+                const adaptedBatch = adaptProseForScoring(batchChapters, (cml as any).CASE);
+                const batchScore = await scorer.score({}, adaptedBatch, {
+                  previous_phases: {
+                    agent2_cast: cast.cast,
+                    agent2b_character_profiles: characterProfiles.profiles,
+                    agent2c_location_profiles: locationProfiles,
+                  },
+                  cml,
+                  threshold_config: { mode: 'standard' },
+                  targetLength: inputs.targetLength ?? 'medium',
+                  partialGeneration: true,
+                });
+
+                // Cumulative score: all chapters so far
+                const adaptedAll = adaptProseForScoring(accumulatedChapters, (cml as any).CASE);
+                const partialScore = await scorer.score({}, adaptedAll, {
+                  previous_phases: {
+                    agent2_cast: cast.cast,
+                    agent2b_character_profiles: characterProfiles.profiles,
+                    agent2c_location_profiles: locationProfiles,
+                  },
+                  cml,
+                  threshold_config: { mode: 'standard' },
+                  targetLength: inputs.targetLength ?? 'medium',
+                  partialGeneration: true,
+                });
+
+                const individualPct = Math.round(batchScore.total ?? 0);
+                const pct = Math.round(partialScore.total ?? 0);
+                const chapterLabel = `${batchEnd}/${totalSceneCount}`;
+                const elapsedMs = Date.now() - prosePhaseStartTime;
+
+                // Record both individual and cumulative scores for the report breakdown.
+                proseChapterScores.push({
+                  chapter: batchEnd,
+                  total_chapters: totalSceneCount,
+                  individual_score: individualPct,
+                  cumulative_score: pct,
+                });
+
+                // Only update the persistent aggregator entry on the FIRST attempt.
+                // On retries we protect the committed score so a crashed retry
+                // cannot leave a stale intermediate value in the report.
+                // IMPORTANT: always use the canonical "Prose Generation" label —
+                // never include the chapter-count suffix here. The suffix goes only
+                // into the live reportProgress event below so the UI run history
+                // panel shows progress, but the chapter count is ephemeral and must
+                // never be persisted to the aggregator (if generateProse throws
+                // mid-run, the aborted partial report would otherwise show a stale
+                // "(11/15 chapters)" label).
+                if (!isRetry) {
+                  const scoreWithBreakdown: PhaseScore = {
+                    ...partialScore,
+                    breakdown: { chapter_scores: [...proseChapterScores] },
+                  };
+                  scoreAggregator.upsertPhaseScore(
+                    "agent9_prose",
+                    "Prose Generation",
+                    scoreWithBreakdown,
+                    elapsedMs,
+                    0,
+                  );
+                  // Flush to DB — the 5-second UI poll will pick this up
+                  await savePartialReport();
+                }
+
+                // Always emit live progress (run history panel) even on retries.
+                reportProgress(
+                  "prose",
+                  `${isRetry ? '[Retry] ' : ''}Chapter ${chapterLabel} complete · chapter: ${individualPct}/100 · cumulative: ${pct}/100`,
+                  91 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 3),
+                );
+              } catch {
+                // Per-chapter scoring is best-effort; never abort prose generation
+              }
+
+              // Surface per-batch validation issues to run history (§3.2)
+              if (validationIssues && validationIssues.length > 0) {
+                const issueRange = batchEnd > batchStart ? `${batchStart}-${batchEnd}` : `${batchEnd}`;
+                reportProgress(
+                  "prose",
+                  `⚠ Chapter${batchEnd > batchStart ? 's' : ''} ${issueRange} required retry — ${validationIssues.length} issue${validationIssues.length !== 1 ? 's' : ''}: ${validationIssues.slice(0, 2).join('; ')}${validationIssues.length > 2 ? ` (+${validationIssues.length - 2} more)` : ''}`,
+                  91 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 3),
+                );
+              }
+            },
           });
           return { result: sanitizeProseResult(proseResult), cost: proseResult.cost };
         },
         async (proseResult) => {
           const scorer = new ProseScorer();
-          const adapted = adaptProseForScoring(proseResult.chapters);
+          const adapted = adaptProseForScoring(proseResult.chapters, (cml as any).CASE);
           const score = await scorer.score({}, adapted, {
             previous_phases: {
               agent2_cast: cast.cast,
               agent2b_character_profiles: characterProfiles.profiles,
-              agent2c_location_profiles: locationProfiles.keyLocations,
+              agent2c_location_profiles: locationProfiles,
             },
             cml,
             threshold_config: { mode: 'standard' },
+            targetLength: inputs.targetLength ?? 'medium',
           });
+          // Carry the per-chapter breakdown from the first attempt into the final
+          // score so executeAgentWithRetry's upsert preserves it in the report.
+          if (proseChapterScores.length > 0 && !score.breakdown) {
+            (score as PhaseScore).breakdown = { chapter_scores: [...proseChapterScores] };
+          }
           return { adapted, score };
         },
         retryManager,
@@ -2553,6 +2944,7 @@ export async function generateMystery(
         caseData: cml,
         outline: narrative,
         cast: cast.cast,
+        detectiveType: inputs.detectiveType,
         characterProfiles: characterProfiles,
         locationProfiles: locationProfiles,
         temporalContext: temporalContext,
@@ -2563,6 +2955,25 @@ export async function generateMystery(
         runId,
         projectId: projectId || "",
         onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+        // Emit per-chapter progress events so the run history panel updates in real-time
+        // even when the scoring system is disabled.
+        batchSize: inputs.proseBatchSize,
+        onBatchComplete: (_batchChapters, _batchStart, batchEnd, validationIssues) => {
+          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
+          reportProgress(
+            "prose",
+            `Chapter ${chapterLabel} complete`,
+            91 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 3),
+          );
+          // Surface per-batch validation issues to run history (§3.2)
+          if (validationIssues && validationIssues.length > 0) {
+            reportProgress(
+              "prose",
+              `⚠ Chapter ${batchEnd} required retry — ${validationIssues.length} issue${validationIssues.length !== 1 ? 's' : ''}: ${validationIssues.slice(0, 2).join('; ')}${validationIssues.length > 2 ? ` (+${validationIssues.length - 2} more)` : ''}`,
+              91 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 3),
+            );
+          }
+        },
       });
       prose = sanitizeProseResult(prose);
       agentCosts["agent9_prose"] = prose.cost;
@@ -2581,6 +2992,7 @@ export async function generateMystery(
         caseData: cml,
         outline: narrative,
         cast: cast.cast,
+        detectiveType: inputs.detectiveType,
         characterProfiles: characterProfiles,
         locationProfiles: locationProfiles,
         temporalContext: temporalContext,
@@ -2590,6 +3002,15 @@ export async function generateMystery(
         runId,
         projectId: projectId || "",
         onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+        batchSize: inputs.proseBatchSize,
+        onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
+          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
+          reportProgress(
+            "prose",
+            `[Identity fix] Chapter ${chapterLabel} complete`,
+            92 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 2),
+          );
+        },
       });
       prose = sanitizeProseResult(retriedProse);
       agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
@@ -2850,6 +3271,7 @@ export async function generateMystery(
           caseData: cml,
           outline: narrative,
           cast: cast.cast,
+          detectiveType: inputs.detectiveType,
           characterProfiles: characterProfiles,
           locationProfiles: locationProfiles,
           temporalContext: temporalContext,
@@ -2860,6 +3282,15 @@ export async function generateMystery(
           runId,
           projectId: projectId || "",
           onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+          batchSize: inputs.proseBatchSize,
+          onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
+            const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
+            reportProgress(
+              "prose",
+              `[Repair] Chapter ${chapterLabel} complete`,
+              96 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 1),
+            );
+          },
         });
 
         prose = sanitizeProseResult(repairedProse);

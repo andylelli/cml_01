@@ -250,11 +250,11 @@ export const useProjectStore = defineStore("project", () => {
       hardLogicDevices,
       gamePack,
       synopsis,
+      noveltyAudit,
       settingValidation,
       castValidation,
       cluesValidation,
       outlineValidation,
-      noveltyAudit,
     ] = await Promise.allSettled([
       fetchSetting(projectId),
       fetchCast(projectId),
@@ -271,11 +271,11 @@ export const useProjectStore = defineStore("project", () => {
       fetchHardLogicDevices(projectId),
       fetchGamePack(projectId),
       fetchSynopsis(projectId),
+      fetchNoveltyAudit(projectId),
       fetchSettingValidation(projectId),
       fetchCastValidation(projectId),
       fetchCluesValidation(projectId),
       fetchOutlineValidation(projectId),
-      fetchNoveltyAudit(projectId),
     ]);
 
     const settingPayload = setting.status === "fulfilled" ? setting.value.payload : null;
@@ -295,13 +295,21 @@ export const useProjectStore = defineStore("project", () => {
     cmlArtifact.value = includeCml && cml.status === "fulfilled" ? JSON.stringify(cml.value.payload, null, 2) : null;
 
     allValidation.value = {
-      setting: settingValidation.status === "fulfilled" ? (settingValidation.value.payload as ValidationResult) : { ...defaultValidation },
-      cast: castValidation.status === "fulfilled" ? (castValidation.value.payload as ValidationResult) : { ...defaultValidation },
+      setting: settingValidation.status === "fulfilled"
+        ? (settingValidation.value.payload as ValidationResult)
+        : { ...defaultValidation },
+      cast: castValidation.status === "fulfilled"
+        ? (castValidation.value.payload as ValidationResult)
+        : { ...defaultValidation },
       cml: includeCml && validation.status === "fulfilled"
         ? (validation.value.payload as ValidationResult)
         : { ...defaultValidation },
-      clues: cluesValidation.status === "fulfilled" ? (cluesValidation.value.payload as ValidationResult) : { ...defaultValidation },
-      outline: outlineValidation.status === "fulfilled" ? (outlineValidation.value.payload as ValidationResult) : { ...defaultValidation },
+      clues: cluesValidation.status === "fulfilled"
+        ? (cluesValidation.value.payload as ValidationResult)
+        : { ...defaultValidation },
+      outline: outlineValidation.status === "fulfilled"
+        ? (outlineValidation.value.payload as ValidationResult)
+        : { ...defaultValidation },
     };
 
     cluesArtifact.value = clues.status === "fulfilled" ? JSON.stringify(clues.value.payload, null, 2) : null;
@@ -381,10 +389,6 @@ export const useProjectStore = defineStore("project", () => {
       hardLogicDevices,
       gamePack,
       synopsis,
-      settingValidation,
-      castValidation,
-      cluesValidation,
-      outlineValidation,
       noveltyAudit,
     ];
 
