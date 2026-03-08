@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import DebugPanel, { type LlmLogEntry } from "../DebugPanel.vue";
+import DebugPanel from "../DebugPanel.vue";
+import type { LlmLogEntry } from "../debugPanelTypes";
 
 const makeLogs = (): LlmLogEntry[] => [
   {

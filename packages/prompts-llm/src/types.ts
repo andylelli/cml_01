@@ -32,6 +32,7 @@ export interface CMLPromptInputs {
   primaryAxis: "temporal" | "spatial" | "identity" | "behavioral" | "authority";
   castSize: number;
   castNames: string[];
+  castGenders?: Record<string, string>; // name → 'male' | 'female' | 'non-binary'
   detectiveType: string;
   victimArchetype: string;
   
@@ -66,6 +67,8 @@ export interface HardLogicDeviceIdea {
   variationEscalation: string;
   mechanismFamilyHints: string[];
   modeTags?: string[];
+  moralAmbiguity?: string;
+  lockedFacts?: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
 }
 
 export interface BackgroundContextInput {

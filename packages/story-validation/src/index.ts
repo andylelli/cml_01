@@ -6,6 +6,7 @@
 export * from './types.js';
 export * from './encoding-validator.js';
 export * from './character-validator.js';
+export * from './prose-consistency-validator.js';
 export * from './narrative-continuity-validator.js';
 export * from './case-transition-validator.js';
 export * from './discriminating-test-validator.js';
@@ -14,7 +15,11 @@ export * from './physical-validator.js';
 export * from './era-validator.js';
 export * from './semantic-validator.js';
 export * from './chapter-validator.js';
+export * from './name-sanitizer.js';
 export * from './pipeline.js';
+
+// Story length targets — single source of truth for scene/chapter counts
+export * from './story-length-targets.js';
 
 // Scoring system
 export * from './scoring/index.js';

@@ -146,7 +146,7 @@ function summarizeCML(cml: CaseData, label: string): string {
   const castCount = castList.length;
 
   const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
+    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
   const motive = legacy.solution?.culprit?.motive || "Unknown";
   const solutionMethod = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown";
   const falseAssumption =

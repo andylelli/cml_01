@@ -7,6 +7,7 @@ import {
   calculateCategoryScore,
   getCriticalFailures,
 } from '../scorer-utils.js';
+import { getChapterTarget } from '../../story-length-targets.js';
 
 /**
  * Chapter from narrative outline
@@ -43,7 +44,7 @@ export interface NarrativeOutlineOutput {
 /**
  * Scores the Narrative Outline phase (Agent 7)
  * 
- * Validation: 18 chapters, scene structure
+ * Validation: 20/30/42 chapters (short/medium/long), scene structure
  * Quality: Pacing, scene detail
  * Completeness: All CML clues present, discriminating test
  * Consistency: Character names match cast
@@ -52,9 +53,9 @@ export class NarrativeScorer
   implements Scorer<any, NarrativeOutlineOutput>
 {
   private getExpectedChapters(targetLength?: string): number {
-    if (targetLength === 'short') return 12;
-    if (targetLength === 'long') return 26;
-    return 18; // medium default
+    // Delegates to the shared STORY_LENGTH_TARGETS in story-length-targets.ts.
+    // Never hardcode these numbers here — edit the shared file instead.
+    return getChapterTarget(targetLength);
   }
 
   async score(
@@ -363,18 +364,11 @@ export class NarrativeScorer
   }
 
   private extractCMLClues(cml: any): string[] {
-    const clues: string[] = [];
-
-    // Extract from hard logic devices
-    if (cml.CASE?.hard_logic_devices) {
-      for (const device of cml.CASE.hard_logic_devices) {
-        if (device.clue_type === 'inference_clue' && device.clue_id) {
-          clues.push(device.clue_id);
-        }
-      }
-    }
-
-    return clues;
+    // Read from the canonical CML path: CASE.prose_requirements.clue_to_scene_mapping[].clue_id
+    // (CASE.hard_logic_devices and CASE.clues do not exist in the cml_2_0 schema)
+    return ((cml as any).CASE?.prose_requirements?.clue_to_scene_mapping ?? [])
+      .map((m: any) => m.clue_id as string)
+      .filter((id: any): id is string => typeof id === 'string' && id.length > 0);
   }
 
   private extractOutlineClues(output: NarrativeOutlineOutput): string[] {

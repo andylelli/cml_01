@@ -76,6 +76,15 @@ const normalizeDevice = (value: unknown, index: number): HardLogicDeviceIdea => 
     variationEscalation: asString(record.variationEscalation, "Add one extra constraint interaction while preserving solvability"),
     mechanismFamilyHints: asStringArray(record.mechanismFamilyHints, ["constraint contradiction"]),
     modeTags: asStringArray(record.modeTags),
+    moralAmbiguity: typeof record.moralAmbiguity === 'string' && record.moralAmbiguity.trim() ? record.moralAmbiguity.trim() : undefined,
+    lockedFacts: Array.isArray(record.lockedFacts)
+      ? (record.lockedFacts as any[]).map((f: any) => ({
+          id: asString(f?.id, `fact_${index}`),
+          value: asString(f?.value, ''),
+          description: asString(f?.description, ''),
+          ...(Array.isArray(f?.appearsInChapters) ? { appearsInChapters: (f.appearsInChapters as any[]).map(String) } : {}),
+        })).filter((f: { value: string }) => f.value.length > 0)
+      : undefined,
   };
 };
 
@@ -138,7 +147,12 @@ Output JSON only, with this exact structure:
       "whyNotTrope": string,
       "variationEscalation": string,
       "mechanismFamilyHints": string[],
-      "modeTags": string[]
+      "modeTags": string[],
+      "moralAmbiguity": string,
+      "lockedFacts": [
+        { "id": "clock_reading", "value": "ten minutes past eleven", "description": "The exact time shown on the stopped clock face" },
+        { "id": "tamper_amount", "value": "forty minutes", "description": "The exact amount the clock was wound back" }
+      ]
     }
   ]
 }
@@ -156,6 +170,8 @@ Requirements:
 3) Keep clues observable by readers before reveal.
 4) Make mechanisms diagrammable and contradiction-driven.
 5) If difficulty is "increase" or "extreme", include at least one multi-step or precision-timing construction.
+6) For each device, include a 'moralAmbiguity' field: one sentence explaining a gray area that makes the crime morally complex (why a reader might feel unexpected sympathy for the culprit, or be disturbed by the verdict).
+7) For the primary device (first in the list), populate 'lockedFacts' with 2-4 specific physical values that must appear verbatim in the prose — exact clock times, compass bearings, temperatures, distances, weights, counts. These become irrefutable ground truth that the prose agent must never contradict across chapters. Other devices may include lockedFacts if appropriate, or omit the field.
 
 Return JSON only.`;
 

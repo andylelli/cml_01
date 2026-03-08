@@ -29,6 +29,7 @@ const requireCmlAccess = (req, res, next) => {
 };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const examplesDir = path.resolve(__dirname, "../../..", "examples");
+const storiesDir = path.resolve(__dirname, "../../..", "stories");
 const listSampleFiles = async () => {
     const files = await fs.readdir(examplesDir);
     return files.filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
@@ -194,7 +195,7 @@ const buildGamePackPdf = (gamePack) => {
     return buildPdfFromLinePages(pages);
 };
 const buildProsePdf = (prose, fallbackTitle) => {
-    const title = sanitizePdfLine(prose.title || prose.note || fallbackTitle || "Mystery Story");
+    const title = sanitizePdfLine(prose.title || fallbackTitle || prose.note || "Mystery Story");
     const chapters = Array.isArray(prose.chapters) ? prose.chapters : [];
     const proseLines = [`# ${title}`, "", "## Chapters"];
     if (!chapters.length) {
@@ -302,6 +303,36 @@ const MOJIBAKE_REPLACEMENTS = [
     [/Â/g, ""],
     [/\uFFFD/g, ""],
 ];
+const ILLEGAL_CONTROL_CHAR_PATTERN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+const normalizeWrappedText = (input) => {
+    const blocks = input
+        .replace(/\r\n/g, "\n")
+        .split(/\n{2,}/)
+        .map((block) => block.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
+        .filter((block) => block.length > 0);
+    return blocks.join("\n\n");
+};
+const splitLongParagraph = (paragraph, maxLength = 900) => {
+    if (paragraph.length <= maxLength)
+        return [paragraph];
+    const sentences = paragraph.match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) ?? [paragraph];
+    const chunks = [];
+    let current = "";
+    for (const sentence of sentences) {
+        const candidate = current ? `${current} ${sentence}` : sentence;
+        if (candidate.length > maxLength && current) {
+            chunks.push(current.trim());
+            current = sentence;
+        }
+        else {
+            current = candidate;
+        }
+    }
+    if (current.trim().length > 0) {
+        chunks.push(current.trim());
+    }
+    return chunks.length > 0 ? chunks : [paragraph];
+};
 const stripSystemResidue = (value) => {
     if (/^generated in scene batches\.?$/i.test(value.trim())) {
         return "";
@@ -317,8 +348,10 @@ const normalizeProseText = (value, stripSummaryPrefix = false) => {
     }
     text = text
         .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(ILLEGAL_CONTROL_CHAR_PATTERN, "")
         .replace(/\u00A0/g, " ")
         .replace(/\t/g, " ")
+        .replace(/\r\n/g, "\n")
         .replace(/\s+$/gm, "")
         .replace(/^\s+/gm, (match) => (match.includes("\n") ? match : ""));
     if (stripSummaryPrefix) {
@@ -350,6 +383,66 @@ const sanitizeProsePayload = (payload, stripSummaryPrefix = false) => {
         note: note.length > 0 ? note : undefined,
         chapters,
     };
+};
+const normalizeStoryParagraph = (value) => normalizeWrappedText(normalizeProseText(value))
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+const toStoryFileToken = (projectId) => {
+    const normalized = projectId
+        .normalize("NFC")
+        .replace(/[^a-zA-Z0-9_-]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+    if (!normalized)
+        return "unknown";
+    return normalized.toLowerCase().startsWith("project_")
+        ? normalized.slice("project_".length)
+        : normalized;
+};
+const buildReadableStoryText = (prose, fallbackTitle) => {
+    const title = normalizeProseText(prose.title || prose.note || fallbackTitle || "Mystery Story");
+    const chapters = Array.isArray(prose.chapters)
+        ? prose.chapters
+        : [];
+    const lines = [title.length > 0 ? title : "Mystery Story"];
+    chapters.forEach((chapter, index) => {
+        const chapterTitle = normalizeProseText(chapter.title) || `Chapter ${index + 1}`;
+        lines.push("", `Chapter ${index + 1}: ${chapterTitle}`, "");
+        const summary = normalizeProseText(chapter.summary, true);
+        if (summary) {
+            lines.push(`Summary: ${summary}`, "");
+        }
+        const paragraphs = Array.isArray(chapter.paragraphs) ? chapter.paragraphs : [];
+        const cleanedParagraphs = paragraphs
+            .map((paragraph) => normalizeStoryParagraph(paragraph))
+            .filter((paragraph) => paragraph.length > 0);
+        if (!cleanedParagraphs.length) {
+            lines.push("[Chapter text unavailable]");
+            return;
+        }
+        const expandedParagraphs = cleanedParagraphs.flatMap((paragraph) => splitLongParagraph(paragraph));
+        expandedParagraphs.forEach((paragraph, paragraphIndex) => {
+            lines.push(paragraph);
+            if (paragraphIndex < expandedParagraphs.length - 1) {
+                lines.push("");
+            }
+        });
+    });
+    return `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`;
+};
+const saveReadableStoryText = async (projectId, prose, fallbackTitle) => {
+    const storyText = buildReadableStoryText(prose, fallbackTitle);
+    // Convert smart quotes to straight quotes for better compatibility with text editors
+    const compatibleText = storyText
+        .replace(/[\u2018\u2019]/g, "'") // smart single quotes → straight apostrophe
+        .replace(/[\u201C\u201D]/g, '"') // smart double quotes → straight quotes
+        .replace(/\u2026/g, '...') // ellipsis → three dots
+        .replace(/[\u2013\u2014]/g, '-'); // en/em dash → hyphen
+    const filename = `project_${toStoryFileToken(projectId)}.txt`;
+    const filePath = path.join(storiesDir, filename);
+    await fs.mkdir(storiesDir, { recursive: true });
+    await fs.writeFile(filePath, compatibleText, "utf-8");
+    return filename;
 };
 const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
     const repo = await repoPromise;
@@ -492,6 +585,13 @@ const runPipeline = async (repoPromise, projectId, runId, specPayload) => {
         const sanitizedProse = sanitizeProsePayload(result.prose);
         await repo.createArtifact(projectId, `prose_${inputs.targetLength}`, sanitizedProse, null);
         await repo.addRunEvent(runId, "prose_done", `Prose generated (${inputs.targetLength} format)`);
+        try {
+            const storyFilename = await saveReadableStoryText(projectId, sanitizedProse, synopsis.title);
+            await repo.addRunEvent(runId, "story_text_done", `Story text saved (${storyFilename})`);
+        }
+        catch (storySaveError) {
+            await repo.addRunEvent(runId, "story_text_warning", `Story text save skipped: ${describeError(storySaveError)}`);
+        }
         await repo.addRunEvent(runId, "pipeline_complete", `Mystery generation complete! Total cost: £${result.metadata.totalCost.toFixed(4)} | Duration: ${(result.metadata.totalDurationMs / 1000).toFixed(1)}s | Status: ${result.status}`);
         if (result.warnings.length > 0) {
             await repo.addRunEvent(runId, "pipeline_warnings", `Warnings: ${result.warnings.join(", ")}`);
@@ -1267,9 +1367,21 @@ export const createServer = () => {
                 return;
             }
             const synopsis = await repo.getLatestArtifact(req.params.id, "synopsis");
-            const fallbackTitle = synopsis?.payload && typeof synopsis.payload === "object"
+            const project = await repo.getProject(req.params.id);
+            const prosePayload = artifact.payload;
+            const synopsisTitle = synopsis?.payload && typeof synopsis.payload === "object"
                 ? synopsis.payload.title
                 : undefined;
+            const fallbackTitle = (typeof prosePayload.title === "string" && prosePayload.title.trim().length > 0
+                ? prosePayload.title
+                : undefined)
+                || (typeof synopsisTitle === "string" && synopsisTitle.trim().length > 0
+                    ? synopsisTitle
+                    : undefined)
+                || (typeof project?.name === "string" && project.name.trim().length > 0
+                    ? project.name
+                    : undefined)
+                || "Mystery Story";
             const sanitizedProse = sanitizeProsePayload(artifact.payload);
             const pdfBuffer = await buildProsePdf(sanitizedProse, fallbackTitle);
             const lengthSuffix = length ? `_${length}` : "";

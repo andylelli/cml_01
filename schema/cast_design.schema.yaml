@@ -46,6 +46,11 @@ characters:
       characterArcPotential:
         type: string
         required: true
+      gender:
+        type: string
+        required: false
+        allowed: [male, female, non-binary]
+        description: "Character's gender — propagated verbatim into CML and prose agent"
 
 relationships:
   type: object
@@ -91,34 +96,27 @@ crimeDynamics:
   type: object
   required: true
   fields:
+    possibleCulprits:
+      type: array
+      required: true
+      items: string
+    redHerrings:
+      type: array
+      required: true
+      items: string
     victimCandidates:
       type: array
       required: true
       items: string
-    suspectPool:
+    detectiveCandidates:
       type: array
       required: true
       items: string
-    culpritViability:
-      type: array
-      required: true
-      items:
-        type: object
-        fields:
-          character:
-            type: string
-            required: true
-          plausibility:
-            type: string
-            required: true
-          reasoning:
-            type: string
-            required: true
 
 cost:
   type: number
   required: true
 
-durationMs:
+latencyMs:
   type: number
   required: true

@@ -3,6 +3,7 @@ import type { GenerationReport } from "./types";
 
 const props = defineProps<{
   report: GenerationReport | null;
+  loading?: boolean;
 }>();
 
 const gradeColors: Record<string, string> = {
@@ -48,7 +49,9 @@ const exportJson = () => {
   const a = document.createElement("a");
   a.href = url;
   a.download = `quality-report-${props.report.run_id ?? "export"}.json`;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
 
@@ -89,7 +92,10 @@ const phaseLabel = (agent: string) => {
     <!-- Header row: grade badge + status -->
     <div class="flex flex-wrap items-start justify-between gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div>
-        <div class="text-sm font-semibold text-slate-700">Generation Quality Report</div>
+        <div class="flex items-center justify-between">
+          <div class="text-sm font-semibold text-slate-700">Generation Quality Report</div>
+          <span v-if="loading" class="text-xs text-slate-400 animate-pulse">Refreshing…</span>
+        </div>
         <div class="mt-1 text-xs text-slate-500">{{ formatDate(report.generated_at) }}</div>
         <div class="mt-1 text-xs text-slate-500">Mode: <span class="font-medium capitalize">{{ report.threshold_config.mode }}</span></div>
       </div>

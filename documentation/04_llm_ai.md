@@ -96,6 +96,10 @@ Critical gaps trigger one Agent 5 retry with violation feedback before proceedin
 **CML-level feedback loop (implemented):** Structural failures (inference_path_abstract or constraint_space_insufficient) escalate to Agent 4 CML revision with targeted repair instructions. The revised CML is re-run through Agent 5 + Agent 6.
 **Pipeline hard stop (implemented):** Persistent critical failures after CML retry abort the pipeline with a descriptive error.
 **Cost circuit breaker (implemented):** Fair-play retry LLM cost is capped at $0.15 (MAX_FAIR_PLAY_RETRY_COST). If the cap is exceeded, the pipeline aborts to prevent runaway spend on irrecoverable failures.
+**Prevention measures (implemented):** To prevent fair play violations from being generated in the first place, architectural constraints are enforced in both narrative outline (Agent 7) and prose generation (Agent 9):
+  - **Agent 7 (Narrative Outline)**: Explicit clue sequencing rules enforce minimum scene spacing between clue revelation and clue usage. Clue revelation scenes must occur in Act I or early-mid Act II. Investigation/processing scenes must occur AFTER clues are revealed. Discriminating test scene must be in late Act II or early Act III and can ONLY use clues already revealed. Confrontation scene must be at least 1-2 scenes AFTER discriminating test. Violation examples and correct sequencing patterns provided.
+  - **Agent 9 (Prose Generation)**: Fair play guardrails prevent within-chapter violations. If clue discovered in chapter N, detective can only analyze/use it in chapter N+1 or later. Reader must see all clues BEFORE detective uses them. Discriminating test can only use clues revealed at least 1 chapter earlier. Confrontation cannot surprise reader with withheld facts. These guardrails ensure proper information parity even when narrative structure is correct.
+**Release gate enforcement (implemented):** Fair play scores <60/100 or any 0-score dimension violations abort the run at release gate before marking complete (see Architecture Backend documentation for details).
 
 ### 7) Outline generation
 **Purpose:** Build chapter/act outline with proper clue placement.
@@ -123,6 +127,10 @@ Critical gaps trigger one Agent 5 retry with violation feedback before proceedin
   - `speechMannerisms` (verbal tics, rhythm, formality, humour delivery)
   The LLM is given detailed humour assignment guidelines (style-to-personality mapping, contrast requirements, detective voice constraints) and must ensure not all characters are humorous
 **Current build:** LLM-generated profiles with voice/personality extraction (implemented).
+
+Validation/remediation update:
+- Retry-time validation now evaluates telemetry-complete shapes for Agent 2b/2c/2d outputs to avoid false `cost`/`durationMs` schema failures.
+- Generic retry wrapper returns the actual last-attempt artifact after retry exhaustion (no extra post-failure generation call).
 
 ### 7c) Location profile generation (optional)
 **Purpose:** Generate comprehensive location profiles with sensory details.
@@ -171,6 +179,7 @@ Critical gaps trigger one Agent 5 retry with violation feedback before proceedin
   6. Strong paragraph structure (hook, develop, close)
   7. Pacing variation (short for action, long for atmosphere)
   8. Emotional subtext using character secrets and stakes
+  9. Scene grounding contract (implemented): each chapter opening anchors to a named location, includes 2+ sensory cues, and includes at least one atmosphere marker.
 **Validation:** must not introduce new facts; style must not copy copyrighted text; validates against prose.schema.yaml
 **Setting fidelity:** prose references specific geographic location (e.g., "Little Middleton, England") and stays within CML setting type
 **Period authenticity:** fashion descriptions, cultural references, and prices match temporal context; no anachronisms
@@ -181,6 +190,10 @@ Long outlines are generated in scene batches to ensure all chapters are produced
   - Setting fidelity (no location type drift, maintains CML setting)
   - Discriminating test presence (late chapters must include test scene)
   - Prose quality (paragraph count, length variation, sentence variety)
+Before validation runs, Agent 9 applies a defensive prose sanitization pass that replaces invented titled names not present in cast (e.g., `Detective Harlow`, `Inspector Reed`) with anonymous role phrases (`the detective`, `an inspector`). This reduces phantom-name retry loops while preserving narrative flow.
+This logic is centralized in a shared `@cml/story-validation` utility so detection and sanitization use the exact same matching rules.
+Agent 9 prose generation now uses a lower creativity setting (temperature 0.45) to reduce recurrent genre-attractor phantom names in early/late chapters.
+Chapter validation now also checks readability density (minimum paragraph structure, overlong wall-of-text blocks), scene-grounding quality, and chapter-level encoding integrity (mojibake/illegal control characters) so retries can repair these issues before full-story persistence.
 Critical/major issues trigger automatic batch regeneration (max 2 attempts per batch) with specific feedback about what failed. This catch-and-fix approach prevents accumulation of errors across the full story.
 **Current build:** LLM-generated prose with full artifact context integration and per-batch content validation (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
@@ -208,7 +221,8 @@ Critical/major issues trigger automatic batch regeneration (max 2 attempts per b
 - Handles retries, timeouts, rate limits, and logging
 - Supports model routing per agent (e.g., reasoning model for CML validation, fast model for outline)
 - Enforces JSON mode and schema constraints
-- The deployment name is always taken from `AZURE_OPENAI_DEPLOYMENT_NAME` (set to GPT-4o-mini)
+- Non-prose agents use `AZURE_OPENAI_DEPLOYMENT_NAME` (default deployment)
+- Prose generation (Agent 9) uses `AZURE_OPENAI_DEPLOYMENT_NAME_PROSE` when set; otherwise it falls back to `AZURE_OPENAI_DEPLOYMENT_NAME`
 
 ## Prompting strategy
 - System + developer instructions per agent
@@ -226,9 +240,12 @@ Critical/major issues trigger automatic batch regeneration (max 2 attempts per b
 - Schema validation implementation is staged via a shared package (Phase 2) and now validates required fields, types, and allowed enums based on the custom CML schema format.
 - CML validation now includes validateInferencePathQuality (min 3 steps, observation length, required_evidence, reader_observable, no duplicates) and validateCrossReferences (discriminating_test vs inference_path overlap, fair_play explanation brevity). Cross-reference checks are non-blocking (advisory) to avoid breaking LLM-generated content in revision loops.
 - Story validation now includes `NarrativeContinuityValidator`, `CaseTransitionValidator`, `DiscriminatingTestValidator`, and `SuspectClosureValidator`.
+- Narrative continuity checks now also detect month/season temporal contradictions and investigator-role drift without explicit handoff scenes.
 - **Semantic validation fallback**: Validators use a hybrid approach: regex keyword validation first (fast, zero cost), then LLM-based semantic validation if regex fails (preserves natural prose quality while ensuring correctness). This allows Agent 9 to write naturally without forcing keywords like "eliminated", "ruled out", "therefore" while still catching actual logic errors. Semantic validation costs ~$0.001-0.003 per scene when triggered.
 - Before final release-gate evaluation, prose generation now runs a preventive repair pass when validation flags discriminating-test gaps, suspect-closure gaps, missing case-transition bridge, or identity alias continuity breaks; the repair pass adds explicit quality guardrails to Agent 9 instructions.
-- Release gate enforcement now records warnings (instead of blocking completion) when continuity-critical issues remain, mojibake remains, discriminating-test scenes are missing, or suspect closure is incomplete.
+- Agent 9 now applies baseline guardrails on every prose call (canonical cast names only, explicit suspect-elimination coverage, explicit culprit evidence chain), even before validation retries are needed.
+- Preventive prose repair now runs for `needs_revision` validation outcomes in addition to hard `failed` outcomes.
+- Release gate enforcement now hard-stops on critical prose defects (mojibake/encoding corruption, template leakage, temporal contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, unresolved suspect-closure gaps) and keeps readability/scene-grounding shortfalls as warnings for review.
 
 ## Safety & compliance
 - Avoid copyrighted text replication

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 export interface ProseChapter {
   title: string;
@@ -20,6 +20,11 @@ const props = defineProps<{
 }>();
 
 const currentChapterIndex = ref(0);
+
+// Reset to chapter 1 whenever a new prose object is loaded (U-3 fix)
+watch(() => props.prose, () => {
+  currentChapterIndex.value = 0;
+});
 
 const currentChapter = computed(() => {
   if (!props.prose?.chapters.length) return null;

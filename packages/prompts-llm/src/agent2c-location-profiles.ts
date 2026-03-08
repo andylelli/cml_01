@@ -20,6 +20,16 @@ export interface SensoryDetails {
   tactile: string[];
 }
 
+export interface SensoryVariant {
+  id: string;
+  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+  weather: string;
+  sights: string[];
+  sounds: string[];
+  smells: string[];
+  mood: string;
+}
+
 export interface KeyLocation {
   id: string;
   name: string;
@@ -28,6 +38,8 @@ export interface KeyLocation {
   visualDetails: string;
   sensoryDetails: SensoryDetails;
   accessControl: string;
+  /** 3-4 distinct sensory palette variants enabling atmospheric variety across chapters */
+  sensoryVariants?: SensoryVariant[];
   paragraphs: string[];
 }
 
@@ -47,8 +59,8 @@ export interface AtmosphereProfile {
 export interface PrimaryLocationProfile {
   name: string;
   type: string;
-  place: string; // Specific town/city/village
-  country: string; // UK, France, Italy, etc.
+  place?: string; // Specific town/city/village (optional per schema)
+  country?: string; // UK, France, Italy, etc. (optional per schema)
   summary: string;
   visualDescription: string;
   atmosphere: string;
@@ -94,7 +106,12 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErr
   const narrativeActs = Array.isArray(inputs.narrative.acts) ? inputs.narrative.acts : [];
   const allScenes = narrativeActs.flatMap((act) => Array.isArray(act.scenes) ? act.scenes : []);
   const sceneLocations = allScenes
-    .map((scene: any) => scene.setting || scene.location)
+    .map((scene: any) => {
+      const raw = scene.setting || scene.location;
+      if (typeof raw === 'string') return raw;
+      if (raw && typeof raw === 'object') return raw.name || raw.id || null;
+      return null;
+    })
     .filter((loc): loc is string => Boolean(loc));
   const uniqueLocations = Array.from(new Set(sceneLocations)).slice(0, 5);
 
@@ -147,6 +164,35 @@ Return JSON with this structure:
         "tactile": ["Full 2-sentence tactile description — temperature, texture, humidity", "A second tactile detail relevant to the space"]
       },
       "accessControl": "Who can access this location and when",
+      "sensoryVariants": [
+        {
+          "id": "morning_rain",
+          "timeOfDay": "morning",
+          "weather": "rain",
+          "sights": ["rain-streaked windows", "grey light across flagstones"],
+          "sounds": ["steady drumming on the roof", "water trickling in the gutters"],
+          "smells": ["damp earth", "mildew", "cold stone"],
+          "mood": "oppressive"
+        },
+        {
+          "id": "afternoon_grey",
+          "timeOfDay": "afternoon",
+          "weather": "overcast",
+          "sights": ["flat pewter light", "shadows without edges"],
+          "sounds": ["silence broken by a distant clock", "the creak of old timbers"],
+          "smells": ["beeswax", "dust", "woodsmoke"],
+          "mood": "uneasy stillness"
+        },
+        {
+          "id": "evening_clear",
+          "timeOfDay": "evening",
+          "weather": "clear",
+          "sights": ["candlelight catching brass fittings", "long shadows across the floor"],
+          "sounds": ["the tick of a mantel clock", "distant voices from below stairs"],
+          "smells": ["candle wax", "tobacco", "cold fireplace ash"],
+          "mood": "tense anticipation"
+        }
+      ],
       "paragraphs": ["Paragraph 1", "Paragraph 2"]
     }
   ],
@@ -178,8 +224,9 @@ Requirements:
 
 CRITICAL FIELD REQUIREMENTS:
 - keyLocations MUST be an array of OBJECTS (not strings)
-- Each keyLocation object MUST have: id, name, type, purpose, visualDetails, sensoryDetails, accessControl, paragraphs
+- Each keyLocation object MUST have: id, name, type, purpose, visualDetails, sensoryDetails, accessControl, sensoryVariants, paragraphs
 - sensoryDetails MUST be an object with arrays: sights, sounds, smells, tactile
+- sensoryVariants MUST be an array of 3-4 objects, each with: id (string), timeOfDay (morning|afternoon|evening|night), weather (string), sights (string[]), sounds (string[]), smells (string[]), mood (string). Cover morning-rain, afternoon-grey, and evening-clear as a minimum. These objects drive atmospheric variety across chapters.
 - type field MUST be one of: "interior", "exterior", "transitional"
 - Do NOT return location names as strings - always return complete objects with all required fields${validationFeedback}`;
 
@@ -236,7 +283,12 @@ export async function generateLocationProfiles(
     agentName: "Agent 2c (Location Profiles)",
     validationFn: (data) => {
       // Validate against location_profiles schema
-      const validation = validateArtifact("location_profiles", data);
+      const validationPayload = {
+        ...(data as Record<string, unknown>),
+        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
+        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
+      };
+      const validation = validateArtifact("location_profiles", validationPayload);
       return {
         valid: validation.valid,
         errors: validation.errors,

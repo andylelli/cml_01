@@ -114,18 +114,41 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
   }
 
   // 2. Discriminating test evidence
+  // CRITICAL: These clues MUST be placed early or mid — they must reach the reader BEFORE the discriminating test scene.
+  // The test should exploit already-known evidence, not introduce it for the first time.
   if (caseData?.discriminating_test?.design) {
     requirements.push({
-      requirement: `Generate a clue that provides observable evidence for the discriminating test: "${(caseData.discriminating_test.design || '').substring(0, 100)}..."`,
-      supportsInferenceStep: undefined, // Test synthesis, not specific step
+      requirement: `Generate a clue that provides observable evidence the reader must see BEFORE the discriminating test can be understood. The test exploits this evidence — it does NOT reveal it. Evidence for: "${(caseData.discriminating_test.design || '').substring(0, 100)}..."`,
+      supportsInferenceStep: undefined, // Test synthesis, not a specific step
       evidenceType: "observation",
       criticality: "essential",
       sourceInCML: `discriminating_test.design`,
       keyTerms: extractKeyTerms(caseData.discriminating_test.design),
-      suggestedPlacement: "mid",
+      suggestedPlacement: "mid", // Never late — must precede the test scene
       category: inferCategory(caseData.discriminating_test.design)
     });
   }
+
+  // 2b. Culprit premeditation / planning evidence
+  // If the culprit's guilt relies on premeditation, that must be reader-visible BEFORE confrontation.
+  const culpritNames: string[] = Array.isArray(caseData?.culpability?.culprits) ? caseData.culpability.culprits : [];
+  const culpritCast = Array.isArray(caseData?.cast)
+    ? caseData.cast.filter((c: any) => culpritNames.includes(c.name))
+    : [];
+  culpritCast.forEach((culprit: any) => {
+    if (culprit.motive_seed || culprit.private_secret) {
+      requirements.push({
+        requirement: `Generate a clue showing observable evidence of ${culprit.name}'s premeditation or planning (${culprit.motive_seed ?? culprit.private_secret ?? 'motive'}). This MUST be visible to the reader before the confrontation scene — the detective cannot privately know this and withhold it.`,
+        supportsInferenceStep: undefined,
+        evidenceType: "observation",
+        criticality: "essential",
+        sourceInCML: `cast[${culprit.name}].motive_seed`,
+        keyTerms: extractKeyTerms(culprit.motive_seed ?? culprit.private_secret ?? ''),
+        suggestedPlacement: "mid",
+        category: "behavioral"
+      });
+    }
+  });
 
   // 3. Suspect elimination clues
   if (Array.isArray(caseData?.cast)) {
@@ -191,41 +214,68 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
   // ELEGANT SOLUTION: Pre-analyze CML to generate explicit requirements
   const requiredClues = generateExplicitClueRequirements(cml);
 
-  // System prompt: Clue extraction specialist (minimal)
-  const system = `Golden Age mystery clue specialist. Generate ${requiredClues.length} mandatory + additional clues.
+  // --- System prompt ---
+  const system = `You are a clue extraction specialist for Golden Age mystery fiction. Extract clues ONLY from existing CML facts and organize them for fair play presentation.
 
 **Rules**:
+- Extract clues ONLY from existing CML facts — never invent new information
+- Every clue must be traceable to the CML structure
 - Concrete, specific descriptions (not abstract)
-- Observable by reader in scenes
-- No detective-only information
-- Cite sourceInCML
-- Missing mandatory clues = regeneration
+- Observable by reader in scenes, not detective-only information
+- Cite sourceInCML for every clue
+- All essential clues must appear before the solution so the reader can solve the mystery
+- fair play is the core principle: every logical step must be supported by visible evidence
 
-**Categories**: temporal, spatial, physical, behavioral, testimonial
+**Clue Categories**:
+- **Temporal**: Time-based evidence (clocks, schedules, alibis, timelines)
+- **Spatial**: Location and access evidence (rooms, distances, locked doors)
+- **Physical**: Tangible evidence (objects, traces, fingerprints, injuries)
+- **Behavioral**: Pattern evidence (habits, reactions, suspicious actions)
+- **Testimonial**: Witness statements and testimony
 
 **Example**: ❌ "Timeline discrepancies" ✅ "Mrs. Whitmore says 9:45, but library clock stopped at 9:15"
 
 Return valid JSON.`;
 
-  // Developer prompt: Compact requirements format
-  const densityGuidance = {
-    minimal: `0-2`,
-    moderate: `2-4`,
-    dense: `4-6`,
+  // --- Developer prompt ---
+  const primaryAxis = caseData?.false_assumption?.type
+    ? `${caseData.false_assumption.type} axis`
+    : "unknown axis";
+  const castCount = Array.isArray(caseData?.cast) ? caseData.cast.length : 0;
+  const title = caseData?.meta?.title || "Untitled";
+  const category = caseData?.meta?.crime_class?.category || "crime";
+  const falseAssumptionStatement = caseData?.false_assumption?.statement || "N/A";
+
+  // Constraint space
+  const constraintSpace = caseData?.constraint_space ?? {};
+  const timeAnchors: string[] = constraintSpace.time?.anchors ?? [];
+  const timeContradictions: string[] = constraintSpace.time?.contradictions ?? [];
+  const accessActors: string[] = constraintSpace.access?.actors ?? [];
+  const accessObjects: string[] = constraintSpace.access?.objects ?? [];
+  const physicalTraces: string[] = constraintSpace.physical?.traces ?? [];
+
+  // Evidence-sensitive characters
+  const evidenceSensitiveChars = Array.isArray(caseData?.cast)
+    ? caseData.cast.filter((c: any) => Array.isArray(c.evidence_sensitivity) && c.evidence_sensitivity.length > 0)
+    : [];
+
+  // Density details
+  const densityDetails: Record<string, { label: string; count: string; range: string }> = {
+    minimal: { label: "minimal", count: "5-8 essential clues", range: "0-2" },
+    moderate: { label: "moderate", count: "8-12 clues", range: "2-4" },
+    dense: { label: "dense", count: "12-18 clues", range: "4-6" },
   };
-  
-  // Extract constraint counts from CML
-  const anchors = caseData?.constraint_space?.time?.anchors || [];
-  const contradictions = caseData?.constraint_space?.time?.contradictions || [];
-  const actors = caseData?.constraint_space?.access?.actors || [];
-  const objects = caseData?.constraint_space?.access?.objects || [];
-  const traces = caseData?.constraint_space?.physical?.traces || [];
+  const densityInfo = densityDetails[clueDensity];
 
-  let developer = `# ${requiredClues.length} MANDATORY CLUES + ${densityGuidance[clueDensity]} additional
+  let developer = `## CML Summary
+**Title**: ${title}
+**Crime**: ${category}
+**Primary axis**: ${primaryAxis}
+**Cast**: ${castCount} characters
 
+## Mandatory Clue Requirements (${requiredClues.length} required)
 `;
 
-  // Compact table format for requirements
   requiredClues.forEach((req, idx) => {
     developer += `${idx + 1}. ${req.requirement}\n`;
     developer += `   → ${req.evidenceType} | ${req.criticality} | ${req.suggestedPlacement} | ${req.category}`;
@@ -234,13 +284,46 @@ Return valid JSON.`;
     developer += `\n\n`;
   });
 
-  developer += `
-**Context**: ${caseData.meta?.title} | ${caseData.cast?.length}ch | ${anchors.length}t ${contradictions.length}a ${actors.length}act ${objects.length}obj ${traces.length}tr
-**+Clues**: ${densityGuidance[clueDensity]} optional
-**RH**: ${redHerringBudget} max (support false assumption: "${caseData.false_assumption?.statement || 'N/A'}")
-**Placement**: Early=setup; Mid=evidence; Late=clinchers
+  developer += `## Temporal Constraints
+${[...timeAnchors, ...timeContradictions].map(a => `- ${a}`).join('\n') || 'None'}
 
-**Criticality**: Essential=must-see (early/mid only); Supporting=reinforces; Optional=texture
+## Access Constraints
+Actors: ${accessActors.join(', ') || 'None'}
+Objects: ${accessObjects.join(', ') || 'None'}
+
+## Physical Evidence
+${physicalTraces.map(t => `- ${t}`).join('\n') || 'None'}
+
+`;
+
+  if (evidenceSensitiveChars.length > 0) {
+    developer += `## Evidence-Sensitive Characters\n`;
+    for (const char of evidenceSensitiveChars) {
+      developer += `- ${(char as any).name}: sensitive items: ${((char as any).evidence_sensitivity as string[]).join(', ')}\n`;
+    }
+    developer += `\n`;
+  }
+
+  developer += `## Clue Density: ${densityInfo.label}
+Generate ${densityInfo.count} total. Additional optional clues (${densityInfo.range} extra) for texture.
+
+## Red Herring Budget: ${redHerringBudget}
+`;
+  if (redHerringBudget > 0) {
+    developer += `Create ${redHerringBudget} red herrings that support the false assumption: "${falseAssumptionStatement}"\n\n`;
+  } else {
+    developer += `No red herrings requested.\n\n`;
+  }
+
+  developer += `## Clue Placement Strategy
+- Early (Act I): essential clues, set up the puzzle, introduce key observations
+- Mid (Act II): supporting clues, deepen investigation, complicate the picture
+- Late (Act III): optional clues, final revelations, confirm the solution
+
+Criticality levels:
+- essential: reader must see this to follow the detective's logic
+- supporting: reinforces key deductions without being critical
+- optional: adds texture and atmosphere
 
 `;
 
@@ -248,8 +331,6 @@ Return valid JSON.`;
   const clueTargets = qualityControls?.clue_visibility_requirements ?? {};
   if (Object.keys(qualityControls).length > 0) {
     developer += `## Quality Controls (from CML)
-
-Use these targets to shape clue counts and placement:
 - Essential clues minimum: ${clueTargets.essential_clues_min ?? "N/A"}
 - Essential clues before test: ${String(clueTargets.essential_clues_before_test ?? "N/A")}
 - Early clues minimum: ${clueTargets.early_clues_min ?? "N/A"}
@@ -264,36 +345,59 @@ If targets conflict with clue density, prioritize fair play (essential clues and
   if (inputs.fairPlayFeedback) {
     const { overallStatus, violations = [], warnings = [], recommendations = [] } = inputs.fairPlayFeedback;
     developer += `## Fair Play Audit Feedback
+Status: **${overallStatus ?? "needs-review"}**
 
-The previous fair-play audit returned **${overallStatus ?? "needs-review"}**. Regenerate the clue distribution to resolve these issues:
+Violations: ${violations.length > 0 ? violations.map((v, i) => `${i + 1}. [${v.severity}] ${v.rule}: ${v.description}`).join('; ') : 'None'}
+Warnings: ${warnings.join('; ') || 'None'}
+Recommendations: ${recommendations.join('; ') || 'None'}
 
-### Violations
-${violations.length > 0 ? violations.map((v, i) => `${i + 1}. [${v.severity}] ${v.rule}: ${v.description} (Fix: ${v.suggestion})`).join("\n") : "None"}
-
-### Warnings
-${warnings.length > 0 ? warnings.map((w) => `- ${w}`).join("\n") : "None"}
-
-### Recommendations
-${recommendations.length > 0 ? recommendations.map((r) => `- ${r}`).join("\n") : "None"}
-
-**Regeneration Guidance**:
-- Keep all clues grounded in existing CML facts (no new facts).
-- Adjust clue placement (early/mid/late) so essential clues appear before the discriminating test.
-- Ensure the inference path is supported by explicit, discoverable clues.
-- If necessary, increase essential clues derived from inference path observations.
-- Remove any clue phrasing that implies private detective-only insight or withheld reader information.
+Regeneration: Adjust placement so essential clues appear before the discriminating test.
 
 `;
   }
 
-  // Output schema (minimal)
-  developer += `
-**Schema**: clues[]{id, category, description, sourceInCML, pointsTo, placement, criticality, supportsInferenceStep?, evidenceType} + redHerrings[]{id, description, supportsAssumption, misdirection}
-**Rule**: ALL ${requiredClues.length} mandatory + ${densityGuidance[clueDensity]} additional + ${redHerringBudget} RH
-`;
+  developer += `## Output JSON Schema
+\`\`\`json
+{
+  "clues": [
+    {
+      "id": "clue_1",
+      "category": "temporal|spatial|physical|behavioral|testimonial",
+      "description": "Concrete, specific clue description",
+      "sourceInCML": "Where in CML this comes from",
+      "pointsTo": "What it reveals",
+      "placement": "early|mid|late",
+      "criticality": "essential|supporting|optional",
+      "supportsInferenceStep": 1,
+      "evidenceType": "observation|contradiction|elimination"
+    }
+  ],
+  "redHerrings": [
+    {
+      "id": "rh_1",
+      "description": "Red herring description",
+      "supportsAssumption": "Which false assumption it supports",
+      "misdirection": "How it misleads"
+    }
+  ]
+}
+\`\`\``;
 
-  // User prompt (ultra-compact)
-  const user = `Generate ALL ${requiredClues.length} mandatory + additional clues. Concrete descriptions, cite sources, essential clues must use early/mid placement. Return JSON.`;
+  // --- User prompt ---
+  const densityCountText: Record<string, string> = { minimal: "5-8", moderate: "8-12", dense: "12-18" };
+  const rhUserText = redHerringBudget > 0 ? ` and ${redHerringBudget} red herrings` : "";
+
+  const user = `Extract and organize clues from this mystery CML.
+
+Generate ${densityCountText[clueDensity]} clues${rhUserText} that uphold fair play — every essential clue must be placed so the reader can solve the mystery before the detective reveals the answer.
+
+Rules:
+- Do NOT invent new facts — every clue must be traceable to CML
+- Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.
+- DISCRIMINATING TEST CLUES: Any clue that enables the discriminating test to make sense must be placed "early" or "mid". The discriminating test scene exploits knowledge the reader already has — it must NEVER be the reader's first exposure to the mechanism detail.
+- PREMEDITATION CLUES: If the culprit's guilt depends on premeditation or planning, that evidence must be a separate reader-visible clue placed "early" or "mid". The detective cannot withhold this from the reader until confrontation.
+- Cite sourceInCML for every clue
+- Return valid JSON matching the Output JSON Schema above`;
 
   return {
     system,

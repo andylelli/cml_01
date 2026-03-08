@@ -635,15 +635,16 @@ export function adaptNarrativeForScoring(
 ): ScorerNarrativeOutlineOutput {
   const nameMap = castMembers ? buildCastNameMap(castMembers) : new Map<string, string>();
 
-  // Keywords that indicate a discriminating/confrontation/reveal scene
-  const DISCRIMINATING_KEYWORDS = /\b(confront|accus|reveal|denouement|unmas|expos|reck|arrest|final\s+reveal|confess|trap|gather.*suspects?|summon.*suspects?)\b/i;
+  // Keywords that indicate a discriminating/confrontation/reveal scene.
+  // Trailing \b after the group removed — it blocked stem-matches like "confronted". (N-2 fix)
+  const DISCRIMINATING_KEYWORDS = /\b(confront|accus|reveal|denouement|unmas|expos|reck|arrest|final\s+reveal|confess|trap|gather.*suspects?|summon.*suspects?)/i;
 
   let discriminatingActIndex = -1;
   let discriminatingSceneIndex = -1;
   let discriminatingScene: Scene | null = null;
 
-  // Scan all scenes for the best discriminating candidate
-  outer: for (let ai = 0; ai < (narrative.acts || []).length; ai++) {
+  // Scan all scenes for the best discriminating candidate (outer: label removed — N-5 fix)
+  for (let ai = 0; ai < (narrative.acts || []).length; ai++) {
     const act = narrative.acts[ai];
     for (let si = 0; si < (act.scenes || []).length; si++) {
       const s = act.scenes[si];
@@ -677,7 +678,8 @@ export function adaptNarrativeForScoring(
         chapter_number: sequentialChapterNum,
         chapter_title: scene.title || `Scene ${scene.sceneNumber}`,
         scenes: [{
-          scene_id: `scene_${scene.sceneNumber}`,
+          // Fallback to 1-based index when sceneNumber is undefined (N-4 fix)
+          scene_id: `scene_${scene.sceneNumber ?? (sceneIndex + 1)}`,
           location: scene.setting?.location || '',
           characters_present,
           action: scene.summary || scene.purpose || '',
@@ -720,7 +722,8 @@ export function adaptNarrativeForScoring(
   const discriminating_test_scene = discriminatingScene
     ? {
         chapter_number: discriminatingChapterNum,
-        scene_id: `scene_${discriminatingScene.sceneNumber}`,
+        // Same fallback as chapter build (N-4 fix)
+        scene_id: `scene_${discriminatingScene.sceneNumber ?? (discriminatingSceneIndex + 1)}`,
         description: discriminatingScene.summary || discriminatingScene.purpose || discriminatingScene.title,
       }
     : undefined;
@@ -746,22 +749,30 @@ export interface ChapterProse {
 
 export interface ProseOutput {
   chapters: ChapterProse[];
+  // Added so adaptProseForScoring can populate the fair-play consistency test (P-1 fix)
+  fair_play_validation?: {
+    all_clues_visible?: boolean;
+    discriminating_test_complete?: boolean;
+    no_solution_spoilers?: boolean;
+  };
 }
 
 // Regex that matches the kind of language the prose uses when running a
 // discriminating / confrontation / denouement scene.
+// .* replaced with [^.!?]{0,80} to prevent cross-sentence false positives (P-5 fix)
 const DISCRIMINATING_PROSE_RE =
-  /\b(accus|confess|confronted?|unmasked?|reveal(?:ed|s)|the murderer|the killer|guilty|arrested?|the culprit|gathered.*suspects?|gathered.*everyone|explained.*crime|solved\b|the solution|the truth|now i know|i accuse|i name\b)/i;
+  /\b(accus|confess|confronted?|unmasked?|reveal(?:ed|s)|the murderer|the killer|guilty(?!\w)|arrested?|the culprit|gathered[^.!?]{0,80}suspects?|gathered[^.!?]{0,80}everyone|explained[^.!?]{0,80}crime|solved(?!\w)|the solution|the truth|now i know|i accuse|i name(?!\w))/i;
 
 export function adaptProseForScoring(
   proseChapters: any[],
   cmlCase?: any,          // pass (cml as any).CASE for clue extraction
 ): ProseOutput {
-  // Build a set of known clue IDs from the CML for clue-presence matching
-  const knownClueIds: string[] = [
-    ...(cmlCase?.clue_registry?.map((c: any) => String(c.clue_id || '')) ?? []),
-    ...(cmlCase?.hard_logic_devices?.map((d: any) => String(d.clue_id || '')) ?? []),
-  ].filter(Boolean);
+  // Build a set of known clue IDs from the CML for clue-presence matching.
+  // Read from the canonical path: CASE.prose_requirements.clue_to_scene_mapping[].clue_id
+  // (CASE.clue_registry and CASE.hard_logic_devices do not exist in the cml_2_0 schema)
+  const knownClueIds: string[] = (
+    (cmlCase as any)?.prose_requirements?.clue_to_scene_mapping ?? []
+  ).map((m: any) => String(m.clue_id || '')).filter(Boolean);
 
   const chapters: ChapterProse[] = proseChapters.map((ch: any, idx: number) => {
     const prose: string = ch.paragraphs?.join('\n\n') ?? ch.prose ?? '';
@@ -783,5 +794,18 @@ export function adaptProseForScoring(
     };
   });
 
-  return { chapters };
+  // Populate fair_play_validation so the scorer's consistency check runs (P-1 fix)
+  const dtComplete = chapters.some(c => c.discriminating_test_present);
+  const allCluesVisible =
+    knownClueIds.length === 0 ||
+    knownClueIds.every(id => chapters.some(c => c.clues_present?.includes(id)));
+
+  return {
+    chapters,
+    fair_play_validation: {
+      all_clues_visible: allCluesVisible,
+      discriminating_test_complete: dtComplete,
+      no_solution_spoilers: true,
+    },
+  };
 }

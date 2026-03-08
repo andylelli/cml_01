@@ -231,7 +231,7 @@ ${invalidCml}
 3. **Fix allowed value errors** - use valid enum values
 4. **Preserve existing content** - don't rewrite working sections
 5. **Maintain narrative coherence** - fixes must make logical sense
-6. **Return COMPLETE YAML** - the entire fixed CML document
+6. **Return COMPLETE JSON** - the entire fixed CML document, not just the changed sections
 
 **IMPORTANT**: Return ONLY the corrected JSON. No explanations, no markdown code blocks, just the raw JSON that will parse and validate successfully.`;
 

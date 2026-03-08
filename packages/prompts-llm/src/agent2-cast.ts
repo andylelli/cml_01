@@ -24,6 +24,7 @@ export interface CastInputs {
   tone: string; // Golden age, noir, cozy, etc.
   socialContext?: string; // Class structure, institution type
   detectiveType?: 'police' | 'private' | 'amateur'; // Archetype of the investigator character
+  qualityGuardrails?: string[]; // Optional quality constraints (e.g., schema repair instructions)
 }
 
 export interface CharacterProfile {
@@ -39,6 +40,7 @@ export interface CharacterProfile {
   accessPlausibility: "impossible" | "unlikely" | "possible" | "easy";
   stakes: string;
   characterArcPotential: string;
+  gender?: 'male' | 'female' | 'non-binary';
 }
 
 export interface RelationshipWeb {
@@ -230,7 +232,8 @@ Return JSON only:
       "alibiWindow": "...",
       "accessPlausibility": "impossible|unlikely|possible|easy",
       "stakes": "...",
-      "characterArcPotential": "..."
+      "characterArcPotential": "...",
+      "gender": "male|female|non-binary"
     }
   ],
   "relationships": {
@@ -286,8 +289,12 @@ Return JSON only:
   The official police may be dismissive or obstructive. Other characters may refuse to speak to them. Their investigation must be earned through ingenuity and social navigation.`
     : `The police detective/inspector is summoned to the scene in an official capacity following a report of the crime. They have full investigative authority and witnesses are expected to cooperate. Their characterArcPotential should reflect any personal stakes, professional complications, or political pressures that complicate the official investigation.`;
 
-  const namesSection = inputs.characterNames 
-    ? `**Character Names**: ${inputs.characterNames.join(", ")}`
+  const namesSection = inputs.characterNames
+    ? `**Character Names** (pre-selected — use EXACTLY as given, do not alter, abbreviate, or substitute any name): ${inputs.characterNames.join(", ")}
+
+IMPORTANT: Exactly ONE of these ${count} characters is the investigator/detective. Assign that role to the character whose name and background best fits ${detectiveArchetype}. Their roleArchetype must be "${detectiveRoleLabel}".
+
+DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`
     : `**Cast Size**: Create exactly ${count} original characters. Generate names that are authentic to the era and setting (${inputs.setting}). Names must sound plausible for that time period and social class — not modern or anachronistic.
 
 IMPORTANT: Exactly ONE of the ${count} characters is the investigator/detective. That character must be ${detectiveArchetype}. Their roleArchetype must be "${detectiveRoleLabel}". The remaining ${count - 1} characters are suspects, witnesses, and victims.
@@ -314,13 +321,17 @@ DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`;
     ? "insider vs outsider dynamics"
     : "generational conflicts and changing values";
 
+  const namingDirectives = !inputs.characterNames
+    ? `- Naming Style: ${variation.namingPool}
+- NAMING RULE: Generate names that feel authentic to the naming style above. FORBIDDEN overused golden-age surnames (do NOT use any of these): Harrington, Whitfield, Ashford, Pemberton, Wentworth, Blackwood, Sterling, Thornton, Bancroft, Worthington, Montague, Greystone, Ashbourne, Hartley, Fletcher, Cunningham. Use fresh, surprising names the reader has not seen a hundred times.
+- FIRST-NAME INITIALS (MANDATORY): The ${count} characters' given names must begin with these letters (one per character, assign in any order you like): ${variation.nameInitials.join(', ')}. Every character must have a first name starting with one of these letters — no two characters may share the same initial. This guarantees name uniqueness across stories.
+`
+    : ``;
+
   const user = `Design detailed character profiles for the following mystery:
 
 VARIATION DIRECTIVES FOR THIS CAST:
-- Naming Style: ${variation.namingPool}
-- NAMING RULE: Generate names that feel authentic to the naming style above. FORBIDDEN overused golden-age surnames (do NOT use any of these): Harrington, Whitfield, Ashford, Pemberton, Wentworth, Blackwood, Sterling, Thornton, Bancroft, Worthington, Montague, Greystone, Ashbourne, Hartley, Fletcher, Cunningham. Use fresh, surprising names the reader has not seen a hundred times.
-- FIRST-NAME INITIALS (MANDATORY): The ${count} characters' given names must begin with these letters (one per character, assign in any order you like): ${variation.nameInitials.join(', ')}. Every character must have a first name starting with one of these letters — no two characters may share the same initial. This guarantees name uniqueness across stories.
-- Relationship Theme: Emphasize ${relationshipGuidance}
+${namingDirectives}- Relationship Theme: Emphasize ${relationshipGuidance}
 - Motive Distribution: ${motiveGuidance}
 - Social Dynamic: Highlight ${dynamicGuidance}
 
@@ -333,7 +344,7 @@ ${inputs.socialContext ? `**Social Context**: ${inputs.socialContext}` : ""}
 **Tone**: ${inputs.tone}
 
 Requirements:
-1. Create complete profiles for ALL ${count} characters — the characters array MUST have exactly ${count} entries
+1. Create complete profiles for all ${count} characters — the characters array MUST have exactly ${count} entries
 2. ONE character is the investigator/detective (roleArchetype: "${detectiveRoleLabel}") — they must NOT appear in crimeDynamics.possibleCulprits
 3. Ensure diverse representation (age, background, archetype)
 4. Build interconnected relationships with hidden tensions
@@ -343,13 +354,17 @@ Requirements:
 8. Avoid stereotypes and clichés
 9. Ensure each character has both public facade and private secrets
 10. Resolve any potential stereotypes; output stereotypeCheck as []
+11. Declare \`gender\` for each character: "male", "female", or "non-binary" (required — never omit)
 
 CRITICAL COMPLETENESS RULES:
 - The final characters array MUST have exactly ${count} entries — no more, no fewer
 - crimeDynamics.possibleCulprits MUST name at least ${Math.min(3, count - 1)} characters (suspects only — never the detective)
 - The detective character's roleArchetype MUST be "${detectiveRoleLabel}"
 
-Output JSON only.`;
+${inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0 ? `## Quality Guardrails (Must Satisfy)
+${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}
+
+` : ''}Output JSON only.`;
 
   // Azure OpenAI requires system + developer combined
   const messages = [
@@ -494,6 +509,7 @@ export async function designCast(
           accessPlausibility: char.accessPlausibility || "possible",
           stakes: char.stakes || "reputation",
           characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
+          gender: (['male', 'female', 'non-binary'].includes(char.gender) ? char.gender : 'non-binary') as 'male' | 'female' | 'non-binary',
           relationships: Array.isArray(char.relationships) ? char.relationships : [],
         }));
       }
@@ -511,6 +527,12 @@ export async function designCast(
           continue;
         }
       }
+
+      // Ensure every character has a gender declaration (fallback to non-binary)
+      cast.characters = cast.characters.map((char: any) => ({
+        ...char,
+        gender: (char.gender as string) || 'non-binary',
+      }));
 
       // Success!
       const latencyMs = Date.now() - startTime;

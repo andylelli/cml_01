@@ -1,0 +1,143 @@
+CML Run Reviews & Remediation Tracker
+=====================================
+
+Purpose
+-------
+Use this document to review each new generation run, capture defects, decide severity, and plan phased remediation.
+
+How to use
+----------
+1) Add one new "Run Review" section per run.
+2) Keep findings evidence-based (file path + line references where possible).
+3) Split remediation into phases (P0/P1/P2) with measurable acceptance criteria.
+4) Track status updates in-place (NOT-STARTED, IN-PROGRESS, DONE, BLOCKED).
+5) Close the review only when all Definition-of-Done checks pass.
+
+Severity model
+--------------
+- S0 Critical: corrupted output, invalid exports, blocking logic failures.
+- S1 High: major quality/coherence failures that degrade reader trust.
+- S2 Medium: noticeable quality issues, but story remains usable.
+- S3 Low: polish issues and minor style inconsistencies.
+
+Status model
+------------
+- NOT-STARTED
+- IN-PROGRESS
+- DONE
+- BLOCKED
+
+Standard review template
+------------------------
+Run ID:
+Date:
+Project:
+Story file:
+Reviewer:
+Overall assessment: PASS | DEGRADED | FAIL
+
+Observed defects
+- [Severity] Defect title
+  Evidence:
+  Impact:
+  Root-cause hypothesis:
+
+Phased remediation plan
+P0 Containment (same day)
+- Action:
+- Owner area:
+- Status:
+- Acceptance criteria:
+
+P1 Structural fixes (1-3 days)
+- Action:
+- Owner area:
+- Status:
+- Acceptance criteria:
+
+P2 Hardening and regression (3-7 days)
+- Action:
+- Owner area:
+- Status:
+- Acceptance criteria:
+
+Validation and verification
+- Required tests:
+- Required full-run checks:
+- Export checks:
+- Gate outcome:
+
+Definition of done
+- [ ] No critical encoding artifacts
+- [ ] No unresolved continuity contradictions
+- [ ] No repeated template leakage above threshold
+- [ ] Release gate classification is healthy
+- [ ] Regression tests added/updated
+
+-------------------------------------------------------------------------------
+Run Review: project_20 (initial baseline)
+-------------------------------------------------------------------------------
+Run ID: unknown (manual story inspection)
+Date: 2026-02-28
+Project: project_20
+Story file: stories/project_20.txt
+Reviewer: Copilot session review
+Overall assessment: FAIL
+
+Observed defects
+- [S0 Critical] Mojibake/encoding corruption in dialogue punctuation
+  Evidence: malformed quote/apostrophe sequences observed repeatedly.
+  Impact: visible text corruption; reader-facing quality failure.
+  Root-cause hypothesis: sanitation order/map gaps or late-stage encoding drift.
+
+- [S1 High] Repeated atmosphere/template blocks
+  Evidence: near-verbatim repeated location/sensory scaffold paragraphs.
+  Impact: immersion loss; obvious generation artifact.
+  Root-cause hypothesis: insufficient anti-duplication constraints + weak post-check repair.
+
+- [S1 High] Timeline inconsistency (month vs season framing)
+  Evidence: "May evening" language appears alongside "english autumn" framing.
+  Impact: narrative coherence degradation.
+  Root-cause hypothesis: missing temporal contradiction validator at chapter level.
+
+- [S1 High] Investigator-role drift/coherence instability
+  Evidence: framing alternates between amateur investigator and suspect-led authority.
+  Impact: reduced logical clarity in investigation arc.
+  Root-cause hypothesis: role continuity checks focus on names, not role-state transitions.
+
+- [S1 High] Incomplete denouement/closure quality
+  Evidence: late suspect-clearing segments without a consistently strong final closure pattern.
+  Impact: weak ending confidence.
+  Root-cause hypothesis: release gate warns but does not hard-stop closure defects.
+
+Phased remediation plan
+P0 Containment (same day)
+- Action: block healthy completion when unresolved mojibake or duplicate scaffold spans remain.
+- Owner area: apps/worker + packages/story-validation
+- Status: NOT-STARTED
+- Acceptance criteria: failed runs clearly marked degraded; no silent healthy completion.
+
+P1 Structural fixes (1-3 days)
+- Action: strengthen prose prompt contracts for anti-template text, temporal consistency, and investigator-role ledger.
+- Owner area: packages/prompts-llm
+- Status: NOT-STARTED
+- Acceptance criteria: no month/season contradictions; reduced adjacent chapter similarity.
+
+P2 Hardening and regression (3-7 days)
+- Action: add deterministic validators + targeted chapter repair loop + regression tests for failure patterns.
+- Owner area: packages/story-validation + apps/worker
+- Status: NOT-STARTED
+- Acceptance criteria: 2 consecutive clean runs; regression suite green.
+
+Validation and verification
+- Required tests: story-validation suite + new temporal/duplication/encoding tests.
+- Required full-run checks: minimum 2 full runs (including 1 long format).
+- Export checks: prose txt + PDF free of mojibake and unresolved duplicate boilerplate.
+- Gate outcome: pending remediation.
+
+Definition of done
+- [ ] No critical encoding artifacts
+- [ ] No unresolved continuity contradictions
+- [ ] No repeated template leakage above threshold
+- [ ] Release gate classification is healthy
+- [ ] Regression tests added/updated

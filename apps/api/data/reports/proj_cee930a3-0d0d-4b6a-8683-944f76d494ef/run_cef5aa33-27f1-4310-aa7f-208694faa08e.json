@@ -1,0 +1,902 @@
+{
+  "project_id": "proj_cee930a3-0d0d-4b6a-8683-944f76d494ef",
+  "run_id": "run_cef5aa33-27f1-4310-aa7f-208694faa08e",
+  "generated_at": "2026-02-28T18:26:18.381Z",
+  "total_duration_ms": 19421,
+  "total_cost": 0.0005,
+  "overall_score": 99,
+  "overall_grade": "A",
+  "passed": true,
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5/5 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "97% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "6/6 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 7067,
+      "cost": 0.0005159253,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5/5 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "97% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "6/6 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000004,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Norman Corbet: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Norman Corbet: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Janet Beaumont: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Simon Beresford: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Willoughby: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Kenneth Quincy: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 85%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Avg 2.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (5 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 60,
+            "weight": 1,
+            "message": "Only 3 archetypes for 5 characters"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Relationship reciprocity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% reciprocal"
+          }
+        ]
+      },
+      "duration_ms": 12240,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Norman Corbet: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Norman Corbet: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Janet Beaumont: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Simon Beresford: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Willoughby: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Kenneth Quincy: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 85%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Avg 2.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (5 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 60,
+          "weight": 1,
+          "message": "Only 3 archetypes for 5 characters"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Relationship reciprocity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% reciprocal"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "phases_passed": 2,
+    "phases_failed": 0,
+    "total_phases": 2,
+    "pass_rate": 100,
+    "weakest_phase": "Cast Design",
+    "strongest_phase": "Setting Refinement",
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.0005
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "aborted": true,
+  "abort_reason": "Cast artifact failed schema validation"
+}

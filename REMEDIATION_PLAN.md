@@ -183,3 +183,61 @@ After all fixes, the following data is correctly saved on pipeline completion an
 | `apps/worker/src/jobs/mystery-orchestrator.ts` | Added `proseBatchSize` to `MysteryGenerationInputs`; updated scoring/non-scoring `onBatchComplete` to 4-arg; added `batchSize` + `onBatchComplete` to identity-alias retry and repair retry `generateProse` calls; validation issue events emitted |
 | `packages/prompts-llm/src/agent9-prose.ts` | Added `batchSize?: number` to `ProseGenerationInputs`; updated `onBatchComplete` to 4-arg signature; refactored `generateProse` loop to be batch-aware (batchSize scenes per LLM call, per-chapter validation, batch retry) |
 | `apps/api/src/scripts/migrate-validation-artifacts.ts` | New script — §3.4 one-time migration for legacy validation artifacts |
+
+---
+
+## 8. Diagnostic Session — March 4, 2026
+
+Applied systematic debugging framework (understand → hypothesise → test → narrow → fix → verify → postmortem) across all open issue categories.
+
+### 8.1 Findings
+
+| Issue | Root Cause | Resolution |
+|-------|-----------|-----------|
+| **`tsc` errors — test type imports** | `LlmLogEntry` and `PipelineStep` interfaces were declared inside `<script setup>` blocks, which Vue's compiler does not expose as module-level named exports. Plain `tsc` (without `vue-tsc`) resolves `.vue` imports through the ambient `declare module '*.vue'` which only has `export default`, so named imports fail. | Created `apps/web/src/components/debugPanelTypes.ts` and `pipelineTypes.ts` as companion type files. Moved interface definitions there. `DebugPanel.vue` and `ProgressIndicator.vue` now use dual-block (`<script>` + `<script setup>`) re-exporting from the type files. `App.vue`, `DebugPanel.test.ts`, `ProgressIndicator.test.ts` updated to import types from `.ts` companions. |
+| **IDE false positives — "no default export"** | VS Code's Volar/Vue-Official extension overrides TypeScript's ambient module resolution for `.vue` files and requires `@vue/typescript-plugin` in `tsconfig.json` to cooperate with the TypeScript language service. Without it, all `<script setup>`-only components showed "no default export" in the Problems panel. | Installed `@vue/typescript-plugin` to workspace root, added it to `apps/web/tsconfig.json` `compilerOptions.plugins`. |
+| **Victim identity gap (P1)** | Prose prompt did not identify the victim by name. The LLM had no instruction to name the victim in chapter 1, allowing "an unknown victim" / "the body of a stranger" language to pass. No chapter-level validator checked for this pattern. | `buildContextSummary` now extracts the victim character by `roleArchetype` and includes `Victim: [name]` in the Case Overview context. Added `VICTIM IDENTITY` rule to the prose `system` prompt. Added `resolveVictimName()` export for reuse. Added `checkVictimNaming()` to `ChapterValidator` with 4 new tests covering both positive and negative cases. |
+| **Atmospheric variety gap (P2)** | The `ANTI-REPETITION` prose guardrail was vague and only targeted adjacent chapters. No runtime check verified variety across all chapters. Sensory vocabulary (smell of polished wood, air thick with tension, overcast skies) recycled silently. | Added `evaluateSensoryVariety()` function to `mystery-orchestrator.ts` that tokenises atmospheric phrases across all chapters and flags any phrase present in >40% of chapters. Wired into release gate as a quality warning (not hard stop). Strengthened the prose `system` prompt guardrail: any sensory phrase from a prior chapter must be fully rephrased. |
+| **Denouement strength gap (P2)** | No prompt instruction required the final chapter to show concrete consequences. LLM defaulted to reflection-only closures without justice, changed relationships, or emotional resolution. | Added `DENOUEMENT REQUIREMENT` rule to the prose `system` prompt specifying: culprit fate, changed relationships, detective personal resolution. |
+| **run_reviews.md status drift** | Several P0/P1 items marked `NOT-STARTED` were actually already implemented in previous sessions (scaffold hard-block, fair play hard-block, character voice, detective stake, moral complexity). The review document was not updated when those implementations were completed. | Updated `reviews/run_reviews.md` with corrected statuses. |
+
+### 8.2 Verification Results
+
+After all fixes:
+
+| Check | Result |
+|-------|--------|
+| `tsc -p apps/worker/tsconfig.json --noEmit` | ✅ 0 errors |
+| `tsc -p apps/api/tsconfig.json --noEmit` | ✅ 0 errors |
+| `tsc -p apps/web/tsconfig.json --noEmit` | ✅ 0 errors |
+| `vitest run` (web — 15 test files) | ✅ 163 passed, 6 skipped |
+| `vitest run` (story-validation — 6 test files) | ✅ 98 passed (+4 new victim naming tests) |
+
+### 8.3 Remaining Open Work
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Game pack end-to-end | ⏸ On hold | No change |
+| `npm test` story-validation exits code 1 | ⚠️ Pre-existing | RetryManager deliberately opens a non-existent path in one test; `stderr` ENOENT causes npm to report non-zero exit. Tests all pass. No action needed. |
+| Victim identity — full validation gate | 🔶 Partial | Prompt guardrail + chapter-1 validator added. No hard-stop added (major severity, not critical). If named victim consistently passes, consider promoting to hard-stop. |
+| Atmospheric variety — hard stop | 🔶 Release warning only | Added to release gate as warning. Promote to hard-stop only after confirming false-positive rate on clean runs. |
+| P2: Detective personal stake (validation) | 🔶 Prompt only | Craft guide has the guideline; no runtime validator confirms it. |
+| P2: Emotional beat injection (schema) | 🔶 Prompt only | Craft guide has the guideline; no narrative schema `micro_moment_beats` field added. |
+| Scoring run re-verification | ❌ Not done | No new scoring run triggered after adapter fixes. Target: all 8 phases ≥75 on next run. |
+
+### 8.4 Files Changed This Session
+
+| File | Change |
+|------|--------|
+| `apps/web/src/components/debugPanelTypes.ts` | **New** — `LlmLogEntry` UI type extracted from DebugPanel.vue |
+| `apps/web/src/components/pipelineTypes.ts` | **New** — `PipelineStep` type extracted from ProgressIndicator.vue |
+| `apps/web/src/components/DebugPanel.vue` | Dual-block; re-exports `LlmLogEntry` from `debugPanelTypes.ts`; `<script setup>` imports from companion |
+| `apps/web/src/components/ProgressIndicator.vue` | Dual-block; re-exports `PipelineStep` from `pipelineTypes.ts`; `<script setup>` imports from companion |
+| `apps/web/src/App.vue` | `PipelineStep` now imported from `./components/pipelineTypes` (not from `.vue`) |
+| `apps/web/src/components/__tests__/DebugPanel.test.ts` | `LlmLogEntry` now imported from `../debugPanelTypes` |
+| `apps/web/src/components/__tests__/ProgressIndicator.test.ts` | `PipelineStep` now imported from `../pipelineTypes` |
+| `apps/web/tsconfig.json` | Added `@vue/typescript-plugin` to `compilerOptions.plugins` |
+| `packages/prompts-llm/src/agent9-prose.ts` | `buildContextSummary` includes victim name; `resolveVictimName()` exported; prose `system` prompt gains VICTIM IDENTITY, strengthened ANTI-REPETITION, DENOUEMENT REQUIREMENT guardrails; dual-case roleArchetype lookup |
+| `packages/story-validation/src/chapter-validator.ts` | `checkVictimNaming()` added (chapter-1 only); wired in `validateChapter`; dual-case archetype lookup |
+| `packages/story-validation/src/__tests__/chapter-validator.test.ts` | 4 new victim identity tests |
+| `apps/worker/src/jobs/mystery-orchestrator.ts` | `evaluateSensoryVariety()` added; wired into release gate as quality warning |

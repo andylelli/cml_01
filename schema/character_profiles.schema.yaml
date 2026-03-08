@@ -59,6 +59,14 @@ profiles:
       speechMannerisms:
         type: string
         required: false
+      internalConflict:
+        type: string
+        required: false
+        description: "The character's internal psychological tension or moral struggle"
+      personalStakeInCase:
+        type: string
+        required: false
+        description: "Why this case matters personally to this character (especially important for the detective)"
       paragraphs:
         type: array
         required: true

@@ -17,12 +17,15 @@ export interface CharacterProfileOutput {
   publicPersona?: string;
   privateSecret?: string;
   motiveSeed?: string;
+  motiveStrength?: "weak" | "moderate" | "strong" | "compelling";
   alibiWindow?: string;
   accessPlausibility?: string;
   stakes?: string;
   humourStyle?: "understatement" | "dry_wit" | "polite_savagery" | "self_deprecating" | "observational" | "deadpan" | "sardonic" | "blunt" | "none";
   humourLevel?: number;
   speechMannerisms?: string;
+  internalConflict?: string;
+  personalStakeInCase?: string;
   paragraphs: string[];
   order?: number;
 }
@@ -63,7 +66,13 @@ const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: s
   const developer = `# Character Profiles Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "${tone}",\n  "targetWordCount": ${targetWordCount},\n  "profiles": [\n    {\n      "name": "Name",\n      "summary": "1-2 sentence overview",\n      "publicPersona": "...",\n      "privateSecret": "...",\n      "motiveSeed": "...",\n      "motiveStrength": "weak|moderate|strong|compelling",\n      "alibiWindow": "...",\n      "accessPlausibility": "...",\n      "stakes": "...",
       "humourStyle": "understatement|dry_wit|polite_savagery|self_deprecating|observational|deadpan|sardonic|blunt|none",
       "humourLevel": 0.0,
-      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
+      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      "internalConflict": "Psychological tension or moral struggle (e.g. guilt, conflicted loyalty, fear of what the truth means)",\n      "personalStakeInCase": "Why this crime matters personally — REQUIRED for detective, recommended for others",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
+
+DETECTIVE PERSONAL STAKE (REQUIRED):
+- The detective character MUST have both 'internalConflict' and 'personalStakeInCase' filled.
+- internalConflict: a moral or psychological tension the detective carries into this case (e.g. guilt from a past failure, distrust of authority, fear of what the answer will mean).
+- personalStakeInCase: why THIS crime matters beyond professional duty (e.g. connection to the victim, a debt to be repaid, a principle being tested).
+- Other characters should also have personalStakeInCase where it enriches their role.
 
 CRITICAL FIELD REQUIREMENTS:
 - motiveStrength MUST be one of these exact values: "weak", "moderate", "strong", "compelling" (NOT a sentence or description)
@@ -107,7 +116,12 @@ export async function generateCharacterProfiles(
     agentName: "Agent 2b (Character Profiles)",
     validationFn: (data) => {
       // Validate against character_profiles schema
-      const validation = validateArtifact("character_profiles", data);
+      const validationPayload = {
+        ...(data as Record<string, unknown>),
+        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
+        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
+      };
+      const validation = validateArtifact("character_profiles", validationPayload);
       return {
         valid: validation.valid,
         errors: validation.errors,

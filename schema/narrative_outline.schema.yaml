@@ -77,6 +77,11 @@ acts:
                 misdirection:
                   type: string
                   required: false
+                microMomentBeats:
+                  type: array
+                  required: false
+                  items: string
+                  description: "Non-plot emotional pause beats (1-sentence each): grief, relief, memory, dread. Target: at least 1 per 5 scenes."
             summary:
               type: string
               required: true

@@ -12,7 +12,8 @@ import PhaseBreakdownTable from "./components/PhaseBreakdownTable.vue";
 import ScoreTrendChart from "./components/ScoreTrendChart.vue";
 import TabBar from "./components/TabBar.vue";
 import TabPanel from "./components/TabPanel.vue";
-import ProgressIndicator, { type PipelineStep } from "./components/ProgressIndicator.vue";
+import ProgressIndicator from "./components/ProgressIndicator.vue";
+import type { PipelineStep } from "./components/pipelineTypes";
 import ArtifactStatusDashboard from "./components/ArtifactStatusDashboard.vue";
 import ErrorLogPanel from "./components/ErrorLogPanel.vue";
 import DebugPanel from "./components/DebugPanel.vue";
@@ -329,7 +330,6 @@ const selectedProseLength = ref<string | null>(null);
 const availableProseVersions = ref<string[]>([]);
 let unsubscribe: (() => void) | null = null;
 let runEventsInterval: ReturnType<typeof setInterval> | null = null;
-let scoringPollInterval: ReturnType<typeof setInterval> | null = null;
 
 const STORAGE_KEY = "cml_ui_state";
 
@@ -486,6 +486,7 @@ const isRunning = computed(() => lastProjectStatus.value === "running");
 const isStartingRun = ref(false);
 const isDownloadingStoryPdf = ref(false);
 const isDownloadingGamePackPdf = ref(false);
+const isDownloadingAllVersions = ref(false);
 const lastUpdatedAt = ref<number | null>(null);
 
 const lastUpdatedLabel = computed(() => {
@@ -607,6 +608,7 @@ const fixSuggestions = computed(() => {
 
     const label = labelMap[key] ?? key;
     const allText = issues.join(" ").toLowerCase();
+    const countBefore = suggestions.length;
 
     if (allText.includes("required") || allText.includes("missing")) {
       addSuggestion(`We’re missing details in ${label}. Add the required information and try again.`);
@@ -636,16 +638,19 @@ const fixSuggestions = computed(() => {
       addSuggestion("Ensure red herrings support the false assumption without hiding key evidence.");
     }
 
-    if (key === "cast") {
-      addSuggestion("Review roles and relationships, then update the cast if needed.");
-    } else if (key === "setting") {
-      addSuggestion("Adjust the setting details or update the setting section.");
-    } else if (key === "cml") {
-      addSuggestion("Update the mystery logic to resolve inconsistencies.");
-    } else if (key === "clues") {
-      addSuggestion("Update clues to improve fairness and placement.");
-    } else if (key === "outline") {
-      addSuggestion("Update the outline to align pacing and reveals.");
+    // Only emit the generic per-key fallback when no specific suggestion was added (U-9 fix)
+    if (suggestions.length === countBefore) {
+      if (key === "cast") {
+        addSuggestion("Review roles and relationships, then update the cast if needed.");
+      } else if (key === "setting") {
+        addSuggestion("Adjust the setting details or update the setting section.");
+      } else if (key === "cml") {
+        addSuggestion("Update the mystery logic to resolve inconsistencies.");
+      } else if (key === "clues") {
+        addSuggestion("Update clues to improve fairness and placement.");
+      } else if (key === "outline") {
+        addSuggestion("Update the outline to align pacing and reveals.");
+      }
     }
   }
 
@@ -720,14 +725,12 @@ const connectSse = () => {
       if (payload.status === "running") {
         runStatus.value = "Building your mystery...";
         startRunEventsPolling();
-        startScoringPoll();
         return;
       }
 
       if (previous === "running" && payload.status === "idle") {
         isStartingRun.value = false;
         stopRunEventsPolling();
-        stopScoringPoll();
         await loadRunEventsForProject();
 
         const latestEvent = runEventsData.value[runEventsData.value.length - 1];
@@ -742,7 +745,7 @@ const connectSse = () => {
 
         runStatus.value = "All set. Explore your results.";
         pollArtifacts();
-        void loadScoringReport();
+        void pollScoringReport();
         void loadScoringHistory();
         addError("info", "pipeline", "Your mystery is ready.");
         logActivity({ projectId: projectId.value, scope: "ui", message: "run_completed" });
@@ -755,6 +758,12 @@ const connectSse = () => {
     },
     () => {
       runStatus.value = "Reconnecting...";
+    },
+    () => {
+      // SSE reconnected — clear stale "Reconnecting..." status if not mid-run (U-6 fix)
+      if (lastProjectStatus.value !== "running") {
+        runStatus.value = "Ready to generate";
+      }
     },
   );
 };
@@ -808,29 +817,28 @@ const stopRunEventsPolling = () => {
   runEventsInterval = null;
 };
 
-const startScoringPoll = () => {
-  if (scoringPollInterval) return;
-  scoringPollInterval = setInterval(() => {
-    if (projectId.value && latestRunId.value) {
-      void loadScoringReport();
-    }
-  }, 5000);
-};
-
-const stopScoringPoll = () => {
-  if (!scoringPollInterval) return;
-  clearInterval(scoringPollInterval);
-  scoringPollInterval = null;
-};
-
 // Watchers for tab navigation sync
+// (Scoring report is only meaningful at run completion — do not poll it during
+// active runs. It is loaded reactively when: the run completes, a new runId
+// appears, or the user switches to the quality tab.)
+
+// Refresh report + history whenever a new run is identified.
+watch(latestRunId, async (newRunId) => {
+  if (!newRunId || !projectId.value) return;
+  await loadScoringReport();
+  await loadScoringHistory();
+});
 // Update tab status based on project state
-watch([projectId, isAdvanced], () => {
-  if (projectId.value) {
+watch([projectId, isAdvanced], ([nextId, nextAdvanced], [, prevAdvanced]) => {
+  if (nextId) {
     tabStatuses.value.project = "complete";
   }
-  if (isAdvanced.value) {
+  if (nextAdvanced) {
     tabStatuses.value.advanced = "available";
+    if (!prevAdvanced && nextId) {
+      // Advanced mode just turned on with a project loaded — fetch CML (U-2 fix)
+      void loadArtifacts();
+    }
   } else {
     tabStatuses.value.advanced = "locked";
   }
@@ -866,9 +874,7 @@ watch(activeMainTab, (newTab) => {
       else if (activeAdvancedTab.value === "history") setView("history");
       else if (activeAdvancedTab.value === "quality") setView("quality");
       break;
-    case "export":
-      setView("dashboard");
-      break;
+    // 'export' tab has no sub-view to sync; no setView call needed (U-1 fix)
   }
 });
 
@@ -1124,10 +1130,44 @@ const loadScoringReport = async () => {
     const report = await fetchScoringReport(projectId.value, latestRunId.value);
     scoringReport.value = report as GenerationReport;
   } catch {
-    scoringReport.value = null; // scoring not enabled or no report yet
+    // Do not clear existing data on failure — keep showing the last known report
+    // so the quality tab stays populated if the new run's report isn't ready yet.
+    if (!scoringReport.value) {
+      scoringReport.value = null;
+    }
   } finally {
     isScoringReportLoading.value = false;
   }
+};
+
+/**
+ * Retry-polling version of loadScoringReport used after run completion.
+ * The scoring report is written to disk asynchronously after the worker finishes;
+ * the SSE "idle" event may arrive before the file exists. This retries with
+ * increasing delays so the Quality tab updates automatically without requiring
+ * the user to switch tabs.
+ */
+const pollScoringReport = async (attempts = 10, delayMs = 1500) => {
+  if (!projectId.value || !latestRunId.value) return;
+  isScoringReportLoading.value = true;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (!projectId.value || !latestRunId.value) break;
+    try {
+      const report = await fetchScoringReport(projectId.value, latestRunId.value);
+      if (report) {
+        scoringReport.value = report as GenerationReport;
+        isScoringReportLoading.value = false;
+        return;
+      }
+    } catch {
+      // report not written yet — keep retrying
+    }
+    if (attempt < attempts - 1) {
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  // All attempts exhausted — fall back silently; keep any existing stale report
+  isScoringReportLoading.value = false;
 };
 
 const loadScoringHistory = async () => {
@@ -1281,6 +1321,7 @@ const handleDownloadStoryPdf = async () => {
 };
 
 const handleDownloadAllProseVersions = async () => {
+  if (isDownloadingAllVersions.value) return;  // concurrency guard (U-4 fix)
   if (!projectId.value) {
     addError("warning", "export", "Create a project first");
     return;
@@ -1289,6 +1330,7 @@ const handleDownloadAllProseVersions = async () => {
     addError("warning", "export", "No prose versions available");
     return;
   }
+  isDownloadingAllVersions.value = true;
   try {
     for (const length of availableProseVersions.value) {
       const blob = await downloadStoryPdf(projectId.value, length);
@@ -1309,6 +1351,8 @@ const handleDownloadAllProseVersions = async () => {
     logActivity({ projectId: projectId.value, scope: "ui", message: "download_all_prose_versions" });
   } catch (error) {
     addError("error", "export", "Failed to download all versions", error instanceof Error ? error.message : String(error));
+  } finally {
+    isDownloadingAllVersions.value = false;
   }
 };
 
@@ -1317,9 +1361,14 @@ const loadProseVersions = async () => {
   try {
     const versions = await fetchProseVersions(projectId.value);
     availableProseVersions.value = Object.keys(versions).filter(k => k !== 'legacy');
-    if (availableProseVersions.value.length > 0 && !selectedProseLength.value) {
-      selectedProseLength.value = availableProseVersions.value.includes('medium') 
-        ? 'medium' 
+    if (availableProseVersions.value.length > 0) {
+      // Always resolve to an actually-available version; prefer spec target,
+      // then 'medium', then first available (U-5 fix)
+      const preferred = spec.value.targetLength ?? '';
+      selectedProseLength.value = availableProseVersions.value.includes(preferred)
+        ? preferred
+        : availableProseVersions.value.includes('medium')
+        ? 'medium'
         : availableProseVersions.value[0];
     }
   } catch {
@@ -2577,7 +2626,7 @@ onBeforeUnmount(() => {
                   <button
                     v-if="availableProseVersions.length > 1"
                     class="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    :disabled="!proseData || !projectId"
+                    :disabled="!proseData || !projectId || isDownloadingAllVersions"
                     @click="handleDownloadAllProseVersions"
                   >
                     Export all versions
@@ -2749,18 +2798,18 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="currentView === 'history'">
-              <RunHistory v-if="runEventsData.length" :events="runEventsData" :run-id="latestRunId" />
+              <RunHistory v-if="runEventsData.length" :events="runEventsData" :run-id="latestRunId ?? undefined" />
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 No run history available
               </div>
             </div>
 
             <div v-if="currentView === 'quality'" class="space-y-4">
-              <div v-if="isScoringReportLoading" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+              <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 Loading quality report...
               </div>
               <template v-else>
-                <ScoreCard :report="scoringReport" />
+                <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
                 <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
                 <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
               </template>

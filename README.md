@@ -52,6 +52,7 @@ Deterministic fair-play guardrails now run before/after clue regeneration; one f
 Theme prompts can steer hard-logic construction (locked-room, timetable/math, botanical, acoustics, inheritance) and accept escalation phrases (`increase difficulty`, `make it brutal`) for more complex mechanism design.
 Novel hard-logic device ideation is now a dedicated LLM stage: the pipeline generates a `hard_logic_devices` artifact first, while a separate `background_context` artifact captures backdrop context. CML generation consumes both with explicit separation (background coherence vs mechanism proof).
 The web UI now surfaces this artifact in Review (Hard Logic tab), Advanced raw artifacts, and export selection.
+Schema/flow remediation is in progress: retry-wrapper end-state behavior fixed (no extra post-failure generation), Agent 2b/2c/2d false missing-field validation errors resolved, worker path resolution hardened for API-launched runs, and runtime schema validation expanded for setting/cast/outline/prose artifacts.
 Full activity logging is enabled for API requests and UI actions (see /api/logs).
 The UI restores the last project/spec/session state after refresh.
 Spec draft supports optional comma-separated cast names for future LLM conditioning (no deterministic overrides).
@@ -142,6 +143,7 @@ Notes:
 - Run start-app.bat to install dependencies, build packages, and start API/worker/web.
 - If starting manually, build @cml/cml and @cml/worker first (`npm run -w @cml/cml build` and `npm run -w @cml/worker build`) before running @cml/api dev.
 - The API loads .env.local automatically at startup (Azure OpenAI + logging settings).
+- Prose-only model routing is supported: set `AZURE_OPENAI_DEPLOYMENT_NAME_PROSE` to use a separate deployment for Agent 9 prose generation; all other agents continue using `AZURE_OPENAI_DEPLOYMENT_NAME`.
 
 ## Adding open-source seed CMLs
 Use the grabber/ folder to generate CML 2.0 samples from public-domain or open-source whodunnits.
@@ -165,7 +167,13 @@ Status: implemented (2026-02-13).
 - Clean prose before save/export:
 	- remove system residue (e.g., “Generated in scene batches.”)
 	- normalize mojibake (`â`, `faˆ§ade`, odd spacing chars)
+	- strip illegal control characters while preserving valid multibyte Unicode text (UTF-8-safe behavior)
+	- apply deterministic worker-side paragraph reflow (unwrap hard wraps, split overlong blocks, preserve whitespace readability)
+	- apply deterministic worker-side scene-grounding backfill when chapter openings miss location/sensory/atmosphere anchors
 	- optionally strip `Summary:` scaffolding for final prose mode
+	- persist a readable plain-text story file in `stories/project_*.txt` with normalized chapter/summary/paragraph spacing
+	- split overlong paragraph blocks for plain-text readability
+	- enforce chapter scene grounding (named location + sensory + atmosphere cues) during prose retries
 - Patch identity continuity bug pattern:
 	- detect same entity renamed as role alias after arrest/confession
 	- force regeneration of affected chapters when detected
@@ -249,11 +257,18 @@ Target areas:
 
 ### Phase 4 — QA gate + acceptance
 Status: implemented (release gate checks active in pipeline).
-- Release gate emits warnings for review (without blocking completion) when any are true:
-	- critical continuity issue
-	- mojibake artifact present
-	- no valid discriminating test
+- Release gate now hard-stops completion when critical prose defects remain:
+	- mojibake/encoding artifact present
+	- illegal control-character encoding corruption
+	- template/scaffold leakage (duplicate long boilerplate blocks)
+	- month/season contradiction in chapter text
+	- severe placeholder token leakage (e.g., article+role+surname artifacts or repeated named placeholders)
+	- duplicate chapter heading artifacts in generated titles
 	- missing suspect elimination coverage
+- Generic role phrase overuse (e.g., repeated "an inspector") is flagged as a warning; severe placeholder leakage still hard-stops.
+- Agent 9 now applies baseline prose guardrails on every generation pass (canonical cast names only, explicit suspect-elimination ledger, explicit culprit evidence chain).
+- Validation-guided prose repair now runs for both `needs_revision` and hard `failed` validation states (not only failed), reducing release-gate hard-stops from unresolved suspect-closure defects.
+- Readability density and scene-grounding shortfalls continue as warnings for review.
 - Emit compact per-run report.
 
 Acceptance criteria:

@@ -190,9 +190,12 @@ describe("Scoring API", () => {
   }
 
   beforeAll(async () => {
-    // Write reports to the location the server will look for them:
-    // process.cwd()/apps/api/data/reports  (first candidate in getReportRepository)
-    reportsDir = join(process.cwd(), "apps", "api", "data", "reports");
+    // Use __dirname (vitest-injected) so the path is stable regardless of
+    // process.cwd() — npm workspaces can change cwd to apps/api, which would
+    // make join(process.cwd(),"apps","api","data","reports") a doubled path.
+    // __dirname here = apps/api/src/__tests__, so ../../data/reports = apps/api/data/reports,
+    // which matches the server's primary candidate path.resolve(__dirname,"..","data","reports").
+    reportsDir = join(__dirname, "..", "..", "data", "reports");
     await fs.mkdir(reportsDir, { recursive: true });
   });
 

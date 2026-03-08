@@ -9,8 +9,13 @@ export const subscribeToRunEvents = (
   projectId: string,
   onMessage: (payload: SseMessage) => void,
   onError: (error: Event) => void,
+  onOpen?: () => void,
 ) => {
   const source = new EventSource(`${apiBase}/api/projects/${projectId}/events`);
+
+  source.addEventListener("open", () => {
+    onOpen?.();
+  });
 
   source.addEventListener("ping", (event) => {
     try {

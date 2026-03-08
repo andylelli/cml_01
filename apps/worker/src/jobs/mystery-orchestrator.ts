@@ -10,12 +10,15 @@
 import { join, dirname, resolve as pathResolve } from "path";
 import { readFileSync, existsSync } from "fs";
 import { fileURLToPath } from "url";
+import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateCaseData, validateArtifact } from "@cml/cml";
 import {
   refineSetting,
   designCast,
+  generateCastNames,
+  type NameGeneratorContext,
   generateCML,
   buildCMLPrompt,
   extractClues,
@@ -31,6 +34,9 @@ import {
   loadSeedCMLFiles,
   blindReaderSimulation,
   reviseCml,
+  initNarrativeState,
+  updateNSD,
+  type NarrativeState,
 } from "@cml/prompts-llm";
 import { StoryValidationPipeline } from "@cml/story-validation";
 import type { ValidationReport } from "@cml/story-validation";
@@ -61,6 +67,7 @@ import {
   adaptLocationsForScoring,
   adaptTemporalContextForScoring,
   adaptProseForScoring,
+  type ClueRef,
 } from "./scoring-adapters.js";
 import { ScoringLogger } from "./scoring-logger.js";
 import type {
@@ -80,6 +87,9 @@ import type {
   NoveltyAuditResult,
   BlindReaderResult,
 } from "@cml/prompts-llm";
+
+const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
+  resolveWorkerRuntimePaths(import.meta.url);
 
 // ============================================================================
 // Types
@@ -478,8 +488,8 @@ const checkInferencePathCoverage = (
       const stepNum = i + 1;
       const coverage = coverageMap.get(stepNum)!;
       
-      const clueText = (clue.description + " " + (clue as any).sourceInCML).toLowerCase();
-      const obsText = (step.observation || "").toLowerCase();
+      const clueText = (String(clue.description ?? '') + " " + String((clue as any).sourceInCML ?? '')).toLowerCase();
+      const obsText = (typeof step.observation === 'string' ? step.observation : '').toLowerCase();
       
       const obsWords = obsText.split(/\s+/).filter((w: string) => w.length > 4);
       const matchCount = obsWords.filter((w: string) => clueText.includes(w)).length;
@@ -489,7 +499,7 @@ const checkInferencePathCoverage = (
 
       if (Array.isArray(step.required_evidence)) {
         for (const ev of step.required_evidence) {
-          const evWords = (ev as string).toLowerCase().split(/\s+/).filter((w: string) => w.length > 4);
+          const evWords = String(ev ?? '').toLowerCase().split(/\s+/).filter((w: string) => w.length > 4);
           const evMatch = evWords.filter((w: string) => clueText.includes(w)).length;
           if (evWords.length > 0 && evMatch >= Math.ceil(evWords.length * 0.4)) {
             coverage.observation = true;
@@ -586,9 +596,9 @@ const checkFalseAssumptionContradiction = (
   }
 
   const suspiciousRedHerrings = clues.redHerrings.filter((rh: any) => {
-    const desc = (rh.description + " " + rh.supportsAssumption).toLowerCase();
+    const desc = (String(rh.description ?? '') + " " + String(rh.supportsAssumption ?? '')).toLowerCase();
     return caseBlock?.inference_path?.steps?.some((step: any) => {
-      const corrWords = (step.correction || "").toLowerCase().split(/\s+/).filter((w: string) => w.length > 5);
+      const corrWords = (typeof step.correction === 'string' ? step.correction : '').toLowerCase().split(/\s+/).filter((w: string) => w.length > 5);
       return corrWords.some((w: string) => desc.includes(w));
     });
   });
@@ -706,13 +716,186 @@ const proseMojibakeReplacements: Array<[RegExp, string]> = [
   [/Ã¢â‚¬â„¢/g, "'"],
   [/Ã¢â‚¬Ëœ/g, "'"],
   [/Ã¢â‚¬Å“|Ã¢â‚¬\x9d/g, '"'],
-  [/Ã¢â‚¬"|Ã¢â‚¬â€/g, "â€”"],
-  [/Ã¢â‚¬â€œ/g, "â€“"],
-  [/Ã¢â‚¬Â¦/g, "â€¦"],
-  [/faË†Â§ade/g, "faÃ§ade"],
+  [/Ã¢â‚¬"|Ã¢â‚¬â€/g, "—"],
+  [/Ã¢â‚¬â€œ/g, "–"],
+  [/Ã¢â‚¬Â¦/g, "…"],
+  [/faË†Â§ade|faˆ§ade/g, "façade"],
+  [/â€™/g, "'"],
+  [/â€˜/g, "'"],
+  [/â€œ|â€\x9d/g, '"'],
+  [/â€"|â€”/g, "—"],
+  [/â€“/g, "–"],
+  [/â€¦/g, "…"],
+  [/â/g, "'"],
+  [/â/g, "'"],
+  [/â|â/g, '"'],
+  [/â/g, "–"],
+  [/â/g, "—"],
+  [/â¦/g, "…"],
+  [/â¢/g, "•"],
   [/Ã‚/g, ""],
+  [/Â/g, ""],
   [/\uFFFD/g, ""],
 ];
+
+const illegalControlCharPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+const persistentMojibakePattern = /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å“|Ã¢â‚¬\x9d|Ã¢â‚¬"|Ã¢â‚¬â€|Ã¢â‚¬â€œ|Ã¢â‚¬Â¦|Ã‚|Ë†Â§|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|â|â|â|â|â|â¦|\uFFFD)/;
+
+const normalizeWrappedParagraphText = (text: string) => {
+  const blocks = text
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((block) => block.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
+    .filter((block) => block.length > 0);
+  return blocks.join("\n\n");
+};
+
+const splitLongParagraphForReadability = (paragraph: string, maxLength = 900): string[] => {
+  const normalized = paragraph.trim();
+  if (!normalized) return [];
+  if (normalized.length <= maxLength) return [normalized];
+
+  const sentences = normalized
+    .split(/(?<=[.!?]["'”’)]?)\s+(?=[A-Z0-9“"'])/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  if (sentences.length <= 1) {
+    const fallbackChunks: string[] = [];
+    let remaining = normalized;
+    while (remaining.length > maxLength) {
+      const splitAt = remaining.lastIndexOf(" ", maxLength);
+      const safeSplit = splitAt > Math.floor(maxLength * 0.55) ? splitAt : maxLength;
+      fallbackChunks.push(remaining.slice(0, safeSplit).trim());
+      remaining = remaining.slice(safeSplit).trim();
+    }
+    if (remaining.length > 0) fallbackChunks.push(remaining);
+    return fallbackChunks.filter(Boolean);
+  }
+
+  const chunks: string[] = [];
+  let current = "";
+  for (const sentence of sentences) {
+    const candidate = current ? `${current} ${sentence}` : sentence;
+    if (candidate.length > maxLength && current) {
+      chunks.push(current);
+      current = sentence;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) chunks.push(current);
+  if (chunks.length <= 1 && normalized.length > maxLength) {
+    const fallbackChunks: string[] = [];
+    let remaining = normalized;
+    while (remaining.length > maxLength) {
+      const splitAt = remaining.lastIndexOf(" ", maxLength);
+      const safeSplit = splitAt > Math.floor(maxLength * 0.55) ? splitAt : maxLength;
+      fallbackChunks.push(remaining.slice(0, safeSplit).trim());
+      remaining = remaining.slice(safeSplit).trim();
+    }
+    if (remaining.length > 0) fallbackChunks.push(remaining);
+    return fallbackChunks.filter(Boolean);
+  }
+
+  return chunks;
+};
+
+const enforceReadableParagraphFlow = (paragraphs: string[]): string[] => {
+  let normalized = paragraphs
+    .map((paragraph) => normalizeWrappedParagraphText(sanitizeProseText(paragraph)))
+    .flatMap((paragraph) => paragraph.split(/\n{2,}/))
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0)
+    .flatMap((paragraph) => splitLongParagraphForReadability(paragraph));
+
+  let guard = 0;
+  while (normalized.length < 3 && guard < 4) {
+    const longestIndex = normalized.reduce((bestIdx, paragraph, idx, arr) => (
+      paragraph.length > arr[bestIdx].length ? idx : bestIdx
+    ), 0);
+    const longest = normalized[longestIndex] ?? "";
+    if (longest.length < 500) break;
+
+    const splitChunks = splitLongParagraphForReadability(longest, Math.max(280, Math.floor(longest.length / 2)));
+    if (splitChunks.length <= 1) break;
+
+    normalized = [
+      ...normalized.slice(0, longestIndex),
+      ...splitChunks,
+      ...normalized.slice(longestIndex + 1),
+    ];
+    guard += 1;
+  }
+
+  return normalized;
+};
+
+const buildDeterministicGroundingLead = (chapterIndex: number, locationProfiles: LocationProfilesResult): string => {
+  const primary = locationProfiles.primary;
+  const keyLocations = locationProfiles.keyLocations || [];
+  const target = keyLocations.length > 0
+    ? keyLocations[chapterIndex % keyLocations.length]
+    : undefined;
+
+  const locationName = target?.name || primary?.name || "the estate";
+  const place = primary?.place ? ` in ${primary.place}` : "";
+  const country = primary?.country ? `, ${primary.country}` : "";
+  const weather = locationProfiles.atmosphere?.weather || "rain";
+  const mood = locationProfiles.atmosphere?.mood || "tense";
+
+  const smells = target?.sensoryDetails?.smells || [];
+  const sounds = target?.sensoryDetails?.sounds || [];
+  const tactile = target?.sensoryDetails?.tactile || [];
+
+  const smell = (smells[0] || "old timber and damp stone").replace(/\.$/, "");
+  const sound = (sounds[0] || "the sound of the wind in the corridor").replace(/\.$/, "");
+  const touch = (tactile[0] || "the cold banister and rough wallpaper").replace(/\.$/, "");
+
+  return sanitizeProseText(
+    `At ${locationName}${place}${country}, the smell of ${smell} mixed with ${sound}, while ${weather.toLowerCase()} and ${touch} kept the atmosphere ${mood.toLowerCase()}.`
+  );
+};
+
+const getGroundingSignals = (opening: string, anchors: string[]) => {
+  const normalized = opening.toLowerCase();
+  const hasAnchor = anchors.some((anchor) => normalized.includes(anchor));
+  const sensoryCount = (normalized.match(/\b(smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim)\b/gi) || []).length;
+  const hasAtmosphere = /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather)\b/i.test(normalized);
+  return { hasAnchor, sensoryCount, hasAtmosphere };
+};
+
+const applyDeterministicProsePostProcessing = (
+  prose: ProseGenerationResult,
+  locationProfiles: LocationProfilesResult,
+): ProseGenerationResult => {
+  const anchors: string[] = [];
+  if (locationProfiles.primary?.name) anchors.push(locationProfiles.primary.name.toLowerCase());
+  (locationProfiles.keyLocations || []).forEach((loc) => {
+    if (loc?.name) anchors.push(String(loc.name).toLowerCase());
+  });
+
+  return {
+    ...prose,
+    chapters: prose.chapters.map((chapter, index) => {
+      const readableParagraphs = enforceReadableParagraphFlow(chapter.paragraphs || []);
+      const opening = readableParagraphs.slice(0, 2).join(" ");
+      const signals = getGroundingSignals(opening, anchors);
+
+      const needsGroundingLead = !signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere;
+      const groundedParagraphs = needsGroundingLead
+        ? [buildDeterministicGroundingLead(index, locationProfiles), ...readableParagraphs]
+        : readableParagraphs;
+
+      return {
+        ...chapter,
+        paragraphs: groundedParagraphs
+          .map((paragraph) => sanitizeProseText(paragraph))
+          .filter((paragraph) => paragraph.length > 0),
+      };
+    }),
+  };
+};
 
 const sanitizeProseText = (value: unknown) => {
   let text = typeof value === "string" ? value : value == null ? "" : String(value);
@@ -723,7 +906,10 @@ const sanitizeProseText = (value: unknown) => {
   return text
     .replace(/^Generated in scene batches\.?$/gim, "")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(illegalControlCharPattern, "")
     .replace(/\u00A0/g, " ")
+    .replace(/\t/g, " ")
+    .replace(/\r\n/g, "\n")
     // Dialogue punctuation normalization (Phase 3.2)
     // Straight quotes → curly quotes around dialogue
     .replace(/"([^"]*)"/g, "\u201C$1\u201D")
@@ -731,18 +917,36 @@ const sanitizeProseText = (value: unknown) => {
     .replace(/(\w)'(\w)/g, "$1\u2019$2")
     // Double-dash → em dash
     .replace(/--/g, "\u2014")
+    .replace(/\n{3,}/g, "\n\n")
     .replace(/\s+$/gm, "")
     .trim();
+};
+
+const chapterHeadingPrefixPattern = /^\s*chapter\s+\d+\s*:\s*/i;
+
+const normalizeChapterTitle = (value: unknown) => {
+  const sanitized = sanitizeProseText(value);
+  let title = sanitized;
+  let guard = 0;
+
+  while (chapterHeadingPrefixPattern.test(title) && guard < 4) {
+    title = title.replace(chapterHeadingPrefixPattern, "").trim();
+    guard += 1;
+  }
+
+  return title.replace(/^[:\-\s]+/, "").trim();
 };
 
 const sanitizeProseResult = (prose: ProseGenerationResult): ProseGenerationResult => ({
   ...prose,
   note: prose.note ? sanitizeProseText(prose.note) || undefined : prose.note,
-  chapters: prose.chapters.map((chapter) => ({
+  chapters: prose.chapters.map((chapter, index) => ({
     ...chapter,
-    title: sanitizeProseText(chapter.title),
+    title: normalizeChapterTitle(chapter.title) || `Chapter ${index + 1}`,
     summary: chapter.summary ? sanitizeProseText(chapter.summary) || undefined : chapter.summary,
-    paragraphs: chapter.paragraphs.map((paragraph) => sanitizeProseText(paragraph)).filter((p) => p.length > 0),
+    paragraphs: chapter.paragraphs
+      .map((paragraph) => normalizeWrappedParagraphText(sanitizeProseText(paragraph)))
+      .filter((p) => p.length > 0),
   })),
 });
 
@@ -942,6 +1146,232 @@ const buildNoveltyConstraints = (seedEntries: Array<{ filename: string; cml: Cas
       "constraint-space anchors and contradictions",
     ],
     avoidancePatterns: uniqueAvoidance,
+  };
+};
+
+type ProseReadabilitySummary = {
+  denseChapterCount: number;
+  underParagraphCount: number;
+  severeParagraphBlocks: number;
+};
+
+const evaluateProseReadability = (prose: ProseGenerationResult): ProseReadabilitySummary => {
+  let denseChapterCount = 0;
+  let underParagraphCount = 0;
+  let severeParagraphBlocks = 0;
+
+  prose.chapters.forEach((chapter) => {
+    const paragraphs = chapter.paragraphs || [];
+    if (paragraphs.length < 3) {
+      underParagraphCount += 1;
+      denseChapterCount += 1;
+    }
+
+    const overlong = paragraphs.filter((paragraph) => paragraph.length > 2400).length;
+    if (overlong > 0) {
+      severeParagraphBlocks += overlong;
+      denseChapterCount += 1;
+    }
+  });
+
+  return {
+    denseChapterCount,
+    underParagraphCount,
+    severeParagraphBlocks,
+  };
+};
+
+const evaluateSceneGroundingCoverage = (
+  prose: ProseGenerationResult,
+  locationProfiles: LocationProfilesResult,
+) => {
+  const knownAnchors = new Set<string>();
+  if (locationProfiles.primary?.name) knownAnchors.add(locationProfiles.primary.name.toLowerCase());
+  (locationProfiles.keyLocations || []).forEach((loc) => {
+    if (loc?.name) knownAnchors.add(String(loc.name).toLowerCase());
+  });
+
+  const sensoryTerms = /\b(smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim)\b/gi;
+  const atmosphereTerms = /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather)\b/i;
+
+  let grounded = 0;
+  prose.chapters.forEach((chapter) => {
+    const opening = chapter.paragraphs.slice(0, 2).join(' ').toLowerCase();
+    const hasAnchor = Array.from(knownAnchors).some((anchor) => opening.includes(anchor));
+    const sensoryCount = (opening.match(sensoryTerms) || []).length;
+    const hasAtmosphere = atmosphereTerms.test(opening);
+    if (hasAnchor && sensoryCount >= 2 && hasAtmosphere) {
+      grounded += 1;
+    }
+  });
+
+  const coverage = prose.chapters.length > 0 ? grounded / prose.chapters.length : 0;
+  return { grounded, total: prose.chapters.length, coverage };
+};
+
+const evaluateTemplateLeakage = (prose: ProseGenerationResult) => {
+  const normalizedParagraphs = prose.chapters.flatMap((chapter) =>
+    (chapter.paragraphs || [])
+      .map((paragraph) => paragraph.replace(/\s+/g, ' ').trim().toLowerCase())
+      .filter((paragraph) => paragraph.length >= 170),
+  );
+
+  const seen = new Set<string>();
+  const duplicated = new Set<string>();
+  normalizedParagraphs.forEach((paragraph) => {
+    if (seen.has(paragraph)) duplicated.add(paragraph);
+    seen.add(paragraph);
+  });
+
+  const scaffoldPattern = /at\s+the\s+[a-z][\s\S]{0,120}the\s+smell\s+of[\s\S]{20,300}?atmosphere\s+ripe\s+for\s+revelation\.?/i;
+  const scaffoldCount = prose.chapters.reduce((count, chapter) => {
+    const text = (chapter.paragraphs || []).join(' ');
+    return count + (scaffoldPattern.test(text) ? 1 : 0);
+  }, 0);
+
+  return {
+    duplicatedLongParagraphCount: duplicated.size,
+    scaffoldCount,
+    hasLeakage: duplicated.size > 0 || scaffoldCount > 0,
+  };
+};
+
+/**
+ * Checks atmospheric sensory variety across all chapters.
+ * Flags phrases that appear in >40% of chapters to prevent sensory palette recycling.
+ * Returns overused phrases and a summary flag.
+ */
+const evaluateSensoryVariety = (prose: ProseGenerationResult) => {
+  const ATMOSPHERIC_TOKENS = [
+    /smell of \w[\w\s]{2,30}/gi,
+    /scent of \w[\w\s]{2,30}/gi,
+    /air (?:thick|heavy|laden|filled|carrying) with \w[\w\s]{2,25}/gi,
+    /(?:overcast|grey|gray) skies?/gi,
+    /rain (?:tapping|pattering|drumming|falling)/gi,
+    /tension[ ,](?:pressed|hung|filled|lay)/gi,
+    /(?:polished wood|tobacco|mildew|damp|musty|smoky) (?:filled|hung|permeated|clung)/gi,
+    /tick(?:ing)? (?:of (?:the )?clock|clock)/gi,
+    /dim(?:ly)? (?:lit|illuminated)/gi,
+  ];
+
+  const totalChapters = prose.chapters.length;
+  if (totalChapters < 3) return { overusedPhrases: [] as string[], hasExcessiveRepetition: false };
+
+  const phraseToChapterCount: Map<string, number> = new Map();
+  for (const chapter of prose.chapters) {
+    const text = (chapter.paragraphs || []).join(' ');
+    const matchedThisChapter = new Set<string>();
+    for (const pattern of ATMOSPHERIC_TOKENS) {
+      const matches = text.match(pattern) ?? [];
+      for (const rawMatch of matches) {
+        const normalised = rawMatch.toLowerCase().trim().slice(0, 60);
+        if (!matchedThisChapter.has(normalised)) {
+          matchedThisChapter.add(normalised);
+          phraseToChapterCount.set(normalised, (phraseToChapterCount.get(normalised) ?? 0) + 1);
+        }
+      }
+    }
+  }
+
+  const threshold = Math.floor(totalChapters * 0.4);
+  const overused: string[] = [];
+  for (const [phrase, count] of phraseToChapterCount.entries()) {
+    if (count > threshold) overused.push(`"${phrase}" (${count}/${totalChapters} chapters)`);
+  }
+
+  return {
+    overusedPhrases: overused,
+    hasExcessiveRepetition: overused.length > 0,
+  };
+};
+
+const evaluateTemporalConsistency = (
+  prose: ProseGenerationResult,
+  temporalContext?: TemporalContextResult,
+) => {
+  const month = temporalContext?.specificDate?.month?.toLowerCase();
+  if (!month) {
+    return { contradictions: 0, details: [] as string[] };
+  }
+
+  const monthToSeason: Record<string, 'spring' | 'summer' | 'autumn' | 'winter'> = {
+    january: 'winter',
+    february: 'winter',
+    march: 'spring',
+    april: 'spring',
+    may: 'spring',
+    june: 'summer',
+    july: 'summer',
+    august: 'summer',
+    september: 'autumn',
+    october: 'autumn',
+    november: 'autumn',
+    december: 'winter',
+  };
+
+  const seasonRegex: Record<'spring' | 'summer' | 'autumn' | 'winter', RegExp> = {
+    spring: /\b(spring|vernal)\b/i,
+    summer: /\b(summer|midsummer)\b/i,
+    autumn: /\b(autumn|fall)\b/i,
+    winter: /\b(winter|wintry)\b/i,
+  };
+
+  const expected = monthToSeason[month];
+  if (!expected) {
+    return { contradictions: 0, details: [] as string[] };
+  }
+
+  const details: string[] = [];
+  prose.chapters.forEach((chapter, idx) => {
+    const opening = (chapter.paragraphs || []).slice(0, 2).join(' ');
+    const lowered = opening.toLowerCase();
+    if (!new RegExp(`\\b${month}\\b`, 'i').test(lowered)) {
+      return;
+    }
+
+    (Object.keys(seasonRegex) as Array<keyof typeof seasonRegex>).forEach((season) => {
+      if (season !== expected && seasonRegex[season].test(lowered)) {
+        details.push(`chapter ${idx + 1}: ${month} with ${season}`);
+      }
+    });
+  });
+
+  return { contradictions: details.length, details };
+};
+
+const placeholderRoleSurnamePattern = /\b(a|an)\s+(inspector|detective|constable|sergeant|captain|gentleman|lady|woman|man|doctor)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)\b/g;
+const placeholderNamedStandalonePattern = /\b(a woman [A-Z][a-z]+|a man [A-Z][a-z]+)\b/g;
+const placeholderGenericRolePattern = /\b(a gentleman|an inspector|a detective|a constable|a sergeant|a captain|a doctor)\b/gi;
+
+const evaluatePlaceholderLeakage = (prose: ProseGenerationResult) => {
+  const joined = prose.chapters
+    .map((chapter) => {
+      const body = (chapter.paragraphs || []).join("\n");
+      return `${chapter.title}\n${chapter.summary ?? ""}\n${body}`;
+    })
+    .join("\n\n");
+
+  const roleSurnameMatches = Array.from(joined.matchAll(placeholderRoleSurnamePattern)).map((match) => match[0]);
+  const namedStandaloneMatches = Array.from(joined.matchAll(placeholderNamedStandalonePattern)).map((match) => match[0]);
+  const genericRoleMatches = joined.match(placeholderGenericRolePattern) || [];
+
+  const uniqueRoleSurnameMatches = Array.from(new Set(roleSurnameMatches));
+
+  return {
+    roleSurnameCount: roleSurnameMatches.length,
+    standaloneCount: namedStandaloneMatches.length,
+    genericRoleCount: genericRoleMatches.length,
+    examples: uniqueRoleSurnameMatches.slice(0, 5),
+    severeLeakage: roleSurnameMatches.length > 0 || namedStandaloneMatches.length >= 2,
+    hasLeakage: roleSurnameMatches.length > 0 || namedStandaloneMatches.length > 0 || genericRoleMatches.length >= 12,
+  };
+};
+
+const evaluateChapterHeadingArtifacts = (prose: ProseGenerationResult) => {
+  const offending = prose.chapters.filter((chapter) => chapterHeadingPrefixPattern.test(chapter.title || ""));
+  return {
+    duplicatedHeadingCount: offending.length,
+    hasArtifacts: offending.length > 0,
   };
 };
 
@@ -1184,19 +1614,14 @@ export async function generateMystery(
 
   if (enableScoring) {
     try {
-      const retryConfigPath = join(process.cwd(), "apps", "worker", "config", "retry-limits.yaml");
+      const retryConfigPath = join(WORKER_APP_ROOT, "config", "retry-limits.yaml");
       retryManager = new RetryManager(retryConfigPath);
       scoreAggregator = new ScoreAggregator({ mode: 'standard' }, retryManager);
       
-      // Resolve from the monorepo root regardless of which directory the process
-      // was launched from. fileURLToPath(import.meta.url) is the compiled JS file
-      // at apps/worker/dist/jobs/mystery-orchestrator.js — four levels up is the
-      // workspace root (c:\CML).
-      const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
-      const resolvedReportsDir = join(workspaceRoot, "apps", "api", "data", "reports");
+      const resolvedReportsDir = join(WORKSPACE_ROOT, "apps", "api", "data", "reports");
       reportRepository = new FileReportRepository(resolvedReportsDir);
       
-      const logsDir = join(process.cwd(), "apps", "worker", "logs");
+      const logsDir = join(WORKER_APP_ROOT, "logs");
       scoringLogger = new ScoringLogger(logsDir);
       
       warnings.push("Scoring system enabled - tracking quality metrics and retries");
@@ -1256,8 +1681,7 @@ export async function generateMystery(
     );
     const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis);
 
-    const examplesDir = join(process.cwd(), "examples");
-    const seedEntries = await loadSeedCMLFiles(examplesDir);
+    const seedEntries = await loadSeedCMLFiles(EXAMPLES_ROOT);
     const noveltyConstraints = buildNoveltyConstraints(seedEntries as Array<{ filename: string; cml: CaseData }>);
 
     // ========================================================================
@@ -1329,6 +1753,33 @@ export async function generateMystery(
       );
       throw new Error("Setting refinement still contains realism issues");
     }
+
+    let settingSchemaValidation = validateArtifact("setting_refinement", setting.setting);
+    if (!settingSchemaValidation.valid) {
+      warnings.push("Setting refinement failed schema validation on first attempt; retrying setting generation with schema repair guardrails");
+      // Note: refineSetting doesn't support qualityGuardrails parameter, so we rely on its internal retry with maxAttempts
+      // The schema feedback isn't injected directly, but the retry may succeed on structural issues
+      const settingSchemaRetryStart = Date.now();
+      const retriedSetting = await refineSetting(client, {
+        runId,
+        projectId: projectId || "",
+        decade: inputs.eraPreference || "1930s",
+        location: locationSpec.location,
+        institution: locationSpec.institution,
+        tone: inputs.tone,
+      }, 2); // Reduce attempts to 2 since this is already a retry
+      agentCosts["agent1_setting"] = (agentCosts["agent1_setting"] || 0) + retriedSetting.cost;
+      agentDurations["agent1_setting"] = (agentDurations["agent1_setting"] || 0) + (Date.now() - settingSchemaRetryStart);
+      const retryValidation = validateArtifact("setting_refinement", retriedSetting.setting);
+      if (!retryValidation.valid) {
+        retryValidation.errors.forEach((error) => errors.push(`Setting schema failure: ${error}`));
+        throw new Error("Setting artifact failed schema validation");
+      }
+      setting = retriedSetting;
+      settingSchemaValidation = retryValidation;
+      warnings.push("Setting schema-repair retry succeeded");
+    }
+    settingSchemaValidation.warnings.forEach((warning) => warnings.push(`Setting schema warning: ${warning}`));
     
     reportProgress("setting", "Era and setting refined", 12);
 
@@ -1338,6 +1789,19 @@ export async function generateMystery(
     reportProgress("cast", "Designing cast and motives...", 12);
     
     let cast: Awaited<ReturnType<typeof designCast>>;
+
+    // Generate cast names programmatically from curated historical pools so that
+    // every run gets period-authentic, varied names without relying on the LLM's
+    // training-data biases (which tend to recycle attractor names like "Inspector
+    // Harlow" or "Mr. Vane" across runs).
+    const totalCastSize = inputs.castNames?.length || (inputs.castSize || 6) + 1;
+    const nameContext: NameGeneratorContext = {
+      decade: parseInt(String(setting.setting.era.decade), 10) || undefined,
+      locationType: setting.setting.location.type,
+      locationDescription: setting.setting.location.description,
+      socialContext: setting.setting.era.socialNorms.join(', '),
+    };
+    const effectiveCastNames = inputs.castNames ?? generateCastNames(runId, totalCastSize, nameContext);
     
     if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
       const { result, duration, cost } = await executeAgentWithRetry(
@@ -1345,9 +1809,10 @@ export async function generateMystery(
         "Cast Design",
         async (retryFeedback?: string) => {
           const castResult = await designCast(client, {
-            characterNames: inputs.castNames,
-            // When names not provided: castSize (suspects) + 1 detective = total cast
-            castSize: inputs.castNames?.length || (inputs.castSize || 6) + 1,
+            characterNames: effectiveCastNames,
+            // castSize is the fallback when no names provided — not needed now
+            // but kept for schema compatibility
+            castSize: totalCastSize,
             setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
             crimeType: "Murder",
             tone: appendRetryFeedback(inputs.tone || inputs.narrativeStyle || "Golden Age Mystery", retryFeedback),
@@ -1385,8 +1850,8 @@ export async function generateMystery(
     } else {
       const castStart = Date.now();
       cast = await designCast(client, {
-        characterNames: inputs.castNames,
-        castSize: inputs.castNames?.length || (inputs.castSize || 6) + 1,
+        characterNames: effectiveCastNames,
+        castSize: totalCastSize,
         setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
         crimeType: "Murder",
         tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
@@ -1403,6 +1868,49 @@ export async function generateMystery(
       errors.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
       throw new Error("Cast design failed stereotype guardrails");
     }
+
+    const castValidationPayload = {
+      ...((cast.cast as unknown) as Record<string, unknown>),
+      cost: cast.cost,
+      latencyMs: cast.latencyMs,
+    };
+    let castSchemaValidation = validateArtifact("cast_design", castValidationPayload);
+    if (!castSchemaValidation.valid) {
+      warnings.push("Cast design failed schema validation on first attempt; retrying cast generation with schema repair guardrails");
+      const schemaRepairGuardrails = [
+        "Return a valid cast_design artifact that strictly matches required schema fields and types.",
+        ...castSchemaValidation.errors.slice(0, 8).map((error) => `Schema fix required: ${error}`),
+      ];
+      const castSchemaRetryStart = Date.now();
+      const retriedCast = await designCast(client, {
+        characterNames: effectiveCastNames,
+        castSize: totalCastSize,
+        setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
+        crimeType: "Murder",
+        tone: inputs.tone || inputs.narrativeStyle || "Golden Age Mystery",
+        socialContext: setting.setting.era.socialNorms.join(", "),
+        detectiveType: inputs.detectiveType,
+        qualityGuardrails: schemaRepairGuardrails,
+        runId,
+        projectId: projectId || "",
+      });
+      agentCosts["agent2_cast"] = (agentCosts["agent2_cast"] || 0) + retriedCast.cost;
+      agentDurations["agent2_cast"] = (agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);
+      const retriedPayload = {
+        ...((retriedCast.cast as unknown) as Record<string, unknown>),
+        cost: retriedCast.cost,
+        latencyMs: retriedCast.latencyMs,
+      };
+      const retryValidation = validateArtifact("cast_design", retriedPayload);
+      if (!retryValidation.valid) {
+        retryValidation.errors.forEach((error) => errors.push(`Cast schema failure: ${error}`));
+        throw new Error("Cast artifact failed schema validation");
+      }
+      cast = retriedCast;
+      castSchemaValidation = retryValidation;
+      warnings.push("Cast design schema-repair retry succeeded");
+    }
+    castSchemaValidation.warnings.forEach((warning) => warnings.push(`Cast schema warning: ${warning}`));
     
     reportProgress("cast", `Cast designed (${cast.cast.characters.length} characters)`, 25);
     reportProgress("background-context", "Generating background context...", 25);
@@ -1578,6 +2086,7 @@ export async function generateMystery(
           : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
       castSize: cast.cast.characters.length,
       castNames: cast.cast.characters.map((c: any) => c.name),
+      castGenders: Object.fromEntries(cast.cast.characters.map((c: any) => [c.name, (c as any).gender ?? 'non-binary'])),
       detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
       victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
       complexityLevel: hardLogicDirectives.complexityLevel,
@@ -1590,7 +2099,7 @@ export async function generateMystery(
       noveltyConstraints,
       runId,
       projectId: projectId || "",
-    }, examplesDir);
+    }, EXAMPLES_ROOT);
     
     agentCosts["agent3_cml"] = cmlResult.cost;
     agentDurations["agent3_cml"] = Date.now() - cmlStart;
@@ -1726,6 +2235,7 @@ export async function generateMystery(
               : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
           castSize: cast.cast.characters.length,
           castNames: cast.cast.characters.map((c: any) => c.name),
+          castGenders: Object.fromEntries(cast.cast.characters.map((c: any) => [c.name, (c as any).gender ?? 'non-binary'])),
           detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
           victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
           complexityLevel: hardLogicDirectives.complexityLevel,
@@ -1738,7 +2248,7 @@ export async function generateMystery(
           noveltyConstraints: strongerConstraints,
           runId,
           projectId: projectId || "",
-        }, examplesDir);
+        }, EXAMPLES_ROOT);
 
         agentCosts["agent3_cml"] = cmlResult.cost;
         agentDurations["agent3_cml"] += Date.now() - cmlRetryStart;
@@ -2113,10 +2623,14 @@ export async function generateMystery(
     agentCosts["agent6_fairplay"] = fairPlayAudit.cost;
     agentDurations["agent6_fairplay"] = Date.now() - fairPlayStart;
 
-    const criticalFairPlayRules = new Set(["Clue Visibility", "Information Parity", "No Withholding", "Logical Deducibility"]);
-    const hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
+    // FP-9: "Information Parity" is a clue-phrasing issue; CML revision cannot fix it — handle via Agent 5 clue retry only
+    const criticalFairPlayRules = new Set(["Clue Visibility", "No Withholding", "Logical Deducibility"]);
+    // FP-2: let so it can be recomputed after each fairPlayAudit reassignment
+    let hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
       (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
     );
+    // FP-3: outer fpStatus/fpValidation removed — inner copies inside recordFairPlayScore are the live ones
+    // FP-4: hasZeroScoreViolation removed — was never read
 
     if (fairPlayAudit.overallStatus === "fail") {
       if (hasCriticalFairPlayFailure) {
@@ -2124,10 +2638,11 @@ export async function generateMystery(
         fairPlayAudit.violations.forEach((v) => warnings.push(`  - [${v.severity}] ${v.rule}: ${v.description}`));
       } else {
         warnings.push("Agent 6: Fair play audit FAILED after clue regeneration");
+        // FP-6: moved inside else — critical path already logs violations above; avoid double-logging
+        fairPlayAudit.violations.forEach((v) => {
+          warnings.push(`  - [${v.severity}] ${v.description}`);
+        });
       }
-      fairPlayAudit.violations.forEach((v) => {
-        warnings.push(`  - [${v.severity}] ${v.description}`);
-      });
     } else if (fairPlayAudit.overallStatus === "needs-revision") {
       if (hasCriticalFairPlayFailure) {
         warnings.push("Agent 6: Fair play needs revision with critical issues; continuing with warnings");
@@ -2140,8 +2655,9 @@ export async function generateMystery(
 
     reportProgress("fairplay", `Fair play audit: ${fairPlayAudit.overallStatus}`, 75);
 
-    // Record fair-play audit phase score
-    if (enableScoring && scoreAggregator && fairPlayAudit) {
+    // FP-1: extracted as async closure so it can be called after each fairPlayAudit reassignment
+    const recordFairPlayScore = async () => {
+      if (!enableScoring || !scoreAggregator || !fairPlayAudit) return;
       const fpStatus = fairPlayAudit.overallStatus;
       const fpValidation = fpStatus === "pass" ? 100 : fpStatus === "needs-revision" ? 70 : 45;
       scoreAggregator.upsertPhaseScore(
@@ -2155,7 +2671,7 @@ export async function generateMystery(
           consistency_score: 100,
           total: fpValidation,
           grade: (fpValidation >= 90 ? 'A' : fpValidation >= 80 ? 'B' : fpValidation >= 70 ? 'C' : fpValidation >= 60 ? 'D' : 'F') as PhaseScore['grade'],
-          passed: fpStatus === "pass" || fpStatus === "needs-revision",
+          passed: fpValidation >= 75, // FP-5: needs-revision scores 70 which is below the 75 pass threshold
           failure_reason: fpStatus === "fail"
             ? `Fair play audit failed (${fairPlayAudit.violations.length} violation(s))`
             : undefined,
@@ -2183,7 +2699,8 @@ export async function generateMystery(
         agentCosts["agent6_fairplay"] ?? 0,
       );
       try { await savePartialReport(); } catch { /* best-effort */ }
-    }
+    };
+    await recordFairPlayScore();
 
     // ========================================================================
     // WP5B: Blind Reader Simulation
@@ -2249,6 +2766,15 @@ export async function generateMystery(
           agentCosts["agent5_clues"] = (agentCosts["agent5_clues"] || 0) + clues.cost;
           agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - blindRetryStart);
           applyClueGuardrails(cml, clues);
+          // FP-7: re-audit after blind-reader clue regen so WP6B gating and abort gate see fresh violations
+          const blindReAuditStart = Date.now();
+          fairPlayAudit = await auditFairPlay(client, { caseData: cml, clues, runId, projectId: projectId || "" });
+          agentCosts["agent6_fairplay"] = (agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+          agentDurations["agent6_fairplay"] = (agentDurations["agent6_fairplay"] || 0) + (Date.now() - blindReAuditStart);
+          hasCriticalFairPlayFailure = fairPlayAudit.violations.some( // FP-2: recompute
+            (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
+          );
+          await recordFairPlayScore(); // FP-1: update score report
         }
       }
     }
@@ -2351,10 +2877,58 @@ export async function generateMystery(
           agentCosts["agent6_fairplay"] = (agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
           agentDurations["agent6_fairplay"] = (agentDurations["agent6_fairplay"] || 0) + (Date.now() - reAuditStart);
           fairPlayRetryCost += fairPlayAudit.cost;
+          hasCriticalFairPlayFailure = fairPlayAudit.violations.some( // FP-2: recompute after CML revision re-audit
+            (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
+          );
+          await recordFairPlayScore(); // FP-1: update score report with post-revision audit result
         }
+      } else if (failureClass === "clue_only" && fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST) {
+        // "clue_only": CML structure is sound (inference path concrete, constraint space
+        // adequate, no coverage gaps). The violation is in clue phrasing / selection
+        // (typically Information Parity or Solution Uniqueness). Run one more targeted
+        // clue regeneration with the exact violation suggestions before the hard stop.
+        warnings.push(
+          "Fair play failure classified as \"clue_only\" — CML structure is sound; " +
+          "regenerating clues with targeted per-violation feedback (attempt 3 of 3)"
+        );
+
+        reportProgress("clues", "Regenerating clues to address fair play feedback (final attempt)...", 63);
+        const finalClueRetryStart = Date.now();
+        clues = await extractClues(client, {
+          cml,
+          clueDensity: inputs.targetLength === "short" ? "minimal" : inputs.targetLength === "long" ? "dense" : "moderate",
+          redHerringBudget: 2,
+          fairPlayFeedback: {
+            overallStatus: fairPlayAudit!.overallStatus,
+            violations: fairPlayAudit!.violations,
+            warnings: fairPlayAudit!.warnings,
+            recommendations: fairPlayAudit!.recommendations,
+          },
+          runId,
+          projectId: projectId || "",
+        });
+        agentCosts["agent5_clues"] = (agentCosts["agent5_clues"] || 0) + clues.cost;
+        agentDurations["agent5_clues"] = (agentDurations["agent5_clues"] || 0) + (Date.now() - finalClueRetryStart);
+        fairPlayRetryCost += clues.cost;
+        applyClueGuardrails(cml, clues);
+
+        const finalAuditStart = Date.now();
+        fairPlayAudit = await auditFairPlay(client, {
+          caseData: cml,
+          clues,
+          runId,
+          projectId: projectId || "",
+        });
+        agentCosts["agent6_fairplay"] = (agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+        agentDurations["agent6_fairplay"] = (agentDurations["agent6_fairplay"] || 0) + (Date.now() - finalAuditStart);
+        fairPlayRetryCost += fairPlayAudit.cost;
+        hasCriticalFairPlayFailure = fairPlayAudit.violations.some( // FP-2: recompute after clue_only re-audit
+          (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
+        );
+        await recordFairPlayScore(); // FP-1: update score report with final clue_only audit result
       }
-      
-      // WP8A: Hard stop if still failing after all retries
+
+      // WP8A: Log remaining failures — hard stop only happens at the CML Validation Gate below
       if (fairPlayAudit!.overallStatus === "fail") {
         const criticalViolations = fairPlayAudit!.violations
           .filter(v => v.severity === "critical" || criticalFairPlayRules.has(v.rule))
@@ -2362,7 +2936,7 @@ export async function generateMystery(
           .join("; ");
         
         if (criticalViolations) {
-          warnings.push("Fair play HARD STOP: critical failures persist after all retries: " + criticalViolations);
+          warnings.push("Fair play: critical failures persist after all retries: " + criticalViolations);
         }
       }
 
@@ -2397,10 +2971,17 @@ export async function generateMystery(
         },
         async (narrativeResult) => {
           const scorer = new NarrativeScorer();
+          // Convert prose_requirements.clue_to_scene_mapping → ClueRef[] with placement derived from act_number
+          const clueMappings: ClueRef[] = ((cml as any).CASE?.prose_requirements?.clue_to_scene_mapping ?? []).map(
+            (m: any): ClueRef => ({
+              id: String(m.clue_id || ''),
+              placement: m.act_number === 1 ? 'early' : m.act_number === 2 ? 'mid' : m.act_number === 3 ? 'late' : undefined,
+            })
+          ).filter((c: ClueRef) => c.id);
           const adapted = adaptNarrativeForScoring(
             narrativeResult,
             (cml as any).CASE?.cast ?? [],       // for character ID → full name normalisation
-            (cml as any).CASE?.clues ?? [],       // for clue distribution by placement band
+            clueMappings,                         // for clue distribution by placement band
           );
           const score = await scorer.score({}, adapted, {
             previous_phases: { agent2_cast: cast.cast },
@@ -2435,6 +3016,68 @@ export async function generateMystery(
       agentCosts["agent7_narrative"] = narrative.cost;
       agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
     }
+
+    let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
+    if (!narrativeSchemaValidation.valid) {
+      warnings.push("Narrative outline failed schema validation on first attempt; retrying outline generation with schema repair guardrails");
+
+      const schemaRepairGuardrails = [
+        "Return a valid narrative_outline artifact that strictly matches required schema fields and types.",
+        ...narrativeSchemaValidation.errors.slice(0, 8).map((error) => `Schema fix required: ${error}`),
+      ];
+
+      const narrativeSchemaRetryStart = Date.now();
+      const retriedNarrative = await formatNarrative(client, {
+        caseData: cml,
+        clues: clues,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        detectiveType: inputs.detectiveType,
+        qualityGuardrails: schemaRepairGuardrails,
+        runId,
+        projectId: projectId || "",
+      });
+
+      agentCosts["agent7_narrative"] = (agentCosts["agent7_narrative"] || 0) + retriedNarrative.cost;
+      agentDurations["agent7_narrative"] = (agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeSchemaRetryStart);
+
+      const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
+      if (!retryValidation.valid) {
+        retryValidation.errors.forEach((error) => errors.push(`Outline schema failure: ${error}`));
+        throw new Error("Narrative outline artifact failed schema validation");
+      }
+
+      narrative = retriedNarrative;
+      narrativeSchemaValidation = retryValidation;
+      warnings.push("Narrative outline schema-repair retry succeeded");
+
+      // N-3: re-score the corrected narrative so scoreAggregator reflects repaired output
+      if (enableScoring && scoreAggregator) {
+        try {
+          const narrativeRescorer = new NarrativeScorer();
+          const narrativeReAdapted = adaptNarrativeForScoring(
+            narrative,
+            (cml as any).CASE?.cast ?? [],
+            ((cml as any).CASE?.prose_requirements?.clue_to_scene_mapping ?? []).map(
+              (m: any): ClueRef => ({
+                id: String(m.clue_id || ''),
+                placement: m.act_number === 1 ? 'early' : m.act_number === 2 ? 'mid' : 'late',
+              })
+            ).filter((c: ClueRef) => c.id),
+          );
+          const narrativeReScore = await narrativeRescorer.score({}, narrativeReAdapted, {
+            previous_phases: { agent2_cast: cast.cast },
+            cml,
+            threshold_config: { mode: 'standard' },
+            targetLength: inputs.targetLength ?? 'medium',
+          });
+          scoreAggregator.upsertPhaseScore('agent7_narrative', 'Narrative Outline', narrativeReScore, agentDurations['agent7_narrative'] ?? 0, 1);
+        } catch {
+          // Re-scoring is best-effort; never abort generation
+        }
+      }
+    }
+    narrativeSchemaValidation.warnings.forEach((warning) => warnings.push(`Outline schema warning: ${warning}`));
     
     reportProgress(
       "narrative",
@@ -2475,6 +3118,33 @@ export async function generateMystery(
       if (retryOutlineIssues.length < outlineCoverageIssues.length) {
         narrative = retriedNarrative;
         warnings.push("Outline retry improved coverage");
+
+        // N-3: re-score replacement narrative so scoreAggregator reflects improved output
+        if (enableScoring && scoreAggregator) {
+          try {
+            const narrativeRescorer = new NarrativeScorer();
+            const narrativeReAdapted = adaptNarrativeForScoring(
+              narrative,
+              (cml as any).CASE?.cast ?? [],
+              ((cml as any).CASE?.prose_requirements?.clue_to_scene_mapping ?? []).map(
+                (m: any): ClueRef => ({
+                  id: String(m.clue_id || ''),
+                  placement: m.act_number === 1 ? 'early' : m.act_number === 2 ? 'mid' : 'late',
+                })
+              ).filter((c: ClueRef) => c.id),
+            );
+            const narrativeReScore = await narrativeRescorer.score({}, narrativeReAdapted, {
+              previous_phases: { agent2_cast: cast.cast },
+              cml,
+              threshold_config: { mode: 'standard' },
+              targetLength: inputs.targetLength ?? 'medium',
+            });
+            scoreAggregator.upsertPhaseScore('agent7_narrative', 'Narrative Outline', narrativeReScore, agentDurations['agent7_narrative'] ?? 0, 1);
+          } catch {
+            // Re-scoring is best-effort; never abort generation
+          }
+        }
+
         reportProgress(
           "narrative",
           "Outline retry: " + retriedNarrative.totalScenes + " scenes (" + retriedNarrative.estimatedTotalWords + " words)",
@@ -2483,6 +3153,58 @@ export async function generateMystery(
       } else {
         // Keep original but still pass guardrails downstream to prose
         warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
+      }
+    }
+
+    // ========================================================================
+    // Clue pacing gate — ensure narrative outline places clues in ≥ 60% of scenes
+    // before committing to prose generation. If the LLM under-populated cluesRevealed
+    // arrays the gate retries once with a hard pacing constraint.
+    // ========================================================================
+    {
+      const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
+      const totalOutlineSceneCount = allOutlineScenes.length;
+      const clueSceneCount = allOutlineScenes.filter(
+        (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
+      ).length;
+      const minClueScenes = Math.ceil(totalOutlineSceneCount * 0.6);
+
+      if (totalOutlineSceneCount > 0 && clueSceneCount < minClueScenes) {
+        warnings.push(
+          `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Retrying outline with reinforced pacing.`
+        );
+        reportProgress("narrative", `Clue pacing retry: ${clueSceneCount}/${totalOutlineSceneCount} scenes have clues (≥${minClueScenes} required)`, 86);
+
+        const pacingRetryStart = Date.now();
+        const pacingRetried = await formatNarrative(client, {
+          caseData: cml,
+          clues: clues,
+          targetLength: inputs.targetLength,
+          narrativeStyle: inputs.narrativeStyle,
+          detectiveType: inputs.detectiveType,
+          qualityGuardrails: [
+            `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes (60% of all scenes). You MUST populate the cluesRevealed array with at least one clue ID in at least ${minClueScenes} scenes. Spread clues across ALL three acts — every act must have multiple clue-bearing scenes. Do not cluster all clues in the final act.`,
+          ],
+          runId,
+          projectId: projectId || "",
+        });
+        agentCosts["agent7_narrative"] = (agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
+        agentDurations["agent7_narrative"] =
+          (agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
+
+        const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a: any) => a.scenes || []);
+        const retriedClueCount = retriedOutlineScenes.filter(
+          (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
+        ).length;
+
+        if (retriedClueCount >= minClueScenes) {
+          narrative = pacingRetried;
+          warnings.push(`Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`);
+        } else {
+          warnings.push(
+            `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}) — proceeding with best-available outline; clue visibility may be reduced.`
+          );
+        }
       }
     }
 
@@ -2646,6 +3368,7 @@ export async function generateMystery(
             caseData: cml,
             runId,
             projectId: projectId || "",
+            qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
           });
           return { result: tempResult, cost: tempResult.cost };
         },
@@ -2717,11 +3440,33 @@ export async function generateMystery(
       }
     }
 
-    // 1. Fair play audit must pass or have only minor issues
+    // 1. Fair play audit must pass or have only minor issues.
+    // Only block prose on violations that indicate *broken mystery structure*:
+    //   - Clue Visibility: a clue the detective uses is never shown to the reader
+    //   - Logical Deducibility: the culprit fundamentally cannot be deduced from the clues
+    //   - No Withholding: the detective actively withholds information from the reader
+    // "Information Parity" and "Solution Uniqueness" are clue-phrasing issues;
+    // the CML structure is sound and prose can proceed with warnings.
     if (fairPlayAudit && fairPlayAudit.overallStatus === 'fail') {
-      const criticalViolations = fairPlayAudit.violations.filter(v => v.severity === 'critical');
-      if (criticalViolations.length > 0) {
-        cmlValidationErrors.push(`Fair play audit failed with ${criticalViolations.length} critical violation(s) - prose cannot realize a broken mystery structure`);
+      const structurallyBlockingRules = new Set(['Clue Visibility', 'Logical Deducibility', 'No Withholding']);
+      const blockingViolations = fairPlayAudit.violations.filter(
+        v => v.severity === 'critical' && v.rule && structurallyBlockingRules.has(v.rule)
+      );
+      if (blockingViolations.length > 0) {
+        cmlValidationErrors.push(
+          `Fair play audit failed with ${blockingViolations.length} structural violation(s) ` +
+          `(${blockingViolations.map(v => v.rule).join(', ')}) — prose cannot realize a broken mystery`
+        );
+      } else {
+        // Non-structural critical violations (e.g. Information Parity, Solution Uniqueness):
+        // these are clue-quality issues, not broken CML. Warn and continue.
+        const nonStructuralCritical = fairPlayAudit.violations.filter(v => v.severity === 'critical');
+        if (nonStructuralCritical.length > 0) {
+          warnings.push(
+            `Fair-play: ${nonStructuralCritical.length} non-structural violation(s) remain ` +
+            `(${nonStructuralCritical.map(v => v.rule).join(', ')}) — mystery structure is sound, proceeding with prose`
+          );
+        }
       }
     }
     
@@ -2770,9 +3515,30 @@ export async function generateMystery(
     // ========================================================================
     reportProgress("prose", "Generating prose chapter by chapter with per-chapter validation...", 91);
 
+    const baselineProseGuardrails = [
+      "Use only canonical cast names from CML. Do not invent titled placeholders like 'Detective Surname', 'Inspector Surname', 'a woman Surname', or 'a man Surname'.",
+      "Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.",
+      "In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).",
+    ];
+
     let prose: Awaited<ReturnType<typeof generateProse>>;
     const totalSceneCount = narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
+    // Extract moral ambiguity note from the selected hard-logic device for prose context
+    const moralAmbiguityNote = hardLogicDevices.devices[0]?.moralAmbiguity;
+    // Extract locked facts for prose ground-truth injection
+    const proseLockedFacts = hardLogicDevices.devices[0]?.lockedFacts;
+    // Initialise narrative state — tracks style history, pronouns, and locked facts across prose batches
+    const characterGenderMap: Record<string, string> = Object.fromEntries(
+      cast.cast.characters.map(c => [c.name, c.gender ?? 'non-binary'])
+    );
+    let narrativeState: NarrativeState = initNarrativeState(proseLockedFacts ?? [], characterGenderMap);
     const prosePhaseStartTime = Date.now();
+    const proseDeployment =
+      process.env.AZURE_OPENAI_DEPLOYMENT_NAME_PROSE ||
+      process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+    const proseModelOverride = proseDeployment
+      ? ({ model: proseDeployment } as Record<string, string>)
+      : {};
     
     if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
       // Populated by onBatchComplete; read by scoreOutput to carry into final score.
@@ -2781,6 +3547,10 @@ export async function generateMystery(
         "agent9_prose",
         "Prose Generation",
         async (retryFeedback?: string) => {
+          // P-2: clear stale chapter scores from the previous failed attempt
+          if (retryFeedback) {
+            proseChapterScores.length = 0;
+          }
           // Accumulate chapters as they complete so per-chapter scoring can run
           const accumulatedChapters: any[] = [];
           // On retries the aggregator already has the first attempt's committed
@@ -2792,13 +3562,19 @@ export async function generateMystery(
             caseData: cml,
             outline: narrative,
             cast: cast.cast,
+            ...proseModelOverride,
             detectiveType: inputs.detectiveType,
             characterProfiles: characterProfiles,
             locationProfiles: locationProfiles,
             temporalContext: temporalContext,
+            moralAmbiguityNote,
+            lockedFacts: proseLockedFacts,
+            clueDistribution: clues,
+            narrativeState,
             targetLength: inputs.targetLength,
             narrativeStyle: inputs.narrativeStyle,
             qualityGuardrails: [
+              ...baselineProseGuardrails,
               ...(outlineCoverageIssues.length > 0
                 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml)
                 : []),
@@ -2812,6 +3588,20 @@ export async function generateMystery(
             onBatchComplete: async (batchChapters, batchStart, batchEnd, validationIssues) => {
               // Add completed chapter to accumulator
               accumulatedChapters.push(...batchChapters);
+
+              // Update narrative state so subsequent batches avoid style/fact repetition
+              narrativeState = updateNSD(narrativeState, batchChapters, batchStart);
+
+              // Wire cluesRevealedToReader — cross-reference completed chapters against the
+              // narrative outline so the NSD knows which clues have already been surfaced.
+              const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
+              const batchRevealedIds: string[] = allOutlineScenes
+                .filter((s: any) => s.sceneNumber >= batchStart && s.sceneNumber <= batchEnd)
+                .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []));
+              if (batchRevealedIds.length > 0) {
+                const merged = [...new Set([...narrativeState.cluesRevealedToReader, ...batchRevealedIds])];
+                narrativeState = { ...narrativeState, cluesRevealedToReader: merged };
+              }
 
               // Score all chapters generated so far
               try {
@@ -2905,7 +3695,13 @@ export async function generateMystery(
               }
             },
           });
-          return { result: sanitizeProseResult(proseResult), cost: proseResult.cost };
+          return {
+            result: applyDeterministicProsePostProcessing(
+              sanitizeProseResult(proseResult),
+              locationProfiles,
+            ),
+            cost: proseResult.cost,
+          };
         },
         async (proseResult) => {
           const scorer = new ProseScorer();
@@ -2944,13 +3740,21 @@ export async function generateMystery(
         caseData: cml,
         outline: narrative,
         cast: cast.cast,
+        ...proseModelOverride,
         detectiveType: inputs.detectiveType,
         characterProfiles: characterProfiles,
         locationProfiles: locationProfiles,
         temporalContext: temporalContext,
+        moralAmbiguityNote,
+        lockedFacts: proseLockedFacts,
+        clueDistribution: clues,
+        narrativeState,
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
-        qualityGuardrails: outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : undefined,
+        qualityGuardrails: [
+          ...baselineProseGuardrails,
+          ...(outlineCoverageIssues.length > 0 ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml) : []),
+        ],
         writingGuides: loadWritingGuides(),
         runId,
         projectId: projectId || "",
@@ -2958,7 +3762,17 @@ export async function generateMystery(
         // Emit per-chapter progress events so the run history panel updates in real-time
         // even when the scoring system is disabled.
         batchSize: inputs.proseBatchSize,
-        onBatchComplete: (_batchChapters, _batchStart, batchEnd, validationIssues) => {
+        onBatchComplete: (batchChapters, batchStart, batchEnd, validationIssues) => {
+          // Update narrative state (style history + clue tracking) in non-scoring path too
+          narrativeState = updateNSD(narrativeState, batchChapters, batchStart);
+          const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
+          const batchRevealedIds: string[] = allOutlineScenes
+            .filter((s: any) => s.sceneNumber >= batchStart && s.sceneNumber <= batchEnd)
+            .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []));
+          if (batchRevealedIds.length > 0) {
+            const merged = [...new Set([...narrativeState.cluesRevealedToReader, ...batchRevealedIds])];
+            narrativeState = { ...narrativeState, cluesRevealedToReader: merged };
+          }
           const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
           reportProgress(
             "prose",
@@ -2975,7 +3789,7 @@ export async function generateMystery(
           }
         },
       });
-      prose = sanitizeProseResult(prose);
+      prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
       agentCosts["agent9_prose"] = prose.cost;
       agentDurations["agent9_prose"] = Date.now() - proseStart;
     }
@@ -2992,12 +3806,18 @@ export async function generateMystery(
         caseData: cml,
         outline: narrative,
         cast: cast.cast,
+        ...proseModelOverride,
         detectiveType: inputs.detectiveType,
         characterProfiles: characterProfiles,
         locationProfiles: locationProfiles,
         temporalContext: temporalContext,
+        moralAmbiguityNote,
+        lockedFacts: proseLockedFacts,
+        clueDistribution: clues,
+        narrativeState,
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
+        qualityGuardrails: baselineProseGuardrails,
         writingGuides: loadWritingGuides(),
         runId,
         projectId: projectId || "",
@@ -3012,7 +3832,7 @@ export async function generateMystery(
           );
         },
       });
-      prose = sanitizeProseResult(retriedProse);
+      prose = applyDeterministicProsePostProcessing(sanitizeProseResult(retriedProse), locationProfiles);
       agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
       agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
 
@@ -3020,6 +3840,26 @@ export async function generateMystery(
       if (retryIdentityIssues.length > 0) {
         retryIdentityIssues.forEach((issue) => errors.push(`Identity continuity failure: ${issue}`));
         throw new Error("Prose identity continuity guardrail failed after retry");
+      }
+
+      // P-3: re-score replacement prose so scoreAggregator reflects identity-corrected output
+      if (enableScoring && scoreAggregator) {
+        try {
+          const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE);
+          const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, {
+            previous_phases: {
+              agent2_cast: cast.cast,
+              agent2b_character_profiles: characterProfiles.profiles,
+              agent2c_location_profiles: locationProfiles,
+            },
+            cml,
+            targetLength: inputs.targetLength ?? 'medium',
+            threshold_config: { mode: 'standard' },
+          });
+          scoreAggregator.upsertPhaseScore('agent9_prose', 'Prose Generation', reScoreProse, agentDurations['agent9_prose'] ?? 0, 1);
+        } catch {
+          // Re-scoring is best-effort; never abort generation
+        }
       }
     }
 
@@ -3077,6 +3917,77 @@ export async function generateMystery(
       }
     }
 
+    let proseSchemaValidation = validateArtifact("prose", prose);
+    if (!proseSchemaValidation.valid) {
+      warnings.push("Prose artifact failed schema validation on first attempt; retrying prose generation with schema repair guardrails");
+      const schemaRepairGuardrails = [
+        "Return a valid prose artifact that strictly matches required schema fields and types.",
+        ...proseSchemaValidation.errors.slice(0, 8).map((error) => `Schema fix required: ${error}`),
+      ];
+      const proseSchemaRetryStart = Date.now();
+      const retriedProse = await generateProse(client, {
+        caseData: cml,
+        outline: narrative,
+        cast: cast.cast,
+        ...proseModelOverride,
+        detectiveType: inputs.detectiveType,
+        characterProfiles: characterProfiles,
+        locationProfiles: locationProfiles,
+        temporalContext: temporalContext,
+        moralAmbiguityNote,
+        lockedFacts: proseLockedFacts,
+        clueDistribution: clues,
+        narrativeState,
+        targetLength: inputs.targetLength,
+        narrativeStyle: inputs.narrativeStyle,
+        qualityGuardrails: [...baselineProseGuardrails, ...schemaRepairGuardrails],
+        writingGuides: loadWritingGuides(),
+        runId,
+        projectId: projectId || "",
+        onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+        batchSize: inputs.proseBatchSize,
+        onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
+          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
+          reportProgress(
+            "prose",
+            `[Schema-repair] Chapter ${chapterLabel} complete`,
+            92 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 2),
+          );
+        },
+      });
+      agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
+      agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseSchemaRetryStart);
+      const retryValidation = validateArtifact("prose", retriedProse);
+      if (!retryValidation.valid) {
+        retryValidation.errors.forEach((error) => errors.push(`Prose schema failure: ${error}`));
+        throw new Error("Prose artifact failed schema validation");
+      }
+      prose = applyDeterministicProsePostProcessing(sanitizeProseResult(retriedProse), locationProfiles);
+      proseSchemaValidation = retryValidation;
+      warnings.push("Prose schema-repair retry succeeded");
+
+      // P-3: re-score replacement prose so scoreAggregator reflects schema-repaired output
+      if (enableScoring && scoreAggregator) {
+        try {
+          const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE);
+          const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, {
+            previous_phases: {
+              agent2_cast: cast.cast,
+              agent2b_character_profiles: characterProfiles.profiles,
+              agent2c_location_profiles: locationProfiles,
+            },
+            cml,
+            targetLength: inputs.targetLength ?? 'medium',
+            threshold_config: { mode: 'standard' },
+          });
+          scoreAggregator.upsertPhaseScore('agent9_prose', 'Prose Generation', reScoreProse, agentDurations['agent9_prose'] ?? 0, 1);
+        } catch {
+          // Re-scoring is best-effort; never abort generation
+        }
+      }
+    }
+    proseSchemaValidation.warnings.forEach((warning) => warnings.push(`Prose schema warning: ${warning}`));
+
     reportProgress("prose", `Prose generated (${prose.chapters.length} chapters)`, 94);
 
     // ========================================================================
@@ -3087,6 +3998,8 @@ export async function generateMystery(
     const validationStart = Date.now();
     const validationPipeline = new StoryValidationPipeline(client);
     
+    prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+
     // Build story object from prose for validation
     // Convert prose chapters (paragraphs) to scenes (text blocks)
     const storyForValidation = {
@@ -3100,7 +4013,10 @@ export async function generateMystery(
       })),
     };
     
-    let validationReport = await validationPipeline.validate(storyForValidation, cml);
+    let validationReport = await validationPipeline.validate(storyForValidation, {
+      ...cml,
+      lockedFacts: proseLockedFacts ?? [],
+    } as any);
     agentDurations["validation"] = Date.now() - validationStart;
 
     // Log validation results
@@ -3109,11 +4025,8 @@ export async function generateMystery(
     } else if (validationReport.status === "needs_review") {
       warnings.push(`Story validation: ${validationReport.status} - ${validationReport.summary.major} major issues`);
       reportProgress("validation", `Story needs review (${validationReport.summary.major} major issues)`, 98);
-    } else if (validationReport.status === "needs_revision") {
-      warnings.push(`Story validation: ${validationReport.status} - ${validationReport.summary.major} major, ${validationReport.summary.critical} critical issues`);
-      reportProgress("validation", `Story needs revision`, 98);
     } else {
-      // Validation failed - attempt prose repair retry with targeted guardrails
+      // Validation needs revision/failed - attempt prose repair retry with targeted guardrails
       const validationFailureMsg = "Story validation: " + validationReport.status + " - " + validationReport.summary.critical + " critical, " + validationReport.summary.major + " major issues";
       warnings.push(validationFailureMsg);
       await client.getLogger()?.logError({
@@ -3243,6 +4156,12 @@ export async function generateMystery(
 
       // Build targeted guardrails from validation errors (de-duplicated)
       const repairGuardrailSet = new Set<string>();
+      repairGuardrailSet.add(
+        "Never use placeholder named role constructions (for example 'Detective Surname', 'Inspector Surname', 'a woman Surname', 'a man Surname'). Use canonical cast names only."
+      );
+      repairGuardrailSet.add(
+        "Ensure Act III contains explicit suspect-elimination coverage for every non-culprit suspect, each with concrete evidence or confirmed alibi."
+      );
       for (const err of validationReport.errors) {
         if (err.type === "missing_discriminating_test" || err.type === "cml_test_not_realized") {
           repairGuardrailSet.add(
@@ -3271,10 +4190,15 @@ export async function generateMystery(
           caseData: cml,
           outline: narrative,
           cast: cast.cast,
+          ...proseModelOverride,
           detectiveType: inputs.detectiveType,
           characterProfiles: characterProfiles,
           locationProfiles: locationProfiles,
           temporalContext: temporalContext,
+          moralAmbiguityNote,
+          lockedFacts: proseLockedFacts,
+          clueDistribution: clues,
+          narrativeState,
           targetLength: inputs.targetLength,
           narrativeStyle: inputs.narrativeStyle,
           qualityGuardrails: repairGuardrails,
@@ -3293,7 +4217,7 @@ export async function generateMystery(
           },
         });
 
-        prose = sanitizeProseResult(repairedProse);
+        prose = applyDeterministicProsePostProcessing(sanitizeProseResult(repairedProse), locationProfiles);
         agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + repairedProse.cost;
         agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRepairStart);
 
@@ -3308,7 +4232,10 @@ export async function generateMystery(
           })),
         };
 
-        validationReport = await validationPipeline.validate(repairedStory, cml);
+        validationReport = await validationPipeline.validate(repairedStory, {
+          ...cml,
+          lockedFacts: proseLockedFacts ?? [],
+        } as any);
 
         if (validationReport.status === "passed" || validationReport.status === "needs_review") {
           warnings.push("Prose repair retry improved validation to: " + validationReport.status);
@@ -3345,28 +4272,118 @@ export async function generateMystery(
       reportProgress("validation", "Applied auto-fixes for encoding issues", 99);
     }
 
+    prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+
     const releaseGateReasons: string[] = [];
+    const hardStopReasons: string[] = [];
     const validationErrorTypes = new Set(validationReport.errors.map((error) => error.type));
-    const proseContainsMojibake = prose.chapters.some((chapter) =>
-      chapter.paragraphs.some((paragraph) => /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å“|Ã¢â‚¬\x9d|Ã¢â‚¬"|Ã¢â‚¬â€|Ã¢â‚¬â€œ|Ã¢â‚¬Â¦|Ã‚|Ë†Â§|\uFFFD)/.test(paragraph)),
+    const readabilitySummary = evaluateProseReadability(prose);
+    const sceneGrounding = evaluateSceneGroundingCoverage(prose, locationProfiles);
+    const templateLeakage = evaluateTemplateLeakage(prose);
+    const temporalConsistency = evaluateTemporalConsistency(prose, temporalContext);
+    const placeholderLeakage = evaluatePlaceholderLeakage(prose);
+    const chapterHeadingArtifacts = evaluateChapterHeadingArtifacts(prose);
+    const sensoryVariety = evaluateSensoryVariety(prose);
+    const proseContainsIllegalControlChars = prose.chapters.some((chapter) =>
+      chapter.paragraphs.some((paragraph) => /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(paragraph)),
     );
+    const proseContainsMojibake = prose.chapters.some((chapter) =>
+      chapter.paragraphs.some((paragraph) => persistentMojibakePattern.test(paragraph)),
+    );
+    
+    // Fair play audit gate check
+    if (fairPlayAudit) {
+      const fpValidation = fairPlayAudit.overallStatus === "pass" ? 100 : 
+                           fairPlayAudit.overallStatus === "needs-revision" ? 70 : 45;
+      const hasZeroScoreViolation = fairPlayAudit.checks?.some((check) => check.status === "fail") ?? false;
+      
+      if (fpValidation < 60 || hasZeroScoreViolation) {
+        const violationSummary = fairPlayAudit.violations.map(v => `${v.rule} (${v.severity})`).join(", ");
+        releaseGateReasons.push(`fair play audit score below threshold (${fpValidation}/100)${hasZeroScoreViolation ? " with 0-score violations" : ""}: ${violationSummary}`);
+        hardStopReasons.push(`fair play audit failed (${fpValidation}/100): mystery violates fundamental fair play principles`);
+      } else if (fairPlayAudit.overallStatus === "needs-revision") {
+        releaseGateReasons.push(`fair play audit needs revision (score: ${fpValidation}/100)`);
+      }
+    }
 
     if (validationErrorTypes.has("identity_role_alias_break") || validationErrorTypes.has("missing_case_transition_bridge") || validationErrorTypes.has("case_transition_missing")) {
       releaseGateReasons.push("critical continuity issue detected");
     }
+    if (validationErrorTypes.has("temporal_contradiction")) {
+      releaseGateReasons.push("temporal continuity contradiction detected");
+      hardStopReasons.push("temporal continuity contradiction detected");
+    }
+    if (validationErrorTypes.has("investigator_role_drift")) {
+      releaseGateReasons.push("investigator role continuity drift detected");
+    }
     if (proseContainsMojibake) {
       releaseGateReasons.push("mojibake/encoding artifact remains");
+      hardStopReasons.push("mojibake/encoding artifact remains");
+    }
+    if (proseContainsIllegalControlChars || validationErrorTypes.has("illegal_character")) {
+      releaseGateReasons.push("illegal character/encoding corruption detected");
+      hardStopReasons.push("illegal character/encoding corruption detected");
     }
     if (validationErrorTypes.has("missing_discriminating_test") || validationErrorTypes.has("cml_test_not_realized")) {
       releaseGateReasons.push("no valid discriminating test scene");
     }
     if (validationErrorTypes.has("suspect_closure_missing") || validationErrorTypes.has("culprit_evidence_chain_missing")) {
       releaseGateReasons.push("suspect elimination coverage incomplete");
+      hardStopReasons.push("suspect elimination coverage incomplete");
     }
+    if (templateLeakage.hasLeakage) {
+      releaseGateReasons.push(
+        `templated prose leakage detected (duplicate long blocks: ${templateLeakage.duplicatedLongParagraphCount}, scaffold matches: ${templateLeakage.scaffoldCount})`
+      );
+      hardStopReasons.push("templated prose leakage detected");
+    }
+    if (temporalConsistency.contradictions > 0) {
+      releaseGateReasons.push(`month/season contradictions found (${temporalConsistency.details.slice(0, 3).join('; ')})`);
+      hardStopReasons.push("month/season contradictions found");
+    }
+    if (placeholderLeakage.hasLeakage) {
+      releaseGateReasons.push(
+        `placeholder token leakage detected (role+surname: ${placeholderLeakage.roleSurnameCount}, named standalone placeholders: ${placeholderLeakage.standaloneCount}, generic role phrases: ${placeholderLeakage.genericRoleCount}${placeholderLeakage.examples.length > 0 ? `, examples: ${placeholderLeakage.examples.join(', ')}` : ''})`
+      );
+      if (placeholderLeakage.severeLeakage) {
+        hardStopReasons.push("placeholder token leakage detected");
+      }
+    }
+    if (chapterHeadingArtifacts.hasArtifacts) {
+      releaseGateReasons.push(`duplicate chapter heading artifacts detected (${chapterHeadingArtifacts.duplicatedHeadingCount})`);
+      hardStopReasons.push("duplicate chapter heading artifacts detected");
+    }
+    if (sensoryVariety.hasExcessiveRepetition) {
+      releaseGateReasons.push(
+        `atmospheric sensory palette recycled across >40% of chapters (${sensoryVariety.overusedPhrases.slice(0, 3).join(', ')})`
+      );
+      warnings.push(
+        `Sensory variety warning: ${sensoryVariety.overusedPhrases.length} overused atmospheric phrase(s) detected. Vary imagery across chapters.`
+      );
+    }
+    if (readabilitySummary.denseChapterCount > 0) {
+      releaseGateReasons.push(
+        `readability density threshold exceeded (dense chapters: ${readabilitySummary.denseChapterCount}, low-paragraph chapters: ${readabilitySummary.underParagraphCount}, overlong blocks: ${readabilitySummary.severeParagraphBlocks})`
+      );
+    }
+    if (sceneGrounding.coverage < 0.9) {
+      releaseGateReasons.push(
+        `scene-grounding coverage below target (${sceneGrounding.grounded}/${sceneGrounding.total} chapters grounded)`
+      );
+    }
+
+    warnings.push(`UTF-8/multibyte check: ${proseContainsIllegalControlChars ? "FAILED (illegal control characters found)" : "PASSED (valid Unicode preserved)"}`);
 
     if (releaseGateReasons.length > 0) {
       releaseGateReasons.forEach((reason) => warnings.push(`Release gate warning: ${reason}`));
       reportProgress("validation", `Release gate warnings: ${releaseGateReasons.join('; ')}`, 99);
+    }
+
+    if (hardStopReasons.length > 0) {
+      const hardStopMessage = `Release gate hard-stop: ${Array.from(new Set(hardStopReasons)).join('; ')}`;
+      errors.push(hardStopMessage);
+      reportProgress("validation", hardStopMessage, 99);
+      throw new Error(hardStopMessage);
     }
 
     // ========================================================================

@@ -78,9 +78,20 @@ export interface CMLData {
       culprits: string[];
     };
   };
+  /** Locked ground-truth evidence facts forwarded from hard-logic devices — validated verbatim in prose. */
+  lockedFacts?: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
 }
 
 export interface Validator {
   name: string;
   validate(story: Story, cml?: CMLData): Promise<ValidationResult> | ValidationResult;
+}
+
+export interface ProseConsistencyReport {
+  lockedFactsChecked: number;
+  lockedFactsViolations: number;
+  pronounDriftViolations: number;
+  openingStyleViolations: number;
+  contextLeakageViolations: number;
+  overallStatus: 'pass' | 'needs_review' | 'fail';
 }

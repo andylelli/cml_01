@@ -68,6 +68,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `setting_validation` - Validation result
 - **Event**: `setting_done` - "Setting generated"
 - **Guardrail**: Non-empty anachronisms/implausibilities trigger retry and block pipeline if unresolved
+- **Schema gate (implemented)**: Setting payload is now validated against `setting_refinement.schema.yaml` in-worker before downstream phases proceed. If validation fails, the setting is regenerated once before abort.
+- **Fair-play retry strategy (implemented)**: The audit runs twice (initial + 1 clue regen). If still failing, the failure is classified: `inference_path_abstract`/`constraint_space_insufficient` → CML structural revision; `clue_only` → a third targeted clue regeneration pass. The CML Validation Gate only hard-stops on structurally-blocking violations (`Clue Visibility`, `Logical Deducibility`, `No Withholding`). `Information Parity` and `Solution Uniqueness` violations are clue-phrasing issues that produce warnings and allow prose to proceed.
 
 ### Step 2: Cast Generation
 - **Derives**: `{ size, detectiveType, victimArchetype, suspects[] }`
@@ -77,6 +79,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Event**: `cast_done` - "Cast generated"
 - **Guardrail**: Non-empty stereotypeCheck triggers retry and block pipeline if unresolved
 - **Scoring guardrails** (implemented): Phase fails if `completeness_score < 60`, which requires ≥ 5 characters (when 7 requested) and ≥ 3 eligible suspects. The agent internally retries when the LLM returns fewer characters than `expectedCount - 1` or when `possibleCulprits` has fewer than `min(3, count-1)` names. `maxTokens` is 6000 to accommodate 7 fully-detailed character profiles.
+- **Schema gate (implemented)**: Cast payload is validated against `cast_design.schema.yaml` (aligned to runtime `crimeDynamics` keys and `latencyMs`). If validation fails, the cast is regenerated once with targeted schema-repair guardrails before abort.
 
 ### Step 3: CML Generation
 - **Derives**: Full CML 2.0 structure including:
@@ -167,15 +170,29 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `outline` - Story structure outline
   - `outline_validation` - Validation result
 - **Event**: `outline_done` - "Outline generated"
+- **Schema gate (implemented)**: Outline payload is validated against `narrative_outline.schema.yaml` in-worker.
+- **Schema-repair retry (implemented)**: if the first outline fails schema validation, Agent 7 is regenerated once with targeted schema-fix guardrails before the run is aborted.
 
 ### Step 9: Prose Generation
 - **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
   - Each chapter: `{ title, summary, paragraphs[] }`
 - **Post-processing**: Prose is sanitized before persistence (Unicode NFC normalization, mojibake cleanup, system-residue stripping).
+- **Readability formatting (implemented)**: pipeline now writes a readable plain-text story file in `stories/project_*.txt` with normalized chapter spacing, summary/body separation, and paragraph breaks.
+- **Worker readability reflow (implemented)**: prose chapters are deterministically reflowed before release checks (hard-wrap collapse + sentence-boundary splitting of overlong paragraph blocks).
+- **Encoding hardening (implemented)**: sanitization strips illegal control characters while preserving valid multibyte Unicode content.
+- **Scene-grounding backfill (implemented)**: if a chapter opening misses required location/sensory/atmosphere grounding signals, worker post-processing prepends a location-profile-based grounding lead.
+- **Chapter validation (implemented)**: generation retries now include readability density checks and scene-grounding checks (location anchor + sensory + atmosphere cues) in addition to existing consistency checks.
+- **Baseline prose guardrails (implemented)**: every prose generation pass includes strict cast-name enforcement (no invented titled placeholders), explicit suspect-elimination coverage requirements, and explicit culprit evidence-chain requirements.
+- **Validation-repair trigger (implemented)**: prose repair regeneration now runs when validation returns `needs_revision` as well as hard failure states.
 - **Guardrail**: If post-reveal chapters drift into role-only culprit aliasing after arrest/confession, prose regenerates once; unresolved drift fails the run.
 - **Artifacts Created**:
   - `prose_<length>` - `{ status, tone, chapters[], cast[], note }` where `<length>` is `short`, `medium`, or `long`
 - **Event**: `prose_done` - "Prose generated (<length> format)"
+- **Schema gate (implemented)**: Prose payload is validated against `prose.schema.yaml` in-worker prior to final validation pipeline execution. If validation fails, the prose is regenerated once with targeted schema-repair guardrails before abort.
+
+### Retry/config path reliability (implemented)
+- Worker no longer derives retry config/log/examples paths from `process.cwd()`.
+- Paths now resolve from workspace root via module path, preventing API-launched ENOENT drift (e.g., `apps/api/apps/worker/...`).
 
 ### Step 10: Game Pack Generation
 **Status:** Planned. Game pack generation is not yet available without LLM support and is not produced in the current pipeline run.
@@ -183,7 +200,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 ### Pipeline Completion
 - After the pipeline finishes (success or failure), project status returns to `idle`
 - **Event**: `run_finished` - "Pipeline run finished"
-- **Release Gate**: when any of the following remain (critical continuity issue, mojibake artifact, missing discriminating test scene, missing suspect-elimination coverage), the pipeline emits release-gate warnings and continues to completion for review.
+- **Release Gate (hard-stop)**: pipeline aborts completion when critical prose defects remain after repair (mojibake artifact, illegal-character encoding corruption, template-leakage scaffolds/duplicate long blocks, month/season contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, suspect-elimination coverage missing).
+- **Release Gate (warning mode)**: readability density and scene-grounding coverage gaps are surfaced as warnings for review and do not block completion.
 
 ## Run Events
 

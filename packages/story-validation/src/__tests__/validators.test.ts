@@ -115,6 +115,26 @@ describe("NarrativeContinuityValidator", () => {
     const result = validator.validate(story);
     expect(result.valid).toBe(true);
   });
+
+  it("flags temporal contradiction when month conflicts with season terms", () => {
+    const story = makeStory([
+      makeScene({ number: 1, text: "In May, the garden was lively." }),
+      makeScene({ number: 2, text: "That same May evening felt like deep autumn." }),
+    ]);
+    const result = validator.validate(story);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.type === "temporal_contradiction")).toBe(true);
+  });
+
+  it("flags investigator role drift without explicit handoff", () => {
+    const story = makeStory([
+      makeScene({ number: 1, text: "The amateur investigator gathered statements in the drawing room." }),
+      makeScene({ number: 2, text: "Inspector Vale took charge and led the investigation immediately." }),
+    ]);
+    const result = validator.validate(story);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.type === "investigator_role_drift")).toBe(true);
+  });
 });
 
 // ─── CaseTransitionValidator ──────────────────────────────────────────────────

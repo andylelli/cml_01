@@ -55,3 +55,34 @@ devices:
         type: array
         required: false
         items: string
+      moralAmbiguity:
+        type: string
+        required: false
+        description: "The gray area that makes the crime morally complex — why the reader might feel sympathy for the culprit or discomfort at the verdict"
+      lockedFacts:
+        type: array
+        required: false
+        description: "Ground-truth physical evidence values that must appear verbatim in prose — never contradicted across chapters"
+        items:
+          type: object
+          fields:
+            id:
+              type: string
+              required: true
+            value:
+              type: string
+              required: true
+            description:
+              type: string
+              required: true
+            appearsInChapters:
+              type: array
+              required: false
+              items: string
+cost:
+  type: number
+  required: true
+
+latencyMs:
+  type: number
+  required: true

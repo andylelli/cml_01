@@ -95,21 +95,46 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
 
   // Extract essential information
   const title = meta?.title || "Untitled Mystery";
-  const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
-  const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
-  const victim = legacy.setup?.crime?.victim || "Unknown";
+  // FA-5: meta.primary_axis not in CML 2.0 schema; false_assumption.type is the canonical field
+  const primaryAxis = cmlCase.false_assumption?.type || meta?.primary_axis || "unknown";
+  // FA-5: schema canonical order: subtype → category; setup.crime not in CML 2.0
+  const crime = crimeClass.subtype || crimeClass.category || legacy.setup?.crime?.description || "crime";
+  // FA-3: CML 2.0 has no setup.crime.victim field; victim info lives in hidden_model.outcome.result
   const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
-  const falseAssumption =
+    cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
+  // FB-3: extract all three false_assumption fields (schema: statement, why_it_seems_reasonable, what_it_hides)
+  const falseAssumptionStatement =
     cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const falseAssumptionWhyReasonable: string = cmlCase.false_assumption?.why_it_seems_reasonable ?? "";
+  const falseAssumptionWhatHides: string = cmlCase.false_assumption?.what_it_hides ?? "";
+  // FB-1: surface_model — the false narrative the reader is meant to accept
+  const surfaceNarrative: string = cmlCase.surface_model?.narrative?.summary ?? "";
+  const acceptedFacts: string[] = Array.isArray(cmlCase.surface_model?.accepted_facts)
+    ? cmlCase.surface_model.accepted_facts as string[]
+    : [];
+  const inferredConclusions: string[] = Array.isArray(cmlCase.surface_model?.inferred_conclusions)
+    ? cmlCase.surface_model.inferred_conclusions as string[]
+    : [];
+  // FB-2: hidden_model — the actual crime mechanism
+  const hiddenMechanism: string = cmlCase.hidden_model?.mechanism?.description ?? "";
+  const deliveryPath: string[] = Array.isArray(cmlCase.hidden_model?.mechanism?.delivery_path)
+    ? (cmlCase.hidden_model.mechanism.delivery_path as any[]).map((d) => d.step ?? String(d))
+    : [];
+  const hiddenOutcome: string = cmlCase.hidden_model?.outcome?.result ?? "";
 
   // Inference path steps
   const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).map(
     (step: any, idx: number) => {
-      const observation = step.observation || step.observation || step.type || "Observation";
-      const correction = step.correction || step.reasoning || "Correction";
+      const observation = step.observation || "Observation"; // FA-2: removed duplicate + non-schema fallbacks (step.type not in schema)
+      const correction = step.correction || "Correction";   // FA-1: removed non-schema step.reasoning fallback
       const effect = step.effect ? ` → ${step.effect}` : "";
-      return `${idx + 1}. **${observation}**: ${correction}${effect}`;
+      // FB-9: flag steps only visible to detective, not directly to reader
+      const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
+      // FB-4: required_evidence is the direct per-step signal for Logical Deducibility
+      const reqEvidence = Array.isArray(step.required_evidence) && step.required_evidence.length > 0
+        ? `\n   **Required evidence**: ${(step.required_evidence as string[]).join("; ")}`
+        : "";
+      return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}${reqEvidence}`;
     },
   );
 
@@ -129,12 +154,40 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
   const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
   const physicalConstraints = formatConstraintList(constraintSpace.physical, ["laws", "traces"]);
+  // FB-5: social constraints (trust_channels, authority_sources) — absent from original
+  const socialConstraints = formatConstraintList(constraintSpace.social, ["trust_channels", "authority_sources"]);
+  // FB-6: CML fair_play self-assertion block — for cross-checking author declarations
+  const fairPlayBlock = cmlCase.fair_play
+    ? [
+        `all_clues_visible: ${cmlCase.fair_play.all_clues_visible}`,
+        `no_special_knowledge_required: ${cmlCase.fair_play.no_special_knowledge_required}`,
+        `no_late_information: ${cmlCase.fair_play.no_late_information}`,
+        `reader_can_solve: ${cmlCase.fair_play.reader_can_solve}`,
+        `explanation: ${cmlCase.fair_play.explanation ?? "none"}`,
+      ].join("\n")
+    : "Not declared in CML";
+  // FB-7: quality_controls — clue count gates and discriminating test timing
+  const qc = cmlCase.quality_controls ?? {};
+  const qcClueVis = qc.clue_visibility_requirements ?? {};
+  const qcDiscrimTiming: string = qc.discriminating_test_requirements?.timing ?? "not specified";
+  const qcEssentialMin = qcClueVis.essential_clues_min ?? "not specified";
+  const qcEarlyMin = qcClueVis.early_clues_min ?? "not specified";
+  const qcMidMin = qcClueVis.mid_clues_min ?? "not specified";
+  const qcLateMin = qcClueVis.late_clues_min ?? "not specified";
+  const qcEssentialBeforeTest = qcClueVis.essential_clues_before_test ?? "not specified";
+  // FA-4: evidence_sensitivity items are plain strings in CML 2.0 (not objects with evidence_type/vulnerability)
+  // FC-2: add alibi_window, access_plausibility, opportunity_channels per cast member for No Withholding check
   const castEvidence = castList
-    .filter((c: any) => c.evidence_sensitivity && c.evidence_sensitivity.length > 0)
     .map((c: any) => {
-      const evidence = c.evidence_sensitivity!.map((e: any) => `${e.evidence_type ?? e}: ${e.vulnerability ?? ""}`)
-        .join(", ");
-      return `- **${c.name}**: ${evidence}`;
+      const evSensitivity = Array.isArray(c.evidence_sensitivity) && c.evidence_sensitivity.length > 0
+        ? (c.evidence_sensitivity as string[]).join(", ") // FA-4: items are strings not objects
+        : "none";
+      const alibi = c.alibi_window ?? "unknown";
+      const access = c.access_plausibility ?? "unknown";
+      const opportunities = Array.isArray(c.opportunity_channels) && c.opportunity_channels.length > 0
+        ? (c.opportunity_channels as string[]).join("; ")
+        : "none";
+      return `- **${c.name}**: alibi="${alibi}" | access="${access}" | opportunities: ${opportunities} | evidence_sensitivity: ${evSensitivity}`;
     })
     .join("\n");
 
@@ -151,11 +204,37 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
 
 ## Mystery Overview
 **Title**: ${title}
-**Primary Axis**: ${primaryAxis}
+**Primary Axis / False Assumption Type**: ${primaryAxis}
 **Crime**: ${crime}
-**Victim**: ${victim}
 **Culprit**: ${culpritName}
-**False Assumption**: ${falseAssumption}
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+**Narrative**: ${surfaceNarrative || "not specified"}
+
+### Accepted Facts (reader takes these as given)
+${acceptedFacts.map((f: string) => `- ${f}`).join("\n") || "None"}
+
+### Inferred Conclusions (reader draws these from accepted facts)
+${inferredConclusions.map((c: string) => `- ${c}`).join("\n") || "None"}
+
+---
+
+## Hidden Model (What Is Actually True)
+**Mechanism**: ${hiddenMechanism || "not specified"}
+
+### Delivery Path
+${deliveryPath.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n") || "None"}
+
+**Outcome**: ${hiddenOutcome || "not specified"}
+
+---
+
+## False Assumption
+**Statement**: ${falseAssumptionStatement}
+**Why it seems reasonable**: ${falseAssumptionWhyReasonable || "not specified"}
+**What it hides**: ${falseAssumptionWhatHides || "not specified"}
 
 ---
 
@@ -173,16 +252,16 @@ ${discrimTest}
 The mystery distributes ${clues.clues.length} clues to the reader:
 
 ### Early Clues (Act I) - ${earlyClues.length} clues
-${earlyClues.map((c) => `- [${c.criticality}] ${c.category}: ${c.description}`).join("\n") || "None"}
+${earlyClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
 
 ### Mid Clues (Act II) - ${midClues.length} clues
-${midClues.map((c) => `- [${c.criticality}] ${c.category}: ${c.description}`).join("\n") || "None"}
+${midClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
 
 ### Late Clues (Act III) - ${lateClues.length} clues
-${lateClues.map((c) => `- [${c.criticality}] ${c.category}: ${c.description}`).join("\n") || "None"}
+${lateClues.map((c) => `- [${c.criticality}] ${c.category}${c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : ""}${c.evidenceType ? ` (${c.evidenceType})` : ""}: ${c.description}`).join("\n") || "None"}
 
-### Essential Clues
-${essentialClues.map((c) => `- ${c.description} (${c.placement})`).join("\n")}
+### Essential Clues (per inference step)
+${essentialClues.map((c) => `- ${c.description} (${c.placement}${c.supportsInferenceStep ? `, step ${c.supportsInferenceStep}` : ""})`).join("\n") || "None"}
 
 ### Red Herrings
 ${redHerrings || "None"}
@@ -201,10 +280,34 @@ ${accessConstraints}
 ### Physical Evidence
 ${physicalConstraints}
 
+### Social Constraints
+${socialConstraints}
+
 ---
 
-## Cast Evidence Sensitivity
-${castEvidence || "None"}`;
+## Cast — Alibi, Access & Evidence Sensitivity
+${castEvidence || "None"}
+
+---
+
+## CML Fair Play Declarations
+${fairPlayBlock}
+
+---
+
+## Quality Controls
+**Discriminating test must appear**: ${qcDiscrimTiming}
+**Essential clues minimum**: ${qcEssentialMin} | before discriminating test: ${qcEssentialBeforeTest}
+**Clues per act minimum**: early=${qcEarlyMin}, mid=${qcMidMin}, late=${qcLateMin}
+
+---
+
+## Clue-to-Scene Mapping (when present)
+${(() => {
+  const mapping = (cmlCase as any).prose_requirements?.clue_to_scene_mapping;
+  if (!Array.isArray(mapping) || mapping.length === 0) return "Not specified in CML";
+  return mapping.map((m: any) => `- clue ${m.clue_id}: Act ${m.act_number}${m.scene_number ? `, Scene ${m.scene_number}` : ""}${m.delivery_method ? ` (${m.delivery_method})` : ""}`).join("\n");
+})()}`;
 }
 
 function buildUserRequest(): string {
@@ -218,9 +321,9 @@ Perform a rigorous fair play audit of this mystery. Analyze whether the reader c
 2. **Information Parity**: Does the reader have the same information as the detective?
 3. **Special Knowledge**: Is any specialized knowledge required? If so, is it explained?
 4. **Logical Deducibility**: Can the reader follow the inference path using only the clues provided?
-5. **Discriminating Test Timing**: Does the crucial clue appear at the right moment (typically Act II or early Act III)?
-6. **No Withholding**: Are there any facts the detective knows but the reader doesn't?
-7. **Constraint Consistency**: Do the clues align with the constraint space (time, access, physical evidence)?
+5. **Discriminating Test Timing**: Does the discriminating test scene appear at the timing specified in the Quality Controls section above, and do all clues the test relies on appear in earlier scenes before it?
+6. **No Withholding**: Are there any facts the detective knows but the reader doesn't? Cross-reference the Hidden Model and the cast alibi/access/opportunity data against the clue set.
+7. **Constraint Consistency**: Do the clues align with the constraint space (time, access, physical evidence, social trust channels)?
 8. **False Assumption Support**: Do the red herrings effectively support the false assumption?
 9. **Solution Uniqueness**: Do the clues point unambiguously to the culprit?
 

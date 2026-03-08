@@ -7,6 +7,7 @@ import {
   calculateCategoryScore,
   getCriticalFailures,
 } from '../scorer-utils.js';
+import { STORY_LENGTH_TARGETS, type StoryLength } from '../../story-length-targets.js';
 
 /**
  * Chapter prose from Agent 9
@@ -40,24 +41,21 @@ export interface ProseOutput {
  * Completeness: Word count targets, all clues visible
  * Consistency: Character names match, setting fidelity, fair play
  */
-// Word count and chapter targets keyed by story length
-const LENGTH_TARGETS = {
-  short:  { chapters: 12, minWords: 15000, maxWords: 25000, chapterMinWords:  800, chapterIdealWords: 1700 },
-  medium: { chapters: 18, minWords: 40000, maxWords: 60000, chapterMinWords: 1500, chapterIdealWords: 2800 },
-  long:   { chapters: 26, minWords: 70000, maxWords: 100000, chapterMinWords: 2500, chapterIdealWords: 3800 },
-} as const;
+// Alias the shared constants under the local name used throughout this file.
+// Source of truth is packages/story-validation/src/story-length-targets.ts — edit there.
+const LENGTH_TARGETS = STORY_LENGTH_TARGETS;
 
 export class ProseScorer
   implements Scorer<any, ProseOutput>
 {
-  private targetLength: 'short' | 'medium' | 'long' = 'medium';
+  private targetLength: StoryLength = 'medium';
 
   async score(
     input: any,
     output: ProseOutput,
     context: ScoringContext
   ): Promise<PhaseScore> {
-    this.targetLength = (context.targetLength ?? 'medium') as 'short' | 'medium' | 'long';
+    this.targetLength = (context.targetLength ?? 'medium') as StoryLength;
     const tests: TestResult[] = [];
 
     // VALIDATION TESTS (40% weight)
@@ -356,18 +354,11 @@ export class ProseScorer
   }
 
   private extractCMLClues(cml: any): string[] {
-    const clues: string[] = [];
-
-    // Extract from hard logic devices
-    if (cml.CASE?.hard_logic_devices) {
-      for (const device of cml.CASE.hard_logic_devices) {
-        if (device.clue_id) {
-          clues.push(device.clue_id);
-        }
-      }
-    }
-
-    return clues;
+    // Read from the canonical CML path: CASE.prose_requirements.clue_to_scene_mapping[].clue_id
+    // (CASE.hard_logic_devices and CASE.clue_registry do not exist in the cml_2_0 schema)
+    return ((cml as any).CASE?.prose_requirements?.clue_to_scene_mapping ?? [])
+      .map((m: any) => m.clue_id as string)
+      .filter((id: any): id is string => typeof id === 'string' && id.length > 0);
   }
 
   private clueInProse(cmlClue: string, proseClues: string[]): boolean {
@@ -452,7 +443,8 @@ export class ProseScorer
     // Count references to each cast member
     const references: Record<string, number> = {};
     for (const name of castNames) {
-      const pattern = new RegExp(`\\b${name}\\b`, 'gi');
+      const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(`\\b${escapedName}\\b`, 'gi');
       const matches = allProse.match(pattern);
       references[name] = matches ? matches.length : 0;
     }

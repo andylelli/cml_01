@@ -42,7 +42,7 @@ export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAud
 // Agent 7 types
 export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";
 export type { CharacterProfilesInputs, CharacterProfilesResult, CharacterProfileOutput } from "./agent2b-character-profiles.js";
-export type { LocationProfilesInputs, LocationProfilesResult, PrimaryLocationProfile, KeyLocation, AtmosphereProfile } from "./agent2c-location-profiles.js";
+export type { LocationProfilesInputs, LocationProfilesResult, PrimaryLocationProfile, KeyLocation, AtmosphereProfile, SensoryVariant } from "./agent2c-location-profiles.js";
 export type { TemporalContextInputs, TemporalContextResult, SeasonalContext, FashionContext, CurrentAffairs, CulturalContext } from "./agent2d-temporal-context.js";
 export type { BackgroundContextInputs, BackgroundContextResult, BackgroundContextArtifact } from "./agent2e-background-context.js";
 export type { HardLogicDeviceInputs, HardLogicDeviceResult } from "./agent3b-hard-logic-devices.js";
@@ -51,6 +51,10 @@ export type { ProseGenerationInputs, ProseGenerationResult, ProseChapter } from 
 // Agent 8 types
 export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./agent8-novelty.js";
 export type { HardLogicDeviceIdea } from "./types.js";
+
+// Narrative state (sprint 2 — inter-batch style + fact tracking)
+export { initNarrativeState, updateNSD } from "./types/narrative-state.js";
+export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
 export type { BackgroundContextInput } from "./types.js";
 
 // Shared exports for other agents (will expand in future)
@@ -77,3 +81,6 @@ export {
   selectRelevantPatterns,
   formatPatternsForPrompt,
 } from "./utils/seed-loader.js";
+
+export { generateCastNames } from "./utils/name-generator.js";
+export type { NameGeneratorContext } from "./utils/name-generator.js";

@@ -90,7 +90,36 @@ Current behavior:
 - CML orchestration now runs a dedicated hard-logic ideation agent that generates a `hard_logic_devices` artifact (3–5 novel mechanism concepts), validates it against schema, and then grounds Agent 3 CML generation in those generated devices.
 - Pipeline now also materializes a dedicated `background_context` artifact (era/setting/cast anchors/theme backdrop) so background context is stored separately from hard-logic mechanism ideation and consumed distinctly by Agent 3.
 - Prose is sanitized before persistence/export (Unicode normalization, mojibake cleanup, system residue removal).
-- Release gate now emits warnings (without blocking completion) when continuity-critical issues remain, mojibake remains, no discriminating test is realized, or suspect closure coverage is incomplete.
+- API pipeline persistence now also writes a readable plain-text story file to `stories/project_*.txt` with consistent chapter/summary/paragraph spacing.
+- Prose sanitation now strips illegal control characters while preserving valid multibyte Unicode text (UTF-8-safe output behavior).
+- Worker prose post-processing now deterministically reflows dense paragraphs (unwrap + sentence-boundary splits) before validation/release checks.
+- Worker prose post-processing now deterministically injects scene-grounding leads when chapter openings miss location anchor / sensory / atmosphere requirements.
+- Worker prose sanitization now normalizes chapter titles by stripping duplicated `Chapter N:` prefixes before persistence/export.
+- Release checks now include prose readability density and location-grounding coverage in addition to continuity/fair-play signals.
+- Release gate now hard-stops completion when critical defects remain:
+  - **Fair play audit score <60/100** (violations of Clue Visibility, Information Parity, or other critical fair play dimensions)
+  - **Fair play 0-score violations** (any dimension scoring 0/100 is release-blocking)
+  - Mojibake/encoding corruption
+  - Template leakage (repeated scaffold blocks)
+  - Temporal contradictions (month/season inconsistencies)
+  - Unresolved placeholder-token leakage (severe)
+  - Duplicate chapter-heading artifacts
+  - Unresolved suspect-closure gaps
+  - Non-critical readability/grounding issues continue as warnings for review
+- Prose generation now injects baseline quality guardrails on every pass (canonical cast names only, suspect-elimination ledger coverage, and explicit culprit evidence chain), independent of retry state.
+- **NarrativeState threading (implemented):** A `NarrativeState` document (`packages/prompts-llm/src/types/narrative-state.ts`) is initialised before prose generation (from lockedFacts + character gender map) and passed to every `generateProse` call. After each chapter batch, `updateNSD()` extracts opening-sentence style classes, sensory phrases, and chapter summaries. The updated state is injected into the next batch's system prompt via `buildNSDBlock()`, preventing style repetition and fact contradictions across batches.
+- **Locked facts propagation (implemented):** `lockedFacts` from the primary hard-logic device are extracted in the orchestrator and propagated to: (a) `generateProse` as `proofLockedFacts` for system-prompt injection; (b) `StoryValidationPipeline.validate()` merged into the cml argument for `ProseConsistencyValidator` checking.
+- **ProseConsistencyValidator (implemented):** New validator in `packages/story-validation/src/prose-consistency-validator.ts` runs as part of `StoryValidationPipeline`. Checks: (1) locked-facts values appear verbatim when evidence is described — critical if contradicted, major if absent; (2) pronoun drift for binary-gender characters — moderate severity. Runs after `CharacterConsistencyValidator` in the pipeline.
+- Validation-driven prose repair now executes when story validation is `needs_revision` as well as `failed`, reducing avoidable release-gate hard-stops.
+- Validation retry wrapper now returns the actual last-attempt artifact after retry exhaustion (no extra post-failure regeneration call).
+- Agent 2b/2c/2d schema validation now validates a telemetry-complete shape, eliminating false `cost` / `durationMs` missing-field failures in retry logs.
+- Worker path resolution for retry config, worker logs, and seed examples now resolves from workspace root (module-path based) instead of `process.cwd()`, preventing API-launched ENOENT path drift.
+- Runtime schema validation coverage now includes setting, cast, narrative outline, and prose artifacts in the worker orchestration path.
+- Narrative outline schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
+- Cast design schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
+- Prose schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
+- Setting refinement schema failures now trigger a one-shot schema-repair regeneration before the pipeline aborts.
+- Cast schema contract is aligned with runtime payload fields (`possibleCulprits`, `redHerrings`, `victimCandidates`, `detectiveCandidates`, `latencyMs`).
 
 Phase 5 completion:
 - Prose and character profile artifacts are LLM-generated after outline.
@@ -114,6 +143,7 @@ PDF export notes:
 - Story PDF generation sanitizes paragraph content to avoid invalid PDF text tokens (non-string values and embedded newlines are normalized).
 - Story and game pack PDFs wrap long lines and paginate across multiple pages.
 - Story and game pack PDFs render markdown-style headings for titles and sections.
+- Story PDF title resolution uses prose title first, then synopsis title, then project name fallback.
 
 ## Prose + game pack (Phase 5)
 - Prose generation is LLM output derived from outline and cast.
@@ -132,6 +162,7 @@ Functional policies:
 - `executeAgentWithRetry()` in the worker orchestrator uses `ScoreAggregator.passesThreshold(score)` for retry decisions — **not** `score.passed` from the scorer — to ensure retry decisions are always consistent with the final quality report.
 - When a phase fails due to component minimums rather than a composite score shortfall, `getFailedComponents()` produces the failure reason fed into the retry prompt.
 - Cast agent (`agent2-cast`): `maxTokens` is 6000 (7 fully-detailed characters exceed 4000). The agent retries internally when fewer characters than requested are returned or when `possibleCulprits` is below the required minimum of `min(3, count-1)`.
+- Fair-play audit retry: the audit runs twice (initial + 1 clue regeneration). If still failing, `classifyFairPlayFailure` determines the retry strategy: `inference_path_abstract` and `constraint_space_insufficient` trigger a CML structural revision (Agent 4); `clue_only` triggers a third targeted clue regeneration pass with per-violation feedback. The CML Validation Gate only hard-stops on structurally-blocking violations (`Clue Visibility`, `Logical Deducibility`, `No Withholding`); `Information Parity` and `Solution Uniqueness` are clue-phrasing issues that demote to warnings and allow prose to proceed.
 
 ## Worker jobs
 - settingJob

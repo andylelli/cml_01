@@ -54,7 +54,8 @@ export const FAIR_PLAY_CHECKLIST = `Fair-Play Requirements:
 ✓ Every inference step has reader-visible evidence (no detective-only reasoning)
 ✓ At least one clue must CONTRADICT the false assumption
 ✓ Each non-culprit suspect can be ELIMINATED using available clues
-✓ The discriminating test references evidence the reader has already seen`;
+✓ The discriminating test uses ONLY evidence already in the inference path's required_evidence — it NEVER reveals a mechanism detail for the first time
+✓ The culprit's premeditation or intent must be a reader-visible inference step, not private detective knowledge revealed at confrontation`;
 
 export const INFERENCE_PATH_QUALITY = `Inference Path Quality Standard:
 Each step MUST have:
@@ -64,6 +65,13 @@ Each step MUST have:
    not a logical leap
 3. EFFECT: A named consequence ("eliminates [suspect]" or "narrows [constraint] to [range]")
 4. REQUIRED_EVIDENCE: 2-4 specific facts from the CML that the reader needs to see
+
+CRITICAL DESIGN ORDER — follow this sequence every time:
+  Step A: Design your inference path steps first. Each step must progressively reveal the mechanism to the reader.
+  Step B: Design the discriminating test LAST, as a synthesis of what the reader already knows from steps A.
+  Step C: Check: does the discriminating test rely on ANY fact not in a prior step's required_evidence? If yes, add that fact as required_evidence to an earlier step — do NOT leave it as test-only revelation.
+  ✗ WRONG: Invent a clever test (clock spring comparison), then write inference steps around it → the test introduces new mechanism detail
+  ✓ CORRECT: Inference step 2 required_evidence includes "clock spring tension inconsistency" → discriminating test exploits that already-known evidence
 
 Anti-patterns to avoid:
 ✗ "Timeline discrepancies" → ✓ "Clock in study shows 9:15, witness heard crash at 9:45"

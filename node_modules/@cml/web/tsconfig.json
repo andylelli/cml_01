@@ -10,7 +10,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "lib": ["ES2022", "DOM"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "name": "@vue/typescript-plugin",
+        "languages": ["vue"]
+      }
+    ]
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

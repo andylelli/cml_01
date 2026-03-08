@@ -84,6 +84,38 @@ keyLocations:
       accessControl:
         type: string
         required: true
+      sensoryVariants:
+        type: array
+        required: false
+        description: "3-4 distinct sensory palette variants for this location. The prose agent cycles through them by chapter to avoid atmospheric repetition."
+        items:
+          type: object
+          fields:
+            id:
+              type: string
+              required: true
+            timeOfDay:
+              type: string
+              required: true
+              description: "morning | afternoon | evening | night"
+            weather:
+              type: string
+              required: true
+            sights:
+              type: array
+              required: true
+              items: string
+            sounds:
+              type: array
+              required: true
+              items: string
+            smells:
+              type: array
+              required: true
+              items: string
+            mood:
+              type: string
+              required: true
       paragraphs:
         type: array
         required: true

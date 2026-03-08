@@ -357,6 +357,7 @@ Fill the "place" and "country" fields in meta.setting with specific location:
 **Cast Requirements**:
 - Cast Size: ${inputs.castSize} characters
 - Use these exact names: ${inputs.castNames.join(", ")}
+${inputs.castGenders && Object.keys(inputs.castGenders).length > 0 ? `- Gender per character (copy exactly into each cast item's gender field): ${inputs.castNames.map(n => `${n}: ${inputs.castGenders![n] || 'non-binary'}`).join(', ')}` : ''}
 - Detective Type: ${inputs.detectiveType}
 - Victim Archetype: ${inputs.victimArchetype}
 
@@ -390,7 +391,15 @@ ${hardLogicDeviceText}
    d. required_evidence: An array of 2-4 specific CML facts the reader must see to make this
       correction. Each entry must be a concrete observation witnessable in a scene.
    e. reader_observable: true (all steps must be reader-observable for fair play)
-9. Create discriminating test appropriate for ${inputs.primaryAxis} axis
+9. Create discriminating test appropriate for ${inputs.primaryAxis} axis, following these HARD RULES:
+   a. DESIGN ORDER: Write all inference_path steps FIRST (progressively revealing the mechanism). Design the discriminating test LAST, based only on what those steps already establish.
+   b. NO NEW FACTS IN THE TEST: Every mechanical, physical, or causal detail the test exploits MUST already appear as required_evidence in at least one prior inference step. If your test relies on "clock spring tension" or "premeditated purchase" — that exact evidence must be in an earlier step's required_evidence and marked reader_observable: true.
+   c. PREMEDITATION MUST BE READER-VISIBLE: If the culprit's guilt depends on premeditation or special planning, this must be surfaced as a concrete reader-observable clue in the inference path — not revealed privately to the detective and withheld until confrontation.
+   d. EXAMPLES:
+      ✗ WRONG: Test reveals "Kenneth adjusted the clock spring" for the first time → Clue Visibility 0/100
+      ✗ WRONG: Detective privately deduces premeditation; reader sees it only at confrontation → Information Parity 0/100
+      ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs 8 minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
+      ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
 10. Ensure all fair-play checklist items are true
 11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
 12. Ground every clue in mechanism or constraint violations
@@ -510,6 +519,7 @@ export async function generateCML(
         evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
         culprit_eligibility: normalizedEligibility,
         culpability: normalizedCulpability,
+        gender: ensureString(existing.gender, (inputs.castGenders?.[name]) || 'non-binary'),
       };
     });
     caseBlock.cast = normalizedCast;

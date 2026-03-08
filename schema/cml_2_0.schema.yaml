@@ -76,6 +76,10 @@ CASE:
           culpability:
             type: string
             allowed: [guilty, innocent, unknown]
+          gender:
+            type: string
+            required: false
+            allowed: [male, female, non-binary]
 
     culpability:
       required: true

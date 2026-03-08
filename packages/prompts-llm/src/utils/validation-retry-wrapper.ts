@@ -56,6 +56,7 @@ export async function withValidationRetry<T>(
   
   let totalCost = 0;
   const retryHistory: Array<{ attempt: number; errors: string[]; warnings: string[] }> = [];
+  let lastResult: T | undefined;
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const previousErrors = retryHistory.length > 0 
@@ -64,6 +65,7 @@ export async function withValidationRetry<T>(
     
     // Generate result
     const { result, cost } = await generateFn(attempt, previousErrors);
+    lastResult = result;
     totalCost += cost;
     
     // Validate result
@@ -112,14 +114,14 @@ export async function withValidationRetry<T>(
     `[${agentName}] Validation failed after ${maxAttempts} attempts. ` +
     `Returning last result with ${finalAttempt.errors.length} error(s).`
   );
-  
-  // Return the last attempt's result even though it's invalid
-  // The caller can decide whether to use it or abort
-  const { result, cost } = await generateFn(maxAttempts, finalAttempt.errors);
+
+  if (lastResult === undefined) {
+    throw new Error(`[${agentName}] Validation retry exhausted without any generated result`);
+  }
   
   return {
-    result,
-    totalCost: totalCost + cost,
+    result: lastResult,
+    totalCost,
     attempts: maxAttempts,
     validationResult: {
       valid: false,

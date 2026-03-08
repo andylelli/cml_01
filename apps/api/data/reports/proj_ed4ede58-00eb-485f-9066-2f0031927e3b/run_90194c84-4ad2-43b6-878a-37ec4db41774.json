@@ -1,0 +1,1984 @@
+{
+  "project_id": "proj_ed4ede58-00eb-485f-9066-2f0031927e3b",
+  "run_id": "run_90194c84-4ad2-43b6-878a-37ec4db41774",
+  "generated_at": "2026-02-28T18:16:26.763Z",
+  "total_duration_ms": 164984,
+  "total_cost": 0.0081,
+  "overall_score": 92.67,
+  "overall_grade": "A",
+  "passed": false,
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5/5 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "91% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "6/6 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 7250,
+      "cost": 0.00050354205,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5/5 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "91% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "6/6 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000004,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Jane Quigley: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Jane Quigley: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alan Dempsey: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sheila Duffy: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Claire Healy: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Robert Cooney: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 84%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Avg 2.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (5 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Relationship reciprocity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% reciprocal"
+          }
+        ]
+      },
+      "duration_ms": 38505,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Jane Quigley: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Jane Quigley: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alan Dempsey: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sheila Duffy: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Claire Healy: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Robert Cooney: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 84%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Avg 2.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (5 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Relationship reciprocity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% reciprocal"
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Era completeness: 100%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Location completeness: 100%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ]
+      },
+      "duration_ms": 1997,
+      "cost": 0.00017558145,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Era completeness: 100%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Location completeness: 100%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 80,
+        "consistency_score": 100,
+        "total": 96,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": false,
+            "score": 40,
+            "weight": 1,
+            "message": "Only 2 types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 10011,
+      "cost": 0.0007620260999999999,
+      "threshold": 85,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": false,
+          "score": 40,
+          "weight": 1,
+          "message": "Only 2 types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "score": {
+        "agent": "agent3-cml-generation",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Schema validation",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Valid after 1 attempt(s)"
+          },
+          {
+            "name": "Structural revision (Agent 4)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No structural revision needed"
+          }
+        ]
+      },
+      "duration_ms": 17752,
+      "cost": 0.0021458217,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Schema validation",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Valid after 1 attempt(s)"
+        },
+        {
+          "name": "Structural revision (Agent 4)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No structural revision needed"
+        }
+      ]
+    },
+    {
+      "agent": "agent8_novelty",
+      "phase_name": "Novelty Audit",
+      "score": {
+        "agent": "agent8-novelty-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Novelty check",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+          }
+        ]
+      },
+      "duration_ms": 0,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Novelty check",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+        }
+      ]
+    },
+    {
+      "agent": "agent5_clues",
+      "phase_name": "Clue Distribution",
+      "score": {
+        "agent": "agent5-clue-distribution",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Clue count",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "8 clues distributed"
+          },
+          {
+            "name": "Guardrail compliance",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All guardrails passed"
+          },
+          {
+            "name": "Inference coverage",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Full inference coverage (2 minor issues)"
+          }
+        ]
+      },
+      "duration_ms": 7666,
+      "cost": 0.00069124605,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Clue count",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "8 clues distributed"
+        },
+        {
+          "name": "Guardrail compliance",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All guardrails passed"
+        },
+        {
+          "name": "Inference coverage",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Full inference coverage (2 minor issues)"
+        }
+      ]
+    },
+    {
+      "agent": "agent6_fairplay",
+      "phase_name": "Fair-play Audit",
+      "score": {
+        "agent": "agent6-fair-play-audit",
+        "validation_score": 45,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 45,
+        "grade": "F",
+        "passed": false,
+        "failure_reason": "Fair play audit failed (1 violation(s))",
+        "tests": [
+          {
+            "name": "Overall fair play status",
+            "category": "validation",
+            "passed": false,
+            "score": 45,
+            "weight": 2,
+            "message": "Status: fail (1 violation(s))"
+          },
+          {
+            "name": "Information Parity",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "The reader may not fully understand the implications of the hourglass's mechanism until the demonstration, which creates a gap in information parity.",
+            "severity": "critical"
+          }
+        ]
+      },
+      "duration_ms": 21101,
+      "cost": 0.0013100174999999999,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Overall fair play status",
+          "category": "validation",
+          "passed": false,
+          "score": 45,
+          "weight": 2,
+          "message": "Status: fail (1 violation(s))"
+        },
+        {
+          "name": "Information Parity",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "The reader may not fully understand the implications of the hourglass's mechanism until the demonstration, which creates a gap in information parity.",
+          "severity": "critical"
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 88.33333333333333,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 95,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 65,
+            "weight": 2,
+            "message": "19 chapters (expected 12)",
+            "severity": "major"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "85% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "10/19 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "19/19"
+          },
+          {
+            "name": "Discriminating test in outline",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 32958,
+      "cost": 0.0024659613,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 65,
+          "weight": 2,
+          "message": "19 chapters (expected 12)",
+          "severity": "major"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "85% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "10/19 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "19/19"
+        },
+        {
+          "name": "Discriminating test in outline",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "phases_passed": 8,
+    "phases_failed": 1,
+    "total_phases": 9,
+    "pass_rate": 88.9,
+    "weakest_phase": "Fair-play Audit",
+    "strongest_phase": "Clue Distribution",
+    "failure_reasons": [
+      "agent6-fair-play-audit: Fair play audit failed (1 violation(s))"
+    ],
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.0081
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "aborted": true,
+  "abort_reason": "Narrative outline artifact failed schema validation"
+}

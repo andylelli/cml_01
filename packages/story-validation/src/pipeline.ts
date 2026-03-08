@@ -3,7 +3,7 @@
  * Coordinates all validators and provides comprehensive quality checking
  */
 
-import type { Validator, Story, CMLData, ValidationResult, ValidationError } from './types.js';
+import type { Validator, Story, CMLData, ValidationResult, ValidationError, ProseConsistencyReport } from './types.js';
 import type { AzureOpenAIClient } from '@cml/llm-client';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
@@ -13,6 +13,7 @@ import { NarrativeContinuityValidator } from './narrative-continuity-validator.j
 import { CaseTransitionValidator } from './case-transition-validator.js';
 import { DiscriminatingTestValidator } from './discriminating-test-validator.js';
 import { SuspectClosureValidator } from './suspect-closure-validator.js';
+import { ProseConsistencyValidator } from './prose-consistency-validator.js';
 
 export interface ValidationReport {
   status: 'passed' | 'needs_review' | 'needs_revision' | 'failed';
@@ -26,6 +27,7 @@ export interface ValidationReport {
   errors: ValidationError[];
   canProceed: boolean;
   recommendations: string[];
+  consistencyReport?: ProseConsistencyReport;
 }
 
 export class StoryValidationPipeline {
@@ -35,6 +37,7 @@ export class StoryValidationPipeline {
     this.validators = [
       new EncodingValidator(),
       new CharacterConsistencyValidator(),
+      new ProseConsistencyValidator(),
       new NarrativeContinuityValidator(),
       new CaseTransitionValidator(),
       new DiscriminatingTestValidator(llmClient),
@@ -55,17 +58,17 @@ export class StoryValidationPipeline {
         // Stop on critical errors from character/encoding validators
         if (result.errors.some(e => e.severity === 'critical') && 
             (validator.name === 'CharacterConsistencyValidator')) {
-          return this.generateReport(allErrors, validator.name);
+          return this.generateReport(allErrors, cml, validator.name);
         }
       } catch (error) {
         console.error(`Validator ${validator.name} failed:`, error);
       }
     }
 
-    return this.generateReport(allErrors);
+    return this.generateReport(allErrors, cml);
   }
 
-  private generateReport(errors: ValidationError[], failedAt?: string): ValidationReport {
+  private generateReport(errors: ValidationError[], cml?: CMLData, failedAt?: string): ValidationReport {
     const summary = {
       totalIssues: errors.length,
       critical: errors.filter(e => e.severity === 'critical').length,
@@ -82,7 +85,35 @@ export class StoryValidationPipeline {
       summary,
       errors,
       canProceed: status !== 'failed',
-      recommendations
+      recommendations,
+      consistencyReport: this.buildConsistencyReport(errors, cml),
+    };
+  }
+
+  private buildConsistencyReport(errors: ValidationError[], cml?: CMLData): ProseConsistencyReport {
+    const lockedFactsChecked = cml?.lockedFacts?.length ?? 0;
+    const lockedFactsViolations = errors.filter(e =>
+      e.type === 'locked_fact_contradicted' || e.type === 'locked_fact_missing_value'
+    ).length;
+    const pronounDriftViolations = errors.filter(e => e.type === 'pronoun_drift').length;
+    const openingStyleViolations = errors.filter(e => e.type === 'opening_style_repetition').length;
+    const contextLeakageViolations = errors.filter(e =>
+      e.type === 'context_leakage' || e.type === 'context_leakage_suspected'
+    ).length;
+
+    const criticalOrMajor = errors.filter(e => e.severity === 'critical' || e.severity === 'major').length;
+    const overallStatus: ProseConsistencyReport['overallStatus'] =
+      criticalOrMajor > 0 ? 'fail' :
+      errors.filter(e => e.severity === 'moderate').length > 0 ? 'needs_review' :
+      'pass';
+
+    return {
+      lockedFactsChecked,
+      lockedFactsViolations,
+      pronounDriftViolations,
+      openingStyleViolations,
+      contextLeakageViolations,
+      overallStatus,
     };
   }
 
@@ -105,6 +136,10 @@ export class StoryValidationPipeline {
 
     if (errorTypes.has('encoding_artifact')) {
       recommendations.push('Auto-fix available: Run EncodingValidator.fixStory() to clean up encoding issues');
+    }
+
+    if (errorTypes.has('illegal_character')) {
+      recommendations.push('Strip illegal control characters (UTF-8 safe) while preserving valid multibyte Unicode characters');
     }
 
     if (errorTypes.has('character_name_inconsistency') || errorTypes.has('detective_name_inconsistency')) {
@@ -141,6 +176,14 @@ export class StoryValidationPipeline {
 
     if (errorTypes.has('identity_role_alias_break')) {
       recommendations.push('Keep culprit identity references stable after confession/arrest; avoid role-only renaming');
+    }
+
+    if (errorTypes.has('investigator_role_drift')) {
+      recommendations.push('Keep investigator authority consistent; if command shifts from amateur to official investigator, narrate an explicit handoff/collaboration bridge');
+    }
+
+    if (errorTypes.has('temporal_contradiction')) {
+      recommendations.push('Resolve month/season contradictions (e.g., May with autumn language) and keep weather cues temporally consistent');
     }
 
     return recommendations;

@@ -1,12 +1,10 @@
+<script lang="ts">
+export type { PipelineStep } from "./pipelineTypes";
+</script>
+
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch } from "vue";
-
-export interface PipelineStep {
-  id: string;
-  label: string;
-  status: "pending" | "running" | "complete" | "failed" | "skipped";
-  durationMs?: number;
-}
+import type { PipelineStep } from "./pipelineTypes";
 
 const props = defineProps<{
   steps: PipelineStep[];

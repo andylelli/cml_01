@@ -42,7 +42,7 @@ const hasEvents = computed(() => props.events.length > 0);
     <div v-else class="mt-3 space-y-2">
       <div
         v-for="(event, idx) in events"
-        :key="idx"
+        :key="`${event.step}-${idx}`"
         class="flex items-start gap-3 rounded border border-slate-200 bg-slate-50 px-3 py-2"
       >
         <span :class="['flex-shrink-0 text-sm', getEventClass(event.step)]">

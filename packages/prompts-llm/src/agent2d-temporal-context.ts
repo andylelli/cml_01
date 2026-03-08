@@ -97,6 +97,7 @@ export interface TemporalContextInputs {
   caseData: CaseData;
   runId?: string;
   projectId?: string;
+  qualityGuardrails?: string[];
 }
 
 // Simple hash function to convert string to number
@@ -283,7 +284,11 @@ Task:
 6. Include social attitudes and daily life details
 7. Generate 3-5 atmospheric paragraphs that capture the temporal setting
 
-Make this mystery feel ROOTED in a specific moment in time, not just a generic era.`;
+Make this mystery feel ROOTED in a specific moment in time, not just a generic era.${
+    inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0
+      ? `\n\n## Quality Guardrails (Must Satisfy)\n${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}`
+      : ''
+  }`;
 
   const messages = [
     { role: "system" as const, content: `${system}\n\n${developer}` },
@@ -304,7 +309,12 @@ export async function generateTemporalContext(
     maxAttempts,
     agentName: "Agent 2d (Temporal Context)",
     validationFn: (data) => {
-      const validation = validateArtifact("temporal_context", data);
+      const validationPayload = {
+        ...(data as Record<string, unknown>),
+        cost: typeof (data as any)?.cost === "number" ? (data as any).cost : 0,
+        durationMs: typeof (data as any)?.durationMs === "number" ? (data as any).durationMs : 0,
+      };
+      const validation = validateArtifact("temporal_context", validationPayload);
       return {
         valid: validation.valid,
         errors: validation.errors,

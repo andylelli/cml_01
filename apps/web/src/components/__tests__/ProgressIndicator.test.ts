@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import ProgressIndicator, { type PipelineStep } from "../ProgressIndicator.vue";
+import ProgressIndicator from "../ProgressIndicator.vue";
+import type { PipelineStep } from "../pipelineTypes";
 
 const makeSteps = (overrides: Partial<PipelineStep>[] = []): PipelineStep[] =>
   [

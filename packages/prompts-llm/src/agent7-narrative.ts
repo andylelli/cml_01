@@ -21,6 +21,7 @@ import { jsonrepair } from "jsonrepair";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
+import { getSceneTarget, STORY_LENGTH_TARGETS } from "@cml/story-validation";
 
 // ============================================================================
 // Types
@@ -54,6 +55,7 @@ export interface Scene {
     tension?: string;
     revelation?: string;
     misdirection?: string;
+    microMomentBeats?: string[];
   };
   summary: string; // 2-3 sentence scene description
   estimatedWordCount: number;
@@ -130,7 +132,7 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
   const victim = legacy.setup?.crime?.victim || "Unknown";
   const culpritName =
-    cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || legacy.solution?.culprit?.character_id || "Unknown";
+    cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || "Unknown";
   const motive = legacy.solution?.culprit?.motive || "Unknown motive";
   const method = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown method";
   const falseAssumption =
@@ -138,14 +140,25 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const whenRevealed = legacy.solution?.false_assumption?.when_revealed || "final act";
 
   // Cast list
-  const detective = castRoster.find((c: any) => c.role === "detective");
-  const suspects = castRoster.filter((c: any) => c.role === "suspect");
-  const witnesses = castRoster.filter((c: any) => c.role === "witness");
+  const culprits = new Set<string>(Array.isArray(cmlCase.culpability?.culprits) ? cmlCase.culpability.culprits : []);
+  const detective = castRoster.find((c: any) =>
+    typeof c?.role_archetype === "string" && /(detective|investigator|inspector)/i.test(c.role_archetype)
+  );
+  const suspects = castRoster.filter((c: any) => {
+    const name = typeof c?.name === "string" ? c.name : "";
+    if (!name || culprits.has(name)) return false;
+    if (c?.culprit_eligibility && c.culprit_eligibility !== "eligible") return false;
+    return true;
+  });
+  const witnesses = castRoster.filter((c: any) => {
+    const name = typeof c?.name === "string" ? c.name : "";
+    return Boolean(name) && !suspects.some((s: any) => s.name === name) && (!detective || detective.name !== name);
+  });
 
   const castSummary = [
-    detective ? `- **Detective**: ${detective.name} (${detective.character_id})` : "",
-    ...suspects.map((s: any) => `- **Suspect**: ${s.name} (${s.character_id})`),
-    ...witnesses.map((w: any) => `- **Witness**: ${w.name} (${w.character_id})`),
+    detective ? `- **Detective**: ${detective.name}` : "",
+    ...suspects.map((s: any) => `- **Suspect**: ${s.name}`),
+    ...witnesses.map((w: any) => `- **Witness**: ${w.name}`),
   ]
     .filter(Boolean)
     .join("\n");
@@ -332,13 +345,22 @@ function buildProseRequirements(caseData: CaseData): string {
 }
 
 function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[], detectiveType?: 'police' | 'private' | 'amateur'): string {
+  const _legacy = caseData as any;
+  const _crimeVictim: string = typeof _legacy.setup?.crime?.victim === 'string' ? _legacy.setup.crime.victim : "the victim";
+  const _rawLocationRaw = _legacy.setup?.crime?.location;
+  const _rawLocation: string = typeof _rawLocationRaw === 'string' ? _rawLocationRaw : typeof _rawLocationRaw === 'object' && _rawLocationRaw !== null ? (_rawLocationRaw.name || _rawLocationRaw.id || 'the scene') : 'the scene';
+  const _locationWord = _rawLocation.replace(/^(locked|the|a|an)\s+/i, "").toLowerCase();
+  const _exampleLocation = _crimeVictim !== "the victim"
+    ? `${_crimeVictim}'s ${_locationWord}`
+    : _rawLocation;
   const lengthGuidance = {
-    short: "exactly 12 scenes (one per chapter), ~15,000-25,000 words total",
-    medium: "exactly 18 scenes (one per chapter), ~40,000-60,000 words total",
-    long: "exactly 26 scenes (one per chapter), ~70,000-100,000 words total",
+    short: `${STORY_LENGTH_TARGETS.short.scenes} scenes, targeting a novella of ~${STORY_LENGTH_TARGETS.short.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.short.maxWords.toLocaleString()} words`,
+    medium: `${STORY_LENGTH_TARGETS.medium.scenes} scenes, targeting a full novel of ~${STORY_LENGTH_TARGETS.medium.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.medium.maxWords.toLocaleString()} words`,
+    long: `${STORY_LENGTH_TARGETS.long.scenes} scenes, targeting an extended novel of ~${STORY_LENGTH_TARGETS.long.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.long.maxWords.toLocaleString()} words`,
   };
 
-  const totalSceneCount = ({ short: 12, medium: 18, long: 26 } as Record<string, number>)[targetLength] ?? 18;
+  // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
+  const totalSceneCount = getSceneTarget(targetLength);
   const minClueScenes = Math.ceil(totalSceneCount * 0.6);
 
   const styleGuidance = {
@@ -420,17 +442,54 @@ Each scene must include:
 4. **Clues revealed**: Which clue IDs are naturally woven in
 5. **Dramatic elements**: Conflict, tension, revelation, or misdirection
 6. **Summary**: 2-3 sentence description of what happens
-7. **Fair-play parity**: Key deductions must reference clue IDs already revealed to the reader
+7. **Fair-play parity**: All deductions must reference only clue IDs already listed in earlier scenes' cluesRevealed arrays — no deduction may rely on information not yet shown to the reader
+
+## CRITICAL: Fair Play Clue Sequencing Rules
+
+**You MUST enforce fair play by separating clue revelation from clue usage:**
+
+1. **Clue Revelation Scenes**: Scenes where the reader sees evidence, physical traces, witness statements, or observations
+   - Tag these scenes with clear clue IDs in cluesRevealed array
+   - Must occur in Act I or early-to-mid Act II
+
+2. **Investigation/Processing Scenes**: Scenes where detective analyzes, deduces, or pieces together clues
+   - Must occur AFTER the clues have been revealed (typically mid-to-late Act II)
+   - Cannot reference clues not yet shown to reader
+
+3. **Discriminating Test Scene**: The crucial scene where detective applies a test or key deduction
+   - Must occur in late Act II or early Act III
+   - Can ONLY use clues already revealed in prior scenes
+   - Include description of test mechanism explicitly
+
+4. **Confrontation/Revelation Scene**: Where detective accuses or reveals solution
+   - Must occur in Act III
+   - Must be AT LEAST 1-2 scenes AFTER the discriminating test scene
+   - Cannot introduce new clues during revelation - only synthesize existing ones
+
+**VIOLATION EXAMPLES (DO NOT DO THIS):**
+❌ Scene 12: "Detective finds pendulum note" + "Detective confronts suspect with note"
+❌ Scene 15: "Detective discovers clock tampering" + "Detective immediately tests suspect"  
+❌ Act III Scene 1: "Detective reveals premeditation knowledge reader never saw"
+
+**CORRECT SEQUENCING:**
+✅ Scene 8: "Detective finds pendulum note" (clue revealed to reader)
+✅ Scene 9-10: Investigation continues, other suspects interviewed
+✅ Scene 11: "Detective studies clock mechanism" (processing/analysis)
+✅ Scene 12: "Detective stages discriminating test using pendulum knowledge" (test using revealed clue)
+✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
+
+**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
 
 ## Pacing Principles
 - Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
-  - **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with ${totalSceneCount} scenes, at least ${minClueScenes} scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
+- **EMOTIONAL BEATS**: Include at least 1 non-plot micro-moment beat per 5 scenes — a brief pause where a character grieves, hesitates, remembers, or fears, that does NOT advance the investigation but reveals emotional truth. Mark these with \`microMomentBeats\` in \`dramaticElements\` (array of 1-sentence beats). Readers engage with mystery through feeling, not just logic.
+- **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with ${totalSceneCount} scenes, at least ${minClueScenes} scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
 - Space clues evenly across all three acts — no act should be entirely clue-free
 - Build tension toward act breaks
 - Use red herrings in Act I and early Act II
-- Discriminating test appears in late Act II or early Act III
+- Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
 - Save essential clues for when inference path requires them
-- Do not introduce detective-private insights; avoid reveals unsupported by previously listed clue IDs
+- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
 
 ## CRITICAL: Character Names in Scenes
 In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
@@ -469,16 +528,17 @@ Return a JSON object:
           "act": 1,
           "title": "Discovery",
           "setting": {
-            "location": "[ACTUAL LOCATION FROM CML]",
-            "timeOfDay": "[TIME OF DAY]",
-            "atmosphere": "[ATMOSPHERE]"
+            "location": "${_exampleLocation}",
+            "timeOfDay": "Morning after the murder",
+            "atmosphere": "Tense household awaiting the detective's arrival"
           },
           "characters": ["[EXACT NAME FROM CAST LIST]", "[EXACT NAME FROM CAST LIST]"],
           "purpose": "Introduce the crime and detective",
           "cluesRevealed": ["clue_1", "clue_2"],
           "dramaticElements": {
-            "conflict": "[DESCRIBE CONFLICT]",
-            "tension": "[DESCRIBE TENSION]"
+            "conflict": "Locked room mystery established",
+            "tension": "Every suspect had access to the victim",
+            "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
           },
           "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
           "estimatedWordCount": 1800
@@ -514,6 +574,8 @@ export async function formatNarrative(
   const prompt = buildNarrativePrompt(inputs);
 
   // Call LLM with JSON mode
+  // 16 000 tokens matches Agent 9 prose ceiling; 4 000 was too low for 16-scene outlines,
+  // causing JSON truncation → jsonrepair → missing required fields → schema validation failure.
   const response = await client.chat({
     messages: [
       { role: "system", content: prompt.system },
@@ -521,7 +583,7 @@ export async function formatNarrative(
       { role: "user", content: prompt.user }
     ],
     temperature: 0.5, // Moderate - creative scene structuring grounded in CML
-    maxTokens: 4000, // Larger - detailed scene descriptions
+    maxTokens: 16000, // Raised from 4 000 — full multi-scene outline easily exceeds 4 k tokens
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",
@@ -529,6 +591,17 @@ export async function formatNarrative(
       agent: "Agent7-NarrativeFormatter"
     }
   });
+
+  // Guard against token-limit truncation before attempting JSON parse.
+  // jsonrepair can reconstruct truncated JSON but leaves required fields null/absent,
+  // which then fails artifact schema validation on both the first attempt and the
+  // schema-repair retry, aborting the pipeline with a misleading error.
+  if (response.finishReason === "length") {
+    throw new Error(
+      `Narrative outline response was truncated (finish_reason=length, completionTokens=${response.usage.completionTokens}). ` +
+      `Increase maxTokens or reduce scene count.`
+    );
+  }
 
   const durationMs = Date.now() - startTime;
   const costTracker = client.getCostTracker();
