@@ -3196,13 +3196,16 @@ export async function generateMystery(
         const retriedClueCount = retriedOutlineScenes.filter(
           (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
         ).length;
+        // Re-derive the threshold from the retry outline's actual scene count so
+        // a change in length (LLM returned fewer/more scenes) is handled correctly.
+        const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * 0.6);
 
-        if (retriedClueCount >= minClueScenes) {
+        if (retriedClueCount >= retriedMinClueScenes) {
           narrative = pacingRetried;
           warnings.push(`Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`);
         } else {
           warnings.push(
-            `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}) — proceeding with best-available outline; clue visibility may be reduced.`
+            `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need ≥${retriedMinClueScenes}) — proceeding with best-available outline; clue visibility may be reduced.`
           );
         }
       }
@@ -3539,10 +3542,11 @@ export async function generateMystery(
     const proseModelOverride = proseDeployment
       ? ({ model: proseDeployment } as Record<string, string>)
       : {};
-    
+    // Populated by the main prose onBatchComplete; accessible to the repair path
+    // so the repair's upsertPhaseScore can carry the first-pass breakdown along.
+    const proseChapterScores: Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> = [];
+
     if (enableScoring && scoreAggregator && retryManager && scoringLogger) {
-      // Populated by onBatchComplete; read by scoreOutput to carry into final score.
-      const proseChapterScores: Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> = [];
       const { result, duration, cost } = await executeAgentWithRetry(
         "agent9_prose",
         "Prose Generation",
@@ -4186,6 +4190,8 @@ export async function generateMystery(
         reportProgress("prose", "Regenerating prose with targeted guardrails...", 96);
 
         const proseRepairStart = Date.now();
+        const repairProseChapterScores: Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> = [];
+        let accumulatedRepairChapters: any[] = [];
         const repairedProse = await generateProse(client, {
           caseData: cml,
           outline: narrative,
@@ -4207,19 +4213,93 @@ export async function generateMystery(
           projectId: projectId || "",
           onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
           batchSize: inputs.proseBatchSize,
-          onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
+          onBatchComplete: async (batchChapters, _batchStart, batchEnd) => {
+            accumulatedRepairChapters = [...accumulatedRepairChapters, ...batchChapters];
             const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
             reportProgress(
               "prose",
               `[Repair] Chapter ${chapterLabel} complete`,
               96 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 1),
             );
+            // Score each repair batch so the Quality tab can show per-chapter
+            // scores for both the first prose pass and the repair run.
+            if (enableScoring && scoreAggregator) {
+              try {
+                const repairScorer = new ProseScorer();
+                const adaptedBatch = adaptProseForScoring(batchChapters, (cml as any).CASE);
+                const batchScore = await repairScorer.score({}, adaptedBatch, {
+                  previous_phases: {
+                    agent2_cast: cast.cast,
+                    agent2b_character_profiles: characterProfiles.profiles,
+                    agent2c_location_profiles: locationProfiles,
+                  },
+                  cml,
+                  threshold_config: { mode: 'standard' },
+                  targetLength: inputs.targetLength ?? 'medium',
+                  partialGeneration: true,
+                });
+                const adaptedAll = adaptProseForScoring(accumulatedRepairChapters, (cml as any).CASE);
+                const cumulScore = await repairScorer.score({}, adaptedAll, {
+                  previous_phases: {
+                    agent2_cast: cast.cast,
+                    agent2b_character_profiles: characterProfiles.profiles,
+                    agent2c_location_profiles: locationProfiles,
+                  },
+                  cml,
+                  threshold_config: { mode: 'standard' },
+                  targetLength: inputs.targetLength ?? 'medium',
+                  partialGeneration: true,
+                });
+                repairProseChapterScores.push({
+                  chapter: batchEnd,
+                  total_chapters: totalSceneCount || batchEnd,
+                  individual_score: Math.round(batchScore.total ?? 0),
+                  cumulative_score: Math.round(cumulScore.total ?? 0),
+                });
+              } catch {
+                // Best-effort — never abort repair generation
+              }
+            }
           },
         });
 
         prose = applyDeterministicProsePostProcessing(sanitizeProseResult(repairedProse), locationProfiles);
         agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + repairedProse.cost;
         agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRepairStart);
+
+        // Update the scoreAggregator prose phase to include repair chapter scores
+        // so the Quality tab can display both passes side by side.
+        if (enableScoring && scoreAggregator && repairProseChapterScores.length > 0) {
+          try {
+            const repairScorer = new ProseScorer();
+            const repairAdapted = adaptProseForScoring(prose.chapters, (cml as any).CASE);
+            const repairFinalScore = await repairScorer.score({}, repairAdapted, {
+              previous_phases: {
+                agent2_cast: cast.cast,
+                agent2b_character_profiles: characterProfiles.profiles,
+                agent2c_location_profiles: locationProfiles,
+              },
+              cml,
+              threshold_config: { mode: 'standard' },
+              targetLength: inputs.targetLength ?? 'medium',
+            });
+            // Preserve the first-pass chapter scores in the breakdown.
+            (repairFinalScore as PhaseScore).breakdown = {
+              chapter_scores: [...proseChapterScores],
+              repair_chapter_scores: repairProseChapterScores,
+            };
+            scoreAggregator.upsertPhaseScore(
+              "agent9_prose",
+              "Prose Generation",
+              repairFinalScore as PhaseScore,
+              agentDurations["agent9_prose"] ?? 0,
+              agentCosts["agent9_prose"] ?? 0,
+            );
+            await savePartialReport();
+          } catch {
+            // Best-effort — never abort generation
+          }
+        }
 
         // Re-validate
         const repairedStory = {

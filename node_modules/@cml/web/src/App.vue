@@ -790,6 +790,10 @@ const maybeRefreshLlmLogs = async () => {
 const loadRunEventsForProject = async () => {
   if (!projectId.value) return;
   await projectStore.loadRunEvents(projectId.value);
+  // Refresh quality report on the same cycle as run events so the Quality tab
+  // stays reactive without requiring a tab switch. During the run this will
+  // 404 silently; once the report is written, the next cycle picks it up.
+  void loadScoringReport();
   if (runEventsData.value.length) {
     const hasMatchedPendingRun = !pendingRunId.value || latestRunId.value === pendingRunId.value;
     if (hasMatchedPendingRun) {

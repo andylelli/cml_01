@@ -54,6 +54,10 @@ const getChapterScores = (phase: ScoringPhaseReport): Array<{ chapter: number; t
   return (phase.score as any)?.breakdown?.chapter_scores ?? [];
 };
 
+const getRepairChapterScores = (phase: ScoringPhaseReport): Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> => {
+  return (phase.score as any)?.breakdown?.repair_chapter_scores ?? [];
+};
+
 const COMPONENT_MINIMUMS: Record<string, number> = {
   validation: 60,
   quality: 50,
@@ -268,6 +272,58 @@ const severityClass = (severity?: string) => {
                 <tbody class="divide-y divide-slate-100">
                   <tr
                     v-for="ch in getChapterScores(phase)"
+                    :key="ch.chapter"
+                  >
+                    <td class="pr-4 py-1 text-slate-600 font-medium">
+                      {{ ch.chapter }}/{{ ch.total_chapters }}
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="ch.individual_score >= 80 ? 'text-emerald-600' : ch.individual_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                      >
+                        {{ ch.individual_score }}/100
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="ch.cumulative_score >= 80 ? 'text-emerald-600' : ch.cumulative_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
+                      >
+                        {{ ch.cumulative_score }}/100
+                      </span>
+                    </td>
+                    <td class="py-1 w-32">
+                      <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                        <div
+                          class="h-full rounded-full"
+                          :class="scoreBarColor(ch.cumulative_score)"
+                          :style="{ width: `${ch.cumulative_score}%` }"
+                        ></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Chapter-by-chapter breakdown (repair prose run) -->
+          <div v-if="phase.agent === 'agent9_prose' && getRepairChapterScores(phase).length" class="mt-2">
+            <div class="text-xs font-semibold uppercase tracking-wide text-amber-600 mb-2">Chapter Quality Scores — Repair Run</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs border-collapse">
+                <thead>
+                  <tr class="text-left text-slate-400 border-b border-slate-200">
+                    <th class="pb-1 pr-4 font-medium">Chapter</th>
+                    <th class="pb-1 pr-4 font-medium">Individual</th>
+                    <th class="pb-1 pr-4 font-medium">Cumulative</th>
+                    <th class="pb-1 font-medium w-32">Cumulative bar</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr
+                    v-for="ch in getRepairChapterScores(phase)"
                     :key="ch.chapter"
                   >
                     <td class="pr-4 py-1 text-slate-600 font-medium">
