@@ -691,6 +691,296 @@ const checkSuspectElimination = (
   return issues;
 };
 
+type SceneRef = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  scene: any;
+  act: 1 | 2 | 3;
+  sceneNumber: number;
+  actSceneNumber: number;
+  index: number;
+};
+
+type DeterministicClueAssignmentStats = {
+  totalScenes: number;
+  minRequired: number;
+  before: number;
+  after: number;
+  mappingAssignments: number;
+  essentialAssignments: number;
+  gapFillAssignments: number;
+  thresholdFillAssignments: number;
+};
+
+type NarrativeSceneCountSnapshot = {
+  totalScenes: number;
+  perAct: Record<1 | 2 | 3, number>;
+};
+
+const getPlacementForAct = (act: 1 | 2 | 3): "early" | "mid" | "late" => {
+  if (act === 1) return "early";
+  if (act === 2) return "mid";
+  return "late";
+};
+
+const flattenNarrativeScenes = (narrative: NarrativeOutline): SceneRef[] => {
+  const refs: SceneRef[] = [];
+  let globalIndex = 0;
+
+  (narrative.acts ?? []).forEach((actBlock: any, actIdx: number) => {
+    const act = ((actBlock?.actNumber ?? actIdx + 1) as 1 | 2 | 3) || ((actIdx + 1) as 1 | 2 | 3);
+    const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
+    scenes.forEach((scene: any, sceneIdx: number) => {
+      refs.push({
+        scene,
+        act,
+        sceneNumber: Number(scene?.sceneNumber ?? globalIndex + 1),
+        actSceneNumber: sceneIdx + 1,
+        index: globalIndex,
+      });
+      globalIndex += 1;
+    });
+  });
+
+  return refs;
+};
+
+const captureNarrativeSceneCountSnapshot = (
+  narrative: NarrativeOutline,
+): NarrativeSceneCountSnapshot => {
+  const perAct: Record<1 | 2 | 3, number> = { 1: 0, 2: 0, 3: 0 };
+
+  for (const ref of flattenNarrativeScenes(narrative)) {
+    perAct[ref.act] += 1;
+  }
+
+  return {
+    totalScenes: perAct[1] + perAct[2] + perAct[3],
+    perAct,
+  };
+};
+
+const buildNarrativeSceneCountGuardrails = (
+  lock: NarrativeSceneCountSnapshot,
+  reason: string,
+): string[] => [
+  `Scene-count lock (${reason}): keep EXACT total scene count at ${lock.totalScenes}. Do not reduce chapter/scene count.`,
+  `Act scene-count lock: Act I=${lock.perAct[1]}, Act II=${lock.perAct[2]}, Act III=${lock.perAct[3]}. Preserve these counts while applying fixes.`,
+  "Preserve scene numbering continuity from 1..N with no skipped numbers and no deleted end scenes.",
+];
+
+const checkNarrativeSceneCountFloor = (
+  candidate: NarrativeOutline,
+  baseline: NarrativeSceneCountSnapshot,
+): { ok: boolean; message?: string } => {
+  const candidateSnapshot = captureNarrativeSceneCountSnapshot(candidate);
+
+  if (candidateSnapshot.totalScenes < baseline.totalScenes) {
+    return {
+      ok: false,
+      message: `scene-count shrink detected (${candidateSnapshot.totalScenes} < ${baseline.totalScenes})`,
+    };
+  }
+
+  for (const act of [1, 2, 3] as const) {
+    if (candidateSnapshot.perAct[act] < baseline.perAct[act]) {
+      return {
+        ok: false,
+        message: `Act ${act} shrank (${candidateSnapshot.perAct[act]} < ${baseline.perAct[act]})`,
+      };
+    }
+  }
+
+  return { ok: true };
+};
+
+const applyDeterministicCluePreAssignment = (
+  narrative: NarrativeOutline,
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  minCoverageRatio = 0.6,
+): DeterministicClueAssignmentStats => {
+  const refs = flattenNarrativeScenes(narrative);
+  const totalScenes = refs.length;
+  const minRequired = Math.ceil(totalScenes * minCoverageRatio);
+
+  const allClueIds = clues.clues.map((c) => c.id).filter((id): id is string => typeof id === "string" && id.length > 0);
+  const validClueSet = new Set(allClueIds);
+  const essentialClueIds = clues.clues
+    .filter((c) => c.criticality === "essential")
+    .map((c) => c.id)
+    .filter((id): id is string => typeof id === "string" && id.length > 0);
+
+  const timelinePools = {
+    early: (clues.clueTimeline?.early ?? []).filter((id) => validClueSet.has(id)),
+    mid: (clues.clueTimeline?.mid ?? []).filter((id) => validClueSet.has(id)),
+    late: (clues.clueTimeline?.late ?? []).filter((id) => validClueSet.has(id)),
+  };
+
+  const usage = new Map<string, number>();
+  for (const id of allClueIds) usage.set(id, 0);
+
+  const normalizeSceneClues = (ref: SceneRef) => {
+    const current = Array.isArray(ref.scene?.cluesRevealed) ? ref.scene.cluesRevealed : [];
+    const normalized: string[] = Array.from(
+      new Set<string>(
+        current.filter((id: unknown): id is string => typeof id === "string" && validClueSet.has(id)),
+      ),
+    );
+    ref.scene.cluesRevealed = normalized;
+    normalized.forEach((id) => usage.set(id, (usage.get(id) ?? 0) + 1));
+  };
+
+  refs.forEach(normalizeSceneClues);
+
+  const countClueScenes = () => refs.filter((r) => Array.isArray(r.scene?.cluesRevealed) && r.scene.cluesRevealed.length > 0).length;
+  const before = countClueScenes();
+
+  const pickLeastUsed = (pool: string[], existing: Set<string>): string | null => {
+    const candidates = pool.filter((id) => validClueSet.has(id) && !existing.has(id));
+    if (candidates.length === 0) return null;
+    candidates.sort((a, b) => (usage.get(a) ?? 0) - (usage.get(b) ?? 0));
+    return candidates[0] ?? null;
+  };
+
+  const pickClueForScene = (ref: SceneRef): string | null => {
+    const existing = new Set<string>(Array.isArray(ref.scene?.cluesRevealed) ? ref.scene.cluesRevealed : []);
+    const placement = getPlacementForAct(ref.act);
+    const preferredPool = timelinePools[placement];
+    return (
+      pickLeastUsed(preferredPool, existing) ??
+      pickLeastUsed(essentialClueIds, existing) ??
+      pickLeastUsed(allClueIds, existing) ??
+      null
+    );
+  };
+
+  const addClueToScene = (ref: SceneRef, preferredId?: string): boolean => {
+    if (!Array.isArray(ref.scene?.cluesRevealed)) {
+      ref.scene.cluesRevealed = [];
+    }
+    const existing = new Set<string>(ref.scene.cluesRevealed);
+    const clueId = preferredId && validClueSet.has(preferredId) && !existing.has(preferredId)
+      ? preferredId
+      : pickClueForScene(ref);
+    if (!clueId || existing.has(clueId)) return false;
+
+    ref.scene.cluesRevealed = [...ref.scene.cluesRevealed, clueId];
+    usage.set(clueId, (usage.get(clueId) ?? 0) + 1);
+    return true;
+  };
+
+  let mappingAssignments = 0;
+  let essentialAssignments = 0;
+  let gapFillAssignments = 0;
+  let thresholdFillAssignments = 0;
+
+  // 1) Respect prose_requirements clue_to_scene_mapping first.
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const mappingEntries = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+    : [];
+  for (const mapping of mappingEntries) {
+    const clueId = String(mapping?.clue_id ?? "");
+    if (!validClueSet.has(clueId)) continue;
+    const actNumber = Number(mapping?.act_number);
+    if (![1, 2, 3].includes(actNumber)) continue;
+    const actRefs = refs.filter((r) => r.act === actNumber);
+    if (actRefs.length === 0) continue;
+
+    const sceneNumber = Number(mapping?.scene_number);
+    const targetRef = actRefs.find((r) => r.sceneNumber === sceneNumber)
+      ?? actRefs.find((r) => r.actSceneNumber === sceneNumber)
+      ?? actRefs.find((r) => !Array.isArray(r.scene?.cluesRevealed) || r.scene.cluesRevealed.length === 0)
+      ?? actRefs[0];
+
+    if (targetRef && addClueToScene(targetRef, clueId)) {
+      mappingAssignments += 1;
+    }
+  }
+
+  // 2) Ensure every essential clue is anchored in at least one scene.
+  const anchored = new Set(
+    refs.flatMap((r) => (Array.isArray(r.scene?.cluesRevealed) ? r.scene.cluesRevealed : [])),
+  );
+  for (const clueId of essentialClueIds) {
+    if (anchored.has(clueId)) continue;
+    const clue = clues.clues.find((c) => c.id === clueId);
+    const preferredAct = clue?.placement === "early" ? 1 : clue?.placement === "mid" ? 2 : 3;
+    const candidateRefs = refs
+      .filter((r) => r.act === preferredAct)
+      .sort((a, b) => (a.scene.cluesRevealed?.length ?? 0) - (b.scene.cluesRevealed?.length ?? 0));
+    const targetRef = candidateRefs[0] ?? refs[0];
+    if (targetRef && addClueToScene(targetRef, clueId)) {
+      essentialAssignments += 1;
+      anchored.add(clueId);
+    }
+  }
+
+  // 3) Prevent long no-clue runs: fill every third scene inside gaps > 2.
+  let i = 0;
+  while (i < refs.length) {
+    const hasClue = Array.isArray(refs[i].scene?.cluesRevealed) && refs[i].scene.cluesRevealed.length > 0;
+    if (hasClue) {
+      i += 1;
+      continue;
+    }
+    const start = i;
+    let end = i;
+    while (end + 1 < refs.length) {
+      const nextHasClue = Array.isArray(refs[end + 1].scene?.cluesRevealed) && refs[end + 1].scene.cluesRevealed.length > 0;
+      if (nextHasClue) break;
+      end += 1;
+    }
+
+    if (end - start + 1 > 2) {
+      for (let pos = start + 2; pos <= end; pos += 3) {
+        if (addClueToScene(refs[pos])) {
+          gapFillAssignments += 1;
+        }
+      }
+    }
+    i = end + 1;
+  }
+
+  // 4) If still below threshold, fill additional empty scenes with act-balanced picks.
+  while (countClueScenes() < minRequired) {
+    const actTotals = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+    const actCovered = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+
+    for (const ref of refs) {
+      actTotals[ref.act] += 1;
+      if (Array.isArray(ref.scene?.cluesRevealed) && ref.scene.cluesRevealed.length > 0) {
+        actCovered[ref.act] += 1;
+      }
+    }
+
+    const emptyRefs = refs.filter((r) => !Array.isArray(r.scene?.cluesRevealed) || r.scene.cluesRevealed.length === 0);
+    if (emptyRefs.length === 0) break;
+
+    emptyRefs.sort((a, b) => {
+      const ratioA = actTotals[a.act] > 0 ? actCovered[a.act] / actTotals[a.act] : 1;
+      const ratioB = actTotals[b.act] > 0 ? actCovered[b.act] / actTotals[b.act] : 1;
+      if (ratioA !== ratioB) return ratioA - ratioB;
+      return a.index - b.index;
+    });
+
+    const target = emptyRefs[0];
+    if (!target || !addClueToScene(target)) break;
+    thresholdFillAssignments += 1;
+  }
+
+  return {
+    totalScenes,
+    minRequired,
+    before,
+    after: countClueScenes(),
+    mappingAssignments,
+    essentialAssignments,
+    gapFillAssignments,
+    thresholdFillAssignments,
+  };
+};
+
 
 // Load writing guide notes for prose generation
 const loadWritingGuides = (): { humour?: string; craft?: string } => {
@@ -852,10 +1142,22 @@ const buildDeterministicGroundingLead = (chapterIndex: number, locationProfiles:
   const sound = (sounds[0] || "the sound of the wind in the corridor").replace(/\.$/, "");
   const touch = (tactile[0] || "the cold banister and rough wallpaper").replace(/\.$/, "");
 
-  return sanitizeProseText(
-    `At ${locationName}${place}${country}, the smell of ${smell} mixed with ${sound}, while ${weather.toLowerCase()} and ${touch} kept the atmosphere ${mood.toLowerCase()}.`
-  );
+  // Rotate lead phrasing to avoid deterministic scaffold repetition across chapters.
+  const leadTemplates = [
+    `${locationName}${place}${country} carried ${weather.toLowerCase()} in every corridor; ${sound} drifted past, and ${touch} made the ${mood.toLowerCase()} mood impossible to ignore.`,
+    `Under ${weather.toLowerCase()} skies, ${locationName}${place}${country} felt sharply ${mood.toLowerCase()}; ${sound} lingered while ${smell} clung to coats and curtains.`,
+    `By the time they reached ${locationName}${place}${country}, ${sound} had become a constant undertone, and ${touch} left the room feeling quietly ${mood.toLowerCase()}.`,
+    `In ${locationName}${place}${country}, ${smell} and ${sound} met at the doorway, and even ${touch} seemed to signal a ${mood.toLowerCase()} turn in events.`,
+    `${locationName}${place}${country} met them with ${weather.toLowerCase()} and ${smell}; ${sound} threaded through the scene, and ${touch} sharpened the ${mood.toLowerCase()} tension.`,
+  ];
+
+  return sanitizeProseText(leadTemplates[chapterIndex % leadTemplates.length]);
 };
+
+const templateLeakageScaffoldPattern = /at\s+the\s+[a-z][\s\S]{0,120}the\s+smell\s+of[\s\S]{20,300}?atmosphere\s+ripe\s+for\s+revelation\.?/i;
+
+const normalizeParagraphForLeakageDedup = (paragraph: string) =>
+  paragraph.replace(/\s+/g, " ").trim().toLowerCase();
 
 const getGroundingSignals = (opening: string, anchors: string[]) => {
   const normalized = opening.toLowerCase();
@@ -875,6 +1177,8 @@ const applyDeterministicProsePostProcessing = (
     if (loc?.name) anchors.push(String(loc.name).toLowerCase());
   });
 
+  const seenLongParagraphs = new Set<string>();
+
   return {
     ...prose,
     chapters: prose.chapters.map((chapter, index) => {
@@ -887,11 +1191,33 @@ const applyDeterministicProsePostProcessing = (
         ? [buildDeterministicGroundingLead(index, locationProfiles), ...readableParagraphs]
         : readableParagraphs;
 
+      const sanitizedParagraphs = groundedParagraphs
+        .map((paragraph, paragraphIndex) => {
+          const cleaned = sanitizeProseText(paragraph);
+          // Rewrite known scaffold leakage pattern into chapter-specific deterministic prose.
+          if (templateLeakageScaffoldPattern.test(cleaned)) {
+            return buildDeterministicGroundingLead(index + paragraphIndex, locationProfiles);
+          }
+          return cleaned;
+        })
+        .filter((paragraph) => paragraph.length > 0);
+
+      const leakageDedupedParagraphs = sanitizedParagraphs.map((paragraph, paragraphIndex) => {
+        const normalized = normalizeParagraphForLeakageDedup(paragraph);
+        if (normalized.length < 170) {
+          return paragraph;
+        }
+        if (!seenLongParagraphs.has(normalized)) {
+          seenLongParagraphs.add(normalized);
+          return paragraph;
+        }
+        // Replace repeated long boilerplate with deterministic chapter-specific line.
+        return buildDeterministicGroundingLead(index + paragraphIndex + 1, locationProfiles);
+      });
+
       return {
         ...chapter,
-        paragraphs: groundedParagraphs
-          .map((paragraph) => sanitizeProseText(paragraph))
-          .filter((paragraph) => paragraph.length > 0),
+        paragraphs: leakageDedupedParagraphs,
       };
     }),
   };
@@ -950,20 +1276,25 @@ const sanitizeProseResult = (prose: ProseGenerationResult): ProseGenerationResul
   })),
 });
 
-const detectIdentityAliasBreaks = (prose: ProseGenerationResult, cml: CaseData) => {
+type IdentityAliasIssue = {
+  chapterIndex: number;
+  message: string;
+};
+
+const detectIdentityAliasBreaks = (prose: ProseGenerationResult, cml: CaseData): IdentityAliasIssue[] => {
   const cmlCase = (cml as any)?.CASE ?? {};
   const culprits = Array.isArray(cmlCase?.culpability?.culprits)
     ? (cmlCase.culpability.culprits as string[])
     : [];
 
   if (culprits.length === 0) {
-    return [] as string[];
+    return [] as IdentityAliasIssue[];
   }
 
   const confessionOrArrest = /\b(confess(?:ed|ion)|admitted\s+it|under\s+arrest|arrested|revealed\s+the\s+culprit)\b/i;
   const roleOnlyAlias = /\b(the\s+(killer|murderer|culprit|criminal))\b/i;
 
-  const issues: string[] = [];
+  const issues: IdentityAliasIssue[] = [];
   let revealChapter = -1;
 
   for (let index = 0; index < prose.chapters.length; index += 1) {
@@ -978,12 +1309,64 @@ const detectIdentityAliasBreaks = (prose: ProseGenerationResult, cml: CaseData) 
     if (revealChapter >= 0 && index > revealChapter) {
       const mentionsCulpritByName = culprits.some((name) => chapterText.includes(name));
       if (roleOnlyAlias.test(chapterText) && !mentionsCulpritByName) {
-        issues.push(`Chapter ${index + 1} uses role-only culprit aliases without stable culprit name references`);
+        issues.push({
+          chapterIndex: index,
+          message: `Chapter ${index + 1} uses role-only culprit aliases without stable culprit name references`,
+        });
       }
     }
   }
 
   return issues;
+};
+
+const buildNarrativeSubsetForChapterIndexes = (
+  narrative: NarrativeOutline,
+  chapterIndexes: number[],
+): NarrativeOutline => {
+  const normalizedIndexes = Array.from(new Set(chapterIndexes.filter((idx) => idx >= 0))).sort((a, b) => a - b);
+  const indexSet = new Set<number>(normalizedIndexes);
+
+  let runningIndex = 0;
+  const subsetActs = (narrative.acts ?? [])
+    .map((act: any) => {
+      const scenes = Array.isArray(act?.scenes) ? act.scenes : [];
+      const keptScenes: any[] = [];
+      scenes.forEach((scene: any) => {
+        if (indexSet.has(runningIndex)) {
+          keptScenes.push(scene);
+        }
+        runningIndex += 1;
+      });
+
+      if (keptScenes.length === 0) {
+        return null;
+      }
+
+      const estimatedWordCount = keptScenes.reduce((sum, scene) => {
+        const words = Number(scene?.estimatedWordCount ?? 0);
+        return sum + (Number.isFinite(words) ? words : 0);
+      }, 0);
+
+      return {
+        ...act,
+        scenes: keptScenes,
+        estimatedWordCount,
+      };
+    })
+    .filter(Boolean);
+
+  const estimatedTotalWords = subsetActs.reduce((sum: number, act: any) => {
+    const words = Number(act?.estimatedWordCount ?? 0);
+    return sum + (Number.isFinite(words) ? words : 0);
+  }, 0);
+
+  return {
+    ...narrative,
+    acts: subsetActs,
+    totalScenes: normalizedIndexes.length,
+    estimatedTotalWords,
+  };
 };
 
 // ============================================================================
@@ -999,6 +1382,58 @@ const OUTLINE_TEST_TERMS_RE = /\b(test|experiment|re-?enact|reenact|trap|demonst
 const OUTLINE_EXCLUSION_TERMS_RE = /\b(excluded?|eliminat|ruled\s+out|could\s*not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|impossible\s+for|proves?\s+innocent)\b/i;
 const OUTLINE_EVIDENCE_TERMS_RE = /\b(because|therefore|proof|evidence|measured|timed|observed|alibi|timeline|constraint|clue)\b/i;
 const OUTLINE_ELIMINATION_TERMS_RE = /\b(cleared|ruled\s+out|eliminat|not\s+the\s+(culprit|killer|murderer)|innocent|alibi\s+holds|alibi\s+confirmed|could\s*not\s+have|excluded?)\b/i;
+
+type ValidationErrorSignal = {
+  type?: string;
+  message?: string;
+};
+
+const normalizeValidationErrorKey = (value: string | undefined) =>
+  (value || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+
+const matchesValidationAliases = (value: string | undefined, aliases: string[]) => {
+  const normalizedValue = normalizeValidationErrorKey(value);
+  return aliases.some((alias) => normalizeValidationErrorKey(alias) === normalizedValue);
+};
+
+const DISCRIMINATING_TEST_ALIAS_KEYS = [
+  "missing_discriminating_test",
+  "cml_test_not_realized",
+  "discriminating_test_missing",
+];
+
+const SUSPECT_CLOSURE_ALIAS_KEYS = [
+  "suspect_closure_missing",
+  "suspect_elimination_coverage_incomplete",
+  "suspect_elimination_missing",
+  "suspect_clearance_missing",
+];
+
+const CULPRIT_EVIDENCE_CHAIN_ALIAS_KEYS = [
+  "culprit_evidence_chain_missing",
+  "culprit_chain_missing",
+  "culprit_evidence_missing",
+  "culprit_link_missing",
+];
+
+const DISCRIMINATING_TEST_MESSAGE_RE = /(discriminating\s+test|re-?enactment|timing\s+test|constraint\s+proof|test\s+scene)/i;
+const SUSPECT_CLOSURE_MESSAGE_RE = /(suspect\s+(eliminat|clos|clear)|ruled\s+out|alibi\s+confirm|suspect\s+coverage)/i;
+const CULPRIT_CHAIN_MESSAGE_RE = /(culprit\s+.*evidence\s+chain|evidence\s+chain\s+.*culprit|culprit\s+.*non-ambiguous\s+evidence)/i;
+
+const isDiscriminatingTestCoverageError = (error: ValidationErrorSignal) =>
+  matchesValidationAliases(error.type, DISCRIMINATING_TEST_ALIAS_KEYS) ||
+  DISCRIMINATING_TEST_MESSAGE_RE.test(error.message || "");
+
+const isSuspectClosureCoverageError = (error: ValidationErrorSignal) =>
+  matchesValidationAliases(error.type, SUSPECT_CLOSURE_ALIAS_KEYS) ||
+  SUSPECT_CLOSURE_MESSAGE_RE.test(error.message || "");
+
+const isCulpritEvidenceChainCoverageError = (error: ValidationErrorSignal) =>
+  matchesValidationAliases(error.type, CULPRIT_EVIDENCE_CHAIN_ALIAS_KEYS) ||
+  CULPRIT_CHAIN_MESSAGE_RE.test(error.message || "");
+
+const isSuspectEliminationCoverageError = (error: ValidationErrorSignal) =>
+  isSuspectClosureCoverageError(error) || isCulpritEvidenceChainCoverageError(error);
 
 const evaluateOutlineCoverage = (
   narrative: NarrativeOutline,
@@ -3091,7 +3526,9 @@ export async function generateMystery(
     const outlineCoverageIssues = evaluateOutlineCoverage(narrative, cml);
 
     if (outlineCoverageIssues.length > 0) {
+      const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
       const outlineGuardrails = buildOutlineRepairGuardrails(outlineCoverageIssues, cml);
+      const countGuardrails = buildNarrativeSceneCountGuardrails(sceneCountLock, "coverage repair");
       outlineCoverageIssues.forEach((issue) =>
         warnings.push("Outline coverage gap: " + issue.message),
       );
@@ -3105,7 +3542,7 @@ export async function generateMystery(
         targetLength: inputs.targetLength,
         narrativeStyle: inputs.narrativeStyle,
         detectiveType: inputs.detectiveType,
-        qualityGuardrails: outlineGuardrails,
+        qualityGuardrails: [...outlineGuardrails, ...countGuardrails],
         runId,
         projectId: projectId || "",
       });
@@ -3115,7 +3552,8 @@ export async function generateMystery(
 
       // Re-evaluate
       const retryOutlineIssues = evaluateOutlineCoverage(retriedNarrative, cml);
-      if (retryOutlineIssues.length < outlineCoverageIssues.length) {
+      const retryCountCheck = checkNarrativeSceneCountFloor(retriedNarrative, sceneCountLock);
+      if (retryOutlineIssues.length < outlineCoverageIssues.length && retryCountCheck.ok) {
         narrative = retriedNarrative;
         warnings.push("Outline retry improved coverage");
 
@@ -3151,15 +3589,25 @@ export async function generateMystery(
           85,
         );
       } else {
-        // Keep original but still pass guardrails downstream to prose
-        warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
+        if (!retryCountCheck.ok) {
+          warnings.push(
+            `Outline retry rejected due to scene-count lock violation (${retryCountCheck.message}); keeping baseline outline and passing quality guardrails to prose generation.`
+          );
+        } else {
+          // Keep original but still pass guardrails downstream to prose
+          warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
+        }
       }
     }
 
     // ========================================================================
     // Clue pacing gate — ensure narrative outline places clues in ≥ 60% of scenes
-    // before committing to prose generation. If the LLM under-populated cluesRevealed
-    // arrays the gate retries once with a hard pacing constraint.
+    // before committing to prose generation.
+    //
+    // Improved strategy:
+    // 1) deterministic pre-assignment first (cheap, reliable)
+    // 2) one LLM retry if still below threshold
+    // 3) deterministic pass on retried outline as final safety net
     // ========================================================================
     {
       const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
@@ -3168,45 +3616,83 @@ export async function generateMystery(
         (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
       ).length;
       const minClueScenes = Math.ceil(totalOutlineSceneCount * 0.6);
+      const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
 
       if (totalOutlineSceneCount > 0 && clueSceneCount < minClueScenes) {
         warnings.push(
-          `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Retrying outline with reinforced pacing.`
+          `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Applying deterministic clue pre-assignment.`
         );
-        reportProgress("narrative", `Clue pacing retry: ${clueSceneCount}/${totalOutlineSceneCount} scenes have clues (≥${minClueScenes} required)`, 86);
 
-        const pacingRetryStart = Date.now();
-        const pacingRetried = await formatNarrative(client, {
-          caseData: cml,
-          clues: clues,
-          targetLength: inputs.targetLength,
-          narrativeStyle: inputs.narrativeStyle,
-          detectiveType: inputs.detectiveType,
-          qualityGuardrails: [
-            `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes (60% of all scenes). You MUST populate the cluesRevealed array with at least one clue ID in at least ${minClueScenes} scenes. Spread clues across ALL three acts — every act must have multiple clue-bearing scenes. Do not cluster all clues in the final act.`,
-          ],
-          runId,
-          projectId: projectId || "",
-        });
-        agentCosts["agent7_narrative"] = (agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
-        agentDurations["agent7_narrative"] =
-          (agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
-
-        const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a: any) => a.scenes || []);
-        const retriedClueCount = retriedOutlineScenes.filter(
-          (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
-        ).length;
-        // Re-derive the threshold from the retry outline's actual scene count so
-        // a change in length (LLM returned fewer/more scenes) is handled correctly.
-        const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * 0.6);
-
-        if (retriedClueCount >= retriedMinClueScenes) {
-          narrative = pacingRetried;
-          warnings.push(`Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`);
+        const deterministicOnCurrent = applyDeterministicCluePreAssignment(narrative, cml, clues, 0.6);
+        if (deterministicOnCurrent.after >= deterministicOnCurrent.minRequired) {
+          warnings.push(
+            `Deterministic clue pre-assignment satisfied pacing without retry: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes now carry clues (mapping ${deterministicOnCurrent.mappingAssignments}, essential ${deterministicOnCurrent.essentialAssignments}, gap-fill ${deterministicOnCurrent.gapFillAssignments}, threshold-fill ${deterministicOnCurrent.thresholdFillAssignments}).`
+          );
+          reportProgress(
+            "narrative",
+            `Deterministic clue anchoring applied: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes have clues`,
+            86,
+          );
         } else {
           warnings.push(
-            `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need ≥${retriedMinClueScenes}) — proceeding with best-available outline; clue visibility may be reduced.`
+            `Deterministic clue pre-assignment on current outline reached ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} (need ≥${deterministicOnCurrent.minRequired}); retrying outline with reinforced pacing.`
           );
+          reportProgress("narrative", `Clue pacing retry: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes have clues (≥${deterministicOnCurrent.minRequired} required)`, 86);
+
+          const pacingRetryStart = Date.now();
+          const pacingRetried = await formatNarrative(client, {
+            caseData: cml,
+            clues: clues,
+            targetLength: inputs.targetLength,
+            narrativeStyle: inputs.narrativeStyle,
+            detectiveType: inputs.detectiveType,
+            qualityGuardrails: [
+              `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${deterministicOnCurrent.after} of ${deterministicOnCurrent.totalScenes} scenes after deterministic repair. The minimum required is ${deterministicOnCurrent.minRequired} scenes (60% of all scenes). You MUST populate the cluesRevealed array with at least one clue ID in at least ${deterministicOnCurrent.minRequired} scenes. Spread clues across ALL three acts — every act must have multiple clue-bearing scenes. Do not cluster all clues in the final act.`,
+              ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
+            ],
+            runId,
+            projectId: projectId || "",
+          });
+          agentCosts["agent7_narrative"] = (agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
+          agentDurations["agent7_narrative"] =
+            (agentDurations["agent7_narrative"] ?? 0) + (Date.now() - pacingRetryStart);
+
+          const retriedOutlineScenes = (pacingRetried.acts ?? []).flatMap((a: any) => a.scenes || []);
+          const retriedClueCount = retriedOutlineScenes.filter(
+            (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
+          ).length;
+          const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * 0.6);
+          const pacingRetryCountCheck = checkNarrativeSceneCountFloor(pacingRetried, sceneCountLock);
+
+          if (!pacingRetryCountCheck.ok) {
+            warnings.push(
+              `Outline pacing retry rejected due to scene-count lock violation (${pacingRetryCountCheck.message}); keeping current outline and deterministic clue assignments.`
+            );
+          } else {
+            if (retriedClueCount >= retriedMinClueScenes) {
+              narrative = pacingRetried;
+              warnings.push(
+                `Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`
+              );
+            } else {
+              const deterministicOnRetry = applyDeterministicCluePreAssignment(pacingRetried, cml, clues, 0.6);
+              if (deterministicOnRetry.after >= deterministicOnRetry.minRequired) {
+                narrative = pacingRetried;
+                warnings.push(
+                  `Outline pacing retry remained below threshold (${retriedClueCount}/${retriedOutlineScenes.length}), but deterministic post-retry anchoring recovered coverage to ${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}.`
+                );
+                reportProgress(
+                  "narrative",
+                  `Deterministic post-retry clue anchoring applied: ${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}`,
+                  86,
+                );
+              } else {
+                warnings.push(
+                  `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need ≥${retriedMinClueScenes}); deterministic post-retry anchoring also insufficient (${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}). Proceeding with best-available outline; clue visibility may be reduced.`
+                );
+              }
+            }
+          }
         }
       }
     }
@@ -3802,47 +4288,116 @@ export async function generateMystery(
     const identityAliasIssues = detectIdentityAliasBreaks(prose, cml);
     if (identityAliasIssues.length > 0) {
       warnings.push("Agent 9: Identity continuity guardrail detected role-alias drift; regenerating prose once");
-      identityAliasIssues.forEach((issue) => warnings.push(`  - ${issue}`));
+      identityAliasIssues.forEach((issue) => warnings.push(`  - ${issue.message}`));
 
-      const proseRetryStart = Date.now();
-      reportProgress("prose", "Regenerating all prose due to identity drift...", 92);
-      const retriedProse = await generateProse(client, {
-        caseData: cml,
-        outline: narrative,
-        cast: cast.cast,
-        ...proseModelOverride,
-        detectiveType: inputs.detectiveType,
-        characterProfiles: characterProfiles,
-        locationProfiles: locationProfiles,
-        temporalContext: temporalContext,
-        moralAmbiguityNote,
-        lockedFacts: proseLockedFacts,
-        clueDistribution: clues,
-        narrativeState,
-        targetLength: inputs.targetLength,
-        narrativeStyle: inputs.narrativeStyle,
-        qualityGuardrails: baselineProseGuardrails,
-        writingGuides: loadWritingGuides(),
-        runId,
-        projectId: projectId || "",
-        onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
-        batchSize: inputs.proseBatchSize,
-        onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
-          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
-          reportProgress(
-            "prose",
-            `[Identity fix] Chapter ${chapterLabel} complete`,
-            92 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 2),
+      const issueChapterIndexes = Array.from(
+        new Set(identityAliasIssues.map((issue) => issue.chapterIndex).filter((idx) => idx >= 0 && idx < prose.chapters.length)),
+      ).sort((a, b) => a - b);
+      const targetedFixThreshold = Math.max(1, Math.ceil(prose.chapters.length * 0.4));
+      const canTargetedRepair = issueChapterIndexes.length > 0 && issueChapterIndexes.length <= targetedFixThreshold;
+
+      if (canTargetedRepair) {
+        const targetLabels = issueChapterIndexes.map((idx) => String(idx + 1)).join(", ");
+        warnings.push(`Agent 9: Targeted identity repair for chapter(s): ${targetLabels}`);
+
+        const targetedOutline = buildNarrativeSubsetForChapterIndexes(narrative, issueChapterIndexes);
+        const proseRetryStart = Date.now();
+        reportProgress("prose", `Regenerating ${issueChapterIndexes.length} chapter(s) due to identity drift...`, 92);
+        const targetedProse = await generateProse(client, {
+          caseData: cml,
+          outline: targetedOutline,
+          cast: cast.cast,
+          ...proseModelOverride,
+          detectiveType: inputs.detectiveType,
+          characterProfiles: characterProfiles,
+          locationProfiles: locationProfiles,
+          temporalContext: temporalContext,
+          moralAmbiguityNote,
+          lockedFacts: proseLockedFacts,
+          clueDistribution: clues,
+          narrativeState,
+          targetLength: inputs.targetLength,
+          narrativeStyle: inputs.narrativeStyle,
+          qualityGuardrails: baselineProseGuardrails,
+          writingGuides: loadWritingGuides(),
+          runId,
+          projectId: projectId || "",
+          onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+          batchSize: Math.max(1, Math.min(inputs.proseBatchSize ?? 1, issueChapterIndexes.length)),
+          onBatchComplete: (_batchChapters, batchStart, batchEnd) => {
+            reportProgress(
+              "prose",
+              `[Identity targeted fix] Chapter batch ${batchStart}-${batchEnd} complete`,
+              92,
+            );
+          },
+        });
+
+        const sanitizedTargeted = applyDeterministicProsePostProcessing(sanitizeProseResult(targetedProse), locationProfiles);
+        if (sanitizedTargeted.chapters.length === issueChapterIndexes.length) {
+          issueChapterIndexes.forEach((chapterIndex, i) => {
+            prose.chapters[chapterIndex] = sanitizedTargeted.chapters[i];
+          });
+          prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+          warnings.push(
+            `Agent 9: Targeted identity repair replaced ${issueChapterIndexes.length} chapter(s) without full regeneration`,
           );
-        },
-      });
-      prose = applyDeterministicProsePostProcessing(sanitizeProseResult(retriedProse), locationProfiles);
-      agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
-      agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
+        } else {
+          warnings.push(
+            `Agent 9: Targeted identity repair returned unexpected chapter count (${sanitizedTargeted.chapters.length}/${issueChapterIndexes.length}); falling back to full regeneration`,
+          );
+        }
 
-      const retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
+        agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + targetedProse.cost;
+        agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
+      } else {
+        warnings.push(
+          `Agent 9: Identity drift impacted ${issueChapterIndexes.length} chapter(s), exceeding targeted-repair threshold (${targetedFixThreshold}); using full prose regeneration fallback`,
+        );
+      }
+
+      let retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
       if (retryIdentityIssues.length > 0) {
-        retryIdentityIssues.forEach((issue) => errors.push(`Identity continuity failure: ${issue}`));
+        const proseRetryStart = Date.now();
+        reportProgress("prose", "Regenerating all prose due to residual identity drift...", 92);
+        const retriedProse = await generateProse(client, {
+          caseData: cml,
+          outline: narrative,
+          cast: cast.cast,
+          ...proseModelOverride,
+          detectiveType: inputs.detectiveType,
+          characterProfiles: characterProfiles,
+          locationProfiles: locationProfiles,
+          temporalContext: temporalContext,
+          moralAmbiguityNote,
+          lockedFacts: proseLockedFacts,
+          clueDistribution: clues,
+          narrativeState,
+          targetLength: inputs.targetLength,
+          narrativeStyle: inputs.narrativeStyle,
+          qualityGuardrails: baselineProseGuardrails,
+          writingGuides: loadWritingGuides(),
+          runId,
+          projectId: projectId || "",
+          onProgress: (phase: string, message: string, percentage: number) => reportProgress(phase as any, message, percentage),
+          batchSize: inputs.proseBatchSize,
+          onBatchComplete: (_batchChapters, _batchStart, batchEnd) => {
+            const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
+            reportProgress(
+              "prose",
+              `[Identity fallback] Chapter ${chapterLabel} complete`,
+              92 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 2),
+            );
+          },
+        });
+        prose = applyDeterministicProsePostProcessing(sanitizeProseResult(retriedProse), locationProfiles);
+        agentCosts["agent9_prose"] = (agentCosts["agent9_prose"] || 0) + retriedProse.cost;
+        agentDurations["agent9_prose"] = (agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
+        retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
+      }
+
+      if (retryIdentityIssues.length > 0) {
+        retryIdentityIssues.forEach((issue) => errors.push(`Identity continuity failure: ${issue.message}`));
         throw new Error("Prose identity continuity guardrail failed after retry");
       }
 
@@ -4167,17 +4722,17 @@ export async function generateMystery(
         "Ensure Act III contains explicit suspect-elimination coverage for every non-culprit suspect, each with concrete evidence or confirmed alibi."
       );
       for (const err of validationReport.errors) {
-        if (err.type === "missing_discriminating_test" || err.type === "cml_test_not_realized") {
+        if (isDiscriminatingTestCoverageError(err)) {
           repairGuardrailSet.add(
             "The prose MUST include a scene where the detective performs a discriminating test (experiment, re-enactment, trap, or timing test) that explicitly rules out or eliminates at least one suspect with on-page evidence and reasoning."
           );
         }
-        if (err.type === "suspect_closure_missing") {
+        if (isSuspectClosureCoverageError(err)) {
           repairGuardrailSet.add(
             "The prose MUST include a scene in which each non-culprit suspect is explicitly cleared (ruled out, eliminated, alibi confirmed) with stated evidence."
           );
         }
-        if (err.type === "culprit_evidence_chain_missing") {
+        if (isCulpritEvidenceChainCoverageError(err)) {
           repairGuardrailSet.add(
             "The prose MUST include a scene where the culprit is identified and the full evidence chain (because, therefore, proof) is laid out."
           );
@@ -4357,6 +4912,9 @@ export async function generateMystery(
     const releaseGateReasons: string[] = [];
     const hardStopReasons: string[] = [];
     const validationErrorTypes = new Set(validationReport.errors.map((error) => error.type));
+    const hasSuspectEliminationCoverageFailure = validationReport.errors.some((error) =>
+      isSuspectEliminationCoverageError(error),
+    );
     const readabilitySummary = evaluateProseReadability(prose);
     const sceneGrounding = evaluateSceneGroundingCoverage(prose, locationProfiles);
     const templateLeakage = evaluateTemplateLeakage(prose);
@@ -4407,7 +4965,7 @@ export async function generateMystery(
     if (validationErrorTypes.has("missing_discriminating_test") || validationErrorTypes.has("cml_test_not_realized")) {
       releaseGateReasons.push("no valid discriminating test scene");
     }
-    if (validationErrorTypes.has("suspect_closure_missing") || validationErrorTypes.has("culprit_evidence_chain_missing")) {
+    if (hasSuspectEliminationCoverageFailure) {
       releaseGateReasons.push("suspect elimination coverage incomplete");
       hardStopReasons.push("suspect elimination coverage incomplete");
     }
@@ -4586,3 +5144,17 @@ export async function generateMysterySimple(
     onProgress
   );
 }
+
+// Test-only exports for deterministic guardrail unit coverage.
+export const __testables = {
+  captureNarrativeSceneCountSnapshot,
+  checkNarrativeSceneCountFloor,
+  applyDeterministicCluePreAssignment,
+  applyDeterministicProsePostProcessing,
+  detectIdentityAliasBreaks,
+  buildNarrativeSubsetForChapterIndexes,
+  isDiscriminatingTestCoverageError,
+  isSuspectClosureCoverageError,
+  isCulpritEvidenceChainCoverageError,
+  isSuspectEliminationCoverageError,
+};

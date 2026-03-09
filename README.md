@@ -53,6 +53,13 @@ Theme prompts can steer hard-logic construction (locked-room, timetable/math, bo
 Novel hard-logic device ideation is now a dedicated LLM stage: the pipeline generates a `hard_logic_devices` artifact first, while a separate `background_context` artifact captures backdrop context. CML generation consumes both with explicit separation (background coherence vs mechanism proof).
 The web UI now surfaces this artifact in Review (Hard Logic tab), Advanced raw artifacts, and export selection.
 Schema/flow remediation is in progress: retry-wrapper end-state behavior fixed (no extra post-failure generation), Agent 2b/2c/2d false missing-field validation errors resolved, worker path resolution hardened for API-launched runs, and runtime schema validation expanded for setting/cast/outline/prose artifacts.
+Narrative clue pacing hardening is implemented: before prose, the worker now applies deterministic clue pre-assignment to enforce >=60% clue-bearing scenes (mapping-aware and act-balanced), using LLM outline retry only as fallback.
+Narrative retry scene-count locking is implemented: outline retries now carry total/per-act count guardrails and are rejected if they shrink structure versus the baseline outline.
+Month/season guardrail hardening is implemented: Agent 9 now derives season from temporal month, enforces a hard prompt lock, and deterministically normalizes conflicting season labels in month-anchored chapters before chapter validation.
+Suspect-elimination guardrail alignment is implemented: prose repair retries and release-gate hard-stops now share alias-aware validation failure classification, so key-name drift does not skip suspect-closure/case-chain repair instructions.
+Prose template-leakage hardening is implemented: deterministic worker post-processing now rewrites scaffold-signature leakage and replaces repeated long boilerplate paragraphs with chapter-specific variants before release-gate checks.
+Identity continuity remediation is optimized: role-alias drift now triggers chapter-targeted prose regeneration first, with full-story regeneration only as fallback.
+Cast role-diversity hardening is implemented: Agent 2 enforces >=70% unique role archetypes, retries low-diversity outputs, and applies deterministic non-protected role diversification on the final attempt.
 Full activity logging is enabled for API requests and UI actions (see /api/logs).
 The UI restores the last project/spec/session state after refresh.
 Spec draft supports optional comma-separated cast names for future LLM conditioning (no deterministic overrides).

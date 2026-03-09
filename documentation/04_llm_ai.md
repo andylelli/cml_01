@@ -106,6 +106,8 @@ Critical gaps trigger one Agent 5 retry with violation feedback before proceedin
 **Input:** validated CML + clues + cast
 **Output:** outline with clue placement markers
 **Validation:** load-bearing clues appear before solution; discriminating test placed late
+**Deterministic pacing repair (implemented):** If the outline under-populates `cluesRevealed` (<60% of scenes), the worker performs deterministic clue pre-assignment (mapping-aware and act-balanced) before prose; LLM retry is fallback-only.
+**Scene-count lock (implemented):** Outline retries now carry explicit scene-count guardrails (total + per-act) and are discarded if they shrink structure relative to the baseline outline.
 **Setting fidelity:** all scenes must remain within the CML setting; no location-type drift.
 **CML compatibility:** downstream agents derive context from CML 2.0 fields when legacy setup/crime fields are missing.
 **Parsing safety:** narrative outline parsing uses JSON repair and JSON extraction when needed.
@@ -157,6 +159,7 @@ Validation/remediation update:
 **Validation:** must be historically accurate for the specified date; validates against temporal_context.schema.yaml
 **Usage:** Agent 9 uses for fashion descriptions, cultural references, and period-authentic details
 **Current build:** LLM-generated context with comprehensive period details (implemented).
+**Optional-field depth hardening (implemented):** Agent 2d prompt now enforces concrete richness in optional temporal fields (specific fashion detail, seasonal activities, daily-life prices/rituals) to reduce thin but schema-valid outputs.
 
 ### 8) Prose generation (optional)
 **Purpose:** Produce novel-quality narrative prose with full context integration.
@@ -194,6 +197,9 @@ Before validation runs, Agent 9 applies a defensive prose sanitization pass that
 This logic is centralized in a shared `@cml/story-validation` utility so detection and sanitization use the exact same matching rules.
 Agent 9 prose generation now uses a lower creativity setting (temperature 0.45) to reduce recurrent genre-attractor phantom names in early/late chapters.
 Chapter validation now also checks readability density (minimum paragraph structure, overlong wall-of-text blocks), scene-grounding quality, and chapter-level encoding integrity (mojibake/illegal control characters) so retries can repair these issues before full-story persistence.
+Month/season lock hardening (implemented): Agent 9 derives a canonical season from the temporal month and injects a hard constraint into the prompt. Before per-chapter validation, prose text is deterministically normalized when a chapter mentions the locked month but uses conflicting seasonal labels.
+Temporal lock-aware validation (implemented): chapter validation receives the temporal month lock from context so month/season contradictions are caught consistently across initial and retry batches.
+Template-leakage hardening (implemented): after each prose pass (including repair retries), worker post-processing rewrites known scaffold-leakage signatures and deterministically replaces repeated long paragraphs with chapter-specific variants before release-gate evaluation.
 Critical/major issues trigger automatic batch regeneration (max 2 attempts per batch) with specific feedback about what failed. This catch-and-fix approach prevents accumulation of errors across the full story.
 **Current build:** LLM-generated prose with full artifact context integration and per-batch content validation (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
@@ -243,8 +249,10 @@ Critical/major issues trigger automatic batch regeneration (max 2 attempts per b
 - Narrative continuity checks now also detect month/season temporal contradictions and investigator-role drift without explicit handoff scenes.
 - **Semantic validation fallback**: Validators use a hybrid approach: regex keyword validation first (fast, zero cost), then LLM-based semantic validation if regex fails (preserves natural prose quality while ensuring correctness). This allows Agent 9 to write naturally without forcing keywords like "eliminated", "ruled out", "therefore" while still catching actual logic errors. Semantic validation costs ~$0.001-0.003 per scene when triggered.
 - Before final release-gate evaluation, prose generation now runs a preventive repair pass when validation flags discriminating-test gaps, suspect-closure gaps, missing case-transition bridge, or identity alias continuity breaks; the repair pass adds explicit quality guardrails to Agent 9 instructions.
+- Suspect-elimination/case-closure failures are now classified through shared alias-aware matching (error type and message semantics), so repair guardrails still trigger if validator key names change.
 - Agent 9 now applies baseline guardrails on every prose call (canonical cast names only, explicit suspect-elimination coverage, explicit culprit evidence chain), even before validation retries are needed.
 - Preventive prose repair now runs for `needs_revision` validation outcomes in addition to hard `failed` outcomes.
+- Identity-alias continuity remediation now uses chapter-targeted prose regeneration first and escalates to full-prose regeneration only if drift remains after targeted repair.
 - Release gate enforcement now hard-stops on critical prose defects (mojibake/encoding corruption, template leakage, temporal contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, unresolved suspect-closure gaps) and keeps readability/scene-grounding shortfalls as warnings for review.
 
 ## Safety & compliance

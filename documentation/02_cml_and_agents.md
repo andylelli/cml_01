@@ -55,6 +55,7 @@ Period accuracy: prompts include 2–3 period-accurate anchors (politics, scienc
 Outputs cast list, secrets, motives, and access plausibility. Each character now includes `gender?: 'male'|'female'|'non-binary'` (defaulting to `'non-binary'` if absent). This feeds the gender/pronoun chain used by agents 3 and 9.
 Guardrail: non-empty stereotypeCheck triggers retry and blocks the pipeline if unresolved.
 Uniqueness: prompts include a per-run uniqueness seed (runId/projectId) to encourage varied casts.
+Role diversity hardening (implemented): cast generation now enforces a minimum unique role-archetype target (>=70% unique). Agent 2 retries when archetype diversity is below threshold; on final attempt, a deterministic fallback rewrites duplicate non-protected role labels to meet diversity targets. If diversity still cannot meet threshold after fallback, Agent 2 fails the attempt instead of emitting a low-diversity cast.
 
 ### Agent 2b — Character Profiles (LLM)
 Generates rich psychological profiles from the cast (post-CML) including:
@@ -99,6 +100,7 @@ Generates rich temporal/cultural context including:
   - Validates nested object structures (seasonal, fashion, currentAffairs, cultural)
   - Ensures all required fields are present and correctly typed
   - Automatically retries if validation fails with error feedback
+- **Optional-field depth hardening (implemented):** Prompt now enforces concrete richness in optional temporal detail (specific fashion entries, seasonal activities, and daily-life detail) to reduce thin-but-valid outputs.
 - Used by Agent 9 for period authenticity and cultural references
 
 ### Agent 2e — Background Context (LLM)
@@ -181,6 +183,10 @@ Creates outline with clue placement and discriminating test timing.
   1. **Discriminating test coverage** — requires test/experiment/re-enactment language co-occurring with exclusion and evidence terms, or an explicit "discriminating test" mention.
   2. **Suspect closure coverage** — requires elimination/cleared/ruled-out language co-occurring with evidence terms (when CML has non-culprit suspects).
 - If either check fails, the outline is regenerated once with targeted `qualityGuardrails` derived from the specific CML data (method, design, culprit names). The retried outline replaces the original if coverage improves; otherwise guardrails propagate to prose generation.
+- **Deterministic clue pacing repair (implemented):** Before prose, the orchestrator enforces clue-bearing-scene coverage (>= 60%) with a deterministic pre-assignment pass that populates `cluesRevealed` directly from clue data when Agent 7 under-distributes anchors.
+  - Priority order: `prose_requirements.clue_to_scene_mapping` placements -> essential clue anchoring -> gap filling to prevent long no-clue runs -> act-balanced threshold fill.
+  - LLM retry is now fallback-only if deterministic repair still cannot reach the threshold; a final deterministic pass runs on the retry output as a safety net.
+  - Retry outputs must satisfy a scene-count lock (no total-scene shrink and no per-act shrink). If a retry violates the lock, the orchestrator keeps the baseline outline and forwards guardrails downstream.
 - **Prose requirements integration (Phase 2):** Agent 7 now extracts `prose_requirements` from CML and adds them as a prominent section in the outline generation prompt. This ensures the outline includes scenes at the exact act/scene positions specified for discriminating test, suspect clearance, and culprit revelation. Missing these requirements will cause downstream validation failures.
 - Cast context normalization now prefers canonical CML 2.0 cast fields (`role_archetype`, `name`) rather than legacy `role` / `character_id` assumptions.
 
@@ -228,9 +234,12 @@ Generates novel-quality prose with full context integration:
   - Whodunnit craft guide: emotional resonance (murder meaning, suspect wounds, detective stakes, texture pauses, subtext dialogue, moral complexity, sensory atmosphere, emotional breaks, reveal impact)
   - Guides are conditionally injected — present when the notes files exist, gracefully absent otherwise
   - All five `generateProse` call sites (initial, identity-alias retry, schema-repair retry, validation repair retry, else-branch) receive the guides and `narrativeState`
-- Post-generation guardrail detects role-alias identity drift after confession/arrest and triggers a one-time prose regeneration; unresolved drift is surfaced as a warning.
+- Post-generation guardrail detects role-alias identity drift after confession/arrest and now performs chapter-targeted repair first (only drifted chapters), falling back to one full-prose regeneration only if targeted repair is insufficient.
 - Validation-guided repair pass: when validation flags missing discriminating-test realization or suspect-elimination/closure gaps, Agent 9 regenerates prose once with explicit guardrails for on-page test execution and suspect ledger closure.
 - Baseline prose guardrails (implemented): every Agent 9 prose call now includes always-on guardrails for canonical cast-name usage (no invented titled placeholders), explicit non-culprit suspect elimination coverage, and explicit culprit evidence-chain language.
+- **Month/season guardrail hardening (implemented):** Agent 9 now derives a canonical season directly from the temporal month (for example April -> spring, February -> winter), injects an explicit hard season-lock rule into the prose prompt, and applies deterministic chapter text normalization before validation when a chapter mentions the locked month but uses conflicting season labels.
+- **Template-leakage hardening (implemented):** Worker-side deterministic post-processing now rewrites known scaffold-leakage signatures and replaces repeated long paragraphs across chapters with chapter-specific variants before release-gate checks, so repair retries cannot pass repeated boilerplate.
+- **Temporal lock-aware chapter validation (implemented):** Per-chapter validation now receives the temporal month lock from Agent 2d context so month/season contradictions are caught consistently even during retry batches.
 - Repair trigger scope (implemented): validation-guided prose repair runs for both `needs_revision` and `failed` validation outcomes, not only full failures.
 - **Gender/pronoun chain (implemented):** `CharacterProfile` now carries `gender?: 'male'|'female'|'non-binary'`; agent2 normalises and defaults to `'non-binary'`; agent3 maps gender into CML cast; agent9 builds pronouns from gender at generation time. Pronoun fallback is now always defined.
 - **Context leakage prevention (implemented):** `stripLocationParagraphs()` deep-clones location profiles and removes all `paragraphs` keys before context injection, preventing verbatim transcription of seed prose.

@@ -146,6 +146,73 @@ const generateCastVariation = (runId: string, count: number): {
   };
 };
 
+const normalizeArchetypeKey = (value: unknown): string => {
+  if (typeof value !== 'string') return '';
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
+const getMinimumUniqueArchetypes = (count: number): number => {
+  // Keep aligned with cast scorer expectation (>=70% unique archetypes).
+  return Math.min(count, Math.max(3, Math.ceil(count * 0.7)));
+};
+
+const isProtectedArchetype = (roleArchetype: string): boolean => {
+  const key = normalizeArchetypeKey(roleArchetype);
+  return /(detective|investigator|inspector|sleuth|victim)/.test(key);
+};
+
+const diversifyRoleArchetypes = (characters: CharacterProfile[], requiredUnique: number): CharacterProfile[] => {
+  const diversified = [...characters];
+  const used = new Set(diversified.map((c) => normalizeArchetypeKey(c.roleArchetype)).filter(Boolean));
+  if (used.size >= requiredUnique) {
+    return diversified;
+  }
+
+  const fallbackArchetypes = [
+    'Primary suspect',
+    'Financial suspect',
+    'Romantic suspect',
+    'Social rival',
+    'Gatekeeper witness',
+    'Nervous witness',
+    'Respected authority figure',
+    'Disgraced insider',
+    'Family loyalist',
+    'Outsider observer',
+  ];
+
+  let cursor = 0;
+  for (let i = 0; i < diversified.length && used.size < requiredUnique; i += 1) {
+    const char = diversified[i];
+    if (!char || isProtectedArchetype(char.roleArchetype)) {
+      continue;
+    }
+    const currentKey = normalizeArchetypeKey(char.roleArchetype);
+    if (!currentKey) {
+      continue;
+    }
+
+    // Reassign only duplicate/non-unique roles.
+    const duplicateCount = diversified.filter((other) => normalizeArchetypeKey(other.roleArchetype) === currentKey).length;
+    if (duplicateCount <= 1) {
+      continue;
+    }
+
+    while (cursor < fallbackArchetypes.length) {
+      const candidate = fallbackArchetypes[cursor];
+      cursor += 1;
+      const candidateKey = normalizeArchetypeKey(candidate);
+      if (!used.has(candidateKey)) {
+        diversified[i] = { ...char, roleArchetype: candidate };
+        used.add(candidateKey);
+        break;
+      }
+    }
+  }
+
+  return diversified;
+};
+
 interface PromptComponents {
   system: string;
   developer: string;
@@ -262,6 +329,7 @@ Return JSON only:
 `;
 
   const count = inputs.characterNames?.length || inputs.castSize || 6;
+  const minUniqueArchetypes = getMinimumUniqueArchetypes(count);
 
   // Detective archetype guidance
   const detectiveArchetype = inputs.detectiveType === 'private'
@@ -355,11 +423,14 @@ Requirements:
 9. Ensure each character has both public facade and private secrets
 10. Resolve any potential stereotypes; output stereotypeCheck as []
 11. Declare \`gender\` for each character: "male", "female", or "non-binary" (required — never omit)
+12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
+13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
 
 CRITICAL COMPLETENESS RULES:
 - The final characters array MUST have exactly ${count} entries — no more, no fewer
 - crimeDynamics.possibleCulprits MUST name at least ${Math.min(3, count - 1)} characters (suspects only — never the detective)
 - The detective character's roleArchetype MUST be "${detectiveRoleLabel}"
+- The cast MUST include at least ${minUniqueArchetypes} unique roleArchetype labels
 
 ${inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0 ? `## Quality Guardrails (Must Satisfy)
 ${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}
@@ -386,6 +457,7 @@ export async function designCast(
 ): Promise<CastDesignResult> {
   const startTime = Date.now();
   const expectedCount = inputs.characterNames?.length || inputs.castSize || 6;
+  const requiredUniqueArchetypes = getMinimumUniqueArchetypes(expectedCount);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -525,6 +597,32 @@ export async function designCast(
             `Attempt ${attempt}: Only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. Retrying.`,
           );
           continue;
+        }
+      }
+
+      // Validate role-archetype diversity: require >=70% unique labels.
+      const uniqueArchetypes = new Set(
+        cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
+      );
+      if (uniqueArchetypes.size < requiredUniqueArchetypes) {
+        if (attempt < maxAttempts) {
+          console.warn(
+            `Attempt ${attempt}: Only ${uniqueArchetypes.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
+          );
+          continue;
+        }
+        console.warn(
+          `Attempt ${attempt}: Final attempt has ${uniqueArchetypes.size}/${requiredUniqueArchetypes} unique role archetypes. Applying deterministic diversification fallback.`,
+        );
+        cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
+
+        const uniqueAfterFallback = new Set(
+          cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
+        );
+        if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
+          throw new Error(
+            `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
+          );
         }
       }
 

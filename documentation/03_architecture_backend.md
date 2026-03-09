@@ -94,6 +94,7 @@ Current behavior:
 - Prose sanitation now strips illegal control characters while preserving valid multibyte Unicode text (UTF-8-safe output behavior).
 - Worker prose post-processing now deterministically reflows dense paragraphs (unwrap + sentence-boundary splits) before validation/release checks.
 - Worker prose post-processing now deterministically injects scene-grounding leads when chapter openings miss location anchor / sensory / atmosphere requirements.
+- Worker prose post-processing now deterministically hardens template-leakage prevention by rotating grounding-lead phrasing, rewriting scaffold-signature paragraphs, and replacing repeated long boilerplate blocks across chapters before release checks.
 - Worker prose sanitization now normalizes chapter titles by stripping duplicated `Chapter N:` prefixes before persistence/export.
 - Release checks now include prose readability density and location-grounding coverage in addition to continuity/fair-play signals.
 - Release gate now hard-stops completion when critical defects remain:
@@ -107,17 +108,24 @@ Current behavior:
   - Unresolved suspect-closure gaps
   - Non-critical readability/grounding issues continue as warnings for review
 - Prose generation now injects baseline quality guardrails on every pass (canonical cast names only, suspect-elimination ledger coverage, and explicit culprit evidence chain), independent of retry state.
+- Prose generation now enforces a deterministic month/season lock from temporal context: prompt-level hard guardrails plus chapter-level normalization of conflicting season terms when a chapter references the locked month.
 - **NarrativeState threading (implemented):** A `NarrativeState` document (`packages/prompts-llm/src/types/narrative-state.ts`) is initialised before prose generation (from lockedFacts + character gender map) and passed to every `generateProse` call. After each chapter batch, `updateNSD()` extracts opening-sentence style classes, sensory phrases, and chapter summaries. The updated state is injected into the next batch's system prompt via `buildNSDBlock()`, preventing style repetition and fact contradictions across batches.
 - **Locked facts propagation (implemented):** `lockedFacts` from the primary hard-logic device are extracted in the orchestrator and propagated to: (a) `generateProse` as `proofLockedFacts` for system-prompt injection; (b) `StoryValidationPipeline.validate()` merged into the cml argument for `ProseConsistencyValidator` checking.
 - **ProseConsistencyValidator (implemented):** New validator in `packages/story-validation/src/prose-consistency-validator.ts` runs as part of `StoryValidationPipeline`. Checks: (1) locked-facts values appear verbatim when evidence is described — critical if contradicted, major if absent; (2) pronoun drift for binary-gender characters — moderate severity. Runs after `CharacterConsistencyValidator` in the pipeline.
 - Validation-driven prose repair now executes when story validation is `needs_revision` as well as `failed`, reducing avoidable release-gate hard-stops.
+- Validation-driven prose repair and release-gate suspect-elimination checks now share a unified classifier (type aliases + message fallback matching) so key-name drift cannot bypass repair guardrails.
+- Identity continuity guardrail now performs chapter-targeted prose repair first (only chapters with role-alias drift) and falls back to full-prose regeneration only if targeted repair leaves unresolved drift.
 - Validation retry wrapper now returns the actual last-attempt artifact after retry exhaustion (no extra post-failure regeneration call).
 - Agent 2b/2c/2d schema validation now validates a telemetry-complete shape, eliminating false `cost` / `durationMs` missing-field failures in retry logs.
+- Temporal-context scoring completeness now uses field-aware substantial checks (date/season semantics instead of flat word-count thresholds) plus optional-field richness scoring for fashion/seasonal activity depth.
 - Worker path resolution for retry config, worker logs, and seed examples now resolves from workspace root (module-path based) instead of `process.cwd()`, preventing API-launched ENOENT path drift.
+- Narrative clue pacing now has a deterministic repair gate before prose: when fewer than 60% of scenes carry clue IDs, the orchestrator programmatically backfills `cluesRevealed` from clue mappings/timelines before attempting another LLM outline retry.
+- Deterministic clue repair respects `prose_requirements.clue_to_scene_mapping`, anchors essential clues at least once, avoids long no-clue streaks, and balances clue-bearing scenes across acts.
+- Narrative outline retries now include a scene-count lock guardrail and acceptance check: retry outlines are rejected if they shrink total scenes or reduce any act's scene count versus the pre-retry baseline.
 - Runtime schema validation coverage now includes setting, cast, narrative outline, and prose artifacts in the worker orchestration path.
 - Narrative outline schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
 - Cast design schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
-- Prose schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before the pipeline aborts.
+- Prose schema failures now trigger a one-shot schema-repair regeneration with targeted guardrails before abort.
 - Setting refinement schema failures now trigger a one-shot schema-repair regeneration before the pipeline aborts.
 - Cast schema contract is aligned with runtime payload fields (`possibleCulprits`, `redHerrings`, `victimCandidates`, `detectiveCandidates`, `latencyMs`).
 
@@ -161,7 +169,7 @@ Functional policies:
 - The authoritative pass/fail decision uses `passesThreshold()` from `packages/story-validation/src/scoring/thresholds.ts`, which requires **both** the composite total to meet the per-phase threshold **and** every component to meet its minimum (60/50/60/50).
 - `executeAgentWithRetry()` in the worker orchestrator uses `ScoreAggregator.passesThreshold(score)` for retry decisions — **not** `score.passed` from the scorer — to ensure retry decisions are always consistent with the final quality report.
 - When a phase fails due to component minimums rather than a composite score shortfall, `getFailedComponents()` produces the failure reason fed into the retry prompt.
-- Cast agent (`agent2-cast`): `maxTokens` is 6000 (7 fully-detailed characters exceed 4000). The agent retries internally when fewer characters than requested are returned or when `possibleCulprits` is below the required minimum of `min(3, count-1)`.
+- Cast agent (`agent2-cast`): `maxTokens` is 6000 (7 fully-detailed characters exceed 4000). The agent retries internally when fewer characters than requested are returned, when `possibleCulprits` is below `min(3, count-1)`, or when role-archetype diversity is below the scorer threshold (>=70% unique). On final attempt, a deterministic archetype-diversification fallback rewrites duplicate non-protected role labels to satisfy diversity targets; if diversity remains below threshold after fallback, the agent fails rather than returning a non-compliant cast.
 - Fair-play audit retry: the audit runs twice (initial + 1 clue regeneration). If still failing, `classifyFairPlayFailure` determines the retry strategy: `inference_path_abstract` and `constraint_space_insufficient` trigger a CML structural revision (Agent 4); `clue_only` triggers a third targeted clue regeneration pass with per-violation feedback. The CML Validation Gate only hard-stops on structurally-blocking violations (`Clue Visibility`, `Logical Deducibility`, `No Withholding`); `Information Parity` and `Solution Uniqueness` are clue-phrasing issues that demote to warnings and allow prose to proceed.
 
 ## Worker jobs

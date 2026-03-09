@@ -78,6 +78,93 @@ export interface ProseGenerationResult {
   };
 }
 
+type CanonicalSeason = 'spring' | 'summer' | 'autumn' | 'winter';
+
+const MONTH_TO_SEASON: Record<string, CanonicalSeason> = {
+  january: 'winter',
+  february: 'winter',
+  march: 'spring',
+  april: 'spring',
+  may: 'spring',
+  june: 'summer',
+  july: 'summer',
+  august: 'summer',
+  september: 'autumn',
+  october: 'autumn',
+  november: 'autumn',
+  december: 'winter',
+};
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const normalizeMonthToken = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const normal = value.trim().toLowerCase();
+  return normal.length > 0 ? normal : undefined;
+};
+
+const capitalizeWord = (value: string): string => {
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+const deriveTemporalSeasonLock = (
+  temporalContext: ProseGenerationInputs['temporalContext'] | undefined,
+): { month: string; season: CanonicalSeason } | undefined => {
+  const month = normalizeMonthToken(temporalContext?.specificDate?.month);
+  if (!month) return undefined;
+
+  const season = MONTH_TO_SEASON[month];
+  if (!season) return undefined;
+
+  return { month, season };
+};
+
+const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
+  spring: [/\b(summer|midsummer|autumn|winter|wintry)\b/gi],
+  summer: [/\b(spring|vernal|autumn|winter|wintry)\b/gi],
+  autumn: [/\b(spring|vernal|summer|midsummer|winter|wintry)\b/gi],
+  winter: [/\b(spring|vernal|summer|midsummer|autumn)\b/gi],
+};
+
+const enforceMonthSeasonLockOnChapter = (
+  chapter: ProseChapter,
+  lock: { month: string; season: CanonicalSeason } | undefined,
+): ProseChapter => {
+  if (!lock) return chapter;
+  if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length === 0) return chapter;
+
+  const monthPattern = new RegExp(`\\b${escapeRegExp(lock.month)}\\b`, 'i');
+  const chapterText = chapter.paragraphs.join(' ');
+  if (!monthPattern.test(chapterText)) {
+    return chapter;
+  }
+
+  const expectedSeason = lock.season;
+  const patterns = conflictingSeasonPatterns[expectedSeason];
+  let changed = false;
+
+  const rewritten = chapter.paragraphs.map((paragraph) => {
+    let next = paragraph;
+    for (const pattern of patterns) {
+      next = next.replace(pattern, (matched) => {
+        changed = true;
+        return matched.charAt(0) === matched.charAt(0).toUpperCase()
+          ? capitalizeWord(expectedSeason)
+          : expectedSeason;
+      });
+    }
+    return next;
+  });
+
+  if (!changed) return chapter;
+
+  return {
+    ...chapter,
+    paragraphs: rewritten,
+  };
+};
+
 const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const cmlCase = (caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
@@ -554,6 +641,11 @@ ${victimIdentityRule}`;
     const dateInfo = inputs.temporalContext.specificDate;
     const dateStr = dateInfo.month + ' ' + dateInfo.year;
     const season = inputs.temporalContext.seasonal?.season || 'N/A';
+    const seasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
+    const lockedSeason = seasonLock?.season || season;
+    const forbiddenSeasons = ['spring', 'summer', 'autumn', 'winter']
+      .filter((s) => s !== lockedSeason)
+      .join(', ');
     const seasonWeather = (inputs.temporalContext.seasonal?.weather || []).slice(0, 3).join(', ');
     const mensFormeal = (inputs.temporalContext.fashion?.mensWear?.formal || []).slice(0, 4).join(', ');
     const mensCasual = (inputs.temporalContext.fashion?.mensWear?.casual || []).slice(0, 3).join(', ');
@@ -571,7 +663,7 @@ ${victimIdentityRule}`;
     
     const culturalGuidance = '\\n\\nCULTURAL TOUCHSTONE INTEGRATION:\\n- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"\\n- Background details: Radio playing, newspaper headlines, theater posters\\n- Social commentary: Characters discuss current events naturally\\n- Class indicators: Aristocrats discuss opera, servants discuss music halls\\n- Authentic references: Use actual songs, films, events from the specific date';
     
-    temporalContextBlock = '\\n\\nTEMPORAL CONTEXT:\\n\\nThis story takes place in ' + dateStr + ' during ' + season + '.\\n\\nSeasonal Atmosphere:\\n- Weather patterns: ' + seasonWeather + '\\n- Season: ' + season + '\\n\\nPeriod Fashion (describe naturally):\\n- Men formal: ' + mensFormeal + '\\n- Men casual: ' + mensCasual + '\\n- Men accessories: ' + mensAcc + '\\n- Women formal: ' + womensFormeal + '\\n- Women casual: ' + womensCasual + '\\n- Women accessories: ' + womensAcc + '\\n\\nCultural Context (reference naturally):\\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\\n- Typical prices: ' + prices + (majorEvents ? '\\n- Current events: ' + majorEvents : '') + '\\n\\nAtmospheric Details:\\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\\n\\nUSAGE REQUIREMENTS:\\n1. Date references: Mention month/season at least once early in story\\n2. Fashion descriptions: Every character gets fashion description on first appearance\\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.';
+    temporalContextBlock = '\\n\\nTEMPORAL CONTEXT:\\n\\nThis story takes place in ' + dateStr + ' during ' + season + '.\\n\\nSeasonal Atmosphere:\\n- Weather patterns: ' + seasonWeather + '\\n- Season: ' + season + '\\n\\nPeriod Fashion (describe naturally):\\n- Men formal: ' + mensFormeal + '\\n- Men casual: ' + mensCasual + '\\n- Men accessories: ' + mensAcc + '\\n- Women formal: ' + womensFormeal + '\\n- Women casual: ' + womensCasual + '\\n- Women accessories: ' + womensAcc + '\\n\\nCultural Context (reference naturally):\\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\\n- Typical prices: ' + prices + (majorEvents ? '\\n- Current events: ' + majorEvents : '') + '\\n\\nAtmospheric Details:\\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\\n\\nUSAGE REQUIREMENTS:\\n1. Date references: Mention month/season at least once early in story\\n2. Fashion descriptions: Every character gets fashion description on first appearance\\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.';
   }
 
 
@@ -1215,6 +1307,7 @@ export async function generateProse(
   const chapterSummaries: ChapterSummary[] = [];
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
   const chapterValidator = new ChapterValidator();
+  const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
   const castNames = inputs.cast.characters.map(c => c.name);
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, 10));
@@ -1278,7 +1371,10 @@ export async function generateProse(
         // Validate each chapter in the batch individually
         const batchErrors: string[] = [];
         for (let i = 0; i < proseBatch.chapters.length; i++) {
-          const chapter = sanitizeGeneratedChapter(proseBatch.chapters[i], castNames);
+          const chapter = enforceMonthSeasonLockOnChapter(
+            sanitizeGeneratedChapter(proseBatch.chapters[i], castNames),
+            temporalSeasonLock,
+          );
           proseBatch.chapters[i] = chapter;
           const chapterNumber = chapterStart + i;
           const chapterErrors: string[] = [];
@@ -1305,6 +1401,8 @@ export async function generateProse(
             paragraphs: chapter.paragraphs,
             chapterNumber,
             totalChapters: sceneCount,
+            temporalMonth: temporalSeasonLock?.month,
+            temporalSeason: temporalSeasonLock?.season,
           }, inputs.caseData);
 
           contentValidation.issues

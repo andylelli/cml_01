@@ -259,6 +259,11 @@ Requirements:
 - All details must be historically accurate for ${specificDate.month} ${specificDate.year} specifically
 - Generate fresh, original descriptions - do not copy example phrasing
 - Make this feel like the specific moment of ${specificDate.month} ${specificDate.year}
+- OPTIONAL FIELD DEPTH REQUIREMENT: \`fashion\` and \`seasonalActivities\` must be specific and non-generic.
+  - Include at least 3 concrete menswear and 3 womenswear details (not broad labels like "period clothing").
+  - Include at least 3 seasonal activities tied to ${specificDate.month} and this location.
+  - Include at least 3 typical prices and 2 social rituals in \`cultural.dailyLife\`.
+  - Avoid placeholders, filler, or repeated generic phrases.
 
 CRITICAL: Ensure all nested objects and arrays match the schema structure exactly${validationFeedback}`;
 

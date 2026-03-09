@@ -429,7 +429,7 @@ export function adaptTemporalContextForScoring(
   ].filter(Boolean);
   const weather_patterns = weatherParts.join('. ');
 
-  // Fashion: include trends and social expectations for word-count richness
+  // Fashion: include trends, accessories, and social expectations for richer completeness scoring.
   const fashionParts = [
     temporal.fashion.mensWear?.formal?.length
       ? `Men's formal: ${temporal.fashion.mensWear.formal.join(', ')}`
@@ -437,11 +437,17 @@ export function adaptTemporalContextForScoring(
     temporal.fashion.mensWear?.casual?.length
       ? `Men's casual: ${temporal.fashion.mensWear.casual.join(', ')}`
       : '',
+    temporal.fashion.mensWear?.accessories?.length
+      ? `Men's accessories: ${temporal.fashion.mensWear.accessories.join(', ')}`
+      : '',
     temporal.fashion.womensWear?.formal?.length
       ? `Women's formal: ${temporal.fashion.womensWear.formal.join(', ')}`
       : '',
     temporal.fashion.womensWear?.casual?.length
       ? `Women's casual: ${temporal.fashion.womensWear.casual.join(', ')}`
+      : '',
+    temporal.fashion.womensWear?.accessories?.length
+      ? `Women's accessories: ${temporal.fashion.womensWear.accessories.join(', ')}`
       : '',
     temporal.fashion.trendsOfTheMoment?.length
       ? `Trends: ${temporal.fashion.trendsOfTheMoment.join(', ')}`
@@ -452,11 +458,14 @@ export function adaptTemporalContextForScoring(
   ].filter(Boolean);
   const fashion_and_attire = fashionParts.join('. ');
 
-  // Seasonal activities: combine seasonal + cultural daily life data
+  // Seasonal activities: combine seasonal + daily-life + current-affairs context.
   const activitiesParts = [
     ...(temporal.seasonal.seasonalActivities || []),
+    ...(temporal.seasonal.holidays || []),
     ...(temporal.cultural?.dailyLife?.commonActivities || []),
     ...(temporal.cultural?.dailyLife?.socialRituals || []),
+    ...(temporal.currentAffairs?.majorEvents || []),
+    ...(temporal.currentAffairs?.socialIssues || []),
   ];
   const seasonal_activities = activitiesParts.join('; ');
 

@@ -225,6 +225,14 @@ describe("Agent 2: Cast & Motive Designer", () => {
       expect(prompt.user).toContain("red herrings");
     });
 
+    it("includes role-archetype diversity requirements", () => {
+      const prompt = buildCastPrompt(baseInputs);
+
+      expect(prompt.user).toContain("Archetype diversity requirement");
+      expect(prompt.user).toContain("The cast MUST include at least");
+      expect(prompt.user).toContain("unique roleArchetype labels");
+    });
+
     it("requires stereotype avoidance", () => {
       const prompt = buildCastPrompt(baseInputs);
 

@@ -281,7 +281,7 @@ export class TemporalContextScorer
   private checkCompleteness(output: TemporalContextOutput): TestResult[] {
     const tests: TestResult[] = [];
 
-    // Count how many optional fields are filled
+    // Count how many optional fields are filled.
     const optionalFields = [
       output.fashion_and_attire,
       output.seasonal_activities,
@@ -295,15 +295,16 @@ export class TemporalContextScorer
         : partial('Optional fields', 'completeness', (filledOptional / 2) * 100, 1.5, `${filledOptional}/2 optional fields`)
     );
 
-    // Check that all required fields have substantial content (not just placeholders)
-    const substantialFields = [
-      output.specific_date,
-      output.time_of_day,
-      output.season,
-      output.weather_patterns,
-    ]
-      .filter((f): f is string => exists(f))
-      .filter(f => f.split(/\s+/).length >= 5).length;
+    // Field-aware substantial-content scoring.
+    // Date + season are inherently concise fields and should not be measured
+    // by the same word-count threshold as descriptive weather text.
+    const substantialChecks = [
+      this.hasSubstantialSpecificDate(output.specific_date),
+      this.hasSubstantialTimeOfDay(output.time_of_day),
+      this.hasSubstantialSeason(output.season),
+      this.hasSubstantialWeather(output.weather_patterns),
+    ];
+    const substantialFields = substantialChecks.filter(Boolean).length;
 
     tests.push(
       substantialFields >= 4
@@ -311,7 +312,57 @@ export class TemporalContextScorer
         : partial('Substantial content', 'completeness', (substantialFields / 4) * 100, 1.5, `${substantialFields}/4 fields detailed`)
     );
 
+    const optionalRichnessScore = this.scoreOptionalRichness(output);
+    tests.push(
+      optionalRichnessScore >= 70
+        ? pass('Optional detail richness', 'completeness', 1.5, `${Math.round(optionalRichnessScore)}% detail`) 
+        : partial('Optional detail richness', 'completeness', optionalRichnessScore, 1.5, `${Math.round(optionalRichnessScore)}% detail`)
+    );
+
     return tests;
+  }
+
+  private hasSubstantialSpecificDate(value: string | undefined): boolean {
+    if (typeof value !== 'string' || value.trim().length === 0) return false;
+    const v = value.toLowerCase();
+    const hasYear = /\b\d{4}\b/.test(v);
+    const hasMonth = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(v);
+    return hasYear && hasMonth;
+  }
+
+  private hasSubstantialTimeOfDay(value: string | undefined): boolean {
+    if (typeof value !== 'string' || value.trim().length === 0) return false;
+    const v = value.toLowerCase();
+    const hasPeriod = /(morning|afternoon|evening|night|dawn|dusk|noon|midnight)/.test(v);
+    const wordCount = v.split(/\s+/).filter(Boolean).length;
+    return hasPeriod || wordCount >= 3;
+  }
+
+  private hasSubstantialSeason(value: string | undefined): boolean {
+    if (typeof value !== 'string' || value.trim().length === 0) return false;
+    return /(spring|summer|fall|autumn|winter)/i.test(value);
+  }
+
+  private hasSubstantialWeather(value: string | undefined): boolean {
+    if (typeof value !== 'string' || value.trim().length === 0) return false;
+    const wordCount = value.split(/\s+/).filter(Boolean).length;
+    return wordCount >= 8;
+  }
+
+  private scoreOptionalRichness(output: TemporalContextOutput): number {
+    const fashion = output.fashion_and_attire;
+    const activities = output.seasonal_activities;
+
+    const fashionWords = typeof fashion === 'string' && fashion.trim().length > 0
+      ? fashion.split(/\s+/).filter(Boolean).length
+      : 0;
+    const activitiesWords = typeof activities === 'string' && activities.trim().length > 0
+      ? activities.split(/\s+/).filter(Boolean).length
+      : 0;
+
+    const fashionScore = Math.min(100, (fashionWords / 40) * 100);
+    const activitiesScore = Math.min(100, (activitiesWords / 30) * 100);
+    return (fashionScore + activitiesScore) / 2;
   }
 
   private checkConsistency(

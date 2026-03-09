@@ -54,12 +54,18 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Story length is user-selectable (`short`, `medium`, `long`) and can be changed between runs.
 - Prose versions generated at different lengths are retained for PDF export.
 - Clue generation now enforces deterministic fair-play guardrails (essential clues before discriminating test and no detective-only clue phrasing), with critical failures blocking completion.
+- Narrative outlines now enforce deterministic clue pacing before prose (>=60% clue-bearing scenes) via programmatic clue pre-assignment when LLM outline output under-distributes clue anchors.
+- Narrative outline retries now enforce a scene-count lock (total + per-act floors) so coverage/pacing repairs cannot silently shrink story structure.
 - Prose output is now sanitized before persistence/export (mojibake cleanup, system-residue stripping, Unicode normalization).
 - Prose generation now enforces location-grounded scene setting (named location anchor + sensory + atmosphere cues per chapter) using location profiles.
+- Prose generation now enforces deterministic month/season consistency for chapter text: Agent 9 applies a hard season lock derived from the temporal month and normalizes conflicting season labels before chapter validation.
 - Worker post-processing now deterministically backfills chapter openings that miss scene-grounding requirements and reflows dense paragraph blocks for whitespace readability.
+- Worker post-processing now also hardens prose against template leakage by rewriting known scaffold signatures and replacing repeated long boilerplate paragraphs before release-gate hard-stop checks.
 - Encoding hardening now preserves valid multibyte Unicode while stripping illegal control characters before persistence/export.
 - Agent-flow schema remediation now validates telemetry-complete artifact shapes for Agent 2b/2c/2d retries, returns true last-attempt outputs on retry exhaustion, and hardens worker config/log/examples path resolution independent of process working directory.
 - Story validation now includes continuity/transition/discriminating-test/suspect-closure validators and blocks release-gate failures.
+- Identity continuity repair now targets only drifted chapters first, reducing full-story prose regeneration when role-alias drift is localized.
+- Cast generation now enforces role-archetype diversity (>=70% unique archetypes), with retry gating and deterministic final-attempt diversification for repeated non-protected roles.
 - Game pack generation is planned and currently unavailable without LLM support.
 - Play mode allows chapter-based clue reveal in the UI.
 - Community templates are listed from examples/ for structural inspiration.

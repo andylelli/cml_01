@@ -24,6 +24,10 @@ export interface ChapterContent {
   chapterNumber: number;
   /** Total chapters in this story (used to scale late-chapter thresholds). */
   totalChapters?: number;
+  /** Canonical month for timeline lock (from temporal context). */
+  temporalMonth?: string;
+  /** Canonical season derived from temporal month. */
+  temporalSeason?: 'spring' | 'summer' | 'autumn' | 'winter';
 }
 
 /**
@@ -398,10 +402,17 @@ export class ChapterValidator {
       winter: /\b(winter|wintry)\b/i,
     };
 
+    const temporalMonth = chapter.temporalMonth?.toLowerCase();
+    const expectedFromTemporalMonth = temporalMonth ? monthToSeason[temporalMonth] : undefined;
     const mentionedMonths = Object.keys(monthToSeason).filter((month) => new RegExp(`\\b${month}\\b`, 'i').test(text));
-    if (mentionedMonths.length === 0) return issues;
+    const expectedSeasons = new Set<'spring' | 'summer' | 'autumn' | 'winter'>(
+      mentionedMonths.map((month) => monthToSeason[month]).filter(Boolean),
+    );
+    if (expectedFromTemporalMonth) {
+      expectedSeasons.add(expectedFromTemporalMonth);
+    }
+    if (expectedSeasons.size === 0) return issues;
 
-    const expectedSeasons = new Set(mentionedMonths.map((month) => monthToSeason[month]));
     const conflicting: string[] = [];
 
     (Object.keys(seasonTerms) as Array<keyof typeof seasonTerms>).forEach((season) => {
@@ -411,10 +422,11 @@ export class ChapterValidator {
     });
 
     if (conflicting.length > 0) {
+      const monthAnchor = mentionedMonths[0] ?? temporalMonth ?? 'timeline month';
       issues.push({
         severity: 'major',
-        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${mentionedMonths[0]} vs ${conflicting.join(', ')})`,
-        suggestion: `Align season wording with month references (${mentionedMonths.join(', ')}) to maintain temporal consistency`
+        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${monthAnchor} vs ${conflicting.join(', ')})`,
+        suggestion: `Align season wording with month references (${(mentionedMonths.length > 0 ? mentionedMonths : [temporalMonth]).filter(Boolean).join(', ')}) to maintain temporal consistency`
       });
     }
 

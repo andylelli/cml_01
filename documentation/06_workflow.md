@@ -78,7 +78,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `cast_validation` - Validation result
 - **Event**: `cast_done` - "Cast generated"
 - **Guardrail**: Non-empty stereotypeCheck triggers retry and block pipeline if unresolved
-- **Scoring guardrails** (implemented): Phase fails if `completeness_score < 60`, which requires ≥ 5 characters (when 7 requested) and ≥ 3 eligible suspects. The agent internally retries when the LLM returns fewer characters than `expectedCount - 1` or when `possibleCulprits` has fewer than `min(3, count-1)` names. `maxTokens` is 6000 to accommodate 7 fully-detailed character profiles.
+- **Scoring guardrails** (implemented): Phase fails if `completeness_score < 60`, which requires ≥ 5 characters (when 7 requested), ≥ 3 eligible suspects, and role-archetype diversity aligned to scorer thresholds (>=70% unique archetypes).
+- **Retry hardening (implemented):** Agent 2 now retries not only for character-count/suspect shortfalls but also for low archetype diversity; on final attempt, a deterministic non-protected role-archetype diversification fallback runs first, and the agent now hard-fails if diversity still remains below threshold.
 - **Schema gate (implemented)**: Cast payload is validated against `cast_design.schema.yaml` (aligned to runtime `crimeDynamics` keys and `latencyMs`). If validation fails, the cast is regenerated once with targeted schema-repair guardrails before abort.
 
 ### Step 3: CML Generation
@@ -172,6 +173,10 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Event**: `outline_done` - "Outline generated"
 - **Schema gate (implemented)**: Outline payload is validated against `narrative_outline.schema.yaml` in-worker.
 - **Schema-repair retry (implemented)**: if the first outline fails schema validation, Agent 7 is regenerated once with targeted schema-fix guardrails before the run is aborted.
+- **Clue pacing gate (implemented)**: Before prose generation, the worker enforces `cluesRevealed` coverage in at least 60% of scenes.
+  - Runs deterministic clue pre-assignment first (mapping-aware, essential-clue anchoring, gap-filling, act-balanced threshold fill).
+  - Falls back to one LLM outline retry only if deterministic repair is still below threshold, then applies a final deterministic pass on the retry result.
+- **Scene-count lock (implemented)**: Outline retries (coverage or pacing) include count-preservation guardrails and are rejected if they reduce total scenes or shrink any act's scene count versus the baseline outline.
 
 ### Step 9: Prose Generation
 - **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
@@ -181,10 +186,13 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Worker readability reflow (implemented)**: prose chapters are deterministically reflowed before release checks (hard-wrap collapse + sentence-boundary splitting of overlong paragraph blocks).
 - **Encoding hardening (implemented)**: sanitization strips illegal control characters while preserving valid multibyte Unicode content.
 - **Scene-grounding backfill (implemented)**: if a chapter opening misses required location/sensory/atmosphere grounding signals, worker post-processing prepends a location-profile-based grounding lead.
+- **Template-leakage prevention hardening (implemented)**: worker post-processing now rewrites known scaffold-signature leakage and replaces repeated long paragraphs with deterministic chapter-specific variants before release-gate checks.
 - **Chapter validation (implemented)**: generation retries now include readability density checks and scene-grounding checks (location anchor + sensory + atmosphere cues) in addition to existing consistency checks.
 - **Baseline prose guardrails (implemented)**: every prose generation pass includes strict cast-name enforcement (no invented titled placeholders), explicit suspect-elimination coverage requirements, and explicit culprit evidence-chain requirements.
+- **Month/season lock hardening (implemented)**: prose generation derives canonical season from temporal month and enforces it in two layers: (1) prompt-level hard season-lock instructions, and (2) deterministic chapter-text normalization before per-chapter validation when locked-month chapters include conflicting seasonal labels.
 - **Validation-repair trigger (implemented)**: prose repair regeneration now runs when validation returns `needs_revision` as well as hard failure states.
-- **Guardrail**: If post-reveal chapters drift into role-only culprit aliasing after arrest/confession, prose regenerates once; unresolved drift fails the run.
+- **Suspect-elimination alignment (implemented)**: repair-trigger classification and release-gate hard-stop now use the same alias-aware suspect-elimination detector (type + message), preventing guardrail misses when validator key strings vary.
+- **Guardrail**: If post-reveal chapters drift into role-only culprit aliasing after arrest/confession, worker first regenerates only drifted chapters, then falls back to one full-prose regeneration if needed; unresolved drift fails the run.
 - **Artifacts Created**:
   - `prose_<length>` - `{ status, tone, chapters[], cast[], note }` where `<length>` is `short`, `medium`, or `long`
 - **Event**: `prose_done` - "Prose generated (<length> format)"

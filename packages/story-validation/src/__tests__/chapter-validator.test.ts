@@ -35,6 +35,22 @@ describe("ChapterValidator tightening", () => {
     expect(result.issues.some((issue) => issue.message.includes("month/season contradiction"))).toBe(true);
   });
 
+  it("flags contradiction from temporal lock month even when chapter omits month token", () => {
+    const chapter = {
+      chapterNumber: 4,
+      title: "Temporal Lock",
+      temporalMonth: "april",
+      temporalSeason: "spring",
+      paragraphs: [
+        "The grounds looked unmistakably autumnal, with fall chill in every corridor.",
+        "No one mentioned the date aloud.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((issue) => issue.message.includes("month/season contradiction"))).toBe(true);
+  });
+
   it("flags scaffold/template leakage prose blocks", () => {
     const leaked =
       "At The Library in Harrowfield Village, England, the smell of A musty aroma fills the air, " +
