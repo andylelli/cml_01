@@ -30,6 +30,9 @@ export interface ProseOutput {
     all_clues_visible?: boolean;
     discriminating_test_complete?: boolean;
     no_solution_spoilers?: boolean;
+    /** D7: true when no clue is first revealed in the same chapter where detective deduction/conclusion language appears. */
+    fair_play_timing_compliant?: boolean;
+    fair_play_timing_violations?: Array<{ clue_id: string; chapter: number }>;
   };
 }
 
@@ -151,7 +154,7 @@ export class ProseScorer
       }
     }
 
-    const validRate = validChapters / output.chapters.length;
+    const validRate = output.chapters.length > 0 ? validChapters / output.chapters.length : 0;
     tests.push(
       validRate >= 0.95
         ? pass('Chapter structure', 'validation', 1.5, `${Math.round(validRate * 100)}% valid`)
@@ -416,16 +419,24 @@ export class ProseScorer
     // Check fair play validation
     if (output.fair_play_validation) {
       const fpv = output.fair_play_validation;
-      
-      const fairPlayScore = 
-        (fpv.all_clues_visible ? 40 : 0) +
-        (fpv.discriminating_test_complete ? 40 : 0) +
-        (fpv.no_solution_spoilers ? 20 : 0);
+
+      // D8 recalibrated weights: 35/35/15/15 (was 40/40/20) to include timing enforcement.
+      // fair_play_timing_compliant defaults to pass (15 pts) when absent for backwards compat.
+      const fairPlayScore =
+        (fpv.all_clues_visible ? 35 : 0) +
+        (fpv.discriminating_test_complete ? 35 : 0) +
+        (fpv.no_solution_spoilers ? 15 : 0) +
+        (fpv.fair_play_timing_compliant !== false ? 15 : 0);
+
+      const timingDetail =
+        fpv.fair_play_timing_compliant === false && fpv.fair_play_timing_violations?.length
+          ? `: timing violation in chapter(s) ${[...new Set(fpv.fair_play_timing_violations.map((v) => v.chapter))].join(", ")}`
+          : "";
 
       tests.push(
         fairPlayScore === 100
           ? pass('Fair play compliance', 'consistency', 1.5)
-          : partial('Fair play compliance', 'consistency', fairPlayScore, 1.5, `${fairPlayScore}/100`, fairPlayScore < 60 ? 'critical' : 'minor')
+          : partial('Fair play compliance', 'consistency', fairPlayScore, 1.5, `${fairPlayScore}/100${timingDetail}`, fairPlayScore < 60 ? 'critical' : 'minor')
       );
     }
 
@@ -451,7 +462,7 @@ export class ProseScorer
 
     // Check if all cast members are referenced
     const referencedMembers = Object.values(references).filter(count => count > 0).length;
-    const coverageRate = referencedMembers / castNames.length;
+    const coverageRate = castNames.length > 0 ? referencedMembers / castNames.length : 1;
 
     // Check for name variations or typos (simple check)
     const uniqueCapitalizedWords = new Set(

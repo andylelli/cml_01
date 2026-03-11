@@ -197,10 +197,15 @@ Before validation runs, Agent 9 applies a defensive prose sanitization pass that
 This logic is centralized in a shared `@cml/story-validation` utility so detection and sanitization use the exact same matching rules.
 Agent 9 prose generation now uses a lower creativity setting (temperature 0.45) to reduce recurrent genre-attractor phantom names in early/late chapters.
 Chapter validation now also checks readability density (minimum paragraph structure, overlong wall-of-text blocks), scene-grounding quality, and chapter-level encoding integrity (mojibake/illegal control characters) so retries can repair these issues before full-story persistence.
+Online anti-template linter (implemented): before each chapter batch is committed, Agent 9 now runs deterministic style checks and retries the batch on failure: opening-style entropy threshold, repeated long-paragraph fingerprint detection, and high-overlap n-gram similarity against prior accepted chapters.
+Opening-style entropy gating now ramps by chapter progress in standard mode (lower threshold in early chapters, canonical threshold later) to reduce false early hard-fails without weakening late-stage anti-template controls.
+Repair-mode anti-template behavior (implemented): during validation-driven full-prose repair, Agent 9 uses a softened early-chapter entropy gate (warm-up chapters + lower threshold) to avoid false hard-fails on chapter 1 while preserving fingerprint/ngram leakage checks.
+If retries are exhausted and the only remaining blocker is opening-style entropy (with no other critical/major chapter violations), Agent 9 now accepts the batch with an explicit entropy warning instead of aborting the full run.
+NarrativeState propagation hardening (implemented): Agent 9 now updates a live in-call NarrativeState after each committed batch, so subsequent prompts use current opening-style and sensory history.
 Month/season lock hardening (implemented): Agent 9 derives a canonical season from the temporal month and injects a hard constraint into the prompt. Before per-chapter validation, prose text is deterministically normalized when a chapter mentions the locked month but uses conflicting seasonal labels.
 Temporal lock-aware validation (implemented): chapter validation receives the temporal month lock from context so month/season contradictions are caught consistently across initial and retry batches.
 Template-leakage hardening (implemented): after each prose pass (including repair retries), worker post-processing rewrites known scaffold-leakage signatures and deterministically replaces repeated long paragraphs with chapter-specific variants before release-gate evaluation.
-Critical/major issues trigger automatic batch regeneration (max 2 attempts per batch) with specific feedback about what failed. This catch-and-fix approach prevents accumulation of errors across the full story.
+Critical/major issues trigger automatic batch regeneration with specific feedback about what failed. Standard prose uses up to 2 attempts per batch; validation-driven repair uses chapter-granular batches (`batchSize=1`) and up to 3 attempts per chapter.
 **Current build:** LLM-generated prose with full artifact context integration and per-batch content validation (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
 
@@ -254,6 +259,7 @@ Critical/major issues trigger automatic batch regeneration (max 2 attempts per b
 - Preventive prose repair now runs for `needs_revision` validation outcomes in addition to hard `failed` outcomes.
 - Identity-alias continuity remediation now uses chapter-targeted prose regeneration first and escalates to full-prose regeneration only if drift remains after targeted repair.
 - Release gate enforcement now hard-stops on critical prose defects (mojibake/encoding corruption, template leakage, temporal contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, unresolved suspect-closure gaps) and keeps readability/scene-grounding shortfalls as warnings for review.
+- Release gate enforcement now also hard-stops when NSD marks clue reveals that prose evidence extraction cannot anchor (`revealed_without_evidence > 0`).
 
 ## Safety & compliance
 - Avoid copyrighted text replication

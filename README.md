@@ -56,8 +56,18 @@ Schema/flow remediation is in progress: retry-wrapper end-state behavior fixed (
 Narrative clue pacing hardening is implemented: before prose, the worker now applies deterministic clue pre-assignment to enforce >=60% clue-bearing scenes (mapping-aware and act-balanced), using LLM outline retry only as fallback.
 Narrative retry scene-count locking is implemented: outline retries now carry total/per-act count guardrails and are rejected if they shrink structure versus the baseline outline.
 Month/season guardrail hardening is implemented: Agent 9 now derives season from temporal month, enforces a hard prompt lock, and deterministically normalizes conflicting season labels in month-anchored chapters before chapter validation.
+Temporal validator contradiction-matrix hardening is implemented: story-validation now applies a shared month-to-forbidden-season matrix and normalized seasonal phrase detection (for example, `springtime`, `autumnal`, `wintry`) across both chapter-level and narrative-continuity checks, including dialogue references.
 Suspect-elimination guardrail alignment is implemented: prose repair retries and release-gate hard-stops now share alias-aware validation failure classification, so key-name drift does not skip suspect-closure/case-chain repair instructions.
 Prose template-leakage hardening is implemented: deterministic worker post-processing now rewrites scaffold-signature leakage and replaces repeated long boilerplate paragraphs with chapter-specific variants before release-gate checks.
+Agent 9 now applies a deterministic pre-commit completeness gate: chapter minimum-word thresholds and chapter-level required clue obligations are validated before commit, with targeted retries when obligations are missing.
+Prose clue-visibility expectation sourcing is now additive across CML clue mapping, clue distribution IDs, discriminating-test evidence clues, and clue registry IDs to reduce false critical completeness failures caused by partial mappings.
+Agent 9 retries now include explicit error-class micro-prompts for clue visibility, word-count, and scene-grounding failures, improving correction specificity on follow-up attempts.
+Agent 9 post-generation and release-gate diagnostics now persist expected-vs-extracted clue visibility sets (including missing/unexpected IDs) to accelerate root-cause triage.
+Clue evidence/state semantics are now unified across scorer extraction and NSD diagnostics via a shared progression lattice: `introduced`, `hinted`, `explicit`, `confirmed`.
+Agent 9 prompt assembly now uses token-budget accounting per context block with deterministic truncation/pruning, preserving critical constraints while preventing prompt overflow.
+Validation-driven prose repair hardening is implemented: full-prose repair now starts with a fresh NarrativeState baseline, uses chapter-granular retries (`batchSize=1`, up to 3 attempts/chapter), and applies a softened early-chapter opening-style entropy gate while retaining fingerprint/ngram leakage checks.
+Prose entropy hardening is now adaptive in standard mode: opening-style entropy thresholds ramp by chapter progress, and entropy-only residual failures no longer hard-abort prose after retry exhaustion.
+Aborted-run observability is hardened: when a run fails after prose has started, a partial `post_generation_summary` diagnostic snapshot is now persisted before writing the aborted report.
 Identity continuity remediation is optimized: role-alias drift now triggers chapter-targeted prose regeneration first, with full-story regeneration only as fallback.
 Cast role-diversity hardening is implemented: Agent 2 enforces >=70% unique role archetypes, retries low-diversity outputs, and applies deterministic non-protected role diversification on the final attempt.
 Full activity logging is enabled for API requests and UI actions (see /api/logs).
@@ -120,13 +130,37 @@ After a generation run completes, open the **Advanced → Quality** tab to view:
 
 The Quality tab is only populated when `ENABLE_SCORING=true` is set and at least one run has completed.
 
+For Agent 9 prose phases, the Quality table now shows two chapter-by-chapter series when a full prose rerun happens: first pass and second run.
+Agent 9 generation now also applies a provisional chapter-scoring loop during batch validation, feeding chapter-specific deficits forward as corrective directives so chapter N influences chapter N+1 prompt constraints before final scoring.
+
+Quality reports now include a `diagnostics` section with structured runtime snapshots (for example, Agent 9 post-generation and release-gate diagnostics) so root-cause context is preserved alongside phase scores. Agent 9 post-generation diagnostics use scoped prose lifecycle metrics (`prose_duration_ms_first_pass`, `prose_duration_ms_total`, `prose_cost_first_pass`, `prose_cost_total`) and pass accounting (`rewrite_pass_count`, `repair_pass_count`, `per_pass_accounting`), plus online anti-template linter counters (`template_linter_checks_run`, `template_linter_failed_checks`, `template_linter_opening_style_entropy_failures`, `template_linter_paragraph_fingerprint_failures`, `template_linter_ngram_overlap_failures`).
+Quality report persistence now includes a hard invariant gate in `@cml/story-validation` (`validateGenerationReportInvariants` / `assertGenerationReportInvariants`), so contradictory report payloads are rejected before storage/export (status mismatches, missing abort reason, template-linter abort contradiction).
+The same invariant gate now also rejects NSD trace entries where clues are marked as newly revealed but no matching clue evidence anchors are present.
+Discriminating-test validation is now component-based in `@cml/story-validation`: setup action, evidence usage, elimination logic, and outcome declaration are all required, and missing components are emitted with scene/paragraph pointers.
+Scene-grounding validation now enforces opening-block requirements in `@cml/story-validation`: first-paragraph location anchoring plus sensory and atmosphere/time markers are required, and delayed grounding is flagged explicitly.
+Character consistency validation now resolves cast aliases to canonical names, extends pronoun agreement checks into immediate follow-up sentence context, and flags titled out-of-cast named walk-ons (`illegal_named_walk_on`).
+Known-bad report contradictions are replay-tested in the story-validation suite to prevent regression.
+Fixed-seed prose benchmarks are now replay-tested in `@cml/story-validation` using deterministic run fixtures, with chapter-level expected outcome assertions (prose total + per-chapter score signatures) to catch scoring regressions early.
+A/B prompt harness support is now available in `@cml/story-validation` (`comparePromptVariants`), with statistical winner selection gated by paired-seed sample size, minimum effect size, and a two-sided paired sign-test p-value threshold.
+Quality dashboard prose chapter tables now include component-level chapter metrics (`V`, `Q`, `C`, `Co`) sourced from per-chapter scoring traces, including second-run repair series when present.
+
 ### API Endpoints
 
 ```
-GET /api/projects/:projectId/runs/:runId/report    — Full report for a single run
+GET /api/projects/:projectId/runs/:runId/report    — Full report for a single run (or 202 in_progress while run is active)
 GET /api/projects/:projectId/reports/history       — Last N reports for a project (?limit=N, default 10)
 GET /api/reports/aggregate                         — Cross-project aggregate stats (success rate, grade distribution, common failures)
 ```
+
+When a specific run report is unreadable, the report endpoint now falls back to the latest valid project report and marks it with `stale: true` and `stale_reason: "report_read_error"` instead of returning an opaque 500.
+If a requested run report is still marked `in_progress: true` after the run is no longer active, the endpoint now avoids serving that incomplete snapshot as final output; it returns a finalized stale fallback (`stale_reason: "incomplete_report"`) or `409` when no finalized fallback exists.
+
+`GenerationReport` now includes canonical run-status fields (`run_outcome`, `run_outcome_reason`) plus explicit `scoring_outcome` and `release_gate_outcome` blocks so score headlines and release outcomes are not conflated.
+It also carries stage-aware validation snapshots (`pre_repair`, `post_repair`, `release_gate`) plus `validation_reconciliation` deltas for count lineage.
+Release gating now fail-stops on unresolved clue-visibility divergence when NSD-revealed clues lack prose evidence anchors (`revealed_without_evidence > 0`).
+
+Export packaging also supports `quality_report` (alias `scoring_report`) in `POST /api/projects/:id/export` so the latest quality report is included in artifact exports.
+Export packaging also supports `narrative_state_trace` in `POST /api/projects/:id/export` so chapter-to-chapter NSD transfer data is directly inspectable without digging through the full report.
 
 Reports are stored as JSON files in `apps/api/data/reports/{projectId}/{runId}.json`.
 

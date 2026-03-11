@@ -104,6 +104,31 @@ describe("ScoreCard", () => {
     expect(wrapper.text()).toContain("✗ Failed");
   });
 
+  it("shows ■ Aborted when run_outcome is aborted", () => {
+    const wrapper = mount(ScoreCard, {
+      props: {
+        report: makeReport({
+          passed: false,
+          run_outcome: "aborted",
+          run_outcome_reason: "Release gate hard-stop",
+        }),
+      },
+    });
+    expect(wrapper.text()).toContain("■ Aborted");
+  });
+
+  it("prefers run_outcome over legacy passed flag", () => {
+    const wrapper = mount(ScoreCard, {
+      props: {
+        report: makeReport({
+          passed: true,
+          run_outcome: "failed",
+        }),
+      },
+    });
+    expect(wrapper.text()).toContain("✗ Failed");
+  });
+
   it("displays formatted total duration", () => {
     // 180_000ms → 3m
     const wrapper = mount(ScoreCard, { props: { report: makeReport({ total_duration_ms: 180_000 }) } });

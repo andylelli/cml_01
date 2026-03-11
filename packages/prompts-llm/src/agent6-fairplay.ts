@@ -180,7 +180,21 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const castEvidence = castList
     .map((c: any) => {
       const evSensitivity = Array.isArray(c.evidence_sensitivity) && c.evidence_sensitivity.length > 0
-        ? (c.evidence_sensitivity as string[]).join(", ") // FA-4: items are strings not objects
+        ? c.evidence_sensitivity
+            .map((entry: unknown) => {
+              if (typeof entry === "string") return entry;
+              if (entry && typeof entry === "object") {
+                const obj = entry as { evidence_type?: unknown; vulnerability?: unknown };
+                const type = typeof obj.evidence_type === "string" ? obj.evidence_type : undefined;
+                const vulnerability = typeof obj.vulnerability === "string" ? obj.vulnerability : undefined;
+                if (type && vulnerability) return `${type}: ${vulnerability}`;
+                if (vulnerability) return vulnerability;
+                if (type) return type;
+              }
+              return "";
+            })
+            .filter((v: string) => v.length > 0)
+            .join(", ") || "none"
         : "none";
       const alibi = c.alibi_window ?? "unknown";
       const access = c.access_plausibility ?? "unknown";

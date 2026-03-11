@@ -53,6 +53,11 @@
 - Story length selector in Spec (Short 15–25K, Medium 40–60K, Long 70–100K)
 - Story/Prose view supports exporting a selected prose length as PDF
 - Story/Prose view supports “Export all versions” when multiple prose lengths have been generated
+- Export panel now supports including the latest quality report (`quality_report`) in JSON exports so scoring diagnostics travel with artifact bundles.
+- Export panel now also supports `narrative_state_trace` for a dedicated chapter-to-chapter NSD handoff trace export.
+- Quality > Prose Generation now renders two chapter-by-chapter score tables when a second full prose run occurs: first pass and a distinct second-run series.
+- Quality > Prose Generation chapter tables now include component-level chapter metrics (`V`, `Q`, `C`, `Co`) so users can inspect validation/quality/completeness/consistency drift per chapter, not only total/cumulative chapter scores.
+- Quality score card status now uses canonical `run_outcome` (`passed | failed | aborted`) when available, with legacy `passed` as fallback for older reports.
 - PDF download buttons show a spinner and disable while downloading
 - Prose reader displays clear paragraph spacing for readability
 - Setting/cast/outline cards render generated content when available.
@@ -67,6 +72,7 @@
 
 ### ProjectDashboard
  Creating a project clears prior artifacts and starts in a pending state until Generate is run.
+- Create Project is intentionally lightweight: it does not trigger broad artifact prefetch on a brand-new project, so the Project tab stays responsive.
 - Project setup includes a "Clear persistence" control that wipes the JSON/Postgres store and resets UI state.
 
 ### BuilderWizard

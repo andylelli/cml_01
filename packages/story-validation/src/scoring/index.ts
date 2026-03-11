@@ -58,6 +58,17 @@ export {
   GenerationMetadata,
 } from './aggregator.js';
 
+// A/B prompt harness
+export {
+  comparePromptVariants,
+} from './ab-prompt-harness.js';
+export type {
+  PromptVariantRun,
+  PromptVariantSample,
+  AbHarnessConfig,
+  PromptVariantComparison,
+} from './ab-prompt-harness.js';
+
 // Scorer utilities
 export {
   createTest,
@@ -102,3 +113,10 @@ export {
   buildConciseRetryFeedback, 
   getTopFailures 
 } from './retry-feedback.js';
+
+// Report invariant guardrails
+export {
+  validateGenerationReportInvariants,
+  assertGenerationReportInvariants,
+} from './report-invariants.js';
+export type { ReportInvariantViolation } from './report-invariants.js';

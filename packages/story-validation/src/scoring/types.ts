@@ -111,6 +111,28 @@ export interface PhaseReport {
 }
 
 /**
+ * Structured diagnostic snapshot attached to a generation report.
+ */
+export interface GenerationDiagnostic {
+  key: string;
+  agent: string;
+  phase_name: string;
+  diagnostic_type: string;
+  captured_at: string;
+  details: Record<string, unknown>;
+}
+
+export type RunOutcome = 'passed' | 'failed' | 'aborted';
+
+export interface ValidationIssueSnapshotSummary {
+  total: number;
+  critical: number;
+  major: number;
+  moderate: number;
+  minor: number;
+}
+
+/**
  * Complete generation report with all phases
  */
 export interface GenerationReport {
@@ -125,9 +147,38 @@ export interface GenerationReport {
   overall_score: number;      // Average of all phase scores
   overall_grade: string;      // A, B, C, D, F
   passed: boolean;            // All phases passed thresholds
+
+  // Canonical run outcome (authoritative status for UI/export consumers)
+  run_outcome?: RunOutcome;
+  run_outcome_reason?: string;
+  scoring_outcome?: {
+    score: number;
+    grade: string;
+    passed_threshold: boolean;
+  };
+  release_gate_outcome?: {
+    status: 'passed' | 'failed' | 'unknown';
+    hard_stop_count: number;
+    warning_count: number;
+  };
   
   // Phase breakdown
   phases: PhaseReport[];
+
+  // Structured runtime diagnostics captured during generation
+  diagnostics?: GenerationDiagnostic[];
+
+  // Optional staged validation counts for reconciling pre/post/release summaries
+  validation_snapshots?: {
+    pre_repair?: ValidationIssueSnapshotSummary;
+    post_repair?: ValidationIssueSnapshotSummary;
+    release_gate?: ValidationIssueSnapshotSummary;
+  };
+  validation_reconciliation?: {
+    pre_total: number;
+    release_gate_total: number;
+    resolved_delta: number;
+  };
   
   // Summary stats
   summary: {

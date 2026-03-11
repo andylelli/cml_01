@@ -258,6 +258,9 @@ Use this document to review each new generation run, capture defects, decide sev
 - **[S1 High] Large repeated scaffold blocks still leak into prose**  
   **Evidence:** repeated template-style environmental paragraphs appear in Chapters 5, 7, 10, 11, and 12 (same pattern family seen in prior failing runs).  
   **Impact:** major readability degradation and obvious generation artifacting.  
+
+---
+
   **Root-cause hypothesis:** template-suppression gate is still too permissive for long repeated “At The …” scene scaffold variants.
 
 - **[S2 Medium] Placeholder leakage persists in role labels**  
@@ -481,6 +484,65 @@ ReFair play audit: `COMPLETE` - **45/100 CRITICAL FAIL** (2 violations with 0-sc
 - Remediation planning: `COMPLETE` (P0/P1/P2 actions defined)
 - Implementation: `NOT-STARTED`
 - Re-run verification: `BLOCKED` (awaiting P0-P2 implementation)
+
+---
+
+## Run Review: project_proj_d0af6453-7200-4c17-b3ac-fba5923582c3 (latest run)
+
+**Run ID:** run_d61170b3-4a95-44e3-9e07-c51db8c72829  
+**Date:** 2026-03-10  
+**Project:** project (`proj_d0af6453-7200-4c17-b3ac-fba5923582c3`)  
+**Story file:** not produced (run aborted during prose)  
+**Reviewer:** Copilot session review  
+**Overall assessment:** `FAIL`
+
+### Observed defects
+- **[S1 High] Prose generation abort caused by opening-style entropy guardrail**  
+  **Evidence:** run event `pipeline_error` reports: `Chapter 5 failed validation after 2 attempts. Issues: Template linter: opening-style entropy too low (0.72 < 0.80).`  
+  **Impact:** pipeline stops mid-story; no complete prose artifact is available for downstream review/export.  
+  **Root-cause hypothesis:** entropy threshold and chapter-opening diversity constraints are too brittle for early chapter windows under current generation behavior.
+
+- **[S2 Medium] Temporal contradiction persists under retry flow**  
+  **Evidence:** Chapter 1 retry warning: `month/season contradiction (april vs autumn)` before succeeding on retry.  
+  **Impact:** indicates temporal consistency is still unstable and dependent on retry luck rather than first-pass robustness.  
+  **Root-cause hypothesis:** temporal grounding directives are not sufficiently hard-constrained in chapter prompts and first-pass validation feedback loops.
+
+- **[S2 Medium] Report diagnostics missing despite prose phase scoring**  
+  **Evidence:** report file exists with `PHASE_COUNT=13` including `Prose Generation | 75 | C | False`, but `HAS_DIAGNOSTICS=False`.  
+  **Impact:** weak observability for failure triage; post-generation forensic detail (including fair-play telemetry fields) is unavailable in report payloads.  
+  **Root-cause hypothesis:** diagnostics are not reliably upserted prior to failure path report generation, or are overwritten by later partial report saves.
+
+### Phased remediation plan
+#### P0 Containment (same day)
+- **Action:** ensure aborted prose runs still persist `post_generation_summary` diagnostics before report write on failure paths.
+- **Owner area:** `apps/worker` + `packages/story-validation`
+- **Status:** `IN-PROGRESS`
+- **Acceptance criteria:** failed/aborted prose runs include non-empty `diagnostics` with `post_generation_summary` in report JSON.
+
+#### P1 Structural fixes (1–3 days)
+- **Action:** refine chapter-opening entropy policy (repair-mode warmup/threshold profile) to reduce false aborts while preserving anti-template guarantees.
+- **Owner area:** `packages/prompts-llm` + `apps/worker`
+- **Status:** `IN-PROGRESS`
+- **Acceptance criteria:** at least 2 consecutive runs complete prose without entropy hard-fail in first 30% of chapters.
+
+#### P2 Hardening and regression (3–7 days)
+- **Action:** add regression tests for (a) month/season contradiction retries and (b) diagnostics persistence on aborted prose runs.
+- **Owner area:** `apps/worker/src/__tests__` + `packages/story-validation`
+- **Status:** `NOT-STARTED`
+- **Acceptance criteria:** targeted tests pass and prevent silent diagnostics loss on future failures.
+
+### Validation and verification
+- **Required tests:** worker test suite plus new diagnostics-persistence regression tests.
+- **Required full-run checks:** one aborted-run verification (diagnostics present) and one successful full prose run (diagnostics + fair-play fields present).
+- **Export checks:** aborted runs clearly marked with actionable reason; successful runs produce prose output artifact.
+- **Gate outcome:** failed due prose abort and missing diagnostics payload.
+
+### Definition of done
+- [ ] Aborted prose runs include diagnostics in report payload
+- [ ] No recurrent opening-style entropy abort in early chapters
+- [ ] Temporal month/season contradictions reduced to zero critical failures
+- [ ] Successful run includes fair-play component telemetry in post-generation diagnostics
+- [ ] Regression tests added/updated
 
 ### Critical Note
 **This run is RELEASE-BLOCKED due to fair play violations.** Even if all soul/quality issues were fixed, this story cannot be released without fair play score ≥60/100. Fair play is the foundational contract of mystery fiction - readers must be able to solve the mystery alongside the detective. Current score of 45/100 with two 0-score dimensions (Clue Visibility and Information Parity) indicates the detective is withholding critical information from the reader, which breaks genre trust.

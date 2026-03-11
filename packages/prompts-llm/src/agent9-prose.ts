@@ -13,6 +13,8 @@ import type { CastDesign } from "./agent2-cast.js";
 import type { ClueDistributionResult, Clue } from "./agent5-clues.js";
 import { ChapterValidator, anonymizeUnknownTitledNames } from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
+import { classifyOpeningStyle } from "./types/narrative-state.js";
+import { updateNSD } from "./types/narrative-state.js";
 
 export interface ProseChapter {
   title: string;
@@ -50,12 +52,27 @@ export interface ProseGenerationInputs {
   writingGuides?: { humour?: string; craft?: string };
   runId?: string;
   projectId?: string;
+  /** Optional anti-template linter profile; repair mode relaxes early-chapter entropy checks. */
+  templateLinterProfile?: {
+    mode?: "standard" | "repair";
+    chapterOffset?: number;
+    entropyThreshold?: number;
+    entropyMinWindow?: number;
+    entropyWarmupChapters?: number;
+  };
   onProgress?: (phase: string, message: string, percentage: number) => void;
   /** Number of scenes to process per LLM call (1–10, default 1). Higher values increase throughput at the cost of coarser retry granularity. */
   batchSize?: number;
   /** Called after each batch of chapters is successfully generated and validated.
    *  The fourth argument contains validation issues from any failed attempts for this batch. */
   onBatchComplete?: (chapters: ProseChapter[], batchStart: number, batchEnd: number, validationIssues: string[]) => Promise<void> | void;
+  /** Corrective directives from provisional chapter scoring, applied to subsequent chapter prompts. */
+  provisionalScoringFeedback?: {
+    fromChapter: number;
+    score: number;
+    deficits: string[];
+    directives: string[];
+  }[];
 }
 
 export interface ProseGenerationResult {
@@ -75,8 +92,290 @@ export interface ProseGenerationResult {
       attempt: number;
       errors: string[];
     }>;
+    linter: {
+      checksRun: number;
+      failedChecks: number;
+      openingStyleEntropyFailures: number;
+      openingStyleEntropyBypasses: number;
+      paragraphFingerprintFailures: number;
+      ngramOverlapFailures: number;
+    };
+    provisionalChapterScores?: Array<{
+      chapter: number;
+      score: number;
+      deficits: string[];
+      directives: string[];
+    }>;
   };
 }
+
+interface ProseLinterStats {
+  checksRun: number;
+  failedChecks: number;
+  openingStyleEntropyFailures: number;
+  openingStyleEntropyBypasses: number;
+  paragraphFingerprintFailures: number;
+  ngramOverlapFailures: number;
+}
+
+interface ProseLinterIssue {
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap";
+  message: string;
+}
+
+interface ChapterRequirementLedgerEntry {
+  chapterNumber: number;
+  minWords: number;
+  requiredClueIds: string[];
+}
+
+const CHAPTER_MIN_WORDS: Record<"short" | "medium" | "long", number> = {
+  short: 1300,
+  medium: 1600,
+  long: 2400,
+};
+
+const CLUE_TOKEN_STOPWORDS = new Set<string>([
+  "about", "after", "again", "against", "between", "could", "every", "first", "found", "from",
+  "having", "however", "later", "might", "other", "their", "there", "these", "those", "through",
+  "under", "where", "which", "while", "would", "without", "afterward", "during",
+]);
+
+const tokenizeForClueObligation = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 4 && !CLUE_TOKEN_STOPWORDS.has(token));
+
+const getRequiredClueIdsForScene = (
+  cmlCase: any,
+  scene: any,
+): string[] => {
+  const mapped = ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+    .filter((entry: any) =>
+      Number(entry?.act_number) === Number(scene?.act) &&
+      Number(entry?.scene_number) === Number(scene?.sceneNumber)
+    )
+    .map((entry: any) => String(entry?.clue_id || ""))
+    .filter(Boolean);
+
+  const sceneClues = (Array.isArray(scene?.cluesRevealed) ? scene.cluesRevealed : [])
+    .map((id: unknown) => String(id || ""))
+    .filter(Boolean);
+
+  return Array.from(new Set([...mapped, ...sceneClues]));
+};
+
+const buildChapterRequirementLedger = (
+  cmlCase: any,
+  batchScenes: unknown[],
+  chapterStart: number,
+  targetLength: "short" | "medium" | "long",
+): ChapterRequirementLedgerEntry[] => {
+  const minWords = CHAPTER_MIN_WORDS[targetLength];
+  return (batchScenes as any[]).map((scene, idx) => ({
+    chapterNumber: chapterStart + idx,
+    minWords,
+    requiredClueIds: getRequiredClueIdsForScene(cmlCase, scene),
+  }));
+};
+
+const chapterMentionsRequiredClue = (
+  chapterText: string,
+  clueId: string,
+  clueDistribution?: ClueDistributionResult,
+): boolean => {
+  const lowered = chapterText.toLowerCase();
+  if (lowered.includes(clueId.toLowerCase())) {
+    return true;
+  }
+
+  const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || "") === clueId);
+  if (!clue) return false;
+
+  const tokens = Array.from(new Set([
+    ...tokenizeForClueObligation(String(clue.description ?? "")),
+    ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
+  ])).slice(0, 10);
+
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((token) => lowered.includes(token));
+  const requiredMatches = Math.max(2, Math.ceil(tokens.length * 0.4));
+  return matched.length >= requiredMatches;
+};
+
+const validateChapterPreCommitObligations = (
+  chapter: ProseChapter,
+  ledgerEntry: ChapterRequirementLedgerEntry,
+  clueDistribution?: ClueDistributionResult,
+): string[] => {
+  const issues: string[] = [];
+  const chapterText = (chapter.paragraphs ?? []).join(" ");
+  const wordCount = chapterText.trim().length > 0 ? chapterText.trim().split(/\s+/).length : 0;
+
+  if (wordCount < ledgerEntry.minWords) {
+    issues.push(
+      `Chapter ${ledgerEntry.chapterNumber}: word count below minimum (${wordCount}/${ledgerEntry.minWords})`
+    );
+  }
+
+  for (const clueId of ledgerEntry.requiredClueIds) {
+    if (!chapterMentionsRequiredClue(chapterText, clueId, clueDistribution)) {
+      issues.push(
+        `Chapter ${ledgerEntry.chapterNumber}: missing required clue obligation for "${clueId}"`
+      );
+    }
+  }
+
+  return issues;
+};
+
+const normalizeParagraphForFingerprint = (paragraph: string): string =>
+  paragraph
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const tokenizeWords = (text: string): string[] =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 0);
+
+const toNgrams = (tokens: string[], n: number): Set<string> => {
+  const grams = new Set<string>();
+  if (tokens.length < n) return grams;
+  for (let i = 0; i <= tokens.length - n; i += 1) {
+    grams.add(tokens.slice(i, i + n).join(" "));
+  }
+  return grams;
+};
+
+const jaccardSimilarity = (a: Set<string>, b: Set<string>): number => {
+  if (a.size === 0 || b.size === 0) return 0;
+  let intersection = 0;
+  for (const item of a) {
+    if (b.has(item)) intersection += 1;
+  }
+  const union = a.size + b.size - intersection;
+  return union > 0 ? intersection / union : 0;
+};
+
+const extractOpeningSentence = (paragraph: string): string => {
+  const firstSentence = paragraph.match(/^[^.!?]+[.!?]/);
+  return (firstSentence?.[0] ?? paragraph).trim();
+};
+
+const shannonEntropy = (values: string[]): number => {
+  if (values.length === 0) return 0;
+  const counts = new Map<string, number>();
+  values.forEach((value) => counts.set(value, (counts.get(value) ?? 0) + 1));
+  let entropy = 0;
+  for (const count of counts.values()) {
+    const p = count / values.length;
+    entropy -= p * Math.log2(p);
+  }
+  return entropy;
+};
+
+const lintBatchProse = (
+  batchChapters: ProseChapter[],
+  priorChapters: ProseChapter[],
+  priorOpeningStyles: string[],
+  options?: {
+    mode?: "standard" | "repair";
+    chapterOffset?: number;
+    entropyThreshold?: number;
+    entropyMinWindow?: number;
+    entropyWarmupChapters?: number;
+  },
+): ProseLinterIssue[] => {
+  const issues: ProseLinterIssue[] = [];
+  const mode = options?.mode ?? "standard";
+  const chapterOffset = Math.max(0, options?.chapterOffset ?? 0);
+  const entropyMinWindow = Math.max(2, options?.entropyMinWindow ?? (mode === "repair" ? 5 : 4));
+  const entropyWarmupChapters = Math.max(0, options?.entropyWarmupChapters ?? (mode === "repair" ? 3 : 0));
+  const generatedChapterCount = chapterOffset + priorChapters.length + batchChapters.length;
+  const adaptiveStandardEntropyThreshold = (() => {
+    // Tighten entropy gradually to avoid early false hard-fails while preserving anti-template intent.
+    if (generatedChapterCount <= 6) return 0.65;
+    if (generatedChapterCount <= 10) return 0.72;
+    return 0.8;
+  })();
+  const entropyThreshold = options?.entropyThreshold ?? (mode === "repair" ? 0.65 : adaptiveStandardEntropyThreshold);
+
+  const candidateOpeningStyles = batchChapters
+    .map((chapter) => (chapter.paragraphs?.[0] ? classifyOpeningStyle(extractOpeningSentence(chapter.paragraphs[0])) : "general-descriptive"))
+    .filter(Boolean);
+  const openingWindow = [...priorOpeningStyles.slice(-6), ...candidateOpeningStyles].slice(-8);
+  const entropyCheckReady = generatedChapterCount > entropyWarmupChapters;
+  if (entropyCheckReady && openingWindow.length >= entropyMinWindow) {
+    const entropy = shannonEntropy(openingWindow);
+    if (entropy < entropyThreshold) {
+      issues.push({
+        type: "opening_style_entropy",
+        message: `Template linter: opening-style entropy too low (${entropy.toFixed(2)} < ${entropyThreshold.toFixed(2)}). Vary chapter openings and avoid repeated style buckets.`,
+      });
+    }
+  }
+
+  const priorFingerprints = new Set<string>();
+  priorChapters.forEach((chapter) => {
+    (chapter.paragraphs ?? []).forEach((paragraph) => {
+      const normalized = normalizeParagraphForFingerprint(paragraph);
+      if (normalized.length >= 170) priorFingerprints.add(normalized);
+    });
+  });
+  const batchSeen = new Set<string>();
+  for (const chapter of batchChapters) {
+    for (const paragraph of chapter.paragraphs ?? []) {
+      const normalized = normalizeParagraphForFingerprint(paragraph);
+      if (normalized.length < 170) continue;
+      if (priorFingerprints.has(normalized) || batchSeen.has(normalized)) {
+        issues.push({
+          type: "paragraph_fingerprint",
+          message: "Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.",
+        });
+        break;
+      }
+      batchSeen.add(normalized);
+    }
+    if (issues.some((issue) => issue.type === "paragraph_fingerprint")) break;
+  }
+
+  const priorCandidates = priorChapters
+    .flatMap((chapter) => chapter.paragraphs ?? [])
+    .map((paragraph) => normalizeParagraphForFingerprint(paragraph))
+    .filter((paragraph) => paragraph.length >= 140)
+    .slice(-25);
+  const priorNgrams = priorCandidates.map((paragraph) => toNgrams(tokenizeWords(paragraph), 6));
+
+  if (priorNgrams.length > 0) {
+    outer: for (const chapter of batchChapters) {
+      for (const paragraph of chapter.paragraphs ?? []) {
+        const normalized = normalizeParagraphForFingerprint(paragraph);
+        if (normalized.length < 140) continue;
+        const candidate = toNgrams(tokenizeWords(normalized), 6);
+        if (candidate.size < 10) continue;
+        for (const base of priorNgrams) {
+          const overlap = jaccardSimilarity(candidate, base);
+          if (overlap >= 0.6) {
+            issues.push({
+              type: "ngram_overlap",
+              message: `Template linter: high n-gram overlap detected (${overlap.toFixed(2)} >= 0.60). Rephrase this passage to avoid template leakage.`,
+            });
+            break outer;
+          }
+        }
+      }
+    }
+  }
+
+  return issues;
+};
 
 type CanonicalSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 
@@ -436,6 +735,156 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
   return lines.join('\n');
 }
 
+type PromptBlockPriority = "critical" | "high" | "medium" | "optional";
+
+interface PromptContextBlock {
+  key: string;
+  content: string;
+  priority: PromptBlockPriority;
+}
+
+interface PromptSectionInputs {
+  characterConsistencyRules: string;
+  characterPersonalityContext: string;
+  physicalPlausibilityRules: string;
+  eraAuthenticityRules: string;
+  locationProfilesContext: string;
+  temporalContextBlock: string;
+  lockedFactsBlock: string;
+  clueDescriptionBlock: string;
+  nsdBlock: string;
+  continuityBlock: string;
+  discriminatingTestBlock: string;
+  humourGuideBlock: string;
+  craftGuideBlock: string;
+  sceneGroundingChecklist: string;
+  provisionalScoringFeedbackBlock: string;
+}
+
+export function formatProvisionalScoringFeedbackBlock(
+  feedback: Array<{
+    fromChapter: number;
+    score: number;
+    deficits: string[];
+    directives: string[];
+  }> | undefined,
+): string {
+  const effectiveFeedback = Array.isArray(feedback) ? feedback.slice(-2) : [];
+  if (effectiveFeedback.length === 0) return '';
+
+  const lines: string[] = [];
+  lines.push('\n\nPROVISIONAL CHAPTER SCORE FEEDBACK (APPLY TO NEXT CHAPTERS):');
+  lines.push('Treat the following deficits as hard corrective targets for this batch.');
+  for (const item of effectiveFeedback) {
+    lines.push(`- From Chapter ${item.fromChapter}: score ${item.score}/100`);
+    if (item.deficits.length > 0) {
+      lines.push(`  Deficits: ${item.deficits.join('; ')}`);
+    }
+    if (item.directives.length > 0) {
+      lines.push(`  Required corrections: ${item.directives.join(' | ')}`);
+    }
+  }
+  lines.push('Do not repeat the same deficits in the next chapter.');
+  return lines.join('\n');
+}
+
+const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
+  const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
+    { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
+    { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high' },
+    { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
+    { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
+    { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
+    { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'medium' },
+    { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical' },
+    { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical' },
+    { key: 'narrative_state', content: sections.nsdBlock, priority: 'critical' },
+    { key: 'continuity_context', content: sections.continuityBlock, priority: 'medium' },
+    { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical' },
+    { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional' },
+    { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'optional' },
+    { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical' },
+    { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical' },
+  ];
+
+  return orderedSections
+    .filter((section) => section.content.trim().length > 0)
+    .map((section) => ({ key: section.key, content: section.content, priority: section.priority }));
+};
+
+const estimateTokenCount = (value: string): number => {
+  if (!value) return 0;
+  return Math.ceil(value.length / 4);
+};
+
+const truncateToTokenBudget = (value: string, maxTokens: number): string => {
+  if (!value || maxTokens <= 0) return '';
+  const maxChars = maxTokens * 4;
+  if (value.length <= maxChars) return value;
+  const truncated = value.slice(0, Math.max(0, maxChars - 24)).trimEnd();
+  return `${truncated}\n[truncated for prompt budget]`;
+};
+
+const applyPromptBudgeting = (
+  baseSystem: string,
+  developer: string,
+  user: string,
+  blocks: PromptContextBlock[],
+  budgetTokens: number,
+): { composedSystem: string; droppedBlocks: string[]; truncatedBlocks: string[] } => {
+  const fixedTokens = estimateTokenCount(baseSystem) + estimateTokenCount(developer) + estimateTokenCount(user);
+  const availableForBlocks = Math.max(0, budgetTokens - fixedTokens);
+
+  const perBlockTokenCap: Partial<Record<string, number>> = {
+    character_personality: 900,
+    location_profiles: 1000,
+    temporal_context: 850,
+    continuity_context: 500,
+    humour_guide: 850,
+    craft_guide: 850,
+  };
+
+  const truncatedBlocks: string[] = [];
+  let workingBlocks = blocks
+    .filter((block) => block.content.trim().length > 0)
+    .map((block) => {
+      const maxTokens = perBlockTokenCap[block.key];
+      if (!maxTokens) return block;
+      const originalTokens = estimateTokenCount(block.content);
+      if (originalTokens <= maxTokens) return block;
+      truncatedBlocks.push(block.key);
+      return {
+        ...block,
+        content: truncateToTokenBudget(block.content, maxTokens),
+      };
+    });
+
+  const computeBlockTokens = () => workingBlocks.reduce((sum, block) => sum + estimateTokenCount(block.content), 0);
+  let blockTokens = computeBlockTokens();
+  const droppedBlocks: string[] = [];
+
+  // Deterministic drop order: optional -> medium -> high (critical never dropped).
+  const dropOrder: PromptBlockPriority[] = ["optional", "medium", "high"];
+  for (const priority of dropOrder) {
+    if (blockTokens <= availableForBlocks) break;
+    const candidates = workingBlocks.filter((block) => block.priority === priority);
+    for (const block of candidates) {
+      if (blockTokens <= availableForBlocks) break;
+      droppedBlocks.push(block.key);
+      workingBlocks = workingBlocks.filter((entry) => entry.key !== block.key);
+      blockTokens = computeBlockTokens();
+    }
+  }
+
+  const composedSystem =
+    baseSystem +
+    workingBlocks.map((block) => block.content).join('') +
+    `\n\nPROMPT BUDGET SUMMARY: budget=${budgetTokens} tokens; fixed=${fixedTokens}; context=${blockTokens}; dropped=[${droppedBlocks.join(', ') || 'none'}]; truncated=[${truncatedBlocks.join(', ') || 'none'}]` +
+    `\n\n${developer}`;
+
+  return { composedSystem, droppedBlocks, truncatedBlocks };
+};
+
 /**
  * Strip raw prose paragraph arrays from location profiles before injecting into context.
  * Prevents the LLM from transcribing pre-written prose blocks verbatim (context leakage).
@@ -761,6 +1210,10 @@ ${victimIdentityRule}`;
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
+  const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
+    inputs.provisionalScoringFeedback,
+  );
+
   const chapterWordGuidance: Record<string, string> = {
     short: '4-6 substantial paragraphs — MINIMUM 1,300 words per chapter (short chapters fail quality validation)',
     medium: '5-7 substantial paragraphs — MINIMUM 1,600 words per chapter (short chapters fail quality validation)',
@@ -781,8 +1234,35 @@ ${victimIdentityRule}`;
 
   const user = `Write the full prose following the outline scenes.\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(sanitizeScenesCharacters(scenes, cast.map((c: any) => c.name)), null, 2)}`;
 
+  const promptContextBlocks = buildPromptContextBlocks({
+    characterConsistencyRules,
+    characterPersonalityContext,
+    physicalPlausibilityRules,
+    eraAuthenticityRules,
+    locationProfilesContext,
+    temporalContextBlock,
+    lockedFactsBlock,
+    clueDescriptionBlock,
+    nsdBlock,
+    continuityBlock,
+    discriminatingTestBlock,
+    humourGuideBlock,
+    craftGuideBlock,
+    sceneGroundingChecklist,
+    provisionalScoringFeedbackBlock,
+  });
+
+  const baseSystem = `${system}${amateurPoliceWarning}`;
+  const { composedSystem } = applyPromptBudgeting(
+    baseSystem,
+    developer,
+    user,
+    promptContextBlocks,
+    6200,
+  );
+
   const messages = [
-    { role: "system" as const, content: `${system}${amateurPoliceWarning}\n\n${characterConsistencyRules}${characterPersonalityContext}\n\n${physicalPlausibilityRules}${eraAuthenticityRules}${locationProfilesContext}${temporalContextBlock}${lockedFactsBlock}${clueDescriptionBlock}${nsdBlock}${continuityBlock}${discriminatingTestBlock}${humourGuideBlock}${craftGuideBlock}${sceneGroundingChecklist}\n\n${developer}` },
+    { role: "system" as const, content: composedSystem },
     { role: "user" as const, content: user },
   ];
 
@@ -804,6 +1284,98 @@ const parseProseResponse = (content: string) => {
     const repaired = jsonrepair(content);
     return JSON.parse(repaired) as Omit<ProseGenerationResult, "cost" | "durationMs">;
   }
+};
+
+interface ProvisionalChapterScore {
+  chapter: number;
+  score: number;
+  deficits: string[];
+  directives: string[];
+}
+
+const buildProvisionalChapterScore = (
+  chapter: ProseChapter,
+  chapterNumber: number,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  contentIssues: Array<{ message: string; severity?: string }>,
+  clueDistribution?: ClueDistributionResult,
+): ProvisionalChapterScore => {
+  const chapterText = (chapter.paragraphs ?? []).join(' ');
+  const wordCount = chapterText.trim().length > 0 ? chapterText.trim().split(/\s+/).length : 0;
+  const minWords = ledgerEntry?.minWords ?? 0;
+  const wordScore = minWords > 0 ? Math.min(100, Math.round((wordCount / minWords) * 100)) : 100;
+
+  const paragraphCount = chapter.paragraphs?.length ?? 0;
+  const paragraphScore = paragraphCount >= 6 ? 100 : paragraphCount >= 5 ? 93 : paragraphCount >= 4 ? 86 : paragraphCount >= 3 ? 76 : 65;
+
+  const requiredClues = ledgerEntry?.requiredClueIds ?? [];
+  const matchedClues = requiredClues.filter((clueId) => chapterMentionsRequiredClue(chapterText, clueId, clueDistribution));
+  const clueScore = requiredClues.length > 0
+    ? Math.round((matchedClues.length / requiredClues.length) * 100)
+    : 100;
+
+  const weightedIssuePenalty = contentIssues.reduce((penalty, issue) => {
+    const sev = String(issue.severity ?? '').toLowerCase();
+    if (sev === 'major' || sev === 'critical') return penalty + 18;
+    if (sev === 'minor') return penalty + 8;
+    return penalty + 5;
+  }, 0);
+  const issueScore = Math.max(0, 100 - weightedIssuePenalty);
+
+  const provisionalScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(wordScore * 0.35 + paragraphScore * 0.2 + clueScore * 0.25 + issueScore * 0.2),
+    ),
+  );
+
+  const deficits: string[] = [];
+  const directives: string[] = [];
+
+  if (wordScore < 100) {
+    deficits.push(`word density below target (${wordCount}/${minWords || 'n/a'})`);
+    directives.push('Increase chapter density with concrete investigation action and sensory-grounded beats; avoid recap-only padding.');
+  }
+
+  if (paragraphScore < 95) {
+    deficits.push(`paragraph structure too thin (${paragraphCount} paragraphs)`);
+    directives.push('Use at least 4-5 substantial paragraphs with varied rhythm and one strong scene transition.');
+  }
+
+  if (clueScore < 100) {
+    const missing = requiredClues.filter((clueId) => !matchedClues.includes(clueId));
+    deficits.push(`required clue surfacing incomplete (${matchedClues.length}/${requiredClues.length})`);
+    if (missing.length > 0) {
+      directives.push(`Surface missing clue evidence on-page with observable detail: ${missing.join(', ')}.`);
+    } else {
+      directives.push('Surface required clue evidence on-page before any deduction beat.');
+    }
+  }
+
+  const groundingIssue = contentIssues.find((issue) => /grounding|location anchoring|setting fidelity/i.test(issue.message));
+  if (groundingIssue) {
+    deficits.push('scene grounding weakness');
+    directives.push('Open next chapter with a named location anchor plus at least two sensory cues and one atmosphere marker.');
+  }
+
+  const temporalIssue = contentIssues.find((issue) => /month\/season contradiction|temporal/i.test(issue.message));
+  if (temporalIssue) {
+    deficits.push('temporal consistency risk');
+    directives.push('Maintain month-season lock in narration and dialogue; remove conflicting seasonal terms.');
+  }
+
+  if (deficits.length === 0 && provisionalScore < 95) {
+    deficits.push('general prose quality drift');
+    directives.push('Tighten causal clarity and add one explicit evidence-driven inference beat in the next chapter.');
+  }
+
+  return {
+    chapter: chapterNumber,
+    score: provisionalScore,
+    deficits,
+    directives,
+  };
 };
 
 const validateChapterCount = (chapters: ProseChapter[], expected: number) => {
@@ -1233,6 +1805,60 @@ const buildEnhancedRetryFeedback = (
     !testErrors.includes(e) && 
     !qualityErrors.includes(e)
   );
+
+  const buildRetryMicroPromptDirectives = (rawErrors: string[], rangeLabel: string): string[] => {
+    const directives: string[] = [];
+    const loweredErrors = rawErrors.map((error) => error.toLowerCase());
+
+    const clueErrors = loweredErrors.some((error) =>
+      error.includes("missing required clue obligation") || error.includes("clue visibility")
+    );
+    if (clueErrors) {
+      const clueIds = Array.from(
+        new Set(
+          rawErrors.flatMap((error) => {
+            const matches = Array.from(error.matchAll(/"([^"]+)"/g));
+            return matches.map((match) => String(match[1] || "")).filter(Boolean);
+          })
+        )
+      );
+
+      const clueScope = clueIds.length > 0
+        ? `Required clue IDs for chapter(s) ${rangeLabel}: ${clueIds.join(", ")}.`
+        : `Recover missing required clue evidence in chapter(s) ${rangeLabel}.`;
+
+      directives.push(
+        `MICRO-PROMPT [clue_visibility]: ${clueScope} Add an on-page clue observation moment and a detective processing line for each missing clue in separate paragraphs. Do not use meta language or internal IDs without narrative context.`
+      );
+    }
+
+    const wordCountError = rawErrors.find((error) => /word count below minimum/i.test(error));
+    if (wordCountError) {
+      const match = wordCountError.match(/\((\d+)\/(\d+)\)/);
+      const currentWords = match ? Number(match[1]) : undefined;
+      const minWords = match ? Number(match[2]) : undefined;
+      const guidance = Number.isFinite(minWords)
+        ? `Raise chapter length to at least ${minWords} words${Number.isFinite(currentWords) ? ` (currently ${currentWords})` : ""}.`
+        : "Increase chapter length to satisfy minimum word threshold.";
+
+      directives.push(
+        `MICRO-PROMPT [word_count]: ${guidance} Expand with concrete action beats, sensory setting detail, and inference-relevant dialogue; avoid filler recap.`
+      );
+    }
+
+    const groundingErrors = loweredErrors.some((error) =>
+      error.includes("scene location anchoring") || error.includes("grounding") || error.includes("setting fidelity")
+    );
+    if (groundingErrors) {
+      directives.push(
+        `MICRO-PROMPT [scene_grounding]: Open each failed chapter with a named location from context plus at least two sensory cues and one atmosphere marker before advancing plot beats.`
+      );
+    }
+
+    return directives;
+  };
+
+  const retryDirectives = buildRetryMicroPromptDirectives(errors, chapterRange);
   
   let feedback = `⚠️ CRITICAL: Attempt ${attempt}/${maxAttempts} for chapters ${chapterRange} had ${errors.length} validation error(s).\n\n`;
   feedback += `You MUST fix ALL of these issues. This is your ${attempt === maxAttempts ? 'FINAL' : 'last'} chance before generation fails.\n\n`;
@@ -1285,6 +1911,14 @@ const buildEnhancedRetryFeedback = (
     otherErrors.forEach(e => feedback += `• ${e}\n`);
     feedback += `\n`;
   }
+
+  if (retryDirectives.length > 0) {
+    feedback += `═══ RETRY MICRO-PROMPTS (${retryDirectives.length}) ═══\n`;
+    retryDirectives.forEach((directive) => {
+      feedback += `• ${directive}\n`;
+    });
+    feedback += `\n`;
+  }
   
   feedback += `═══════════════════════════════════\n`;
   feedback += `REGENERATE chapters ${chapterRange} with ALL fixes applied.\n`;
@@ -1306,14 +1940,39 @@ export async function generateProse(
   const chapters: ProseChapter[] = [];
   const chapterSummaries: ChapterSummary[] = [];
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
+  const provisionalChapterScores: ProvisionalChapterScore[] = [];
   const chapterValidator = new ChapterValidator();
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
   const castNames = inputs.cast.characters.map(c => c.name);
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, 10));
+  const proseLinterStats: ProseLinterStats = {
+    checksRun: 0,
+    failedChecks: 0,
+    openingStyleEntropyFailures: 0,
+    openingStyleEntropyBypasses: 0,
+    paragraphFingerprintFailures: 0,
+    ngramOverlapFailures: 0,
+  };
 
   // Track recurring error patterns across batches for cross-batch learning
   const crossChapterErrors: { type: string; count: number; examples: string[] }[] = [];
+  // Keep a local, evolving narrative-state snapshot so prompts and linter context
+  // reflect committed chapters in this generation call.
+  let liveNarrativeState: NarrativeState | undefined = inputs.narrativeState
+    ? {
+        ...inputs.narrativeState,
+        lockedFacts: [...inputs.narrativeState.lockedFacts],
+        characterPronouns: { ...inputs.narrativeState.characterPronouns },
+        usedOpeningStyles: [...inputs.narrativeState.usedOpeningStyles],
+        usedSensoryPhrases: [...inputs.narrativeState.usedSensoryPhrases],
+        cluesRevealedToReader: [...inputs.narrativeState.cluesRevealedToReader],
+        chapterSummaries: [...inputs.narrativeState.chapterSummaries],
+      }
+    : undefined;
+  let rollingProvisionalFeedback = Array.isArray(inputs.provisionalScoringFeedback)
+    ? [...inputs.provisionalScoringFeedback]
+    : [];
 
   // Generate and validate scenes in configurable batches.
   // When batchSize=1 (default) this processes one chapter per LLM call;
@@ -1322,7 +1981,14 @@ export async function generateProse(
     const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
-    const maxBatchAttempts = 3;
+    const cmlCase = (inputs.caseData as any)?.CASE ?? {};
+    const chapterRequirementLedger = buildChapterRequirementLedger(
+      cmlCase,
+      batchScenes,
+      chapterStart,
+      inputs.targetLength ?? "medium",
+    );
+    const maxBatchAttempts = Math.max(1, maxAttempts);
     let lastBatchErrors: string[] = [];
     let batchSuccess = false;
 
@@ -1334,7 +2000,16 @@ export async function generateProse(
       try {
         // chapterSummaries already holds every committed chapter, so continuity
         // context is always up-to-date when buildProsePrompt is called.
-        const prompt = buildProsePrompt(inputs, batchScenes, chapterStart, chapterSummaries);
+        const prompt = buildProsePrompt(
+          {
+            ...inputs,
+            narrativeState: liveNarrativeState,
+            provisionalScoringFeedback: rollingProvisionalFeedback,
+          },
+          batchScenes,
+          chapterStart,
+          chapterSummaries,
+        );
 
         // Add retry feedback on subsequent attempts
         if (attempt > 1 && lastBatchErrors.length > 0) {
@@ -1369,7 +2044,8 @@ export async function generateProse(
         validateChapterCount(proseBatch.chapters, batchScenes.length);
 
         // Validate each chapter in the batch individually
-        const batchErrors: string[] = [];
+        let batchErrors: string[] = [];
+        const provisionalBatchScores: ProvisionalChapterScore[] = [];
         for (let i = 0; i < proseBatch.chapters.length; i++) {
           const chapter = enforceMonthSeasonLockOnChapter(
             sanitizeGeneratedChapter(proseBatch.chapters[i], castNames),
@@ -1411,6 +2087,24 @@ export async function generateProse(
               chapterErrors.push(`Chapter ${chapterNumber}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
             });
 
+          // Deterministic completeness and clue-obligation gate before commit.
+          const ledgerEntry = chapterRequirementLedger[i];
+          if (ledgerEntry) {
+            chapterErrors.push(
+              ...validateChapterPreCommitObligations(chapter, ledgerEntry, inputs.clueDistribution),
+            );
+          }
+
+          provisionalBatchScores.push(
+            buildProvisionalChapterScore(
+              chapter,
+              chapterNumber,
+              ledgerEntry,
+              contentValidation.issues,
+              inputs.clueDistribution,
+            ),
+          );
+
           if (chapterErrors.length > 0) {
             // Track error patterns for cross-batch learning
             chapterErrors.forEach(error => {
@@ -1436,6 +2130,47 @@ export async function generateProse(
           }
         }
 
+        // Online anti-template linter gate before committing this batch.
+        proseLinterStats.checksRun += 1;
+        const linterIssues = lintBatchProse(
+          proseBatch.chapters,
+          chapters,
+          liveNarrativeState?.usedOpeningStyles ?? [],
+          inputs.templateLinterProfile,
+        );
+        if (linterIssues.length > 0) {
+          proseLinterStats.failedChecks += 1;
+          if (linterIssues.some((issue) => issue.type === "opening_style_entropy")) {
+            proseLinterStats.openingStyleEntropyFailures += 1;
+          }
+          if (linterIssues.some((issue) => issue.type === "paragraph_fingerprint")) {
+            proseLinterStats.paragraphFingerprintFailures += 1;
+          }
+          if (linterIssues.some((issue) => issue.type === "ngram_overlap")) {
+            proseLinterStats.ngramOverlapFailures += 1;
+          }
+          batchErrors.push(...linterIssues.map((issue) => issue.message));
+        }
+
+        const isEntropyOnlyFailure =
+          batchErrors.length > 0 &&
+          linterIssues.length > 0 &&
+          linterIssues.every((issue) => issue.type === "opening_style_entropy") &&
+          batchErrors.every((error) => error.startsWith("Template linter: opening-style entropy too low"));
+
+        if (isEntropyOnlyFailure && attempt >= maxBatchAttempts) {
+          proseLinterStats.openingStyleEntropyBypasses += 1;
+          console.warn(
+            `[Agent 9] Batch ch${batchLabel} exhausted entropy retries; accepting batch with entropy warning to avoid false hard-stop.`,
+          );
+          progressCallback(
+            'prose',
+            `⚠ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} accepted with residual entropy warning after ${maxBatchAttempts} attempts`,
+            overallProgress,
+          );
+          batchErrors = [];
+        }
+
         if (batchErrors.length > 0) {
           lastBatchErrors = batchErrors;
 
@@ -1459,6 +2194,8 @@ export async function generateProse(
           continue;
         }
 
+        provisionalChapterScores.push(...provisionalBatchScores);
+
         // All chapters in this batch passed validation — commit them
         for (let i = 0; i < proseBatch.chapters.length; i++) {
           const chapter = proseBatch.chapters[i];
@@ -1467,6 +2204,23 @@ export async function generateProse(
           // Extract summary immediately so the next batch's prompt has full continuity
           const summary = extractChapterSummary(chapter, chapterNumber, castNames);
           chapterSummaries.push(summary);
+        }
+        if (liveNarrativeState) {
+          liveNarrativeState = updateNSD(liveNarrativeState, proseBatch.chapters, chapterStart);
+        }
+
+        // Feed chapter-level deficits forward so chapter N can correct chapter N+1.
+        const feedbackFromBatch = provisionalChapterScores
+          .filter((entry) => entry.chapter >= chapterStart && entry.chapter <= chapterEnd)
+          .filter((entry) => entry.deficits.length > 0 || entry.score < 95)
+          .map((entry) => ({
+            fromChapter: entry.chapter,
+            score: entry.score,
+            deficits: entry.deficits,
+            directives: entry.directives,
+          }));
+        if (feedbackFromBatch.length > 0) {
+          rollingProvisionalFeedback = [...rollingProvisionalFeedback, ...feedbackFromBatch].slice(-4);
         }
 
         // Notify caller — pass validation issues from any failed attempts so the
@@ -1512,10 +2266,13 @@ export async function generateProse(
     .filter(([key]) => key.startsWith("Agent9-ProseGenerator"))
     .reduce((sum, [, val]) => sum + val, 0);
 
-  const chaptersWithRetries = new Set(chapterValidationHistory.map(h => h.chapterNumber)).size;
+  const batchesWithRetries = new Set(
+    chapterValidationHistory.map((h) => Math.floor((h.chapterNumber - 1) / batchSize)),
+  ).size;
+  const totalBatches = Math.ceil(sceneCount / batchSize);
   const note = chapterValidationHistory.length > 0
-    ? `Generated chapter-by-chapter. ${chaptersWithRetries} chapter(s) required retry for validation.`
-    : "Generated chapter-by-chapter.";
+    ? `Generated in scene batches. ${batchesWithRetries} batch(es) required retry for validation.`
+    : "Generated in scene batches.";
 
   return {
     status: "draft",
@@ -1526,14 +2283,22 @@ export async function generateProse(
     cost,
     durationMs,
     validationDetails: chapterValidationHistory.length > 0 ? {
-      totalBatches: sceneCount,
-      batchesWithRetries: chaptersWithRetries,
+      totalBatches,
+      batchesWithRetries,
       failureHistory: chapterValidationHistory.map(h => ({
         batchIndex: h.chapterNumber - 1,
         chapterRange: `${h.chapterNumber}`,
         attempt: h.attempt,
         errors: h.errors,
       })),
+      linter: proseLinterStats,
+      provisionalChapterScores,
+    } : proseLinterStats.checksRun > 0 ? {
+      totalBatches,
+      batchesWithRetries,
+      failureHistory: [],
+      linter: proseLinterStats,
+      provisionalChapterScores,
     } : undefined,
   };
 }

@@ -300,3 +300,459 @@ echo "EXIT:$LASTEXITCODE"
 ```
 
 Then trigger a full pipeline run and check the quality report for all 8 phases ≥75.
+
+---
+
+## Run Audit (Markdown): run_f29dda13-2286-413f-97e0-7945243aa16d
+
+Date: 2026-03-09
+
+### Scope reviewed
+- `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json`
+- `apps/worker/logs/scoring.jsonl`
+- `apps/api/logs/llm.jsonl`
+- `apps/api/logs/activity.jsonl`
+
+### A) Inconsistencies
+
+1. Overall grade/score vs run outcome conflict
+- Evidence:
+  - Report shows `overall_score: 97.77`, `overall_grade: A`, but `passed: false` in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:9`.
+  - Report shows `aborted: true`, `abort_reason: Release gate hard-stop: templated prose leakage detected` in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:5158`.
+- Why inconsistent:
+  - Score headline implies success while release gate determines terminal failure.
+
+2. Validation issue count mismatch by stage (11 critical vs 7 critical)
+- Evidence:
+  - `ValidationPipeline final_validation` reports `11 critical` in `apps/api/logs/llm.jsonl:6151`.
+  - Release gate diagnostic reports `7 critical` in `apps/worker/logs/scoring.jsonl:187`.
+- Why inconsistent:
+  - Two official summaries exist without explicit stage attribution/reconciliation.
+
+3. Prose duration/cost mismatch between phase and diagnostic
+- Evidence:
+  - Prose phase: `duration_ms: 375441`, `cost: 0.10107690945` in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:3331`.
+  - Post-generation summary: `prose_duration_ms: 180791`, `prose_cost: 0.0330716199` in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:3405`.
+- Why inconsistent:
+  - Field naming does not reveal scope (first pass vs total lifecycle).
+
+4. Clue visibility failure conflicts with NSD reveal trace
+- Evidence:
+  - Prose test fails: `Clue visibility: Only 0/1 clues` in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:3015`.
+  - NSD trace shows multiple clues revealed (`clue_1`, `clue_2`, `clue_5`, `clue_6`, `clue_7`, `clue_3`, `clue_4`) in `validation/quality-report-run_f29dda13-2286-413f-97e0-7945243aa16d.json:3467`.
+- Why inconsistent:
+  - Visibility scorer and NSD reveal tracker are using non-aligned definitions.
+
+5. Transient report endpoint instability during live run
+- Evidence:
+  - Repeated report `404` during in-progress polling in `apps/api/logs/activity.jsonl:101853`.
+  - Mid-run report `500` followed by recovery to `200` in `apps/api/logs/activity.jsonl:101930`.
+- Why inconsistent:
+  - Report endpoint behavior is unstable under normal polling conditions.
+
+### B) Weaknesses
+
+1. Completeness gating can fail under high aggregate score
+- Evidence: Prose `84/B` but failed due to completeness `35` and critical clue visibility failure.
+- Risk: Operators relying on top-line score can misread true run readiness.
+
+2. Style entropy drift indicates templating pressure
+- Evidence: NSD opening styles are overwhelmingly `general-descriptive`.
+- Risk: Elevated chance of duplicate structural prose and hard-stop leakage flags.
+
+3. Scene grounding below target despite fair-play pass
+- Evidence: `17/19` grounded chapters, with release warning.
+- Risk: Quality dimensions can pass while release policy still blocks publication.
+
+4. Temporal consistency remains fragile
+- Evidence: Retry events for chapters 12 and 13 due to month/season contradiction.
+- Risk: Retry costs and latent contradiction leakage into rewritten chapters.
+
+### C) Direct Failures
+
+1. Prose generation phase failed threshold
+- Evidence: `agent9_prose` failed with `component_failures: [completeness]`.
+
+2. Release gate hard-stop
+- Evidence: Hard-stop due to `templated prose leakage detected`.
+
+3. Run outcome failed/aborted
+- Evidence: Top-level `passed: false` and `aborted: true`.
+
+### D) Deep Dive: Concrete Solutions
+
+#### Issue 1: Score headline conflicts with final outcome
+Root-cause hypothesis:
+- Score and gate are parallel outputs without explicit precedence.
+
+Concrete fix:
+1. Add explicit top-level outcome contract:
+- `run_outcome`: `passed | failed | aborted`
+- `run_outcome_reason`
+- `scoring_outcome` block
+- `release_gate_outcome` block
+2. Enforce precedence:
+- Hard-stop or aborted flag always wins.
+
+Acceptance criteria:
+- No report can present an ambiguous final state.
+- UI/export show `run_outcome` first.
+
+#### Issue 2: 11 vs 7 critical mismatch
+Root-cause hypothesis:
+- Counts are from different lifecycle snapshots (pre-repair vs release gate).
+
+Concrete fix:
+1. Add stage snapshots:
+- `validation_snapshots.pre_repair`
+- `validation_snapshots.post_repair`
+- `validation_snapshots.release_gate`
+2. Add deterministic `issue_key` lineage and delta reconciliation.
+
+Acceptance criteria:
+- Every shown count maps to one stage.
+- Any difference is explicitly represented as resolved/new delta.
+
+#### Issue 3: Prose duration/cost ambiguity
+Root-cause hypothesis:
+- First-pass and total lifecycle metrics are conflated.
+
+Concrete fix:
+1. Replace ambiguous names with scoped metrics:
+- `prose_duration_ms_first_pass`, `prose_duration_ms_total`
+- `prose_cost_first_pass`, `prose_cost_total`
+2. Add `rewrite_pass_count`, `repair_pass_count`, and per-pass token/costs.
+
+Acceptance criteria:
+- Metric scope is explicit and arithmetic invariants hold.
+
+#### Issue 4: Clue visibility vs NSD mismatch
+Root-cause hypothesis:
+- NSD transitions and visibility scoring use different clue evidence standards.
+
+Concrete fix:
+1. Introduce unified clue evidence model:
+- `introduced | hinted | explicit | confirmed`
+2. Require NSD reveal events to include text evidence anchors.
+3. Rework visibility scorer to consume the same clue-state model.
+4. Add divergence telemetry (`nsd_visibility_divergence`).
+
+Acceptance criteria:
+- Visibility and NSD traces are reconciled by the same evidence table.
+
+#### Issue 5: Report endpoint instability under polling
+Root-cause hypothesis:
+- Non-atomic writer/reader lifecycle and parse races.
+
+Concrete fix:
+1. Atomic file write pattern: temp-write -> fsync -> rename.
+2. Stable in-progress contract: return `202` for active run report materialization.
+3. Fallback read path: return last good snapshot with `stale=true` instead of 500.
+4. Endpoint telemetry for read state transitions.
+
+Acceptance criteria:
+- No report `500` for active known runs under polling load.
+- `404` reserved for truly unknown run IDs.
+
+#### Issue 6: Style repetition and template leakage
+Root-cause hypothesis:
+- Prompt guidance is advisory; no online diversity gate before acceptance.
+
+Concrete fix:
+1. Add per-batch prose linter:
+- opening-style entropy threshold
+- paragraph fingerprint duplication check
+- high-overlap n-gram detector
+2. On linter fail, rewrite chapter before commit.
+
+Acceptance criteria:
+- Template leakage incidents trend down across fixed-seed regression set.
+
+#### Issue 7: Month/season contradictions causing retries
+Root-cause hypothesis:
+- Temporal checks are mostly post-generation.
+
+Concrete fix:
+1. Build chapter-local temporal constraint packet from temporal context.
+2. Inject hard temporal rules into generation prompt.
+3. Run deterministic contradiction preflight before chapter acceptance.
+
+Acceptance criteria:
+- Contradiction retries approach zero in sampled runs.
+
+### E) Implementation Order
+
+1. Reporting truth model (Issues 1-3)
+2. Endpoint stability under polling (Issue 5)
+3. Clue evidence unification (Issue 4)
+4. Prose robustness (Issues 6-7)
+5. Regression gate with fixed-seed scenario set
+
+### F) Engineering Checklist (Concrete)
+
+1. Schema/contract updates
+- `packages/story-validation/src/scoring/types.ts`
+- `packages/story-validation/src/scoring/aggregator.ts`
+
+2. Worker diagnostic emission updates
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `apps/worker/src/jobs/scoring-logger.ts`
+
+3. API report stability and lifecycle states
+- `apps/api/src/server.ts`
+
+4. Scorer and clue-state reconciliation
+- `packages/story-validation/src/scoring/*`
+- NSD trace extraction and evidence hooks in worker prose pipeline
+
+5. Tests
+- `apps/api/src/__tests__/server.test.ts`
+- `packages/story-validation/src/__tests__/*`
+- worker integration tests for report lifecycle and temporal contradictions
+
+### G) Overlap Audit Against Existing Fixes
+
+This section de-duplicates the new run audit against prior remediation work so we do not repeat already-closed tasks.
+
+#### Summary
+
+- We have already closed a large volume of fixes across prior plans (CML path bugs, scorer defects, retry/re-score issues, schema drift, path resolution, UI reliability).
+- The current run (`run_f29dda13...`) exposes a mostly different class of issues: report truth-model semantics, stage-count reconciliation, endpoint polling stability, and NSD-vs-visibility alignment.
+
+#### De-dup Matrix
+
+| Deep-dive issue | Prior fix overlap | Status now | Action |
+|---|---|---|---|
+| 1. Score headline vs run outcome conflict | Minimal overlap | **NEW** | Implement run outcome precedence contract |
+| 2. 11 vs 7 critical mismatch | Minimal overlap | **NEW** | Add stage snapshots + reconciliation deltas |
+| 3. Prose cost/duration ambiguity | Minimal overlap | **NEW** | Introduce scoped first-pass vs total metrics |
+| 4. Clue visibility vs NSD mismatch | **Partial overlap**: earlier clue-path bugs fixed | **PARTIAL/NEW** | Keep prior clue-path fix; add unified clue evidence model |
+| 5. Report endpoint polling instability | Minimal overlap | **NEW** | Atomic report write + 202 in-progress + stale fallback |
+| 6. Style repetition/template leakage | **Partial overlap**: atmospheric warning and release gate exist | **PARTIAL/NEW** | Add online entropy/fingerprint lint + rewrite-before-commit |
+| 7. Month/season contradiction retries | **Partial overlap**: retry-time validation exists | **PARTIAL/NEW** | Add pre-generation temporal constraints + deterministic preflight |
+
+#### Already-Closed Areas (Do Not Re-open)
+
+- CML clue path and identity rules schema mismatches from prior scorer phases are already marked complete.
+- Identity/prose replacement re-score issues (orchestrator) are already marked complete.
+- Agent 2b/2c/2d schema false failures and CWD path resolution fixes are already marked complete.
+- Contract drift test guardrails from prior phases are already in place.
+
+#### Practical rule for future edits
+
+Before implementing any new remediation item, map it to one of these buckets:
+
+1. **Closed bug class**: do not re-implement; only regression-test.
+2. **Partial overlap**: extend existing mechanism, do not replace it.
+3. **Net-new bug class**: implement fully with explicit acceptance criteria.
+
+#### Note on duplicated plan files
+
+- There are two similarly named plan files in the repo root and `plans/`:
+  - `SCORING_FIX_PHASES.md`
+  - `plans/SCORING_FIX_PHASES.md`
+- Treat `plans/SCORING_FIX_PHASES.md` as the canonical working plan to avoid drift.
+
+---
+
+## Definitive Bad Prose Resolution Document (Open Fixes Only)
+
+This is the single actionable list of remaining fixes required to resolve bad prose outcomes.
+Completed items are intentionally excluded unless needed as dependencies.
+
+### Goal
+
+Ship prose runs that consistently pass release gate and quality checks without hidden contradictions between scoring, diagnostics, and exported evidence.
+
+### Definition of done (hard)
+
+1. No release hard-stop on templated prose leakage in 10 consecutive seeded runs.
+2. No unresolved clue visibility/NSD divergence in 10 consecutive seeded runs.
+3. Month/season contradiction retries reduced to zero (or explicitly justified) in 10 seeded runs.
+4. Report polling endpoint produces no `500` during active-run polling load tests.
+5. Final report state is never ambiguous (`run_outcome` deterministically set).
+
+### P0 — Must Fix Immediately
+
+#### P0-1: Canonical run outcome truth model
+Problem:
+- Reports can show `A` grade while run still fails/aborts, causing operator confusion.
+
+Required fix:
+1. Add top-level fields:
+- `run_outcome: passed | failed | aborted`
+- `run_outcome_reason`
+- `scoring_outcome` (informational)
+- `release_gate_outcome` (informational)
+2. Enforce precedence in report builder and API response:
+- hard-stop/abort always overrides score headline.
+
+Primary files:
+- `packages/story-validation/src/scoring/types.ts`
+- `packages/story-validation/src/scoring/aggregator.ts`
+- `apps/api/src/server.ts`
+
+Acceptance:
+- Any run with hard-stop must serialize `run_outcome="aborted"` regardless of score.
+
+#### P0-2: Validation count reconciliation by stage
+Problem:
+- Conflicting critical counts (for same run) without stage labeling.
+
+Required fix:
+1. Add staged snapshots:
+- `validation_snapshots.pre_repair`
+- `validation_snapshots.post_repair`
+- `validation_snapshots.release_gate`
+2. Add `validation_reconciliation` block with resolved/new deltas.
+3. Add deterministic `issue_key` for issue lineage.
+
+Primary files:
+- `packages/story-validation/src/scoring/types.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `apps/api/src/server.ts`
+
+Acceptance:
+- Every displayed issue count maps to one explicit stage and can be reconciled.
+
+#### P0-3: Report endpoint stability under live polling
+Problem:
+- Mid-run report route can emit transient `404/500`.
+
+Required fix:
+1. Atomic report write path (temp write -> fsync -> rename).
+2. Return `202` in-progress contract for known active run report materialization.
+3. Fallback to last valid report snapshot with `stale=true` instead of `500`.
+
+Primary files:
+- `apps/api/src/server.ts`
+- `packages/story-validation/src/scoring/report-repository.ts` (or repository implementation)
+
+Acceptance:
+- Polling test at 250ms interval returns only `202/200` for active known runs.
+
+### P1 — Prose Quality Signal Alignment
+
+#### P1-1: Clue visibility and NSD must share one evidence model
+Problem:
+- Prose visibility can fail while NSD trace claims clues revealed.
+
+Required fix:
+1. Introduce `clue_state` lifecycle per clue:
+- `introduced`, `hinted`, `explicit`, `confirmed`
+2. NSD reveal transitions must carry evidence anchors:
+- `evidence_quote`
+- `evidence_offset` (chapter/paragraph/sentence)
+3. Clue-visibility scorer must consume same model.
+4. Emit `nsd_visibility_divergence` when evidence is missing.
+
+Primary files:
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `packages/story-validation/src/scoring/phase-scorers/agent9-prose-scorer.ts`
+- `apps/api/src/server.ts` (export shape)
+
+Acceptance:
+- No run can report clue reveal without corresponding text evidence.
+
+#### P1-2: Scoped prose duration/cost metrics
+Problem:
+- First-pass and total lifecycle metrics are currently ambiguous.
+
+Required fix:
+1. Replace ambiguous fields with explicit scoped fields:
+- `prose_duration_ms_first_pass`, `prose_duration_ms_total`
+- `prose_cost_first_pass`, `prose_cost_total`
+2. Add pass counters and per-pass accounting.
+
+Primary files:
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `packages/story-validation/src/scoring/types.ts`
+
+Acceptance:
+- Metric scope ambiguity removed from report and export payloads.
+
+### P2 — Prose Generation Robustness
+
+#### P2-1: Anti-template online linter before commit
+Status: implemented (2026-03-09).
+
+Problem:
+- Leakage is detected late at release gate, not prevented early.
+
+Required fix:
+1. Add per-batch linter checks:
+- opening-style entropy threshold
+- repeated paragraph fingerprint check
+- high-overlap n-gram check
+2. On failure, rewrite chapter/batch before commit.
+
+Primary files:
+- `packages/prompts-llm/src/agent9-prose.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+
+Acceptance:
+- Duplicated long-block leakage trend drops and remains below threshold.
+
+#### P2-2: Temporal consistency preflight (month/season)
+Problem:
+- Contradictions still appear and trigger retries.
+
+Required fix:
+1. Build temporal constraint packet per chapter from temporal context.
+2. Inject hard constraints into prose prompt.
+3. Run deterministic contradiction preflight before chapter acceptance.
+4. Auto-rewrite only offending sentences when possible.
+
+Primary files:
+- `packages/prompts-llm/src/agent9-prose.ts`
+- `packages/story-validation/src/chapter-validator.ts`
+
+Acceptance:
+- Month/season contradiction retry events reach zero on seeded regression set.
+
+#### P2-3: Promote partially implemented prose gates
+Problem:
+- Some prose checks are warnings/prompts only and not enforced.
+
+Required fix:
+1. Promote victim identity from prompt+check to enforced release criterion after calibration.
+2. Promote atmospheric variety from warning to gate once false-positive rate validated.
+3. Add runtime validators for detective stake and emotional beat presence.
+
+Primary files:
+- `packages/story-validation/src/chapter-validator.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `packages/prompts-llm/src/agent9-prose.ts`
+
+Acceptance:
+- These criteria are visible in report tests and influence pass/fail deterministically.
+
+### Execution order (strict)
+
+1. P0-1 run outcome truth model
+2. P0-2 validation reconciliation
+3. P0-3 report polling stability
+4. P1-1 clue/NSD evidence unification
+5. P1-2 scoped prose metrics
+6. P2-1 anti-template online linter
+7. P2-2 temporal preflight
+8. P2-3 promotion of partial prose gates
+
+### Regression suite required before closure
+
+1. Seeded run set: minimum 10 fixed seeds, same config, captured baseline.
+2. Contract tests:
+- report schema includes new outcome and reconciliation blocks.
+3. Endpoint tests:
+- active-run polling returns `202/200`, no `500`.
+4. Quality tests:
+- no unresolved clue/NSD divergence,
+- no month/season contradictions,
+- no template leakage hard-stop.
+
+### Ownership map
+
+- Worker orchestration and diagnostics: `apps/worker`
+- Prompt and generation behavior: `packages/prompts-llm`
+- Scoring schema and reconciliations: `packages/story-validation`
+- API report contract and export behavior: `apps/api`

@@ -57,7 +57,7 @@ describe("mystery orchestrator fix coverage", () => {
     const check = __testables.checkNarrativeSceneCountFloor(candidate, lock);
 
     expect(check.ok).toBe(false);
-    expect(check.message).toContain("shrink");
+    expect(check.message).toContain("changed");
   });
 
   it("prose post-processing rewrites scaffold leakage and dedups repeated long paragraphs", () => {

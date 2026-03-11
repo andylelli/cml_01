@@ -94,6 +94,61 @@ describe("FileReportRepository.save()", () => {
     expect(JSON.parse(await fs.readFile(fileA, "utf-8")).project_id).toBe("proj-A");
     expect(JSON.parse(await fs.readFile(fileB, "utf-8")).project_id).toBe("proj-B");
   });
+
+  it("rejects contradictory reports that violate invariants", async () => {
+    const repo = new FileReportRepository(tempDir);
+    const contradictory = makeReport({
+      run_id: 'run-contradiction',
+      passed: false,
+      aborted: true,
+      abort_reason: 'Template linter failed chapter batch.',
+      diagnostics: [
+        {
+          key: 'agent9_prose_post_generation_summary',
+          agent: 'agent9_prose',
+          phase_name: 'Prose Generation',
+          diagnostic_type: 'post_generation_summary',
+          captured_at: new Date().toISOString(),
+          details: {
+            template_linter_failed_checks: 0,
+          },
+        },
+      ],
+    } as unknown as GenerationReport);
+
+    await expect(repo.save(contradictory)).rejects.toThrow(
+      /template_linter_abort_without_failed_checks/
+    );
+  });
+
+  it("rejects reports where NSD revealed clues have no evidence anchors", async () => {
+    const repo = new FileReportRepository(tempDir);
+    const contradictory = makeReport({
+      run_id: 'run-nsd-missing-anchors',
+      passed: false,
+      diagnostics: [
+        {
+          key: 'agent9_prose_post_generation_summary',
+          agent: 'agent9_prose',
+          phase_name: 'Prose Generation',
+          diagnostic_type: 'post_generation_summary',
+          captured_at: new Date().toISOString(),
+          details: {
+            nsd_transfer_trace: [
+              {
+                newly_revealed_clue_ids: ['clue_1'],
+                clue_evidence_anchors: [],
+              },
+            ],
+          },
+        },
+      ],
+    } as unknown as GenerationReport);
+
+    await expect(repo.save(contradictory)).rejects.toThrow(
+      /nsd_revealed_clues_missing_evidence_anchors/
+    );
+  });
 });
 
 // ─── get() ────────────────────────────────────────────────────────────────────
@@ -260,8 +315,40 @@ describe("FileReportRepository.getAggregate()", () => {
     };
 
     const repo = new FileReportRepository(tempDir);
-    await repo.save(makeReport({ run_id: "run-1", phases: [failedPhase] }));
-    await repo.save(makeReport({ run_id: "run-2", phases: [failedPhase] }));
+    const failedSummary = {
+      phases_passed: 8,
+      phases_failed: 1,
+      total_phases: 9,
+      pass_rate: 88.89,
+      weakest_phase: "agent4-hard-logic",
+      strongest_phase: "agent1-background",
+      retry_stats: {
+        total_retries: 1,
+        phases_retried: 1,
+        retry_rate: "11.11",
+        retried_phases: [{ agent: "agent4-hard-logic", retry_count: 1, max_retries: 3 }],
+      },
+      total_cost: 0.12,
+    };
+
+    await repo.save(
+      makeReport({
+        run_id: "run-1",
+        passed: false,
+        run_outcome: "failed",
+        phases: [failedPhase],
+        summary: failedSummary,
+      } as unknown as Partial<GenerationReport>)
+    );
+    await repo.save(
+      makeReport({
+        run_id: "run-2",
+        passed: false,
+        run_outcome: "failed",
+        phases: [failedPhase],
+        summary: failedSummary,
+      } as unknown as Partial<GenerationReport>)
+    );
 
     const stats = await repo.getAggregate();
     const hardLogicFailure = stats.commonFailures.find(

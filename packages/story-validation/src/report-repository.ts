@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs';
 import { join, dirname } from 'path';
+import { randomUUID } from 'crypto';
 import type { GenerationReport } from './scoring/types.js';
+import { assertGenerationReportInvariants } from './scoring/report-invariants.js';
 
 /**
  * Repository interface for storing and retrieving generation reports
@@ -58,14 +60,20 @@ export class FileReportRepository implements ReportRepository {
   constructor(private baseDir: string) {}
 
   async save(report: GenerationReport): Promise<void> {
+    // Guard against contradictory report payloads before persistence/export.
+    assertGenerationReportInvariants(report);
+
     const dirPath = join(this.baseDir, report.project_id);
     const filePath = join(dirPath, `${report.run_id}.json`);
+    const tempPath = join(dirPath, `${report.run_id}.${randomUUID()}.tmp`);
 
     // Ensure directory exists
     await fs.mkdir(dirPath, { recursive: true });
 
-    // Write report
-    await fs.writeFile(filePath, JSON.stringify(report, null, 2), 'utf-8');
+    // Write report atomically to avoid readers observing partial JSON during live polling.
+    const payload = JSON.stringify(report, null, 2);
+    await fs.writeFile(tempPath, payload, 'utf-8');
+    await fs.rename(tempPath, filePath);
   }
 
   async get(projectId: string, runId: string): Promise<GenerationReport | null> {

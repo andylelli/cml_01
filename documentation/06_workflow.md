@@ -9,12 +9,21 @@ This document describes the current implementation of the mystery generation wor
 ### 1. Create Project
 - **Endpoint**: `POST /api/projects`
 - **Action**: Creates a new project with `idle` status
+- **Performance note**: project creation remains metadata-only in the Project tab; broad artifact loading is deferred until artifact/review views are requested.
 - **Response**: `{ id, name, status }`
 
 ### 1b. List Projects
 - **Endpoint**: `GET /api/projects`
 - **Action**: Returns existing projects for reload dropdown
 - **Response**: `{ projects: [{ id, name, status, createdAt? }] }`
+
+### 1c. Latest Run (Project)
+- **Endpoint**: `GET /api/projects/:id/runs/latest`
+- **Action**: Returns latest run metadata for the project
+- **Response**:
+  - `200` with run object when a run exists
+  - `200 { run: null }` when the project has no runs yet
+- **UI behavior**: when latest run is null, the frontend does not fan out artifact `/latest` requests, avoiding expected new-project 404 noise.
 
 ### 2. Save Spec
 - **Endpoint**: `POST /api/projects/:id/specs`
@@ -44,7 +53,29 @@ This document describes the current implementation of the mystery generation wor
 ### 6. Fetch Scoring Reports (Phase 4)
 - **Endpoint**: `GET /api/projects/:projectId/runs/:runId/report`
 - **Action**: Returns the stored scoring report for a specific run
-- **Response**: `GenerationReport`
+- **Response**:
+  - `200`: `GenerationReport` (includes `diagnostics[]` snapshots when available)
+  - `202`: `{ status: "in_progress", projectId, runId }` when the run is active and the report is not yet materialized
+  - `200` stale fallback (`stale_reason: "incomplete_report"`): when the requested run report is still marked `in_progress: true` but the run is no longer active, the endpoint returns the latest finalized project report instead of serving the incomplete snapshot
+  - `200` stale fallback: when the requested run report is unreadable but another valid report exists for the same project, returns latest valid report plus `stale: true`, `stale_reason`, and `requested_run_id`
+  - `409`: when the run is no longer active and only an `in_progress` snapshot exists (no finalized fallback report available)
+  - Agent 9 diagnostics include `nsd_transfer_trace` entries showing batch-by-batch NarrativeState handoff (before/after tails, clue propagation, and clue evidence anchors).
+  - `release_gate_summary` includes `nsd_visibility_divergence` to surface mismatches between NSD-revealed clues and clues with prose evidence.
+
+Report status semantics:
+- Treat `run_outcome` as authoritative for run status (`passed | failed | aborted`).
+- Treat `overall_score`/`overall_grade` as scoring context, not final release truth.
+- Use `validation_snapshots.pre_repair`, `validation_snapshots.post_repair`, and `validation_snapshots.release_gate` to interpret issue-count deltas (`validation_reconciliation`).
+- Treat post-generation prose metrics as scoped fields: `prose_duration_ms_first_pass` / `prose_duration_ms_total` and `prose_cost_first_pass` / `prose_cost_total`; use `rewrite_pass_count`, `repair_pass_count`, and `per_pass_accounting` for lifecycle attribution.
+- Treat `template_linter_*` fields in `post_generation_summary` as online prose anti-template telemetry (batch checks run/failed plus entropy, fingerprint, and n-gram failure breakdown).
+- Treat `fair_play_*` fields in `post_generation_summary` (`fair_play_all_clues_visible`, `fair_play_discriminating_test_complete`, `fair_play_no_solution_spoilers`, `fair_play_component_score`) as the component-level prose fair-play breakdown used to diagnose recurring 60% outcomes.
+- Treat `clue_visibility_expected_ids`, `clue_visibility_extracted_ids`, `clue_visibility_missing_expected_ids`, and `clue_visibility_unexpected_extracted_ids` as the primary expected-vs-observed clue-visibility triage payload in post-generation and release-gate diagnostics.
+- Treat clue-state telemetry as canonical progression data: `clue_state_by_id` now uses `introduced|hinted|explicit|confirmed` in NSD transfer steps and release-gate divergence diagnostics.
+- Report writes now pass a hard invariant check before persistence/export; contradictory status payloads are rejected (for example: aborted runs missing reason, or template-linter abort reason with zero template-linter failed checks in diagnostics).
+- Report writes now also reject NSD trace contradictions: if `newly_revealed_clue_ids` are present without matching `clue_evidence_anchors`, persistence fails.
+- Story-validation now includes fixed-seed replay benchmarks for prose scoring that assert deterministic chapter-level outcomes from selected quality-report fixtures before changes are accepted.
+- Story-validation now also provides an A/B prompt harness utility for variant evaluation on paired seeds; winner selection is gated by minimum sample size, minimum effect size, and paired sign-test statistical significance.
+- Prose per-chapter scoring traces now include component-level chapter metrics (validation, quality, completeness, consistency) for both first-pass and repair-pass chapter series, and these are surfaced in Quality dashboard chapter tables.
 
 ### 7. Fetch Scoring Report History (Phase 4)
 - **Endpoint**: `GET /api/projects/:projectId/reports/history?limit=N`
@@ -176,7 +207,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Clue pacing gate (implemented)**: Before prose generation, the worker enforces `cluesRevealed` coverage in at least 60% of scenes.
   - Runs deterministic clue pre-assignment first (mapping-aware, essential-clue anchoring, gap-filling, act-balanced threshold fill).
   - Falls back to one LLM outline retry only if deterministic repair is still below threshold, then applies a final deterministic pass on the retry result.
-- **Scene-count lock (implemented)**: Outline retries (coverage or pacing) include count-preservation guardrails and are rejected if they reduce total scenes or shrink any act's scene count versus the baseline outline.
+- **Scene-count lock (implemented)**: Outline retries (coverage or pacing) include exact count guardrails and are rejected if total scenes or any act's scene count differs from the baseline outline.
 
 ### Step 9: Prose Generation
 - **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
@@ -188,9 +219,26 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Scene-grounding backfill (implemented)**: if a chapter opening misses required location/sensory/atmosphere grounding signals, worker post-processing prepends a location-profile-based grounding lead.
 - **Template-leakage prevention hardening (implemented)**: worker post-processing now rewrites known scaffold-signature leakage and replaces repeated long paragraphs with deterministic chapter-specific variants before release-gate checks.
 - **Chapter validation (implemented)**: generation retries now include readability density checks and scene-grounding checks (location anchor + sensory + atmosphere cues) in addition to existing consistency checks.
+- **Pre-commit completeness gate (implemented)**: before each chapter batch is committed, Agent 9 now enforces deterministic completeness checks (minimum words by target length and required clue-obligation coverage per chapter from CML mapping + scene clue assignments). Any missing obligation forces retry rather than persisting incomplete prose.
+- **Error-class retry micro-prompts (implemented)**: retry attempts now include targeted corrective directives for clue visibility, word-count, and scene-grounding failures instead of generic retry text.
+- **Prompt budgeting (implemented)**: Agent 9 now assembles prompts from priority-tagged context blocks with token estimation, per-block caps, and deterministic pruning (`optional` -> `medium` -> `high`; critical blocks preserved).
+- **Entropy hardening (implemented)**: opening-style entropy now uses an adaptive threshold in standard prose generation (lower early-chapter floor, canonical later floor), and entropy-only residual failures no longer hard-abort prose after retry exhaustion.
 - **Baseline prose guardrails (implemented)**: every prose generation pass includes strict cast-name enforcement (no invented titled placeholders), explicit suspect-elimination coverage requirements, and explicit culprit evidence-chain requirements.
+- **Prose clue-visibility scoring hardening (implemented)**: prose scoring adaptation now detects clue coverage via semantic clue signatures (Agent 5 clue description/points-to keywords) in addition to literal clue IDs, so fair-play completeness is measured on surfaced evidence content rather than ID token echo.
+- **Discriminating-test component validation (implemented)**: story validation now requires all four discriminating-test components (setup action, evidence usage, elimination logic, outcome declaration). Missing pieces are reported as specific error types with scene/paragraph mapping to support targeted chapter rewrites.
+- **Scene-grounding opening-block hardening (implemented)**: chapter validation now requires the opening block (first 1-2 paragraphs) to contain a named location anchor and minimum sensory plus atmosphere/time markers; delayed grounding is flagged for rewrite.
+- **Character validator hardening (implemented)**: story validation now treats configured aliases as canonical cast references, applies pronoun agreement checks through immediate follow-up sentence context, and flags titled out-of-cast named walk-ons as major issues.
 - **Month/season lock hardening (implemented)**: prose generation derives canonical season from temporal month and enforces it in two layers: (1) prompt-level hard season-lock instructions, and (2) deterministic chapter-text normalization before per-chapter validation when locked-month chapters include conflicting seasonal labels.
+- **Temporal contradiction matrix hardening (implemented)**: story-validation now uses a shared month/season contradiction analyzer across chapter validation and narrative continuity validation, with explicit month-to-forbidden-season mapping and normalized season phrase detection (including dialogue phrases and variants such as `springtime`, `autumnal`, and `wintry`).
+- **Per-chapter provisional scoring feedback (implemented)**: Agent 9 now computes provisional chapter scores during batch validation and carries chapter-local deficits/directives forward into the next batch prompt, so weak chapter-N signals (for example thin paragraph structure or clue surfacing drift) are actively corrected in chapter N+1 generation constraints.
+- **Batch retry telemetry fix (implemented)**: Agent 9 validation details now track true batch counts (`totalBatches = ceil(sceneCount / batchSize)`) and batch-level retry incidence (`batchesWithRetries`) instead of chapter-level counts when multi-scene batching is enabled.
 - **Validation-repair trigger (implemented)**: prose repair regeneration now runs when validation returns `needs_revision` as well as hard failure states.
+- **Repair-mode batching (implemented)**: validation-driven full-prose repair runs chapter-by-chapter (`batchSize=1`) with higher per-chapter retry budget (up to 3 attempts), reducing broad reruns when a single chapter fails.
+- **Aborted-run observability hardening (implemented)**: if a run fails after prose has started but before final prose scoring completes, the worker now persists a partial `post_generation_summary` diagnostic snapshot before writing the aborted partial report.
+- **Repair-mode linter profile (implemented)**: early repair chapters use a softened opening-style entropy gate (warm-up + lower threshold) while paragraph-fingerprint and n-gram overlap checks remain strict.
+- **Repair-run NarrativeState reset (implemented)**: full-prose repair starts from a fresh NarrativeState baseline (locked facts + pronouns) so failed-pass style history does not contaminate repair startup.
+- **No full-phase prose retry (implemented)**: the worker no longer re-runs Agent 9 end-to-end via generic phase retry. Prose now runs once per pipeline pass, with reliability handled by chapter-batch retries inside Agent 9 plus targeted validation/identity/schema repair paths.
+- **Re-score accounting hardening (implemented)**: identity/schema replacement-prose re-scoring now uses a shared updater that preserves accumulated Agent 9 cost/duration attribution in quality telemetry.
 - **Suspect-elimination alignment (implemented)**: repair-trigger classification and release-gate hard-stop now use the same alias-aware suspect-elimination detector (type + message), preventing guardrail misses when validator key strings vary.
 - **Guardrail**: If post-reveal chapters drift into role-only culprit aliasing after arrest/confession, worker first regenerates only drifted chapters, then falls back to one full-prose regeneration if needed; unresolved drift fails the run.
 - **Artifacts Created**:
@@ -209,6 +257,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - After the pipeline finishes (success or failure), project status returns to `idle`
 - **Event**: `run_finished` - "Pipeline run finished"
 - **Release Gate (hard-stop)**: pipeline aborts completion when critical prose defects remain after repair (mojibake artifact, illegal-character encoding corruption, template-leakage scaffolds/duplicate long blocks, month/season contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, suspect-elimination coverage missing).
+- **Release Gate (hard-stop)**: pipeline aborts completion when NSD/prose clue-visibility divergence remains unresolved (`revealed_without_evidence > 0`), in addition to the defects above.
 - **Release Gate (warning mode)**: readability density and scene-grounding coverage gaps are surfaced as warnings for review and do not block completion.
 
 ## Run Events
@@ -220,6 +269,7 @@ All pipeline steps emit events that are stored and queryable:
 - **Response**: `{ runId, events: [{ step, message }] }`
 
 Events provide a complete audit trail of what happened during a pipeline run.
+Validation events now distinguish chapter-level prose validation from the post-generation full-story validation gate (for example, `Full-story validation ...` messages), so run history semantics remain clear during repair cycles.
 Cost values in run events are reported in GBP.
 The web UI polls the latest run events while a run is active to show live progress in Run History.
 Progress indicators in the UI advance based on the latest run-event stage.
@@ -281,6 +331,8 @@ All generated artifacts are accessible via GET endpoints:
 ### Special Endpoints
 - `GET /api/projects/:id/game-pack/pdf` - Download game pack as PDF
 - `POST /api/projects/:id/export` - Export selected artifacts as JSON
+  - Supports `quality_report` (alias `scoring_report`) to include the latest scoring report with diagnostics.
+  - Supports `narrative_state_trace` to include a flattened chapter-to-chapter NSD handoff trace for scrutiny.
 
 ## Regeneration Workflow
 

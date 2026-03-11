@@ -1,0 +1,47 @@
+{
+  "project_id": "proj-contradiction",
+  "run_id": "run-template-linter-contradiction",
+  "generated_at": "2026-03-09T21:36:43.983Z",
+  "total_duration_ms": 152523,
+  "total_cost": 0.0432,
+  "overall_score": 97.77,
+  "overall_grade": "A",
+  "passed": false,
+  "phases": [],
+  "diagnostics": [
+    {
+      "key": "agent9_prose_post_generation_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "post_generation_summary",
+      "captured_at": "2026-03-09T21:36:43.983Z",
+      "details": {
+        "template_linter_checks_run": 17,
+        "template_linter_failed_checks": 0,
+        "template_linter_opening_style_entropy_failures": 0,
+        "template_linter_paragraph_fingerprint_failures": 0,
+        "template_linter_ngram_overlap_failures": 0
+      }
+    }
+  ],
+  "summary": {
+    "phases_passed": 0,
+    "phases_failed": 1,
+    "total_phases": 1,
+    "pass_rate": 0,
+    "weakest_phase": "Prose Generation",
+    "strongest_phase": "Prose Generation",
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.0432
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "aborted": true,
+  "abort_reason": "Chapter 1 generation failed after 2 attempts: Template linter: opening-style entropy too low (0.00 < 0.80)."
+}

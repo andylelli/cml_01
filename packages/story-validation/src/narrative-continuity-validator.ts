@@ -4,6 +4,7 @@
  */
 
 import type { Validator, Story, ValidationResult, ValidationError } from './types.js';
+import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
 const DISAPPEARANCE_TERMS = /\b(disappear(?:ed|ance)?|missing|vanished|gone without trace)\b/i;
 const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b/i;
@@ -13,28 +14,6 @@ const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+susp
 const AMATEUR_INVESTIGATOR_TERMS = /\b(amateur investigator|civilian investigator|friend[- ]turned[- ]investigator)\b/i;
 const OFFICIAL_TAKES_CHARGE_TERMS = /\b(inspector|detective|constable)\b[\s\S]{0,30}\b(took\s+charge|led\s+the\s+investigation|assumed\s+command)\b/i;
 const ROLE_TRANSITION_TERMS = /\b(joined\s+forces|worked\s+together|assisted\s+the\s+police|in\s+partnership\s+with)\b/i;
-
-const MONTH_TO_SEASON: Record<string, 'spring' | 'summer' | 'autumn' | 'winter'> = {
-  january: 'winter',
-  february: 'winter',
-  march: 'spring',
-  april: 'spring',
-  may: 'spring',
-  june: 'summer',
-  july: 'summer',
-  august: 'summer',
-  september: 'autumn',
-  october: 'autumn',
-  november: 'autumn',
-  december: 'winter',
-};
-
-const SEASON_TERMS: Record<'spring' | 'summer' | 'autumn' | 'winter', RegExp> = {
-  spring: /\b(spring|vernal)\b/i,
-  summer: /\b(summer|midsummer)\b/i,
-  autumn: /\b(autumn|fall)\b/i,
-  winter: /\b(winter|wintry)\b/i,
-};
 
 export class NarrativeContinuityValidator implements Validator {
   name = 'NarrativeContinuityValidator';
@@ -115,19 +94,8 @@ export class NarrativeContinuityValidator implements Validator {
   }
 
   private findTemporalMismatch(text: string): string | null {
-    const lowered = (text || '').toLowerCase();
-    const months = Object.keys(MONTH_TO_SEASON).filter((month) => new RegExp(`\\b${month}\\b`, 'i').test(lowered));
-    if (months.length === 0) return null;
-
-    const expected = new Set(months.map((month) => MONTH_TO_SEASON[month]));
-    const conflicts: string[] = [];
-    (Object.keys(SEASON_TERMS) as Array<keyof typeof SEASON_TERMS>).forEach((season) => {
-      if (SEASON_TERMS[season].test(lowered) && !expected.has(season)) {
-        conflicts.push(season);
-      }
-    });
-
-    if (conflicts.length === 0) return null;
-    return `${months.join(', ')} vs ${conflicts.join(', ')}`;
+    const analysis = analyzeTemporalConsistency(text);
+    if (analysis.conflictingSeasons.length === 0) return null;
+    return `${analysis.mentionedMonths.join(', ')} vs ${analysis.conflictingSeasons.join(', ')}`;
   }
 }

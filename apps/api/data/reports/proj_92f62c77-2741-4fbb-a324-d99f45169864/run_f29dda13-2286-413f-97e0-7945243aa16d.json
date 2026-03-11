@@ -1,0 +1,5072 @@
+{
+  "project_id": "proj_92f62c77-2741-4fbb-a324-d99f45169864",
+  "run_id": "run_f29dda13-2286-413f-97e0-7945243aa16d",
+  "generated_at": "2026-03-09T20:37:31.248Z",
+  "total_duration_ms": 592477,
+  "total_cost": 0.1147,
+  "overall_score": 97.77,
+  "overall_grade": "A",
+  "passed": false,
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "6/6 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "98% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "7/7 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "6 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 8909,
+      "cost": 0.0005472093,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "6/6 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "98% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "7/7 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "6 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000004,
+        "quality_score": 96,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 99,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "James Simms: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 83%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": true,
+            "score": 80,
+            "weight": 1,
+            "message": "Only 1.6 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (5 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Relationship reciprocity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% reciprocal"
+          }
+        ]
+      },
+      "duration_ms": 11807,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "James Simms: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 83%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": true,
+          "score": 80,
+          "weight": 1,
+          "message": "Only 1.6 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (5 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Relationship reciprocity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% reciprocal"
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Era completeness: 100%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Location completeness: 100%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ]
+      },
+      "duration_ms": 2167,
+      "cost": 0.00018327209999999998,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Era completeness: 100%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Location completeness: 100%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 unique types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 14429,
+      "cost": 0.0008913333,
+      "threshold": 85,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 unique types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "score": {
+        "agent": "agent3-cml-generation",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Schema validation",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Valid after 1 attempt(s)"
+          },
+          {
+            "name": "Structural revision (Agent 4)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No structural revision needed"
+          }
+        ]
+      },
+      "duration_ms": 24531,
+      "cost": 0.0024112143,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Schema validation",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Valid after 1 attempt(s)"
+        },
+        {
+          "name": "Structural revision (Agent 4)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No structural revision needed"
+        }
+      ]
+    },
+    {
+      "agent": "agent8_novelty",
+      "phase_name": "Novelty Audit",
+      "score": {
+        "agent": "agent8-novelty-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Novelty check",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+          }
+        ]
+      },
+      "duration_ms": 0,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Novelty check",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+        }
+      ]
+    },
+    {
+      "agent": "agent5_clues",
+      "phase_name": "Clue Distribution",
+      "score": {
+        "agent": "agent5-clue-distribution",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 88,
+        "consistency_score": 100,
+        "total": 96,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Clue count",
+            "category": "completeness",
+            "passed": false,
+            "score": 88,
+            "weight": 1.5,
+            "message": "7 clues distributed"
+          },
+          {
+            "name": "Guardrail compliance",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All guardrails passed"
+          },
+          {
+            "name": "Inference coverage",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Full inference coverage (4 minor issues)"
+          }
+        ]
+      },
+      "duration_ms": 9925,
+      "cost": 0.00069880635,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Clue count",
+          "category": "completeness",
+          "passed": false,
+          "score": 88,
+          "weight": 1.5,
+          "message": "7 clues distributed"
+        },
+        {
+          "name": "Guardrail compliance",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All guardrails passed"
+        },
+        {
+          "name": "Inference coverage",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Full inference coverage (4 minor issues)"
+        }
+      ]
+    },
+    {
+      "agent": "agent6_fairplay",
+      "phase_name": "Fair-play Audit",
+      "score": {
+        "agent": "agent6-fair-play-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Overall fair play status",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Status: pass"
+          }
+        ]
+      },
+      "duration_ms": 6551,
+      "cost": 0.0006735184500000001,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Overall fair play status",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Status: pass"
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 93.33333333333333,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 97,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 80,
+            "weight": 2,
+            "message": "19 chapters (expected 20)",
+            "severity": "minor"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "93% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "7/19 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "19/19"
+          },
+          {
+            "name": "CML clue coverage",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "1/1 clues"
+          },
+          {
+            "name": "Discriminating test in outline",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 38962,
+      "cost": 0.0027279648,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 80,
+          "weight": 2,
+          "message": "19 chapters (expected 20)",
+          "severity": "minor"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "93% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "7/19 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "19/19"
+        },
+        {
+          "name": "CML clue coverage",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "1/1 clues"
+        },
+        {
+          "name": "Discriminating test in outline",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2b_profiles",
+      "phase_name": "Character Profiles",
+      "score": {
+        "agent": "agent2b-character-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "James Simms: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "James Simms: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eli Goodfellow: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Job Crossman: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Phoebe Knapp: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Patricia Buckley: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Profile narrative depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 87%"
+          },
+          {
+            "name": "Humour style richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4/5 profiles"
+          },
+          {
+            "name": "Distinct personalities",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% distinct"
+          },
+          {
+            "name": "Minimum profiles",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 profiles"
+          },
+          {
+            "name": "Field completeness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "97% fields filled"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Names match cast",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% match"
+          }
+        ]
+      },
+      "duration_ms": 34817,
+      "cost": 0.0022327651499999997,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "James Simms: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "James Simms: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eli Goodfellow: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Job Crossman: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Phoebe Knapp: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Patricia Buckley: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Profile narrative depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 87%"
+        },
+        {
+          "name": "Humour style richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4/5 profiles"
+        },
+        {
+          "name": "Distinct personalities",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% distinct"
+        },
+        {
+          "name": "Minimum profiles",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 profiles"
+        },
+        {
+          "name": "Field completeness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "97% fields filled"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Names match cast",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% match"
+        }
+      ]
+    },
+    {
+      "agent": "agent2c_location_profiles",
+      "phase_name": "Location Profiles",
+      "score": {
+        "agent": "agent2c-location-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 83.33333333333333,
+        "consistency_score": 100,
+        "total": 97,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "The Library: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Sensory richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average: 100%"
+          },
+          {
+            "name": "Geographic specificity",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2/2 specific"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 66.66666666666666,
+            "weight": 1.5,
+            "message": "Only 2 locations",
+            "severity": "major"
+          },
+          {
+            "name": "All senses covered",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "2/2 locations"
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 35938,
+      "cost": 0.002286339,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "The Library: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Sensory richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average: 100%"
+        },
+        {
+          "name": "Geographic specificity",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2/2 specific"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 66.66666666666666,
+          "weight": 1.5,
+          "message": "Only 2 locations",
+          "severity": "major"
+        },
+        {
+          "name": "All senses covered",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "2/2 locations"
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2d_temporal_context",
+      "phase_name": "Temporal Context",
+      "score": {
+        "agent": "agent2d-temporal-context",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "specific_date present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "time_of_day present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "season present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "weather_patterns present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Date specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Full date specified"
+          },
+          {
+            "name": "Time specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Specific time given"
+          },
+          {
+            "name": "Weather detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "80% richness"
+          },
+          {
+            "name": "Fashion detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "90% richness"
+          },
+          {
+            "name": "Temporal richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "340 words"
+          },
+          {
+            "name": "Optional fields",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All optional fields present"
+          },
+          {
+            "name": "Substantial content",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All fields have detail"
+          },
+          {
+            "name": "Optional detail richness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% detail"
+          },
+          {
+            "name": "Season/weather consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 11291,
+      "cost": 0.00101659965,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "specific_date present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "time_of_day present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "season present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "weather_patterns present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Date specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Full date specified"
+        },
+        {
+          "name": "Time specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Specific time given"
+        },
+        {
+          "name": "Weather detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "80% richness"
+        },
+        {
+          "name": "Fashion detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "90% richness"
+        },
+        {
+          "name": "Temporal richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "340 words"
+        },
+        {
+          "name": "Optional fields",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All optional fields present"
+        },
+        {
+          "name": "Substantial content",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All fields have detail"
+        },
+        {
+          "name": "Optional detail richness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% detail"
+        },
+        {
+          "name": "Season/weather consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "score": {
+        "agent": "agent9-prose",
+        "validation_score": 94.54545454545455,
+        "quality_score": 100,
+        "completeness_score": 35,
+        "consistency_score": 88,
+        "total": 84,
+        "grade": "B",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "All chapters present",
+            "category": "validation",
+            "passed": true,
+            "score": 85,
+            "weight": 2,
+            "message": "19/20 chapters",
+            "severity": "minor"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Prose quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "74% average"
+          },
+          {
+            "name": "Readability",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "96% average"
+          },
+          {
+            "name": "Word count target",
+            "category": "completeness",
+            "passed": true,
+            "score": 70,
+            "weight": 1.5,
+            "message": "12,227 words (low)",
+            "severity": "minor"
+          },
+          {
+            "name": "Clue visibility",
+            "category": "completeness",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "Only 0/1 clues",
+            "severity": "critical"
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5/5 characters referenced"
+          },
+          {
+            "name": "Setting fidelity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "2/2 locations referenced"
+          },
+          {
+            "name": "Fair play compliance",
+            "category": "consistency",
+            "passed": true,
+            "score": 60,
+            "weight": 1.5,
+            "message": "60/100",
+            "severity": "minor"
+          }
+        ],
+        "component_failures": [
+          "completeness"
+        ],
+        "failure_reason": "1 critical failure(s); Components below minimum: completeness",
+        "breakdown": {
+          "chapter_scores": [
+            {
+              "chapter": 1,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 75
+            },
+            {
+              "chapter": 2,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 76
+            },
+            {
+              "chapter": 3,
+              "total_chapters": 19,
+              "individual_score": 52,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 4,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 5,
+              "total_chapters": 19,
+              "individual_score": 49,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 6,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 7,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 8,
+              "total_chapters": 19,
+              "individual_score": 57,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 9,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 10,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 78
+            },
+            {
+              "chapter": 11,
+              "total_chapters": 19,
+              "individual_score": 57,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 12,
+              "total_chapters": 19,
+              "individual_score": 68,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 13,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 14,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 15,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 16,
+              "total_chapters": 19,
+              "individual_score": 78,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 17,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 18,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 19,
+              "total_chapters": 19,
+              "individual_score": 50,
+              "cumulative_score": 79
+            }
+          ],
+          "repair_chapter_scores": [
+            {
+              "chapter": 1,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 75
+            },
+            {
+              "chapter": 2,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 76
+            },
+            {
+              "chapter": 3,
+              "total_chapters": 19,
+              "individual_score": 77,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 4,
+              "total_chapters": 19,
+              "individual_score": 67,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 5,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 6,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 7,
+              "total_chapters": 19,
+              "individual_score": 48,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 8,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 9,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 77
+            },
+            {
+              "chapter": 10,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 78
+            },
+            {
+              "chapter": 11,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 12,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 13,
+              "total_chapters": 19,
+              "individual_score": 77,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 14,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 15,
+              "total_chapters": 19,
+              "individual_score": 77,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 16,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 17,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 18,
+              "total_chapters": 19,
+              "individual_score": 75,
+              "cumulative_score": 79
+            },
+            {
+              "chapter": 19,
+              "total_chapters": 19,
+              "individual_score": 76,
+              "cumulative_score": 79
+            }
+          ]
+        }
+      },
+      "duration_ms": 375441,
+      "cost": 0.10107690945,
+      "threshold": 80,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "All chapters present",
+          "category": "validation",
+          "passed": true,
+          "score": 85,
+          "weight": 2,
+          "message": "19/20 chapters",
+          "severity": "minor"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Prose quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "74% average"
+        },
+        {
+          "name": "Readability",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "96% average"
+        },
+        {
+          "name": "Word count target",
+          "category": "completeness",
+          "passed": true,
+          "score": 70,
+          "weight": 1.5,
+          "message": "12,227 words (low)",
+          "severity": "minor"
+        },
+        {
+          "name": "Clue visibility",
+          "category": "completeness",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "Only 0/1 clues",
+          "severity": "critical"
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5/5 characters referenced"
+        },
+        {
+          "name": "Setting fidelity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "2/2 locations referenced"
+        },
+        {
+          "name": "Fair play compliance",
+          "category": "consistency",
+          "passed": true,
+          "score": 60,
+          "weight": 1.5,
+          "message": "60/100",
+          "severity": "minor"
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "key": "agent9_prose_post_generation_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "post_generation_summary",
+      "captured_at": "2026-03-09T20:34:16.295Z",
+      "details": {
+        "score_total": 84,
+        "score_grade": "B",
+        "score_passed_threshold": false,
+        "component_failures": [
+          "completeness"
+        ],
+        "failure_reason": "1 critical failure(s); Components below minimum: completeness",
+        "chapters_generated": 19,
+        "prose_duration_ms": 180791,
+        "prose_cost": 0.0330716199,
+        "batch_size": 1,
+        "batches_with_retries": 2,
+        "total_batches": 19,
+        "batch_failure_events": 2,
+        "batch_failure_history": [
+          {
+            "chapter_range": "12",
+            "attempt": 1,
+            "errors": [
+              "Chapter 12: Chapter 12 has month/season contradiction (july vs spring) (Align season wording with month references (july) to maintain temporal consistency)"
+            ]
+          },
+          {
+            "chapter_range": "13",
+            "attempt": 1,
+            "errors": [
+              "Chapter 13: Chapter 13 has month/season contradiction (july vs autumn) (Align season wording with month references (july) to maintain temporal consistency)"
+            ]
+          }
+        ],
+        "batch_failure_samples": [
+          {
+            "chapter_range": "12",
+            "attempt": 1,
+            "errors": [
+              "Chapter 12: Chapter 12 has month/season contradiction (july vs spring) (Align season wording with month references (july) to maintain temporal consistency)"
+            ]
+          },
+          {
+            "chapter_range": "13",
+            "attempt": 1,
+            "errors": [
+              "Chapter 13: Chapter 13 has month/season contradiction (july vs autumn) (Align season wording with month references (july) to maintain temporal consistency)"
+            ]
+          }
+        ],
+        "outline_coverage_issue_count": 0,
+        "critical_clue_coverage_gap": false,
+        "nsd_transfer_steps": 19,
+        "nsd_transfer_trace": [
+          {
+            "batch_start": 1,
+            "batch_end": 1,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_1"
+            ],
+            "before": {
+              "used_opening_styles_tail": [],
+              "used_sensory_phrases_tail": [],
+              "clues_revealed_to_reader": [],
+              "chapter_summary_count": 0
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1"
+              ],
+              "chapter_summary_count": 1
+            }
+          },
+          {
+            "batch_start": 2,
+            "batch_end": 2,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1"
+              ],
+              "chapter_summary_count": 1
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1"
+              ],
+              "chapter_summary_count": 2
+            }
+          },
+          {
+            "batch_start": 3,
+            "batch_end": 3,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_2"
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1"
+              ],
+              "chapter_summary_count": 2
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 3
+            }
+          },
+          {
+            "batch_start": 4,
+            "batch_end": 4,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 3
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 4
+            }
+          },
+          {
+            "batch_start": 5,
+            "batch_end": 5,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 4
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 5
+            }
+          },
+          {
+            "batch_start": 6,
+            "batch_end": 6,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 5
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 6
+            }
+          },
+          {
+            "batch_start": 7,
+            "batch_end": 7,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 6
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 7
+            }
+          },
+          {
+            "batch_start": 8,
+            "batch_end": 8,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_5"
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 7
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5"
+              ],
+              "chapter_summary_count": 8
+            }
+          },
+          {
+            "batch_start": 9,
+            "batch_end": 9,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_6"
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "still air",
+                "faint light",
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5"
+              ],
+              "chapter_summary_count": 8
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 9
+            }
+          },
+          {
+            "batch_start": 10,
+            "batch_end": 10,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "dark wood",
+                "faint aroma",
+                "musty scent",
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 9
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 10
+            }
+          },
+          {
+            "batch_start": 11,
+            "batch_end": 11,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_7"
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "soft glow",
+                "heavy fog",
+                "thick with",
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 10
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7"
+              ],
+              "chapter_summary_count": 11
+            }
+          },
+          {
+            "batch_start": 12,
+            "batch_end": 12,
+            "chapters_generated": 1,
+            "validation_issue_count": 1,
+            "validation_issue_samples": [
+              "Chapter 12: Chapter 12 has month/season contradiction (july vs spring) (Align season wording with month references (july) to maintain temporal consistency)"
+            ],
+            "newly_revealed_clue_ids": [
+              "clue_3",
+              "clue_4"
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy upon",
+                "heavy with",
+                "hard to",
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7"
+              ],
+              "chapter_summary_count": 11
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere"
+              ],
+              "used_sensory_phrases_tail": [
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 12
+            }
+          },
+          {
+            "batch_start": 13,
+            "batch_end": 13,
+            "chapters_generated": 1,
+            "validation_issue_count": 1,
+            "validation_issue_samples": [
+              "Chapter 13: Chapter 13 has month/season contradiction (july vs autumn) (Align season wording with month references (july) to maintain temporal consistency)"
+            ],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere"
+              ],
+              "used_sensory_phrases_tail": [
+                "sharp and",
+                "pale light",
+                "rich mahogany",
+                "soft rustle",
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 12
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 13
+            }
+          },
+          {
+            "batch_start": 14,
+            "batch_end": 14,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick in",
+                "silent battle",
+                "heavy air",
+                "dim light",
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 13
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 14
+            }
+          },
+          {
+            "batch_start": 15,
+            "batch_end": 15,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "soft patter",
+                "pale against",
+                "dark fabric",
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 14
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 15
+            }
+          },
+          {
+            "batch_start": 16,
+            "batch_end": 16,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy clouds",
+                "faint beams",
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 15
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 16
+            }
+          },
+          {
+            "batch_start": 17,
+            "batch_end": 17,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich scent",
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 16
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to",
+                "thick clouds"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 17
+            }
+          },
+          {
+            "batch_start": 18,
+            "batch_end": 18,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to",
+                "thick clouds"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 17
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to",
+                "thick clouds"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 18
+            }
+          },
+          {
+            "batch_start": 19,
+            "batch_end": 19,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint glow",
+                "musty aroma",
+                "sharp legal",
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to",
+                "thick clouds"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 18
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "noun-phrase-atmosphere",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy in",
+                "dark wood",
+                "musty scent",
+                "warm summer",
+                "thick with",
+                "faint aroma",
+                "damp earth",
+                "chill of",
+                "heavy with",
+                "chill that",
+                "still lurking",
+                "thick blanket",
+                "dark cloud",
+                "chill down",
+                "quiet confidence",
+                "hard to",
+                "thick clouds",
+                "dark path",
+                "soft percussion",
+                "heavy heart"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_6",
+                "clue_7",
+                "clue_3",
+                "clue_4"
+              ],
+              "chapter_summary_count": 19
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "agent9_prose_release_gate_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Release Gate",
+      "diagnostic_type": "release_gate_summary",
+      "captured_at": "2026-03-09T20:37:31.247Z",
+      "details": {
+        "validation_status": "failed",
+        "validation_summary": {
+          "totalIssues": 7,
+          "critical": 7,
+          "major": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "release_gate_warning_count": 2,
+        "release_gate_hard_stop_count": 1,
+        "release_gate_warnings": [
+          "templated prose leakage detected (duplicate long blocks: 1, scaffold matches: 0)",
+          "scene-grounding coverage below target (17/19 chapters grounded)"
+        ],
+        "release_gate_hard_stops": [
+          "templated prose leakage detected"
+        ],
+        "readability": {
+          "denseChapterCount": 0,
+          "underParagraphCount": 0,
+          "severeParagraphBlocks": 0
+        },
+        "scene_grounding": {
+          "grounded": 17,
+          "total": 19,
+          "coverage": 0.8947368421052632
+        },
+        "template_leakage": {
+          "duplicatedLongParagraphCount": 1,
+          "scaffoldCount": 0,
+          "hasLeakage": true
+        },
+        "temporal_consistency": {
+          "contradictions": 0,
+          "details": []
+        },
+        "placeholder_leakage": {
+          "roleSurnameCount": 0,
+          "standaloneCount": 0,
+          "genericRoleCount": 1,
+          "examples": [],
+          "severeLeakage": false,
+          "hasLeakage": false
+        },
+        "chapter_heading_artifacts": {
+          "duplicatedHeadingCount": 0,
+          "hasArtifacts": false
+        },
+        "sensory_variety": {
+          "overusedPhrases": [],
+          "hasExcessiveRepetition": false
+        },
+        "has_illegal_control_chars": false,
+        "has_mojibake": false,
+        "fair_play_status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "phases_passed": 12,
+    "phases_failed": 1,
+    "total_phases": 13,
+    "pass_rate": 92.3,
+    "weakest_phase": "Prose Generation",
+    "strongest_phase": "Temporal Context",
+    "failure_reasons": [
+      "agent9-prose: 1 critical failure(s); Components below minimum: completeness"
+    ],
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.1147
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "aborted": true,
+  "abort_reason": "Release gate hard-stop: templated prose leakage detected"
+}

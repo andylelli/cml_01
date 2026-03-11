@@ -20,6 +20,8 @@ const props = defineProps<{
 const selection = ref({
   setting: true,
   cast: true,
+  qualityReport: true,
+  narrativeStateTrace: true,
   characterProfiles: false,
   hardLogicDevices: false,
   cml: false,
@@ -49,6 +51,8 @@ const handleExport = async () => {
   const typeMap: Record<string, string> = {
     setting: "setting",
     cast: "cast",
+    qualityReport: "quality_report",
+    narrativeStateTrace: "narrative_state_trace",
     characterProfiles: "character_profiles",
     hardLogicDevices: "hard_logic_devices",
     cml: "cml",
@@ -94,6 +98,14 @@ const handleExport = async () => {
       <label class="flex items-center gap-2">
         <input v-model="selection.cast" type="checkbox" />
         Cast
+      </label>
+      <label class="flex items-center gap-2">
+        <input v-model="selection.qualityReport" type="checkbox" />
+        Quality report
+      </label>
+      <label class="flex items-center gap-2">
+        <input v-model="selection.narrativeStateTrace" type="checkbox" />
+        Narrative state trace
       </label>
       <label class="flex items-center gap-2">
         <input v-model="selection.characterProfiles" type="checkbox" :disabled="!available.characterProfiles" />

@@ -50,12 +50,45 @@ const categoryWeight = (cat: string) => {
   return weights[cat] ?? "";
 };
 
-const getChapterScores = (phase: ScoringPhaseReport): Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> => {
-  return (phase.score as any)?.breakdown?.chapter_scores ?? [];
+type ChapterScoreRow = {
+  chapter: number;
+  total_chapters: number;
+  individual_score: number;
+  cumulative_score: number;
+  individual_validation_score?: number;
+  individual_quality_score?: number;
+  individual_completeness_score?: number;
+  individual_consistency_score?: number;
+  cumulative_validation_score?: number;
+  cumulative_quality_score?: number;
+  cumulative_completeness_score?: number;
+  cumulative_consistency_score?: number;
 };
 
-const getRepairChapterScores = (phase: ScoringPhaseReport): Array<{ chapter: number; total_chapters: number; individual_score: number; cumulative_score: number }> => {
-  return (phase.score as any)?.breakdown?.repair_chapter_scores ?? [];
+const normalizeAgentId = (agent: string) => (agent || "").toLowerCase().replace(/-/g, "_");
+
+const readChapterScoreSeries = (
+  phase: ScoringPhaseReport,
+  keys: string[],
+): ChapterScoreRow[] => {
+  const breakdown = (phase.score as any)?.breakdown ?? {};
+  for (const key of keys) {
+    const value = breakdown?.[key];
+    if (Array.isArray(value)) {
+      return value as ChapterScoreRow[];
+    }
+  }
+  return [];
+};
+
+const getChapterScores = (phase: ScoringPhaseReport): ChapterScoreRow[] =>
+  readChapterScoreSeries(phase, ["chapter_scores", "first_pass_chapter_scores"]);
+
+const getRepairChapterScores = (phase: ScoringPhaseReport): ChapterScoreRow[] =>
+  readChapterScoreSeries(phase, ["repair_chapter_scores", "second_run_chapter_scores"]);
+
+const isProsePhase = (phase: ScoringPhaseReport): boolean => {
+  return normalizeAgentId(phase.agent) === "agent9_prose";
 };
 
 const COMPONENT_MINIMUMS: Record<string, number> = {
@@ -94,6 +127,15 @@ const severityClass = (severity?: string) => {
     case "minor": return "text-slate-500";
     default: return "text-slate-600";
   }
+};
+
+const chapterComponentMinimum = (component: string): number => COMPONENT_MINIMUMS[component] ?? 0;
+
+const chapterComponentPassClass = (score: number | undefined, component: string): string => {
+  const value = score ?? 0;
+  return value >= chapterComponentMinimum(component)
+    ? 'text-emerald-600'
+    : 'text-rose-600';
 };
 </script>
 
@@ -257,8 +299,9 @@ const severityClass = (severity?: string) => {
           </div>
 
           <!-- Chapter-by-chapter breakdown (prose phase only) -->
-          <div v-if="phase.agent === 'agent9_prose' && getChapterScores(phase).length">
+          <div v-if="isProsePhase(phase) && getChapterScores(phase).length">
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Chapter Quality Scores</div>
+            <div class="mb-2 text-[11px] text-slate-400">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs border-collapse">
                 <thead>
@@ -266,13 +309,17 @@ const severityClass = (severity?: string) => {
                     <th class="pb-1 pr-4 font-medium">Chapter</th>
                     <th class="pb-1 pr-4 font-medium">Individual</th>
                     <th class="pb-1 pr-4 font-medium">Cumulative</th>
+                    <th class="pb-1 pr-4 font-medium">V</th>
+                    <th class="pb-1 pr-4 font-medium">Q</th>
+                    <th class="pb-1 pr-4 font-medium">C</th>
+                    <th class="pb-1 pr-4 font-medium">Co</th>
                     <th class="pb-1 font-medium w-32">Cumulative bar</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                   <tr
                     v-for="ch in getChapterScores(phase)"
-                    :key="ch.chapter"
+                    :key="`first-${ch.chapter}`"
                   >
                     <td class="pr-4 py-1 text-slate-600 font-medium">
                       {{ ch.chapter }}/{{ ch.total_chapters }}
@@ -291,6 +338,38 @@ const severityClass = (severity?: string) => {
                         :class="ch.cumulative_score >= 80 ? 'text-emerald-600' : ch.cumulative_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
                       >
                         {{ ch.cumulative_score }}/100
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_validation_score, 'validation')"
+                      >
+                        {{ ch.individual_validation_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_quality_score, 'quality')"
+                      >
+                        {{ ch.individual_quality_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_completeness_score, 'completeness')"
+                      >
+                        {{ ch.individual_completeness_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_consistency_score, 'consistency')"
+                      >
+                        {{ ch.individual_consistency_score ?? '-' }}
                       </span>
                     </td>
                     <td class="py-1 w-32">
@@ -309,8 +388,9 @@ const severityClass = (severity?: string) => {
           </div>
 
           <!-- Chapter-by-chapter breakdown (repair prose run) -->
-          <div v-if="phase.agent === 'agent9_prose' && getRepairChapterScores(phase).length" class="mt-2">
-            <div class="text-xs font-semibold uppercase tracking-wide text-amber-600 mb-2">Chapter Quality Scores — Repair Run</div>
+          <div v-if="isProsePhase(phase) && getRepairChapterScores(phase).length" class="mt-2">
+            <div class="text-xs font-semibold uppercase tracking-wide text-amber-600 mb-2">Chapter Quality Scores — Second Run</div>
+            <div class="mb-2 text-[11px] text-slate-400">Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency</div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs border-collapse">
                 <thead>
@@ -318,13 +398,17 @@ const severityClass = (severity?: string) => {
                     <th class="pb-1 pr-4 font-medium">Chapter</th>
                     <th class="pb-1 pr-4 font-medium">Individual</th>
                     <th class="pb-1 pr-4 font-medium">Cumulative</th>
+                    <th class="pb-1 pr-4 font-medium">V</th>
+                    <th class="pb-1 pr-4 font-medium">Q</th>
+                    <th class="pb-1 pr-4 font-medium">C</th>
+                    <th class="pb-1 pr-4 font-medium">Co</th>
                     <th class="pb-1 font-medium w-32">Cumulative bar</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                   <tr
                     v-for="ch in getRepairChapterScores(phase)"
-                    :key="ch.chapter"
+                    :key="`second-${ch.chapter}`"
                   >
                     <td class="pr-4 py-1 text-slate-600 font-medium">
                       {{ ch.chapter }}/{{ ch.total_chapters }}
@@ -343,6 +427,38 @@ const severityClass = (severity?: string) => {
                         :class="ch.cumulative_score >= 80 ? 'text-emerald-600' : ch.cumulative_score >= 70 ? 'text-amber-600' : 'text-rose-600'"
                       >
                         {{ ch.cumulative_score }}/100
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_validation_score, 'validation')"
+                      >
+                        {{ ch.individual_validation_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_quality_score, 'quality')"
+                      >
+                        {{ ch.individual_quality_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_completeness_score, 'completeness')"
+                      >
+                        {{ ch.individual_completeness_score ?? '-' }}
+                      </span>
+                    </td>
+                    <td class="pr-4 py-1">
+                      <span
+                        class="font-semibold"
+                        :class="chapterComponentPassClass(ch.individual_consistency_score, 'consistency')"
+                      >
+                        {{ ch.individual_consistency_score ?? '-' }}
                       </span>
                     </td>
                     <td class="py-1 w-32">

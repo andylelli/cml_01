@@ -5,6 +5,8 @@
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError, CharacterState } from './types.js';
 
+const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.?|Mrs\.?|Miss|Dr\.?)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)/g;
+
 export class CharacterConsistencyValidator implements Validator {
   name = 'CharacterConsistencyValidator';
 
@@ -15,59 +17,44 @@ export class CharacterConsistencyValidator implements Validator {
       return { valid: true, errors: [] };
     }
 
-    // Build character manifest from CML
-    const manifest = this.buildCharacterManifest(cml);
+    const { manifest, aliasToCanonical, allowedSurnames } = this.buildCharacterManifest(cml);
+    const allReferenceLabels = Array.from(aliasToCanonical.keys());
+    const canonicalToLabels = this.buildCanonicalLabelIndex(aliasToCanonical);
 
-    // Track character usage across scenes
     const usageTracker = new Map<string, { scenes: number[]; pronouns: Set<string> }>();
 
     for (const scene of story.scenes) {
-      // Check name consistency
-      const mentionedNames = this.extractCharacterNames(scene.text, manifest);
-      
-      for (const name of mentionedNames) {
-        if (!manifest.has(name)) {
-          // Check if this might be a name variation
-          const similarName = this.findSimilarName(name, Array.from(manifest.keys()));
-          if (similarName) {
-            errors.push({
-              type: 'character_name_inconsistency',
-              message: `Character name "${name}" does not match CML. Did you mean "${similarName}"?`,
-              severity: 'critical',
-              sceneNumber: scene.number,
-              cmlReference: `cast[${similarName}]`
-            });
-          } else {
-            errors.push({
-              type: 'unknown_character',
-              message: `Character "${name}" not found in CML cast`,
-              severity: 'major',
-              sceneNumber: scene.number
-            });
-          }
-        }
+      const walkOnErrors = this.checkNamedWalkOns(scene.text, scene.number, allowedSurnames);
+      errors.push(...walkOnErrors);
 
-        // Track usage
+      const mentionedNames = this.extractCharacterNames(scene.text, aliasToCanonical);
+
+      for (const name of mentionedNames) {
         if (!usageTracker.has(name)) {
           usageTracker.set(name, { scenes: [], pronouns: new Set() });
         }
         usageTracker.get(name)!.scenes.push(scene.number);
       }
 
-      // Check pronoun-gender agreement
       for (const [name, charState] of manifest.entries()) {
-        if (scene.text.includes(name)) {
-          const pronounErrors = this.checkPronounAgreement(scene.text, name, charState, scene.number);
+        const labelsForCharacter = canonicalToLabels.get(name) ?? [name.toLowerCase()];
+        if (this.containsAnyLabel(scene.text, labelsForCharacter)) {
+          const pronounErrors = this.checkPronounAgreement(
+            scene.text,
+            name,
+            charState,
+            scene.number,
+            labelsForCharacter,
+            allReferenceLabels
+          );
           errors.push(...pronounErrors);
         }
       }
 
-      // Check role-location consistency
       const locationErrors = this.checkRoleLocationConsistency(scene, manifest);
       errors.push(...locationErrors);
     }
 
-    // Check for character name switches (same character referred to by different names)
     const switchErrors = this.detectNameSwitches(story, manifest);
     errors.push(...switchErrors);
 
@@ -77,8 +64,20 @@ export class CharacterConsistencyValidator implements Validator {
     };
   }
 
-  private buildCharacterManifest(cml: CMLData): Map<string, CharacterState> {
+  private buildCharacterManifest(cml: CMLData): {
+    manifest: Map<string, CharacterState>;
+    aliasToCanonical: Map<string, string>;
+    allowedSurnames: Set<string>;
+  } {
     const manifest = new Map<string, CharacterState>();
+    const aliasToCanonical = new Map<string, string>();
+    const allowedSurnames = new Set<string>();
+
+    const addAlias = (label: string, canonical: string): void => {
+      const normalized = label.trim().toLowerCase();
+      if (!normalized) return;
+      aliasToCanonical.set(normalized, canonical);
+    };
 
     for (const char of cml.CASE.cast) {
       const gender = this.parseGender(char.gender);
@@ -89,9 +88,41 @@ export class CharacterConsistencyValidator implements Validator {
         pronouns: this.getPronounsForGender(gender),
         isCrewMember: this.isCrewRole(char.role_archetype)
       });
+
+      addAlias(char.name, char.name);
+
+      const surname = this.extractSurname(char.name);
+      if (surname) {
+        allowedSurnames.add(surname.toLowerCase());
+      }
+
+      const aliasField = (char as any).alias;
+      if (typeof aliasField === 'string' && aliasField.trim().length > 0) {
+        addAlias(aliasField, char.name);
+      }
+
+      const aliasesField = (char as any).aliases;
+      if (Array.isArray(aliasesField)) {
+        for (const alias of aliasesField) {
+          if (typeof alias === 'string' && alias.trim().length > 0) {
+            addAlias(alias, char.name);
+          }
+        }
+      }
     }
 
-    return manifest;
+    return { manifest, aliasToCanonical, allowedSurnames };
+  }
+
+  private buildCanonicalLabelIndex(aliasToCanonical: Map<string, string>): Map<string, string[]> {
+    const out = new Map<string, string[]>();
+    for (const [label, canonical] of aliasToCanonical.entries()) {
+      if (!out.has(canonical)) {
+        out.set(canonical, []);
+      }
+      out.get(canonical)!.push(label);
+    }
+    return out;
   }
 
   private parseGender(gender?: string): 'male' | 'female' | 'non-binary' | 'unknown' {
@@ -117,49 +148,54 @@ export class CharacterConsistencyValidator implements Validator {
 
   private isCrewRole(role: string): boolean {
     const crewKeywords = ['crew', 'captain', 'officer', 'steward', 'engineer', 'sailor', 'staff'];
-    return crewKeywords.some(kw => role.toLowerCase().includes(kw));
+    return crewKeywords.some((kw) => role.toLowerCase().includes(kw));
   }
 
-  private extractCharacterNames(text: string, manifest: Map<string, CharacterState>): string[] {
-    const names: string[] = [];
-    for (const name of manifest.keys()) {
-      if (text.includes(name)) {
-        names.push(name);
+  private extractCharacterNames(text: string, aliasToCanonical: Map<string, string>): string[] {
+    const names = new Set<string>();
+    for (const [label, canonical] of aliasToCanonical.entries()) {
+      if (this.containsLabel(text, label)) {
+        names.add(canonical);
       }
     }
-    return names;
+    return Array.from(names);
   }
 
-  private findSimilarName(name: string, validNames: string[]): string | null {
-    // Simple similarity check - could be enhanced with Levenshtein distance
-    const nameLower = name.toLowerCase();
-    
-    for (const validName of validNames) {
-      // Check for partial matches
-      if (validName.toLowerCase().includes(nameLower) || nameLower.includes(validName.toLowerCase())) {
-        return validName;
-      }
-      
-      // Check for last name match
-      const nameWords = name.split(' ');
-      const validWords = validName.split(' ');
-      if (nameWords.some(w => validWords.includes(w))) {
-        return validName;
-      }
-    }
-    
-    return null;
+  private containsLabel(text: string, label: string): boolean {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
   }
 
-  private checkPronounAgreement(text: string, characterName: string, charState: CharacterState, sceneNumber: number): ValidationError[] {
+  private containsAnyLabel(text: string, labels: string[]): boolean {
+    return labels.some((label) => this.containsLabel(text, label));
+  }
+
+  private extractSurname(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    return parts[parts.length - 1] ?? '';
+  }
+
+  private checkPronounAgreement(
+    text: string,
+    characterName: string,
+    charState: CharacterState,
+    sceneNumber: number,
+    labelsForCharacter: string[],
+    allReferenceLabels: string[]
+  ): ValidationError[] {
     const errors: ValidationError[] = [];
-    
+
     if (charState.gender === 'unknown') {
-      return errors; // Skip validation if gender unknown
+      return errors;
     }
 
     const correctPronouns = charState.pronouns;
-    const incorrectPronouns = this.findIncorrectPronouns(text, characterName, correctPronouns);
+    const incorrectPronouns = this.findIncorrectPronouns(
+      text,
+      labelsForCharacter,
+      allReferenceLabels,
+      correctPronouns
+    );
 
     if (incorrectPronouns.length > 0) {
       const correctSet = `${correctPronouns.subject}/${correctPronouns.object}/${correctPronouns.possessive}`;
@@ -175,39 +211,77 @@ export class CharacterConsistencyValidator implements Validator {
     return errors;
   }
 
-  private findIncorrectPronouns(text: string, characterName: string, correctPronouns: CharacterState['pronouns']): string[] {
+  private findIncorrectPronouns(
+    text: string,
+    labelsForCharacter: string[],
+    allReferenceLabels: string[],
+    correctPronouns: CharacterState['pronouns']
+  ): string[] {
     const incorrect: string[] = [];
-    
-    // Find sentences mentioning the character
-    const sentences = text.split(/[.!?]/).filter(s => s.includes(characterName));
-    
-    for (const sentence of sentences) {
-      // After character name, look for pronouns
-      const afterName = sentence.substring(sentence.indexOf(characterName) + characterName.length);
-      
-      // Check for wrong subject pronouns
-      if (correctPronouns.subject !== 'he' && /\bhe\b/i.test(afterName)) {
+
+    const sentences = text
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const hasReferenceInSentence = (sentence: string, labels: string[]): boolean =>
+      labels.some((label) => this.containsLabel(sentence, label));
+
+    for (let i = 0; i < sentences.length; i += 1) {
+      if (!hasReferenceInSentence(sentences[i], labelsForCharacter)) {
+        continue;
+      }
+
+      let context = sentences[i];
+      const next = sentences[i + 1];
+      if (next && !hasReferenceInSentence(next, allReferenceLabels)) {
+        context += ` ${next}`;
+      }
+
+      if (correctPronouns.subject !== 'he' && /\bhe\b/i.test(context)) {
         incorrect.push('he');
       }
-      if (correctPronouns.subject !== 'she' && /\bshe\b/i.test(afterName)) {
+      if (correctPronouns.subject !== 'she' && /\bshe\b/i.test(context)) {
         incorrect.push('she');
       }
-      
-      // Check for wrong object pronouns
-      if (correctPronouns.object !== 'him' && /\bhim\b/i.test(afterName)) {
+      if (correctPronouns.object !== 'him' && /\bhim\b/i.test(context)) {
         incorrect.push('him');
       }
-      if (correctPronouns.object !== 'her' && /\bher\b/i.test(afterName)) {
+      if (correctPronouns.object !== 'her' && /\bher\b/i.test(context)) {
         incorrect.push('her');
       }
-      
-      // Check for wrong possessive
-      if (correctPronouns.possessive !== 'his' && /\bhis\b/i.test(afterName)) {
+      if (correctPronouns.possessive !== 'his' && /\bhis\b/i.test(context)) {
         incorrect.push('his');
       }
     }
-    
+
     return Array.from(new Set(incorrect));
+  }
+
+  private checkNamedWalkOns(text: string, sceneNumber: number, allowedSurnames: Set<string>): ValidationError[] {
+    const errors: ValidationError[] = [];
+    const unknownMentions = new Set<string>();
+
+    for (const match of text.matchAll(TITLED_NAME_PATTERN)) {
+      const full = match[0];
+      const surname = (match[2] ?? '').replace(/[.,;:!?"'”’)]$/g, '').toLowerCase();
+      if (!surname) continue;
+      if (!allowedSurnames.has(surname)) {
+        unknownMentions.add(full);
+      }
+    }
+
+    for (const mention of unknownMentions) {
+      errors.push({
+        type: 'illegal_named_walk_on',
+        message: `Scene ${sceneNumber} introduces an out-of-cast named walk-on (${mention})`,
+        severity: 'major',
+        sceneNumber,
+        suggestion: 'Use existing cast names/aliases, or keep extras unnamed by role only (for example: "the inspector")'
+      });
+    }
+
+    return errors;
   }
 
   private checkRoleLocationConsistency(scene: { text: string; number: number }, manifest: Map<string, CharacterState>): ValidationError[] {
@@ -215,7 +289,6 @@ export class CharacterConsistencyValidator implements Validator {
 
     for (const [name, charState] of manifest.entries()) {
       if (scene.text.includes(name)) {
-        // Check if passenger is in crew quarters
         if (!charState.isCrewMember && scene.text.includes('crew quarters')) {
           errors.push({
             type: 'role_location_mismatch',
@@ -226,9 +299,7 @@ export class CharacterConsistencyValidator implements Validator {
           });
         }
 
-        // Check if crew is in passenger-exclusive areas (less strict)
         if (charState.isCrewMember && scene.text.match(/\b(first.class|exclusive|private.passenger)\b/i)) {
-          // This is less critical - crew can sometimes be in passenger areas for work
           errors.push({
             type: 'role_location_notice',
             message: `"${name}" is crew but in passenger-exclusive area - ensure this is intentional`,
@@ -244,8 +315,7 @@ export class CharacterConsistencyValidator implements Validator {
 
   private detectNameSwitches(story: Story, manifest: Map<string, CharacterState>): ValidationError[] {
     const errors: ValidationError[] = [];
-    
-    // Look for common detective name variations
+
     const detectiveNames = ['Detective Thompson', 'Detective Harrington', 'Detective Chen', 'Detective'];
     const foundDetectives = new Set<string>();
 

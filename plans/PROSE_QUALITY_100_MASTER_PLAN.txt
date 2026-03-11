@@ -1,0 +1,692 @@
+PROSE QUALITY 100 MASTER PLAN
+Scope: Agent 9 prose generation and all upstream/downstream components that affect prose chapter scoring.
+Primary goal: Drive chapter-level scoring to 100/100 consistently, with no contradiction between events, diagnostics, release-gate state, and final report outcomes.
+Owner surface: packages/prompts-llm/src/agent9-prose.ts + worker orchestrator + story-validation + scoring/report API.
+
+====================================================================
+0) SUCCESS DEFINITION (NON-NEGOTIABLE)
+====================================================================
+A. Chapter quality target
+- Every generated chapter reaches 100/100 chapter-level score in internal scoring snapshots.
+- Every chapter passes structure, continuity, scene grounding, clue visibility timing, and fair-play checks.
+
+B. Run quality target
+- Prose phase score: 100.
+- Overall run score: 100.
+- run_outcome must always align with run events and release-gate state.
+
+C. Reliability target
+- No stale/incomplete report served as final result.
+- No missing post_generation_summary when prose generation has started.
+- No template-linter contradiction (abort reason must match linter counters).
+
+D. Fair-play target
+- all_clues_visible = true
+- discriminating_test_complete = true
+- no_solution_spoilers = true
+- no NSD clue reveal without evidence anchors
+
+====================================================================
+1) CURRENT SYSTEM MAP (WHAT AGENT 9 DEPENDS ON)
+====================================================================
+Upstream inputs consumed by agent9-prose.ts
+- CML case data (CASE, discriminating_test, prose_requirements, clue registry, cast metadata)
+- Narrative outline scenes from Agent 7
+- Cast from Agent 2
+- Clue distribution from Agent 5
+- Character profiles, location profiles, temporal context
+- NarrativeState (NSD) from prior batches
+- Locked facts from hard logic device path
+- Optional writing guides (humour/craft)
+- Quality guardrails and template linter profile
+
+Core agent9 behaviors in code
+- Prompt builder with system/developer/user blocks
+- Batch chapter generation with retries
+- ChapterValidator-based content validation
+- Month/season lock enforcement per chapter
+- Name sanitization to remove unknown titled names
+- Online template linter (opening entropy, fingerprint, n-gram overlap)
+- Optional entropy-only bypass at retry exhaustion
+- NSD update after successful batch
+- Validation history + linter telemetry in output
+
+Downstream dependencies
+- Worker scoring logger and report assembly
+- Story-validation scoring adapters and phase scorer
+- Release-gate checks and report invariants
+- API report endpoint fallback behavior
+
+====================================================================
+2) PRINCIPLE: 100/100 IS A SYSTEM PROPERTY, NOT A PROMPT PROPERTY
+====================================================================
+Treat prose quality as a multi-component contract:
+- Inputs must be precise and complete.
+- Prompt must be scoped, prioritized, and contradiction-free.
+- Generation loop must enforce correctness before commit.
+- Validators/scorers must measure what we actually care about.
+- Telemetry must expose root causes in one run.
+- Reporting must never lie about final state.
+
+====================================================================
+3) WORKSTREAM A - INPUT CONTRACT HARDENING (BEFORE PROMPT)
+====================================================================
+A1. Typed input normalization layer for Agent 9
+- Build one normalization function that canonicalizes all optional inputs before prompt assembly.
+- Remove all ad-hoc any usage at prompt time where feasible.
+- Guarantee non-null defaults for required sections so prompt shape is stable.
+
+A2. CML requirement extraction audit
+- Validate that every prose requirement section maps to explicit chapter obligations.
+- Produce a per-chapter requirement ledger before generation:
+  - required clues
+  - discriminating test requirements
+  - suspect elimination obligations
+  - culprit reveal obligations
+  - setting anchors
+
+A3. Outline-to-prose mapping integrity
+- Add deterministic check that chapter index <-> scene mapping is complete and not shifted.
+- Add chapter assignment checksum to detect accidental drift across retries.
+
+A4. Clue distribution quality gate
+- Fail early if clue metadata lacks concrete descriptive payload needed for prose surfacing.
+- Ensure each clue has reader-observable anchor candidates before prose starts.
+
+A5. Location profile usability gate
+- Ensure each chapter has at least one resolvable location profile anchor.
+- Detect chapters with generic/empty location fields and auto-inject deterministic fallback anchor.
+
+A6. Temporal contract gate
+- Validate temporal context has canonical month and derived season lock before prose.
+- Build prohibited seasonal term list once and pass as deterministic chapter constraints.
+
+A7. Cast integrity gate
+- Enforce unique canonical names, known aliases, and pronoun map before generation.
+- Add role-aware anonymous walk-on allowance list to reduce false name-invention errors.
+
+A8. Locked facts quality
+- Ensure locked facts are concise, conflict-free, and chapter-scoped where applicable.
+- Reject locked facts that are ambiguous (example: vague quantities or unbounded times).
+
+====================================================================
+4) WORKSTREAM B - PROMPT ARCHITECTURE REWRITE
+====================================================================
+B1. Prioritized prompt sections
+- Reorder system prompt by criticality:
+  1) Hard constraints and fail conditions
+  2) Fair-play and clue timing
+  3) Continuity/setting/temporal locks
+  4) Quality style guidance
+  5) Output schema
+- Remove duplicate or competing guidance lines.
+
+B2. Constraint language simplification
+- Replace long prose rules with atomic, testable directives.
+- Convert high-risk rules into explicit must/must-not bullets.
+
+B3. Token budget discipline
+- Introduce prompt budget accounting for each context block:
+  - continuity block
+  - clue description block
+  - location/temporal blocks
+  - humour/craft guides
+- Drop or summarize low-value sections when budget exceeds threshold.
+
+B4. Batch-local requirement manifest
+- Provide per-batch manifest table with chapter-by-chapter obligations.
+- Include explicit yes/no completion checklist in prompt for each chapter.
+
+B5. Anti-template prompt controls
+- Add rolling opening-style exclusion list and forbidden phrase cache from prior chapters.
+- Add chapter-specific lexical seeds tied to scene facts to force variation.
+
+B6. Dialogue and voice controls
+- Move character voice constraints into compact machine-readable mini-spec per character.
+- Require at least one unique dialogue trait marker per speaking character in chapter.
+
+B7. Deterministic fallback micro-prompts
+- For retry attempts, generate compact error-specific corrective prompts rather than re-sending full prompt unchanged.
+- Use category-specific repairs: scene_grounding, clue_visibility, temporal_consistency, etc.
+
+====================================================================
+5) WORKSTREAM C - GENERATION LOOP AND RETRY POLICY
+====================================================================
+C1. Retry strategy by error class
+- Separate transient generation retries from validation-correction retries.
+- Error-class policy:
+  - structural JSON errors: immediate regeneration
+  - continuity/setting errors: constrained rewrite
+  - clue/test errors: mandatory evidence insertion rewrite
+  - style entropy only: adaptive policy, never hide true logic errors
+
+C2. Chapter rewrite granularity
+- Add sentence-level surgical rewrite mode for narrow failures (temporal mismatch, anchor missing).
+- Keep full-chapter rewrites only for multi-class failures.
+
+C3. Entropy linter policy refinement
+- Keep adaptive thresholds, but require correlation with repetitive content metrics before hard fail.
+- Add confidence score to entropy warnings to reduce false positives.
+
+C4. Mandatory pre-commit chapter checklist
+- Before chapter commit, verify all required chapter obligations are met by deterministic checks.
+- Do not commit chapter if obligations missing, even if prose sounds good.
+
+C5. Stronger cross-batch learning
+- Expand recurring error memory with last N failures and what fixed them.
+- Inject concise negative examples from this run only (avoid prompt bloat).
+
+C6. Chapter-level scoring feedback loop
+- After each chapter, compute provisional component scores and feed deficits into next chapter constraints.
+- Example: if clue visibility is weak in chapter N, chapter N+1 prompt adds stronger clue surfacing rules.
+
+====================================================================
+6) WORKSTREAM D - VALIDATION AND SCORING ALIGNMENT
+====================================================================
+D1. Single source of truth for clue visibility
+- Ensure scoring adapter clue detection and NSD clue reveal use the same evidence model.
+- Maintain clue states: introduced, hinted, explicit, confirmed.
+
+D2. Evidence anchor completeness
+- Require clue_evidence_anchors for every newly revealed clue in NSD trace.
+- Add hard validation failure when revealed clue has no matching anchor.
+
+D3. Discriminating test validator upgrade
+- Validate all components:
+  - setup
+  - evidence usage
+  - elimination logic
+  - outcome declaration
+- Map failures to exact chapter and paragraph.
+
+D4. Scene grounding validator upgrade
+- Enforce named location + sensory + atmosphere minimum in chapter opening block.
+- Validate against location profile vocabulary and outline setting.
+
+D5. Character consistency validator upgrade
+- Detect illegal named walk-ons, alias drift, pronoun drift, and role drift.
+- Distinguish harmless unnamed extras from forbidden named additions.
+
+D6. Temporal consistency validator upgrade
+- Add explicit month-season contradiction matrix and phrase normalizer.
+- Validate both narrative text and dialogue references.
+
+D7. Fair-play timing validator
+- Ensure clue introduction and detective deduction are separated by chapter boundary when required.
+- Fail same-chapter clue-discovery-plus-deduction patterns.
+
+D8. Score rubric recalibration for 100/100 target
+- Align rubric with desired output behaviors and remove ambiguous tests.
+- Every failed test must include deterministic remediation instruction.
+
+====================================================================
+7) WORKSTREAM E - OBSERVABILITY, DIAGNOSTICS, REPORT TRUTH
+====================================================================
+E1. Mandatory diagnostic payload completeness
+- Always persist post_generation_summary when prose starts.
+- Include linter stats, fair-play sub-scores, chapter count, retry counts, and failure history.
+
+E2. Event/report coherence gate
+- Add hard invariant: if run has terminal failure events, report cannot be passed.
+- Validate run_outcome against run events and phase pass/fail map before save.
+
+E3. In-progress report safety
+- Never serve in_progress snapshots as final for idle runs.
+- Keep stale fallback semantics explicit and test-covered.
+
+E4. Failure lineage bundle
+- Persist compact per-run failure lineage:
+  - first failing chapter
+  - error classes
+  - corrective attempts
+  - final blocking reason
+
+E5. Prompt/response traceability
+- Log prompt hash and context block sizes per chapter for debugging quality regressions.
+- Avoid full sensitive prompt dumps; store structured fingerprints.
+
+====================================================================
+8) WORKSTREAM F - EVALUATION HARNESS AND BENCHMARKING
+====================================================================
+F1. Fixed-seed regression suite
+- Create fixed seed run set with expected chapter-level outcomes.
+- Include hard scenarios: high cast complexity, dense clues, strong temporal constraints.
+
+F2. Chapter-level golden tests
+- Snapshot expected chapter obligation fulfillment for each seed.
+- Fail CI when chapter obligations regress.
+
+F3. A/B prompt harness
+- Test prompt variants with identical inputs and compare component scores.
+- Keep winning variant only when statistically significant.
+
+F4. Error taxonomy dashboard
+- Track top failure classes over time:
+  - clue visibility
+  - scene grounding
+  - discriminating test completeness
+  - temporal contradictions
+  - entropy/fingerprint/ngram issues
+
+F5. Score decomposition monitoring
+- Monitor validation, quality, completeness, consistency separately.
+- Target 100 in all four components per chapter.
+
+====================================================================
+9) WORKSTREAM G - MODEL AND DECODING STRATEGY
+====================================================================
+G1. Decode parameter experiments
+- Tune temperature/top_p by chapter phase (opening, mid, reveal).
+- Use lower randomness for logic-critical scenes.
+
+G2. Chapter type conditioning
+- Tag chapter intent (setup, clue reveal, elimination, test, denouement).
+- Use intent-conditioned sub-prompts and validator expectations.
+
+G3. Two-pass generation for hard chapters
+- Pass 1: logic skeleton and obligation satisfaction.
+- Pass 2: style expansion preserving validated logic skeleton.
+
+G4. Cost-quality governance
+- Track cost per quality point and identify expensive low-yield retries.
+- Apply targeted repair prompts before expensive full regeneration.
+
+====================================================================
+10) PHASED EXECUTION ROADMAP
+====================================================================
+Phase 0 - Stabilize truth and diagnostics (Immediate)
+- Implement event/report coherence invariant.
+- Guarantee post_generation_summary persistence for started prose runs.
+- Keep in_progress snapshot safety behavior and tests green.
+
+Phase 1 - Input + prompt contract hardening
+- Build per-chapter requirement ledger.
+- Rebuild prompt hierarchy and token budgeting.
+- Add stronger chapter manifest and retry micro-prompts.
+
+Phase 2 - Validator/scorer unification
+- Unify clue visibility and NSD evidence model.
+- Upgrade discriminating-test, scene-grounding, temporal, and character validators.
+- Recalibrate scoring rubric for deterministic 100 criteria.
+
+Phase 3 - Generation loop optimization
+- Add error-class retries and surgical rewrites.
+- Add per-chapter provisional scoring feedback loop.
+- Refine entropy policy to reduce false hard-stops.
+
+Phase 4 - Benchmark and rollout
+- Fixed-seed benchmark suite, A/B prompt harness, CI gates.
+- Rollout with canary runs and strict regression thresholds.
+
+====================================================================
+11) ACCEPTANCE CRITERIA BY PHASE
+====================================================================
+Phase 0 exit
+- No run can end with events=failed and report=passed.
+- No idle run serves in_progress report as final.
+
+Phase 1 exit
+- Every chapter has explicit obligations and deterministic pre-commit checks.
+- Prompt token budget stays within configured limits without dropping critical constraints.
+
+Phase 2 exit
+- No nsd_revealed_clues_missing_evidence_anchors violations.
+- Fair-play component scores stable at 100 on benchmark seeds.
+
+Phase 3 exit
+- Chapter retry rate reduced significantly while maintaining strict correctness.
+- Entropy-only false aborts approach zero.
+
+Phase 4 exit
+- Benchmark runs sustain 100/100 chapter scores across seed set.
+- Production trendline shows no regression over rolling run window.
+
+====================================================================
+12) TASK CHECKLIST (WORKABLE BACKLOG)
+====================================================================
+- Status note (2026-03-10): checklist reflects confirmed implementation only; remaining items are intentionally left open until fully delivered and test-verified.
+
+- [x] Implement run-event/report coherence invariant in story-validation report invariants. (implemented via invariant validator + save-time enforcement)
+- [x] Add tests for failed events + passed report contradiction. (implemented: report invariants now test that `run_outcome=passed` cannot coexist with failed phase signals in `phases[]`/`summary.phases_failed`)
+- [x] Build chapter requirement ledger generator before Agent 9 prompt build. (implemented)
+- [x] Refactor buildProsePrompt into prioritized, composable sections. (implemented: Agent 9 now builds ordered prompt sections through a dedicated `buildPromptContextBlocks` composer before token-budget pruning)
+- [x] Add token budget accounting per context block and pruning rules. (implemented: Agent 9 prompt block registry now enforces token estimation, per-block caps, deterministic truncation, and priority-based pruning)
+- [x] Add retry micro-prompt generator by error category. (implemented: Agent 9 retry feedback now emits explicit directives for clue_visibility, word_count, and scene_grounding)
+- [x] Add deterministic pre-commit chapter obligation checks. (implemented)
+- [x] Unify clue evidence model between scoring adapters and NSD updates. (implemented: shared clue-state lattice `introduced|hinted|explicit|confirmed` now threads from prose evidence extraction into NSD transfer diagnostics and release-gate divergence payloads)
+- [x] Expand discriminating test validator with full component checks. (implemented: validator now enforces setup, evidence usage, elimination logic, and outcome declaration, and emits scene/paragraph-mapped diagnostics for missing components)
+- [x] Expand scene grounding validator to opening-block hard requirements. (implemented: chapter validation now requires opening-block named location anchoring plus sensory and atmosphere/time signals, with targeted opening-block diagnostics)
+- [x] Expand character validator for alias/pronoun/walk-on name rules. (implemented: character validation now resolves configured aliases to canonical cast identities, extends pronoun checks across immediate follow-up context, and flags out-of-cast titled named walk-ons)
+- [x] Expand temporal validator with contradiction matrix. (implemented: shared temporal-consistency analyzer now enforces an explicit month-to-forbidden-season matrix, normalizes seasonal phrase variants (for example, autumnal/springtime/wintry), and is used by both chapter and narrative-continuity validators to catch contradictions in narration and dialogue)
+- [x] Add per-chapter provisional scoring and next-chapter corrective feedback. (implemented: Agent 9 now computes provisional per-chapter scores before commit, records deficits/directives, and injects rolling corrective feedback from chapter N into subsequent chapter prompts so chapter N+1 is explicitly steered away from repeated weak patterns)
+- [x] Add fixed-seed benchmark suite with chapter-level expected outcomes. (implemented: `@cml/story-validation` now includes replay benchmarks driven by fixed report seeds with deterministic assertions for Agent 9 prose totals and per-chapter score signatures)
+- [x] Add A/B prompt harness with statistical selection criteria. (implemented: `@cml/story-validation` now exposes a deterministic A/B prompt harness that compares paired seed runs by variant, applies a two-sided paired sign-test p-value gate, minimum sample-size gate, and minimum effect-size gate before selecting a winner)
+- [x] Add dashboard metrics for component-level chapter scoring. (implemented: prose chapter score traces now include per-chapter component metrics (validation/quality/completeness/consistency) and the Quality dashboard renders these component columns for first-run and second-run chapter tables)
+- [x] D7: Fair-play timing validator. (implemented: adaptProseForScoring now computes firstRevealChapterById from evidenceByChapter; flags same-chapter timing violations when a clue is first revealed in a discriminating-test or strong-conclusion chapter; fair_play_timing_compliant + fair_play_timing_violations added to fair_play_validation output)
+- [x] D8: Score rubric recalibration for fair-play timing. (implemented: ProseScorer fair_play_validation weights recalibrated 40/40/20 → 35/35/15/15 to add fair_play_timing_compliant component; backwards-compatible default = pass when field absent; timing violation details surfaced in failure message)
+
+====================================================================
+13) RISKS AND MITIGATIONS
+====================================================================
+Risk: Over-constrained prompts reduce prose naturalness.
+Mitigation: Two-pass approach and selective style expansion after logic pass.
+
+Risk: Token bloat from too many context blocks.
+Mitigation: Hard budget and deterministic prioritization.
+
+Risk: Validator strictness creates retry storms.
+Mitigation: Error-class retries and surgical rewrites.
+
+Risk: Scoring mismatch with desired prose quality.
+Mitigation: Rubric calibration and benchmark-driven adjustments.
+
+Risk: Hidden regressions in reporting truth.
+Mitigation: Invariant checks + replay fixtures + API endpoint tests.
+
+====================================================================
+14) OPERATING RULES FOR IMPLEMENTATION
+====================================================================
+- Do not ship prompt changes without corresponding validator/scorer updates.
+- Do not ship validator changes without remediation guidance in retry prompts.
+- Treat diagnostics schema as part of product contract.
+- Every new failure mode must be added to taxonomy and regression fixtures.
+- Prefer deterministic corrections over repeated blind regeneration.
+
+END OF PLAN
+
+====================================================================
+15) TECHNICAL DESIGN PHASED APPROACH (IMPLEMENTATION BLUEPRINT)
+====================================================================
+Purpose
+- Convert the roadmap into an engineering-ready, dependency-aware delivery sequence.
+- Ensure each phase has concrete artifacts, test coverage, and measurable exit criteria.
+
+Design principles
+- Build contracts before behaviors (schemas/invariants first, prompt tuning second).
+- Prefer deterministic gates over heuristic retries.
+- Keep each phase releasable behind feature flags where risk is non-trivial.
+- Require observability parity with every new enforcement rule.
+
+Phase A - Foundation and Contracts
+Objectives
+- Establish canonical technical contracts for Agent 9 inputs, obligations, and report truth.
+
+Scope
+- Define typed normalization contract for all Agent 9 prompt inputs.
+- Define chapter requirement ledger schema (per chapter obligations + source provenance).
+- Define run-event/report coherence invariant contract.
+
+Technical deliverables
+- Type definitions + normalizer module for prose generation inputs.
+- Ledger builder interface and serialized ledger shape for diagnostics/reporting.
+- Invariant extension in report validator for event-to-outcome coherence.
+
+Verification
+- Unit tests for normalization defaults, null handling, and type coercion boundaries.
+- Unit tests for ledger generation from representative CML/outline fixtures.
+- Regression tests proving failed terminal events cannot produce passed report state.
+
+Exit gate
+- All new contracts are test-covered and backward-compatible with current run payloads.
+
+Phase B - Prompt Architecture and Budgeting
+Objectives
+- Rebuild prompt composition into deterministic, priority-based sections with token controls.
+
+Scope
+- Refactor prompt assembly into composable section builders ordered by criticality.
+- Add token budget accounting per section and deterministic pruning policy.
+- Add batch-local manifest injection from ledger obligations.
+
+Technical deliverables
+- Prompt section registry (critical, high, medium, optional tiers).
+- Token accounting utility with section-level size telemetry.
+- Pruning policy implementation that never drops hard constraints.
+
+Verification
+- Golden tests for prompt structure ordering and section presence.
+- Budget overflow tests validating deterministic prune behavior.
+- Snapshot tests for batch manifests matching chapter obligations.
+
+Exit gate
+- Prompt generation is deterministic for identical inputs and remains within configured budgets.
+
+Phase C - Generation Loop Enforcement
+Objectives
+- Enforce obligation correctness before chapter commit and improve retry precision.
+
+Scope
+- Add pre-commit obligation checker against requirement ledger.
+- Introduce error-class retry router (structural vs logic vs style classes).
+- Add constrained rewrite mode for narrow failures (temporal/grounding/anchor).
+
+Technical deliverables
+- Pre-commit validator module with machine-readable failure taxonomy.
+- Retry policy matrix and micro-prompt generator by error class.
+- Surgical rewrite path for single-class chapter defects.
+
+Verification
+- Tests proving chapters with missing obligations are blocked from commit.
+- Retry flow tests for each error class and expected branch behavior.
+- Performance checks for retry count and failure convergence trend.
+
+Exit gate
+- No chapter is committed without passing deterministic obligation checks.
+
+Phase D - Validator and Scorer Unification
+Objectives
+- Align enforcement and scoring on a single semantic evidence model.
+
+Scope
+- Unify clue visibility semantics (introduced/hinted/explicit/confirmed).
+- Upgrade discriminating test validation to component-level checks.
+- Upgrade fair-play timing validation to chapter-boundary enforcement.
+- Strengthen scene grounding opening-block requirements.
+
+Technical deliverables
+- Shared evidence model primitives used by validators, adapters, and NSD trace.
+- Expanded discriminating-test and fair-play validators with paragraph-level mapping.
+- Updated scorer criteria to consume unified evidence states.
+
+Verification
+- Cross-module contract tests (adapter output equals validator/scorer expectations).
+- Scenario tests for fair-play timing violations and discriminating test incompleteness.
+- Differential tests showing reduced heuristic false positives.
+
+Exit gate
+- Validator/scorer outcomes are consistent for identical chapter evidence.
+
+Phase E - Observability and Report Integrity
+Objectives
+- Make every enforcement decision diagnosable and report outcomes fully trustworthy.
+
+Scope
+- Add prompt fingerprints (hash + section sizes) per chapter.
+- Add failure lineage payload for first-fail chapter and correction attempts.
+- Extend report diagnostics completeness checks for started prose runs.
+
+Technical deliverables
+- Structured telemetry fields for prompt/validation/retry lineage.
+- Diagnostics schema updates for phase summaries and lineage bundles.
+- Additional invariant checks for required summary payloads when prose starts.
+
+Verification
+- Integration tests for telemetry persistence and report serialization.
+- Invariant tests for missing/partial diagnostic payload rejection.
+- API behavior tests for stale/incomplete report serving semantics.
+
+Exit gate
+- Every failed or degraded run has sufficient telemetry for root-cause attribution.
+
+Phase F - Benchmarking, Tuning, and Rollout
+Objectives
+- Prove 100/100 stability under repeatable benchmarks and controlled production rollout.
+
+Scope
+- Build fixed-seed benchmark corpus with chapter-level expected obligations.
+- Add A/B harness for prompt/retry strategy comparisons.
+- Introduce canary rollout with regression thresholds and rollback triggers.
+
+Technical deliverables
+- Benchmark runner and CI gate criteria.
+- A/B metrics report for component scores and cost/quality efficiency.
+- Rollout playbook with stop/go criteria.
+
+Verification
+- CI benchmark pass across seeds for validation/quality/completeness/consistency.
+- Statistical comparison reports for chosen prompt/retry variants.
+- Canary monitoring dashboard for failure-class drift and score regressions.
+
+Exit gate
+- Benchmark and canary trends demonstrate sustained 100/100 chapter outcomes without truth regressions.
+
+Cross-phase engineering controls
+- Feature flags:
+  - `prose.requirementLedger.enabled`
+  - `prose.promptBudgeting.enabled`
+  - `prose.preCommitObligationGate.enabled`
+  - `prose.strictFairPlayTiming.enabled`
+- Migration strategy:
+  - Keep legacy behavior available for one release cycle behind flags.
+  - Emit dual diagnostics during migration for parity checks.
+- Testing policy:
+  - Every new validator rule must include a failing fixture and remediation expectation.
+  - Every new scorer rule must include at least one false-positive guard test.
+
+Suggested execution cadence
+- Sprint 1: Phase A
+- Sprint 2: Phase B
+- Sprint 3: Phase C
+- Sprint 4: Phase D
+- Sprint 5: Phase E
+- Sprint 6: Phase F + production canary
+
+Completion definition for this blueprint
+- All phases closed with documented exit evidence.
+- No open P0 invariant gaps.
+- Prose quality system operates as a deterministic, diagnosable pipeline rather than prompt-only optimization.
+
+====================================================================
+16) IMMEDIATE HOTFIX LANE (ONGOING ERROR RESPONSE)
+====================================================================
+Purpose
+- Run a parallel fast-response track for current prose generation failures while phased architecture work proceeds.
+- Reduce current failure rate in days, not sprints.
+
+Trigger conditions
+- Any rolling 10-run window where `agent9-prose` fails due to:
+  - `Clue visibility` (critical), or
+  - repeated `Word count target`/`All chapters present` completeness degradation.
+
+Hotfix H1 - Clue visibility extraction parity (Priority 0)
+Problem addressed
+- Active critical completeness failures where scorer expects clues that adapter extraction does not reliably surface.
+
+Actions
+- Align expected clue ID source for scoring with the same clue contract used by prose prompting and NSD trace.
+- Add dual-source clue ID diagnostics (`mapping_ids`, `distribution_ids`, `effective_ids`) to detect mismatch immediately.
+- Add strict test fixtures where clues are semantically present but non-literal, and where mapping is partial.
+
+Success metric
+- `Clue visibility` critical failures reduced to near-zero on latest rolling 20 runs.
+
+Hotfix H2 - Pre-commit completeness gate (Priority 0)
+Problem addressed
+- Chapters can still commit while trending toward low completeness score.
+
+Actions
+- Add deterministic pre-commit checks in generation loop for:
+  - expected chapter count progress,
+  - chapter minimum word threshold,
+  - chapter obligation closure from requirement ledger.
+- Block commit when checks fail and force targeted corrective rewrite.
+
+Success metric
+- Eliminate repeated `Word count target` major failures from first-pass outputs.
+
+Hotfix H3 - Retry correction specificity (Priority 1)
+Problem addressed
+- Generic retries do not reliably fix completeness defects.
+
+Actions
+- Add micro-prompt templates per failure class (`clue_visibility`, `word_count`, `missing_chapter_obligations`).
+- Include chapter-local required clue IDs and evidence insertion directives in retry context.
+
+Success metric
+- Reduced retries per failed batch and improved second-attempt correction rate.
+
+Hotfix H4 - Score-path observability patch (Priority 1)
+Problem addressed
+- Slow triage when run fails but exact clue/obligation gap is not obvious.
+
+Actions
+- Persist per-run top missing clue IDs and missing chapter obligations in post-generation diagnostics.
+- Emit scorer-to-adapter comparison snapshot for `expected vs extracted` clue sets.
+
+Success metric
+- Every failed run yields actionable root-cause fields without manual log archaeology.
+
+Operational rule
+- Hotfix lane merges must include tests and diagnostics fields in the same change.
+- No hotfix may reduce invariant strictness for report truth.
+
+====================================================================
+17) ERROR-TO-WORKSTREAM MAPPING (EXECUTION CONTROL TABLE)
+====================================================================
+Use this table to route active failures directly to implementation scope.
+
+Error: `Clue visibility` (critical)
+Mapped workstreams:
+- D1 Single source of truth for clue visibility
+- D2 Evidence anchor completeness
+- C4 Mandatory pre-commit chapter checklist
+- Hotfix H1, H2, H4
+Primary files:
+- `apps/worker/src/jobs/scoring-adapters.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+- `packages/story-validation/src/scoring/phase-scorers/agent9-prose-scorer.ts`
+
+Error: `Word count target` (major/minor repeat)
+Mapped workstreams:
+- C4 Mandatory pre-commit chapter checklist
+- C1 Retry strategy by error class
+- B4 Batch-local requirement manifest
+- Hotfix H2, H3
+Primary files:
+- `packages/prompts-llm/src/agent9-prose.ts`
+- `packages/story-validation/src/scoring/phase-scorers/agent9-prose-scorer.ts`
+
+Error: `All chapters present` (major/minor repeat)
+Mapped workstreams:
+- A3 Outline-to-prose mapping integrity
+- C4 Mandatory pre-commit chapter checklist
+- C1 Retry strategy by error class
+- Hotfix H2
+Primary files:
+- `packages/prompts-llm/src/agent9-prose.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+
+Error: Fair-play inconsistency (`discriminating_test_complete`, spoiler leakage)
+Mapped workstreams:
+- D3 Discriminating test validator upgrade
+- D7 Fair-play timing validator
+- B1 Prioritized prompt sections
+- Hotfix H3, H4
+Primary files:
+- `packages/story-validation/src/discriminating-test-validator.ts`
+- `packages/story-validation/src/chapter-validator.ts`
+- `apps/worker/src/jobs/scoring-adapters.ts`
+
+Error: Event/report contradiction or stale/incomplete truth risk
+Mapped workstreams:
+- E2 Event/report coherence gate
+- E3 In-progress report safety
+- Phase A contract invariant extension
+Primary files:
+- `packages/story-validation/src/scoring/report-invariants.ts`
+- `apps/api/src/server.ts`
+- `apps/worker/src/jobs/mystery-orchestrator.ts`
+
+Routing rule
+- Every failed run review must tag the primary error class using this table.
+- Any class appearing 3+ times in the latest 20 runs is escalated to Priority 0.

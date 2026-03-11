@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adaptTemporalContextForScoring } from "../jobs/scoring-adapters.js";
+import { adaptTemporalContextForScoring } from "../jobs/scoring-adapters/index.js";
 
 describe("adaptTemporalContextForScoring optional richness mapping", () => {
   it("includes accessories, holidays, events, and social issues in synthesized fields", () => {

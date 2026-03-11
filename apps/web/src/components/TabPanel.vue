@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps<{
   id: string;
@@ -9,25 +9,27 @@ const props = defineProps<{
 
 const hasBeenActive = ref(false);
 
-const shouldRender = () => {
-  if (!props.lazy) return true;
-  if (props.active) {
-    hasBeenActive.value = true;
-    return true;
-  }
-  return hasBeenActive.value;
-};
+watch(
+  () => props.active,
+  (active) => {
+    if (active) {
+      hasBeenActive.value = true;
+    }
+  },
+  { immediate: true },
+);
 
-onMounted(() => {
-  if (props.active) {
-    hasBeenActive.value = true;
-  }
+const shouldRender = computed(() => {
+  if (!props.lazy) return true;
+  return props.active || hasBeenActive.value;
 });
+
+const shouldShowSlot = computed(() => props.active || hasBeenActive.value);
 </script>
 
 <template>
   <div
-    v-if="shouldRender()"
+    v-if="shouldRender"
     :id="id"
     :class="[
       'tab-panel transition-opacity duration-200',
@@ -36,6 +38,6 @@ onMounted(() => {
     role="tabpanel"
     :aria-hidden="!active"
   >
-    <slot v-if="active || hasBeenActive" />
+    <slot v-if="shouldShowSlot" />
   </div>
 </template>

@@ -291,7 +291,27 @@ export interface GenerationReport {
   overall_score: number;
   overall_grade: string;
   passed: boolean;
+  run_outcome?: "passed" | "failed" | "aborted";
+  run_outcome_reason?: string;
+  scoring_outcome?: {
+    score: number;
+    grade: string;
+    passed_threshold: boolean;
+  };
+  release_gate_outcome?: {
+    status: "passed" | "failed" | "unknown";
+    hard_stop_count: number;
+    warning_count: number;
+  };
   phases: ScoringPhaseReport[];
+  diagnostics?: Array<{
+    key: string;
+    agent: string;
+    phase_name: string;
+    diagnostic_type: string;
+    captured_at: string;
+    details: Record<string, unknown>;
+  }>;
   summary: {
     phases_passed: number;
     phases_failed: number;

@@ -385,4 +385,56 @@ describe("ScoreAggregator", () => {
     expect(report.phases).toHaveLength(0);
     expect(report.passed).toBe(true); // vacuously true — no phases failed
   });
+
+  it("computes stage-aware validation reconciliation from release gate snapshots", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore("agent9_prose", "Prose Generation", makeScore({ agent: "agent9-prose", total: 84 }), 1000);
+
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "failed",
+        validation_summary: { totalIssues: 7, critical: 7, major: 0, moderate: 0, minor: 0 },
+        validation_snapshots: {
+          pre_repair: { totalIssues: 11, critical: 11, major: 0, moderate: 0, minor: 0 },
+          post_repair: { totalIssues: 8, critical: 8, major: 0, moderate: 0, minor: 0 },
+          release_gate: { totalIssues: 7, critical: 7, major: 0, moderate: 0, minor: 0 },
+        },
+        release_gate_hard_stop_count: 0,
+        release_gate_warning_count: 0,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.validation_snapshots?.pre_repair?.total).toBe(11);
+    expect(report.validation_snapshots?.post_repair?.total).toBe(8);
+    expect(report.validation_snapshots?.release_gate?.total).toBe(7);
+    expect(report.validation_reconciliation?.pre_total).toBe(11);
+    expect(report.validation_reconciliation?.release_gate_total).toBe(7);
+    expect(report.validation_reconciliation?.resolved_delta).toBe(4);
+  });
+
+  it("sets run_outcome to aborted when release gate has hard stops", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore("agent2-cast", "Cast", makeScore({ total: 92 }), 1000);
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "failed",
+        validation_summary: { totalIssues: 1, critical: 1, major: 0, moderate: 0, minor: 0 },
+        release_gate_hard_stop_count: 1,
+        release_gate_warning_count: 2,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.run_outcome).toBe("aborted");
+    expect(report.run_outcome_reason).toBe("Release gate hard-stop");
+  });
 });

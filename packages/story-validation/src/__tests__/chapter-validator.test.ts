@@ -20,6 +20,38 @@ const makeCml = (): CMLData => ({
 describe("ChapterValidator tightening", () => {
   const validator = new ChapterValidator();
 
+  it("flags opening block when location/sensory/atmosphere grounding is delayed", () => {
+    const chapter = {
+      chapterNumber: 2,
+      title: "Late Grounding",
+      paragraphs: [
+        "The interview began with clipped questions and careful answers.",
+        "No one commented on the room or the weather while the silence stretched.",
+        "Only later did they cross into Harrowfield Hall's library as rain tapped the stained-glass windows.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((issue) => issue.message.includes("opening block lacks a clear named location anchor"))).toBe(true);
+    expect(result.issues.some((issue) => issue.message.includes("opening block has weak sensory grounding"))).toBe(true);
+    expect(result.issues.some((issue) => issue.message.includes("opening block has weak atmosphere/time grounding"))).toBe(true);
+  });
+
+  it("passes opening-block grounding when first paragraph anchors location + sensory + atmosphere", () => {
+    const chapter = {
+      chapterNumber: 2,
+      title: "Strong Opening",
+      paragraphs: [
+        "At Harrowfield Hall, rain hissed at the windows while a damp draft carried the scent of smoke through the study.",
+        "Michael Warenne listened to the whisper of the curtains before he spoke.",
+        "Jennifer Daubeny waited by the fireplace.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((issue) => issue.message.includes("opening block"))).toBe(false);
+  });
+
   it("flags month/season contradiction inside a chapter", () => {
     const chapter = {
       chapterNumber: 3,
@@ -44,6 +76,20 @@ describe("ChapterValidator tightening", () => {
       paragraphs: [
         "The grounds looked unmistakably autumnal, with fall chill in every corridor.",
         "No one mentioned the date aloud.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((issue) => issue.message.includes("month/season contradiction"))).toBe(true);
+  });
+
+  it("flags contradiction from month abbreviations and dialogue seasonal phrases", () => {
+    const chapter = {
+      chapterNumber: 5,
+      title: "Dialogue Contradiction",
+      paragraphs: [
+        "By Oct., Harrowfield Hall should have settled into autumn rain.",
+        "\"This has a pure springtime glow,\" Jennifer said, smiling at the garden.",
       ],
     };
 

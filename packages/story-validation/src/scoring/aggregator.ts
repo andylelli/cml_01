@@ -3,6 +3,7 @@ import {
   PhaseReport,
   GenerationReport,
   ThresholdConfig,
+  GenerationDiagnostic,
 } from './types.js';
 import { calculateGrade, passesThreshold } from './thresholds.js';
 import { RetryManager } from './retry-manager.js';
@@ -24,6 +25,7 @@ export interface GenerationMetadata {
  */
 export class ScoreAggregator {
   private phases: PhaseReport[] = [];
+  private diagnostics: GenerationDiagnostic[] = [];
   private thresholdConfig: ThresholdConfig;
   private retryManager?: RetryManager;
 
@@ -135,6 +137,33 @@ export class ScoreAggregator {
   }
 
   /**
+   * Upsert a structured diagnostic snapshot by key.
+   */
+  upsertDiagnostic(
+    key: string,
+    agent: string,
+    phaseName: string,
+    diagnosticType: string,
+    details: Record<string, unknown>,
+  ): void {
+    const diagnostic: GenerationDiagnostic = {
+      key,
+      agent,
+      phase_name: phaseName,
+      diagnostic_type: diagnosticType,
+      captured_at: new Date().toISOString(),
+      details,
+    };
+
+    const existingIndex = this.diagnostics.findIndex((d) => d.key === key);
+    if (existingIndex >= 0) {
+      this.diagnostics[existingIndex] = diagnostic;
+    } else {
+      this.diagnostics.push(diagnostic);
+    }
+  }
+
+  /**
    * Generate the complete generation report
    */
   generateReport(metadata: GenerationMetadata): GenerationReport {
@@ -152,6 +181,69 @@ export class ScoreAggregator {
 
     // Determine if all phases passed
     const passed = this.phases.every((p) => p.passed);
+
+    const releaseGateDiagnostic = this.diagnostics.find(
+      (d) => d.diagnostic_type === 'release_gate_summary'
+    );
+    const releaseGateDetails =
+      (releaseGateDiagnostic?.details as Record<string, unknown> | undefined) ?? {};
+    const releaseGateStatusRaw = releaseGateDetails['validation_status'];
+    const releaseGateStatus: 'passed' | 'failed' | 'unknown' =
+      releaseGateStatusRaw === 'passed' || releaseGateStatusRaw === 'failed'
+        ? releaseGateStatusRaw
+        : 'unknown';
+    const releaseGateHardStopCount = Number(
+      releaseGateDetails['release_gate_hard_stop_count'] ?? 0
+    );
+    const releaseGateWarningCount = Number(
+      releaseGateDetails['release_gate_warning_count'] ?? 0
+    );
+
+    const runOutcome: GenerationReport['run_outcome'] =
+      releaseGateHardStopCount > 0
+        ? 'aborted'
+        : passed
+          ? 'passed'
+          : 'failed';
+
+    const runOutcomeReason =
+      runOutcome === 'aborted'
+        ? 'Release gate hard-stop'
+        : runOutcome === 'failed'
+          ? 'One or more phases failed threshold'
+          : undefined;
+
+    const releaseGateSummary =
+      (releaseGateDetails['validation_summary'] as Record<string, unknown> | undefined) ??
+      undefined;
+    const parseIssueSnapshot = (summary?: Record<string, unknown>) => {
+      if (!summary) return undefined;
+      return {
+        total: Number(summary['totalIssues'] ?? 0),
+        critical: Number(summary['critical'] ?? 0),
+        major: Number(summary['major'] ?? 0),
+        moderate: Number(summary['moderate'] ?? 0),
+        minor: Number(summary['minor'] ?? 0),
+      };
+    };
+
+    const releaseGateSnapshots =
+      (releaseGateDetails['validation_snapshots'] as Record<string, unknown> | undefined) ??
+      undefined;
+    const preRepairSnapshot = parseIssueSnapshot(
+      releaseGateSnapshots?.['pre_repair'] as Record<string, unknown> | undefined
+    );
+    const postRepairSnapshot = parseIssueSnapshot(
+      releaseGateSnapshots?.['post_repair'] as Record<string, unknown> | undefined
+    );
+    const releaseGateSnapshot =
+      parseIssueSnapshot(
+        releaseGateSnapshots?.['release_gate'] as Record<string, unknown> | undefined
+      ) ?? parseIssueSnapshot(releaseGateSummary);
+
+    const preRepairTotal = preRepairSnapshot?.total ?? releaseGateSnapshot?.total ?? 0;
+    const releaseGateTotal = releaseGateSnapshot?.total ?? 0;
+    const resolvedDelta = Math.max(0, preRepairTotal - releaseGateTotal);
 
     // Calculate summary statistics
     const phasesPassed = this.phases.filter((p) => p.passed).length;
@@ -198,7 +290,36 @@ export class ScoreAggregator {
       overall_score: parseFloat(overallScore.toFixed(2)),
       overall_grade: overallGrade,
       passed,
+      run_outcome: runOutcome,
+      run_outcome_reason: runOutcomeReason,
+      scoring_outcome: {
+        score: parseFloat(overallScore.toFixed(2)),
+        grade: overallGrade,
+        passed_threshold: passed,
+      },
+      release_gate_outcome: {
+        status: releaseGateStatus,
+        hard_stop_count: releaseGateHardStopCount,
+        warning_count: releaseGateWarningCount,
+      },
       phases: this.phases,
+      diagnostics: this.diagnostics.length > 0 ? [...this.diagnostics] : undefined,
+      validation_snapshots:
+        preRepairSnapshot || postRepairSnapshot || releaseGateSnapshot
+          ? {
+              pre_repair: preRepairSnapshot,
+              post_repair: postRepairSnapshot,
+              release_gate: releaseGateSnapshot,
+            }
+          : undefined,
+      validation_reconciliation:
+        preRepairSnapshot || postRepairSnapshot || releaseGateSnapshot
+          ? {
+              pre_total: preRepairTotal,
+              release_gate_total: releaseGateTotal,
+              resolved_delta: resolvedDelta,
+            }
+          : undefined,
       summary: {
         phases_passed: phasesPassed,
         phases_failed: phasesFailed,
@@ -255,6 +376,7 @@ export class ScoreAggregator {
    */
   reset(): void {
     this.phases = [];
+    this.diagnostics = [];
   }
 
   /**

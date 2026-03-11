@@ -126,6 +126,16 @@ describe("NarrativeContinuityValidator", () => {
     expect(result.errors.some((e) => e.type === "temporal_contradiction")).toBe(true);
   });
 
+  it("flags temporal contradiction for month abbreviations and dialogue seasonal terms", () => {
+    const story = makeStory([
+      makeScene({ number: 1, text: "In Oct. the house was dim and quiet." }),
+      makeScene({ number: 2, text: "\"It feels like pure springtime,\" she said in the same October week." }),
+    ]);
+    const result = validator.validate(story);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.type === "temporal_contradiction")).toBe(true);
+  });
+
   it("flags investigator role drift without explicit handoff", () => {
     const story = makeStory([
       makeScene({ number: 1, text: "The amateur investigator gathered statements in the drawing room." }),
@@ -228,7 +238,7 @@ describe("DiscriminatingTestValidator", () => {
     const story = makeStory([
       makeScene({
         number: 1,
-        text: "The detective set a trap to test the suspect. Only one person could have reached the cabinet, because the window lock was verified to have been shut. The evidence excluded everyone else.",
+        text: "The detective set a trap to test the suspect. Only one person could have reached the cabinet, because the window lock was verified to have been shut. The evidence excluded everyone else, so Mercer was the culprit.",
       }),
     ]);
     const result = await validator.validate(story);
@@ -270,11 +280,30 @@ describe("DiscriminatingTestValidator", () => {
     const story = makeStory([
       makeScene({
         number: 1,
-        text: "A re-enactment showed, therefore, that only she could have been the culprit — everyone else was eliminated because the time-measured observation proved it.",
+        text: "A re-enactment showed, therefore, that only she could have been the culprit — everyone else was eliminated because the time-measured observation proved it, and the inspector declared she did it.",
       }),
     ]);
     const result = await validator.validate(story);
     expect(result.valid).toBe(true);
+  });
+
+  it("reports missing components with scene and paragraph mapping", async () => {
+    const story = makeStory([
+      makeScene({
+        number: 3,
+        text: "The detective staged a careful test in the library.\n\nThe watch reading was observed and measured against the room clock.",
+      }),
+    ]);
+
+    const result = await validator.validate(story);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.type === "discriminating_test_missing_elimination_logic")).toBe(true);
+    expect(result.errors.some((e) => e.type === "discriminating_test_missing_outcome_declaration")).toBe(true);
+
+    const eliminationError = result.errors.find((e) => e.type === "discriminating_test_missing_elimination_logic");
+    expect(eliminationError?.sceneNumber).toBe(3);
+    expect(eliminationError?.lineNumber).toBe(1);
   });
 
   it("flags cml_test_not_realized when CML has discriminating test but no prose scene mentions test", async () => {

@@ -13,7 +13,10 @@ import { validateCml } from "@cml/cml";
 // Load environment variables from root .env.local
 config({ path: join(process.cwd(), "../../.env.local") });
 
-describe("Agent 3 Integration Tests (Real LLM)", () => {
+const RUN_LLM_INTEGRATION = process.env.RUN_LLM_INTEGRATION_TESTS === "true";
+const describeIntegration = RUN_LLM_INTEGRATION ? describe : describe.skip;
+
+describeIntegration("Agent 3 Integration Tests (Real LLM)", () => {
   let client: AzureOpenAIClient;
   const runId = `test-${Date.now()}`;
   const projectId = "integration-test";

@@ -142,7 +142,11 @@ export class StoryValidationPipeline {
       recommendations.push('Strip illegal control characters (UTF-8 safe) while preserving valid multibyte Unicode characters');
     }
 
-    if (errorTypes.has('character_name_inconsistency') || errorTypes.has('detective_name_inconsistency')) {
+    if (
+      errorTypes.has('character_name_inconsistency') ||
+      errorTypes.has('detective_name_inconsistency') ||
+      errorTypes.has('illegal_named_walk_on')
+    ) {
       recommendations.push('CRITICAL: Choose one consistent name for each character and use throughout');
     }
 
@@ -166,7 +170,14 @@ export class StoryValidationPipeline {
       recommendations.push('Add an explicit disappearance→murder bridge scene (body discovery/identification and reclassification)');
     }
 
-    if (errorTypes.has('missing_discriminating_test') || errorTypes.has('cml_test_not_realized')) {
+    if (
+      errorTypes.has('missing_discriminating_test') ||
+      errorTypes.has('cml_test_not_realized') ||
+      errorTypes.has('discriminating_test_missing_setup') ||
+      errorTypes.has('discriminating_test_missing_evidence_usage') ||
+      errorTypes.has('discriminating_test_missing_elimination_logic') ||
+      errorTypes.has('discriminating_test_missing_outcome_declaration')
+    ) {
       recommendations.push('Stage an explicit discriminating test that eliminates alternatives with evidence-backed logic');
     }
 

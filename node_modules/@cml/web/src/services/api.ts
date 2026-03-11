@@ -380,12 +380,16 @@ export const fetchSampleContent = async (id: string): Promise<{ id: string; name
   return response.json() as Promise<{ id: string; name: string; content: string }>;
 };
 
-export const fetchLatestRun = async (projectId: string): Promise<Run> => {
+export const fetchLatestRun = async (projectId: string): Promise<Run | null> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/runs/latest`);
   if (!response.ok) {
     throw new Error(`Fetch latest run failed (${response.status})`);
   }
-  return response.json() as Promise<Run>;
+  const payload = (await response.json()) as Run | { run: null };
+  if (typeof payload === "object" && payload !== null && "run" in payload) {
+    return null;
+  }
+  return payload as Run;
 };
 
 export const fetchRunEvents = async (runId: string): Promise<RunEvent[]> => {

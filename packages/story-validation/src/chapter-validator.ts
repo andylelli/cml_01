@@ -6,6 +6,7 @@
 
 import type { CMLData } from './types.js';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
+import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
 export interface ChapterValidationIssue {
   severity: 'critical' | 'major' | 'moderate';
@@ -289,7 +290,8 @@ export class ChapterValidator {
 
   private checkSceneGrounding(chapter: ChapterContent, cmlCase: any): ChapterValidationIssue[] {
     const issues: ChapterValidationIssue[] = [];
-    const text = chapter.paragraphs.join('\n').toLowerCase();
+    const openingBlockText = chapter.paragraphs.slice(0, 2).join('\n').toLowerCase();
+    const fullText = chapter.paragraphs.join('\n').toLowerCase();
 
     const setting = cmlCase.meta?.setting || {};
     const locationType = (setting.location_type || setting.type || '').toLowerCase();
@@ -306,45 +308,60 @@ export class ChapterValidator {
     };
 
     const fallbackAnchors = ['room', 'hall', 'corridor', 'garden', 'window', 'door', 'fireplace'];
-    const expectedAnchors = [
+    const strictOpeningAnchors = [
       ...(settingPatterns[locationType] || []),
       ...(locationName ? [locationName] : []),
+    ];
+    const expectedAnchors = [
+      ...strictOpeningAnchors,
       ...fallbackAnchors,
     ];
 
-    const hasLocationAnchor = expectedAnchors.some((term) => text.includes(term));
+    const hasOpeningLocationAnchor = strictOpeningAnchors.some((term) => openingBlockText.includes(term));
     const sensoryMarkers = [
       'smell', 'scent', 'odor', 'fragrance',
       'sound', 'echo', 'silence', 'whisper', 'creak',
       'cold', 'warm', 'damp', 'rough', 'smooth',
       'glow', 'shadow', 'flicker', 'dim',
-    ].filter((term) => text.includes(term)).length;
+    ].filter((term) => openingBlockText.includes(term)).length;
     const atmosphereMarkers = [
       'rain', 'wind', 'fog', 'storm', 'mist', 'thunder',
       'evening', 'morning', 'night', 'dawn', 'dusk', 'season',
-    ].filter((term) => text.includes(term)).length;
+    ].filter((term) => openingBlockText.includes(term)).length;
 
-    if (!hasLocationAnchor) {
+    const chapterWideHasLocationAnchor = expectedAnchors.some((term) => fullText.includes(term));
+
+    if (!hasOpeningLocationAnchor) {
       issues.push({
-        severity: chapter.chapterNumber <= 3 ? 'major' : 'moderate',
-        message: `Chapter ${chapter.chapterNumber} lacks clear scene location anchoring`,
-        suggestion: 'Anchor scene opening to a specific location from setting/location profiles'
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} opening block lacks a clear named location anchor`,
+        suggestion: 'In the first 1-2 paragraphs, anchor the scene to a specific location from setting/location profiles'
       });
     }
 
     if (sensoryMarkers < 2) {
       issues.push({
-        severity: chapter.chapterNumber <= 3 ? 'major' : 'moderate',
-        message: `Chapter ${chapter.chapterNumber} has weak sensory grounding (${sensoryMarkers} sensory markers found)`,
-        suggestion: 'Include at least two sensory cues (sound/smell/tactile/visual atmosphere) tied to the location'
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} opening block has weak sensory grounding (${sensoryMarkers} sensory markers found)`,
+        suggestion: 'Include at least two sensory cues (sound/smell/tactile/visual) in the opening block'
       });
     }
 
     if (atmosphereMarkers < 1) {
       issues.push({
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} opening block has weak atmosphere/time grounding`,
+        suggestion: 'Include at least one weather/time/atmosphere marker in the opening block to set the scene'
+      });
+    }
+
+    // Secondary signal: if the opening block is weak but grounding appears later,
+    // keep a moderate reminder so rewrites focus on front-loading setting context.
+    if (!hasOpeningLocationAnchor && chapterWideHasLocationAnchor) {
+      issues.push({
         severity: 'moderate',
-        message: `Chapter ${chapter.chapterNumber} has weak atmosphere/time grounding`,
-        suggestion: 'Include at least one weather/time/atmosphere marker to set the scene'
+        message: `Chapter ${chapter.chapterNumber} delays location grounding until after the opening block`,
+        suggestion: 'Move location-specific grounding into the first 1-2 paragraphs'
       });
     }
 
@@ -378,55 +395,15 @@ export class ChapterValidator {
 
   private checkTemporalConsistency(chapter: ChapterContent): ChapterValidationIssue[] {
     const issues: ChapterValidationIssue[] = [];
-    const text = chapter.paragraphs.join(' ').toLowerCase();
+    const text = chapter.paragraphs.join(' ');
+    const analysis = analyzeTemporalConsistency(text, chapter.temporalMonth);
 
-    const monthToSeason: Record<string, 'spring' | 'summer' | 'autumn' | 'winter'> = {
-      january: 'winter',
-      february: 'winter',
-      march: 'spring',
-      april: 'spring',
-      may: 'spring',
-      june: 'summer',
-      july: 'summer',
-      august: 'summer',
-      september: 'autumn',
-      october: 'autumn',
-      november: 'autumn',
-      december: 'winter',
-    };
-
-    const seasonTerms: Record<'spring' | 'summer' | 'autumn' | 'winter', RegExp> = {
-      spring: /\b(spring|vernal)\b/i,
-      summer: /\b(summer|midsummer)\b/i,
-      autumn: /\b(autumn|fall)\b/i,
-      winter: /\b(winter|wintry)\b/i,
-    };
-
-    const temporalMonth = chapter.temporalMonth?.toLowerCase();
-    const expectedFromTemporalMonth = temporalMonth ? monthToSeason[temporalMonth] : undefined;
-    const mentionedMonths = Object.keys(monthToSeason).filter((month) => new RegExp(`\\b${month}\\b`, 'i').test(text));
-    const expectedSeasons = new Set<'spring' | 'summer' | 'autumn' | 'winter'>(
-      mentionedMonths.map((month) => monthToSeason[month]).filter(Boolean),
-    );
-    if (expectedFromTemporalMonth) {
-      expectedSeasons.add(expectedFromTemporalMonth);
-    }
-    if (expectedSeasons.size === 0) return issues;
-
-    const conflicting: string[] = [];
-
-    (Object.keys(seasonTerms) as Array<keyof typeof seasonTerms>).forEach((season) => {
-      if (seasonTerms[season].test(text) && !expectedSeasons.has(season)) {
-        conflicting.push(season);
-      }
-    });
-
-    if (conflicting.length > 0) {
-      const monthAnchor = mentionedMonths[0] ?? temporalMonth ?? 'timeline month';
+    if (analysis.conflictingSeasons.length > 0) {
+      const monthAnchor = analysis.mentionedMonths[0] ?? chapter.temporalMonth ?? 'timeline month';
       issues.push({
         severity: 'major',
-        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${monthAnchor} vs ${conflicting.join(', ')})`,
-        suggestion: `Align season wording with month references (${(mentionedMonths.length > 0 ? mentionedMonths : [temporalMonth]).filter(Boolean).join(', ')}) to maintain temporal consistency`
+        message: `Chapter ${chapter.chapterNumber} has month/season contradiction (${monthAnchor} vs ${analysis.conflictingSeasons.join(', ')})`,
+        suggestion: `Align season wording with month references (${analysis.mentionedMonths.join(', ') || chapter.temporalMonth || 'timeline month'}) to maintain temporal consistency`
       });
     }
 

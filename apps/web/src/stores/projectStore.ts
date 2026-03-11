@@ -232,6 +232,44 @@ export const useProjectStore = defineStore("project", () => {
   ): Promise<LoadSummary> => {
     artifactsStatus.value = "loading";
 
+    const latestRun = await fetchLatestRun(projectId).catch(() => null);
+    if (!latestRun) {
+      latestRunId.value = null;
+      runEventsData.value = [];
+      artifactsStatus.value = "idle";
+
+      cmlArtifact.value = null;
+      cluesArtifact.value = null;
+      outlineArtifact.value = null;
+      proseArtifact.value = null;
+      characterProfilesArtifact.value = null;
+      locationProfilesArtifact.value = null;
+      temporalContextArtifact.value = null;
+      backgroundContextArtifact.value = null;
+      hardLogicDevicesArtifact.value = null;
+      gamePackArtifact.value = null;
+      settingArtifact.value = null;
+      castArtifact.value = null;
+
+      settingData.value = null;
+      castData.value = null;
+      cluesData.value = null;
+      fairPlayReport.value = null;
+      outlineData.value = null;
+      synopsisData.value = null;
+      proseData.value = null;
+      characterProfilesData.value = null;
+      locationProfilesData.value = null;
+      temporalContextData.value = null;
+      backgroundContextData.value = null;
+      hardLogicDevicesData.value = null;
+      noveltyAuditData.value = null;
+      gamePackData.value = null;
+
+      resetValidation();
+      return { failures: [], hasNotFound: false, hasNetworkError: false, notFoundCount: 0 };
+    }
+
     const includeCml = options.includeCml ?? true;
 
     const [
@@ -364,15 +402,9 @@ export const useProjectStore = defineStore("project", () => {
 
     noveltyAuditData.value = noveltyAudit.status === "fulfilled" ? (noveltyAudit.value.payload as NoveltyAuditData) : null;
 
-    const latestRun = await fetchLatestRun(projectId).catch(() => null);
-    if (latestRun) {
-      latestRunId.value = latestRun.id;
-      const events = await fetchRunEvents(latestRun.id).catch(() => []);
-      runEventsData.value = events;
-    } else {
-      latestRunId.value = null;
-      runEventsData.value = [];
-    }
+    latestRunId.value = latestRun.id;
+    const events = await fetchRunEvents(latestRun.id).catch(() => []);
+    runEventsData.value = events;
 
     const candidates = [
       setting,

@@ -484,6 +484,7 @@ const cluesReady = computed(() => Boolean(cluesData.value?.items?.length));
 const proseReady = computed(() => Boolean(proseData.value?.chapters?.length));
 const isRunning = computed(() => lastProjectStatus.value === "running");
 const isStartingRun = ref(false);
+const skipNextProjectArtifactLoad = ref(false);
 const isDownloadingStoryPdf = ref(false);
 const isDownloadingGamePackPdf = ref(false);
 const isDownloadingAllVersions = ref(false);
@@ -682,6 +683,10 @@ watch([projectName, projectId, latestSpecId, currentView, mode], () => {
 
 watch(projectId, (nextId) => {
   if (nextId) {
+    if (skipNextProjectArtifactLoad.value) {
+      skipNextProjectArtifactLoad.value = false;
+      return;
+    }
     loadArtifacts();
     return;
   }
@@ -945,6 +950,7 @@ const handleCreateProject = async () => {
   clearErrors("project");
   try {
     isCreatingProject.value = true;
+    skipNextProjectArtifactLoad.value = true;
     const project = await createProject(projectName.value.trim() || "Untitled project");
     projectId.value = project.id;
     projectIdInput.value = project.id;
@@ -960,7 +966,6 @@ const handleCreateProject = async () => {
     addError("info", "project", "Project created. Choose your settings, then select Generate.");
     persistState();
     logActivity({ projectId: project.id, scope: "ui", message: "project_created" });
-    await loadProjects();
     // Don't auto-run pipeline - user should configure spec first and manually click Generate
   } catch (error) {
     addError("error", "project", "Failed to create project", error instanceof Error ? error.message : String(error));
@@ -1005,6 +1010,7 @@ const handleLoadProject = async () => {
   }
   clearErrors("project");
   try {
+    skipNextProjectArtifactLoad.value = true;
     const project = await fetchProject(nextId);
     projectId.value = project.id;
     projectName.value = project.name;
@@ -1571,9 +1577,6 @@ onMounted(async () => {
   window.addEventListener("keydown", handleGlobalKeydown);
   await loadProjects();
   loadSamples();
-  if (projectId.value) {
-    loadArtifacts();
-  }
 });
 
 onBeforeUnmount(() => {

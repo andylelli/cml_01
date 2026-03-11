@@ -345,14 +345,14 @@ function buildProseRequirements(caseData: CaseData): string {
 }
 
 function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[], detectiveType?: 'police' | 'private' | 'amateur'): string {
-  const _legacy = caseData as any;
-  const _crimeVictim: string = typeof _legacy.setup?.crime?.victim === 'string' ? _legacy.setup.crime.victim : "the victim";
-  const _rawLocationRaw = _legacy.setup?.crime?.location;
-  const _rawLocation: string = typeof _rawLocationRaw === 'string' ? _rawLocationRaw : typeof _rawLocationRaw === 'object' && _rawLocationRaw !== null ? (_rawLocationRaw.name || _rawLocationRaw.id || 'the scene') : 'the scene';
-  const _locationWord = _rawLocation.replace(/^(locked|the|a|an)\s+/i, "").toLowerCase();
-  const _exampleLocation = _crimeVictim !== "the victim"
-    ? `${_crimeVictim}'s ${_locationWord}`
-    : _rawLocation;
+  const legacy = caseData as any;
+  const crimeVictim: string = typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim";
+  const rawLocationValue = legacy.setup?.crime?.location;
+  const rawLocation: string = typeof rawLocationValue === 'string' ? rawLocationValue : typeof rawLocationValue === 'object' && rawLocationValue !== null ? (rawLocationValue.name || rawLocationValue.id || 'the scene') : 'the scene';
+  const locationWord = rawLocation.replace(/^(locked|the|a|an)\s+/i, "").toLowerCase();
+  const exampleLocation = crimeVictim !== "the victim"
+    ? `${crimeVictim}'s ${locationWord}`
+    : rawLocation;
   const lengthGuidance = {
     short: `${STORY_LENGTH_TARGETS.short.scenes} scenes, targeting a novella of ~${STORY_LENGTH_TARGETS.short.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.short.maxWords.toLocaleString()} words`,
     medium: `${STORY_LENGTH_TARGETS.medium.scenes} scenes, targeting a full novel of ~${STORY_LENGTH_TARGETS.medium.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.medium.maxWords.toLocaleString()} words`,
@@ -528,7 +528,7 @@ Return a JSON object:
           "act": 1,
           "title": "Discovery",
           "setting": {
-            "location": "${_exampleLocation}",
+            "location": "${exampleLocation}",
             "timeOfDay": "Morning after the murder",
             "atmosphere": "Tense household awaiting the detective's arrival"
           },

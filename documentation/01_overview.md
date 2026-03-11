@@ -59,6 +59,12 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Prose output is now sanitized before persistence/export (mojibake cleanup, system-residue stripping, Unicode normalization).
 - Prose generation now enforces location-grounded scene setting (named location anchor + sensory + atmosphere cues per chapter) using location profiles.
 - Prose generation now enforces deterministic month/season consistency for chapter text: Agent 9 applies a hard season lock derived from the temporal month and normalizes conflicting season labels before chapter validation.
+- Agent 9 now applies an online anti-template linter before accepting each prose batch (opening-style entropy, repeated paragraph fingerprint, and high n-gram overlap checks), forcing immediate batch rewrite on failure.
+- Validation-driven full-prose repair now runs in chapter-granular mode with a fresh NarrativeState baseline and a softened early-chapter entropy gate, reducing chapter-1 false hard-fails while preserving template-leakage protections.
+- Agent 9 entropy enforcement is now adaptive in standard mode (early chapters use a lower entropy floor that tightens later), and entropy-only residual failures no longer hard-abort prose when all other validators pass.
+- Agent 9 now enforces deterministic pre-commit completeness checks (chapter minimum words by target length + chapter-level clue obligations from CML mapping/scene clues) before chapter persistence.
+- Agent 9 now computes provisional per-chapter quality scores and feeds chapter-specific corrective directives into subsequent chapter prompts, so chapter N deficits are explicitly corrected in chapter N+1 generation constraints.
+- Aborted runs that fail after prose has started now persist a partial `post_generation_summary` diagnostic snapshot so failure forensics remain visible in reports.
 - Worker post-processing now deterministically backfills chapter openings that miss scene-grounding requirements and reflows dense paragraph blocks for whitespace readability.
 - Worker post-processing now also hardens prose against template leakage by rewriting known scaffold signatures and replacing repeated long boilerplate paragraphs before release-gate hard-stop checks.
 - Encoding hardening now preserves valid multibyte Unicode while stripping illegal control characters before persistence/export.
@@ -70,6 +76,12 @@ Users configure setting, cast, tone, and logic to generate a fair-play Golden Ag
 - Play mode allows chapter-based clue reveal in the UI.
 - Community templates are listed from examples/ for structural inspiration.
 - Printable party kit PDF is available from the game pack panel.
+- Export bundles can now include the latest quality report with diagnostics for run-level troubleshooting.
+- Quality report persistence now enforces hard coherence invariants (status/reason/diagnostic consistency) before write/export, so contradictory reports are rejected instead of silently stored.
+- NSD transfer traces are now hard-gated for evidence completeness: if clues are marked as newly revealed without matching evidence anchors, report persistence fails.
+- Release gating now fail-stops on unresolved clue-visibility divergence when NSD marks clue reveals that prose evidence extraction cannot support.
+- Fixed-seed prose benchmark replay tests now run in story-validation with deterministic chapter-level expected outcomes, providing an early regression gate for Agent 9 scoring behavior.
+- The Quality dashboard now includes component-level chapter scoring metrics for prose (validation, quality, completeness, consistency) alongside chapter total/cumulative scores, including second-run repair series when present.
 
 ## Seed CML library usage (structural only)
 - Seeds teach classic crime structure, not story content.

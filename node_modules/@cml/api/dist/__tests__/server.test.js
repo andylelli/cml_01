@@ -37,6 +37,12 @@ describe("API server (phase 1)", () => {
         expect(fetched.status).toBe(200);
         expect(fetched.body.id).toBe(created.body.id);
     });
+    it("returns run=null for latest run when project has no runs", async () => {
+        const created = await request(app).post("/api/projects").send({ name: "No Run Project" });
+        const latestRun = await request(app).get(`/api/projects/${created.body.id}/runs/latest`);
+        expect(latestRun.status).toBe(200);
+        expect(latestRun.body).toEqual({ run: null });
+    });
     it("saves and retrieves a spec", async () => {
         const created = await request(app).post("/api/projects").send({ name: "Spec Project" });
         const saved = await request(app)
@@ -135,7 +141,7 @@ describe("API server (phase 1)", () => {
 describe("Scoring API", () => {
     let reportsDir;
     /** Minimal valid GenerationReport written to disk so the API can read it */
-    function makeReport(projectId, runId, score = 82, passed = true) {
+    function makeReport(projectId, runId, score = 82, passed = true, diagnostics = []) {
         return {
             project_id: projectId,
             run_id: runId,
@@ -146,6 +152,7 @@ describe("Scoring API", () => {
             overall_grade: score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : score >= 60 ? "D" : "F",
             passed,
             phases: [],
+            diagnostics,
             summary: {
                 phases_passed: passed ? 9 : 8,
                 phases_failed: passed ? 0 : 1,
@@ -175,7 +182,7 @@ describe("Scoring API", () => {
     });
     afterAll(async () => {
         // Remove only the test project directories we created
-        for (const proj of ["score-proj-1", "score-proj-2", "score-proj-agg"]) {
+        for (const proj of ["score-proj-1", "score-proj-2", "score-proj-agg", "score-proj-export", "score-proj-trace", "score-proj-stale"]) {
             await fs.rm(join(reportsDir, proj), { recursive: true, force: true });
         }
     });
@@ -184,6 +191,30 @@ describe("Scoring API", () => {
         const res = await request(app).get("/api/projects/nonexistent-proj/runs/nonexistent-run/report");
         expect(res.status).toBe(404);
         expect(res.body.error).toBeTruthy();
+    });
+    it("returns 202 in_progress when run is active and report is not materialized yet", async () => {
+        vi.useFakeTimers();
+        const originalEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
+        const originalApiKey = process.env.AZURE_OPENAI_API_KEY;
+        process.env.AZURE_OPENAI_ENDPOINT = "https://example.openai.azure.com";
+        process.env.AZURE_OPENAI_API_KEY = "test-key";
+        try {
+            const created = await request(app).post("/api/projects").send({ name: "Running report project" });
+            await request(app)
+                .post(`/api/projects/${created.body.id}/specs`)
+                .send({ decade: "1930s", locationPreset: "CountryHouse" });
+            const run = await request(app).post(`/api/projects/${created.body.id}/run`);
+            expect(run.status).toBe(202);
+            const reportRes = await request(app).get(`/api/projects/${created.body.id}/runs/${run.body.runId}/report`);
+            expect(reportRes.status).toBe(202);
+            expect(reportRes.body.status).toBe("in_progress");
+            expect(reportRes.body.projectId).toBe(created.body.id);
+            expect(reportRes.body.runId).toBe(run.body.runId);
+        }
+        finally {
+            process.env.AZURE_OPENAI_ENDPOINT = originalEndpoint;
+            process.env.AZURE_OPENAI_API_KEY = originalApiKey;
+        }
     });
     it("returns 200 with report JSON when report exists", async () => {
         const projectDir = join(reportsDir, "score-proj-1");
@@ -197,6 +228,35 @@ describe("Scoring API", () => {
         expect(res.body.overall_grade).toBe("B");
         expect(res.body.passed).toBe(true);
         expect(res.body.summary).toBeDefined();
+    });
+    it("returns stale latest report when requested run report is unreadable", async () => {
+        const projectDir = join(reportsDir, "score-proj-stale");
+        await fs.mkdir(projectDir, { recursive: true });
+        await fs.writeFile(join(projectDir, "run-good.json"), JSON.stringify(makeReport("score-proj-stale", "run-good", 86)), "utf-8");
+        await fs.writeFile(join(projectDir, "run-bad.json"), "{ malformed-json", "utf-8");
+        const res = await request(app).get("/api/projects/score-proj-stale/runs/run-bad/report");
+        expect(res.status).toBe(200);
+        expect(res.body.stale).toBe(true);
+        expect(res.body.stale_reason).toBe("report_read_error");
+        expect(res.body.requested_run_id).toBe("run-bad");
+        expect(res.body.run_id).toBe("run-good");
+        // Restore a valid report so downstream aggregate tests are unaffected.
+        await fs.writeFile(join(projectDir, "run-bad.json"), JSON.stringify(makeReport("score-proj-stale", "run-bad", 74, false)), "utf-8");
+    });
+    it("returns stale finalized report when requested report is still in_progress but run is not active", async () => {
+        const projectDir = join(reportsDir, "score-proj-stale");
+        await fs.mkdir(projectDir, { recursive: true });
+        await fs.writeFile(join(projectDir, "run-final.json"), JSON.stringify(makeReport("score-proj-stale", "run-final", 89, true)), "utf-8");
+        await fs.writeFile(join(projectDir, "run-inprogress.json"), JSON.stringify({
+            ...makeReport("score-proj-stale", "run-inprogress", 99, true),
+            in_progress: true,
+        }), "utf-8");
+        const res = await request(app).get("/api/projects/score-proj-stale/runs/run-inprogress/report");
+        expect(res.status).toBe(200);
+        expect(res.body.stale).toBe(true);
+        expect(res.body.stale_reason).toBe("incomplete_report");
+        expect(res.body.requested_run_id).toBe("run-inprogress");
+        expect(res.body.run_id).toBe("run-final");
     });
     // ── GET /api/projects/:projectId/reports/history ─────────────────────────
     it("returns empty reports array when project has no reports", async () => {
@@ -216,6 +276,48 @@ describe("Scoring API", () => {
         expect(res.body.count).toBe(2);
         expect(Array.isArray(res.body.reports)).toBe(true);
         expect(res.body.reports).toHaveLength(2);
+    });
+    it("exports latest quality report when requested", async () => {
+        const projectDir = join(reportsDir, "score-proj-export");
+        await fs.mkdir(projectDir, { recursive: true });
+        await fs.writeFile(join(projectDir, "run-export.json"), JSON.stringify(makeReport("score-proj-export", "run-export", 87)), "utf-8");
+        const res = await request(app)
+            .post("/api/projects/score-proj-export/export")
+            .send({ artifactTypes: ["quality_report"] });
+        expect(res.status).toBe(200);
+        expect(res.body.quality_report).toBeDefined();
+        expect(res.body.quality_report.run_id).toBe("run-export");
+        expect(res.body.quality_report.overall_score).toBe(87);
+    });
+    it("exports narrative state trace when requested", async () => {
+        const projectDir = join(reportsDir, "score-proj-trace");
+        await fs.mkdir(projectDir, { recursive: true });
+        await fs.writeFile(join(projectDir, "run-trace.json"), JSON.stringify(makeReport("score-proj-trace", "run-trace", 83, true, [
+            {
+                key: "agent9_prose_post_generation_summary",
+                agent: "agent9_prose",
+                phase_name: "Prose Generation",
+                diagnostic_type: "post_generation_summary",
+                captured_at: new Date().toISOString(),
+                details: {
+                    nsd_transfer_trace: [
+                        {
+                            batch_start: 1,
+                            batch_end: 2,
+                            newly_revealed_clue_ids: ["clue_1"],
+                        },
+                    ],
+                },
+            },
+        ])), "utf-8");
+        const res = await request(app)
+            .post("/api/projects/score-proj-trace/export")
+            .send({ artifactTypes: ["narrative_state_trace"] });
+        expect(res.status).toBe(200);
+        expect(res.body.narrative_state_trace).toBeDefined();
+        expect(res.body.narrative_state_trace.run_id).toBe("run-trace");
+        expect(res.body.narrative_state_trace.trace_steps).toBe(1);
+        expect(Array.isArray(res.body.narrative_state_trace.trace)).toBe(true);
     });
     it("respects ?limit query parameter (capped at 100)", async () => {
         const res = await request(app).get("/api/projects/score-proj-2/reports/history?limit=1");

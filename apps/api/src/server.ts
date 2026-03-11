@@ -1042,7 +1042,7 @@ export const createServer = () => {
       .then((repo) => repo.getLatestRun(_req.params.id))
       .then((run) => {
         if (!run) {
-          res.status(404).json({ error: "Run not found" });
+          res.json({ run: null });
           return;
         }
         res.json(run);
@@ -1055,15 +1055,113 @@ export const createServer = () => {
    * Requires ENABLE_SCORING=true on the worker. Returns 404 if scoring was disabled or run not found.
    */
   app.get("/api/projects/:projectId/runs/:runId/report", async (req, res) => {
+    const isKnownActiveRun = async (): Promise<boolean> => {
+      const latestRun = await repoPromise
+        .then((repo) => repo.getLatestRun(req.params.projectId))
+        .catch(() => null);
+      if (!latestRun) return false;
+      return latestRun.id === req.params.runId && latestRun.status !== "idle";
+    };
+
+    const sendLatestValidFallback = async (staleReason: string): Promise<boolean> => {
+      try {
+        const reportRepo = await getReportRepository();
+        const baseDir = (reportRepo as unknown as { baseDir?: string }).baseDir;
+        const projectDir = baseDir ? path.join(baseDir, req.params.projectId) : null;
+        const latestValidReports: Array<Record<string, unknown>> = [];
+
+        if (projectDir) {
+          const files = await fs.readdir(projectDir);
+          for (const fileName of files) {
+            if (!fileName.endsWith(".json")) continue;
+            try {
+              const content = await fs.readFile(path.join(projectDir, fileName), "utf-8");
+              const parsed = JSON.parse(content) as Record<string, unknown>;
+              if (parsed.in_progress === true) {
+                continue;
+              }
+              latestValidReports.push(parsed);
+            } catch {
+              // Ignore malformed files during fallback selection.
+            }
+          }
+        }
+
+        latestValidReports.sort(
+          (a, b) =>
+            new Date(String(b.generated_at ?? 0)).getTime() -
+            new Date(String(a.generated_at ?? 0)).getTime(),
+        );
+
+        if (latestValidReports.length > 0) {
+          res.status(200).json({
+            ...latestValidReports[0],
+            stale: true,
+            stale_reason: staleReason,
+            requested_run_id: req.params.runId,
+          });
+          return true;
+        }
+      } catch {
+        // If fallback retrieval fails, caller handles generic error response.
+      }
+
+      return false;
+    };
+
     try {
       const reportRepo = await getReportRepository();
       const report = await reportRepo.get(req.params.projectId, req.params.runId);
       if (!report) {
+        if (await isKnownActiveRun()) {
+          res.status(202).json({
+            status: "in_progress",
+            projectId: req.params.projectId,
+            runId: req.params.runId,
+          });
+          return;
+        }
         res.status(404).json({ error: "Scoring report not found" });
         return;
       }
+
+      if ((report as unknown as Record<string, unknown>).in_progress === true) {
+        if (await isKnownActiveRun()) {
+          res.status(202).json({
+            status: "in_progress",
+            projectId: req.params.projectId,
+            runId: req.params.runId,
+          });
+          return;
+        }
+
+        if (await sendLatestValidFallback("incomplete_report")) {
+          return;
+        }
+
+        res.status(409).json({
+          error: "Run is complete but only an in-progress report snapshot is available",
+          projectId: req.params.projectId,
+          runId: req.params.runId,
+        });
+        return;
+      }
+
       res.json(report);
     } catch {
+      if (await isKnownActiveRun()) {
+        res.status(202).json({
+          status: "in_progress",
+          projectId: req.params.projectId,
+          runId: req.params.runId,
+        });
+        return;
+      }
+
+      if (await sendLatestValidFallback("report_read_error")) {
+        return;
+      }
+
       res.status(500).json({ error: "Failed to fetch scoring report" });
     }
   });
@@ -1601,10 +1699,54 @@ export const createServer = () => {
     }
     try {
       const repo = await repoPromise;
+      const reportRepo = await getReportRepository();
       const results: Record<string, unknown> = {};
+
+      const getLatestQualityReport = async () => {
+        const latestRun = await repo.getLatestRun(req.params.id);
+        if (latestRun) {
+          const latestReport = await reportRepo.get(req.params.id, latestRun.id);
+          if (latestReport) {
+            return latestReport;
+          }
+        }
+        const latestReports = await reportRepo.list(req.params.id, 1);
+        return latestReports.length > 0 ? latestReports[0] : null;
+      };
+
       for (const type of artifactTypes) {
         // Only fetch known artifact types for safety
         if (typeof type !== "string") continue;
+
+        if (type === "quality_report" || type === "scoring_report") {
+          const latestReport = await getLatestQualityReport();
+          if (latestReport) {
+            results.quality_report = latestReport;
+          }
+          continue;
+        }
+
+        if (type === "narrative_state_trace") {
+          const latestReport = await getLatestQualityReport();
+          if (latestReport) {
+            const nsdDiagnostic = latestReport.diagnostics?.find((diagnostic) =>
+              diagnostic.key === "agent9_prose_post_generation_summary"
+              || diagnostic.diagnostic_type === "post_generation_summary",
+            );
+            const nsdTrace = (nsdDiagnostic?.details as Record<string, unknown> | undefined)?.nsd_transfer_trace;
+            if (Array.isArray(nsdTrace)) {
+              results.narrative_state_trace = {
+                project_id: latestReport.project_id,
+                run_id: latestReport.run_id,
+                generated_at: latestReport.generated_at,
+                trace_steps: nsdTrace.length,
+                trace: nsdTrace,
+              };
+            }
+          }
+          continue;
+        }
+
         const artifact = await repo.getLatestArtifact(req.params.id, type);
         if (artifact) {
           if (type === "prose" || /^prose_(short|medium|long)$/.test(type)) {

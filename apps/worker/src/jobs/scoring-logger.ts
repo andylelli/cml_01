@@ -11,7 +11,7 @@ import type { PhaseScore, GenerationReport } from "@cml/story-validation";
 
 export interface ScoringLogEntry {
   timestamp: string;
-  event_type: "phase_score" | "retry_attempt" | "scoring_error" | "report_generated";
+  event_type: "phase_score" | "retry_attempt" | "scoring_error" | "report_generated" | "phase_diagnostic";
   story_id?: string;
   user_id?: string;
   [key: string]: any; // Allow additional properties
@@ -61,6 +61,14 @@ export interface ReportGeneratedLogEntry extends ScoringLogEntry {
   average_score: number;
   duration_ms: number;
   total_cost: number;
+}
+
+export interface PhaseDiagnosticLogEntry extends ScoringLogEntry {
+  event_type: "phase_diagnostic";
+  agent: string;
+  phase_name: string;
+  diagnostic_type: string;
+  details: Record<string, unknown>;
 }
 
 export class ScoringLogger {
@@ -192,6 +200,31 @@ export class ScoringLogger {
       average_score: averageScore,
       duration_ms: report.total_duration_ms,
       total_cost: report.total_cost,
+    };
+
+    this.writeLog(entry);
+  }
+
+  /**
+   * Log a structured phase diagnostic snapshot.
+   */
+  logPhaseDiagnostic(
+    agent: string,
+    phaseName: string,
+    diagnosticType: string,
+    details: Record<string, unknown>,
+    storyId?: string,
+    userId?: string,
+  ): void {
+    const entry: PhaseDiagnosticLogEntry = {
+      timestamp: new Date().toISOString(),
+      event_type: "phase_diagnostic",
+      story_id: storyId,
+      user_id: userId,
+      agent,
+      phase_name: phaseName,
+      diagnostic_type: diagnosticType,
+      details,
     };
 
     this.writeLog(entry);

@@ -55,6 +55,8 @@ const exportJson = () => {
   URL.revokeObjectURL(url);
 };
 
+const normalizeAgentId = (agent: string) => agent.toLowerCase().replace(/-/g, "_");
+
 const phaseLabel = (agent: string) => {
   const map: Record<string, string> = {
     agent1_setting: "Setting Refinement",
@@ -66,18 +68,30 @@ const phaseLabel = (agent: string) => {
     agent4_hard_logic: "Hard Logic",
     agent7_narrative: "Narrative Outline",
     agent9_prose: "Prose Generation",
-    // alternate name forms
-    "agent1-setting": "Setting Refinement",
-    "agent2-cast": "Cast Design",
-    "agent2b-character-profiles": "Character Profiles",
-    "agent2c-location-profiles": "Location Profiles",
-    "agent2d-temporal-context": "Temporal Context",
-    "agent2e-background-context": "Background Context",
-    "agent4-hard-logic": "Hard Logic",
-    "agent7-narrative": "Narrative Outline",
-    "agent9-prose": "Prose Generation",
   };
-  return map[agent] ?? agent;
+  const normalized = normalizeAgentId(agent);
+  return map[normalized] ?? agent;
+};
+
+const getRunOutcome = (report: GenerationReport): "passed" | "failed" | "aborted" => {
+  if (report.run_outcome === "passed" || report.run_outcome === "failed" || report.run_outcome === "aborted") {
+    return report.run_outcome;
+  }
+  return report.passed ? "passed" : "failed";
+};
+
+const runOutcomeLabel = (report: GenerationReport) => {
+  const outcome = getRunOutcome(report);
+  if (outcome === "passed") return "✓ Passed";
+  if (outcome === "aborted") return "■ Aborted";
+  return "✗ Failed";
+};
+
+const runOutcomeClass = (report: GenerationReport) => {
+  const outcome = getRunOutcome(report);
+  if (outcome === "passed") return "bg-emerald-100 text-emerald-700";
+  if (outcome === "aborted") return "bg-amber-100 text-amber-700";
+  return "bg-rose-100 text-rose-700";
 };
 </script>
 
@@ -111,9 +125,9 @@ const phaseLabel = (agent: string) => {
         <!-- Pass/fail badge -->
         <span
           class="rounded-full px-3 py-1.5 text-sm font-semibold"
-          :class="report.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+          :class="runOutcomeClass(report)"
         >
-          {{ report.passed ? "✓ Passed" : "✗ Failed" }}
+          {{ runOutcomeLabel(report) }}
         </span>
         <!-- Export button -->
         <button

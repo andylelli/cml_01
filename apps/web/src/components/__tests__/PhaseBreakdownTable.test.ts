@@ -198,4 +198,82 @@ describe("PhaseBreakdownTable", () => {
     expect(wrapper.text()).toContain("Setting Refinement");
     expect(wrapper.text()).toContain("Prose Generation");
   });
+
+  it("renders second-run chapter score table for prose phase", async () => {
+    const prosePhase = makePhase({
+      agent: "agent9-prose",
+      phase_name: "Prose Generation",
+      score: makeScore({
+        agent: "agent9-prose",
+        breakdown: {
+          chapter_scores: [
+            { chapter: 1, total_chapters: 2, individual_score: 78, cumulative_score: 78 },
+            { chapter: 2, total_chapters: 2, individual_score: 80, cumulative_score: 79 },
+          ],
+          repair_chapter_scores: [
+            { chapter: 1, total_chapters: 2, individual_score: 83, cumulative_score: 83 },
+            { chapter: 2, total_chapters: 2, individual_score: 86, cumulative_score: 85 },
+          ],
+        },
+      }),
+    });
+
+    const wrapper = mount(PhaseBreakdownTable, { props: { phases: [prosePhase] } });
+    await wrapper.find("button").trigger("click");
+
+    expect(wrapper.text()).toContain("Chapter Quality Scores");
+    expect(wrapper.text()).toContain("Chapter Quality Scores — Second Run");
+    expect(wrapper.text()).toContain("83/100");
+    expect(wrapper.text()).toContain("85/100");
+  });
+
+  it("renders per-chapter component metrics for first and second prose runs", async () => {
+    const prosePhase = makePhase({
+      agent: "agent9-prose",
+      phase_name: "Prose Generation",
+      score: makeScore({
+        agent: "agent9-prose",
+        breakdown: {
+          chapter_scores: [
+            {
+              chapter: 1,
+              total_chapters: 1,
+              individual_score: 82,
+              cumulative_score: 82,
+              individual_validation_score: 91,
+              individual_quality_score: 84,
+              individual_completeness_score: 73,
+              individual_consistency_score: 80,
+            },
+          ],
+          repair_chapter_scores: [
+            {
+              chapter: 1,
+              total_chapters: 1,
+              individual_score: 88,
+              cumulative_score: 88,
+              individual_validation_score: 95,
+              individual_quality_score: 89,
+              individual_completeness_score: 86,
+              individual_consistency_score: 87,
+            },
+          ],
+        },
+      }),
+    });
+
+    const wrapper = mount(PhaseBreakdownTable, { props: { phases: [prosePhase] } });
+    await wrapper.find("button").trigger("click");
+
+    const text = wrapper.text();
+    expect(text).toContain("Component columns: V=Validation, Q=Quality, C=Completeness, Co=Consistency");
+    expect(text).toContain("91");
+    expect(text).toContain("84");
+    expect(text).toContain("73");
+    expect(text).toContain("80");
+    expect(text).toContain("95");
+    expect(text).toContain("89");
+    expect(text).toContain("86");
+    expect(text).toContain("87");
+  });
 });

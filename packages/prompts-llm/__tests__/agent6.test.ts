@@ -323,7 +323,7 @@ describe("Agent 6: Fair Play Auditor - Prompt Building", () => {
       clues: mockClues,
     });
 
-    expect(prompt.developer).toContain("Cast Evidence Sensitivity");
+    expect(prompt.developer).toMatch(/Cast.*Alibi, Access & Evidence Sensitivity/);
     expect(prompt.developer).toContain("Charles Ashford");
     expect(prompt.developer).toContain("seen at the club");
     expect(prompt.developer).toContain("Has key to study");
