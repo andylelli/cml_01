@@ -370,3 +370,71 @@ flowchart TD
   K --> L[Final ProseScorer.score()\npartialGeneration=false, upsertPhaseScore]
   L --> M[ctx.prose = prose committed]
 ```
+
+---
+
+## 12. Full Integrated Prose Diagram
+
+```mermaid
+flowchart TD
+   %% Inputs
+   A1[CML CASE] --> B0
+   A2[Agent 7 Outline] --> B0
+   A3[Cast + Profiles + Temporal + Clues] --> B0
+   B0[agent9-run.ts start Agent 9] --> B1[initNarrativeState()]
+
+   %% Main generation loop
+   subgraph G[generateProse() in agent9-prose.ts]
+      direction TB
+      G1[Batch scenes by batchSize]
+      G2[buildProsePrompt()\n15 context blocks + budgeting]
+      G3[LLM call]
+      G4[JSON repair/parse]
+      G5[sanitizeGeneratedChapter()]
+      G6[ChapterValidator + pre-commit obligations]
+      G7[Anti-template lint + month/season lock]
+      G8[Provisional chapter scoring\ndeficits/directives to next prompt]
+      G9{Batch valid?}
+      G10[Retry same batch\nerror context fed back to LLM]
+      G11[onBatchComplete\nupdateNSD + batch/cumulative score\nupsertPhaseScore + savePartialReport]
+
+      G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7 --> G8 --> G9
+      G9 -- No --> G10 --> G3
+      G9 -- Yes --> G11
+   end
+
+   B1 --> G
+   G --> P0[sanitizeProseResult() + deterministic post-processing]
+   P0 --> S1[First-pass ProseScorer.score()\npost_generation_summary + E5 fingerprints]
+
+   %% Repair decision tree
+   S1 --> R0{Identity alias breaks?}
+   R0 -- Yes --> R1[Targeted identity repair\nsubset generateProse()]
+   R1 --> R2{Residual alias breaks?}
+   R2 -- Yes --> R3[Full prose regeneration\nfull generateProse()]
+   R2 -- No --> SR
+   R0 -- No --> SR
+
+   SR[Schema validate prose artifact] --> SR2{Schema errors?}
+   SR2 -- Yes --> SR3[Schema repair generation\nchapter-targeted guardrails]
+   SR2 -- No --> V1
+   SR3 --> V1
+
+   V1[StoryValidationPipeline.validate()] --> V2{status failed?}
+   V2 -- Yes --> V3[Second full repair run\ngenerateProse(batchSize=1, repair guardrails)]
+   V2 -- No --> V4
+   V3 --> V4[validationPipeline.autoFix() + post-processing pass 2]
+   V4 --> RG
+
+   %% Release gate and final scoring
+   RG[Release Gate evaluators\nfair-play, temporal, encoding, placeholders,\ntemplate leakage, suspect closure, NSD divergence] --> RG2{Hard-stop triggered?}
+   RG2 -- Yes --> F1[Throw error\nrun fails with blocking reason]
+   RG2 -- No --> FS[Final ProseScorer.score()\npartialGeneration=false]
+   FS --> FS2[upsertPhaseScore(agent9_prose)]
+   FS2 --> OUT[Commit ctx.prose\nDownstream/export consumers]
+
+   %% Zero-chapter special case
+   G --> Z0{Any batch completed?}
+   Z0 -- No and generation aborted --> Z1[Catch in orchestrator\nregister zeroed phase score\n(total=0, grade=F, passed=false)]
+   Z1 --> F1
+```
