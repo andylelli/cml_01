@@ -1,4 +1,5 @@
 import type { ClueDistributionResult } from "@cml/prompts-llm";
+import { getGenerationParams } from "@cml/story-validation";
 import type { ClueEvidenceAnchor, ClueEvidenceState, ClueEvidenceExtractionResult } from "./shared.js";
 
 // ============================================================================
@@ -31,6 +32,12 @@ export interface ProseOutput {
     fair_play_timing_compliant?: boolean;
     fair_play_timing_violations?: Array<{ clue_id: string; chapter: number }>;
   };
+  completeness_diagnostics?: {
+    expected_clue_ids_count?: number;
+    visible_clue_ids_count?: number;
+    clue_visibility_ratio?: number;
+    missing_clue_ids?: string[];
+  };
 }
 
 const DISCRIMINATING_REASONING_RE =
@@ -46,16 +53,22 @@ const clueStateRank: Record<ClueEvidenceState, number> = {
 const mergeClueState = (current: ClueEvidenceState, candidate: ClueEvidenceState): ClueEvidenceState =>
   clueStateRank[candidate] > clueStateRank[current] ? candidate : current;
 
+const getAdapterConfig = () => getGenerationParams().agent9_prose.scoring_adapter;
+
 const isDiscriminatingTestChapter = (
   prose: string,
   discriminatingTokens: string[],
   cluesPresent: string[],
   discriminatingEvidenceIds: string[],
 ): boolean => {
+  const discriminatingConfig = getAdapterConfig().discriminating;
   const regexSignal = DISCRIMINATING_PROSE_RE.test(prose);
   const lowerProse = prose.toLowerCase();
   const semanticSignal = discriminatingTokens.length > 0
-    ? discriminatingTokens.filter((token) => lowerProse.includes(token)).length >= Math.max(2, Math.ceil(discriminatingTokens.length * 0.3))
+    ? discriminatingTokens.filter((token) => lowerProse.includes(token)).length >= Math.max(
+      discriminatingConfig.min_semantic_token_matches,
+      Math.ceil(discriminatingTokens.length * discriminatingConfig.semantic_token_match_ratio),
+    )
     : false;
   const evidenceSignal = discriminatingEvidenceIds.length > 0
     ? cluesPresent.some((id) => discriminatingEvidenceIds.includes(id)) && DISCRIMINATING_REASONING_RE.test(prose)
@@ -67,6 +80,35 @@ const isDiscriminatingTestChapter = (
 type ClueSemanticSignature = {
   id: string;
   requiredTokens: string[];
+};
+
+const normalizeClueIdForMatch = (value: string): string =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "");
+
+const dedupeClueIdsByNormalized = (clueIds: string[]): string[] => {
+  const seen = new Set<string>();
+  const deduped: string[] = [];
+  for (const raw of clueIds) {
+    const clueId = String(raw ?? "").trim();
+    if (!clueId) continue;
+    const normalized = normalizeClueIdForMatch(clueId);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    deduped.push(clueId);
+  }
+  return deduped;
+};
+
+const buildClueIdMatchVariants = (clueId: string): string[] => {
+  const base = clueId.toLowerCase().trim();
+  if (!base) return [];
+  const space = base.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  const hyphen = space.replace(/\s+/g, "-");
+  const underscore = space.replace(/\s+/g, "_");
+  return Array.from(new Set([base, space, hyphen, underscore])).filter(Boolean);
 };
 
 const CLUE_TOKEN_STOPWORDS = new Set([
@@ -86,13 +128,17 @@ const tokenizeForClueSignature = (value: string): string[] =>
 
 const tokenizeSemanticTerms = (value: string): string[] => tokenizeForClueSignature(value);
 
+const semanticRequiredTokenMatches = (tokenCount: number): number =>
+  Math.max(
+    getAdapterConfig().clue_semantic.min_token_matches,
+    Math.ceil(tokenCount * getAdapterConfig().clue_semantic.token_match_ratio),
+  );
+
 const hasSemanticCoverage = (paragraph: string, signature: ClueSemanticSignature): boolean => {
   const lowered = paragraph.toLowerCase();
   const matchedTokens = signature.requiredTokens.filter((token) => lowered.includes(token));
-  // Threshold lowered from 40% → 30% to improve recall when the prose paraphrases clue
-  // descriptions using synonyms. The Math.max(2,...) floor prevents false positives
-  // when a signature has very few (1-2) discriminating tokens.
-  const requiredMatches = Math.max(2, Math.ceil(signature.requiredTokens.length * 0.3));
+  // 30% coverage with a 2-token minimum balances recall and precision for clue paraphrases.
+  const requiredMatches = semanticRequiredTokenMatches(signature.requiredTokens.length);
   return matchedTokens.length >= requiredMatches;
 };
 
@@ -110,12 +156,12 @@ const getKnownClueIds = (cmlCase?: any, clueDistribution?: ClueDistributionResul
     .map((c: any) => String(c?.id || ""))
     .filter(Boolean);
 
-  return Array.from(new Set([
+  return dedupeClueIdsByNormalized([
     ...mappingClueIds,
     ...distributionClueIds,
     ...discriminatingEvidenceIds,
     ...registryClueIds,
-  ]));
+  ]);
 };
 
 const getDiscriminatingEvidenceClueIds = (cmlCase?: any): string[] => {
@@ -126,39 +172,63 @@ const getDiscriminatingEvidenceClueIds = (cmlCase?: any): string[] => {
 };
 
 const buildDiscriminatingSemanticTokens = (cmlCase?: any): string[] => {
+  const discriminatingConfig = getAdapterConfig().discriminating;
   const test = (cmlCase as any)?.discriminating_test ?? {};
   const tokenPool = [
     ...tokenizeSemanticTerms(String(test.design ?? "")),
     ...tokenizeSemanticTerms(String(test.knowledge_revealed ?? "")),
     ...tokenizeSemanticTerms(String(test.method ?? "")),
   ];
-  return Array.from(new Set(tokenPool)).slice(0, 12);
+  return Array.from(new Set(tokenPool)).slice(0, discriminatingConfig.max_semantic_tokens);
 };
 
-const buildClueSignatures = (clueDistribution?: ClueDistributionResult): ClueSemanticSignature[] => {
-  if (!clueDistribution?.clues || !Array.isArray(clueDistribution.clues)) {
-    return [];
-  }
+const buildClueSignatures = (
+  clueDistribution: ClueDistributionResult | undefined,
+  knownClueIds: string[],
+): ClueSemanticSignature[] => {
+  const clueSemanticConfig = getAdapterConfig().clue_semantic;
+  const signatureByNormalizedId = new Map<string, ClueSemanticSignature>();
 
-  return clueDistribution.clues
-    .map((clue) => {
+  if (clueDistribution?.clues && Array.isArray(clueDistribution.clues)) {
+    for (const clue of clueDistribution.clues) {
+      const clueId = String((clue as any)?.id ?? "").trim();
+      if (!clueId) continue;
+      const normalizedId = normalizeClueIdForMatch(clueId);
+      if (!normalizedId) continue;
+
       const tokenPool = [
-        ...tokenizeForClueSignature(String(clue.description ?? "")),
-        ...tokenizeForClueSignature(String(clue.pointsTo ?? "")),
+        ...tokenizeForClueSignature(String((clue as any)?.description ?? "")),
+        ...tokenizeForClueSignature(String((clue as any)?.pointsTo ?? "")),
       ];
       const uniqueTokens = Array.from(new Set(tokenPool));
-      const requiredTokens = uniqueTokens.slice(0, 8);
+      if (uniqueTokens.length === 0) continue;
 
-      if (!clue.id || requiredTokens.length === 0) {
-        return null;
-      }
+      signatureByNormalizedId.set(normalizedId, {
+        id: clueId,
+        requiredTokens: uniqueTokens.slice(0, clueSemanticConfig.signature_tokens_from_distribution),
+      });
+    }
+  }
 
-      return {
-        id: clue.id,
-        requiredTokens,
-      };
-    })
-    .filter((signature): signature is ClueSemanticSignature => signature !== null);
+  // Fallback signatures: when clueDistribution metadata is sparse or absent, derive
+  // conservative semantic tokens from clue IDs so multi-token IDs can still be detected.
+  for (const clueId of knownClueIds) {
+    const normalizedId = normalizeClueIdForMatch(clueId);
+    if (!normalizedId || signatureByNormalizedId.has(normalizedId)) continue;
+
+    const idPhrase = clueId.replace(/[_-]+/g, " ");
+    const idTokens = Array.from(new Set(tokenizeForClueSignature(idPhrase)));
+    if (idTokens.length < 2) {
+      continue;
+    }
+
+    signatureByNormalizedId.set(normalizedId, {
+      id: clueId,
+      requiredTokens: idTokens.slice(0, clueSemanticConfig.signature_tokens_from_id_fallback),
+    });
+  }
+
+  return Array.from(signatureByNormalizedId.values());
 };
 
 const sentenceIndexForParagraph = (paragraph: string, token: string): number => {
@@ -185,11 +255,15 @@ export function collectClueEvidenceFromProse(
   cmlCase?: any,
   clueDistribution?: ClueDistributionResult,
 ): ClueEvidenceExtractionResult {
+  const clueSemanticConfig = getAdapterConfig().clue_semantic;
   const knownClueIds = getKnownClueIds(cmlCase, clueDistribution);
   const discriminatingEvidenceIds = getDiscriminatingEvidenceClueIds(cmlCase);
   const discriminatingTokens = buildDiscriminatingSemanticTokens(cmlCase);
 
-  const clueSignatures = buildClueSignatures(clueDistribution);
+  const clueSignatures = buildClueSignatures(clueDistribution, knownClueIds);
+  const clueSignatureById = Object.fromEntries(
+    clueSignatures.map((signature) => [normalizeClueIdForMatch(signature.id), signature]),
+  ) as Record<string, ClueSemanticSignature>;
   const evidenceByClue: Record<string, ClueEvidenceAnchor[]> = {};
   const evidenceByChapter: Record<number, string[]> = {};
   const clueStateById: Record<string, ClueEvidenceState> = {};
@@ -211,13 +285,20 @@ export function collectClueEvidenceFromProse(
         const paragraph = rawParagraphs[paragraphIdx];
         const lowered = paragraph.toLowerCase();
         if (!lowered) continue;
+        const normalizedParagraph = normalizeClueIdForMatch(lowered);
 
         // Two-pass clue detection:
         //   Pass 1 (exact): clue ID string appears verbatim in the text → high confidence,
         //          state="explicit", immediately accepts and moves to next clue.
         //   Pass 2 (semantic): enough descriptive tokens from the Clue object match →
         //          lower confidence, state="hinted", keeps the best anchor per chapter.
-        if (lowered.includes(clueId.toLowerCase())) {
+        const clueVariants = buildClueIdMatchVariants(clueId);
+        const explicitVariant = clueVariants.find((variant) => lowered.includes(variant));
+        const explicitNormalizedMatch = normalizedParagraph.includes(
+          normalizeClueIdForMatch(clueId),
+        );
+        if (explicitVariant || explicitNormalizedMatch) {
+          const sentenceToken = explicitVariant ?? clueVariants[0] ?? clueId.toLowerCase();
           bestAnchor = {
             clue_id: clueId,
             chapter_number: chapterNumber,
@@ -225,7 +306,7 @@ export function collectClueEvidenceFromProse(
             evidence_offset: {
               chapter: chapterNumber,
               paragraph: paragraphIdx + 1,
-              sentence: sentenceIndexForParagraph(paragraph, clueId.toLowerCase()),
+              sentence: sentenceIndexForParagraph(paragraph, sentenceToken),
             },
             confidence: 1,
             state: "explicit",
@@ -233,16 +314,19 @@ export function collectClueEvidenceFromProse(
           break;
         }
 
-        const signature = clueSignatures.find((entry) => entry.id === clueId);
+        const signature = clueSignatureById[normalizeClueIdForMatch(clueId)];
         if (!signature) continue;
 
         const matchedTokens = signature.requiredTokens.filter((token) => lowered.includes(token));
-        const requiredMatches = Math.max(2, Math.ceil(signature.requiredTokens.length * 0.4));
+        const requiredMatches = semanticRequiredTokenMatches(signature.requiredTokens.length);
         if (!hasSemanticCoverage(paragraph, signature)) continue;
 
         // Confidence = fraction of required tokens matched, capped at 0.95 to distinguish
         // semantic matches from the certainty of an exact ID hit.
-        const confidence = Math.min(0.95, matchedTokens.length / Math.max(requiredMatches, 1));
+        const confidence = Math.min(
+          clueSemanticConfig.confidence_cap,
+          matchedTokens.length / Math.max(requiredMatches, 1),
+        );
         const candidate: ClueEvidenceAnchor = {
           clue_id: clueId,
           chapter_number: chapterNumber,
@@ -291,7 +375,7 @@ export function collectClueEvidenceFromProse(
           ? {
               ...anchor,
               state: "confirmed",
-              confidence: Math.max(anchor.confidence, 0.95),
+              confidence: Math.max(anchor.confidence, clueSemanticConfig.confidence_cap),
             }
           : anchor,
       );
@@ -328,6 +412,7 @@ export function adaptProseForScoring(
   cmlCase?: any,          // pass (cml as any).CASE for clue extraction
   clueDistribution?: ClueDistributionResult,
 ): ProseOutput {
+  const fairPlayConfig = getAdapterConfig().fair_play;
   const evidence = collectClueEvidenceFromProse(proseChapters, cmlCase, clueDistribution);
   const knownClueIds = getKnownClueIds(cmlCase, clueDistribution);
   const discriminatingEvidenceIds = getDiscriminatingEvidenceClueIds(cmlCase);
@@ -358,10 +443,13 @@ export function adaptProseForScoring(
   const allCluesVisible =
     knownClueIds.length === 0 ||
     knownClueIds.every(id => evidence.visibleClueIds.includes(id));
+  const missingClueIds = knownClueIds.filter((id) => !evidence.visibleClueIds.includes(id));
+  const clueVisibilityRatio =
+    knownClueIds.length > 0 ? evidence.visibleClueIds.length / knownClueIds.length : 1;
   // Spoiler check: look for accusation/solution language in the first 50% of chapters.
   // We deliberately stop at the halfway point so Act III climax language isn't penalised.
   const hasEarlyRevealCue = chapters
-    .slice(0, Math.max(1, Math.ceil(chapters.length * 0.5)))
+    .slice(0, Math.max(1, Math.ceil(chapters.length * fairPlayConfig.spoiler_early_chapter_ratio)))
     .some((chapter) => SPOILER_PROSE_RE.test(chapter.prose));
   const noSolutionSpoilers = !hasEarlyRevealCue;
 
@@ -410,6 +498,12 @@ export function adaptProseForScoring(
       no_solution_spoilers: noSolutionSpoilers,
       fair_play_timing_compliant: fairPlayTimingCompliant,
       fair_play_timing_violations: fairPlayTimingViolations.length > 0 ? fairPlayTimingViolations : undefined,
+    },
+    completeness_diagnostics: {
+      expected_clue_ids_count: knownClueIds.length,
+      visible_clue_ids_count: evidence.visibleClueIds.length,
+      clue_visibility_ratio: clueVisibilityRatio,
+      missing_clue_ids: missingClueIds.length > 0 ? missingClueIds : undefined,
     },
   };
 }

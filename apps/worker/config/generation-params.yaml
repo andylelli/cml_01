@@ -1,0 +1,141 @@
+# Central generation tuning parameters.
+#
+# Single-source config for runtime-adjustable generation/scoring-adjacent knobs.
+# Override path with env var: CML_GENERATION_PARAMS_PATH
+#
+# Notes:
+# - Values outside supported ranges are clamped by the loader in
+#   packages/story-validation/src/generation-params.ts.
+# - Keep this file focused on runtime tuning (not feature flags).
+
+agent9_prose:
+  word_policy:
+    # Hard floor used by chapter pre-commit gate = floor(chapterMinWords * ratio)
+    # Supported range: 0.6 - 1.0
+    hard_floor_relaxation_ratio: 0.88
+    # Absolute lower bound for hard-floor words after ratio is applied
+    # Supported range: 200 - 2000
+    min_hard_floor_words: 600
+    # Preferred chapter density targets (soft-pressure + diagnostics)
+    preferred_chapter_words:
+      short: 1300
+      medium: 1600
+      long: 2400
+
+  underflow_expansion:
+    # Expansion hint sizing for chapter-local underflow recovery
+    # Supported range: 50 - 2000
+    min_additional_words: 260
+    # Supported range: 100 - 4000
+    max_additional_words: 900
+    # Supported range: 0 - 3000
+    buffer_words: 280
+    # LLM call tuning for underflow expansion path
+    # Supported range: 0.0 - 1.0
+    temperature: 0.18
+    # Supported range: 500 - 16000
+    max_tokens: 3000
+
+  generation:
+    # Default batch retry cap (can still be overridden by call-site argument)
+    # Supported range: 1 - 8
+    default_max_attempts: 4
+
+  prose_model:
+    # Main chapter-generation call tuning
+    # Supported range: 0.0 - 1.0
+    temperature: 0.42
+    # Hard cap for chapter batch size in generateProse
+    # Supported range: 1 - 20
+    max_batch_size: 10
+
+  style_linter:
+    entropy:
+      standard:
+        # Adaptive chapter-count buckets for entropy floor in standard mode
+        # Supported range: 1 - 20
+        early_chapter_max: 6
+        # Supported range: 0.0 - 2.0
+        early_threshold: 0.62
+        # Supported range: 2 - 30
+        mid_chapter_max: 10
+        # Supported range: 0.0 - 2.0
+        mid_threshold: 0.7
+        # Supported range: 0.0 - 2.0
+        late_threshold: 0.78
+      # Repair-mode entropy profile
+      # Supported range: 0.0 - 2.0
+      repair_threshold: 0.62
+      # Supported range: 2 - 20
+      min_window_standard: 4
+      # Supported range: 2 - 20
+      min_window_repair: 5
+      # Supported range: 0 - 20
+      warmup_chapters_standard: 0
+      # Supported range: 0 - 20
+      warmup_chapters_repair: 4
+      # Opening-style history windows
+      # Supported range: prior 1 - 30, total 2 - 40
+      opening_styles_prior_window: 6
+      opening_styles_total_window: 8
+
+    # Exact paragraph dedupe minimum length
+    # Supported range: 80 - 800
+    paragraph_fingerprint_min_chars: 170
+
+    ngram:
+      # Near-duplicate detection settings
+      # Supported range: 50 - 800
+      min_chars: 140
+      # Supported range: 2 - 12
+      gram_size: 6
+      # Supported range: 0.0 - 1.0
+      overlap_threshold: 0.62
+      # Supported range: 1 - 200
+      min_candidate_ngrams: 10
+      # Supported range: 1 - 200
+      prior_paragraph_limit: 25
+
+  scoring_adapter:
+    discriminating:
+      # Semantic signal thresholds for discriminating-test chapter detection
+      # Supported range: 0.0 - 1.0
+      semantic_token_match_ratio: 0.28
+      # Supported range: 1 - 10
+      min_semantic_token_matches: 2
+      # Supported range: 1 - 50
+      max_semantic_tokens: 14
+
+    clue_semantic:
+      # Semantic clue matching thresholds
+      # Supported range: 0.0 - 1.0
+      token_match_ratio: 0.28
+      # Supported range: 1 - 10
+      min_token_matches: 2
+      # Supported range: 0.0 - 1.0
+      confidence_cap: 0.9
+      # Supported range: 1 - 40
+      signature_tokens_from_distribution: 10
+      # Supported range: 1 - 40
+      signature_tokens_from_id_fallback: 8
+
+    fair_play:
+      # Spoiler scan window as first fraction of chapters
+      # Supported range: 0.1 - 1.0
+      spoiler_early_chapter_ratio: 0.5
+
+  scorer:
+    completeness:
+      word_count:
+        # If overall words >= targetMin * low_ratio, score as low band instead of major underflow
+        # Supported range: 0.0 - 1.0
+        low_ratio: 0.8
+        # Supported range: 0 - 100
+        low_score: 70
+      clue_visibility:
+        # Supported range: 0.0 - 1.0
+        pass_ratio: 0.95
+        # Supported range: 0.0 - 1.0
+        minor_gap_ratio: 0.8
+        # Supported range: 0 - 100
+        minor_gap_score: 85

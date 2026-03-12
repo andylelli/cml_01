@@ -12,7 +12,12 @@ import { jsonrepair } from "jsonrepair";
 import type { NarrativeOutline } from "./agent7-narrative.js";
 import type { CastDesign } from "./agent2-cast.js";
 import type { ClueDistributionResult, Clue } from "./agent5-clues.js";
-import { ChapterValidator, anonymizeUnknownTitledNames } from "@cml/story-validation";
+import {
+  ChapterValidator,
+  STORY_LENGTH_TARGETS,
+  anonymizeUnknownTitledNames,
+  getGenerationParams,
+} from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
 import { classifyOpeningStyle } from "./types/narrative-state.js";
 import { updateNSD } from "./types/narrative-state.js";
@@ -107,6 +112,7 @@ export interface ProseGenerationResult {
       paragraphFingerprintFailures: number;
       ngramOverlapFailures: number;
     };
+    underflow?: UnderflowTelemetry;
     provisionalChapterScores?: Array<{
       chapter: number;
       score: number;
@@ -132,14 +138,50 @@ interface ProseLinterIssue {
 
 interface ChapterRequirementLedgerEntry {
   chapterNumber: number;
-  minWords: number;
+  hardFloorWords: number;
+  preferredWords: number;
   requiredClueIds: string[];
 }
 
-const CHAPTER_MIN_WORDS: Record<"short" | "medium" | "long", number> = {
-  short: 1300,
-  medium: 1600,
-  long: 2400,
+interface ChapterWordTargetResult {
+  wordCount: number;
+  hardFloorWords: number;
+  preferredWords: number;
+  isBelowHardFloor: boolean;
+  isBelowPreferred: boolean;
+}
+
+interface ChapterObligationResult {
+  hardFailures: string[];
+  preferredMisses: string[];
+  wordTarget: ChapterWordTargetResult;
+}
+
+interface UnderflowTelemetry {
+  hardFloorMisses: number;
+  preferredTargetMisses: number;
+  hardFloorMissChapters: number[];
+  preferredTargetMissChapters: number[];
+  expansionAttempts: number;
+  expansionRecovered: number;
+  expansionFailed: number;
+}
+
+const countWords = (value: string): number => {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return 0;
+  return trimmed.split(/\s+/).length;
+};
+
+const getChapterWordTargets = (targetLength: "short" | "medium" | "long") => {
+  const config = getGenerationParams().agent9_prose.word_policy;
+  return {
+    hardFloorWords: Math.max(
+      config.min_hard_floor_words,
+      Math.floor(STORY_LENGTH_TARGETS[targetLength].chapterMinWords * config.hard_floor_relaxation_ratio),
+    ),
+    preferredWords: config.preferred_chapter_words[targetLength],
+  };
 };
 
 const CLUE_TOKEN_STOPWORDS = new Set<string>([
@@ -180,10 +222,11 @@ const buildChapterRequirementLedger = (
   chapterStart: number,
   targetLength: "short" | "medium" | "long",
 ): ChapterRequirementLedgerEntry[] => {
-  const minWords = CHAPTER_MIN_WORDS[targetLength];
+  const { hardFloorWords, preferredWords } = getChapterWordTargets(targetLength);
   return (batchScenes as any[]).map((scene, idx) => ({
     chapterNumber: chapterStart + idx,
-    minWords,
+    hardFloorWords,
+    preferredWords,
     requiredClueIds: getRequiredClueIdsForScene(cmlCase, scene),
   }));
 };
@@ -212,30 +255,42 @@ const chapterMentionsRequiredClue = (
   return matched.length >= requiredMatches;
 };
 
-const validateChapterPreCommitObligations = (
+export const validateChapterPreCommitObligations = (
   chapter: ProseChapter,
   ledgerEntry: ChapterRequirementLedgerEntry,
   clueDistribution?: ClueDistributionResult,
-): string[] => {
-  const issues: string[] = [];
+): ChapterObligationResult => {
+  const hardFailures: string[] = [];
+  const preferredMisses: string[] = [];
   const chapterText = (chapter.paragraphs ?? []).join(" ");
-  const wordCount = chapterText.trim().length > 0 ? chapterText.trim().split(/\s+/).length : 0;
+  const wordCount = countWords(chapterText);
+  const wordTarget: ChapterWordTargetResult = {
+    wordCount,
+    hardFloorWords: ledgerEntry.hardFloorWords,
+    preferredWords: ledgerEntry.preferredWords,
+    isBelowHardFloor: wordCount < ledgerEntry.hardFloorWords,
+    isBelowPreferred: wordCount < ledgerEntry.preferredWords,
+  };
 
-  if (wordCount < ledgerEntry.minWords) {
-    issues.push(
-      `Chapter ${ledgerEntry.chapterNumber}: word count below minimum (${wordCount}/${ledgerEntry.minWords})`
+  if (wordTarget.isBelowHardFloor) {
+    hardFailures.push(
+      `Chapter ${ledgerEntry.chapterNumber}: word count below hard floor (${wordCount}/${ledgerEntry.hardFloorWords})`
+    );
+  } else if (wordTarget.isBelowPreferred) {
+    preferredMisses.push(
+      `Chapter ${ledgerEntry.chapterNumber}: word count below preferred target (${wordCount}/${ledgerEntry.preferredWords})`
     );
   }
 
   for (const clueId of ledgerEntry.requiredClueIds) {
     if (!chapterMentionsRequiredClue(chapterText, clueId, clueDistribution)) {
-      issues.push(
+      hardFailures.push(
         `Chapter ${ledgerEntry.chapterNumber}: missing required clue obligation for "${clueId}"`
       );
     }
   }
 
-  return issues;
+  return { hardFailures, preferredMisses, wordTarget };
 };
 
 const normalizeParagraphForFingerprint = (paragraph: string): string =>
@@ -301,10 +356,20 @@ const lintBatchProse = (
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
+  const styleLinterConfig = getGenerationParams().agent9_prose.style_linter;
+  const entropyConfig = styleLinterConfig.entropy;
   const mode = options?.mode ?? "standard";
   const chapterOffset = Math.max(0, options?.chapterOffset ?? 0);
-  const entropyMinWindow = Math.max(2, options?.entropyMinWindow ?? (mode === "repair" ? 5 : 4));
-  const entropyWarmupChapters = Math.max(0, options?.entropyWarmupChapters ?? (mode === "repair" ? 3 : 0));
+  const entropyMinWindow = Math.max(
+    2,
+    options?.entropyMinWindow ??
+      (mode === "repair" ? entropyConfig.min_window_repair : entropyConfig.min_window_standard),
+  );
+  const entropyWarmupChapters = Math.max(
+    0,
+    options?.entropyWarmupChapters ??
+      (mode === "repair" ? entropyConfig.warmup_chapters_repair : entropyConfig.warmup_chapters_standard),
+  );
   const generatedChapterCount = chapterOffset + priorChapters.length + batchChapters.length;
   const adaptiveStandardEntropyThreshold = (() => {
     // Short stories have fewer chapters to establish variety, so the threshold starts lower
@@ -312,16 +377,25 @@ const lintBatchProse = (
     //   ≤6 chapters  → 0.65 (lenient: small window = low inherent entropy)
     //   ≤10 chapters → 0.72 (moderate)
     //   >10 chapters → 0.80 (strict: any style recycling is now clearly a template defect)
-    if (generatedChapterCount <= 6) return 0.65;
-    if (generatedChapterCount <= 10) return 0.72;
-    return 0.8;
+    if (generatedChapterCount <= entropyConfig.standard.early_chapter_max) {
+      return entropyConfig.standard.early_threshold;
+    }
+    if (generatedChapterCount <= entropyConfig.standard.mid_chapter_max) {
+      return entropyConfig.standard.mid_threshold;
+    }
+    return entropyConfig.standard.late_threshold;
   })();
-  const entropyThreshold = options?.entropyThreshold ?? (mode === "repair" ? 0.65 : adaptiveStandardEntropyThreshold);
+  const entropyThreshold =
+    options?.entropyThreshold ??
+    (mode === "repair" ? entropyConfig.repair_threshold : adaptiveStandardEntropyThreshold);
 
   const candidateOpeningStyles = batchChapters
     .map((chapter) => (chapter.paragraphs?.[0] ? classifyOpeningStyle(extractOpeningSentence(chapter.paragraphs[0])) : "general-descriptive"))
     .filter(Boolean);
-  const openingWindow = [...priorOpeningStyles.slice(-6), ...candidateOpeningStyles].slice(-8);
+  const openingWindow = [
+    ...priorOpeningStyles.slice(-entropyConfig.opening_styles_prior_window),
+    ...candidateOpeningStyles,
+  ].slice(-entropyConfig.opening_styles_total_window);
   const entropyCheckReady = generatedChapterCount > entropyWarmupChapters;
   if (entropyCheckReady && openingWindow.length >= entropyMinWindow) {
     const entropy = shannonEntropy(openingWindow);
@@ -334,19 +408,21 @@ const lintBatchProse = (
   }
 
   // Paragraph fingerprint check: exact deduplication of long prose blocks across chapters.
-  // 170-char minimum avoids false positives on short scene-setter fragments (e.g. "The year was 1923.").
+  // Minimum length is configurable to avoid false positives on short scene-setter fragments.
   const priorFingerprints = new Set<string>();
   priorChapters.forEach((chapter) => {
     (chapter.paragraphs ?? []).forEach((paragraph) => {
       const normalized = normalizeParagraphForFingerprint(paragraph);
-      if (normalized.length >= 170) priorFingerprints.add(normalized);
+      if (normalized.length >= styleLinterConfig.paragraph_fingerprint_min_chars) {
+        priorFingerprints.add(normalized);
+      }
     });
   });
   const batchSeen = new Set<string>();
   for (const chapter of batchChapters) {
     for (const paragraph of chapter.paragraphs ?? []) {
       const normalized = normalizeParagraphForFingerprint(paragraph);
-      if (normalized.length < 170) continue;
+      if (normalized.length < styleLinterConfig.paragraph_fingerprint_min_chars) continue;
       if (priorFingerprints.has(normalized) || batchSeen.has(normalized)) {
         issues.push({
           type: "paragraph_fingerprint",
@@ -361,29 +437,29 @@ const lintBatchProse = (
 
   // N-gram overlap check: catches near-duplicate prose that evades exact fingerprinting
   // (e.g. when the LLM swaps a few words but keeps the same sentence structure).
-  // We compare 6-gram Jaccard similarity against the 25 most recent prior paragraphs
-  // (≥140 chars): far enough back to catch recycled scene-openers, small enough to be fast.
-  // Threshold 0.60: below this, paragraphs share genre vocabulary but not lifted scaffold.
+  // We compare configurable n-gram Jaccard similarity against a bounded prior paragraph set.
   const priorCandidates = priorChapters
     .flatMap((chapter) => chapter.paragraphs ?? [])
     .map((paragraph) => normalizeParagraphForFingerprint(paragraph))
-    .filter((paragraph) => paragraph.length >= 140)
-    .slice(-25);
-  const priorNgrams = priorCandidates.map((paragraph) => toNgrams(tokenizeWords(paragraph), 6));
+    .filter((paragraph) => paragraph.length >= styleLinterConfig.ngram.min_chars)
+    .slice(-styleLinterConfig.ngram.prior_paragraph_limit);
+  const priorNgrams = priorCandidates.map((paragraph) =>
+    toNgrams(tokenizeWords(paragraph), styleLinterConfig.ngram.gram_size),
+  );
 
   if (priorNgrams.length > 0) {
     outer: for (const chapter of batchChapters) {
       for (const paragraph of chapter.paragraphs ?? []) {
         const normalized = normalizeParagraphForFingerprint(paragraph);
-        if (normalized.length < 140) continue;
-        const candidate = toNgrams(tokenizeWords(normalized), 6);
-        if (candidate.size < 10) continue;
+        if (normalized.length < styleLinterConfig.ngram.min_chars) continue;
+        const candidate = toNgrams(tokenizeWords(normalized), styleLinterConfig.ngram.gram_size);
+        if (candidate.size < styleLinterConfig.ngram.min_candidate_ngrams) continue;
         for (const base of priorNgrams) {
           const overlap = jaccardSimilarity(candidate, base);
-          if (overlap >= 0.6) {
+          if (overlap >= styleLinterConfig.ngram.overlap_threshold) {
             issues.push({
               type: "ngram_overlap",
-              message: `Template linter: high n-gram overlap detected (${overlap.toFixed(2)} >= 0.60). Rephrase this passage to avoid template leakage.`,
+              message: `Template linter: high n-gram overlap detected (${overlap.toFixed(2)} >= ${styleLinterConfig.ngram.overlap_threshold.toFixed(2)}). Rephrase this passage to avoid template leakage.`,
             });
             break outer;
           }
@@ -1019,7 +1095,7 @@ ${victimIdentityRule}`;
       return name + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + conflictLine + stakeLine;
     }).join('\n\n');
 
-    characterPersonalityContext = '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n7. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n8. NEVER force humour on a character with humourLevel 0 or style none.';
+    characterPersonalityContext = '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
   }
 
   const physicalPlausibilityRules = `\nPHYSICAL PLAUSIBILITY REQUIREMENTS:\n\nAll physical evidence must obey real-world physics:\n\n1. VIABLE Evidence by Location:\n   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents\n   Exterior (calm): secured items, structural damage, witness observations\n   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence\n\n2. IMPLAUSIBLE Evidence (DO NOT USE):\n   ❌ Footprints on wooden deck (treated wood doesn't retain prints)\n   ❌ Footprints in rain/storm (washed away immediately)\n   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)\n   ❌ Light objects in storm (blown away)\n\n3. For struggle evidence use:\n   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds\n   ❌ Objects embedded in hard surfaces, shattered steel/iron`;
@@ -1233,17 +1309,17 @@ ${victimIdentityRule}`;
   );
 
   const chapterWordGuidance: Record<string, string> = {
-    short: '4-6 substantial paragraphs — MINIMUM 1,300 words per chapter (short chapters fail quality validation)',
-    medium: '5-7 substantial paragraphs — MINIMUM 1,600 words per chapter (short chapters fail quality validation)',
-    long: '8-12 substantial paragraphs — MINIMUM 2,400 words per chapter (short chapters fail quality validation)',
+    short: `4-6 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("short").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("short").preferredWords}+ words`,
+    medium: `5-7 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("medium").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("medium").preferredWords}+ words`,
+    long: `8-12 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("long").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("long").preferredWords}+ words`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
   const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Begin key scenes with atmospheric description\n   - Establish time of day, weather, lighting\n   - Describe location using sensory details (sight, sound, smell, touch)\n   - Set mood and atmosphere before action begins\n   - Use location and temporal context to ground reader\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
 
-   ?? Generate NEW descriptions using actual location/character names from the provided profiles."\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
+   Generate new descriptions using actual location and character names from the provided profiles.\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
 
-   ?? Use ONLY character names from the provided cast list.\n\n5. SENSORY IMMERSION:\n   - Include multiple senses per scene (2-3 minimum)\n   - Period-specific sensory details from location/temporal profiles\n   - Tactile details create immediacy\n   - Use sensory palette provided in location profiles\n   - Vary sensory focus: visual → auditory → olfactory → tactile\n\n6. PARAGRAPH STRUCTURE:\n   - Opening: Hook with action, dialogue, or atmospheric detail\n   - Middle: Develop scene, reveal information, build tension\n   - Closing: End with revelation, question, or transition\n   - Each paragraph should advance story or deepen character\n\n7. PACING VARIATION:\n   - Action scenes: Short paragraphs (2-4 lines), quick succession\n   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm\n   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description\n   - Revelation scenes: Build slowly with long paragraphs, climax with short punch\n\n8. EMOTIONAL SUBTEXT & TENSION:\n   - Characters have hidden secrets/stakes (see character profiles)\n   - Every interaction carries subtext based on relationships\n   - Build tension through: pauses, interrupted speech, avoided topics, body language\n   - Mystery atmosphere: Suspicion, unease, watchfulness\n   - Use weather/atmosphere to mirror emotional tension${qualityGuardrailBlock}${proseRequirementsBlock}`;
+   Use only character names from the provided cast list.\n\n5. SENSORY IMMERSION:\n   - Include multiple senses per scene (2-3 minimum)\n   - Period-specific sensory details from location/temporal profiles\n   - Tactile details create immediacy\n   - Use sensory palette provided in location profiles\n   - Vary sensory focus: visual → auditory → olfactory → tactile\n\n6. PARAGRAPH STRUCTURE:\n   - Opening: Hook with action, dialogue, or atmospheric detail\n   - Middle: Develop scene, reveal information, build tension\n   - Closing: End with revelation, question, or transition\n   - Each paragraph should advance story or deepen character\n\n7. PACING VARIATION:\n   - Action scenes: Short paragraphs (2-4 lines), quick succession\n   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm\n   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description\n   - Revelation scenes: Build slowly with long paragraphs, climax with short punch\n\n8. EMOTIONAL SUBTEXT & TENSION:\n   - Characters have hidden secrets/stakes (see character profiles)\n   - Every interaction carries subtext based on relationships\n   - Build tension through: pauses, interrupted speech, avoided topics, body language\n   - Mystery atmosphere: Suspicion, unease, watchfulness\n   - Use weather/atmosphere to mirror emotional tension${qualityGuardrailBlock}${proseRequirementsBlock}`;
 
   // Amateur detective extra warning — LLM tends to invent police officers for unnamed official response
   const amateurPoliceWarning = inputs.detectiveType === 'amateur'
@@ -1325,9 +1401,10 @@ const buildProvisionalChapterScore = (
   clueDistribution?: ClueDistributionResult,
 ): ProvisionalChapterScore => {
   const chapterText = (chapter.paragraphs ?? []).join(' ');
-  const wordCount = chapterText.trim().length > 0 ? chapterText.trim().split(/\s+/).length : 0;
-  const minWords = ledgerEntry?.minWords ?? 0;
-  const wordScore = minWords > 0 ? Math.min(100, Math.round((wordCount / minWords) * 100)) : 100;
+  const wordCount = countWords(chapterText);
+  const preferredWords = ledgerEntry?.preferredWords ?? 0;
+  const hardFloorWords = ledgerEntry?.hardFloorWords ?? 0;
+  const wordScore = preferredWords > 0 ? Math.min(100, Math.round((wordCount / preferredWords) * 100)) : 100;
 
   const paragraphCount = chapter.paragraphs?.length ?? 0;
   const paragraphScore = paragraphCount >= 6 ? 100 : paragraphCount >= 5 ? 93 : paragraphCount >= 4 ? 86 : paragraphCount >= 3 ? 76 : 65;
@@ -1358,8 +1435,11 @@ const buildProvisionalChapterScore = (
   const directives: string[] = [];
 
   if (wordScore < 100) {
-    deficits.push(`word density below target (${wordCount}/${minWords || 'n/a'})`);
+    deficits.push(`word density below preferred target (${wordCount}/${preferredWords || 'n/a'})`);
     directives.push('Increase chapter density with concrete investigation action and sensory-grounded beats; avoid recap-only padding.');
+    if (hardFloorWords > 0 && wordCount < hardFloorWords) {
+      directives.push(`Chapter is below hard floor (${wordCount}/${hardFloorWords}); expand with concrete evidence/action beats before retrying.`);
+    }
   }
 
   if (paragraphScore < 95) {
@@ -1565,35 +1645,6 @@ function buildSceneGroundingChecklist(
     : 'Known location profile anchors: use the primary location and scene setting terms from outline.';
 
   return `\n\nSCENE GROUNDING CHECKLIST (MUST FOLLOW):\n${knownLocationLine}\n${checklistLines.join('\n')}`;
-}
-
-/**
- * Build cross-batch warning message from recurring error patterns
- * Helps LLM avoid repeating mistakes from earlier batches
- */
-function buildCrossBatchWarnings(errorPatterns: { type: string; count: number; examples: string[] }[]): string {
-  if (errorPatterns.length === 0) return '';
-  
-  // Only warn if pattern occurs 2+ times
-  const significant = errorPatterns.filter(p => p.count >= 2);
-  if (significant.length === 0) return '';
-  
-  let warning = '\n\n⚠️ CRITICAL: RECURRING ERROR PATTERNS DETECTED ⚠️\n\n';
-  warning += 'Previous batches in THIS generation have made these mistakes multiple times.\n';
-  warning += 'DO NOT REPEAT THESE ERRORS:\n\n';
-  
-  significant.forEach(pattern => {
-    warning += `❌ ${pattern.type.toUpperCase().replace('_', ' ')} (occurred ${pattern.count} times):\n`;
-    pattern.examples.slice(0, 2).forEach(example => {
-      warning += `   • ${example}\n`;
-    });
-    warning += '\n';
-  });
-  
-  warning += '✓ Double-check your output against the errors above BEFORE submitting.\n';
-  warning += '✓ These are YOUR previous mistakes in earlier chapters - do not repeat them.\n';
-  
-  return warning;
 }
 
 /**
@@ -1856,13 +1907,13 @@ const buildEnhancedRetryFeedback = (
       );
     }
 
-    const wordCountError = rawErrors.find((error) => /word count below minimum/i.test(error));
+    const wordCountError = rawErrors.find((error) => /word count below (hard floor|preferred target|minimum)/i.test(error));
     if (wordCountError) {
       const match = wordCountError.match(/\((\d+)\/(\d+)\)/);
       const currentWords = match ? Number(match[1]) : undefined;
-      const minWords = match ? Number(match[2]) : undefined;
-      const guidance = Number.isFinite(minWords)
-        ? `Raise chapter length to at least ${minWords} words${Number.isFinite(currentWords) ? ` (currently ${currentWords})` : ""}.`
+      const targetWords = match ? Number(match[2]) : undefined;
+      const guidance = Number.isFinite(targetWords)
+        ? `Raise chapter length to at least ${targetWords} words${Number.isFinite(currentWords) ? ` (currently ${currentWords})` : ""}.`
         : "Increase chapter length to satisfy minimum word threshold.";
 
       directives.push(
@@ -1913,12 +1964,7 @@ const buildEnhancedRetryFeedback = (
     feedback += `✓ Include the detective's reasoning, the test itself, and clear elimination of suspects\n`;
     feedback += `✓ Reference specific evidence clues from the CML\n`;
     
-    // Add full checklist for late chapters where test should appear (note: outline not available here)
-    const chapterNumbers = chapterRange.split('-').map(n => parseInt(n, 10));
-    const isLateChapter = chapterNumbers.some(n => n >= 15);
-    if (isLateChapter) {
-      feedback += '\n✓ See DISCRIMINATING TEST CHECKLIST above for complete requirements\n';
-    }
+    feedback += `✓ Use the discriminating test checklist from the prompt when provided\n`;
     feedback += `\n`;
   }
   
@@ -1951,11 +1997,100 @@ const buildEnhancedRetryFeedback = (
   return feedback;
 };
 
+const parseExpandedChapterResponse = (content: string): ProseChapter => {
+  const parsed = parseProseResponse(content) as any;
+  const candidate = parsed?.chapter ?? parsed;
+
+  if (!candidate || typeof candidate !== "object") {
+    throw new Error("Invalid underflow expansion payload: missing chapter object");
+  }
+
+  if (!Array.isArray(candidate.paragraphs) || candidate.paragraphs.length === 0) {
+    throw new Error("Invalid underflow expansion payload: chapter.paragraphs must be a non-empty array");
+  }
+
+  return {
+    title: typeof candidate.title === "string" ? candidate.title : "Untitled Chapter",
+    summary: typeof candidate.summary === "string" ? candidate.summary : undefined,
+    paragraphs: candidate.paragraphs.map((value: unknown) => String(value ?? "")).filter(Boolean),
+  };
+};
+
+const attemptUnderflowExpansion = async (
+  client: AzureOpenAIClient,
+  chapter: ProseChapter,
+  chapterNumber: number,
+  scene: any,
+  ledgerEntry: ChapterRequirementLedgerEntry,
+  model: string | undefined,
+  runId: string | undefined,
+  projectId: string | undefined,
+): Promise<ProseChapter> => {
+  const chapterText = (chapter.paragraphs ?? []).join("\n\n");
+  const currentWords = countWords(chapterText);
+  const missingWords = Math.max(0, ledgerEntry.hardFloorWords - currentWords);
+  const expansionConfig = getGenerationParams().agent9_prose.underflow_expansion;
+  const expansionHint = Math.max(
+    expansionConfig.min_additional_words,
+    Math.min(
+      expansionConfig.max_additional_words,
+      missingWords + expansionConfig.buffer_words,
+    ),
+  );
+  const sceneSummary = typeof scene?.summary === "string" ? scene.summary : "";
+  const scenePurpose = typeof scene?.purpose === "string" ? scene.purpose : "";
+  const requiredClues = ledgerEntry.requiredClueIds;
+
+  const system = [
+    "You are a surgical prose revision assistant for mystery fiction.",
+    "Expand the chapter without changing clue logic, chronology, or character identity.",
+    "Do not remove evidence already present. Do not add new named characters.",
+    "Output JSON only.",
+  ].join(" ");
+
+  const user = [
+    `Chapter ${chapterNumber} is below hard floor (${currentWords}/${ledgerEntry.hardFloorWords}).`,
+    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${ledgerEntry.hardFloorWords} words and preferably ${ledgerEntry.preferredWords}+ words.`,
+    requiredClues.length > 0
+      ? `Preserve and clearly surface required clue obligations: ${requiredClues.join(", ")}.`
+      : "No additional clue IDs are required for this chapter.",
+    sceneSummary ? `Scene summary: ${sceneSummary}` : "",
+    scenePurpose ? `Scene purpose: ${scenePurpose}` : "",
+    "Return this schema:",
+    '{"chapter":{"title":"...","summary":"...","paragraphs":["...","..."]}}',
+    "Only return the JSON payload.",
+    "Current chapter text:",
+    chapterText,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const response = await client.chat({
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    model,
+    temperature: expansionConfig.temperature,
+    maxTokens: expansionConfig.max_tokens,
+    jsonMode: true,
+    logContext: {
+      runId: runId ?? "",
+      projectId: projectId ?? "",
+      agent: `Agent9-UnderflowExpansion-Ch${chapterNumber}`,
+    },
+  });
+
+  return parseExpandedChapterResponse(response.content);
+};
+
 export async function generateProse(
   client: AzureOpenAIClient,
   inputs: ProseGenerationInputs,
-  maxAttempts = 3
+  maxAttempts?: number
 ): Promise<ProseGenerationResult> {
+  const configuredMaxAttempts = getGenerationParams().agent9_prose.generation.default_max_attempts;
+  const resolvedMaxAttempts = maxAttempts ?? configuredMaxAttempts;
   const start = Date.now();
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
@@ -1971,7 +2106,8 @@ export async function generateProse(
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
   const castNames = inputs.cast.characters.map(c => c.name);
-  const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, 10));
+  const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
+  const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
   const proseLinterStats: ProseLinterStats = {
     checksRun: 0,
     failedChecks: 0,
@@ -1980,9 +2116,14 @@ export async function generateProse(
     paragraphFingerprintFailures: 0,
     ngramOverlapFailures: 0,
   };
+  const hardFloorMissChapters = new Set<number>();
+  const preferredTargetMissChapters = new Set<number>();
+  let hardFloorMissCount = 0;
+  let preferredTargetMissCount = 0;
+  let underflowExpansionAttempts = 0;
+  let underflowExpansionRecovered = 0;
+  let underflowExpansionFailed = 0;
 
-  // Track recurring error patterns across batches for cross-batch learning
-  const crossChapterErrors: { type: string; count: number; examples: string[] }[] = [];
   // Deep-copy the caller's NarrativeState so mutations during generation (updateNSD calls)
   // do not bleed back into the orchestrator's copy.  Array/object fields need explicit
   // spreading because the outer spread {...inputs.narrativeState} is only one level deep.
@@ -2015,7 +2156,7 @@ export async function generateProse(
       chapterStart,
       inputs.targetLength ?? "medium",
     );
-    const maxBatchAttempts = Math.max(1, maxAttempts);
+    const maxBatchAttempts = Math.max(1, resolvedMaxAttempts);
     let lastBatchErrors: string[] = [];
     let batchSuccess = false;
 
@@ -2055,14 +2196,6 @@ export async function generateProse(
           prompt.messages.push({ role: "user" as const, content: feedback });
         }
 
-        // Warn about recurring patterns seen in earlier batches
-        if (batchStart > 0 && crossChapterErrors.length > 0) {
-          const warning = buildCrossBatchWarnings(crossChapterErrors);
-          if (warning) {
-            prompt.messages.push({ role: "user" as const, content: warning });
-          }
-        }
-
         // temperature=0.45: low enough to maintain clue-ID and character-name fidelity,
         // high enough to produce distinct prose across chapters without stylistic collapse.
         // Token budget is length-aware: long stories require ~2400 words/chapter (~3600 prose
@@ -2072,7 +2205,7 @@ export async function generateProse(
         const response = await client.chat({
           messages: prompt.messages,
           model: inputs.model,
-          temperature: 0.45,
+          temperature: proseModelConfig.temperature,
           maxTokens: Math.min(tokensPerScene * batchScenes.length, 20000),
           jsonMode: true,
           logContext: {
@@ -2089,52 +2222,112 @@ export async function generateProse(
         let batchErrors: string[] = [];
         const provisionalBatchScores: ProvisionalChapterScore[] = [];
         for (let i = 0; i < proseBatch.chapters.length; i++) {
-          const chapter = enforceMonthSeasonLockOnChapter(
+          let chapter = enforceMonthSeasonLockOnChapter(
             sanitizeGeneratedChapter(proseBatch.chapters[i], castNames),
             temporalSeasonLock,
           );
           proseBatch.chapters[i] = chapter;
           const chapterNumber = chapterStart + i;
-          const chapterErrors: string[] = [];
-
-          // Structure validation
-          if (!chapter.title || typeof chapter.title !== 'string') {
-            chapterErrors.push(`chapter.title is required and must be a string`);
-          }
-          if (!Array.isArray(chapter.paragraphs)) {
-            chapterErrors.push(`chapter.paragraphs must be an array`);
-          } else if (chapter.paragraphs.length === 0) {
-            chapterErrors.push(`chapter.paragraphs cannot be empty`);
-          } else {
-            chapter.paragraphs.forEach((para, pIdx) => {
-              if (typeof para !== 'string') {
-                chapterErrors.push(`chapter.paragraphs[${pIdx}] must be a string`);
-              }
-            });
-          }
-
-          // Content validation (per-chapter ChapterValidator)
-          const contentValidation = chapterValidator.validateChapter({
-            title: chapter.title,
-            paragraphs: chapter.paragraphs,
-            chapterNumber,
-            totalChapters: sceneCount,
-            temporalMonth: temporalSeasonLock?.month,
-            temporalSeason: temporalSeasonLock?.season,
-          }, inputs.caseData);
-
-          contentValidation.issues
-            .filter(issue => issue.severity === 'critical' || issue.severity === 'major')
-            .forEach(issue => {
-              chapterErrors.push(`Chapter ${chapterNumber}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
-            });
-
-          // Deterministic completeness and clue-obligation gate before commit.
           const ledgerEntry = chapterRequirementLedger[i];
-          if (ledgerEntry) {
-            chapterErrors.push(
-              ...validateChapterPreCommitObligations(chapter, ledgerEntry, inputs.clueDistribution),
-            );
+
+          const evaluateCandidate = (candidate: ProseChapter, trackUnderflow = true) => {
+            const hardErrors: string[] = [];
+
+            if (!candidate.title || typeof candidate.title !== 'string') {
+              hardErrors.push(`chapter.title is required and must be a string`);
+            }
+            if (!Array.isArray(candidate.paragraphs)) {
+              hardErrors.push(`chapter.paragraphs must be an array`);
+            } else if (candidate.paragraphs.length === 0) {
+              hardErrors.push(`chapter.paragraphs cannot be empty`);
+            } else {
+              candidate.paragraphs.forEach((para, pIdx) => {
+                if (typeof para !== 'string') {
+                  hardErrors.push(`chapter.paragraphs[${pIdx}] must be a string`);
+                }
+              });
+            }
+
+            const contentValidation = chapterValidator.validateChapter({
+              title: candidate.title,
+              paragraphs: candidate.paragraphs,
+              chapterNumber,
+              totalChapters: sceneCount,
+              temporalMonth: temporalSeasonLock?.month,
+              temporalSeason: temporalSeasonLock?.season,
+            }, inputs.caseData);
+
+            contentValidation.issues
+              .filter(issue => issue.severity === 'critical' || issue.severity === 'major')
+              .forEach(issue => {
+                hardErrors.push(`Chapter ${chapterNumber}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
+              });
+
+            const obligations = ledgerEntry
+              ? validateChapterPreCommitObligations(candidate, ledgerEntry, inputs.clueDistribution)
+              : undefined;
+            if (obligations) {
+              hardErrors.push(...obligations.hardFailures);
+              if (trackUnderflow) {
+                if (obligations.wordTarget.isBelowHardFloor) {
+                  hardFloorMissCount += 1;
+                  hardFloorMissChapters.add(chapterNumber);
+                } else if (obligations.wordTarget.isBelowPreferred) {
+                  preferredTargetMissCount += 1;
+                  preferredTargetMissChapters.add(chapterNumber);
+                }
+              }
+            }
+
+            const preferredMisses = obligations?.preferredMisses ?? [];
+            const hasOnlyHardFloorUnderflow =
+              hardErrors.length > 0 &&
+              hardErrors.every((error) => /word count below hard floor/i.test(error));
+
+            return {
+              hardErrors,
+              preferredMisses,
+              contentValidation,
+              hasOnlyHardFloorUnderflow,
+            };
+          };
+
+          let evaluation = evaluateCandidate(chapter, true);
+
+          // Option D: If hard-floor underflow is the only blocker, attempt a chapter-local expansion
+          // before failing the whole batch retry cycle.
+          if (evaluation.hasOnlyHardFloorUnderflow && ledgerEntry) {
+            underflowExpansionAttempts += 1;
+            try {
+              const expanded = await attemptUnderflowExpansion(
+                client,
+                chapter,
+                chapterNumber,
+                batchScenes[i],
+                ledgerEntry,
+                inputs.model,
+                inputs.runId,
+                inputs.projectId,
+              );
+              chapter = enforceMonthSeasonLockOnChapter(
+                sanitizeGeneratedChapter(expanded, castNames),
+                temporalSeasonLock,
+              );
+              proseBatch.chapters[i] = chapter;
+              evaluation = evaluateCandidate(chapter, false);
+              if (evaluation.hasOnlyHardFloorUnderflow || evaluation.hardErrors.length > 0) {
+                underflowExpansionFailed += 1;
+              } else {
+                underflowExpansionRecovered += 1;
+              }
+            } catch {
+              underflowExpansionFailed += 1;
+            }
+          }
+
+          const chapterErrors = [...evaluation.hardErrors];
+          if (chapterErrors.length > 0 && evaluation.preferredMisses.length > 0) {
+            chapterErrors.push(...evaluation.preferredMisses);
           }
 
           provisionalBatchScores.push(
@@ -2142,31 +2335,12 @@ export async function generateProse(
               chapter,
               chapterNumber,
               ledgerEntry,
-              contentValidation.issues,
+              evaluation.contentValidation.issues,
               inputs.clueDistribution,
             ),
           );
 
           if (chapterErrors.length > 0) {
-            // Track error patterns for cross-batch learning
-            chapterErrors.forEach(error => {
-              const errorLower = error.toLowerCase();
-              let errorType = 'other';
-              if (errorLower.includes('character') || errorLower.includes('name')) errorType = 'character_names';
-              else if (errorLower.includes('setting') || errorLower.includes('location')) errorType = 'setting_drift';
-              else if (errorLower.includes('sensory') || errorLower.includes('atmosphere') || errorLower.includes('scene location anchoring') || errorLower.includes('grounding')) errorType = 'scene_grounding';
-              else if (errorLower.includes('discriminating test')) errorType = 'discriminating_test';
-              else if (errorLower.includes('paragraph') || errorLower.includes('quality')) errorType = 'prose_quality';
-
-              const existing = crossChapterErrors.find(e => e.type === errorType);
-              if (existing) {
-                existing.count++;
-                if (existing.examples.length < 3) existing.examples.push(error);
-              } else {
-                crossChapterErrors.push({ type: errorType, count: 1, examples: [error] });
-              }
-            });
-
             batchErrors.push(...chapterErrors);
             chapterValidationHistory.push({ chapterNumber, attempt, errors: chapterErrors });
           }
@@ -2315,6 +2489,15 @@ export async function generateProse(
   const note = chapterValidationHistory.length > 0
     ? `Generated in scene batches. ${batchesWithRetries} batch(es) required retry for validation.`
     : "Generated in scene batches.";
+  const underflow: UnderflowTelemetry = {
+    hardFloorMisses: hardFloorMissCount,
+    preferredTargetMisses: preferredTargetMissCount,
+    hardFloorMissChapters: Array.from(hardFloorMissChapters).sort((a, b) => a - b),
+    preferredTargetMissChapters: Array.from(preferredTargetMissChapters).sort((a, b) => a - b),
+    expansionAttempts: underflowExpansionAttempts,
+    expansionRecovered: underflowExpansionRecovered,
+    expansionFailed: underflowExpansionFailed,
+  };
 
   return {
     status: "draft",
@@ -2335,13 +2518,16 @@ export async function generateProse(
         errors: h.errors,
       })),
       linter: proseLinterStats,
+      underflow,
       provisionalChapterScores,
     } : proseLinterStats.checksRun > 0 ? {
       totalBatches,
       batchesWithRetries,
       failureHistory: [],
       linter: proseLinterStats,
+      underflow,
       provisionalChapterScores,
     } : undefined,
   };
 }
+

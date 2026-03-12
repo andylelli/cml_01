@@ -75,10 +75,14 @@ For each batch of `N` scenes (typically 1 scene = 1 chapter):
 6. **ChapterValidator pre-commit checks** — Before accepting a chapter, `ChapterValidator` (from `@cml/story-validation`) runs structural checks. Failures are compared against the requirement ledger.
 
 7. **Pre-commit obligation validation** — `validateChapterPreCommitObligations()` checks:
-   - Word count ≥ target minimum (1,300/1,600/2,400 words for short/medium/long)
+    - Two-tier chapter word policy:
+       - **Hard floor** = relaxed floor from `STORY_LENGTH_TARGETS.chapterMinWords * 0.9` (currently 720/1080/1350 for short/medium/long)
+     - **Preferred target** = stricter prose density target (1300/1600/2400)
    - All required clue IDs for this scene are present in the text (by direct ID match or semantic token overlap)
-   
-   Failures on either check cause a retry of the batch.
+
+   Behavior:
+   - Below hard floor = hard failure (retry blocker)
+   - Between hard floor and preferred target = soft miss (retry directive + telemetry, not immediate hard-stop)
 
 8. **Anti-template linting** — `lintBatchProse()` runs 3 independent checks:
    - **Opening-style entropy**: Shannon entropy of the opening-sentence style window. If entropy falls below threshold (adaptive: 0.65 → 0.72 → 0.80 as chapter count grows), the batch is rejected.
@@ -89,9 +93,11 @@ For each batch of `N` scenes (typically 1 scene = 1 chapter):
 
 10. **Provisional chapter scoring** — `buildProvisionalChapterScore()` computes a lightweight score per chapter (35% word score, 20% paragraph score, 25% clue score, 20% issue penalty score). Low-scoring chapters produce `deficits` and `directives` that are injected into the next batch's prompt via the `provisional_scoring_feedback` block.
 
-11. **Retry** — If any validation or linting check fails, the batch is retried from step 3 with accumulated error context fed back to the LLM. A batch that exhausts retries aborts the generation.
+11. **Targeted underflow expansion (implemented)** — when the only hard blocker is chapter hard-floor underflow, Agent 9 runs a chapter-local expansion call that preserves chronology, clue obligations, and identity constraints, then re-validates the chapter before deciding batch fate.
 
-12. **`onBatchComplete` callback** — Once a batch is accepted, the callback fires. In `agent9-run.ts` this:
+12. **Retry** — If any hard validation or linting check still fails, the batch is retried from step 3 with accumulated error context fed back to the LLM. A batch that exhausts retries aborts the generation.
+
+13. **`onBatchComplete` callback** — Once a batch is accepted, the callback fires. In `agent9-run.ts` this:
     - Advances `repairNarrativeState` via `updateNSD()`
     - Scores the batch alone (`ProseScorer.score(partialGeneration=true)`)
     - Scores all chapters accumulated so far (cumulative score)
@@ -141,7 +147,7 @@ What does **not** call the LLM:
 | `humour_guide` | optional | Structured guide to Golden Age restraint and dry wit (capped 850 tokens) |
 | `craft_guide` | optional | Whodunnit emotional depth principles (capped 850 tokens) |
 | `scene_grounding` | critical | Chapter-by-chapter checklist: location anchor, 2+ sensory cues, 1+ atmosphere marker |
-| `provisional_scoring_feedback` | critical | Deficits and corrective directives from the two most recent low-scoring chapters |
+| `provisional_scoring_feedback` | critical | Deficits and corrective directives from the two most recent low-scoring chapters, including preferred-target word-density misses |
 
 The user message provides a structural case summary (title, era, setting, culprit, victim, cast) and the JSON-serialized scene outline for this batch. All scene text fields have already been sanitized of phantom names.
 
@@ -280,19 +286,40 @@ Overall: `total = validation×0.4 + quality×0.3 + completeness×0.2 + consisten
 
 ### Scoring adapter (`adaptProseForScoring`)
 
+### Runtime configuration (single YAML)
+
+Agent 9 prose tuning values are centrally configured from one YAML file:
+
+- `apps/worker/config/generation-params.yaml`
+
+This file now controls the primary Agent 9 runtime tuning surface, including:
+
+- word-policy and underflow expansion knobs (hard-floor relaxation ratio, preferred chapter targets, default prose batch attempts, expansion hint sizing, expansion temperature/token cap)
+- chapter-generation model knobs (`prose_model.temperature`, `prose_model.max_batch_size`)
+- anti-template linter thresholds (entropy windows/thresholds, paragraph fingerprint minimum length, n-gram overlap settings)
+- scoring-adapter clue/discriminating semantic thresholds and fair-play spoiler window ratio
+- prose-scorer completeness thresholds for word-count low-band and clue-visibility pass/minor-gap cutoffs
+
+Optional override path:
+
+- Env var `CML_GENERATION_PARAMS_PATH`
+
 Before `ProseScorer.score()` runs, `adaptProseForScoring()` converts raw `ProseChapter[]` into `ProseOutput`:
 
-1. Runs `collectClueEvidenceFromProse()` to build `clues_present[]` per chapter using semantic token matching against all known clue IDs (from CML mapping, clue distribution, discriminating test, and clue registry).
+1. Runs `collectClueEvidenceFromProse()` to build `clues_present[]` per chapter using:
+   - Canonical clue-ID matching across separator variants (`_`, `-`, space) to prevent namespace drift false negatives
+   - Semantic token matching against clue-distribution metadata when available
+   - Conservative multi-token clue-ID fallback signatures when distribution metadata is missing
 2. Detects the discriminating test chapter using a three-signal combination:
    - Regex on discriminating prose verbs (`test`, `experiment`, `reconstruct`, `eliminat`, etc.)
-   - Semantic token overlap against the CML discriminating test description (≥30% match)
+   - Semantic token overlap against the CML discriminating test description (configurable ratio/minimum from YAML)
    - Evidence clue IDs present in chapter plus reasoning language
 3. Builds `fair_play_validation`:
    - `all_clues_visible`: all known CML clue IDs appear in at least one chapter
    - `discriminating_test_complete`: at least one chapter is a discriminating test chapter
-        - `no_solution_spoilers`: spoiler language is disallowed in the first 50% of chapters (`SPOILER_PROSE_RE`)
+      - `no_solution_spoilers`: spoiler language is disallowed in the first configured fraction of chapters (`scoring_adapter.fair_play.spoiler_early_chapter_ratio`; default 50%)
    - `fair_play_timing_compliant` (D7): no clue is first revealed and deduced-from in the same chapter. Method: for each clue, find the chapter where it first appears (`firstRevealChapterById`); if that same chapter also contains detective conclusion language (`CONCLUSION_RE`), record a timing violation. Compliant = no violations.
-4. Exposes `expected_clue_ids` on the adapted output as the union of IDs from:
+4. Exposes `expected_clue_ids` on the adapted output as a canonicalized union of IDs from:
         - CML `prose_requirements.clue_to_scene_mapping`
         - Agent 5 clue distribution (`clueDistribution.clues[].id`)
         - CML discriminating-test evidence IDs
@@ -433,3 +460,64 @@ flowchart TD
    Z0 -- "No and generation aborted" --> Z1["orchestrator catch registers zero score"]
    Z1 --> F1
 ```
+
+---
+
+## 13. Historical Error Catalog (All Stored Runs)
+
+This section summarizes recurring prose-related failures found across stored report files in:
+- `apps/api/data/reports/**/*.json`
+- `validation/quality-report-run_*.json`
+
+Notes on counting:
+- Counts below are raw match occurrences in stored files.
+- Some runs are mirrored in both `apps/api/data/reports` and `validation`, so duplicates are expected.
+
+### Most frequent error signatures
+
+| Error signature | Raw occurrences | Where it appears |
+|---|---:|---|
+| `Word count target` underflow (`Only N words`, `Only N,NNN words`, `words (low)`) | 180 | Prose scorer tests + phase summaries |
+| `Components below minimum: completeness` | 37 | `agent9_prose` failure reason / summary |
+| `Only N/M clues` (often `0/N`) | 30 | Completeness test: clue visibility |
+| `Only N/M chapters` | 22 | Validation test: chapter count completeness |
+| `word count below minimum (chapter pre-commit)` | 12 | `run_outcome_reason` / `abort_reason` |
+| `opening block lacks a clear named location anchor` | 8 | Chapter validator pre-commit failures |
+| `opening-style entropy too low` | 8 | Template linter abort paths |
+| `Character name ... not found in CML cast` | 8 | Chapter validator cast-consistency aborts |
+| `CML validation failed before prose generation` | 7 | Pre-prose hard gate (`abort_reason`) |
+| `Prose aborted before any chapter completed` | 4 | Agent9 failure reason |
+| `Discriminating test has no evidence clues` | 3 | Pre-prose structural gate |
+| `Discriminating test not found in any chapter` | 2 | Prose validation test failure |
+
+### Why these are hard to fix in practice
+
+1. Multi-gate failure stack
+- Failures can occur at three different layers: pre-prose CML gate, per-chapter pre-commit gate, and post-generation scorer/release gate.
+- A fix at one layer often only reveals the next blocker in the next run.
+
+2. Early-chapter hard-stop amplification
+- Many aborts happen at Chapter 1 (`opening anchor` + `word count below minimum`).
+- With low retry budgets, a single stubborn Chapter 1 failure prevents any downstream recovery logic from running.
+
+3. Coupled constraints in one retry window
+- The same retry attempt frequently must satisfy multiple constraints simultaneously (location grounding, cast-name validity, word minimum, anti-template entropy).
+- Improving one axis can still fail the batch on another axis, producing repeated aborts that look "unchanged".
+
+4. Historical ID-namespace drift effects
+- The recurring `Only 0/N clues` / completeness failures align with historical clue-ID mismatch between detection IDs and scorer-expected IDs.
+- Even when prose contained clue evidence semantically, scoring could still report zero visibility.
+
+5. Structural upstream blockers
+- Pre-prose gate failures (`Fair play audit failed`, `Discriminating test has no evidence clues`) are not prose-writing defects.
+- They require CML structure correction upstream, so Agent 9 retries cannot resolve them.
+
+6. Signal duplication complicates diagnosis
+- The same root failure is often repeated across `run_outcome_reason`, `failure_reason`, `abort_reason`, and summary arrays.
+- Mirrored storage in two report locations further inflates apparent incidence unless deduplicated by `run_id`.
+
+### Practical interpretation
+
+- The dominant long-run failure class is **completeness** (word-count and clue-visibility underperformance).
+- The dominant catastrophic abort class is **Chapter 1 pre-commit failure** (grounding + minimum-length + retry exhaustion).
+- The dominant non-prose blocker is **upstream CML structural invalidity** (fair-play/discriminating-test prerequisites), which must be fixed before prose generation can succeed.

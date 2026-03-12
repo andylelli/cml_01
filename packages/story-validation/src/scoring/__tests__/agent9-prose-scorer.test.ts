@@ -167,3 +167,88 @@ describe("ProseScorer fair_play_validation rubric (D8)", () => {
     expect(fpTest?.message ?? "").toMatch(/7/);
   });
 });
+
+describe("ProseScorer completeness diagnostics", () => {
+  const scorer = new ProseScorer();
+  const context = {
+    threshold_config: { mode: "standard" },
+    targetLength: "short",
+    cml: {
+      CASE: {
+        prose_requirements: {
+          clue_to_scene_mapping: [{ clue_id: "clue_a" }, { clue_id: "clue_b" }],
+        },
+      },
+    },
+  } as any;
+
+  it("marks clue visibility as dominant subfailure when clues are missing", async () => {
+    const output = {
+      chapters: [
+        {
+          chapter_number: 1,
+          chapter_title: "Chapter 1",
+          prose: new Array(1400).fill("word").join(" "),
+          clues_present: ["clue_a"],
+          discriminating_test_present: true,
+        },
+      ],
+      overall_word_count: 16000,
+      expected_clue_ids: ["clue_a", "clue_b"],
+    };
+
+    const score = await scorer.score({}, output as any, context);
+    const diagnostics = (score.breakdown as any)?.completeness_diagnostics;
+
+    expect(diagnostics).toBeDefined();
+    expect(diagnostics?.clue_visibility?.status).toBe("critical_gap");
+    expect(diagnostics?.clue_visibility?.missing_clue_ids).toContain("clue_b");
+    expect(diagnostics?.dominant_subfailure).toBe("clue_visibility");
+  });
+
+  it("marks word count as dominant subfailure when total words are far below target", async () => {
+    const output = {
+      chapters: [
+        {
+          chapter_number: 1,
+          chapter_title: "Chapter 1",
+          prose: "Brief chapter text only.",
+          clues_present: ["clue_a", "clue_b"],
+          discriminating_test_present: true,
+        },
+      ],
+      overall_word_count: 3000,
+      expected_clue_ids: ["clue_a", "clue_b"],
+    };
+
+    const score = await scorer.score({}, output as any, context);
+    const diagnostics = (score.breakdown as any)?.completeness_diagnostics;
+
+    expect(diagnostics).toBeDefined();
+    expect(diagnostics?.word_count_target?.status).toBe("major_underflow");
+    expect(diagnostics?.dominant_subfailure).toBe("word_count_target");
+  });
+
+  it("matches expected and visible clue IDs despite separator drift", async () => {
+    const output = {
+      chapters: [
+        {
+          chapter_number: 1,
+          chapter_title: "Chapter 1",
+          prose: new Array(1400).fill("word").join(" "),
+          clues_present: ["clue-ring mark"],
+          discriminating_test_present: true,
+        },
+      ],
+      overall_word_count: 16000,
+      expected_clue_ids: ["clue_ring_mark"],
+    };
+
+    const score = await scorer.score({}, output as any, context);
+    const diagnostics = (score.breakdown as any)?.completeness_diagnostics;
+
+    expect(diagnostics?.clue_visibility?.status).toBe("pass");
+    expect(diagnostics?.clue_visibility?.ratio).toBe(1);
+    expect(diagnostics?.clue_visibility?.missing_clue_ids).toBeUndefined();
+  });
+});

@@ -8,6 +8,7 @@ import {
   getCriticalFailures,
 } from '../scorer-utils.js';
 import { STORY_LENGTH_TARGETS, type StoryLength } from '../../story-length-targets.js';
+import { getGenerationParams } from '../../generation-params.js';
 
 /**
  * Chapter prose from Agent 9
@@ -42,6 +43,31 @@ export interface ProseOutput {
     fair_play_timing_compliant?: boolean;
     fair_play_timing_violations?: Array<{ clue_id: string; chapter: number }>;
   };
+  completeness_diagnostics?: {
+    expected_clue_ids_count?: number;
+    visible_clue_ids_count?: number;
+    clue_visibility_ratio?: number;
+    missing_clue_ids?: string[];
+  };
+}
+
+interface CompletenessDiagnostics {
+  word_count_target?: {
+    actual_words: number;
+    target_min: number;
+    target_max: number;
+    score: number;
+    status: "pass" | "low" | "major_underflow";
+  };
+  clue_visibility?: {
+    expected_count: number;
+    visible_count: number;
+    ratio: number;
+    score: number;
+    status: "pass" | "minor_gap" | "critical_gap";
+    missing_clue_ids?: string[];
+  };
+  dominant_subfailure?: "word_count_target" | "clue_visibility" | "mixed" | "none";
 }
 
 /**
@@ -55,6 +81,12 @@ export interface ProseOutput {
 // Alias the shared constants under the local name used throughout this file.
 // Source of truth is packages/story-validation/src/story-length-targets.ts — edit there.
 const LENGTH_TARGETS = STORY_LENGTH_TARGETS;
+
+const normalizeClueIdForMatch = (value: string): string =>
+  String(value ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "");
 
 export class ProseScorer
   implements Scorer<any, ProseOutput>
@@ -76,7 +108,8 @@ export class ProseScorer
     tests.push(...this.assessQuality(output));
 
     // COMPLETENESS TESTS (20% weight)
-    tests.push(...this.checkCompleteness(output, context));
+    const completeness = this.checkCompleteness(output, context);
+    tests.push(...completeness.tests);
 
     // CONSISTENCY TESTS (10% weight)
     tests.push(...this.checkConsistency(output, context));
@@ -107,6 +140,13 @@ export class ProseScorer
     if (completeness_score < 60) component_failures.push('completeness');
     if (consistency_score < 50) component_failures.push('consistency');
 
+    const breakdown = {
+      ...(Array.isArray((output as any)?.breakdown?.chapter_scores)
+        ? { chapter_scores: [...(output as any).breakdown.chapter_scores] }
+        : {}),
+      completeness_diagnostics: completeness.diagnostics,
+    };
+
     return {
       agent: 'agent9-prose',
       validation_score,
@@ -117,6 +157,7 @@ export class ProseScorer
       grade: this.calculateGrade(total),
       passed,
       tests,
+      breakdown,
       component_failures: component_failures.length > 0 ? component_failures : undefined,
       failure_reason: !passed
         ? this.buildFailureReason(criticalFailures, component_failures)
@@ -316,8 +357,13 @@ export class ProseScorer
     return Math.min(100, score);
   }
 
-  private checkCompleteness(output: ProseOutput, context: ScoringContext): TestResult[] {
+  private checkCompleteness(
+    output: ProseOutput,
+    context: ScoringContext,
+  ): { tests: TestResult[]; diagnostics: CompletenessDiagnostics } {
     const tests: TestResult[] = [];
+    const diagnostics: CompletenessDiagnostics = { dominant_subfailure: 'none' };
+    const completenessConfig = getGenerationParams().agent9_prose.scorer.completeness;
 
     // Skip whole-story word count during partial generation — it will always fail
     // mid-stream. Only score it once all chapters are present.
@@ -326,12 +372,30 @@ export class ProseScorer
       const targetMin = targets.minWords;
       const targetMax = targets.maxWords;
       const wordCount = output.overall_word_count || this.calculateTotalWordCount(output);
+      let wordStatus: "pass" | "low" | "major_underflow" = "pass";
+      let wordScore = 100;
+      if (!(wordCount >= targetMin && wordCount <= targetMax)) {
+        if (wordCount >= targetMin * completenessConfig.word_count.low_ratio) {
+          wordStatus = "low";
+          wordScore = completenessConfig.word_count.low_score;
+        } else {
+          wordStatus = "major_underflow";
+          wordScore = Math.min(100, (wordCount / targetMin) * 100);
+        }
+      }
+      diagnostics.word_count_target = {
+        actual_words: wordCount,
+        target_min: targetMin,
+        target_max: targetMax,
+        score: wordScore,
+        status: wordStatus,
+      };
 
       tests.push(
         wordCount >= targetMin && wordCount <= targetMax
           ? pass('Word count target', 'completeness', 1.5, `${wordCount.toLocaleString()} words`)
-          : wordCount >= targetMin * 0.8
-          ? partial('Word count target', 'completeness', 70, 1.5, `${wordCount.toLocaleString()} words (low)`, 'minor')
+          : wordCount >= targetMin * completenessConfig.word_count.low_ratio
+          ? partial('Word count target', 'completeness', completenessConfig.word_count.low_score, 1.5, `${wordCount.toLocaleString()} words (low)`, 'minor')
           : partial('Word count target', 'completeness', Math.min(100, (wordCount / targetMin) * 100), 1.5, `Only ${wordCount.toLocaleString()} words`, 'major')
       );
     }
@@ -354,17 +418,61 @@ export class ProseScorer
 
       if (cmlClues.length > 0) {
         const clueVisibility = visibleClues / cmlClues.length;
+        const missingClueIds = cmlClues.filter((id) => !this.clueInProse(id, proseClues));
+        let clueStatus: "pass" | "minor_gap" | "critical_gap" = "pass";
+        let clueScore = 100;
+        if (clueVisibility < completenessConfig.clue_visibility.pass_ratio) {
+          if (clueVisibility >= completenessConfig.clue_visibility.minor_gap_ratio) {
+            clueStatus = "minor_gap";
+            clueScore = completenessConfig.clue_visibility.minor_gap_score;
+          } else {
+            clueStatus = "critical_gap";
+            clueScore = clueVisibility * 100;
+          }
+        }
+        diagnostics.clue_visibility = {
+          expected_count: cmlClues.length,
+          visible_count: visibleClues,
+          ratio: clueVisibility,
+          score: clueScore,
+          status: clueStatus,
+          missing_clue_ids: missingClueIds.length > 0 ? missingClueIds : undefined,
+        };
         tests.push(
-          clueVisibility >= 0.95
+          clueVisibility >= completenessConfig.clue_visibility.pass_ratio
             ? pass('Clue visibility', 'completeness', 1.5, `${visibleClues}/${cmlClues.length} clues`)
-            : clueVisibility >= 0.8
-            ? partial('Clue visibility', 'completeness', 85, 1.5, `${visibleClues}/${cmlClues.length} clues`, 'minor')
+            : clueVisibility >= completenessConfig.clue_visibility.minor_gap_ratio
+            ? partial('Clue visibility', 'completeness', completenessConfig.clue_visibility.minor_gap_score, 1.5, `${visibleClues}/${cmlClues.length} clues`, 'minor')
             : partial('Clue visibility', 'completeness', clueVisibility * 100, 1.5, `Only ${visibleClues}/${cmlClues.length} clues`, 'critical')
         );
       }
     }
 
-    return tests;
+    const wordDiag = diagnostics.word_count_target;
+    const clueDiag = diagnostics.clue_visibility;
+    if (wordDiag && clueDiag) {
+      const wordFailed = wordDiag.status !== 'pass';
+      const clueFailed = clueDiag.status !== 'pass';
+      diagnostics.dominant_subfailure =
+        wordFailed && clueFailed
+          ? wordDiag.score <= clueDiag.score
+            ? 'word_count_target'
+            : 'clue_visibility'
+          : wordFailed
+            ? 'word_count_target'
+            : clueFailed
+              ? 'clue_visibility'
+              : 'none';
+      if (wordFailed && clueFailed && Math.abs(wordDiag.score - clueDiag.score) <= 5) {
+        diagnostics.dominant_subfailure = 'mixed';
+      }
+    } else if (wordDiag && wordDiag.status !== 'pass') {
+      diagnostics.dominant_subfailure = 'word_count_target';
+    } else if (clueDiag && clueDiag.status !== 'pass') {
+      diagnostics.dominant_subfailure = 'clue_visibility';
+    }
+
+    return { tests, diagnostics };
   }
 
   private calculateTotalWordCount(output: ProseOutput): number {
@@ -383,8 +491,12 @@ export class ProseScorer
   }
 
   private clueInProse(cmlClue: string, proseClues: string[]): boolean {
-    const normalized = cmlClue.toLowerCase().trim();
-    return proseClues.some(pc => pc.toLowerCase().trim().includes(normalized) || normalized.includes(pc.toLowerCase().trim()));
+    const normalized = normalizeClueIdForMatch(cmlClue);
+    if (!normalized) return false;
+    return proseClues.some((pc) => {
+      const proseId = normalizeClueIdForMatch(pc);
+      return proseId.includes(normalized) || normalized.includes(proseId);
+    });
   }
 
   private checkConsistency(output: ProseOutput, context: ScoringContext): TestResult[] {

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formatProvisionalScoringFeedbackBlock } from "../agent9-prose.js";
+import {
+  formatProvisionalScoringFeedbackBlock,
+  validateChapterPreCommitObligations,
+} from "../agent9-prose.js";
 import type { ProseGenerationResult } from "../agent9-prose.js";
 
 // ── formatProvisionalScoringFeedbackBlock ────────────────────────────────────
@@ -152,5 +155,51 @@ describe("ProseGenerationResult prompt_fingerprints (E5 contract)", () => {
     // Both can coexist
     expect(result.prompt_fingerprints).toHaveLength(1);
     expect(result.validationDetails?.linter.checksRun).toBe(3);
+  });
+});
+
+describe("validateChapterPreCommitObligations", () => {
+  const baseLedger = {
+    chapterNumber: 1,
+    hardFloorWords: 800,
+    preferredWords: 1300,
+    requiredClueIds: [],
+  };
+
+  it("returns hard failure when chapter is below hard floor", () => {
+    const chapter = {
+      title: "Chapter One",
+      paragraphs: [new Array(500).fill("word").join(" ")],
+    };
+
+    const result = validateChapterPreCommitObligations(chapter, baseLedger as any);
+    expect(result.hardFailures.some((msg) => msg.includes("below hard floor"))).toBe(true);
+    expect(result.preferredMisses.length).toBe(0);
+    expect(result.wordTarget.isBelowHardFloor).toBe(true);
+  });
+
+  it("returns preferred miss (not hard failure) when above hard floor but below preferred target", () => {
+    const chapter = {
+      title: "Chapter One",
+      paragraphs: [new Array(1000).fill("word").join(" ")],
+    };
+
+    const result = validateChapterPreCommitObligations(chapter, baseLedger as any);
+    expect(result.hardFailures.length).toBe(0);
+    expect(result.preferredMisses.some((msg) => msg.includes("below preferred target"))).toBe(true);
+    expect(result.wordTarget.isBelowHardFloor).toBe(false);
+    expect(result.wordTarget.isBelowPreferred).toBe(true);
+  });
+
+  it("passes word gate when chapter meets preferred target", () => {
+    const chapter = {
+      title: "Chapter One",
+      paragraphs: [new Array(1500).fill("word").join(" ")],
+    };
+
+    const result = validateChapterPreCommitObligations(chapter, baseLedger as any);
+    expect(result.hardFailures.length).toBe(0);
+    expect(result.preferredMisses.length).toBe(0);
+    expect(result.wordTarget.isBelowPreferred).toBe(false);
   });
 });

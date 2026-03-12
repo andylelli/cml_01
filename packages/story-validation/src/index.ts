@@ -17,6 +17,7 @@ export * from './semantic-validator.js';
 export * from './chapter-validator.js';
 export * from './name-sanitizer.js';
 export * from './pipeline.js';
+export * from './generation-params.js';
 
 // Story length targets — single source of truth for scene/chapter counts
 export * from './story-length-targets.js';
