@@ -9,6 +9,7 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { getGenerationParams } from "@cml/story-validation";
 
 // ============================================================================
 // Types
@@ -453,13 +454,18 @@ ${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}
 export async function designCast(
   client: AzureOpenAIClient,
   inputs: CastInputs,
-  maxAttempts = 3
+  maxAttempts?: number
 ): Promise<CastDesignResult> {
   const startTime = Date.now();
+  const config = getGenerationParams().agent2_cast.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
   const expectedCount = inputs.characterNames?.length || inputs.castSize || 6;
-  const requiredUniqueArchetypes = getMinimumUniqueArchetypes(expectedCount);
+  const requiredUniqueArchetypes = Math.max(
+    1,
+    Math.ceil(expectedCount * config.quality.role_archetype.min_unique_ratio),
+  );
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
     try {
       // 1. Build prompt
       const prompt = buildCastPrompt(inputs);
@@ -467,8 +473,8 @@ export async function designCast(
       // 2. Call LLM
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.75, // Higher for diverse character generation
-        maxTokens: 6000,   // 7 rich characters + relationships easily exceeds 4000
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId,
@@ -489,11 +495,11 @@ export async function designCast(
       try {
         cast = JSON.parse(content);
       } catch (error) {
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           console.error(`Attempt ${attempt}: JSON parse failed`, error);
           continue; // Retry on parse error
         } else {
-          throw new Error(`JSON parsing failed after ${maxAttempts} attempts: ${(error as Error).message}`);
+          throw new Error(`JSON parsing failed after ${resolvedMaxAttempts} attempts: ${(error as Error).message}`);
         }
       }
 
@@ -504,7 +510,7 @@ export async function designCast(
       // Placeholder characters score zero on depth metrics so we want real LLM
       // content for every slot; only pad with placeholders as a last resort on
       // the final attempt.
-      if (normalizedCharacters.length < expectedCount && attempt < maxAttempts) {
+      if (normalizedCharacters.length < expectedCount && attempt < resolvedMaxAttempts) {
         console.warn(
           `Attempt ${attempt}: Only ${normalizedCharacters.length} of ${expectedCount} characters returned. Retrying.`,
         );
@@ -564,7 +570,7 @@ export async function designCast(
         .filter(Boolean);
 
       if (missingFields.length > 0) {
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           continue; // Retry on missing fields
         }
         // Fill missing fields with defaults to avoid hard failure
@@ -587,12 +593,12 @@ export async function designCast(
       }
 
       // Validate possibleCulprits: need at least min(3, count-1) names
-      const requiredCulprits = Math.min(3, expectedCount - 1);
+      const requiredCulprits = Math.min(config.quality.culpability.max_possible_culprits, expectedCount - 1);
       const possibleCulprits = Array.isArray(cast.crimeDynamics?.possibleCulprits)
         ? cast.crimeDynamics.possibleCulprits
         : [];
       if (possibleCulprits.length < requiredCulprits) {
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           console.warn(
             `Attempt ${attempt}: Only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. Retrying.`,
           );
@@ -605,7 +611,7 @@ export async function designCast(
         cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
       );
       if (uniqueArchetypes.size < requiredUniqueArchetypes) {
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           console.warn(
             `Attempt ${attempt}: Only ${uniqueArchetypes.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
           );
@@ -642,12 +648,12 @@ export async function designCast(
         cost: 0, // Cost tracking not available in simplified client
       };
     } catch (error) {
-      if (attempt === maxAttempts) {
+      if (attempt === resolvedMaxAttempts) {
         throw error; // Re-throw on final attempt
       }
       // Otherwise continue to next attempt
     }
   }
 
-  throw new Error(`Cast design failed after ${maxAttempts} attempts`);
+  throw new Error(`Cast design failed after ${resolvedMaxAttempts} attempts`);
 }

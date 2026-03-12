@@ -8,6 +8,7 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 
 export interface ClueExtractionInputs {
@@ -413,6 +414,7 @@ export async function extractClues(
   client: AzureOpenAIClient,
   inputs: ClueExtractionInputs
 ): Promise<ClueDistributionResult> {
+  const config = getGenerationParams().agent5_clues.params;
   const startTime = Date.now();
   const logger = client.getLogger();
   const runId = inputs.runId || `clues-${Date.now()}`;
@@ -447,8 +449,8 @@ export async function extractClues(
         { role: "developer", content: prompt.developer },
         { role: "user", content: prompt.user },
       ],
-      temperature: 0.4, // Low - we want consistent, grounded extraction
-      maxTokens: 3000,  // Moderate - clue lists can be detailed
+      temperature: config.model.temperature,
+      maxTokens: config.model.max_tokens,
       jsonMode: true,   // Structured output
       logContext: {
         runId,

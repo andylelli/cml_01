@@ -8,6 +8,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { Message } from "@cml/llm-client";
+import { getGenerationParams } from "@cml/story-validation";
 import { buildEraConstraints, buildLocationConstraints } from "./shared/constraints.js";
 
 export interface SettingInputs {
@@ -212,25 +213,27 @@ Output JSON only.`;
 export async function refineSetting(
   client: AzureOpenAIClient,
   inputs: SettingInputs,
-  maxAttempts = 3
+  maxAttempts?: number
 ): Promise<SettingRefinementResult> {
   const logger = client.getLogger();
   const startTime = Date.now();
+  const config = getGenerationParams().agent1_setting.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   // Build prompt
   const prompt = buildSettingPrompt(inputs);
 
   let lastError: Error | undefined;
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
     try {
       // Generate setting refinement
       const response = await client.chatWithRetry({
         messages: prompt.messages,
         model:
           process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
-        temperature: 0.6, // Moderate - allow variation in setting details
-        maxTokens: 2000,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true, // JSON mode for structured output
         logContext: {
           runId: inputs.runId,
@@ -255,10 +258,10 @@ export async function refineSetting(
           metadata: { rawContent: response.content.substring(0, 500) },
         });
         
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           continue; // Retry
         } else {
-          throw new Error(`JSON parsing failed after ${maxAttempts} attempts: ${(parseError as Error).message}`);
+          throw new Error(`JSON parsing failed after ${resolvedMaxAttempts} attempts: ${(parseError as Error).message}`);
         }
       }
 
@@ -273,7 +276,7 @@ export async function refineSetting(
           retryAttempt: attempt,
         });
         
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           continue; // Retry
         } else {
           throw new Error("Setting refinement missing required fields after all attempts");
@@ -290,7 +293,7 @@ export async function refineSetting(
           retryAttempt: attempt,
         });
 
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           continue;
         } else {
           throw new Error("Setting refinement still contains anachronisms or implausibilities after all attempts");
@@ -340,7 +343,7 @@ export async function refineSetting(
         retryAttempt: attempt,
       });
       
-      if (attempt >= maxAttempts) {
+      if (attempt >= resolvedMaxAttempts) {
         throw error;
       }
     }

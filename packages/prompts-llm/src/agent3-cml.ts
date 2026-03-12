@@ -4,6 +4,7 @@
  */
 
 import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
+import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { validateCml } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
@@ -448,10 +449,12 @@ export async function generateCML(
   client: AzureOpenAIClient,
   inputs: CMLPromptInputs,
   examplesDir?: string,
-  maxAttempts = 3
+  maxAttempts?: number
 ): Promise<CMLGenerationResult> {
   const logger = client.getLogger();
   const startTime = Date.now();
+  const config = getGenerationParams().agent3_cml.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   // Build prompt
   const prompt = buildCMLPrompt(inputs, examplesDir);
@@ -624,7 +627,10 @@ export async function generateCML(
     const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
     qualityControls.inference_path_requirements = inferenceRequirements;
     inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
-    inferenceRequirements.max_steps = typeof inferenceRequirements.max_steps === "number" ? inferenceRequirements.max_steps : 5;
+    inferenceRequirements.max_steps =
+      typeof inferenceRequirements.max_steps === "number"
+        ? inferenceRequirements.max_steps
+        : config.inference_requirements.default_max_steps;
     inferenceRequirements.require_observation_correction_effect =
       typeof inferenceRequirements.require_observation_correction_effect === "boolean"
         ? inferenceRequirements.require_observation_correction_effect
@@ -656,15 +662,15 @@ export async function generateCML(
   let lastError: Error | undefined;
   let lastValidation: any = { valid: false, errors: ["No attempts made"] };
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
     try {
       // Generate CML
       const response = await client.chatWithRetry({
         messages: prompt.messages,
         model:
           process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
-        temperature: 0.7,
-        maxTokens: 8000,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true, // JSON output
         logContext: {
           runId: inputs.runId,
@@ -783,10 +789,10 @@ export async function generateCML(
           metadata: { rawContent: response.content.substring(0, 500) },
         });
 
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           continue; // Retry
         } else {
-          throw new Error(`Output parsing failed after ${maxAttempts} attempts: ${jsonMessage}`);
+          throw new Error(`Output parsing failed after ${resolvedMaxAttempts} attempts: ${jsonMessage}`);
         }
       }
 
@@ -846,7 +852,7 @@ export async function generateCML(
         },
       });
 
-      if (attempt < maxAttempts) {
+      if (attempt < resolvedMaxAttempts) {
         // Will retry
         continue;
       } else {
@@ -858,7 +864,7 @@ export async function generateCML(
           operation: "calling_agent4_revision",
           metadata: {
             validationErrorCount: validation.errors.length,
-            agent3Attempts: maxAttempts,
+            agent3Attempts: resolvedMaxAttempts,
           },
         });
 
@@ -893,7 +899,7 @@ export async function generateCML(
             retryAttempt: attempt,
             latencyMs: totalLatency,
             metadata: {
-              agent3Attempts: maxAttempts,
+              agent3Attempts: resolvedMaxAttempts,
               agent4Attempts: revisionResult.attempt,
               totalRevisions: revisionResult.revisionsApplied.length,
               agent3Cost: totalCost,
@@ -906,7 +912,7 @@ export async function generateCML(
           return {
             cml: revisionResult.cml,
             validation: revisionResult.validation,
-            attempt: maxAttempts + revisionResult.attempt,
+            attempt: resolvedMaxAttempts + revisionResult.attempt,
             latencyMs: totalLatency,
             cost: totalCost + revisionCost,
             revisedByAgent4: true,
@@ -924,13 +930,13 @@ export async function generateCML(
             operation: "agent4_revision_failed",
             errorMessage: (revisionError as Error).message,
             metadata: {
-              agent3Attempts: maxAttempts,
+              agent3Attempts: resolvedMaxAttempts,
               originalErrors: validation.errors,
             },
           });
 
           throw new Error(
-            `CML generation failed after Agent 3 (${maxAttempts} attempts) and Agent 4 revision. ` +
+            `CML generation failed after Agent 3 (${resolvedMaxAttempts} attempts) and Agent 4 revision. ` +
             `Original errors: ${validation.errors.slice(0, 5).join("; ")}... ` +
             `Revision error: ${(revisionError as Error).message}`
           );
@@ -949,7 +955,7 @@ export async function generateCML(
         metadata: { attempt, maxAttempts },
       });
 
-      if (attempt >= maxAttempts) {
+      if (attempt >= resolvedMaxAttempts) {
         throw error;
       }
     }

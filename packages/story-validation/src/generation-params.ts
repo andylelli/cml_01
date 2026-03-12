@@ -3,6 +3,120 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { load as parseYaml } from "js-yaml";
 
+interface ModelConfig {
+  temperature: number;
+  max_tokens: number;
+}
+
+interface GenerationConfig {
+  default_max_attempts: number;
+}
+
+interface AgentStatusConfig {
+  status: string;
+}
+
+export interface Agent1SettingConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+  };
+}
+
+export interface Agent2CastConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+    quality: {
+      role_archetype: {
+        min_unique_ratio: number;
+      };
+      culpability: {
+        max_possible_culprits: number;
+      };
+    };
+  };
+}
+
+export interface Agent2SimpleConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+  };
+}
+
+export interface Agent3CmlConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+    inference_requirements: {
+      default_max_steps: number;
+    };
+  };
+}
+
+export interface Agent4ValidatorConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+    inference_requirements: {
+      default_max_steps: number;
+    };
+  };
+}
+
+export interface Agent5CluesConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+  };
+}
+
+export interface Agent6FairPlayConfig extends AgentStatusConfig {
+  params: {
+    audit: {
+      model: ModelConfig;
+    };
+    blind_reader: {
+      model: ModelConfig;
+    };
+    retries: {
+      max_fair_play_attempts: number;
+      max_total_attempts_with_targeted_regen: number;
+      max_retry_cost_usd: number;
+    };
+  };
+}
+
+export interface Agent7NarrativeConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    pacing: {
+      min_clue_scene_ratio: number;
+      act_distribution: {
+        act1_ratio: number;
+        act2_ratio: number;
+      };
+    };
+  };
+}
+
+export interface Agent8NoveltyConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    thresholds: {
+      similarity_threshold_default: number;
+      fail_delta: number;
+    };
+    weighting: {
+      plot: number;
+      character: number;
+      setting: number;
+      solution: number;
+      structural: number;
+    };
+  };
+}
+
 export interface Agent9WordPolicyConfig {
   hard_floor_relaxation_ratio: number;
   min_hard_floor_words: number;
@@ -90,6 +204,19 @@ export interface Agent9ScorerConfig {
 }
 
 export interface GenerationParamsConfig {
+  agent1_setting: Agent1SettingConfig;
+  agent2_cast: Agent2CastConfig;
+  agent2b_profiles: Agent2SimpleConfig;
+  agent2c_location_profiles: Agent2SimpleConfig;
+  agent2d_temporal_context: Agent2SimpleConfig;
+  agent2e_background_context: Agent2SimpleConfig;
+  agent3_cml: Agent3CmlConfig;
+  agent3b_hard_logic_devices: Agent2SimpleConfig;
+  agent4_cml_validator: Agent4ValidatorConfig;
+  agent5_clues: Agent5CluesConfig;
+  agent6_fairplay: Agent6FairPlayConfig;
+  agent7_narrative: Agent7NarrativeConfig;
+  agent8_novelty: Agent8NoveltyConfig;
   agent9_prose: {
     word_policy: Agent9WordPolicyConfig;
     underflow_expansion: Agent9UnderflowExpansionConfig;
@@ -102,6 +229,123 @@ export interface GenerationParamsConfig {
 }
 
 const DEFAULT_CONFIG: GenerationParamsConfig = {
+  agent1_setting: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.6, max_tokens: 2000 },
+      generation: { default_max_attempts: 3 },
+    },
+  },
+  agent2_cast: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.75, max_tokens: 6000 },
+      generation: { default_max_attempts: 3 },
+      quality: {
+        role_archetype: { min_unique_ratio: 0.7 },
+        culpability: { max_possible_culprits: 3 },
+      },
+    },
+  },
+  agent2b_profiles: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.6, max_tokens: 4000 },
+      generation: { default_max_attempts: 2 },
+    },
+  },
+  agent2c_location_profiles: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.6, max_tokens: 4500 },
+      generation: { default_max_attempts: 2 },
+    },
+  },
+  agent2d_temporal_context: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.7, max_tokens: 4500 },
+      generation: { default_max_attempts: 2 },
+    },
+  },
+  agent2e_background_context: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.4, max_tokens: 1200 },
+      generation: { default_max_attempts: 2 },
+    },
+  },
+  agent3_cml: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.7, max_tokens: 8000 },
+      generation: { default_max_attempts: 3 },
+      inference_requirements: { default_max_steps: 5 },
+    },
+  },
+  agent3b_hard_logic_devices: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.7, max_tokens: 2600 },
+      generation: { default_max_attempts: 3 },
+    },
+  },
+  agent4_cml_validator: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.5, max_tokens: 8000 },
+      generation: { default_max_attempts: 5 },
+      inference_requirements: { default_max_steps: 5 },
+    },
+  },
+  agent5_clues: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.4, max_tokens: 3000 },
+    },
+  },
+  agent6_fairplay: {
+    status: "implemented",
+    params: {
+      audit: { model: { temperature: 0.3, max_tokens: 2500 } },
+      blind_reader: { model: { temperature: 0.2, max_tokens: 1500 } },
+      retries: {
+        max_fair_play_attempts: 2,
+        max_total_attempts_with_targeted_regen: 3,
+        max_retry_cost_usd: 0.15,
+      },
+    },
+  },
+  agent7_narrative: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.5, max_tokens: 16000 },
+      pacing: {
+        min_clue_scene_ratio: 0.6,
+        act_distribution: {
+          act1_ratio: 0.28,
+          act2_ratio: 0.47,
+        },
+      },
+    },
+  },
+  agent8_novelty: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.3, max_tokens: 2500 },
+      thresholds: {
+        similarity_threshold_default: 0.9,
+        fail_delta: 0.1,
+      },
+      weighting: {
+        plot: 0.3,
+        character: 0.25,
+        setting: 0.15,
+        solution: 0.25,
+        structural: 0.05,
+      },
+    },
+  },
   agent9_prose: {
     word_policy: {
       hard_floor_relaxation_ratio: 0.9,
@@ -213,7 +457,197 @@ const resolveConfigPath = (): string => {
 };
 
 const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParamsConfig => {
+  const source = partial as any;
   const merged: GenerationParamsConfig = {
+    agent1_setting: {
+      status: typeof source.agent1_setting?.status === "string" ? source.agent1_setting.status : DEFAULT_CONFIG.agent1_setting.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent1_setting?.params?.model?.temperature, DEFAULT_CONFIG.agent1_setting.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent1_setting?.params?.model?.max_tokens, DEFAULT_CONFIG.agent1_setting.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent1_setting?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent1_setting.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent2_cast: {
+      status: typeof source.agent2_cast?.status === "string" ? source.agent2_cast.status : DEFAULT_CONFIG.agent2_cast.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent2_cast?.params?.model?.temperature, DEFAULT_CONFIG.agent2_cast.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent2_cast?.params?.model?.max_tokens, DEFAULT_CONFIG.agent2_cast.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent2_cast?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent2_cast.params.generation.default_max_attempts, 1, 10)),
+        },
+        quality: {
+          role_archetype: {
+            min_unique_ratio: clampNumber(source.agent2_cast?.params?.quality?.role_archetype?.min_unique_ratio, DEFAULT_CONFIG.agent2_cast.params.quality.role_archetype.min_unique_ratio, 0.1, 1),
+          },
+          culpability: {
+            max_possible_culprits: Math.floor(clampNumber(source.agent2_cast?.params?.quality?.culpability?.max_possible_culprits, DEFAULT_CONFIG.agent2_cast.params.quality.culpability.max_possible_culprits, 1, 10)),
+          },
+        },
+      },
+    },
+    agent2b_profiles: {
+      status: typeof source.agent2b_profiles?.status === "string" ? source.agent2b_profiles.status : DEFAULT_CONFIG.agent2b_profiles.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent2b_profiles?.params?.model?.temperature, DEFAULT_CONFIG.agent2b_profiles.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent2b_profiles?.params?.model?.max_tokens, DEFAULT_CONFIG.agent2b_profiles.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent2b_profiles?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent2b_profiles.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent2c_location_profiles: {
+      status: typeof source.agent2c_location_profiles?.status === "string" ? source.agent2c_location_profiles.status : DEFAULT_CONFIG.agent2c_location_profiles.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent2c_location_profiles?.params?.model?.temperature, DEFAULT_CONFIG.agent2c_location_profiles.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent2c_location_profiles?.params?.model?.max_tokens, DEFAULT_CONFIG.agent2c_location_profiles.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent2c_location_profiles?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent2c_location_profiles.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent2d_temporal_context: {
+      status: typeof source.agent2d_temporal_context?.status === "string" ? source.agent2d_temporal_context.status : DEFAULT_CONFIG.agent2d_temporal_context.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent2d_temporal_context?.params?.model?.temperature, DEFAULT_CONFIG.agent2d_temporal_context.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent2d_temporal_context?.params?.model?.max_tokens, DEFAULT_CONFIG.agent2d_temporal_context.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent2d_temporal_context?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent2d_temporal_context.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent2e_background_context: {
+      status: typeof source.agent2e_background_context?.status === "string" ? source.agent2e_background_context.status : DEFAULT_CONFIG.agent2e_background_context.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent2e_background_context?.params?.model?.temperature, DEFAULT_CONFIG.agent2e_background_context.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent2e_background_context?.params?.model?.max_tokens, DEFAULT_CONFIG.agent2e_background_context.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent2e_background_context?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent2e_background_context.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent3_cml: {
+      status: typeof source.agent3_cml?.status === "string" ? source.agent3_cml.status : DEFAULT_CONFIG.agent3_cml.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent3_cml?.params?.model?.temperature, DEFAULT_CONFIG.agent3_cml.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent3_cml?.params?.model?.max_tokens, DEFAULT_CONFIG.agent3_cml.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent3_cml?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent3_cml.params.generation.default_max_attempts, 1, 10)),
+        },
+        inference_requirements: {
+          default_max_steps: Math.floor(clampNumber(source.agent3_cml?.params?.inference_requirements?.default_max_steps, DEFAULT_CONFIG.agent3_cml.params.inference_requirements.default_max_steps, 1, 20)),
+        },
+      },
+    },
+    agent3b_hard_logic_devices: {
+      status: typeof source.agent3b_hard_logic_devices?.status === "string" ? source.agent3b_hard_logic_devices.status : DEFAULT_CONFIG.agent3b_hard_logic_devices.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent3b_hard_logic_devices?.params?.model?.temperature, DEFAULT_CONFIG.agent3b_hard_logic_devices.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent3b_hard_logic_devices?.params?.model?.max_tokens, DEFAULT_CONFIG.agent3b_hard_logic_devices.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent3b_hard_logic_devices?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent3b_hard_logic_devices.params.generation.default_max_attempts, 1, 10)),
+        },
+      },
+    },
+    agent4_cml_validator: {
+      status: typeof source.agent4_cml_validator?.status === "string" ? source.agent4_cml_validator.status : DEFAULT_CONFIG.agent4_cml_validator.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent4_cml_validator?.params?.model?.temperature, DEFAULT_CONFIG.agent4_cml_validator.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent4_cml_validator?.params?.model?.max_tokens, DEFAULT_CONFIG.agent4_cml_validator.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent4_cml_validator?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent4_cml_validator.params.generation.default_max_attempts, 1, 10)),
+        },
+        inference_requirements: {
+          default_max_steps: Math.floor(clampNumber(source.agent4_cml_validator?.params?.inference_requirements?.default_max_steps, DEFAULT_CONFIG.agent4_cml_validator.params.inference_requirements.default_max_steps, 1, 20)),
+        },
+      },
+    },
+    agent5_clues: {
+      status: typeof source.agent5_clues?.status === "string" ? source.agent5_clues.status : DEFAULT_CONFIG.agent5_clues.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent5_clues?.params?.model?.temperature, DEFAULT_CONFIG.agent5_clues.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent5_clues?.params?.model?.max_tokens, DEFAULT_CONFIG.agent5_clues.params.model.max_tokens, 256, 20000)),
+        },
+      },
+    },
+    agent6_fairplay: {
+      status: typeof source.agent6_fairplay?.status === "string" ? source.agent6_fairplay.status : DEFAULT_CONFIG.agent6_fairplay.status,
+      params: {
+        audit: {
+          model: {
+            temperature: clampNumber(source.agent6_fairplay?.params?.audit?.model?.temperature, DEFAULT_CONFIG.agent6_fairplay.params.audit.model.temperature, 0, 1),
+            max_tokens: Math.floor(clampNumber(source.agent6_fairplay?.params?.audit?.model?.max_tokens, DEFAULT_CONFIG.agent6_fairplay.params.audit.model.max_tokens, 256, 20000)),
+          },
+        },
+        blind_reader: {
+          model: {
+            temperature: clampNumber(source.agent6_fairplay?.params?.blind_reader?.model?.temperature, DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.model.temperature, 0, 1),
+            max_tokens: Math.floor(clampNumber(source.agent6_fairplay?.params?.blind_reader?.model?.max_tokens, DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.model.max_tokens, 256, 20000)),
+          },
+        },
+        retries: {
+          max_fair_play_attempts: Math.floor(clampNumber(source.agent6_fairplay?.params?.retries?.max_fair_play_attempts, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_fair_play_attempts, 1, 10)),
+          max_total_attempts_with_targeted_regen: Math.floor(clampNumber(source.agent6_fairplay?.params?.retries?.max_total_attempts_with_targeted_regen, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_total_attempts_with_targeted_regen, 1, 10)),
+          max_retry_cost_usd: clampNumber(source.agent6_fairplay?.params?.retries?.max_retry_cost_usd, DEFAULT_CONFIG.agent6_fairplay.params.retries.max_retry_cost_usd, 0, 10),
+        },
+      },
+    },
+    agent7_narrative: {
+      status: typeof source.agent7_narrative?.status === "string" ? source.agent7_narrative.status : DEFAULT_CONFIG.agent7_narrative.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent7_narrative?.params?.model?.temperature, DEFAULT_CONFIG.agent7_narrative.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent7_narrative?.params?.model?.max_tokens, DEFAULT_CONFIG.agent7_narrative.params.model.max_tokens, 256, 32000)),
+        },
+        pacing: {
+          min_clue_scene_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.min_clue_scene_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.min_clue_scene_ratio, 0.1, 1),
+          act_distribution: {
+            act1_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.act_distribution?.act1_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution.act1_ratio, 0.1, 0.8),
+            act2_ratio: clampNumber(source.agent7_narrative?.params?.pacing?.act_distribution?.act2_ratio, DEFAULT_CONFIG.agent7_narrative.params.pacing.act_distribution.act2_ratio, 0.1, 0.8),
+          },
+        },
+      },
+    },
+    agent8_novelty: {
+      status: typeof source.agent8_novelty?.status === "string" ? source.agent8_novelty.status : DEFAULT_CONFIG.agent8_novelty.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent8_novelty?.params?.model?.temperature, DEFAULT_CONFIG.agent8_novelty.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent8_novelty?.params?.model?.max_tokens, DEFAULT_CONFIG.agent8_novelty.params.model.max_tokens, 256, 20000)),
+        },
+        thresholds: {
+          similarity_threshold_default: clampNumber(source.agent8_novelty?.params?.thresholds?.similarity_threshold_default, DEFAULT_CONFIG.agent8_novelty.params.thresholds.similarity_threshold_default, 0, 1),
+          fail_delta: clampNumber(source.agent8_novelty?.params?.thresholds?.fail_delta, DEFAULT_CONFIG.agent8_novelty.params.thresholds.fail_delta, 0, 1),
+        },
+        weighting: {
+          plot: clampNumber(source.agent8_novelty?.params?.weighting?.plot, DEFAULT_CONFIG.agent8_novelty.params.weighting.plot, 0, 1),
+          character: clampNumber(source.agent8_novelty?.params?.weighting?.character, DEFAULT_CONFIG.agent8_novelty.params.weighting.character, 0, 1),
+          setting: clampNumber(source.agent8_novelty?.params?.weighting?.setting, DEFAULT_CONFIG.agent8_novelty.params.weighting.setting, 0, 1),
+          solution: clampNumber(source.agent8_novelty?.params?.weighting?.solution, DEFAULT_CONFIG.agent8_novelty.params.weighting.solution, 0, 1),
+          structural: clampNumber(source.agent8_novelty?.params?.weighting?.structural, DEFAULT_CONFIG.agent8_novelty.params.weighting.structural, 0, 1),
+        },
+      },
+    },
     agent9_prose: {
       word_policy: {
         hard_floor_relaxation_ratio: clampNumber(

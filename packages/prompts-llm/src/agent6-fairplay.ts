@@ -15,6 +15,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
 
@@ -382,6 +383,7 @@ export async function auditFairPlay(
   client: AzureOpenAIClient,
   inputs: FairPlayAuditInputs
 ): Promise<FairPlayAuditResult> {
+  const config = getGenerationParams().agent6_fairplay.params;
   const startTime = Date.now();
 
   // Build the audit prompt
@@ -394,8 +396,8 @@ export async function auditFairPlay(
       { role: "developer", content: prompt.developer },
       { role: "user", content: prompt.user }
     ],
-    temperature: 0.3, // Very low - consistent, rigorous auditing
-    maxTokens: 2500, // Moderate - detailed audit report
+    temperature: config.audit.model.temperature,
+    maxTokens: config.audit.model.max_tokens,
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",
@@ -448,6 +450,7 @@ export async function blindReaderSimulation(
   castNames: string[],
   inputs: { runId?: string; projectId?: string }
 ): Promise<BlindReaderResult> {
+  const config = getGenerationParams().agent6_fairplay.params;
   const startTime = Date.now();
 
   const system = "You are a careful reader of Golden Age detective fiction. You are reading a mystery " +
@@ -484,8 +487,8 @@ export async function blindReaderSimulation(
       { role: "system", content: system },
       { role: "user", content: user },
     ],
-    temperature: 0.2,
-    maxTokens: 1500,
+    temperature: config.blind_reader.model.temperature,
+    maxTokens: config.blind_reader.model.max_tokens,
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",

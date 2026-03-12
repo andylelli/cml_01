@@ -18,6 +18,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { jsonrepair } from "jsonrepair";
+import { getGenerationParams } from "@cml/story-validation";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
@@ -345,6 +346,7 @@ function buildProseRequirements(caseData: CaseData): string {
 }
 
 function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[], detectiveType?: 'police' | 'private' | 'amateur'): string {
+  const config = getGenerationParams().agent7_narrative.params;
   const legacy = caseData as any;
   const crimeVictim: string = typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim";
   const rawLocationValue = legacy.setup?.crime?.location;
@@ -361,13 +363,13 @@ function buildUserRequest(caseData: CaseData, targetLength: string, narrativeSty
 
   // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
   const totalSceneCount = getSceneTarget(targetLength);
-  const minClueScenes = Math.ceil(totalSceneCount * 0.6);
+  const minClueScenes = Math.ceil(totalSceneCount * config.pacing.min_clue_scene_ratio);
 
   // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
   // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
   // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
-  const actIScenes = Math.round(totalSceneCount * 0.28);   // ~25-30%
-  const actIIScenes = Math.round(totalSceneCount * 0.47);  // ~45-50%
+  const actIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act1_ratio);
+  const actIIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act2_ratio);
   const actIIIScenes = totalSceneCount - actIScenes - actIIScenes; // remainder guarantees exact sum
 
   const styleGuidance = {
@@ -577,6 +579,7 @@ export async function formatNarrative(
   client: AzureOpenAIClient,
   inputs: NarrativeFormattingInputs
 ): Promise<NarrativeOutline> {
+  const config = getGenerationParams().agent7_narrative.params;
   const startTime = Date.now();
 
   // Build the narrative prompt
@@ -591,8 +594,8 @@ export async function formatNarrative(
       { role: "developer", content: prompt.developer },
       { role: "user", content: prompt.user }
     ],
-    temperature: 0.5, // Moderate - creative scene structuring grounded in CML
-    maxTokens: 16000, // Raised from 4 000 — full multi-scene outline easily exceeds 4 k tokens
+    temperature: config.model.temperature,
+    maxTokens: config.model.max_tokens,
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",

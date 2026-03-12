@@ -8,6 +8,7 @@
 
 import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import type { HardLogicDeviceIdea } from "./types.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
@@ -187,13 +188,15 @@ Return JSON only.`;
 export async function generateHardLogicDevices(
   client: AzureOpenAIClient,
   inputs: HardLogicDeviceInputs,
-  maxAttempts = 3,
+  maxAttempts?: number,
 ): Promise<HardLogicDeviceResult> {
   const logger = client.getLogger();
   const startTime = Date.now();
+  const config = getGenerationParams().agent3b_hard_logic_devices.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   const retryResult = await withValidationRetry({
-    maxAttempts,
+    maxAttempts: resolvedMaxAttempts,
     agentName: "Agent 3b (Hard Logic Devices)",
     validationFn: (data) => {
       const validation = validateArtifact("hard_logic_devices", data);
@@ -210,8 +213,8 @@ export async function generateHardLogicDevices(
         messages: prompt.messages,
         model:
           process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
-        temperature: 0.7,
-        maxTokens: 2600,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId,
@@ -297,7 +300,7 @@ export async function generateHardLogicDevices(
   // If validation failed after all retries, log errors but continue
   if (!retryResult.validationResult.valid) {
     console.error(
-      `[Agent 3b] Hard logic devices failed validation after ${maxAttempts} attempts:\n` +
+      `[Agent 3b] Hard logic devices failed validation after ${resolvedMaxAttempts} attempts:\n` +
       retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
     );
   }

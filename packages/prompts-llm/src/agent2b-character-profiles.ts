@@ -7,6 +7,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import type { CastDesign } from "./agent2-cast.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -107,12 +108,14 @@ CHARACTER HUMOUR REQUIREMENTS:
 export async function generateCharacterProfiles(
   client: AzureOpenAIClient,
   inputs: CharacterProfilesInputs,
-  maxAttempts = 2
+  maxAttempts?: number
 ): Promise<CharacterProfilesResult> {
   const start = Date.now();
+  const config = getGenerationParams().agent2b_profiles.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   const retryResult = await withValidationRetry({
-    maxAttempts,
+    maxAttempts: resolvedMaxAttempts,
     agentName: "Agent 2b (Character Profiles)",
     validationFn: (data) => {
       // Validate against character_profiles schema
@@ -133,8 +136,8 @@ export async function generateCharacterProfiles(
 
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.6,
-        maxTokens: 4000,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId ?? "",
@@ -174,7 +177,7 @@ export async function generateCharacterProfiles(
   // If validation failed after all retries, log errors but continue
   if (!retryResult.validationResult.valid) {
     console.error(
-      `[Agent 2b] Character profiles failed validation after ${maxAttempts} attempts:\n` +
+      `[Agent 2b] Character profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
       retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
     );
   }

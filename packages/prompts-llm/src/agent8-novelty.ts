@@ -20,6 +20,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 
 // ============================================================================
@@ -64,7 +65,12 @@ export interface NoveltyAuditResult {
 // ============================================================================
 
 export function buildNoveltyPrompt(inputs: NoveltyAuditInputs): PromptComponents {
-  const { generatedCML, seedCMLs, similarityThreshold = 0.9 } = inputs;
+  const config = getGenerationParams().agent8_novelty.params;
+  const { generatedCML, seedCMLs } = inputs;
+  const similarityThreshold =
+    typeof inputs.similarityThreshold === "number"
+      ? inputs.similarityThreshold
+      : config.thresholds.similarity_threshold_default;
 
   // System: Define the novelty auditor role
   const system = `You are an expert plagiarism and similarity detection specialist for mystery fiction. Your role is to compare a newly generated mystery (CML) against a set of seed examples to ensure sufficient novelty.
@@ -309,6 +315,7 @@ export async function auditNovelty(
   client: AzureOpenAIClient,
   inputs: NoveltyAuditInputs
 ): Promise<NoveltyAuditResult> {
+  const config = getGenerationParams().agent8_novelty.params;
   const startTime = Date.now();
 
   // Build the novelty prompt
@@ -321,8 +328,8 @@ export async function auditNovelty(
       { role: "developer", content: prompt.developer },
       { role: "user", content: prompt.user }
     ],
-    temperature: 0.3, // Low - consistent, objective comparison
-    maxTokens: 2500, // Moderate - detailed similarity report
+    temperature: config.model.temperature,
+    maxTokens: config.model.max_tokens,
     jsonMode: true,
     logContext: {
       runId: inputs.runId || "unknown",
@@ -337,11 +344,11 @@ export async function auditNovelty(
 
   const clamp = (value: number) => Math.min(1, Math.max(0, value));
   const computeOverallSimilarity = (score: SimilarityScore) =>
-    0.3 * score.plotSimilarity
-    + 0.25 * score.characterSimilarity
-    + 0.15 * score.settingSimilarity
-    + 0.25 * score.solutionSimilarity
-    + 0.05 * score.structuralSimilarity;
+    config.weighting.plot * score.plotSimilarity
+    + config.weighting.character * score.characterSimilarity
+    + config.weighting.setting * score.settingSimilarity
+    + config.weighting.solution * score.solutionSimilarity
+    + config.weighting.structural * score.structuralSimilarity;
 
   // Parse the novelty result
   let noveltyData: Omit<NoveltyAuditResult, "cost" | "durationMs">;
@@ -356,8 +363,11 @@ export async function auditNovelty(
     throw new Error("Invalid novelty audit result: missing required fields (status, similarityScores, summary)");
   }
 
-  const similarityThreshold = typeof inputs.similarityThreshold === "number" ? inputs.similarityThreshold : 0.9;
-  const failThreshold = Math.min(1, similarityThreshold + 0.1);
+  const similarityThreshold =
+    typeof inputs.similarityThreshold === "number"
+      ? inputs.similarityThreshold
+      : config.thresholds.similarity_threshold_default;
+  const failThreshold = Math.min(1, similarityThreshold + config.thresholds.fail_delta);
 
   const normalizedScores = noveltyData.similarityScores.map((score) => {
     const normalized: SimilarityScore = {
@@ -392,11 +402,11 @@ export async function auditNovelty(
 
   const topScore = normalizedScores.find((score) => score.seedTitle === mostSimilarSeed) ?? normalizedScores[0];
   const weights = {
-    plot: 0.3,
-    character: 0.25,
-    setting: 0.15,
-    solution: 0.25,
-    structural: 0.05,
+    plot: config.weighting.plot,
+    character: config.weighting.character,
+    setting: config.weighting.setting,
+    solution: config.weighting.solution,
+    structural: config.weighting.structural,
   };
 
   await client.getLogger().logResponse({

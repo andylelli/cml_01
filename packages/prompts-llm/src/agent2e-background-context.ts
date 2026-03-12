@@ -7,6 +7,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { CastDesign } from "./agent2-cast.js";
@@ -110,12 +111,14 @@ Return JSON only.`;
 export async function generateBackgroundContext(
   client: AzureOpenAIClient,
   inputs: BackgroundContextInputs,
-  maxAttempts = 2,
+  maxAttempts?: number,
 ): Promise<BackgroundContextResult> {
   const start = Date.now();
+  const config = getGenerationParams().agent2e_background_context.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   const retryResult = await withValidationRetry({
-    maxAttempts,
+    maxAttempts: resolvedMaxAttempts,
     agentName: "Agent 2e (Background Context)",
     validationFn: (data) => {
       const validation = validateArtifact("background_context", data);
@@ -130,8 +133,8 @@ export async function generateBackgroundContext(
 
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.4,
-        maxTokens: 1200,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId ?? "",
@@ -175,7 +178,7 @@ export async function generateBackgroundContext(
   // If validation failed after all retries, log errors but continue
   if (!retryResult.validationResult.valid) {
     console.error(
-      `[Agent 2e] Background context failed validation after ${maxAttempts} attempts:\n` +
+      `[Agent 2e] Background context failed validation after ${resolvedMaxAttempts} attempts:\n` +
       retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
     );
   }

@@ -8,6 +8,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -306,12 +307,14 @@ Make this mystery feel ROOTED in a specific moment in time, not just a generic e
 export async function generateTemporalContext(
   client: AzureOpenAIClient,
   inputs: TemporalContextInputs,
-  maxAttempts = 2
+  maxAttempts?: number
 ): Promise<TemporalContextResult> {
   const start = Date.now();
+  const config = getGenerationParams().agent2d_temporal_context.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   const retryResult = await withValidationRetry({
-    maxAttempts,
+    maxAttempts: resolvedMaxAttempts,
     agentName: "Agent 2d (Temporal Context)",
     validationFn: (data) => {
       const validationPayload = {
@@ -331,8 +334,8 @@ export async function generateTemporalContext(
 
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.7,
-        maxTokens: 4500,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId ?? "",
@@ -381,7 +384,7 @@ export async function generateTemporalContext(
   // If validation failed after all retries, log errors but continue
   if (!retryResult.validationResult.valid) {
     console.error(
-      `[Agent 2d] Temporal context failed validation after ${maxAttempts} attempts:\n` +
+      `[Agent 2d] Temporal context failed validation after ${resolvedMaxAttempts} attempts:\n` +
       retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
     );
   }

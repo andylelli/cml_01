@@ -7,60 +7,146 @@
 # - Values outside supported ranges are clamped by the loader in
 #   packages/story-validation/src/generation-params.ts.
 # - Keep this file focused on runtime tuning (not feature flags).
-# - Non-Agent-9 sections below are scaffold-only for now (planned), and are not
-#   consumed at runtime until their loaders are implemented.
+# - Agent 1-9 sections below are runtime-consumed by their corresponding
+#   generation/audit paths.
 
 agent1_setting:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.6
+      max_tokens: 2000
+    generation:
+      default_max_attempts: 3
 
 agent2_cast:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.75
+      max_tokens: 6000
+    generation:
+      default_max_attempts: 3
+    quality:
+      role_archetype:
+        min_unique_ratio: 0.7
+      culpability:
+        max_possible_culprits: 3
 
 agent2b_profiles:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.6
+      max_tokens: 4000
+    generation:
+      default_max_attempts: 2
 
 agent2c_location_profiles:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.6
+      max_tokens: 4500
+    generation:
+      default_max_attempts: 2
 
 agent2d_temporal_context:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.7
+      max_tokens: 4500
+    generation:
+      default_max_attempts: 2
 
 agent2e_background_context:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.4
+      max_tokens: 1200
+    generation:
+      default_max_attempts: 2
 
 agent3_cml:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    generation:
+      default_max_attempts: 3
+    inference_requirements:
+      default_max_steps: 5
 
 agent3b_hard_logic_devices:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.7
+      max_tokens: 2600
+    generation:
+      default_max_attempts: 3
 
 agent4_cml_validator:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.5
+      max_tokens: 8000
+    generation:
+      default_max_attempts: 5
+    inference_requirements:
+      default_max_steps: 5
 
 agent5_clues:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.4
+      max_tokens: 3000
 
 agent6_fairplay:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    audit:
+      model:
+        temperature: 0.3
+        max_tokens: 2500
+    blind_reader:
+      model:
+        temperature: 0.2
+        max_tokens: 1500
+    retries:
+      max_fair_play_attempts: 2
+      max_total_attempts_with_targeted_regen: 3
+      max_retry_cost_usd: 0.15
 
 agent7_narrative:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.5
+      max_tokens: 16000
+    pacing:
+      min_clue_scene_ratio: 0.6
+      act_distribution:
+        act1_ratio: 0.28
+        act2_ratio: 0.47
 
 agent8_novelty:
-  status: planned
-  params: {}
+  status: implemented
+  params:
+    model:
+      temperature: 0.3
+      max_tokens: 2500
+    thresholds:
+      similarity_threshold_default: 0.9
+      fail_delta: 0.1
+    weighting:
+      plot: 0.3
+      character: 0.25
+      setting: 0.15
+      solution: 0.25
+      structural: 0.05
 
 agent9_prose:
   word_policy:

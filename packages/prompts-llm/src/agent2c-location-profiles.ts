@@ -8,6 +8,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { NarrativeOutline } from "./agent7-narrative.js";
@@ -274,12 +275,14 @@ Create evocative, atmospheric profiles that Agent 9 can use to write vivid prose
 export async function generateLocationProfiles(
   client: AzureOpenAIClient,
   inputs: LocationProfilesInputs,
-  maxAttempts = 2
+  maxAttempts?: number
 ): Promise<LocationProfilesResult> {
   const start = Date.now();
+  const config = getGenerationParams().agent2c_location_profiles.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
 
   const retryResult = await withValidationRetry({
-    maxAttempts,
+    maxAttempts: resolvedMaxAttempts,
     agentName: "Agent 2c (Location Profiles)",
     validationFn: (data) => {
       // Validate against location_profiles schema
@@ -300,8 +303,8 @@ export async function generateLocationProfiles(
 
       const response = await client.chat({
         messages: prompt.messages,
-        temperature: 0.6,
-        maxTokens: 4500,
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,
         logContext: {
           runId: inputs.runId ?? "",
@@ -346,7 +349,7 @@ export async function generateLocationProfiles(
   // If validation failed after all retries, log errors but continue
   if (!retryResult.validationResult.valid) {
     console.error(
-      `[Agent 2c] Location profiles failed validation after ${maxAttempts} attempts:\n` +
+      `[Agent 2c] Location profiles failed validation after ${resolvedMaxAttempts} attempts:\n` +
       retryResult.validationResult.errors.map(e => `- ${e}`).join("\n")
     );
   }

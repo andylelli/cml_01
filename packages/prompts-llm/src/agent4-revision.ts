@@ -8,6 +8,7 @@
  */
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { getGenerationParams } from "@cml/story-validation";
 import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
@@ -250,10 +251,12 @@ ${invalidCml}
 export async function reviseCml(
   client: AzureOpenAIClient,
   inputs: RevisionInputs,
-  maxAttempts = 5,
+  maxAttempts?: number,
 ): Promise<RevisionResult> {
   const startTime = Date.now();
   const logger = client.getLogger();
+  const config = getGenerationParams().agent4_cml_validator.params;
+  const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
   const runId = inputs.runId || `revision-${Date.now()}`;
   const projectId = inputs.projectId || "unknown";
 
@@ -422,7 +425,10 @@ export async function reviseCml(
     const inferenceRequirements = ensureObject(qualityControls.inference_path_requirements);
     qualityControls.inference_path_requirements = inferenceRequirements;
     inferenceRequirements.min_steps = typeof inferenceRequirements.min_steps === "number" ? inferenceRequirements.min_steps : 3;
-    inferenceRequirements.max_steps = typeof inferenceRequirements.max_steps === "number" ? inferenceRequirements.max_steps : 5;
+    inferenceRequirements.max_steps =
+      typeof inferenceRequirements.max_steps === "number"
+        ? inferenceRequirements.max_steps
+        : config.inference_requirements.default_max_steps;
     inferenceRequirements.require_observation_correction_effect =
       typeof inferenceRequirements.require_observation_correction_effect === "boolean"
         ? inferenceRequirements.require_observation_correction_effect
@@ -465,11 +471,11 @@ export async function reviseCml(
     metadata: {
       initialErrorCount: inputs.validationErrors.length,
       initialAttempt: inputs.attempt,
-      maxAttempts,
+      maxAttempts: resolvedMaxAttempts,
     },
   });
 
-  while (attempt <= maxAttempts) {
+  while (attempt <= resolvedMaxAttempts) {
     // Build revision prompt with current errors
     const revisionInput: RevisionInputs = {
       ...inputs,
@@ -500,8 +506,8 @@ export async function reviseCml(
           { role: "system", content: combinedSystem },
           { role: "user", content: prompt.user },
         ],
-        temperature: 0.5, // Balanced - not too creative, not too rigid
-        maxTokens: 8000,  // Large - needs full CML revision
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
         jsonMode: true,  // JSON output
         logContext: {
           runId,
@@ -639,14 +645,14 @@ export async function reviseCml(
           metadata: { rawContent: response.content.substring(0, 500) },
         });
 
-        if (attempt < maxAttempts) {
+        if (attempt < resolvedMaxAttempts) {
           // Try again with parsing error feedback
           currentErrors.push(`Output parsing failed: ${jsonMessage}`);
           revisionsApplied.push(`Attempt ${attempt}: Output parse failed, retrying`);
           attempt++;
           continue;
         } else {
-          throw new Error(`Output parsing failed after ${maxAttempts} attempts: ${jsonMessage}`);
+          throw new Error(`Output parsing failed after ${resolvedMaxAttempts} attempts: ${jsonMessage}`);
         }
       }
 
@@ -712,7 +718,7 @@ export async function reviseCml(
         `Attempt ${attempt}: Reduced errors from ${currentErrors.length} to ${validation.errors.length}`
       );
 
-      if (attempt < maxAttempts) {
+      if (attempt < resolvedMaxAttempts) {
         // Update for next iteration
         currentCml = yaml.dump(cml);
         currentErrors = validation.errors;
@@ -721,7 +727,7 @@ export async function reviseCml(
       } else {
         // Max attempts reached
         throw new Error(
-          `CML revision failed after ${maxAttempts} attempts. Remaining errors: ${validation.errors.join("; ")}`
+          `CML revision failed after ${resolvedMaxAttempts} attempts. Remaining errors: ${validation.errors.join("; ")}`
         );
       }
     } catch (error) {

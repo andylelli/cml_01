@@ -16,7 +16,7 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import type { PhaseScore, TestResult } from "@cml/story-validation";
+import { getGenerationParams, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type InferenceCoverageResult,
@@ -84,6 +84,7 @@ function classifyFairPlayFailure(
 // ============================================================================
 
 export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
+  const fairPlayConfig = getGenerationParams().agent6_fairplay.params;
   ctx.reportProgress("fairplay", "Auditing fair play compliance...", 62);
 
   const clueDensity =
@@ -95,7 +96,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   let fairPlayAttempt = 0;
   const fairPlayStart = Date.now();
 
-  while (fairPlayAttempt < 2) {
+  while (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
     fairPlayAttempt++;
     fairPlayAudit = await auditFairPlay(ctx.client, {
       caseData: ctx.cml!,
@@ -106,11 +107,11 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
     if (fairPlayAudit.overallStatus === "pass") break;
 
-    if (fairPlayAttempt < 2) {
+    if (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
       ctx.warnings.push(
         `Agent 6: Fair play audit ${fairPlayAudit.overallStatus}; regenerating clues to address feedback (attempt ${
           fairPlayAttempt + 1
-        } of 2)`
+        } of ${fairPlayConfig.retries.max_fair_play_attempts})`
       );
 
       ctx.reportProgress("clues", "Regenerating clues to address fair play feedback...", 60);
@@ -317,7 +318,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   }
 
   // ── WP6B + WP8: CML Retry on Structural Failure ───────────────────────────
-  const MAX_FAIR_PLAY_RETRY_COST = 0.15;
+  const MAX_FAIR_PLAY_RETRY_COST = fairPlayConfig.retries.max_retry_cost_usd;
   let fairPlayRetryCost = 0;
 
   if (fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure) {
@@ -435,10 +436,14 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         );
         await recordFairPlayScore();
       }
-    } else if (failureClass === "clue_only" && fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST) {
+    } else if (
+      failureClass === "clue_only" &&
+      fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST &&
+      fairPlayConfig.retries.max_total_attempts_with_targeted_regen >= 3
+    ) {
       ctx.warnings.push(
         "Fair play failure classified as \"clue_only\" — CML structure is sound; " +
-        "regenerating clues with targeted per-violation feedback (attempt 3 of 3)"
+        `regenerating clues with targeted per-violation feedback (attempt 3 of ${fairPlayConfig.retries.max_total_attempts_with_targeted_regen})`
       );
 
       ctx.reportProgress("clues", "Regenerating clues to address fair play feedback (final attempt)...", 63);
