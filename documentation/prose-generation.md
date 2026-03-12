@@ -338,37 +338,37 @@ The following diagnostics are written to the scoring aggregator and appear in th
 
 ```mermaid
 flowchart TD
-   A[CML + Outline + Cast + Profiles + Clues] --> B[initNarrativeState]
+   A["CML + Outline + Cast + Profiles + Clues"] --> B["initNarrativeState"]
    B --> C1
 
-   subgraph BatchLoop[generateProse per batch]
-      C1[buildProsePrompt<br/>15 blocks, budget max 6200 tokens]
-      C2[LLM call<br/>JSON parse and repair]
-      C3[sanitizeGeneratedChapter]
-      C4[ChapterValidator pre-commit]
-      C5[validateChapterPreCommitObligations<br/>word count and clue obligation]
-      C6[lintBatchProse<br/>entropy + fingerprint + n-gram]
-      C7[enforceMonthSeasonLockOnChapter]
-      C8[buildProvisionalChapterScore]
-      C9{Failure}
-      C10[Retry same batch]
-      C11[onBatchComplete<br/>updateNSD + batch/cumulative scoring + upsertPhaseScore]
+   subgraph BatchLoop["generateProse per batch"]
+      C1["buildProsePrompt: 15 blocks, token budget 6200"]
+      C2["LLM call and JSON parse repair"]
+      C3["sanitizeGeneratedChapter"]
+      C4["ChapterValidator pre-commit"]
+      C5["validateChapterPreCommitObligations"]
+      C6["lintBatchProse: entropy, fingerprint, n-gram"]
+      C7["enforceMonthSeasonLockOnChapter"]
+      C8["buildProvisionalChapterScore"]
+      C9{"Failure"}
+      C10["Retry same batch"]
+      C11["onBatchComplete: updateNSD and score updates"]
 
       C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9
-      C9 -- Yes --> C10 --> C2
-      C9 -- No --> C11
-  end
+      C9 -- "Yes" --> C10 --> C2
+      C9 -- "No" --> C11
+   end
 
-   C11 --> D[sanitizeProseResult + applyDeterministicProsePostProcessing]
-   D --> E[First-pass ProseScorer.score<br/>upsertPhaseScore + summaries]
-   E --> F[Identity repair<br/>targeted then full-regen fallback]
-  F --> G[Schema repair on prose JSON validation errors]
-   G --> H[StoryValidationPipeline.validate<br/>repair run if failed]
-  H --> I[autoFix() encoding corrections]
-   I --> J[applyDeterministicProsePostProcessing second pass]
-   J --> K[Release Gate<br/>10 checks, hard-stops throw]
-   K --> L[Final ProseScorer.score<br/>partialGeneration false + upsertPhaseScore]
-   L --> M[ctx.prose committed]
+   C11 --> D["sanitizeProseResult + deterministic post-processing"]
+   D --> E["First-pass ProseScorer score and summaries"]
+   E --> F["Identity repair targeted then full fallback"]
+   F --> G["Schema repair for prose JSON errors"]
+   G --> H["StoryValidationPipeline validate and optional repair run"]
+   H --> I["autoFix encoding corrections"]
+   I --> J["deterministic post-processing second pass"]
+   J --> K["Release Gate hard-stop checks"]
+   K --> L["Final ProseScorer score and upsertPhaseScore"]
+   L --> M["ctx.prose committed"]
 ```
 
 ---
@@ -377,64 +377,59 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-   %% Inputs
-   A1[CML CASE] --> B0
-   A2[Agent 7 Outline] --> B0
-   A3[Cast + Profiles + Temporal + Clues] --> B0
-   B0[agent9-run.ts start Agent 9] --> B1[initNarrativeState()]
+   A1["CML CASE"] --> B0
+   A2["Agent 7 Outline"] --> B0
+   A3["Cast + Profiles + Temporal + Clues"] --> B0
+   B0["agent9-run start Agent 9"] --> B1["initNarrativeState"]
 
-   %% Main generation loop
-   subgraph G[generateProse() in agent9-prose.ts]
+   subgraph MainLoop["generateProse in agent9-prose"]
       direction TB
-      G1[Batch scenes by batchSize]
-      G2[buildProsePrompt()\n15 context blocks + budgeting]
-      G3[LLM call]
-      G4[JSON repair/parse]
-      G5[sanitizeGeneratedChapter()]
-      G6[ChapterValidator + pre-commit obligations]
-      G7[Anti-template lint + month/season lock]
-      G8[Provisional chapter scoring\ndeficits/directives to next prompt]
-      G9{Batch valid?}
-      G10[Retry same batch\nerror context fed back to LLM]
-      G11[onBatchComplete\nupdateNSD + batch/cumulative score\nupsertPhaseScore + savePartialReport]
+      G1["batch scenes by batchSize"]
+      G2["buildProsePrompt"]
+      G3["LLM call"]
+      G4["JSON repair and parse"]
+      G5["sanitizeGeneratedChapter"]
+      G6["validator and obligations"]
+      G7["anti-template lint and season lock"]
+      G8["provisional chapter scoring"]
+      G9{"batch valid"}
+      G10["retry same batch with feedback"]
+      G11["onBatchComplete: updateNSD and score telemetry"]
 
       G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7 --> G8 --> G9
-      G9 -- No --> G10 --> G3
-      G9 -- Yes --> G11
+      G9 -- "No" --> G10 --> G3
+      G9 -- "Yes" --> G11
    end
 
-   B1 --> G
-   G --> P0[sanitizeProseResult() + deterministic post-processing]
-   P0 --> S1[First-pass ProseScorer.score()\npost_generation_summary + E5 fingerprints]
+   B1 --> G1
+   G11 --> P0["sanitize and deterministic post-processing"]
+   P0 --> S1["first-pass ProseScorer score"]
 
-   %% Repair decision tree
-   S1 --> R0{Identity alias breaks?}
-   R0 -- Yes --> R1[Targeted identity repair\nsubset generateProse()]
-   R1 --> R2{Residual alias breaks?}
-   R2 -- Yes --> R3[Full prose regeneration\nfull generateProse()]
-   R2 -- No --> SR
-   R0 -- No --> SR
+   S1 --> R0{"identity alias breaks"}
+   R0 -- "Yes" --> R1["targeted identity repair generation"]
+   R1 --> R2{"residual alias breaks"}
+   R2 -- "Yes" --> R3["full prose regeneration"]
+   R2 -- "No" --> SR
+   R0 -- "No" --> SR
 
-   SR[Schema validate prose artifact] --> SR2{Schema errors?}
-   SR2 -- Yes --> SR3[Schema repair generation\nchapter-targeted guardrails]
-   SR2 -- No --> V1
+   SR["schema validate prose artifact"] --> SR2{"schema errors"}
+   SR2 -- "Yes" --> SR3["schema repair generation"]
+   SR2 -- "No" --> V1
    SR3 --> V1
 
-   V1[StoryValidationPipeline.validate()] --> V2{status failed?}
-   V2 -- Yes --> V3[Second full repair run\ngenerateProse(batchSize=1, repair guardrails)]
-   V2 -- No --> V4
-   V3 --> V4[validationPipeline.autoFix() + post-processing pass 2]
+   V1["StoryValidationPipeline validate"] --> V2{"status failed"}
+   V2 -- "Yes" --> V3["second full repair run"]
+   V2 -- "No" --> V4
+   V3 --> V4["autoFix plus post-processing pass 2"]
    V4 --> RG
 
-   %% Release gate and final scoring
-   RG[Release Gate evaluators\nfair-play, temporal, encoding, placeholders,\ntemplate leakage, suspect closure, NSD divergence] --> RG2{Hard-stop triggered?}
-   RG2 -- Yes --> F1[Throw error\nrun fails with blocking reason]
-   RG2 -- No --> FS[Final ProseScorer.score()\npartialGeneration=false]
-   FS --> FS2[upsertPhaseScore(agent9_prose)]
-   FS2 --> OUT[Commit ctx.prose\nDownstream/export consumers]
+   RG["release gate evaluators"] --> RG2{"hard-stop triggered"}
+   RG2 -- "Yes" --> F1["throw error and fail run"]
+   RG2 -- "No" --> FS["final ProseScorer score"]
+   FS --> FS2["upsertPhaseScore agent9_prose"]
+   FS2 --> OUT["commit ctx.prose"]
 
-   %% Zero-chapter special case
-   G --> Z0{Any batch completed?}
-   Z0 -- No and generation aborted --> Z1[Catch in orchestrator\nregister zeroed phase score\n(total=0, grade=F, passed=false)]
+   G9 --> Z0{"any batch completed"}
+   Z0 -- "No and generation aborted" --> Z1["orchestrator catch registers zero score"]
    Z1 --> F1
 ```
