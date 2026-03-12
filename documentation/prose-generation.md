@@ -338,37 +338,37 @@ The following diagnostics are written to the scoring aggregator and appear in th
 
 ```mermaid
 flowchart TD
-  A[CML + Outline + Cast + Profiles + Clues] --> B[initNarrativeState()]
-  B --> C
+   A[CML + Outline + Cast + Profiles + Clues] --> B[initNarrativeState]
+   B --> C1
 
-  subgraph C[generateProse() per batch]
-    C1[buildProsePrompt()\n15 blocks, budgeted <= 6,200 tokens]
-    C2[LLM call\nJSON parse/repair]
-    C3[sanitizeGeneratedChapter()]
-    C4[ChapterValidator pre-commit]
-    C5[validateChapterPreCommitObligations()\nword count + clue obligation]
-    C6[lintBatchProse()\nentropy + fingerprint + n-gram]
-    C7[enforceMonthSeasonLockOnChapter()]
-    C8[buildProvisionalChapterScore()]
-    C9{Failure?}
-    C10[Retry same batch]
-    C11[onBatchComplete\nupdateNSD, score batch + cumulative, upsertPhaseScore]
+   subgraph BatchLoop[generateProse per batch]
+      C1[buildProsePrompt<br/>15 blocks, budget max 6200 tokens]
+      C2[LLM call<br/>JSON parse and repair]
+      C3[sanitizeGeneratedChapter]
+      C4[ChapterValidator pre-commit]
+      C5[validateChapterPreCommitObligations<br/>word count and clue obligation]
+      C6[lintBatchProse<br/>entropy + fingerprint + n-gram]
+      C7[enforceMonthSeasonLockOnChapter]
+      C8[buildProvisionalChapterScore]
+      C9{Failure}
+      C10[Retry same batch]
+      C11[onBatchComplete<br/>updateNSD + batch/cumulative scoring + upsertPhaseScore]
 
-    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9
-    C9 -- Yes --> C10 --> C2
-    C9 -- No --> C11
+      C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9
+      C9 -- Yes --> C10 --> C2
+      C9 -- No --> C11
   end
 
-  C --> D[sanitizeProseResult() + applyDeterministicProsePostProcessing()]
-  D --> E[First-pass ProseScorer.score()\nupsertPhaseScore + summaries]
-  E --> F[Identity repair\ntargeted then full-regen fallback]
+   C11 --> D[sanitizeProseResult + applyDeterministicProsePostProcessing]
+   D --> E[First-pass ProseScorer.score<br/>upsertPhaseScore + summaries]
+   E --> F[Identity repair<br/>targeted then full-regen fallback]
   F --> G[Schema repair on prose JSON validation errors]
-  G --> H[StoryValidationPipeline.validate()\nrepair run if failed]
+   G --> H[StoryValidationPipeline.validate<br/>repair run if failed]
   H --> I[autoFix() encoding corrections]
-  I --> J[applyDeterministicProsePostProcessing() second pass]
-  J --> K[Release Gate\n10 checks, hard-stops throw]
-  K --> L[Final ProseScorer.score()\npartialGeneration=false, upsertPhaseScore]
-  L --> M[ctx.prose = prose committed]
+   I --> J[applyDeterministicProsePostProcessing second pass]
+   J --> K[Release Gate<br/>10 checks, hard-stops throw]
+   K --> L[Final ProseScorer.score<br/>partialGeneration false + upsertPhaseScore]
+   L --> M[ctx.prose committed]
 ```
 
 ---
