@@ -7,6 +7,60 @@
 # - Values outside supported ranges are clamped by the loader in
 #   packages/story-validation/src/generation-params.ts.
 # - Keep this file focused on runtime tuning (not feature flags).
+# - Non-Agent-9 sections below are scaffold-only for now (planned), and are not
+#   consumed at runtime until their loaders are implemented.
+
+agent1_setting:
+  status: planned
+  params: {}
+
+agent2_cast:
+  status: planned
+  params: {}
+
+agent2b_profiles:
+  status: planned
+  params: {}
+
+agent2c_location_profiles:
+  status: planned
+  params: {}
+
+agent2d_temporal_context:
+  status: planned
+  params: {}
+
+agent2e_background_context:
+  status: planned
+  params: {}
+
+agent3_cml:
+  status: planned
+  params: {}
+
+agent3b_hard_logic_devices:
+  status: planned
+  params: {}
+
+agent4_cml_validator:
+  status: planned
+  params: {}
+
+agent5_clues:
+  status: planned
+  params: {}
+
+agent6_fairplay:
+  status: planned
+  params: {}
+
+agent7_narrative:
+  status: planned
+  params: {}
+
+agent8_novelty:
+  status: planned
+  params: {}
 
 agent9_prose:
   word_policy:
