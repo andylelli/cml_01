@@ -26,6 +26,14 @@ export interface ChapterProse {
 export interface ProseOutput {
   chapters: ChapterProse[];
   overall_word_count?: number;
+  /**
+   * Authoritative set of expected clue IDs for the visibility check.
+   * Populated by adaptProseForScoring() from the union of all known ID sources
+   * (clue_to_scene_mapping + clueDistribution + discriminating_test + clue_registry).
+   * When present, checkCompleteness() uses this instead of re-deriving IDs from the CML
+   * alone — ensuring the scorer and the adapter share the same ID namespace.
+   */
+  expected_clue_ids?: string[];
   fair_play_validation?: {
     all_clues_visible?: boolean;
     discriminating_test_complete?: boolean;
@@ -79,7 +87,8 @@ export class ProseScorer
     const completeness_score = calculateCategoryScore(tests, 'completeness');
     const consistency_score = calculateCategoryScore(tests, 'consistency');
 
-    // Calculate total
+    // Total = weighted sum.  Weights reflect what matters most for a publishable mystery:
+    // structural validity (40%) > prose craft (30%) > word-count completeness (20%) > consistency (10%).
     const total =
       validation_score * 0.4 +
       quality_score * 0.3 +
@@ -89,6 +98,9 @@ export class ProseScorer
     const criticalFailures = getCriticalFailures(tests);
     const passed = criticalFailures.length === 0 && total >= 60;
     
+    // Component thresholds are intentionally asymmetric:
+    //   validation / completeness: >= 60 required (structural gate — can't publish a broken mystery)
+    //   quality / consistency: >= 50 allowed (prose craft has more subjective headroom)
     const component_failures: string[] = [];
     if (validation_score < 60) component_failures.push('validation');
     if (quality_score < 50) component_failures.push('quality');
@@ -173,6 +185,8 @@ export class ProseScorer
   }
 
   private isValidChapter(chapter: ChapterProse): boolean {
+    // 500 chars ~= 80-100 words: a chapter that short is effectively a stub
+    // and should fail validation outright rather than receive a partial score.
     return (
       exists(chapter.chapter_number) &&
       exists(chapter.chapter_title) &&
@@ -322,9 +336,13 @@ export class ProseScorer
       );
     }
 
-    // Check that all CML clues are visible in prose
-    if (context.cml) {
-      const cmlClues = this.extractCMLClues(context.cml);
+    // Check that all CML clues are visible in prose.
+    // Use output.expected_clue_ids when the adapter populated it — this ensures the
+    // scorer compares against the same ID namespace the adapter used for detection
+    // (union of clue_to_scene_mapping IDs + ClueDistributionResult IDs). Falling back
+    // to extractCMLClues() when not available preserves backwards compatibility.
+    if (context.cml || output.expected_clue_ids) {
+      const cmlClues = output.expected_clue_ids ?? this.extractCMLClues(context.cml);
       const proseClues = output.chapters.flatMap(c => c.clues_present || []);
 
       let visibleClues = 0;
@@ -422,6 +440,8 @@ export class ProseScorer
 
       // D8 recalibrated weights: 35/35/15/15 (was 40/40/20) to include timing enforcement.
       // fair_play_timing_compliant defaults to pass (15 pts) when absent for backwards compat.
+      // The `!== false` sentinel is intentional: undefined (field missing) is treated as
+      // passing so existing scored runs without the field do not retroactively lose points.
       const fairPlayScore =
         (fpv.all_clues_visible ? 35 : 0) +
         (fpv.discriminating_test_complete ? 35 : 0) +

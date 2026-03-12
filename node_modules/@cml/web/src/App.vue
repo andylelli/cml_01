@@ -281,12 +281,10 @@ const setView = (nextView: View) => {
 
 const handleReviewTabChange = (tabId: string) => {
   activeReviewTab.value = tabId;
-  setView(tabId as View);
 };
 
 const handleAdvancedTabChange = (tabId: string) => {
   activeAdvancedTab.value = tabId;
-  setView(tabId as View);
 };
 
 const runStatus = ref("Ready to generate");
@@ -879,6 +877,8 @@ watch(activeMainTab, (newTab) => {
     case "advanced":
       // Use active advanced sub-tab
       if (activeAdvancedTab.value === "cml") setView("cml");
+      else if (activeAdvancedTab.value === "artifacts") setView("artifacts");
+      else if (activeAdvancedTab.value === "logs") setView("logs");
       else if (activeAdvancedTab.value === "samples") setView("samples");
       else if (activeAdvancedTab.value === "history") setView("history");
       else if (activeAdvancedTab.value === "quality") setView("quality");
@@ -2144,7 +2144,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div v-if="currentView === 'cast'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'cast'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div>
                 <div class="flex items-center justify-between">
                   <div class="text-sm font-semibold text-slate-700">Character Profiles</div>
@@ -2211,7 +2211,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div v-if="currentView === 'locations'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'locations'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">Location Profiles</div>
                 <div class="text-xs text-slate-500">
@@ -2306,7 +2306,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">Location profiles will appear after generation.</div>
             </div>
 
-            <div v-if="currentView === 'background'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'background'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">Story Background</div>
                 <div class="text-xs text-slate-500">Background context</div>
@@ -2367,7 +2367,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">Background context will appear after generation.</div>
             </div>
 
-            <div v-if="currentView === 'hardLogic'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'hardLogic'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">Hard-Logic Devices</div>
                 <div class="text-xs text-slate-500">{{ hardLogicDevicesData?.devices?.length || 0 }} devices</div>
@@ -2412,7 +2412,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">Hard-logic devices will appear after generation.</div>
             </div>
 
-            <div v-if="currentView === 'temporal'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'temporal'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">Era & Cultural Context</div>
                 <div v-if="temporalContextData" class="text-xs text-slate-500">
@@ -2557,7 +2557,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">Temporal context will appear after generation.</div>
             </div>
 
-            <div v-if="currentView === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
                   <div class="text-sm font-semibold text-slate-700">Clue Board</div>
@@ -2602,7 +2602,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">No clues yet. Generate to create them.</div>
             </div>
 
-            <div v-if="currentView === 'outline'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeReviewTab === 'outline'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">Story Outline</div>
                 <div class="text-xs text-slate-500">{{ outlineData?.chapters?.length || 0 }} chapters</div>
@@ -2619,7 +2619,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">No outline yet. Generate to create it.</div>
             </div>
 
-            <div v-if="currentView === 'prose'">
+            <div v-if="activeReviewTab === 'prose'">
               <div class="mb-4 flex items-center justify-between gap-3">
                 <div v-if="availableProseVersions.length > 1" class="flex items-center gap-2">
                   <label class="text-xs font-semibold text-slate-500">PDF version:</label>
@@ -2674,7 +2674,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div v-if="currentView === 'cml'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeAdvancedTab === 'cml'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="text-sm font-semibold text-slate-700">CML Viewer</div>
                 <div class="text-xs text-slate-500">
@@ -2691,7 +2691,7 @@ onBeforeUnmount(() => {
               <div v-else class="mt-4 text-sm text-slate-500">CML will appear after generation.</div>
             </div>
 
-            <div v-if="currentView === 'samples'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div v-if="activeAdvancedTab === 'samples'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div class="text-sm font-semibold text-slate-700">Sample Mystery Structures</div>
               <div class="mt-2 text-xs text-slate-500">
                 Browse classic mystery examples for structural inspiration. These show patterns and techniques, but content should not be copied to ensure novelty.
@@ -2712,7 +2712,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div v-if="currentView === 'artifacts'" class="flex flex-col gap-4">
+            <div v-if="activeAdvancedTab === 'artifacts'" class="flex flex-col gap-4">
               <!-- High-level artifact status dashboard -->
               <ArtifactStatusDashboard
                 :artifacts="artifactEntries"
@@ -2772,7 +2772,7 @@ onBeforeUnmount(() => {
               </details>
             </div>
 
-            <div v-if="currentView === 'logs'" class="flex flex-col gap-4">
+            <div v-if="activeAdvancedTab === 'logs'" class="flex flex-col gap-4">
               <!-- Application error log -->
               <ErrorLogPanel :errors="errors" @clear="clearErrors()" />
               <!-- LLM operational log -->
@@ -2804,14 +2804,14 @@ onBeforeUnmount(() => {
               <DebugPanel v-if="isExpert" :logs="debugLogs" />
             </div>
 
-            <div v-if="currentView === 'history'">
+            <div v-if="activeAdvancedTab === 'history'">
               <RunHistory v-if="runEventsData.length" :events="runEventsData" :run-id="latestRunId ?? undefined" />
               <div v-else class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 No run history available
               </div>
             </div>
 
-            <div v-if="currentView === 'quality'" class="space-y-4">
+            <div v-if="activeAdvancedTab === 'quality'" class="space-y-4">
               <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 Loading quality report...
               </div>

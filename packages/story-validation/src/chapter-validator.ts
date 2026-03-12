@@ -307,7 +307,7 @@ export class ChapterValidator {
       'cotswold_village': ['village', 'cottage', 'lane', 'high street', 'green'],
     };
 
-    const fallbackAnchors = ['room', 'hall', 'corridor', 'garden', 'window', 'door', 'fireplace'];
+    const fallbackAnchors = ['hall', 'corridor', 'garden', 'window', 'door', 'fireplace', 'stairs', 'passage'];
     const strictOpeningAnchors = [
       ...(settingPatterns[locationType] || []),
       ...(locationName ? [locationName] : []),
@@ -332,8 +332,12 @@ export class ChapterValidator {
     const chapterWideHasLocationAnchor = expectedAnchors.some((term) => fullText.includes(term));
 
     if (!hasOpeningLocationAnchor) {
+      // Use 'major' only when we have a known setting-pattern vocabulary to check against.
+      // For unknown/custom location types (not in settingPatterns), downgrade to 'moderate'
+      // so the chapter isn't aborted — the grounding feedback still scores against quality.
+      const anchorSeverity = settingPatterns[locationType] ? 'major' : 'moderate';
       issues.push({
-        severity: 'major',
+        severity: anchorSeverity,
         message: `Chapter ${chapter.chapterNumber} opening block lacks a clear named location anchor`,
         suggestion: 'In the first 1-2 paragraphs, anchor the scene to a specific location from setting/location profiles'
       });

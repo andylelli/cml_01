@@ -337,8 +337,8 @@ const buildLlmLogger = () =>
   new LLMLogger({
     logLevel: process.env.LOG_LEVEL as LogLevel | undefined,
     logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
-    logToFile: parseEnvBool(process.env.LOG_TO_FILE, false),
-    logFilePath: process.env.LOG_FILE_PATH,
+    logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
+    logFilePath: process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl"),
   });
 
 const describeError = (error: unknown) => {

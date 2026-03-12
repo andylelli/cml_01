@@ -7,6 +7,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
+import { createHash } from 'node:crypto';
 import { jsonrepair } from "jsonrepair";
 import type { NarrativeOutline } from "./agent7-narrative.js";
 import type { CastDesign } from "./agent2-cast.js";
@@ -83,6 +84,12 @@ export interface ProseGenerationResult {
   note?: string;
   cost: number;
   durationMs: number;
+  /** E5: Per-chapter prompt fingerprints for traceability and regression debugging. */
+  prompt_fingerprints?: Array<{
+    chapter: number;
+    hash: string;
+    section_sizes: Record<string, number>;
+  }>;
   validationDetails?: {
     totalBatches: number;
     batchesWithRetries: number;
@@ -300,7 +307,11 @@ const lintBatchProse = (
   const entropyWarmupChapters = Math.max(0, options?.entropyWarmupChapters ?? (mode === "repair" ? 3 : 0));
   const generatedChapterCount = chapterOffset + priorChapters.length + batchChapters.length;
   const adaptiveStandardEntropyThreshold = (() => {
-    // Tighten entropy gradually to avoid early false hard-fails while preserving anti-template intent.
+    // Short stories have fewer chapters to establish variety, so the threshold starts lower
+    // and tightens as the run grows.  Three tiers:
+    //   ≤6 chapters  → 0.65 (lenient: small window = low inherent entropy)
+    //   ≤10 chapters → 0.72 (moderate)
+    //   >10 chapters → 0.80 (strict: any style recycling is now clearly a template defect)
     if (generatedChapterCount <= 6) return 0.65;
     if (generatedChapterCount <= 10) return 0.72;
     return 0.8;
@@ -322,6 +333,8 @@ const lintBatchProse = (
     }
   }
 
+  // Paragraph fingerprint check: exact deduplication of long prose blocks across chapters.
+  // 170-char minimum avoids false positives on short scene-setter fragments (e.g. "The year was 1923.").
   const priorFingerprints = new Set<string>();
   priorChapters.forEach((chapter) => {
     (chapter.paragraphs ?? []).forEach((paragraph) => {
@@ -346,6 +359,11 @@ const lintBatchProse = (
     if (issues.some((issue) => issue.type === "paragraph_fingerprint")) break;
   }
 
+  // N-gram overlap check: catches near-duplicate prose that evades exact fingerprinting
+  // (e.g. when the LLM swaps a few words but keeps the same sentence structure).
+  // We compare 6-gram Jaccard similarity against the 25 most recent prior paragraphs
+  // (≥140 chars): far enough back to catch recycled scene-openers, small enough to be fast.
+  // Threshold 0.60: below this, paragraphs share genre vocabulary but not lifted scaffold.
   const priorCandidates = priorChapters
     .flatMap((chapter) => chapter.paragraphs ?? [])
     .map((paragraph) => normalizeParagraphForFingerprint(paragraph))
@@ -1266,7 +1284,13 @@ ${victimIdentityRule}`;
     { role: "user" as const, content: user },
   ];
 
-  return { system, developer, user, messages };
+  // E5: Capture section sizes (char count per block before budgeting)
+  const sectionSizes: Record<string, number> = {};
+  for (const block of promptContextBlocks) {
+    sectionSizes[block.key] = block.content.length;
+  }
+
+  return { system, developer, user, messages, sectionSizes };
 };
 
 const chunkScenes = (scenes: unknown[], chunkSize: number) => {
@@ -1930,7 +1954,7 @@ const buildEnhancedRetryFeedback = (
 export async function generateProse(
   client: AzureOpenAIClient,
   inputs: ProseGenerationInputs,
-  maxAttempts = 2
+  maxAttempts = 3
 ): Promise<ProseGenerationResult> {
   const start = Date.now();
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
@@ -1941,6 +1965,8 @@ export async function generateProse(
   const chapterSummaries: ChapterSummary[] = [];
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
   const provisionalChapterScores: ProvisionalChapterScore[] = [];
+  // E5: Collect prompt fingerprints per chapter for traceability
+  const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> = [];
   const chapterValidator = new ChapterValidator();
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
@@ -1957,8 +1983,9 @@ export async function generateProse(
 
   // Track recurring error patterns across batches for cross-batch learning
   const crossChapterErrors: { type: string; count: number; examples: string[] }[] = [];
-  // Keep a local, evolving narrative-state snapshot so prompts and linter context
-  // reflect committed chapters in this generation call.
+  // Deep-copy the caller's NarrativeState so mutations during generation (updateNSD calls)
+  // do not bleed back into the orchestrator's copy.  Array/object fields need explicit
+  // spreading because the outer spread {...inputs.narrativeState} is only one level deep.
   let liveNarrativeState: NarrativeState | undefined = inputs.narrativeState
     ? {
         ...inputs.narrativeState,
@@ -2011,6 +2038,15 @@ export async function generateProse(
           chapterSummaries,
         );
 
+        // E5: Compute prompt fingerprint on first attempt only (captures base prompt structure)
+        if (attempt === 1) {
+          const promptText = prompt.messages.map((m) => m.content).join('\n');
+          const promptHash = createHash('sha256').update(promptText).digest('hex').slice(0, 16);
+          for (let ci = chapterStart; ci <= chapterEnd; ci++) {
+            promptFingerprints.push({ chapter: ci, hash: promptHash, section_sizes: prompt.sectionSizes });
+          }
+        }
+
         // Add retry feedback on subsequent attempts
         if (attempt > 1 && lastBatchErrors.length > 0) {
           const feedback = buildEnhancedRetryFeedback(
@@ -2027,11 +2063,17 @@ export async function generateProse(
           }
         }
 
+        // temperature=0.45: low enough to maintain clue-ID and character-name fidelity,
+        // high enough to produce distinct prose across chapters without stylistic collapse.
+        // Token budget is length-aware: long stories require ~2400 words/chapter (~3600 prose
+        // tokens + JSON envelope), so they get 6 000 tokens per scene.  Short/medium fit
+        // comfortably within 4 500 tokens.  Hard caps prevent runaway completions.
+        const tokensPerScene = inputs.targetLength === "long" ? 6000 : 4500;
         const response = await client.chat({
           messages: prompt.messages,
           model: inputs.model,
           temperature: 0.45,
-          maxTokens: Math.min(4000 * batchScenes.length, 16000),
+          maxTokens: Math.min(tokensPerScene * batchScenes.length, 20000),
           jsonMode: true,
           logContext: {
             runId: inputs.runId ?? "",
@@ -2282,6 +2324,7 @@ export async function generateProse(
     note,
     cost,
     durationMs,
+    prompt_fingerprints: promptFingerprints.length > 0 ? promptFingerprints : undefined,
     validationDetails: chapterValidationHistory.length > 0 ? {
       totalBatches,
       batchesWithRetries,

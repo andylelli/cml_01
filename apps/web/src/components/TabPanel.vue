@@ -32,8 +32,8 @@ const shouldShowSlot = computed(() => props.active || hasBeenActive.value);
     v-if="shouldRender"
     :id="id"
     :class="[
-      'tab-panel transition-opacity duration-200',
-      active ? 'opacity-100' : 'opacity-0 pointer-events-none absolute',
+      'tab-panel',
+      active ? 'block' : 'hidden',
     ]"
     role="tabpanel"
     :aria-hidden="!active"

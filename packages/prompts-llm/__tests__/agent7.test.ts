@@ -393,11 +393,11 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     });
 
     expect(prompt.user).toContain("Act I: Setup");
-    expect(prompt.user).toContain("25-30% of scenes");
     expect(prompt.user).toContain("Act II: Investigation");
-    expect(prompt.user).toContain("45-50% of scenes");
     expect(prompt.user).toContain("Act III: Resolution");
-    expect(prompt.user).toContain("20-25% of scenes");
+    // Prompt now uses exact scene counts instead of percentage ranges.
+    expect(prompt.user).toContain("exactly");
+    expect(prompt.user).toContain("Scene count is FIXED");
   });
 
   it("specifies scene requirements", () => {

@@ -228,6 +228,9 @@ describe('GenerationReport invariants', () => {
           passed: true,
         },
       ],
+      diagnostics: [
+        { key: 'agent9_prose_post_generation_summary', agent: 'agent9_prose', details: {} },
+      ],
       summary: {
         phases_passed: 1,
         phases_failed: 0,
@@ -252,5 +255,142 @@ describe('GenerationReport invariants', () => {
       'failed_phase_signal_cannot_have_passed_outcome'
     );
     expect(() => assertGenerationReportInvariants(report)).not.toThrow();
+  });
+
+  // ── E1: missing_post_generation_summary ─────────────────────────────────────
+
+  describe('E1 – missing_post_generation_summary', () => {
+    it('flags when agent9_prose phase exists but post_generation_summary diagnostic is absent', () => {
+      const report = {
+        project_id: 'proj-1',
+        run_id: 'run-1',
+        generated_at: new Date().toISOString(),
+        total_duration_ms: 1,
+        total_cost: 0,
+        overall_score: 80,
+        overall_grade: 'B',
+        passed: true,
+        run_outcome: 'passed',
+        phases: [{ agent: 'agent9_prose', phase_name: 'Prose Generation', passed: true }],
+        diagnostics: [],           // summary diagnostic intentionally absent
+        summary: {
+          phases_passed: 1, phases_failed: 0, total_phases: 1, pass_rate: 100,
+          weakest_phase: 'agent9_prose', strongest_phase: 'agent9_prose',
+          retry_stats: { total_retries: 0, phases_retried: 0, retry_rate: '0.00', retried_phases: [] },
+          total_cost: 0,
+        },
+        threshold_config: { mode: 'standard' },
+      };
+
+      const violations = validateGenerationReportInvariants(report);
+      expect(violations.map(v => v.code)).toContain('missing_post_generation_summary');
+    });
+
+    it('accepts when agent9_prose phase exists and post_generation_summary diagnostic is present', () => {
+      const report = {
+        project_id: 'proj-1',
+        run_id: 'run-1',
+        generated_at: new Date().toISOString(),
+        total_duration_ms: 1,
+        total_cost: 0,
+        overall_score: 80,
+        overall_grade: 'B',
+        passed: true,
+        run_outcome: 'passed',
+        phases: [{ agent: 'agent9_prose', phase_name: 'Prose Generation', passed: true }],
+        diagnostics: [
+          { key: 'agent9_prose_post_generation_summary', agent: 'agent9_prose', details: {} },
+        ],
+        summary: {
+          phases_passed: 1, phases_failed: 0, total_phases: 1, pass_rate: 100,
+          weakest_phase: 'agent9_prose', strongest_phase: 'agent9_prose',
+          retry_stats: { total_retries: 0, phases_retried: 0, retry_rate: '0.00', retried_phases: [] },
+          total_cost: 0,
+        },
+        threshold_config: { mode: 'standard' },
+      };
+
+      const violations = validateGenerationReportInvariants(report);
+      expect(violations.map(v => v.code)).not.toContain('missing_post_generation_summary');
+    });
+
+    it('does not flag when no agent9_prose phase exists (no prose run)', () => {
+      const report = {
+        project_id: 'proj-1',
+        run_id: 'run-1',
+        generated_at: new Date().toISOString(),
+        total_duration_ms: 1,
+        total_cost: 0,
+        overall_score: 95,
+        overall_grade: 'A',
+        passed: true,
+        run_outcome: 'passed',
+        phases: [{ agent: 'agent2_cast', phase_name: 'Cast Design', passed: true }],
+        diagnostics: [],           // no post_generation_summary needed when no prose phase
+        summary: {
+          phases_passed: 1, phases_failed: 0, total_phases: 1, pass_rate: 100,
+          weakest_phase: 'agent2_cast', strongest_phase: 'agent2_cast',
+          retry_stats: { total_retries: 0, phases_retried: 0, retry_rate: '0.00', retried_phases: [] },
+          total_cost: 0,
+        },
+        threshold_config: { mode: 'standard' },
+      };
+
+      const violations = validateGenerationReportInvariants(report);
+      expect(violations.map(v => v.code)).not.toContain('missing_post_generation_summary');
+    });
+
+    it('flags even when diagnostics array is undefined', () => {
+      const report = {
+        project_id: 'proj-1',
+        run_id: 'run-1',
+        generated_at: new Date().toISOString(),
+        total_duration_ms: 1,
+        total_cost: 0,
+        overall_score: 80,
+        overall_grade: 'B',
+        passed: false,
+        run_outcome: 'failed',
+        phases: [{ agent: 'agent9_prose', phase_name: 'Prose Generation', passed: false }],
+        // diagnostics field intentionally missing
+        summary: {
+          phases_passed: 0, phases_failed: 1, total_phases: 1, pass_rate: 0,
+          weakest_phase: 'agent9_prose', strongest_phase: 'agent9_prose',
+          retry_stats: { total_retries: 0, phases_retried: 0, retry_rate: '0.00', retried_phases: [] },
+          total_cost: 0,
+        },
+        threshold_config: { mode: 'standard' },
+      };
+
+      const violations = validateGenerationReportInvariants(report);
+      expect(violations.map(v => v.code)).toContain('missing_post_generation_summary');
+    });
+
+    it('assertGenerationReportInvariants throws when post_generation_summary is missing', () => {
+      const report = {
+        project_id: 'proj-1',
+        run_id: 'run-1',
+        generated_at: new Date().toISOString(),
+        total_duration_ms: 1,
+        total_cost: 0,
+        overall_score: 70,
+        overall_grade: 'C',
+        passed: false,
+        run_outcome: 'failed',
+        phases: [{ agent: 'agent9_prose', phase_name: 'Prose Generation', passed: false }],
+        diagnostics: [],
+        summary: {
+          phases_passed: 0, phases_failed: 1, total_phases: 1, pass_rate: 0,
+          weakest_phase: 'agent9_prose', strongest_phase: 'agent9_prose',
+          retry_stats: { total_retries: 0, phases_retried: 0, retry_rate: '0.00', retried_phases: [] },
+          total_cost: 0,
+        },
+        threshold_config: { mode: 'standard' },
+      };
+
+      expect(() => assertGenerationReportInvariants(report)).toThrow(
+        'missing_post_generation_summary'
+      );
+    });
   });
 });

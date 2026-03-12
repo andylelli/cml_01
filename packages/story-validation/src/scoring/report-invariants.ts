@@ -136,6 +136,23 @@ function hasFailedPhaseSignals(report: Record<string, unknown>): boolean {
   return toNumber((summary as Record<string, unknown>).phases_failed) > 0;
 }
 
+// E1: helpers for post_generation_summary presence check
+function hasAgent9ProsePhaseEntry(report: Record<string, unknown>): boolean {
+  const phases = Array.isArray(report.phases) ? report.phases : [];
+  return phases.some((phase) => {
+    if (!phase || typeof phase !== 'object') return false;
+    return (phase as Record<string, unknown>).agent === 'agent9_prose';
+  });
+}
+
+function hasAgent9ProsePostGenerationSummaryDiagnostic(report: Record<string, unknown>): boolean {
+  const diagnostics = Array.isArray(report.diagnostics) ? report.diagnostics : [];
+  return diagnostics.some((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    return (entry as Record<string, unknown>).key === 'agent9_prose_post_generation_summary';
+  });
+}
+
 export function validateGenerationReportInvariants(
   report: GenerationReport | Record<string, unknown>
 ): ReportInvariantViolation[] {
@@ -202,6 +219,15 @@ export function validateGenerationReportInvariants(
       code: 'failed_phase_signal_cannot_have_passed_outcome',
       message:
         'Failed phase signals (phases[].passed=false or summary.phases_failed>0) are incompatible with run_outcome=passed.',
+    });
+  }
+
+  // E1: agent9_prose phase present → post_generation_summary diagnostic required
+  if (hasAgent9ProsePhaseEntry(candidate) && !hasAgent9ProsePostGenerationSummaryDiagnostic(candidate)) {
+    violations.push({
+      code: 'missing_post_generation_summary',
+      message:
+        'agent9_prose phase is present but agent9_prose_post_generation_summary diagnostic is missing.',
     });
   }
 

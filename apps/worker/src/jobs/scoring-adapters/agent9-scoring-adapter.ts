@@ -16,6 +16,12 @@ export interface ChapterProse {
 
 export interface ProseOutput {
   chapters: ChapterProse[];
+  /**
+   * Union of all known clue IDs (clue_to_scene_mapping + ClueDistributionResult +
+   * discriminating_test.evidence_clues + clue_registry) so the scorer can check
+   * visibility against the same namespace used for detection.
+   */
+  expected_clue_ids?: string[];
   // Added so adaptProseForScoring can populate the fair-play consistency test (P-1 fix)
   fair_play_validation?: {
     all_clues_visible?: boolean;
@@ -83,7 +89,10 @@ const tokenizeSemanticTerms = (value: string): string[] => tokenizeForClueSignat
 const hasSemanticCoverage = (paragraph: string, signature: ClueSemanticSignature): boolean => {
   const lowered = paragraph.toLowerCase();
   const matchedTokens = signature.requiredTokens.filter((token) => lowered.includes(token));
-  const requiredMatches = Math.max(2, Math.ceil(signature.requiredTokens.length * 0.4));
+  // Threshold lowered from 40% → 30% to improve recall when the prose paraphrases clue
+  // descriptions using synonyms. The Math.max(2,...) floor prevents false positives
+  // when a signature has very few (1-2) discriminating tokens.
+  const requiredMatches = Math.max(2, Math.ceil(signature.requiredTokens.length * 0.3));
   return matchedTokens.length >= requiredMatches;
 };
 
@@ -203,6 +212,11 @@ export function collectClueEvidenceFromProse(
         const lowered = paragraph.toLowerCase();
         if (!lowered) continue;
 
+        // Two-pass clue detection:
+        //   Pass 1 (exact): clue ID string appears verbatim in the text → high confidence,
+        //          state="explicit", immediately accepts and moves to next clue.
+        //   Pass 2 (semantic): enough descriptive tokens from the Clue object match →
+        //          lower confidence, state="hinted", keeps the best anchor per chapter.
         if (lowered.includes(clueId.toLowerCase())) {
           bestAnchor = {
             clue_id: clueId,
@@ -226,6 +240,8 @@ export function collectClueEvidenceFromProse(
         const requiredMatches = Math.max(2, Math.ceil(signature.requiredTokens.length * 0.4));
         if (!hasSemanticCoverage(paragraph, signature)) continue;
 
+        // Confidence = fraction of required tokens matched, capped at 0.95 to distinguish
+        // semantic matches from the certainty of an exact ID hit.
         const confidence = Math.min(0.95, matchedTokens.length / Math.max(requiredMatches, 1));
         const candidate: ClueEvidenceAnchor = {
           clue_id: clueId,
@@ -342,6 +358,8 @@ export function adaptProseForScoring(
   const allCluesVisible =
     knownClueIds.length === 0 ||
     knownClueIds.every(id => evidence.visibleClueIds.includes(id));
+  // Spoiler check: look for accusation/solution language in the first 50% of chapters.
+  // We deliberately stop at the halfway point so Act III climax language isn't penalised.
   const hasEarlyRevealCue = chapters
     .slice(0, Math.max(1, Math.ceil(chapters.length * 0.5)))
     .some((chapter) => SPOILER_PROSE_RE.test(chapter.prose));
@@ -351,6 +369,9 @@ export function adaptProseForScoring(
   // chapter before it is used in a detective deduction or conclusion scene.
   // We flag violations only when a clue's first-reveal chapter is also a
   // discriminating-test or strong-conclusion chapter.
+  // D7 fair-play timing: track the *first* chapter in which each clue becomes visible.
+  // (Any later chapter that also contains the clue is not a timing violation — only the
+  //  first reveal matters for the clue-before-deduction rule.)
   const firstRevealChapterById: Record<string, number> = {};
   for (const [chNumStr, clueIds] of Object.entries(evidence.evidenceByChapter)) {
     const chNum = Number(chNumStr);
@@ -376,6 +397,13 @@ export function adaptProseForScoring(
 
   return {
     chapters,
+    // Expose the union of all known clue ID sources so the scorer can compare against
+    // the same namespace the adapter used for detection.  Without this, the scorer
+    // re-derives expected IDs from CASE.prose_requirements.clue_to_scene_mapping alone
+    // (agent3 IDs), while the adapter detected using ClueDistributionResult IDs (agent5).
+    // Because these two ID sets are independently generated, they almost never match,
+    // so every clue appears "missing" and the visibility score is permanently 0/N.
+    expected_clue_ids: knownClueIds.length > 0 ? knownClueIds : undefined,
     fair_play_validation: {
       all_clues_visible: allCluesVisible,
       discriminating_test_complete: dtComplete,

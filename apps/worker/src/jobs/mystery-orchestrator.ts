@@ -37,7 +37,7 @@ import {
   RetryManager,
   FileReportRepository,
 } from "@cml/story-validation";
-import type { GenerationReport, ValidationReport } from "@cml/story-validation";
+import type { GenerationReport, ValidationReport, PhaseScore } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
 import {
   runAgent1,
@@ -557,6 +557,37 @@ export async function generateMystery(
         "Prose Generation",
         "post_generation_summary",
         abortedProseSummary
+      );
+    }
+
+    // Prose started but 0 chapters completed (e.g. chapter 1 failed all retries).
+    // Register a failed prose phase so it always appears in the quality tab.
+    if (
+      enableScoring &&
+      scoreAggregator &&
+      proseScoringSnapshot.startedAtMs !== null &&
+      proseScoringSnapshot.chaptersGenerated === 0
+    ) {
+      const elapsedMs = Date.now() - proseScoringSnapshot.startedAtMs;
+      const zeroedProseScore: PhaseScore = {
+        agent: "agent9-prose",
+        validation_score: 0,
+        quality_score: 0,
+        completeness_score: 0,
+        consistency_score: 0,
+        total: 0,
+        grade: "F",
+        passed: false,
+        tests: [],
+        component_failures: ["prose_generation_aborted"],
+        failure_reason: `Prose aborted before any chapter completed: ${errorMessage.slice(0, 240)}`,
+      };
+      scoreAggregator.upsertPhaseScore(
+        "agent9_prose",
+        "Prose Generation",
+        zeroedProseScore,
+        elapsedMs,
+        agentCosts["agent9_prose"] ?? 0,
       );
     }
 

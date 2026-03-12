@@ -363,6 +363,13 @@ function buildUserRequest(caseData: CaseData, targetLength: string, narrativeSty
   const totalSceneCount = getSceneTarget(targetLength);
   const minClueScenes = Math.ceil(totalSceneCount * 0.6);
 
+  // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
+  // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
+  // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
+  const actIScenes = Math.round(totalSceneCount * 0.28);   // ~25-30%
+  const actIIScenes = Math.round(totalSceneCount * 0.47);  // ~45-50%
+  const actIIIScenes = totalSceneCount - actIScenes - actIIScenes; // remainder guarantees exact sum
+
   const styleGuidance = {
     classic:
       "Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues",
@@ -407,7 +414,9 @@ ${proseRequirementsBlock}
 
 ## Scene Construction Guidelines
 
-### Act I: Setup (25-30% of scenes)
+**CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **${totalSceneCount} scenes** total: **${actIScenes} in Act I**, **${actIIScenes} in Act II**, **${actIIIScenes} in Act III**. No more, no fewer. Count your scenes before submitting.
+
+### Act I: Setup (exactly ${actIScenes} scenes)
 - **Introduce the crime**: Discovery of victim, initial shock
 - **Establish setting**: Era atmosphere, location details
 - **Meet the cast**: Detective, suspects, witnesses
@@ -417,7 +426,7 @@ ${proseRequirementsBlock}
 
 ${detectiveEntryRule}
 
-### Act II: Investigation (45-50% of scenes)
+### Act II: Investigation (exactly ${actIIScenes} scenes)
 - **Interview scenes**: Suspects reveal information, alibis, motives
 - **Clue discovery**: Physical evidence, testimonies, constraints
 - **Red herrings**: Misdirection supporting false assumption
@@ -426,7 +435,7 @@ ${detectiveEntryRule}
 - **Rising tension**: Complications, dead ends, breakthroughs
 - **End with**: Detective has all pieces but hasn't assembled them
 
-### Act III: Resolution (20-25% of scenes)
+### Act III: Resolution (exactly ${actIIIScenes} scenes)
 - **Revelation**: Detective assembles the solution
 - **Confrontation**: Culprit exposed, confession or capture
 - **Explanation**: How the clues fit together

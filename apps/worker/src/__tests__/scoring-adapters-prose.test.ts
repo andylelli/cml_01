@@ -252,3 +252,135 @@ describe("adaptProseForScoring clue visibility", () => {
     expect(adapted.fair_play_validation?.no_solution_spoilers).toBe(false);
   });
 });
+
+// ── D7: fair-play timing validator ──────────────────────────────────────────
+describe("adaptProseForScoring fair-play timing (D7)", () => {
+  const clueDistribution = {
+    clues: [
+      {
+        id: "clue_key",
+        description: "A brass key tagged by the constable after dawn.",
+        pointsTo: "Confirms archive access.",
+      },
+      {
+        id: "clue_watch",
+        description: "A stopped pocket-watch fixed the minute of disturbance.",
+        pointsTo: "Establishes the timeline.",
+      },
+    ],
+  } as any;
+
+  it("passes timing check when clues are introduced before conclusion chapter", () => {
+    // Chapter 1: clue first revealed; Chapter 2: conclusion + that proves
+    const chapters = [
+      {
+        title: "Discovery",
+        paragraphs: ["By dawn, clue_key was logged by the constable in the ledger."],
+      },
+      {
+        title: "Accusation",
+        paragraphs: [`"That proves beyond doubt," she said, "that you were in the archive."`],
+      },
+    ];
+
+    const adapted = adaptProseForScoring(chapters, {}, clueDistribution);
+    expect(adapted.fair_play_validation?.fair_play_timing_compliant).toBe(true);
+    expect(adapted.fair_play_validation?.fair_play_timing_violations).toBeUndefined();
+  });
+
+  it("flags timing violation when clue is first revealed in the same conclusion chapter", () => {
+    // Chapter 1: no clue; Chapter 2: clue first appears AND conclusion language
+    const chapters = [
+      {
+        title: "Background",
+        paragraphs: ["The inspector examined the scene carefully."],
+      },
+      {
+        title: "The Reveal",
+        paragraphs: [
+          "From her coat she produced clue_key, which the constable had found at dawn.",
+          `"That proves," she declared, "that you returned to the archive."`,
+        ],
+      },
+    ];
+
+    const adapted = adaptProseForScoring(chapters, {}, clueDistribution);
+    expect(adapted.fair_play_validation?.fair_play_timing_compliant).toBe(false);
+    expect(adapted.fair_play_validation?.fair_play_timing_violations).toBeDefined();
+    expect(adapted.fair_play_validation?.fair_play_timing_violations?.some(v => v.clue_id === "clue_key")).toBe(true);
+    expect(adapted.fair_play_validation?.fair_play_timing_violations?.[0]?.chapter).toBe(2);
+  });
+
+  it("passes timing for clues that appear before their discriminating-test chapter", () => {
+    const cmlCase = {
+      discriminating_test: {
+        design: "Holmes lays out the evidence to eliminate suspects.",
+        knowledge_revealed: "Only one person had access to the key.",
+        evidence_clues: ["clue_key"],
+      },
+      prose_requirements: {
+        clue_to_scene_mapping: [{ clue_id: "clue_key" }],
+      },
+    };
+
+    const chapters = [
+      {
+        title: "The Key",
+        paragraphs: ["By dawn, clue_key was logged by the constable in the ledger."],
+      },
+      {
+        title: "Holmes Explains",
+        paragraphs: [
+          "Holmes gathered everyone together and laid out clue_key, comparing alibis.",
+          "He explained the crime and named the culprit.",
+        ],
+      },
+    ];
+
+    const adapted = adaptProseForScoring(chapters, cmlCase, clueDistribution);
+    expect(adapted.fair_play_validation?.fair_play_timing_compliant).toBe(true);
+  });
+
+  it("flags timing violation in discriminating-test chapter when clue is first introduced there", () => {
+    const cmlCase = {
+      discriminating_test: {
+        design: "Detective lays out all evidence.",
+        knowledge_revealed: "Culprit identified via key.",
+        evidence_clues: ["clue_key"],
+      },
+      prose_requirements: {
+        clue_to_scene_mapping: [{ clue_id: "clue_key" }],
+      },
+    };
+
+    const chapters = [
+      {
+        title: "The Study",
+        paragraphs: ["Nothing of note was found in the study."],
+      },
+      {
+        title: "The Accusation",
+        paragraphs: [
+          "For the first time clue_key appeared — the constable had just logged it.",
+          "Based on this the detective accused the suspect.",
+          "He explained the crime and named the culprit.",
+        ],
+      },
+    ];
+
+    const adapted = adaptProseForScoring(chapters, cmlCase, clueDistribution);
+    expect(adapted.fair_play_validation?.fair_play_timing_compliant).toBe(false);
+    expect(adapted.fair_play_validation?.fair_play_timing_violations?.some(
+      v => v.clue_id === "clue_key" && v.chapter === 2
+    )).toBe(true);
+  });
+
+  it("returns undefined violations when timing is compliant", () => {
+    const chapters = [
+      { title: "Clue Chapter", paragraphs: ["clue_watch was found on the mantelpiece."] },
+      { title: "Safe Chapter", paragraphs: ["The atmosphere was tense."] },
+    ];
+    const adapted = adaptProseForScoring(chapters, {}, clueDistribution);
+    expect(adapted.fair_play_validation?.fair_play_timing_violations).toBeUndefined();
+  });
+});

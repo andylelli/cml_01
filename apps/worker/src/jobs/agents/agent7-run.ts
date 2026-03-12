@@ -11,7 +11,7 @@ import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -501,6 +501,56 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   narrativeSchemaValidation.warnings.forEach((warning) =>
     ctx.warnings.push(`Outline schema warning: ${warning}`)
   );
+
+  // ── Scene count safety gate ───────────────────────────────────────────────
+  // Guard against narratives with significantly fewer scenes than the length target.
+  // The retry manager may have accepted a 16-scene outline for a 20-scene "short" story
+  // because the overall score (97) cleared the threshold even through the chapter count
+  // sub-test was below par. If uncorrected, this propagates to the prose phase, which
+  // then fails "All chapters present: only 16/20" with no way to recover.
+  {
+    const expectedScenes = getSceneTarget(ctx.inputs.targetLength ?? "medium");
+    const sceneDeficit = expectedScenes - (narrative.totalScenes ?? 0);
+    if (sceneDeficit >= 3) {
+      ctx.warnings.push(
+        `Scene count safety gate: narrative has ${narrative.totalScenes} scenes but target is ${expectedScenes}. ` +
+        `Deficit of ${sceneDeficit} exceeds tolerance — regenerating outline.`
+      );
+      ctx.reportProgress("narrative", `Scene count repair: need ${expectedScenes} scenes, got ${narrative.totalScenes}`, 80);
+      const sceneCountRetryStart = Date.now();
+      const sceneCountRetried = await formatNarrative(ctx.client, {
+        caseData: ctx.cml!,
+        clues: ctx.clues!,
+        targetLength: ctx.inputs.targetLength,
+        narrativeStyle: ctx.inputs.narrativeStyle,
+        detectiveType: ctx.inputs.detectiveType,
+        qualityGuardrails: [
+          `CRITICAL SCENE COUNT: Your previous outline had only ${narrative.totalScenes} scenes but the target is EXACTLY ${expectedScenes} scenes. ` +
+          `You MUST generate exactly ${expectedScenes} scenes distributed across 3 acts. ` +
+          `Act I: ${Math.round(expectedScenes * 0.35)}-${Math.round(expectedScenes * 0.4)} scenes, ` +
+          `Act II: ${Math.round(expectedScenes * 0.35)}-${Math.round(expectedScenes * 0.4)} scenes, ` +
+          `Act III: ${Math.round(expectedScenes * 0.2)}-${Math.round(expectedScenes * 0.25)} scenes. ` +
+          `Do not compress or merge scenes. Each scene must be a distinct chapter in the final novel.`,
+        ],
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      ctx.agentCosts["agent7_narrative"] =
+        (ctx.agentCosts["agent7_narrative"] || 0) + sceneCountRetried.cost;
+      ctx.agentDurations["agent7_narrative"] =
+        (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
+
+      if ((sceneCountRetried.totalScenes ?? 0) >= expectedScenes - 1) {
+        narrative = sceneCountRetried;
+        ctx.warnings.push(`Scene count safety gate: retry produced ${narrative.totalScenes} scenes — accepted.`);
+        await rescoreNarrative(ctx, narrative);
+      } else {
+        ctx.warnings.push(
+          `Scene count safety gate: retry still produced ${sceneCountRetried.totalScenes} scenes — keeping original (${narrative.totalScenes}).`
+        );
+      }
+    }
+  }
 
   ctx.reportProgress(
     "narrative",

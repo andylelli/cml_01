@@ -87,6 +87,9 @@ const proseMojibakeReplacements: Array<[RegExp, string]> = [
 ];
 
 export const illegalControlCharPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+// persistentMojibakePattern: detects sequences that survived the replacement table above.
+// Used as a hard-stop check after the chapter is written to disk — if any of these
+// multibyte mojibake fragments appear, the repair table failed and the prose must be rejected.
 export const persistentMojibakePattern =
   /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å"|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|\uFFFD)/; // eslint-disable-line no-control-regex
 
@@ -633,6 +636,9 @@ const evaluateSensoryVariety = (prose: any) => {
     }
   }
 
+  // 40% chapter threshold: a sensory phrase that appears in more than 40% of chapters
+  // suggests the LLM is templating atmosphere rather than generating fresh imagery.
+  // Fewer than 3 chapters gives insufficient signal to measure repetition.
   const threshold = Math.floor(totalChapters * 0.4);
   const overused: string[] = [];
   for (const [phrase, count] of phraseToChapterCount.entries()) {
@@ -1272,6 +1278,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       postGenerationSummaryDetails,
     );
     ctx.proseScoringSnapshot.postGenerationSummaryLogged = true;
+
+    // E5: Emit prompt fingerprints for per-chapter prompt traceability
+    if (Array.isArray(prose.prompt_fingerprints) && prose.prompt_fingerprints.length > 0) {
+      scoreAggregator.upsertDiagnostic(
+        "agent9_prose_prompt_fingerprints",
+        "agent9_prose",
+        "Prose Generation",
+        "prompt_fingerprints",
+        {
+          chapter_count: prose.prompt_fingerprints.length,
+          fingerprints: prose.prompt_fingerprints,
+        },
+      );
+    }
   }
 
   // ============================================================================
@@ -1291,10 +1311,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           .filter((idx) => idx >= 0 && idx < prose.chapters.length),
       ),
     ).sort((a, b) => a - b);
-    const targetedFixThreshold = Math.max(1, Math.ceil(prose.chapters.length * 0.4));
-    const canTargetedRepair =
-      issueChapterIndexes.length > 0 &&
-      issueChapterIndexes.length <= targetedFixThreshold;
+  // 40% threshold: if fewer than 40% of chapters have alias issues, targeted repair is
+  // cheaper than a full regeneration.  Above that, a full re-write produces cleaner results
+  // than patching a majority of chapters.
+  const targetedFixThreshold = Math.max(1, Math.ceil(prose.chapters.length * 0.4));
+  const canTargetedRepair =
+    issueChapterIndexes.length > 0 &&
+    issueChapterIndexes.length <= targetedFixThreshold;
 
     if (canTargetedRepair) {
       const targetLabels = issueChapterIndexes.map((idx) => String(idx + 1)).join(", ");
@@ -1997,6 +2020,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // ============================================================================
   // Release Gate
   // ============================================================================
+  // Two levels of release-gate failure:
+  //   releaseGateReasons — warnings logged to ctx; generation continues; output still saved.
+  //   hardStopReasons    — thrown as an error; orchestrator catch block saves a partial
+  //                         report with a zeroed prose score.
+  // A condition can appear in both arrays (warning AND hard stop) to capture context in
+  // the release gate diagnostic before throwing.
   const releaseGateReasons: string[] = [];
   const hardStopReasons: string[] = [];
   const validationErrorTypes = new Set(
@@ -2230,6 +2259,59 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       "validation",
       `Release gate warnings: ${releaseGateReasons.join("; ")}`,
       99,
+    );
+  }
+
+  // E4: Failure lineage bundle — compact per-run failure audit trail
+  if (enableScoring && scoreAggregator && scoringLogger) {
+    const failureHistory = prose.validationDetails?.failureHistory ?? [];
+    const firstFailChapter =
+      failureHistory.length > 0
+        ? Math.min(...failureHistory.map((e: any) => (e.batchIndex ?? 0) + 1))
+        : null;
+    const errorClasses = Array.from(
+      new Set(
+        failureHistory.flatMap((entry: any) =>
+          ((entry.errors ?? []) as string[]).map((error) => {
+            if (/clue|evidence/i.test(error)) return 'clue_visibility';
+            if (/word.*count|minimum.*words|chapter.*length/i.test(error)) return 'word_count';
+            if (/temporal|season|month/i.test(error)) return 'temporal';
+            if (/scene.*ground|location/i.test(error)) return 'scene_grounding';
+            if (/identity|character|phantom/i.test(error)) return 'identity_continuity';
+            if (/template|fingerprint|ngram/i.test(error)) return 'template_leakage';
+            return 'validation_error';
+          }),
+        ),
+      ),
+    );
+    const correctiveAttempts =
+      (ctx.proseRepairPassCount ?? 0) + (ctx.proseRewritePassCount ?? 0);
+    const finalBlockingReason =
+      hardStopReasons.length > 0
+        ? Array.from(new Set(hardStopReasons)).join('; ')
+        : releaseGateReasons.length > 0
+          ? releaseGateReasons.slice(0, 3).join('; ')
+          : null;
+    const failureLineage = {
+      first_failing_chapter: firstFailChapter,
+      error_classes: errorClasses,
+      corrective_attempts: correctiveAttempts,
+      final_blocking_reason: finalBlockingReason,
+    };
+    scoringLogger.logPhaseDiagnostic(
+      "agent9_prose",
+      "Prose Generation",
+      "failure_lineage",
+      failureLineage,
+      runId,
+      projectId || "",
+    );
+    scoreAggregator.upsertDiagnostic(
+      "agent9_prose_failure_lineage",
+      "agent9_prose",
+      "Prose Generation",
+      "failure_lineage",
+      failureLineage,
     );
   }
 
