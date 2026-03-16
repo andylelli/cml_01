@@ -218,6 +218,10 @@ Clue visibility reconciliation hardening (implemented): adapter/scorer clue ID m
 Runtime parameterization (implemented): Agent generation/scoring tuning values are centrally loaded from a single YAML file (`apps/worker/config/generation-params.yaml`; optional override via `CML_GENERATION_PARAMS_PATH`) instead of hardcoded constants. In addition to Agent 9 prose/scoring knobs (word policy, underflow expansion, prose model temperature/batch cap, anti-template linter thresholds, scoring-adapter semantic matching thresholds, fair-play spoiler window ratio, completeness scorer cutoffs), Agent 1-8 runtime knobs are also consumed from the same YAML (model temperature/max tokens, retry/attempt limits, inference-step defaults, fair-play retry budget/cost caps, narrative pacing ratios, and novelty thresholds/weights).
 **Current build:** LLM-generated prose with full artifact context integration and per-batch content validation (implemented).
 **CML compatibility:** narrative context is built from CML 2.0 structures when legacy fields are absent.
+**Prompt-contract hardening (implemented):** Agent 9 now injects a positive chapter-obligation contract and a frozen timeline-state block into each prose batch. These explicitly enumerate required clue IDs, locked evidence phrases, location anchors, suspect-clearance beats, discriminating-test obligations, and month/season constraints.
+**Season-lock hardening (implemented):** the prose prompt and pre-submit checklist now use an exclusive seasonal allow-list tied to the canonical month-derived season, rather than only warning against contradictions.
+**Repetition-repair hardening (implemented):** after generation, Agent 9 detects cross-chapter recurring atmospheric n-grams and performs a targeted repair pass to replace templated phrasing while preserving plot facts and clue logic.
+**Self-audit strip path (implemented):** the prose JSON schema accepts an optional `audit` object for model self-checking, but Agent 9 strips it before persistence so storage remains canonical.
 
 ### 9) Game pack generation (optional)
 **Purpose:** Create suspect cards and host packet.

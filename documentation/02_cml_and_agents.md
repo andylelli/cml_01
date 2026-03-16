@@ -199,6 +199,12 @@ Legacy culprit fallback references now avoid `character_id` and rely on canonica
 Generates novel-quality prose with full context integration:
 - Input: outline + CML + cast + character profiles + location profiles + temporal context
 - Output: 3-6 paragraphs per chapter with varied pacing
+- Prompt hardening (implemented): each batch now includes a positive per-chapter obligation contract plus a frozen timeline-state block, so required clues, locked evidence phrases, location anchors, suspect-clearance beats, and month/season constraints are stated as concrete obligations rather than negative warnings.
+- Locked-fact phrasing hardening (implemented): prompt language now tells the model to use exact locked evidence phrases verbatim when referenced, instead of framing them only as contradictions to avoid.
+- Season vocabulary hardening (implemented): prompt and final self-check now use an exclusive seasonal allow-list tied to the canonical month-derived season, with explicit forbidden season words.
+- Underflow expansion hardening (implemented): chapter-local expansion prompts now target overshoot beyond the preferred floor and explicitly ban filler recap / repeated atmosphere as a way of reaching length.
+- Cross-chapter repetition hardening (implemented): after chapter generation, Agent 9 now detects repeated atmospheric n-grams across three or more chapters and runs a targeted atmosphere-repair pass to replace boilerplate phrasing without changing plot logic.
+- Self-audit transport hardening (implemented): the prose schema now permits an optional model self-audit field for locked facts, season words, discriminating-test presence, and clue coverage; Agent 9 strips this field before persistence.
 - **Outline gap passthrough**: If the outline quality gate (Agent 7) detected coverage gaps, the initial prose call receives targeted `qualityGuardrails` so the LLM is explicitly instructed to include missing discriminating-test or suspect-closure beats.
 - **Prose requirements integration (Phase 2):** Agent 9 now extracts `prose_requirements` from CML and injects them as a "CRITICAL PROSE REQUIREMENTS" section in the generation prompt. This specifies exactly which validation-critical scenes must appear in which chapters, including:
   - Discriminating test scene (act, scene, tests, required elements, outcome)

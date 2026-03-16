@@ -767,6 +767,123 @@ function sanitizeGeneratedChapter(chapter: ProseChapter, validCastNames: string[
   };
 }
 
+export function buildTimelineStateBlock(
+  temporalLock: { month: string; season: CanonicalSeason } | undefined,
+  lockedFacts: ProseGenerationInputs['lockedFacts'] | undefined,
+  cmlCase: any,
+): string {
+  const lines: string[] = [];
+
+  if (temporalLock) {
+    lines.push(`- Timeline anchor: ${capitalizeWord(temporalLock.month)} (${temporalLock.season}).`);
+    lines.push(`- Month, season, weather, and time-of-year language in this batch must stay compatible with ${temporalLock.season}.`);
+  }
+
+  const constraintTime = cmlCase?.constraint_space?.time ?? cmlCase?.constraint_space?.timeline ?? {};
+  const anchors = Array.isArray(constraintTime?.anchors) ? constraintTime.anchors : [];
+  anchors
+    .map((anchor: unknown) => String(anchor ?? '').trim())
+    .filter(Boolean)
+    .slice(0, 5)
+    .forEach((anchor: string) => lines.push(`- Established timeline fact: ${anchor}`));
+
+  (lockedFacts ?? [])
+    .filter((fact) => /time|clock|hour|minute|midnight|dawn|dusk|morning|afternoon|evening|night/i.test(`${fact.description} ${fact.value}`))
+    .slice(0, 6)
+    .forEach((fact) => lines.push(`- If referenced, use exact time phrase: "${fact.value}" (${fact.description}).`));
+
+  if (lines.length === 0) {
+    return '';
+  }
+
+  return `\n\nFROZEN TIMELINE STATE (DO NOT ALTER):\n${lines.join('\n')}`;
+}
+
+export function buildChapterObligationBlock(
+  scenesForChapter: unknown[],
+  chapterStart: number,
+  cmlCase: any,
+  lockedFacts: ProseGenerationInputs['lockedFacts'] | undefined,
+  temporalLock: { month: string; season: CanonicalSeason } | undefined,
+): string {
+  if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
+    return '';
+  }
+
+  const proseRequirements = cmlCase?.prose_requirements ?? {};
+  const dtScene = proseRequirements?.discriminating_test_scene;
+  const clearanceScenes = Array.isArray(proseRequirements?.suspect_clearance_scenes)
+    ? proseRequirements.suspect_clearance_scenes
+    : [];
+
+  const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
+
+  (scenesForChapter as any[]).forEach((scene, idx) => {
+    const chapterNumber = chapterStart + idx;
+    const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene);
+    const locationAnchor = String(scene?.setting?.location || scene?.location || '').trim();
+    const matchingClearances = clearanceScenes.filter((entry: any) =>
+      Number(entry?.act_number) === Number(scene?.act) &&
+      Number(entry?.scene_number) === Number(scene?.sceneNumber),
+    );
+    const isDiscriminatingTestChapter =
+      Number(dtScene?.act_number) === Number(scene?.act) &&
+      Number(dtScene?.scene_number) === Number(scene?.sceneNumber);
+
+    lines.push(`- Chapter ${chapterNumber}:`);
+    lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
+    lines.push(`  - Required clue IDs: ${requiredClueIds.length > 0 ? requiredClueIds.join(', ') : 'none for this chapter'}.`);
+    if (matchingClearances.length > 0) {
+      lines.push(`  - Suspect clearance required: ${matchingClearances.map((entry: any) => `${entry.suspect_name} via ${entry.clearance_method}`).join('; ')}.`);
+    }
+    if (isDiscriminatingTestChapter) {
+      lines.push('  - Discriminating test required: YES. Dramatize the trap or confrontation explicitly; do not summarize it afterward.');
+    }
+  });
+
+  if ((lockedFacts ?? []).length > 0) {
+    lines.push('- Locked fact phrase obligations:');
+    (lockedFacts ?? []).slice(0, 8).forEach((fact) => {
+      lines.push(`  - If this batch mentions ${fact.description}, write exactly: "${fact.value}".`);
+    });
+  }
+
+  if (temporalLock) {
+    lines.push(`- Seasonal vocabulary allow-list: ${getSeasonAllowList(temporalLock.season)}.`);
+    lines.push(`- Forbidden seasonal words: ${['spring', 'summer', 'autumn', 'winter'].filter((s) => s !== temporalLock.season).join(', ')}.`);
+  }
+
+  return `\n\n${lines.join('\n')}`;
+}
+
+export function detectRecurringPhrases(
+  chapters: ProseChapter[],
+  ngramSize = 7,
+  threshold = 3,
+): string[] {
+  const chapterHits = new Map<string, Set<number>>();
+
+  chapters.forEach((chapter, index) => {
+    const tokens = tokenizeWords((chapter.paragraphs ?? []).join(' '));
+    const grams = toNgrams(tokens, ngramSize);
+    for (const gram of grams) {
+      const parts = gram.split(' ');
+      const contentWords = parts.filter((part) => part.length > 3 && !CLUE_TOKEN_STOPWORDS.has(part));
+      if (contentWords.length < 3) continue;
+      if (!chapterHits.has(gram)) {
+        chapterHits.set(gram, new Set<number>());
+      }
+      chapterHits.get(gram)!.add(index);
+    }
+  });
+
+  return Array.from(chapterHits.entries())
+    .filter(([, hits]) => hits.size >= threshold)
+    .sort((a, b) => b[1].size - a[1].size)
+    .slice(0, 15)
+    .map(([phrase]) => phrase);
+}
+
 /**
  * Build per-chapter clue description block from agent5 ClueDistributionResult.
  * Maps each scene's clue IDs to full Clue objects so the prose agent knows exactly
@@ -1012,7 +1129,7 @@ function stripLocationParagraphs(locationProfiles: any): any {
   return strip(locationProfiles);
 }
 
-const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
+export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
   const scenes = Array.isArray(scenesOverride)
@@ -1327,18 +1444,49 @@ ${victimIdentityRule}`;
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
+  const chapterWordTargets = getChapterWordTargets(targetLength);
+  const chapterTargetWords = chapterWordTargets.preferredWords + 200;
+  const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
+  const wordCountContract = [
+    'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
+    `- Preferred generation target for this batch: ${chapterTargetWords} words per chapter.`,
+    `- Hard floor: ${chapterWordTargets.hardFloorWords} words per chapter.`,
+    '- Overshoot rather than undershoot. Do not stop at the first threshold crossing.',
+    '- Expand with concrete action beats, clue-linked dialogue, and sensory detail.',
+    '- Never pad with recap, repeated atmosphere, or generic filler.',
+  ].join('\n');
+  const chapterObligationBlock = buildChapterObligationBlock(
+    scenes,
+    chapterStart,
+    cmlCase,
+    inputs.lockedFacts,
+    temporalLock,
+  );
+  const timelineStateBlock = buildTimelineStateBlock(
+    temporalLock,
+    inputs.lockedFacts,
+    cmlCase,
+  );
+
   const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Begin key scenes with atmospheric description\n   - Establish time of day, weather, lighting\n   - Describe location using sensory details (sight, sound, smell, touch)\n   - Set mood and atmosphere before action begins\n   - Use location and temporal context to ground reader\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
 
    Generate new descriptions using actual location and character names from the provided profiles.\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
 
    Use only character names from the provided cast list.\n\n5. SENSORY IMMERSION:\n   - Include multiple senses per scene (2-3 minimum)\n   - Period-specific sensory details from location/temporal profiles\n   - Tactile details create immediacy\n   - Use sensory palette provided in location profiles\n   - Vary sensory focus: visual → auditory → olfactory → tactile\n\n6. PARAGRAPH STRUCTURE:\n   - Opening: Hook with action, dialogue, or atmospheric detail\n   - Middle: Develop scene, reveal information, build tension\n   - Closing: End with revelation, question, or transition\n   - Each paragraph should advance story or deepen character\n\n7. PACING VARIATION:\n   - Action scenes: Short paragraphs (2-4 lines), quick succession\n   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm\n   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description\n   - Revelation scenes: Build slowly with long paragraphs, climax with short punch\n\n8. EMOTIONAL SUBTEXT & TENSION:\n   - Characters have hidden secrets/stakes (see character profiles)\n   - Every interaction carries subtext based on relationships\n   - Build tension through: pauses, interrupted speech, avoided topics, body language\n   - Mystery atmosphere: Suspicion, unease, watchfulness\n   - Use weather/atmosphere to mirror emotional tension${qualityGuardrailBlock}${proseRequirementsBlock}`;
 
+  const developerWithAudit = developer.replace(
+    '  "note": ""\n}\n\nRequirements:',
+    '  "note": "",\n  "audit": {\n    "locked_fact_phrases": "present in paragraph N | absent",\n    "season_words_used": "list seasonal words used in this batch | none",\n    "discriminating_test_present": "yes: chapter N paragraph M | no",\n    "required_clues_present": "clue_id: chapter N paragraph M | absent"\n  }\n}\n\nThe audit field is a self-check only. Fill it honestly. It will be stripped before storage.\n\nRequirements:',
+  );
+
   // Amateur detective extra warning — LLM tends to invent police officers for unnamed official response
   const amateurPoliceWarning = inputs.detectiveType === 'amateur'
     ? `\n\n⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.`
     : '';
 
-  const user = `Write the full prose following the outline scenes.\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(sanitizeScenesCharacters(scenes, cast.map((c: any) => c.name)), null, 2)}`;
+  const developerWithContracts = `${developerWithAudit}\n\n${wordCountContract}`;
+
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(sanitizeScenesCharacters(scenes, cast.map((c: any) => c.name)), null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     characterConsistencyRules,
@@ -1361,7 +1509,7 @@ ${victimIdentityRule}`;
   const baseSystem = `${system}${amateurPoliceWarning}`;
   const { composedSystem } = applyPromptBudgeting(
     baseSystem,
-    developer,
+    developerWithContracts,
     user,
     promptContextBlocks,
     6200,
@@ -1371,6 +1519,19 @@ ${victimIdentityRule}`;
     { role: "system" as const, content: composedSystem },
     { role: "user" as const, content: user },
   ];
+  const checklistItems = [
+    'BEFORE SUBMITTING YOUR JSON — verify this checklist:',
+    `□ Each chapter reaches the hard floor of ${chapterWordTargets.hardFloorWords} words and aims for ${chapterTargetWords} words or more.`,
+    '□ If you mention locked evidence, you used the exact locked phrase verbatim.',
+    ...(temporalLock
+      ? [
+          `□ Allowed seasonal words only: ${getSeasonAllowList(temporalLock.season)}.`,
+          `□ Forbidden seasonal words: ${['spring', 'summer', 'autumn', 'winter'].filter((s) => s !== temporalLock.season).join(', ')}.`,
+        ]
+      : []),
+    '□ Return valid JSON only.',
+  ];
+  messages.push({ role: 'user' as const, content: checklistItems.join('\n') });
 
   // E5: Capture section sizes (char count per block before budgeting)
   const sectionSizes: Record<string, number> = {};
@@ -1378,7 +1539,7 @@ ${victimIdentityRule}`;
     sectionSizes[block.key] = block.content.length;
   }
 
-  return { system, developer, user, messages, sectionSizes };
+  return { system, developer: developerWithContracts, user, messages, sectionSizes };
 };
 
 const chunkScenes = (scenes: unknown[], chunkSize: number) => {
@@ -1389,12 +1550,20 @@ const chunkScenes = (scenes: unknown[], chunkSize: number) => {
   return batches;
 };
 
+export const stripAuditField = (parsed: any): any => {
+  if (!parsed || typeof parsed !== 'object' || !('audit' in parsed)) {
+    return parsed;
+  }
+  const { audit: _audit, ...rest } = parsed;
+  return rest;
+};
+
 const parseProseResponse = (content: string) => {
   try {
-    return JSON.parse(content) as Omit<ProseGenerationResult, "cost" | "durationMs">;
+    return stripAuditField(JSON.parse(content)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
   } catch (error) {
     const repaired = jsonrepair(content);
-    return JSON.parse(repaired) as Omit<ProseGenerationResult, "cost" | "durationMs">;
+    return stripAuditField(JSON.parse(repaired)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
   }
 };
 
@@ -1715,7 +1884,7 @@ function validateChecklistRequirements(caseData: CaseData): string {
  * Provides explicit checkbox requirements for late chapters (past 70% of story) where the test should appear.
  * Breaks down complex multi-step reasoning into concrete requirements.
  */
-function buildDiscriminatingTestChecklist(
+export function buildDiscriminatingTestChecklist(
   caseData: CaseData, 
   chapterRange: string, 
   outline: NarrativeOutline,
@@ -1792,9 +1961,11 @@ function buildDiscriminatingTestChecklist(
     checklist += `  ☐ Show verification of alibis or access records\n`;
     checklist += `  ☐ Clearly eliminate suspects who lacked access\n`;
   } else {
-    checklist += `  ☐ Detective performs the test or verification\n`;
-    checklist += `  ☐ Show clear reasoning and evidence evaluation\n`;
-    checklist += `  ☐ Demonstrate which suspects pass/fail the test\n`;
+    checklist += `  ☐ Detective performs the test or verification as a concrete scene beat, not a summary paragraph\n`;
+    checklist += `  ☐ The detective confronts the culprit or key suspect directly with the evidence or mechanism\n`;
+    checklist += `  ☐ Show the trap springing in real time: inconsistent answer, visible nerves, or a damning response\n`;
+    checklist += `  ☐ Show clear reasoning and evidence evaluation leading into the confrontation\n`;
+    checklist += `  ☐ Demonstrate which suspects pass/fail the test with explicit on-page elimination logic\n`;
   }
   checklist += `\n`;
   
@@ -1825,6 +1996,7 @@ function buildDiscriminatingTestChecklist(
   
   checklist += `⚠️ **VALIDATION:** If ANY checkbox above is unchecked in your prose, the chapter will FAIL validation.\n`;
   checklist += `This test is THE HARDEST element to get right. Take your time. Check every box.\n`;
+  checklist += `CRITICAL: Render the discriminating test as a real-time dramatic scene with dialogue, confrontation, and a visible trap outcome. Do not hide it inside retrospective summary.\n`;
   checklist += `═══════════════════════════════════════════════════════════\n`;
   
   return checklist;
@@ -2028,7 +2200,7 @@ const parseExpandedChapterResponse = (content: string): ProseChapter => {
   };
 };
 
-const attemptUnderflowExpansion = async (
+export const attemptUnderflowExpansion = async (
   client: AzureOpenAIClient,
   chapter: ProseChapter,
   chapterNumber: number,
@@ -2062,7 +2234,9 @@ const attemptUnderflowExpansion = async (
 
   const user = [
     `Chapter ${chapterNumber} is below hard floor (${currentWords}/${ledgerEntry.hardFloorWords}).`,
-    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${ledgerEntry.hardFloorWords} words and preferably ${ledgerEntry.preferredWords}+ words.`,
+    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${ledgerEntry.hardFloorWords} words and preferably ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
+    'Do not stop at the first threshold crossing. Continue until the chapter feels fully developed and complete.',
+    'Never pad with recap or repeated atmosphere. Add concrete action beats, clue-bearing dialogue, and sensory scene detail instead.',
     requiredClues.length > 0
       ? `Preserve and clearly surface required clue obligations: ${requiredClues.join(", ")}.`
       : "No additional clue IDs are required for this chapter.",
@@ -2094,6 +2268,72 @@ const attemptUnderflowExpansion = async (
   });
 
   return parseExpandedChapterResponse(response.content);
+};
+
+export const runAtmosphereRepairIfNeeded = async (
+  client: AzureOpenAIClient,
+  chapters: ProseChapter[],
+  bannedPhrases: string[],
+  model: string | undefined,
+  runId: string | undefined,
+  projectId: string | undefined,
+): Promise<ProseChapter[]> => {
+  if (bannedPhrases.length === 0) {
+    return chapters;
+  }
+
+  const repaired = [...chapters];
+  const repairTargets = chapters
+    .map((chapter, index) => ({
+      index,
+      chapter,
+      text: (chapter.paragraphs ?? []).join(' '),
+    }))
+    .filter(({ text }) => bannedPhrases.some((phrase) => text.toLowerCase().includes(phrase.toLowerCase())))
+    .slice(0, 8);
+
+  for (const target of repairTargets) {
+    const response = await client.chat({
+      messages: [
+        {
+          role: 'system',
+          content: [
+            'You are a surgical prose revision assistant for mystery fiction.',
+            'Replace repeated atmospheric phrasing with fresh, scene-specific language.',
+            'Do not change plot events, clue evidence, chronology, or who says what.',
+            'Output JSON only.',
+          ].join(' '),
+        },
+        {
+          role: 'user',
+          content: [
+            `Chapter ${target.index + 1} contains repeated atmospheric phrasing used elsewhere in the story.`,
+            `Banned phrases already overused: ${bannedPhrases.map((phrase) => `"${phrase}"`).join(', ')}.`,
+            'Replace those repeated phrases with fresh alternatives tied to this chapter\'s location and action.',
+            'Do not alter clue logic, factual content, or chapter structure.',
+            'Return this schema:',
+            '{"chapter":{"title":"...","summary":"...","paragraphs":["...","..."]}}',
+            'Only return the JSON payload.',
+            'Current chapter text:',
+            (target.chapter.paragraphs ?? []).join('\n\n'),
+          ].join('\n\n'),
+        },
+      ],
+      model,
+      temperature: 0.55,
+      maxTokens: getGenerationParams().agent9_prose.underflow_expansion.max_tokens,
+      jsonMode: true,
+      logContext: {
+        runId: runId ?? '',
+        projectId: projectId ?? '',
+        agent: `Agent9-AtmosphereRepair-Ch${target.index + 1}`,
+      },
+    });
+
+    repaired[target.index] = parseExpandedChapterResponse(response.content);
+  }
+
+  return repaired;
 };
 
 export async function generateProse(
@@ -2481,6 +2721,25 @@ export async function generateProse(
 
     if (!batchSuccess) {
       throw new Error(`Failed to generate chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} after all attempts`);
+    }
+  }
+
+  const recurringPhrases = detectRecurringPhrases(chapters);
+  if (recurringPhrases.length > 0) {
+    try {
+      const repairedChapters = await runAtmosphereRepairIfNeeded(
+        client,
+        chapters,
+        recurringPhrases,
+        inputs.model,
+        inputs.runId,
+        inputs.projectId,
+      );
+      if (repairedChapters.length === chapters.length) {
+        chapters.splice(0, chapters.length, ...repairedChapters);
+      }
+    } catch {
+      // Repetition repair is best-effort only. Keep the original chapters if repair fails.
     }
   }
 

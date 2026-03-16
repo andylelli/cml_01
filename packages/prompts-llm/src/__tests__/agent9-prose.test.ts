@@ -1,6 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
+  attemptUnderflowExpansion,
+  buildChapterObligationBlock,
+  buildDiscriminatingTestChecklist,
+  buildProsePrompt,
+  buildTimelineStateBlock,
+  detectRecurringPhrases,
   formatProvisionalScoringFeedbackBlock,
+  runAtmosphereRepairIfNeeded,
+  stripAuditField,
   validateChapterPreCommitObligations,
 } from "../agent9-prose.js";
 import type { ProseGenerationResult } from "../agent9-prose.js";
@@ -201,5 +209,237 @@ describe("validateChapterPreCommitObligations", () => {
     expect(result.hardFailures.length).toBe(0);
     expect(result.preferredMisses.length).toBe(0);
     expect(result.wordTarget.isBelowPreferred).toBe(false);
+  });
+});
+
+const baseCaseData: any = {
+  CASE: {
+    meta: {
+      title: "The November Clock",
+      era: { decade: "1930s" },
+      setting: { location: "Blackwood Hall" },
+      crime_class: { category: "murder", subtype: "poison" },
+    },
+    false_assumption: { statement: "The victim died after midnight." },
+    constraint_space: {
+      time: {
+        anchors: ["The mantel clock stopped at 11:47 p.m."],
+      },
+    },
+    clue_registry: [{ clue_id: "clue_clock" }],
+    discriminating_test: {
+      design: {
+        test_type: "mechanism_test",
+        description: "The detective confronts the culprit with the rewound clock and poisoned cup.",
+      },
+      evidence_clues: [{ clue_id: "clue_clock", type: "physical" }],
+      eliminated_suspects: [{ name: "Edgar Vale" }],
+    },
+    prose_requirements: {
+      discriminating_test_scene: { act_number: 3, scene_number: 1 },
+      suspect_clearance_scenes: [
+        { act_number: 3, scene_number: 1, suspect_name: "Edgar Vale", clearance_method: "timeline contradiction" },
+      ],
+      clue_to_scene_mapping: [
+        { act_number: 3, scene_number: 1, clue_id: "clue_clock", delivery_method: "observation" },
+      ],
+    },
+  },
+};
+
+const baseCast: any = {
+  characters: [
+    { name: "Clara Whitfield", gender: "female", role: "detective" },
+    { name: "Edgar Vale", gender: "male", role: "suspect" },
+    { name: "Miriam Frost", gender: "female", role: "victim" },
+  ],
+};
+
+const baseScene: any = {
+  act: 3,
+  sceneNumber: 1,
+  title: "The Trap",
+  summary: "Clara gathers everyone in the drawing room.",
+  purpose: "Run the discriminating test and clear Edgar.",
+  setting: { location: "Drawing Room" },
+  characters: ["Clara Whitfield", "Edgar Vale"],
+  cluesRevealed: ["clue_clock"],
+};
+
+const baseInputs: any = {
+  caseData: baseCaseData,
+  outline: {
+    acts: [{ act_number: 3, scenes: [baseScene] }],
+    totalScenes: 1,
+  },
+  cast: baseCast,
+  targetLength: "medium",
+  narrativeStyle: "classic",
+  temporalContext: {
+    specificDate: { month: "november", year: 1934 },
+    seasonal: { season: "autumn", weather: ["mist", "rain"] },
+    fashion: { mensWear: {}, womensWear: {} },
+    cultural: { entertainment: {}, dailyLife: {} },
+    currentAffairs: {},
+    atmosphericDetails: ["Cold rain tapped at the windowpanes."],
+  },
+  lockedFacts: [
+    { id: "lf_clock", description: "mantel clock reading", value: "11:47 p.m." },
+    { id: "lf_poison", description: "poison dose", value: "three drops" },
+  ],
+  clueDistribution: {
+    clues: [
+      {
+        id: "clue_clock",
+        description: "The mantel clock has been rewound.",
+        category: "physical",
+        criticality: "essential",
+        pointsTo: "The time of death was staged.",
+      },
+    ],
+  },
+  narrativeState: {
+    lockedFacts: [],
+    characterPronouns: {},
+    usedOpeningStyles: [],
+    usedSensoryPhrases: [],
+    cluesRevealedToReader: [],
+    chapterSummaries: [],
+  },
+};
+
+describe("Agent 9 prompt hardening fixes", () => {
+  it("Fix 1 adds a per-chapter obligation block with clue, location, clearance, and season obligations", () => {
+    const block = buildChapterObligationBlock(
+      [baseScene],
+      7,
+      baseCaseData.CASE,
+      baseInputs.lockedFacts,
+      { month: "november", season: "autumn" } as any,
+    );
+
+    expect(block).toContain("CHAPTER OBLIGATION CONTRACT");
+    expect(block).toContain("Chapter 7:");
+    expect(block).toContain("Drawing Room");
+    expect(block).toContain("clue_clock");
+    expect(block).toContain("Edgar Vale via timeline contradiction");
+    expect(block).toContain("Seasonal vocabulary allow-list: autumn, autumnal, fall.");
+  });
+
+  it("Fix 2 uses positive locked-fact phrasing in the prose prompt", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    expect(prompt.messages[0].content).toContain("NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES");
+    expect(prompt.messages[0].content).toContain("it MUST use the exact phrase shown");
+  });
+
+  it("Fix 3 builds a frozen timeline state block from temporal lock and time anchors", () => {
+    const block = buildTimelineStateBlock(
+      { month: "november", season: "autumn" } as any,
+      baseInputs.lockedFacts,
+      baseCaseData.CASE,
+    );
+
+    expect(block).toContain("FROZEN TIMELINE STATE");
+    expect(block).toContain("November (autumn)");
+    expect(block).toContain("The mantel clock stopped at 11:47 p.m.");
+    expect(block).toContain("11:47 p.m.");
+  });
+
+  it("Fix 4 uses an exclusive season allow-list in the prompt checklist", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    const joined = prompt.messages.map((m) => m.content).join("\n\n");
+    expect(joined).toContain("Allowed seasonal words only: autumn, autumnal, fall.");
+    expect(joined).toContain("Forbidden seasonal words: spring, summer, winter.");
+  });
+
+  it("Fix 5 strengthens discriminating-test checklist language into a concrete confrontation contract", () => {
+    const outline: any = { acts: [{ act_number: 3, scenes: [{ scene_number: 1, title: "Trap", summary: "Trap scene mentions clue_clock." }] }] };
+    const checklist = buildDiscriminatingTestChecklist(baseCaseData, "3-3", outline, 3);
+    expect(checklist).toContain("concrete scene beat");
+    expect(checklist).toContain("confronts the culprit or key suspect directly");
+    expect(checklist).toContain("real-time dramatic scene");
+  });
+
+  it("Fix 6 detects recurring cross-chapter phrases", () => {
+    const phrases = detectRecurringPhrases([
+      { title: "1", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered." ] },
+      { title: "2", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered." ] },
+      { title: "3", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered." ] },
+    ] as any, 7, 3);
+
+    expect(phrases.length).toBeGreaterThan(0);
+    expect(phrases[0]).toContain("air hung cold and still");
+  });
+
+  it("Fix 7 runs targeted atmosphere repair only for chapters containing banned phrases", async () => {
+    const chat = vi.fn().mockResolvedValue({
+      content: JSON.stringify({
+        chapter: {
+          title: "1",
+          summary: "repaired",
+          paragraphs: ["Fresh rain rattled the casement while Clara watched the corridor."],
+        },
+      }),
+    });
+    const client: any = { chat };
+
+    const result = await runAtmosphereRepairIfNeeded(
+      client,
+      [
+        { title: "1", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered."] },
+        { title: "2", paragraphs: ["A different sentence entirely."] },
+      ] as any,
+      ["the air hung cold and still beneath the rafters while the lamps shivered"],
+      "test-model",
+      "run-1",
+      "proj-1",
+    );
+
+    expect(chat).toHaveBeenCalledTimes(1);
+    expect(result[0].paragraphs[0]).toContain("Fresh rain rattled the casement");
+    expect(result[1].paragraphs[0]).toBe("A different sentence entirely.");
+  });
+
+  it("Fix 8 tells underflow expansion to overshoot and avoid filler recap", async () => {
+    const chat = vi.fn().mockResolvedValue({
+      content: JSON.stringify({
+        chapter: {
+          title: "Expanded",
+          summary: "expanded",
+          paragraphs: ["expanded paragraph one", "expanded paragraph two"],
+        },
+      }),
+    });
+    const client: any = { chat };
+
+    await attemptUnderflowExpansion(
+      client,
+      { title: "Short", paragraphs: [new Array(50).fill("word").join(" ")] } as any,
+      2,
+      baseScene,
+      { chapterNumber: 2, hardFloorWords: 800, preferredWords: 1300, requiredClueIds: ["clue_clock"] } as any,
+      "test-model",
+      "run-1",
+      "proj-1",
+    );
+
+    const userPrompt = chat.mock.calls[0][0].messages[1].content as string;
+    expect(userPrompt).toContain("Overshoot rather than undershoot");
+    expect(userPrompt).toContain("Do not stop at the first threshold crossing");
+    expect(userPrompt).toContain("Never pad with recap or repeated atmosphere");
+  });
+
+  it("Fix 9 includes audit in the prompt schema and strips it from parsed payloads", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    expect(prompt.developer).toContain('"audit"');
+
+    const stripped = stripAuditField({
+      status: "draft",
+      chapters: [],
+      cast: [],
+      audit: { locked_fact_phrases: "absent" },
+    });
+    expect(stripped.audit).toBeUndefined();
+    expect(stripped.status).toBe("draft");
   });
 });
