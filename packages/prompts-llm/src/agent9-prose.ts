@@ -513,6 +513,17 @@ const deriveTemporalSeasonLock = (
   return { month, season };
 };
 
+/** Returns the exclusive allowed-vocabulary string for the given canonical season. */
+const getSeasonAllowList = (season: CanonicalSeason | string): string => {
+  const allowLists: Record<CanonicalSeason, string> = {
+    autumn: 'autumn, autumnal, fall',
+    winter: 'winter, wintry, midwinter',
+    spring: 'spring, vernal, springtime',
+    summer: 'summer, summery, midsummer',
+  };
+  return allowLists[season as CanonicalSeason] ?? season;
+};
+
 const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
   spring: [/\b(summer|midsummer|autumn|winter|wintry)\b/gi],
   summer: [/\b(spring|vernal|autumn|winter|wintry)\b/gi],
@@ -1206,7 +1217,8 @@ ${victimIdentityRule}`;
     
     const culturalGuidance = '\\n\\nCULTURAL TOUCHSTONE INTEGRATION:\\n- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"\\n- Background details: Radio playing, newspaper headlines, theater posters\\n- Social commentary: Characters discuss current events naturally\\n- Class indicators: Aristocrats discuss opera, servants discuss music halls\\n- Authentic references: Use actual songs, films, events from the specific date';
     
-    temporalContextBlock = '\\n\\nTEMPORAL CONTEXT:\\n\\nThis story takes place in ' + dateStr + ' during ' + season + '.\\n\\nSeasonal Atmosphere:\\n- Weather patterns: ' + seasonWeather + '\\n- Season: ' + season + '\\n\\nPeriod Fashion (describe naturally):\\n- Men formal: ' + mensFormeal + '\\n- Men casual: ' + mensCasual + '\\n- Men accessories: ' + mensAcc + '\\n- Women formal: ' + womensFormeal + '\\n- Women casual: ' + womensCasual + '\\n- Women accessories: ' + womensAcc + '\\n\\nCultural Context (reference naturally):\\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\\n- Typical prices: ' + prices + (majorEvents ? '\\n- Current events: ' + majorEvents : '') + '\\n\\nAtmospheric Details:\\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\\n\\nUSAGE REQUIREMENTS:\\n1. Date references: Mention month/season at least once early in story\\n2. Fashion descriptions: Every character gets fashion description on first appearance\\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.';
+    temporalContextBlock = '\\n\\nTEMPORAL CONTEXT:\\n\\nThis story takes place in ' + dateStr + ' during ' + season + '.\\n\\nSeasonal Atmosphere:\\n- Weather patterns: ' + seasonWeather + '\\n- Season: ' + season + '\\n\\nPeriod Fashion (describe naturally):\\n- Men formal: ' + mensFormeal + '\\n- Men casual: ' + mensCasual + '\\n- Men accessories: ' + mensAcc + '\\n- Women formal: ' + womensFormeal + '\\n- Women casual: ' + womensCasual + '\\n- Women accessories: ' + womensAcc + '\\n\\nCultural Context (reference naturally):\\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\\n- Typical prices: ' + prices + (majorEvents ? '\\n- Current events: ' + majorEvents : '') + '\\n\\nAtmospheric Details:\\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\\n\\nUSAGE REQUIREMENTS:\\n1. Date references: Mention month/season at least once early in story\\n2. Fashion descriptions: Every character gets fashion description on first appearance\\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.'
+    + '\\n9. SEASONAL LANGUAGE — EXCLUSIVE ALLOW-LIST:\\n   Allowed seasonal vocabulary (only these are permitted): ' + getSeasonAllowList(lockedSeason) + '\\n   Forbidden seasonal words (never use, even in metaphors or dialogue): ' + forbiddenSeasons + ' and their adjective forms.\\n   Replace any forbidden seasonal word immediately — in narration, dialogue, and internal character thought.\\n   Do not use forbidden words even as part of a simile, metaphor, or poetic line.';
   }
 
 
@@ -1234,7 +1246,7 @@ ${victimIdentityRule}`;
     const factLines = inputs.lockedFacts
       .map(f => `  - ${f.description}: "${f.value}"`)
       .join('\n');
-    lockedFactsBlock = `\n\n⛔ LOCKED FACTS — DO NOT CONTRADICT:\nThe following physical evidence values are ground truth established by the mystery's logic. Use them verbatim whenever the relevant evidence is described. NEVER introduce a different number, time, distance, or quantity for these facts across any chapter:\n${factLines}`;
+    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES:\nThe following physical evidence values are ground truth. If this chapter mentions or describes the relevant evidence, it MUST use the exact phrase shown — verbatim, not paraphrased. Any chapter that contradicts these values or substitutes different numbers, times, distances, or quantities will fail validation:\n${factLines}\n- If a locked fact is not relevant to this chapter, skip it. But if you do mention it, you must use exactly the phrase above.`;
   }
 
   // Build NSD block (narrative state document) — style register and fact history

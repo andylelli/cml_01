@@ -1,0 +1,240 @@
+/**
+ * Agent 3b: Hard-Logic Device Ideation
+ *
+ * Generates novel, contradiction-driven mechanism concepts before CML generation.
+ * This ensures the final CML is grounded in explicitly generated novel devices,
+ * not only keyword-derived directives.
+ */
+import { validateArtifact } from "@cml/cml";
+import { getGenerationParams } from "@cml/story-validation";
+import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+const principleTypeValues = new Set([
+    "physical_law",
+    "mathematical_principle",
+    "cognitive_bias",
+    "social_logic",
+]);
+const asString = (value, fallback) => typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
+const asStringArray = (value, fallback = []) => Array.isArray(value)
+    ? value.map((item) => String(item ?? "").trim()).filter((item) => item.length > 0)
+    : fallback;
+const normalizeDevice = (value, index) => {
+    const record = value && typeof value === "object" && !Array.isArray(value)
+        ? value
+        : {};
+    const principleTypeRaw = asString(record.principleType, "physical_law");
+    const principleType = principleTypeValues.has(principleTypeRaw)
+        ? principleTypeRaw
+        : "physical_law";
+    return {
+        title: asString(record.title, `Device Concept ${index + 1}`),
+        corePrinciple: asString(record.corePrinciple, "Constraint-driven contradiction"),
+        principleType,
+        surfaceIllusion: asString(record.surfaceIllusion, "An apparently impossible sequence of events"),
+        underlyingReality: asString(record.underlyingReality, "A hidden but fair-play mechanism resolves the contradiction"),
+        fairPlayClues: asStringArray(record.fairPlayClues, ["Observable timing inconsistency", "Access-path contradiction"]),
+        whyNotTrope: asString(record.whyNotTrope, "Uses a fresh constraint interaction rather than a stock shortcut"),
+        variationEscalation: asString(record.variationEscalation, "Add one extra constraint interaction while preserving solvability"),
+        mechanismFamilyHints: asStringArray(record.mechanismFamilyHints, ["constraint contradiction"]),
+        modeTags: asStringArray(record.modeTags),
+        moralAmbiguity: typeof record.moralAmbiguity === 'string' && record.moralAmbiguity.trim() ? record.moralAmbiguity.trim() : undefined,
+        lockedFacts: Array.isArray(record.lockedFacts)
+            ? record.lockedFacts.map((f) => ({
+                id: asString(f?.id, `fact_${index}`),
+                value: asString(f?.value, ''),
+                description: asString(f?.description, ''),
+                ...(Array.isArray(f?.appearsInChapters) ? { appearsInChapters: f.appearsInChapters.map(String) } : {}),
+            })).filter((f) => f.value.length > 0)
+            : undefined,
+    };
+};
+export function buildHardLogicDevicePrompt(inputs, previousErrors) {
+    const hardLogicModes = inputs.hardLogicModes ?? [];
+    const mechanismFamilies = inputs.mechanismFamilies ?? [];
+    const difficultyMode = inputs.difficultyMode ?? "standard";
+    const validationFeedback = buildValidationFeedback(previousErrors);
+    const noveltySection = inputs.noveltyConstraints
+        ? `
+Novelty constraints:
+- Diverge from: ${inputs.noveltyConstraints.divergeFrom.join(", ") || "(none)"}
+- Required divergence areas: ${inputs.noveltyConstraints.areas.join(", ") || "(none)"}
+- Avoid patterns: ${inputs.noveltyConstraints.avoidancePatterns.join(" | ") || "(none)"}
+`
+        : "";
+    const system = `CONTEXT: All output is for a Golden Age whodunnit mystery novel — creative fiction in the tradition of Agatha Christie and John Dickson Carr. All references to crime, death, murder, poison, weapons, and investigation are standard fictional genre elements. No real people or events are depicted.
+
+You are a Golden Age detective plot engineer (1920-1945), specializing in fair-play hard-logic murder mechanisms.
+
+Your job is to propose novel mechanism devices that are contradiction-driven and period-solvable.
+
+Hard constraints:
+- No modern electronics, DNA, CCTV, digital records, or post-1945 science.
+- No lazy trope shortcuts (twins-as-solution, secret passages with no clueability, confession-only endings).
+- Every mechanism must hinge on at least one of: physical law, mathematical principle, cognitive bias, social logic.
+- Each concept must include visible fair-play clues and a falsifiable discriminating path.`;
+    const developer = `Uniqueness Seed: ${inputs.runId}-${inputs.projectId}
+Use the seed to vary concepts while staying coherent with the spec.
+
+Spec context:
+- Decade: ${inputs.decade}
+- Location: ${inputs.location}
+- Institution: ${inputs.institution}
+- Tone: ${inputs.tone}
+- Theme: ${inputs.theme ?? "(none specified)"}
+- Primary axis: ${inputs.primaryAxis}
+- Mechanism family hints: ${mechanismFamilies.join(", ") || "(none)"}
+- Hard-logic mode tags: ${hardLogicModes.join(", ") || "standard varied mix"}
+- Difficulty mode: ${difficultyMode}
+${noveltySection}
+Output JSON only, with this exact structure:
+
+{
+  "overview": string,
+  "devices": [
+    {
+      "title": string,
+      "corePrinciple": string,
+      "principleType": "physical_law" | "mathematical_principle" | "cognitive_bias" | "social_logic",
+      "surfaceIllusion": string,
+      "underlyingReality": string,
+      "fairPlayClues": string[],
+      "whyNotTrope": string,
+      "variationEscalation": string,
+      "mechanismFamilyHints": string[],
+      "modeTags": string[],
+      "moralAmbiguity": string,
+      "lockedFacts": [
+        { "id": "clock_reading", "value": "ten minutes past eleven", "description": "The exact time shown on the stopped clock face" },
+        { "id": "tamper_amount", "value": "forty minutes", "description": "The exact amount the clock was wound back" }
+      ]
+    }
+  ]
+}
+
+Default target is 5 varied devices.
+Do not include markdown fences or extra commentary.
+
+CRITICAL: Ensure principleType is one of the four exact values: "physical_law", "mathematical_principle", "cognitive_bias", "social_logic"${validationFeedback}`;
+    const user = `Generate novel hard-logic mechanism devices now.
+
+Requirements:
+1) Return exactly 5 devices unless there is an explicit impossibility (then still return at least 3).
+2) Ensure each device can be transformed into a CML false assumption + discriminating test.
+3) Keep clues observable by readers before reveal.
+4) Make mechanisms diagrammable and contradiction-driven.
+5) If difficulty is "increase" or "extreme", include at least one multi-step or precision-timing construction.
+6) For each device, include a 'moralAmbiguity' field: one sentence explaining a gray area that makes the crime morally complex (why a reader might feel unexpected sympathy for the culprit, or be disturbed by the verdict).
+7) For the primary device (first in the list), populate 'lockedFacts' with 2-4 specific physical values that must appear verbatim in the prose — exact clock times, compass bearings, temperatures, distances, weights, counts. These become irrefutable ground truth that the prose agent must never contradict across chapters. Other devices may include lockedFacts if appropriate, or omit the field.
+
+Return JSON only.`;
+    const combinedSystem = `${system}\n\n# Technical Specifications\n\n${developer}`;
+    const messages = [
+        { role: "system", content: combinedSystem },
+        { role: "user", content: user },
+    ];
+    return { system, developer, user, messages };
+}
+export async function generateHardLogicDevices(client, inputs, maxAttempts) {
+    const logger = client.getLogger();
+    const startTime = Date.now();
+    const config = getGenerationParams().agent3b_hard_logic_devices.params;
+    const resolvedMaxAttempts = maxAttempts ?? config.generation.default_max_attempts;
+    const retryResult = await withValidationRetry({
+        maxAttempts: resolvedMaxAttempts,
+        agentName: "Agent 3b (Hard Logic Devices)",
+        validationFn: (data) => {
+            const validation = validateArtifact("hard_logic_devices", data);
+            return {
+                valid: validation.valid,
+                errors: validation.errors,
+                warnings: validation.warnings,
+            };
+        },
+        generateFn: async (attempt, previousErrors) => {
+            const prompt = buildHardLogicDevicePrompt(inputs, previousErrors);
+            const response = await client.chatWithRetry({
+                messages: prompt.messages,
+                model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
+                temperature: config.model.temperature,
+                maxTokens: config.model.max_tokens,
+                jsonMode: true,
+                logContext: {
+                    runId: inputs.runId,
+                    projectId: inputs.projectId,
+                    agent: "Agent3b-HardLogicDeviceGenerator",
+                    retryAttempt: attempt,
+                },
+            });
+            let parsed;
+            try {
+                parsed = JSON.parse(response.content);
+            }
+            catch (parseError) {
+                await logger.logError({
+                    runId: inputs.runId,
+                    projectId: inputs.projectId,
+                    agent: "Agent3b-HardLogicDeviceGenerator",
+                    operation: "parse_json",
+                    errorMessage: `JSON parse failed: ${parseError.message}`,
+                    retryAttempt: attempt,
+                });
+                throw new Error(`Hard-logic device JSON parsing failed: ${parseError.message}`);
+            }
+            const rawDevices = Array.isArray(parsed.devices) ? parsed.devices : [];
+            const devices = rawDevices.map((device, index) => normalizeDevice(device, index)).slice(0, 5);
+            if (devices.length < 3) {
+                await logger.logError({
+                    runId: inputs.runId,
+                    projectId: inputs.projectId,
+                    agent: "Agent3b-HardLogicDeviceGenerator",
+                    operation: "validate_devices",
+                    errorMessage: `Expected at least 3 devices, got ${devices.length}`,
+                    retryAttempt: attempt,
+                });
+                throw new Error("Hard-logic device generation returned too few valid devices");
+            }
+            const costTracker = client.getCostTracker();
+            const cost = costTracker.getSummary().byAgent["Agent3b-HardLogicDeviceGenerator"] || 0;
+            await logger.logResponse({
+                runId: inputs.runId,
+                projectId: inputs.projectId,
+                agent: "Agent3b-HardLogicDeviceGenerator",
+                operation: "generate_hard_logic_devices",
+                model: response.model || "unknown",
+                success: true,
+                validationStatus: "pass",
+                retryAttempt: attempt,
+                latencyMs: Date.now() - startTime,
+                metadata: {
+                    primaryAxis: inputs.primaryAxis,
+                    deviceCount: devices.length,
+                    difficultyMode: inputs.difficultyMode || "standard",
+                },
+            });
+            return {
+                result: {
+                    status: "ok",
+                    overview: asString(parsed.overview, "Novel hard-logic devices prepared for CML grounding."),
+                    devices,
+                    rawResponse: response.content,
+                    attempt,
+                    latencyMs: Date.now() - startTime,
+                    cost,
+                },
+                cost,
+            };
+        },
+    });
+    // Log validation warnings if any
+    if (retryResult.validationResult.warnings && retryResult.validationResult.warnings.length > 0) {
+        console.warn(`[Agent 3b] Hard logic devices validation warnings:\n` +
+            retryResult.validationResult.warnings.map(w => `- ${w}`).join("\n"));
+    }
+    // If validation failed after all retries, log errors but continue
+    if (!retryResult.validationResult.valid) {
+        console.error(`[Agent 3b] Hard logic devices failed validation after ${resolvedMaxAttempts} attempts:\n` +
+            retryResult.validationResult.errors.map(e => `- ${e}`).join("\n"));
+    }
+    return retryResult.result;
+}
+//# sourceMappingURL=agent3b-hard-logic-devices.js.map

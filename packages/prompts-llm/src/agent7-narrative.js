@@ -1,0 +1,586 @@
+/**
+ * Agent 7: Narrative Formatter
+ *
+ * Transforms validated CML + clues into a scene-by-scene narrative outline.
+ * Acts as bridge between logical structure (CML) and prose generation.
+ *
+ * - Organizes scenes by three-act structure
+ * - Places clues naturally within scenes
+ * - Creates dramatic pacing and tension
+ * - Shows character interactions and development
+ * - Sets up reveals, twists, and false assumptions
+ * - Provides scene descriptions for prose generation
+ *
+ * Temperature: 0.5 (moderate - creative scene structuring grounded in CML)
+ * Max Tokens: 4000 (larger - detailed scene descriptions)
+ * Output Format: JSON (structured scene list)
+ */
+import { jsonrepair } from "jsonrepair";
+import { getGenerationParams } from "@cml/story-validation";
+import { getChapterTargetTolerance, getSceneTarget, getStoryLengthTarget, } from "@cml/story-validation";
+// ============================================================================
+// Prompt Builder
+// ============================================================================
+export function buildNarrativePrompt(inputs) {
+    const { caseData, clues, targetLength = "medium", narrativeStyle = "classic" } = inputs;
+    // System: Define the narrative formatter role
+    const system = `CONTEXT: You are designing the narrative outline for a Golden Age whodunnit mystery novel (creative fiction in the tradition of Agatha Christie, Arthur Conan Doyle, and Dorothy L. Sayers). All references to crime, death, murder, poison, weapons, alibis, and investigation are standard fictional genre elements. No real people or events are depicted.
+
+You are an expert mystery fiction narrative architect. Your role is to transform a validated mystery structure (CML) and its clues into a compelling scene-by-scene outline for prose generation.
+
+You understand the craft of mystery storytelling:
+- **Three-act structure**: Setup, Investigation, Resolution
+- **Pacing**: When to reveal clues, build tension, create misdirection
+- **Character development**: Show personalities through action and dialogue
+- **Atmosphere**: Create mood appropriate to the era and setting
+- **Fair play**: Ensure clues are naturally woven into scenes
+- **Dramatic irony**: Reader knows more than characters, or vice versa
+
+You work from the CML's logical structure (inference path, constraint space) and the clue distribution to create scenes that:
+1. Reveal clues organically through detective investigation
+2. Build tension and maintain reader engagement
+3. Develop characters and relationships
+4. Support the false assumption until the discriminating test
+5. Lead to a satisfying revelation and denouement
+
+Your output is a JSON scene outline that prose generators can use to write the full story.`;
+    // Developer: Provide CML and clue context
+    const developer = buildDeveloperContext(caseData, clues);
+    // User: Request the narrative outline
+    const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? [], inputs.detectiveType);
+    return { system, developer, user };
+}
+function buildDeveloperContext(caseData, clues) {
+    const legacy = caseData;
+    const cmlCase = (legacy?.CASE ?? {});
+    const meta = cmlCase.meta ?? legacy.meta ?? {};
+    const crimeClass = meta.crime_class ?? {};
+    const castRoster = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
+    const title = meta?.title || "Untitled Mystery";
+    const primaryAxis = meta?.primary_axis || cmlCase.false_assumption?.type || "unknown";
+    const era = meta?.era?.decade
+        ? `${meta.era.decade} - ${meta.setting?.location ?? "Unknown"}`
+        : legacy.setup?.era
+            ? `${legacy.setup.era.year} - ${legacy.setup.era.location}`
+            : "Unknown era";
+    const settingLocation = meta?.setting?.location ?? legacy.setup?.era?.location ?? "Unknown setting";
+    const crime = legacy.setup?.crime?.description || crimeClass.subtype || crimeClass.category || "crime";
+    const victim = legacy.setup?.crime?.victim || "Unknown";
+    const culpritName = cmlCase.culpability?.culprits?.[0] || castRoster[0]?.name || "Unknown";
+    const motive = legacy.solution?.culprit?.motive || "Unknown motive";
+    const method = legacy.solution?.culprit?.method || crimeClass.subtype || "Unknown method";
+    const falseAssumption = cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+    const whenRevealed = legacy.solution?.false_assumption?.when_revealed || "final act";
+    // Cast list
+    const culprits = new Set(Array.isArray(cmlCase.culpability?.culprits) ? cmlCase.culpability.culprits : []);
+    const detective = castRoster.find((c) => typeof c?.role_archetype === "string" && /(detective|investigator|inspector)/i.test(c.role_archetype));
+    const suspects = castRoster.filter((c) => {
+        const name = typeof c?.name === "string" ? c.name : "";
+        if (!name || culprits.has(name))
+            return false;
+        if (c?.culprit_eligibility && c.culprit_eligibility !== "eligible")
+            return false;
+        return true;
+    });
+    const witnesses = castRoster.filter((c) => {
+        const name = typeof c?.name === "string" ? c.name : "";
+        return Boolean(name) && !suspects.some((s) => s.name === name) && (!detective || detective.name !== name);
+    });
+    const castSummary = [
+        detective ? `- **Detective**: ${detective.name}` : "",
+        ...suspects.map((s) => `- **Suspect**: ${s.name}`),
+        ...witnesses.map((w) => `- **Witness**: ${w.name}`),
+    ]
+        .filter(Boolean)
+        .join("\n");
+    // Inference path
+    const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? [])
+        .map((step, idx) => {
+        const observation = step.observation || step.type || "Observation";
+        const correction = step.correction || step.reasoning || "Correction";
+        const effect = step.effect ? ` → ${step.effect}` : "";
+        return `${idx + 1}. **${observation}**: ${correction}${effect}`;
+    })
+        .join("\n");
+    // Discriminating test
+    const discrimTest = cmlCase.discriminating_test
+        ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
+        : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**Test**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Reveals**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
+    // Clue organization
+    const earlyClues = clues.clues.filter((c) => c.placement === "early");
+    const midClues = clues.clues.filter((c) => c.placement === "mid");
+    const lateClues = clues.clues.filter((c) => c.placement === "late");
+    const clueList = (clueSet, label) => {
+        if (clueSet.length === 0)
+            return `### ${label}\nNone`;
+        return `### ${label}\n${clueSet.map((c) => `- [${c.id}] ${c.category}: ${c.description}`).join("\n")}`;
+    };
+    // Red herrings
+    const redHerringList = clues.redHerrings.length
+        ? clues.redHerrings.map((rh) => `- [${rh.id}] ${rh.description}`).join("\n")
+        : "None";
+    // Key constraints
+    const constraintSpace = cmlCase.constraint_space ?? legacy.constraint_space ?? {};
+    const formatConstraintList = (value, keys) => {
+        if (Array.isArray(value)) {
+            return value.slice(0, 3).map((entry) => `- ${entry.description ?? entry}`).join("\n") || "None";
+        }
+        const lines = keys.flatMap((key) => (Array.isArray(value?.[key]) ? value[key] : []));
+        return lines.slice(0, 3).map((entry) => `- ${entry.description ?? entry}`).join("\n") || "None";
+    };
+    const timeConstraints = formatConstraintList(constraintSpace.time, ["anchors", "windows", "contradictions"]);
+    const accessConstraints = formatConstraintList(constraintSpace.access, ["actors", "objects", "permissions"]);
+    const eraDetails = Array.isArray(meta?.era?.realism_constraints)
+        ? meta.era.realism_constraints.map((d) => `- ${d}`).join("\n")
+        : legacy.setup?.era?.key_details?.map((d) => `- ${d}`).join("\n") || "None";
+    return `# Narrative Formatting Context
+
+## Mystery Overview
+**Title**: ${title}
+**Era & Setting**: ${era}
+**Setting Lock**: All scenes must remain within this setting: ${settingLocation}. Do not move to a different location type.
+**Primary Axis**: ${primaryAxis}
+**Crime**: ${crime}
+**Victim**: ${victim}
+**Culprit**: ${culpritName}
+**Motive**: ${motive}
+**Method**: ${method}
+
+## The False Assumption
+${falseAssumption}
+*Revealed: ${whenRevealed}*
+
+---
+
+## Cast of Characters
+${castSummary}
+
+---
+
+## Detective's Inference Path
+The logical steps the detective follows:
+
+${inferenceSteps}
+
+### The Discriminating Test
+${discrimTest}
+
+---
+
+## Clue Distribution
+
+${clueList(earlyClues, "Early Clues (Act I)")}
+
+${clueList(midClues, "Mid Clues (Act II)")}
+
+${clueList(lateClues, "Late Clues (Act III)")}
+
+### Red Herrings
+${redHerringList}
+
+---
+
+## Key Constraints
+
+### Temporal
+${timeConstraints}
+
+### Access
+${accessConstraints}
+
+---
+
+## Era Details
+${eraDetails}
+
+---
+
+## Prose Requirements (CRITICAL - Must be reflected in outline)
+${buildProseRequirements(caseData)}`;
+}
+function buildProseRequirements(caseData) {
+    const cmlCase = caseData?.CASE ?? {};
+    const proseReq = cmlCase.prose_requirements;
+    if (!proseReq) {
+        return "No explicit prose requirements specified. Follow standard mystery structure.";
+    }
+    let reqText = "";
+    // Discriminating test scene
+    if (proseReq.discriminating_test_scene) {
+        const dt = proseReq.discriminating_test_scene;
+        reqText += `### Discriminating Test Scene (REQUIRED)\n`;
+        reqText += `- **Must appear in:** Act ${dt.act_number}, Scene ${dt.scene_number}\n`;
+        reqText += `- **Test type:** ${dt.test_type}\n`;
+        reqText += `- **Required elements:** ${(dt.required_elements || []).join(", ")}\n\n`;
+    }
+    // Suspect clearance scenes
+    if (proseReq.suspect_clearance_scenes && proseReq.suspect_clearance_scenes.length > 0) {
+        reqText += `### Suspect Clearance Scenes (REQUIRED)\n`;
+        proseReq.suspect_clearance_scenes.forEach((clearance) => {
+            reqText += `- **${clearance.suspect_name}**: Act ${clearance.act_number}, Scene ${clearance.scene_number}\n`;
+            reqText += `  - Method: ${clearance.clearance_method}\n`;
+            if (clearance.supporting_clues && clearance.supporting_clues.length > 0) {
+                reqText += `  - Clues: ${clearance.supporting_clues.join(", ")}\n`;
+            }
+        });
+        reqText += "\n";
+    }
+    // Culprit revelation
+    if (proseReq.culprit_revelation_scene) {
+        const rev = proseReq.culprit_revelation_scene;
+        reqText += `### Culprit Revelation Scene (REQUIRED)\n`;
+        reqText += `- **Must appear in:** Act ${rev.act_number}, Scene ${rev.scene_number}\n`;
+        reqText += `- **Revelation method:** ${rev.revelation_method}\n\n`;
+    }
+    // Identity rules
+    if (proseReq.identity_rules && proseReq.identity_rules.length > 0) {
+        reqText += `### Identity Reference Rules\n`;
+        proseReq.identity_rules.forEach((rule) => {
+            reqText += `- **${rule.character_name}**:\n`;
+            reqText += `  - Before reveal (Acts 1-${rule.revealed_in_act - 1}): "${rule.before_reveal_reference}"\n`;
+            reqText += `  - After reveal (Act ${rule.revealed_in_act}+): "${rule.after_reveal_reference}"\n`;
+        });
+        reqText += "\n";
+    }
+    // Clue to scene mapping
+    if (proseReq.clue_to_scene_mapping && proseReq.clue_to_scene_mapping.length > 0) {
+        reqText += `### Clue Placement Guidelines\n`;
+        const mapped = proseReq.clue_to_scene_mapping.slice(0, 5); // Show first 5
+        mapped.forEach((mapping) => {
+            reqText += `- **${mapping.clue_id}**: Act ${mapping.act_number}`;
+            if (mapping.scene_number) {
+                reqText += `, Scene ${mapping.scene_number}`;
+            }
+            if (mapping.delivery_method) {
+                reqText += ` (${mapping.delivery_method})`;
+            }
+            reqText += `\n`;
+        });
+    }
+    return reqText || "No prose requirements specified.";
+}
+function buildUserRequest(caseData, targetLength, narrativeStyle, qualityGuardrails, detectiveType) {
+    const config = getGenerationParams().agent7_narrative.params;
+    const legacy = caseData;
+    const crimeVictim = typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim";
+    const rawLocationValue = legacy.setup?.crime?.location;
+    const rawLocation = typeof rawLocationValue === 'string' ? rawLocationValue : typeof rawLocationValue === 'object' && rawLocationValue !== null ? (rawLocationValue.name || rawLocationValue.id || 'the scene') : 'the scene';
+    const locationWord = rawLocation.replace(/^(locked|the|a|an)\s+/i, "").toLowerCase();
+    const exampleLocation = crimeVictim !== "the victim"
+        ? `${crimeVictim}'s ${locationWord}`
+        : rawLocation;
+    const shortSceneTarget = getSceneTarget("short");
+    const mediumSceneTarget = getSceneTarget("medium");
+    const longSceneTarget = getSceneTarget("long");
+    const shortTargets = getStoryLengthTarget("short");
+    const mediumTargets = getStoryLengthTarget("medium");
+    const longTargets = getStoryLengthTarget("long");
+    const lengthGuidance = {
+        short: `${shortSceneTarget} scenes, targeting a novella of ~${shortTargets.minWords.toLocaleString()}–${shortTargets.maxWords.toLocaleString()} words`,
+        medium: `${mediumSceneTarget} scenes, targeting a full novel of ~${mediumTargets.minWords.toLocaleString()}–${mediumTargets.maxWords.toLocaleString()} words`,
+        long: `${longSceneTarget} scenes, targeting an extended novel of ~${longTargets.minWords.toLocaleString()}–${longTargets.maxWords.toLocaleString()} words`,
+    };
+    // Source of truth: apps/worker/config/generation-params.yaml#story_length_policy
+    const totalSceneCount = getSceneTarget(targetLength);
+    const minClueScenes = Math.ceil(totalSceneCount * config.pacing.min_clue_scene_ratio);
+    // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
+    // percentage ranges. Ranges cause the LLM to pick inconsistent integer splits that
+    // don't always sum to totalSceneCount (e.g. 5+9+4=18 instead of 20).
+    const actIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act1_ratio);
+    const actIIScenes = Math.round(totalSceneCount * config.pacing.act_distribution.act2_ratio);
+    const actIIIScenes = totalSceneCount - actIScenes - actIIScenes; // remainder guarantees exact sum
+    const styleGuidance = {
+        classic: "Golden Age detective fiction style - puzzle-focused, rational deduction, restrained prose, emphasis on fair play clues",
+        modern: "Contemporary mystery style - character-driven, psychological depth, naturalistic dialogue, atmospheric tension",
+        atmospheric: "Gothic/noir style - mood and setting prominent, shadows and secrets, poetic prose, emphasis on dread and revelation",
+    };
+    // Act I entry-point rules based on detective type — this is non-negotiable story logic
+    const detectiveEntryRule = detectiveType === 'private'
+        ? `### Detective Entry (MANDATORY — Private Investigator)
+The private investigator is NOT present before the crime. A scene in Act I MUST show them being engaged by a client (one of the named cast members or a credible off-page party such as a solicitor or insurance agent). This scene must establish:
+- **Who the client is** and their relationship to the victim or the situation
+- **Why they are bypassing or supplementing the police** (distrust, desire for discretion, a specific question the police won't pursue)
+- **The PI's limited authority**: they cannot compel witnesses to speak; every interview must be earned through persuasion, charm, or the client's leverage
+Do NOT write Act I as if the PI was already on the scene. They arrive as an outsider, engaged after the fact.`
+        : detectiveType === 'amateur'
+            ? `### Detective Entry (MANDATORY — Amateur / Civilian)
+The amateur investigator has no official standing. Act I MUST establish, organically and plausibly:
+- **Why they were already present** (invited guest, local resident, stranded traveller, visiting relative) OR what specific event drew them in after the crime
+- **Why they are uniquely placed to investigate** despite having no authority (specialist knowledge, the victim's prior confidence in them, access to spaces or people the police can't reach socially)
+- **Their uneasy relationship with authority**: the official police (if present) may be dismissive, obstructive, or actively suspicious of their involvement. Other characters may refuse to cooperate.
+NEVER write the amateur as automatically welcomed or respected. Their involvement must be earned scene by scene.`
+            : `### Detective Entry (Police Inspector)
+The police detective/inspector is summoned in an official capacity following a formal report of the crime. They arrive at the scene with full investigative authority. Act I opens with or shortly after their official arrival. Witnesses are expected to cooperate; the detective can compel access.`;
+    const guardrailBlock = qualityGuardrails.length > 0
+        ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
+        : "";
+    const proseRequirementsBlock = buildProseRequirements(caseData);
+    return `# Narrative Outline Task
+
+Create a scene-by-scene outline for this mystery story.
+
+## Target Specifications
+- **Length**: ${targetLength} (${lengthGuidance[targetLength]})
+- **Style**: ${narrativeStyle} (${styleGuidance[narrativeStyle]})
+${proseRequirementsBlock}
+
+## Scene Construction Guidelines
+
+**CRITICAL — Scene count is FIXED:** You MUST produce EXACTLY **${totalSceneCount} scenes** total: **${actIScenes} in Act I**, **${actIIScenes} in Act II**, **${actIIIScenes} in Act III**. No more, no fewer. Count your scenes before submitting.
+
+### Act I: Setup (exactly ${actIScenes} scenes)
+- **Introduce the crime**: Discovery of victim, initial shock
+- **Establish setting**: Era atmosphere, location details
+- **Meet the cast**: Detective, suspects, witnesses
+- **Plant early clues**: Subtle hints, initial observations
+- **Support false assumption**: Lead reader toward wrong conclusion
+- **End with**: Detective commits to investigation, stakes established
+
+${detectiveEntryRule}
+
+### Act II: Investigation (exactly ${actIIScenes} scenes)
+- **Interview scenes**: Suspects reveal information, alibis, motives
+- **Clue discovery**: Physical evidence, testimonies, constraints
+- **Red herrings**: Misdirection supporting false assumption
+- **Character development**: Relationships, conflicts, secrets
+- **Discriminating test**: The crucial scene that shifts everything
+- **Rising tension**: Complications, dead ends, breakthroughs
+- **End with**: Detective has all pieces but hasn't assembled them
+
+### Act III: Resolution (exactly ${actIIIScenes} scenes)
+- **Revelation**: Detective assembles the solution
+- **Confrontation**: Culprit exposed, confession or capture
+- **Explanation**: How the clues fit together
+- **Justice**: Resolution of crime and consequences
+- **Denouement**: Loose ends tied, reflection, restoration
+
+## Scene Requirements
+
+Each scene must include:
+1. **Setting**: Location, time of day, atmosphere
+2. **Characters present**: Who appears in the scene
+3. **Purpose**: Why this scene exists narratively
+4. **Clues revealed**: Which clue IDs are naturally woven in
+5. **Dramatic elements**: Conflict, tension, revelation, or misdirection
+6. **Summary**: 2-3 sentence description of what happens
+7. **Fair-play parity**: All deductions must reference only clue IDs already listed in earlier scenes' cluesRevealed arrays — no deduction may rely on information not yet shown to the reader
+
+## CRITICAL: Fair Play Clue Sequencing Rules
+
+**You MUST enforce fair play by separating clue revelation from clue usage:**
+
+1. **Clue Revelation Scenes**: Scenes where the reader sees evidence, physical traces, witness statements, or observations
+   - Tag these scenes with clear clue IDs in cluesRevealed array
+   - Must occur in Act I or early-to-mid Act II
+
+2. **Investigation/Processing Scenes**: Scenes where detective analyzes, deduces, or pieces together clues
+   - Must occur AFTER the clues have been revealed (typically mid-to-late Act II)
+   - Cannot reference clues not yet shown to reader
+
+3. **Discriminating Test Scene**: The crucial scene where detective applies a test or key deduction
+   - Must occur in late Act II or early Act III
+   - Can ONLY use clues already revealed in prior scenes
+   - Include description of test mechanism explicitly
+
+4. **Confrontation/Revelation Scene**: Where detective accuses or reveals solution
+   - Must occur in Act III
+   - Must be AT LEAST 1-2 scenes AFTER the discriminating test scene
+   - Cannot introduce new clues during revelation - only synthesize existing ones
+
+**VIOLATION EXAMPLES (DO NOT DO THIS):**
+❌ Scene 12: "Detective finds pendulum note" + "Detective confronts suspect with note"
+❌ Scene 15: "Detective discovers clock tampering" + "Detective immediately tests suspect"  
+❌ Act III Scene 1: "Detective reveals premeditation knowledge reader never saw"
+
+**CORRECT SEQUENCING:**
+✅ Scene 8: "Detective finds pendulum note" (clue revealed to reader)
+✅ Scene 9-10: Investigation continues, other suspects interviewed
+✅ Scene 11: "Detective studies clock mechanism" (processing/analysis)
+✅ Scene 12: "Detective stages discriminating test using pendulum knowledge" (test using revealed clue)
+✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
+
+**Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
+
+## Pacing Principles
+- Alternate between action (discovery, confrontation) and reflection (deduction, analysis)
+- **EMOTIONAL BEATS**: Include at least 1 non-plot micro-moment beat per 5 scenes — a brief pause where a character grieves, hesitates, remembers, or fears, that does NOT advance the investigation but reveals emotional truth. Mark these with \`microMomentBeats\` in \`dramaticElements\` (array of 1-sentence beats). Readers engage with mystery through feeling, not just logic.
+- **CRITICAL — Clue Distribution**: Clues MUST appear in at least 60% of all scenes. Concretely: with ${totalSceneCount} scenes, at least ${minClueScenes} scenes must have a non-empty cluesRevealed array. Do NOT leave more than 2 consecutive scenes without any clue.
+- Space clues evenly across all three acts — no act should be entirely clue-free
+- Build tension toward act breaks
+- Use red herrings in Act I and early Act II
+- Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
+- Save essential clues for when inference path requires them
+- The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
+
+## CRITICAL: Character Names in Scenes
+In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.
+**NEVER** use role labels such as "detective", "butler", "suspect", "constable", "witness" — these are placeholder examples in the JSON schema, not real names.
+Every string in a scene's characters array must be a proper name that appears in the Cast of Characters.
+
+${detectiveType === 'amateur' || detectiveType === 'private'
+        ? `## CRITICAL: No Invented Police Officials
+This story has a **${detectiveType === 'amateur' ? 'civilian amateur' : 'private investigator'}** as the detective. Do NOT invent named police officials (no "Inspector [Surname]", no "Constable [Surname]", no "Sergeant [Surname]") anywhere in scene summaries, purposes, or dramaticElements. The only named characters are those in the Cast of Characters above. If police must appear, describe them anonymously: "a local constable", "the sergeant", "officers from the village". Any invented police name will be scrubbed automatically and will confuse the prose LLM.
+`
+        : ''}
+
+## CRITICAL: Follow Prose Requirements
+**You MUST include the scenes specified in the "Prose Requirements" section at the exact act/scene positions indicated.**
+- If a discriminating test scene is specified, that scene must appear at that position
+- If suspect clearance scenes are specified, each must appear at their designated positions
+- If a culprit revelation scene is specified, it must appear at that position
+- Scene descriptions must mention the required elements and clues indicated
+- These requirements are mandatory for story validation - missing them will cause generation failure
+${guardrailBlock}
+
+## Output Format
+
+Return a JSON object:
+
+\`\`\`json
+{
+  "acts": [
+    {
+      "actNumber": 1,
+      "title": "Act I: The Crime",
+      "purpose": "Establish mystery and introduce cast",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "act": 1,
+          "title": "Discovery",
+          "setting": {
+            "location": "${exampleLocation}",
+            "timeOfDay": "Morning after the murder",
+            "atmosphere": "Tense household awaiting the detective's arrival"
+          },
+          "characters": ["[EXACT NAME FROM CAST LIST]", "[EXACT NAME FROM CAST LIST]"],
+          "purpose": "Introduce the crime and detective",
+          "cluesRevealed": ["clue_1", "clue_2"],
+          "dramaticElements": {
+            "conflict": "Locked room mystery established",
+            "tension": "Every suspect had access to the victim",
+            "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
+          },
+          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
+          "estimatedWordCount": 1800
+        }
+      ],
+      "estimatedWordCount": 12000
+    }
+  ],
+  "totalScenes": 28,
+  "estimatedTotalWords": 45000,
+  "pacingNotes": [
+    "Discriminating test placed in Scene 19 (late Act II)",
+    "Red herrings concentrated in Scenes 4-8",
+    "Character development balanced with clue discovery"
+  ]
+}
+\`\`\`
+
+Create a complete, well-paced outline that brings this mystery to life.`;
+}
+// ============================================================================
+// Main Formatting Function
+// ============================================================================
+export async function formatNarrative(client, inputs) {
+    const config = getGenerationParams().agent7_narrative.params;
+    const resolvedTargetLength = inputs.targetLength ?? "medium";
+    const expectedSceneCount = getSceneTarget(resolvedTargetLength);
+    const sceneTargetTolerance = getChapterTargetTolerance();
+    const minAllowedSceneCount = Math.max(1, expectedSceneCount - sceneTargetTolerance);
+    const maxAllowedSceneCount = expectedSceneCount + sceneTargetTolerance;
+    const startTime = Date.now();
+    // Build the narrative prompt
+    const prompt = buildNarrativePrompt(inputs);
+    // Call LLM with JSON mode
+    // 16 000 tokens matches Agent 9 prose ceiling; 4 000 was too low for 16-scene outlines,
+    // causing JSON truncation → jsonrepair → missing required fields → schema validation failure.
+    const response = await client.chat({
+        messages: [
+            { role: "system", content: prompt.system },
+            { role: "developer", content: prompt.developer },
+            { role: "user", content: prompt.user }
+        ],
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
+        jsonMode: true,
+        logContext: {
+            runId: inputs.runId || "unknown",
+            projectId: inputs.projectId || "unknown",
+            agent: "Agent7-NarrativeFormatter"
+        }
+    });
+    // Guard against token-limit truncation before attempting JSON parse.
+    // jsonrepair can reconstruct truncated JSON but leaves required fields null/absent,
+    // which then fails artifact schema validation on both the first attempt and the
+    // schema-repair retry, aborting the pipeline with a misleading error.
+    if (response.finishReason === "length") {
+        throw new Error(`Narrative outline response was truncated (finish_reason=length, completionTokens=${response.usage.completionTokens}). ` +
+            `Increase maxTokens or reduce scene count.`);
+    }
+    const durationMs = Date.now() - startTime;
+    const costTracker = client.getCostTracker();
+    const cost = costTracker.getSummary().byAgent["Agent7-NarrativeFormatter"] || 0;
+    // Parse the narrative outline
+    let outlineData;
+    try {
+        outlineData = JSON.parse(response.content);
+    }
+    catch (error) {
+        try {
+            const repaired = jsonrepair(response.content);
+            outlineData = JSON.parse(repaired);
+        }
+        catch {
+            const trimmed = response.content.trim();
+            const start = trimmed.indexOf("{");
+            const end = trimmed.lastIndexOf("}");
+            if (start !== -1 && end > start) {
+                const candidate = trimmed.slice(start, end + 1);
+                try {
+                    outlineData = JSON.parse(candidate);
+                }
+                catch (candidateError) {
+                    throw new Error(`Failed to parse narrative outline JSON: ${candidateError}`);
+                }
+            }
+            else {
+                throw new Error(`Failed to parse narrative outline JSON: ${error}`);
+            }
+        }
+    }
+    // Validate required fields
+    if (!outlineData.acts || !Array.isArray(outlineData.acts) || outlineData.acts.length === 0) {
+        throw new Error("Invalid narrative outline: missing or empty acts array");
+    }
+    if (!outlineData.totalScenes || !outlineData.estimatedTotalWords) {
+        const acts = outlineData.acts ?? [];
+        const allScenes = acts.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
+        const computedTotalScenes = allScenes.length;
+        const computedTotalWords = allScenes.reduce((sum, scene) => sum + (typeof scene.estimatedWordCount === "number" ? scene.estimatedWordCount : 0), 0);
+        outlineData = {
+            ...outlineData,
+            totalScenes: outlineData.totalScenes ?? computedTotalScenes,
+            estimatedTotalWords: outlineData.estimatedTotalWords ?? computedTotalWords,
+        };
+    }
+    const actualSceneCount = (outlineData.acts ?? []).reduce((sum, act) => sum + (Array.isArray(act.scenes) ? act.scenes.length : 0), 0);
+    if (actualSceneCount < minAllowedSceneCount || actualSceneCount > maxAllowedSceneCount) {
+        throw new Error(`Invalid narrative outline: expected ${expectedSceneCount} scenes for ${resolvedTargetLength} with tolerance +/-${sceneTargetTolerance} ` +
+            `(allowed ${minAllowedSceneCount}-${maxAllowedSceneCount}), got ${actualSceneCount} ` +
+            `[source outline.acts[].scenes; YAML target apps/worker/config/generation-params.yaml#story_length_policy.chapter_targets.${resolvedTargetLength}; tolerance apps/worker/config/generation-params.yaml#story_length_policy.chapter_target_tolerance]`);
+    }
+    if (outlineData.totalScenes !== actualSceneCount) {
+        outlineData = {
+            ...outlineData,
+            totalScenes: actualSceneCount,
+        };
+    }
+    return {
+        ...outlineData,
+        cost,
+        durationMs,
+    };
+}
+//# sourceMappingURL=agent7-narrative.js.map

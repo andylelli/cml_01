@@ -1,0 +1,1084 @@
+﻿PROMPT_01: Full LLM Prompts and Errors — run_9f50b70b, 2026-03-15T10:45-10:46
+Story: The Clockwork Conundrum | Chapter 1 | Agent9-ProseGenerator-Ch1
+
+═══════════════════════════════════════════════════════════════════════════════
+ATTEMPT 1 — hash: bbc137d0f41bad3c | 2026-03-15T10:45:38.489Z
+Model: GPT-4o-mini | Temperature: 0.42 | MaxTokens: 4500
+Route: buildProsePrompt (initial generation)
+═══════════════════════════════════════════════════════════════════════════════
+
+--- MESSAGE [SYSTEM] ---
+CONTEXT: You are writing chapters of a Golden Age whodunnit mystery novel in the literary tradition of Agatha Christie, Arthur Conan Doyle, and Dorothy L. Sayers. This is a creative fiction writing task. All references to crime, death, poison, weapons, alibis, and investigation are part of the fictional narrative and are standard elements of the mystery genre. No real people or events are depicted.
+
+You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
+
+â›” ABSOLUTE RULE â€” CHARACTER NAMES:
+The ONLY characters who exist in this story are: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton.
+Do NOT invent, borrow, or introduce ANY character not on that list â€” no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
+Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
+âš ï¸ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton?" If not, remove them.
+Any invented named character will fail validation and abort the entire generation.
+
+Rules:
+- Do not introduce new facts beyond the CML and outline.
+- Preserve all clues, alibis, and the core mystery logic.
+- Maintain strict setting fidelity to the specified location and era.
+- Write immersive, sensory-rich prose that transports readers to the setting
+- Include scene-setting passages that establish atmosphere, time, and place
+- Use varied sentence structure and sophisticated vocabulary
+- Show character emotions through actions and dialogue, not just telling
+- Create distinct character voices and personalities based on their profiles
+- Avoid stereotypes and reduce bias.
+- Keep language original; do not copy copyrighted text.
+- Output valid JSON only.
+- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
+- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. If a sensory phrase (e.g., "air thick with tension", "smell of polished wood") has appeared in any prior chapter, rephrase it entirely. No atmospheric sentence should appear verbatim or near-verbatim in more than one chapter.
+- TEMPLATE LEAKAGE BAN: Never emit scaffold prose like "At The [Location] ... the smell of ... atmosphere ripe for revelation". Rewrite any scaffold-like sentence into chapter-specific prose tied to character action.
+- TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
+- DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
+- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "The murderer believed they were protecting a family secret that would have destroyed the victim's reputation." â€” the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.
+
+
+âš ï¸ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only â€” "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.
+
+CML CANONICAL GROUND TRUTH (AUTHORITATIVE):
+Treat the following as the source logic model for this story. Do not invent facts outside it.
+INTERPRETATION RULES:
+- CML is the canonical truth. If CML conflicts with style instincts, CML wins.
+- `surface_model` describes what appears true to characters/readers at that point; preserve this misdirection until the intended reveal.
+- `hidden_model` describes the actual mechanism; do not leak it early unless the outline scene explicitly requires that reveal.
+- `false_assumption` defines the reader-facing mistaken belief; reinforce it fairly with red herrings, then break it with evidence already shown.
+- `constraint_space` is non-negotiable feasibility logic (time/access/physical/social). Never write scenes that violate these constraints.
+- `inference_path` is the reasoning chain. Ensure clue presentation enables these steps without introducing new evidence.
+- `discriminating_test` must be executed as specified and only with previously surfaced evidence.
+- Cast names/pronouns are immutable. Never add named entities outside canonical cast.
+CML SNAPSHOT (for this batch):
+{
+  "title": "The Clockwork Conundrum",
+  "era": "1940s",
+  "setting": "Little Middleton",
+  "crime": {
+    "category": "murder",
+    "subtype": "unknown"
+  },
+  "falseAssumption": {
+    "statement": "The murder must have occurred at the time indicated by the clock.",
+    "type": "temporal",
+    "why_it_seems_reasonable": "The clock appears to show the correct time, leading to the assumption that the time of death is accurate.",
+    "what_it_hides": "The actual time of death is later than suggested, making the timeline misleading."
+  },
+  "discriminatingTest": {
+    "method": "trap",
+    "design": "Set up a scenario where guests are asked to adjust the clock in front of witnesses, revealing who hesitates or shows knowledge about the clock mechanism.",
+    "knowledge_revealed": "The suspect's familiarity with the clock indicates prior tampering.",
+    "pass_condition": "Only Stephen Norwood hesitates and shows knowledge about the clock.",
+    "evidence_clues": [
+      "clue_1",
+      "clue_2",
+      "clue_3",
+      "clue_4",
+      "clue_5",
+      "clue_6",
+      "clue_7",
+      "clue_8",
+      "clue_9"
+    ]
+  },
+  "constraintSpace": {
+    "time": {
+      "anchors": [
+        "Midnight (time of discovery)",
+        "Eleven ten (time shown on the clock)"
+      ],
+      "windows": [
+        "11:00 PM to 11:15 PM (window for the murder)",
+        "10:45 PM to 11:30 PM (Stephen Norwood's alibi)"
+      ],
+      "contradictions": [
+        "Witness testimony states clock chimed at midnight, contradicting the indicated time."
+      ]
+    },
+    "access": {
+      "actors": [
+        "Stephen Norwood",
+        "Helen Jevons",
+[truncated for prompt budget]
+
+
+CRITICAL CHARACTER CONSISTENCY RULES:
+
+1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.
+   COMPLETE CAST (no other named characters exist): Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton
+   - "Mr. Jennings entered the room" â†’ ILLEGAL. Jennings is not in the cast.
+   - "Constable Reed took notes" â†’ ILLEGAL. Reed is not in the cast.
+   - "A constable took notes" â†’ LEGAL (no name given).
+
+2. Gender pronouns must match character definition:
+   - Stephen Norwood: he/him/his
+   - Helen Jevons: she/her/her
+   - Monica Canning: she/her/her
+   - Elizabeth Pendleton: she/her/her
+   - Alastair Langton: he/him/his
+   - Never switch pronouns mid-story
+
+3. Character roles are fixed:
+   - Stephen Norwood: character
+   - Helen Jevons: character
+   - Monica Canning: character
+   - Elizabeth Pendleton: character
+   - Alastair Langton: character
+   - Never place characters in locations inconsistent with their role
+
+CHARACTER PERSONALITIES, VOICES & HUMOUR:
+
+Each character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:
+
+Stephen Norwood:
+  Public: Stephen Norwood is the epitome of confidence, often presenting himself as the rising star of Little Middleton's financial sector. His tailored suits and sharp analytical mind make him a respected figure, and he revels in the attention his status garners. He carries himself with an assuredness that inspires both admiration and envy among his peers.
+  Hidden: Beneath the surface, Stephen grapples with crippling debts from failed investments. In a desperate bid to maintain his faÃ§ade, he has resorted to embezzling company funds, a precarious gamble that could unravel his entire life if discovered.
+  Stakes: If his embezzlement is uncovered, Stephen stands to lose not only his job but also his freedom, a fate he is increasingly desperate to avoid.
+  Humour: dry wit (level 0.5 - occasionally witty). Sharp observations about human behaviour. Concise, often one-liners.
+  Voice & Mannerisms: Stephen speaks with a calculated precision, often pausing for effect as he chooses his words carefully. His dialogue is peppered with business jargon and an occasional sardonic quip, reflecting his analytical nature and dry sense of humor.
+  Internal Conflict: Stephen is torn between the desire to maintain his status and the gnawing fear of exposure. The weight of his secrets creates an internal struggle that threatens to derail his carefully constructed life.
+  Personal Stake in Case: This crime matters deeply to Stephen, as it represents not just a potential scandal but the very foundation of his life. The investigation could expose his financial misdeeds and shatter his ambitions.
+
+Helen Jevons:
+  Public: Helen Jevons is the embodiment of compassion, known throughout Little Middleton for her unwavering dedication to helping those in need. With a warm smile and a gentle demeanor, she has earned the trust of the community, often seen tending to the vulnerable and advocating for social justice.
+  Hidden: However, beneath her altruistic exterior lies a tumultuous secret: an affair with Stephen Norwood. This relationship, while passionate, has ensnared her in a web of deceit that threatens her career and reputation.
+  Stakes: The potential exposure of her affair could not only tarnish her reputation but also jeopardize her career as a dedicated social worker, a fate she fears more than anything.
+  Humour: self deprecating (level 0.3 - rarely witty). Turns wit inward. Disarming, often hides intelligence or pain.
+  Voice & Mannerisms: Helen speaks softly and empathetically, often using gentle phrases and an inviting tone. She has a tendency to downplay her own accomplishments, frequently deflecting compliments and redirecting the focus to others.
+  Internal Conflict: Helen is caught in a moral tug-of-war, wrestling with her loyalty to Stephen against her professional ethics. The guilt of her affair gnaws at her conscience, and she fears the repercussions of her choices.
+  Personal Stake in Case: This crime resonates deeply with Helen, as it threatens to expose her affair and unravel the life she has built. The investigation serves as a catalyst for her to confront her own values and the choices she has made.
+
+Monica Canning:
+  Public: Monica Canning is a cultured and charismatic figure in Little Middleton, known for her exquisite taste in art and her keen business acumen. As the
+[truncated for prompt budget]
+
+
+PHYSICAL PLAUSIBILITY REQUIREMENTS:
+
+All physical evidence must obey real-world physics:
+
+1. VIABLE Evidence by Location:
+   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents
+   Exterior (calm): secured items, structural damage, witness observations
+   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence
+
+2. IMPLAUSIBLE Evidence (DO NOT USE):
+   âŒ Footprints on wooden deck (treated wood doesn't retain prints)
+   âŒ Footprints in rain/storm (washed away immediately)
+   âŒ Metal embedded in hardwood (requires bullet velocity, not human force)
+   âŒ Light objects in storm (blown away)
+
+3. For struggle evidence use:
+   âœ“ Overturned furniture, torn clothing, scattered items, defensive wounds
+   âŒ Objects embedded in hard surfaces, shattered steel/iron
+ERA AUTHENTICITY (1940s):
+
+1. FORBIDDEN terms (did not exist):
+   âŒ Modern technology
+
+2. REQUIRED period markers (include 2+ per scene):
+   âœ“ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady
+   âœ“ Period technology: period-appropriate items
+   âœ“ Fashion: period clothing
+
+3. Use period-authentic language and social norms
+
+â›” LOCKED FACTS â€” DO NOT CONTRADICT:
+The following physical evidence values are ground truth established by the mystery's logic. Use them verbatim whenever the relevant evidence is described. NEVER introduce a different number, time, distance, or quantity for these facts across any chapter:
+  - The exact time shown on the stopped clock face: "ten minutes past eleven"
+  - The exact amount the clock was wound back: "forty minutes"
+
+â›” CLUES TO SURFACE IN THESE CHAPTERS â€” mandatory:
+The following evidence MUST be clearly observable to an attentive reader. Do not bury it in atmosphere or passing dialogue. Each clue must be concrete, specific, and noticeable:
+
+â€¢ [clue_3] Fingerprints are found on the clock mechanism.
+  Category: physical | Criticality: essential | Supports inference step 2
+  Points to: Suggests tampering with the clock.
+
+Temporary technical marker mode (enabled): include the exact marker token for each REQUIRED clue in the same sentence as its observable evidence.
+Marker format: [[CLUE_ID:<required_clue_id>]]
+These markers are required for validator reliability and will be removed before final prose output.
+  - Required marker: [[CLUE_ID:clue_3]]
+
+For each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.
+
+â•â•â• NARRATIVE STATE (read-only â€” do not contradict) â•â•â•
+
+LOCKED FACTS â€” use verbatim whenever this evidence is described:
+  â€¢ The exact time shown on the stopped clock face: "ten minutes past eleven"
+  â€¢ The exact amount the clock was wound back: "forty minutes"
+
+CHARACTER PRONOUNS â€” never deviate from these:
+  â€¢ Stephen Norwood: he/him/his
+  â€¢ Helen Jevons: she/her/her
+  â€¢ Monica Canning: she/her/her
+  â€¢ Elizabeth Pendleton: she/her/her
+  â€¢ Alastair Langton: he/him/his
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+SCENE GROUNDING CHECKLIST (MUST FOLLOW):
+Known location profile anchors: Hastings Manor, The Library, The Rose Room
+- Chapter 1: anchor opening in "the library of the Norwood estate"; include 2+ sensory cues and 1+ atmosphere marker before major dialogue.
+
+PROMPT BUDGET SUMMARY: budget=6200 tokens; fixed=3130; context=2673; dropped=[humour_guide, craft_guide, location_profiles, temporal_context]; truncated=[cml_ground_truth, character_personality, location_profiles]
+
+# Prose Output Schema
+Return JSON with this structure:
+
+{
+  "status": "draft",
+  "tone": "classic|modern|atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter title",
+      "summary": "1-2 sentence summary",
+      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]
+    }
+  ],
+  "cast": ["Name 1", "Name 2"],
+  "note": ""
+}
+
+Requirements:
+- Write exactly one chapter per outline scene (1 total).
+- Chapter numbering starts at 1 and increments by 1 per scene.
+- Each chapter has 4-6 substantial paragraphs â€” HARD FLOOR 525 words, PREFERRED 1400 words.
+- Use classic tone and short length guidance.
+- Reflect the outline summary in each chapter.
+- Keep all logic consistent with CML (no new facts).
+
+NOVEL-QUALITY PROSE REQUIREMENTS:
+
+1. SCENE-SETTING: Begin key scenes with atmospheric description
+   - Establish time of day, weather, lighting
+   - Describe location using sensory details (sight, sound, smell, touch)
+   - Set mood and atmosphere before action begins
+   - Use location and temporal context to ground reader
+   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+
+   Generate new descriptions using actual location and character names from the provided profiles.
+
+2. SHOW, DON'T TELL: Use concrete details and actions
+   âŒ "She was nervous."
+   âœ“ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."
+   - Body language reveals emotion
+   - Actions reveal character
+   - Environment reflects internal state
+
+3. VARIED SENTENCE STRUCTURE:
+   - Mix short, punchy sentences with longer, flowing ones
+   - Use sentence rhythm to control pacing
+   - Short sentences for tension, longer for description
+   - Paragraph variety: Some 2 lines, some 8 lines
+
+4. DIALOGUE THAT REVEALS CHARACTER:
+   - Each character has distinct speech patterns (see character profiles)
+   - Use dialogue tags sparingly (action beats instead)
+   - Subtext: characters don't always say what they mean
+   - Class/background affects vocabulary and formality
+   - Tension through what's NOT said
+   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
+
+   Use only character names from the provided cast list.
+
+5. SENSORY IMMERSION:
+   - Include multiple senses per scene (2-3 minimum)
+   - Period-specific sensory details from location/temporal profiles
+   - Tactile details create immediacy
+   - Use sensory palette provided in location profiles
+   - Vary sensory focus: visual â†’ auditory â†’ olfactory â†’ tactile
+
+6. PARAGRAPH STRUCTURE:
+   - Opening: Hook with action, dialogue, or atmospheric detail
+   - Middle: Develop scene, reveal information, build tension
+   - Closing: End with revelation, question, or transition
+   - Each paragraph should advance story or deepen character
+
+7. PACING VARIATION:
+   - Action scenes: Short paragraphs (2-4 lines), quick succession
+   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm
+   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description
+   - Revelation scenes: Build slowly with long paragraphs, climax with short punch
+
+8. EMOTIONAL SUBTEXT & TENSION:
+   - Characters have hidden secrets/stakes (see character profiles)
+   - Every interaction carries subtext based on relationships
+   - Build tension through: pauses, interrupted speech, avoided topics, body language
+   - Mystery atmosphere: Suspicion, unease, watchfulness
+   - Use weather/atmosphere to mirror emotional tension
+
+QUALITY GUARDRAILS (MUST SATISFY):
+1. FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.
+2. FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.
+3. FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.
+4. FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters.
+5. Use only canonical cast names from CML. Do not invent titled placeholders like 'Detective Surname', 'Inspector Surname', 'a woman Surname', or 'a man Surname'.
+6. Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.
+7. In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).
+
+CRITICAL PROSE REQUIREMENTS:
+
+The CML specifies exact requirements for certain validation-critical scenes. You MUST include these elements at the specified positions.
+
+**Discriminating Test Scene (Act 3, Scene 4):**
+Required elements: Execute the discriminating test, Observe the culprit's reaction or result, Draw conclusion about guilt
+Outcome: N/A
+
+**Suspect Clearance Scenes:**
+- Helen Jevons (Act 3, Scene 5): Witness testimony confirms her alibi.
+  Clues: Witnesses confirm her presence elsewhere.
+- Monica Canning (Act 3, Scene 5): Evidence of her last painting time confirms her alibi.
+  Clues: Time of her painting matches her alibi.
+
+**Culprit Revelation Scene (Act 3, Scene 6):**
+Method: Confrontation with evidence gathered.
+
+**VALIDATION CONSEQUENCE:** If these requirements are not met exactly, story validation will fail and the entire generation will be rejected, costing $5-8 to regenerate. Follow these specifications precisely.
+
+
+WORD COUNT IS RIGID FOR THIS CHAPTER.
+- Target for this short chapter: 1600 words.
+- Absolute minimum hard floor: 525 words.
+- If your draft is below 1600, expand with concrete actions, dialogue, and evidence-linked beats until it reaches at least 1600 words.
+- Do not submit a chapter below 525 words under any circumstance.
+
+IMMUTABLE PRONOUN MAP (NON-OVERRIDABLE):
+- Stephen Norwood: he/him/his
+- Helen Jevons: she/her/her
+- Monica Canning: she/her/her
+- Elizabeth Pendleton: she/her/her
+- Alastair Langton: he/him/his
+- Do not switch or reinterpret these pronouns in any chapter.
+- Any pronoun mismatch invalidates the chapter.
+
+--- MESSAGE [USER] ---
+Write the full prose following the outline scenes.
+
+# Case Overview
+Title: The Clockwork Conundrum
+Era: 1940s
+Setting: Little Middleton
+Crime: murder (unknown)
+Culprit: Stephen Norwood
+False assumption: The murder must have occurred at the time indicated by the clock.
+Cast: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton
+
+Setting Lock: Keep all scenes and descriptions consistent with the stated setting (Little Middleton). Do not introduce a different location type.
+
+Outline scenes:
+[
+  {
+    "sceneNumber": 1,
+    "act": 1,
+    "title": "Discovery",
+    "setting": {
+      "location": "the library of the Norwood estate",
+      "timeOfDay": "Midnight",
+      "atmosphere": "Tense and foreboding as guests gather after the murder"
+    },
+    "characters": [
+      "Elizabeth Pendleton",
+      "Stephen Norwood",
+      "Helen Jevons",
+      "Monica Canning",
+      "Alastair Langton"
+    ],
+    "purpose": "Introduce the crime and set the stage for investigation",
+    "cluesRevealed": [
+      "clue_3"
+    ],
+    "dramaticElements": {
+      "conflict": "Guests are in shock over the murder",
+      "tension": "Suspicion begins to build among the guests",
+      "microMomentBeats": [
+        "Elizabeth feels a chill as she steps into the room, sensing something is amiss."
+      ]
+    },
+    "summary": "As the clock strikes midnight, a scream echoes through the Norwood estate. Guests rush to the library to find Stephen Norwood standing over the lifeless body of an unknown victim. Panic ensues, and Elizabeth Pendleton, a local amateur detective, decides to investigate the matter further.",
+    "estimatedWordCount": 800
+  }
+]
+
+─── ERRORS AFTER ATTEMPT 1 ───
+• Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: his
+• Chapter 1: Chapter 1 presents an anonymous victim ("body of an unknown person"). The murder victim must have a name and identity established for the reader.
+
+═══════════════════════════════════════════════════════════════════════════════
+ATTEMPT 2 — hash: 161e88fa528d869c | 2026-03-15T10:45:48.729Z
+Model: GPT-4o-mini | Temperature: 0.42 | MaxTokens: 4500
+Route: buildLeanRevisionMessages (surgical revision with prior prose as assistant role)
+═══════════════════════════════════════════════════════════════════════════════
+
+--- MESSAGE [SYSTEM] ---
+CONTEXT: You are editing chapters of a mystery fiction manuscript in the tradition of Agatha Christie and Arthur Conan Doyle.
+This is a creative writing editing task. All references to crime, death, murder, poison, weapons, alibis, and investigation are part of the fictional narrative and are standard elements of the mystery genre.
+
+You are a surgical prose repair assistant. Revise ONLY the specific defects listed by the validator.
+Preserve all valid text as-is unless a change is required to fix a listed defect.
+Keep chapter count/order unchanged and do not add/remove chapters.
+
+CHARACTER MAP (immutable):
+- Stephen Norwood: he/him/his
+- Helen Jevons: she/her/her
+- Monica Canning: she/her/her
+- Elizabeth Pendleton: she/her/her
+- Alastair Langton: he/him/his
+
+WORD TARGETS: hard floor 525 words, preferred 1400 words per chapter.
+
+Return valid JSON only.
+
+--- MESSAGE [USER] ---
+âš ï¸ CRITICAL: Attempt 2/4 for chapters 1 had 2 validation error(s).
+
+You MUST fix ALL of these issues. This is your last chance before generation fails.
+
+MANDATORY FIX ORDER (APPLY IN THIS EXACT ORDER):
+1. Word count first: each failed chapter must satisfy the hard-floor target in the validator message.
+2. Victim naming second: Chapter 1 must name the victim as "Alastair Langton" and must not use unknown-victim placeholders.
+3. Pronouns third: keep this immutable map exactly -> - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+4. Style and pacing fourth: revise voice/rhythm only after rules 1-3 are satisfied.
+
+â•â•â• CHARACTER NAME ERRORS (1) â•â•â•
+â€¢ Chapter 1: Chapter 1 presents an anonymous victim ("body of an unknown person"). The murder victim must have a name and identity established for the reader. (Replace anonymous victim language with the victim's proper name and a brief characterisation so the reader mourns a real person.)
+
+âœ“ SOLUTION: The ONLY characters who exist are: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton
+âŒ You used one or more names that are NOT in the cast list above. Find every invented name and either replace it with a real cast member or cut the passage entirely.
+âœ“ Do NOT introduce any new named character. Walk-on figures must remain anonymous ("a constable", "the footman") â€” never Mr./Mrs./Inspector [surname].
+
+âœ“ Never use rank compounds as names (e.g., "Detective Inspector"). If needed, use anonymous role phrases only: "the detective", "an inspector".
+
+â•â•â• PRONOUN CONSISTENCY ERRORS (1) â•â•â•
+â€¢ Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: his (Use she/her/her consistently for Helen Jevons)
+
+âœ“ SOLUTION: Use this immutable pronoun map exactly for every mention in failed chapters:
+â€¢ Stephen Norwood: he/him/his
+â€¢ Helen Jevons: she/her/her
+â€¢ Monica Canning: she/her/her
+â€¢ Elizabeth Pendleton: she/her/her
+â€¢ Alastair Langton: he/him/his
+âœ“ Replace mismatched pronouns in-place first, then re-read each sentence to ensure references remain coherent.
+
+â•â•â• RETRY MICRO-PROMPTS (1) â•â•â•
+â€¢ MICRO-PROMPT [pronoun_consistency]: Replace every mismatched pronoun token with the canonical character pronoun set and re-check each mention in-scene. Enforce this exact map without deviation: - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+
+â•â•â• STABILITY ANCHOR â•â•â•
+Before regenerating, note what already PASSED in the previous attempt and preserve it:
+â€¢ Character names and pronouns that were correct â€” keep them identical.
+â€¢ Clue references that were already surfaced â€” do not remove or weaken them.
+â€¢ Victim naming that was already present â€” do not regress.
+â€¢ Word count that already met the floor â€” do not shrink chapters.
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+REGENERATE chapters 1 with ALL listed fixes applied.
+Fix every listed error. Do NOT introduce new defects while fixing existing ones.
+
+
+--- MESSAGE [ASSISTANT] ---
+{
+  "chapters": [
+    {
+      "chapterNumber": 1,
+      "title": "Discovery",
+      "summary": "As the clock strikes midnight, a scream echoes through the Norwood estate. Guests rush to the library to find Stephen Norwood standing over the lifeless body of an unknown victim. Panic ensues, and Elizabeth Pendleton, a local amateur detective, decides to investigate the matter further.",
+      "paragraphs": [
+        "The clock in the library of the Norwood estate chimed midnight, its deep, resonant tones reverberating through the grand room, a stark contrast to the tense silence that enveloped the guests. Shadows danced along the walls, cast by the flickering candlelight, creating an atmosphere thick with foreboding. Elizabeth Pendleton stepped into the library, her heart racing as she felt an inexplicable chill creep up her spine. The air was heavy, laden with a sense of dread that seemed to cling to her like a shroud. She could sense something was amiss, and as she glanced around the room, her instincts were confirmed. The guests, once animated with laughter and chatter, now stood frozen in shock, their faces pale and eyes wide with disbelief. In the centre of the room, Stephen Norwood loomed over a lifeless body, his expression a mixture of horror and confusion.",
+        "A piercing scream had shattered the evening's revelry, drawing everyone to the library in a frantic rush. The sight that greeted them was one none would soon forget: the body of an unknown victim sprawled on the floor, the rich carpet absorbing the crimson stain that spread from the wound. Elizabeth's eyes darted to Stephen, who stood rigid, his hands trembling slightly at his sides, as if he were still trying to comprehend the nightmare unfolding before him. The guests exchanged anxious glances, their minds racing with questions and suspicions. How had this happened? Who was responsible? And why had Stephen been the one to discover the body?",
+        "Helen Jevons, her face pale and drawn, stepped closer to Stephen, her voice barely above a whisper. \"What happened?\" she asked, her eyes searching his for answers. Stephen's gaze flickered to him, a flicker of something unreadable passing between them before he turned back to the body. \"I donâ€™t know, Helen. I just... I came in here, and...\" Her voice trailed off, lost in the chaos that had erupted around them. Elizabeth moved closer, her keen observational skills kicking into gear. He noted the way Stephen's brow furrowed, the slight tremor in his hands, and the way he avoided making eye contact with the others. There was something unsettling about his demeanor, a hint of guilt that he could not ignore.",
+        "Monica Canning, her usual composure shattered, clutched her pearls, her eyes darting from the body to Stephen and back again. \"This is dreadful! We must call the police!\" she exclaimed, her voice rising in pitch. Alastair Langton, standing nearby, nodded in agreement but seemed more preoccupied with the clock, its hands frozen at ten minutes past eleven. \"We should not touch anything until they arrive,\" he cautioned, his voice steady despite the turmoil around him. Elizabeth's mind raced as she considered the implications of the clock's position. If the time was accurate, it suggested a very specific window for the murder, but something about it felt off. She had always been drawn to puzzles, and this one was shaping up to be a complex enigma.",
+        "As the guests began to murmur amongst themselves, Elizabeth stepped closer to the clock, her eyes narrowing as she examined the mechanism. It was then that she noticed the faint smudges on the clock's surface, almost imperceptible but telling in their implications. Fingerprints. Someone had tampered with the clock, and that someone was likely to be in this very room. A wave of determination washed over her; she would not let this tragedy go unexamined. The truth lay hidden among them, and she was resolved to uncover it. With the tension palpable and suspicion mounting, Elizabeth took a deep breath and prepared to delve into the murky depths of this mystery, where secrets lurked and danger awaited.",
+        "The atmosphere in the library was thick with uncertainty, each guest a potential suspect, each glance a silent accusation. Elizabeth knew that the path ahead would be fraught with challenges, but she felt a stirring within herâ€”a call to action. The clock had struck midnight, marking not just the end of an evening but the beginning of an investigation that would change their lives forever."
+      ]
+    }
+  ]
+}
+
+--- MESSAGE [USER] ---
+Retry mode: SURGICAL REVISION of previous prose.
+
+â•â•â• NON-NEGOTIABLE PRESERVATION RULE â•â•â•
+You are editing, NOT rewriting. Your previous draft (in the conversation history above) is your starting point.
+- Return EVERY paragraph from the previous prose verbatim unless it contains a listed defect.
+- Do NOT shorten, rephrase, merge, or omit passages that already pass validation.
+- Do NOT reduce word count while fixing other defects â€” if a chapter already meets its word floor, keep it at or above that length.
+- If a chapter needs MORE words, expand by adding new beats â€” never compress existing valid text to make room.
+- Clue references, victim naming, and character names that are already correct MUST survive unchanged.
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+MANDATORY FIX ORDER (APPLY IN THIS EXACT ORDER):
+1. Word count first: each revised chapter must satisfy the validator hard-floor target.
+2. Victim naming second: Chapter 1 must name the victim explicitly and avoid unknown-victim placeholders.
+3. Pronouns third: keep this immutable map exactly -> - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+4. Style and pacing fourth: improve prose flow only after rules 1-3 are fully satisfied.
+
+Fix ONLY these errors:
+- Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: his (Use she/her/her consistently for Helen Jevons)
+- Chapter 1: Chapter 1 presents an anonymous victim ("body of an unknown person"). The murder victim must have a name and identity established for the reader. (Replace anonymous victim language with the victim's proper name and a brief characterisation so the reader mourns a real person.)
+
+Return this JSON schema exactly:
+{"chapters":[{"title":"...","summary":"...","paragraphs":["...","..."]}]}
+
+─── ERRORS AFTER ATTEMPT 2 ───
+• CONTENT FILTER: The response was filtered due to the prompt triggering Azure OpenAI's content management policy.
+  errorCode: content_filter
+  Timestamp: 2026-03-15T10:45:58.527Z (latency ~10s)
+  Effect: suppressRevision = true; lastBatchErrors kept as ["[object Object]"]; lastFailedBatchChapters kept null
+
+═══════════════════════════════════════════════════════════════════════════════
+ATTEMPT 3 — hash: 631b34c002e32ad5 | 2026-03-15T10:45:58.542Z
+Model: GPT-4o-mini | Temperature: 0.42 | MaxTokens: 4500
+Route: buildProsePrompt (full, suppressRevision=true — note feedback shows [object Object])
+═══════════════════════════════════════════════════════════════════════════════
+
+--- MESSAGE [SYSTEM] ---
+CONTEXT: You are writing chapters of a Golden Age whodunnit mystery novel in the literary tradition of Agatha Christie, Arthur Conan Doyle, and Dorothy L. Sayers. This is a creative fiction writing task. All references to crime, death, poison, weapons, alibis, and investigation are part of the fictional narrative and are standard elements of the mystery genre. No real people or events are depicted.
+
+You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
+
+â›” ABSOLUTE RULE â€” CHARACTER NAMES:
+The ONLY characters who exist in this story are: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton.
+Do NOT invent, borrow, or introduce ANY character not on that list â€” no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
+Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
+âš ï¸ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton?" If not, remove them.
+Any invented named character will fail validation and abort the entire generation.
+
+Rules:
+- Do not introduce new facts beyond the CML and outline.
+- Preserve all clues, alibis, and the core mystery logic.
+- Maintain strict setting fidelity to the specified location and era.
+- Write immersive, sensory-rich prose that transports readers to the setting
+- Include scene-setting passages that establish atmosphere, time, and place
+- Use varied sentence structure and sophisticated vocabulary
+- Show character emotions through actions and dialogue, not just telling
+- Create distinct character voices and personalities based on their profiles
+- Avoid stereotypes and reduce bias.
+- Keep language original; do not copy copyrighted text.
+- Output valid JSON only.
+- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
+- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. If a sensory phrase (e.g., "air thick with tension", "smell of polished wood") has appeared in any prior chapter, rephrase it entirely. No atmospheric sentence should appear verbatim or near-verbatim in more than one chapter.
+- TEMPLATE LEAKAGE BAN: Never emit scaffold prose like "At The [Location] ... the smell of ... atmosphere ripe for revelation". Rewrite any scaffold-like sentence into chapter-specific prose tied to character action.
+- TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
+- DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
+- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "The murderer believed they were protecting a family secret that would have destroyed the victim's reputation." â€” the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.
+
+
+âš ï¸ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only â€” "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.
+
+CML CANONICAL GROUND TRUTH (AUTHORITATIVE):
+Treat the following as the source logic model for this story. Do not invent facts outside it.
+INTERPRETATION RULES:
+- CML is the canonical truth. If CML conflicts with style instincts, CML wins.
+- `surface_model` describes what appears true to characters/readers at that point; preserve this misdirection until the intended reveal.
+- `hidden_model` describes the actual mechanism; do not leak it early unless the outline scene explicitly requires that reveal.
+- `false_assumption` defines the reader-facing mistaken belief; reinforce it fairly with red herrings, then break it with evidence already shown.
+- `constraint_space` is non-negotiable feasibility logic (time/access/physical/social). Never write scenes that violate these constraints.
+- `inference_path` is the reasoning chain. Ensure clue presentation enables these steps without introducing new evidence.
+- `discriminating_test` must be executed as specified and only with previously surfaced evidence.
+- Cast names/pronouns are immutable. Never add named entities outside canonical cast.
+CML SNAPSHOT (for this batch):
+{
+  "title": "The Clockwork Conundrum",
+  "era": "1940s",
+  "setting": "Little Middleton",
+  "crime": {
+    "category": "murder",
+    "subtype": "unknown"
+  },
+  "falseAssumption": {
+    "statement": "The murder must have occurred at the time indicated by the clock.",
+    "type": "temporal",
+    "why_it_seems_reasonable": "The clock appears to show the correct time, leading to the assumption that the time of death is accurate.",
+    "what_it_hides": "The actual time of death is later than suggested, making the timeline misleading."
+  },
+  "discriminatingTest": {
+    "method": "trap",
+    "design": "Set up a scenario where guests are asked to adjust the clock in front of witnesses, revealing who hesitates or shows knowledge about the clock mechanism.",
+    "knowledge_revealed": "The suspect's familiarity with the clock indicates prior tampering.",
+    "pass_condition": "Only Stephen Norwood hesitates and shows knowledge about the clock.",
+    "evidence_clues": [
+      "clue_1",
+      "clue_2",
+      "clue_3",
+      "clue_4",
+      "clue_5",
+      "clue_6",
+      "clue_7",
+      "clue_8",
+      "clue_9"
+    ]
+  },
+  "constraintSpace": {
+    "time": {
+      "anchors": [
+        "Midnight (time of discovery)",
+        "Eleven ten (time shown on the clock)"
+      ],
+      "windows": [
+        "11:00 PM to 11:15 PM (window for the murder)",
+        "10:45 PM to 11:30 PM (Stephen Norwood's alibi)"
+      ],
+      "contradictions": [
+        "Witness testimony states clock chimed at midnight, contradicting the indicated time."
+      ]
+    },
+    "access": {
+      "actors": [
+        "Stephen Norwood",
+        "Helen Jevons",
+[truncated for prompt budget]
+
+
+CRITICAL CHARACTER CONSISTENCY RULES:
+
+1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.
+   COMPLETE CAST (no other named characters exist): Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton
+   - "Mr. Jennings entered the room" â†’ ILLEGAL. Jennings is not in the cast.
+   - "Constable Reed took notes" â†’ ILLEGAL. Reed is not in the cast.
+   - "A constable took notes" â†’ LEGAL (no name given).
+
+2. Gender pronouns must match character definition:
+   - Stephen Norwood: he/him/his
+   - Helen Jevons: she/her/her
+   - Monica Canning: she/her/her
+   - Elizabeth Pendleton: she/her/her
+   - Alastair Langton: he/him/his
+   - Never switch pronouns mid-story
+
+3. Character roles are fixed:
+   - Stephen Norwood: character
+   - Helen Jevons: character
+   - Monica Canning: character
+   - Elizabeth Pendleton: character
+   - Alastair Langton: character
+   - Never place characters in locations inconsistent with their role
+
+CHARACTER PERSONALITIES, VOICES & HUMOUR:
+
+Each character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:
+
+Stephen Norwood:
+  Public: Stephen Norwood is the epitome of confidence, often presenting himself as the rising star of Little Middleton's financial sector. His tailored suits and sharp analytical mind make him a respected figure, and he revels in the attention his status garners. He carries himself with an assuredness that inspires both admiration and envy among his peers.
+  Hidden: Beneath the surface, Stephen grapples with crippling debts from failed investments. In a desperate bid to maintain his faÃ§ade, he has resorted to embezzling company funds, a precarious gamble that could unravel his entire life if discovered.
+  Stakes: If his embezzlement is uncovered, Stephen stands to lose not only his job but also his freedom, a fate he is increasingly desperate to avoid.
+  Humour: dry wit (level 0.5 - occasionally witty). Sharp observations about human behaviour. Concise, often one-liners.
+  Voice & Mannerisms: Stephen speaks with a calculated precision, often pausing for effect as he chooses his words carefully. His dialogue is peppered with business jargon and an occasional sardonic quip, reflecting his analytical nature and dry sense of humor.
+  Internal Conflict: Stephen is torn between the desire to maintain his status and the gnawing fear of exposure. The weight of his secrets creates an internal struggle that threatens to derail his carefully constructed life.
+  Personal Stake in Case: This crime matters deeply to Stephen, as it represents not just a potential scandal but the very foundation of his life. The investigation could expose his financial misdeeds and shatter his ambitions.
+
+Helen Jevons:
+  Public: Helen Jevons is the embodiment of compassion, known throughout Little Middleton for her unwavering dedication to helping those in need. With a warm smile and a gentle demeanor, she has earned the trust of the community, often seen tending to the vulnerable and advocating for social justice.
+  Hidden: However, beneath her altruistic exterior lies a tumultuous secret: an affair with Stephen Norwood. This relationship, while passionate, has ensnared her in a web of deceit that threatens her career and reputation.
+  Stakes: The potential exposure of her affair could not only tarnish her reputation but also jeopardize her career as a dedicated social worker, a fate she fears more than anything.
+  Humour: self deprecating (level 0.3 - rarely witty). Turns wit inward. Disarming, often hides intelligence or pain.
+  Voice & Mannerisms: Helen speaks softly and empathetically, often using gentle phrases and an inviting tone. She has a tendency to downplay her own accomplishments, frequently deflecting compliments and redirecting the focus to others.
+  Internal Conflict: Helen is caught in a moral tug-of-war, wrestling with her loyalty to Stephen against her professional ethics. The guilt of her affair gnaws at her conscience, and she fears the repercussions of her choices.
+  Personal Stake in Case: This crime resonates deeply with Helen, as it threatens to expose her affair and unravel the life she has built. The investigation serves as a catalyst for her to confront her own values and the choices she has made.
+
+Monica Canning:
+  Public: Monica Canning is a cultured and charismatic figure in Little Middleton, known for her exquisite taste in art and her keen business acumen. As the
+[truncated for prompt budget]
+
+
+PHYSICAL PLAUSIBILITY REQUIREMENTS:
+
+All physical evidence must obey real-world physics:
+
+1. VIABLE Evidence by Location:
+   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents
+   Exterior (calm): secured items, structural damage, witness observations
+   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence
+
+2. IMPLAUSIBLE Evidence (DO NOT USE):
+   âŒ Footprints on wooden deck (treated wood doesn't retain prints)
+   âŒ Footprints in rain/storm (washed away immediately)
+   âŒ Metal embedded in hardwood (requires bullet velocity, not human force)
+   âŒ Light objects in storm (blown away)
+
+3. For struggle evidence use:
+   âœ“ Overturned furniture, torn clothing, scattered items, defensive wounds
+   âŒ Objects embedded in hard surfaces, shattered steel/iron
+ERA AUTHENTICITY (1940s):
+
+1. FORBIDDEN terms (did not exist):
+   âŒ Modern technology
+
+2. REQUIRED period markers (include 2+ per scene):
+   âœ“ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady
+   âœ“ Period technology: period-appropriate items
+   âœ“ Fashion: period clothing
+
+3. Use period-authentic language and social norms
+
+â›” LOCKED FACTS â€” DO NOT CONTRADICT:
+The following physical evidence values are ground truth established by the mystery's logic. Use them verbatim whenever the relevant evidence is described. NEVER introduce a different number, time, distance, or quantity for these facts across any chapter:
+  - The exact time shown on the stopped clock face: "ten minutes past eleven"
+  - The exact amount the clock was wound back: "forty minutes"
+
+â›” CLUES TO SURFACE IN THESE CHAPTERS â€” mandatory:
+The following evidence MUST be clearly observable to an attentive reader. Do not bury it in atmosphere or passing dialogue. Each clue must be concrete, specific, and noticeable:
+
+â€¢ [clue_3] Fingerprints are found on the clock mechanism.
+  Category: physical | Criticality: essential | Supports inference step 2
+  Points to: Suggests tampering with the clock.
+
+Temporary technical marker mode (enabled): include the exact marker token for each REQUIRED clue in the same sentence as its observable evidence.
+Marker format: [[CLUE_ID:<required_clue_id>]]
+These markers are required for validator reliability and will be removed before final prose output.
+  - Required marker: [[CLUE_ID:clue_3]]
+
+For each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.
+
+â•â•â• NARRATIVE STATE (read-only â€” do not contradict) â•â•â•
+
+LOCKED FACTS â€” use verbatim whenever this evidence is described:
+  â€¢ The exact time shown on the stopped clock face: "ten minutes past eleven"
+  â€¢ The exact amount the clock was wound back: "forty minutes"
+
+CHARACTER PRONOUNS â€” never deviate from these:
+  â€¢ Stephen Norwood: he/him/his
+  â€¢ Helen Jevons: she/her/her
+  â€¢ Monica Canning: she/her/her
+  â€¢ Elizabeth Pendleton: she/her/her
+  â€¢ Alastair Langton: he/him/his
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+SCENE GROUNDING CHECKLIST (MUST FOLLOW):
+Known location profile anchors: Hastings Manor, The Library, The Rose Room
+- Chapter 1: anchor opening in "the library of the Norwood estate"; include 2+ sensory cues and 1+ atmosphere marker before major dialogue.
+
+PROMPT BUDGET SUMMARY: budget=6200 tokens; fixed=3130; context=2673; dropped=[humour_guide, craft_guide, location_profiles, temporal_context]; truncated=[cml_ground_truth, character_personality, location_profiles]
+
+# Prose Output Schema
+Return JSON with this structure:
+
+{
+  "status": "draft",
+  "tone": "classic|modern|atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter title",
+      "summary": "1-2 sentence summary",
+      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]
+    }
+  ],
+  "cast": ["Name 1", "Name 2"],
+  "note": ""
+}
+
+Requirements:
+- Write exactly one chapter per outline scene (1 total).
+- Chapter numbering starts at 1 and increments by 1 per scene.
+- Each chapter has 4-6 substantial paragraphs â€” HARD FLOOR 525 words, PREFERRED 1400 words.
+- Use classic tone and short length guidance.
+- Reflect the outline summary in each chapter.
+- Keep all logic consistent with CML (no new facts).
+
+NOVEL-QUALITY PROSE REQUIREMENTS:
+
+1. SCENE-SETTING: Begin key scenes with atmospheric description
+   - Establish time of day, weather, lighting
+   - Describe location using sensory details (sight, sound, smell, touch)
+   - Set mood and atmosphere before action begins
+   - Use location and temporal context to ground reader
+   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+
+   Generate new descriptions using actual location and character names from the provided profiles.
+
+2. SHOW, DON'T TELL: Use concrete details and actions
+   âŒ "She was nervous."
+   âœ“ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."
+   - Body language reveals emotion
+   - Actions reveal character
+   - Environment reflects internal state
+
+3. VARIED SENTENCE STRUCTURE:
+   - Mix short, punchy sentences with longer, flowing ones
+   - Use sentence rhythm to control pacing
+   - Short sentences for tension, longer for description
+   - Paragraph variety: Some 2 lines, some 8 lines
+
+4. DIALOGUE THAT REVEALS CHARACTER:
+   - Each character has distinct speech patterns (see character profiles)
+   - Use dialogue tags sparingly (action beats instead)
+   - Subtext: characters don't always say what they mean
+   - Class/background affects vocabulary and formality
+   - Tension through what's NOT said
+   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
+
+   Use only character names from the provided cast list.
+
+5. SENSORY IMMERSION:
+   - Include multiple senses per scene (2-3 minimum)
+   - Period-specific sensory details from location/temporal profiles
+   - Tactile details create immediacy
+   - Use sensory palette provided in location profiles
+   - Vary sensory focus: visual â†’ auditory â†’ olfactory â†’ tactile
+
+6. PARAGRAPH STRUCTURE:
+   - Opening: Hook with action, dialogue, or atmospheric detail
+   - Middle: Develop scene, reveal information, build tension
+   - Closing: End with revelation, question, or transition
+   - Each paragraph should advance story or deepen character
+
+7. PACING VARIATION:
+   - Action scenes: Short paragraphs (2-4 lines), quick succession
+   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm
+   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description
+   - Revelation scenes: Build slowly with long paragraphs, climax with short punch
+
+8. EMOTIONAL SUBTEXT & TENSION:
+   - Characters have hidden secrets/stakes (see character profiles)
+   - Every interaction carries subtext based on relationships
+   - Build tension through: pauses, interrupted speech, avoided topics, body language
+   - Mystery atmosphere: Suspicion, unease, watchfulness
+   - Use weather/atmosphere to mirror emotional tension
+
+QUALITY GUARDRAILS (MUST SATISFY):
+1. FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.
+2. FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.
+3. FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.
+4. FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters.
+5. Use only canonical cast names from CML. Do not invent titled placeholders like 'Detective Surname', 'Inspector Surname', 'a woman Surname', or 'a man Surname'.
+6. Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.
+7. In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).
+
+CRITICAL PROSE REQUIREMENTS:
+
+The CML specifies exact requirements for certain validation-critical scenes. You MUST include these elements at the specified positions.
+
+**Discriminating Test Scene (Act 3, Scene 4):**
+Required elements: Execute the discriminating test, Observe the culprit's reaction or result, Draw conclusion about guilt
+Outcome: N/A
+
+**Suspect Clearance Scenes:**
+- Helen Jevons (Act 3, Scene 5): Witness testimony confirms her alibi.
+  Clues: Witnesses confirm her presence elsewhere.
+- Monica Canning (Act 3, Scene 5): Evidence of her last painting time confirms her alibi.
+  Clues: Time of her painting matches her alibi.
+
+**Culprit Revelation Scene (Act 3, Scene 6):**
+Method: Confrontation with evidence gathered.
+
+**VALIDATION CONSEQUENCE:** If these requirements are not met exactly, story validation will fail and the entire generation will be rejected, costing $5-8 to regenerate. Follow these specifications precisely.
+
+
+WORD COUNT IS RIGID FOR THIS CHAPTER.
+- Target for this short chapter: 1600 words.
+- Absolute minimum hard floor: 525 words.
+- If your draft is below 1600, expand with concrete actions, dialogue, and evidence-linked beats until it reaches at least 1600 words.
+- Do not submit a chapter below 525 words under any circumstance.
+
+IMMUTABLE PRONOUN MAP (NON-OVERRIDABLE):
+- Stephen Norwood: he/him/his
+- Helen Jevons: she/her/her
+- Monica Canning: she/her/her
+- Elizabeth Pendleton: she/her/her
+- Alastair Langton: he/him/his
+- Do not switch or reinterpret these pronouns in any chapter.
+- Any pronoun mismatch invalidates the chapter.
+
+--- MESSAGE [USER] ---
+Write the full prose following the outline scenes.
+
+# Case Overview
+Title: The Clockwork Conundrum
+Era: 1940s
+Setting: Little Middleton
+Crime: murder (unknown)
+Culprit: Stephen Norwood
+False assumption: The murder must have occurred at the time indicated by the clock.
+Cast: Stephen Norwood, Helen Jevons, Monica Canning, Elizabeth Pendleton, Alastair Langton
+
+Setting Lock: Keep all scenes and descriptions consistent with the stated setting (Little Middleton). Do not introduce a different location type.
+
+Outline scenes:
+[
+  {
+    "sceneNumber": 1,
+    "act": 1,
+    "title": "Discovery",
+    "setting": {
+      "location": "the library of the Norwood estate",
+      "timeOfDay": "Midnight",
+      "atmosphere": "Tense and foreboding as guests gather after the murder"
+    },
+    "characters": [
+      "Elizabeth Pendleton",
+      "Stephen Norwood",
+      "Helen Jevons",
+      "Monica Canning",
+      "Alastair Langton"
+    ],
+    "purpose": "Introduce the crime and set the stage for investigation",
+    "cluesRevealed": [
+      "clue_3"
+    ],
+    "dramaticElements": {
+      "conflict": "Guests are in shock over the murder",
+      "tension": "Suspicion begins to build among the guests",
+      "microMomentBeats": [
+        "Elizabeth feels a chill as she steps into the room, sensing something is amiss."
+      ]
+    },
+    "summary": "As the clock strikes midnight, a scream echoes through the Norwood estate. Guests rush to the library to find Stephen Norwood standing over the lifeless body of an unknown victim. Panic ensues, and Elizabeth Pendleton, a local amateur detective, decides to investigate the matter further.",
+    "estimatedWordCount": 800
+  }
+]
+
+--- MESSAGE [USER] ---
+âš ï¸ CRITICAL: Attempt 3/4 for chapters 1 had 1 validation error(s).
+
+You MUST fix ALL of these issues. This is your last chance before generation fails.
+
+MANDATORY FIX ORDER (APPLY IN THIS EXACT ORDER):
+1. Word count first: each failed chapter must satisfy the hard-floor target in the validator message.
+2. Victim naming second: Chapter 1 must name the victim as "Alastair Langton" and must not use unknown-victim placeholders.
+3. Pronouns third: keep this immutable map exactly -> - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+4. Style and pacing fourth: revise voice/rhythm only after rules 1-3 are satisfied.
+
+â•â•â• OTHER ERRORS (1) â•â•â•
+â€¢ [object Object]
+
+â•â•â• STABILITY ANCHOR â•â•â•
+Before regenerating, note what already PASSED in the previous attempt and preserve it:
+â€¢ Character names and pronouns that were correct â€” keep them identical.
+â€¢ Clue references that were already surfaced â€” do not remove or weaken them.
+â€¢ Victim naming that was already present â€” do not regress.
+â€¢ Word count that already met the floor â€” do not shrink chapters.
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+REGENERATE chapters 1 with ALL listed fixes applied.
+Fix every listed error. Do NOT introduce new defects while fixing existing ones.
+
+
+─── ERRORS AFTER ATTEMPT 3 ───
+• Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: he, him, his
+• Chapter 1: Chapter 1 has month/season contradiction (december vs spring)
+  Note: Dialogue tag "'What happened here, Stephen?' he asked" — pronoun 'he' assigned to Helen (female speaker).
+  Note: repairChapterPronouns saw 'Stephen' named in sentence, treated 'he' as correct for Stephen. Bug #3.
+
+═══════════════════════════════════════════════════════════════════════════════
+ATTEMPT 4 — hash: 0f0080d61b81fa6c | 2026-03-15T10:46:16.143Z
+Model: GPT-4o-mini | Temperature: 0.42 | MaxTokens: 4500
+Route: buildLeanRevisionMessages (surgical revision — prior prose from attempt 3 as assistant role)
+═══════════════════════════════════════════════════════════════════════════════
+
+--- MESSAGE [SYSTEM] ---
+CONTEXT: You are editing chapters of a mystery fiction manuscript in the tradition of Agatha Christie and Arthur Conan Doyle.
+This is a creative writing editing task. All references to crime, death, murder, poison, weapons, alibis, and investigation are part of the fictional narrative and are standard elements of the mystery genre.
+
+You are a surgical prose repair assistant. Revise ONLY the specific defects listed by the validator.
+Preserve all valid text as-is unless a change is required to fix a listed defect.
+Keep chapter count/order unchanged and do not add/remove chapters.
+
+CHARACTER MAP (immutable):
+- Stephen Norwood: he/him/his
+- Helen Jevons: she/her/her
+- Monica Canning: she/her/her
+- Elizabeth Pendleton: she/her/her
+- Alastair Langton: he/him/his
+
+WORD TARGETS: hard floor 525 words, preferred 1400 words per chapter.
+
+Return valid JSON only.
+
+--- MESSAGE [USER] ---
+âš ï¸ CRITICAL: Attempt 4/4 for chapters 1 had 2 validation error(s).
+
+You MUST fix ALL of these issues. This is your FINAL chance before generation fails.
+
+MANDATORY FIX ORDER (APPLY IN THIS EXACT ORDER):
+1. Word count first: each failed chapter must satisfy the hard-floor target in the validator message.
+2. Victim naming second: Chapter 1 must name the victim as "Alastair Langton" and must not use unknown-victim placeholders.
+3. Pronouns third: keep this immutable map exactly -> - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+4. Style and pacing fourth: revise voice/rhythm only after rules 1-3 are satisfied.
+
+â•â•â• TEMPORAL CONSISTENCY ERRORS (1) â•â•â•
+â€¢ Chapter 1: Chapter 1 has month/season contradiction (december vs spring) (Align season wording with month references (december) to maintain temporal consistency)
+
+âœ“ SOLUTION PRIORITY 3: Enforce month-season lock in narration and dialogue
+âœ“ Replace conflicting season terms with wording consistent with the anchored month
+
+â•â•â• PRONOUN CONSISTENCY ERRORS (1) â•â•â•
+â€¢ Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: he, him, his (Use she/her/her consistently for Helen Jevons)
+
+âœ“ SOLUTION: Use this immutable pronoun map exactly for every mention in failed chapters:
+â€¢ Stephen Norwood: he/him/his
+â€¢ Helen Jevons: she/her/her
+â€¢ Monica Canning: she/her/her
+â€¢ Elizabeth Pendleton: she/her/her
+â€¢ Alastair Langton: he/him/his
+âœ“ Replace mismatched pronouns in-place first, then re-read each sentence to ensure references remain coherent.
+
+â•â•â• RETRY MICRO-PROMPTS (2) â•â•â•
+â€¢ MICRO-PROMPT [temporal_consistency]: Keep month-season terms aligned; replace conflicting seasonal labels in narration and dialogue while preserving scene events.
+â€¢ MICRO-PROMPT [pronoun_consistency]: Replace every mismatched pronoun token with the canonical character pronoun set and re-check each mention in-scene. Enforce this exact map without deviation: - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+
+â•â•â• STABILITY ANCHOR â•â•â•
+Before regenerating, note what already PASSED in the previous attempt and preserve it:
+â€¢ Character names and pronouns that were correct â€” keep them identical.
+â€¢ Clue references that were already surfaced â€” do not remove or weaken them.
+â€¢ Victim naming that was already present â€” do not regress.
+â€¢ Word count that already met the floor â€” do not shrink chapters.
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+REGENERATE chapters 1 with ALL listed fixes applied.
+Fix every listed error. Do NOT introduce new defects while fixing existing ones.
+
+
+--- MESSAGE [ASSISTANT] ---
+{
+  "chapters": [
+    {
+      "chapterNumber": 1,
+      "title": "Midnight at the Norwood Estate",
+      "summary": "As the clock strikes midnight, a scream echoes through the Norwood estate. Guests rush to the library to find Stephen Norwood standing over the lifeless body of Alastair Langton. Panic ensues, and Elizabeth Pendleton, a local amateur detective, decides to investigate the matter further.",
+      "paragraphs": [
+        "The midnight hour descended upon the Norwood estate, casting an eerie stillness that enveloped the sprawling manor. Outside, the wind whispered through the trees, rustling the leaves as if sharing secrets of its own. Inside, the library lay dimly lit, its heavy drapes drawn against the chill of the night. The scent of polished wood mingled with the faint aroma of aged books, creating an atmosphere thick with anticipation and dread. As the clock struck twelve, a piercing scream shattered the silence, echoing through the grand hallways and summoning the guests to the source of the commotion.",
+        "In a flurry of confusion, Elizabeth Pendleton was among the first to arrive, her heart racing as she pushed open the heavy oak door. The sight that greeted his was one he would never forget: Stephen Norwood stood frozen, his expression a mix of horror and disbelief, as he loomed over the lifeless body of Alastair Langton. The room was a tableau of shock, with guests crowding the doorway, their faces pale and eyes wide, grappling with the reality of the scene before them. Panic rippled through the crowd, a palpable tension that hung in the air like a storm cloud ready to burst.",
+        "Elizabeth felt a chill race down her spine as she stepped into the room, the oppressive weight of the moment settling heavily upon her. He had known Alastair wellâ€”his laughter, his enthusiasm for life. To see him now, motionless on the floor, was a cruel twist of fate. He glanced at Stephen, who seemed to be grappling with his own turmoil, his hands trembling slightly as he attempted to process the horrific tableau. The clock, its hands frozen at ten minutes past eleven, mocked their confusion, suggesting a time that now felt impossibly distant. It was then that Elizabeth noticed something peculiar about the clock mechanism itself; it appeared to have been tampered with, and she could see faint fingerprints smudged on its surface [[CLUE_ID:clue_3]].",
+        "As the guests murmured amongst themselves, suspicion began to weave its way through the crowd. Helen Jevons, her brow furrowed, stepped forward, her voice barely above a whisper. \"What happened here, Stephen?\" he asked, his eyes darting between him and the body. Stephen opened his mouth to respond, but no words emerged, only a strained silence that deepened the unease. Elizabeth's instincts kicked in; she could not stand idly by while fear and suspicion festered among them. This was not merely a tragedyâ€”it was a mystery that demanded unraveling.",
+        "Monica Canning stood nearby, her hand pressed to her mouth, eyes glistening with unshed tears. \"Alastair... how could this happen?\" he murmured, the weight of his disbelief palpable. Elizabeth took a deep breath, her mind racing with questions. Who had the motive? What had transpired in those moments before the clock struck midnight? She could feel the tension coiling tighter, a spring ready to snap. The guests were not merely witnesses; they were potential suspects, each with their own secrets and stories. Elizabeth resolved to uncover the truth, to peel back the layers of deception that threatened to engulf them all.",
+        "As the minutes ticked by, the air grew thick with unspoken accusations and fear. Elizabeth knew that to solve this mystery, she would need to gather information, to piece together the events leading to Alastair's untimely demise. With determination coursing through his veins, he stepped forward, ready to confront the shadows that loomed over the Norwood estate. The investigation had begun, and he was resolute in his pursuit of the truth, no matter where it might lead."
+      ]
+    }
+  ]
+}
+
+--- MESSAGE [USER] ---
+Retry mode: SURGICAL REVISION of previous prose.
+
+â•â•â• NON-NEGOTIABLE PRESERVATION RULE â•â•â•
+You are editing, NOT rewriting. Your previous draft (in the conversation history above) is your starting point.
+- Return EVERY paragraph from the previous prose verbatim unless it contains a listed defect.
+- Do NOT shorten, rephrase, merge, or omit passages that already pass validation.
+- Do NOT reduce word count while fixing other defects â€” if a chapter already meets its word floor, keep it at or above that length.
+- If a chapter needs MORE words, expand by adding new beats â€” never compress existing valid text to make room.
+- Clue references, victim naming, and character names that are already correct MUST survive unchanged.
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+MANDATORY FIX ORDER (APPLY IN THIS EXACT ORDER):
+1. Word count first: each revised chapter must satisfy the validator hard-floor target.
+2. Victim naming second: Chapter 1 must name the victim explicitly and avoid unknown-victim placeholders.
+3. Pronouns third: keep this immutable map exactly -> - Stephen Norwood: he/him/his; - Helen Jevons: she/her/her; - Monica Canning: she/her/her; - Elizabeth Pendleton: she/her/her; - Alastair Langton: he/him/his
+4. Style and pacing fourth: improve prose flow only after rules 1-3 are fully satisfied.
+
+Fix ONLY these errors:
+- Chapter 1: Character "Helen Jevons" has incorrect pronouns. Should use she/her/her but found: he, him, his (Use she/her/her consistently for Helen Jevons)
+- Chapter 1: Chapter 1 has month/season contradiction (december vs spring) (Align season wording with month references (december) to maintain temporal consistency)
+
+Return this JSON schema exactly:
+{"chapters":[{"title":"...","summary":"...","paragraphs":["...","..."]}]}
+
+─── ERRORS AFTER ATTEMPT 4 ───
+• CONTENT FILTER: The response was filtered due to the prompt triggering Azure OpenAI's content management policy.
+  errorCode: content_filter
+  Timestamp: 2026-03-15T10:46:23.496Z (latency ~7s)
+  Effect: Generation failed — maxBatchAttempts (4) exhausted.
+  Root cause: Attempt 3 prose contained murder-discovery scene ('lifeless body of Alastair Langton', 'motionless on the floor').
+              Azure content filter scores all conversation messages regardless of role.
+              Phase 3 assistant-role mitigation is insufficient for Ch1 body-discovery prose density.
+

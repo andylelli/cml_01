@@ -1,0 +1,13 @@
+// Barrel re-export — identical public API to the original scoring-adapters.ts
+// All consumers that previously imported from "./scoring-adapters.js" now use
+// "./scoring-adapters/index.js" (or "./scoring-adapters/index.ts") unchanged.
+export { adaptSettingForScoring } from "./agent1-scoring-adapter.js";
+export { adaptCastForScoring } from "./agent2-scoring-adapter.js";
+export { adaptCharacterProfilesForScoring } from "./agent2b-scoring-adapter.js";
+export { adaptLocationsForScoring } from "./agent2c-scoring-adapter.js";
+export { adaptTemporalContextForScoring } from "./agent2d-scoring-adapter.js";
+export { adaptBackgroundContextForScoring } from "./agent2e-scoring-adapter.js";
+export { adaptHardLogicForScoring } from "./agent3b-scoring-adapter.js";
+export { adaptNarrativeForScoring } from "./agent7-scoring-adapter.js";
+export { collectClueEvidenceFromProse, adaptProseForScoring } from "./agent9-scoring-adapter.js";
+//# sourceMappingURL=index.js.map

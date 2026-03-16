@@ -1,0 +1,42 @@
+{
+  "project_id": "proj_79c3fdf7-4dc2-4859-bca1-7f4be7c7bfd0",
+  "run_id": "run_78f5ee4e-de39-4cb4-b2c5-52ecc63cf6c2",
+  "generated_at": "2026-03-14T13:48:03.578Z",
+  "total_duration_ms": 17669,
+  "total_cost": 0,
+  "overall_score": 0,
+  "overall_grade": "F",
+  "passed": false,
+  "run_outcome": "aborted",
+  "run_outcome_reason": "getaddrinfo ENOTFOUND openai-ds1sweden.openai.azure.com",
+  "scoring_outcome": {
+    "score": 0,
+    "grade": "F",
+    "passed_threshold": false
+  },
+  "release_gate_outcome": {
+    "status": "unknown",
+    "hard_stop_count": 0,
+    "warning_count": 0
+  },
+  "phases": [],
+  "summary": {
+    "phases_passed": 0,
+    "phases_failed": 0,
+    "total_phases": 0,
+    "pass_rate": 0,
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "in_progress": false,
+  "aborted": true,
+  "abort_reason": "getaddrinfo ENOTFOUND openai-ds1sweden.openai.azure.com"
+}

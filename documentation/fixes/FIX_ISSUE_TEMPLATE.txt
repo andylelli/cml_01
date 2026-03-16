@@ -1,0 +1,108 @@
+FIX ISSUE TEMPLATE
+==================
+
+Issue ID
+- ID: FIX-YYYYMMDD-XX
+- Title:
+- Status: [Open | Investigating | Implementing | Validating | Done | Deferred]
+- Priority: [P0 | P1 | P2 | P3]
+- Owner:
+- Created:
+- Last Updated:
+
+Scope
+- Area: [Prose | Scoring | Validation | UI | API | Worker | CML]
+- Affected Components:
+- In Scope:
+- Out of Scope:
+
+Problem Statement
+- User-visible symptom:
+- Technical symptom:
+- Expected behavior:
+- Actual behavior:
+- First known bad run/build:
+
+Evidence
+- Run IDs:
+- Report paths:
+- Log paths:
+- Error strings (exact):
+- Frequency / impact:
+- Reproduction confidence: [Low | Medium | High]
+
+Reproduction
+- Preconditions:
+- Steps to reproduce:
+- Observed result:
+- Repro command(s):
+- Repro artifacts captured:
+
+Root Cause Analysis
+- Primary root cause:
+- Contributing factors:
+- Why not caught earlier:
+- Why hard to fix:
+- Dependencies/blockers:
+
+Solution Options
+Option A
+- Description:
+- Pros:
+- Cons:
+- Risk:
+
+Option B
+- Description:
+- Pros:
+- Cons:
+- Risk:
+
+Selected Approach
+- Decision:
+- Rationale:
+- Non-goals:
+
+Implementation Plan
+1. Change:
+   - File(s):
+   - Details:
+2. Change:
+   - File(s):
+   - Details:
+3. Change:
+   - File(s):
+   - Details:
+
+Verification Plan
+- Unit tests to add/update:
+- Integration tests:
+- Manual checks:
+- Regression checks:
+- Success criteria:
+
+Execution Log
+- [timestamp] Action:
+- [timestamp] Action:
+- [timestamp] Action:
+
+Results
+- What changed:
+- What did not change:
+- Test outcomes:
+- Remaining risks:
+
+Rollback Plan
+- Trigger conditions:
+- Rollback steps:
+- Data implications:
+
+Follow-ups
+- Immediate follow-ups:
+- Deferred follow-ups:
+- Owner + due date:
+
+Sign-off
+- Reviewer:
+- Date:
+- Decision: [Approved | Changes Requested]
