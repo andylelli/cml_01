@@ -61,9 +61,21 @@ export class AzureOpenAIClient {
 
     const startTime = Date.now();
 
-    // Log request
+    // Log request (including full prompt)
+    const promptHash = LLMLogger.hashContent(JSON.stringify(options.messages));
+    await this.logger.logFullPrompt({
+      runId: options.logContext?.runId || "",
+      projectId: options.logContext?.projectId || "",
+      agent: options.logContext?.agent || "",
+      operation: "chat_request_full_prompt",
+      model,
+      temperature,
+      maxTokens,
+      promptHash,
+      retryAttempt: options.logContext?.retryAttempt || 0,
+      messages: options.messages,
+    });
     if (options.logContext) {
-      const promptHash = LLMLogger.hashContent(JSON.stringify(options.messages));
       await this.logger.logRequest({
         ...options.logContext,
         operation: "chat_request",

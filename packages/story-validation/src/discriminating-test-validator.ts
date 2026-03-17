@@ -5,7 +5,7 @@
  */
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError } from './types.js';
-import type { AzureOpenAIClient } from '@cml/llm-client';
+import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { semanticValidateDiscriminatingTest } from './semantic-validator.js';
 
 const TEST_TERMS = /\b(test|experiment|re-?enactment|trap|constraint proof|demonstration|verification)\b/i;
@@ -120,9 +120,11 @@ function missingComponentToError(
 export class DiscriminatingTestValidator implements Validator {
   name = 'DiscriminatingTestValidator';
   private llmClient?: AzureOpenAIClient;
+  private logContext?: LogContext;
 
-  constructor(llmClient?: AzureOpenAIClient) {
+  constructor(llmClient?: AzureOpenAIClient, logContext?: LogContext) {
     this.llmClient = llmClient;
+    this.logContext = logContext;
   }
 
   async validate(story: Story, cml?: CMLData): Promise<ValidationResult> {
@@ -143,7 +145,7 @@ export class DiscriminatingTestValidator implements Validator {
 
       // Check all scenes for semantic validity
       for (const scene of story.scenes) {
-        const semanticResult = await semanticValidateDiscriminatingTest(scene.text || '', this.llmClient);
+        const semanticResult = await semanticValidateDiscriminatingTest(scene.text || '', this.llmClient, this.logContext);
         
         if (semanticResult.isValid && semanticResult.confidence !== 'low') {
           console.log(`[DiscriminatingTestValidator] Scene ${scene.number} validated semantically: ${semanticResult.reasoning}`);

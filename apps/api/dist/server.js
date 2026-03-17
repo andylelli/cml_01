@@ -280,6 +280,9 @@ const buildLlmLogger = () => new LLMLogger({
     logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
     logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
     logFilePath: process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl"),
+    logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
+    fullPromptLogFilePath: process.env.FULL_PROMPT_LOG_FILE_PATH ||
+        path.resolve(process.cwd(), "logs", "llm-prompts-full.jsonl"),
 });
 const describeError = (error) => {
     if (error instanceof Error) {

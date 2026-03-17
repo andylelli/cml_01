@@ -5,7 +5,7 @@
  * This fallback approach preserves natural prose quality while ensuring correctness.
  */
 
-import type { AzureOpenAIClient } from '@cml/llm-client';
+import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 
 export interface SemanticValidationResult {
   isValid: boolean;
@@ -22,7 +22,8 @@ export interface SemanticValidationResult {
  */
 export async function semanticValidateDiscriminatingTest(
   sceneText: string,
-  client: AzureOpenAIClient
+  client: AzureOpenAIClient,
+  logContext?: LogContext
 ): Promise<SemanticValidationResult> {
   const prompt = `You are a mystery story validator. Analyze the following scene to determine if it contains a valid discriminating test.
 
@@ -53,7 +54,8 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
+      logContext: logContext ?? { runId: '', projectId: '', agent: 'Agent6-SemanticValidator-DiscriminatingTest' }
     });
 
     const text = response.content?.trim() || '{}';
@@ -84,7 +86,8 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
 export async function semanticValidateSuspectElimination(
   sceneText: string,
   suspectName: string,
-  client: AzureOpenAIClient
+  client: AzureOpenAIClient,
+  logContext?: LogContext
 ): Promise<SemanticValidationResult> {
   const prompt = `You are a mystery story validator. Analyze the following scene to determine if it properly eliminates suspect "${suspectName}".
 
@@ -115,7 +118,8 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
+      logContext: logContext ?? { runId: '', projectId: '', agent: 'Agent6-SemanticValidator-SuspectElimination' }
     });
 
     const text = response.content?.trim() || '{}';
@@ -146,7 +150,8 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
 export async function semanticValidateCulpritEvidence(
   sceneText: string,
   culpritName: string,
-  client: AzureOpenAIClient
+  client: AzureOpenAIClient,
+  logContext?: LogContext
 ): Promise<SemanticValidationResult> {
   const prompt = `You are a mystery story validator. Analyze the following scene to determine if it properly connects culprit "${culpritName}" to the crime.
 
@@ -177,7 +182,8 @@ Respond with EXACTLY this JSON format (no markdown, no extra text):
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.0,
       maxTokens: 200,
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!
+      model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
+      logContext: logContext ?? { runId: '', projectId: '', agent: 'Agent6-SemanticValidator-CulpritEvidence' }
     });
 
     const text = response.content?.trim() || '{}';

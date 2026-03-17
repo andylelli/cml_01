@@ -1606,7 +1606,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   reportProgress("validation", "Starting full-story validation gate...", 96);
 
   const validationStart = Date.now();
-  const validationPipeline = new StoryValidationPipeline(client);
+  const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
 

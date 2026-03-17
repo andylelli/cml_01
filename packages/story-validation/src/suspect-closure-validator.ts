@@ -5,7 +5,7 @@
  */
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError } from './types.js';
-import type { AzureOpenAIClient } from '@cml/llm-client';
+import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';
 
 const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds)\b/i;
@@ -17,9 +17,11 @@ const normalizeName = (name: string) => name.replace(/\s+/g, ' ').trim();
 export class SuspectClosureValidator implements Validator {
   name = 'SuspectClosureValidator';
   private llmClient?: AzureOpenAIClient;
+  private logContext?: LogContext;
 
-  constructor(llmClient?: AzureOpenAIClient) {
+  constructor(llmClient?: AzureOpenAIClient, logContext?: LogContext) {
     this.llmClient = llmClient;
+    this.logContext = logContext;
   }
 
   async validate(story: Story, cml?: CMLData): Promise<ValidationResult> {
@@ -51,7 +53,8 @@ export class SuspectClosureValidator implements Validator {
             const semanticResult = await semanticValidateSuspectElimination(
               scene.text || '',
               suspect,
-              this.llmClient
+              this.llmClient,
+              this.logContext
             );
 
             if (semanticResult.isValid && semanticResult.confidence !== 'low') {
@@ -96,7 +99,8 @@ export class SuspectClosureValidator implements Validator {
             const semanticResult = await semanticValidateCulpritEvidence(
               scene.text || '',
               culprit,
-              this.llmClient
+              this.llmClient,
+              this.logContext
             );
 
             if (semanticResult.isValid && semanticResult.confidence !== 'low') {

@@ -4,25 +4,48 @@
 
 import { createHash } from "crypto";
 import { appendFileSync, existsSync, mkdirSync } from "fs";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import type { LLMLogEntry, LogLevel } from "./types.js";
+import type { Message } from "./types.js";
+
+interface FullPromptLogEntry {
+  timestamp: string;
+  agent: string;
+  runId: string;
+  projectId: string;
+  operation: string;
+  model: string;
+  temperature: number;
+  maxTokens: number;
+  promptHash: string;
+  retryAttempt: number;
+  messages: Message[];
+}
 
 export class LLMLogger {
   private logLevel: LogLevel;
   private logToConsole: boolean;
   private logToFile: boolean;
   private logFilePath?: string;
+  private logFullPromptsToFile: boolean;
+  private fullPromptLogFilePath?: string;
 
   constructor(options: {
     logLevel?: LogLevel;
     logToConsole?: boolean;
     logToFile?: boolean;
     logFilePath?: string;
+    logFullPromptsToFile?: boolean;
+    fullPromptLogFilePath?: string;
   } = {}) {
     this.logLevel = options.logLevel || ("info" as LogLevel);
     this.logToConsole = options.logToConsole ?? true;
     this.logToFile = options.logToFile ?? false;
     this.logFilePath = options.logFilePath;
+    this.logFullPromptsToFile = options.logFullPromptsToFile ?? false;
+    this.fullPromptLogFilePath =
+      options.fullPromptLogFilePath ||
+      (this.logFilePath ? join(dirname(this.logFilePath), "llm-prompts-full.jsonl") : undefined);
 
     // Create log directory if needed
     if (this.logToFile && this.logFilePath) {
@@ -31,6 +54,35 @@ export class LLMLogger {
         mkdirSync(dir, { recursive: true });
       }
     }
+
+    if (this.logFullPromptsToFile && this.fullPromptLogFilePath) {
+      const dir = dirname(this.fullPromptLogFilePath);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+    }
+  }
+
+  async logFullPrompt(
+    entry: Omit<FullPromptLogEntry, "timestamp"> & { timestamp?: string }
+  ): Promise<void> {
+    if (!this.logFullPromptsToFile || !this.fullPromptLogFilePath) {
+      return;
+    }
+    const logEntry: FullPromptLogEntry = {
+      timestamp: entry.timestamp || new Date().toISOString(),
+      agent: entry.agent,
+      runId: entry.runId,
+      projectId: entry.projectId,
+      operation: entry.operation,
+      model: entry.model,
+      temperature: entry.temperature,
+      maxTokens: entry.maxTokens,
+      promptHash: entry.promptHash,
+      retryAttempt: entry.retryAttempt,
+      messages: entry.messages,
+    };
+    this.writeJsonLine(this.fullPromptLogFilePath, logEntry, "full prompt log");
   }
 
   async logRequest(entry: Partial<LLMLogEntry>): Promise<void> {
@@ -120,6 +172,15 @@ export class LLMLogger {
       } catch (error) {
         console.error("Failed to write log to file:", error);
       }
+    }
+  }
+
+  private writeJsonLine(filePath: string, payload: object, label: string): void {
+    try {
+      const jsonLine = JSON.stringify(payload) + "\n";
+      appendFileSync(filePath, jsonLine);
+    } catch (error) {
+      console.error(`Failed to write ${label} to file:`, error);
     }
   }
 
