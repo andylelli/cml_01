@@ -6,7 +6,7 @@
  */
 import { createHash } from 'node:crypto';
 import { jsonrepair } from "jsonrepair";
-import { ChapterValidator, CharacterConsistencyValidator, getChapterTargetTolerance, getStoryLengthTarget, anonymizeUnknownTitledNames, getSceneTarget, getGenerationParams, repairChapterPronouns, } from "@cml/story-validation";
+import { ChapterValidator, CharacterConsistencyValidator, STORY_LENGTH_TARGETS, anonymizeUnknownTitledNames, getSceneTarget, getChapterTargetTolerance, getGenerationParams, repairChapterPronouns, } from "@cml/story-validation";
 import { classifyOpeningStyle } from "./types/narrative-state.js";
 import { updateNSD } from "./types/narrative-state.js";
 const CLUE_ID_MARKER_REGEX = /\[\[\s*CLUE_ID\s*:\s*([^\]]+?)\s*\]\]/gi;
@@ -41,21 +41,11 @@ const countWords = (value) => {
 };
 const getChapterWordTargets = (targetLength) => {
     const config = getGenerationParams().agent9_prose.word_policy;
-    const target = getStoryLengthTarget(targetLength);
-    const hardFloorWords = Math.floor(target.chapterMinWords * config.hard_floor_relaxation_ratio);
-    const preferredWords = target.chapterIdealWords;
     return {
-        hardFloorWords,
-        preferredWords,
+        hardFloorWords: Math.max(config.min_hard_floor_words, Math.floor(STORY_LENGTH_TARGETS[targetLength].chapterMinWords * config.hard_floor_relaxation_ratio)),
+        preferredWords: config.preferred_chapter_words[targetLength],
     };
 };
-const buildWordPolicyProvenance = (targetLength, ledgerEntry) => {
-    const resolvedTargetLength = targetLength ?? "medium";
-    const policy = getGenerationParams().agent9_prose.word_policy;
-    const target = getStoryLengthTarget(resolvedTargetLength);
-    return `source ${GENERATION_PARAMS_YAML_PATH}#agent9_prose.word_policy.hard_floor_relaxation_ratio + ${GENERATION_PARAMS_YAML_PATH}#story_length_policy.word_targets.${resolvedTargetLength}.chapter_ideal_words (hard_floor_relaxation_ratio=${policy.hard_floor_relaxation_ratio}, chapter_ideal_words.${resolvedTargetLength}=${target.chapterIdealWords}, resolved_hard_floor_words=${ledgerEntry.hardFloorWords})`;
-};
-const buildClueObligationProvenance = () => "source CML CASE.prose_requirements.clue_to_scene_mapping + outline.acts[].scenes[].cluesRevealed";
 const CLUE_TOKEN_STOPWORDS = new Set([
     "about", "after", "again", "against", "between", "could", "every", "first", "found", "from",
     "having", "however", "later", "might", "other", "their", "there", "these", "those", "through",
@@ -132,6 +122,7 @@ const stripClueIdMarkersFromChapter = (chapter) => ({
 });
 export const validateChapterPreCommitObligations = (chapter, ledgerEntry, clueDistribution) => {
     const hardFailures = [];
+    const preferredMisses = [];
     const chapterText = (chapter.paragraphs ?? []).join(" ");
     const wordCount = countWords(chapterText);
     const wordTarget = {
@@ -142,13 +133,16 @@ export const validateChapterPreCommitObligations = (chapter, ledgerEntry, clueDi
         isBelowPreferred: wordCount < ledgerEntry.preferredWords,
     };
     if (wordTarget.isBelowHardFloor) {
-        hardFailures.push(`Chapter ${ledgerEntry.chapterNumber}: word count below hard floor (${wordCount}/${ledgerEntry.hardFloorWords}) [${buildWordPolicyProvenance(ledgerEntry.targetLength, ledgerEntry)}]`);
+        hardFailures.push(`Chapter ${ledgerEntry.chapterNumber}: word count below hard floor (${wordCount}/${ledgerEntry.hardFloorWords})`);
+    }
+    else if (wordTarget.isBelowPreferred) {
+        preferredMisses.push(`Chapter ${ledgerEntry.chapterNumber}: word count below preferred target (${wordCount}/${ledgerEntry.preferredWords})`);
     }
     const missingRequiredClueIds = getMissingRequiredClueIds(chapterText, ledgerEntry.requiredClueIds, clueDistribution);
     for (const clueId of missingRequiredClueIds) {
-        hardFailures.push(`Chapter ${ledgerEntry.chapterNumber}: missing required clue obligation for "${clueId}" [${buildClueObligationProvenance()}]`);
+        hardFailures.push(`Chapter ${ledgerEntry.chapterNumber}: missing required clue obligation for "${clueId}"`);
     }
-    return { hardFailures, wordTarget, missingRequiredClueIds };
+    return { hardFailures, preferredMisses, wordTarget, missingRequiredClueIds };
 };
 const normalizeParagraphForFingerprint = (paragraph) => paragraph
     .toLowerCase()

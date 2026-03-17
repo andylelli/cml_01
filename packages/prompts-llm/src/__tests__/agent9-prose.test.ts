@@ -1,4 +1,65 @@
 import { describe, expect, it, vi } from "vitest";
+
+const mockedGenerationParams = {
+  agent9_prose: {
+    word_policy: {
+      min_hard_floor_words: 800,
+      hard_floor_relaxation_ratio: 0.8,
+      preferred_chapter_words: {
+        short: 1000,
+        medium: 1300,
+        long: 1800,
+      },
+    },
+    underflow_expansion: {
+      min_additional_words: 200,
+      max_additional_words: 900,
+      buffer_words: 200,
+      temperature: 0.2,
+      max_tokens: 2000,
+    },
+    style_linter: {
+      entropy: {
+        min_window_standard: 3,
+        min_window_repair: 2,
+        warmup_chapters_standard: 2,
+        warmup_chapters_repair: 0,
+        opening_styles_prior_window: 6,
+        opening_styles_total_window: 8,
+        standard: {
+          early_chapter_max: 6,
+          mid_chapter_max: 10,
+          early_threshold: 0.65,
+          mid_threshold: 0.72,
+          late_threshold: 0.8,
+        },
+        repair_threshold: 0.55,
+      },
+      paragraph_fingerprint_min_chars: 180,
+      ngram: {
+        min_chars: 120,
+        prior_paragraph_limit: 20,
+        gram_size: 7,
+        min_candidate_ngrams: 5,
+        overlap_threshold: 0.72,
+      },
+    },
+  },
+};
+
+vi.mock("@cml/story-validation", async () => {
+  const actual = await vi.importActual<any>("@cml/story-validation");
+  return {
+    ...actual,
+    STORY_LENGTH_TARGETS: actual.STORY_LENGTH_TARGETS ?? {
+      short: { chapterMinWords: 1000 },
+      medium: { chapterMinWords: 1300 },
+      long: { chapterMinWords: 1800 },
+    },
+    getGenerationParams: () => mockedGenerationParams,
+  };
+});
+
 import {
   attemptUnderflowExpansion,
   buildChapterObligationBlock,
@@ -10,8 +71,8 @@ import {
   runAtmosphereRepairIfNeeded,
   stripAuditField,
   validateChapterPreCommitObligations,
-} from "../agent9-prose.js";
-import type { ProseGenerationResult } from "../agent9-prose.js";
+} from "../agent9-prose.ts";
+import type { ProseGenerationResult } from "../agent9-prose.ts";
 
 // ── formatProvisionalScoringFeedbackBlock ────────────────────────────────────
 describe("formatProvisionalScoringFeedbackBlock", () => {
@@ -353,8 +414,15 @@ describe("Agent 9 prompt hardening fixes", () => {
   });
 
   it("Fix 5 strengthens discriminating-test checklist language into a concrete confrontation contract", () => {
+    const caseData = {
+      ...baseCaseData,
+      CASE: {
+        ...baseCaseData.CASE,
+        cast: baseCast.characters,
+      },
+    };
     const outline: any = { acts: [{ act_number: 3, scenes: [{ scene_number: 1, title: "Trap", summary: "Trap scene mentions clue_clock." }] }] };
-    const checklist = buildDiscriminatingTestChecklist(baseCaseData, "3-3", outline, 3);
+    const checklist = buildDiscriminatingTestChecklist(caseData, "3-3", outline, 3);
     expect(checklist).toContain("concrete scene beat");
     expect(checklist).toContain("confronts the culprit or key suspect directly");
     expect(checklist).toContain("real-time dramatic scene");

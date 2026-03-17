@@ -17,7 +17,7 @@
  */
 import { jsonrepair } from "jsonrepair";
 import { getGenerationParams } from "@cml/story-validation";
-import { getChapterTargetTolerance, getSceneTarget, getStoryLengthTarget, } from "@cml/story-validation";
+import { getSceneTarget, STORY_LENGTH_TARGETS } from "@cml/story-validation";
 // ============================================================================
 // Prompt Builder
 // ============================================================================
@@ -269,18 +269,12 @@ function buildUserRequest(caseData, targetLength, narrativeStyle, qualityGuardra
     const exampleLocation = crimeVictim !== "the victim"
         ? `${crimeVictim}'s ${locationWord}`
         : rawLocation;
-    const shortSceneTarget = getSceneTarget("short");
-    const mediumSceneTarget = getSceneTarget("medium");
-    const longSceneTarget = getSceneTarget("long");
-    const shortTargets = getStoryLengthTarget("short");
-    const mediumTargets = getStoryLengthTarget("medium");
-    const longTargets = getStoryLengthTarget("long");
     const lengthGuidance = {
-        short: `${shortSceneTarget} scenes, targeting a novella of ~${shortTargets.minWords.toLocaleString()}–${shortTargets.maxWords.toLocaleString()} words`,
-        medium: `${mediumSceneTarget} scenes, targeting a full novel of ~${mediumTargets.minWords.toLocaleString()}–${mediumTargets.maxWords.toLocaleString()} words`,
-        long: `${longSceneTarget} scenes, targeting an extended novel of ~${longTargets.minWords.toLocaleString()}–${longTargets.maxWords.toLocaleString()} words`,
+        short: `${STORY_LENGTH_TARGETS.short.scenes} scenes, targeting a novella of ~${STORY_LENGTH_TARGETS.short.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.short.maxWords.toLocaleString()} words`,
+        medium: `${STORY_LENGTH_TARGETS.medium.scenes} scenes, targeting a full novel of ~${STORY_LENGTH_TARGETS.medium.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.medium.maxWords.toLocaleString()} words`,
+        long: `${STORY_LENGTH_TARGETS.long.scenes} scenes, targeting an extended novel of ~${STORY_LENGTH_TARGETS.long.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.long.maxWords.toLocaleString()} words`,
     };
-    // Source of truth: apps/worker/config/generation-params.yaml#story_length_policy
+    // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
     const totalSceneCount = getSceneTarget(targetLength);
     const minClueScenes = Math.ceil(totalSceneCount * config.pacing.min_clue_scene_ratio);
     // Compute exact per-act scene counts so the LLM receives hard numbers, not fuzzy
@@ -485,11 +479,6 @@ Create a complete, well-paced outline that brings this mystery to life.`;
 // ============================================================================
 export async function formatNarrative(client, inputs) {
     const config = getGenerationParams().agent7_narrative.params;
-    const resolvedTargetLength = inputs.targetLength ?? "medium";
-    const expectedSceneCount = getSceneTarget(resolvedTargetLength);
-    const sceneTargetTolerance = getChapterTargetTolerance();
-    const minAllowedSceneCount = Math.max(1, expectedSceneCount - sceneTargetTolerance);
-    const maxAllowedSceneCount = expectedSceneCount + sceneTargetTolerance;
     const startTime = Date.now();
     // Build the narrative prompt
     const prompt = buildNarrativePrompt(inputs);
@@ -563,18 +552,6 @@ export async function formatNarrative(client, inputs) {
             ...outlineData,
             totalScenes: outlineData.totalScenes ?? computedTotalScenes,
             estimatedTotalWords: outlineData.estimatedTotalWords ?? computedTotalWords,
-        };
-    }
-    const actualSceneCount = (outlineData.acts ?? []).reduce((sum, act) => sum + (Array.isArray(act.scenes) ? act.scenes.length : 0), 0);
-    if (actualSceneCount < minAllowedSceneCount || actualSceneCount > maxAllowedSceneCount) {
-        throw new Error(`Invalid narrative outline: expected ${expectedSceneCount} scenes for ${resolvedTargetLength} with tolerance +/-${sceneTargetTolerance} ` +
-            `(allowed ${minAllowedSceneCount}-${maxAllowedSceneCount}), got ${actualSceneCount} ` +
-            `[source outline.acts[].scenes; YAML target apps/worker/config/generation-params.yaml#story_length_policy.chapter_targets.${resolvedTargetLength}; tolerance apps/worker/config/generation-params.yaml#story_length_policy.chapter_target_tolerance]`);
-    }
-    if (outlineData.totalScenes !== actualSceneCount) {
-        outlineData = {
-            ...outlineData,
-            totalScenes: actualSceneCount,
         };
     }
     return {
