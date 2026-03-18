@@ -393,10 +393,16 @@ export const validateChapterPreCommitObligations = (
     }
 
     if (!isPresent) {
-      // Clue content is entirely absent — tell the writer what needs to happen narratively
+      // Clue content is entirely absent — tell the writer what needs to happen narratively.
+      // Append pointsTo hint when the description is a genre label (e.g. "Direct observation")
+      // so the retry directive contains actionable prose content, not just a delivery-method name.
+      const pointsToHint = clue?.pointsTo?.trim();
+      const extraHint = pointsToHint && pointsToHint !== resolvedDesc
+        ? ` (this clue reveals: ${pointsToHint})`
+        : '';
       const repair = resolvedPlacement === 'early'
-        ? `Include an on-page observation of ${clueDesc} in the first quarter of the chapter, followed immediately by an explicit inference paragraph.`
-        : `Include an on-page observation or reference to ${clueDesc} before the chapter ends.`;
+        ? `Include an on-page observation of ${clueDesc}${extraHint} in the first quarter of the chapter, followed immediately by an explicit inference paragraph.`
+        : `Include an on-page observation or reference to ${clueDesc}${extraHint} before the chapter ends.`;
       hardFailures.push(
         `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
       );
@@ -422,7 +428,10 @@ export const validateChapterPreCommitObligations = (
     }
   }
 
-  return { hardFailures, preferredMisses, wordTarget };
+  // Deduplicate: two clue IDs with the same description produce identical error strings.
+  // Keep only the first occurrence so the retry directive is not repeated verbatim.
+  const uniqueHardFailures = Array.from(new Set(hardFailures));
+  return { hardFailures: uniqueHardFailures, preferredMisses, wordTarget };
 };
 
 const normalizeParagraphForFingerprint = (paragraph: string): string =>
@@ -1152,7 +1161,36 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
   }
 
   if (state.usedOpeningStyles.length > 0) {
-    lines.push(`\nDO NOT OPEN THIS CHAPTER WITH: ${state.usedOpeningStyles.slice(-5).join(', ')} (already used in prior chapters)`);
+    // Translate internal classifier bucket names to human-readable prose descriptions so the
+    // model understands the instruction.  The raw labels (e.g. "general-descriptive") are
+    // classifier internals — the model silently ignores them as unrecognisable jargon.
+    const bucketLabels: Record<string, string> = {
+      'general-descriptive': 'atmospheric scene-setting ("The dim corridor lay silent…" / "Rain fell on…")',
+      'character-action':    'a named character acting ("Holmes crossed the room…" / "[Name] turned/moved/approached…")',
+      'dialogue-open':       'spoken dialogue (\'"[words]," said [Name].\')',
+      'noun-phrase-atmosphere': 'noun-phrase atmosphere ("The silence of the hall…" / "A shadow in the doorway…")',
+      'expository-setup':    'expository setup ("It was a cold Tuesday…" / "There had been…")',
+      'temporal-subordinate':'temporal clause ("When the clock struck…" / "After the guests had gone…")',
+      'time-anchor':         'time anchor ("At half past nine…" / "At midnight…" / "At 9 PM…")',
+    };
+    const recentStyles = state.usedOpeningStyles.slice(-5);
+    const recentLabels = recentStyles.map(s => bucketLabels[s] ?? s);
+    // Count occurrences to identify the dominant bucket
+    const dominantBucket = recentStyles.reduce<Record<string, number>>((acc, s) => { acc[s] = (acc[s] ?? 0) + 1; return acc; }, {});
+    const mostUsed = Object.entries(dominantBucket).sort((a, b) => b[1] - a[1])[0];
+    const mostUsedLabel = mostUsed ? (bucketLabels[mostUsed[0]] ?? mostUsed[0]) : null;
+    lines.push(
+      `\nOPENING SENTENCE VARIETY (mandatory):` +
+      `\nRecent chapter openings used: ${recentLabels.join(' | ')}` +
+      (mostUsedLabel ? `\nMOST OVERUSED style — DO NOT use again: ${mostUsedLabel}` : '') +
+      `\nFor THIS chapter, begin the FIRST SENTENCE with one of these DIFFERENT styles:` +
+      `\n  • Spoken dialogue: '"[words]," said/asked [Name].'` +
+      `\n  • Time anchor: 'At half past nine...' or 'At midnight...' or 'At 9:15 PM...'` +
+      `\n  • Character in motion: '[Name] crossed/turned/moved/stepped/approached/examined [the/to/into]...'` +
+      `\n  • Noun-phrase atmosphere with genitive: 'The [noun] of the [place]...' or 'A [noun] in the [place]...'` +
+      `\n  • Temporal subordinate: 'When.../After.../Before.../As [Name]...'` +
+      `\nDo NOT open with a plain descriptive sentence ("The dark room...", "Silence filled...", "The air was...").`
+    );
   }
 
   if (state.usedSensoryPhrases.length > 0) {
@@ -2449,7 +2487,7 @@ const buildEnhancedRetryFeedback = (
     }
 
     const entropyError = rawErrors.find((e) => /opening-style entropy too low/i.test(e));
-    if (entropyError) {
+    if (entropyError && attemptNum < maxAttempts) {
       directives.push(
         `REPAIR [opening_style]: This chapter opens with the same sentence pattern as prior chapters (entropy too low).\n` +
         `  You MUST begin the FIRST SENTENCE of this chapter with a structurally different type. Choose ONE of:\n` +
@@ -2531,6 +2569,16 @@ const buildEnhancedRetryFeedback = (
       feedback += `• ${directive}\n`;
     });
     feedback += `\n`;
+  }
+
+  // When 3 or more distinct directives are active simultaneously, the model may shed implicit
+  // prose structure (paragraph splitting) to satisfy all explicit constraints. Add a guardrail
+  // to prevent single-paragraph collapse under directive overload.
+  if (retryDirectives.length >= 3) {
+    feedback += `═══ STRUCTURAL REMINDER ═══\n`;
+    feedback += `The "paragraphs" array in the JSON output must contain MULTIPLE separate paragraph strings — one paragraph per array element. `;
+    feedback += `Do NOT place the entire chapter text inside a single array element. `;
+    feedback += `Aim for 5–8 paragraphs. Each paragraph should be a distinct prose unit of 3–8 sentences.\n\n`;
   }
   
   const isFinalAttempt = attempt >= maxAttempts;
@@ -2880,6 +2928,31 @@ export async function generateProse(
             sanitizeGeneratedChapter(proseBatch.chapters[i], castNames),
             temporalSeasonLock,
           );
+          // Deterministic safety net: if the model collapsed the entire chapter into a single
+          // overlong paragraph block (a known directive-overload behaviour on final attempts),
+          // split it on sentence boundaries before validation so formatting failures don't
+          // consume a retry attempt that could otherwise fix a real content issue.
+          if (
+            Array.isArray(chapter.paragraphs) &&
+            chapter.paragraphs.length === 1 &&
+            chapter.paragraphs[0].length > 2400
+          ) {
+            const raw = chapter.paragraphs[0];
+            const sentences = raw.match(/[^.!?]+[.!?]+\s*/g) ?? [raw];
+            const split: string[] = [];
+            let current = '';
+            for (const sentence of sentences) {
+              if (current.length + sentence.length > 2400 && current.length > 0) {
+                split.push(current.trim());
+                current = '';
+              }
+              current += sentence;
+            }
+            if (current.trim()) split.push(current.trim());
+            if (split.length > 1) {
+              chapter = { ...chapter, paragraphs: split };
+            }
+          }
           proseBatch.chapters[i] = chapter;
           const chapterNumber = chapterStart + i;
           const ledgerEntry = chapterRequirementLedger[i];

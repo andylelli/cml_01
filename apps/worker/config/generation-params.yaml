@@ -203,7 +203,7 @@ agent9_prose:
         # Supported range: 0.0 - 2.0
         mid_threshold: 0.7
         # Supported range: 0.0 - 2.0
-        late_threshold: 0.78
+        late_threshold: 0.70
       # Repair-mode entropy profile
       # Supported range: 0.0 - 2.0
       repair_threshold: 0.62

@@ -607,18 +607,15 @@ export async function designCast(
       }
 
       // Validate role-archetype diversity: require >=70% unique labels.
-      const uniqueArchetypes = new Set(
+      // Apply the deterministic diversification fallback on every attempt — duplicate archetypes
+      // are a formatting compliance issue, not a content quality defect, so there is no reason
+      // to consume a retry on something that can be fixed deterministically right now.
+      const uniqueArchetypesBefore = new Set(
         cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
       );
-      if (uniqueArchetypes.size < requiredUniqueArchetypes) {
-        if (attempt < resolvedMaxAttempts) {
-          console.warn(
-            `Attempt ${attempt}: Only ${uniqueArchetypes.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
-          );
-          continue;
-        }
+      if (uniqueArchetypesBefore.size < requiredUniqueArchetypes) {
         console.warn(
-          `Attempt ${attempt}: Final attempt has ${uniqueArchetypes.size}/${requiredUniqueArchetypes} unique role archetypes. Applying deterministic diversification fallback.`,
+          `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
         );
         cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
 
@@ -626,6 +623,12 @@ export async function designCast(
           cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
         );
         if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
+          if (attempt < resolvedMaxAttempts) {
+            console.warn(
+              `Attempt ${attempt}: Diversification insufficient (${uniqueAfterFallback.size}/${requiredUniqueArchetypes}). Retrying.`,
+            );
+            continue;
+          }
           throw new Error(
             `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
           );

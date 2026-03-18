@@ -1,4 +1,4 @@
-# ANALYSIS_11: Clue "Direct Observation" False-Negative; Duplicate Clue Error; Attempt-4 Single-Paragraph Collapse
+# ANALYSIS_11: Clue "Direct Observation" Retry Directive Unhelpful; Duplicate Clue Error; Attempt-4 Single-Paragraph Collapse
 
 ## Overview
 
@@ -6,28 +6,28 @@ Three interacting failure modes in the same Ch3 run, all four attempts failed, a
 
 | # | Error | Attempts affected | Outcome |
 |---|-------|-------------------|---------|
-| A | Clue evidence `"Direct observation"` is absent (validator false-negative) | 1, 2, 3 | Hard fail — clue check blocks acceptance |
+| A | Retry directive uses delivery-method genre label `"Direct observation"` as prose instruction — model cannot interpret it as actionable content | 1, 2, 3 | Hard fail — clue genuinely absent; retry directive fails to fix it |
 | B | Same error emitted twice per attempt | 1, 2, 3 | Retry directive over-repeated; no extra signal |
 | C | Attempt 4 delivers all prose as one paragraph block (4867 chars, 806 words) | 4 | Hard fail — paragraph structure checks block acceptance |
 
 ---
 
-## Error A — `clue evidence "Direct observation" is absent` (validator false-negative)
+## Error A — `clue evidence "Direct observation" is absent` — retry directive carries genre label, not prose content
 
-### What the model produces
+### What the model and validator both report
 
-The model's own audit self-check (from the diagnostic `raw tail`) reads:
+The model's own audit self-check (from the diagnostic `raw tail`) on attempts 1–3 reads:
 
 ```json
-"required_clues_present": "clue_1: chapter 3 paragraph 1 | clue_2: chapter 3 paragraph 5 | clue_3: chapter 3 paragraph 3"
+"required_clues_present": "clue_1: chapter 3 paragraph 1, clue_2: chapter 3 paragraph 4, clue_3: chapter 3 paragraph 3 | absent",
 "early_observation_present": "clock in the study shows the time as 10:10 PM: chapter 3 paragraph 1 | absent"
 ```
 
-On attempts 1–3 `early_observation_present` ends with `| absent` — the model self-reports that the observation is missing. Yet the required_clues audit lists placement locations for all three clues. The external validator independently confirms the clue IS absent after prose extraction.
+Both `early_observation_present` and the validator independently report the clue as absent on each of attempts 1–3. The model itself self-reports `| absent` — confirming the clock observation was not written into the prose. **The validator is correct.** The chapter genuinely does not contain this clue on these attempts.
 
-### What the validator actually checks
+### What the validator checks
 
-`chapterMentionsRequiredClue` tokenises the clue's `description` field via `tokenizeForClueObligation`:
+`chapterMentionsRequiredClue` tokenises the clue's `description` and `pointsTo` fields via `tokenizeForClueObligation`:
 
 ```typescript
 const tokens = Array.from(new Set([
@@ -36,32 +36,20 @@ const tokens = Array.from(new Set([
 ])).slice(0, 10);
 ```
 
-`tokenizeForClueObligation("Direct observation")` produces:
+For a clue whose `description` is `"Direct observation"` and `pointsTo` contains content-rich tokens (e.g. `"cannot be trusted to indicate the time of death"`), the combined token pool would include both delivery-method tokens (`"direct"`, `"observation"`) and content tokens (`"trusted"`, `"indicate"`, `"time"`, `"death"`). The 40% match threshold across the full pool gives the validator a reasonable signal.
 
-- `"direct"` — kept (length 6, not a stopword)
-- `"observation"` — kept (length 11, not a stopword)
+If `pointsTo` is populated, the validator works. The uncertainty is whether this particular clue's `pointsTo` field contains prose-matchable content tokens.
 
-Total tokens: 2. Required to match: `Math.max(2, Math.ceil(2 × 0.4)) = 2` — **both tokens must be present** in the chapter text (directly or via stem stripping).
+### Why the retry fails (attempts 2 and 3)
 
-`tokenMatchesText("observation", text)` strips the `"ation"` suffix → root `"observ"` (6 chars ≥ 4) → matches `"observed"`, `"observing"`, `"observable"` etc.
+This is the real problem. When `validateChapterPreCommitObligations` builds the error string, it sets:
 
-`tokenMatchesText("direct", text)` → matches `"directly"`, `"directed"`, `"direction"`.
+```typescript
+const resolvedDesc = clue?.description?.trim() ?? ctx?.description?.trim() ?? null;
+const clueDesc = resolvedDesc ? `"${resolvedDesc}"` : `"${clueId}"`;
+```
 
-### Why this fails
-
-The clue description `"Direct observation"` is a **delivery-method genre label**, not the narrative content of the clue. The actual content of this clue, per the audit trail, is:
-
-> *clock in the study shows the time as 10:10 PM*
-
-When the model writes prose for this clue it naturally writes something like:
-
-> *"The clock on the study mantelpiece stood at ten past ten."*
-
-The prose contains neither `"direct"` nor any stem of `"observ"`. The validator's token-match check requires both tokens from the description, but the description describes the delivery *method*, not the clue *content*. The two systems are misaligned: the validator was designed for content-rich descriptions like `"the stopped clock face"` or `"the monogrammed handkerchief"`, not genre labels like `"Direct observation"` or `"Hearsay"`.
-
-### Why the retry also fails (attempts 2 and 3)
-
-The retry directive injected into the prompt is:
+For this clue, `resolvedDesc = "Direct observation"`, so `clueDesc = '"Direct observation"'`. The error message becomes:
 
 ```
 Chapter 3: clue evidence "Direct observation" is absent.
@@ -69,15 +57,15 @@ Include an on-page observation of "Direct observation" in the first quarter of t
 followed immediately by an explicit inference paragraph.
 ```
 
-This directive literally tells the model to include "Direct observation" as prose — a meaningful phrase in an English sentence. The model interprets this as a stylistic instruction ("write using the technique of direct observation") rather than as a magic token it must embed literally. Even if the model correctly interprets the clue, the validator still requires both `"direct"` and `"observ*"` to appear. In a realistic prose sentence, "directly observed" would satisfy the match — but the retry directive doesn't tell the model to use those specific words.
+`buildRetryMicroPromptDirectives` then calls `extractQuoted()` on these error strings and builds a directive around `"Direct observation"`. The directive instructs the model to write something carrying the phrase "Direct observation" — a genre label, not a narrative description.
 
-Attempts 2 and 3 produce essentially identical chapter word counts (1102 / 1099 words) and identical diagnostics — the model is regenerating in the same pattern with the same failure.
+The model receives the instruction, interprets "Direct observation" as a prose-writing technique instruction ("use the technique of direct observation"), and regenerates a chapter with the same structural pattern. Since nothing in the retry directive tells the model *what* was observed (the clock, the specific time), the model never writes about the clock. Attempts 2 and 3 produce nearly identical chapters (1102 / 1099 words) with identical failures.
 
-### Deeper root cause
+### Root cause
 
-The clue description field in the CML schema is being populated with delivery-method labels (`"Direct observation"`, `"Hearsay"`, `"Written record"` etc.) in addition to — or instead of — narrative content descriptions. The validator was written assuming descriptions contain the *observable content* of the clue (the thing the detective sees/hears/reads). When the description is a label rather than content, the token-match produces false negatives.
+The error string construction in `validateChapterPreCommitObligations` uses only `clue.description` as the human-readable label in the error message. For clues where `description` is a content-rich phrase (e.g. `"the monogrammed handkerchief"`, `"the stopped clock face"`), this works — the retry directive contains actionable prose content. When `description` is a delivery-method genre label (`"Direct observation"`, `"Hearsay"`, `"Written record"`), the error message contains no actionable narrative content — the model cannot infer from it *what specific thing* to write about.
 
-The `clueId`-literal fallback check (`lowered.includes(clueId.toLowerCase())`) would only save this if the clue's ID happened to be a prose word, which it typically is not.
+The fix is not to weaken the validator (which is accurate) but to enrich the error string with the clue's `pointsTo` field, which carries the investigative significance and is more likely to contain prose-matchable content.
 
 ---
 
@@ -166,68 +154,55 @@ Both are classified as `major` violations and are therefore included in the `har
 ## Relationship between the three errors
 
 ```
-A (false-negative)
-  ↓ triggers identical-string retry directive × 2
-B (duplicate error)
-  ↓ directive sent twice × clue × entropy = 5 constraints on attempt 4
+A (retry directive carries genre label — model can't interpret what to write)
+  ↓ clue genuinely absent on attempts 2 and 3, same error emitted twice each time
+B (duplicate identical error strings)
+  ↓ directive repeated twice × entropy directive = 5 constraints on attempt 4
 C (structure collapse under directive overload)
 ```
 
-Error A is the origin. Without A, attempts 1–3 would pass (the model is correctly placing the clue content), and attempt 4's collapse would never occur.
+Error A is the origin. Without A, attempts 1–3 would pass (the model would receive actionable prose content to write), the duplicate error would not appear, and attempt 4's structure collapse under directive overload would never occur.
 
 ---
 
 ## Solutions
 
-### Error A: Fix the token-match false-negative for delivery-method clue descriptions
+### Error A: Enrich the retry error string with `clue.pointsTo` content
 
-**A1 — `pointsTo` and `delivery_method` as tiebreaker content source**
+The validator is correct — do not weaken it. The fix is in how the error string is constructed in `validateChapterPreCommitObligations`. Currently the error carries only `clue.description` as the human-readable label. When `description` is a delivery-method genre label, the retry directive has no actionable narrative content.
 
-The clue object has a `delivery_method` field (e.g., `"Direct observation"`) and typically a `pointsTo` field containing the actual investigative significance (e.g., `"cannot be trusted to indicate the time of death"`, `"the victim knew their attacker"`). The validator already includes `pointsTo` tokens:
+**A1 — Append `pointsTo` to the error string when description is a genre label**
 
-```typescript
-tokenizeForClueObligation(String(clue.pointsTo ?? ""))
-```
-
-If `pointsTo` is populated with meaningful content, adding its tokens raises the total pool so that the 40% threshold is more easily satisfied even if `description` tokens are sparse. Review whether `pointsTo` fields in practice contain content-rich tokens.
-
-**A2 — Detect delivery-method-only descriptions and skip token-match**
-
-Before running the token-match, check whether `description` consists only of a known delivery label:
+In `validateChapterPreCommitObligations`, when building the absent-clue error push, also include `clue.pointsTo` if it is non-empty and distinct from `description`:
 
 ```typescript
-const DELIVERY_METHOD_LABELS = new Set([
-  'direct observation', 'hearsay', 'written record', 'physical evidence',
-  'deduction', 'inference', 'testimony', 'documentary',
-]);
+const clueDesc = resolvedDesc ? `"${resolvedDesc}"` : `"${clueId}"`;
+const pointsToHint = clue?.pointsTo?.trim();
+const extraHint = pointsToHint && pointsToHint !== resolvedDesc
+  ? ` (this clue reveals: ${pointsToHint})`
+  : '';
 
-function isDeliveryMethodLabel(desc: string): boolean {
-  return DELIVERY_METHOD_LABELS.has(desc.trim().toLowerCase());
-}
+hardFailures.push(
+  `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent.${extraHint} ${repair}`
+);
 ```
 
-If the description is a delivery label, skip the description's token contribution and rely entirely on `pointsTo` tokens. If `pointsTo` is also empty/uninformative, emit a **warning** rather than a hard failure (i.e., downgrade to `preferredMisses`).
+This propagates directly into `buildRetryMicroPromptDirectives` → `extractQuoted()` and the directive text, because the retry builder operates on raw error strings. The model now receives a directive like:
 
-**A3 — Downgrade unresolvable clue descriptions to preferred miss**
-
-When `tokenizeForClueObligation` produces fewer than 3 meaningful tokens from the combined description + pointsTo, the check is too weak to be reliable. In these cases downgrade the violation from `hardFailures` to `preferredMisses`:
-
-```typescript
-const tokens = Array.from(new Set([
-  ...tokenizeForClueObligation(String(clue.description ?? "")),
-  ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
-])).slice(0, 10);
-
-if (tokens.length < 3) {
-  // Description too sparse to check reliably — warn, don't hard-fail
-  preferredMisses.push(`Chapter ${ledgerEntry.chapterNumber}: cannot verify clue ${clueDesc} — description too sparse to match in prose`);
-  continue;
-}
+```
+REPAIR [clue_visibility]: chapters 3 are missing: Direct observation.
+Near the beginning of the chapter:
+• Paragraph 1: A character directly observes or discovers the missing evidence.
+  Be specific and sensory — describe what is seen, touched, or heard.
+  Include any exact required phrase verbatim.
+...
 ```
 
-**A4 — Enrich `delivery_method` clue descriptions in Agent 4 or 4b prompt**
+With the `(this clue reveals: ...)` suffix present in the clue-obligation-failures section, the model understands the investigative significance and is more likely to write prose that contains the expected tokens.
 
-The longer-term fix is upstream: when Agent 4 maps clues to scenes and writes the `clueDistribution`, ensure `description` is always populated with a prose-matchable content phrase (what the detective observes) and the delivery method is stored in a **separate** `delivery_method` or `type` field. This is a prompt/schema change.
+**A2 — Upstream fix: Agent 4/5 should populate `description` with observable content, not delivery method** *(long-term)*
+
+When Agent 5 writes `ClueDistributionResult`, `description` should be the *observable, specific thing the detective notices* (e.g. `"the study clock stopped at 10:10 PM"`) and `delivery_method` from the CML mapping should remain a separate field. This keeps the validator's token-match reliable for all clues without requiring special-case handling.
 
 ---
 
@@ -281,3 +256,147 @@ This is a **deterministic safety net** that fires before the chapter is presente
 **C3 — Deduplicate clue directives before building prompt** (overlaps with B)
 
 Deduplicating identical directives (Error B fix) directly reduces the directive load seen by attempt 4, reducing the probability of the model collapsing structure.
+
+---
+
+## Ch19 Pipeline Abort — Late-Chapter Entropy Exhaustion and Sensory-Grounding Regression (Errors D and E)
+
+### Overview
+
+A follow-on run of a 19-chapter story surfaces two further compounding failures. Chapters 11–18 each exhaust all four retry attempts on the entropy check before being accepted via bypass (no abort). Chapter 19 fails all four attempts and aborts the pipeline — the run does not complete.
+
+The root mechanisms extend directly from patterns documented above: retry directive loading degrades quality that was passing before the directive arrived.
+
+| # | Error | Chapters affected | Outcome |
+|---|-------|-------------------|---------|
+| D | Late-chapter entropy threshold (0.78) structurally unreachable once the prior window is dominated by `general-descriptive` entries; model ignores opening-style directive | 11–18 | Bypass fires on attempt 4; accepted with warning; ~24 wasted LLM calls |
+| E | Entropy retry directive on attempt 3 causes model to change opening style on attempt 4 — new opening loses sensory-grounding markers; `isEntropyOnlyFailure` blocked | 19 | Pipeline abort (attempt 4/4; two hard failures) |
+
+---
+
+## Error D — Entropy threshold 0.78 structurally unreachable; model ignores REPAIR [opening_style]
+
+### What the log shows
+
+From Ch11 onwards, every chapter triggers the entropy warning on every attempt until the bypass fires:
+
+```
+opening-style entropy too low (0.59 < 0.78). Vary chapter openings and avoid repeated style buckets.
+```
+
+The entropy value is consistently **0.59** across all retries for Ch11–Ch18. Retrying does not change it.
+
+### Why the value is fixed
+
+The entropy is computed over a sliding window:
+
+```typescript
+const openingWindow = [
+  ...priorOpeningStyles.slice(-entropyConfig.opening_styles_prior_window),   // last 6 accepted chapters
+  ...candidateOpeningStyles,                                                   // current batch (1 chapter)
+].slice(-entropyConfig.opening_styles_total_window);                          // cap at 8
+```
+
+With `opening_styles_prior_window: 6` and `opening_styles_total_window: 8`, the window for a single-chapter batch is the last **6 accepted styles** plus **1 current** = 7 elements.
+
+If the prior 6 accepted chapters contain 4 `general-descriptive` and 2 other buckets, and the current chapter is again `general-descriptive`:
+
+```
+window = [gd, gd, gd, gd, X, Y, gd]  →  [5 gd, 2 non-gd]
+Shannon entropy (nats) = -(5/7 × ln(5/7) + 2/7 × ln(2/7)) = 0.598 ≈ 0.59
+```
+
+The REPAIR [opening_style] directive tells the model to use one of five named alternative styles on the next attempt. However, the model generates another `general-descriptive` opening on every retry. The directive is present and phrased correctly, but the model deprioritises first-sentence format when balancing competing requirements (clue placement, atmosphere grounding, sensory markers, word count). The window's distribution therefore does not change between attempts.
+
+**Structural unfixability at 0.78:** To reach 0.78 with a 7-element window and the current chapter being `general-descriptive`, the prior 6 would need only 3 `general-descriptive` entries. Once earlier chapters lock in their styles, this cannot be achieved by retrying the current chapter. The threshold penalises chapters not for what the current chapter does, but for the accumulated pattern of all prior chapters.
+
+The entropy bypass (`isEntropyOnlyFailure && attempt >= maxBatchAttempts`) correctly saves Ch11–Ch18 from aborting, but consumes three LLM calls per chapter before doing so (4 attempts × 8 chapters ≈ 24 wasted calls).
+
+### Root cause
+
+`late_threshold: 0.78` overshoots the value achievable by single-chapter retries when the window is already dominated by `general-descriptive` entries. The `mid_threshold: 0.70` reflects the practical ceiling with moderate prior diversity. By escalating further to 0.78 for chapters > 10, the check becomes more likely to trigger as a run grows longer — the opposite of the intended effect.
+
+---
+
+## Error E — Ch19 attempt-4 compound failure: opening-style directive causes sensory-grounding regression
+
+### What the log shows
+
+Attempts 1–3 for Ch19 fail with a single error — entropy (0.00 and 0.59 < 0.78). Sensory grounding passes on all three. On attempt 4, **both errors appear simultaneously**:
+
+```
+[Agent 9] Batch ch19 validation failed (attempt 4/4):
+  - Chapter 19: Chapter 19 opening block has weak sensory grounding (1 sensory markers found)
+    (Include at least two sensory cues (sound/smell/tactile/visual) in the opening block)
+  - Template linter: opening-style entropy too low (0.59 < 0.78). Vary chapter openings
+    and avoid repeated style buckets.
+```
+
+Because `isEntropyOnlyFailure` requires ALL batch errors to be entropy:
+
+```typescript
+const isEntropyOnlyFailure =
+  batchErrors.every((error) => error.startsWith("Template linter: opening-style entropy too low"));
+```
+
+The sensory-grounding `severity: 'major'` error (pushed into `hardErrors` by `evaluateCandidate`) blocks the bypass. The pipeline aborts on the last chapter of a 19-chapter story.
+
+### Why attempt 4 introduces a failure that attempts 1–3 did not
+
+On attempt 3, REPAIR [opening_style] is appended to the retry prompt. On attempt 4, the model follows this directive and changes its opening sentence to a non-`general-descriptive` style. The new opening (e.g., a character-action or temporal-subordinate sentence) discards the naturally sensory-descriptive words that `general-descriptive` openers carry by default (e.g., "The cold wind swept through...", "The dim corridor lay silent..."). The sensory-marker count drops from ≥2 to 1.
+
+The `weak sensory grounding` check in `chapter-validator.ts` counts specific vocabulary terms across the opening block (first two paragraphs). A `general-descriptive` opening naturally contains atmosphere/sensory words; when the model substitutes "Constable Higgs crossed the threshold into the parlour" (character-action), those naturally-sensory words disappear.
+
+This is the same structural pattern as **Error C** from the original ANALYSIS_11: a directive that repairs one failing check inadvertently degrades a check that was previously passing. Here, directive compliance in one dimension (opening style) causes regression in another (sensory grounding). The entropy warning would have been bypassed — but the bypass is blocked because a second hard failure is now present.
+
+### Relationship between Errors D and E
+
+```
+D (entropy threshold 0.78 unreachable; model ignores directive on Ch11–Ch18)
+  ↓ bypass saves Ch11–Ch18, but directive fires again on attempt 3 for Ch19
+E (opening-style directive on attempt 3 triggers sensory regression on attempt 4)
+  ↓ non-entropy hard error present; bypass cannot fire; pipeline abort on Ch19
+```
+
+Error D is the necessary precondition. If the entropy threshold were reachable or the directive were not emitted on the final attempt, Error E could not occur.
+
+---
+
+## Solutions
+
+### Error D: D1 — Cap `late_threshold` at 0.70
+
+In `apps/worker/config/generation-params.yaml`, reduce `late_threshold` to match `mid_threshold`:
+
+```yaml
+# was: late_threshold: 0.78
+late_threshold: 0.70
+```
+
+Rationale: The 0.70 mid-threshold already enforces meaningful style diversity. The escalation to 0.78 was intended to tighten quality for longer stories but overshoots the achievable window distribution under realistic model behaviour. With `late_threshold: 0.70`, the entropy check remains active and meaningful throughout the run without consuming all four retry attempts — it becomes a productive check rather than one that always hits the bypass.
+
+---
+
+### Error E: E2 — Suppress REPAIR [opening_style] on the final attempt
+
+`buildRetryMicroPromptDirectives` is a nested function inside `buildEnhancedRetryFeedback`, which receives `maxAttempts` via its parameter list. The nested function's `attemptNum` parameter corresponds directly to the outer `attempt` variable.
+
+On the final attempt (`attemptNum >= maxAttempts`), the entropy bypass will fire anyway if entropy is the only error — the directive cannot help because there are no further attempts after this one. Worse, as shown above, it actively causes regression by mandating a structural change to the opening sentence that strips sensory vocabulary.
+
+**Change in `buildRetryMicroPromptDirectives`:** gate the entropy directive on `attemptNum < maxAttempts`:
+
+```typescript
+// Before:
+const entropyError = rawErrors.find((e) => /opening-style entropy too low/i.test(e));
+if (entropyError) {
+  directives.push(`REPAIR [opening_style]: ...`);
+}
+
+// After:
+const entropyError = rawErrors.find((e) => /opening-style entropy too low/i.test(e));
+if (entropyError && attemptNum < maxAttempts) {
+  directives.push(`REPAIR [opening_style]: ...`);
+}
+```
+
+On the final attempt, entropy-only failures are accepted by bypass; entropy-plus-other-failure batches are aborted regardless. In both cases the directive provides no benefit. Suppressing it on the last attempt removes the regression risk without affecting acceptance behaviour.
