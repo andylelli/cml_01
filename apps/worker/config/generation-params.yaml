@@ -208,7 +208,7 @@ agent9_prose:
       # Supported range: 0.0 - 2.0
       repair_threshold: 0.62
       # Supported range: 2 - 20
-      min_window_standard: 4
+      min_window_standard: 3
       # Supported range: 2 - 20
       min_window_repair: 5
       # Supported range: 0 - 20

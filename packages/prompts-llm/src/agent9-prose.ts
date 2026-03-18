@@ -2453,11 +2453,12 @@ const buildEnhancedRetryFeedback = (
       directives.push(
         `REPAIR [opening_style]: This chapter opens with the same sentence pattern as prior chapters (entropy too low).\n` +
         `  You MUST begin the FIRST SENTENCE of this chapter with a structurally different type. Choose ONE of:\n` +
-        `  • Spoken dialogue — open with a character speaking: \'"..." said/asked [Name].\'\n` +
-        `  • Time anchor — open with a specific time and location: \'At half past nine in the [room]...\'\n` +
-        `  • Character in motion — a named character acts first: \'[Name] crossed/entered/turned/examined...\'\n` +
-        `  • Noun-phrase atmosphere with a genitive: \'The [noun] of the [place]...\'\n` +
-        `  Do NOT open with a standalone descriptive sentence about general setting atmosphere (e.g., \'The [adj] air...\'  or \'The room was...\'). The very first sentence must belong to one of the four types above.`
+        `  • Spoken dialogue — open with a character speaking: \'"[words]," said/asked [Name].\'\n` +
+        `  • Time anchor — open with a specific time: \'At half past nine...\' or \'At midnight...\' or \'At 9 PM...\'\n` +
+        `  • Character in motion — ONE named character acts first: \'[Name] crossed/turned/moved/stepped/approached/examined/glanced/rose/returned [the/to/into]...\'\n` +
+        `  • Noun-phrase atmosphere with a genitive: \'The [noun] of the [place]...\' or \'A [noun] in the [place]...\'\n` +
+        `  • Temporal subordinate — begin with a time clause: \'When.../After.../Before.../As [Name]...\'\n` +
+        `  Do NOT open with a general descriptive sentence (e.g., \'The dark room...\' or \'Silence filled the hall...\' or \'The air was heavy..\'). The very first sentence must be one of the five types above.`
       );
     }
 
