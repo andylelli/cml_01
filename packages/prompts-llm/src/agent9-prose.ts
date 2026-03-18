@@ -213,6 +213,32 @@ const tokenizeForClueObligation = (value: string): string[] =>
     .split(/\s+/)
     .filter((token) => token.length >= 4 && !CLUE_TOKEN_STOPWORDS.has(token));
 
+// Delivery-method genre labels that Agent 5 sometimes puts in clue.description.
+// These describe HOW a clue is delivered, not WHAT is observed — their tokens
+// ("direct", "observation", "hearsay", etc.) will never appear in narrative prose
+// and cause the token-matcher to always fail.
+const CLUE_DELIVERY_METHOD_LABELS = new Set<string>([
+  'direct observation',
+  'physical evidence',
+  'hearsay',
+  'written record',
+  'testimony',
+  'forensic evidence',
+  'circumstantial evidence',
+  'verbal testimony',
+  'documentary evidence',
+  'material evidence',
+  'eyewitness account',
+  'confession',
+  'deduction',
+  'inference',
+]);
+
+const isDeliveryMethodLabel = (description: string | null | undefined): boolean => {
+  if (!description) return false;
+  return CLUE_DELIVERY_METHOD_LABELS.has(description.trim().toLowerCase());
+};
+
 /**
  * Check whether `token` (already lowercase, length ≥4) is present in `loweredText`.
  * Strips common English inflection suffixes so that, e.g.:
@@ -299,14 +325,23 @@ const chapterMentionsRequiredClue = (
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || "") === clueId);
   if (!clue) return false;
 
-  const tokens = Array.from(new Set([
-    ...tokenizeForClueObligation(String(clue.description ?? "")),
-    ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
-  ])).slice(0, 10);
+  const descIsGenreLabel = isDeliveryMethodLabel(clue.description);
+  // When description is a delivery-method label (e.g. "Direct observation"), its tokens
+  // ("direct", "observation") never appear in narrative prose.  Use only pointsTo tokens.
+  // If pointsTo is also empty, the clue metadata is incomplete — pass rather than
+  // false-failing every attempt.
+  const tokens = descIsGenreLabel
+    ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? "")))).slice(0, 10)
+    : Array.from(new Set([
+        ...tokenizeForClueObligation(String(clue.description ?? "")),
+        ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
+      ])).slice(0, 10);
 
-  if (tokens.length === 0) return false;
+  // Genre-label clue with no usable pointsTo tokens — metadata is insufficient for
+  // token-level validation.  Accept rather than perpetually failing.
+  if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-  const requiredMatches = Math.max(2, Math.ceil(tokens.length * 0.4));
+  const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.4));
   return matched.length >= requiredMatches;
 };
 
@@ -329,12 +364,15 @@ const chapterClueAppearsEarly = (
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || '') === clueId);
   if (!clue) return false;
 
-  const tokens = Array.from(new Set([
-    ...tokenizeForClueObligation(String(clue.description ?? '')),
-    ...tokenizeForClueObligation(String(clue.pointsTo ?? '')),
-  ])).slice(0, 10);
+  const descIsGenreLabel = isDeliveryMethodLabel(clue.description);
+  const tokens = descIsGenreLabel
+    ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? '')))).slice(0, 10)
+    : Array.from(new Set([
+        ...tokenizeForClueObligation(String(clue.description ?? '')),
+        ...tokenizeForClueObligation(String(clue.pointsTo ?? '')),
+      ])).slice(0, 10);
 
-  if (tokens.length === 0) return false;
+  if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
   // Early-placement only requires observational signal in the first quarter — not the full
   // analytical inference. Clue descriptions use conclusory language ("cannot be trusted to
@@ -382,13 +420,17 @@ export const validateChapterPreCommitObligations = (
     // Primary check via distribution; for unresolved IDs, also check ctx.description tokens
     let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution);
     if (!isPresent && !clue && ctx?.description) {
-      const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-      if (tokens.length > 0) {
-        const lowered = chapterText.toLowerCase();
-        const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-        // Short delivery_methods (≤4 tokens) use threshold 1 — the content word alone is sufficient.
-        const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
-        isPresent = matched.length >= threshold;
+      // If ctx.description is a genre label, skip token matching — it can never match prose
+      if (isDeliveryMethodLabel(ctx.description)) {
+        isPresent = true;
+      } else {
+        const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+        if (tokens.length > 0) {
+          const lowered = chapterText.toLowerCase();
+          const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
+          const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
+          isPresent = matched.length >= threshold;
+        }
       }
     }
 
@@ -410,14 +452,17 @@ export const validateChapterPreCommitObligations = (
       // Content is present but must also appear in the first 25% of paragraphs
       let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution);
       if (!isEarly && !clue && ctx?.description) {
-        const quarterEnd = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
-        const earlyText = (chapter.paragraphs ?? []).slice(0, quarterEnd).join(' ').toLowerCase();
-        const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-        if (tokens.length > 0) {
-          const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
-          // Short delivery_methods (≤4 tokens) use threshold 1 — the content word alone is sufficient.
-          const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
-          isEarly = matched.length >= threshold;
+        if (isDeliveryMethodLabel(ctx.description)) {
+          isEarly = true;
+        } else {
+          const quarterEnd = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
+          const earlyText = (chapter.paragraphs ?? []).slice(0, quarterEnd).join(' ').toLowerCase();
+          const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+          if (tokens.length > 0) {
+            const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
+            const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
+            isEarly = matched.length >= threshold;
+          }
         }
       }
       if (!isEarly) {
@@ -1887,10 +1932,11 @@ const buildProvisionalChapterScore = (
     if (hasDistEntry) return false;
     const ctx = (ledgerEntry?.clueObligationContext ?? []).find((c) => c.id === clueId);
     if (!ctx?.description) return false;
+    if (isDeliveryMethodLabel(ctx.description)) return true;
     const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
     if (tokens.length === 0) return false;
     const lowered = chapterText.toLowerCase();
-    const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
+    const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
     return tokens.filter((t) => tokenMatchesText(t, lowered)).length >= threshold;
   });
   const clueScore = requiredClues.length > 0

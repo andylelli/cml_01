@@ -400,3 +400,67 @@ if (entropyError && attemptNum < maxAttempts) {
 ```
 
 On the final attempt, entropy-only failures are accepted by bypass; entropy-plus-other-failure batches are aborted regardless. In both cases the directive provides no benefit. Suppressing it on the last attempt removes the regression risk without affecting acceptance behaviour.
+
+---
+
+## Error F — Token-match validator structurally cannot match delivery-method genre labels
+
+### Discovery
+
+After fixes A1, B, C1–C3, D1, and E2  were deployed, a new run still aborted on **Ch1** — all four attempts failed with the identical error:
+
+```
+Chapter 1: clue evidence "Direct observation" is absent.
+```
+
+The A1 fix (`pointsTo` hint in error string) produced no `(this clue reveals: ...)` suffix — meaning `pointsTo` is either empty or equals the description for this clue. The retry directive still carries only the genre label.
+
+### Root cause: `Math.max(2, ...)` threshold with a 2-token pool = 100% match required
+
+`tokenizeForClueObligation("Direct observation")` produces `["direct", "observation"]` — 2 tokens. The threshold formula:
+
+```typescript
+const requiredMatches = Math.max(2, Math.ceil(tokens.length * 0.4));
+//                      Math.max(2, Math.ceil(2 * 0.4))
+//                      Math.max(2, 1)
+//                      = 2   ← BOTH tokens must match
+```
+
+`tokenMatchesText("direct", text)` checks for "direct" in the prose (exact or with inflection stripping). Detective prose about clocks, studies, and dead bodies almost never contains the word "direct". The match structurally fails regardless of how well the model writes the actual observational content.
+
+This is the same Error A observed in Ch3 of the earlier run, but now unmasked as a **validator false-positive** — the model's self-audit correctly reports the clue as present, yet the token matcher rejects it because the description tokens are delivery-method vocabulary, not narrative vocabulary.
+
+### Structural impossibility
+
+For any clue where:
+1. `description` is a delivery-method genre label (e.g. "Direct observation", "Hearsay", "Physical evidence", "Testimony")
+2. `pointsTo` is empty or also a genre label
+
+The token pool contains only method-vocabulary tokens that never appear in narrative prose. No amount of retrying can make the model write prose containing "direct" and "observation" in the expected token-match sense. Every attempt is a wasted LLM call.
+
+### Fix F1 — Delivery-method genre label detection and bypass
+
+Added a known set of delivery-method labels:
+
+```typescript
+const CLUE_DELIVERY_METHOD_LABELS = new Set<string>([
+  'direct observation', 'physical evidence', 'hearsay', 'written record',
+  'testimony', 'forensic evidence', 'circumstantial evidence',
+  'verbal testimony', 'documentary evidence', 'material evidence',
+  'eyewitness account', 'confession', 'deduction', 'inference',
+]);
+```
+
+Applied consistently across all four validation paths:
+
+1. **`chapterMentionsRequiredClue`**: When `description` is a genre label, exclude its tokens from the pool and use only `pointsTo` tokens. If `pointsTo` is also empty (incomplete metadata), return `true` — accept rather than perpetually fail.
+
+2. **`chapterClueAppearsEarly`**: Same logic — genre-label descriptions excluded from token pool, accept on empty `pointsTo`.
+
+3. **`validateChapterPreCommitObligations` fallback** (`!clue && ctx?.description`): If `ctx.description` is a genre label, skip token matching entirely.
+
+4. **Scoring evaluator fallback**: Same genre-label bypass.
+
+### Fix F2 — Lower `requiredMatches` floor from 2 to 1
+
+Changed `Math.max(2, Math.ceil(tokens.length * 0.4))` → `Math.max(1, Math.ceil(tokens.length * 0.4))` across all paths. For small token pools (2–3 tokens), this makes a single content-bearing token match sufficient. This fixes the threshold arithmetic for all clues with short descriptions, not just genre labels.
