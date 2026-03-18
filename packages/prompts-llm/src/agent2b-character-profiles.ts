@@ -62,7 +62,18 @@ const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: s
 
   const system = `You are a character biography writer for classic mystery fiction. Your task is to expand the provided cast details into full narrative profiles with distinct voices, humour styles, and speech mannerisms.\n\nRules:\n- Do not introduce new facts beyond the provided cast and CML.\n- Preserve private secrets and motives as given.\n- Avoid stereotypes or reductive framing.\n- Output valid JSON only.`;
 
-  const validationFeedback = buildValidationFeedback(previousErrors);
+  // Rewrite JSON-path error references to character names so the model can act on them precisely
+  const namedErrors = (previousErrors ?? []).map((err) => {
+    const match = err.match(/^profiles\[(\d+)\]\.(.*)/);
+    if (match) {
+      const idx = parseInt(match[1], 10);
+      const character = inputs.cast.characters[idx];
+      const name = character?.name ?? `character at index ${idx}`;
+      return `The profile for "${name}" is missing or incomplete: ${match[2]} — ensure this character has a full "paragraphs" array of 4–6 narrative paragraphs (~${inputs.targetWordCount ?? 1000} words total).`;
+    }
+    return err;
+  });
+  const validationFeedback = buildValidationFeedback(namedErrors.length > 0 ? namedErrors : undefined);
 
   const developer = `# Character Profiles Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "${tone}",\n  "targetWordCount": ${targetWordCount},\n  "profiles": [\n    {\n      "name": "Name",\n      "summary": "1-2 sentence overview",\n      "publicPersona": "...",\n      "privateSecret": "...",\n      "motiveSeed": "...",\n      "motiveStrength": "weak|moderate|strong|compelling",\n      "alibiWindow": "...",\n      "accessPlausibility": "...",\n      "stakes": "...",
       "humourStyle": "understatement|dry_wit|polite_savagery|self_deprecating|observational|deadpan|sardonic|blunt|none",
@@ -104,6 +115,68 @@ CHARACTER HUMOUR REQUIREMENTS:
 
   return { system, developer, user, messages };
 };
+
+/**
+ * Targeted repair for a single profile that is missing its paragraphs array.
+ * Uses a minimal prompt focused only on that one character, avoiding the token
+ * ceiling that causes the full N-profile call to truncate the last profile.
+ */
+async function repairMissingParagraphs(
+  client: AzureOpenAIClient,
+  inputs: CharacterProfilesInputs,
+  profile: CharacterProfileOutput,
+  characterIndex: number
+): Promise<CharacterProfileOutput> {
+  const character = inputs.cast.characters[characterIndex];
+  const tone = inputs.tone ?? "Cozy";
+  const targetWordCount = inputs.targetWordCount ?? 1000;
+  const title = (inputs.caseData as any)?.CASE?.meta?.title ?? "Untitled Mystery";
+
+  const messages = [
+    {
+      role: "system" as const,
+      content: `You are a character biography writer for classic mystery fiction. Output valid JSON only.`,
+    },
+    {
+      role: "user" as const,
+      content:
+        `Write narrative paragraphs for this character in "${title}".\n\n` +
+        `Return JSON with this exact structure: {"paragraphs": ["Paragraph 1", "Paragraph 2", ...]}\n\n` +
+        `Requirements:\n- 4-6 paragraphs totalling ~${targetWordCount} words\n- Tone: ${tone}\n` +
+        `- Keep all facts consistent with the character details and existing profile fields below.\n\n` +
+        `Character: ${JSON.stringify(character, null, 2)}\n\n` +
+        `Existing profile (paragraphs missing — supply them): ${JSON.stringify({ ...profile, paragraphs: [] }, null, 2)}`,
+    },
+  ];
+
+  const response = await client.chat({
+    messages,
+    temperature: 0.6,
+    maxTokens: 2000,
+    jsonMode: true,
+    logContext: {
+      runId: inputs.runId ?? "",
+      projectId: inputs.projectId ?? "",
+      agent: "Agent2b-ProfileRepair",
+      retryAttempt: 1,
+    },
+  });
+
+  let parsed: { paragraphs?: string[] };
+  try {
+    parsed = JSON.parse(response.content);
+  } catch {
+    parsed = JSON.parse(jsonrepair(response.content));
+  }
+
+  if (!Array.isArray(parsed.paragraphs) || parsed.paragraphs.length === 0) {
+    throw new Error(
+      `Profile repair for "${character?.name ?? `index ${characterIndex}`}" returned no paragraphs`
+    );
+  }
+
+  return { ...profile, paragraphs: parsed.paragraphs };
+}
 
 export async function generateCharacterProfiles(
   client: AzureOpenAIClient,
@@ -184,6 +257,26 @@ export async function generateCharacterProfiles(
 
   const durationMs = Date.now() - start;
   const validatedResult = retryResult.result as CharacterProfilesResult;
+
+  // Targeted repair: if any profile is still missing paragraphs (e.g. due to token
+  // budget truncation on the last profile), repair each one with a focused single-profile call
+  if (Array.isArray(validatedResult.profiles)) {
+    for (let i = 0; i < validatedResult.profiles.length; i++) {
+      const p = validatedResult.profiles[i];
+      if (!p.paragraphs || p.paragraphs.length === 0) {
+        try {
+          validatedResult.profiles[i] = await repairMissingParagraphs(client, inputs, p, i);
+          console.log(
+            `[Agent 2b] Repaired missing paragraphs for "${inputs.cast.characters[i]?.name ?? `profile[${i}]`}"`
+          );
+        } catch (repairErr) {
+          console.error(
+            `[Agent 2b] Could not repair paragraphs for profile[${i}]: ${repairErr}`
+          );
+        }
+      }
+    }
+  }
 
   return {
     ...validatedResult,

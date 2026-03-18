@@ -38,9 +38,9 @@ agent2b_profiles:
   params:
     model:
       temperature: 0.6
-      max_tokens: 4000
+      max_tokens: 8000
     generation:
-      default_max_attempts: 2
+      default_max_attempts: 3
 
 agent2c_location_profiles:
   status: implemented
@@ -150,9 +150,10 @@ agent8_novelty:
 
 agent9_prose:
   word_policy:
-    # Hard floor used by chapter pre-commit gate = floor(chapterMinWords * ratio)
+    # Hard floor (chapter pre-commit gate) = floor(preferred_chapter_words * ratio)
+    # 0.77 gives short:1001 / medium:1232 / long:1848
     # Supported range: 0.6 - 1.0
-    hard_floor_relaxation_ratio: 0.88
+    hard_floor_relaxation_ratio: 0.6
     # Absolute lower bound for hard-floor words after ratio is applied
     # Supported range: 200 - 2000
     min_hard_floor_words: 600

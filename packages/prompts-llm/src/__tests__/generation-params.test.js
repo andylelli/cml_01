@@ -13,7 +13,7 @@ describe("generation params loader", () => {
         resetGenerationParamsCacheForTests();
 
         const config = getGenerationParams();
-        expect(config.agent9_prose.word_policy.hard_floor_relaxation_ratio).toBe(0.9);
+        expect(config.agent9_prose.word_policy.hard_floor_relaxation_ratio).toBe(0.77);
         expect(config.agent9_prose.word_policy.preferred_chapter_words.medium).toBe(1600);
         expect(config.agent9_prose.generation.default_max_attempts).toBe(3);
     });

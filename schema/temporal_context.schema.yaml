@@ -50,6 +50,9 @@ seasonal:
       type: array
       required: true
       items: string
+    time_of_day_of_crime:
+      type: string
+      required: false
 
 fashion:
   type: object

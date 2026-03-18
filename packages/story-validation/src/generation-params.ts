@@ -348,7 +348,9 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
   },
   agent9_prose: {
     word_policy: {
-      hard_floor_relaxation_ratio: 0.9,
+      // Hard floor = floor(preferred_chapter_words[length] * ratio)
+      // 0.77 gives short:1001 / medium:1232 / long:1848 — proportional to what we ask the model to write
+      hard_floor_relaxation_ratio: 0.77,
       min_hard_floor_words: 600,
       preferred_chapter_words: {
         short: 1300,

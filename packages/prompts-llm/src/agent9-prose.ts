@@ -136,11 +136,24 @@ interface ProseLinterIssue {
   message: string;
 }
 
+interface ClueObligationContext {
+  id: string;
+  /** Human-readable description for the model — from Clue.description or clue_to_scene_mapping.delivery_method. */
+  description?: string;
+  /** 'early' | 'mid' | 'late' — resolved from Clue.placement or inferred from act_number. */
+  placement?: string;
+  /** Raw delivery_method text from clue_to_scene_mapping, when clue is not in clueDistribution. */
+  deliveryMethod?: string;
+}
+
 interface ChapterRequirementLedgerEntry {
   chapterNumber: number;
   hardFloorWords: number;
   preferredWords: number;
   requiredClueIds: string[];
+  /** Per-clue prose context — used so validators and retry builders can emit prose-facing text
+   *  instead of raw internal IDs when the clue is absent from clueDistribution. */
+  clueObligationContext?: ClueObligationContext[];
 }
 
 interface ChapterWordTargetResult {
@@ -175,10 +188,13 @@ const countWords = (value: string): number => {
 
 const getChapterWordTargets = (targetLength: "short" | "medium" | "long") => {
   const config = getGenerationParams().agent9_prose.word_policy;
+  // Hard floor is a fraction of the preferred chapter target, NOT of STORY_LENGTH_TARGETS.chapterMinWords.
+  // Using the preferred words as the base keeps the floor proportional to what we actually ask the model
+  // to produce (e.g. short story: floor(1300 × 0.77) = 1001 rather than floor(800 × 0.88) = 704).
   return {
     hardFloorWords: Math.max(
       config.min_hard_floor_words,
-      Math.floor(STORY_LENGTH_TARGETS[targetLength].chapterMinWords * config.hard_floor_relaxation_ratio),
+      Math.floor(config.preferred_chapter_words[targetLength] * config.hard_floor_relaxation_ratio),
     ),
     preferredWords: config.preferred_chapter_words[targetLength],
   };
@@ -196,6 +212,29 @@ const tokenizeForClueObligation = (value: string): string[] =>
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter((token) => token.length >= 4 && !CLUE_TOKEN_STOPWORDS.has(token));
+
+/**
+ * Check whether `token` (already lowercase, length ≥4) is present in `loweredText`.
+ * Strips common English inflection suffixes so that, e.g.:
+ *   "observation" matches "observed", "observing", "observable"
+ *   "direct"      matches "directly", "direction", "directed"
+ *   "tamper"      matches "tampered", "tampering"
+ * Suffixes are tried longest-first so "ation" beats "ion" for "observation".
+ */
+const tokenMatchesText = (token: string, loweredText: string): boolean => {
+  if (loweredText.includes(token)) return true;
+  if (token.length < 5) return false;
+  // Strip known inflection suffixes — require root ≥ 4 chars to avoid false positives
+  const suffixes = ['ation', 'tion', 'ing', 'ion', 'ed', 'er'];
+  for (const sfx of suffixes) {
+    const rootLen = token.length - sfx.length;
+    if (rootLen >= 4 && token.endsWith(sfx) && loweredText.includes(token.slice(0, rootLen))) {
+      return true;
+    }
+  }
+  // Fallback: chop one character (handles simple -s / short inflections)
+  return loweredText.includes(token.slice(0, -1));
+};
 
 const getRequiredClueIdsForScene = (
   cmlCase: any,
@@ -221,14 +260,30 @@ const buildChapterRequirementLedger = (
   batchScenes: unknown[],
   chapterStart: number,
   targetLength: "short" | "medium" | "long",
+  clueDistribution?: ClueDistributionResult,
 ): ChapterRequirementLedgerEntry[] => {
   const { hardFloorWords, preferredWords } = getChapterWordTargets(targetLength);
-  return (batchScenes as any[]).map((scene, idx) => ({
-    chapterNumber: chapterStart + idx,
-    hardFloorWords,
-    preferredWords,
-    requiredClueIds: getRequiredClueIdsForScene(cmlCase, scene),
-  }));
+  return (batchScenes as any[]).map((scene, idx) => {
+    const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene);
+    const clueObligationContext: ClueObligationContext[] = requiredClueIds.map((id) => {
+      const distClue = (clueDistribution?.clues ?? []).find((c) => c.id === id);
+      const mappingEntry = ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+        .find((e: any) => String(e?.clue_id) === id);
+      return {
+        id,
+        description: distClue?.description ?? mappingEntry?.delivery_method ?? undefined,
+        placement: distClue?.placement ?? (Number(mappingEntry?.act_number) === 1 ? 'early' : undefined),
+        deliveryMethod: mappingEntry?.delivery_method ?? undefined,
+      };
+    });
+    return {
+      chapterNumber: chapterStart + idx,
+      hardFloorWords,
+      preferredWords,
+      requiredClueIds,
+      clueObligationContext,
+    };
+  });
 };
 
 const chapterMentionsRequiredClue = (
@@ -250,8 +305,43 @@ const chapterMentionsRequiredClue = (
   ])).slice(0, 10);
 
   if (tokens.length === 0) return false;
-  const matched = tokens.filter((token) => lowered.includes(token));
+  const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
   const requiredMatches = Math.max(2, Math.ceil(tokens.length * 0.4));
+  return matched.length >= requiredMatches;
+};
+
+/**
+ * For early-placement clues: check whether the clue tokens appear in the first
+ * 25% of the chapter paragraphs (paragraph-window, not character offset).
+ * Uses the same token-matching logic as chapterMentionsRequiredClue.
+ */
+const chapterClueAppearsEarly = (
+  paragraphs: string[],
+  clueId: string,
+  clueDistribution?: ClueDistributionResult,
+): boolean => {
+  if (!Array.isArray(paragraphs) || paragraphs.length === 0) return false;
+  const quarterEnd = Math.max(1, Math.ceil(paragraphs.length * 0.25));
+  const earlyText = paragraphs.slice(0, quarterEnd).join(' ').toLowerCase();
+
+  if (earlyText.includes(clueId.toLowerCase())) return true;
+
+  const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || '') === clueId);
+  if (!clue) return false;
+
+  const tokens = Array.from(new Set([
+    ...tokenizeForClueObligation(String(clue.description ?? '')),
+    ...tokenizeForClueObligation(String(clue.pointsTo ?? '')),
+  ])).slice(0, 10);
+
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
+  // Early-placement only requires observational signal in the first quarter — not the full
+  // analytical inference. Clue descriptions use conclusory language ("cannot be trusted to
+  // indicate the time of death") while early prose is observational ("the clock stood at
+  // half-past eleven"). A 25% token threshold (2 of 8) is enough to confirm the observation
+  // beat is present early; the 40% threshold is used for the full-chapter presence check.
+  const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.25));
   return matched.length >= requiredMatches;
 };
 
@@ -283,10 +373,52 @@ export const validateChapterPreCommitObligations = (
   }
 
   for (const clueId of ledgerEntry.requiredClueIds) {
-    if (!chapterMentionsRequiredClue(chapterText, clueId, clueDistribution)) {
+    const clue = (clueDistribution?.clues ?? []).find((e) => String(e?.id || '') === clueId);
+    const ctx = (ledgerEntry.clueObligationContext ?? []).find((c) => c.id === clueId);
+    const resolvedDesc = clue?.description?.trim() ?? ctx?.description?.trim() ?? null;
+    const clueDesc = resolvedDesc ? `"${resolvedDesc}"` : `"${clueId}"`;
+    const resolvedPlacement = clue?.placement ?? ctx?.placement ?? null;
+
+    // Primary check via distribution; for unresolved IDs, also check ctx.description tokens
+    let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution);
+    if (!isPresent && !clue && ctx?.description) {
+      const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+      if (tokens.length > 0) {
+        const lowered = chapterText.toLowerCase();
+        const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
+        // Short delivery_methods (≤4 tokens) use threshold 1 — the content word alone is sufficient.
+        const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
+        isPresent = matched.length >= threshold;
+      }
+    }
+
+    if (!isPresent) {
+      // Clue content is entirely absent — tell the writer what needs to happen narratively
+      const repair = resolvedPlacement === 'early'
+        ? `Include an on-page observation of ${clueDesc} in the first quarter of the chapter, followed immediately by an explicit inference paragraph.`
+        : `Include an on-page observation or reference to ${clueDesc} before the chapter ends.`;
       hardFailures.push(
-        `Chapter ${ledgerEntry.chapterNumber}: missing required clue obligation for "${clueId}"`
+        `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
       );
+    } else if (resolvedPlacement === 'early') {
+      // Content is present but must also appear in the first 25% of paragraphs
+      let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution);
+      if (!isEarly && !clue && ctx?.description) {
+        const quarterEnd = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
+        const earlyText = (chapter.paragraphs ?? []).slice(0, quarterEnd).join(' ').toLowerCase();
+        const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+        if (tokens.length > 0) {
+          const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
+          // Short delivery_methods (≤4 tokens) use threshold 1 — the content word alone is sufficient.
+          const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
+          isEarly = matched.length >= threshold;
+        }
+      }
+      if (!isEarly) {
+        hardFailures.push(
+          `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is present but must appear in the first quarter of the chapter — move the observation beat to before the 25% mark.`
+        );
+      }
     }
   }
 
@@ -682,9 +814,9 @@ const buildProseRequirements = (caseData: CaseData, scenesForChapter?: unknown[]
   // Clue to scene mapping for this chapter
   if (proseReqs.clue_to_scene_mapping && scenesForChapter) {
     const relevantClues = proseReqs.clue_to_scene_mapping.filter((mapping: any) => {
-      // Check if this clue should appear in current chapter batch
+      // Use Number() coercion: act_number/scene_number may arrive as strings from JSON
       return scenesForChapter.some((scene: any) => 
-        scene.act === mapping.act_number && scene.sceneNumber === mapping.scene_number
+        Number(scene.act) === Number(mapping.act_number) && Number(scene.sceneNumber) === Number(mapping.scene_number)
       );
     });
     
@@ -805,6 +937,7 @@ export function buildChapterObligationBlock(
   cmlCase: any,
   lockedFacts: ProseGenerationInputs['lockedFacts'] | undefined,
   temporalLock: { month: string; season: CanonicalSeason } | undefined,
+  clueDistribution?: ClueDistributionResult,
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -815,6 +948,15 @@ export function buildChapterObligationBlock(
   const clearanceScenes = Array.isArray(proseRequirements?.suspect_clearance_scenes)
     ? proseRequirements.suspect_clearance_scenes
     : [];
+
+  const clueMap = new Map<string, Clue>(
+    (clueDistribution?.clues ?? []).map((c) => [c.id, c]),
+  );
+  const deliveryMethodMap = new Map<string, { delivery_method?: string; act_number?: number; scene_number?: number }>(
+    ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+      .filter((e: any) => e?.clue_id)
+      .map((e: any) => [String(e.clue_id), e]),
+  );
 
   const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
 
@@ -832,7 +974,51 @@ export function buildChapterObligationBlock(
 
     lines.push(`- Chapter ${chapterNumber}:`);
     lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
-    lines.push(`  - Required clue IDs: ${requiredClueIds.length > 0 ? requiredClueIds.join(', ') : 'none for this chapter'}.`);
+
+    if (requiredClueIds.length > 0) {
+      lines.push(`  - CLUE OBLIGATIONS — mandatory prose elements (do NOT omit or bury):`);
+      for (const clueId of requiredClueIds) {
+        const clue = clueMap.get(clueId);
+        if (clue) {
+          const earlyFlag = clue.placement === 'early'
+            ? ' ⚠ EARLY PLACEMENT — write this in the first 25% of the chapter'
+            : '';
+          lines.push(`    • ${clue.description.trim()} [${clueId}]${earlyFlag}`);
+          lines.push(`      Points to: ${clue.pointsTo.trim()}`);
+          if (clue.placement === 'early') {
+            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear before the 25% mark):`);
+            lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
+            lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
+            lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
+            lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
+            lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
+          }
+        } else {
+          // Fallback: no distribution data — use delivery_method from clue_to_scene_mapping if available
+          const mapping = deliveryMethodMap.get(clueId);
+          const fallbackDesc = mapping?.delivery_method
+            ? mapping.delivery_method.trim()
+            : 'observable evidence relevant to the investigation';
+          const isEarlyMapping = Number(mapping?.act_number) === 1;
+          const earlyFlagFallback = isEarlyMapping
+            ? ' ⚠ EARLY PLACEMENT — write this in the first 25% of the chapter'
+            : '';
+          lines.push(`    • ${fallbackDesc} [${clueId}]${earlyFlagFallback}`);
+          lines.push(`      Points to: what this observation reveals about the time or circumstances of the crime.`);
+          if (isEarlyMapping) {
+            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear before the 25% mark):`);
+            lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
+            lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
+            lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
+            lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
+            lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
+          }
+        }
+      }
+    } else {
+      lines.push(`  - Clue obligations: none for this chapter.`);
+    }
+
     if (matchingClearances.length > 0) {
       lines.push(`  - Suspect clearance required: ${matchingClearances.map((entry: any) => `${entry.suspect_name} via ${entry.clearance_method}`).join('; ')}.`);
     }
@@ -888,14 +1074,18 @@ export function detectRecurringPhrases(
  * Build per-chapter clue description block from agent5 ClueDistributionResult.
  * Maps each scene's clue IDs to full Clue objects so the prose agent knows exactly
  * what evidence to surface and how it should be observable to the reader.
+ * Also includes mapping-only clues from clue_to_scene_mapping that have delivery_method.
  */
 function buildClueDescriptionBlock(
   scenesForChapter: unknown[],
   clueDistribution: ClueDistributionResult | undefined,
+  cmlCase?: any,
 ): string {
-  if (!clueDistribution?.clues?.length || !Array.isArray(scenesForChapter) || scenesForChapter.length === 0) return '';
+  if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) return '';
 
-  const clueMap = new Map<string, Clue>(clueDistribution.clues.map(c => [c.id, c]));
+  const clueMap = clueDistribution?.clues?.length
+    ? new Map<string, Clue>(clueDistribution.clues.map(c => [c.id, c]))
+    : new Map<string, Clue>();
   const relevantClues: Clue[] = [];
   for (const scene of scenesForChapter as any[]) {
     const clueIds: string[] = Array.isArray(scene.cluesRevealed) ? scene.cluesRevealed : [];
@@ -907,7 +1097,26 @@ function buildClueDescriptionBlock(
     }
   }
 
-  if (relevantClues.length === 0) return '';
+  // Collect mapping-only clues (in clue_to_scene_mapping but not yet in relevantClues)
+  const seenMappingIds = new Set<string>();
+  const mappingOnlyLines: string[] = [];
+  for (const scene of scenesForChapter as any[]) {
+    for (const entry of ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])) {
+      const id = String(entry?.clue_id ?? '');
+      if (!id || seenMappingIds.has(id)) continue;
+      if (Number(entry?.act_number) !== Number((scene as any)?.act)) continue;
+      if (entry?.scene_number !== undefined && entry?.scene_number !== null &&
+          Number(entry.scene_number) !== Number((scene as any)?.sceneNumber)) continue;
+      if (!entry?.delivery_method) continue;
+      if (relevantClues.some((c) => c.id === id)) continue;
+      seenMappingIds.add(id);
+      mappingOnlyLines.push(`\n• [${id}] ${entry.delivery_method}`);
+      mappingOnlyLines.push(`  Category: structural | Placement: early (Act ${entry.act_number})`);
+      mappingOnlyLines.push(`  Points to: what this observation reveals about the time or circumstances of the crime.`);
+    }
+  }
+
+  if (relevantClues.length === 0 && mappingOnlyLines.length === 0) return '';
 
   const lines: string[] = [
     '\n\n⛔ CLUES TO SURFACE IN THESE CHAPTERS — mandatory:',
@@ -918,6 +1127,7 @@ function buildClueDescriptionBlock(
     lines.push(`  Category: ${clue.category} | Criticality: ${clue.criticality}${clue.supportsInferenceStep ? ` | Supports inference step ${clue.supportsInferenceStep}` : ''}`);
     lines.push(`  Points to: ${clue.pointsTo}`);
   }
+  lines.push(...mappingOnlyLines);
   lines.push('\nFor each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.');
   return lines.join('\n');
 }
@@ -1371,7 +1581,7 @@ ${victimIdentityRule}`;
 
   // Build clue description block — injects full agent5 clue objects so prose agent knows
   // exactly what evidence to surface and how it should manifest for the reader.
-  const clueDescriptionBlock = buildClueDescriptionBlock(scenes, inputs.clueDistribution);
+  const clueDescriptionBlock = buildClueDescriptionBlock(scenes, inputs.clueDistribution, cmlCase);
 
   // Build humour guide block from writing guides
   let humourGuideBlock = '';
@@ -1438,9 +1648,9 @@ ${victimIdentityRule}`;
   );
 
   const chapterWordGuidance: Record<string, string> = {
-    short: `4-6 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("short").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("short").preferredWords}+ words`,
-    medium: `5-7 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("medium").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("medium").preferredWords}+ words`,
-    long: `8-12 substantial paragraphs — HARD FLOOR ${getChapterWordTargets("long").hardFloorWords} words; PREFERRED TARGET ${getChapterWordTargets("long").preferredWords}+ words`,
+    short: `5-7 substantial paragraphs (each 120–180 words) — MINIMUM ${getChapterWordTargets("short").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("short").preferredWords} words — do not stop early`,
+    medium: `7-10 substantial paragraphs (each 150–220 words) — MINIMUM ${getChapterWordTargets("medium").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("medium").preferredWords} words — do not stop early`,
+    long: `10-14 substantial paragraphs (each 180–250 words) — MINIMUM ${getChapterWordTargets("long").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("long").preferredWords} words — do not stop early`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
@@ -1449,9 +1659,9 @@ ${victimIdentityRule}`;
   const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
-    `- Preferred generation target for this batch: ${chapterTargetWords} words per chapter.`,
-    `- Hard floor: ${chapterWordTargets.hardFloorWords} words per chapter.`,
-    '- Overshoot rather than undershoot. Do not stop at the first threshold crossing.',
+    `- Target: AT LEAST ${chapterTargetWords} words per chapter. Do not stop before reaching this threshold.`,
+    `- Hard minimum: ${chapterWordTargets.hardFloorWords} words — this is a floor, not a target. The floor alone is not enough.`,
+    '- Overshoot rather than undershoot. When in doubt, write one more paragraph.',
     '- Expand with concrete action beats, clue-linked dialogue, and sensory detail.',
     '- Never pad with recap, repeated atmosphere, or generic filler.',
   ].join('\n');
@@ -1461,6 +1671,7 @@ ${victimIdentityRule}`;
     cmlCase,
     inputs.lockedFacts,
     temporalLock,
+    inputs.clueDistribution,
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,
@@ -1476,7 +1687,7 @@ ${victimIdentityRule}`;
 
   const developerWithAudit = developer.replace(
     '  "note": ""\n}\n\nRequirements:',
-    '  "note": "",\n  "audit": {\n    "locked_fact_phrases": "present in paragraph N | absent",\n    "season_words_used": "list seasonal words used in this batch | none",\n    "discriminating_test_present": "yes: chapter N paragraph M | no",\n    "required_clues_present": "clue_id: chapter N paragraph M | absent"\n  }\n}\n\nThe audit field is a self-check only. Fill it honestly. It will be stripped before storage.\n\nRequirements:',
+    '  "note": "",\n  "audit": {\n    "locked_fact_phrases": "present in paragraph N | absent",\n    "season_words_used": "list seasonal words used in this batch | none",\n    "discriminating_test_present": "yes: chapter N paragraph M | no",\n    "required_clues_present": "clue_id or description: chapter N paragraph M | absent",\n    "early_observation_present": "description: chapter N paragraph M (first 25%) | absent",\n    "early_inference_present": "yes: paragraph immediately following observation | no"\n  }\n}\n\nThe audit field is a self-check only. Fill it honestly. It will be stripped before storage.\n\nRequirements:',
   );
 
   // Amateur detective extra warning — LLM tends to invent police officers for unnamed official response
@@ -1486,7 +1697,17 @@ ${victimIdentityRule}`;
 
   const developerWithContracts = `${developerWithAudit}\n\n${wordCountContract}`;
 
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(sanitizeScenesCharacters(scenes, cast.map((c: any) => c.name)), null, 2)}`;
+  const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
+    (scenes as any[]).map((scene) => ({
+      ...scene,
+      estimatedWordCount: Math.max(
+        typeof scene?.estimatedWordCount === 'number' ? scene.estimatedWordCount : 0,
+        chapterTargetWords,
+      ),
+    })),
+    cast.map((c: any) => c.name),
+  );
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     characterConsistencyRules,
@@ -1515,10 +1736,38 @@ ${victimIdentityRule}`;
     6200,
   );
 
-  const messages = [
-    { role: "system" as const, content: composedSystem },
-    { role: "user" as const, content: user },
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    { role: "system", content: composedSystem },
+    { role: "user", content: user },
   ];
+
+  // Build early-placement clue checklist items from clueDistribution
+  const earlyClueCheckItems: string[] = [];
+  const clueMap = new Map<string, Clue>(
+    (inputs.clueDistribution?.clues ?? []).map((c) => [c.id, c]),
+  );
+  (scenes as any[]).forEach((scene, idx) => {
+    const chapterNumber = chapterStart + idx;
+    const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene);
+    for (const clueId of requiredClueIds) {
+      const clue = clueMap.get(clueId);
+      if (clue?.placement === 'early') {
+        earlyClueCheckItems.push(
+          `□ Chapter ${chapterNumber}: "${clue.description.trim()}" is placed in the first 25% of the chapter, followed by an explicit inference or suspicion paragraph.`,
+        );
+      } else if (!clue) {
+        // Unresolved clue ID — check delivery_method from clue_to_scene_mapping for early placement
+        const mappingEntry = ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+          .find((e: any) => String(e?.clue_id) === clueId && Number(e?.act_number) === 1);
+        if (mappingEntry?.delivery_method) {
+          earlyClueCheckItems.push(
+            `□ Chapter ${chapterNumber}: "${mappingEntry.delivery_method.trim()}" [${clueId}] — place this observation in the first 25% of the chapter, followed immediately by an explicit inference or suspicion paragraph.`,
+          );
+        }
+      }
+    }
+  });
+
   const checklistItems = [
     'BEFORE SUBMITTING YOUR JSON — verify this checklist:',
     `□ Each chapter reaches the hard floor of ${chapterWordTargets.hardFloorWords} words and aims for ${chapterTargetWords} words or more.`,
@@ -1529,6 +1778,7 @@ ${victimIdentityRule}`;
           `□ Forbidden seasonal words: ${['spring', 'summer', 'autumn', 'winter'].filter((s) => s !== temporalLock.season).join(', ')}.`,
         ]
       : []),
+    ...earlyClueCheckItems,
     '□ Return valid JSON only.',
   ];
   messages.push({ role: 'user' as const, content: checklistItems.join('\n') });
@@ -1591,7 +1841,20 @@ const buildProvisionalChapterScore = (
   const paragraphScore = paragraphCount >= 6 ? 100 : paragraphCount >= 5 ? 93 : paragraphCount >= 4 ? 86 : paragraphCount >= 3 ? 76 : 65;
 
   const requiredClues = ledgerEntry?.requiredClueIds ?? [];
-  const matchedClues = requiredClues.filter((clueId) => chapterMentionsRequiredClue(chapterText, clueId, clueDistribution));
+  const matchedClues = requiredClues.filter((clueId) => {
+    if (chapterMentionsRequiredClue(chapterText, clueId, clueDistribution)) return true;
+    // Fallback for mapping-only clues: chapterMentionsRequiredClue returns false when there
+    // is no distribution entry. Apply the same token-matching fallback as the hard validator.
+    const hasDistEntry = (clueDistribution?.clues ?? []).some((e) => String(e?.id || '') === clueId);
+    if (hasDistEntry) return false;
+    const ctx = (ledgerEntry?.clueObligationContext ?? []).find((c) => c.id === clueId);
+    if (!ctx?.description) return false;
+    const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+    if (tokens.length === 0) return false;
+    const lowered = chapterText.toLowerCase();
+    const threshold = tokens.length <= 4 ? 1 : Math.max(2, Math.ceil(tokens.length * 0.4));
+    return tokens.filter((t) => tokenMatchesText(t, lowered)).length >= threshold;
+  });
   const clueScore = requiredClues.length > 0
     ? Math.round((matchedClues.length / requiredClues.length) * 100)
     : 100;
@@ -1632,7 +1895,13 @@ const buildProvisionalChapterScore = (
     const missing = requiredClues.filter((clueId) => !matchedClues.includes(clueId));
     deficits.push(`required clue surfacing incomplete (${matchedClues.length}/${requiredClues.length})`);
     if (missing.length > 0) {
-      directives.push(`Surface missing clue evidence on-page with observable detail: ${missing.join(', ')}.`);
+      // Resolve IDs to prose descriptions so the directive fed to the next chapter batch
+      // references observable text the model can write, not opaque internal identifiers.
+      const missingDescs = missing.map((id) => {
+        const ctx = (ledgerEntry?.clueObligationContext ?? []).find((c) => c.id === id);
+        return ctx?.description ? `"${ctx.description.trim()}" [${id}]` : id;
+      });
+      directives.push(`Surface missing clue evidence on-page with observable detail: ${missingDescs.join('; ')}.`);
     } else {
       directives.push('Surface required clue evidence on-page before any deduction beat.');
     }
@@ -2053,42 +2322,107 @@ const buildEnhancedRetryFeedback = (
   const castNames = cast.map((c: any) => c.name);
   const locationType = cmlCase.meta?.setting?.location_type || '';
   
-  // Categorize errors
-  const characterErrors = errors.filter(e => e.toLowerCase().includes('character') || e.toLowerCase().includes('name'));
-  const settingErrors = errors.filter(e => e.toLowerCase().includes('setting') || e.toLowerCase().includes('location'));
-  const testErrors = errors.filter(e => e.toLowerCase().includes('discriminating test'));
-  const qualityErrors = errors.filter(e => e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'));
-  const otherErrors = errors.filter(e => 
-    !characterErrors.includes(e) && 
-    !settingErrors.includes(e) && 
-    !testErrors.includes(e) && 
+  // Categorize errors — clue errors must be separated FIRST to prevent them from
+  // falling into qualityErrors (which matches anything containing "chapter").
+  const clueValidationErrors = errors.filter(e => {
+    const lc = e.toLowerCase();
+    return lc.includes('clue evidence') || lc.includes('clue obligation') || lc.includes('clue visibility') || lc.includes('missing required clue');
+  });
+  const characterErrors = errors.filter(e => !clueValidationErrors.includes(e) && (e.toLowerCase().includes('character') || e.toLowerCase().includes('name')));
+  const settingErrors = errors.filter(e => !clueValidationErrors.includes(e) && !characterErrors.includes(e) && (e.toLowerCase().includes('setting') || e.toLowerCase().includes('location')));
+  const testErrors = errors.filter(e => !clueValidationErrors.includes(e) && e.toLowerCase().includes('discriminating test'));
+  // Word-count errors contain "chapter" so they would otherwise match qualityErrors and receive
+  // misleading "vary paragraph lengths" guidance. Extract them first; the MICRO-PROMPT [word_count]
+  // directive in buildRetryMicroPromptDirectives already gives the correct repair instruction.
+  const wordCountErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
+    /word count below/i.test(e)
+  );
+  const qualityErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) &&
+    (e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'))
+  );
+  const otherErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) &&
+    !characterErrors.includes(e) &&
+    !settingErrors.includes(e) &&
+    !testErrors.includes(e) &&
+    !wordCountErrors.includes(e) &&
     !qualityErrors.includes(e)
   );
 
-  const buildRetryMicroPromptDirectives = (rawErrors: string[], rangeLabel: string): string[] => {
+  const buildRetryMicroPromptDirectives = (rawErrors: string[], rangeLabel: string, attemptNum: number): string[] => {
     const directives: string[] = [];
     const loweredErrors = rawErrors.map((error) => error.toLowerCase());
 
-    const clueErrors = loweredErrors.some((error) =>
-      error.includes("missing required clue obligation") || error.includes("clue visibility")
+    // Separate absent-clue errors from late-placed-clue errors — they need different repairs.
+    const clueAbsentErrors = rawErrors.filter((e) =>
+      e.toLowerCase().includes('clue evidence') && e.toLowerCase().includes('is absent')
     );
-    if (clueErrors) {
-      const clueIds = Array.from(
-        new Set(
-          rawErrors.flatMap((error) => {
-            const matches = Array.from(error.matchAll(/"([^"]+)"/g));
-            return matches.map((match) => String(match[1] || "")).filter(Boolean);
-          })
-        )
-      );
+    const clueLatePlacedErrors = rawErrors.filter((e) =>
+      e.toLowerCase().includes('first quarter of the chapter') ||
+      (e.toLowerCase().includes('clue evidence') && e.toLowerCase().includes('is present but'))
+    );
+    const otherClueErrors = rawErrors.filter((e) =>
+      (e.toLowerCase().includes('missing required clue obligation') ||
+        e.toLowerCase().includes('clue visibility') ||
+        e.toLowerCase().includes('clue obligation')) &&
+      !clueAbsentErrors.includes(e) &&
+      !clueLatePlacedErrors.includes(e)
+    );
+    const clueErrors = clueAbsentErrors.length > 0 || clueLatePlacedErrors.length > 0 || otherClueErrors.length > 0;
 
-      const clueScope = clueIds.length > 0
-        ? `Required clue IDs for chapter(s) ${rangeLabel}: ${clueIds.join(", ")}.`
-        : `Recover missing required clue evidence in chapter(s) ${rangeLabel}.`;
+    // Extract quoted strings (“description”) from a set of error messages.
+    const extractQuoted = (errs: string[]) =>
+      Array.from(new Set(
+        errs.flatMap((error) => Array.from(error.matchAll(/"([^"]+)"/g)).map((m) => String(m[1] || '')).filter(Boolean))
+      ));
 
+    if (clueLatePlacedErrors.length > 0) {
+      const lateDescs = extractQuoted(clueLatePlacedErrors);
+      const scope = lateDescs.length > 0 ? lateDescs.join(', ') : 'the required evidence';
       directives.push(
-        `MICRO-PROMPT [clue_visibility]: ${clueScope} Add an on-page clue observation moment and a detective processing line for each missing clue in separate paragraphs. Do not use meta language or internal IDs without narrative context.`
+        `REPAIR [clue_early_placement — attempt ${attemptNum}]: ${scope} is already present in the chapter but appears TOO LATE.\n` +
+        `  DO NOT write a new instance. Instead, MOVE the existing paragraph(s) about this evidence to before the 25% mark (within the first quarter of the chapter).\n` +
+        `  After moving the observation, ensure the immediately following paragraph is a dedicated inference paragraph (the detective or POV character explicitly reasons about what the evidence implies). This inference paragraph must be a separate full paragraph, not a sentence appended to the observation.\n` +
+        `  Everything else in the chapter can remain in place.`
       );
+    }
+
+    if (clueAbsentErrors.length > 0 || otherClueErrors.length > 0) {
+      const absentDescs = extractQuoted([...clueAbsentErrors, ...otherClueErrors]);
+
+      if (attemptNum <= 2) {
+        const clueScope = absentDescs.length > 0
+          ? `chapters ${rangeLabel} are missing: ${absentDescs.join(', ')}.`
+          : `chapters ${rangeLabel} are missing required clue evidence.`;
+        directives.push(
+          `REPAIR [clue_visibility — attempt 2]: ${clueScope}\n` +
+          `  Near the beginning of the chapter:\n` +
+          `  • Paragraph 1: A character directly observes or discovers the missing evidence. Be specific and sensory — describe what is seen, touched, or heard. Include any exact required phrase verbatim.\n` +
+          `  • Paragraph 2 (immediately following): The detective or POV character explicitly reasons about what this evidence means — who it implicates, what is suspicious, or what inference it supports.\n` +
+          `  Keep these as two clearly separate paragraphs. Do not bury the evidence in atmosphere or background dialogue.`
+        );
+      } else if (attemptNum === 3) {
+        const clueScope = absentDescs.length > 0 ? absentDescs.join(', ') : 'the required clue evidence';
+        directives.push(
+          `REPAIR [clue_visibility — attempt 3 — PARAGRAPH STRUCTURE REQUIRED]: ${clueScope} still missing.\n` +
+          `  You MUST include a two-paragraph sequence in the first quarter of the chapter:\n` +
+          `  Paragraph A: The character physically approaches, examines, or directly perceives the evidence. Write this as a present-action beat, not a recalled memory. Include the exact required phrase if one is specified.\n` +
+          `  Paragraph B: In the very next paragraph, the character explicitly says or thinks that this evidence may be misleading, was tampered with, or points to a specific person. Use first-person inference language ("She realised...", "He could not help but wonder..."). This must be a full separate paragraph, not a tacked-on sentence.\n` +
+          `  The chapter must be at least 1450 words. Use action, inference dialogue, and sensory grounding to expand — not recap.`
+        );
+      } else {
+        const clueScope = absentDescs.length > 0 ? absentDescs.join(', ') : 'the required clue evidence';
+        directives.push(
+          `REPAIR [clue_visibility — attempt ${attemptNum} — FINAL MANDATORY BLOCK]: ${clueScope} has failed every prior attempt.\n` +
+          `  WITHIN THE FIRST 300 WORDS of the chapter, place this two-paragraph block:\n` +
+          `  Block paragraph 1: Direct physical observation of the evidence by the POV character. Name it explicitly. Include any exact required phrase verbatim. Show, do not summarise.\n` +
+          `  Block paragraph 2: Explicit reasoning that this evidence may have been manipulated, timed, or positioned to mislead. The character must state this in their own words.\n` +
+          `  After this block, continue the chapter normally to reach at least 1500 words.\n` +
+          `  REBUILD the chapter from scratch — do not patch or preserve prior wording. All prior text should be treated as discarded.`
+        );
+      }
     }
 
     const wordCountError = rawErrors.find((error) => /word count below (hard floor|preferred target|minimum)/i.test(error));
@@ -2114,14 +2448,32 @@ const buildEnhancedRetryFeedback = (
       );
     }
 
+    const entropyError = rawErrors.find((e) => /opening-style entropy too low/i.test(e));
+    if (entropyError) {
+      directives.push(
+        `REPAIR [opening_style]: This chapter opens with the same sentence pattern as prior chapters (entropy too low).\n` +
+        `  You MUST begin the FIRST SENTENCE of this chapter with a structurally different type. Choose ONE of:\n` +
+        `  • Spoken dialogue — open with a character speaking: \'"..." said/asked [Name].\'\n` +
+        `  • Time anchor — open with a specific time and location: \'At half past nine in the [room]...\'\n` +
+        `  • Character in motion — a named character acts first: \'[Name] crossed/entered/turned/examined...\'\n` +
+        `  • Noun-phrase atmosphere with a genitive: \'The [noun] of the [place]...\'\n` +
+        `  Do NOT open with a standalone descriptive sentence about general setting atmosphere (e.g., \'The [adj] air...\'  or \'The room was...\'). The very first sentence must belong to one of the four types above.`
+      );
+    }
+
     return directives;
   };
 
-  const retryDirectives = buildRetryMicroPromptDirectives(errors, chapterRange);
+  const retryDirectives = buildRetryMicroPromptDirectives(errors, chapterRange, attempt);
   
-  let feedback = `⚠️ CRITICAL: Attempt ${attempt}/${maxAttempts} for chapters ${chapterRange} had ${errors.length} validation error(s).\n\n`;
-  feedback += `You MUST fix ALL of these issues. This is your ${attempt === maxAttempts ? 'FINAL' : 'last'} chance before generation fails.\n\n`;
+  let feedback = `Attempt ${attempt}/${maxAttempts} — chapters ${chapterRange} — ${errors.length} validation issue(s) to resolve:\n\n`;
   
+  if (clueValidationErrors.length > 0) {
+    feedback += `═══ CLUE OBLIGATION FAILURES (${clueValidationErrors.length}) ═══\n`;
+    clueValidationErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\nSee the RETRY MICRO-PROMPTS section below for specific paragraph-by-paragraph repair instructions.\n\n`;
+  }
+
   if (characterErrors.length > 0) {
     feedback += `═══ CHARACTER NAME ERRORS (${characterErrors.length}) ═══\n`;
     characterErrors.forEach(e => feedback += `• ${e}\n`);
@@ -2159,6 +2511,12 @@ const buildEnhancedRetryFeedback = (
     feedback += `✓ Include sensory details and atmospheric description\n`;
     feedback += `✓ Ensure each chapter has substance (3+ paragraphs minimum)\n\n`;
   }
+
+  if (wordCountErrors.length > 0) {
+    feedback += `═══ WORD COUNT FAILURES (${wordCountErrors.length}) ═══\n`;
+    wordCountErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\nSee RETRY MICRO-PROMPTS below for the specific word target and expansion strategy.\n\n`;
+  }
   
   if (otherErrors.length > 0) {
     feedback += `═══ OTHER ERRORS (${otherErrors.length}) ═══\n`;
@@ -2174,9 +2532,12 @@ const buildEnhancedRetryFeedback = (
     feedback += `\n`;
   }
   
-  feedback += `═══════════════════════════════════\n`;
-  feedback += `REGENERATE chapters ${chapterRange} with ALL fixes applied.\n`;
-  feedback += `DO NOT skip any error. DO NOT partially fix. Fix EVERYTHING.\n`;
+  const isFinalAttempt = attempt >= maxAttempts;
+  if (isFinalAttempt) {
+    feedback += `Write completely fresh chapters for ${chapterRange} that satisfy every constraint listed above. Do not reuse prior wording.\n`;
+  } else {
+    feedback += `Return corrected JSON for chapters ${chapterRange}. Edit only the sections that failed — keep all content that passed validation, and return the complete updated chapter JSON.\n`;
+  }
   
   return feedback;
 };
@@ -2212,7 +2573,11 @@ export const attemptUnderflowExpansion = async (
 ): Promise<ProseChapter> => {
   const chapterText = (chapter.paragraphs ?? []).join("\n\n");
   const currentWords = countWords(chapterText);
-  const missingWords = Math.max(0, ledgerEntry.hardFloorWords - currentWords);
+  // If below hard floor, target the hard floor; otherwise target the preferred word count.
+  const expansionTarget = currentWords < ledgerEntry.hardFloorWords
+    ? ledgerEntry.hardFloorWords
+    : ledgerEntry.preferredWords;
+  const missingWords = Math.max(0, expansionTarget - currentWords);
   const expansionConfig = getGenerationParams().agent9_prose.underflow_expansion;
   const expansionHint = Math.max(
     expansionConfig.min_additional_words,
@@ -2224,6 +2589,15 @@ export const attemptUnderflowExpansion = async (
   const sceneSummary = typeof scene?.summary === "string" ? scene.summary : "";
   const scenePurpose = typeof scene?.purpose === "string" ? scene.purpose : "";
   const requiredClues = ledgerEntry.requiredClueIds;
+  const clueCtx = ledgerEntry.clueObligationContext ?? [];
+  const requiredClueLines = requiredClues.map((id) => {
+    const ctx = clueCtx.find((c) => c.id === id);
+    const desc = ctx?.description ?? id;
+    const placementNote = ctx?.placement === 'early'
+      ? ' [EARLY PLACEMENT — this evidence must appear in the first 25% of the revised chapter, followed immediately by a dedicated inference paragraph]'
+      : '';
+    return `  • ${desc} [${id}]${placementNote}`;
+  }).join('\n');
 
   const system = [
     "You are a surgical prose revision assistant for mystery fiction.",
@@ -2233,13 +2607,15 @@ export const attemptUnderflowExpansion = async (
   ].join(" ");
 
   const user = [
-    `Chapter ${chapterNumber} is below hard floor (${currentWords}/${ledgerEntry.hardFloorWords}).`,
-    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${ledgerEntry.hardFloorWords} words and preferably ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
+    currentWords < ledgerEntry.hardFloorWords
+      ? `Chapter ${chapterNumber} is below the hard floor (${currentWords}/${ledgerEntry.hardFloorWords}).`
+      : `Chapter ${chapterNumber} is below the preferred target (${currentWords}/${ledgerEntry.preferredWords}).`,
+    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${expansionTarget} words and preferably ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
     'Do not stop at the first threshold crossing. Continue until the chapter feels fully developed and complete.',
     'Never pad with recap or repeated atmosphere. Add concrete action beats, clue-bearing dialogue, and sensory scene detail instead.',
     requiredClues.length > 0
-      ? `Preserve and clearly surface required clue obligations: ${requiredClues.join(", ")}.`
-      : "No additional clue IDs are required for this chapter.",
+      ? `Required clue obligations (preserve and surface in the expanded chapter):\n${requiredClueLines}`
+      : "No additional clue obligations for this chapter.",
     sceneSummary ? `Scene summary: ${sceneSummary}` : "",
     scenePurpose ? `Scene purpose: ${scenePurpose}` : "",
     "Return this schema:",
@@ -2407,9 +2783,11 @@ export async function generateProse(
       batchScenes,
       chapterStart,
       inputs.targetLength ?? "medium",
+      inputs.clueDistribution,
     );
     const maxBatchAttempts = Math.max(1, resolvedMaxAttempts);
     let lastBatchErrors: string[] = [];
+    let lastBatchRawResponse: string | null = null;
     let batchSuccess = false;
 
     const overallProgress = 91 + Math.floor((batchStart / sceneCount) * 3); // 91-94%
@@ -2440,11 +2818,17 @@ export async function generateProse(
           }
         }
 
-        // Add retry feedback on subsequent attempts
+        // Add retry feedback on subsequent attempts.
+        // Attempts 2/3: include the previous raw response as an assistant turn so the model
+        // makes targeted edits. Final attempt: skip the assistant turn so the model rebuilds
+        // cleanly (consistent with the "REBUILD from scratch" directive at attempt 4+).
         if (attempt > 1 && lastBatchErrors.length > 0) {
           const feedback = buildEnhancedRetryFeedback(
             lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts
           );
+          if (lastBatchRawResponse && attempt < maxBatchAttempts) {
+            prompt.messages.push({ role: "assistant" as const, content: lastBatchRawResponse });
+          }
           prompt.messages.push({ role: "user" as const, content: feedback });
         }
 
@@ -2467,7 +2851,24 @@ export async function generateProse(
           },
         });
 
-        const proseBatch = parseProseResponse(response.content);
+        let proseBatch: Omit<ProseGenerationResult, "cost" | "durationMs">;
+        // Store raw response immediately so next retry can include it as the assistant turn.
+        lastBatchRawResponse = response.content;
+        try {
+          proseBatch = parseProseResponse(response.content);
+        } catch (parseError: unknown) {
+          const rawLength = response.content.length;
+          const rawTail = response.content.slice(-300);
+          const appearsTruncated = !response.content.trimEnd().endsWith('}');
+          console.error(
+            `[Agent 9] PARSE FAILURE ch${batchLabel} attempt ${attempt}/${maxBatchAttempts}:\n` +
+            `  raw response chars: ${rawLength}\n` +
+            `  appears truncated: ${appearsTruncated}\n` +
+            `  raw tail (last 300 chars): ${rawTail}\n` +
+            `  error: ${parseError instanceof Error ? parseError.message : String(parseError)}`
+          );
+          throw parseError;
+        }
         validateChapterCount(proseBatch.chapters, batchScenes.length);
 
         // Validate each chapter in the batch individually
@@ -2535,20 +2936,35 @@ export async function generateProse(
             const hasOnlyHardFloorUnderflow =
               hardErrors.length > 0 &&
               hardErrors.every((error) => /word count below hard floor/i.test(error));
+            // True whenever the hard floor is hit, even if other hard errors also exist.
+            // Expansion fires in this case so the model can grow the chapter while
+            // simultaneously satisfying any co-present clue/placement obligations
+            // (which are included in the expansion prompt).
+            const hasHardFloorUnderflow =
+              hardErrors.some((error) => /word count below hard floor/i.test(error));
+            // Fires when the chapter passes all hard checks but is still below the preferred
+            // word target. With a permissive hard_floor_relaxation_ratio the hard floor may
+            // be cleared while the chapter is still meaningfully short of preferred length.
+            const hasPreferredMissOnly =
+              hardErrors.length === 0 && preferredMisses.length > 0;
 
             return {
               hardErrors,
               preferredMisses,
               contentValidation,
               hasOnlyHardFloorUnderflow,
+              hasHardFloorUnderflow,
+              hasPreferredMissOnly,
             };
           };
 
           let evaluation = evaluateCandidate(chapter, true);
 
-          // Option D: If hard-floor underflow is the only blocker, attempt a chapter-local expansion
-          // before failing the whole batch retry cycle.
-          if (evaluation.hasOnlyHardFloorUnderflow && ledgerEntry) {
+          // Option D: If the hard floor is hit (even alongside other hard errors), OR the chapter
+          // passed the hard floor but is still below the preferred target, attempt a chapter-local
+          // expansion. The expansion prompt includes clue placement obligations so it is safe to
+          // run even when clue/placement hard errors co-exist with the word count failure.
+          if ((evaluation.hasHardFloorUnderflow || evaluation.hasPreferredMissOnly) && ledgerEntry) {
             underflowExpansionAttempts += 1;
             try {
               const expanded = await attemptUnderflowExpansion(
@@ -2578,9 +2994,10 @@ export async function generateProse(
           }
 
           const chapterErrors = [...evaluation.hardErrors];
-          if (chapterErrors.length > 0 && evaluation.preferredMisses.length > 0) {
-            chapterErrors.push(...evaluation.preferredMisses);
-          }
+          // Do NOT piggyback preferred-word-count misses onto hard errors.
+          // When hard errors (e.g. a missing clue) dominate, appending a preferred miss adds
+          // noise that pulls the model toward word-count expansion at the expense of the real fix.
+          // Preferred misses contribute to provisional scoring but are not surfaced as retry errors.
 
           provisionalBatchScores.push(
             buildProvisionalChapterScore(
@@ -2641,6 +3058,23 @@ export async function generateProse(
 
         if (batchErrors.length > 0) {
           lastBatchErrors = batchErrors;
+
+          // F: Failure diagnostics — log raw vs extracted content metrics to diagnose
+          // truncation, parse failures, and word count regressions across retry attempts.
+          const rawResponseLength = response.content.length;
+          const extractedChapterWordCounts = proseBatch.chapters.map((ch) =>
+            countWords((ch.paragraphs ?? []).join(' '))
+          );
+          const totalExtractedWords = extractedChapterWordCounts.reduce((a, b) => a + b, 0);
+          const rawTail = response.content.slice(-300);
+          const appearsTruncated = !response.content.trimEnd().endsWith('}');
+          console.warn(
+            `[Agent 9] DIAGNOSTICS ch${batchLabel} attempt ${attempt}/${maxBatchAttempts}:\n` +
+            `  raw response chars: ${rawResponseLength}\n` +
+            `  extracted chapter word counts: [${extractedChapterWordCounts.join(', ')}] (total: ${totalExtractedWords})\n` +
+            `  appears truncated: ${appearsTruncated}\n` +
+            `  raw tail (last 300 chars): ${rawTail}`
+          );
 
           console.warn(
             `[Agent 9] Batch ch${batchLabel} validation failed (attempt ${attempt}/${maxBatchAttempts}):\n` +
@@ -2710,6 +3144,10 @@ export async function generateProse(
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         lastBatchErrors = [errorMsg];
+        // Clear the raw response: it may contain malformed JSON (parse failure) or wrong chapter
+        // count output. Injecting broken content as an assistant turn on the next retry would
+        // confuse the model. A clean rebuild is safer than asking it to edit invalid output.
+        lastBatchRawResponse = null;
 
         if (attempt >= maxBatchAttempts) {
           throw new Error(
