@@ -37,3 +37,11 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+
+# TypeScript incremental build caches
+**/*.tsbuildinfo
+
+# Runtime outputs
+validation/
+data/*.bak
+stories/
