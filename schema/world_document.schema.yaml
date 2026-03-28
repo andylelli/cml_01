@@ -363,7 +363,8 @@ revealImplications:
 
 # ── Validation confirmation ────────────────────────────────────────────────────
 # The World Builder LLM confirms these guarantees at end of generation.
-validationConfirmations:  type: object
+validationConfirmations:
+  type: object
   required: true
   fields:
     noNewCharacterFacts:
