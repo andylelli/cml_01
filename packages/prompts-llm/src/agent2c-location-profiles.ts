@@ -82,7 +82,7 @@ export interface LocationProfilesResult {
 export interface LocationProfilesInputs {
   settingRefinement: SettingRefinement;
   caseData: CaseData;
-  narrative: NarrativeOutline;
+  narrative?: NarrativeOutline; // optional — agent2c runs before agent7 so narrative may not exist yet
   tone?: string;
   targetWordCount?: number;
   runId?: string;
@@ -103,8 +103,8 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErr
   const tone = inputs.tone ?? "Classic";
   const targetWordCount = inputs.targetWordCount ?? 1000;
 
-  // Extract key locations from narrative scenes
-  const narrativeActs = Array.isArray(inputs.narrative.acts) ? inputs.narrative.acts : [];
+  // Extract key locations from narrative scenes (narrative is optional — may not exist yet)
+  const narrativeActs = inputs.narrative && Array.isArray(inputs.narrative.acts) ? inputs.narrative.acts : [];
   const allScenes = narrativeActs.flatMap((act) => Array.isArray(act.scenes) ? act.scenes : []);
   const sceneLocations = allScenes
     .map((scene: any) => {

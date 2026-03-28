@@ -27,7 +27,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
         const locResult = await generateLocationProfiles(ctx.client, {
           settingRefinement: ctx.setting!.setting,
           caseData: ctx.cml!,
-          narrative: ctx.narrative!,
+          narrative: ctx.narrative,
           tone: appendRetryFeedback(ctx.inputs.tone || "Classic", retryFeedback),
           targetWordCount: 1000,
           runId: ctx.runId,
