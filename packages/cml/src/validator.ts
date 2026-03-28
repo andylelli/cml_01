@@ -14,6 +14,20 @@ type SchemaNode = {
   allowed?: Array<string | number | boolean>;
   fields?: Record<string, SchemaNode>;
   items?: SchemaNode | "string" | "number" | "boolean" | "object" | "array";
+  $ref?: string;
+  description?: string;
+};
+
+const schemaFileCache = new Map<string, Record<string, SchemaNode>>();
+
+const loadSchemaFile = (filename: string): Record<string, SchemaNode> => {
+  if (schemaFileCache.has(filename)) return schemaFileCache.get(filename)!;
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const schemaPath = path.resolve(currentDir, "..", "..", "..", "schema", filename);
+  const raw = fs.readFileSync(schemaPath, "utf8");
+  const schema = yaml.load(raw) as Record<string, SchemaNode>;
+  schemaFileCache.set(filename, schema);
+  return schema;
 };
 
 const loadSchema = (): Record<string, SchemaNode> => {
@@ -45,6 +59,15 @@ const validateNode = (
   if (value === undefined || value === null) {
     if (node.required) {
       errors.push(`${pathLabel} is required`);
+    }
+    return;
+  }
+
+  // $ref: delegate validation to the referenced schema file
+  if (node.$ref) {
+    const refSchema = loadSchemaFile(node.$ref);
+    for (const [key, refNode] of Object.entries(refSchema)) {
+      validateNode(refNode, (value as Record<string, unknown>)[key], `${pathLabel}.${key}`, errors);
     }
     return;
   }

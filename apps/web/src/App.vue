@@ -1422,10 +1422,11 @@ const pipelineSteps = computed((): PipelineStep[] => {
     { id: "novelty_audit",    label: "Novelty Audit", doneEvent: "novelty_audit",      runningStage: "novelty" },
     { id: "clues",            label: "Clues",         doneEvent: "clues",              runningStage: "clues" },
     { id: "fairplay",         label: "Fair-play",     doneEvent: "fair_play_report",   runningStage: "fairplay" },
-    { id: "outline",          label: "Outline",       doneEvent: "outline",            runningStage: "narrative" },
     { id: "profiles",         label: "Char. Profiles",doneEvent: "character_profiles", runningStage: "profiles" },
     { id: "location_profiles",label: "Locations",     doneEvent: "location_profiles",  runningStage: "location-profiles" },
     { id: "temporal_context", label: "Era & Culture", doneEvent: "temporal_context",   runningStage: "temporal-context" },
+    { id: "world_builder",    label: "World Builder", doneEvent: "world_builder",      runningStage: "world-builder" },
+    { id: "outline",          label: "Outline",       doneEvent: "outline",            runningStage: "narrative" },
     { id: "prose",            label: "Prose",         doneEvent: "prose",              runningStage: "prose" },
   ];
 

@@ -19,8 +19,7 @@ import {
   getGenerationParams,
 } from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
-import { classifyOpeningStyle } from "./types/narrative-state.js";
-import { updateNSD } from "./types/narrative-state.js";
+import { classifyOpeningStyle, updateNSD } from "./types/narrative-state.js";
 
 export interface ProseChapter {
   title: string;
@@ -45,6 +44,7 @@ export interface ProseGenerationInputs {
   characterProfiles?: any; // CharacterProfilesResult
   locationProfiles?: any; // LocationProfilesResult
   temporalContext?: any; // TemporalContextResult
+  worldDocument?: any; // WorldDocumentResult — when present, supersedes raw profile blocks
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
   detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings
@@ -755,6 +755,91 @@ const enforceMonthSeasonLockOnChapter = (
   };
 };
 
+/**
+ * Builds the WORLD DOCUMENT brief block injected into per-chapter prose prompts.
+ *
+ * When a WorldDocument is present, it supersedes raw character/location/temporal
+ * blocks with richer, emotionally-grounded context. The gross structure of
+ * temporal/fashion/location is still provided  by the regular blocks so the
+ * world brief focuses on voice, humour, and emotional arc.
+ */
+const buildWorldBriefBlock = (
+  worldDoc: any,
+  chapterIndex: number,
+  totalChapters: number,
+): string => {
+  if (!worldDoc) return '';
+
+  const lines: string[] = [];
+  lines.push('\n\nWORLD DOCUMENT (use this as your primary creative context):');
+
+  // Historical moment
+  const hm = worldDoc.historicalMoment;
+  if (hm) {
+    lines.push(`\n## Era: ${hm.specificDate}`);
+    if (hm.eraRegister) lines.push(hm.eraRegister);
+    if (hm.emotionalRegister) lines.push(`Emotional register: ${hm.emotionalRegister}`);
+    if (Array.isArray(hm.physicalConstraints) && hm.physicalConstraints.length > 0) {
+      lines.push('Physical constraints: ' + hm.physicalConstraints.slice(0, 4).join(' | '));
+    }
+  }
+
+  // Story theme
+  if (worldDoc.storyTheme) {
+    lines.push(`\n## Story Theme\n${worldDoc.storyTheme}`);
+  }
+
+  // Emotional arc for this scene position
+  const arc = worldDoc.storyEmotionalArc;
+  if (arc && Array.isArray(arc.turningPoints)) {
+    const arcPosition = chapterIndex <= 1 ? 'opening'
+      : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
+      : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
+      : chapterIndex <= Math.floor(totalChapters * 0.55) ? 'mid'
+      : chapterIndex <= Math.floor(totalChapters * 0.7) ? 'second_turn'
+      : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
+      : chapterIndex === totalChapters - 1 ? 'resolution'
+      : 'climax';
+    const tp = arc.turningPoints.find((t: any) => t.position === arcPosition);
+    if (tp?.emotionalDescription) {
+      lines.push(`\n## Emotional register at this point in the story\n${tp.emotionalDescription}`);
+    }
+  }
+
+  // Character voice sketches (all)
+  if (Array.isArray(worldDoc.characterVoiceSketches) && worldDoc.characterVoiceSketches.length > 0) {
+    lines.push('\n## Character Voices');
+    for (const sketch of worldDoc.characterVoiceSketches) {
+      lines.push(`\n### ${sketch.name}`);
+      if (sketch.voiceDescription) lines.push(sketch.voiceDescription);
+      // Include comfortable + evasive fragments to anchor voice
+      const fragments = (sketch.fragments ?? []).filter(
+        (f: any) => f.register === 'comfortable' || f.register === 'evasive'
+      );
+      for (const frag of fragments.slice(0, 2)) {
+        lines.push(`[${frag.register}] ${frag.text}`);
+      }
+      if (sketch.humourNote) lines.push(`Humour: ${sketch.humourNote}`);
+    }
+  }
+
+  // Break moment — include near the right scene position
+  const bm = worldDoc.breakMoment;
+  if (bm) {
+    const relativePos = chapterIndex / Math.max(1, totalChapters);
+    if (relativePos >= 0.6 && relativePos <= 0.85) {
+      lines.push(`\n## Character Break Moment (this section of the story)\nCharacter: ${bm.character}\nForm: ${bm.form}\nNarrative function: ${bm.narrativeFunction}`);
+    }
+  }
+
+  // Reveal implications — only in final act
+  if (worldDoc.revealImplications && chapterIndex >= Math.floor(totalChapters * 0.75)) {
+    lines.push(`\n## Reveal Implications (plant these subtly)\n${worldDoc.revealImplications}`);
+  }
+
+  return lines.join('\n');
+};
+
 const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const cmlCase = (caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
@@ -767,9 +852,10 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const culprit = Array.isArray(culpritNames) ? culpritNames.join(", ") : "Unknown";
   const castNames = cast.characters.map((c) => c.name).join(", ");
 
-  // Resolve victim's full name from cast by roleArchetype (camelCase) or role_archetype (snake_case)
+  // Resolve victim's full name from cast by role field or roleArchetype substring
   const victimCharacter = cast.characters.find(
     (c: any) => {
+      if (c.role === 'victim') return true;
       const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
       return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
     }
@@ -787,6 +873,7 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
 export const resolveVictimName = (cast: CastDesign): string => {
   const victimChar = cast.characters.find(
     (c: any) => {
+      if (c.role === 'victim') return true;
       const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
       return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
     }
@@ -1205,43 +1292,6 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
     Object.entries(state.characterPronouns).forEach(([name, pronouns]) => lines.push(`  • ${name}: ${pronouns}`));
   }
 
-  if (state.usedOpeningStyles.length > 0) {
-    // Translate internal classifier bucket names to human-readable prose descriptions so the
-    // model understands the instruction.  The raw labels (e.g. "general-descriptive") are
-    // classifier internals — the model silently ignores them as unrecognisable jargon.
-    const bucketLabels: Record<string, string> = {
-      'general-descriptive': 'atmospheric scene-setting ("The dim corridor lay silent…" / "Rain fell on…")',
-      'character-action':    'a named character acting ("Holmes crossed the room…" / "[Name] turned/moved/approached…")',
-      'dialogue-open':       'spoken dialogue (\'"[words]," said [Name].\')',
-      'noun-phrase-atmosphere': 'noun-phrase atmosphere ("The silence of the hall…" / "A shadow in the doorway…")',
-      'expository-setup':    'expository setup ("It was a cold Tuesday…" / "There had been…")',
-      'temporal-subordinate':'temporal clause ("When the clock struck…" / "After the guests had gone…")',
-      'time-anchor':         'time anchor ("At half past nine…" / "At midnight…" / "At 9 PM…")',
-    };
-    const recentStyles = state.usedOpeningStyles.slice(-5);
-    const recentLabels = recentStyles.map(s => bucketLabels[s] ?? s);
-    // Count occurrences to identify the dominant bucket
-    const dominantBucket = recentStyles.reduce<Record<string, number>>((acc, s) => { acc[s] = (acc[s] ?? 0) + 1; return acc; }, {});
-    const mostUsed = Object.entries(dominantBucket).sort((a, b) => b[1] - a[1])[0];
-    const mostUsedLabel = mostUsed ? (bucketLabels[mostUsed[0]] ?? mostUsed[0]) : null;
-    lines.push(
-      `\nOPENING SENTENCE VARIETY (mandatory):` +
-      `\nRecent chapter openings used: ${recentLabels.join(' | ')}` +
-      (mostUsedLabel ? `\nMOST OVERUSED style — DO NOT use again: ${mostUsedLabel}` : '') +
-      `\nFor THIS chapter, begin the FIRST SENTENCE with one of these DIFFERENT styles:` +
-      `\n  • Spoken dialogue: '"[words]," said/asked [Name].'` +
-      `\n  • Time anchor: 'At half past nine...' or 'At midnight...' or 'At 9:15 PM...'` +
-      `\n  • Character in motion: '[Name] crossed/turned/moved/stepped/approached/examined [the/to/into]...'` +
-      `\n  • Noun-phrase atmosphere with genitive: 'The [noun] of the [place]...' or 'A [noun] in the [place]...'` +
-      `\n  • Temporal subordinate: 'When.../After.../Before.../As [Name]...'` +
-      `\nDo NOT open with a plain descriptive sentence ("The dark room...", "Silence filled...", "The air was...").`
-    );
-  }
-
-  if (state.usedSensoryPhrases.length > 0) {
-    lines.push(`\nDO NOT REUSE THESE SENSORY PHRASES (already used): ${state.usedSensoryPhrases.slice(-10).join('; ')}`);
-  }
-
   if (state.cluesRevealedToReader.length > 0) {
     lines.push(`\nCLUES ALREADY REVEALED TO READER: ${state.cluesRevealedToReader.join(', ')} — do not reveal these as new information.`);
   }
@@ -1274,6 +1324,7 @@ interface PromptSectionInputs {
   craftGuideBlock: string;
   sceneGroundingChecklist: string;
   provisionalScoringFeedbackBlock: string;
+  worldDocumentBlock: string;
 }
 
 export function formatProvisionalScoringFeedbackBlock(
@@ -1306,6 +1357,7 @@ export function formatProvisionalScoringFeedbackBlock(
 const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
   const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
     { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
+    { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
     { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high' },
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
@@ -1726,6 +1778,8 @@ ${victimIdentityRule}`;
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
+  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes);
+
   const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
     inputs.provisionalScoringFeedback,
   );
@@ -1808,6 +1862,7 @@ ${victimIdentityRule}`;
     craftGuideBlock,
     sceneGroundingChecklist,
     provisionalScoringFeedbackBlock,
+    worldDocumentBlock,
   });
 
   const baseSystem = `${system}${amateurPoliceWarning}`;
@@ -2855,10 +2910,7 @@ export async function generateProse(
         ...inputs.narrativeState,
         lockedFacts: [...inputs.narrativeState.lockedFacts],
         characterPronouns: { ...inputs.narrativeState.characterPronouns },
-        usedOpeningStyles: [...inputs.narrativeState.usedOpeningStyles],
-        usedSensoryPhrases: [...inputs.narrativeState.usedSensoryPhrases],
         cluesRevealedToReader: [...inputs.narrativeState.cluesRevealedToReader],
-        chapterSummaries: [...inputs.narrativeState.chapterSummaries],
       }
     : undefined;
   let rollingProvisionalFeedback = Array.isArray(inputs.provisionalScoringFeedback)
@@ -3140,7 +3192,7 @@ export async function generateProse(
         const linterIssues = lintBatchProse(
           proseBatch.chapters,
           chapters,
-          liveNarrativeState?.usedOpeningStyles ?? [],
+          [],
           inputs.templateLinterProfile,
         );
         if (linterIssues.length > 0) {
@@ -3228,7 +3280,8 @@ export async function generateProse(
           chapterSummaries.push(summary);
         }
         if (liveNarrativeState) {
-          liveNarrativeState = updateNSD(liveNarrativeState, proseBatch.chapters, chapterStart);
+          const lastProseChapter = proseBatch.chapters[proseBatch.chapters.length - 1];
+          liveNarrativeState = updateNSD(liveNarrativeState, { paragraphs: lastProseChapter?.paragraphs });
         }
 
         // Feed chapter-level deficits forward so chapter N can correct chapter N+1.

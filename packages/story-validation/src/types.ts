@@ -80,6 +80,11 @@ export interface CMLData {
   };
   /** Locked ground-truth evidence facts forwarded from hard-logic devices — validated verbatim in prose. */
   lockedFacts?: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
+  /** Location profiles from Agent 2c — used for cross-chapter location name consistency checking. */
+  locationProfiles?: {
+    primary?: { name?: string };
+    keyLocations?: Array<{ name: string; id?: string }>;
+  };
 }
 
 export interface Validator {

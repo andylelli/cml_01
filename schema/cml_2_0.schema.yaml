@@ -22,9 +22,25 @@ CASE:
             decade:
               type: string
               required: true
+            specific_year:
+              type: number
+              required: false
+              description: "Specific year, e.g. 1941. Required for wartime stories; strongly recommended for all."
+            specific_month:
+              type: string
+              required: false
+              description: "Month name, e.g. November. Required for wartime stories."
+            wartime:
+              type: boolean
+              required: false
+              description: "True if the story is set during September 1939 – August 1945."
             realism_constraints:
               type: array
               items: string
+            era_atmosphere:
+              type: string
+              required: false
+              description: "One sentence. The dominant emotional register of this historical moment for civilians in this setting."
         setting:
           type: object
           required: true
@@ -41,6 +57,14 @@ CASE:
               type: string
               allowed: [murder, theft, disappearance, fraud]
             subtype: { type: string, required: true }
+        theme:
+          type: string
+          required: false
+          description: >
+            The story's deeper subject — what it is really about beneath the plot mechanics.
+            One sentence. Not the plot summary. E.g. 'The cost of protecting a secret' or
+            'How ambition corrupts loyalty' or 'The violence that respectability does to truth.'
+            Used by Agent 6.5 to anchor the World Document and by Agent 9 to give prose soul.
 
     cast:
       required: true
@@ -80,6 +104,21 @@ CASE:
             type: string
             required: false
             allowed: [male, female, non-binary]
+          role:
+            type: string
+            required: false
+            allowed: [detective, victim, culprit, suspect, witness, bystander]
+            description: >
+              This character's functional role in the story. Machine-readable complement to
+              role_archetype. 'victim' here is the canonical signal used by prose agents to
+              identify the murder victim — more reliable than substring-searching role_archetype.
+          moral_complexity:
+            type: string
+            required: false
+            description: >
+              One sentence. Why this character is not simply good or bad. Especially required
+              for the victim (were they entirely innocent? what did they do that made some
+              people not sorry?) and for the culprit (why does their action almost make sense?).
 
     culpability:
       required: true
@@ -303,3 +342,45 @@ CASE:
               act_number: { type: number, required: true }
               scene_number: { type: number, required: false }
               delivery_method: { type: string, required: false }
+
+# =============================================================================
+# COMPOSITE SECTIONS
+# These top-level sections are populated by upstream agents as the pipeline
+# progresses. Together with CASE they form the Full CML — the single source
+# of truth for prose generation.
+#
+# Each section delegates structural validation to its own sub-schema via $ref.
+# The sub-schema is the single source of truth — no duplication here.
+#
+# Population order:
+#   SETTING_REFINEMENT   — Agent 1    — $ref: setting_refinement.schema.yaml
+#   CHARACTER_PROFILES   — Agent 2b   — $ref: character_profiles.schema.yaml
+#   LOCATION_PROFILES    — Agent 2c   — $ref: location_profiles.schema.yaml
+#   TEMPORAL_CONTEXT     — Agent 2d   — $ref: temporal_context.schema.yaml
+#   WORLD_DOCUMENT       — Agent 6.5  — $ref: world_document.schema.yaml
+#   NARRATIVE_OUTLINE    — Agent 7    — $ref: narrative_outline.schema.yaml
+# =============================================================================
+
+SETTING_REFINEMENT:
+  required: false
+  $ref: setting_refinement.schema.yaml
+
+CHARACTER_PROFILES:
+  required: false
+  $ref: character_profiles.schema.yaml
+
+LOCATION_PROFILES:
+  required: false
+  $ref: location_profiles.schema.yaml
+
+TEMPORAL_CONTEXT:
+  required: false
+  $ref: temporal_context.schema.yaml
+
+WORLD_DOCUMENT:
+  required: false
+  $ref: world_document.schema.yaml
+
+NARRATIVE_OUTLINE:
+  required: false
+  $ref: narrative_outline.schema.yaml

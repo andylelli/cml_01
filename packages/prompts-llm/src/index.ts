@@ -16,6 +16,9 @@ export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
 export { generateProse } from "./agent9-prose.js";
 export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
+export { generateWorldDocument } from "./agent65-world-builder.js";
+export type { WorldBuilderInputs } from "./agent65-world-builder.js";
+export type { WorldDocumentResult, WorldDocumentHistoricalMoment, WorldDocumentCharacterPortrait, WorldDocumentVoiceFragment, WorldDocumentCharacterVoiceSketch, WorldDocumentLocationRegister, WorldDocumentArcTurningPoint, WorldDocumentEmotionalArc, WorldDocumentHumourEntry, WorldDocumentBreakMoment, WorldDocumentValidationConfirmations } from "./types/world-document.js";
 
 export type {
   PromptMessages,

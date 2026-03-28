@@ -4,7 +4,7 @@
  * Catches major issues early before full pipeline validation
  */
 
-import type { CMLData } from './types.js';
+import type { CMLData, Story, ValidationError } from './types.js';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
@@ -464,6 +464,7 @@ export class ChapterValidator {
     const issues: ChapterValidationIssue[] = [];
     const joined = chapter.paragraphs.join('\n\n');
 
+    // --- Original scaffold pattern ---
     const leakedScaffoldPattern = /At\s+The\s+[A-Z][^\n]{0,120}the\s+smell\s+of\s+[\s\S]{30,240}?atmosphere\s+ripe\s+for\s+revelation\.?/gi;
     const scaffoldMatches = joined.match(leakedScaffoldPattern) || [];
 
@@ -475,6 +476,54 @@ export class ChapterValidator {
       });
     }
 
+    // --- Metadata key-value pairs leaked verbatim ---
+    const metadataPattern = /^(Setting|Location|Atmosphere|Weather|Mood|Tone|Theme|Scene|Time|Chapter\s*\d*):/m;
+    if (metadataPattern.test(joined)) {
+      issues.push({
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} contains metadata key-value leakage (e.g. "Setting:", "Mood:")`,
+        suggestion: 'Remove leaked metadata lines — weave setting/mood information into narrative prose instead'
+      });
+    }
+
+    // --- Meta-language about storytelling technique ---
+    const metaLanguagePattern = /\b(sensory detail|grounding element|narrative beat|plot point|character arc|story beat|scene transition|dramatic irony)\b/i;
+    if (metaLanguagePattern.test(joined)) {
+      issues.push({
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} contains meta-language about storytelling technique`,
+        suggestion: 'Remove craft/technique references — the prose should show, not describe its own narrative devices'
+      });
+    }
+
+    // --- Instruction-shaped prose (imperative + storytelling nouns) ---
+    const instructionPattern = /\b(ensure|make sure|remember to|don't forget|include|incorporate|weave in|establish|convey|demonstrate)\b.*\b(tension|atmosphere|clue|motive|suspicion|suspense|mystery)\b/i;
+    if (instructionPattern.test(joined)) {
+      issues.push({
+        severity: 'major',
+        message: `Chapter ${chapter.chapterNumber} contains instruction-shaped prose (prompt leakage)`,
+        suggestion: 'Remove imperative instructions — these read like prompt directives, not narrative prose'
+      });
+    }
+
+    // --- Low-verb-density paragraph flag (copy-pasted atmosphere blocks) ---
+    const verbPattern = /\b(was|were|had|is|are|said|asked|replied|walked|stood|sat|moved|turned|looked|felt|heard|saw|opened|closed|came|went|ran|fell|spoke|knew|thought|took|gave|made|told|found|kept|let|began|seemed|appeared|reached|pulled|pushed|held|called|watched|waited|stepped|crossed|rose|entered|left|passed|nodded|frowned|smiled|whispered|murmured|muttered|sighed|paused|continued|returned|remained|noticed|glanced)\b/i;
+
+    for (const paragraph of chapter.paragraphs) {
+      const sentences = paragraph.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      if (sentences.length < 3) continue;
+      const sentencesWithVerbs = sentences.filter(s => verbPattern.test(s));
+      if (sentencesWithVerbs.length / sentences.length < 0.3) {
+        issues.push({
+          severity: 'moderate',
+          message: `Chapter ${chapter.chapterNumber} has a paragraph with very low verb density (${sentencesWithVerbs.length}/${sentences.length} sentences) — possible atmosphere block`,
+          suggestion: 'Rewrite static description blocks to include action and movement'
+        });
+        break; // one flag per chapter is enough
+      }
+    }
+
+    // --- Duplicate long paragraph detection ---
     const normalizedParagraphs = chapter.paragraphs
       .map((p) => p.toLowerCase().replace(/\s+/g, ' ').trim())
       .filter((p) => p.length >= 180);
@@ -495,4 +544,64 @@ export class ChapterValidator {
 
     return issues;
   }
+}
+
+/**
+ * Cross-story chapter sequence validation.
+ * Checks for duplicate/missing chapter numbers and title format consistency.
+ */
+export function validateChapterSequence(story: Story): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const scenes = story.scenes;
+  if (scenes.length === 0) return errors;
+
+  const seenNumbers = new Map<number, number>();
+  for (const scene of scenes) {
+    seenNumbers.set(scene.number, (seenNumbers.get(scene.number) ?? 0) + 1);
+  }
+
+  // Duplicated chapter numbers
+  for (const [num, count] of seenNumbers) {
+    if (count > 1) {
+      errors.push({
+        type: 'chapter_duplicated',
+        message: `Chapter ${num} appears ${count} times`,
+        severity: 'critical',
+        sceneNumber: num,
+      });
+    }
+  }
+
+  // Missing chapters (gaps in sequence)
+  const sorted = [...seenNumbers.keys()].sort((a, b) => a - b);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] !== sorted[i - 1] + 1) {
+      for (let missing = sorted[i - 1] + 1; missing < sorted[i]; missing++) {
+        errors.push({
+          type: 'chapter_missing',
+          message: `Chapter ${missing} is missing from the sequence (gap between ${sorted[i - 1]} and ${sorted[i]})`,
+          severity: 'critical',
+        });
+      }
+    }
+  }
+
+  // Title format consistency
+  const titlePatterns = scenes.map(s => {
+    const t = s.title.trim();
+    if (/^chapter\s+\d+$/i.test(t)) return 'number-only';
+    if (/^chapter\s+\d+[:\s-]+\S/i.test(t)) return 'number-plus-title';
+    if (/^\d+$/.test(t)) return 'bare-number';
+    return 'title-only';
+  });
+  const uniquePatterns = new Set(titlePatterns);
+  if (uniquePatterns.size > 1) {
+    errors.push({
+      type: 'chapter_title_inconsistency',
+      message: `Mixed chapter title formats: ${[...uniquePatterns].join(', ')}`,
+      severity: 'major',
+    });
+  }
+
+  return errors;
 }

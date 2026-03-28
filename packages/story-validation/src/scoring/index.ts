@@ -106,6 +106,7 @@ export { HardLogicScorer } from './phase-scorers/agent4-hard-logic-scorer.js';
 export { NarrativeScorer } from './phase-scorers/agent7-narrative-scorer.js';
 export { SettingRefinementScorer } from './phase-scorers/agent1-setting-refinement-scorer.js';
 export { ProseScorer } from './phase-scorers/agent9-prose-scorer.js';
+export { Agent65WorldBuilderScorer } from './phase-scorers/agent65-world-builder-scorer.js';
 
 // Retry feedback
 export { 

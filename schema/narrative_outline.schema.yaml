@@ -89,6 +89,74 @@ acts:
             estimatedWordCount:
               type: number
               required: true
+
+            # ── World-First enrichment fields (populated when WORLD_DOCUMENT is present) ──
+            emotionalRegister:
+              type: string
+              required: false
+              description: >
+                One sentence. The emotional tone this scene should carry, drawn from
+                WORLD_DOCUMENT.storyEmotionalArc. E.g. "Eye of the storm — surface
+                civility with subterranean dread." Agent 9 must honour this register.
+            dominantCharacterNote:
+              type: object
+              required: false
+              fields:
+                name:
+                  type: string
+                  required: true
+                  description: "The character whose voice and perspective dominates this scene."
+                voiceRegister:
+                  type: string
+                  required: true
+                  description: >
+                    One sentence. How this character sounds in this scene, drawn from
+                    WORLD_DOCUMENT.characterVoiceSketches for this character.
+            humourGuidance:
+              type: object
+              required: false
+              fields:
+                permission:
+                  type: string
+                  required: true
+                  allowed: [permitted, conditional, forbidden]
+                character:
+                  type: string
+                  required: false
+                  description: "Name of the character who may carry wit in this scene."
+                form:
+                  type: string
+                  required: false
+                  description: "The humour form permitted, e.g. 'understatement' or 'dry_wit'."
+                condition:
+                  type: string
+                  required: false
+                  description: "Present when permission is 'conditional'."
+            eraTextureNote:
+              type: string
+              required: false
+              description: >
+                One sentence. Any era-specific physical or social constraint that
+                should be felt in this scene, drawn from
+                WORLD_DOCUMENT.historicalMoment. E.g. "Blackout in effect — meeting
+                by candlelight, voices kept low." Agent 9 may use this as a detail.
+            locationRegisterNote:
+              type: string
+              required: false
+              description: >
+                One sentence. The emotional stance for entering and writing this
+                location in this scene, drawn from WORLD_DOCUMENT.locationRegisters
+                for the scene's setting location.
+            subtextNote:
+              type: string
+              required: false
+              description: >
+                One sentence. What this scene is REALLY about beneath its surface purpose.
+                E.g. 'Surface: taking statements. Real: two people who suspect each other
+                pretending they don't.' Or 'Surface: social visit. Real: the detective
+                watching to see if the suspect already knows the victim is dead.'
+                Agent 9 uses this to write scenes with tension beyond their plot function —
+                dialogue that means something other than what it says.
       estimatedWordCount:
         type: number
         required: true

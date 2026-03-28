@@ -3,7 +3,6 @@
  *
  * Handles:
  * - Prose generation with per-batch NSD tracking and scoring telemetry
- * - Identity continuity repair (targeted and full fallback)
  * - Schema validation repair retry
  * - Full story validation pipeline with targeted repair guardrails
  * - Auto-fix encoding issues
@@ -37,11 +36,6 @@ import {
 // ============================================================================
 // Local types
 // ============================================================================
-
-type IdentityAliasIssue = {
-  chapterIndex: number;
-  message: string;
-};
 
 type ValidationErrorSignal = {
   type?: string;
@@ -346,97 +340,6 @@ export const sanitizeProseResult = (prose: any): any => ({
 });
 
 // ============================================================================
-// Identity alias detection
-// ============================================================================
-
-export const detectIdentityAliasBreaks = (prose: any, cml: any): IdentityAliasIssue[] => {
-  const cmlCase = (cml as any)?.CASE ?? {};
-  const culprits = Array.isArray(cmlCase?.culpability?.culprits)
-    ? (cmlCase.culpability.culprits as string[])
-    : [];
-
-  if (culprits.length === 0) {
-    return [];
-  }
-
-  const confessionOrArrest =
-    /\b(confess(?:ed|ion)|admitted\s+it|under\s+arrest|arrested|revealed\s+the\s+culprit)\b/i;
-  const roleOnlyAlias = /\b(the\s+(killer|murderer|culprit|criminal))\b/i;
-
-  const issues: IdentityAliasIssue[] = [];
-  let revealChapter = -1;
-
-  for (let index = 0; index < prose.chapters.length; index += 1) {
-    const chapter = prose.chapters[index];
-    const chapterText = chapter.paragraphs.join("\n");
-
-    if (revealChapter < 0 && confessionOrArrest.test(chapterText)) {
-      revealChapter = index;
-      continue;
-    }
-
-    if (revealChapter >= 0 && index > revealChapter) {
-      const mentionsCulpritByName = culprits.some((name) => chapterText.includes(name));
-      if (roleOnlyAlias.test(chapterText) && !mentionsCulpritByName) {
-        issues.push({
-          chapterIndex: index,
-          message: `Chapter ${index + 1} uses role-only culprit aliases without stable culprit name references`,
-        });
-      }
-    }
-  }
-
-  return issues;
-};
-
-export const buildNarrativeSubsetForChapterIndexes = (
-  narrative: any,
-  chapterIndexes: number[],
-): any => {
-  const normalizedIndexes = Array.from(
-    new Set(chapterIndexes.filter((idx) => idx >= 0)),
-  ).sort((a, b) => a - b);
-  const indexSet = new Set<number>(normalizedIndexes);
-
-  let runningIndex = 0;
-  const subsetActs = (narrative.acts ?? [])
-    .map((act: any) => {
-      const scenes = Array.isArray(act?.scenes) ? act.scenes : [];
-      const keptScenes: any[] = [];
-      scenes.forEach((scene: any) => {
-        if (indexSet.has(runningIndex)) {
-          keptScenes.push(scene);
-        }
-        runningIndex += 1;
-      });
-
-      if (keptScenes.length === 0) {
-        return null;
-      }
-
-      const estimatedWordCount = keptScenes.reduce((sum, scene) => {
-        const words = Number(scene?.estimatedWordCount ?? 0);
-        return sum + (Number.isFinite(words) ? words : 0);
-      }, 0);
-
-      return { ...act, scenes: keptScenes, estimatedWordCount };
-    })
-    .filter(Boolean);
-
-  const estimatedTotalWords = subsetActs.reduce((sum: number, act: any) => {
-    const words = Number(act?.estimatedWordCount ?? 0);
-    return sum + (Number.isFinite(words) ? words : 0);
-  }, 0);
-
-  return {
-    ...narrative,
-    acts: subsetActs,
-    totalScenes: normalizedIndexes.length,
-    estimatedTotalWords,
-  };
-};
-
-// ============================================================================
 // Clue visibility
 // ============================================================================
 
@@ -576,119 +479,6 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
   return { grounded, total: prose.chapters.length, coverage };
 };
 
-const evaluateTemplateLeakage = (prose: any) => {
-  const normalizedParagraphs = prose.chapters.flatMap((chapter: any) =>
-    (chapter.paragraphs || [])
-      .map((paragraph: string) => paragraph.replace(/\s+/g, " ").trim().toLowerCase())
-      .filter((paragraph: string) => paragraph.length >= 170),
-  );
-
-  const seen = new Set<string>();
-  const duplicated = new Set<string>();
-  normalizedParagraphs.forEach((paragraph: string) => {
-    if (seen.has(paragraph)) duplicated.add(paragraph);
-    seen.add(paragraph);
-  });
-
-  const scaffoldPattern =
-    /at\s+the\s+[a-z][\s\S]{0,120}the\s+smell\s+of[\s\S]{20,300}?atmosphere\s+ripe\s+for\s+revelation\.?/i;
-  const scaffoldCount = prose.chapters.reduce((count: number, chapter: any) => {
-    const text = (chapter.paragraphs || []).join(" ");
-    return count + (scaffoldPattern.test(text) ? 1 : 0);
-  }, 0);
-
-  return {
-    duplicatedLongParagraphCount: duplicated.size,
-    scaffoldCount,
-    hasLeakage: duplicated.size > 0 || scaffoldCount > 0,
-  };
-};
-
-const evaluateSensoryVariety = (prose: any) => {
-  const ATMOSPHERIC_TOKENS = [
-    /smell of \w[\w\s]{2,30}/gi,
-    /scent of \w[\w\s]{2,30}/gi,
-    /air (?:thick|heavy|laden|filled|carrying) with \w[\w\s]{2,25}/gi,
-    /(?:overcast|grey|gray) skies?/gi,
-    /rain (?:tapping|pattering|drumming|falling)/gi,
-    /tension[ ,](?:pressed|hung|filled|lay)/gi,
-    /(?:polished wood|tobacco|mildew|damp|musty|smoky) (?:filled|hung|permeated|clung)/gi,
-    /tick(?:ing)? (?:of (?:the )?clock|clock)/gi,
-    /dim(?:ly)? (?:lit|illuminated)/gi,
-  ];
-
-  const totalChapters = prose.chapters.length;
-  if (totalChapters < 3) return { overusedPhrases: [] as string[], hasExcessiveRepetition: false };
-
-  const phraseToChapterCount: Map<string, number> = new Map();
-  for (const chapter of prose.chapters) {
-    const text = (chapter.paragraphs || []).join(" ");
-    const matchedThisChapter = new Set<string>();
-    for (const pattern of ATMOSPHERIC_TOKENS) {
-      const matches = text.match(pattern) ?? [];
-      for (const rawMatch of matches) {
-        const normalised = rawMatch.toLowerCase().trim().slice(0, 60);
-        if (!matchedThisChapter.has(normalised)) {
-          matchedThisChapter.add(normalised);
-          phraseToChapterCount.set(normalised, (phraseToChapterCount.get(normalised) ?? 0) + 1);
-        }
-      }
-    }
-  }
-
-  // 40% chapter threshold: a sensory phrase that appears in more than 40% of chapters
-  // suggests the LLM is templating atmosphere rather than generating fresh imagery.
-  // Fewer than 3 chapters gives insufficient signal to measure repetition.
-  const threshold = Math.floor(totalChapters * 0.4);
-  const overused: string[] = [];
-  for (const [phrase, count] of phraseToChapterCount.entries()) {
-    if (count > threshold) overused.push(`"${phrase}" (${count}/${totalChapters} chapters)`);
-  }
-
-  return { overusedPhrases: overused, hasExcessiveRepetition: overused.length > 0 };
-};
-
-const evaluateTemporalConsistency = (prose: any, temporalContext?: any) => {
-  const month = temporalContext?.specificDate?.month?.toLowerCase();
-  if (!month) {
-    return { contradictions: 0, details: [] as string[] };
-  }
-
-  const monthToSeason: Record<string, "spring" | "summer" | "autumn" | "winter"> = {
-    january: "winter", february: "winter", march: "spring", april: "spring",
-    may: "spring", june: "summer", july: "summer", august: "summer",
-    september: "autumn", october: "autumn", november: "autumn", december: "winter",
-  };
-
-  const seasonRegex: Record<"spring" | "summer" | "autumn" | "winter", RegExp> = {
-    spring: /\b(spring|vernal)\b/i,
-    summer: /\b(summer|midsummer)\b/i,
-    autumn: /\b(autumn|fall)\b/i,
-    winter: /\b(winter|wintry)\b/i,
-  };
-
-  const expected = monthToSeason[month];
-  if (!expected) {
-    return { contradictions: 0, details: [] as string[] };
-  }
-
-  const details: string[] = [];
-  prose.chapters.forEach((chapter: any, idx: number) => {
-    const opening = (chapter.paragraphs || []).slice(0, 2).join(" ");
-    const lowered = opening.toLowerCase();
-    if (!new RegExp(`\\b${month}\\b`, "i").test(lowered)) {
-      return;
-    }
-    (Object.keys(seasonRegex) as Array<keyof typeof seasonRegex>).forEach((season) => {
-      if (season !== expected && seasonRegex[season].test(lowered)) {
-        details.push(`chapter ${idx + 1}: ${month} with ${season}`);
-      }
-    });
-  });
-
-  return { contradictions: details.length, details };
-};
-
 const placeholderRoleSurnamePattern =
   /\b(a|an)\s+(inspector|detective|constable|sergeant|captain|gentleman|lady|woman|man|doctor)\s+([A-Z][a-z]+(?:[-''][A-Z][a-z]+)?)\b/g;
 const placeholderNamedStandalonePattern = /\b(a woman [A-Z][a-z]+|a man [A-Z][a-z]+)\b/g;
@@ -798,7 +588,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const moralAmbiguityNote = hardLogicDevices.devices[0]?.moralAmbiguity;
   const proseLockedFacts = hardLogicDevices.devices[0]?.lockedFacts;
   const characterGenderMap: Record<string, string> = Object.fromEntries(
-    cast.cast.characters.map((c: any) => [c.name, c.gender ?? "non-binary"]),
+    cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
   );
   let narrativeState: NarrativeState = initNarrativeState(
     proseLockedFacts ?? [],
@@ -937,6 +727,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     cast: cast.cast,
     ...proseModelOverride,
     detectiveType: inputs.detectiveType,
+    worldDocument: ctx.worldDocument,
     characterProfiles: characterProfiles,
     locationProfiles: locationProfiles,
     temporalContext: temporalContext,
@@ -960,17 +751,18 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     batchSize: inputs.proseBatchSize,
     onBatchComplete: async (batchChapters: any, batchStart: number, batchEnd: number, validationIssues: any) => {
       const nsdBefore = {
-        used_opening_styles_tail: [...narrativeState.usedOpeningStyles],
-        used_sensory_phrases_tail: [...narrativeState.usedSensoryPhrases],
         clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
-        chapter_summary_count: narrativeState.chapterSummaries.length,
       };
 
-      narrativeState = updateNSD(narrativeState, batchChapters, batchStart);
       const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
       const batchRevealedIds: string[] = allOutlineScenes
         .filter((s: any) => s.sceneNumber >= batchStart && s.sceneNumber <= batchEnd)
         .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []));
+      const lastBatchChapter = batchChapters[batchChapters.length - 1];
+      narrativeState = updateNSD(narrativeState, {
+        paragraphs: lastBatchChapter?.paragraphs,
+        cluesRevealedIds: batchRevealedIds,
+      });
       const newlyRevealedClues = batchRevealedIds.filter(
         (id) => !nsdBefore.clues_revealed_to_reader.includes(id),
       );
@@ -988,11 +780,6 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           batchClueEvidence.clueStateById[clueId] ?? "introduced",
         ]),
       );
-      if (batchRevealedIds.length > 0) {
-        const merged = [...new Set([...narrativeState.cluesRevealedToReader, ...batchRevealedIds])];
-        narrativeState = { ...narrativeState, cluesRevealedToReader: merged };
-      }
-
       const cluesWithNoAnchor = newlyRevealedClues.filter(
         (clueId) => (batchClueEvidence.evidenceByClue[clueId] ?? []).length === 0,
       );
@@ -1013,10 +800,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         clue_evidence_anchors: clueEvidenceAnchors,
         before: nsdBefore,
         after: {
-          used_opening_styles_tail: [...narrativeState.usedOpeningStyles],
-          used_sensory_phrases_tail: [...narrativeState.usedSensoryPhrases],
           clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
-          chapter_summary_count: narrativeState.chapterSummaries.length,
         },
       });
 
@@ -1295,177 +1079,6 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   }
 
   // ============================================================================
-  // Identity continuity check
-  // ============================================================================
-  const identityAliasIssues = detectIdentityAliasBreaks(prose, cml);
-  if (identityAliasIssues.length > 0) {
-    ctx.warnings.push(
-      "Agent 9: Identity continuity guardrail detected role-alias drift; regenerating prose once",
-    );
-    identityAliasIssues.forEach((issue) => ctx.warnings.push(`  - ${issue.message}`));
-
-    const issueChapterIndexes = Array.from(
-      new Set(
-        identityAliasIssues
-          .map((issue) => issue.chapterIndex)
-          .filter((idx) => idx >= 0 && idx < prose.chapters.length),
-      ),
-    ).sort((a, b) => a - b);
-  // 40% threshold: if fewer than 40% of chapters have alias issues, targeted repair is
-  // cheaper than a full regeneration.  Above that, a full re-write produces cleaner results
-  // than patching a majority of chapters.
-  const targetedFixThreshold = Math.max(1, Math.ceil(prose.chapters.length * 0.4));
-  const canTargetedRepair =
-    issueChapterIndexes.length > 0 &&
-    issueChapterIndexes.length <= targetedFixThreshold;
-
-    if (canTargetedRepair) {
-      const targetLabels = issueChapterIndexes.map((idx) => String(idx + 1)).join(", ");
-      ctx.warnings.push(`Agent 9: Targeted identity repair for chapter(s): ${targetLabels}`);
-
-      const targetedOutline = buildNarrativeSubsetForChapterIndexes(
-        narrative,
-        issueChapterIndexes,
-      );
-      const proseRetryStart = Date.now();
-      reportProgress(
-        "prose",
-        `Regenerating ${issueChapterIndexes.length} chapter(s) due to identity drift...`,
-        92,
-      );
-      const targetedProse = await generateProse(client, {
-        caseData: cml,
-        outline: targetedOutline,
-        cast: cast.cast,
-        ...proseModelOverride,
-        detectiveType: inputs.detectiveType,
-        characterProfiles: characterProfiles,
-        locationProfiles: locationProfiles,
-        temporalContext: temporalContext,
-        moralAmbiguityNote,
-        lockedFacts: proseLockedFacts,
-        clueDistribution: clues,
-        narrativeState,
-        targetLength: inputs.targetLength,
-        narrativeStyle: inputs.narrativeStyle,
-        qualityGuardrails: baselineProseGuardrails,
-        writingGuides: loadWritingGuides(workspaceRoot),
-        runId,
-        projectId: projectId || "",
-        onProgress: (phase: string, message: string, percentage: number) =>
-          reportProgress(phase as any, message, percentage),
-        batchSize: Math.max(1, Math.min(inputs.proseBatchSize ?? 1, issueChapterIndexes.length)),
-        onBatchComplete: (_batchChapters: any, batchStart: number, batchEnd: number) => {
-          reportProgress(
-            "prose",
-            `[Identity targeted fix] Chapter batch ${batchStart}-${batchEnd} complete`,
-            92,
-          );
-        },
-      });
-
-      const sanitizedTargeted = applyDeterministicProsePostProcessing(
-        sanitizeProseResult(targetedProse),
-        locationProfiles,
-      );
-      if (sanitizedTargeted.chapters.length === issueChapterIndexes.length) {
-        issueChapterIndexes.forEach((chapterIndex, i) => {
-          prose.chapters[chapterIndex] = sanitizedTargeted.chapters[i];
-        });
-        prose = applyDeterministicProsePostProcessing(
-          sanitizeProseResult(prose),
-          locationProfiles,
-        );
-        ctx.warnings.push(
-          `Agent 9: Targeted identity repair replaced ${issueChapterIndexes.length} chapter(s) without full regeneration`,
-        );
-      } else {
-        ctx.warnings.push(
-          `Agent 9: Targeted identity repair returned unexpected chapter count (${sanitizedTargeted.chapters.length}/${issueChapterIndexes.length}); falling back to full regeneration`,
-        );
-      }
-
-      ctx.agentCosts["agent9_prose"] =
-        (ctx.agentCosts["agent9_prose"] || 0) + targetedProse.cost;
-      ctx.agentDurations["agent9_prose"] =
-        (ctx.agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
-      ctx.proseRewritePassCount += 1;
-      pushProsePassAccounting(
-        "identity_targeted_repair",
-        Date.now() - proseRetryStart,
-        targetedProse.cost,
-        targetedProse.chapters.length,
-      );
-    } else {
-      ctx.warnings.push(
-        `Agent 9: Identity drift impacted ${issueChapterIndexes.length} chapter(s), exceeding targeted-repair threshold (${targetedFixThreshold}); using full prose regeneration fallback`,
-      );
-    }
-
-    let retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
-    if (retryIdentityIssues.length > 0) {
-      const proseRetryStart = Date.now();
-      reportProgress("prose", "Regenerating all prose due to residual identity drift...", 92);
-      const retriedProse = await generateProse(client, {
-        caseData: cml,
-        outline: narrative,
-        cast: cast.cast,
-        ...proseModelOverride,
-        detectiveType: inputs.detectiveType,
-        characterProfiles: characterProfiles,
-        locationProfiles: locationProfiles,
-        temporalContext: temporalContext,
-        moralAmbiguityNote,
-        lockedFacts: proseLockedFacts,
-        clueDistribution: clues,
-        narrativeState,
-        targetLength: inputs.targetLength,
-        narrativeStyle: inputs.narrativeStyle,
-        qualityGuardrails: baselineProseGuardrails,
-        writingGuides: loadWritingGuides(workspaceRoot),
-        runId,
-        projectId: projectId || "",
-        onProgress: (phase: string, message: string, percentage: number) =>
-          reportProgress(phase as any, message, percentage),
-        batchSize: inputs.proseBatchSize,
-        onBatchComplete: (_batchChapters: any, _batchStart: number, batchEnd: number) => {
-          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
-          reportProgress(
-            "prose",
-            `[Identity fallback] Chapter ${chapterLabel} complete`,
-            92 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 2),
-          );
-        },
-      });
-      prose = applyDeterministicProsePostProcessing(
-        sanitizeProseResult(retriedProse),
-        locationProfiles,
-      );
-      ctx.agentCosts["agent9_prose"] =
-        (ctx.agentCosts["agent9_prose"] || 0) + retriedProse.cost;
-      ctx.agentDurations["agent9_prose"] =
-        (ctx.agentDurations["agent9_prose"] || 0) + (Date.now() - proseRetryStart);
-      ctx.proseRewritePassCount += 1;
-      pushProsePassAccounting(
-        "identity_full_regeneration",
-        Date.now() - proseRetryStart,
-        retriedProse.cost,
-        retriedProse.chapters.length,
-      );
-      retryIdentityIssues = detectIdentityAliasBreaks(prose, cml);
-    }
-
-    if (retryIdentityIssues.length > 0) {
-      retryIdentityIssues.forEach((issue) =>
-        ctx.errors.push(`Identity continuity failure: ${issue.message}`),
-      );
-      throw new Error("Prose identity continuity guardrail failed after retry");
-    }
-
-    await rescoreAgent9ProsePhase();
-  }
-
-  // ============================================================================
   // Surface chapter validation issues
   // ============================================================================
   if (prose.validationDetails && prose.validationDetails.batchesWithRetries > 0) {
@@ -1543,6 +1156,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cast: cast.cast,
       ...proseModelOverride,
       detectiveType: inputs.detectiveType,
+      worldDocument: ctx.worldDocument,
       characterProfiles: characterProfiles,
       locationProfiles: locationProfiles,
       temporalContext: temporalContext,
@@ -1623,6 +1237,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   let validationReport: any = await validationPipeline.validate(storyForValidation, {
     ...cml,
     lockedFacts: proseLockedFacts ?? [],
+    locationProfiles: locationProfiles ?? undefined,
   } as any);
   const preRepairValidationSummary = { ...validationReport.summary };
   let postRepairValidationSummary = { ...validationReport.summary };
@@ -1706,268 +1321,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
     ctx.warnings.push("═══════════════════════════════════════");
 
-    reportProgress(
-      "validation",
-      "Full-story validation failed; starting full-prose repair run",
-      96,
-    );
-
-    const repairGuardrailSet = new Set<string>();
-    repairGuardrailSet.add(
-      "Never use placeholder named role constructions (for example 'Detective Surname', 'Inspector Surname', 'a woman Surname', 'a man Surname'). Use canonical cast names only.",
-    );
-    repairGuardrailSet.add(
-      "Ensure Act III contains explicit suspect-elimination coverage for every non-culprit suspect, each with concrete evidence or confirmed alibi.",
-    );
-    repairGuardrailSet.add(
-      "Each chapter must open and close with distinct phrasing — never reuse sentences, transitions, or descriptive blocks from another chapter in this run.",
-    );
-    for (const err of validationReport.errors) {
-      if (isDiscriminatingTestCoverageError(err)) {
-        repairGuardrailSet.add(
-          "The prose MUST include a scene where the detective performs a discriminating test (experiment, re-enactment, trap, or timing test) that explicitly rules out or eliminates at least one suspect with on-page evidence and reasoning.",
-        );
-      }
-      if (isSuspectClosureCoverageError(err)) {
-        repairGuardrailSet.add(
-          "The prose MUST include a scene in which each non-culprit suspect is explicitly cleared (ruled out, eliminated, alibi confirmed) with stated evidence.",
-        );
-      }
-      if (isCulpritEvidenceChainCoverageError(err)) {
-        repairGuardrailSet.add(
-          "The prose MUST include a scene where the culprit is identified and the full evidence chain (because, therefore, proof) is laid out.",
-        );
-      }
-    }
-    const repairGuardrails = Array.from(repairGuardrailSet);
-
-    if (repairGuardrails.length > 0) {
-      ctx.warnings.push(
-        "Prose repair retry: " + repairGuardrails.length + " guardrails applied",
-      );
-      reportProgress(
-        "prose",
-        "Regenerating prose with targeted guardrails (chapter-granular repair mode)...",
-        96,
-      );
-
-      const proseRepairStart = Date.now();
-      let repairNarrativeState: NarrativeState = initNarrativeState(
-        proseLockedFacts ?? [],
-        characterGenderMap,
-      );
-      const repairProseChapterScores: any[] = [];
-      let accumulatedRepairChapters: any[] = [];
-
-      const repairedProse = await generateProse(client, {
-        caseData: cml,
-        outline: narrative,
-        cast: cast.cast,
-        ...proseModelOverride,
-        detectiveType: inputs.detectiveType,
-        characterProfiles: characterProfiles,
-        locationProfiles: locationProfiles,
-        temporalContext: temporalContext,
-        moralAmbiguityNote,
-        lockedFacts: proseLockedFacts,
-        clueDistribution: clues,
-        narrativeState: repairNarrativeState,
-        targetLength: inputs.targetLength,
-        narrativeStyle: inputs.narrativeStyle,
-        qualityGuardrails: repairGuardrails,
-        templateLinterProfile: {
-          mode: "repair",
-          entropyThreshold: 0.65,
-          entropyMinWindow: 5,
-          entropyWarmupChapters: 3,
-          chapterOffset: 0,
-        },
-        writingGuides: loadWritingGuides(workspaceRoot),
-        runId,
-        projectId: projectId || "",
-        onProgress: (phase: string, message: string, percentage: number) =>
-          reportProgress(phase as any, message, percentage),
-        batchSize: 1,
-        onBatchComplete: async (batchChapters: any, _batchStart: number, batchEnd: number) => {
-          repairNarrativeState = updateNSD(
-            repairNarrativeState,
-            batchChapters,
-            batchEnd - batchChapters.length + 1,
-          );
-          accumulatedRepairChapters = [...accumulatedRepairChapters, ...batchChapters];
-          const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
-          reportProgress(
-            "prose",
-            `[Repair] Chapter ${chapterLabel} complete`,
-            96 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 1),
-          );
-          if (enableScoring && scoreAggregator) {
-            try {
-              const repairScorer = new ProseScorer();
-              const adaptedBatch = adaptProseForScoring(
-                batchChapters,
-                (cml as any).CASE,
-                clues,
-              );
-              const batchScore = await repairScorer.score({}, adaptedBatch, {
-                previous_phases: {
-                  agent2_cast: cast.cast,
-                  agent2b_character_profiles: characterProfiles.profiles,
-                  agent2c_location_profiles: locationProfiles,
-                },
-                cml,
-                threshold_config: { mode: "standard" },
-                targetLength: inputs.targetLength ?? "medium",
-                partialGeneration: true,
-              });
-              const adaptedAll = adaptProseForScoring(
-                accumulatedRepairChapters,
-                (cml as any).CASE,
-                clues,
-              );
-              const cumulScore = await repairScorer.score({}, adaptedAll, {
-                previous_phases: {
-                  agent2_cast: cast.cast,
-                  agent2b_character_profiles: characterProfiles.profiles,
-                  agent2c_location_profiles: locationProfiles,
-                },
-                cml,
-                threshold_config: { mode: "standard" },
-                targetLength: inputs.targetLength ?? "medium",
-                partialGeneration: true,
-              });
-              repairProseChapterScores.push({
-                chapter: batchEnd,
-                total_chapters: totalSceneCount || batchEnd,
-                individual_score: Math.round(batchScore.total ?? 0),
-                cumulative_score: Math.round(cumulScore.total ?? 0),
-                individual_validation_score: Math.round(batchScore.validation_score ?? 0),
-                individual_quality_score: Math.round(batchScore.quality_score ?? 0),
-                individual_completeness_score: Math.round(
-                  batchScore.completeness_score ?? 0,
-                ),
-                individual_consistency_score: Math.round(
-                  batchScore.consistency_score ?? 0,
-                ),
-                cumulative_validation_score: Math.round(
-                  cumulScore.validation_score ?? 0,
-                ),
-                cumulative_quality_score: Math.round(cumulScore.quality_score ?? 0),
-                cumulative_completeness_score: Math.round(
-                  cumulScore.completeness_score ?? 0,
-                ),
-                cumulative_consistency_score: Math.round(
-                  cumulScore.consistency_score ?? 0,
-                ),
-              });
-            } catch {
-              // Best-effort — never abort repair generation
-            }
-          }
-        },
-      }, 3 as any);
-
-      prose = applyDeterministicProsePostProcessing(
-        sanitizeProseResult(repairedProse),
-        locationProfiles,
-      );
-      ctx.agentCosts["agent9_prose"] =
-        (ctx.agentCosts["agent9_prose"] || 0) + repairedProse.cost;
-      ctx.agentDurations["agent9_prose"] =
-        (ctx.agentDurations["agent9_prose"] || 0) + (Date.now() - proseRepairStart);
-      ctx.proseRepairPassCount += 1;
-      pushProsePassAccounting(
-        "validation_repair",
-        Date.now() - proseRepairStart,
-        repairedProse.cost,
-        repairedProse.chapters.length,
-      );
-
-      if (enableScoring && scoreAggregator && repairProseChapterScores.length > 0) {
-        try {
-          const repairScorer = new ProseScorer();
-          const repairAdapted = adaptProseForScoring(
-            prose.chapters,
-            (cml as any).CASE,
-            clues,
-          );
-          const repairFinalScore = await repairScorer.score({}, repairAdapted, {
-            previous_phases: {
-              agent2_cast: cast.cast,
-              agent2b_character_profiles: characterProfiles.profiles,
-              agent2c_location_profiles: locationProfiles,
-            },
-            cml,
-            threshold_config: { mode: "standard" },
-            targetLength: inputs.targetLength ?? "medium",
-          });
-          ctx.latestProseScore = repairFinalScore;
-          if (ctx.proseSecondRunChapterScores.length === 0) {
-            ctx.proseSecondRunChapterScores = [...repairProseChapterScores];
-          }
-          (repairFinalScore as PhaseScore).breakdown = {
-            chapter_scores: [...ctx.proseChapterScores],
-            repair_chapter_scores: [...ctx.proseSecondRunChapterScores],
-          };
-          scoreAggregator.upsertPhaseScore(
-            "agent9_prose",
-            "Prose Generation",
-            repairFinalScore as PhaseScore,
-            ctx.agentDurations["agent9_prose"] ?? 0,
-            ctx.agentCosts["agent9_prose"] ?? 0,
-          );
-          await savePartialReport();
-        } catch {
-          // Best-effort
-        }
-      }
-
-      const repairedStory = {
-        id: runId,
-        projectId: projectId || runId,
-        scenes: prose.chapters.map((ch: any, idx: number) => ({
-          number: idx + 1,
-          title: ch.title,
-          text: ch.paragraphs.join("\n\n"),
-        })),
-      };
-
-      validationReport = await validationPipeline.validate(repairedStory, {
-        ...cml,
-        lockedFacts: proseLockedFacts ?? [],
-      } as any);
-      postRepairValidationSummary = { ...validationReport.summary };
-
-      if (
-        validationReport.status === "passed" ||
-        validationReport.status === "needs_review"
-      ) {
-        ctx.warnings.push(
-          "Prose repair retry improved validation to: " + validationReport.status,
-        );
-        reportProgress(
-          "validation",
-          "Full-story validation after repair: " + validationReport.status,
-          97,
-        );
-      } else {
-        ctx.warnings.push(
-          "Prose repair retry did not fully resolve validation: " +
-            validationReport.status,
-        );
-        reportProgress(
-          "validation",
-          "Full-story validation still " + validationReport.status + " after repair",
-          97,
-        );
-      }
-    } else {
-      ctx.warnings.push("Story validation failed but no recoverable error types found");
-    }
-    reportProgress(
-      "validation",
-      "Full-story validation result: " + validationReport.status,
-      98,
+    throw new Error(
+      `Story validation failed: ${validationReport.summary.critical} critical, ${validationReport.summary.major} major issues`,
     );
   }
 
@@ -2036,11 +1391,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   );
   const readabilitySummary = evaluateProseReadability(prose);
   const sceneGrounding = evaluateSceneGroundingCoverage(prose, locationProfiles);
-  const templateLeakage = evaluateTemplateLeakage(prose);
-  const temporalConsistency = evaluateTemporalConsistency(prose, temporalContext);
   const placeholderLeakage = evaluatePlaceholderLeakage(prose);
   const chapterHeadingArtifacts = evaluateChapterHeadingArtifacts(prose);
-  const sensoryVariety = evaluateSensoryVariety(prose);
   const clueEvidence = collectClueEvidenceFromProse(
     prose.chapters,
     (cml as any).CASE,
@@ -2143,39 +1495,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     releaseGateReasons.push("suspect elimination coverage incomplete");
     hardStopReasons.push("suspect elimination coverage incomplete");
   }
-  if (templateLeakage.hasLeakage) {
-    releaseGateReasons.push(
-      `templated prose leakage detected (duplicate long blocks: ${templateLeakage.duplicatedLongParagraphCount}, scaffold matches: ${templateLeakage.scaffoldCount})`,
-    );
-    hardStopReasons.push("templated prose leakage detected");
-  }
-  if (temporalConsistency.contradictions > 0) {
-    releaseGateReasons.push(
-      `month/season contradictions found (${temporalConsistency.details.slice(0, 3).join("; ")})`,
-    );
-    hardStopReasons.push("month/season contradictions found");
-  }
   if (placeholderLeakage.hasLeakage) {
-    releaseGateReasons.push(
-      `placeholder token leakage detected (role+surname: ${placeholderLeakage.roleSurnameCount}, named standalone placeholders: ${placeholderLeakage.standaloneCount}, generic role phrases: ${placeholderLeakage.genericRoleCount}${placeholderLeakage.examples.length > 0 ? `, examples: ${placeholderLeakage.examples.join(", ")}` : ""})`,
-    );
-    if (placeholderLeakage.severeLeakage) {
-      hardStopReasons.push("placeholder token leakage detected");
-    }
+    const leakageMsg = `placeholder token leakage detected (role+surname: ${placeholderLeakage.roleSurnameCount}, named standalone placeholders: ${placeholderLeakage.standaloneCount}, generic role phrases: ${placeholderLeakage.genericRoleCount}${placeholderLeakage.examples.length > 0 ? `, examples: ${placeholderLeakage.examples.join(", ")}` : ""})`;
+    releaseGateReasons.push(leakageMsg);
+    hardStopReasons.push(leakageMsg);
   }
   if (chapterHeadingArtifacts.hasArtifacts) {
     releaseGateReasons.push(
       `duplicate chapter heading artifacts detected (${chapterHeadingArtifacts.duplicatedHeadingCount})`,
     );
     hardStopReasons.push("duplicate chapter heading artifacts detected");
-  }
-  if (sensoryVariety.hasExcessiveRepetition) {
-    releaseGateReasons.push(
-      `atmospheric sensory palette recycled across >40% of chapters (${sensoryVariety.overusedPhrases.slice(0, 3).join(", ")})`,
-    );
-    ctx.warnings.push(
-      `Sensory variety warning: ${sensoryVariety.overusedPhrases.length} overused atmospheric phrase(s) detected. Vary imagery across chapters.`,
-    );
   }
   if (readabilitySummary.denseChapterCount > 0) {
     releaseGateReasons.push(
@@ -2217,11 +1546,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       release_gate_hard_stops: Array.from(new Set(hardStopReasons)),
       readability: readabilitySummary,
       scene_grounding: sceneGrounding,
-      template_leakage: templateLeakage,
-      temporal_consistency: temporalConsistency,
       placeholder_leakage: placeholderLeakage,
       chapter_heading_artifacts: chapterHeadingArtifacts,
-      sensory_variety: sensoryVariety,
       clue_visibility_expected_ids: expectedClueIds,
       clue_visibility_extracted_ids: extractedClueIds,
       clue_visibility_missing_expected_ids: missingExpectedClueIds,

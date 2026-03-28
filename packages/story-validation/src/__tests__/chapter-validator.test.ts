@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ChapterValidator } from "../chapter-validator.js";
+import { ChapterValidator, validateChapterSequence } from "../chapter-validator.js";
 import type { CMLData } from "../types.js";
 
 const makeCml = (): CMLData => ({
@@ -115,6 +115,71 @@ describe("ChapterValidator tightening", () => {
 
     const result = validator.validateChapter(chapter, makeCml());
     expect(result.issues.some((issue) => issue.message.includes("templated scaffold prose") || issue.message.includes("repeated long boilerplate"))).toBe(true);
+  });
+
+  it("flags metadata key-value leakage", () => {
+    const chapter = {
+      chapterNumber: 3,
+      title: "Metadata Leak",
+      paragraphs: [
+        "Setting: A dimly lit library with oak panelling and dusty shelves.",
+        "Jennifer Daubeny shifted in her chair while rain fell against the windows of Harrowfield Hall.",
+        "The scent of damp paper hung in the cold air as evening settled.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((i) => i.message.includes("metadata key-value leakage"))).toBe(true);
+  });
+
+  it("flags meta-language about storytelling technique", () => {
+    const chapter = {
+      chapterNumber: 4,
+      title: "Meta Language",
+      paragraphs: [
+        "The rain drummed on the roof of Harrowfield Hall as evening crept across the grounds.",
+        "A sensory detail grounding element was woven into the scene to heighten the dramatic irony.",
+        "Jennifer looked away from the cold window with a sigh.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((i) => i.message.includes("meta-language about storytelling technique"))).toBe(true);
+  });
+
+  it("flags instruction-shaped prose (prompt leakage)", () => {
+    const chapter = {
+      chapterNumber: 6,
+      title: "Instruction Leak",
+      paragraphs: [
+        "The scent of damp stone filled the hall as evening rain hammered the windows.",
+        "Ensure the reader feels the tension building as the detective approaches the study.",
+        "Jennifer stood at the mantelpiece and said nothing.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((i) => i.message.includes("instruction-shaped prose"))).toBe(true);
+  });
+
+  it("does NOT false-positive on clean narrative prose", () => {
+    const chapter = {
+      chapterNumber: 2,
+      title: "Clean Prose",
+      paragraphs: [
+        "Rain fell against the windows of Harrowfield Hall as Jennifer Daubeny crossed the corridor.",
+        "She paused at the library door, listening to the silence before pushing it open.",
+        "Inside, the scent of woodsmoke mingled with damp paper. The fire had burned low.",
+      ],
+    };
+
+    const result = validator.validateChapter(chapter, makeCml());
+    expect(result.issues.some((i) =>
+      i.message.includes("metadata key-value leakage") ||
+      i.message.includes("meta-language") ||
+      i.message.includes("instruction-shaped") ||
+      i.message.includes("low verb density")
+    )).toBe(false);
   });
 });
 
@@ -302,5 +367,66 @@ describe("ChapterValidator — discriminating test threshold scales with totalCh
       makeCmlWithDiscriminatingTest()
     );
     expect(result.issues.filter((i) => i.message.includes("discriminating test"))).toHaveLength(1);
+  });
+});
+
+describe("validateChapterSequence — cross-story chapter ordering", () => {
+  const makeStory = (scenes: Array<{ number: number; title: string }>) => ({
+    id: "test",
+    projectId: "p1",
+    scenes: scenes.map(s => ({ ...s, text: "Some prose.", paragraphs: ["Some prose."] })),
+  });
+
+  it("passes sequential chapters with no gaps", () => {
+    const errors = validateChapterSequence(makeStory([
+      { number: 1, title: "Chapter 1: The Discovery" },
+      { number: 2, title: "Chapter 2: The Investigation" },
+      { number: 3, title: "Chapter 3: The Resolution" },
+    ]));
+    expect(errors).toHaveLength(0);
+  });
+
+  it("detects missing chapter (gap)", () => {
+    const errors = validateChapterSequence(makeStory([
+      { number: 1, title: "Chapter 1" },
+      { number: 3, title: "Chapter 3" },
+    ]));
+    expect(errors.some(e => e.type === "chapter_missing" && e.message.includes("Chapter 2"))).toBe(true);
+    expect(errors.some(e => e.severity === "critical")).toBe(true);
+  });
+
+  it("detects duplicate chapter numbers", () => {
+    const errors = validateChapterSequence(makeStory([
+      { number: 1, title: "Chapter 1" },
+      { number: 2, title: "Chapter 2" },
+      { number: 2, title: "Chapter 2 Redux" },
+      { number: 3, title: "Chapter 3" },
+    ]));
+    expect(errors.some(e => e.type === "chapter_duplicated" && e.message.includes("Chapter 2"))).toBe(true);
+    expect(errors.some(e => e.severity === "critical")).toBe(true);
+  });
+
+  it("detects mixed chapter title formats", () => {
+    const errors = validateChapterSequence(makeStory([
+      { number: 1, title: "Chapter 1: The Discovery" },
+      { number: 2, title: "The Investigation" },
+      { number: 3, title: "Chapter 3" },
+    ]));
+    expect(errors.some(e => e.type === "chapter_title_inconsistency")).toBe(true);
+    expect(errors.some(e => e.severity === "major")).toBe(true);
+  });
+
+  it("passes uniform title-only format", () => {
+    const errors = validateChapterSequence(makeStory([
+      { number: 1, title: "The Discovery" },
+      { number: 2, title: "The Investigation" },
+      { number: 3, title: "The Resolution" },
+    ]));
+    expect(errors.some(e => e.type === "chapter_title_inconsistency")).toBe(false);
+  });
+
+  it("returns no errors for empty scene list", () => {
+    const errors = validateChapterSequence(makeStory([]));
+    expect(errors).toHaveLength(0);
   });
 });

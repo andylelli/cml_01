@@ -24,6 +24,7 @@ import type {
   ProseGenerationResult,
   NoveltyAuditResult,
   NarrativeState,
+  WorldDocumentResult,
 } from "@cml/prompts-llm";
 import type {
   ScoreAggregator,
@@ -160,6 +161,7 @@ export interface OrchestratorContext {
   characterProfiles?: CharacterProfilesResult;
   locationProfiles?: LocationProfilesResult;
   temporalContext?: TemporalContextResult;
+  worldDocument?: WorldDocumentResult;
   prose?: ProseGenerationResult;       // may be reassigned by Agent 9 retries
   validationReport?: ValidationReport;
 

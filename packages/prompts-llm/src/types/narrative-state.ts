@@ -9,8 +9,7 @@
  *  1. Initialised in mystery-orchestrator before the first prose call
  *  2. Injected into ProseGenerationInputs as `narrativeState`
  *  3. buildNSDBlock() (agent9-prose) formats it into the system prompt
- *  4. updateNSD() (mystery-orchestrator) extracts opening sentences + sensory phrases
- *     from each completed batch and returns an updated state for the next batch
+ *  4. updateNSD() advances the state after each completed chapter
  */
 
 export interface LockedFact {
@@ -26,19 +25,15 @@ export interface NarrativeState {
   lockedFacts: LockedFact[];
   /** Map from character name to pronoun string "he/him/his" | "she/her/her" | "they/them/their". */
   characterPronouns: Record<string, string>;
-  /** Opening-sentence style classes used so far — keeps last 8, oldest first. */
-  usedOpeningStyles: string[];
-  /** Sensory phrases (adjective + noun) used so far — keeps last 20, oldest first. */
-  usedSensoryPhrases: string[];
   /** Clue IDs from the narrative outline that have already been revealed to the reader. */
   cluesRevealedToReader: string[];
-  /** Brief per-chapter summaries accumulated as each batch completes. */
-  chapterSummaries: Array<{ chapterNumber: number; summary: string }>;
+  /** Last paragraph of the most recently completed chapter — used for opening continuity. */
+  continuityTail: string;
 }
 
 /**
  * Classify a chapter's opening sentence into a coarse style bucket.
- * Used to populate usedOpeningStyles so subsequent batches avoid repetition.
+ * Used by the prose linter to check within-batch opening-style variety.
  */
 export function classifyOpeningStyle(openingSentence: string): string {
   const s = openingSentence.trim().toLowerCase();
@@ -56,15 +51,6 @@ export function classifyOpeningStyle(openingSentence: string): string {
 }
 
 /**
- * Extract simple "adjective noun" sensory phrases from a paragraph of prose.
- * Returns up to `limit` unique phrases.
- */
-export function extractSensoryPhrases(text: string, limit = 5): string[] {
-  const matches = text.match(/\b(cold|warm|dark|pale|sharp|heavy|sweet|bitter|damp|stale|rich|faint|thick|soft|hard|bright|dim|grey|gray|amber|quiet|silent|still|raw|acrid|musty|woody|earthy|smoky|chill|hollow)\s+[a-z]+\b/gi) ?? [];
-  return [...new Set(matches.map(m => m.toLowerCase()))].slice(0, limit);
-}
-
-/**
  * Build a fresh NarrativeState from lockedFacts and a character→gender map.
  */
 export function initNarrativeState(
@@ -74,60 +60,42 @@ export function initNarrativeState(
   const characterPronouns: Record<string, string> = {};
   for (const [name, gender] of Object.entries(characterGenders)) {
     const g = gender?.toLowerCase();
-    characterPronouns[name] = g === 'male' ? 'he/him/his' : g === 'female' ? 'she/her/her' : 'they/them/their';
+    if (g === 'male') characterPronouns[name] = 'he/him/his';
+    else if (g === 'female') characterPronouns[name] = 'she/her/her';
+    else if (g === 'non-binary') characterPronouns[name] = 'they/them/their';
+    // else: unknown — omit from pronoun instructions so prose can use natural gender
   }
   return {
     version: 1,
     lockedFacts,
     characterPronouns,
-    usedOpeningStyles: [],
-    usedSensoryPhrases: [],
     cluesRevealedToReader: [],
-    chapterSummaries: [],
+    continuityTail: '',
   };
 }
 
 /**
- * Update NarrativeState after a completed batch of chapters.
+ * Update NarrativeState after a completed chapter.
  * Returns a new state object (does not mutate the original).
+ *
+ * @param current   The current NarrativeState
+ * @param lastChapter  The just-completed chapter data
  */
 export function updateNSD(
   current: NarrativeState,
-  completedChapters: Array<{ title?: string; summary?: string; paragraphs?: string[] }>,
-  startChapterNumber: number,
+  lastChapter: { paragraphs?: string[]; cluesRevealedIds?: string[] },
 ): NarrativeState {
-  const newStyles = [...current.usedOpeningStyles];
-  const newPhrases = [...current.usedSensoryPhrases];
-  const newSummaries = [...current.chapterSummaries];
-
-  completedChapters.forEach((chapter, idx) => {
-    // Extract style from first sentence of first paragraph
-    const firstPara = (chapter.paragraphs ?? [])[0] ?? '';
-    const firstSentenceMatch = firstPara.match(/^[^.!?]+[.!?]/);
-    if (firstSentenceMatch) {
-      const style = classifyOpeningStyle(firstSentenceMatch[0]);
-      newStyles.push(style);
-    }
-
-    // Extract sensory phrases from all paragraphs
-    const allText = (chapter.paragraphs ?? []).join(' ');
-    const phrases = extractSensoryPhrases(allText);
-    phrases.forEach(p => {
-      if (!newPhrases.includes(p)) newPhrases.push(p);
-    });
-
-    // Record summary
-    newSummaries.push({
-      chapterNumber: startChapterNumber + idx,
-      summary: chapter.summary ?? '',
-    });
-  });
-
+  const newClues = [...current.cluesRevealedToReader];
+  for (const id of (lastChapter.cluesRevealedIds ?? [])) {
+    if (!newClues.includes(id)) newClues.push(id);
+  }
+  // Continuity tail: last paragraph of the chapter, used to anchor the next chapter's opening
+  const paragraphs = lastChapter.paragraphs ?? [];
+  const continuityTail = paragraphs.length > 0 ? (paragraphs[paragraphs.length - 1] ?? '') : '';
   return {
     ...current,
-    // Keep last 8 opening styles, last 20 sensory phrases
-    usedOpeningStyles: newStyles.slice(-8),
-    usedSensoryPhrases: newPhrases.slice(-20),
-    chapterSummaries: newSummaries,
+    cluesRevealedToReader: newClues,
+    continuityTail,
   };
 }
+

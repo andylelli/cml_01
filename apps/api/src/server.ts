@@ -60,7 +60,82 @@ const toTitle = (id: string) =>
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
-const escapePdfText = (value: string) => value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+/**
+ * Unicode → WinAnsiEncoding (Windows-1252) mapping for code points in the
+ * 0x0080–0x009F gap that differ from ISO-8859-1.  All other Latin-1 Supplement
+ * code points (0x00A0–0x00FF) map 1:1 to the same byte value.
+ */
+const UNICODE_TO_WINANSI: Record<number, number> = {
+  0x20AC: 0x80, // €
+  0x201A: 0x82, // ‚
+  0x0192: 0x83, // ƒ
+  0x201E: 0x84, // „
+  0x2026: 0x85, // …
+  0x2020: 0x86, // †
+  0x2021: 0x87, // ‡
+  0x02C6: 0x88, // ˆ
+  0x2030: 0x89, // ‰
+  0x0160: 0x8A, // Š
+  0x2039: 0x8B, // ‹
+  0x0152: 0x8C, // Œ
+  0x017D: 0x8E, // Ž
+  0x2018: 0x91, // '
+  0x2019: 0x92, // '
+  0x201C: 0x93, // "
+  0x201D: 0x94, // "
+  0x2022: 0x95, // •
+  0x2013: 0x96, // –
+  0x2014: 0x97, // —
+  0x02DC: 0x98, // ˜
+  0x2122: 0x99, // ™
+  0x0161: 0x9A, // š
+  0x203A: 0x9B, // ›
+  0x0153: 0x9C, // œ
+  0x017E: 0x9E, // ž
+  0x0178: 0x9F, // Ÿ
+};
+
+/**
+ * Encode a JavaScript string for use inside a PDF literal string `( … )`.
+ * - Escapes PDF special characters: \, (, )
+ * - Converts non-ASCII characters to WinAnsiEncoding octal escapes so that
+ *   the Helvetica font (with /Encoding /WinAnsiEncoding) renders them correctly.
+ * - Characters not representable in WinAnsiEncoding are replaced with '?'.
+ */
+const encodePdfText = (value: string): string => {
+  let result = "";
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+
+    // PDF special characters
+    if (code === 0x5C) { result += "\\\\"; continue; } // backslash
+    if (code === 0x28) { result += "\\("; continue; }  // (
+    if (code === 0x29) { result += "\\)"; continue; }  // )
+
+    // Printable ASCII (0x20–0x7E) — pass through
+    if (code >= 0x20 && code <= 0x7E) { result += value[i]; continue; }
+
+    // Tab / newline — should have been stripped already, but handle gracefully
+    if (code === 0x09 || code === 0x0A || code === 0x0D) { result += " "; continue; }
+
+    // Latin-1 Supplement (0xA0–0xFF) — byte value matches code point in WinAnsi
+    if (code >= 0xA0 && code <= 0xFF) {
+      result += `\\${code.toString(8).padStart(3, "0")}`;
+      continue;
+    }
+
+    // Unicode characters with a WinAnsiEncoding mapping (smart quotes, dashes, etc.)
+    const winAnsi = UNICODE_TO_WINANSI[code];
+    if (winAnsi !== undefined) {
+      result += `\\${winAnsi.toString(8).padStart(3, "0")}`;
+      continue;
+    }
+
+    // Not representable — fallback
+    result += "?";
+  }
+  return result;
+};
 const sanitizePdfLine = (value: unknown) => {
   const text = typeof value === "string" ? value : value == null ? "" : String(value);
   return text.replace(/\r?\n/g, " ").replace(/\t/g, " ");
@@ -164,7 +239,7 @@ const buildPdfFromLinePages = (pages: PdfLine[][]) => {
     pageLines.forEach((line) => {
       commands.push(`/F1 ${line.size} Tf`);
       commands.push(`${line.leading} TL`);
-      commands.push(`(${escapePdfText(line.text)}) Tj`);
+      commands.push(`(${encodePdfText(line.text)}) Tj`);
       commands.push(`0 -${line.leading} Td`);
     });
     commands.push("ET");
@@ -194,7 +269,7 @@ const buildPdfFromLinePages = (pages: PdfLine[][]) => {
     objects.push(`${contentObjNum} 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj`);
   });
 
-  objects.push(`${fontObjectNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
+  objects.push(`${fontObjectNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj`);
 
   let offset = 0;
   const xref: string[] = ["0000000000 65535 f "];
@@ -648,6 +723,11 @@ const runPipeline = async (
 
     await repo.createArtifact(projectId, "temporal_context", result.temporalContext, null);
     await repo.addRunEvent(runId, "temporal_context_done", "Temporal context generated");
+
+    if (result.worldDocument) {
+      await repo.createArtifact(projectId, "world_document", result.worldDocument, null);
+      await repo.addRunEvent(runId, "world_builder_done", "World document generated");
+    }
 
     // Generate synopsis from CML
     const caseMeta = (result.cml as any)?.CASE?.meta ?? {};

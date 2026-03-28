@@ -7,6 +7,8 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError, Pros
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
+import { validateChapterSequence } from './chapter-validator.js';
+import { validateLocationConsistency } from './location-normalizer.js';
 import { PhysicalPlausibilityValidator } from './physical-validator.js';
 import { EraAuthenticityValidator } from './era-validator.js';
 import { NarrativeContinuityValidator } from './narrative-continuity-validator.js';
@@ -64,6 +66,14 @@ export class StoryValidationPipeline {
         console.error(`Validator ${validator.name} failed:`, error);
       }
     }
+
+    // Cross-story chapter sequence validation (gaps, duplicates, title consistency)
+    const sequenceErrors = validateChapterSequence(story);
+    allErrors.push(...sequenceErrors);
+
+    // Cross-chapter location name consistency (canonical vs variant)
+    const locationErrors = validateLocationConsistency(story, cml);
+    allErrors.push(...locationErrors);
 
     return this.generateReport(allErrors, cml);
   }

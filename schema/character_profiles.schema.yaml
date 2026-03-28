@@ -59,6 +59,14 @@ profiles:
       speechMannerisms:
         type: string
         required: false
+      physicalMannerisms:
+        type: string
+        required: false
+        description: >
+          How this character moves, sits, gestures — physical tells under stress. Separate from
+          speech. E.g. 'Keeps very still when lying; touches the back of her neck when uncertain;
+          never sits with her back to a door.' These are the micro-tells that make characters
+          visible on the page. Agent 9 should deploy at most one per scene, not as a list.
       internalConflict:
         type: string
         required: false
@@ -67,6 +75,19 @@ profiles:
         type: string
         required: false
         description: "Why this case matters personally to this character (especially important for the detective)"
+      privateLonging:
+        type: string
+        required: false
+        description: >
+          What this character wants that has nothing to do with the case. A personal desire,
+          ambition, or grief that predates the murder and runs underneath the investigation.
+          E.g. 'Wants to leave the village but has cared for her mother for fifteen years and
+          cannot admit this makes her angry.' This non-case want creates the humanity that
+          stops suspects from being props. Agent 9 should let it leak into one or two moments.
+      gender:
+        type: string
+        required: false
+        allowed: [male, female, non-binary]
       paragraphs:
         type: array
         required: true

@@ -16,6 +16,7 @@ export * from './era-validator.js';
 export * from './semantic-validator.js';
 export * from './chapter-validator.js';
 export * from './name-sanitizer.js';
+export * from './location-normalizer.js';
 export * from './pipeline.js';
 export * from './generation-params.js';
 

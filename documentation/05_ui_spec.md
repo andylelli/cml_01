@@ -6,6 +6,75 @@
 - Headless UI for accessible unstyled primitives
 - Pinia for centralized reactive state (artifacts, run history, validation)
 
+## Pinia store (`apps/web/src/stores/projectStore.ts`)
+
+Single store `useProjectStore` (id: `"project"`). All state is `ref<T | null>` initialized to `null` or a safe default.
+
+```typescript
+// Artifact raw JSON strings (stringified for CML/YAML viewers)
+cmlArtifact:               Ref<string | null>
+cluesArtifact:             Ref<string | null>
+outlineArtifact:           Ref<string | null>
+proseArtifact:             Ref<string | null>
+gamePackArtifact:          Ref<string | null>
+settingArtifact:           Ref<string | null>
+castArtifact:              Ref<string | null>
+characterProfilesArtifact: Ref<string | null>
+locationProfilesArtifact:  Ref<string | null>
+temporalContextArtifact:   Ref<string | null>
+backgroundContextArtifact: Ref<string | null>
+hardLogicDevicesArtifact:  Ref<string | null>
+
+// Parsed artifact data (normalized shapes for UI rendering)
+settingData:          Ref<{ decade?; locationPreset?; weather?; socialStructure? } | null>
+castData:             Ref<{ suspects?: string[] } | null>
+cluesData:            Ref<{ summary?; items?: ClueItem[] } | null>
+fairPlayReport:       Ref<{ summary?; checks?: FairPlayCheck[] } | null>
+outlineData:          Ref<{ chapters?: unknown } | null>
+synopsisData:         Ref<{ title?; summary? } | null>
+proseData:            Ref<ProseData | null>
+characterProfilesData: Ref<CharacterProfilesData | null>
+locationProfilesData:  Ref<LocationProfilesData | null>
+temporalContextData:   Ref<TemporalContextData | null>
+backgroundContextData: Ref<BackgroundContextData | null>
+hardLogicDevicesData:  Ref<HardLogicDevicesData | null>
+noveltyAuditData:      Ref<NoveltyAuditData | null>
+gamePackData:          Ref<{ title?; suspects?; materials? } | null>
+
+// Run and log state
+runEventsData:  Ref<RunEvent[]>
+latestRunId:    Ref<string | null>
+llmLogs:        Ref<LlmLogEntry[]>
+
+// Status
+artifactsStatus: Ref<'idle' | 'loading' | 'ready' | 'partial' | 'error'>
+
+// Validation (all five pipeline stages)
+allValidation: Ref<{
+  setting: ValidationResult;
+  cast:    ValidationResult;
+  cml:     ValidationResult;
+  clues:   ValidationResult;
+  outline: ValidationResult;
+}>
+```
+
+### API client base URL
+
+```typescript
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+```
+
+The `x-cml-mode` header is sent per-request by API client functions in `services/api.ts` when calling CML-gated endpoints.
+
+### SSE subscription (`services/sse.ts`)
+
+```typescript
+// subscribeToRunEvents(projectId, onEvent) → unsubscribe()
+// Endpoint: GET /api/projects/:id/events
+// Polls every 15 s; event type: 'ping'; payload: { projectId, status }
+```
+
 ## UX quality bar (non-negotiable)
 - Default experience is friendly and task-focused; CML is hidden unless Advanced/Expert is enabled.
 - First-time users can complete a full generation without seeing raw CML.
@@ -129,6 +198,52 @@
 - SampleCard
 - SpoilerToggle
 - RunStatusBanner
+
+## Key component types (`apps/web/src/components/types.ts`)
+
+```typescript
+interface ProseChapter    { title: string; summary?: string; paragraphs: string[] }
+interface ProseData       { status: string; tone?: string; chapters: ProseChapter[]; cast?: string[]; note?: string }
+
+interface CharacterProfile {
+  name: string; summary?: string; publicPersona?: string; privateSecret?: string;
+  motiveSeed?: string; alibiWindow?: string; accessPlausibility?: string; stakes?: string;
+  humourStyle?: string; humourLevel?: number; speechMannerisms?: string;
+  paragraphs: string[]; order?: number;
+}
+interface CharacterProfilesData { status: string; tone?: string; targetWordCount?: number; profiles: CharacterProfile[]; note?: string }
+
+interface HardLogicDevice {
+  title: string; corePrinciple: string;
+  principleType: 'physical_law' | 'mathematical_principle' | 'cognitive_bias' | 'social_logic';
+  surfaceIllusion: string; underlyingReality: string;
+  fairPlayClues: string[]; whyNotTrope: string; variationEscalation: string;
+  mechanismFamilyHints: string[]; modeTags?: string[];
+}
+interface HardLogicDevicesData { status: string; overview: string; devices: HardLogicDevice[] }
+
+interface BackgroundContextData {
+  status: string; backdropSummary: string;
+  era: { decade: string; socialStructure?: string };
+  setting: { location: string; institution: string; weather?: string };
+  castAnchors: string[]; theme?: string;
+}
+
+interface NoveltyAuditData {
+  status: 'pass' | 'fail' | 'warn'; seedIds: string[];
+  patterns?: Array<{ seed: string; similarity: number; matches: string[] }>;
+  summary?: string;
+}
+
+// Scoring mirror types (see packages/story-validation/src/scoring/types.ts for canonical)
+interface ScoringPhaseScore {
+  agent: string;
+  validation_score: number;  quality_score: number;
+  completeness_score: number; consistency_score: number;
+  total: number;  grade: 'A'|'B'|'C'|'D'|'F';
+  passed: boolean;
+}
+```
 
 ## Detailed component design plan
 

@@ -1,0 +1,6295 @@
+{
+  "project_id": "proj_7c1de87b-54d4-47e5-bd86-7821386f4aeb",
+  "run_id": "run_66a135ca-63c1-4f22-baa5-0ebb808deb39",
+  "generated_at": "2026-03-18T21:19:52.248Z",
+  "total_duration_ms": 1825849,
+  "total_cost": 0.111,
+  "overall_score": 98.69,
+  "overall_grade": "A",
+  "passed": false,
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Release gate hard-stop: templated prose leakage detected",
+  "scoring_outcome": {
+    "score": 98.69,
+    "grade": "A",
+    "passed_threshold": false
+  },
+  "release_gate_outcome": {
+    "status": "failed",
+    "hard_stop_count": 1,
+    "warning_count": 1
+  },
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5/5 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "94% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "6/6 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 8482,
+      "cost": 0.00048516269999999994,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5/5 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "94% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "6/6 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000004,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Paul Wenlock: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 85%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Avg 2.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (5 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Relationship reciprocity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% reciprocal"
+          }
+        ]
+      },
+      "duration_ms": 14471,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Paul Wenlock: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 85%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Avg 2.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (5 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Relationship reciprocity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% reciprocal"
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Era completeness: 100%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Location completeness: 100%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ]
+      },
+      "duration_ms": 2216,
+      "cost": 0.00018340244999999998,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Era completeness: 100%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Location completeness: 100%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 unique types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 13897,
+      "cost": 0.0008363256000000001,
+      "threshold": 85,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 unique types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "score": {
+        "agent": "agent3-cml-generation",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Schema validation",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Valid after 1 attempt(s)"
+          },
+          {
+            "name": "Structural revision (Agent 4)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No structural revision needed"
+          }
+        ]
+      },
+      "duration_ms": 26256,
+      "cost": 0.0023567279999999998,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Schema validation",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Valid after 1 attempt(s)"
+        },
+        {
+          "name": "Structural revision (Agent 4)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No structural revision needed"
+        }
+      ]
+    },
+    {
+      "agent": "agent8_novelty",
+      "phase_name": "Novelty Audit",
+      "score": {
+        "agent": "agent8-novelty-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Novelty check",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+          }
+        ]
+      },
+      "duration_ms": 0,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Novelty check",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Skipped (threshold ≥ 1.0 or skipNoveltyCheck set)"
+        }
+      ]
+    },
+    {
+      "agent": "agent5_clues",
+      "phase_name": "Clue Distribution",
+      "score": {
+        "agent": "agent5-clue-distribution",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Clue count",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "8 clues distributed"
+          },
+          {
+            "name": "Guardrail compliance",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All guardrails passed"
+          },
+          {
+            "name": "Inference coverage",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Full inference coverage (1 minor issues)"
+          }
+        ]
+      },
+      "duration_ms": 10808,
+      "cost": 0.00073009035,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Clue count",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "8 clues distributed"
+        },
+        {
+          "name": "Guardrail compliance",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All guardrails passed"
+        },
+        {
+          "name": "Inference coverage",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Full inference coverage (1 minor issues)"
+        }
+      ]
+    },
+    {
+      "agent": "agent6_fairplay",
+      "phase_name": "Fair-play Audit",
+      "score": {
+        "agent": "agent6-fair-play-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Overall fair play status",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Status: pass"
+          }
+        ]
+      },
+      "duration_ms": 14227,
+      "cost": 0.001866612,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Overall fair play status",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Status: pass"
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 93.33333333333333,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 97,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 80,
+            "weight": 2,
+            "message": "19 chapters (expected 20)",
+            "severity": "minor"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "92% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "8/19 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "19/19"
+          },
+          {
+            "name": "CML clue coverage",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3/3 clues"
+          },
+          {
+            "name": "Discriminating test in outline",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 43383,
+      "cost": 0.0028537525499999997,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 80,
+          "weight": 2,
+          "message": "19 chapters (expected 20)",
+          "severity": "minor"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "92% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "8/19 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "19/19"
+        },
+        {
+          "name": "CML clue coverage",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3/3 clues"
+        },
+        {
+          "name": "Discriminating test in outline",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2b_profiles",
+      "phase_name": "Character Profiles",
+      "score": {
+        "agent": "agent2b-character-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Paul Wenlock: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Paul Wenlock: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Alastair Gilmore: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Cynthia Layton: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Audrey Kibble: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Barry Fairfax: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Profile narrative depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 90%"
+          },
+          {
+            "name": "Humour style richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 profiles"
+          },
+          {
+            "name": "Distinct personalities",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% distinct"
+          },
+          {
+            "name": "Minimum profiles",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 profiles"
+          },
+          {
+            "name": "Field completeness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% fields filled"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Names match cast",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% match"
+          }
+        ]
+      },
+      "duration_ms": 39035,
+      "cost": 0.00246895935,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Paul Wenlock: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Paul Wenlock: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Alastair Gilmore: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Cynthia Layton: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Audrey Kibble: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Barry Fairfax: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Profile narrative depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 90%"
+        },
+        {
+          "name": "Humour style richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 profiles"
+        },
+        {
+          "name": "Distinct personalities",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% distinct"
+        },
+        {
+          "name": "Minimum profiles",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 profiles"
+        },
+        {
+          "name": "Field completeness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% fields filled"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Names match cast",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% match"
+        }
+      ]
+    },
+    {
+      "agent": "agent2c_location_profiles",
+      "phase_name": "Location Profiles",
+      "score": {
+        "agent": "agent2c-location-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 83.33333333333333,
+        "consistency_score": 100,
+        "total": 97,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "The Library: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Dining Room: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Sensory richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average: 88%"
+          },
+          {
+            "name": "Geographic specificity",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "2/2 specific"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 66.66666666666666,
+            "weight": 1.5,
+            "message": "Only 2 locations",
+            "severity": "major"
+          },
+          {
+            "name": "All senses covered",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "2/2 locations"
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 31823,
+      "cost": 0.0020689152000000002,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "The Library: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Dining Room: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Sensory richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average: 88%"
+        },
+        {
+          "name": "Geographic specificity",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "2/2 specific"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 66.66666666666666,
+          "weight": 1.5,
+          "message": "Only 2 locations",
+          "severity": "major"
+        },
+        {
+          "name": "All senses covered",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "2/2 locations"
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2d_temporal_context",
+      "phase_name": "Temporal Context",
+      "score": {
+        "agent": "agent2d-temporal-context",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "specific_date present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "time_of_day present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "season present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "weather_patterns present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Date specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Full date specified"
+          },
+          {
+            "name": "Time specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Specific time given"
+          },
+          {
+            "name": "Weather detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% richness"
+          },
+          {
+            "name": "Fashion detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% richness"
+          },
+          {
+            "name": "Temporal richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "329 words"
+          },
+          {
+            "name": "Optional fields",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All optional fields present"
+          },
+          {
+            "name": "Substantial content",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All fields have detail"
+          },
+          {
+            "name": "Optional detail richness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% detail"
+          },
+          {
+            "name": "Season/weather consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 16360,
+      "cost": 0.0010362825,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "specific_date present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "time_of_day present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "season present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "weather_patterns present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Date specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Full date specified"
+        },
+        {
+          "name": "Time specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Specific time given"
+        },
+        {
+          "name": "Weather detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% richness"
+        },
+        {
+          "name": "Fashion detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% richness"
+        },
+        {
+          "name": "Temporal richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "329 words"
+        },
+        {
+          "name": "Optional fields",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All optional fields present"
+        },
+        {
+          "name": "Substantial content",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All fields have detail"
+        },
+        {
+          "name": "Optional detail richness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% detail"
+        },
+        {
+          "name": "Season/weather consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "score": {
+        "agent": "agent9-prose",
+        "validation_score": 94.54545454545455,
+        "quality_score": 100,
+        "completeness_score": 71.36363636363636,
+        "consistency_score": 85,
+        "total": 91,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "All chapters present",
+            "category": "validation",
+            "passed": true,
+            "score": 85,
+            "weight": 2,
+            "message": "19/20 chapters",
+            "severity": "minor"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Prose quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "92% average"
+          },
+          {
+            "name": "Readability",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "91% average"
+          },
+          {
+            "name": "Word count target",
+            "category": "completeness",
+            "passed": true,
+            "score": 70,
+            "weight": 1.5,
+            "message": "25,320 words (low)",
+            "severity": "minor"
+          },
+          {
+            "name": "Clue visibility",
+            "category": "completeness",
+            "passed": true,
+            "score": 72.72727272727273,
+            "weight": 1.5,
+            "message": "Only 8/11 clues",
+            "severity": "critical"
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5/5 characters referenced"
+          },
+          {
+            "name": "Setting fidelity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "2/2 locations referenced"
+          },
+          {
+            "name": "Fair play compliance",
+            "category": "consistency",
+            "passed": false,
+            "score": 50,
+            "weight": 1.5,
+            "message": "50/100: timing violation in chapter(s) 1, 6",
+            "severity": "critical"
+          }
+        ],
+        "breakdown": {
+          "chapter_scores": [
+            {
+              "chapter": 1,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 87,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 47
+            },
+            {
+              "chapter": 2,
+              "total_chapters": 19,
+              "individual_score": 86,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 46,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 3,
+              "total_chapters": 19,
+              "individual_score": 85,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 39,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 4,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 46,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 5,
+              "total_chapters": 19,
+              "individual_score": 86,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 6,
+              "total_chapters": 19,
+              "individual_score": 86,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 7,
+              "total_chapters": 19,
+              "individual_score": 84,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 45,
+              "individual_consistency_score": 46,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 8,
+              "total_chapters": 19,
+              "individual_score": 86,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 9,
+              "total_chapters": 19,
+              "individual_score": 83,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 23,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 10,
+              "total_chapters": 19,
+              "individual_score": 84,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 11,
+              "total_chapters": 19,
+              "individual_score": 85,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 45,
+              "individual_consistency_score": 62,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 12,
+              "total_chapters": 19,
+              "individual_score": 90,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 13,
+              "total_chapters": 19,
+              "individual_score": 91,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 62,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 14,
+              "total_chapters": 19,
+              "individual_score": 82,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 45,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 15,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 16,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 17,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 18,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 19,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            }
+          ],
+          "repair_chapter_scores": [
+            {
+              "chapter": 1,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 87,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 47
+            },
+            {
+              "chapter": 2,
+              "total_chapters": 19,
+              "individual_score": 84,
+              "cumulative_score": 87,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 47
+            },
+            {
+              "chapter": 3,
+              "total_chapters": 19,
+              "individual_score": 87,
+              "cumulative_score": 87,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 39,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 47
+            },
+            {
+              "chapter": 4,
+              "total_chapters": 19,
+              "individual_score": 86,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 46,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 5,
+              "total_chapters": 19,
+              "individual_score": 79,
+              "cumulative_score": 89,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 27,
+              "individual_consistency_score": 39,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 64,
+              "cumulative_consistency_score": 62
+            },
+            {
+              "chapter": 6,
+              "total_chapters": 19,
+              "individual_score": 90,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 70,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 7,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 54,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 8,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 39,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 9,
+              "total_chapters": 19,
+              "individual_score": 83,
+              "cumulative_score": 92,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 55,
+              "individual_consistency_score": 23,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 70
+            },
+            {
+              "chapter": 10,
+              "total_chapters": 19,
+              "individual_score": 89,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 46,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 11,
+              "total_chapters": 19,
+              "individual_score": 89,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 62,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 12,
+              "total_chapters": 19,
+              "individual_score": 90,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 13,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 54,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 14,
+              "total_chapters": 19,
+              "individual_score": 79,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 27,
+              "individual_consistency_score": 31,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 15,
+              "total_chapters": 19,
+              "individual_score": 91,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 62,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 16,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 17,
+              "total_chapters": 19,
+              "individual_score": 89,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 47,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 18,
+              "total_chapters": 19,
+              "individual_score": 92,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 73,
+              "individual_consistency_score": 70,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            },
+            {
+              "chapter": 19,
+              "total_chapters": 19,
+              "individual_score": 88,
+              "cumulative_score": 93,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 64,
+              "individual_consistency_score": 55,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 73,
+              "cumulative_consistency_score": 85
+            }
+          ]
+        },
+        "failure_reason": "1 critical failure(s)"
+      },
+      "duration_ms": 1587817,
+      "cost": 0.09610588185,
+      "threshold": 80,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "All chapters present",
+          "category": "validation",
+          "passed": true,
+          "score": 85,
+          "weight": 2,
+          "message": "19/20 chapters",
+          "severity": "minor"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Prose quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "92% average"
+        },
+        {
+          "name": "Readability",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "91% average"
+        },
+        {
+          "name": "Word count target",
+          "category": "completeness",
+          "passed": true,
+          "score": 70,
+          "weight": 1.5,
+          "message": "25,320 words (low)",
+          "severity": "minor"
+        },
+        {
+          "name": "Clue visibility",
+          "category": "completeness",
+          "passed": true,
+          "score": 72.72727272727273,
+          "weight": 1.5,
+          "message": "Only 8/11 clues",
+          "severity": "critical"
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5/5 characters referenced"
+        },
+        {
+          "name": "Setting fidelity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "2/2 locations referenced"
+        },
+        {
+          "name": "Fair play compliance",
+          "category": "consistency",
+          "passed": false,
+          "score": 50,
+          "weight": 1.5,
+          "message": "50/100: timing violation in chapter(s) 1, 6",
+          "severity": "critical"
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "key": "agent9_prose_post_generation_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "post_generation_summary",
+      "captured_at": "2026-03-18T21:19:51.924Z",
+      "details": {
+        "fair_play_all_clues_visible": false,
+        "fair_play_discriminating_test_complete": true,
+        "fair_play_no_solution_spoilers": true,
+        "fair_play_component_score": 60,
+        "clue_visibility_expected_ids": [
+          "clue_early_1",
+          "clue_mid_1",
+          "clue_late_1",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8"
+        ],
+        "clue_visibility_extracted_ids": [
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8"
+        ],
+        "clue_visibility_missing_expected_ids": [
+          "clue_early_1",
+          "clue_mid_1",
+          "clue_late_1"
+        ],
+        "clue_visibility_unexpected_extracted_ids": [],
+        "clue_visibility_expected_count": 11,
+        "clue_visibility_extracted_count": 8,
+        "template_linter_checks_run": 22,
+        "template_linter_failed_checks": 2,
+        "template_linter_opening_style_entropy_failures": 1,
+        "template_linter_opening_style_entropy_bypasses": 0,
+        "template_linter_paragraph_fingerprint_failures": 1,
+        "template_linter_ngram_overlap_failures": 0,
+        "score_total": 91,
+        "score_grade": "A",
+        "score_passed_threshold": true,
+        "component_failures": [],
+        "failure_reason": "1 critical failure(s)",
+        "chapters_generated": 19,
+        "prose_duration_ms_first_pass": 762760,
+        "prose_duration_ms_total": 1587817,
+        "prose_cost_first_pass": 0.0314816106,
+        "prose_cost_total": 0.09610588185,
+        "rewrite_pass_count": 0,
+        "repair_pass_count": 1,
+        "per_pass_accounting": [
+          {
+            "pass_type": "first_pass",
+            "duration_ms": 762760,
+            "cost": 0.0314816106,
+            "chapters_generated": 19
+          },
+          {
+            "pass_type": "validation_repair",
+            "duration_ms": 825057,
+            "cost": 0.06462427125,
+            "chapters_generated": 19
+          }
+        ],
+        "metrics_snapshot": "final",
+        "batch_size": 1,
+        "batches_with_retries": 2,
+        "total_batches": 19,
+        "batch_failure_events": 2,
+        "batch_failure_history": [
+          {
+            "chapter_range": "11",
+            "attempt": 1,
+            "errors": [
+              "Chapter 11: Chapter 11 opening block has weak atmosphere/time grounding (Include at least one weather/time/atmosphere marker in the opening block to set the scene)",
+              "Chapter 11: Chapter 11 has month/season contradiction (november vs winter) (Align season wording with month references (november) to maintain temporal consistency)"
+            ]
+          },
+          {
+            "chapter_range": "14",
+            "attempt": 1,
+            "errors": [
+              "Chapter 14: Chapter 14 has month/season contradiction (november vs spring) (Align season wording with month references (november) to maintain temporal consistency)",
+              "Chapter 14: Chapter 14 has repeated long boilerplate paragraph blocks (Paraphrase repeated long blocks and vary chapter opening language)"
+            ]
+          }
+        ],
+        "batch_failure_samples": [
+          {
+            "chapter_range": "11",
+            "attempt": 1,
+            "errors": [
+              "Chapter 11: Chapter 11 opening block has weak atmosphere/time grounding (Include at least one weather/time/atmosphere marker in the opening block to set the scene)",
+              "Chapter 11: Chapter 11 has month/season contradiction (november vs winter) (Align season wording with month references (november) to maintain temporal consistency)"
+            ]
+          },
+          {
+            "chapter_range": "14",
+            "attempt": 1,
+            "errors": [
+              "Chapter 14: Chapter 14 has month/season contradiction (november vs spring) (Align season wording with month references (november) to maintain temporal consistency)",
+              "Chapter 14: Chapter 14 has repeated long boilerplate paragraph blocks (Paraphrase repeated long blocks and vary chapter opening language)"
+            ]
+          }
+        ],
+        "outline_coverage_issue_count": 0,
+        "critical_clue_coverage_gap": false,
+        "nsd_transfer_steps": 19,
+        "nsd_transfer_trace": [
+          {
+            "batch_start": 1,
+            "batch_end": 1,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_4"
+            ],
+            "clue_state_by_id": {
+              "clue_4": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_4",
+                "chapter_number": 1,
+                "evidence_quote": "Alastair stood near the grand clock that dominated the hall, its brass pendulum swinging steadily, a stark contrast to the chaos that had unfolded. He stared at the clock's face, lost in thought, as if it held the ans...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 6
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [],
+              "used_sensory_phrases_tail": [],
+              "clues_revealed_to_reader": [],
+              "chapter_summary_count": 0
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4"
+              ],
+              "chapter_summary_count": 1
+            }
+          },
+          {
+            "batch_start": 2,
+            "batch_end": 2,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_1",
+              "clue_2"
+            ],
+            "clue_state_by_id": {
+              "clue_1": "confirmed",
+              "clue_2": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_1",
+                "chapter_number": 1,
+                "evidence_quote": "As he approached the imposing clock that dominated the hall, Paul’s gaze fell upon its face. The clock in the main hall shows 10:10 PM. The hands stood resolutely in their positions, frozen in time, a stark reminder o...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              },
+              {
+                "clue_id": "clue_2",
+                "chapter_number": 1,
+                "evidence_quote": "As he approached the imposing clock that dominated the hall, Paul’s gaze fell upon its face. The clock in the main hall shows 10:10 PM. The hands stood resolutely in their positions, frozen in time, a stark reminder o...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4"
+              ],
+              "chapter_summary_count": 1
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 2
+            }
+          },
+          {
+            "batch_start": 3,
+            "batch_end": 3,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_3"
+            ],
+            "clue_state_by_id": {
+              "clue_3": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_3",
+                "chapter_number": 1,
+                "evidence_quote": "At half past ten, the drawing room of Elderwood Manor was awash in the soft glow of autumn sunlight filtering through the tall windows. Dust motes danced lazily in the air, settling on the polished mahogany furniture ...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 2
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2"
+              ],
+              "chapter_summary_count": 2
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 3
+            }
+          },
+          {
+            "batch_start": 4,
+            "batch_end": 4,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 3
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 4
+            }
+          },
+          {
+            "batch_start": 5,
+            "batch_end": 5,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 4
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 5
+            }
+          },
+          {
+            "batch_start": 6,
+            "batch_end": 6,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 5
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 6
+            }
+          },
+          {
+            "batch_start": 7,
+            "batch_end": 7,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_8"
+            ],
+            "clue_state_by_id": {
+              "clue_8": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_8",
+                "chapter_number": 1,
+                "evidence_quote": "The morning light filtered through the tall windows of the library, casting elongated shadows across the polished oak floor. Dust motes danced lazily in the beams, a serene contrast to the tension that hung in the air...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 5
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "thick and",
+                "chill run",
+                "silent plea",
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3"
+              ],
+              "chapter_summary_count": 6
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8"
+              ],
+              "chapter_summary_count": 7
+            }
+          },
+          {
+            "batch_start": 8,
+            "batch_end": 8,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_7"
+            ],
+            "clue_state_by_id": {
+              "clue_7": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_7",
+                "chapter_number": 1,
+                "evidence_quote": "Paul nodded, encouraging her to continue. “But it’s not just that,” Cynthia pressed on, her voice trembling. “I’ve been thinking about how much I want to help him. He’s been so stressed lately, and I can see it in his...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 3,
+                  "sentence": 8
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy silence",
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8"
+              ],
+              "chapter_summary_count": 7
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7"
+              ],
+              "chapter_summary_count": 8
+            }
+          },
+          {
+            "batch_start": 9,
+            "batch_end": 9,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_5"
+            ],
+            "clue_state_by_id": {
+              "clue_5": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_5",
+                "chapter_number": 1,
+                "evidence_quote": "Kneeling down, Paul examined the floor around the clock. Dust motes floated in the dim light, swirling like the memories that haunted him. Then, he spotted them—footprints. They led directly to the clock but did not e...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 4,
+                  "sentence": 3
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy with",
+                "silent witness",
+                "thick fog",
+                "soft glow",
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7"
+              ],
+              "chapter_summary_count": 8
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5"
+              ],
+              "chapter_summary_count": 9
+            }
+          },
+          {
+            "batch_start": 10,
+            "batch_end": 10,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_6"
+            ],
+            "clue_state_by_id": {
+              "clue_6": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_6",
+                "chapter_number": 1,
+                "evidence_quote": "Audrey's breath hitched, and for a moment, Paul thought she might break. ‘I’m not hiding anything!’ she exclaimed, her voice rising defensively. ‘I was just doing my job, Paul. You know how it is…’ She trailed off, he...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 5,
+                  "sentence": 7
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich patina",
+                "thick with",
+                "still ticking",
+                "warm glow",
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5"
+              ],
+              "chapter_summary_count": 9
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 10
+            }
+          },
+          {
+            "batch_start": 11,
+            "batch_end": 11,
+            "chapters_generated": 1,
+            "validation_issue_count": 2,
+            "validation_issue_samples": [
+              "Chapter 11: Chapter 11 has repeated long boilerplate paragraph blocks (Paraphrase repeated long blocks and vary chapter opening language)",
+              "Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language."
+            ],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "rich mahogany",
+                "dark wood",
+                "damp earth",
+                "chill of",
+                "hard and",
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 10
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 11
+            }
+          },
+          {
+            "batch_start": 12,
+            "batch_end": 12,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy cloak",
+                "dark across",
+                "pale moonlight",
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 11
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 12
+            }
+          },
+          {
+            "batch_start": 13,
+            "batch_end": 13,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "chill that",
+                "faint aroma",
+                "dark and",
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 12
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 13
+            }
+          },
+          {
+            "batch_start": 14,
+            "batch_end": 14,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint scent",
+                "heavy oak",
+                "still and",
+                "dim light",
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 13
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 14
+            }
+          },
+          {
+            "batch_start": 15,
+            "batch_end": 15,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "faint mark",
+                "pale against",
+                "dark fabric",
+                "chill through",
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 14
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 15
+            }
+          },
+          {
+            "batch_start": 16,
+            "batch_end": 16,
+            "chapters_generated": 1,
+            "validation_issue_count": 1,
+            "validation_issue_samples": [
+              "Chapter 16: Chapter 16 opening block has weak sensory grounding (1 sensory markers found) (Include at least two sensory cues (sound/smell/tactile/visual) in the opening block)"
+            ],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy wooden",
+                "thick with",
+                "faint perfume",
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 15
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 16
+            }
+          },
+          {
+            "batch_start": 17,
+            "batch_end": 17,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "temporal-subordinate",
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive"
+              ],
+              "used_sensory_phrases_tail": [
+                "sharp as",
+                "heavy fog",
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 16
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a",
+                "sharp edge",
+                "still seated"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 17
+            }
+          },
+          {
+            "batch_start": 18,
+            "batch_end": 18,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "general-descriptive",
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "silent for",
+                "heavy scent",
+                "heavy and",
+                "still ticking",
+                "rich mahogany",
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a",
+                "sharp edge",
+                "still seated"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 17
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a",
+                "sharp edge",
+                "still seated",
+                "thick with",
+                "heavy curtain",
+                "silent until",
+                "still make",
+                "heavy with"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 18
+            }
+          },
+          {
+            "batch_start": 19,
+            "batch_end": 19,
+            "chapters_generated": 1,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "heavy cloak",
+                "still reverberated",
+                "faint traces",
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a",
+                "sharp edge",
+                "still seated",
+                "thick with",
+                "heavy curtain",
+                "silent until",
+                "still make",
+                "heavy with"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 18
+            },
+            "after": {
+              "used_opening_styles_tail": [
+                "time-anchor",
+                "time-anchor",
+                "general-descriptive",
+                "general-descriptive",
+                "general-descriptive",
+                "temporal-subordinate",
+                "temporal-subordinate",
+                "temporal-subordinate"
+              ],
+              "used_sensory_phrases_tail": [
+                "raw and",
+                "heavy in",
+                "heavy shroud",
+                "warm glow",
+                "faint rustle",
+                "chill that",
+                "silent witness",
+                "faint aroma",
+                "still loomed",
+                "still a",
+                "sharp edge",
+                "still seated",
+                "thick with",
+                "heavy curtain",
+                "silent until",
+                "still make",
+                "heavy with",
+                "pale and",
+                "dim light",
+                "chill of"
+              ],
+              "clues_revealed_to_reader": [
+                "clue_4",
+                "clue_1",
+                "clue_2",
+                "clue_3",
+                "clue_8",
+                "clue_7",
+                "clue_5",
+                "clue_6"
+              ],
+              "chapter_summary_count": 19
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "agent9_prose_prompt_fingerprints",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "prompt_fingerprints",
+      "captured_at": "2026-03-18T21:06:05.715Z",
+      "details": {
+        "chapter_count": 19,
+        "fingerprints": [
+          {
+            "chapter": 1,
+            "hash": "2f6665847e66b5fb",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 553,
+              "narrative_state": 523,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 278
+            }
+          },
+          {
+            "chapter": 2,
+            "hash": "b7ac05574f23a428",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 756,
+              "narrative_state": 1478,
+              "continuity_context": 1365,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 256,
+              "provisional_scoring_feedback": 548
+            }
+          },
+          {
+            "chapter": 3,
+            "hash": "612f13a0a06faf3c",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 728,
+              "narrative_state": 1584,
+              "continuity_context": 1518,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 243,
+              "provisional_scoring_feedback": 910
+            }
+          },
+          {
+            "chapter": 4,
+            "hash": "a6bd19512035d6bf",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 553,
+              "narrative_state": 1679,
+              "continuity_context": 1716,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 247,
+              "provisional_scoring_feedback": 911
+            }
+          },
+          {
+            "chapter": 5,
+            "hash": "b63e023559f01f60",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1768,
+              "continuity_context": 1704,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 246,
+              "provisional_scoring_feedback": 911
+            }
+          },
+          {
+            "chapter": 6,
+            "hash": "845fb75580984205",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1816,
+              "continuity_context": 1716,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 240,
+              "provisional_scoring_feedback": 911
+            }
+          },
+          {
+            "chapter": 7,
+            "hash": "64c3dcce1518d91f",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 5805,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 543,
+              "narrative_state": 1822,
+              "continuity_context": 1744,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 238,
+              "provisional_scoring_feedback": 778
+            }
+          },
+          {
+            "chapter": 8,
+            "hash": "43e9bce271a05546",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 550,
+              "narrative_state": 1840,
+              "continuity_context": 1742,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 243,
+              "provisional_scoring_feedback": 613
+            }
+          },
+          {
+            "chapter": 9,
+            "hash": "b3688a9185b5fd8f",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 554,
+              "narrative_state": 1854,
+              "continuity_context": 1766,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 240,
+              "provisional_scoring_feedback": 581
+            }
+          },
+          {
+            "chapter": 10,
+            "hash": "b25e8964ce45d69e",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 545,
+              "narrative_state": 1851,
+              "continuity_context": 1782,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 248,
+              "provisional_scoring_feedback": 746
+            }
+          },
+          {
+            "chapter": 11,
+            "hash": "d461089798d84708",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1865,
+              "continuity_context": 1788,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 253,
+              "provisional_scoring_feedback": 746
+            }
+          },
+          {
+            "chapter": 12,
+            "hash": "e9aefc52d5d551fa",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1857,
+              "continuity_context": 1761,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 241,
+              "provisional_scoring_feedback": 747
+            }
+          },
+          {
+            "chapter": 13,
+            "hash": "b3a9c9d783f7a638",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 5806,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 554,
+              "narrative_state": 1845,
+              "continuity_context": 1718,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 239,
+              "provisional_scoring_feedback": 583
+            }
+          },
+          {
+            "chapter": 14,
+            "hash": "2b847928462a9aa7",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1828,
+              "continuity_context": 1664,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 747
+            }
+          },
+          {
+            "chapter": 15,
+            "hash": "06547a3466a22e9f",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 552,
+              "narrative_state": 1830,
+              "continuity_context": 1711,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 747
+            }
+          },
+          {
+            "chapter": 16,
+            "hash": "cc3d12e371a52f27",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 541,
+              "narrative_state": 1829,
+              "continuity_context": 1752,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 748
+            }
+          },
+          {
+            "chapter": 17,
+            "hash": "f4a9500348250734",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1842,
+              "continuity_context": 1796,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 748
+            }
+          },
+          {
+            "chapter": 18,
+            "hash": "5afb1f7184f5bff9",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "narrative_state": 1858,
+              "continuity_context": 1727,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 583
+            }
+          },
+          {
+            "chapter": 19,
+            "hash": "fa0b9b92b6387b1d",
+            "section_sizes": {
+              "character_consistency": 1009,
+              "character_personality": 7891,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4846,
+              "temporal_context": 3623,
+              "locked_facts": 642,
+              "clue_descriptions": 566,
+              "narrative_state": 1865,
+              "continuity_context": 1624,
+              "discriminating_test": 225,
+              "humour_guide": 3112,
+              "craft_guide": 2458,
+              "scene_grounding": 244,
+              "provisional_scoring_feedback": 583
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "agent9_prose_release_gate_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Release Gate",
+      "diagnostic_type": "release_gate_summary",
+      "captured_at": "2026-03-18T21:19:52.246Z",
+      "details": {
+        "validation_status": "failed",
+        "validation_summary": {
+          "totalIssues": 22,
+          "critical": 22,
+          "major": 0,
+          "moderate": 0,
+          "minor": 0
+        },
+        "validation_snapshots": {
+          "pre_repair": {
+            "totalIssues": 16,
+            "critical": 16,
+            "major": 0,
+            "moderate": 0,
+            "minor": 0
+          },
+          "post_repair": {
+            "totalIssues": 22,
+            "critical": 22,
+            "major": 0,
+            "moderate": 0,
+            "minor": 0
+          },
+          "release_gate": {
+            "totalIssues": 22,
+            "critical": 22,
+            "major": 0,
+            "moderate": 0,
+            "minor": 0
+          }
+        },
+        "release_gate_warning_count": 1,
+        "release_gate_hard_stop_count": 1,
+        "release_gate_warnings": [
+          "templated prose leakage detected (duplicate long blocks: 2, scaffold matches: 0)"
+        ],
+        "release_gate_hard_stops": [
+          "templated prose leakage detected"
+        ],
+        "readability": {
+          "denseChapterCount": 0,
+          "underParagraphCount": 0,
+          "severeParagraphBlocks": 0
+        },
+        "scene_grounding": {
+          "grounded": 19,
+          "total": 19,
+          "coverage": 1
+        },
+        "template_leakage": {
+          "duplicatedLongParagraphCount": 2,
+          "scaffoldCount": 0,
+          "hasLeakage": true
+        },
+        "temporal_consistency": {
+          "contradictions": 0,
+          "details": []
+        },
+        "placeholder_leakage": {
+          "roleSurnameCount": 0,
+          "standaloneCount": 0,
+          "genericRoleCount": 2,
+          "examples": [],
+          "severeLeakage": false,
+          "hasLeakage": false
+        },
+        "chapter_heading_artifacts": {
+          "duplicatedHeadingCount": 0,
+          "hasArtifacts": false
+        },
+        "sensory_variety": {
+          "overusedPhrases": [],
+          "hasExcessiveRepetition": false
+        },
+        "clue_visibility_expected_ids": [
+          "clue_early_1",
+          "clue_mid_1",
+          "clue_late_1",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8"
+        ],
+        "clue_visibility_extracted_ids": [
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8"
+        ],
+        "clue_visibility_missing_expected_ids": [
+          "clue_early_1",
+          "clue_mid_1",
+          "clue_late_1"
+        ],
+        "clue_visibility_unexpected_extracted_ids": [],
+        "clue_visibility_expected_count": 11,
+        "clue_visibility_extracted_count": 8,
+        "nsd_visibility_divergence": {
+          "diverged": false,
+          "revealed_count": 8,
+          "evidence_visible_count": 8,
+          "clue_state_by_id": {
+            "clue_early_1": "introduced",
+            "clue_mid_1": "introduced",
+            "clue_late_1": "introduced",
+            "clue_1": "confirmed",
+            "clue_2": "confirmed",
+            "clue_3": "confirmed",
+            "clue_4": "confirmed",
+            "clue_5": "confirmed",
+            "clue_6": "confirmed",
+            "clue_7": "confirmed",
+            "clue_8": "confirmed"
+          },
+          "revealed_without_evidence": [],
+          "evidence_without_reveal": [],
+          "sample_evidence_anchors": [
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 1,
+              "evidence_quote": "Alastair stood near the grand clock that dominated the hall, its brass pendulum swinging steadily, a stark contrast to the chaos that had unfolded. He stared at the clock’s face, lost in thought, as if it held the ans...",
+              "evidence_offset": {
+                "chapter": 1,
+                "paragraph": 2,
+                "sentence": 1
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 2,
+              "evidence_quote": "Under overcast with intermittent rain, typical of the english countryside in early autumn. skies, The Dining Room in Elderwood Village, England felt sharply tense and foreboding, as the backdrop of recent wartime even...",
+              "evidence_offset": {
+                "chapter": 2,
+                "paragraph": 1,
+                "sentence": 4
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 3,
+              "evidence_quote": "Paul Wenlock stood by the grand fireplace, his gaze drawn to the ornate clock mounted above it. Its hands, frozen in time, marked the hour as 'ten minutes past eleven,' a stark reminder of the events that had transpir...",
+              "evidence_offset": {
+                "chapter": 3,
+                "paragraph": 2,
+                "sentence": 1
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 4,
+              "evidence_quote": "This inconsistency suggests that the clock may have been tampered with. The implications of this realization weighed heavily on Paul. If the clock had indeed been altered, it could mean that the timeline of events sur...",
+              "evidence_offset": {
+                "chapter": 4,
+                "paragraph": 4,
+                "sentence": 1
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 5,
+              "evidence_quote": "Is everything alright?” Her gaze flickered back toward the manor, a fleeting shadow of turmoil crossing her features before she masked it with a practiced smile. “Oh, I’m just... contemplating the beauty of the garden...",
+              "evidence_offset": {
+                "chapter": 5,
+                "paragraph": 3,
+                "sentence": 4
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 6,
+              "evidence_quote": "The night had settled over Little Middleton like a heavy cloak, its shadows stretching long and dark across the cobbled streets. In the main hall of Elderwood Manor, the flickering light of a solitary candle danced ag...",
+              "evidence_offset": {
+                "chapter": 6,
+                "paragraph": 1,
+                "sentence": 2
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 7,
+              "evidence_quote": "As Barry settled into the chair, Paul noted the way his hands rested on his knees, fingers interlaced as if to brace himself against the scrutiny that was about to come. The contrast between Barry’s outward calm and t...",
+              "evidence_offset": {
+                "chapter": 7,
+                "paragraph": 4,
+                "sentence": 11
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            },
+            {
+              "clue_id": "clue_1",
+              "chapter_number": 8,
+              "evidence_quote": "They both understood that the path ahead would be fraught with challenges, but the connection forged in that moment would guide them as they navigated the murky waters of love, loyalty, and betrayal. Paul knew that Cy...",
+              "evidence_offset": {
+                "chapter": 8,
+                "paragraph": 9,
+                "sentence": 3
+              },
+              "confidence": 0.9,
+              "state": "confirmed"
+            }
+          ]
+        },
+        "has_illegal_control_chars": false,
+        "has_mojibake": false,
+        "fair_play_status": "pass"
+      }
+    },
+    {
+      "key": "agent9_prose_failure_lineage",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "failure_lineage",
+      "captured_at": "2026-03-18T21:19:52.248Z",
+      "details": {
+        "first_failing_chapter": 11,
+        "error_classes": [
+          "validation_error",
+          "temporal"
+        ],
+        "corrective_attempts": 1,
+        "final_blocking_reason": "templated prose leakage detected"
+      }
+    }
+  ],
+  "validation_snapshots": {
+    "pre_repair": {
+      "total": 16,
+      "critical": 16,
+      "major": 0,
+      "moderate": 0,
+      "minor": 0
+    },
+    "post_repair": {
+      "total": 22,
+      "critical": 22,
+      "major": 0,
+      "moderate": 0,
+      "minor": 0
+    },
+    "release_gate": {
+      "total": 22,
+      "critical": 22,
+      "major": 0,
+      "moderate": 0,
+      "minor": 0
+    }
+  },
+  "validation_reconciliation": {
+    "pre_total": 16,
+    "release_gate_total": 22,
+    "resolved_delta": 0
+  },
+  "summary": {
+    "phases_passed": 13,
+    "phases_failed": 0,
+    "total_phases": 13,
+    "pass_rate": 100,
+    "weakest_phase": "Prose Generation",
+    "strongest_phase": "Temporal Context",
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.111
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "in_progress": false,
+  "aborted": true,
+  "abort_reason": "Release gate hard-stop: templated prose leakage detected"
+}

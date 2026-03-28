@@ -464,3 +464,68 @@ Applied consistently across all four validation paths:
 ### Fix F2 — Lower `requiredMatches` floor from 2 to 1
 
 Changed `Math.max(2, Math.ceil(tokens.length * 0.4))` → `Math.max(1, Math.ceil(tokens.length * 0.4))` across all paths. For small token pools (2–3 tokens), this makes a single content-bearing token match sufficient. This fixes the threshold arithmetic for all clues with short descriptions, not just genre labels.
+
+---
+
+## Error G — All characters mapped to they/them/their (45 critical pronoun errors)
+
+### Symptom
+
+Post-prose validation reports 45 `pronoun_gender_mismatch` critical errors. Every character — including obviously gendered names like "Claire Llewellyn" (female), "Owen Jones" (male) — is flagged as requiring `they/them/their`. The prose generator's prompt log confirms:
+
+```
+CHARACTER PRONOUNS — never deviate from these:
+  • Geraint James: they/them/their
+  • Claire Llewellyn: they/them/their
+  • Tegwen Bowen: they/them/their
+  • Owen Jones: they/them/their
+  • Jennifer Richards: they/them/their
+```
+
+The LLM naturally writes gendered pronouns (she/her, he/him) for these names, creating a conflict with the they/them instruction.
+
+### Root cause
+
+**Case-sensitive gender normalization in Agent 2 output parser + cascading `'non-binary'` defaults at every pipeline stage.**
+
+The Agent 2 cast design prompt instructs the LLM to declare `gender` for each character. The LLM typically outputs `"Male"` or `"Female"` (capitalised). The parser in `agent2-cast.ts` line 590 checks:
+
+```typescript
+['male', 'female', 'non-binary'].includes(char.gender)
+```
+
+This is **case-sensitive**. `"Male"` does not match `"male"`, so the check fails and defaults to `'non-binary'`. This bad value then flows downstream through four reinforcing defaults:
+
+| # | File | Default | Effect |
+|---|------|---------|--------|
+| G1 | `agent2-cast.ts:590` | Case-sensitive includes → `'non-binary'` | LLM output misclassified |
+| G2 | `agent2-cast.ts:641` | `char.gender \|\| 'non-binary'` | Backstop re-defaults |
+| G3 | `agent3-run.ts:37,182` | `c.gender ?? "non-binary"` | castGenders passed to CML builder |
+| G4 | `agent3-cml.ts:525` | `\|\| 'non-binary'` | CML CASE.cast gender baked in |
+| G5 | `agent9-run.ts:802` | `c.gender ?? "non-binary"` | Prose prompt gender map |
+| G6 | `narrative-state.ts:78` | Else → `'they/them/their'` | Catch-all pronoun default |
+
+Each layer independently defaults to `'non-binary'` or `they/them/their`, making the error resilient even if one layer were fixed alone.
+
+### Fix G — Case-insensitive normalization + remove incorrect defaults
+
+**G1 (`agent2-cast.ts:590`)**: Made the gender check case-insensitive by lowercasing before validation. Unrecognised values now yield `undefined` (not `'non-binary'`).
+
+**G2 (`agent2-cast.ts:641`)**: Changed "ensure every character has gender" block to normalize recognised values and pass through `undefined` for unrecognised, instead of blanket-defaulting to `'non-binary'`.
+
+**G3 (`agent3-run.ts:37,182`)**: Changed `castGenders` construction to only include characters with actual gender values: `.filter((c) => c.gender)` instead of `?? "non-binary"`.
+
+**G4 (`agent3-cml.ts:525`)**: Replaced `ensureString(existing.gender, ... || 'non-binary')` with a pass-through that yields `undefined` when no gender is set.
+
+**G5 (`agent9-run.ts:802`)**: Changed `characterGenderMap` to only include characters with declared gender: `.filter((c) => c.gender)` instead of `?? "non-binary"`.
+
+**G6 (`narrative-state.ts:78`)**: Changed `initNarrativeState` to only emit pronoun instructions for characters with recognised gender (`male`/`female`/`non-binary`). Characters with unknown gender are omitted from the CHARACTER PRONOUNS block, allowing prose to use natural gender cues from names and context.
+
+Also fixed the Agent 3 CML prompt (line 361) to only list gender for characters that have one, removing the `|| 'non-binary'` inline default.
+
+### Effect
+
+- Characters with LLM-declared gender (e.g., `"Male"`, `"Female"`) are now correctly normalised to `male`/`female`.
+- Characters without declared gender produce no pronoun instruction in the prose prompt, allowing the LLM to assign natural pronouns.
+- The `CharacterConsistencyValidator` already returns `'unknown'` for undefined gender and skips pronoun checks — this is correct and requires no change.
+- Net result: no more false `pronoun_gender_mismatch` errors from misclassified genders.

@@ -41,6 +41,12 @@ retry_limits:
     backoff_strategy: exponential
     backoff_delay_ms: 1000
     
+  agent65-world-builder:
+    max_retries: 1
+    backoff_strategy: none
+    backoff_delay_ms: 5000
+    reason: "World Builder has internal retry; one phase-level retry is sufficient"
+    
   agent8-setting-refinement:
     max_retries: 3
     backoff_strategy: linear

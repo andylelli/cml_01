@@ -249,6 +249,42 @@ Runtime parameterization (implemented): Agent generation/scoring tuning values a
 - Non-prose agents use `AZURE_OPENAI_DEPLOYMENT_NAME` (default deployment)
 - Prose generation (Agent 9) uses `AZURE_OPENAI_DEPLOYMENT_NAME_PROSE` when set; otherwise it falls back to `AZURE_OPENAI_DEPLOYMENT_NAME`
 
+### Per-agent model parameters (`apps/worker/config/generation-params.yaml`)
+
+All values are runtime-loaded and range-clamped. Override path via `CML_GENERATION_PARAMS_PATH`.
+
+| Agent                 | temperature | max_tokens | default_max_attempts | Notes                              |
+|-----------------------|:-----------:|:----------:|:--------------------:|------------------------------------|
+| Agent 1 (Setting)     | 0.6         | 2 000      | 3                    |                                    |
+| Agent 2 (Cast)        | 0.75        | 6 000      | 3                    | 6 000 for 7-char fully-detailed output |
+| Agent 2b (Profiles)   | 0.6         | 8 000      | 3                    |                                    |
+| Agent 2c (Locations)  | 0.6         | 4 500      | 2                    |                                    |
+| Agent 2d (Temporal)   | 0.7         | 4 500      | 2                    |                                    |
+| Agent 2e (Background) | 0.4         | 1 200      | 2                    | Low temp — factual grounding       |
+| Agent 3 (CML)         | —           | —          | 3                    | Uses default deployment            |
+| Agent 3b (HLD)        | 0.7         | 2 600      | 3                    |                                    |
+| Agent 4 (CML Revision)| 0.5         | 8 000      | 5                    | More retries for structural fix    |
+| Agent 5 (Clues)       | 0.4         | 3 000      | —                    |                                    |
+| Agent 6 audit model   | 0.3         | 2 500      | —                    | max retries: 2 (3 with targeted)   |
+| Agent 6 blind reader  | 0.2         | 1 500      | —                    | Fair-play cost cap: $0.15          |
+| Agent 7 (Narrative)   | 0.5         | 16 000     | —                    | Scene-count lock on retry          |
+| Agent 8 (Novelty)     | 0.3         | 2 500      | —                    |                                    |
+| Agent 9 (Prose)       | 0.42        | —          | 4                    | `DEPLOYMENT_NAME_PROSE` if set     |
+
+### Agent 9 prose word policy
+
+```
+hard_floor = floor(preferred_chapter_words × hard_floor_relaxation_ratio)
+           = floor(preferred × 0.6),  min 600 words
+
+preferred_chapter_words:
+  short:  1 300 words/chapter
+  medium: 1 600 words/chapter
+  long:   2 400 words/chapter
+
+Underflow expansion hint: +260 … +900 words, temperature 0.18, max_tokens 3 000
+```
+
 ## Prompting strategy
 - System + developer instructions per agent
 - Strict JSON schema in prompt output section
@@ -275,6 +311,45 @@ Runtime parameterization (implemented): Agent generation/scoring tuning values a
 - Release gate enforcement now hard-stops on critical prose defects (mojibake/encoding corruption, template leakage, temporal contradictions, unresolved placeholder-token leakage, duplicate chapter-heading artifacts, unresolved suspect-closure gaps) and keeps readability/scene-grounding shortfalls as warnings for review.
 - Release gate enforcement now also hard-stops when NSD marks clue reveals that prose evidence extraction cannot anchor (`revealed_without_evidence > 0`).
 
+### Validation types
+
+```typescript
+// packages/story-validation/src/types.ts
+interface ValidationError {
+  type:        string;
+  message:     string;
+  severity:   'critical' | 'major' | 'moderate' | 'minor';
+  sceneNumber?:  number;
+  lineNumber?:   number;
+  suggestion?:   string;
+  cmlReference?: string;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors:    ValidationError[];
+  warnings?: ValidationError[];
+}
+```
+
+### Story validation pipeline validators
+
+| Validator                         | File                                       | Fatal on failure? |
+|-----------------------------------|--------------------------------------------|:-----------------:|
+| `ChapterValidator`                | `chapter-validator.ts`                     | Yes (retry)       |
+| `CharacterValidator`              | `character-validator.ts`                   | Yes               |
+| `NarrativeContinuityValidator`    | `narrative-continuity-validator.ts`        | Yes               |
+| `CaseTransitionValidator`         | `case-transition-validator.ts`             | Yes               |
+| `DiscriminatingTestValidator`     | `discriminating-test-validator.ts`         | Yes               |
+| `SuspectClosureValidator`         | `suspect-closure-validator.ts`             | Yes               |
+| `ProseConsistencyValidator`       | `prose-consistency-validator.ts`           | Moderate/Critical |
+| `EraValidator`                    | `era-validator.ts`                         | Yes               |
+| `PhysicalValidator`               | `physical-validator.ts`                    | Yes               |
+| `EncodingValidator`               | `encoding-validator.ts`                    | Yes               |
+| `TimelineValidator`               | `timeline-validator.ts`                    | Advisory          |
+
+`StoryValidationPipeline.validate()` runs all validators and returns a `ValidationReport` with `status: 'passed' | 'needs_revision' | 'failed'`.
+
 ## Safety & compliance
 - Avoid copyrighted text replication
 - Style capture applied to prose only
@@ -290,6 +365,45 @@ Runtime parameterization (implemented): Agent generation/scoring tuning values a
 - Cost tracking uses model-aware rates (GPT-4, GPT-4o, GPT-4o-mini) to avoid inflated estimates when running mini deployments
 - Current defaults use Sweden Central GPT-4o-mini regional rates in GBP
 - Advanced UI exposes LLM operational logs (metadata only; raw prompts/responses are not stored)
+
+### Cost accounting fields (`GenerationReport`)
+
+```typescript
+// Post-generation summary in diagnostics[].details
+{
+  prose_duration_ms_first_pass: number;
+  prose_duration_ms_total:      number;
+  prose_cost_first_pass:        number;
+  prose_cost_total:             number;
+  rewrite_pass_count:           number;
+  repair_pass_count:            number;
+  per_pass_accounting:          Array<{ pass: string; cost: number; duration_ms: number }>;
+}
+```
+
+### Story length targets (single source of truth: `packages/story-validation/src/story-length-targets.ts`)
+
+```typescript
+const STORY_LENGTH_TARGETS = {
+  short:  { scenes: 20, chapters: 20, minWords: 15_000, maxWords:  25_000, chapterMinWords:   800, chapterIdealWords: 1_000 },
+  medium: { scenes: 30, chapters: 30, minWords: 40_000, maxWords:  60_000, chapterMinWords: 1_200, chapterIdealWords: 1_700 },
+  long:   { scenes: 42, chapters: 42, minWords: 70_000, maxWords: 100_000, chapterMinWords: 1_500, chapterIdealWords: 2_200 },
+} as const;
+```
+
+`scenes === chapters` is enforced by a compile-time TypeScript assertion. All packages must import these values from this file; do not hardcode scene/chapter counts elsewhere.
+
+### Novelty audit weights (`agent8_novelty`)
+
+| Category   | Weight |
+|------------|:------:|
+| `plot`     | 0.30   |
+| `character`| 0.25   |
+| `solution` | 0.25   |
+| `setting`  | 0.15   |
+| `structural`| 0.05  |
+
+Default threshold: 0.9 (higher = more lenient). `fail_delta`: 0.1 above threshold triggers hard fail when `NOVELTY_HARD_FAIL=true`.
 
 ## Failure handling
 - Retry policy with exponential backoff

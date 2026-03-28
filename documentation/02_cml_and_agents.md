@@ -15,6 +15,39 @@ Use schema/cml_2_0.schema.yaml. Generated CML must include:
 
 If additional values are needed, update schema explicitly or normalize to allowed values.
 
+### CMLData runtime interface
+
+```typescript
+// packages/story-validation/src/types.ts (shared by all validators and scorers)
+interface CMLData {
+  CASE: {
+    meta:   { era?: { decade?: string }; setting?: { location?: string }; crime_class?: { victim_identity_status?: string } };
+    cast:   Array<{ name: string; role_archetype: string; gender?: string }>;
+    crime_scene?:       { primary_location: string; location_type: 'interior' | 'exterior' };
+    discriminating_test?: { method?: string; design?: string; pass_condition?: string };
+    culpability?:       { culprits: string[] };
+  };
+  /** Locked ground-truth evidence facts from hard-logic devices; validated verbatim in prose. */
+  lockedFacts?: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
+  /** Location profiles from Agent 2c — used for cross-chapter location name consistency. */
+  locationProfiles?: {
+    primary?:     { name?: string };
+    keyLocations?: Array<{ name: string; id?: string }>;
+  };
+}
+```
+
+### Clue state progression
+
+Clue states used in NSD transfer traces and release-gate diagnostics:
+
+| State         | Meaning                                                    |
+|---------------|------------------------------------------------------------|
+| `introduced`  | Clue first appears in prose scene                          |
+| `hinted`      | Indirect reference without naming the clue                 |
+| `explicit`    | Clue named and described directly                          |
+| `confirmed`   | Clue conclusively established with corroborating evidence  |
+
 ## Sample CML awareness
 - Load examples/ at startup.
 - Use samples as structural inspiration only (classic crime structure), never copy content or plot.
@@ -44,6 +77,27 @@ If additional values are needed, update schema explicitly or normalize to allowe
 - Records retry history for debugging
 - Returns detailed validation results (errors, warnings, attempt count)
 - On retry exhaustion, returns the actual last-attempt artifact (no extra generation call)
+
+```typescript
+// packages/prompts-llm/src/utils/validation-retry-wrapper.ts
+
+interface RetryConfig<T> {
+  maxAttempts: number;
+  agentName:   string;
+  validationFn: (data: T) => ValidationResult;
+  generateFn:   (attempt: number, previousErrors?: string[]) => Promise<{ result: T; cost: number }>;
+}
+
+interface RetryResult<T> {
+  result:          T;
+  totalCost:       number;
+  attempts:        number;
+  validationResult: ValidationResult;
+  retryHistory:    Array<{ attempt: number; errors: string[]; warnings: string[] }>;
+}
+
+// Usage: await withValidationRetry({ maxAttempts: 2, agentName: 'Agent 2b', ... })
+```
 
 ### Agent 1 — Era & Setting
 Outputs era constraints: tech, policing, social norms, travel, communication.
@@ -198,6 +252,35 @@ Legacy culprit fallback references now avoid `character_id` and rely on canonica
 ### Agent 9 — Prose Generator (LLM)
 Generates novel-quality prose with full context integration:
 - Input: outline + CML + cast + character profiles + location profiles + temporal context
+
+### NarrativeState (threaded through prose batches)
+
+```typescript
+// packages/prompts-llm/src/types/narrative-state.ts
+
+interface NarrativeState {
+  version: 1;
+  /** Ground-truth physical evidence values — prose must never contradict. */
+  lockedFacts: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
+  /** character name → "he/him/his" | "she/her/her" | "they/them/their" */
+  characterPronouns: Record<string, string>;
+  /** Opening-sentence style classes used so far — keeps last 8, oldest first.
+   *  Classes: dialogue-open | noun-phrase-atmosphere | expository-setup |
+   *           temporal-subordinate | character-action | time-anchor | general-descriptive */
+  usedOpeningStyles: string[];
+  /** Adjective+noun sensory phrases used so far — keeps last 20, oldest first. */
+  usedSensoryPhrases: string[];
+  /** Clue IDs already revealed to the reader. */
+  cluesRevealedToReader: string[];
+  /** Brief per-chapter summaries accumulated as each batch completes. */
+  chapterSummaries: Array<{ chapterNumber: number; summary: string }>;
+}
+
+// Lifecycle:
+// 1. initNarrativeState(lockedFacts, characterGenders) — before first prose call
+// 2. buildNSDBlock(state)       — formats into Agent 9 system prompt
+// 3. updateNSD(state, chapters) — returns new state after each committed batch
+```
 - Output: 3-6 paragraphs per chapter with varied pacing
 - Prompt hardening (implemented): each batch now includes a positive per-chapter obligation contract plus a frozen timeline-state block, so required clues, locked evidence phrases, location anchors, suspect-clearance beats, and month/season constraints are stated as concrete obligations rather than negative warnings.
 - Locked-fact phrasing hardening (implemented): prompt language now tells the model to use exact locked evidence phrases verbatim when referenced, instead of framing them only as contradictions to avoid.

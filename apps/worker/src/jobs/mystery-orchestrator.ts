@@ -8,9 +8,10 @@
  *   Agent1 (Setting) → Agent2 (Cast) → Agent2e (Background Context)
  *   → Agent3b (Hard Logic Devices) → Agent3 (CML + Agent4 auto-revision)
  *   → Agent5 (Clue Distribution) → Agent6 (Fair Play + clue loop)
- *   → Agent7 (Narrative Outline) → Agent2b (Character Profiles)
- *   → Agent2c (Location Profiles) → Agent2d (Temporal Context)
- *   → [CML Validation Gate] → Agent9 (Prose + Release Gate)
+ *   → Agent2b (Character Profiles) → Agent2c (Location Profiles)
+ *   → Agent2d (Temporal Context) → [CML Validation Gate]
+ *   → Agent6.5 (World Builder) → Agent7 (Narrative Outline)
+ *   → Agent9 (Prose + Release Gate)
  */
 
 import { join } from "path";
@@ -31,6 +32,7 @@ import type {
   NoveltyAuditResult,
   SettingRefinementResult,
   CastDesignResult,
+  WorldDocumentResult,
 } from "@cml/prompts-llm";
 import {
   ScoreAggregator,
@@ -51,6 +53,7 @@ import {
   runAgent5,
   runAgent6,
   runAgent7,
+  runAgent65,
   runAgent9,
   describeError,
   applyAbortedRunMetadata,
@@ -61,8 +64,6 @@ import {
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,
   applyDeterministicProsePostProcessing,
-  detectIdentityAliasBreaks,
-  buildNarrativeSubsetForChapterIndexes,
   isDiscriminatingTestCoverageError,
   isSuspectClosureCoverageError,
   isCulpritEvidenceChainCoverageError,
@@ -118,6 +119,7 @@ export interface MysteryGenerationProgress {
     | "profiles"
     | "location-profiles"
     | "temporal-context"
+    | "world-builder"
     | "prose"
     | "validation"
     | "novelty"
@@ -137,6 +139,7 @@ export interface MysteryGenerationResult {
   characterProfiles: CharacterProfilesResult;
   locationProfiles: LocationProfilesResult;
   temporalContext: TemporalContextResult;
+  worldDocument?: WorldDocumentResult;
   backgroundContext: BackgroundContextArtifact;
   hardLogicDevices: HardLogicDeviceResult;
   prose: ProseGenerationResult;
@@ -321,7 +324,6 @@ export async function generateMystery(
     await runAgent3(ctx);   // CML Generator (+ Agent 4 auto-revision)
     await runAgent5(ctx);   // Clue Distributor
     await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
-    await runAgent7(ctx);   // Narrative Outliner
     await runAgent2b(ctx);  // Character Profiles
     await runAgent2c(ctx);  // Location Profiles
     await runAgent2d(ctx);  // Temporal Context
@@ -424,6 +426,10 @@ export async function generateMystery(
       throw new Error(errorMsg);
     }
 
+    // ── World Builder + Narrative Outline ───────────────────────────────────
+    await runAgent65(ctx);  // World Document synthesis
+    await runAgent7(ctx);   // Narrative Outliner
+
     // ── Prose Generation + Release Gate ─────────────────────────────────────
     await runAgent9(ctx);
 
@@ -465,6 +471,7 @@ export async function generateMystery(
       characterProfiles: ctx.characterProfiles!,
       locationProfiles: ctx.locationProfiles!,
       temporalContext: ctx.temporalContext!,
+      worldDocument: ctx.worldDocument,
       backgroundContext: ctx.backgroundContext!,
       hardLogicDevices: ctx.hardLogicDevices!,
       prose: ctx.prose!,
@@ -638,8 +645,6 @@ export const __testables = {
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,
   applyDeterministicProsePostProcessing,
-  detectIdentityAliasBreaks,
-  buildNarrativeSubsetForChapterIndexes,
   isDiscriminatingTestCoverageError,
   isSuspectClosureCoverageError,
   isCulpritEvidenceChainCoverageError,

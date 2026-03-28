@@ -6,7 +6,63 @@ This document describes the current implementation of the mystery generation wor
 
 ## User Actions → API Endpoints
 
-### 1. Create Project
+### HTTP status code reference
+
+| Endpoint                                       | Success | Key error codes                              |
+|------------------------------------------------|:-------:|----------------------------------------------|
+| `POST /api/projects`                           | 201     | 400 (missing name)                           |
+| `GET /api/projects`                            | 200     | —                                            |
+| `GET /api/projects/:id`                        | 200     | 404 (not found)                              |
+| `POST /api/projects/:id/specs`                 | 200     | 404 (project not found)                      |
+| `POST /api/projects/:id/run`                   | 200     | 404 (project), 409 (already running)         |
+| `GET /api/projects/:id/runs/latest`            | 200     | — (returns `{ run: null }` for new projects) |
+| `GET /api/projects/:id/cml/latest`             | 200     | 403 (user mode), 404 (not found)             |
+| `POST /api/projects/:id/cml/validate`          | 200     | 403 (user mode)                              |
+| `GET /api/projects/:id/*/latest`               | 200     | 404 (artifact not found)                     |
+| `POST /api/projects/:id/regenerate`            | 200     | 400 (unsupported scope), 404                 |
+| `POST /api/projects/:id/export`                | 200     | 404 (project not found)                      |
+| `GET /api/projects/:id/prose/pdf`              | 200     | 404 (no prose)                               |
+| `GET /api/projects/:projectId/runs/:runId/report` | 200 | 202 (in-progress), 404 (not found), 409      |
+| `GET /api/projects/:projectId/reports/history` | 200    | —                                            |
+| `GET /api/reports/aggregate`                   | 200     | —                                            |
+| `POST /api/admin/clear-store`                  | 200     | —                                            |
+| `GET /api/samples`                             | 200     | —                                            |
+| `GET /api/samples/:name`                       | 200     | 404                                          |
+| `POST /api/logs`                               | 200     | —                                            |
+| `GET /api/logs`                                | 200     | —                                            |
+
+### Request body schemas
+
+```typescript
+// POST /api/projects
+{ name: string }
+
+// POST /api/projects/:id/specs
+{
+  theme?: string;
+  decade?: string;
+  locationPreset?: string;
+  tone?: string;
+  primaryAxis?: 'temporal'|'spatial'|'social'|'psychological'|'mechanical';
+  castSize?: number;
+  castNames?: string | string[];   // comma-separated string or array
+  detectiveType?: 'police'|'private'|'amateur';
+  targetLength?: 'short'|'medium'|'long';
+  narrativeStyle?: 'classic'|'modern'|'atmospheric';
+}
+
+// POST /api/projects/:id/run
+{ spec?: unknown }   // optional spec override; uses latest saved spec otherwise
+
+// POST /api/projects/:id/regenerate
+{ scope: 'setting'|'cast'|'character_profiles'|'cml'|'clues'|'outline'|'prose'|'game_pack'|'fair_play_report' }
+
+// POST /api/projects/:id/export
+{ artifactTypes: Array<'setting'|'cast'|'cml'|'clues'|'outline'|'fair_play_report'|'prose'|'game_pack'|'quality_report'|'scoring_report'|'narrative_state_trace'> }
+
+// POST /api/logs
+{ scope: string; message: string; payload?: unknown; projectId?: string }
+```
 - **Endpoint**: `POST /api/projects`
 - **Action**: Creates a new project with `idle` status
 - **Performance note**: project creation remains metadata-only in the Project tab; broad artifact loading is deferred until artifact/review views are requested.
@@ -38,6 +94,15 @@ This document describes the current implementation of the mystery generation wor
 - **Side Effects**: Creates a run record, sets project status to `running`
 - **Requirement**: Azure OpenAI credentials must be configured; no deterministic fallback artifacts are produced.
 - **UI Behavior**: Generate auto-saves the latest spec before starting the run.
+
+### Run record status values
+
+| Status      | Meaning                                                  |
+|-------------|----------------------------------------------------------|
+| `idle`      | Project created; no run started yet                      |
+| `running`   | Pipeline execution in progress                           |
+| `complete`  | Pipeline finished successfully (all release gates passed)|
+| `failed`    | Pipeline aborted due to unrecoverable error              |
 
 ### 4. Regenerate Artifact
 - **Endpoint**: `POST /api/projects/:id/regenerate`
@@ -274,6 +339,25 @@ Cost values in run events are reported in GBP.
 The web UI polls the latest run events while a run is active to show live progress in Run History.
 Progress indicators in the UI advance based on the latest run-event stage.
 Novelty run events include a `novelty_math` step that records the weighting, threshold, and most-similar seed score.
+
+### Standard run-event step values
+
+| Step                      | Emitted when                                         |
+|---------------------------|------------------------------------------------------|
+| `setting_done`            | Agent 1 completes                                    |
+| `cast_done`               | Agent 2 completes                                    |
+| `background_context_done` | Agent 2e completes                                   |
+| `hard_logic_devices_done` | Agent 3b completes                                   |
+| `cml_retry`               | Agent 3 CML failed validation, retrying              |
+| `cml_validated`           | Agent 4 validation passed                            |
+| `character_profiles_done` | Agent 2b completes                                   |
+| `clues_done`              | Agent 5 completes                                    |
+| `fair_play_report_done`   | Agent 6 completes                                    |
+| `synopsis_done`           | Synopsis derived from CML                            |
+| `novelty_audit_done`      | Agent 8 completes (includes `novelty_math` sub-step) |
+| `outline_done`            | Agent 7 completes                                    |
+| `prose_done`              | Agent 9 completes (`prose_done (<length> format)`)   |
+| `run_finished`            | Pipeline completes (success or failure)              |
 
 ## Server-Sent Events (SSE)
 

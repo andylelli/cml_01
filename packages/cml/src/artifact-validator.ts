@@ -21,6 +21,7 @@ type SchemaNode = {
   fields?: Record<string, SchemaNode>;
   items?: SchemaNode | "string" | "number" | "boolean" | "object" | "array";
   description?: string;
+  $ref?: string;
 };
 
 const schemaCache = new Map<string, Record<string, SchemaNode>>();
@@ -70,6 +71,15 @@ const validateNode = (
   if (value === undefined || value === null) {
     if (node.required) {
       errors.push(`${pathLabel} is required`);
+    }
+    return;
+  }
+
+  // $ref: delegate validation to the referenced schema file
+  if (node.$ref) {
+    const refSchema = loadArtifactSchema(node.$ref.replace(".schema.yaml", ""));
+    for (const [key, refNode] of Object.entries(refSchema)) {
+      validateNode(refNode, (value as Record<string, unknown>)[key], `${pathLabel}.${key}`, errors, warnings);
     }
     return;
   }

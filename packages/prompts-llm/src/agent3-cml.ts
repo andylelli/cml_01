@@ -358,7 +358,7 @@ Fill the "place" and "country" fields in meta.setting with specific location:
 **Cast Requirements**:
 - Cast Size: ${inputs.castSize} characters
 - Use these exact names: ${inputs.castNames.join(", ")}
-${inputs.castGenders && Object.keys(inputs.castGenders).length > 0 ? `- Gender per character (copy exactly into each cast item's gender field): ${inputs.castNames.map(n => `${n}: ${inputs.castGenders![n] || 'non-binary'}`).join(', ')}` : ''}
+${inputs.castGenders && Object.keys(inputs.castGenders).length > 0 ? `- Gender per character (copy exactly into each cast item's gender field): ${inputs.castNames.filter(n => inputs.castGenders![n]).map(n => `${n}: ${inputs.castGenders![n]}`).join(', ')}` : ''}
 - Detective Type: ${inputs.detectiveType}
 - Victim Archetype: ${inputs.victimArchetype}
 
@@ -522,7 +522,7 @@ export async function generateCML(
         evidence_sensitivity: ensureArray(existing.evidence_sensitivity),
         culprit_eligibility: normalizedEligibility,
         culpability: normalizedCulpability,
-        gender: ensureString(existing.gender, (inputs.castGenders?.[name]) || 'non-binary'),
+        gender: existing.gender || inputs.castGenders?.[name] || undefined,
       };
     });
     caseBlock.cast = normalizedCast;

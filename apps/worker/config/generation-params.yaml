@@ -132,6 +132,15 @@ agent7_narrative:
         act1_ratio: 0.28
         act2_ratio: 0.47
 
+agent65_world_builder:
+  status: implemented
+  params:
+    model:
+      temperature: 0.7
+      max_tokens: 6000
+    generation:
+      default_max_attempts: 2
+
 agent8_novelty:
   status: implemented
   params:

@@ -90,6 +90,33 @@ Latest-run endpoint behavior:
  - Phase 1 API skeleton reads `x-cml-mode` header to gate CML endpoints.
  - Phase 2 adds a CML validation endpoint that stores a `cml_validation` artifact.
 
+### Access control implementation
+
+The `withMode` middleware reads the `x-cml-mode` request header and attaches `req.cmlMode` as `'user' | 'advanced' | 'expert'`. Invalid values default to `'user'`.
+
+```typescript
+const ALLOWED_CML_MODES = new Set(['advanced', 'expert'] as const);
+
+const requireCmlAccess = (req, res, next) => {
+  if (req.cmlMode === 'advanced' || req.cmlMode === 'expert') { next(); return; }
+  res.status(403).json({ error: 'CML access requires Advanced or Expert mode', mode: req.cmlMode });
+};
+```
+
+CML-gated endpoints all pass through `requireCmlAccess`.
+
+### HTTP error codes
+
+| Condition                                              | Status |
+|--------------------------------------------------------|--------|
+| CML endpoint accessed without advanced/expert mode     | 403    |
+| Project not found                                      | 404    |
+| Run not found and no finalized fallback report         | 404    |
+| Run active, report not yet materialized                | 202    |
+| Run no longer active with only in-progress snapshot    | 409    |
+| Report unreadable but valid fallback exists            | 200 + `stale: true` |
+| Valid request, artifact found                          | 200    |
+
 ## Orchestration pattern
 State machine with retries:
 SPEC_READY → SETTING_DONE → CAST_DONE → HARD_LOGIC_DEVICES_DONE → CML_DRAFT → CML_VALIDATED → CHARACTER_PROFILES_DONE → CLUES_DONE → COVERAGE_GATE → FAIR_PLAY_AUDIT → BLIND_READER_CHECK → CML_RETRY_OR_PASS → OUTLINE_DONE → PROSE_DONE
@@ -98,6 +125,73 @@ Current behavior:
 - Run initiation creates a run record, sets project status to running, and starts the LLM pipeline.
 - Artifacts are written as each LLM step completes; no deterministic stub artifacts are created.
 - Pipeline execution requires Azure OpenAI credentials; no deterministic fallback artifacts are produced.
+
+### MysteryGenerationInputs type
+
+```typescript
+interface MysteryGenerationInputs {
+  theme: string;                       // required
+  eraPreference?: string;
+  locationPreset?: string;
+  tone?: string;
+  primaryAxis?: 'temporal' | 'spatial' | 'social' | 'psychological' | 'mechanical';
+  castSize?: number;                   // suspects + witnesses; detective always +1
+  castNames?: string[];
+  detectiveType?: 'police' | 'private' | 'amateur';
+  targetLength?: 'short' | 'medium' | 'long';
+  narrativeStyle?: 'classic' | 'modern' | 'atmospheric';
+  skipNoveltyCheck?: boolean;
+  similarityThreshold?: number;        // default 0.9
+  proseBatchSize?: number;             // chapters per LLM call, 1–10, default 1
+  runId?: string;
+  projectId?: string;
+}
+```
+
+### MysteryGenerationResult type
+
+```typescript
+interface MysteryGenerationResult {
+  cml: CaseData;
+  clues: ClueDistributionResult;
+  fairPlayAudit: FairPlayAuditResult;
+  narrative: NarrativeOutline;
+  characterProfiles: CharacterProfilesResult;
+  locationProfiles: LocationProfilesResult;
+  temporalContext: TemporalContextResult;
+  backgroundContext: BackgroundContextArtifact;
+  hardLogicDevices: HardLogicDeviceResult;
+  prose: ProseGenerationResult;
+  noveltyAudit?: NoveltyAuditResult;
+  validationReport: ValidationReport;
+  scoringReport?: GenerationReport;
+  setting: SettingRefinementResult;
+  cast: CastDesignResult;
+  metadata: {
+    runId: string;
+    projectId?: string;
+    totalCost: number;
+    totalDurationMs: number;
+    agentCosts: Record<string, number>;
+    agentDurations: Record<string, number>;
+    revisedByAgent4: boolean;
+    revisionAttempts?: number;
+  };
+  status: 'success' | 'warning' | 'failure';
+  warnings: string[];
+  errors: string[];
+}
+```
+
+### Pipeline progress stages
+
+`MysteryGenerationProgress.stage` values (in order):
+
+```
+setting → cast → background-context → hard_logic_devices → cml →
+clues → fairplay → narrative → profiles → location-profiles →
+temporal-context → prose → validation → novelty → novelty_math → complete
+```
 - Clue generation now includes a deterministic guardrail pass (essential clue placement, duplicate clue IDs, and detective-only clue phrasing checks) before fair-play auditing.
 - Fair-play audit retries clues once; unresolved fair-play violations are recorded as warnings and pipeline execution continues.
 - **Deterministic coverage gate (implemented):** Five guardrail functions (inference path coverage, contradiction pairs, false assumption contradiction, discriminating test reachability, suspect elimination) run after clue extraction. Critical gaps trigger one Agent 5 retry before the fair-play audit.
@@ -143,6 +237,10 @@ Current behavior:
 - Validation-driven full-prose repair now starts with a fresh NarrativeState baseline (locked facts + pronouns only), preventing stale opening-style tails from a failed first pass from biasing early repair chapters.
 - Validation-driven prose repair now runs in chapter-granular mode (`batchSize=1`, up to 3 attempts per repair chapter) to localize failures and avoid expensive full-batch restarts.
 - Best-effort Agent 9 scoring paths (rescore and repair scoring) now emit explicit run warnings on failure instead of silently swallowing errors, improving triage visibility without aborting generation.
+- **Quality gap audit (planned — ANALYSIS_12):** Systematic review of 20 validation and quality categories identified gaps in: chapter sequence validation, resolution guilt-attribution checks, clue repetition tracking, emotional beat deduplication, narrative mode consistency, motive stability enforcement, knowledge-state tracking, and hour-level timeline validation. See `documentation/analysis/ANALYSIS_12_generator_quality_gaps_and_remediation.md` for the full priority matrix and implementation plan.
+- **Prompt leakage filtering (implemented — ANALYSIS_12 Fix 2):** `checkTemplateLeakage()` in `chapter-validator.ts` now detects four additional leakage classes beyond the original scaffold pattern: metadata key-value lines (e.g. `Setting:`, `Mood:`), meta-language about storytelling technique (e.g. "narrative beat", "character arc"), instruction-shaped prose (imperative verbs + storytelling nouns), and low-verb-density atmosphere blocks (heuristic).
+- **Chapter sequence validation (implemented — ANALYSIS_12 Fix 3):** `validateChapterSequence()` in `chapter-validator.ts` performs cross-story chapter ordering checks (duplicate numbers, gaps in sequence, title format consistency) and is called from `StoryValidationPipeline.validate()` after all per-chapter validators complete.
+- **Location name consistency (implemented — ANALYSIS_12 Fix 4):** `validateLocationConsistency()` in `location-normalizer.ts` builds a canonical name registry from CML `locationProfiles` and flags non-canonical name variants in prose. `CMLData` type extended with optional `locationProfiles` field; both Agent 9 validation call sites now pass location profiles through.
 - Agent 9 template-linter now supports a repair profile that softens opening-style entropy checks during early repair chapters (warm-up window + reduced threshold), while retaining paragraph-fingerprint and n-gram leakage protections.
 - Validation-driven prose repair and release-gate suspect-elimination checks now share a unified classifier (type aliases + message fallback matching) so key-name drift cannot bypass repair guardrails.
 - Agent 9 opening-style entropy enforcement now uses an adaptive threshold curve in standard mode (lower early, canonical later) and no longer hard-stops prose on entropy-only residual failures after retries.
@@ -183,6 +281,7 @@ Derived friendly projections now include:
 
 PDF export notes:
 - Story PDF generation sanitizes paragraph content to avoid invalid PDF text tokens (non-string values and embedded newlines are normalized).
+- PDF text encoding uses WinAnsiEncoding with Helvetica — non-ASCII characters (smart quotes, em/en dashes, ellipses, bullets, accented letters) are encoded as PDF octal escapes via `encodePdfText()`, which maps Unicode code points to WinAnsiEncoding byte values. Characters outside WinAnsiEncoding fall back to `?`. This eliminates mojibake that previously occurred when UTF-8 multi-byte sequences were written into the Type1 font's single-byte encoding space.
 - Story and game pack PDFs wrap long lines and paginate across multiple pages.
 - Story and game pack PDFs render markdown-style headings for titles and sections.
 - Story PDF title resolution uses prose title first, then synopsis title, then project name fallback.
@@ -203,6 +302,68 @@ Functional policies:
 - The authoritative pass/fail decision uses `passesThreshold()` from `packages/story-validation/src/scoring/thresholds.ts`, which requires **both** the composite total to meet the per-phase threshold **and** every component to meet its minimum (60/50/60/50).
 - `executeAgentWithRetry()` in the worker orchestrator uses `ScoreAggregator.passesThreshold(score)` for retry decisions — **not** `score.passed` from the scorer — to ensure retry decisions are always consistent with the final quality report.
 - When a phase fails due to component minimums rather than a composite score shortfall, `getFailedComponents()` produces the failure reason fed into the retry prompt.
+
+### Phase composite thresholds
+
+| Agent key                  | Composite threshold | Notes                                  |
+|----------------------------|:-----------:|----------------------------------------|
+| `agent4-hard-logic`        | 85          | Hard-logic devices (strict)            |
+| `agent9-prose`             | 80          | Prose generation (strict)              |
+| `agent2-cast`              | 75          | Cast design                            |
+| `agent1-setting-refinement`| 75          | Setting refinement                     |
+| `agent2b-character-profiles`| 75         | Character profiles                     |
+| `agent2c-location-profiles`| 75          | Location profiles                      |
+| `agent7-narrative-outline` | 75          | Narrative outline                      |
+| `agent2d-temporal-context` | 70          | Temporal context (lenient)             |
+| `agent2e-background`       | 70          | Background context (lenient)           |
+| *(all others)*             | 75          | Default                                |
+
+### Component minimum floors (all phases)
+
+| Component           | Minimum |
+|---------------------|:-------:|
+| `validation_score`  | 60      |
+| `quality_score`     | 50      |
+| `completeness_score`| 60      |
+| `consistency_score` | 50      |
+
+### Scoring retry config (`apps/worker/config/retry-limits.yaml`)
+
+| Agent key             | max_retries | backoff_strategy | backoff_delay_ms |
+|-----------------------|:-----------:|-----------------|:----------------:|
+| `agent1-background`   | 2           | exponential      | 1000             |
+| `agent2-cast`         | 3           | linear           | 500              |
+| `agent3-character-profiles` | 3     | linear           | 500              |
+| `agent4-hard-logic`   | 4           | exponential      | 2000             |
+| `agent5-location-profiles` | 3      | linear           | 500              |
+| `agent6-temporal-context` | 2       | none             | 0                |
+| `agent7-narrative`    | 3           | exponential      | 1000             |
+| `agent8-setting-refinement` | 3     | linear           | 500              |
+| `agent9-prose`        | 2           | exponential      | 3000             |
+| Global max total retries | 15       | —               | —                |
+
+### GenerationReport canonical fields
+
+```typescript
+interface GenerationReport {
+  run_outcome: 'passed' | 'failed' | 'aborted';
+  run_outcome_reason?: string;
+  overall_score?: number;
+  overall_grade?: 'A' | 'B' | 'C' | 'D' | 'F';
+  passed: boolean;
+  scoring_outcome?: { passed: boolean; reason?: string };
+  release_gate_outcome?: { passed: boolean; reason?: string };
+  validation_snapshots?: {
+    pre_repair?:    { issue_count: number };
+    post_repair?:   { issue_count: number };
+    release_gate?:  { issue_count: number };
+  };
+  validation_reconciliation?: Record<string, number>;
+  diagnostics?: GenerationDiagnostic[];
+}
+```
+
+Report writes are gated by `validateGenerationReportInvariants()` in `packages/story-validation/src/scoring/report-invariants.ts`. Contradictory payloads are rejected (e.g. `run_outcome=passed` with `passed=false`, aborted run without reason, template-linter abort with zero `template_linter_failed_checks`, or NSD trace steps where revealed clue IDs lack evidence anchors).
 - `apps/worker/logs/scoring.jsonl` now includes structured `phase_diagnostic` events for Agent 9 prose runs:
   - `post_generation_summary`: score outcome, component failures, batch retry counts/failure samples, upstream coverage context, and scoped prose metrics (`prose_duration_ms_first_pass`, `prose_duration_ms_total`, `prose_cost_first_pass`, `prose_cost_total`) plus pass accounting (`rewrite_pass_count`, `repair_pass_count`, `per_pass_accounting`). Also includes online anti-template linter counters (`template_linter_checks_run`, `template_linter_failed_checks`, `template_linter_opening_style_entropy_failures`, `template_linter_paragraph_fingerprint_failures`, `template_linter_ngram_overlap_failures`), chapter-word underflow telemetry (`word_underflow_hard_floor_misses`, `word_underflow_preferred_target_misses`, per-class chapter indexes, expansion attempt/recovery/failure counts), and explicit fair-play component telemetry (`fair_play_all_clues_visible`, `fair_play_discriminating_test_complete`, `fair_play_no_solution_spoilers`, `fair_play_component_score`).
   - On aborted runs after prose starts, the orchestrator now writes a partial `post_generation_summary` snapshot (`metrics_snapshot: aborted_partial`) before saving the partial report, preventing empty-diagnostics failure reports.
@@ -252,12 +413,114 @@ Each job reads prior artifact, calls Azure OpenAI, validates output, writes new 
 - run_events(id, run_id, step, message, created_at)
 - activity_logs(id, project_id, scope, message, payload_json, created_at)
 
+### TypeScript repository interface
+
+```typescript
+type Project = { id: string; name: string; status: string; createdAt?: string };
+type Spec    = { id: string; projectId: string; spec: unknown };
+type ActivityLog = {
+  id: string; projectId: string | null; scope: string;
+  message: string; payload: unknown; createdAt: string;
+};
+
+type ProjectRepository = {
+  createProject(name: string): Promise<Project>;
+  listProjects(): Promise<Project[]>;
+  getProject(id: string): Promise<Project | null>;
+  createSpec(projectId: string, spec: unknown): Promise<Spec>;
+  getSpec(id: string): Promise<Spec | null>;
+  getLatestSpec(projectId: string): Promise<Spec | null>;
+  setProjectStatus(projectId: string, status: string): Promise<void>;
+  getProjectStatus(projectId: string): Promise<string>;
+  createRun(projectId: string, status: string): Promise<{ id: string; projectId: string; status: string }>;
+  updateRunStatus(runId: string, status: string): Promise<void>;
+  addRunEvent(runId: string, step: string, message: string): Promise<void>;
+  getLatestRun(projectId: string): Promise<{ id: string; projectId: string; status: string } | null>;
+  getRunEvents(runId: string): Promise<Array<{ step: string; message: string }>>;
+  createLog(log: Omit<ActivityLog, 'id' | 'createdAt'>): Promise<ActivityLog>;
+  listLogs(projectId?: string | null): Promise<ActivityLog[]>;
+  createArtifact(
+    projectId: string, type: string, payload: unknown, sourceSpecId?: string | null
+  ): Promise<{ id: string; projectId: string; type: string; payload: unknown }>;
+  getLatestArtifact(
+    projectId: string, type: string
+  ): Promise<{ id: string; projectId: string; type: string; payload: unknown } | null>;
+  clearAllData(): Promise<void>;
+};
+```
+
+### JSON file-backed store shape (`data/store.json`)
+
+```typescript
+type FileState = {
+  projects:  Record<string, Project>;
+  specs:     Record<string, Spec>;
+  specOrder: Array<{ id: string; projectId: string }>;
+  runs:      Record<string, { id: string; projectId: string; status: string }>;
+  runOrder:  Array<{ id: string; projectId: string }>;
+  runEvents: Array<{ runId: string; step: string; message: string }>;
+  artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }>;
+  logs:      ActivityLog[];
+};
+```
+
+Writes use atomic rename (`store.json.tmp` → `store.json`). Windows EPERM/EBUSY retries run up to 3 times with a 50 ms delay. Legacy `.tmp` files are removed at startup.
+
+### Artifact type registry
+
+| Artifact `type`        | Stored by agent | Schema YAML                          |
+|------------------------|-----------------|--------------------------------------|
+| `setting`              | Agent 1         | `setting_refinement.schema.yaml`     |
+| `setting_validation`   | Agent 1         | —                                    |
+| `cast`                 | Agent 2         | `cast_design.schema.yaml`            |
+| `cast_validation`      | Agent 2         | —                                    |
+| `character_profiles`   | Agent 2b        | `character_profiles.schema.yaml`     |
+| `location_profiles`    | Agent 2c        | `location_profiles.schema.yaml`      |
+| `temporal_context`     | Agent 2d        | `temporal_context.schema.yaml`       |
+| `background_context`   | Agent 2e        | `background_context.schema.yaml`     |
+| `hard_logic_devices`   | Agent 3b        | `hard_logic_devices.schema.yaml`     |
+| `cml`                  | Agent 3         | `cml_2_0.schema.yaml`                |
+| `cml_validation`       | Agent 4         | —                                    |
+| `clues`                | Agent 5         | —                                    |
+| `clues_validation`     | Agent 5         | —                                    |
+| `fair_play_report`     | Agent 6         | —                                    |
+| `outline`              | Agent 7         | `narrative_outline.schema.yaml`      |
+| `outline_validation`   | Agent 7         | —                                    |
+| `synopsis`             | Orchestrator    | —                                    |
+| `novelty_audit`        | Agent 8         | —                                    |
+| `prose_short`          | Agent 9         | `prose.schema.yaml`                  |
+| `prose_medium`         | Agent 9         | `prose.schema.yaml`                  |
+| `prose_long`           | Agent 9         | `prose.schema.yaml`                  |
+| `game_pack`            | Planned         | —                                    |
+
 ## Database runtime (Postgres in Docker)
 - Postgres is the primary datastore and is expected to run in Docker in local dev.
 - Services connect via `DATABASE_URL` (preferred) or split `PG*` environment variables.
 - The DB stores canonical CML, derived artifacts, versions, and run history.
 - When `DATABASE_URL` is not set, the API uses a simple JSON file-backed repository (default `data/store.json`, override with `CML_JSON_DB_PATH`).
 - The JSON file-backed repository writes directly to `store.json` with retry logic for missing directories and Windows file-lock errors (EPERM/EBUSY), and removes legacy `store.json.*.tmp` files at startup.
+
+## Environment variables
+
+| Variable                            | Required | Default                               | Description                                              |
+|-------------------------------------|----------|---------------------------------------|----------------------------------------------------------|
+| `AZURE_OPENAI_API_KEY`              | Yes      | —                                     | Azure OpenAI API key                                     |
+| `AZURE_OPENAI_ENDPOINT`             | Yes      | —                                     | Azure OpenAI endpoint URL                                |
+| `AZURE_OPENAI_DEPLOYMENT_NAME`      | Yes      | —                                     | Default deployment for agents 1–8                        |
+| `AZURE_OPENAI_DEPLOYMENT_NAME_PROSE`| No       | falls back to `DEPLOYMENT_NAME`       | Override deployment for Agent 9 prose generation         |
+| `AZURE_OPENAI_API_VERSION`          | No       | `2024-02-01`                          | API version string                                       |
+| `DATABASE_URL`                      | No       | —                                     | Postgres connection string; if unset uses JSON file store|
+| `CML_JSON_DB_PATH`                  | No       | `data/store.json`                     | JSON file-store path (when Postgres not configured)      |
+| `CML_GENERATION_PARAMS_PATH`        | No       | `apps/worker/config/generation-params.yaml` | Override central tuning params file             |
+| `ENABLE_SCORING`                    | No       | `false`                               | Set `true` to enable phase scoring and report generation |
+| `NOVELTY_SIMILARITY_THRESHOLD`      | No       | `0.9`                                 | Novelty audit pass threshold (higher = more lenient)     |
+| `NOVELTY_SKIP`                      | No       | `false`                               | Set `true` (or threshold ≥ 1.0) to bypass novelty check  |
+| `NOVELTY_HARD_FAIL`                 | No       | `false`                               | Set `true` to make similarity failures block pipeline    |
+| `LOG_LEVEL`                         | No       | `info`                                | LLM logger level (`debug`/`info`/`warn`/`error`)         |
+| `LOG_TO_FILE`                       | No       | `true`                                | Write LLM logs to `logs/activity.jsonl`                  |
+| `LOG_FILE_PATH`                     | No       | `logs/activity.jsonl`                 | Path for JSONL LLM log file                              |
+| `LOG_TO_CONSOLE`                    | No       | `false`                               | Mirror LLM log entries to stdout                         |
+| `PORT`                              | No       | `3000`                                | API server port                                          |
 
 Provenance fields to add if needed:
 - artifact_versions.prompt_version

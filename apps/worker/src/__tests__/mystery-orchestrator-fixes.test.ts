@@ -78,21 +78,6 @@ describe("mystery orchestrator fix coverage", () => {
     expect(processed.chapters[1].paragraphs[0]).not.toBe(repeated);
   });
 
-  it("identity alias detector flags role-only aliases after reveal", () => {
-    const prose = {
-      chapters: [
-        { paragraphs: ["John Smith confessed to the murder."] },
-        { paragraphs: ["The killer watched from the doorway."] },
-      ],
-    } as any;
-
-    const cml = { CASE: { culpability: { culprits: ["John Smith"] } } } as any;
-    const issues = __testables.detectIdentityAliasBreaks(prose, cml);
-
-    expect(issues.length).toBeGreaterThan(0);
-    expect(issues[0]?.chapterIndex).toBe(1);
-  });
-
   it("suspect elimination classifier recognizes alias error keys", () => {
     const err = { type: "suspect_elimination_coverage_incomplete", message: "coverage missing" };
     expect(__testables.isSuspectEliminationCoverageError(err)).toBe(true);

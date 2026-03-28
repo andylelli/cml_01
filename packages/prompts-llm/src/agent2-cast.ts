@@ -587,7 +587,7 @@ export async function designCast(
           accessPlausibility: char.accessPlausibility || "possible",
           stakes: char.stakes || "reputation",
           characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
-          gender: (['male', 'female', 'non-binary'].includes(char.gender) ? char.gender : 'non-binary') as 'male' | 'female' | 'non-binary',
+          gender: (() => { const g = String(char.gender ?? '').toLowerCase().trim(); return ['male', 'female', 'non-binary'].includes(g) ? g as 'male' | 'female' | 'non-binary' : undefined; })(),
           relationships: Array.isArray(char.relationships) ? char.relationships : [],
         }));
       }
@@ -635,10 +635,12 @@ export async function designCast(
         }
       }
 
-      // Ensure every character has a gender declaration (fallback to non-binary)
+      // Normalise gender declarations — keep only recognised values
       cast.characters = cast.characters.map((char: any) => ({
         ...char,
-        gender: (char.gender as string) || 'non-binary',
+        gender: (['male', 'female', 'non-binary'].includes(String(char.gender ?? '').toLowerCase().trim())
+          ? String(char.gender).toLowerCase().trim() as 'male' | 'female' | 'non-binary'
+          : undefined),
       }));
 
       // Success!
