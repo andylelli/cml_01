@@ -22,8 +22,8 @@ import {
   type NarrativeState,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline } from "@cml/story-validation";
-import type { PhaseScore } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns } from "@cml/story-validation";
+import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
   collectClueEvidenceFromProse,
@@ -257,6 +257,7 @@ const getGroundingSignals = (opening: string, anchors: string[]) => {
 export const applyDeterministicProsePostProcessing = (
   prose: any,
   locationProfiles: any,
+  castCharacters: CastEntry[] = [],
 ): any => {
   const anchors: string[] = [];
   if (locationProfiles.primary?.name) anchors.push(locationProfiles.primary.name.toLowerCase());
@@ -265,49 +266,64 @@ export const applyDeterministicProsePostProcessing = (
   });
 
   const seenLongParagraphs = new Set<string>();
+  let totalPronounRepairs = 0;
+
+  const processedChapters = prose.chapters.map((chapter: any, index: number) => {
+    const readableParagraphs = enforceReadableParagraphFlow(chapter.paragraphs || []);
+    const opening = readableParagraphs.slice(0, 2).join(" ");
+    const signals = getGroundingSignals(opening, anchors);
+
+    const needsGroundingLead =
+      !signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere;
+    const groundedParagraphs = needsGroundingLead
+      ? [buildDeterministicGroundingLead(index, locationProfiles), ...readableParagraphs]
+      : readableParagraphs;
+
+    const sanitizedParagraphs = groundedParagraphs
+      .map((paragraph: string, paragraphIndex: number) => {
+        const cleaned = sanitizeProseText(paragraph);
+        if (templateLeakageScaffoldPattern.test(cleaned)) {
+          return buildDeterministicGroundingLead(index + paragraphIndex, locationProfiles);
+        }
+        return cleaned;
+      })
+      .filter((paragraph: string) => paragraph.length > 0);
+
+    const leakageDedupedParagraphs = sanitizedParagraphs.map(
+      (paragraph: string, paragraphIndex: number) => {
+        const normalized = normalizeParagraphForLeakageDedup(paragraph);
+        if (normalized.length < 170) {
+          return paragraph;
+        }
+        if (!seenLongParagraphs.has(normalized)) {
+          seenLongParagraphs.add(normalized);
+          return paragraph;
+        }
+        return buildDeterministicGroundingLead(index + paragraphIndex + 1, locationProfiles);
+      },
+    );
+
+    // Deterministic pronoun repair: fix wrong-gender pronouns in unambiguous sentences.
+    // Only active when cast characters are provided.
+    if (castCharacters.length > 0) {
+      const pronRepaired = repairChapterPronouns(
+        { ...chapter, paragraphs: leakageDedupedParagraphs },
+        castCharacters,
+      );
+      totalPronounRepairs += pronRepaired.repairCount;
+      return pronRepaired.chapter;
+    }
+
+    return {
+      ...chapter,
+      paragraphs: leakageDedupedParagraphs,
+    };
+  });
 
   return {
     ...prose,
-    chapters: prose.chapters.map((chapter: any, index: number) => {
-      const readableParagraphs = enforceReadableParagraphFlow(chapter.paragraphs || []);
-      const opening = readableParagraphs.slice(0, 2).join(" ");
-      const signals = getGroundingSignals(opening, anchors);
-
-      const needsGroundingLead =
-        !signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere;
-      const groundedParagraphs = needsGroundingLead
-        ? [buildDeterministicGroundingLead(index, locationProfiles), ...readableParagraphs]
-        : readableParagraphs;
-
-      const sanitizedParagraphs = groundedParagraphs
-        .map((paragraph: string, paragraphIndex: number) => {
-          const cleaned = sanitizeProseText(paragraph);
-          if (templateLeakageScaffoldPattern.test(cleaned)) {
-            return buildDeterministicGroundingLead(index + paragraphIndex, locationProfiles);
-          }
-          return cleaned;
-        })
-        .filter((paragraph: string) => paragraph.length > 0);
-
-      const leakageDedupedParagraphs = sanitizedParagraphs.map(
-        (paragraph: string, paragraphIndex: number) => {
-          const normalized = normalizeParagraphForLeakageDedup(paragraph);
-          if (normalized.length < 170) {
-            return paragraph;
-          }
-          if (!seenLongParagraphs.has(normalized)) {
-            seenLongParagraphs.add(normalized);
-            return paragraph;
-          }
-          return buildDeterministicGroundingLead(index + paragraphIndex + 1, locationProfiles);
-        },
-      );
-
-      return {
-        ...chapter,
-        paragraphs: leakageDedupedParagraphs,
-      };
-    }),
+    chapters: processedChapters,
+    pronounRepairsApplied: totalPronounRepairs,
   };
 };
 
@@ -903,7 +919,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     },
   });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
   const proseFirstPassDurationMs = Date.now() - proseStart;
   const proseFirstPassCost = prose.cost;
   ctx.agentCosts["agent9_prose"] = proseFirstPassCost;
@@ -1203,6 +1219,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     prose = applyDeterministicProsePostProcessing(
       sanitizeProseResult(retriedProse),
       locationProfiles,
+      cast.cast.characters,
     );
     proseSchemaValidation = retryValidation;
     ctx.warnings.push("Prose schema-repair retry succeeded");
@@ -1347,7 +1364,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     reportProgress("validation", "Applied auto-fixes for encoding issues", 99);
   }
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
 
   if (enableScoring && scoreAggregator && scoringLogger) {
     const finalizedPostGenerationDetails = buildPostGenerationSummaryDetails(
