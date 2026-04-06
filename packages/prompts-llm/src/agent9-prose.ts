@@ -220,6 +220,32 @@ const tokenizeForClueObligation = (value: string): string[] =>
     .split(/\s+/)
     .filter((token) => token.length >= 4 && !CLUE_TOKEN_STOPWORDS.has(token));
 
+/**
+ * Remove tokens that are proper-name words from non-cast characters.
+ * A token is considered a non-cast proper-name token if it appears as a
+ * capitalized word (≥ 3 chars) in `rawDescription` AND is not a substring of
+ * any cast member's name. Such tokens come from Agent-5 clue descriptions that
+ * reference source-text characters not present in the generated prose cast —
+ * they can never match the chapter text, causing perpetual false-fail retries.
+ */
+const filterNonCastProperNameTokens = (
+  tokens: string[],
+  rawDescription: string,
+  castNames: string[],
+): string[] => {
+  if (castNames.length === 0) return tokens;
+  const castNamesLower = castNames.map((n) => n.toLowerCase());
+  // Collect all capitalized words (≥ 3 chars) from the raw description as potential proper names
+  const capitalizedWords = new Set(
+    (rawDescription.match(/\b[A-Z][a-z]{2,}\b/g) ?? []).map((w) => w.toLowerCase()),
+  );
+  return tokens.filter((token) => {
+    if (!capitalizedWords.has(token)) return true; // Not a proper-name token, keep it
+    // It is a proper-name token — keep only if it's a substring of some cast member's name
+    return castNamesLower.some((cn) => cn.includes(token) || token.includes(cn));
+  });
+};
+
 // Delivery-method genre labels that Agent 5 sometimes puts in clue.description.
 // These describe HOW a clue is delivered, not WHAT is observed — their tokens
 // ("direct", "observation", "hearsay", etc.) will never appear in narrative prose
@@ -319,10 +345,30 @@ const buildChapterRequirementLedger = (
   });
 };
 
+// Behavioural/emotional clue descriptions use synonym-rich vocabulary that prose replaces
+// with contextual equivalents. A 0.60 token threshold is too strict for these clues.
+// If the description contains any of these markers, use 0.35 instead.
+const BEHAVIOURAL_MARKERS = new Set([
+  'behaviour', 'behavioral', 'emotion', 'emotional',
+  'nervous', 'anxious', 'guilty', 'frightened', 'terrified', 'panicked',
+  'suspicious', 'jealous', 'jealousy', 'angry', 'anger', 'grief',
+  'distressed', 'evasive', 'agitated', 'uncomfortable', 'demeanour',
+  'demeanor', 'motive', 'attitude', 'secretive', 'concealing', 'deceiving',
+]);
+
+const isBehaviouralClue = (description: string): boolean => {
+  const lower = description.toLowerCase();
+  for (const marker of BEHAVIOURAL_MARKERS) {
+    if (lower.includes(marker)) return true;
+  }
+  return false;
+};
+
 const chapterMentionsRequiredClue = (
   chapterText: string,
   clueId: string,
   clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
 ): boolean => {
   const lowered = chapterText.toLowerCase();
   if (lowered.includes(clueId.toLowerCase())) {
@@ -337,23 +383,29 @@ const chapterMentionsRequiredClue = (
   // ("direct", "observation") never appear in narrative prose.  Use only pointsTo tokens.
   // If pointsTo is also empty, the clue metadata is incomplete — pass rather than
   // false-failing every attempt.
-  const tokens = descIsGenreLabel
+  const rawTokens = descIsGenreLabel
     ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? "")))).slice(0, 10)
     : Array.from(new Set([
         ...tokenizeForClueObligation(String(clue.description ?? "")),
         ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
       ])).slice(0, 10);
 
+  // Strip proper-name tokens from non-cast characters so that clue descriptions written
+  // by Agent 5 referencing source-text characters (not in the prose cast) don't
+  // perpetually fail the token-match threshold.  Only applies when castNames is provided.
+  const tokens = castNames?.length
+    ? filterNonCastProperNameTokens(rawTokens, String(clue.description ?? ''), castNames)
+    : rawTokens;
+
   // Genre-label clue with no usable pointsTo tokens — metadata is insufficient for
   // token-level validation.  Accept rather than perpetually failing.
   if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-  // Threshold 0.6: 60% of semantic tokens must match. This is meaningfully stricter
-  // than the previous 40%, which could pass on 2/6 tokens — a coincidental level.
-  // With the expanded stopword list removing semantically empty words ("with", "have",
-  // etc.), the remaining tokens are genuine content words and 60% is achievable for
-  // chapters that properly include the clue without causing over-triggering.
-  const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.6));
+  // Threshold 0.6 for factual clues: 60% of semantic tokens must match.
+  // Behavioural/emotional clues use synonym-rich vocabulary — relax to 0.35 so e.g.
+  // "nervousness" is satisfied by "fidgeted", "uneasy", "agitated" (R35 abort root cause).
+  const behaviouralThreshold = isBehaviouralClue(clue?.description ?? '') ? 0.35 : 0.6;
+  const requiredMatches = Math.max(1, Math.ceil(tokens.length * behaviouralThreshold));
   return matched.length >= requiredMatches;
 };
 
@@ -366,6 +418,7 @@ const chapterClueAppearsEarly = (
   paragraphs: string[],
   clueId: string,
   clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
 ): boolean => {
   if (!Array.isArray(paragraphs) || paragraphs.length === 0) return false;
   const quarterEnd = Math.max(1, Math.ceil(paragraphs.length * 0.25));
@@ -377,12 +430,17 @@ const chapterClueAppearsEarly = (
   if (!clue) return false;
 
   const descIsGenreLabel = isDeliveryMethodLabel(clue.description);
-  const tokens = descIsGenreLabel
+  const rawTokens = descIsGenreLabel
     ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? '')))).slice(0, 10)
     : Array.from(new Set([
         ...tokenizeForClueObligation(String(clue.description ?? '')),
         ...tokenizeForClueObligation(String(clue.pointsTo ?? '')),
       ])).slice(0, 10);
+
+  // Strip proper-name tokens from non-cast characters (same logic as chapterMentionsRequiredClue).
+  const tokens = castNames?.length
+    ? filterNonCastProperNameTokens(rawTokens, String(clue.description ?? ''), castNames)
+    : rawTokens;
 
   if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
@@ -399,6 +457,7 @@ export const validateChapterPreCommitObligations = (
   chapter: ProseChapter,
   ledgerEntry: ChapterRequirementLedgerEntry,
   clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
 ): ChapterObligationResult => {
   const hardFailures: string[] = [];
   const preferredMisses: string[] = [];
@@ -430,18 +489,23 @@ export const validateChapterPreCommitObligations = (
     const resolvedPlacement = clue?.placement ?? ctx?.placement ?? null;
 
     // Primary check via distribution; for unresolved IDs, also check ctx.description tokens
-    let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution);
+    let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution, castNames);
     if (!isPresent && !clue && ctx?.description) {
       // If ctx.description is a genre label, skip token matching — it can never match prose
       if (isDeliveryMethodLabel(ctx.description)) {
         isPresent = true;
       } else {
-        const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-        if (tokens.length > 0) {
+        const rawCtxTokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+        // Apply the same non-cast proper-name filter to the fallback path.
+        const ctxTokens = castNames?.length
+          ? filterNonCastProperNameTokens(rawCtxTokens, ctx.description, castNames)
+          : rawCtxTokens;
+        if (ctxTokens.length > 0) {
           const lowered = chapterText.toLowerCase();
-          const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-          // Use the same 0.6 threshold as chapterMentionsRequiredClue for consistency
-          const threshold = Math.max(1, Math.ceil(tokens.length * 0.6));
+          const matched = ctxTokens.filter((t) => tokenMatchesText(t, lowered));
+          // Match threshold to clue type: 0.35 for behavioural/emotional, 0.6 for factual
+          const isBehavioural = ctx?.description ? isBehaviouralClue(ctx.description) : false;
+          const threshold = Math.max(1, Math.ceil(ctxTokens.length * (isBehavioural ? 0.35 : 0.6)));
           isPresent = matched.length >= threshold;
         }
       }
@@ -456,31 +520,35 @@ export const validateChapterPreCommitObligations = (
         ? ` (this clue reveals: ${pointsToHint})`
         : '';
       const repair = resolvedPlacement === 'early'
-        ? `Include an on-page observation of ${clueDesc}${extraHint} in the first quarter of the chapter, followed immediately by an explicit inference paragraph.`
+        ? `Include an on-page observation of ${clueDesc}${extraHint} in the first 2 paragraphs of the chapter, followed immediately by an explicit inference paragraph.`
         : `Include an on-page observation or reference to ${clueDesc}${extraHint} before the chapter ends.`;
       hardFailures.push(
         `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
       );
     } else if (resolvedPlacement === 'early') {
       // Content is present but must also appear in the first 25% of paragraphs
-      let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution);
+      let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution, castNames);
       if (!isEarly && !clue && ctx?.description) {
         if (isDeliveryMethodLabel(ctx.description)) {
           isEarly = true;
         } else {
           const quarterEnd = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
           const earlyText = (chapter.paragraphs ?? []).slice(0, quarterEnd).join(' ').toLowerCase();
-          const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-          if (tokens.length > 0) {
-            const matched = tokens.filter((t) => tokenMatchesText(t, earlyText));
-            const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
+          const rawCtxEarlyTokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
+          const ctxEarlyTokens = castNames?.length
+            ? filterNonCastProperNameTokens(rawCtxEarlyTokens, ctx.description, castNames)
+            : rawCtxEarlyTokens;
+          if (ctxEarlyTokens.length > 0) {
+            const matched = ctxEarlyTokens.filter((t) => tokenMatchesText(t, earlyText));
+            const threshold = ctxEarlyTokens.length <= 4 ? 1 : Math.max(1, Math.ceil(ctxEarlyTokens.length * 0.4));
             isEarly = matched.length >= threshold;
           }
         }
       }
       if (!isEarly) {
+        const quarterEndForMsg = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
         hardFailures.push(
-          `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is present but must appear in the first quarter of the chapter — move the observation beat to before the 25% mark.`
+          `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is present but must appear in paragraphs 1-${quarterEndForMsg} — move the observation beat to paragraph 1 or 2.`
         );
       }
     }
@@ -837,6 +905,13 @@ const buildWorldBriefBlock = (
     if (Array.isArray(hm.physicalConstraints) && hm.physicalConstraints.length > 0) {
       lines.push('Physical constraints: ' + hm.physicalConstraints.slice(0, 4).join(' | '));
     }
+    if (Array.isArray(hm.currentTensions) && hm.currentTensions.length > 0) {
+      lines.push('Current tensions (weave into background texture): ' + hm.currentTensions.slice(0, 3).join(' | '));
+    }
+    if (hm.wartimeServiceContext) {
+      const wsc = hm.wartimeServiceContext;
+      lines.push(`Wartime context — ${wsc.serviceStatus}: ${wsc.socialTexture}${wsc.absenceEffect ? ` Absence effect: ${wsc.absenceEffect}` : ''}`);
+    }
     // [WORLD FIX A] Season lock: derive season authoritatively from specificDate.
     // Lives in world_document (high priority) and cannot be dropped by token-budget cuts.
     // This is the canonical temporal contract — all other season references are secondary.
@@ -859,9 +934,13 @@ const buildWorldBriefBlock = (
     lines.push(`\n## Story Theme\n${worldDoc.storyTheme}`);
   }
 
-  // Emotional arc for this scene position
+  // Emotional arc overview + position-specific beat
   const arc = worldDoc.storyEmotionalArc;
-  if (arc && Array.isArray(arc.turningPoints)) {
+  if (arc) {
+    if (arc.dominantRegister) {
+      lines.push(`\n## Story Emotional Register\nDominant: ${arc.dominantRegister}`);
+    }
+    if (Array.isArray(arc.turningPoints)) {
     const arcPosition = chapterIndex <= 1 ? 'opening'
       : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
       : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
@@ -874,23 +953,66 @@ const buildWorldBriefBlock = (
     if (tp?.emotionalDescription) {
       lines.push(`\n## Emotional register at this point in the story\n${tp.emotionalDescription}`);
     }
+    }
+    // Ending note — only in final act (helps shape denouement texture)
+    if (arc.endingNote && chapterIndex >= Math.floor(totalChapters * 0.75)) {
+      lines.push(`\n## Ending note (shape final chapters toward this)\n${arc.endingNote}`);
+    }
   }
 
-  // Character voice sketches (all)
+  // Character portraits — physical appearance + era intersection
+  if (Array.isArray(worldDoc.characterPortraits) && worldDoc.characterPortraits.length > 0) {
+    lines.push('\n## Character Portraits (appearance & era)');
+    for (const portrait of worldDoc.characterPortraits) {
+      lines.push(`\n### ${portrait.name}`);
+      if (portrait.portrait) lines.push(portrait.portrait);
+      if (portrait.eraIntersection) lines.push(`Era intersection: ${portrait.eraIntersection}`);
+    }
+  }
+
+  // Character voice sketches — all available registers (comfortable, evasive, stressed, formal, humorous)
   if (Array.isArray(worldDoc.characterVoiceSketches) && worldDoc.characterVoiceSketches.length > 0) {
     lines.push('\n## Character Voices');
     for (const sketch of worldDoc.characterVoiceSketches) {
       const pronounsLabel = characterPronouns?.[sketch.name] ? ` (${characterPronouns[sketch.name]})` : ''; // [PHASE 1]
       lines.push(`\n### ${sketch.name}${pronounsLabel}`);
       if (sketch.voiceDescription) lines.push(sketch.voiceDescription);
-      // Include comfortable + evasive fragments to anchor voice
-      const fragments = (sketch.fragments ?? []).filter(
-        (f: any) => f.register === 'comfortable' || f.register === 'evasive'
-      );
-      for (const frag of fragments.slice(0, 2)) {
+      // Show up to 3 fragments across all registers so the LLM can vary voice by context
+      const fragments = (sketch.fragments ?? []).slice(0, 3);
+      for (const frag of fragments) {
         lines.push(`[${frag.register}] ${frag.text}`);
       }
       if (sketch.humourNote) lines.push(`Humour: ${sketch.humourNote}`);
+    }
+  }
+
+  // Location registers — emotional register, camera angle, era note per key location
+  if (Array.isArray(worldDoc.locationRegisters) && worldDoc.locationRegisters.length > 0) {
+    lines.push('\n## Location Registers (scene framing guides)');
+    for (const reg of worldDoc.locationRegisters) {
+      lines.push(`\n${reg.name}: ${reg.emotionalRegister}. Camera angle: ${reg.cameraAngle}.${reg.eraNote ? ` Era: ${reg.eraNote}` : ''}`);
+    }
+  }
+
+  // Humour placement map — scene-position-specific humour permission
+  if (Array.isArray(worldDoc.humourPlacementMap) && worldDoc.humourPlacementMap.length > 0) {
+    const arcPosForHumour = chapterIndex <= 1 ? 'opening'
+      : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
+      : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
+      : chapterIndex <= Math.floor(totalChapters * 0.55) ? 'mid'
+      : chapterIndex <= Math.floor(totalChapters * 0.7) ? 'second_turn'
+      : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
+      : chapterIndex === totalChapters - 1 ? 'resolution'
+      : 'climax';
+    const humourEntry = worldDoc.humourPlacementMap.find((e: any) => e.scenePosition === arcPosForHumour);
+    if (humourEntry) {
+      const permitted = humourEntry.permittedCharacters?.join(', ') ?? '';
+      const forms = humourEntry.permittedForms?.join(', ') ?? '';
+      lines.push(`\n## Humour guidance for this story position (${arcPosForHumour})`);
+      lines.push(`Permission: ${humourEntry.humourPermission}${humourEntry.condition ? ` — condition: ${humourEntry.condition}` : ''}`);
+      if (permitted) lines.push(`Characters who may be funny: ${permitted}`);
+      if (forms) lines.push(`Permitted forms: ${forms}`);
+      lines.push(`Rationale: ${humourEntry.rationale}`);
     }
   }
 
@@ -1169,6 +1291,7 @@ export function buildChapterObligationBlock(
   lockedFacts: ProseGenerationInputs['lockedFacts'] | undefined,
   temporalLock: { month: string; season: CanonicalSeason } | undefined,
   clueDistribution?: ClueDistributionResult,
+  wordTarget?: { targetWords: number },
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -1204,6 +1327,9 @@ export function buildChapterObligationBlock(
       Number(dtScene?.scene_number) === Number(scene?.sceneNumber);
 
     lines.push(`- Chapter ${chapterNumber}:`);
+    if (wordTarget) {
+      lines.push(`  - Word count: Target AT LEAST ${wordTarget.targetWords} words. Do not cut this chapter short.`);
+    }
     lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
 
     if (requiredClueIds.length > 0) {
@@ -1212,12 +1338,12 @@ export function buildChapterObligationBlock(
         const clue = clueMap.get(clueId);
         if (clue) {
           const earlyFlag = clue.placement === 'early'
-            ? ' ⚠ EARLY PLACEMENT — write this in the first 25% of the chapter'
+            ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
           lines.push(`    • ${clue.description.trim()} [${clueId}]${earlyFlag}`);
           lines.push(`      Points to: ${clue.pointsTo.trim()}`);
           if (clue.placement === 'early') {
-            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear before the 25% mark):`);
+            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
             lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
             lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
             lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
@@ -1232,12 +1358,12 @@ export function buildChapterObligationBlock(
             : 'observable evidence relevant to the investigation';
           const isEarlyMapping = Number(mapping?.act_number) === 1;
           const earlyFlagFallback = isEarlyMapping
-            ? ' ⚠ EARLY PLACEMENT — write this in the first 25% of the chapter'
+            ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
           lines.push(`    • ${fallbackDesc} [${clueId}]${earlyFlagFallback}`);
           lines.push(`      Points to: what this observation reveals about the time or circumstances of the crime.`);
           if (isEarlyMapping) {
-            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear before the 25% mark):`);
+            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
             lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
             lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
             lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
@@ -1571,7 +1697,7 @@ const applyPromptBudgeting = (
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
     pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
-    character_personality: 900,
+    character_personality: 1400, // raised from 900: physicalMannerisms + privateLonging + motiveSeed add ~150 tokens per character
     location_profiles: 1000,
     temporal_context: 850,
     continuity_context: 500,
@@ -1735,9 +1861,19 @@ ${victimIdentityRule}`;
         humourGuidance = '\n  Humour: None - this character plays it straight. Their seriousness provides contrast for wittier characters.';
       }
 
+      const physicalMannerisms = profile.physicalMannerisms || '';
+      const privateLonging = profile.privateLonging || '';
+      const motiveSeed = profile.motiveSeed || '';
+      const motiveStrength = profile.motiveStrength || '';
+
       const voiceLine = speechMannerisms ? '\n  Voice & Mannerisms: ' + speechMannerisms : '';
       const conflictLine = internalConflict ? '\n  Internal Conflict: ' + internalConflict : '';
       const stakeLine = personalStake ? '\n  Personal Stake in Case: ' + personalStake : '';
+      // physicalMannerisms - schema note: "deploy at most one per scene, not as a list"
+      const physicalLine = physicalMannerisms ? '\n  Physical tells (deploy one per scene, not all at once): ' + physicalMannerisms : '';
+      // privateLonging - schema note: "let it leak into one or two moments"
+      const longingLine = privateLonging ? '\n  Private longing (let surface in 1-2 moments, never central): ' + privateLonging : '';
+      const motiveLine = motiveSeed ? '\n  Motive seed: ' + motiveSeed + (motiveStrength ? ' (' + motiveStrength + ')' : '') : '';
 
       // For non-binary characters, open the entry with their pronoun identity so
       // the LLM activates the correct pronoun context when writing about them.
@@ -1745,7 +1881,7 @@ ${victimIdentityRule}`;
       const gender = (castChar as any)?.gender?.toLowerCase() ?? '';
       const pronounTag = gender === 'non-binary' ? ' [they/them/their — singular]' : '';
 
-      return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + conflictLine + stakeLine;
+      return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
     }).join('\n\n');
 
     characterPersonalityContext = '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
@@ -1788,9 +1924,9 @@ ${victimIdentityRule}`;
       : 'Primary Location: ' + primaryName + '\\n' + primarySummary;
     
     // Add specific sensory usage examples
-    const sensoryGuidance = '\n\n⛔ REFERENCE DATA — DO NOT TRANSCRIBE VERBATIM: The above profiles are structural guides only. Generate original prose that evokes these qualities; do not copy or paraphrase any template text.\n\nSENSORY WRITING TECHNIQUES:\n- Opening paragraphs: Lead with 2-3 sensory details to ground the scene\n- Movement between locations: Note sensory changes (quiet study → noisy dining room)\n- Emotional scenes: Use sensory details to reinforce mood (cold rain during argument)\n- Period authenticity: Use period-specific sensory details from location/temporal profiles\n- Avoid: Over-reliance on visual only; use sound, smell, touch, temperature';
+    const sensoryGuidance = '\n\n⛔ REFERENCE DATA — DO NOT TRANSCRIBE VERBATIM: The above profiles are structural guides only. Generate original prose that evokes these qualities; do not reproduce the exact phrasing or sentence structure of the profile paragraphs.\n\nSCENE OPENING RULE: When opening a scene in a new location, write what the POV character directly observes and physically senses at that moment — not a general description of the room\'s qualities. The reader must feel present, not briefed. Sensory details must be observed by the character, not stated as fact about the place.\n\nSENSORY WRITING TECHNIQUES:\n- Opening paragraphs: Lead with 2-3 sensory details to ground the scene\n- Movement between locations: Note sensory changes (quiet study → noisy dining room)\n- Emotional scenes: Use sensory details to reinforce mood (cold rain during argument)\n- Period authenticity: Use period-specific sensory details from location/temporal profiles\n- Avoid: Over-reliance on visual only; use sound, smell, touch, temperature';
     
-    locationProfilesContext = '\\n\\nLOCATION PROFILES:\\n\\nYou have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.\\n\\n' + locationLine + '\\n\\nKey Locations Available:\\n' + keyLocs + '\\n\\nAtmosphere: ' + mood + '\\nWeather: ' + weather + '\\n\\nUSAGE GUIDELINES:\\n1. First mention of location: Use full sensory description from profiles\\n2. Geographic grounding: Reference the specific place (' + (geographicContext || 'setting') + ') naturally in dialogue or narrative\\n3. Action scenes: Integrate physical layout details (access, sightlines, constraints)\\n4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette\\n5. Era details: Weave in period markers naturally\\n6. Consistency: Keep all location descriptions aligned with profiles\\n7. Each chapter opening must anchor to a named location from this list\\n8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening\\n9. Do NOT use generic repeated manor/storm filler without profile-specific details\\n\\nSENSORY PALETTE (use 2-3 senses per scene):\\n' + sensoryExamples + sensoryGuidance;
+    locationProfilesContext = '\\n\\nLOCATION PROFILES:\\n\\nYou have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.\\n\\n' + locationLine + '\\n\\nKey Locations Available:\\n' + keyLocs + '\\n\\nAtmosphere: ' + mood + '\\nWeather: ' + weather + '\\n\\nUSAGE GUIDELINES:\\n1. First mention of location: Ground the scene using sensory details drawn from the profiles — paraphrase these into what the POV character directly observes and experiences, not a summary of the room\'s general qualities\\n2. Geographic grounding: Reference the specific place (' + (geographicContext || 'setting') + ') naturally in dialogue or narrative\\n3. Action scenes: Integrate physical layout details (access, sightlines, constraints)\\n4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette\\n5. Era details: Weave in period markers naturally\\n6. Consistency: Keep all location descriptions aligned with profiles\\n7. Each chapter opening must anchor to a named location from this list\\n8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening\\n9. Do NOT use generic repeated manor/storm filler without profile-specific details\\n\\nSENSORY PALETTE (use 2-3 senses per scene):\\n' + sensoryExamples + sensoryGuidance;
 
     // Append chapter-specific sensory palette hints derived from sensoryVariants objects
     if (Array.isArray(scenesOverride) && scenesOverride.length > 0 && Array.isArray(loc.keyLocations)) {
@@ -1888,7 +2024,7 @@ ${victimIdentityRule}`;
     const factLines = inputs.lockedFacts
       .map(f => `  - ${f.description}: "${f.value}"`)
       .join('\n');
-    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES:\nThe following physical evidence values are ground truth. If this chapter mentions or describes the relevant evidence, it MUST use the exact phrase shown — verbatim, not paraphrased. Any chapter that contradicts these values or substitutes different numbers, times, distances, or quantities will fail validation:\n${factLines}\n- If a locked fact is not relevant to this chapter, skip it. But if you do mention it, you must use exactly the phrase above.`;
+    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):\nThe following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at 11:47 PM" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at 11:47 PM". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you write "11:10 PM" or "11:10" — that is also a HARD FAIL. Words stay as words; digits stay as digits.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to digits, 24-hour format, or any other numeric form. Correct: "ten minutes past eleven". WRONG: "11:10", "11:10 PM", "twenty-three eleven".\n\nLocked facts:\n${factLines}\n\nIf a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`;
   }
 
   // Build NSD block (narrative state document) — style register and fact history
@@ -1964,10 +2100,16 @@ ${victimIdentityRule}`;
     inputs.provisionalScoringFeedback,
   );
 
+  // Para-range bounds are derived from the hard floor and chapter target so the paragraph count
+  // guidance always guarantees the hard floor (min) and reaches the preferred target (max),
+  // regardless of config changes to hard_floor_relaxation_ratio or preferred_chapter_words.
+  const _shortT = getChapterWordTargets("short");
+  const _medT   = getChapterWordTargets("medium");
+  const _longT  = getChapterWordTargets("long");
   const chapterWordGuidance: Record<string, string> = {
-    short: `5-7 substantial paragraphs (each 120–180 words) — MINIMUM ${getChapterWordTargets("short").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("short").preferredWords} words — do not stop early`,
-    medium: `7-10 substantial paragraphs (each 150–220 words) — MINIMUM ${getChapterWordTargets("medium").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("medium").preferredWords} words — do not stop early`,
-    long: `10-14 substantial paragraphs (each 180–250 words) — MINIMUM ${getChapterWordTargets("long").hardFloorWords} words; TARGET ≥ ${getChapterWordTargets("long").preferredWords} words — do not stop early`,
+    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortT.preferredWords + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — MINIMUM ${_shortT.hardFloorWords} words; TARGET ≥ ${_shortT.preferredWords} words — do not stop early`,
+    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medT.preferredWords + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — MINIMUM ${_medT.hardFloorWords} words; TARGET ≥ ${_medT.preferredWords} words — do not stop early`,
+    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longT.preferredWords + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — MINIMUM ${_longT.hardFloorWords} words; TARGET ≥ ${_longT.preferredWords} words — do not stop early`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
@@ -1977,7 +2119,6 @@ ${victimIdentityRule}`;
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
     `- Target: AT LEAST ${chapterTargetWords} words per chapter. Do not stop before reaching this threshold.`,
-    `- Hard minimum: ${chapterWordTargets.hardFloorWords} words — this is a floor, not a target. The floor alone is not enough.`,
     '- Overshoot rather than undershoot. When in doubt, write one more paragraph.',
     '- Expand with concrete action beats, clue-linked dialogue, and sensory detail.',
     '- Never pad with recap, repeated atmosphere, or generic filler.',
@@ -1989,6 +2130,9 @@ ${victimIdentityRule}`;
     inputs.lockedFacts,
     temporalLock,
     inputs.clueDistribution,
+    {
+      targetWords: chapterTargetWords,
+    },
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,
@@ -1996,7 +2140,7 @@ ${victimIdentityRule}`;
     cmlCase,
   );
 
-  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Begin key scenes with atmospheric description\n   - Establish time of day, weather, lighting\n   - Describe location using sensory details (sight, sound, smell, touch)\n   - Set mood and atmosphere before action begins\n   - Use location and temporal context to ground reader\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n- Chapter title format: EVERY chapter title MUST follow exactly \"Chapter N: [Descriptive title]\" (e.g. \"Chapter 1: The Frozen Clock\"). Do NOT use number-only (\"Chapter 1\") or title-only (\"The Frozen Clock\") formats — mixed formats are a validation error.\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Every chapter MUST open with the following in the FIRST TWO PARAGRAPHS — this is a VALIDATION REQUIREMENT and chapters that omit it are retried:\n   (a) 2+ sensory words from: smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim\n   (b) 1+ atmosphere/time word from: rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season\n   (c) A named location anchor from the setting profiles\n\n   Then establish time of day, weather, and lighting; describe the location using sensory details; set mood and atmosphere before advancing plot beats.\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
 
    Generate new descriptions using actual location and character names from the provided profiles.\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
 
@@ -2012,7 +2156,10 @@ ${victimIdentityRule}`;
     ? `\n\n⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.`
     : '';
 
-  const developerWithContracts = `${developerWithAudit}\n\n${wordCountContract}`;
+  const developerWithContracts = developerWithAudit.replace(
+    '\n\nNOVEL-QUALITY PROSE REQUIREMENTS:',
+    `\n\n${wordCountContract}\n\nNOVEL-QUALITY PROSE REQUIREMENTS:`,
+  );
 
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
     (scenes as any[]).map((scene) => ({
@@ -2400,8 +2547,59 @@ function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart
 }
 
 /**
+/**
+ * Opening style rotation used to assign a mandatory first-sentence style to each
+ * chapter, ensuring no single style (especially "general-descriptive") accounts
+ * for more than a third of chapters.
+ *
+ * The cycle is 6 styles long; "general-descriptive" appears once per cycle.
+ * For 18 chapters that means 3 general-descriptive (17%) — well under the 50%
+ * validation threshold that fires `opening_style_repetition`.
+ *
+ * Each directive is given to the LLM in the per-chapter scene grounding checklist
+ * as a HARD REQUIREMENT so that the opening sentence pattern is enforced before
+ * any sensory/atmosphere obligations.
+ */
+const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }> = [
+  {
+    style: 'character-action',
+    directive:
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a named character performing a physical action or motion — e.g. "[Name] crossed the threshold…" / "[Name] set down the glass…" / "[Name] rose from the chair…".',
+  },
+  {
+    style: 'dialogue-open',
+    directive:
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with spoken dialogue — e.g. \'"[words]," [Name] said/asked/replied/murmured.\' The opening quote must be the first character on the line.',
+  },
+  {
+    style: 'time-anchor',
+    directive:
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an explicit time marker — e.g. "At half past nine…" / "At midnight…" / "At a quarter to eleven…" / "At 9:30 PM…". Time must be in the first clause.',
+  },
+  {
+    style: 'noun-phrase-atmosphere',
+    directive:
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a noun-phrase atmosphere — e.g. "The smell of damp stone in the cellar…" / "A chill from the landing…" / "The sound of the clock in the hall…". Pattern: "The/A [noun] of/in/from [place]…".',
+  },
+  {
+    style: 'temporal-subordinate',
+    directive:
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a temporal subordinate clause — e.g. "When [Name] entered…" / "After the last guest…" / "Before the household had stirred…" / "As the light faded…".',
+  },
+  {
+    style: 'general-descriptive',
+    directive:
+      'OPENING STYLE: Atmospheric scene-setting is permitted here — but the first sentence MUST differ structurally from both the preceding and following chapters. Do not reuse the same clause structure or sensory vocabulary as adjacent chapters.',
+  },
+];
+
+/**
  * Build an explicit chapter-by-chapter scene grounding checklist using
  * outline scene settings and location profile names.
+ *
+ * Also embeds:
+ *  2b — per-chapter opening style directive (prevents opening_style_repetition)
+ *  2c — canonical location capitalisation block (prevents location_name_variant)
  */
 function buildSceneGroundingChecklist(
   scenes: unknown[],
@@ -2419,6 +2617,24 @@ function buildSceneGroundingChecklist(
       if (loc?.name) locationNames.add(String(loc.name));
     }
   }
+  // Pre-pass: also collect scene-level location names so that locations which appear
+  // in the narrative outline but not in locationProfiles (e.g. "Wine Cellar" from
+  // scene.setting.location) are included in the capitalisation enforcement block.
+  for (const scene of scenes as any[]) {
+    const sceneLocName = String(scene?.setting?.location || scene?.location || '').trim();
+    if (sceneLocName.length > 0) locationNames.add(sceneLocName);
+  }
+
+  // 2c — Canonical location names for capitalisation enforcement
+  const canonicalLocationList = Array.from(locationNames).slice(0, 12);
+  const locationCapitalisationBlock =
+    canonicalLocationList.length > 0
+      ? `\nLOCATION NAME CAPITALISATION (HARD REQUIREMENT — validated):\n` +
+        `All named locations in your prose MUST use the EXACT capitalisation from the CML profiles.\n` +
+        `Canonical forms: ${canonicalLocationList.map((n) => `"${n}"`).join(', ')}\n` +
+        `Writing a location in lowercase (e.g. "drawing room" instead of "Drawing Room") is a validated error. ` +
+        `Every time you mention a named location, copy its capitalisation from the list above.`
+      : '';
 
   const checklistLines: string[] = [];
   scenes.forEach((scene: any, idx) => {
@@ -2428,8 +2644,14 @@ function buildSceneGroundingChecklist(
       ? sceneLocation
       : (locationNames.size > 0 ? Array.from(locationNames)[0] : 'the canonical primary location');
 
+    // 2b — Deterministic opening style assignment (cycle index based on absolute chapter number
+    // so assignments are stable across multi-batch generation)
+    const styleIdx = (chapterNumber - 1) % OPENING_STYLE_ROTATION.length;
+    const { directive: openingStyleDirective } = OPENING_STYLE_ROTATION[styleIdx];
+
     checklistLines.push(
-      `- Chapter ${chapterNumber}: anchor opening in "${locationHint}"; include 2+ sensory cues and 1+ atmosphere marker before major dialogue.`
+      `- Chapter ${chapterNumber}: ${openingStyleDirective} ` +
+      `Anchor opening in "${locationHint}". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season. These are validated requirements, not style suggestions; missing them triggers a retry.`
     );
   });
 
@@ -2438,7 +2660,7 @@ function buildSceneGroundingChecklist(
     ? `Known location profile anchors: ${knownLocations}`
     : 'Known location profile anchors: use the primary location and scene setting terms from outline.';
 
-  return `\n\nSCENE GROUNDING CHECKLIST (MUST FOLLOW):\n${knownLocationLine}\n${checklistLines.join('\n')}`;
+  return `\n\nSCENE GROUNDING CHECKLIST (MUST FOLLOW):\n${knownLocationLine}${locationCapitalisationBlock}\n${checklistLines.join('\n')}`;
 }
 
 /**
@@ -3316,6 +3538,9 @@ export async function generateProse(
   let underflowExpansionAttempts = 0;
   let underflowExpansionRecovered = 0;
   let underflowExpansionFailed = 0;
+  // FIX-C2: eagerly track which batch indices required at least one retry so the
+  // count survives a throw that exits generateProse() before the post-loop aggregation.
+  const retriedBatches = new Set<number>();
 
   // Deep-copy the caller's NarrativeState so mutations during generation (updateNSD calls)
   // do not bleed back into the orchestrator's copy.  Array/object fields need explicit
@@ -3517,7 +3742,7 @@ export async function generateProse(
               });
 
             const obligations = ledgerEntry
-              ? validateChapterPreCommitObligations(candidate, ledgerEntry, inputs.clueDistribution)
+              ? validateChapterPreCommitObligations(candidate, ledgerEntry, inputs.clueDistribution, castNames)
               : undefined;
             if (obligations) {
               hardErrors.push(...obligations.hardFailures);
@@ -3624,8 +3849,14 @@ export async function generateProse(
                 .map((msg) => /^Character "([^"]+)" has incorrect pronouns/.exec(msg)?.[1] ?? null)
                 .filter((n): n is string => n !== null);
 
+              // Pass the FULL cast so lastSingleCharacter tracking is accurate for all
+              // characters in the chapter.  The onlyNames option restricts actual repairs
+              // to flagged characters — preventing the inheritance-corruption pattern where
+              // a non-flagged male character's follow-up sentences are wrongly attributed
+              // to a flagged female character and have their pronouns flipped.
+              const onlyNames = new Set<string>(flaggedNames);
               const repaired = flaggedNames.length > 0
-                ? repairPronouns(chapterText, inputs.cast.characters, { targetNames: flaggedNames })
+                ? repairPronouns(chapterText, inputs.cast.characters, { onlyNames })
                 : { repairCount: 0, text: chapterText };
 
               if (repaired.repairCount > 0) {
@@ -3707,6 +3938,7 @@ export async function generateProse(
         }
 
         if (batchErrors.length > 0) {
+          retriedBatches.add(Math.floor(batchStart / batchSize));
           lastBatchErrors = batchErrors;
 
           // F: Failure diagnostics — log raw vs extracted content metrics to diagnose
@@ -3738,10 +3970,24 @@ export async function generateProse(
 
           if (attempt >= maxBatchAttempts) {
             const errorSummary = batchErrors.slice(0, 5).join('; ');
-            throw new Error(
+            const abortErr = new Error(
               `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation after ${maxBatchAttempts} attempts. Issues: ${errorSummary}` +
               `${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
             );
+            (abortErr as any).retriedBatches = retriedBatches.size;
+            // Tag the abort specifically when prompt leakage is the reason, so the
+            // orchestrator abort log clearly identifies this distinct failure mode.
+            const hasPromptLeakage = batchErrors.some(
+              (e) => e.toLowerCase().includes('prompt leakage') || e.toLowerCase().includes('instruction-shaped')
+            );
+            if (hasPromptLeakage) {
+              console.error(
+                `[Agent 9] PROMPT-LEAKAGE ABORT: Ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} — ` +
+                `instruction-shaped prose detected at retry exhaustion. Aborting to prevent leakage from persisting in output.`
+              );
+              (abortErr as any).promptLeakagePersisted = true;
+            }
+            throw abortErr;
           }
           continue;
         }
@@ -3801,9 +4047,11 @@ export async function generateProse(
         lastBatchRawResponse = null;
 
         if (attempt >= maxBatchAttempts) {
-          throw new Error(
+          const abortErr = new Error(
             `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} generation failed after ${maxBatchAttempts} attempts: ${errorMsg}`
           );
+          (abortErr as any).retriedBatches = retriedBatches.size;
+          throw abortErr;
         }
       }
     }
@@ -3842,9 +4090,9 @@ export async function generateProse(
     .filter(([key]) => key.startsWith("Agent9-ProseGenerator"))
     .reduce((sum, [, val]) => sum + val, 0);
 
-  const batchesWithRetries = new Set(
-    chapterValidationHistory.map((h) => Math.floor((h.chapterNumber - 1) / batchSize)),
-  ).size;
+  // FIX-C2: use the eagerly-maintained retriedBatches set (matches the value attached to
+  // any abort error, so aborted and completed runs both report accurate counts).
+  const batchesWithRetries = retriedBatches.size;
   const totalBatches = Math.ceil(sceneCount / batchSize);
   const note = chapterValidationHistory.length > 0
     ? `Generated in scene batches. ${batchesWithRetries} batch(es) required retry for validation.`

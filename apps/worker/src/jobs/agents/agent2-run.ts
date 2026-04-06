@@ -19,6 +19,58 @@ import {
   appendRetryFeedback,
 } from "./shared.js";
 
+/**
+ * Normalise common LLM field-name variants in a raw cast artifact.
+ * Handles snake_case crimeDynamics keys, missing required array fields,
+ * and relationships returned as a bare array instead of { pairs: [...] }.
+ * Mutates the object in place — call before validateArtifact.
+ */
+function normaliseCastOutput(castRaw: Record<string, unknown>): void {
+  // --- crimeDynamics: snake_case → camelCase ---
+  const cd = ((castRaw.crimeDynamics ?? {}) as Record<string, unknown>);
+  if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
+  if (!cd.redHerrings && cd.red_herrings)                   { cd.redHerrings = cd.red_herrings; }
+  if (!cd.victimCandidates && cd.victim_candidates)         { cd.victimCandidates = cd.victim_candidates; }
+  if (!cd.detectiveCandidates && cd.detective_candidates)   { cd.detectiveCandidates = cd.detective_candidates; }
+
+  // --- crimeDynamics: ensure all required arrays are present, deriving from characters if needed ---
+  const characters = Array.isArray(castRaw.characters)
+    ? (castRaw.characters as Array<Record<string, unknown>>)
+    : [];
+  const nonDetectiveNames = characters
+    .filter((c) => String(c.roleArchetype ?? "").toLowerCase() !== "detective" && c.name)
+    .map((c) => String(c.name));
+  const detectiveNames = characters
+    .filter((c) => String(c.roleArchetype ?? "").toLowerCase() === "detective" && c.name)
+    .map((c) => String(c.name));
+  if (!Array.isArray(cd.possibleCulprits) || (cd.possibleCulprits as unknown[]).length === 0) {
+    cd.possibleCulprits = nonDetectiveNames.slice(0, Math.min(3, nonDetectiveNames.length));
+  }
+  if (!Array.isArray(cd.redHerrings)) {
+    cd.redHerrings = [];
+  }
+  if (!Array.isArray(cd.victimCandidates) || (cd.victimCandidates as unknown[]).length === 0) {
+    cd.victimCandidates = nonDetectiveNames.slice(0, 1);
+  }
+  if (!Array.isArray(cd.detectiveCandidates) || (cd.detectiveCandidates as unknown[]).length === 0) {
+    cd.detectiveCandidates = detectiveNames.length > 0 ? detectiveNames : nonDetectiveNames.slice(0, 1);
+  }
+  castRaw.crimeDynamics = cd;
+
+  // --- relationships: normalise to { pairs: [...] } if LLM returned a bare array ---
+  const rels = castRaw.relationships;
+  if (Array.isArray(rels)) {
+    castRaw.relationships = { pairs: rels };
+  } else if (rels !== null && typeof rels === "object") {
+    const relObj = rels as Record<string, unknown>;
+    if (!Array.isArray(relObj.pairs) && Array.isArray((relObj as any).characters)) {
+      relObj.pairs = (relObj as any).characters;
+    } else if (!Array.isArray(relObj.pairs)) {
+      relObj.pairs = [];
+    }
+  }
+}
+
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 
@@ -93,6 +145,10 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
 
   const cast = ctx.cast!;
 
+  // Normalise field-name variants (snake_case → camelCase, missing arrays, relationships shape)
+  // before schema validation so cosmetic LLM formatting differences don't abort the pipeline.
+  normaliseCastOutput((cast.cast as unknown) as Record<string, unknown>);
+
   if (cast.cast.diversity.stereotypeCheck.length > 0) {
     ctx.errors.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
     throw new Error("Cast design failed stereotype guardrails");
@@ -125,6 +181,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     });
     ctx.agentCosts["agent2_cast"] = (ctx.agentCosts["agent2_cast"] || 0) + retriedCast.cost;
     ctx.agentDurations["agent2_cast"] = (ctx.agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);
+    normaliseCastOutput((retriedCast.cast as unknown) as Record<string, unknown>);
     const retriedPayload = {
       ...((retriedCast.cast as unknown) as Record<string, unknown>),
       cost: retriedCast.cost,
@@ -133,7 +190,8 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     const retryValidation = validateArtifact("cast_design", retriedPayload);
     if (!retryValidation.valid) {
       retryValidation.errors.forEach((error) => ctx.errors.push(`Cast schema failure: ${error}`));
-      throw new Error("Cast artifact failed schema validation");
+      const errorSummary = retryValidation.errors.slice(0, 3).join("; ");
+      throw new Error(`Cast artifact failed schema validation: ${errorSummary}`);
     }
     ctx.cast = retriedCast;
     castSchemaValidation = retryValidation;

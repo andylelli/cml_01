@@ -203,7 +203,39 @@ export interface Agent9ScorerConfig {
   };
 }
 
+export interface Agent65WorldBuilderConfig extends AgentStatusConfig {
+  params: {
+    model: ModelConfig;
+    generation: GenerationConfig;
+    quality: {
+      arc_description_gate: number;
+      arc_description_prompt_buffer: number;
+    };
+  };
+}
+
+export interface Agent9ValidationConfig {
+  pronoun_checking_enabled: boolean;
+}
+
+export interface StoryLengthWordTargetConfig {
+  min_words: number;
+  max_words: number;
+  chapter_ideal_words: number;
+}
+
+export interface StoryLengthPolicyConfig {
+  targets: { short: number; medium: number; long: number };
+  chapter_target_tolerance: number;
+  word_targets: {
+    short: StoryLengthWordTargetConfig;
+    medium: StoryLengthWordTargetConfig;
+    long: StoryLengthWordTargetConfig;
+  };
+}
+
 export interface GenerationParamsConfig {
+  story_length_policy: StoryLengthPolicyConfig;
   agent1_setting: Agent1SettingConfig;
   agent2_cast: Agent2CastConfig;
   agent2b_profiles: Agent2SimpleConfig;
@@ -216,6 +248,7 @@ export interface GenerationParamsConfig {
   agent5_clues: Agent5CluesConfig;
   agent6_fairplay: Agent6FairPlayConfig;
   agent7_narrative: Agent7NarrativeConfig;
+  agent65_world_builder: Agent65WorldBuilderConfig;
   agent8_novelty: Agent8NoveltyConfig;
   agent9_prose: {
     word_policy: Agent9WordPolicyConfig;
@@ -225,10 +258,20 @@ export interface GenerationParamsConfig {
     style_linter: Agent9StyleLinterConfig;
     scoring_adapter: Agent9ScoringAdapterConfig;
     scorer: Agent9ScorerConfig;
+    validation: Agent9ValidationConfig;
   };
 }
 
 const DEFAULT_CONFIG: GenerationParamsConfig = {
+  story_length_policy: {
+    targets: { short: 20, medium: 30, long: 42 },
+    chapter_target_tolerance: 2,
+    word_targets: {
+      short:  { min_words: 15000, max_words: 25000,  chapter_ideal_words: 1000 },
+      medium: { min_words: 40000, max_words: 60000,  chapter_ideal_words: 1700 },
+      long:   { min_words: 70000, max_words: 100000, chapter_ideal_words: 2200 },
+    },
+  },
   agent1_setting: {
     status: "implemented",
     params: {
@@ -326,6 +369,17 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
           act1_ratio: 0.28,
           act2_ratio: 0.47,
         },
+      },
+    },
+  },
+  agent65_world_builder: {
+    status: "implemented",
+    params: {
+      model: { temperature: 0.7, max_tokens: 6000 },
+      generation: { default_max_attempts: 2 },
+      quality: {
+        arc_description_gate: 200,
+        arc_description_prompt_buffer: 100,
       },
     },
   },
@@ -428,6 +482,9 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
         },
       },
     },
+    validation: {
+      pronoun_checking_enabled: true,
+    },
   },
 };
 
@@ -460,7 +517,30 @@ const resolveConfigPath = (): string => {
 
 const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParamsConfig => {
   const source = partial as any;
+
+  const mergeWordTarget = (
+    src: any,
+    defaults: StoryLengthWordTargetConfig,
+  ): StoryLengthWordTargetConfig => ({
+    min_words: Math.max(1, Math.floor(clampNumber(src?.min_words, defaults.min_words, 100, 500000))),
+    max_words: Math.max(1, Math.floor(clampNumber(src?.max_words, defaults.max_words, 100, 1000000))),
+    chapter_ideal_words: Math.max(1, Math.floor(clampNumber(src?.chapter_ideal_words, defaults.chapter_ideal_words, 50, 10000))),
+  });
+
   const merged: GenerationParamsConfig = {
+    story_length_policy: {
+      targets: {
+        short:  Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.short,  DEFAULT_CONFIG.story_length_policy.targets.short,  1, 200))),
+        medium: Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.medium, DEFAULT_CONFIG.story_length_policy.targets.medium, 1, 200))),
+        long:   Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.long,   DEFAULT_CONFIG.story_length_policy.targets.long,   1, 200))),
+      },
+      chapter_target_tolerance: Math.max(0, Math.floor(clampNumber(source.story_length_policy?.chapter_target_tolerance, DEFAULT_CONFIG.story_length_policy.chapter_target_tolerance, 0, 50))),
+      word_targets: {
+        short:  mergeWordTarget(source.story_length_policy?.word_targets?.short,  DEFAULT_CONFIG.story_length_policy.word_targets.short),
+        medium: mergeWordTarget(source.story_length_policy?.word_targets?.medium, DEFAULT_CONFIG.story_length_policy.word_targets.medium),
+        long:   mergeWordTarget(source.story_length_policy?.word_targets?.long,   DEFAULT_CONFIG.story_length_policy.word_targets.long),
+      },
+    },
     agent1_setting: {
       status: typeof source.agent1_setting?.status === "string" ? source.agent1_setting.status : DEFAULT_CONFIG.agent1_setting.status,
       params: {
@@ -630,6 +710,22 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         },
       },
     },
+    agent65_world_builder: {
+      status: typeof source.agent65_world_builder?.status === "string" ? source.agent65_world_builder.status : DEFAULT_CONFIG.agent65_world_builder.status,
+      params: {
+        model: {
+          temperature: clampNumber(source.agent65_world_builder?.params?.model?.temperature, DEFAULT_CONFIG.agent65_world_builder.params.model.temperature, 0, 1),
+          max_tokens: Math.floor(clampNumber(source.agent65_world_builder?.params?.model?.max_tokens, DEFAULT_CONFIG.agent65_world_builder.params.model.max_tokens, 256, 20000)),
+        },
+        generation: {
+          default_max_attempts: Math.floor(clampNumber(source.agent65_world_builder?.params?.generation?.default_max_attempts, DEFAULT_CONFIG.agent65_world_builder.params.generation.default_max_attempts, 1, 10)),
+        },
+        quality: {
+          arc_description_gate: Math.floor(clampNumber(source.agent65_world_builder?.params?.quality?.arc_description_gate, DEFAULT_CONFIG.agent65_world_builder.params.quality.arc_description_gate, 50, 1000)),
+          arc_description_prompt_buffer: Math.floor(clampNumber(source.agent65_world_builder?.params?.quality?.arc_description_prompt_buffer, DEFAULT_CONFIG.agent65_world_builder.params.quality.arc_description_prompt_buffer, 0, 500)),
+        },
+      },
+    },
     agent8_novelty: {
       status: typeof source.agent8_novelty?.status === "string" ? source.agent8_novelty.status : DEFAULT_CONFIG.agent8_novelty.status,
       params: {
@@ -655,7 +751,7 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         hard_floor_relaxation_ratio: clampNumber(
           partial.agent9_prose?.word_policy?.hard_floor_relaxation_ratio,
           DEFAULT_CONFIG.agent9_prose.word_policy.hard_floor_relaxation_ratio,
-          0.6,
+          0,
           1,
         ),
         min_hard_floor_words: Math.floor(
@@ -1010,6 +1106,11 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
             ),
           },
         },
+      },
+      validation: {
+        pronoun_checking_enabled: typeof partial.agent9_prose?.validation?.pronoun_checking_enabled === 'boolean'
+          ? partial.agent9_prose.validation.pronoun_checking_enabled
+          : DEFAULT_CONFIG.agent9_prose.validation.pronoun_checking_enabled,
       },
     },
   };

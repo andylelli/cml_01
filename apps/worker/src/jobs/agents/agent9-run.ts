@@ -254,6 +254,194 @@ const getGroundingSignals = (opening: string, anchors: string[]) => {
   return { hasAnchor, sensoryCount, hasAtmosphere };
 };
 
+// ============================================================================
+// Word-form locked fact repair
+// ============================================================================
+
+const WORD_TO_NUM: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
+  fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+  twenty: 20, 'twenty-one': 21, 'twenty-two': 22, 'twenty-three': 23,
+  'twenty-four': 24, 'twenty-five': 25, 'twenty-six': 26, 'twenty-seven': 27,
+  'twenty-eight': 28, 'twenty-nine': 29, thirty: 30, half: 30, quarter: 15,
+  'thirty-one': 31, 'thirty-two': 32, 'thirty-three': 33, 'thirty-four': 34,
+  'thirty-five': 35, 'thirty-six': 36, 'thirty-seven': 37, 'thirty-eight': 38,
+  'thirty-nine': 39, forty: 40, 'forty-one': 41, 'forty-two': 42,
+  'forty-three': 43, 'forty-four': 44, 'forty-five': 45, 'forty-six': 46,
+  'forty-seven': 47, 'forty-eight': 48, 'forty-nine': 49, fifty: 50,
+  'fifty-five': 55, sixty: 60,
+};
+
+/**
+ * Parse a word-form time string (e.g. "ten minutes past eleven", "half past three")
+ * into a { hour, minute } pair. Returns null if not a recognised pattern.
+ */
+const parseWordFormTime = (value: string): { hour: number; minute: number } | null => {
+  const lower = value.toLowerCase().trim();
+
+  // "half past [hour]"
+  const halfPast = lower.match(/^half\s+past\s+(\w+)$/);
+  if (halfPast) {
+    const h = WORD_TO_NUM[halfPast[1]];
+    if (h != null) return { hour: h, minute: 30 };
+  }
+
+  // "quarter past [hour]"
+  const quarterPast = lower.match(/^quarter\s+past\s+(\w+)$/);
+  if (quarterPast) {
+    const h = WORD_TO_NUM[quarterPast[1]];
+    if (h != null) return { hour: h, minute: 15 };
+  }
+
+  // "quarter to [hour]"
+  const quarterTo = lower.match(/^quarter\s+to\s+(\w+)$/);
+  if (quarterTo) {
+    const h = WORD_TO_NUM[quarterTo[1]];
+    if (h != null) return { hour: h === 1 ? 12 : h - 1, minute: 45 };
+  }
+
+  // "[N word] [minutes] past [hour]" — e.g. "ten minutes past eleven", "five past six"
+  const minutesPast = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+(\w+)$/);
+  if (minutesPast) {
+    const m = WORD_TO_NUM[minutesPast[1].trim()];
+    const h = WORD_TO_NUM[minutesPast[2].trim()];
+    if (m != null && h != null) return { hour: h, minute: m };
+  }
+
+  // "[N word] [minutes] to [hour]" — e.g. "ten minutes to twelve", "five to three"
+  const minutesTo = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+(\w+)$/);
+  if (minutesTo) {
+    const m = WORD_TO_NUM[minutesTo[1].trim()];
+    const h = WORD_TO_NUM[minutesTo[2].trim()];
+    if (m != null && h != null) {
+      return { hour: h === 1 ? 12 : h - 1, minute: 60 - m };
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Parse a word-form quantity string (e.g. "forty minutes", "seven inches", "two miles")
+ * into a { amount, unit } pair. Accepts any unit word that follows a recognised number word.
+ * Returns null if not a recognised pattern.
+ */
+const parseWordFormQuantity = (value: string): { amount: number; unit: string } | null => {
+  const lower = value.toLowerCase().trim();
+  // Matches exactly: "[word-form-number] [unit]" — e.g. "forty minutes", "seven inches", "three shots"
+  const match = lower.match(/^([\w-]+)\s+(\w+)$/);
+  if (!match) return null;
+  const amount = WORD_TO_NUM[match[1]];
+  if (amount == null) return null;
+  return { amount, unit: match[2] };
+};
+
+/**
+ * Deterministic post-prose repair for word-form locked-fact time and duration values.
+ *
+ * When a locked fact's canonical value is a word-phrased time (e.g.
+ * "ten minutes past eleven") or a word-phrased duration (e.g. "forty minutes"),
+ * the LLM may convert it to digit form ("11:10 PM", "40 minutes") despite the
+ * FIX-C prompt instruction. This pass scans each scoped chapter's paragraphs
+ * and replaces any digit-form equivalent with the canonical word form,
+ * preventing the ProseConsistencyValidator from firing a false
+ * locked_fact_missing_value major issue.
+ *
+ * Per-chapter warning is emitted when more than 3 replacements are required
+ * in a single chapter — this indicates the LLM is persistently ignoring the
+ * locked-fact format constraint and may need stronger attribution.
+ */
+export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any => {
+  if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
+
+  // Build (pattern → canonical) repair list for word-form time and duration facts.
+  const repairs: Array<{ pattern: RegExp; canonical: string; chaptersScope: Set<number> | null }> = [];
+
+  for (const fact of lockedFacts) {
+    const canonical = typeof fact.value === 'string' ? fact.value.trim() : null;
+    if (!canonical) continue;
+
+    const chaptersScope = Array.isArray(fact.appearsInChapters) && fact.appearsInChapters.length > 0
+      ? new Set((fact.appearsInChapters as string[]).map(Number).filter((n) => !isNaN(n)))
+      : null;
+
+    // Try time-of-day pattern first (e.g. "ten minutes past eleven" → catch "11:10 PM").
+    const parsedTime = parseWordFormTime(canonical);
+    if (parsedTime) {
+      const { hour, minute } = parsedTime;
+      const minutePadded = String(minute).padStart(2, '0');
+      // Match "H:MM" or "H.MM" optionally followed by AM/PM variants.
+      const pattern = new RegExp(
+        `\\b${hour}[:\\.]${minutePadded}(?:\\s*(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm))?\\b`,
+        'g',
+      );
+      repairs.push({ pattern, canonical, chaptersScope });
+      continue;
+    }
+
+    // Try word-phrased quantity pattern (e.g. "forty minutes" → catch "40 minutes",
+    // "seven inches" → catch "7 inches", "three shots" → catch "3 shots").
+    const parsedQuantity = parseWordFormQuantity(canonical);
+    if (parsedQuantity) {
+      const { amount, unit } = parsedQuantity;
+      // Build unit pattern:
+      //  - Regular plurals ending in 's' ("minutes", "shots", "yards"): make the 's' optional
+      //    so both digit-singular and digit-plural forms are caught.
+      //  - Irregular plurals and exact forms ("feet", "inch"): use exact match to avoid
+      //    constructing invalid stems (e.g. "fee" from "feet").
+      const escapedUnit = unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const unitPattern = unit.endsWith('s') && unit.length > 3
+        ? `${unit.slice(0, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?`
+        : escapedUnit;
+      const pattern = new RegExp(
+        `\\b${amount}\\s+${unitPattern}\\b`,
+        'gi',
+      );
+      repairs.push({ pattern, canonical, chaptersScope });
+    }
+  }
+
+  if (repairs.length === 0) return prose;
+
+  let totalRepairs = 0;
+  const repairedChapters = (prose.chapters as any[]).map((chapter: any, idx: number) => {
+    const chapterNumber = idx + 1;
+    const applicableRepairs = repairs.filter(
+      (r) => !r.chaptersScope || r.chaptersScope.has(chapterNumber),
+    );
+    if (applicableRepairs.length === 0) return chapter;
+
+    let chapterRepairs = 0;
+    const repairedParagraphs = (chapter.paragraphs as string[]).map((paragraph: string) => {
+      let repaired = paragraph;
+      for (const { pattern, canonical } of applicableRepairs) {
+        pattern.lastIndex = 0; // reset stateful regex
+        const before = repaired;
+        repaired = repaired.replace(pattern, canonical);
+        if (repaired !== before) chapterRepairs += 1;
+      }
+      return repaired;
+    });
+
+    totalRepairs += chapterRepairs;
+
+    if (chapterRepairs > 3) {
+      console.warn(
+        `[Agent 9] repairWordFormLockedFacts: Chapter ${chapterNumber} required ${chapterRepairs} replacements — LLM may be persistently ignoring the locked-fact format constraint.`,
+      );
+    }
+
+    return { ...chapter, paragraphs: repairedParagraphs };
+  });
+
+  if (totalRepairs > 0) {
+    console.log(`[Agent 9] repairWordFormLockedFacts: ${totalRepairs} digit-form → word-form replacement(s) applied.`);
+  }
+
+  return { ...prose, chapters: repairedChapters };
+};
+
 export const applyDeterministicProsePostProcessing = (
   prose: any,
   locationProfiles: any,
@@ -380,8 +568,34 @@ export const getExpectedClueIdsForVisibility = (
     .map((entry: any) => String(entry?.clue_id || entry?.id || ""))
     .filter(Boolean);
 
+  // Reconcile: only keep mapping/registry IDs that Agent 5 actually distributed to chapters.
+  // Ambient clues in the registry with no chapter assignment are not visible in prose and must
+  // not appear in the expected set (they would generate false "missing clue" failures).
+  // discriminatingIds are always kept — they are required by fair-play rules regardless.
+  //
+  // Guard: if clueDistribution is absent (or produced no clues), fall back to the full
+  // registry+mapping union so the function remains safe when called before Agent 5 has run.
+  if (distributionIds.length === 0) {
+    return Array.from(
+      new Set([...mappingIds, ...discriminatingIds, ...registryIds]),
+    );
+  }
+
+  const distributedSet = new Set(distributionIds);
+  const droppedIds = [...new Set([...mappingIds, ...registryIds])].filter(
+    (id) => !distributedSet.has(id) && !discriminatingIds.includes(id),
+  );
+  if (droppedIds.length > 0) {
+    console.warn(
+      `[getExpectedClueIdsForVisibility] ${droppedIds.length} clue ID(s) excluded from expected set (not in Agent 5 distributed output): ${droppedIds.join(", ")}`,
+    );
+  }
+
+  // reconciledMappingIds / reconciledRegistryIds are subsets of distributionIds by construction
+  // (filtered to only those present in distributedSet), so they add no new IDs to the union.
+  // The effective return is: distributionIds ∪ discriminatingIds.
   return Array.from(
-    new Set([...mappingIds, ...distributionIds, ...discriminatingIds, ...registryIds]),
+    new Set([...distributionIds, ...discriminatingIds]),
   );
 };
 
@@ -602,12 +816,56 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const totalSceneCount =
     narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
   const moralAmbiguityNote = hardLogicDevices.devices[0]?.moralAmbiguity;
-  const proseLockedFacts = hardLogicDevices.devices[0]?.lockedFacts;
+  const proseLockedFacts = (hardLogicDevices.devices ?? []).flatMap((d: any) =>
+    Array.isArray(d.lockedFacts) ? d.lockedFacts : []
+  );
+
+  // Derive which chapters each locked fact is expected to appear in by cross-referencing
+  // the narrative scene→clue assignments against locked fact keyword overlap.
+  //
+  // Without this scoping, ProseConsistencyValidator fires the verbatim-phrase check on
+  // every chapter that incidentally matches 2+ keywords from the fact's description
+  // (e.g. any chapter mentioning "clock" triggers the check for "exact time shown on
+  // stopped clock face"). Since mystery prose uses these words throughout, the result
+  // is dozens of false-positive major issues that block the story validation gate.
+  //
+  // With appearsInChapters populated, the validator only checks the chapters where
+  // the associated clue evidence is formally introduced to the reader.
+  const clueIdToChapters = new Map<string, number[]>();
+  for (const act of (narrative.acts ?? [])) {
+    for (const scene of (act.scenes ?? [])) {
+      const chapterNum = scene.sceneNumber as number;
+      for (const clueId of (Array.isArray(scene.cluesRevealed) ? scene.cluesRevealed : [])) {
+        const existing = clueIdToChapters.get(clueId) ?? [];
+        existing.push(chapterNum);
+        clueIdToChapters.set(clueId, existing);
+      }
+    }
+  }
+  const annotatedLockedFacts = proseLockedFacts.map((fact: any) => {
+    // If the fact already carries chapter scoping (e.g. set by agent3b), respect it.
+    if (Array.isArray(fact.appearsInChapters) && fact.appearsInChapters.length > 0) return fact;
+    const keywords = String(fact.description ?? '').toLowerCase().split(/\s+/).filter((w: string) => w.length > 3);
+    const matchedChapters = new Set<number>();
+    for (const clue of (clues.clues ?? [])) {
+      const clueText = `${clue.description} ${clue.pointsTo}`.toLowerCase();
+      const overlap = keywords.filter((kw: string) => clueText.includes(kw)).length;
+      if (overlap >= 2) {
+        for (const ch of (clueIdToChapters.get(clue.id) ?? [])) {
+          matchedChapters.add(ch);
+        }
+      }
+    }
+    return matchedChapters.size > 0
+      ? { ...fact, appearsInChapters: [...matchedChapters].sort((a, b) => a - b).map(String) }
+      : fact;
+  });
+
   const characterGenderMap: Record<string, string> = Object.fromEntries(
     cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
   );
   let narrativeState: NarrativeState = initNarrativeState(
-    proseLockedFacts ?? [],
+    annotatedLockedFacts,
     characterGenderMap,
   );
   const prosePhaseStartTime = Date.now();
@@ -711,6 +969,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         cml,
         targetLength: inputs.targetLength ?? "medium",
         threshold_config: { mode: "standard" },
+        narrativeSceneCount: totalSceneCount || undefined,
       });
 
       if (ctx.proseChapterScores.length > 0) {
@@ -748,7 +1007,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     locationProfiles: locationProfiles,
     temporalContext: temporalContext,
     moralAmbiguityNote,
-    lockedFacts: proseLockedFacts,
+    lockedFacts: annotatedLockedFacts,
     clueDistribution: clues,
     narrativeState,
     targetLength: inputs.targetLength,
@@ -920,6 +1179,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   });
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
+  // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
+  // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
+  prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   const proseFirstPassDurationMs = Date.now() - proseStart;
   const proseFirstPassCost = prose.cost;
   ctx.agentCosts["agent9_prose"] = proseFirstPassCost;
@@ -1030,6 +1292,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cml,
       threshold_config: { mode: "standard" },
       targetLength: inputs.targetLength ?? "medium",
+      narrativeSceneCount: totalSceneCount || undefined,
     });
     ctx.latestProseScore = score;
 
@@ -1177,7 +1440,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       locationProfiles: locationProfiles,
       temporalContext: temporalContext,
       moralAmbiguityNote,
-      lockedFacts: proseLockedFacts,
+      lockedFacts: annotatedLockedFacts,
       clueDistribution: clues,
       narrativeState,
       targetLength: inputs.targetLength,
@@ -1221,6 +1484,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       locationProfiles,
       cast.cast.characters,
     );
+    prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
     proseSchemaValidation = retryValidation;
     ctx.warnings.push("Prose schema-repair retry succeeded");
     await rescoreAgent9ProsePhase();
@@ -1240,6 +1504,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+  prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
 
   const storyForValidation = {
     id: runId,
@@ -1253,7 +1518,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   let validationReport: any = await validationPipeline.validate(storyForValidation, {
     ...cml,
-    lockedFacts: proseLockedFacts ?? [],
+    lockedFacts: annotatedLockedFacts,
     locationProfiles: locationProfiles ?? undefined,
   } as any);
   const preRepairValidationSummary = { ...validationReport.summary };
@@ -1290,21 +1555,52 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       metadata: { status: validationReport.status, summary: validationReport.summary },
     });
 
+    // Persist the full error list (all errors, not just the first 10) to scoring.jsonl
+    // and to the exported report JSON via the diagnostics upsert.
+    if (ctx.scoringLogger) {
+      ctx.scoringLogger.logValidationFailure(
+        validationReport.status,
+        validationReport.summary,
+        validationReport.errors.map((e: any) => ({
+          type: e.type,
+          severity: e.severity,
+          message: e.message,
+          sceneNumber: e.sceneNumber,
+          suggestion: e.suggestion,
+          cmlReference: e.cmlReference,
+        })),
+        runId,
+        projectId || "",
+      );
+    }
+    if (ctx.scoreAggregator) {
+      ctx.scoreAggregator.upsertDiagnostic(
+        "story_validation_failure",
+        "ValidationPipeline",
+        "Story Validation",
+        "validation_failure",
+        {
+          status: validationReport.status,
+          summary: validationReport.summary,
+          errors: validationReport.errors.map((e: any) => ({
+            type: e.type,
+            severity: e.severity,
+            message: e.message,
+            sceneNumber: e.sceneNumber,
+            suggestion: e.suggestion,
+            cmlReference: e.cmlReference,
+          })),
+        },
+      );
+    }
+
     ctx.warnings.push("═══ PROSE VALIDATION FAILURE DETAILS ═══");
     validationReport.errors.slice(0, 10).forEach((err: any) => {
       const errMsg = `  [${err.severity}] ${err.type}: ${err.message}`;
       ctx.warnings.push(errMsg);
-      client.getLogger()?.logError({
-        runId,
-        projectId,
-        agent: "ValidationPipeline",
-        operation: "validation_error",
-        errorMessage: err.message,
-        metadata: { severity: err.severity, type: err.type, fullError: err },
-      });
     });
     if (validationReport.errors.length > 10) {
-      const remainingMsg = `  ... and ${validationReport.errors.length - 10} more validation errors`;
+      const remainingMsg = `  ... and ${validationReport.errors.length - 10} more validation errors (all logged to scoring.jsonl)`;
       ctx.warnings.push(remainingMsg);
     }
 
@@ -1365,6 +1661,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   }
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
+  prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
 
   if (enableScoring && scoreAggregator && scoringLogger) {
     const finalizedPostGenerationDetails = buildPostGenerationSummaryDetails(

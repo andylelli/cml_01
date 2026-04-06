@@ -87,47 +87,57 @@ export class RetryManager {
   private getDefaultConfig(): RetryLimitsConfig {
     return {
       retry_limits: {
-        'agent1-background': {
+        'agent1_setting': {
           max_retries: 2,
           backoff_strategy: 'exponential',
           backoff_delay_ms: 1000,
         },
-        'agent2-cast': {
+        'agent2_cast': {
           max_retries: 3,
           backoff_strategy: 'linear',
           backoff_delay_ms: 500,
         },
-        'agent3-character-profiles': {
+        'agent2b_profiles': {
           max_retries: 3,
           backoff_strategy: 'linear',
           backoff_delay_ms: 500,
         },
-        'agent4-hard-logic': {
-          max_retries: 4,
-          backoff_strategy: 'exponential',
-          backoff_delay_ms: 2000,
-        },
-        'agent5-location-profiles': {
+        'agent2c_location_profiles': {
           max_retries: 3,
           backoff_strategy: 'linear',
           backoff_delay_ms: 500,
         },
-        'agent6-temporal-context': {
+        'agent2d_temporal_context': {
           max_retries: 2,
           backoff_strategy: 'none',
           backoff_delay_ms: 0,
         },
-        'agent7-narrative': {
+        'agent2e_background_context': {
+          max_retries: 2,
+          backoff_strategy: 'linear',
+          backoff_delay_ms: 500,
+        },
+        'agent3b_hard_logic_devices': {
+          max_retries: 4,
+          backoff_strategy: 'exponential',
+          backoff_delay_ms: 2000,
+        },
+        'agent7_narrative': {
           max_retries: 3,
           backoff_strategy: 'exponential',
           backoff_delay_ms: 1000,
         },
-        'agent8-setting-refinement': {
+        'agent65_world_builder': {
+          max_retries: 1,
+          backoff_strategy: 'none',
+          backoff_delay_ms: 5000,
+        },
+        'agent8_novelty': {
           max_retries: 3,
           backoff_strategy: 'linear',
           backoff_delay_ms: 500,
         },
-        'agent9-prose': {
+        'agent9_prose': {
           max_retries: 2,
           backoff_strategy: 'exponential',
           backoff_delay_ms: 3000,

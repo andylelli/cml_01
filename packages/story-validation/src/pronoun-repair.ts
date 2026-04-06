@@ -207,7 +207,21 @@ export interface PronounRepairResult {
  *
  * Returns the repaired text and a count of repairs made.
  */
-export function repairPronouns(text: string, cast: CastEntry[]): PronounRepairResult {
+export interface PronounRepairOptions {
+  /**
+   * When set, actual pronoun substitutions are restricted to characters whose
+   * canonical name is in this set.  All characters in `cast` are still used for
+   * `lastSingleCharacter` context tracking so that follow-up sentences are
+   * attributed to the correct subject — only the repair step is gated.
+   *
+   * This prevents "inheritance corruption": if we repair only flagged characters
+   * (a subset of the full cast), untracked characters would wrongly inherit the
+   * flagged character's gender context and have their pronouns corrupted.
+   */
+  onlyNames?: Set<string>;
+}
+
+export function repairPronouns(text: string, cast: CastEntry[], options?: PronounRepairOptions): PronounRepairResult {
   const characters = buildCharacterInfo(cast);
   if (characters.length === 0) {
     return { text, repairCount: 0 };
@@ -239,25 +253,38 @@ export function repairPronouns(text: string, cast: CastEntry[]): PronounRepairRe
       const mentioned = findMentionedCharacters(segment, characters);
 
       if (mentioned.length === 1) {
-        lastSingleCharacter = mentioned[0];
-        const repaired = repairPronounsInSegment(segment, mentioned[0]);
-        if (repaired !== segment) repairCount++;
-        return repaired;
+        lastSingleCharacter = mentioned[0]; // always track for context continuity
+        const shouldRepair = !options?.onlyNames || options.onlyNames.has(mentioned[0].canonical);
+        if (shouldRepair) {
+          const repaired = repairPronounsInSegment(segment, mentioned[0]);
+          if (repaired !== segment) repairCount++;
+          return repaired;
+        }
+        return segment;
       }
 
       if (mentioned.length === 0 && lastSingleCharacter) {
-        const repaired = repairPronounsInSegment(segment, lastSingleCharacter);
-        if (repaired !== segment) repairCount++;
-        return repaired;
+        // Only apply repair if the inherited subject is in the allowed set
+        const shouldRepair = !options?.onlyNames || options.onlyNames.has(lastSingleCharacter.canonical);
+        if (shouldRepair) {
+          const repaired = repairPronounsInSegment(segment, lastSingleCharacter);
+          if (repaired !== segment) repairCount++;
+          return repaired;
+        }
+        return segment;
       }
 
       if (mentioned.length >= 2) {
         const genders = new Set(mentioned.map((c) => c.gender));
         if (genders.size === 1) {
-          lastSingleCharacter = mentioned[0];
-          const repaired = repairPronounsInSegment(segment, mentioned[0]);
-          if (repaired !== segment) repairCount++;
-          return repaired;
+          lastSingleCharacter = mentioned[0]; // always track
+          const shouldRepair = !options?.onlyNames || options.onlyNames.has(mentioned[0].canonical);
+          if (shouldRepair) {
+            const repaired = repairPronounsInSegment(segment, mentioned[0]);
+            if (repaired !== segment) repairCount++;
+            return repaired;
+          }
+          return segment;
         }
         lastSingleCharacter = null;
         return segment;

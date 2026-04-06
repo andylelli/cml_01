@@ -11,7 +11,7 @@ import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer, getSceneTarget } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -561,6 +561,44 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           threshold_config: { mode: "standard" },
           targetLength: ctx.inputs.targetLength ?? "medium",
         });
+
+        // Scene-count gate inside the scoring path: force F only when the deviation
+        // exceeds the configured tolerance (±getChapterTargetTolerance()).  Counts within
+        // tolerance are accepted — prose generates one chapter per scene so a ±2 deviation
+        // doesn't break the story structure.
+        const actualSceneCount = (narrativeResult.acts ?? []).flatMap((a: any) =>
+          Array.isArray(a.scenes) ? a.scenes : []
+        ).length;
+        const expectedSceneCount = getSceneTarget(ctx.inputs.targetLength ?? "medium");
+        const sceneCountTolerance = getChapterTargetTolerance();
+        if (Math.abs(actualSceneCount - expectedSceneCount) > sceneCountTolerance) {
+          // Use the SAME act-distribution ratios that buildUserRequest() uses so the
+          // retry feedback tells the LLM exactly what the prompt already asked for.
+          const pacing = getGenerationParams().agent7_narrative.params.pacing;
+          const actI   = Math.round(expectedSceneCount * pacing.act_distribution.act1_ratio);
+          const actII  = Math.round(expectedSceneCount * pacing.act_distribution.act2_ratio);
+          const actIII = expectedSceneCount - actI - actII;
+          return {
+            adapted,
+            score: {
+              ...score,
+              total: 0,
+              grade: 'F' as const,
+              passed: false,
+              failure_reason:
+                `Scene count: generated ${actualSceneCount} scenes but target is ${expectedSceneCount} ` +
+                `(tolerance ±${sceneCountTolerance}; deviation of ${Math.abs(actualSceneCount - expectedSceneCount)} exceeds limit). ` +
+                `Distribute as: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
+                `(these are exact counts, not ranges). Do not merge or drop scenes — ` +
+                `each scene becomes a distinct prose chapter.`,
+              component_failures: [
+                ...(score.component_failures ?? []),
+                `scene_count (${actualSceneCount} vs target ${expectedSceneCount}, tolerance ±${sceneCountTolerance})`,
+              ],
+            },
+          };
+        }
+
         return { adapted, score };
       },
       ctx.retryManager,
@@ -632,21 +670,32 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push(`Outline schema warning: ${warning}`)
   );
 
-  // ── Scene count safety gate ───────────────────────────────────────────────
-  // Guard against narratives with significantly fewer scenes than the length target.
-  // The retry manager may have accepted a 16-scene outline for a 20-scene "short" story
-  // because the overall score (97) cleared the threshold even through the chapter count
-  // sub-test was below par. If uncorrected, this propagates to the prose phase, which
-  // then fails "All chapters present: only 16/20" with no way to recover.
+  // ── Scene count final gate ────────────────────────────────────────────────
+  // The scene count produced by the LLM MUST be within ±getChapterTargetTolerance()
+  // of STORY_LENGTH_TARGETS[targetLength].scenes.  Prose generates one chapter per
+  // scene, so a small deviation is acceptable and does not break story structure.
+  // Only counts outside the tolerance trigger a retry / abort.
   {
     const expectedScenes = getSceneTarget(ctx.inputs.targetLength ?? "medium");
-    const sceneDeficit = expectedScenes - (narrative.totalScenes ?? 0);
-    if (sceneDeficit >= 3) {
+    const sceneTolerance = getChapterTargetTolerance();
+    // Use act-traversal count, not the LLM-supplied totalScenes field (which can lag).
+    const actualSceneCount = (narrative.acts ?? []).flatMap((a: any) =>
+      Array.isArray(a.scenes) ? a.scenes : []
+    ).length;
+
+    if (Math.abs(actualSceneCount - expectedScenes) > sceneTolerance) {
+      // Compute exact act targets using the SAME ratios as buildUserRequest() so the
+      // retry message is always consistent with what the prompt already asked for.
+      const pacing = getGenerationParams().agent7_narrative.params.pacing;
+      const actI   = Math.round(expectedScenes * pacing.act_distribution.act1_ratio);
+      const actII  = Math.round(expectedScenes * pacing.act_distribution.act2_ratio);
+      const actIII = expectedScenes - actI - actII;
+
       ctx.warnings.push(
-        `Scene count safety gate: narrative has ${narrative.totalScenes} scenes but target is ${expectedScenes}. ` +
-        `Deficit of ${sceneDeficit} exceeds tolerance — regenerating outline.`
+        `Scene count final gate: narrative has ${actualSceneCount} scenes but target is ${expectedScenes} — regenerating.`
       );
-      ctx.reportProgress("narrative", `Scene count repair: need ${expectedScenes} scenes, got ${narrative.totalScenes}`, 80);
+      ctx.reportProgress("narrative", `Scene count fix: need ${expectedScenes} scenes, got ${actualSceneCount}`, 80);
+
       const sceneCountRetryStart = Date.now();
       const sceneCountRetried = await formatNarrative(ctx.client, {
         caseData: ctx.cml!,
@@ -655,12 +704,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         narrativeStyle: ctx.inputs.narrativeStyle,
         detectiveType: ctx.inputs.detectiveType,
         qualityGuardrails: [
-          `CRITICAL SCENE COUNT: Your previous outline had only ${narrative.totalScenes} scenes but the target is EXACTLY ${expectedScenes} scenes. ` +
-          `You MUST generate exactly ${expectedScenes} scenes distributed across 3 acts. ` +
-          `Act I: ${Math.round(expectedScenes * 0.35)}-${Math.round(expectedScenes * 0.4)} scenes, ` +
-          `Act II: ${Math.round(expectedScenes * 0.35)}-${Math.round(expectedScenes * 0.4)} scenes, ` +
-          `Act III: ${Math.round(expectedScenes * 0.2)}-${Math.round(expectedScenes * 0.25)} scenes. ` +
-          `Do not compress or merge scenes. Each scene must be a distinct chapter in the final novel.`,
+          `SCENE COUNT VIOLATION: Your previous outline had ${actualSceneCount} scenes. ` +
+          `The target is EXACTLY ${expectedScenes} scenes — no more, no fewer. ` +
+          `You MUST generate EXACTLY: Act I=${actI} scenes, Act II=${actII} scenes, Act III=${actIII} scenes ` +
+          `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
+          `Count your scenes carefully before returning. ` +
+          `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
         ],
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -670,13 +719,20 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - sceneCountRetryStart);
 
-      if ((sceneCountRetried.totalScenes ?? 0) >= expectedScenes - 1) {
+      const retriedActualCount = (sceneCountRetried.acts ?? []).flatMap((a: any) =>
+        Array.isArray(a.scenes) ? a.scenes : []
+      ).length;
+
+      if (Math.abs(retriedActualCount - expectedScenes) <= sceneTolerance) {
         narrative = sceneCountRetried;
-        ctx.warnings.push(`Scene count safety gate: retry produced ${narrative.totalScenes} scenes — accepted.`);
+        ctx.warnings.push(`Scene count final gate: retry produced ${retriedActualCount} scenes — within ±${sceneTolerance} of target ${expectedScenes}, accepted.`);
         await rescoreNarrative(ctx, narrative);
       } else {
-        ctx.warnings.push(
-          `Scene count safety gate: retry still produced ${sceneCountRetried.totalScenes} scenes — keeping original (${narrative.totalScenes}).`
+        // Both attempts produced a count outside tolerance. Abort.
+        throw new Error(
+          `Scene count enforcement failed: after all retries, narrative has ${retriedActualCount} scenes ` +
+          `but the pipeline requires ${expectedScenes} ±${sceneTolerance}. ` +
+          `Aborting — cannot continue to prose generation with wrong scene count.`
         );
       }
     }

@@ -440,13 +440,16 @@ describe("Agent 9 prompt hardening fixes", () => {
   });
 
   it("Fix 7 runs targeted atmosphere repair only for chapters containing banned phrases", async () => {
+    const bannedPhrase = "the air hung cold and still beneath the rafters while the lamps shivered";
     const chat = vi.fn().mockResolvedValue({
+      // The implementation uses parsePhraseReplacementsResponse which expects {"replacements":[...]}
       content: JSON.stringify({
-        chapter: {
-          title: "1",
-          summary: "repaired",
-          paragraphs: ["Fresh rain rattled the casement while Clara watched the corridor."],
-        },
+        replacements: [
+          {
+            original: bannedPhrase,
+            replacement: "fresh rain rattled the casement while Clara watched the corridor",
+          },
+        ],
       }),
     });
     const client: any = { chat };
@@ -457,13 +460,14 @@ describe("Agent 9 prompt hardening fixes", () => {
         { title: "1", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered."] },
         { title: "2", paragraphs: ["A different sentence entirely."] },
       ] as any,
-      ["the air hung cold and still beneath the rafters while the lamps shivered"],
+      [bannedPhrase],
       "test-model",
       "run-1",
       "proj-1",
     );
 
     expect(chat).toHaveBeenCalledTimes(1);
+    // applyPhraseSubstitutions capitalises replacement when original match was sentence-case
     expect(result[0].paragraphs[0]).toContain("Fresh rain rattled the casement");
     expect(result[1].paragraphs[0]).toBe("A different sentence entirely.");
   });

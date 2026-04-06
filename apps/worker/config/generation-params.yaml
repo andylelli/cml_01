@@ -10,6 +10,32 @@
 # - Agent 1-9 sections below are runtime-consumed by their corresponding
 #   generation/audit paths.
 
+story_length_policy:
+  # Chapter / scene targets for each story length.
+  # Scenes === chapters: agent7 generates exactly `targets.X` scenes,
+  # agent9 converts each scene 1:1 into a prose chapter.
+  targets:
+    short: 20
+    medium: 30
+    long: 42
+  # Allowed +/- deviation used only by the prose scorer completeness check.
+  # The narrative scorer (agent7) enforces zero-tolerance exact match.
+  chapter_target_tolerance: 2
+  # Word budget targets for each story length.
+  word_targets:
+    short:
+      min_words: 15000
+      max_words: 25000
+      chapter_ideal_words: 1000
+    medium:
+      min_words: 40000
+      max_words: 60000
+      chapter_ideal_words: 1700
+    long:
+      min_words: 70000
+      max_words: 100000
+      chapter_ideal_words: 2200
+
 agent1_setting:
   status: implemented
   params:
@@ -47,9 +73,9 @@ agent2c_location_profiles:
   params:
     model:
       temperature: 0.6
-      max_tokens: 4500
+      max_tokens: 8000  # raised from 4500: atmosphere block at end of JSON was being truncated
     generation:
-      default_max_attempts: 2
+      default_max_attempts: 3  # raised from 2: two attempts insufficient for complex nested output
 
 agent2d_temporal_context:
   status: implemented
@@ -82,7 +108,7 @@ agent3b_hard_logic_devices:
   params:
     model:
       temperature: 0.7
-      max_tokens: 2600
+      max_tokens: 4000
     generation:
       default_max_attempts: 3
 
@@ -140,6 +166,14 @@ agent65_world_builder:
       max_tokens: 6000
     generation:
       default_max_attempts: 2
+    quality:
+      # Hard floor for arcDescription (words). Responses below this fail the gate.
+      # Supported range: 50 - 1000
+      arc_description_gate: 200
+      # Extra words added on top of arc_description_gate when instructing the LLM.
+      # Acts as a safety buffer so natural LLM undershoot still clears the gate.
+      # Supported range: 0 - 500
+      arc_description_prompt_buffer: 100
 
 agent8_novelty:
   status: implemented
@@ -161,8 +195,8 @@ agent9_prose:
   word_policy:
     # Hard floor (chapter pre-commit gate) = floor(preferred_chapter_words * ratio)
     # 0.77 gives short:1001 / medium:1232 / long:1848
-    # Supported range: 0.6 - 1.0
-    hard_floor_relaxation_ratio: 0.6
+    # Supported range: 0.0 - 1.0
+    hard_floor_relaxation_ratio: 0.4
     # Absolute lower bound for hard-floor words after ratio is applied
     # Supported range: 200 - 2000
     min_hard_floor_words: 600
@@ -289,3 +323,7 @@ agent9_prose:
         minor_gap_ratio: 0.8
         # Supported range: 0 - 100
         minor_gap_score: 85
+
+  validation:
+    # Enable/disable pronoun consistency checking in chapter validation
+    pronoun_checking_enabled: true

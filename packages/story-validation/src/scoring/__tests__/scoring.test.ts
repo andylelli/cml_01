@@ -215,48 +215,48 @@ describe("RetryManager", () => {
   });
 
   it("allows retry when no retries have been recorded yet", () => {
-    expect(manager.canRetry("agent2-cast")).toBe(true);
+    expect(manager.canRetry("agent2_cast")).toBe(true);
   });
 
   it("blocks retry after per-agent limit is reached", () => {
-    // agent2-cast default max_retries = 3
-    manager.recordRetry("agent2-cast", "below threshold", 60);
-    manager.recordRetry("agent2-cast", "below threshold", 65);
-    manager.recordRetry("agent2-cast", "below threshold", 68);
-    expect(manager.canRetry("agent2-cast")).toBe(false);
+    // agent2_cast default max_retries = 3
+    manager.recordRetry("agent2_cast", "below threshold", 60);
+    manager.recordRetry("agent2_cast", "below threshold", 65);
+    manager.recordRetry("agent2_cast", "below threshold", 68);
+    expect(manager.canRetry("agent2_cast")).toBe(false);
   });
 
   it("tracks retry count correctly", () => {
-    manager.recordRetry("agent7-narrative", "low quality", 55);
-    manager.recordRetry("agent7-narrative", "low completeness", 60);
-    expect(manager.getRetryCount("agent7-narrative")).toBe(2);
+    manager.recordRetry("agent7_narrative", "low quality", 55);
+    manager.recordRetry("agent7_narrative", "low completeness", 60);
+    expect(manager.getRetryCount("agent7_narrative")).toBe(2);
   });
 
   it("returns 0 for agents with no retries", () => {
-    expect(manager.getRetryCount("agent9-prose")).toBe(0);
+    expect(manager.getRetryCount("agent9_prose")).toBe(0);
   });
 
   it("returns correct max retries for known agents", () => {
-    expect(manager.getMaxRetries("agent4-hard-logic")).toBe(4); // most complex
-    expect(manager.getMaxRetries("agent2-cast")).toBe(3);
+    expect(manager.getMaxRetries("agent3b_hard_logic_devices")).toBe(4); // most complex
+    expect(manager.getMaxRetries("agent2_cast")).toBe(3);
   });
 
-  it("returns exponential backoff delay based on current retry count for agent4", () => {
-    // agent4 uses exponential with base 2000ms; retryCount starts at 0 → 2000 * 2^0 = 2000
-    const delay = manager.getBackoffDelay("agent4-hard-logic");
+  it("returns exponential backoff delay based on current retry count for agent3b", () => {
+    // agent3b_hard_logic_devices uses exponential with base 2000ms; retryCount starts at 0 → 2000 * 2^0 = 2000
+    const delay = manager.getBackoffDelay("agent3b_hard_logic_devices");
     expect(delay).toBe(2000);
   });
 
   it("returns exponential backoff delay that grows as retry count increases", () => {
-    const delay0 = manager.getBackoffDelay("agent4-hard-logic"); // retryCount = 0 → 2000
-    manager.recordRetry("agent4-hard-logic", "low score", 60);   // retryCount → 1
-    const delay1 = manager.getBackoffDelay("agent4-hard-logic"); // retryCount = 1 → 4000
+    const delay0 = manager.getBackoffDelay("agent3b_hard_logic_devices"); // retryCount = 0 → 2000
+    manager.recordRetry("agent3b_hard_logic_devices", "low score", 60);   // retryCount → 1
+    const delay1 = manager.getBackoffDelay("agent3b_hard_logic_devices"); // retryCount = 1 → 4000
     expect(delay1).toBeGreaterThan(delay0);
   });
 
   it("returns zero delay for 'none' backoff strategy", () => {
-    // agent6-temporal-context uses none
-    const delay = manager.getBackoffDelay("agent6-temporal-context");
+    // agent2d_temporal_context uses none
+    const delay = manager.getBackoffDelay("agent2d_temporal_context");
     expect(delay).toBe(0);
   });
 
@@ -270,8 +270,8 @@ describe("RetryManager", () => {
   });
 
   it("records retry history entries", () => {
-    manager.recordRetry("agent9-prose", "validation failure", 45);
-    const history = manager.getRetryHistory("agent9-prose");
+    manager.recordRetry("agent9_prose", "validation failure", 45);
+    const history = manager.getRetryHistory("agent9_prose");
     expect(history).toHaveLength(1);
     expect(history[0].reason).toBe("validation failure");
     expect(history[0].score_before).toBe(45);

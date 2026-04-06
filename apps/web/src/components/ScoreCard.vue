@@ -96,7 +96,7 @@ const runOutcomeClass = (report: GenerationReport) => {
 </script>
 
 <template>
-  <div v-if="!report" class="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+  <div v-if="!report || !report.summary" class="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
     <div class="text-base font-semibold text-slate-600">No quality report available</div>
     <div class="mt-2">Quality reports are generated when <code class="rounded bg-slate-200 px-1 py-0.5 text-xs">ENABLE_SCORING=true</code> is set.</div>
     <div class="mt-1 text-xs text-slate-400">Run generation with scoring enabled to see phase-by-phase quality metrics.</div>

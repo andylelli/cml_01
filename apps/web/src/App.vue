@@ -506,52 +506,110 @@ const progressPercentFromEvent = (event: { step: string; message: string }) => {
     case "pipeline_started":
     case "run_started":
       return 2;
+
+    // ── Setting (agent1) ────────────────────────────────────────────────────
     case "setting_done":
       return 12;
     case "setting":
-      return message.includes("refined") ? 12 : 0;
+      return message.includes("refined") ? 12 : 3;
+
+    // ── Cast (agent2) ───────────────────────────────────────────────────────
     case "cast_done":
       return 25;
     case "cast":
-      return message.includes("designed") ? 25 : 12;
+      return message.includes("designed") ? 25 : 13;
+
+    // ── Background Context (agent2e) ─────────────────────────────────────────
+    case "background_context_done":
+      return 30;
+    case "background-context":
+      return message.includes("generated") ? 30 : 26;
+
+    // ── Hard Logic Devices (agent3b) ─────────────────────────────────────────
     case "hard_logic_devices_done":
-      return 38;
+      return 35;
     case "hard_logic_devices":
-      return message.includes("generated") ? 38 : 25;
+      return message.includes("generated") ? 35 : 31;
+
+    // ── CML (agent3 + optional agent4 revision) ───────────────────────────────
     case "cml_done":
-      return 50;
+      return 52;
     case "cml":
-      if (message.includes("regenerating")) return 54;
-      if (message.includes("validated") || message.includes("generated")) return 50;
-      return 25;
+      if (message.includes("regenerating")) return 50;
+      if (message.includes("validated") || message.includes("generated")) return 52;
+      return 36;
+
+    // ── Novelty Audit (agent3) ────────────────────────────────────────────────
     case "novelty_audit_done":
+      return 58;
     case "novelty":
-      return message.includes("skipped") || message.includes("check") ? 58 : 52;
+      if (message.includes("skipped")) return 58;
+      return message.includes("check:") ? 58 : 53;
+
+    // ── Clues (agent5) ────────────────────────────────────────────────────────
     case "clues_done":
-      return 62;
+      return 65;
     case "clues":
       if (message.includes("regenerating")) return 60;
-      return message.includes("distributed") ? 62 : 50;
+      return message.includes("distributed") ? 65 : 59;
+
+    // ── Fair-play (agent6) ────────────────────────────────────────────────────
     case "fair_play_report_done":
       return 75;
     case "fairplay":
-      return message.includes("audit") ? 75 : 62;
-    case "outline_done":
-      return 87;
-    case "narrative":
-      return message.includes("scenes") || message.includes("structured") ? 87 : 75;
+      // "Fair play audit: pass/fail" contains "audit:" — that signals completion
+      if (message.includes("audit:")) return 75;
+      if (message.includes("blind")) return 72;
+      return 66;
+
+    // ── Character Profiles (agent2b) ──────────────────────────────────────────
     case "character_profiles_done":
-      return 91;
+      return 80;
     case "profiles":
-      return message.includes("generated") ? 91 : 88;
+      return message.includes("generated") ? 80 : 76;
+
+    // ── Location Profiles (agent2c) ───────────────────────────────────────────
+    case "location_profiles_done":
+      return 83;
+    case "location-profiles":
+      return message.includes("generated") ? 83 : 81;
+
+    // ── Temporal Context (agent2d) ────────────────────────────────────────────
+    case "temporal_context_done":
+      return 86;
+    case "temporal-context":
+      return message.includes("generated") ? 86 : 84;
+
+    // ── World Builder (agent65) ───────────────────────────────────────────────
+    case "world_builder_done":
+      return 92;
+    case "world-builder":
+      return message.includes("complete") ? 92 : 87;
+
+    // ── Narrative Outline (agent7) ────────────────────────────────────────────
+    case "outline_done":
+      return 95;
+    case "narrative":
+      if (message.includes("scenes") || message.includes("structured") || message.includes("complete")) return 95;
+      return 93;
+
+    // ── Prose (agent9) ────────────────────────────────────────────────────────
     case "prose_done":
-      return 94;
+      return 98;
     case "prose":
-      return message.includes("generated") ? 94 : 91;
+      return message.includes("generated") ? 98 : 96;
+
+    // ── Validation (agent9 post-prose gate) ───────────────────────────────────
+    case "validation":
+      if (message.includes("passed") || message.includes("auto-fix") || message.includes("encoding")) return 99;
+      return 97;
+
+    // ── Complete ──────────────────────────────────────────────────────────────
     case "pipeline_complete":
     case "run_finished":
     case "complete":
       return 100;
+
     default:
       return null;
   }
@@ -743,6 +801,10 @@ const connectSse = () => {
           runStatus.value = "Generation stopped before completion. Check run history and retry.";
           addError("warning", "pipeline", "Generation stopped before completion", "Open History/Logs for details, then retry.");
           logActivity({ projectId: projectId.value, scope: "ui", message: "run_failed" });
+          // Still poll for a quality report — the pipeline may have saved a partial/aborted
+          // report with phase scores that are useful to display in the quality tab.
+          void pollScoringReport();
+          void loadScoringHistory();
           return;
         }
 

@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { NarrativeScorer } from "../phase-scorers/agent7-narrative-scorer.js";
 
 describe("NarrativeScorer chapter count tolerance", () => {
-  it("passes chapter-count validation when short outline is within YAML tolerance", async () => {
+  it("passes chapter-count validation when short outline has exact chapter count (zero-tolerance)", async () => {
     const scorer = new NarrativeScorer();
 
-    const chapters = Array.from({ length: 17 }, (_, idx) => ({
+    const chapters = Array.from({ length: 20 }, (_, idx) => ({
       chapter_number: idx + 1,
       chapter_title: `Chapter ${idx + 1}`,
       scenes: [
@@ -45,6 +45,6 @@ describe("NarrativeScorer chapter count tolerance", () => {
     const chapterCountTest = score.tests.find((t) => t.name === "Chapter count");
     expect(chapterCountTest).toBeDefined();
     expect(chapterCountTest?.passed).toBe(true);
-    expect(chapterCountTest?.message ?? "").toContain("+/- 3");
+    expect(chapterCountTest?.message ?? "").toContain("20 chapters");
   });
 });

@@ -167,17 +167,6 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }> = [];
   const logs: ActivityLog[] = [];
 
-  if (restored) {
-    Object.entries(restored.projects ?? {}).forEach(([id, project]) => projects.set(id, project));
-    Object.entries(restored.specs ?? {}).forEach(([id, spec]) => specs.set(id, spec));
-    (restored.specOrder ?? []).forEach((entry) => specOrder.push(entry));
-    Object.entries(restored.runs ?? {}).forEach(([id, run]) => runs.set(id, run));
-    (restored.runOrder ?? []).forEach((entry) => runOrder.push(entry));
-    (restored.runEvents ?? []).forEach((entry) => runEvents.push(entry));
-    (restored.artifacts ?? []).forEach((entry) => artifacts.push(entry));
-    (restored.logs ?? []).forEach((entry) => logs.push(entry));
-  }
-
   const snapshot = (): FileState => ({
     projects: Object.fromEntries(projects.entries()),
     specs: Object.fromEntries(specs.entries()),
@@ -192,6 +181,37 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const persist = async () => {
     await persistState(snapshot());
   };
+
+  if (restored) {
+    Object.entries(restored.projects ?? {}).forEach(([id, project]) => projects.set(id, project));
+    Object.entries(restored.specs ?? {}).forEach(([id, spec]) => specs.set(id, spec));
+    (restored.specOrder ?? []).forEach((entry) => specOrder.push(entry));
+    Object.entries(restored.runs ?? {}).forEach(([id, run]) => runs.set(id, run));
+    (restored.runOrder ?? []).forEach((entry) => runOrder.push(entry));
+    (restored.runEvents ?? []).forEach((entry) => runEvents.push(entry));
+    (restored.artifacts ?? []).forEach((entry) => artifacts.push(entry));
+    (restored.logs ?? []).forEach((entry) => logs.push(entry));
+
+    // Startup recovery: any run/project left as "running" from a previous server
+    // process that crashed or was killed mid-pipeline must be reset to "idle".
+    // There can be no genuinely in-flight run at startup; these are all zombies.
+    let hadZombies = false;
+    for (const [id, project] of projects) {
+      if (project.status === "running") {
+        projects.set(id, { ...project, status: "idle" });
+        hadZombies = true;
+      }
+    }
+    for (const [id, run] of runs) {
+      if (run.status === "running") {
+        runs.set(id, { ...run, status: "idle" });
+        hadZombies = true;
+      }
+    }
+    if (hadZombies) {
+      await persist();
+    }
+  }
 
   return {
     async createProject(name: string) {

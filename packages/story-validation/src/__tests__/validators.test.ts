@@ -66,9 +66,12 @@ describe("NarrativeContinuityValidator", () => {
   });
 
   it("flags missing bridge when transitioning from disappearance to murder", () => {
+    // Scene 2 references a corpse but gives no explicit confirmation that the
+    // disappearance was reclassified as murder — no "found dead", "discovered dead",
+    // "had been murdered/killed" etc. The validator should fire.
     const story = makeStory([
       makeScene({ number: 1, text: "Lord Ashby had disappeared without trace." }),
-      makeScene({ number: 2, text: "He had been murdered, clearly." }),
+      makeScene({ number: 2, text: "The inspector examined the corpse in the library." }),
     ]);
     const result = validator.validate(story);
     expect(result.valid).toBe(false);

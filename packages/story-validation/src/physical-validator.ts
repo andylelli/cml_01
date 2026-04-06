@@ -177,19 +177,28 @@ export class PhysicalPlausibilityValidator implements Validator {
   private validateWeatherEvidence(scene: { text: string; number: number }): ValidationError[] {
     const errors: ValidationError[] = [];
 
-    // Check for trace evidence during storm
-    const hasStorm = scene.text.match(/storm|tempest|gale/i);
-    const hasTraceEvidence = scene.text.match(/dust|paper|footprint|fiber/i);
-    const isOutdoor = scene.text.match(/deck|outside|exterior/i);
+    // Only flag when storm + outdoor trace evidence co-occur in the SAME sentence.
+    // Chapter-level presence checks produce false positives: storm language in the
+    // opening paragraph and unrelated "paper"/"outside" elsewhere in a long chapter
+    // would incorrectly trigger. Sentence-level proximity eliminates this class of
+    // false positive for land-based settings (manor, country house) where "outside"
+    // and "paper" are common prose words.
+    const sentences = scene.text.split(/(?<=[.!?])\s+/);
+    for (const sentence of sentences) {
+      const hasStorm = /storm|tempest|gale/i.test(sentence);
+      const hasTraceEvidence = /\bdust\b|\bpapers?\b|\bfootprints?\b|\bfibers?\b/i.test(sentence);
+      const isOutdoor = /\b(?:deck|outside|outdoors?|exterior|garden|yard|grounds|lawn)\b/i.test(sentence);
 
-    if (hasStorm && hasTraceEvidence && isOutdoor) {
-      errors.push({
-        type: 'weather_incompatible_evidence',
-        message: 'Light trace evidence (dust, papers, footprints) cannot survive outdoor storm conditions',
-        severity: 'major',
-        sceneNumber: scene.number,
-        suggestion: 'Use storm-resistant evidence: structural damage, secured heavy objects, or move to interior location'
-      });
+      if (hasStorm && hasTraceEvidence && isOutdoor) {
+        errors.push({
+          type: 'weather_incompatible_evidence',
+          message: 'Light trace evidence (dust, papers, footprints) cannot survive outdoor storm conditions',
+          severity: 'major',
+          sceneNumber: scene.number,
+          suggestion: 'Use storm-resistant evidence: structural damage, secured heavy objects, or move to interior location'
+        });
+        break; // one error per scene is sufficient
+      }
     }
 
     return errors;

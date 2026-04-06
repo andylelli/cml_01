@@ -59,9 +59,6 @@ const formatMs = (ms: number): string => {
   return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 };
 
-// Rough estimate: total pipeline ~3 min for a full run
-const ESTIMATED_TOTAL_MS = 180_000;
-
 const estimatedRemainingMs = computed(() => {
   if (!props.isRunning || props.progressPercent <= 0) return null;
   const rate = localElapsedMs.value / props.progressPercent; // ms per percent

@@ -126,6 +126,34 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErr
   ].slice(0, 8);
 
   const validationFeedback = buildValidationFeedback(previousErrors);
+  // Determine which atmosphere failure case we are in, if any.
+  // Case A: top-level atmosphere object entirely absent — error has no dot ("atmosphere is required")
+  // Case B: atmosphere object exists but individual sub-fields are missing ("atmosphere.weather is required")
+  // The two cases are mutually exclusive in practice but the ternary handles overlap correctly.
+  const atmosphereSubfieldsMissing = previousErrors?.some(
+    (e) => /atmosphere\.\w+.*required|required.*atmosphere\.\w+/i.test(e)
+  ) ?? false;
+  const atmosphereObjectMissing = !atmosphereSubfieldsMissing && (previousErrors?.some(
+    (e) => /\batmosphere\b.*\brequired\b|\brequired\b.*\batmosphere\b/i.test(e)
+  ) ?? false);
+  // Extract the specific missing sub-field names from error strings (only used in Case B).
+  const missingSubfields: string[] = atmosphereSubfieldsMissing && previousErrors
+    ? [...new Set(
+        previousErrors.flatMap((e) => {
+          // Use [\w.]+ so nested paths like atmosphere.sensoryPalette.dominant
+          // are captured in full — not truncated to just 'sensoryPalette'.
+          const matches = e.match(/atmosphere\.(\w[\w.]*)/gi) ?? [];
+          return matches.map((m) => m.slice('atmosphere.'.length));
+        })
+      )]
+    : [];
+  const atmosphereFeedback: string =
+    atmosphereObjectMissing
+      ? `\n\nMissing required field: atmosphere — your JSON must contain a top-level "atmosphere" object with ALL of the following keys: era (string), weather (string), timeFlow (string), mood (string), eraMarkers (string[]), sensoryPalette ({ dominant: string, secondary: string[] }), paragraphs (string[] — 2-3 narrative paragraphs describing the overall setting mood). Add this object at the root of the JSON before returning.`
+      : atmosphereSubfieldsMissing
+        ? `\n\nIncomplete atmosphere object — your JSON has an "atmosphere" key but it is missing required sub-fields: ${missingSubfields.length > 0 ? missingSubfields.map((f) => `"${f}"`).join(', ') : '"weather", "timeFlow", "mood", "eraMarkers", "sensoryPalette", "paragraphs"'}. Add each missing field to your existing atmosphere object. Required shape: { era: string, weather: string, timeFlow: string, mood: string, eraMarkers: string[], sensoryPalette: { dominant: string, secondary: string[] }, paragraphs: string[] }.`
+        : '';
+  const enhancedFeedback = validationFeedback + atmosphereFeedback;
 
   const system = `You are a setting and atmosphere specialist for classic mystery fiction. Your task is to create vivid, evocative location profiles that bring mystery settings to life through sensory details, authentic period atmosphere, and physical descriptions that serve the mystery plot.
 
@@ -135,10 +163,16 @@ Rules:
 - Describe physical layout relevant to mystery (access, sightlines, isolation)
 - Create mood appropriate to mystery type
 - Balance atmospheric description with functional detail
+- The output JSON MUST include a top-level \`atmosphere\` object with ALL of these required fields: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting this object or any of its required fields will cause schema validation failure and the entire output will be rejected.
 - Output valid JSON only.`;
 
   const developer = `# Location Profiles Output Schema
-Return JSON with this structure:
+Return JSON with this structure.
+
+IMPORTANT OUTPUT ORDER: Write the keys in EXACTLY the order shown below.
+The "atmosphere" object MUST be written BEFORE "keyLocations" so it is never
+truncated if the response is long. Failure to include a complete "atmosphere"
+object will cause schema validation failure and the entire output will be rejected.
 
 {
   "status": "draft",
@@ -152,6 +186,18 @@ Return JSON with this structure:
     "visualDescription": "Physical appearance and key visual features",
     "atmosphere": "Overall mood and feeling",
     "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"]
+  },
+  "atmosphere": {
+    "era": "${era}",
+    "weather": "${weather}",
+    "timeFlow": "Time span of the story and how time is experienced (e.g. 'Three days of mounting tension')",
+    "mood": "${mood}",
+    "eraMarkers": ["Period-authentic detail 1", "Period-authentic detail 2", "Period-authentic detail 3"],
+    "sensoryPalette": {
+      "dominant": "The single dominant sensory impression of this setting",
+      "secondary": ["A second distinct sensory quality", "A third contrasting sensory quality"]
+    },
+    "paragraphs": ["Atmospheric paragraph 1 (~80 words)", "Atmospheric paragraph 2 (~80 words)"]
   },
   "keyLocations": [
     {
@@ -199,18 +245,6 @@ Return JSON with this structure:
       "paragraphs": ["Paragraph 1", "Paragraph 2"]
     }
   ],
-  "atmosphere": {
-    "era": "${era}",
-    "weather": "${weather}",
-    "timeFlow": "Time span and pacing",
-    "mood": "${mood}",
-    "eraMarkers": ["Period detail 1", "Period detail 2"],
-    "sensoryPalette": {
-      "dominant": "Primary sensory impression",
-      "secondary": ["Secondary impression 1", "Secondary impression 2"]
-    },
-    "paragraphs": ["Paragraph 1", "Paragraph 2"]
-  },
   "note": ""
 }
 
@@ -232,7 +266,8 @@ CRITICAL FIELD REQUIREMENTS:
 - sensoryDetails MUST be an object with arrays: sights, sounds, smells, tactile
 - sensoryVariants MUST be an array of 3-4 objects, each with: id (string), timeOfDay (morning|afternoon|evening|night), weather (string), sights (string[]), sounds (string[]), smells (string[]), mood (string). Cover morning-rain, afternoon-grey, and evening-clear as a minimum. These objects drive atmospheric variety across chapters.
 - type field MUST be one of: "interior", "exterior", "transitional"
-- Do NOT return location names as strings - always return complete objects with all required fields${validationFeedback}`;
+- Do NOT return location names as strings - always return complete objects with all required fields
+- The top-level \`atmosphere\` object is REQUIRED and must include: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting the atmosphere object entirely will fail schema validation.${enhancedFeedback}`;
 
   const user = `Generate location profiles for this mystery.
 
@@ -338,6 +373,39 @@ export async function generateLocationProfiles(
         throw new Error(
           `Location profiles must include at least 3 key locations (got ${profiles.keyLocations.length}). ` +
           `Include the crime scene plus at least 2 other distinct areas appropriate to the setting type.`
+        );
+      }
+
+      // Guard: atmosphere object must be present and structurally complete.
+      // This catches token-truncation where the atmosphere block is dropped or
+      // partially written, and produces a clear retry message rather than relying
+      // solely on schema validation errors further down the pipeline.
+      const atm = (profiles as any).atmosphere;
+      if (!atm || typeof atm !== 'object' || Array.isArray(atm)) {
+        throw new Error(
+          'Invalid location profiles output: top-level "atmosphere" object is missing. ' +
+          'The JSON must contain an "atmosphere" object with: era, weather, timeFlow, mood, ' +
+          'eraMarkers (string[]), sensoryPalette ({ dominant, secondary }), paragraphs (string[]).'
+        );
+      }
+      const requiredAtmFields = ['era', 'weather', 'timeFlow', 'mood', 'eraMarkers', 'sensoryPalette', 'paragraphs'] as const;
+      const missingAtmFields = requiredAtmFields.filter((f) => atm[f] === undefined || atm[f] === null);
+      if (missingAtmFields.length > 0) {
+        throw new Error(
+          `Invalid location profiles output: atmosphere object is incomplete — missing: ${missingAtmFields.join(', ')}. ` +
+          'Required shape: { era: string, weather: string, timeFlow: string, mood: string, eraMarkers: string[], ' +
+          'sensoryPalette: { dominant: string, secondary: string[] }, paragraphs: string[] }.'
+        );
+      }
+      if (!atm.sensoryPalette?.dominant || !Array.isArray(atm.sensoryPalette?.secondary)) {
+        throw new Error(
+          'Invalid location profiles output: atmosphere.sensoryPalette must be an object with ' +
+          '"dominant" (string) and "secondary" (string[]). The field was present but is malformed.'
+        );
+      }
+      if (!Array.isArray(atm.paragraphs) || atm.paragraphs.length === 0) {
+        throw new Error(
+          'Invalid location profiles output: atmosphere.paragraphs must be a non-empty string array (2-3 narrative paragraphs).'
         );
       }
 

@@ -1153,6 +1153,7 @@ export const createServer = () => {
         const baseDir = (reportRepo as unknown as { baseDir?: string }).baseDir;
         const projectDir = baseDir ? path.join(baseDir, req.params.projectId) : null;
         const latestValidReports: Array<Record<string, unknown>> = [];
+        const latestPartialReports: Array<Record<string, unknown>> = [];
 
         if (projectDir) {
           const files = await fs.readdir(projectDir);
@@ -1162,6 +1163,9 @@ export const createServer = () => {
               const content = await fs.readFile(path.join(projectDir, fileName), "utf-8");
               const parsed = JSON.parse(content) as Record<string, unknown>;
               if (parsed.in_progress === true) {
+                // Collect in-progress reports as a last resort — they can be served
+                // as stale/partial when no completed report exists for this project.
+                latestPartialReports.push(parsed);
                 continue;
               }
               latestValidReports.push(parsed);
@@ -1176,10 +1180,20 @@ export const createServer = () => {
             new Date(String(b.generated_at ?? 0)).getTime() -
             new Date(String(a.generated_at ?? 0)).getTime(),
         );
+        latestPartialReports.sort(
+          (a, b) =>
+            new Date(String(b.generated_at ?? 0)).getTime() -
+            new Date(String(a.generated_at ?? 0)).getTime(),
+        );
 
-        if (latestValidReports.length > 0) {
+        // Prefer a completed report; fall back to the latest partial/in-progress snapshot
+        // so the quality tab shows data even when the final save was interrupted.
+        const reportToServe = latestValidReports.length > 0 ? latestValidReports[0] : latestPartialReports[0];
+
+        if (reportToServe) {
           res.status(200).json({
-            ...latestValidReports[0],
+            ...reportToServe,
+            in_progress: false,
             stale: true,
             stale_reason: staleReason,
             requested_run_id: req.params.runId,

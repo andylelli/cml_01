@@ -254,7 +254,7 @@ For each character, generate:
 - **motiveSeed**: Reason they *could* be involved (greed, revenge, protection, fear, love)
 - **motiveStrength**: "weak" | "moderate" | "strong" | "compelling"
 - **alibiWindow**: When they were/weren't accessible during crime window
-- **accessPlausibility**: "impossible" | "unlikely" | "possible" | "easy" (access to crime scene/means)
+- **accessPlausibility**: MUST be exactly one of: "impossible" | "unlikely" | "possible" | "easy" (access to crime scene/means). "likely" is NOT valid — use "easy" instead.
 - **stakes**: What they stand to gain or lose
 
 ## Character Arc
@@ -544,6 +544,24 @@ export async function designCast(
       }
       cast.characters = normalizedCharacters;
 
+      // Coerce any out-of-enum accessPlausibility values before required-field checks.
+      // The LLM occasionally returns "likely" or other near-misses; map them to the
+      // nearest valid value rather than consuming a retry on a purely cosmetic mismatch.
+      const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
+      cast.characters = cast.characters.map((char: any) => {
+        if (char.accessPlausibility && !VALID_ACCESS.has(char.accessPlausibility)) {
+          const v = String(char.accessPlausibility).toLowerCase();
+          let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
+          if (/certain|definite|guarant|easy|high|sure/.test(v))          coerced = "easy";
+          else if (/like|probable|often|common|frequent/.test(v))          coerced = "possible";
+          else if (/unlike|improbab|rare|seldom|difficult|hard/.test(v))  coerced = "unlikely";
+          else if (/impossible|never|no.access|barred/.test(v))           coerced = "impossible";
+          console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
+          return { ...char, accessPlausibility: coerced };
+        }
+        return char;
+      });
+
       // Validate all characters have required fields
       const requiredFields = [
         "name",
@@ -592,6 +610,16 @@ export async function designCast(
         }));
       }
 
+      // Normalise crimeDynamics field-names (snake_case → camelCase) before checks so that
+      // a formatting-only mismatch doesn't consume a retry or mis-count possibleCulprits.
+      if (cast.crimeDynamics) {
+        const cd = cast.crimeDynamics as unknown as Record<string, unknown>;
+        if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
+        if (!cd.redHerrings && cd.red_herrings)                   { cd.redHerrings = cd.red_herrings; }
+        if (!cd.victimCandidates && cd.victim_candidates)         { cd.victimCandidates = cd.victim_candidates; }
+        if (!cd.detectiveCandidates && cd.detective_candidates)   { cd.detectiveCandidates = cd.detective_candidates; }
+      }
+
       // Validate possibleCulprits: need at least min(3, count-1) names
       const requiredCulprits = Math.min(config.quality.culpability.max_possible_culprits, expectedCount - 1);
       const possibleCulprits = Array.isArray(cast.crimeDynamics?.possibleCulprits)
@@ -607,13 +635,20 @@ export async function designCast(
       }
 
       // Validate role-archetype diversity: require >=70% unique labels.
-      // Apply the deterministic diversification fallback on every attempt — duplicate archetypes
-      // are a formatting compliance issue, not a content quality defect, so there is no reason
-      // to consume a retry on something that can be fixed deterministically right now.
+      // Before the final attempt: retry and let the LLM produce better diversity naturally.
+      // On the final attempt only: apply the deterministic diversification fallback, then throw
+      // if even that cannot recover the required uniqueness.
       const uniqueArchetypesBefore = new Set(
         cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
       );
       if (uniqueArchetypesBefore.size < requiredUniqueArchetypes) {
+        if (attempt < resolvedMaxAttempts) {
+          console.warn(
+            `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
+          );
+          continue;
+        }
+        // Final attempt — apply deterministic fallback as last resort.
         console.warn(
           `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
         );
@@ -623,12 +658,6 @@ export async function designCast(
           cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
         );
         if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
-          if (attempt < resolvedMaxAttempts) {
-            console.warn(
-              `Attempt ${attempt}: Diversification insufficient (${uniqueAfterFallback.size}/${requiredUniqueArchetypes}). Retrying.`,
-            );
-            continue;
-          }
           throw new Error(
             `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
           );

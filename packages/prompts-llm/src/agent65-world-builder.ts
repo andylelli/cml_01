@@ -15,8 +15,16 @@ import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
 import type { WorldDocumentResult } from "./types/world-document.js";
+import { getGenerationParams } from "@cml/story-validation";
 
 export type { WorldDocumentResult };
+
+// ARC_DESC_GATE / ARC_DESC_PROMPT are loaded from generation-params.yaml at
+// call time via getArcDescParams(). Defaults: gate=200, buffer=100 → prompt=300.
+const getArcDescParams = () => {
+  const q = getGenerationParams().agent65_world_builder.params.quality;
+  return { gate: q.arc_description_gate, prompt: q.arc_description_gate + q.arc_description_prompt_buffer };
+};
 
 export interface WorldBuilderInputs {
   caseData: CaseData;
@@ -53,10 +61,18 @@ Critical constraints:
     identify the approximate date from the historicalMoment section alone.
   - All text fields must be written as if addressed to a novelist about to write this story:
     purposeful, not bureaucratic; specific, not generic.
+  - storyEmotionalArc.arcDescription MUST be at least 300 words across multiple paragraphs.
+    A single-paragraph summary is insufficient regardless of word count — the emotional
+    journey must unfold across clearly distinct paragraphs.
+    Trace opening → rising tension → first turn → mid → second turn → climax → resolution.
+  - humourPlacementMap: every entry (all 12 scene positions) MUST include a non-empty
+    "rationale" string. This applies to "forbidden" entries too — explain WHY it is forbidden.
+    Omitting rationale on any entry will cause schema validation failure.
 
 You will produce a single JSON object. Return only the JSON. No preamble, no commentary.`;
 
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
+  const { gate: ARC_DESC_GATE, prompt: ARC_DESC_PROMPT } = getArcDescParams();
   const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
   const lockedFacts = inputs.hardLogicDevices?.lockedFacts
     ?? inputs.hardLogicDevices?.devices?.flatMap((d: any) => d.lockedFacts ?? [])
@@ -96,12 +112,15 @@ Return the JSON object directly — no preamble, no markdown fences, no commenta
 MANDATORY FIELD LENGTHS:
 - historicalMoment.eraRegister: MINIMUM 150 words. Bring the historical moment alive through lived
   texture — sights, pressures, daily life — not a history lesson. Count your words before finalising.
-- storyEmotionalArc.arcDescription: MINIMUM 200 words, target 250 words. This is an emotional map
+- storyEmotionalArc.arcDescription: MINIMUM ${ARC_DESC_PROMPT} words, target ${ARC_DESC_PROMPT + 50} words. This is an emotional map
   of the full story journey — not a one-paragraph summary. It must trace the emotional register from
   opening chapter through rising tension to climax and resolution. Multiple paragraphs expected.
-  A response shorter than 200 words will fail the quality gate. Count your words.
+  A response shorter than ${ARC_DESC_PROMPT} words will fail the quality gate. Count your words.
 - revealImplications: MINIMUM 90 words. Three earlier scenes, each revisited with one full sentence
   of analysis. Aim for 120 words.
+- storyTheme: MINIMUM 25 words. Write a complete sentence with a subject, main clause, and a nuanced
+  qualifier about the story's deeper meaning. Not a title, a noun phrase, or a fragment.
+  A storyTheme shorter than 25 words will fail the quality gate.
 
 Required structure:
 {
@@ -145,7 +164,7 @@ Required structure:
   ],
   "storyEmotionalArc": {
     "dominantRegister": "<one sentence: story's overall emotional character>",
-    "arcDescription": "<200-300 words: emotional map of the journey, not a plot summary>",
+    "arcDescription": "<${ARC_DESC_PROMPT}-${ARC_DESC_PROMPT + 100} words: emotional map of the journey, not a plot summary>",
     "turningPoints": [
       { "position": "opening", "emotionalDescription": "<one sentence>" },
       { "position": "early", "emotionalDescription": "<one sentence>" },
@@ -228,16 +247,35 @@ export async function generateWorldDocument(
 
   let lastError: Error | null = null;
 
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  // Max 3 attempts: attempt 1 is the initial generation; attempts 2 and 3 are retries.
+  // Having a 3rd attempt ensures that when attempt 1 fails for reason X (JSON/schema/cast),
+  // attempt 2 can fix X while still potentially producing short arcDescription, and
+  // attempt 3 can then correct the arcDescription specifically.
+  for (let attempt = 1; attempt <= 3; attempt++) {
     let attemptMessages = messages;
 
-    if (attempt === 2 && lastError) {
-      // On retry, append error context as a user message
+    if (attempt > 1 && lastError) {
+      // On retry, append error context and mandatory reminders as a user message.
+      // arcDescription minimum is ALWAYS included regardless of what caused the previous failure,
+      // because a prior failure on a different check can leave arcDescription unaddressed.
       attemptMessages = [
         ...messages,
         {
           role: 'user' as const,
-          content: `The previous response failed validation with this error:\n${lastError.message}\n\nPlease correct the issues and return a valid JSON object. Ensure:\n- All required fields are present\n- characterPortraits has one entry per cast member\n- characterVoiceSketches has one entry per cast member\n- humourPlacementMap has all 12 scene positions, each with a non-empty rationale string\n- Every humourPlacementMap entry must have a "rationale" field — this is required even for "forbidden" entries\n- validationConfirmations all set to true\n- Return only the JSON object, no preamble`,
+          content:
+            `The previous response failed validation with this error:\n${lastError.message}\n\n` +
+            `Please correct the issues and return a valid JSON object. Mandatory checks:\n` +
+            `- All required fields are present\n` +
+            `- characterPortraits has one entry per cast member\n` +
+            `- characterVoiceSketches has one entry per cast member\n` +
+            `- humourPlacementMap has all 12 scene positions, each with a non-empty rationale string\n` +
+            `- Every humourPlacementMap entry must have a "rationale" field — this is required even for "forbidden" entries\n` +
+            `- validationConfirmations all set to true\n` +
+            `- storyEmotionalArc.arcDescription MUST be at least ${getArcDescParams().prompt} words (target ${getArcDescParams().prompt + 50}). ` +
+            `Count every word before submitting. A single dense paragraph is not enough — ` +
+            `write multiple paragraphs tracing the emotional journey from opening through climax to resolution.\n` +
+            `- storyTheme MUST be at least 25 words — a complete sentence with a subject, main clause, and nuanced qualifier. Not a title or fragment.\n` +
+            `- Return only the JSON object, no preamble`,
         },
       ];
     }
@@ -261,7 +299,7 @@ export async function generateWorldDocument(
       parsed = JSON.parse(repaired);
     } catch (parseError) {
       lastError = new Error(`JSON parse failure on attempt ${attempt}: ${parseError}`);
-      if (attempt === 2) {
+      if (attempt === 3) {
         throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       }
       continue;
@@ -278,7 +316,7 @@ export async function generateWorldDocument(
     if (!schemaValidation.valid) {
       const errorSummary = schemaValidation.errors.slice(0, 6).join('; ');
       lastError = new Error(`Schema validation failed on attempt ${attempt}: ${errorSummary}`);
-      if (attempt === 2) {
+      if (attempt === 3) {
         throw new Error(`Agent 6.5 World Builder failed schema validation: ${errorSummary}`);
       }
       continue;
@@ -291,14 +329,14 @@ export async function generateWorldDocument(
         lastError = new Error(
           `characterPortraits count (${parsed.characterPortraits.length}) does not match cast size (${castMembers.length})`
         );
-        if (attempt === 2) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
         continue;
       }
       if (parsed.characterVoiceSketches.length !== castMembers.length) {
         lastError = new Error(
           `characterVoiceSketches count (${parsed.characterVoiceSketches.length}) does not match cast size (${castMembers.length})`
         );
-        if (attempt === 2) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
         continue;
       }
     }
@@ -312,7 +350,38 @@ export async function generateWorldDocument(
       lastError = new Error(
         `World Builder self-validation failures: ${failedConfirmations.join('; ')}`
       );
-      if (attempt === 2) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    // arcDescription word count gate — hard floor at `gate` words; prompt targets gate+buffer
+    const { gate: arcDescGate, prompt: arcDescPromptTarget } = getArcDescParams();
+    const arcDesc = parsed.storyEmotionalArc?.arcDescription ?? '';
+    const arcDescWordCount = arcDesc.split(/\s+/).filter((w: string) => w.length > 0).length;
+    if (arcDescWordCount < arcDescGate) {
+      lastError = new Error(
+        `storyEmotionalArc.arcDescription is too short (${arcDescWordCount} words; ` +
+        `minimum ${arcDescGate}, target ${arcDescPromptTarget}). ` +
+        `Write at least ${arcDescPromptTarget} words across multiple paragraphs — ` +
+        `trace opening emotional register → rising tension → first turn → mid-point → ` +
+        `second turn → pre-climax → climax → resolution. A single dense paragraph is not enough.`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    // storyTheme word count gate — hard floor at 20 words; prompt targets 25 words
+    const storyTheme = typeof parsed.storyTheme === 'string' ? parsed.storyTheme : '';
+    const storyThemeWordCount = storyTheme.split(/\s+/).filter((w: string) => w.length > 0).length;
+    const STORY_THEME_GATE = 20;
+    const STORY_THEME_TARGET = 25;
+    if (storyThemeWordCount < STORY_THEME_GATE) {
+      lastError = new Error(
+        `storyTheme is too short (${storyThemeWordCount} words; minimum ${STORY_THEME_GATE}, target ${STORY_THEME_TARGET}). ` +
+        `Write a complete sentence with a subject, main clause, and a nuanced qualifier about the ` +
+        `story's deeper meaning — not a title, fragment, or noun phrase.`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;
     }
 
@@ -320,5 +389,5 @@ export async function generateWorldDocument(
     return parsed;
   }
 
-  throw new Error(`Agent 6.5 World Builder failed after 2 attempts: ${lastError?.message}`);
+  throw new Error(`Agent 6.5 World Builder failed after 3 attempts: ${lastError?.message}`);
 }

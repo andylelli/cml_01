@@ -7,7 +7,7 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError } fro
 
 const DISAPPEARANCE_TERMS = /\b(disappear(?:ed|ance)?|missing|vanished)\b/i;
 const MURDER_TERMS = /\b(murder(?:ed)?|homicide|corpse|body\s+was\s+found|dead)\b/i;
-const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|identified\s+the\s+body|missing\s+person\s+case\s+became\s+a\s+murder)\b/i;
+const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|identified\s+the\s+body|missing\s+person\s+case\s+became\s+a\s+murder|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing)\b/i;
 
 export class CaseTransitionValidator implements Validator {
   name = 'CaseTransitionValidator';

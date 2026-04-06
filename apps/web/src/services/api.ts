@@ -421,10 +421,17 @@ export const clearPersistenceStore = async (): Promise<{ status: string }> => {
 
 export const fetchScoringReport = async (projectId: string, runId: string): Promise<unknown> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/runs/${runId}/report`);
+  if (response.status === 202) {
+    // Run is still in progress — report not yet finalized
+    return null;
+  }
   if (!response.ok) {
     throw new Error(`Fetch scoring report failed (${response.status})`);
   }
-  return response.json();
+  const data = (await response.json()) as Record<string, unknown>;
+  // Guard against an in_progress partial snapshot slipping through as a completed report
+  if (data.status === "in_progress") return null;
+  return data;
 };
 
 export const fetchScoringHistory = async (projectId: string, limit = 10): Promise<unknown[]> => {

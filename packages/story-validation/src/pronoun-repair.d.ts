@@ -37,7 +37,10 @@ export interface PronounRepairResult {
  *
  * Returns the repaired text and a count of repairs made.
  */
-export declare function repairPronouns(text: string, cast: CastEntry[]): PronounRepairResult;
+export interface PronounRepairOptions {
+    onlyNames?: Set<string>;
+}
+export declare function repairPronouns(text: string, cast: CastEntry[], options?: PronounRepairOptions): PronounRepairResult;
 /**
  * Apply pronoun repair to a chapter object (title + paragraphs).
  * Returns the repaired chapter and total repair count.

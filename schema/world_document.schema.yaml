@@ -218,10 +218,11 @@ storyEmotionalArc:
       type: string
       required: true
       description: >
-        200–300 words of flowing prose describing the emotional journey from
+        300–400 words of flowing prose describing the emotional journey from
         opening to close. Describes where the story breathes, accelerates, pauses
         for character, becomes unbearable, and resolves. Does not mention specific
         clue IDs or mechanism details. Does not name the culprit.
+        Must be multiple paragraphs — a single dense paragraph does not meet this requirement.
     turningPoints:
       type: array
       required: true

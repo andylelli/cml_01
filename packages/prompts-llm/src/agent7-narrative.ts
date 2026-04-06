@@ -665,6 +665,17 @@ export async function formatNarrative(
     };
   }
 
+  // Post-parse scene count correction: always override totalScenes with the true
+  // act-traversal count so the safety gate in agent7-run.ts sees the real number
+  // regardless of what the LLM wrote in the totalScenes field.
+  const allActScenes = (outlineData.acts ?? []).flatMap((act: any) =>
+    Array.isArray(act.scenes) ? act.scenes : []
+  );
+  outlineData = {
+    ...outlineData,
+    totalScenes: allActScenes.length,
+  };
+
   return {
     ...outlineData,
     cost,

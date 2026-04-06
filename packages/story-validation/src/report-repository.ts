@@ -97,12 +97,14 @@ export class FileReportRepository implements ReportRepository {
       const files = await fs.readdir(dirPath);
       const jsonFiles = files.filter(f => f.endsWith('.json'));
 
-      // Read all reports
+      // Read all reports, skipping in-progress partial snapshots
       const reports: GenerationReport[] = [];
       for (const file of jsonFiles) {
         const filePath = join(dirPath, file);
         const content = await fs.readFile(filePath, 'utf-8');
-        reports.push(JSON.parse(content));
+        const parsed = JSON.parse(content) as GenerationReport & { in_progress?: boolean };
+        if (parsed.in_progress) continue;
+        reports.push(parsed);
       }
 
       // Sort by generated_at descending (most recent first)
@@ -145,25 +147,30 @@ export class FileReportRepository implements ReportRepository {
 
       for (const file of jsonFiles) {
         const filePath = join(dirPath, file);
-        const content = await fs.readFile(filePath, 'utf-8');
-        const report: GenerationReport = JSON.parse(content);
+        try {
+          const content = await fs.readFile(filePath, 'utf-8');
+          const report: GenerationReport = JSON.parse(content);
 
-        totalGenerations++;
-        if (report.passed) successCount++;
-        totalScore += report.overall_score;
-        totalRetries += report.summary.retry_stats.total_retries;
+          totalGenerations++;
+          if (report.passed) successCount++;
+          totalScore += report.overall_score ?? 0;
+          totalRetries += report.summary?.retry_stats?.total_retries ?? 0;
 
-        // Track grade distribution
-        if (report.overall_grade in gradeDistribution) {
-          gradeDistribution[report.overall_grade]++;
-        }
-
-        // Track failure patterns
-        for (const phase of report.phases) {
-          if (!phase.passed) {
-            const key = phase.agent;
-            failureCounts[key] = (failureCounts[key] || 0) + 1;
+          // Track grade distribution
+          if (report.overall_grade in gradeDistribution) {
+            gradeDistribution[report.overall_grade]++;
           }
+
+          // Track failure patterns
+          for (const phase of (report.phases ?? [])) {
+            if (!phase.passed) {
+              const key = phase.agent;
+              failureCounts[key] = (failureCounts[key] || 0) + 1;
+            }
+          }
+        } catch {
+          // Skip malformed or incomplete report files rather than aborting the aggregate
+          console.warn(`[getAggregate] Skipping unreadable report: ${filePath}`);
         }
       }
     }

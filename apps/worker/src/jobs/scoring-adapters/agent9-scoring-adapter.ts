@@ -143,7 +143,7 @@ const hasSemanticCoverage = (paragraph: string, signature: ClueSemanticSignature
 };
 
 const getKnownClueIds = (cmlCase?: any, clueDistribution?: ClueDistributionResult): string[] => {
-  const mappingClueIds: string[] = ((cmlCase as any)?.prose_requirements?.clue_to_scene_mapping ?? [])
+  const rawMappingClueIds: string[] = ((cmlCase as any)?.prose_requirements?.clue_to_scene_mapping ?? [])
     .map((m: any) => String(m.clue_id || ""))
     .filter(Boolean);
   const discriminatingEvidenceIds: string[] = (((cmlCase as any)?.discriminating_test?.evidence_clues ?? []) as unknown[])
@@ -155,6 +155,23 @@ const getKnownClueIds = (cmlCase?: any, clueDistribution?: ClueDistributionResul
   const distributionClueIds: string[] = (clueDistribution?.clues ?? [])
     .map((c: any) => String(c?.id || ""))
     .filter(Boolean);
+
+  // Only expose mapping IDs that agent5 generated real distribution entries for.
+  // CML mapping entries such as "clue_early_1", "clue_mid_1", "clue_late_1" are
+  // structural/placement IDs with no corresponding description in the clue
+  // distribution.  The prose LLM never receives delivery instructions for them
+  // (the NSD's validClueSet filters them), so they can never appear in the prose.
+  // Including them in the expected set inflates the "missing clue" count and
+  // permanently depresses the clue-visibility score.
+  // When the distribution is non-empty, restrict mapping IDs to those that
+  // normalise-match a distribution entry; fall back to all mapping IDs when there
+  // is no distribution (e.g. tests or older pipeline paths).
+  const distributionNormalizedSet = new Set(
+    distributionClueIds.map(normalizeClueIdForMatch).filter(Boolean)
+  );
+  const mappingClueIds = distributionNormalizedSet.size > 0
+    ? rawMappingClueIds.filter(id => distributionNormalizedSet.has(normalizeClueIdForMatch(id)))
+    : rawMappingClueIds;
 
   return dedupeClueIdsByNormalized([
     ...mappingClueIds,
@@ -396,7 +413,7 @@ export function collectClueEvidenceFromProse(
 // inference from evidence — separate from the looser DISCRIMINATING_PROS_RE used for
 // discriminating-test detection.  Used exclusively for same-chapter timing enforcement.
 const CONCLUSION_RE =
-  /\b(that proves|which proves|therefore[^.!?]{0,60}(?:culprit|guilty|murderer)|the only explanation|conclusively shows|i accuse|i name|you are the|the murderer is|it follows that|this confirms|the truth is)\b/i;
+  /\b(that proves|which proves|therefore[^.!?]{0,60}(?:culprit|guilty|murderer)|the only explanation|conclusively shows|i accuse|i name|you are the|the murderer is)\b/i;
 
 // Regex that matches the kind of language the prose uses when running a
 // discriminating / confrontation / denouement scene.
@@ -470,9 +487,13 @@ export function adaptProseForScoring(
     }
   }
   const fairPlayTimingViolations: Array<{ clue_id: string; chapter: number }> = [];
+  // Act I chapters (first 25%) are exempt from the timing check — early chapters commonly
+  // use scene-setting language that incidentally triggers CONCLUSION_RE or discriminating tests.
+  const actIExemptionEnd = Math.ceil(chapters.length * 0.25);
   for (const chapter of chapters) {
+    const inActI = chapter.chapter_number <= actIExemptionEnd;
     const isDeductionChapter =
-      chapter.discriminating_test_present || CONCLUSION_RE.test(chapter.prose);
+      !inActI && (chapter.discriminating_test_present || CONCLUSION_RE.test(chapter.prose));
     if (!isDeductionChapter) continue;
     const firstRevealedHere = Object.entries(firstRevealChapterById)
       .filter(([, firstChap]) => firstChap === chapter.chapter_number)

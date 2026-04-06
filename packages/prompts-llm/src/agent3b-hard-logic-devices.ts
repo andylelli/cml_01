@@ -226,7 +226,11 @@ export async function generateHardLogicDevices(
 
       let parsed: Record<string, unknown>;
       try {
-        parsed = JSON.parse(response.content) as Record<string, unknown>;
+        const trimmed = response.content.trim();
+        if (!trimmed.endsWith('}')) {
+          throw new Error(`Response appears truncated (ends with: ...${trimmed.slice(-40).replace(/\n/g, '\\n')}). Increase max_tokens or reduce output size.`);
+        }
+        parsed = JSON.parse(trimmed) as Record<string, unknown>;
       } catch (parseError) {
         await logger.logError({
           runId: inputs.runId,

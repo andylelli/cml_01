@@ -63,8 +63,25 @@ export async function withValidationRetry<T>(
       ? retryHistory[retryHistory.length - 1].errors 
       : undefined;
     
-    // Generate result
-    const { result, cost } = await generateFn(attempt, previousErrors);
+    // Generate result — wrapped in try/catch so that structural guard throws
+    // inside generateFn are treated as retryable validation errors rather than
+    // immediately fatal exceptions.
+    let result: T;
+    let cost: number;
+    try {
+      ({ result, cost } = await generateFn(attempt, previousErrors));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `[${agentName}] Generation error on attempt ${attempt}/${maxAttempts}: ${errorMessage}`
+      );
+      retryHistory.push({ attempt, errors: [errorMessage], warnings: [] });
+      if (attempt < maxAttempts) {
+        console.log(`[${agentName}] Retrying after generation error...`);
+      }
+      continue;
+    }
+
     lastResult = result;
     totalCost += cost;
     

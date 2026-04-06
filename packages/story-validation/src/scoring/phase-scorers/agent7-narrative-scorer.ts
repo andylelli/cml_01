@@ -7,7 +7,7 @@ import {
   calculateCategoryScore,
   getCriticalFailures,
 } from '../scorer-utils.js';
-import { getChapterTarget } from '../../story-length-targets.js';
+import { getChapterTarget, getChapterTargetTolerance } from '../../story-length-targets.js';
 
 /**
  * Chapter from narrative outline
@@ -135,15 +135,21 @@ export class NarrativeScorer
 
     tests.push(pass('Chapters array exists', 'validation', 0.5));
 
-    // Expect chapter count based on story length
+    // Scene count tolerance: accept counts within ±getChapterTargetTolerance() of the
+    // target.  Prose generates one chapter per scene, so a small deviation doesn't
+    // break story structure and is not worth aborting the pipeline over.
     const chapterCount = output.chapters.length;
-    const tolerance = Math.max(2, Math.round(expectedChapters * 0.1));
+    const chapterTolerance = getChapterTargetTolerance();
     tests.push(
-      chapterCount === expectedChapters
-        ? pass('Chapter count', 'validation', 2.0, `${expectedChapters} chapters`)
-        : Math.abs(chapterCount - expectedChapters) <= tolerance
-        ? partial('Chapter count', 'validation', 80, 2.0, `${chapterCount} chapters (expected ${expectedChapters})`, 'minor')
-        : partial('Chapter count', 'validation', Math.max(0, 100 - Math.abs(expectedChapters - chapterCount) * 5), 2.0, `${chapterCount} chapters (expected ${expectedChapters})`, 'major')
+      Math.abs(chapterCount - expectedChapters) <= chapterTolerance
+        ? pass('Chapter count', 'validation', 2.0, `${chapterCount} chapters (target ${expectedChapters} ±${chapterTolerance})`)
+        : fail(
+            'Chapter count',
+            'validation',
+            2.0,
+            `${chapterCount} chapters (expected ${expectedChapters} ±${chapterTolerance}): deviation of ${Math.abs(chapterCount - expectedChapters)} exceeds tolerance`,
+            'critical'
+          )
     );
 
     // Validate chapter structure

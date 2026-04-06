@@ -71,7 +71,12 @@ export class Agent65WorldBuilderScorer implements Scorer<any, WorldBuilderOutput
     const validation_score = calculateCategoryScore(tests, 'validation');
     const quality_score = calculateCategoryScore(tests, 'quality');
     const completeness_score = calculateCategoryScore(tests, 'completeness');
-    const consistency_score = calculateCategoryScore(tests, 'consistency');
+    // When no humour-position violations are present, the consistency test array is empty.
+    // An empty tests array returns 0 from calculateCategoryScore — treat it as 100 (no issues = perfect).
+    const consistencyTestsExist = tests.some((t) => t.category === 'consistency');
+    const consistency_score = consistencyTestsExist
+      ? calculateCategoryScore(tests, 'consistency')
+      : 100;
 
     // Total is sum of scored checks (max 100)
     const total =

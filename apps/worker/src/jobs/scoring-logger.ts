@@ -11,7 +11,7 @@ import type { PhaseScore, GenerationReport } from "@cml/story-validation";
 
 export interface ScoringLogEntry {
   timestamp: string;
-  event_type: "phase_score" | "retry_attempt" | "scoring_error" | "report_generated" | "phase_diagnostic";
+  event_type: "phase_score" | "retry_attempt" | "scoring_error" | "report_generated" | "phase_diagnostic" | "validation_failure";
   story_id?: string;
   user_id?: string;
   [key: string]: any; // Allow additional properties
@@ -69,6 +69,28 @@ export interface PhaseDiagnosticLogEntry extends ScoringLogEntry {
   phase_name: string;
   diagnostic_type: string;
   details: Record<string, unknown>;
+}
+
+export interface ValidationFailureLogEntry extends ScoringLogEntry {
+  event_type: "validation_failure";
+  agent: string;
+  phase_name: string;
+  status: string;
+  summary: {
+    totalIssues: number;
+    critical: number;
+    major: number;
+    moderate: number;
+    minor: number;
+  };
+  errors: Array<{
+    type: string;
+    severity: string;
+    message: string;
+    sceneNumber?: number;
+    suggestion?: string;
+    cmlReference?: string;
+  }>;
 }
 
 export class ScoringLogger {
@@ -200,6 +222,33 @@ export class ScoringLogger {
       average_score: averageScore,
       duration_ms: report.total_duration_ms,
       total_cost: report.total_cost,
+    };
+
+    this.writeLog(entry);
+  }
+
+  /**
+   * Log a full validation failure with all errors to scoring.jsonl.
+   * Unlike the LLM logger path which only captures the first 10,
+   * this persists the complete error list for export and analysis.
+   */
+  logValidationFailure(
+    validationStatus: string,
+    summary: { totalIssues: number; critical: number; major: number; moderate: number; minor: number },
+    errors: Array<{ type: string; severity: string; message: string; sceneNumber?: number; suggestion?: string; cmlReference?: string }>,
+    storyId?: string,
+    userId?: string,
+  ): void {
+    const entry: ValidationFailureLogEntry = {
+      timestamp: new Date().toISOString(),
+      event_type: "validation_failure",
+      story_id: storyId,
+      user_id: userId,
+      agent: "ValidationPipeline",
+      phase_name: "Story Validation",
+      status: validationStatus,
+      summary,
+      errors,
     };
 
     this.writeLog(entry);

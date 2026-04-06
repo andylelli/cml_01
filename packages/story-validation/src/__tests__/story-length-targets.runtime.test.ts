@@ -33,7 +33,7 @@ describe("story length targets runtime config", () => {
       .replace("short: 20", "short: 22")
       .replace("medium: 30", "medium: 33")
       .replace("long: 42", "long: 45")
-      .replace("chapter_target_tolerance: 3", "chapter_target_tolerance: 4")
+      .replace("chapter_target_tolerance: 2", "chapter_target_tolerance: 4")
       .replace("min_words: 15000", "min_words: 18000")
       .replace("max_words: 25000", "max_words: 28000")
       .replace("chapter_ideal_words: 1000", "chapter_ideal_words: 1200");

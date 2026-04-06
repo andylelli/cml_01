@@ -28,6 +28,24 @@ function escapeRegex(str: string): string {
 }
 
 /**
+ * Remove balanced quoted dialogue from a text window before pronoun-drift checking.
+ *
+ * Characters in dialogue routinely use the opposite gender when referring to
+ * absent third parties ("he was rude to me" said by a female about a male).
+ * Without stripping these, the proximity-window check fires a false-positive
+ * pronoun_drift whenever such dialogue appears near a character's name.
+ *
+ * Strips straight double-quote pairs and curly double-quote pairs (non-greedy).
+ * Single-quoted dialogue is intentionally NOT stripped — too many legitimate uses
+ * (possessives, contractions) that would produce incorrect windows.
+ */
+function stripDialogueFromWindow(text: string): string {
+  return text
+    .replace(/\u201C[^\u201D]*\u201D/g, ' ')   // curly " ... "
+    .replace(/"[^"]{0,300}"/g, ' ');             // straight "..." (≤300 chars: bounded to avoid spanning multiple speakers)
+}
+
+/**
  * Derive canonical pronouns from a gender string.
  * Returns { subject, object, possessive } or null if gender is unknown.
  */
@@ -90,11 +108,30 @@ export class ProseConsistencyValidator implements Validator {
         .split(/\s+/)
         .filter(w => w.length > 3);
 
+      // If appearsInChapters is populated, build a fast-lookup Set once here rather
+      // than inside the scene loop — null signals "no scoping, check all chapters".
+      const scopedChapters: Set<number> | null =
+        fact.appearsInChapters && fact.appearsInChapters.length > 0
+          ? new Set(fact.appearsInChapters.map(Number))
+          : null;
+
       for (const scene of story.scenes) {
+        // Primary chapter scope gate: if the fact has been annotated with the chapters
+        // where its associated evidence is formally introduced, skip all others.
+        // This eliminates false positives from background keyword co-occurrence
+        // (e.g. "clock" appearing in a chapter that has nothing to do with the
+        // clock-stopping device). The keyword check below remains active as a fallback
+        // when appearsInChapters is absent (e.g. for facts with no matching clue).
+        if (scopedChapters !== null && !scopedChapters.has(scene.number)) continue;
+
         const text = scene.text.toLowerCase();
 
-        // Does the scene mention keywords from this fact's description?
-        const mentionsFact = keywords.some(kw => text.includes(kw));
+        // Does the scene mention enough keywords from this fact's description?
+        // Use majority threshold (≥50%, min 2) to avoid false positives from
+        // common short words appearing incidentally in every chapter.
+        const matchedKeywords = keywords.filter(kw => text.includes(kw));
+        const requiredMatches = Math.max(2, Math.ceil(keywords.length * 0.5));
+        const mentionsFact = matchedKeywords.length >= requiredMatches;
         if (!mentionsFact) continue;
 
         // Does the verbatim value appear? If not, flag as major.
@@ -155,15 +192,33 @@ export class ProseConsistencyValidator implements Validator {
       const firstName = castMember.name.split(' ')[0];
       const windowSize = 200; // characters around name mention to check
 
+      // Competing-entity guard: collect first names of characters whose gender
+      // matches the "wrong" pronoun set so we can suppress false positives when
+      // such a character is mentioned in the same window.
+      const oppositeGender = gender === 'male' ? 'female' : 'male';
+      const oppositeFirstNames = (cml.CASE.cast as typeof castMember[])
+        .filter((c) => c.gender === oppositeGender)
+        .map((c) => c.name.split(' ')[0] as string);
+
       for (const scene of story.scenes) {
         const positions = this.findNamePositions(scene.text, firstName);
         for (const pos of positions) {
           const window = scene.text.slice(Math.max(0, pos - windowSize), pos + firstName.length + windowSize);
-          const windowLower = window.toLowerCase();
+          // Strip balanced dialogue once and reuse for both the pronoun test and the
+          // competitor guard — avoids calling the strip function twice per position.
+          const windowStripped = stripDialogueFromWindow(window);
+          const windowLower = windowStripped.toLowerCase();
 
-          // If a wrong-gender pronoun appears in this window, flag it
+          // If a wrong-gender pronoun appears in this window, flag it — unless a
+          // character of that gender is also named (ambiguous reference, not an error).
           const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
           if (wrongPronounPattern.test(windowLower)) {
+            // The competitor check uses windowStripped (already dialogue-stripped) so that
+            // a competitor's name inside quoted dialogue doesn't suppress a real drift.
+            const competitorInWindow = oppositeFirstNames.some((fn) =>
+              new RegExp(`\\b${fn}\\b`, 'i').test(windowStripped)
+            );
+            if (competitorInWindow) break;
             errors.push({
               type: 'pronoun_drift',
               message: `Pronoun drift for "${castMember.name}" in chapter ${scene.number}: expected ${canonical.subject}/${canonical.object}/${canonical.possessive} (${gender}) but found a ${gender === 'male' ? 'female' : 'male'} pronoun nearby.`,
@@ -206,8 +261,14 @@ export class ProseConsistencyValidator implements Validator {
     if (/^(the|a|an) [a-z]+ (of|in|at|from|with)/.test(s)) return 'noun-phrase-atmosphere';
     if (/^(it was|there was|there had been)/.test(s)) return 'expository-setup';
     if (/^(when|after|before|as|by the time)/.test(s)) return 'temporal-subordinate';
-    if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed)/.test(s)) return 'character-action';
-    if (/\d{1,2}(\.\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s)) return 'time-anchor';
+    // character-action: [Name] + any action verb (past tense regular or common irregular)
+    // Extended verb list covers all examples in OPENING_STYLE_ROTATION directive plus
+    // common literary action openers the LLM is likely to produce.
+    if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|rose|set|drew|turned|moved|lifted|placed|reached|stepped|paused|leaned|settled|glanced|approached|said|spoke|asked|replied|looked|took|came|went|ran|fell|picked|seized|gripped|pushed|pulled|let|threw|held|bent|knelt|pressed|rang|knocked|read|found|saw|heard|noticed|watched|waited|remained)/.test(s)) return 'character-action';
+    // time-anchor: digit-format (9:30 p.m. or 9.30 a.m. or 9 o'clock) OR word-format
+    // ("At half past nine", "At midnight", "At a quarter to eleven")
+    if (/\d{1,2}([.:]\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s) ||
+        /^at\s+(half\s+past|a?\s*quarter\s+(past|to)|midnight|noon|dawn|dusk)/i.test(s)) return 'time-anchor';
     return 'general-descriptive';
   }
 
@@ -217,7 +278,10 @@ export class ProseConsistencyValidator implements Validator {
     const styleCounts = new Map<string, number[]>(); // style → scene numbers
 
     for (const scene of story.scenes) {
-      const firstSentenceMatch = scene.text.match(/^[^.!?]+[.!?]/);
+      // Use a lookahead so the sentence boundary is only recognised when the period / ! / ?
+      // is followed by end-of-string OR whitespace + an uppercase letter.  This prevents
+      // splitting mid-abbreviation (p.m., a.m., Mr., Mrs., Dr., St., etc.).
+      const firstSentenceMatch = scene.text.match(/^.+?[.!?](?=\s+[A-Z]|\s*$)/);
       if (!firstSentenceMatch) continue;
       const style = this.classifyOpeningStyle(firstSentenceMatch[0]);
       if (!styleCounts.has(style)) styleCounts.set(style, []);
@@ -264,18 +328,27 @@ export class ProseConsistencyValidator implements Validator {
         });
       }
 
-      // Pattern 2: very long sentences (>40 words) showing hallmarks of location profile templates
+      // Pattern 2: very long sentences (>55 words) showing hallmarks of location profile templates.
+      // Three independent signals required: (1) room noun, (2) sensory-category noun OR structural
+      // template marker, (3) structural template marker ("the [smell|scent|…] of <word>") OR a
+      // country/estate noun. The structural marker fires when the LLM reproduces the multi-clause
+      // "X of Y" enumeration characteristic of profile paragraphs. Requiring both room noun and
+      // this structural pattern (or country/estate as fallback) is tighter than the old
+      // ">40 words + room + country + sensory" triple that fired on any long atmospheric sentence.
       const sentences = scene.text.split(/(?<=[.!?])\s+/);
       for (const sentence of sentences) {
         const wordCount = sentence.trim().split(/\s+/).length;
-        if (wordCount > 40) {
+        if (wordCount > 55) {
           const hasLocationRoom = /\b(drawing room|library|study|kitchen|dining|hallway|parlour|parlor|cellar|attic|corridor)\b/i.test(sentence);
-          const hasCountryOrEstate = /\b(England|Scotland|France|manor|estate|hall|village|countryside)\b/i.test(sentence);
           const hasSensoryEnum = /\b(smell|scent|sound|sight|touch|aroma|fragrance|reek|odour|odor)\b/i.test(sentence);
-          if (hasLocationRoom && hasCountryOrEstate && hasSensoryEnum) {
+          // Structural signal: "the <sensory> of <place/thing>" — characteristic enumeration
+          // pattern used in location profile paragraphs but rare in natural character-POV prose.
+          const hasTemplateStructure = /\bthe\s+(smell|scent|sound|sounds|sight|touch|aroma|fragrance|reek|odour|odor|feel)\s+of\s+\w/i.test(sentence);
+          const hasCountryOrEstate = /\b(England|Scotland|France|manor|estate|hall|village|countryside)\b/i.test(sentence);
+          if (hasLocationRoom && hasSensoryEnum && (hasTemplateStructure || hasCountryOrEstate)) {
             errors.push({
               type: 'context_leakage_suspected',
-              message: `Suspected context leakage in chapter ${scene.number}: a ${wordCount}-word sentence shows hallmarks of a location profile template (room + country/estate + sensory enumeration).`,
+              message: `Suspected context leakage in chapter ${scene.number}: a ${wordCount}-word sentence shows hallmarks of a location profile template (room + sensory enumeration${hasTemplateStructure ? ' + template listing structure' : ''}).`,
               severity: 'minor',
               sceneNumber: scene.number,
               suggestion: 'Verify this sentence is original prose and not copied from a location profile paragraph.',

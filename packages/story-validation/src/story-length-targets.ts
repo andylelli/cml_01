@@ -5,10 +5,26 @@
  * Do NOT hardcode scene/chapter counts, word targets, or per-chapter word
  * targets anywhere else in the codebase.
  *
+ * YAML override: numeric targets are configured under story_length_policy in
+ * apps/worker/config/generation-params.yaml (override with CML_GENERATION_PARAMS_PATH).
+ *
  * Architecture note:
  *   agent7-narrative generates exactly `scenes` scenes per story length.
  *   agent9-prose converts each scene 1:1 into a prose chapter.
  *   Therefore scenes === chapters and both scorers must use this file.
+ */
+import { getGenerationParams } from './generation-params.js';
+
+/** Canonical source path used by diagnostics for provenance. */
+export const STORY_LENGTH_TARGETS_SOURCE = "apps/worker/config/generation-params.yaml#story_length_policy" as const;
+
+/** Canonical story length keys. */
+export const STORY_LENGTH_KEYS = ["short", "medium", "long"] as const;
+
+/**
+ * Static fallback constants. Use the helper functions below for runtime queries
+ * (getChapterTarget, getStoryLengthTarget, etc.) — they read from YAML config.
+ * This object is kept for backward-compat and compile-time checks only.
  */
 export const STORY_LENGTH_TARGETS = {
   short: {
@@ -37,7 +53,7 @@ export const STORY_LENGTH_TARGETS = {
   },
 } as const;
 
-export type StoryLength = keyof typeof STORY_LENGTH_TARGETS;
+export type StoryLength = (typeof STORY_LENGTH_KEYS)[number];
 
 // ---------------------------------------------------------------------------
 // Compile-time guard: scenes must always equal chapters.
@@ -52,15 +68,56 @@ const _long:   AssertEqual<typeof STORY_LENGTH_TARGETS.long.scenes,   typeof STO
 void _short; void _medium; void _long;
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Helpers (read from YAML config via getGenerationParams, fall back to static)
 // ---------------------------------------------------------------------------
+
+const validLength = (length?: string): StoryLength =>
+  (STORY_LENGTH_KEYS.includes(length as StoryLength) ? length : 'medium') as StoryLength;
 
 /** Returns the expected scene count for the given story length. */
 export function getSceneTarget(length?: string): number {
-  return STORY_LENGTH_TARGETS[(length as StoryLength) ?? 'medium']?.scenes ?? 30;
+  const len = validLength(length);
+  const policy = getGenerationParams().story_length_policy;
+  return policy.targets[len] ?? STORY_LENGTH_TARGETS[len].scenes;
 }
 
 /** Returns the expected chapter count for the given story length. */
 export function getChapterTarget(length?: string): number {
-  return STORY_LENGTH_TARGETS[(length as StoryLength) ?? 'medium']?.chapters ?? 30;
+  return getSceneTarget(length);
 }
+
+/** Returns the allowed ±tolerance on chapter count before flagging a deviation. */
+export function getChapterTargetTolerance(): number {
+  return getGenerationParams().story_length_policy.chapter_target_tolerance;
+}
+
+/** Returns fully resolved story length targets (chapter counts + word targets) from YAML config. */
+export function getStoryLengthTarget(length?: string) {
+  const len = validLength(length);
+  const policy = getGenerationParams().story_length_policy;
+  const chapters = policy.targets[len];
+  const wt = policy.word_targets[len];
+  return {
+    scenes: chapters,
+    chapters,
+    minWords: wt.min_words,
+    maxWords: wt.max_words,
+    chapterMinWords: Math.floor(wt.min_words / chapters),
+    chapterIdealWords: wt.chapter_ideal_words,
+  };
+}
+
+/** Returns canonical target metadata for diagnostics/report payloads. */
+export function getStoryLengthTargetMetadata(length?: string) {
+  const len = validLength(length);
+  const target = getStoryLengthTarget(len);
+  const tolerance = getChapterTargetTolerance();
+  const fingerprint = `story_length_policy:${len}:${target.chapters}+/-${tolerance}/${target.minWords}-${target.maxWords}/${target.chapterMinWords}/${target.chapterIdealWords}` as const;
+  return {
+    source: STORY_LENGTH_TARGETS_SOURCE,
+    fingerprint,
+    target_length: len,
+    target,
+  } as const;
+}
+

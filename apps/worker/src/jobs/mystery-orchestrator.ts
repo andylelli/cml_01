@@ -537,7 +537,7 @@ export async function generateMystery(
         per_pass_accounting: [],
         metrics_snapshot: "aborted_partial",
         batch_size: inputs.proseBatchSize ?? 1,
-        batches_with_retries: 0,
+        batches_with_retries: (error as any).retriedBatches ?? 0,
         total_batches: 0,
         batch_failure_events: 0,
         batch_failure_history: [],
@@ -572,6 +572,7 @@ export async function generateMystery(
     if (
       enableScoring &&
       scoreAggregator &&
+      scoringLogger &&
       proseScoringSnapshot.startedAtMs !== null &&
       proseScoringSnapshot.chaptersGenerated === 0
     ) {
@@ -595,6 +596,48 @@ export async function generateMystery(
         zeroedProseScore,
         elapsedMs,
         agentCosts["agent9_prose"] ?? 0,
+      );
+
+      // Register a minimal post_generation_summary diagnostic to satisfy the E1
+      // report invariant (agent9_prose phase present → diagnostic required).
+      // Without this, assertGenerationReportInvariants throws when saving the aborted
+      // report, leaving the prior in_progress=true partial snapshot on disk.
+      const zeroedPostGenSummary: Record<string, unknown> = {
+        chapters_generated: 0,
+        prose_duration_ms_first_pass: elapsedMs,
+        prose_duration_ms_total: elapsedMs,
+        prose_cost_first_pass: agentCosts["agent9_prose"] ?? 0,
+        prose_cost_total: agentCosts["agent9_prose"] ?? 0,
+        score_total: 0,
+        score_grade: "F",
+        score_passed_threshold: false,
+        component_failures: ["prose_generation_aborted"],
+        failure_reason: errorMessage.slice(0, 240),
+        rewrite_pass_count: 0,
+        repair_pass_count: 0,
+        per_pass_accounting: [],
+        metrics_snapshot: "aborted_zero_chapters",
+        batch_size: 1,
+        batches_with_retries: (error as any).retriedBatches ?? 0,
+        total_batches: 0,
+        batch_failure_events: 0,
+        batch_failure_history: [],
+        batch_failure_samples: [],
+      };
+      scoringLogger.logPhaseDiagnostic(
+        "agent9_prose",
+        "Prose Generation",
+        "post_generation_summary",
+        zeroedPostGenSummary,
+        runId,
+        projectId || ""
+      );
+      scoreAggregator.upsertDiagnostic(
+        "agent9_prose_post_generation_summary",
+        "agent9_prose",
+        "Prose Generation",
+        "post_generation_summary",
+        zeroedPostGenSummary
       );
     }
 

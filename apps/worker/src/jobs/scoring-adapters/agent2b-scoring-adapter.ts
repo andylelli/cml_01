@@ -49,6 +49,7 @@ export function adaptCharacterProfilesForScoring(profiles: CharacterProfileOutpu
       p.motiveSeed || '',
       p.alibiWindow ? `Alibi: ${p.alibiWindow}` : '',
       p.accessPlausibility ? `Access: ${p.accessPlausibility}` : '',
+      p.motiveStrength ? `Motive strength: ${p.motiveStrength}` : '',
       p.paragraphs?.[2] || '',
     ].filter(Boolean).join('. ');
 

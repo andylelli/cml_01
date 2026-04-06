@@ -59,6 +59,13 @@ export interface ScoringContext {
    * meaningless until all chapters have been written.
    */
   partialGeneration?: boolean;
+
+  /**
+   * The actual scene count produced by the narrative agent (agent7).
+   * When present, the prose scorer validates chapters against this exact count
+   * (prose mirrors narrative 1:1) rather than the abstract story-length target.
+   */
+  narrativeSceneCount?: number;
 }
 
 /**

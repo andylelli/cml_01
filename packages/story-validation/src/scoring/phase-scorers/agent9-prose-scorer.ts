@@ -62,7 +62,7 @@ interface CompletenessDiagnostics {
     target_min: number;
     target_max: number;
     score: number;
-    status: "pass" | "low" | "major_underflow";
+    status: "pass" | "low" | "high" | "major_underflow";
   };
   clue_visibility?: {
     expected_count: number;
@@ -187,31 +187,55 @@ export class ProseScorer
     // Expect chapter count based on story length.
     // Skip during partial generation — chapter count is always low mid-generation.
     if (!context.partialGeneration) {
-      const expectedChapters = getChapterTarget(this.targetLength);
-      const chapterTolerance = getChapterTargetTolerance();
-      const minAllowedChapters = Math.max(1, expectedChapters - chapterTolerance);
-      const maxAllowedChapters = expectedChapters + chapterTolerance;
       const actualChapters = output.chapters.length;
-      const withinTolerance =
-        actualChapters >= minAllowedChapters && actualChapters <= maxAllowedChapters;
 
-      tests.push(
-        withinTolerance
-          ? pass(
-              'All chapters present',
-              'validation',
-              2.0,
-              `${actualChapters} chapters (target ${expectedChapters} +/- ${chapterTolerance})`,
-            )
-          : partial(
-              'All chapters present',
-              'validation',
-              (actualChapters / expectedChapters) * 100,
-              2.0,
-              `Only ${actualChapters}/${expectedChapters} chapters (allowed ${minAllowedChapters}-${maxAllowedChapters})`,
-              'major',
-            )
-      );
+      // When the narrative scene count is known, prose must mirror it exactly (1 scene = 1 chapter).
+      // Fall back to target ± tolerance only when the narrative count isn't available.
+      if (context.narrativeSceneCount != null) {
+        const expectedChapters = context.narrativeSceneCount;
+        tests.push(
+          actualChapters === expectedChapters
+            ? pass(
+                'All chapters present',
+                'validation',
+                2.0,
+                `${actualChapters} chapters (mirrors narrative scene count)`,
+              )
+            : partial(
+                'All chapters present',
+                'validation',
+                (actualChapters / expectedChapters) * 100,
+                2.0,
+                `${actualChapters} chapters but narrative has ${expectedChapters} scenes — prose must mirror narrative exactly`,
+                'major',
+              )
+        );
+      } else {
+        const expectedChapters = getChapterTarget(this.targetLength);
+        const chapterTolerance = getChapterTargetTolerance();
+        const minAllowedChapters = Math.max(1, expectedChapters - chapterTolerance);
+        const maxAllowedChapters = expectedChapters + chapterTolerance;
+        const withinTolerance =
+          actualChapters >= minAllowedChapters && actualChapters <= maxAllowedChapters;
+
+        tests.push(
+          withinTolerance
+            ? pass(
+                'All chapters present',
+                'validation',
+                2.0,
+                `${actualChapters} chapters (target ${expectedChapters} +/- ${chapterTolerance})`,
+              )
+            : partial(
+                'All chapters present',
+                'validation',
+                (actualChapters / expectedChapters) * 100,
+                2.0,
+                `Only ${actualChapters}/${expectedChapters} chapters (allowed ${minAllowedChapters}-${maxAllowedChapters})`,
+                'major',
+              )
+        );
+      }
     }
 
     // Validate each chapter structure
@@ -389,9 +413,12 @@ export class ProseScorer
       const targetMin = targets.minWords;
       const targetMax = targets.maxWords;
       const wordCount = output.overall_word_count || this.calculateTotalWordCount(output);
-      let wordStatus: "pass" | "low" | "major_underflow" = "pass";
+      let wordStatus: "pass" | "low" | "high" | "major_underflow" = "pass";
       let wordScore = 100;
-      if (!(wordCount >= targetMin && wordCount <= targetMax)) {
+      if (wordCount > targetMax) {
+        wordStatus = "high";
+        wordScore = completenessConfig.word_count.low_score;
+      } else if (wordCount < targetMin) {
         if (wordCount >= targetMin * completenessConfig.word_count.low_ratio) {
           wordStatus = "low";
           wordScore = completenessConfig.word_count.low_score;
@@ -411,6 +438,8 @@ export class ProseScorer
       tests.push(
         wordCount >= targetMin && wordCount <= targetMax
           ? pass('Word count target', 'completeness', 1.5, `${wordCount.toLocaleString()} words`)
+          : wordCount > targetMax
+          ? partial('Word count target', 'completeness', completenessConfig.word_count.low_score, 1.5, `${wordCount.toLocaleString()} words (high)`, 'minor')
           : wordCount >= targetMin * completenessConfig.word_count.low_ratio
           ? partial('Word count target', 'completeness', completenessConfig.word_count.low_score, 1.5, `${wordCount.toLocaleString()} words (low)`, 'minor')
           : partial('Word count target', 'completeness', Math.min(100, (wordCount / targetMin) * 100), 1.5, `Only ${wordCount.toLocaleString()} words`, 'major')

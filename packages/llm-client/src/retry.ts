@@ -18,6 +18,7 @@ export const defaultRetryConfig: RetryConfig = {
     "503", // Service Unavailable
     "ECONNRESET",
     "ETIMEDOUT",
+    "ENOTFOUND", // DNS lookup failure — transient when Azure endpoint is briefly unreachable
   ],
 };
 

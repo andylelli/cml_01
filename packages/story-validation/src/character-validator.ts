@@ -21,6 +21,16 @@ export class CharacterConsistencyValidator implements Validator {
     const allReferenceLabels = Array.from(aliasToCanonical.keys());
     const canonicalToLabels = this.buildCanonicalLabelIndex(aliasToCanonical);
 
+    // Build per-gender label sets for the competing-entity guard in findIncorrectPronouns.
+    const maleLabels: string[] = [];
+    const femaleLabels: string[] = [];
+    for (const [name, charState] of manifest.entries()) {
+      const labels = canonicalToLabels.get(name) ?? [name.toLowerCase()];
+      if (charState.gender === 'male') maleLabels.push(...labels);
+      else if (charState.gender === 'female') femaleLabels.push(...labels);
+    }
+    const competingGenderLabels = { male: maleLabels, female: femaleLabels };
+
     const usageTracker = new Map<string, { scenes: number[]; pronouns: Set<string> }>();
 
     for (const scene of story.scenes) {
@@ -45,7 +55,8 @@ export class CharacterConsistencyValidator implements Validator {
             charState,
             scene.number,
             labelsForCharacter,
-            allReferenceLabels
+            allReferenceLabels,
+            competingGenderLabels
           );
           errors.push(...pronounErrors);
         }
@@ -181,7 +192,8 @@ export class CharacterConsistencyValidator implements Validator {
     charState: CharacterState,
     sceneNumber: number,
     labelsForCharacter: string[],
-    allReferenceLabels: string[]
+    allReferenceLabels: string[],
+    competingGenderLabels: { male: string[]; female: string[] }
   ): ValidationError[] {
     const errors: ValidationError[] = [];
 
@@ -194,7 +206,8 @@ export class CharacterConsistencyValidator implements Validator {
       text,
       labelsForCharacter,
       allReferenceLabels,
-      correctPronouns
+      correctPronouns,
+      competingGenderLabels
     );
 
     if (incorrectPronouns.length > 0) {
@@ -215,7 +228,8 @@ export class CharacterConsistencyValidator implements Validator {
     text: string,
     labelsForCharacter: string[],
     allReferenceLabels: string[],
-    correctPronouns: CharacterState['pronouns']
+    correctPronouns: CharacterState['pronouns'],
+    competingGenderLabels: { male: string[]; female: string[] }
   ): string[] {
     const incorrect: string[] = [];
 
@@ -227,30 +241,81 @@ export class CharacterConsistencyValidator implements Validator {
     const hasReferenceInSentence = (sentence: string, labels: string[]): boolean =>
       labels.some((label) => this.containsLabel(sentence, label));
 
+    // Pre-compute full-text gender presence for Guard 3.
+    // If no character of the wrong pronoun's gender appears anywhere in the text,
+    // an extension-only wrong pronoun must belong to this character and should be
+    // flagged.  If one does appear, the pronoun plausibly refers to them — suppress.
+    const anyMaleInText = competingGenderLabels.male.some((l) => hasReferenceInSentence(text, [l]));
+    const anyFemaleInText = competingGenderLabels.female.some((l) => hasReferenceInSentence(text, [l]));
+
     for (let i = 0; i < sentences.length; i += 1) {
       if (!hasReferenceInSentence(sentences[i], labelsForCharacter)) {
         continue;
       }
 
       let context = sentences[i];
+      const prev = i > 0 ? sentences[i - 1] : undefined;
       const next = sentences[i + 1];
+      // Extend forward: add next sentence if it references no character (existing rule)
       if (next && !hasReferenceInSentence(next, allReferenceLabels)) {
         context += ` ${next}`;
       }
+      // Extend backward: add previous sentence if it references no character,
+      // to capture pronoun antecedents that precede the character's name.
+      if (prev && !hasReferenceInSentence(prev, allReferenceLabels)) {
+        context = `${prev} ${context}`;
+      }
 
-      if (correctPronouns.subject !== 'he' && /\bhe\b/i.test(context)) {
+      // Guard 1 (name-based, asymmetric window −10/+3): extend further backward to catch
+      // scene-opening antecedents (e.g. male character named at sentence 0, female character
+      // and pronoun appearing 5–10 sentences later in the same scene).  Forward window is
+      // smaller because pronouns almost always follow their antecedent, rarely precede it.
+      const widerStart = Math.max(0, i - 10);
+      const widerEnd = Math.min(sentences.length - 1, i + 3);
+      const widerContext = sentences.slice(widerStart, widerEnd + 1).join(' ');
+      const maleInContext = () =>
+        competingGenderLabels.male.some((l) => hasReferenceInSentence(widerContext, [l]));
+      const femaleInContext = () =>
+        competingGenderLabels.female.some((l) => hasReferenceInSentence(widerContext, [l]));
+
+      // Guard 2 (pronoun-based, narrow context): if the character's own correct
+      // pronouns also appear in the same narrow context window, both genders are
+      // already represented — the wrong-gender pronoun belongs to someone else.
+      const correctPronounSet = new Set([
+        correctPronouns.subject,
+        correctPronouns.object,
+        correctPronouns.possessive,
+      ]);
+      const correctPronounInContext = new RegExp(
+        `\\b(${Array.from(correctPronounSet).join('|')})\\b`,
+        'i'
+      ).test(context);
+
+      // Guard 3 (sentence-boundary + full-text check):
+      // If the wrong pronoun is only present in an extension sentence (not in
+      // sentences[i] itself), it is the subject/object of its own clause and
+      // almost certainly refers to a different character.  Only suppress if that
+      // gender is actually represented somewhere in the text — if no such
+      // character exists, the wrong pronoun must belong to this character.
+      const inCharSentence = (pattern: RegExp): boolean => pattern.test(sentences[i]);
+      // g3 returns true (permit flagging) when pronoun is in char's own sentence
+      // OR when no competing character of that gender exists in the full text.
+      const g3Male   = (p: RegExp) => inCharSentence(p) || !anyMaleInText;
+      const g3Female = (p: RegExp) => inCharSentence(p) || !anyFemaleInText;
+
+      if (correctPronouns.subject !== 'he' && /\bhe\b/i.test(context) && !maleInContext() && !correctPronounInContext && g3Male(/\bhe\b/i)) {
         incorrect.push('he');
       }
-      if (correctPronouns.subject !== 'she' && /\bshe\b/i.test(context)) {
+      if (correctPronouns.subject !== 'she' && /\bshe\b/i.test(context) && !femaleInContext() && !correctPronounInContext && g3Female(/\bshe\b/i)) {
         incorrect.push('she');
       }
-      if (correctPronouns.object !== 'him' && /\bhim\b/i.test(context)) {
+      if (correctPronouns.object !== 'him' && /\bhim\b/i.test(context) && !maleInContext() && !correctPronounInContext && g3Male(/\bhim\b/i)) {
         incorrect.push('him');
       }
-      if (correctPronouns.object !== 'her' && /\bher\b/i.test(context)) {
+      if (correctPronouns.object !== 'her' && /\bher\b/i.test(context) && !femaleInContext() && !correctPronounInContext && g3Female(/\bher\b/i)) {
         incorrect.push('her');
       }
-      if (correctPronouns.possessive !== 'his' && /\bhis\b/i.test(context)) {
+      if (correctPronouns.possessive !== 'his' && /\bhis\b/i.test(context) && !maleInContext() && !correctPronounInContext && g3Male(/\bhis\b/i)) {
         incorrect.push('his');
       }
     }
@@ -316,7 +381,19 @@ export class CharacterConsistencyValidator implements Validator {
   private detectNameSwitches(story: Story, manifest: Map<string, CharacterState>): ValidationError[] {
     const errors: ValidationError[] = [];
 
-    const detectiveNames = ['Detective Thompson', 'Detective Harrington', 'Detective Chen', 'Detective'];
+    // Derive detective name patterns from the cast rather than using a hardcoded list.
+    const castDetectives = Array.from(manifest.keys()).filter(
+      (name) => manifest.get(name)!.role.toLowerCase().includes('detective')
+    );
+    const detectiveNames: string[] = castDetectives.length > 0
+      ? Array.from(new Set(
+          castDetectives.flatMap((name) => {
+            const parts = name.trim().split(/\s+/);
+            const surname = parts[parts.length - 1]!;
+            return [name, `Detective ${surname}`];
+          })
+        ))
+      : ['Detective Thompson', 'Detective Harrington', 'Detective Chen', 'Detective'];
     const foundDetectives = new Set<string>();
 
     for (const scene of story.scenes) {
