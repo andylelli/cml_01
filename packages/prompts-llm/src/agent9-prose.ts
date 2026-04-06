@@ -14,9 +14,12 @@ import type { CastDesign } from "./agent2-cast.js";
 import type { ClueDistributionResult, Clue } from "./agent5-clues.js";
 import {
   ChapterValidator,
+  CharacterConsistencyValidator,
   STORY_LENGTH_TARGETS,
   anonymizeUnknownTitledNames,
   getGenerationParams,
+  repairChapterPronouns,
+  repairPronouns,
 } from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
 import { classifyOpeningStyle, updateNSD } from "./types/narrative-state.js";
@@ -201,9 +204,13 @@ const getChapterWordTargets = (targetLength: "short" | "medium" | "long") => {
 };
 
 const CLUE_TOKEN_STOPWORDS = new Set<string>([
-  "about", "after", "again", "against", "between", "could", "every", "first", "found", "from",
-  "having", "however", "later", "might", "other", "their", "there", "these", "those", "through",
-  "under", "where", "which", "while", "would", "without", "afterward", "during",
+  // Common auxiliary and preposition words that provide no discriminating signal
+  "about", "after", "again", "against", "also", "been", "between", "both", "could", "does", "done",
+  "each", "even", "ever", "every", "first", "found", "from", "have", "having", "here", "however",
+  "into", "just", "later", "make", "made", "might", "more", "most", "much", "only", "onto",
+  "other", "over", "same", "some", "such", "than", "that", "them", "then", "their", "there",
+  "these", "they", "this", "those", "through", "under", "upon", "very", "were", "when", "where",
+  "which", "while", "will", "with", "would", "without", "afterward", "during",
 ]);
 
 const tokenizeForClueObligation = (value: string): string[] =>
@@ -341,7 +348,12 @@ const chapterMentionsRequiredClue = (
   // token-level validation.  Accept rather than perpetually failing.
   if (tokens.length === 0) return descIsGenreLabel ? true : false;
   const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-  const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.4));
+  // Threshold 0.6: 60% of semantic tokens must match. This is meaningfully stricter
+  // than the previous 40%, which could pass on 2/6 tokens — a coincidental level.
+  // With the expanded stopword list removing semantically empty words ("with", "have",
+  // etc.), the remaining tokens are genuine content words and 60% is achievable for
+  // chapters that properly include the clue without causing over-triggering.
+  const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.6));
   return matched.length >= requiredMatches;
 };
 
@@ -428,7 +440,8 @@ export const validateChapterPreCommitObligations = (
         if (tokens.length > 0) {
           const lowered = chapterText.toLowerCase();
           const matched = tokens.filter((t) => tokenMatchesText(t, lowered));
-          const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
+          // Use the same 0.6 threshold as chapterMentionsRequiredClue for consistency
+          const threshold = Math.max(1, Math.ceil(tokens.length * 0.6));
           isPresent = matched.length >= threshold;
         }
       }
@@ -676,6 +689,23 @@ const MONTH_TO_SEASON: Record<string, CanonicalSeason> = {
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// ─── WORLD FIX C (ANALYSIS_17) ───────────────────────────────────────────
+// Remove month-word guard from enforceMonthSeasonLockOnChapter().
+// Previously the repair only fired when the canonical month word (e.g. "january")
+// appeared verbatim in the chapter text. The most common failure mode is seasonal
+// drift in chapters that never mention the month explicitly — the guard silently
+// skipped those cases, letting the validator catch and burn a retry instead.
+// All WORLD FIX C changes are tagged [WORLD FIX C] below.
+//
+// To revert World Fix C in full:
+//   1. In enforceMonthSeasonLockOnChapter(), replace the [WORLD FIX C] comment
+//      and `const chapterText = chapter.paragraphs.join(' ');` line with:
+//        const monthPattern = new RegExp(`\\b${escapeRegExp(lock.month)}\\b`, 'i');
+//        const chapterText = chapter.paragraphs.join(' ');
+//        if (!monthPattern.test(chapterText)) {
+//          return chapter;
+//        }
+// ─────────────────────────────────────────────────────────────────────────
 const normalizeMonthToken = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
   const normal = value.trim().toLowerCase();
@@ -710,11 +740,20 @@ const getSeasonAllowList = (season: CanonicalSeason | string): string => {
   return allowLists[season as CanonicalSeason] ?? season;
 };
 
+// These patterns MUST cover every token that temporal-consistency.ts SEASON_PATTERNS can detect
+// as a wrong-season match — otherwise enforceMonthSeasonLockOnChapter silently lets the word
+// through and the chapter validator flags it as a contradiction on every attempt.
+//
+// temporal-consistency.ts canonical sets:
+//   spring  → spring | springtime | vernal
+//   summer  → summer | summertime | midsummer | summery
+//   autumn  → autumn | autumnal | fall
+//   winter  → winter | wintertime | wintry
 const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
-  spring: [/\b(summer|midsummer|autumn|winter|wintry)\b/gi],
-  summer: [/\b(spring|vernal|autumn|winter|wintry)\b/gi],
-  autumn: [/\b(spring|vernal|summer|midsummer|winter|wintry)\b/gi],
-  winter: [/\b(spring|vernal|summer|midsummer|autumn)\b/gi],
+  spring: [/\b(summer|summertime|midsummer|summery|autumn|autumnal|fall|winter|wintertime|wintry)\b/gi],
+  summer: [/\b(spring|springtime|vernal|autumn|autumnal|fall|winter|wintertime|wintry)\b/gi],
+  autumn: [/\b(spring|springtime|vernal|summer|summertime|midsummer|summery|winter|wintertime|wintry)\b/gi],
+  winter: [/\b(spring|springtime|vernal|summer|summertime|midsummer|summery|autumn|autumnal|fall)\b/gi],
 };
 
 const enforceMonthSeasonLockOnChapter = (
@@ -724,12 +763,11 @@ const enforceMonthSeasonLockOnChapter = (
   if (!lock) return chapter;
   if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length === 0) return chapter;
 
-  const monthPattern = new RegExp(`\\b${escapeRegExp(lock.month)}\\b`, 'i');
+  // [WORLD FIX C] Apply repair unconditionally — do not gate on the month word being present.
+  // The most common failure mode is seasonal-language drift in chapters that never mention the
+  // month explicitly. The repair is safe to run always: if no conflicting season words appear,
+  // `changed` stays false and the original chapter is returned unchanged.
   const chapterText = chapter.paragraphs.join(' ');
-  if (!monthPattern.test(chapterText)) {
-    return chapter;
-  }
-
   const expectedSeason = lock.season;
   const patterns = conflictingSeasonPatterns[expectedSeason];
   let changed = false;
@@ -755,6 +793,22 @@ const enforceMonthSeasonLockOnChapter = (
   };
 };
 
+// ─── WORLD FIX A (ANALYSIS_17) ───────────────────────────────────────────
+// Add authoritative season enforcement into buildWorldBriefBlock().
+// Previously the World Document injected era atmosphere (eraRegister) but no
+// season vocabulary rule. Season enforcement lived in the temporal_context block
+// (medium priority, droppable under token pressure). This fix derives the correct
+// season from historicalMoment.specificDate and emits a "## Season Lock" section
+// inside world_document (high priority, never dropped).
+// All WORLD FIX A changes are tagged [WORLD FIX A] below.
+//
+// To revert World Fix A in full:
+//   1. In buildWorldBriefBlock(), delete the entire [WORLD FIX A] code block:
+//      from `const hmDateLower = String(hm.specificDate ?? '').toLowerCase();`
+//      through the closing `}` of the `if (hmMonth) { ... }` block.
+//      (The four preceding lines — lines.push Era, eraRegister, emotionalRegister,
+//      physicalConstraints — are unchanged and must be kept.)
+// ─────────────────────────────────────────────────────────────────────────
 /**
  * Builds the WORLD DOCUMENT brief block injected into per-chapter prose prompts.
  *
@@ -767,6 +821,7 @@ const buildWorldBriefBlock = (
   worldDoc: any,
   chapterIndex: number,
   totalChapters: number,
+  characterPronouns?: Record<string, string>, // [PHASE 1] inline (he/him) labels in Character Voices headings
 ): string => {
   if (!worldDoc) return '';
 
@@ -781,6 +836,21 @@ const buildWorldBriefBlock = (
     if (hm.emotionalRegister) lines.push(`Emotional register: ${hm.emotionalRegister}`);
     if (Array.isArray(hm.physicalConstraints) && hm.physicalConstraints.length > 0) {
       lines.push('Physical constraints: ' + hm.physicalConstraints.slice(0, 4).join(' | '));
+    }
+    // [WORLD FIX A] Season lock: derive season authoritatively from specificDate.
+    // Lives in world_document (high priority) and cannot be dropped by token-budget cuts.
+    // This is the canonical temporal contract — all other season references are secondary.
+    const hmDateLower = String(hm.specificDate ?? '').toLowerCase();
+    const hmMonth = Object.keys(MONTH_TO_SEASON).find(m => hmDateLower.includes(m));
+    if (hmMonth) {
+      const hmSeason = MONTH_TO_SEASON[hmMonth];
+      const hmForbidden = ['spring', 'summer', 'autumn', 'winter']
+        .filter(s => s !== hmSeason)
+        .join(', ');
+      lines.push(`\n## Season Lock (mandatory — derived from ${hm.specificDate})`);
+      lines.push(`Season: ${hmSeason}. Allowed vocabulary: ${getSeasonAllowList(hmSeason)}`);
+      lines.push(`Forbidden seasonal words — never use in narration, dialogue, or metaphor: ${hmForbidden} and their adjectival forms.`);
+      lines.push(`Every weather description, atmosphere, and time-of-year reference must be consistent with ${hmSeason}.`);
     }
   }
 
@@ -810,7 +880,8 @@ const buildWorldBriefBlock = (
   if (Array.isArray(worldDoc.characterVoiceSketches) && worldDoc.characterVoiceSketches.length > 0) {
     lines.push('\n## Character Voices');
     for (const sketch of worldDoc.characterVoiceSketches) {
-      lines.push(`\n### ${sketch.name}`);
+      const pronounsLabel = characterPronouns?.[sketch.name] ? ` (${characterPronouns[sketch.name]})` : ''; // [PHASE 1]
+      lines.push(`\n### ${sketch.name}${pronounsLabel}`);
       if (sketch.voiceDescription) lines.push(sketch.voiceDescription);
       // Include comfortable + evasive fragments to anchor voice
       const fragments = (sketch.fragments ?? []).filter(
@@ -850,7 +921,25 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const falseAssumption = cmlCase.false_assumption?.statement ?? "";
   const culpritNames = cmlCase.culpability?.culprits ?? [];
   const culprit = Array.isArray(culpritNames) ? culpritNames.join(", ") : "Unknown";
-  const castNames = cast.characters.map((c) => c.name).join(", ");
+  // Annotate each character with their pronoun form so the user message —
+  // the last instruction the LLM reads before generating — carries explicit
+  // pronoun identity alongside every name. For non-binary characters the
+  // annotation uses the singular form to prime the correct completion path.
+  const castNames = cast.characters.map((c: any) => {
+    const g = (c.gender ?? '').toLowerCase();
+    if (g === 'non-binary') return `${c.name} (they/them)`;
+    if (g === 'female')     return `${c.name} (she/her)`;
+    if (g === 'male')       return `${c.name} (he/him)`;
+    return c.name;
+  }).join(', ');
+
+  // When any cast member is non-binary, add an explicit forbidden-forms reminder
+  // directly in the user message — the proximal generation trigger.
+  const nonBinaryCast = cast.characters.filter((c: any) => (c.gender ?? '').toLowerCase() === 'non-binary');
+  const nonBinaryUserReminder = nonBinaryCast.length > 0
+    ? `\n\n⚠ PRONOUN REMINDER: ${nonBinaryCast.map((c: any) => c.name).join(', ')} use they/them/their (singular). ` +
+      `Never write she/her or he/him for these characters.`
+    : '';
 
   // Resolve victim's full name from cast by role field or roleArchetype substring
   const victimCharacter = cast.characters.find(
@@ -863,7 +952,7 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const victimName = (victimCharacter as any)?.name ?? '';
   const victimLine = victimName ? `\nVictim: ${victimName}` : '';
 
-  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.`;
+  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}${nonBinaryUserReminder}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.`;
 };
 
 /**
@@ -902,8 +991,9 @@ const buildProseRequirements = (caseData: CaseData, scenesForChapter?: unknown[]
     output += `**Discriminating Test Scene (Act ${dts.act_number}, Scene ${dts.scene_number}):**\n`;
     // tests_assumption_elements does not exist in cml_2_0 schema — removed (PS-3 fix)
     output += `Required elements: ${(dts.required_elements || []).join(', ')}\n`;
+    // discriminating_test_scene.outcome does not exist in schema — omit rather than output 'N/A'
     if (dts.test_type) output += `Test type: ${dts.test_type}\n`;
-    output += `Outcome: ${dts.outcome || 'N/A'}\n\n`;
+    output += '\n';
   }
 
   // Suspect clearance scenes
@@ -1300,6 +1390,74 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
   return lines.join('\n');
 }
 
+// ─── PHASE 1 (ANALYSIS_16) ────────────────────────────────────────────────
+// Dedicated pronoun_accuracy prompt block with 9-rule continuity contract.
+// All PHASE 1 changes are tagged [PHASE 1] below.
+//
+// To revert Phase 1 in full:
+//   1. Delete buildPronounAccuracyBlock() function (below)
+//   2. Remove `pronounAccuracyBlock: string` from PromptSectionInputs
+//   3. Remove `pronoun_accuracy: 400` from perBlockTokenCap
+//   4. Remove `{ key: 'pronoun_accuracy', ... }` from buildPromptContextBlocks orderedSections
+//   5. Remove `characterPronouns?` parameter from buildWorldBriefBlock (and the pronounsLabel line inside)
+//   6. Revert buildWorldBriefBlock call site to 3-arg form (drop last arg)
+//   7. Delete `const pronounAccuracyBlock = buildPronounAccuracyBlock(cast)` assignment
+//   8. Remove `pronounAccuracyBlock,` from the buildPromptContextBlocks({...}) call
+//   9. Restore old Rule 2 (pronoun list) inside characterConsistencyRules
+// ─────────────────────────────────────────────────────────────────────────
+/**
+ * Builds a dedicated PRONOUN ACCURACY block with a 9-rule continuity contract.
+ * Inserted at position 0 (before character_consistency) so pronoun rules have
+ * the highest priority ordering in every prose prompt.
+ */
+function buildPronounAccuracyBlock(cast: any[]): string {
+  if (!cast || cast.length === 0) return '';
+
+  // Only include characters with a known, defined gender.
+  // Unknown-gender characters are intentionally omitted: assigning them a spurious
+  // "they/them/their" mandate would contradict the validator (which has no gender
+  // stored for them) and could generate false pronoun constraints in the prompt.
+  const knownGenderCast = cast.filter((c: any) => {
+    const g = c.gender?.toLowerCase();
+    return g === 'male' || g === 'female' || g === 'non-binary';
+  });
+
+  if (knownGenderCast.length === 0) return '';
+
+  // Table columns: subject / object / possessive / reflexive.
+  // Using four distinct forms prevents ambiguity — 'she/her/her' looked like a typo;
+  // 'she/her/herself' gives three distinct tokens the model can act on.
+  const pronounTable = knownGenderCast.map((c: any) => {
+    const gender = c.gender!.toLowerCase();
+    const pronouns = gender === 'male'       ? 'he/him/his/himself'
+                   : gender === 'female'     ? 'she/her/her/herself'
+                   : /* non-binary */          'they/them/their/themselves';
+    return `  • ${c.name}: ${pronouns}`;
+  }).join('\n');
+
+  // When any cast member is non-binary, hoist a dedicated warning block to the
+  // very top of the pronoun section — before the table and rules — so budget
+  // truncation (which cuts from the end) cannot remove it. Lists the exact
+  // forbidden forms by name to suppress the LLM's binary-gender completion priors.
+  const nonBinaryChars = knownGenderCast.filter((c: any) => c.gender?.toLowerCase() === 'non-binary');
+  let nonBinaryWarning = '';
+  if (nonBinaryChars.length > 0) {
+    const nbNames = nonBinaryChars.map((c: any) => c.name);
+    const forbiddenLine = nbNames.length === knownGenderCast.length
+      ? 'ALL characters in this story use they/them/their. NEVER write she/her/herself or he/him/his/himself for any character.'
+      : `FORBIDDEN for ${nbNames.join(', ')}: she / her / herself / he / him / his / himself. Use only: they / them / their / themselves.`;
+    const exampleChar = nbNames[0];
+    nonBinaryWarning =
+      `\n⚠ NON-BINARY CAST — SINGULAR THEY/THEM/THEIR ⚠` +
+      `\n${forbiddenLine}` +
+      `\nThese are SINGULAR pronouns for ONE individual — not a group.` +
+      `\nExample: "${exampleChar} adjusted their collar as they crossed the room." — correct.` +
+      `\nExample: "${exampleChar} adjusted her collar as she crossed the room." — WRONG.\n`;
+  }
+
+  return `\n\nPRONOUN ACCURACY — MANDATORY CONTINUITY CONTRACT${nonBinaryWarning}\n\nThe following pronouns are locked facts, on the same level as character names\nand hard-logic device values. Using the wrong pronoun is a continuity error,\nnot a style choice.\n\nCanonical pronoun table (subject / object / possessive / reflexive):\n${pronounTable}\n\nMANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence\nthat contains a pronoun and verify it against the table. If any mismatch is found,\ncorrect it before outputting. This check is not optional.\n\nRules:\n1. Every sentence is subject to this table — no exceptions for dialogue, reflection,\n   narration, or attribution.\n2. When characters of different genders appear in the same sentence and a pronoun\n   could refer to more than one of them, use the character's name instead of a pronoun\n   to eliminate ambiguity entirely.\n3. A pronoun must never migrate from one character to another across a semicolon,\n   comma splice, or consecutive sentence — even when the same pronoun gender applies\n   to multiple characters.\n4. "Her" takes two grammatical functions — both are exclusively female:\n   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"\n   • Possessive determiner (before a noun): "her coat", "her voice"\n   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".\n5. Reflexive pronouns (himself/herself/themselves) must match the table above.\n   "Graham Worsley excused herself" is a pronoun error regardless of sentence position.\n6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must\n   agree with the SPEAKER's gender — not the last character named inside the quoted speech.\n7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun\n   gender must still match the referent character's canonical set in the table.\n8. Singular "they/them/their" for a specific named non-binary character carries the same\n   mandatory status as gendered pronouns. It is not a plural — treat it as grammatically\n   identical to he/him/his or she/her/her for the purposes of agreement.`;
+}
+
 type PromptBlockPriority = "critical" | "high" | "medium" | "optional";
 
 interface PromptContextBlock {
@@ -1309,6 +1467,9 @@ interface PromptContextBlock {
 }
 
 interface PromptSectionInputs {
+  pronounAccuracyBlock: string; // [PHASE 1] dedicated pronoun block
+  /** True when any cast member uses they/them/their — elevates character_personality to critical priority. */
+  hasNonBinaryCast: boolean;
   characterConsistencyRules: string;
   characterPersonalityContext: string;
   physicalPlausibilityRules: string;
@@ -1339,26 +1500,32 @@ export function formatProvisionalScoringFeedbackBlock(
   if (effectiveFeedback.length === 0) return '';
 
   const lines: string[] = [];
-  lines.push('\n\nPROVISIONAL CHAPTER SCORE FEEDBACK (APPLY TO NEXT CHAPTERS):');
-  lines.push('Treat the following deficits as hard corrective targets for this batch.');
+  // Isolation wrapper — instructs the model that this block is private diagnostic
+  // content that must never be reproduced verbatim in narrative output. Without this
+  // wrapper the model tends to echo imperative directives into prose (chapters 2, 13, 15
+  // pattern). The wrapper+framing change is two-layer: structural isolation + observational
+  // phrasing (no imperative "Required corrections:" language).
+  lines.push('\n\n[⚠ INTERNAL QUALITY DIAGNOSTICS — DO NOT REPRODUCE ANY PART OF THIS SECTION IN YOUR STORY OUTPUT. These are private generator observations for your consideration only. Your narrative must read as if this section does not exist. Never include phrases from this block in character dialogue, narration, or description.]');
+  lines.push('\nPRIOR CHAPTER QUALITY OBSERVATIONS:');
   for (const item of effectiveFeedback) {
-    lines.push(`- From Chapter ${item.fromChapter}: score ${item.score}/100`);
+    lines.push(`- Chapter ${item.fromChapter} (score ${item.score}/100):`);
     if (item.deficits.length > 0) {
-      lines.push(`  Deficits: ${item.deficits.join('; ')}`);
+      lines.push(`  Quality gaps noted: ${item.deficits.join('; ')}`);
     }
     if (item.directives.length > 0) {
-      lines.push(`  Required corrections: ${item.directives.join(' | ')}`);
+      lines.push(`  Address in upcoming chapters: ${item.directives.join(' | ')}`);
     }
   }
-  lines.push('Do not repeat the same deficits in the next chapter.');
+  lines.push('[END INTERNAL DIAGNOSTICS]');
   return lines.join('\n');
 }
 
 const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
   const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
+    { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical' }, // [PHASE 1] position 0
     { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
     { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
-    { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high' },
+    { key: 'character_personality', content: sections.characterPersonalityContext, priority: sections.hasNonBinaryCast ? 'critical' : 'high' },
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
     { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
@@ -1403,6 +1570,7 @@ const applyPromptBudgeting = (
   const availableForBlocks = Math.max(0, budgetTokens - fixedTokens);
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
+    pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
     character_personality: 900,
     location_profiles: 1000,
     temporal_context: 850,
@@ -1494,11 +1662,13 @@ export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?:
   const system = `You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
 
 ⛔ ABSOLUTE RULE — CHARACTER NAMES:
-The ONLY characters who exist in this story are: ${cast.map((c: any) => c.name).join(', ')}.
+The ONLY characters who exist in this story are: ${cast.map((c: any) => { const g = c.gender?.toLowerCase(); const label = g === 'female' ? 'woman' : g === 'male' ? 'man' : ''; return label ? `${c.name} (${label})` : c.name; }).join(', ')}.
 Do NOT invent, borrow, or introduce ANY character not on that list — no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
 Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
 ⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: ${cast.map((c: any) => c.name).join(', ')}?" If not, remove them.
 Any invented named character will fail validation and abort the entire generation.
+⚠️ BEFORE YOU WRITE each chapter, also ask yourself: "Am I using the correct pronouns for every character — she/her for women, he/him for men, they/them for non-binary characters?" If not, correct it before writing a single word.
+⛔ GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times — a woman is always she/her, a man is always he/him, a non-binary character is always they/them/their. Never swap, default, or guess.
 
 Rules:
 - Do not introduce new facts beyond the CML and outline.
@@ -1520,11 +1690,15 @@ Rules:
 ${inputs.moralAmbiguityNote ? `- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "${inputs.moralAmbiguityNote}" — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.` : '- MORAL COMPLEXITY: When writing the denouement, include at least one detail that complicates the moral verdict — a motive the reader can understand, a consequence that feels unjust, or a relationship that can never recover.'}
 ${victimIdentityRule}`;
 
-  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Gender pronouns must match character definition:\n${cast.map((c: any) => {
-    const gender = c.gender?.toLowerCase();
-    const pronouns = gender === 'male' ? 'he/him/his' : gender === 'female' ? 'she/her/her' : 'they/them/their';
-    return `   - ${c.name}: ${pronouns}`;
-  }).join('\n')}\n   - Never switch pronouns mid-story\n\n3. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
+  // [PHASE 1] Rule 2 (per-character pronoun list + 'Never switch pronouns mid-story') removed from
+  // characterConsistencyRules — it is now covered exclusively by the pronounAccuracyBlock above.
+  // Pre-Phase-1 Rule 2 was:
+  //   "2. Gender pronouns must match character definition:\n   - Name: he/him/his ...\n   - Never switch pronouns mid-story"
+  // Old Rule 3 (character roles) has been renumbered to Rule 2.
+  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
+
+  const pronounAccuracyBlock = buildPronounAccuracyBlock(cast); // [PHASE 1]
+  const hasNonBinaryCast = cast.some((c: any) => c.gender?.toLowerCase() === 'non-binary');
 
   // Build character personality/voice/humour guidance from character profiles
   let characterPersonalityContext = '';
@@ -1565,7 +1739,13 @@ ${victimIdentityRule}`;
       const conflictLine = internalConflict ? '\n  Internal Conflict: ' + internalConflict : '';
       const stakeLine = personalStake ? '\n  Personal Stake in Case: ' + personalStake : '';
 
-      return name + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + conflictLine + stakeLine;
+      // For non-binary characters, open the entry with their pronoun identity so
+      // the LLM activates the correct pronoun context when writing about them.
+      const castChar = (inputs.cast?.characters ?? []).find((c: any) => c.name === name);
+      const gender = (castChar as any)?.gender?.toLowerCase() ?? '';
+      const pronounTag = gender === 'non-binary' ? ' [they/them/their — singular]' : '';
+
+      return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + conflictLine + stakeLine;
     }).join('\n\n');
 
     characterPersonalityContext = '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
@@ -1778,7 +1958,7 @@ ${victimIdentityRule}`;
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
-  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes);
+  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes, inputs.narrativeState?.characterPronouns); // [PHASE 1]
 
   const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
     inputs.provisionalScoringFeedback,
@@ -1847,6 +2027,8 @@ ${victimIdentityRule}`;
   const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
+    pronounAccuracyBlock, // [PHASE 1]
+    hasNonBinaryCast,
     characterConsistencyRules,
     characterPersonalityContext,
     physicalPlausibilityRules,
@@ -1906,6 +2088,28 @@ ${victimIdentityRule}`;
     }
   });
 
+  // Build a pronoun audit table so the model must enumerate the pronouns it used per
+  // character rather than making a vague "I checked" assertion. This is stripped before
+  // storage (like the `audit` field) — it exists only to force active self-review.
+  // See ANALYSIS_24 Option C.
+  const pronounAuditLines: string[] = [];
+  // R01 fix: include non-binary characters — they are the hardest case for the LLM
+  // and the PRONOUN AUDIT is the only mechanism that forces active per-character self-review.
+  const castWithGender = cast.filter((c: any) => {
+    const g = c.gender?.toLowerCase();
+    return g === 'male' || g === 'female' || g === 'non-binary';
+  });
+  if (castWithGender.length > 0) {
+    pronounAuditLines.push('□ PRONOUN AUDIT — for every character you named in your chapters, list the pronouns you actually used, then verify against the canonical table. Correct any mismatch before outputting. Do NOT include this audit in your JSON output.');
+    pronounAuditLines.push('  Character            | Canonical     | Used in draft | Match?');
+    pronounAuditLines.push('  ---------------------|---------------|---------------|-------');
+    for (const c of castWithGender) {
+      const g = (c.gender as string).toLowerCase();
+      const canonical = g === 'female' ? 'she/her/her/herself' : g === 'non-binary' ? 'they/them/their/themselves' : 'he/him/his/himself';
+      pronounAuditLines.push(`  ${c.name.padEnd(20)} | ${canonical.padEnd(25)} | [fill in]     | [yes/no]`);
+    }
+  }
+
   const checklistItems = [
     'BEFORE SUBMITTING YOUR JSON — verify this checklist:',
     `□ Each chapter reaches the hard floor of ${chapterWordTargets.hardFloorWords} words and aims for ${chapterTargetWords} words or more.`,
@@ -1917,6 +2121,7 @@ ${victimIdentityRule}`;
         ]
       : []),
     ...earlyClueCheckItems,
+    ...pronounAuditLines,
     '□ Return valid JSON only.',
   ];
   messages.push({ role: 'user' as const, content: checklistItems.join('\n') });
@@ -2249,22 +2454,30 @@ function validateChecklistRequirements(caseData: CaseData): string {
   }
   
   const evidenceClues = discriminatingTest.evidence_clues || [];
-  const clueRegistry = cmlCase.clue_registry || [];
-  
-  // Check that all evidence clues exist in clue registry
+
+  // Build the authoritative set of known clue IDs from clue_to_scene_mapping.
+  // CASE.clue_registry does not exist in the cml_2_0 schema — the real source is
+  // prose_requirements.clue_to_scene_mapping[].clue_id.
+  const knownClueIds = new Set<string>(
+    ((cmlCase.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+      .map((entry: any) => String(entry?.clue_id || ''))
+      .filter(Boolean)
+  );
+
+  // Check that all evidence clues exist in the known clue set.
+  // Skip if there is no clue map — an empty mapping means we cannot validate.
   const missingClues: string[] = [];
-  evidenceClues.forEach((clue: any) => {
-    const clueId = typeof clue === 'string' ? clue : clue.clue_id;
-    const exists = clueRegistry.some((registryClue: any) => 
-      registryClue.clue_id === clueId
-    );
-    if (!exists) {
-      missingClues.push(clueId);
-    }
-  });
+  if (knownClueIds.size > 0) {
+    evidenceClues.forEach((clue: any) => {
+      const clueId = typeof clue === 'string' ? clue : clue.clue_id;
+      if (clueId && !knownClueIds.has(clueId)) {
+        missingClues.push(clueId);
+      }
+    });
+  }
   
   if (missingClues.length > 0) {
-    return `❌ CHECKLIST VALIDATION FAILED: Discriminating test references clues that don't exist in clue_registry: ${missingClues.join(', ')}. Cannot generate checklist with invalid clue references.`;
+    return `❌ CHECKLIST VALIDATION FAILED: Discriminating test references clues not in clue_to_scene_mapping: ${missingClues.join(', ')}. Cannot generate checklist with invalid clue references.`;
   }
   
   // Check that eliminated suspects exist in cast
@@ -2311,11 +2524,33 @@ export function buildDiscriminatingTestChecklist(
     return '\n\n' + validationError + '\n';
   }
   
-  const testDesign = discriminatingTest.design;
-  const testType = testDesign.test_type || 'unknown';
-  const testDescription = testDesign.description || '';
-  const evidenceClues = discriminatingTest.evidence_clues || [];
-  const eliminated = discriminatingTest.eliminated_suspects || [];
+  const proseReqs = cmlCase.prose_requirements ?? {};
+  const dtScene = proseReqs.discriminating_test_scene;
+  // discriminating_test.design is a string in the schema, not an object — access it directly.
+  const testDescription = typeof discriminatingTest.design === 'string' ? discriminatingTest.design : '';
+  // test_type lives in prose_requirements.discriminating_test_scene; use discriminating_test.method as fallback.
+  const testType = dtScene?.test_type || discriminatingTest.method || 'unknown';
+
+  // evidence_clues and eliminated_suspects are not in the cml_2_0 schema.
+  // Derive them from clue_to_scene_mapping (filtered to the DT scene) and the cast minus culprits.
+  const rawEvidenceClues: any[] = Array.isArray(discriminatingTest.evidence_clues) ? discriminatingTest.evidence_clues : [];
+  const evidenceClues: any[] = rawEvidenceClues.length > 0
+    ? rawEvidenceClues
+    : ((proseReqs.clue_to_scene_mapping ?? []) as any[])
+        .filter((e: any) => !dtScene || Number(e?.act_number) === Number(dtScene?.act_number))
+        .map((e: any) => String(e?.clue_id || ''))
+        .filter(Boolean);
+
+  const culpritSet = new Set<string>((cmlCase.culpability?.culprits ?? []).map((n: any) => String(n)));
+  const rawEliminated: any[] = Array.isArray(discriminatingTest.eliminated_suspects) ? discriminatingTest.eliminated_suspects : [];
+  const eliminated: any[] = rawEliminated.length > 0
+    ? rawEliminated
+    : (cmlCase.cast ?? []).filter((c: any) => {
+        if (culpritSet.has(c.name)) return false;
+        if (String(c.culpability || '').toLowerCase() === 'guilty') return false;
+        const role = String(c.role || '').toLowerCase();
+        return role !== 'detective' && role !== 'victim';
+      }).map((c: any) => c.name).filter(Boolean);
   
   // Only show checklist once we're in the late portion of the story (past 70% threshold).
   // This threshold is relative to totalScenes, matching chapter-validator.ts behaviour.
@@ -2411,37 +2646,23 @@ export function buildDiscriminatingTestChecklist(
 }
 
 /**
- * Extract evidence clue locations from narrative outline
- * Returns map of clue_id to Act/Scene location for checklist injection
+ * Extract evidence clue locations from clue_to_scene_mapping.
+ * Returns map of clue_id to Act/Scene location for checklist injection.
+ * Each mapping entry already carries act_number and scene_number, so no
+ * outline search is needed. CASE.clue_registry does not exist in the schema.
  */
 function extractClueLocations(caseData: CaseData, outline: NarrativeOutline): Map<string, string> {
   const clueLocations = new Map<string, string>();
   const cmlCase = (caseData as any)?.CASE ?? {};
-  const clueRegistry = cmlCase.clue_registry || [];
-  
-  // Build set of clue IDs we're looking for
-  const clueIds = new Set<string>(clueRegistry.map((c: any) => String(c.clue_id || '')));
-  
-  // Search through outline acts and scenes
-  outline.acts?.forEach((act: any) => {
-    const actNum = act.act_number;
-    act.scenes?.forEach((scene: any) => {
-      const sceneNum = scene.scene_number;
-      const sceneText = JSON.stringify(scene).toLowerCase();
-      
-      // Check each clue ID
-      clueIds.forEach((clueId: string) => {
-        if (clueId && sceneText.includes(clueId.toLowerCase())) {
-          const location = `Act ${actNum}, Scene ${sceneNum}`;
-          // Store first occurrence (could track multiple if needed)
-          if (!clueLocations.has(clueId)) {
-            clueLocations.set(clueId, location);
-          }
-        }
-      });
-    });
-  });
-  
+  const mappings = (cmlCase.prose_requirements?.clue_to_scene_mapping ?? []) as any[];
+
+  for (const entry of mappings) {
+    const clueId = String(entry?.clue_id || '');
+    if (clueId && !clueLocations.has(clueId)) {
+      clueLocations.set(clueId, `Act ${entry.act_number}, Scene ${entry.scene_number}`);
+    }
+  }
+
   return clueLocations;
 }
 
@@ -2459,7 +2680,9 @@ const buildEnhancedRetryFeedback = (
   const cmlCase = (caseData as any)?.CASE ?? {};
   const cast = cmlCase.cast || [];
   const castNames = cast.map((c: any) => c.name);
-  const locationType = cmlCase.meta?.setting?.location_type || '';
+  // CASE.meta.setting has location, place, country, institution — no location_type field.
+  // Use the location name for setting-specific retry guidance.
+  const locationType = cmlCase.meta?.setting?.location || '';
   
   // Categorize errors — clue errors must be separated FIRST to prevent them from
   // falling into qualityErrors (which matches anything containing "chapter").
@@ -2467,22 +2690,45 @@ const buildEnhancedRetryFeedback = (
     const lc = e.toLowerCase();
     return lc.includes('clue evidence') || lc.includes('clue obligation') || lc.includes('clue visibility') || lc.includes('missing required clue');
   });
-  const characterErrors = errors.filter(e => !clueValidationErrors.includes(e) && (e.toLowerCase().includes('character') || e.toLowerCase().includes('name')));
-  const settingErrors = errors.filter(e => !clueValidationErrors.includes(e) && !characterErrors.includes(e) && (e.toLowerCase().includes('setting') || e.toLowerCase().includes('location')));
-  const testErrors = errors.filter(e => !clueValidationErrors.includes(e) && e.toLowerCase().includes('discriminating test'));
+  // ─── PHASE 2 (ANALYSIS_16) ──────────────────────────────────────────────
+  // Pronoun-specific retry feedback branch.
+  // Pre-Phase-2: pronoun errors fell into characterErrors and received the
+  //   name-hallucination solution block (wrong feedback for the failure mode).
+  // All PHASE 2 changes are tagged [PHASE 2] below.
+  //
+  // To revert Phase 2 in full:
+  //   1. Delete the pronounErrors filter (lines below)
+  //   2. Remove `!pronounErrors.includes(e)` guards from settingErrors, testErrors,
+  //      wordCountErrors, qualityErrors, and otherErrors filters
+  //   3. Delete the `if (pronounErrors.length > 0) { ... }` feedback block
+  // ─────────────────────────────────────────────────────────────────────────
+  // [PHASE 2] Pronoun errors extracted before characterErrors so they get
+  // targeted feedback instead of the name-hallucination solution block.
+  const pronounErrors = errors.filter(e => !clueValidationErrors.includes(e) && (
+    e.toLowerCase().includes('pronoun_gender_mismatch') ||
+    /incorrect pronoun|wrong pronoun|should use he|should use she|should use they/i.test(e)
+  ));
+  const characterErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) &&
+    !pronounErrors.includes(e) &&
+    (e.toLowerCase().includes('character') || e.toLowerCase().includes('name'))
+  );
+  const settingErrors = errors.filter(e => !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && (e.toLowerCase().includes('setting') || e.toLowerCase().includes('location')));
+  const testErrors = errors.filter(e => !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && e.toLowerCase().includes('discriminating test'));
   // Word-count errors contain "chapter" so they would otherwise match qualityErrors and receive
   // misleading "vary paragraph lengths" guidance. Extract them first; the MICRO-PROMPT [word_count]
   // directive in buildRetryMicroPromptDirectives already gives the correct repair instruction.
   const wordCountErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
     /word count below/i.test(e)
   );
   const qualityErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) &&
     (e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'))
   );
   const otherErrors = errors.filter(e =>
     !clueValidationErrors.includes(e) &&
+    !pronounErrors.includes(e) && // [PHASE 2]
     !characterErrors.includes(e) &&
     !settingErrors.includes(e) &&
     !testErrors.includes(e) &&
@@ -2531,21 +2777,27 @@ const buildEnhancedRetryFeedback = (
     if (clueAbsentErrors.length > 0 || otherClueErrors.length > 0) {
       const absentDescs = extractQuoted([...clueAbsentErrors, ...otherClueErrors]);
 
-      if (attemptNum <= 2) {
+      // Escalation tier is relative to remaining attempts so the directive strength
+      // always matches how many retries are left, regardless of maxAttempts config value.
+      // retriesRemaining >= 2 → early standard guidance
+      // retriesRemaining === 1 → penultimate: paragraph structure required
+      // retriesRemaining === 0 → final: mandatory rebuild block
+      const retriesRemaining = maxAttempts - attemptNum;
+      if (retriesRemaining >= 2) {
         const clueScope = absentDescs.length > 0
           ? `chapters ${rangeLabel} are missing: ${absentDescs.join(', ')}.`
           : `chapters ${rangeLabel} are missing required clue evidence.`;
         directives.push(
-          `REPAIR [clue_visibility — attempt 2]: ${clueScope}\n` +
+          `REPAIR [clue_visibility — attempt ${attemptNum}]: ${clueScope}\n` +
           `  Near the beginning of the chapter:\n` +
           `  • Paragraph 1: A character directly observes or discovers the missing evidence. Be specific and sensory — describe what is seen, touched, or heard. Include any exact required phrase verbatim.\n` +
           `  • Paragraph 2 (immediately following): The detective or POV character explicitly reasons about what this evidence means — who it implicates, what is suspicious, or what inference it supports.\n` +
           `  Keep these as two clearly separate paragraphs. Do not bury the evidence in atmosphere or background dialogue.`
         );
-      } else if (attemptNum === 3) {
+      } else if (retriesRemaining === 1) {
         const clueScope = absentDescs.length > 0 ? absentDescs.join(', ') : 'the required clue evidence';
         directives.push(
-          `REPAIR [clue_visibility — attempt 3 — PARAGRAPH STRUCTURE REQUIRED]: ${clueScope} still missing.\n` +
+          `REPAIR [clue_visibility — attempt ${attemptNum} — PARAGRAPH STRUCTURE REQUIRED]: ${clueScope} still missing.\n` +
           `  You MUST include a two-paragraph sequence in the first quarter of the chapter:\n` +
           `  Paragraph A: The character physically approaches, examines, or directly perceives the evidence. Write this as a present-action beat, not a recalled memory. Include the exact required phrase if one is specified.\n` +
           `  Paragraph B: In the very next paragraph, the character explicitly says or thinks that this evidence may be misleading, was tampered with, or points to a specific person. Use first-person inference language ("She realised...", "He could not help but wonder..."). This must be a full separate paragraph, not a tacked-on sentence.\n` +
@@ -2575,6 +2827,22 @@ const buildEnhancedRetryFeedback = (
 
       directives.push(
         `MICRO-PROMPT [word_count]: ${guidance} Expand with concrete action beats, sensory setting detail, and inference-relevant dialogue; avoid filler recap.`
+      );
+    }
+
+    const temporalError = rawErrors.find((e) => /month\/season contradiction/i.test(e));
+    if (temporalError) {
+      // Extract month and wrong season from the error message:
+      //   "Chapter N has month/season contradiction (january vs autumn)"
+      const temporalMatch = temporalError.match(/\(([a-z]+) vs ([a-z,\s]+)\)/);
+      const month = temporalMatch?.[1] ?? 'the story month';
+      const wrongSeasons = temporalMatch?.[2]?.trim() ?? 'the wrong season';
+      const correctSeason = (month && MONTH_TO_SEASON[month]) ?? 'the correct season';
+      directives.push(
+        `REPAIR [temporal_consistency — attempt ${attemptNum}]: This chapter contains ${wrongSeasons} language but the story month is ${month} (${correctSeason}).\n` +
+        `  You MUST remove every reference to ${wrongSeasons} from the prose — this includes the words themselves and their adjectival forms (e.g. "autumnal", "summery", "wintry", "springtime").\n` +
+        `  Replace with ${correctSeason}-appropriate language only. Use words like: ${getSeasonAllowList(correctSeason as CanonicalSeason)}.\n` +
+        `  Check every atmospheric sentence, weather description, and sensory detail for forbidden season vocabulary before finalising.`
       );
     }
 
@@ -2612,6 +2880,36 @@ const buildEnhancedRetryFeedback = (
     feedback += `═══ CLUE OBLIGATION FAILURES (${clueValidationErrors.length}) ═══\n`;
     clueValidationErrors.forEach(e => feedback += `• ${e}\n`);
     feedback += `\nSee the RETRY MICRO-PROMPTS section below for specific paragraph-by-paragraph repair instructions.\n\n`;
+  }
+
+  // [PHASE 2] Pronoun-specific feedback block (targeted repair instructions).
+  // Pre-Phase-2 these errors were handled by CHARACTER NAME ERRORS below (wrong bucket).
+  if (pronounErrors.length > 0) {
+    // Build a per-character directive for ONLY the characters that actually failed.
+    // A full cast table is counterproductive — the model sees it as a reference rather
+    // than an action. Instead emit one crisp FIX line per failing character.
+    const failingCharacterDirectives = pronounErrors.map((msg) => {
+      const nameMatch = /^Character "([^"]+)" has incorrect pronouns\. Should use ([^\s]+) but found: (.+)$/.exec(msg);
+      if (!nameMatch) return `  ⚠️ ${msg}`;
+      const [, name, correctPronounSet, wrongPronouns] = nameMatch;
+      const castEntry = cast.find((c: any) => c.name === name);
+      const gender = castEntry?.gender?.toLowerCase();
+      const genderLabel = gender === 'male' ? 'MALE' : gender === 'female' ? 'FEMALE' : 'NON-BINARY';
+      return (
+        `  ⚠️ ${name} is ${genderLabel} — use "${correctPronounSet}" ONLY.\n` +
+        `     You wrote: ${wrongPronouns} — these are WRONG for this character.\n` +
+        `     Every time "${name}" appears: ${correctPronounSet}. No exceptions.`
+      );
+    }).join('\n');
+
+    feedback += `═══ ⚠️ PRONOUN ERRORS — MUST FIX (${pronounErrors.length}) ═══\n`;
+    feedback += `These specific characters had the WRONG pronouns. Fix each one before you submit:\n\n`;
+    feedback += `${failingCharacterDirectives}\n\n`;
+    feedback += `HOW TO FIX: Search your draft for every occurrence of each name above.\n`;
+    feedback += `Replace any pronoun that does not match the gender shown.\n`;
+    feedback += `Minimal sentence rewording is acceptable where it improves clarity (e.g. naming\n`;
+    feedback += `the character explicitly instead of relying on a pronoun). Do NOT alter plot\n`;
+    feedback += `points, clue details, alibis, or dialogue meaning.\n\n`;
   }
 
   if (characterErrors.length > 0) {
@@ -2692,6 +2990,24 @@ const buildEnhancedRetryFeedback = (
   return feedback;
 };
 
+// ─── WORLD FIX B (ANALYSIS_17) ───────────────────────────────────────────
+// Pass temporal lock and anti-leakage instruction into attemptUnderflowExpansion().
+// Previously the expansion was a context-stripped LLM call: 4-sentence system
+// prompt with no knowledge of the story's season or any anti-leakage guard.
+// This introduced new failure types (seasonal drift, prompt leakage) on the very
+// path meant to be the last-resort recovery. All WORLD FIX B changes are tagged
+// [WORLD FIX B] below.
+//
+// To revert World Fix B in full:
+//   1. Remove `temporalLock?: { month: string; season: CanonicalSeason }` from
+//      the attemptUnderflowExpansion() parameter list.
+//   2. Delete the `// [WORLD FIX B]` temporalLockLine variable and the
+//      `if (temporalLockLine...)` spread in the system array.
+//   3. Restore the 4-element system array join (delete the two new sentences:
+//      "Output only narrative prose..." and the temporalLockLine spread).
+//   4. Remove `temporalSeasonLock, // [WORLD FIX B]` from the call site
+//      inside generateProse() (search for "WORLD FIX B" at the call site).
+// ─────────────────────────────────────────────────────────────────────────
 const parseExpandedChapterResponse = (content: string): ProseChapter => {
   const parsed = parseProseResponse(content) as any;
   const candidate = parsed?.chapter ?? parsed;
@@ -2720,6 +3036,8 @@ export const attemptUnderflowExpansion = async (
   model: string | undefined,
   runId: string | undefined,
   projectId: string | undefined,
+  temporalLock?: { month: string; season: CanonicalSeason }, // [WORLD FIX B]
+  cast?: any[], // [ANALYSIS_16 PHASE D]
 ): Promise<ProseChapter> => {
   const chapterText = (chapter.paragraphs ?? []).join("\n\n");
   const currentWords = countWords(chapterText);
@@ -2749,10 +3067,25 @@ export const attemptUnderflowExpansion = async (
     return `  • ${desc} [${id}]${placementNote}`;
   }).join('\n');
 
+  // [WORLD FIX B] Anti-leakage + temporal-lock constraints for the expansion call
+  const temporalLockLine = temporalLock
+    ? `Season lock: ${capitalizeWord(temporalLock.month)} (${temporalLock.season}) — use only ${getSeasonAllowList(temporalLock.season)}; never write ${['spring', 'summer', 'autumn', 'winter'].filter(s => s !== temporalLock!.season).join(', ')}.`
+    : '';
+  // [ANALYSIS_16 PHASE D] Compact pronoun lock for the expansion call
+  const expansionPronounLock = cast && cast.length > 0
+    ? `Pronoun lock — never change: ${cast.map((c: any) => {
+        const g = c.gender?.toLowerCase();
+        const p = g === 'male' ? 'he/him' : g === 'female' ? 'she/her' : 'they/them';
+        return `${c.name}: ${p}`;
+      }).join('; ')}. Do not alter any pronoun or gendered reference for any character.`
+    : '';
   const system = [
     "You are a surgical prose revision assistant for mystery fiction.",
     "Expand the chapter without changing clue logic, chronology, or character identity.",
     "Do not remove evidence already present. Do not add new named characters.",
+    "Output only narrative prose — never emit instruction-shaped text, directives, or schema field names as prose content.",
+    ...(temporalLockLine ? [temporalLockLine] : []),
+    ...(expansionPronounLock ? [expansionPronounLock] : []), // [ANALYSIS_16 PHASE D]
     "Output JSON only.",
   ].join(" ");
 
@@ -2796,6 +3129,77 @@ export const attemptUnderflowExpansion = async (
   return parseExpandedChapterResponse(response.content);
 };
 
+// ─── ANALYSIS_20 ATMOSPHERE-REPAIR PHRASE-SUBSTITUTION (2026-03-29) ─────────
+// Previous implementation: full-chapter rewrite. The LLM was given the entire
+// chapter text and told to regenerate it replacing banned phrases. This let the
+// model re-gender any character during reconstruction — producing 15–17 pronoun
+// errors per run despite Phase D pronoun locks (ANALYSIS_16) and the
+// deterministic repair pass (ANALYSIS_19). Root cause: you cannot ask an LLM
+// to rewrite whole paragraphs and simultaneously guarantee it never touches
+// unrelated sentence elements.
+//
+// New implementation: phrase-level token substitution. The LLM is only asked to
+// generate a fresh synonym for each banned phrase token — the surrounding prose,
+// pronouns, sentence structure, and character references are never sent for
+// rewriting and cannot be altered. Replacements are applied as deterministic
+// string substitutions to original paragraphs.
+//
+// Side-effect: the ANALYSIS_16 PHASE D cast/pronounLock parameters are no
+// longer required (they were a mitigation for the old wholesale-rewrite
+// approach) and have been removed from the function signature and call site.
+//
+// To revert to full-chapter-rewrite (not recommended — see ANALYSIS_19/20):
+//   1. Restore old function body from git history (search commit tagged ANALYSIS_16_PHASE_D).
+//   2. Re-add `cast: any[]` parameter, pronounLock variable, and spread.
+//   3. Restore `inputs.cast.characters` call site argument in generateProse().
+//   4. Restore temperature: 0.55, maxTokens from underflow_expansion config.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface PhraseReplacement {
+  original: string;
+  replacement: string;
+}
+
+const parsePhraseReplacementsResponse = (content: string): PhraseReplacement[] => {
+  try {
+    const parsed = JSON.parse(content);
+    const arr = Array.isArray(parsed?.replacements) ? parsed.replacements : [];
+    return arr
+      .filter((r: unknown) =>
+        r && typeof r === 'object' &&
+        typeof (r as any).original === 'string' &&
+        typeof (r as any).replacement === 'string' &&
+        (r as any).original.trim().length > 0 &&
+        (r as any).replacement.trim().length > 0
+      )
+      .map((r: any) => ({ original: r.original.trim(), replacement: r.replacement.trim() }));
+  } catch {
+    return [];
+  }
+};
+
+const applyPhraseSubstitutions = (
+  paragraphs: string[],
+  replacements: PhraseReplacement[],
+): string[] => {
+  if (replacements.length === 0) return paragraphs;
+  return paragraphs.map((para) => {
+    let result = para;
+    for (const { original, replacement } of replacements) {
+      const escaped = original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(escaped, 'gi');
+      result = result.replace(pattern, (match) => {
+        // Preserve capitalisation: if the matched token starts uppercase, capitalise replacement.
+        if (match[0] && match[0] !== match[0].toLowerCase()) {
+          return replacement[0].toUpperCase() + replacement.slice(1);
+        }
+        return replacement;
+      });
+    }
+    return result;
+  });
+};
+
 export const runAtmosphereRepairIfNeeded = async (
   client: AzureOpenAIClient,
   chapters: ProseChapter[],
@@ -2819,35 +3223,37 @@ export const runAtmosphereRepairIfNeeded = async (
     .slice(0, 8);
 
   for (const target of repairTargets) {
+    // Only send the phrases actually present in this chapter.
+    const presentPhrases = bannedPhrases.filter((phrase) =>
+      target.text.toLowerCase().includes(phrase.toLowerCase())
+    );
+
     const response = await client.chat({
       messages: [
         {
           role: 'system',
           content: [
-            'You are a surgical prose revision assistant for mystery fiction.',
-            'Replace repeated atmospheric phrasing with fresh, scene-specific language.',
-            'Do not change plot events, clue evidence, chronology, or who says what.',
-            'Output JSON only.',
+            'You are a prose variety assistant for mystery fiction.',
+            'You will be given a list of overused phrases.',
+            'For each phrase provide one fresh, scene-specific alternative of similar length and register.',
+            'Output JSON only — no explanation, no prose outside the JSON.',
           ].join(' '),
         },
         {
           role: 'user',
           content: [
-            `Chapter ${target.index + 1} contains repeated atmospheric phrasing used elsewhere in the story.`,
-            `Banned phrases already overused: ${bannedPhrases.map((phrase) => `"${phrase}"`).join(', ')}.`,
-            'Replace those repeated phrases with fresh alternatives tied to this chapter\'s location and action.',
-            'Do not alter clue logic, factual content, or chapter structure.',
-            'Return this schema:',
-            '{"chapter":{"title":"...","summary":"...","paragraphs":["...","..."]}}',
+            `Chapter ${target.index + 1} overuses these phrases — provide one fresh alternative for each:`,
+            presentPhrases.map((p, i) => `${i + 1}. "${p}"`).join('\n'),
+            '',
+            'Return exactly this schema (one entry per phrase, same order):',
+            '{"replacements":[{"original":"...","replacement":"..."}]}',
             'Only return the JSON payload.',
-            'Current chapter text:',
-            (target.chapter.paragraphs ?? []).join('\n\n'),
-          ].join('\n\n'),
+          ].join('\n'),
         },
       ],
       model,
-      temperature: 0.55,
-      maxTokens: getGenerationParams().agent9_prose.underflow_expansion.max_tokens,
+      temperature: 0.7,
+      maxTokens: Math.max(400, presentPhrases.length * 80),
       jsonMode: true,
       logContext: {
         runId: runId ?? '',
@@ -2856,7 +3262,14 @@ export const runAtmosphereRepairIfNeeded = async (
       },
     });
 
-    repaired[target.index] = parseExpandedChapterResponse(response.content);
+    const replacements = parsePhraseReplacementsResponse(response.content);
+    if (replacements.length > 0) {
+      repaired[target.index] = {
+        ...target.chapter,
+        paragraphs: applyPhraseSubstitutions(target.chapter.paragraphs ?? [], replacements),
+      };
+    }
+    // If LLM returns unparseable or empty replacements, the chapter is left unchanged (best-effort).
   }
 
   return repaired;
@@ -2881,11 +3294,13 @@ export async function generateProse(
   // E5: Collect prompt fingerprints per chapter for traceability
   const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> = [];
   const chapterValidator = new ChapterValidator();
+  const pronounValidator = new CharacterConsistencyValidator();
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
   const castNames = inputs.cast.characters.map(c => c.name);
   const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
+  const pronounCheckingEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
   const proseLinterStats: ProseLinterStats = {
     checksRun: 0,
     failedChecks: 0,
@@ -3055,6 +3470,19 @@ export async function generateProse(
           const chapterNumber = chapterStart + i;
           const ledgerEntry = chapterRequirementLedger[i];
 
+          // Deterministic pronoun repair before validation — catches unambiguous mismatches cheaply.
+          // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
+          if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
+            const pronRepair = repairChapterPronouns(chapter, inputs.cast.characters);
+            if (pronRepair.repairCount > 0) {
+              chapter = pronRepair.chapter;
+              proseBatch.chapters[i] = chapter;
+              console.warn(
+                `[Agent 9] Pre-validation pronoun repair: ch${chapterNumber} — ${pronRepair.repairCount} replacement(s) applied.`,
+              );
+            }
+          }
+
           const evaluateCandidate = (candidate: ProseChapter, trackUnderflow = true) => {
             const hardErrors: string[] = [];
 
@@ -3148,12 +3576,25 @@ export async function generateProse(
                 inputs.model,
                 inputs.runId,
                 inputs.projectId,
+                temporalSeasonLock, // [WORLD FIX B]
+                inputs.cast.characters, // [ANALYSIS_16 PHASE D]
               );
               chapter = enforceMonthSeasonLockOnChapter(
                 sanitizeGeneratedChapter(expanded, castNames),
                 temporalSeasonLock,
               );
               proseBatch.chapters[i] = chapter;
+              // Repeat pronoun repair after expansion — expansion is a full LLM rewrite.
+              if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
+                const pronRepair = repairChapterPronouns(chapter, inputs.cast.characters);
+                if (pronRepair.repairCount > 0) {
+                  chapter = pronRepair.chapter;
+                  proseBatch.chapters[i] = chapter;
+                  console.warn(
+                    `[Agent 9] Post-expansion pronoun repair: ch${chapterNumber} — ${pronRepair.repairCount} replacement(s) applied.`,
+                  );
+                }
+              }
               evaluation = evaluateCandidate(chapter, false);
               if (evaluation.hasOnlyHardFloorUnderflow || evaluation.hardErrors.length > 0) {
                 underflowExpansionFailed += 1;
@@ -3166,6 +3607,43 @@ export async function generateProse(
           }
 
           const chapterErrors = [...evaluation.hardErrors];
+
+          // Targeted pronoun repair: validate → fix validator-confirmed characters → re-validate.
+          // Any mismatches that survive repair are unresolvable and escalate to an LLM retry.
+          // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
+          if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
+            const chapterText = chapter.paragraphs.join('\n\n');
+            const pronounStory = { id: 'pronoun-check', projectId: 'pronoun-check',
+              scenes: [{ number: chapterNumber, title: chapter.title, text: chapterText }] };
+            const pronounIssues = pronounValidator.validate(pronounStory, inputs.caseData as any).errors
+              .filter((e) => e.type === 'pronoun_gender_mismatch')
+              .map((e) => e.message);
+
+            if (pronounIssues.length > 0) {
+              const flaggedNames = pronounIssues
+                .map((msg) => /^Character "([^"]+)" has incorrect pronouns/.exec(msg)?.[1] ?? null)
+                .filter((n): n is string => n !== null);
+
+              const repaired = flaggedNames.length > 0
+                ? repairPronouns(chapterText, inputs.cast.characters, { targetNames: flaggedNames })
+                : { repairCount: 0, text: chapterText };
+
+              if (repaired.repairCount > 0) {
+                chapter = { ...chapter, paragraphs: repaired.text.split('\n\n') };
+                proseBatch.chapters[i] = chapter;
+                const residualStory = { ...pronounStory,
+                  scenes: [{ ...pronounStory.scenes[0], text: repaired.text }] };
+                chapterErrors.push(
+                  ...pronounValidator.validate(residualStory, inputs.caseData as any).errors
+                    .filter((e) => e.type === 'pronoun_gender_mismatch')
+                    .map((e) => e.message)
+                );
+              } else {
+                chapterErrors.push(...pronounIssues);
+              }
+            }
+          }
+
           // Do NOT piggyback preferred-word-count misses onto hard errors.
           // When hard errors (e.g. a missing clue) dominate, appending a preferred miss adds
           // noise that pulls the model toward word-count expansion at the expense of the real fix.

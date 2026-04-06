@@ -99,7 +99,8 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErr
   const locationDescription = inputs.settingRefinement.location.description ?? "";
   const weather = inputs.settingRefinement.atmosphere.weather ?? "Clear";
   const mood = inputs.settingRefinement.atmosphere.mood ?? "Tense";
-  const crimeScene = cmlCase.crime_scene?.primary_location ?? "Unknown";
+  // CASE.crime_scene does not exist in the cml_2_0 schema; the primary location is CASE.meta.setting.location.
+  const crimeScene = cmlCase.meta?.setting?.location ?? "Unknown";
   const tone = inputs.tone ?? "Classic";
   const targetWordCount = inputs.targetWordCount ?? 1000;
 
@@ -110,7 +111,8 @@ const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErr
     .map((scene: any) => {
       const raw = scene.setting || scene.location;
       if (typeof raw === 'string') return raw;
-      if (raw && typeof raw === 'object') return raw.name || raw.id || null;
+      // Support both { name: "..." } and { location: "..." } object shapes
+      if (raw && typeof raw === 'object') return raw.name || raw.location || raw.id || null;
       return null;
     })
     .filter((loc): loc is string => Boolean(loc));
@@ -214,7 +216,8 @@ Return JSON with this structure:
 
 Requirements:
 - Primary location: 3-5 narrative paragraphs (~${targetWordCount} words total)
-- Key locations: 2-3 paragraphs each (include crime scene + 2-4 other important locations)
+- Key locations: 2-3 paragraphs each (include crime scene + AT LEAST 3 other important locations, 4 minimum total)
+- If the narrative does not suggest specific sub-locations, invent context-appropriate ones for the setting type (rooms, outbuildings, grounds, nearby places). A country house has a library, a study, a drawing room, a servants\'s hall, gardens. An ocean liner has a dining saloon, a promenade deck, a cabin corridor, a cargo hold.
 - Atmosphere: 2-3 paragraphs
 - **CRITICAL — Sensory Richness**: Each sensory detail entry MUST be a full 2-sentence description (minimum 20 words per entry). Arrays of one-word items or short phrases WILL be rejected. Aim for 50+ words total per sense field across the array.
 - All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)
@@ -329,6 +332,13 @@ export async function generateLocationProfiles(
 
       if (!Array.isArray(profiles.keyLocations)) {
         throw new Error("Invalid location profiles output: missing key locations");
+      }
+
+      if (profiles.keyLocations.length < 3) {
+        throw new Error(
+          `Location profiles must include at least 3 key locations (got ${profiles.keyLocations.length}). ` +
+          `Include the crime scene plus at least 2 other distinct areas appropriate to the setting type.`
+        );
       }
 
       const costTracker = client.getCostTracker();

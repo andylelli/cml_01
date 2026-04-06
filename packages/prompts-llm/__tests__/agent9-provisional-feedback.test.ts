@@ -15,11 +15,17 @@ describe("Agent 9 provisional scoring feedback", () => {
       },
     ]);
 
-    expect(block).toContain("PROVISIONAL CHAPTER SCORE FEEDBACK");
-    expect(block).toContain("From Chapter 1: score 88/100");
+    // Isolation wrapper and updated framing
+    expect(block).toContain("INTERNAL QUALITY DIAGNOSTICS");
+    expect(block).toContain("DO NOT REPRODUCE ANY PART OF THIS SECTION");
+    expect(block).toContain("Chapter 1 (score 88/100)");
     expect(block).toContain("paragraph structure too thin");
-    expect(block).toContain("Required corrections:");
-    expect(block).toContain("Do not repeat the same deficits in the next chapter.");
+    expect(block).toContain("Address in upcoming chapters:");
+    expect(block).toContain("END INTERNAL DIAGNOSTICS");
+    // Old imperative framing must be gone
+    expect(block).not.toContain("PROVISIONAL CHAPTER SCORE FEEDBACK");
+    expect(block).not.toContain("Required corrections:");
+    expect(block).not.toContain("Do not repeat the same deficits");
   });
 
   it("keeps only the latest two feedback entries", () => {
@@ -29,8 +35,8 @@ describe("Agent 9 provisional scoring feedback", () => {
       { fromChapter: 3, score: 92, deficits: ["d3"], directives: ["x3"] },
     ]);
 
-    expect(block).not.toContain("From Chapter 1");
-    expect(block).toContain("From Chapter 2");
-    expect(block).toContain("From Chapter 3");
+    expect(block).not.toContain("Chapter 1");
+    expect(block).toContain("Chapter 2");
+    expect(block).toContain("Chapter 3");
   });
 });

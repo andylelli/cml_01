@@ -29,6 +29,7 @@ export interface WorldBuilderInputs {
   model?: string;
   runId?: string;
   projectId?: string;
+  retryFeedback?: string;   // Scoring feedback from a previous failed attempt
   onProgress?: (phase: string, message: string) => void;
 }
 
@@ -92,6 +93,16 @@ Produce a single JSON object with ALL of the following fields.
 
 Return the JSON object directly — no preamble, no markdown fences, no commentary.
 
+MANDATORY FIELD LENGTHS:
+- historicalMoment.eraRegister: MINIMUM 150 words. Bring the historical moment alive through lived
+  texture — sights, pressures, daily life — not a history lesson. Count your words before finalising.
+- storyEmotionalArc.arcDescription: MINIMUM 200 words, target 250 words. This is an emotional map
+  of the full story journey — not a one-paragraph summary. It must trace the emotional register from
+  opening chapter through rising tension to climax and resolution. Multiple paragraphs expected.
+  A response shorter than 200 words will fail the quality gate. Count your words.
+- revealImplications: MINIMUM 90 words. Three earlier scenes, each revisited with one full sentence
+  of analysis. Aim for 120 words.
+
 Required structure:
 {
   "status": "final",
@@ -148,18 +159,18 @@ Required structure:
     "endingNote": "<one sentence: what emotional register does the ending carry>"
   },
   "humourPlacementMap": [
-    { "scenePosition": "opening_scene", "humourPermission": "permitted|conditional|forbidden", "condition": "...", "permittedCharacters": [], "permittedForms": [], "rationale": "..." },
-    { "scenePosition": "first_investigation", ... },
-    { "scenePosition": "body_discovery", "humourPermission": "forbidden", "rationale": "..." },
-    { "scenePosition": "first_interview", ... },
-    { "scenePosition": "domestic_scene", ... },
-    { "scenePosition": "mid_investigation", ... },
-    { "scenePosition": "second_interview", ... },
-    { "scenePosition": "tension_scene", ... },
-    { "scenePosition": "pre_climax", ... },
-    { "scenePosition": "discriminating_test", "humourPermission": "forbidden", "rationale": "..." },
-    { "scenePosition": "revelation", "humourPermission": "forbidden", "rationale": "..." },
-    { "scenePosition": "resolution", ... }
+    { "scenePosition": "opening_scene",       "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "first_investigation",  "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "body_discovery",       "humourPermission": "forbidden",                                                                                                                           "rationale": "<one sentence>" },
+    { "scenePosition": "first_interview",      "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "domestic_scene",       "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "mid_investigation",    "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "second_interview",     "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "tension_scene",        "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "pre_climax",           "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" },
+    { "scenePosition": "discriminating_test",  "humourPermission": "forbidden",                                                                                                                           "rationale": "<one sentence>" },
+    { "scenePosition": "revelation",           "humourPermission": "forbidden",                                                                                                                           "rationale": "<one sentence>" },
+    { "scenePosition": "resolution",           "humourPermission": "permitted|conditional|forbidden", "condition": "<omit if not conditional>", "permittedCharacters": [], "permittedForms": [], "rationale": "<one sentence>" }
   ],
   "breakMoment": {
     "character": "<non-culprit, non-detective cast member>",
@@ -198,8 +209,22 @@ export async function generateWorldDocument(
 
   const messages: Message[] = [
     { role: 'system', content: WORLD_BUILDER_SYSTEM },
-    { role: 'user', content: buildWorldBuilderUserMessage(inputs) },
   ];
+
+  // If a previous attempt failed, prepend scoring feedback as a multi-turn preamble so
+  // the model enters the generation phase already aware of what needs correcting.
+  if (inputs.retryFeedback) {
+    messages.push({
+      role: 'user',
+      content: `PREVIOUS_ATTEMPT_FAILED — Retry guidance:\n\n${inputs.retryFeedback}`,
+    });
+    messages.push({
+      role: 'assistant',
+      content: 'Understood. I will review the scoring feedback and regenerate the World Document, correcting all identified issues.',
+    });
+  }
+
+  messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
 
   let lastError: Error | null = null;
 
@@ -212,7 +237,7 @@ export async function generateWorldDocument(
         ...messages,
         {
           role: 'user' as const,
-          content: `The previous response failed validation with this error:\n${lastError.message}\n\nPlease correct the issues and return a valid JSON object. Ensure:\n- All required fields are present\n- characterPortraits has one entry per cast member\n- characterVoiceSketches has one entry per cast member\n- humourPlacementMap has all 12 scene positions\n- validationConfirmations all set to true\n- Return only the JSON object, no preamble`,
+          content: `The previous response failed validation with this error:\n${lastError.message}\n\nPlease correct the issues and return a valid JSON object. Ensure:\n- All required fields are present\n- characterPortraits has one entry per cast member\n- characterVoiceSketches has one entry per cast member\n- humourPlacementMap has all 12 scene positions, each with a non-empty rationale string\n- Every humourPlacementMap entry must have a "rationale" field — this is required even for "forbidden" entries\n- validationConfirmations all set to true\n- Return only the JSON object, no preamble`,
         },
       ];
     }

@@ -7,7 +7,12 @@ import {
   calculateCategoryScore,
   getCriticalFailures,
 } from '../scorer-utils.js';
-import { STORY_LENGTH_TARGETS, type StoryLength } from '../../story-length-targets.js';
+import {
+  getChapterTarget,
+  getChapterTargetTolerance,
+  getStoryLengthTarget,
+  type StoryLength,
+} from '../../story-length-targets.js';
 import { getGenerationParams } from '../../generation-params.js';
 
 /**
@@ -78,10 +83,6 @@ interface CompletenessDiagnostics {
  * Completeness: Word count targets, all clues visible
  * Consistency: Character names match, setting fidelity, fair play
  */
-// Alias the shared constants under the local name used throughout this file.
-// Source of truth is packages/story-validation/src/story-length-targets.ts — edit there.
-const LENGTH_TARGETS = STORY_LENGTH_TARGETS;
-
 const normalizeClueIdForMatch = (value: string): string =>
   String(value ?? "")
     .toLowerCase()
@@ -186,16 +187,30 @@ export class ProseScorer
     // Expect chapter count based on story length.
     // Skip during partial generation — chapter count is always low mid-generation.
     if (!context.partialGeneration) {
-      const targets = LENGTH_TARGETS[this.targetLength];
-      const expectedChapters = targets.chapters;
+      const expectedChapters = getChapterTarget(this.targetLength);
+      const chapterTolerance = getChapterTargetTolerance();
+      const minAllowedChapters = Math.max(1, expectedChapters - chapterTolerance);
+      const maxAllowedChapters = expectedChapters + chapterTolerance;
       const actualChapters = output.chapters.length;
+      const withinTolerance =
+        actualChapters >= minAllowedChapters && actualChapters <= maxAllowedChapters;
 
       tests.push(
-        actualChapters === expectedChapters
-          ? pass('All chapters present', 'validation', 2.0, `${actualChapters} chapters`)
-          : actualChapters >= expectedChapters - 2
-          ? partial('All chapters present', 'validation', 85, 2.0, `${actualChapters}/${expectedChapters} chapters`, 'minor')
-          : partial('All chapters present', 'validation', (actualChapters / expectedChapters) * 100, 2.0, `Only ${actualChapters}/${expectedChapters} chapters`, 'major')
+        withinTolerance
+          ? pass(
+              'All chapters present',
+              'validation',
+              2.0,
+              `${actualChapters} chapters (target ${expectedChapters} +/- ${chapterTolerance})`,
+            )
+          : partial(
+              'All chapters present',
+              'validation',
+              (actualChapters / expectedChapters) * 100,
+              2.0,
+              `Only ${actualChapters}/${expectedChapters} chapters (allowed ${minAllowedChapters}-${maxAllowedChapters})`,
+              'major',
+            )
       );
     }
 
@@ -283,12 +298,14 @@ export class ProseScorer
   private scoreProseQuality(prose: string): number {
     let score = 0;
 
-    // Word count — threshold based on story length
-    const targets = LENGTH_TARGETS[this.targetLength];
+    // Word count — threshold based on ratio-derived hard floor contract.
+    const targets = getStoryLengthTarget(this.targetLength);
+    const hardFloorRatio = getGenerationParams().agent9_prose.word_policy.hard_floor_relaxation_ratio;
+    const hardFloorWords = Math.floor(targets.chapterMinWords * hardFloorRatio);
     const wordCount = prose.split(/\s+/).length;
-    if (wordCount >= targets.chapterMinWords) score += 30;
-    else if (wordCount >= Math.round(targets.chapterMinWords * 0.6)) score += 20;
-    else if (wordCount >= Math.round(targets.chapterMinWords * 0.35)) score += 10;
+    if (wordCount >= hardFloorWords) score += 30;
+    else if (wordCount >= Math.round(hardFloorWords * 0.6)) score += 20;
+    else if (wordCount >= Math.round(hardFloorWords * 0.35)) score += 10;
 
     // Paragraph structure (multiple paragraphs)
     const paragraphs = prose.split(/\n\s*\n/).filter(p => p.trim().length > 0);
@@ -368,7 +385,7 @@ export class ProseScorer
     // Skip whole-story word count during partial generation — it will always fail
     // mid-stream. Only score it once all chapters are present.
     if (!context.partialGeneration) {
-      const targets = LENGTH_TARGETS[this.targetLength];
+      const targets = getStoryLengthTarget(this.targetLength);
       const targetMin = targets.minWords;
       const targetMax = targets.maxWords;
       const wordCount = output.overall_word_count || this.calculateTotalWordCount(output);
