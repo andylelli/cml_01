@@ -110,6 +110,7 @@ export interface Agent9UnderflowExpansionConfig {
     buffer_words: number;
     temperature: number;
     max_tokens: number;
+    preferred_miss_expansion_ratio: number;
 }
 export interface Agent9GenerationConfig {
     default_max_attempts: number;

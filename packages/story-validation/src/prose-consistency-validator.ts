@@ -134,9 +134,10 @@ export class ProseConsistencyValidator implements Validator {
         const mentionsFact = matchedKeywords.length >= requiredMatches;
         if (!mentionsFact) continue;
 
-        // Does the verbatim value appear? If not, flag as major.
+        // Does the verbatim value appear? If not, check structural variants before flagging.
         const valuePattern = new RegExp(escapeRegex(canonicalValue.toLowerCase()), 'i');
-        if (!valuePattern.test(scene.text)) {
+        const valueFound = valuePattern.test(scene.text) || this.checkValueVariants(canonicalValue, scene.text);
+        if (!valueFound) {
           // Check whether a recognisably *different* numeric value appears near the keywords
           const hasConflict = this.detectConflictingValue(scene.text, canonicalValue);
           errors.push({
@@ -172,6 +173,38 @@ export class ProseConsistencyValidator implements Validator {
     return proseNumbers.some(n => n !== canonicalValue && n !== '' && !n.includes(canonicalValue) && !canonicalValue.includes(n));
   }
 
+  /**
+   * Check whether `text` contains a structurally equivalent variant of `canonicalValue`
+   * that the verbatim equality check misses. Returns true if a variant is found.
+   *
+   * Handles:
+   *  1. Hyphenated adjective form of plural-unit quantities:
+   *     "forty minutes" → also accept "forty-minute" (e.g. "a forty-minute delay")
+   *  2. Temperature abbreviations:
+   *     "98 degrees Fahrenheit" → also accept "98°F", "98 °F", "98 degrees F"
+   */
+  private checkValueVariants(canonicalValue: string, text: string): boolean {
+    const lower = canonicalValue.toLowerCase();
+
+    // 1. Adjective form: "[quantity] [unit]s" → "[quantity]-[unit]"
+    //    e.g. "forty minutes" → "forty-minute", "two hours" → "two-hour"
+    const pluralUnitMatch = lower.match(/^(.+)\s+(\w+)s$/);
+    if (pluralUnitMatch) {
+      const adjForm = `${pluralUnitMatch[1]}-${pluralUnitMatch[2]}`;
+      if (new RegExp(`\\b${escapeRegex(adjForm)}\\b`, 'i').test(text)) return true;
+    }
+
+    // 2. Temperature abbreviation: "N degrees [scale]" → "N°S", "N degrees S"
+    const tempMatch = lower.match(/^(\d+)\s+degrees?\s+(fahrenheit|celsius|kelvin|centigrade)$/i);
+    if (tempMatch) {
+      const digits = tempMatch[1];
+      const scaleChar = tempMatch[2][0].toUpperCase();
+      if (new RegExp(`\\b${digits}\\s*°\\s*${scaleChar}\\b|\\b${digits}\\s+degrees?\\s+${scaleChar}\\b`, 'i').test(text)) return true;
+    }
+
+    return false;
+  }
+
   // ---------------------------------------------------------------------------
   // 2. Pronoun drift (supplement to CharacterConsistencyValidator)
   // ---------------------------------------------------------------------------
@@ -192,13 +225,14 @@ export class ProseConsistencyValidator implements Validator {
       const firstName = castMember.name.split(' ')[0];
       const windowSize = 200; // characters around name mention to check
 
-      // Competing-entity guard: collect first names of characters whose gender
-      // matches the "wrong" pronoun set so we can suppress false positives when
-      // such a character is mentioned in the same window.
+      // Competing-entity guard: collect all name parts (first + last + middle) of
+      // characters whose gender matches the "wrong" pronoun set.
+      // Using only first names misses cases where the character is referred to by
+      // last name or full name in narrative text near the subject character's mention.
       const oppositeGender = gender === 'male' ? 'female' : 'male';
       const oppositeFirstNames = (cml.CASE.cast as typeof castMember[])
         .filter((c) => c.gender === oppositeGender)
-        .map((c) => c.name.split(' ')[0] as string);
+        .flatMap((c) => c.name.split(/\s+/).filter((part) => part.length >= 3));
 
       for (const scene of story.scenes) {
         const positions = this.findNamePositions(scene.text, firstName);
@@ -213,12 +247,27 @@ export class ProseConsistencyValidator implements Validator {
           // character of that gender is also named (ambiguous reference, not an error).
           const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
           if (wrongPronounPattern.test(windowLower)) {
-            // The competitor check uses windowStripped (already dialogue-stripped) so that
-            // a competitor's name inside quoted dialogue doesn't suppress a real drift.
-            const competitorInWindow = oppositeFirstNames.some((fn) =>
-              new RegExp(`\\b${fn}\\b`, 'i').test(windowStripped)
+            // Competitor check: search the full paragraph containing this name
+            // occurrence, not just the ±windowSize detection window.  A competing-
+            // gender character anywhere in the same paragraph makes the pronoun
+            // reference ambiguous and should suppress the error, even when they are
+            // mentioned more than windowSize chars from the character name.
+            // Dialogue is stripped so that a competitor's name spoken by another
+            // character does not accidentally suppress a real drift in the narrative.
+            const paraStart = scene.text.lastIndexOf('\n\n', pos);
+            const paraEnd = scene.text.indexOf('\n\n', pos + firstName.length);
+            const nameParagraph = scene.text.slice(
+              paraStart >= 0 ? paraStart + 2 : 0,
+              paraEnd >= 0 ? paraEnd : scene.text.length,
             );
-            if (competitorInWindow) break;
+            const competitorSearchText = stripDialogueFromWindow(nameParagraph);
+            const competitorFound = oppositeFirstNames.some((fn) =>
+              new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
+            );
+            // Use `continue` (not `break`) so that subsequent occurrences of the
+            // character's name in the same scene are still checked — the competitor
+            // suppression at position A should not silence a genuine drift at position B.
+            if (competitorFound) continue;
             errors.push({
               type: 'pronoun_drift',
               message: `Pronoun drift for "${castMember.name}" in chapter ${scene.number}: expected ${canonical.subject}/${canonical.object}/${canonical.possessive} (${gender}) but found a ${gender === 'male' ? 'female' : 'male'} pronoun nearby.`,

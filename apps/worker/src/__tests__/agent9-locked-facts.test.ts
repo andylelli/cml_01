@@ -179,6 +179,24 @@ describe("repairWordFormLockedFacts — word-phrased duration", () => {
     expect(result.chapters[0].paragraphs[0]).not.toMatch(/11:10 PM/);
     expect(result.chapters[0].paragraphs[0]).not.toMatch(/\b40 minutes\b/i);
   });
+
+  it("replaces 'about 40 minutes' with 'forty minutes' (qualifier prefix)", () => {
+    const prose = makeProse([
+      { paragraphs: ["She waited about 40 minutes before the constable arrived."] },
+    ]);
+    const result = repairWordFormLockedFacts(prose, [makeDurationFact("forty minutes")]);
+    expect(result.chapters[0].paragraphs[0]).toContain("forty minutes");
+    expect(result.chapters[0].paragraphs[0]).not.toMatch(/\babout 40 minutes\b/i);
+  });
+
+  it("replaces 'roughly 2 hours' with 'two hours' (qualifier prefix)", () => {
+    const prose = makeProse([
+      { paragraphs: ["He was gone for roughly 2 hours, he claimed."] },
+    ]);
+    const result = repairWordFormLockedFacts(prose, [makeDurationFact("two hours")]);
+    expect(result.chapters[0].paragraphs[0]).toContain("two hours");
+    expect(result.chapters[0].paragraphs[0]).not.toMatch(/\broughly 2 hours\b/i);
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -14,7 +14,7 @@ export { generateLocationProfiles } from "./agent2c-location-profiles.js";
 export { generateTemporalContext } from "./agent2d-temporal-context.js";
 export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
-export { generateProse } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock } from "./agent9-prose.js";
 export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
@@ -56,8 +56,12 @@ export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./
 export type { HardLogicDeviceIdea } from "./types.js";
 
 // Narrative state (sprint 2 — inter-batch style + fact tracking)
-export { initNarrativeState, updateNSD } from "./types/narrative-state.js";
+export { initNarrativeState, updateNSD, migrateNarrativeState } from "./types/narrative-state.js";
 export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
+
+// Asset library (Phase 2 — obligation stamping + texture selection)
+export { buildAssetLibrary, selectChapterAtoms } from "./asset-library.js";
+export type { Asset, AssetLibrary } from "./types/asset-library.js";
 export type { BackgroundContextInput } from "./types.js";
 
 // Shared exports for other agents (will expand in future)

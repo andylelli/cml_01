@@ -10,6 +10,9 @@ if not exist node_modules (
 echo Building CML package...
 call npm run -w @cml/cml build
 
+echo Building Story-Validation package...
+call npm run -w @cml/story-validation build
+
 echo Building LLM Client package...
 call npm run -w @cml/llm-client build
 

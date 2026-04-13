@@ -29,6 +29,16 @@ export interface NarrativeState {
   cluesRevealedToReader: string[];
   /** Last paragraph of the most recently completed chapter — used for opening continuity. */
   continuityTail: string;
+  /** Chapter number in which the victim's death is confirmed on-page (first such chapter). */
+  victimConfirmedDeadChapter?: number;
+  /** Asset atom ID → chapter numbers that atom was used in. Populated by obligation stamping (§2.5). */
+  deployedAssets: Record<string, number[]>;
+  /** locationId → last-used sensoryVariant ID (§3.3). */
+  lastUsedSensoryVariant: Record<string, string>;
+  /** Arc-position label of the previous committed chapter (§4.4). */
+  previousChapterArcPosition?: string;
+  /** Recurring phrase warnings forwarded to the next chapter's scoring block (§5.4). */
+  recurringPhraseWarnings: string[];
 }
 
 /**
@@ -71,7 +81,32 @@ export function initNarrativeState(
     characterPronouns,
     cluesRevealedToReader: [],
     continuityTail: '',
+    deployedAssets: {},
+    lastUsedSensoryVariant: {},
+    recurringPhraseWarnings: [],
+    // victimConfirmedDeadChapter and previousChapterArcPosition default to undefined
   };
+}
+
+/**
+ * Migrate a raw (possibly partial/old) NarrativeState from checkpoint storage.
+ * Fills in any missing fields added after the checkpoint was written so the
+ * orchestrator can safely access all fields on the restored object.
+ */
+export function migrateNarrativeState(raw: Partial<NarrativeState> & Record<string, unknown>): NarrativeState {
+  const base = initNarrativeState(raw.lockedFacts ?? [], {});
+  return {
+    ...base,
+    ...raw,
+    // Ensure required array/map fields are never undefined even if raw is old
+    version: 1,  // always pin — raw may have version:undefined from a pre-versioned checkpoint
+    deployedAssets: raw.deployedAssets ?? {},
+    lastUsedSensoryVariant: raw.lastUsedSensoryVariant ?? {},
+    recurringPhraseWarnings: raw.recurringPhraseWarnings ?? [],
+    cluesRevealedToReader: raw.cluesRevealedToReader ?? [],
+    continuityTail: raw.continuityTail ?? '',
+    characterPronouns: raw.characterPronouns ?? {},
+  } as NarrativeState;
 }
 
 /**

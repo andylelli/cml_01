@@ -43,6 +43,43 @@ export function buildLocationRegistry(cml: CMLData): Map<string, string> {
 }
 
 /**
+ * Pre-validation prose normaliser: substitute lowercase location name variants
+ * with their canonical capitalised forms from the CML location registry.
+ * Run this on the prose object BEFORE StoryValidationPipeline so the validator
+ * sees the canonical form and does not emit location_name_variant issues.
+ */
+export function normalizeLocationNames(prose: any, registry: Map<string, string>): any {
+  if (registry.size === 0) return prose;
+
+  // Build a single combined regex from all variants, sorted longest-first so that
+  // "the drawing room" is tried before "drawing room" at each text position.
+  // This prevents the two-pass problem where replacing "the drawing room" → "The Drawing Room"
+  // then lets a second replacement of "drawing room" produce "The The Drawing Room".
+  const entries = [...registry.entries()].filter(([v]) => v.length > 3);
+  if (entries.length === 0) return prose;
+
+  entries.sort((a, b) => b[0].length - a[0].length); // longest variant first
+
+  const combinedPattern = new RegExp(
+    entries.map(([v]) => `\\b${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).join('|'),
+    'gi',
+  );
+
+  const chapters = (prose.chapters as any[]).map((chapter: any) => {
+    const paragraphs = (chapter.paragraphs as string[]).map((p: string) => {
+      return p.replace(combinedPattern, (match) => {
+        const canonical = registry.get(match.toLowerCase());
+        // Only substitute when the match is not already the exact canonical form
+        return canonical && match !== canonical ? canonical : match;
+      });
+    });
+    return { ...chapter, paragraphs };
+  });
+
+  return { ...prose, chapters };
+}
+
+/**
  * Check that location names in prose match the canonical names from CML location profiles.
  * Flags non-canonical variants (e.g. "drawing room" vs canonical "Drawing Room").
  */

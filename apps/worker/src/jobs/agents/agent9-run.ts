@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Agent 9: Prose Generator
  *
  * Handles:
@@ -19,10 +19,11 @@ import {
   generateProse,
   initNarrativeState,
   updateNSD,
+  resolveVictimName,
   type NarrativeState,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -319,6 +320,27 @@ const parseWordFormTime = (value: string): { hour: number; minute: number } | nu
     }
   }
 
+  // "[hour word] o'clock" — e.g. "eleven o'clock" (= 11:00)
+  // Accept both straight (') and curly (\u2019) apostrophes so CML values
+  // authored in smart-quote editors are handled correctly.
+  const oclock = lower.match(/^(\w+)\s+o[\u2019']clock$/);
+  if (oclock) {
+    const h = WORD_TO_NUM[oclock[1].trim()];
+    if (h != null) return { hour: h, minute: 0 };
+  }
+
+  // "[hour word] [minute word]" plain format — e.g. "eleven ten" (= 11:10)
+  // Guard: hour must be 1–12, minute must be 1–59 to avoid clashing with
+  // quantity patterns like "forty minutes" (h=40 → rejected) or "two feet".
+  const plainHM = lower.match(/^([\w-]+)\s+([\w-]+)$/);
+  if (plainHM) {
+    const h = WORD_TO_NUM[plainHM[1].trim()];
+    const m = WORD_TO_NUM[plainHM[2].trim()];
+    if (h != null && h >= 1 && h <= 12 && m != null && m >= 1 && m <= 59) {
+      return { hour: h, minute: m };
+    }
+  }
+
   return null;
 };
 
@@ -335,6 +357,71 @@ const parseWordFormQuantity = (value: string): { amount: number; unit: string } 
   const amount = WORD_TO_NUM[match[1]];
   if (amount == null) return null;
   return { amount, unit: match[2] };
+};
+
+// ============================================================================
+// [FIX §11.1] Locked-fact / clue-description time-value mismatch detection
+// ============================================================================
+
+/**
+ * Extract the first hour (0-23 fractional) expressed as a digit-form time in text.
+ * Matches: "8:30 PM", "11:15 AM", "9 PM", "8 AM".
+ * Returns null if no AM/PM-qualified time found.
+ */
+const extractDigitFormHour = (text: string): number | null => {
+  const lower = text.toLowerCase();
+  const hhmm = lower.match(/\b(\d{1,2}):(\d{2})\s*(am|pm)\b/);
+  if (hhmm) {
+    let h = parseInt(hhmm[1], 10);
+    const m = parseInt(hhmm[2], 10);
+    if (hhmm[3] === 'pm' && h < 12) h += 12;
+    if (hhmm[3] === 'am' && h === 12) h = 0;
+    return h + m / 60;
+  }
+  const hOnly = lower.match(/\b(\d{1,2})\s*(am|pm)\b/);
+  if (hOnly) {
+    let h = parseInt(hOnly[1], 10);
+    if (hOnly[2] === 'pm' && h < 12) h += 12;
+    if (hOnly[2] === 'am' && h === 12) h = 0;
+    return h;
+  }
+  return null;
+};
+
+/** Extract the first raw time string from text for use in warning messages. */
+const extractFirstTimeString = (text: string): string | null =>
+  text.match(/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM|a\.m\.|p\.m\.|am|pm)\b/i)?.[0] ?? null;
+
+/**
+ * Detect a time discrepancy between a locked-fact canonical value and an
+ * associated clue description. Returns the conflicting time string found in
+ * clueText, or null if no conflict is detected.
+ *
+ * Catches cases like locked-fact value "eleven o'clock" (= 11:00) vs clue
+ * description "Witness states they heard a loud noise at 8:30 PM" (= 20:30) —
+ * mutually exclusive times for the same event that cause permanent
+ * locked_fact_missing_value failures on every chapter that references the fact.
+ */
+const detectLockedFactClueTimeMismatch = (factValue: string, clueText: string): string | null => {
+  const factParsed = parseWordFormTime(factValue.trim());
+  const factHour = factParsed
+    ? factParsed.hour + factParsed.minute / 60
+    : extractDigitFormHour(factValue);
+  if (factHour === null) return null;
+
+  const clueHour = extractDigitFormHour(clueText);
+  if (clueHour === null) return null;
+
+  // Consider hours that differ by ≥1 as a mismatch (tolerates minute-level rounding).
+  // Special case: a difference of exactly 12 hours means the word-form canonical has no
+  // AM/PM marker and the clue uses the opposite period (e.g. "ten minutes past eleven"
+  // [treated as 11 AM] vs "11:10 PM" [= 23:10]). This is an AM/PM ambiguity in the
+  // canonical, not a genuine time conflict — no warning should fire.
+  const diff = Math.abs(factHour - clueHour);
+  if (diff >= 1 && Math.round(diff * 60) !== 720) {
+    return extractFirstTimeString(clueText) ?? `${Math.floor(clueHour)}:00`;
+  }
+  return null;
 };
 
 /**
@@ -372,11 +459,39 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
       const { hour, minute } = parsedTime;
       const minutePadded = String(minute).padStart(2, '0');
       // Match "H:MM" or "H.MM" optionally followed by AM/PM variants.
-      const pattern = new RegExp(
+      const digitPattern = new RegExp(
         `\\b${hour}[:\\.]${minutePadded}(?:\\s*(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm))?\\b`,
         'g',
       );
-      repairs.push({ pattern, canonical, chaptersScope });
+      repairs.push({ pattern: digitPattern, canonical, chaptersScope });
+
+      // Also catch word-alias forms that parseWordFormTime newly handles —
+      // e.g. "eleven ten" for canonical "ten minutes past eleven" (11:10),
+      // "eleven o'clock" for canonical "eleven o'clock" (already matched verbatim,
+      // but other time formats representing the same hour would also need repair).
+      // We only do this for cases where the plain "H MM" or "H o'clock" word form
+      // DIFFERS from the canonical (to avoid no-op replacements).
+      const hourWord = Object.entries(WORD_TO_NUM).find(([, v]) => v === hour)?.[0] ?? '';
+      const minWord = minute > 0
+        ? (Object.entries(WORD_TO_NUM).find(([, v]) => v === minute)?.[0] ?? '')
+        : '';
+      if (minute === 0 && hourWord) {
+        // "eleven o'clock" form — only repair if canonical is NOT already "X o'clock"
+        if (!/o[\u2019']clock/i.test(canonical)) {
+          const oclockPattern = new RegExp(`\\b${hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+o[\\u2019']clock\\b`, 'gi');
+          repairs.push({ pattern: oclockPattern, canonical, chaptersScope });
+        }
+      } else if (hourWord && minWord) {
+        // "eleven ten" form — only repair if canonical is NOT this same plain H-M form
+        const plainWordForm = `${hourWord} ${minWord}`;
+        if (canonical.toLowerCase() !== plainWordForm) {
+          const wordAliasPattern = new RegExp(
+            `\\b${hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+${minWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
+            'gi',
+          );
+          repairs.push({ pattern: wordAliasPattern, canonical, chaptersScope });
+        }
+      }
       continue;
     }
 
@@ -394,11 +509,44 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
       const unitPattern = unit.endsWith('s') && unit.length > 3
         ? `${unit.slice(0, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?`
         : escapedUnit;
+      // Also catch "about/roughly/approximately/around 40 minutes" — qualifier gets
+      // replaced with the canonical word-form so the locked-fact exact value appears.
+      // NOTE: \\s+ must be OUTSIDE the alternation group so all qualifiers consume
+      // the space before the digit ("about 40", not "about40").
       const pattern = new RegExp(
-        `\\b${amount}\\s+${unitPattern}\\b`,
+        `\\b(?:(?:about|roughly|approximately|around)\\s+)?${amount}\\s+${unitPattern}\\b`,
         'gi',
       );
       repairs.push({ pattern, canonical, chaptersScope });
+      continue;
+    }
+
+    // Handle digit-form temperature canonicals: e.g. "98 degrees Fahrenheit".
+    // Neither parseWordFormTime nor parseWordFormQuantity handles these because the
+    // number is already in digit form. Build patterns for common abbreviation variants
+    // that the LLM may use: "98°F", "98° F", "98 degrees F", "98 deg F".
+    const tempMatch = canonical.match(/^(\d+)\s+degrees?\s+(fahrenheit|celsius|kelvin|centigrade)$/i);
+    if (tempMatch) {
+      const digits = tempMatch[1];
+      const scaleChar = tempMatch[2][0].toUpperCase(); // 'F', 'C', 'K'
+      const escapedUnit = tempMatch[2].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Matches: "98°F", "98 °F", "98° F", "98 degrees F", "98 deg F"
+      const tempPattern = new RegExp(
+        `\\b${digits}\\s*°\\s*${scaleChar}\\b|\\b${digits}\\s+(?:degrees?|deg)\\.?\\s+${scaleChar}\\b`,
+        'gi',
+      );
+      repairs.push({ pattern: tempPattern, canonical, chaptersScope });
+      // Also catch word-form number variant (e.g. "ninety-eight degrees Fahrenheit")
+      // only when the digit value is in WORD_TO_NUM range and has a word form.
+      const digitNum = parseInt(digits, 10);
+      const numWord = Object.entries(WORD_TO_NUM).find(([, v]) => v === digitNum)?.[0];
+      if (numWord) {
+        const wordTempPattern = new RegExp(
+          `\\b${numWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+degrees?\\s+${escapedUnit}\\b`,
+          'gi',
+        );
+        repairs.push({ pattern: wordTempPattern, canonical, chaptersScope });
+      }
     }
   }
 
@@ -440,6 +588,47 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
   }
 
   return { ...prose, chapters: repairedChapters };
+};
+
+/**
+ * Normalise chapter titles so all chapters use consistent "Chapter N: Title" format.
+ * Chapters with bare number-only or title-only formats are upgraded to number-plus-title.
+ * Chapters already in "Chapter N: ..." format are passed through unchanged.
+ * This eliminates chapter_title_inconsistency validation warnings caused by mixed formats.
+ */
+const normalizeChapterTitles = (prose: any): any => {
+  const chapters = prose.chapters as any[];
+  const getFormat = (title: string) => {
+    const t = (title ?? '').trim();
+    if (/^chapter\s+\d+:\s*\S/i.test(t)) return 'number-plus-title';
+    if (/^chapter\s+\d+$/i.test(t)) return 'number-only';
+    if (/^\d+$/.test(t)) return 'bare-number';
+    return 'title-only';
+  };
+
+  // Two-pass: compute all formats first, then only normalise when mixed.
+  const formats = chapters.map((c: any) => getFormat(c.title ?? ''));
+  if (new Set(formats).size <= 1) return prose; // already consistent
+
+  // Normalise all outliers to 'number-plus-title' (the canonical format).
+  const normalizedChapters = chapters.map((chapter: any, idx: number) => {
+    const chapterNum = idx + 1;
+    const format = formats[idx];
+    if (format === 'number-plus-title') return chapter;
+
+    const existingTitle = (chapter.title ?? '').trim();
+    let titlePart: string;
+    if (format === 'title-only') {
+      titlePart = existingTitle;
+    } else {
+      // number-only ("Chapter N") or bare-number ("N"): no descriptive title available.
+      // Derive a brief label from the opening paragraph for a meaningful result.
+      const firstPara = ((chapter.paragraphs as string[])?.[0] ?? '');
+      titlePart = firstPara.split(/\s+/).slice(0, 5).join(' ') || String(chapterNum);
+    }
+    return { ...chapter, title: `Chapter ${chapterNum}: ${titlePart}` };
+  });
+  return { ...prose, chapters: normalizedChapters };
 };
 
 export const applyDeterministicProsePostProcessing = (
@@ -831,14 +1020,27 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   //
   // With appearsInChapters populated, the validator only checks the chapters where
   // the associated clue evidence is formally introduced to the reader.
+  //
+  // We store only the FIRST (minimum) chapter in which each clue appears.
+  // Storing all appearances (e.g. from deterministic back-fill spreading an essential
+  // clue across chapters 1, 6, 12, 17) causes appearsInChapters to include chapters
+  // that pre-date the formal introduction of the fact's value, producing
+  // locked_fact_missing_value false positives. The repair system (repairWordFormLockedFacts)
+  // already corrects digit-form values in all later chapters, so only the first
+  // introduction chapter needs validator coverage.
   const clueIdToChapters = new Map<string, number[]>();
   for (const act of (narrative.acts ?? [])) {
     for (const scene of (act.scenes ?? [])) {
       const chapterNum = scene.sceneNumber as number;
       for (const clueId of (Array.isArray(scene.cluesRevealed) ? scene.cluesRevealed : [])) {
-        const existing = clueIdToChapters.get(clueId) ?? [];
-        existing.push(chapterNum);
-        clueIdToChapters.set(clueId, existing);
+        const existing = clueIdToChapters.get(clueId);
+        if (existing === undefined) {
+          // First time we see this clue — record this as its introduction chapter.
+          clueIdToChapters.set(clueId, [chapterNum]);
+        } else if (chapterNum < existing[0]) {
+          // Earlier chapter found (scenes may not be visited in strict order).
+          existing[0] = chapterNum;
+        }
       }
     }
   }
@@ -860,6 +1062,37 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       ? { ...fact, appearsInChapters: [...matchedChapters].sort((a, b) => a - b).map(String) }
       : fact;
   });
+
+  // FIX-B: Locked-fact / clue-description time-value mismatch detection.
+  // If a locked fact's canonical time value is irreconcilable with the time
+  // expressed in an associated clue description, the LLM will permanently
+  // write the clue's time and every chapter will fail locked_fact_missing_value.
+  // Emit a warning early (before expensive prose generation) so the CML author
+  // can fix the contradiction before re-running.
+  //
+  // Only check clues that have ≥2 keyword overlap with the locked fact description.
+  // This mirrors the annotation loop above and avoids spurious mismatch warnings
+  // from entirely unrelated timed clues (e.g. a murder-weapon clue mentioning
+  // "8 PM" being flagged against a clock-reading locked fact).
+  for (const fact of annotatedLockedFacts) {
+    const factValue = String(fact.value ?? '');
+    const factKeywords = String(fact.description ?? '')
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w: string) => w.length > 3);
+    for (const clue of (clues.clues ?? [])) {
+      const clueText = `${clue.description ?? ''} ${clue.pointsTo ?? ''}`;
+      const clueTextLower = clueText.toLowerCase();
+      const overlap = factKeywords.filter((kw: string) => clueTextLower.includes(kw)).length;
+      if (overlap < 2) continue; // clue is not associated with this locked fact
+      const mismatchTime = detectLockedFactClueTimeMismatch(factValue, clueText);
+      if (mismatchTime) {
+        ctx.warnings.push(
+          `[CML integrity] Locked fact "${fact.description}" (canonical: "${factValue}") conflicts with clue "${clue.id}" which states a different time ("${mismatchTime}"). This will cause locked_fact_missing_value on every chapter referencing this fact. Fix the CML before re-running.`,
+        );
+      }
+    }
+  }
 
   const characterGenderMap: Record<string, string> = Object.fromEntries(
     cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
@@ -996,6 +1229,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   ctx.proseScoringSnapshot.startedAtMs = proseStart;
   const accumulatedChapters: any[] = [];
 
+  // §2.5: Obligation atom stamping — cleared in onAtomsSelected, consumed in onBatchComplete
+  let pendingObligationAtomIds: string[] = [];
+
   prose = await generateProse(client, {
     caseData: cml,
     outline: narrative,
@@ -1024,6 +1260,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     onProgress: (phase: string, message: string, percentage: number) =>
       reportProgress(phase as any, message, percentage),
     batchSize: inputs.proseBatchSize,
+    onAtomsSelected: (ids: string[]) => {
+      pendingObligationAtomIds = ids;
+    },
     onBatchComplete: async (batchChapters: any, batchStart: number, batchEnd: number, validationIssues: any) => {
       const nsdBefore = {
         clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
@@ -1032,12 +1271,40 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const allOutlineScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes || []);
       const batchRevealedIds: string[] = allOutlineScenes
         .filter((s: any) => s.sceneNumber >= batchStart && s.sceneNumber <= batchEnd)
-        .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []));
+        .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
+        .map((id: any) => String(id))
+        .filter(Boolean);
       const lastBatchChapter = batchChapters[batchChapters.length - 1];
       narrativeState = updateNSD(narrativeState, {
         paragraphs: lastBatchChapter?.paragraphs,
         cluesRevealedIds: batchRevealedIds,
       });
+
+      // §1.2: Set victimConfirmedDeadChapter when victim name + death language first co-occur
+      if (narrativeState.victimConfirmedDeadChapter === undefined) {
+        const victimName = resolveVictimName(cml.CAST as any).toLowerCase();
+        if (victimName) {
+          const batchText = (batchChapters as any[])
+            .flatMap((ch: any) => (Array.isArray(ch.paragraphs) ? ch.paragraphs : []))
+            .join(' ')
+            .toLowerCase();
+          const deathPattern = /\b(dead|body|corpse|killed|murder(?:ed)?|lifeless|deceased|slain)\b/;
+          if (batchText.includes(victimName) && deathPattern.test(batchText)) {
+            narrativeState = { ...narrativeState, victimConfirmedDeadChapter: batchStart };
+          }
+        }
+      }
+
+      // §2.5: Stamp deployed obligation atoms into narrativeState after batch commits
+      if (pendingObligationAtomIds.length > 0) {
+        const updatedDeployedAssets = { ...narrativeState.deployedAssets };
+        for (const atomId of pendingObligationAtomIds) {
+          updatedDeployedAssets[atomId] = [...(updatedDeployedAssets[atomId] ?? []), batchStart];
+        }
+        narrativeState = { ...narrativeState, deployedAssets: updatedDeployedAssets };
+        pendingObligationAtomIds = [];
+      }
+
       const newlyRevealedClues = batchRevealedIds.filter(
         (id) => !nsdBefore.clues_revealed_to_reader.includes(id),
       );
@@ -1078,6 +1345,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
         },
       });
+
+      // Log per-chapter word counts to the run log
+      for (let batchIdx = 0; batchIdx < batchChapters.length; batchIdx++) {
+        const chapter = batchChapters[batchIdx] as any;
+        const words = ((chapter.paragraphs as string[]) ?? [])
+          .join(" ")
+          .split(/\s+/)
+          .filter((w: string) => w.length > 0).length;
+        ctx.runLogger.logChapterWords(batchStart + batchIdx, words);
+      }
 
       const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
 
@@ -1182,6 +1459,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
   // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+  // 1d: Normalize location names to canonical capitalised forms before validation.
+  prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
   const proseFirstPassDurationMs = Date.now() - proseStart;
   const proseFirstPassCost = prose.cost;
   ctx.agentCosts["agent9_prose"] = proseFirstPassCost;
@@ -1277,6 +1556,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     critical_clue_coverage_gap: coverageResult.hasCriticalGaps,
     nsd_transfer_steps: ctx.nsdTransferTrace.length,
     nsd_transfer_trace: ctx.nsdTransferTrace,
+    underflow_hard_floor_misses: (prose.validationDetails as any)?.underflow?.hardFloorMisses ?? 0,
+    underflow_preferred_target_misses: (prose.validationDetails as any)?.underflow?.preferredTargetMisses ?? 0,
+    underflow_hard_floor_miss_chapters: (prose.validationDetails as any)?.underflow?.hardFloorMissChapters ?? [],
+    underflow_preferred_target_miss_chapters: (prose.validationDetails as any)?.underflow?.preferredTargetMissChapters ?? [],
+    underflow_expansion_attempts: (prose.validationDetails as any)?.underflow?.expansionAttempts ?? 0,
+    underflow_expansion_recovered: (prose.validationDetails as any)?.underflow?.expansionRecovered ?? 0,
+    underflow_expansion_failed: (prose.validationDetails as any)?.underflow?.expansionFailed ?? 0,
+    chapter_word_counts: (prose.validationDetails as any)?.underflow?.chapterWordCounts ?? [],
   });
 
   // First-pass scoring
@@ -1485,6 +1772,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cast.cast.characters,
     );
     prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+    prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
     proseSchemaValidation = retryValidation;
     ctx.warnings.push("Prose schema-repair retry succeeded");
     await rescoreAgent9ProsePhase();
@@ -1503,8 +1791,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const validationStart = Date.now();
   const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+  // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
+  // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
+  // they are stored separately in ctx.locationProfiles. Using cml as the argument
+  // produced an empty registry, silently bypassing all location normalisation.
+  prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
+  prose = normalizeChapterTitles(prose);
 
   const storyForValidation = {
     id: runId,
@@ -1545,7 +1839,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       " critical, " +
       validationReport.summary.major +
       " major issues";
-    ctx.warnings.push(validationFailureMsg);
+    ctx.errors.push(validationFailureMsg);
     await client.getLogger()?.logError({
       runId,
       projectId,
@@ -1594,20 +1888,18 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       );
     }
 
-    ctx.warnings.push("═══ PROSE VALIDATION FAILURE DETAILS ═══");
+    ctx.errors.push("Validation issues:");
     validationReport.errors.slice(0, 10).forEach((err: any) => {
-      const errMsg = `  [${err.severity}] ${err.type}: ${err.message}`;
-      ctx.warnings.push(errMsg);
+      ctx.errors.push(`  [${err.severity}] ${err.type}: ${err.message}`);
     });
     if (validationReport.errors.length > 10) {
-      const remainingMsg = `  ... and ${validationReport.errors.length - 10} more validation errors (all logged to scoring.jsonl)`;
-      ctx.warnings.push(remainingMsg);
+      ctx.errors.push(`  ... and ${validationReport.errors.length - 10} more validation errors (all logged to scoring.jsonl)`);
     }
 
-    ctx.warnings.push("═══ CONTRIBUTING FACTORS ═══");
+    ctx.errors.push("Contributing factors:");
     if (prose.validationDetails && prose.validationDetails.batchesWithRetries > 0) {
-      ctx.warnings.push(
-        `  \u2022 Chapter generation: ${prose.validationDetails.batchesWithRetries} batches had validation issues during generation`,
+      ctx.errors.push(
+        `  Chapter generation: ${prose.validationDetails.batchesWithRetries} batches had validation issues during generation`,
       );
     }
     if (coverageResult.hasCriticalGaps) {
@@ -1618,21 +1910,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         gapTypes.push("discriminating test evidence");
       if (coverageResult.issues.some((i: any) => i.message.includes("suspect")))
         gapTypes.push("suspect elimination");
-      ctx.warnings.push(
-        `  \u2022 CML clue coverage: Critical gaps in ${gapTypes.join(", ")}`,
+      ctx.errors.push(
+        `  CML clue coverage: Critical gaps in ${gapTypes.join(", ")}`,
       );
     }
     if (outlineCoverageIssues.length > 0) {
-      ctx.warnings.push(
-        `  \u2022 Outline: ${outlineCoverageIssues.length} coverage issues`,
+      ctx.errors.push(
+        `  Outline: ${outlineCoverageIssues.length} coverage issues`,
       );
     }
     if (fairPlayAudit && fairPlayAudit.overallStatus !== "pass") {
-      ctx.warnings.push(
-        `  \u2022 Fair play audit: ${fairPlayAudit.overallStatus} - may indicate structural CML issues`,
+      ctx.errors.push(
+        `  Fair play audit: ${fairPlayAudit.overallStatus} - may indicate structural CML issues`,
       );
     }
-    ctx.warnings.push("═══════════════════════════════════════");
+
+    // Update the validation stage in the run log with the failure outcome before throwing
+    ctx.runLogger.logProgress(
+      "validation",
+      `Validation failed: ${validationReport.summary.critical} critical, ${validationReport.summary.major} major issues`,
+      ctx.warnings,
+      ctx.errors,
+    );
 
     throw new Error(
       `Story validation failed: ${validationReport.summary.critical} critical, ${validationReport.summary.major} major issues`,
@@ -1662,6 +1961,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+  prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
 
   if (enableScoring && scoreAggregator && scoringLogger) {
     const finalizedPostGenerationDetails = buildPostGenerationSummaryDetails(

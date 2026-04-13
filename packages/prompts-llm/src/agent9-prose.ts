@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Agent 9: Prose Generator
  *
  * Generates full narrative prose from the narrative outline + CML + cast.
@@ -75,6 +75,9 @@ export interface ProseGenerationInputs {
   /** Called after each batch of chapters is successfully generated and validated.
    *  The fourth argument contains validation issues from any failed attempts for this batch. */
   onBatchComplete?: (chapters: ProseChapter[], batchStart: number, batchEnd: number, validationIssues: string[]) => Promise<void> | void;
+  /** Called immediately before the LLM call for each batch with the obligation atom IDs selected
+   *  for that batch. The orchestrator uses this to stamp deployedAssets once the batch commits. */
+  onAtomsSelected?: (atomIds: string[]) => void;
   /** Corrective directives from provisional chapter scoring, applied to subsequent chapter prompts. */
   provisionalScoringFeedback?: {
     fromChapter: number;
@@ -181,6 +184,7 @@ interface UnderflowTelemetry {
   expansionAttempts: number;
   expansionRecovered: number;
   expansionFailed: number;
+  chapterWordCounts: Array<{ chapter: number; words: number }>;
 }
 
 const countWords = (value: string): number => {
@@ -878,6 +882,23 @@ const enforceMonthSeasonLockOnChapter = (
 //      physicalConstraints — are unchanged and must be kept.)
 // ─────────────────────────────────────────────────────────────────────────
 /**
+ * Maps the arc-position labels used in buildWorldBriefBlock to the
+ * scenePosition labels used in humourPlacementMap (CML 2.0 schema).
+ * Without this mapping the lookup always misses because the two sets
+ * of labels differ (e.g. 'opening' vs 'opening_scene').
+ */
+const ARC_POS_TO_SCENE_TYPE: Record<string, string> = {
+  opening:      'opening_scene',
+  early:        'first_investigation',
+  first_turn:   'tension_scene',
+  mid:          'mid_investigation',
+  second_turn:  'second_interview',
+  pre_climax:   'pre_climax',
+  climax:       'discriminating_test',
+  resolution:   'resolution',
+};
+
+/**
  * Builds the WORLD DOCUMENT brief block injected into per-chapter prose prompts.
  *
  * When a WorldDocument is present, it supersedes raw character/location/temporal
@@ -890,6 +911,7 @@ const buildWorldBriefBlock = (
   chapterIndex: number,
   totalChapters: number,
   characterPronouns?: Record<string, string>, // [PHASE 1] inline (he/him) labels in Character Voices headings
+  activeCharacterNames?: Set<string>,
 ): string => {
   if (!worldDoc) return '';
 
@@ -937,8 +959,10 @@ const buildWorldBriefBlock = (
   // Emotional arc overview + position-specific beat
   const arc = worldDoc.storyEmotionalArc;
   if (arc) {
-    if (arc.dominantRegister) {
-      lines.push(`\n## Story Emotional Register\nDominant: ${arc.dominantRegister}`);
+    if (arc.dominantRegister || arc.arcDescription) {
+      lines.push(`\n## Story Emotional Register`);
+      if (arc.dominantRegister) lines.push(`Dominant: ${arc.dominantRegister}`);
+      if (arc.arcDescription) lines.push(`\nArc:\n${arc.arcDescription}`);
     }
     if (Array.isArray(arc.turningPoints)) {
     const arcPosition = chapterIndex <= 1 ? 'opening'
@@ -964,6 +988,7 @@ const buildWorldBriefBlock = (
   if (Array.isArray(worldDoc.characterPortraits) && worldDoc.characterPortraits.length > 0) {
     lines.push('\n## Character Portraits (appearance & era)');
     for (const portrait of worldDoc.characterPortraits) {
+      if (activeCharacterNames?.size && !activeCharacterNames.has(portrait.name)) continue;
       lines.push(`\n### ${portrait.name}`);
       if (portrait.portrait) lines.push(portrait.portrait);
       if (portrait.eraIntersection) lines.push(`Era intersection: ${portrait.eraIntersection}`);
@@ -974,6 +999,7 @@ const buildWorldBriefBlock = (
   if (Array.isArray(worldDoc.characterVoiceSketches) && worldDoc.characterVoiceSketches.length > 0) {
     lines.push('\n## Character Voices');
     for (const sketch of worldDoc.characterVoiceSketches) {
+      if (activeCharacterNames?.size && !activeCharacterNames.has(sketch.name)) continue;
       const pronounsLabel = characterPronouns?.[sketch.name] ? ` (${characterPronouns[sketch.name]})` : ''; // [PHASE 1]
       lines.push(`\n### ${sketch.name}${pronounsLabel}`);
       if (sketch.voiceDescription) lines.push(sketch.voiceDescription);
@@ -1004,7 +1030,8 @@ const buildWorldBriefBlock = (
       : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
       : chapterIndex === totalChapters - 1 ? 'resolution'
       : 'climax';
-    const humourEntry = worldDoc.humourPlacementMap.find((e: any) => e.scenePosition === arcPosForHumour);
+    const mappedSceneType = ARC_POS_TO_SCENE_TYPE[arcPosForHumour] ?? arcPosForHumour;
+    const humourEntry = worldDoc.humourPlacementMap.find((e: any) => e.scenePosition === mappedSceneType);
     if (humourEntry) {
       const permitted = humourEntry.permittedCharacters?.join(', ') ?? '';
       const forms = humourEntry.permittedForms?.join(', ') ?? '';
@@ -1073,8 +1100,13 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   );
   const victimName = (victimCharacter as any)?.name ?? '';
   const victimLine = victimName ? `\nVictim: ${victimName}` : '';
+  // Extract culprit motive from their character profile (CML 2.0: cast.characters[n].motive_seed)
+  const culpritNameSet = new Set<string>(Array.isArray(cmlCase.culpability?.culprits) ? cmlCase.culpability.culprits : []);
+  const culpritChar = (cmlCase.cast?.characters ?? []).find((c: any) => culpritNameSet.has(c.name));
+  const motive = culpritChar?.motive_seed ?? '';
+  const motiveLock = motive ? `\n\nMOTIVE LOCK: The culprit's motive is: "${motive}". Every scene involving the culprit must remain consistent with this motive. Do not introduce alternative motivations.` : '';
 
-  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}${nonBinaryUserReminder}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.`;
+  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}${nonBinaryUserReminder}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.${motiveLock}`;
 };
 
 /**
@@ -1328,7 +1360,7 @@ export function buildChapterObligationBlock(
 
     lines.push(`- Chapter ${chapterNumber}:`);
     if (wordTarget) {
-      lines.push(`  - Word count: Target AT LEAST ${wordTarget.targetWords} words. Do not cut this chapter short.`);
+      lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
     }
     lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
 
@@ -1374,6 +1406,11 @@ export function buildChapterObligationBlock(
       }
     } else {
       lines.push(`  - Clue obligations: none for this chapter.`);
+    }
+
+    // Tonal contrast — omit for discriminating test/revelation chapters that must sustain maximum tension
+    if (!isDiscriminatingTestChapter) {
+      lines.push(`  - Tonal contrast: include at least one beat of relief or ironic counterpoint. Do not sustain maximum tension for every paragraph.`);
     }
 
     if (matchingClearances.length > 0) {
@@ -1510,6 +1547,10 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
 
   if (state.cluesRevealedToReader.length > 0) {
     lines.push(`\nCLUES ALREADY REVEALED TO READER: ${state.cluesRevealedToReader.join(', ')} — do not reveal these as new information.`);
+  }
+
+  if (state.victimConfirmedDeadChapter !== undefined) {
+    lines.push(`\nVICTIM STATE: The victim's death was confirmed on-page in Chapter ${state.victimConfirmedDeadChapter}. Do not treat the victim as alive or ambiguous in any subsequent chapter.`);
   }
 
   lines.push('═══════════════════════════════════════════════════════');
@@ -1655,14 +1696,14 @@ const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextB
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
     { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
-    { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'medium' },
+    { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high' }, // Fix A1: temporal consistency promoted from medium
     { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical' },
     { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical' },
     { key: 'narrative_state', content: sections.nsdBlock, priority: 'critical' },
     { key: 'continuity_context', content: sections.continuityBlock, priority: 'medium' },
     { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical' },
     { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional' },
-    { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'optional' },
+    { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high' }, // Fix D2: craft guide promoted from optional
     { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical' },
     { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical' },
   ];
@@ -1768,6 +1809,197 @@ function stripLocationParagraphs(locationProfiles: any): any {
   return strip(locationProfiles);
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Extracted inline block builders (§1.6)
+// Each was previously inlined inside buildProsePrompt.  They are exported so
+// they can be unit-tested in isolation.  The inline originals will be removed
+// once test coverage is confirmed.
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Builds the CHARACTER PERSONALITIES, VOICES & HUMOUR block for prose prompts.
+ * Pass `activeNames` (set of character names present in the current batch of
+ * scenes) to restrict the output to only those characters and reduce token use.
+ */
+export const buildCharacterPersonalityBlock = (
+  characterProfiles: any,
+  castDesign: CastDesign,
+  activeNames?: Set<string>,
+): string => {
+  if (!characterProfiles || !Array.isArray(characterProfiles.profiles)) return '';
+  const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = {
+    understatement: 'Increases seriousness by pretending not to. Deadpan delivery of extraordinary facts.',
+    dry_wit: 'Sharp observations about human behaviour. Concise, often one-liners.',
+    polite_savagery: 'Maintains perfect civility while delivering devastating verbal incisions.',
+    self_deprecating: 'Turns wit inward. Disarming, often hides intelligence or pain.',
+    observational: 'Notices absurdity in situations and people. Comments wryly on what others miss.',
+    deadpan: 'Delivers the remarkable as though it were mundane. Flat affect, maximum impact.',
+    sardonic: 'Darker edge. Mocking tone that reveals cynicism or world-weariness.',
+    blunt: 'Says what others are thinking. Lacks social filter. Comic through honesty.',
+    none: 'This character is not humorous. They are earnest, tense, or grief-stricken.',
+  };
+  const profilesToShow = activeNames?.size
+    ? characterProfiles.profiles.filter((p: any) => activeNames.has(p.name))
+    : characterProfiles.profiles;
+  const personalities = profilesToShow.map((profile: any) => {
+    const name = profile.name || 'Unknown';
+    const persona = profile.publicPersona || '';
+    const secret = profile.privateSecret || '';
+    const stakes = profile.stakes || '';
+    const internalConflict = profile.internalConflict || '';
+    const personalStake = profile.personalStakeInCase || '';
+    const humourStyle = profile.humourStyle || 'none';
+    const humourLevel = typeof profile.humourLevel === 'number' ? profile.humourLevel : 0;
+    const speechMannerisms = profile.speechMannerisms || '';
+    const styleDesc = HUMOUR_STYLE_DESCRIPTIONS[humourStyle] || '';
+    let humourGuidance = '';
+    if (humourStyle !== 'none' && humourLevel > 0) {
+      const frequency = humourLevel >= 0.7 ? 'frequently' : humourLevel >= 0.4 ? 'occasionally' : 'rarely';
+      humourGuidance = '\n  Humour: ' + humourStyle.replace(/_/g, ' ') + ' (level ' + humourLevel.toFixed(1) + ' - ' + frequency + ' witty). ' + styleDesc;
+    } else {
+      humourGuidance = '\n  Humour: None - this character plays it straight. Their seriousness provides contrast for wittier characters.';
+    }
+    const physicalMannerisms = profile.physicalMannerisms || '';
+    const privateLonging = profile.privateLonging || '';
+    const motiveSeed = profile.motiveSeed || '';
+    const motiveStrength = profile.motiveStrength || '';
+    const voiceLine = speechMannerisms ? '\n  Voice & Mannerisms: ' + speechMannerisms : '';
+    const conflictLine = internalConflict ? '\n  Internal Conflict: ' + internalConflict : '';
+    const stakeLine = personalStake ? '\n  Personal Stake in Case: ' + personalStake : '';
+    // physicalMannerisms - schema note: "deploy at most one per scene, not as a list"
+    const physicalLine = physicalMannerisms ? '\n  Physical tells (deploy one per scene, not all at once): ' + physicalMannerisms : '';
+    // privateLonging - schema note: "let it leak into one or two moments"
+    const longingLine = privateLonging ? '\n  Private longing (let surface in 1-2 moments, never central): ' + privateLonging : '';
+    const motiveLine = motiveSeed ? '\n  Motive seed: ' + motiveSeed + (motiveStrength ? ' (' + motiveStrength + ')' : '') : '';
+    // For non-binary characters, open the entry with their pronoun identity so
+    // the LLM activates the correct pronoun context when writing about them.
+    const castChar = (castDesign?.characters ?? []).find((c: any) => c.name === name);
+    const gender = (castChar as any)?.gender?.toLowerCase() ?? '';
+    const pronounTag = gender === 'non-binary' ? ' [they/them/their — singular]' : '';
+    return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
+  }).join('\n\n');
+  return '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
+};
+
+/**
+ * Builds the LOCATION PROFILES context block for prose prompts.
+ * Accepts the raw locationProfiles object, the scenes in the current batch
+ * (for sensoryVariants matching), and the 1-based chapter number of the first
+ * scene in the batch.
+ */
+export const buildLocationProfilesBlock = (
+  locationProfiles: any,
+  scenesOverride: unknown[] | undefined,
+  chapterStart: number,
+): string => {
+  if (!locationProfiles) return '';
+  const loc = stripLocationParagraphs(locationProfiles);
+  const primaryName = loc.primary?.name || 'N/A';
+  const primaryPlace = loc.primary?.place || '';
+  const primaryCountry = loc.primary?.country || '';
+  const geographicContext = primaryPlace && primaryCountry
+    ? primaryPlace + ', ' + primaryCountry
+    : primaryPlace || primaryCountry || '';
+  const primarySummary = loc.primary?.summary || '';
+  const keyLocs = (loc.keyLocations || []).map((l: any) =>
+    '- ' + l.name + ' (' + l.type + '): ' + l.purpose
+  ).join('\n');
+  const mood = loc.atmosphere?.mood || 'N/A';
+  const weather = loc.atmosphere?.weather || 'N/A';
+  // Build comprehensive sensory palette
+  const sensoryExamples = (loc.keyLocations || []).slice(0, 3).map((l: any) => {
+    const senses = l.sensoryDetails || {};
+    const sights = (senses.sights || []).slice(0, 3).join(', ');
+    const sounds = (senses.sounds || []).slice(0, 3).join(', ');
+    const smells = (senses.smells || []).slice(0, 3).join(', ');
+    const tactile = (senses.tactile || []).slice(0, 2).join(', ');
+    return l.name + ' (' + l.type + '):\n  - Visual: ' + sights + '\n  - Sounds: ' + sounds + '\n  - Scents: ' + smells + (tactile ? '\n  - Touch: ' + tactile : '');
+  }).join('\n\n');
+  const locationLine = geographicContext
+    ? 'Primary Location: ' + primaryName + ' (' + geographicContext + ')\n' + primarySummary
+    : 'Primary Location: ' + primaryName + '\n' + primarySummary;
+  // §1.5: Era markers — distinctive period-specific details for the location
+  const eraMarkersArr: string[] = Array.isArray(loc.atmosphere?.eraMarkers)
+    ? loc.atmosphere.eraMarkers
+    : [];
+  const eraMarkersStr = eraMarkersArr.length > 0
+    ? '\n\nEra markers: ' + eraMarkersArr.slice(0, 6).join(' | ')
+    : '';
+  const sensoryGuidance = '\n\n⛔ REFERENCE DATA — DO NOT TRANSCRIBE VERBATIM: The above profiles are structural guides only. Generate original prose that evokes these qualities; do not reproduce the exact phrasing or sentence structure of the profile paragraphs.\n\nSCENE OPENING RULE: When opening a scene in a new location, write what the POV character directly observes and physically senses at that moment — not a general description of the room\'s qualities. The reader must feel present, not briefed. Sensory details must be observed by the character, not stated as fact about the place.\n\nSENSORY WRITING TECHNIQUES:\n- Opening paragraphs: Lead with 2-3 sensory details to ground the scene\n- Movement between locations: Note sensory changes (quiet study → noisy dining room)\n- Emotional scenes: Use sensory details to reinforce mood (cold rain during argument)\n- Period authenticity: Use period-specific sensory details from location/temporal profiles\n- Avoid: Over-reliance on visual only; use sound, smell, touch, temperature';
+  let locationResult = '\n\nLOCATION PROFILES:\n\nYou have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.\n\n' + locationLine + '\n\nKey Locations Available:\n' + keyLocs + '\n\nAtmosphere: ' + mood + '\nWeather: ' + weather + eraMarkersStr + '\n\nUSAGE GUIDELINES:\n1. First mention of location: Ground the scene using sensory details drawn from the profiles — paraphrase these into what the POV character directly observes and experiences, not a summary of the room\'s general qualities\n2. Geographic grounding: Reference the specific place (' + (geographicContext || 'setting') + ') naturally in dialogue or narrative\n3. Action scenes: Integrate physical layout details (access, sightlines, constraints)\n4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette\n5. Era details: Weave in period markers naturally\n6. Consistency: Keep all location descriptions aligned with profiles\n7. Each chapter opening must anchor to a named location from this list\n8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening\n9. Do NOT use generic repeated manor/storm filler without profile-specific details\n\nSENSORY PALETTE (use 2-3 senses per scene):\n' + sensoryExamples + sensoryGuidance;
+  // Append chapter-specific sensory palette hints derived from sensoryVariants objects
+  if (Array.isArray(scenesOverride) && scenesOverride.length > 0 && Array.isArray(loc.keyLocations)) {
+    const paletteHints: string[] = [];
+    scenesOverride.forEach((scene: any, idx: number) => {
+      const sceneSettingObj = scene.setting;
+      const sceneSetting: string = (typeof sceneSettingObj?.location === 'string' ? sceneSettingObj.location : '').toLowerCase();
+      const sceneTimeOfDay: string = (typeof sceneSettingObj?.timeOfDay === 'string' ? sceneSettingObj.timeOfDay : '').toLowerCase();
+      const sceneWeather: string = (typeof sceneSettingObj?.atmosphere === 'string' ? sceneSettingObj.atmosphere : '').toLowerCase();
+      const chapterNum = chapterStart + idx;
+      const matchedLocation = (loc.keyLocations as any[]).find((kl: any) =>
+        (kl.id && sceneSetting.includes(kl.id.toLowerCase())) ||
+        (kl.name && sceneSetting.includes(kl.name.toLowerCase()))
+      );
+      if (matchedLocation?.sensoryVariants?.length > 0) {
+        const variants: any[] = matchedLocation.sensoryVariants;
+        let variant: any = (sceneTimeOfDay || sceneWeather)
+          ? (variants.find((v: any) =>
+              (!sceneTimeOfDay || v.timeOfDay?.toLowerCase().includes(sceneTimeOfDay) || sceneTimeOfDay.includes(v.timeOfDay?.toLowerCase())) &&
+              (!sceneWeather || v.weather?.toLowerCase().includes(sceneWeather) || sceneWeather.includes(v.weather?.toLowerCase()))
+            ) ?? variants[chapterNum % variants.length])
+          : variants[chapterNum % variants.length];
+        if (variant) {
+          const sights = (variant.sights || []).slice(0, 2).join(', ');
+          const sounds = (variant.sounds || []).slice(0, 2).join(', ');
+          const smells = (variant.smells || []).slice(0, 2).join(', ');
+          paletteHints.push(
+            `  Chapter ${chapterNum} (${matchedLocation.name}, ${variant.timeOfDay} / ${variant.weather} — ${variant.mood}):\n` +
+            `    Sights: ${sights}\n    Sounds: ${sounds}\n    Smells: ${smells}`
+          );
+        }
+      }
+    });
+    if (paletteHints.length > 0) {
+      locationResult += '\n\nCHAPTER SENSORY PALETTE HINTS (evoke these qualities without copying verbatim):\n' + paletteHints.join('\n');
+    }
+  }
+  return locationResult;
+};
+
+/**
+ * Builds the TEMPORAL CONTEXT block for prose prompts.
+ * Accepts the full temporalContext object from ProseGenerationInputs.
+ */
+export const buildTemporalContextBlock = (
+  temporalContext: any,
+): string => {
+  if (!temporalContext) return '';
+  const dateInfo = temporalContext.specificDate;
+  const dateStr = dateInfo.month + ' ' + dateInfo.year;
+  const season = temporalContext.seasonal?.season || 'N/A';
+  const seasonLock = deriveTemporalSeasonLock(temporalContext);
+  const lockedSeason = seasonLock?.season || season;
+  const forbiddenSeasons = ['spring', 'summer', 'autumn', 'winter']
+    .filter((s) => s !== lockedSeason)
+    .join(', ');
+  const seasonWeather = (temporalContext.seasonal?.weather || []).slice(0, 3).join(', ');
+  const mensFormeal = (temporalContext.fashion?.mensWear?.formal || []).slice(0, 4).join(', ');
+  const mensCasual = (temporalContext.fashion?.mensWear?.casual || []).slice(0, 3).join(', ');
+  const mensAcc = (temporalContext.fashion?.mensWear?.accessories || []).slice(0, 3).join(', ');
+  const womensFormeal = (temporalContext.fashion?.womensWear?.formal || []).slice(0, 4).join(', ');
+  const womensCasual = (temporalContext.fashion?.womensWear?.casual || []).slice(0, 3).join(', ');
+  const womensAcc = (temporalContext.fashion?.womensWear?.accessories || []).slice(0, 3).join(', ');
+  const music = (temporalContext.cultural?.entertainment?.popularMusic || []).slice(0, 3).join(', ');
+  const films = (temporalContext.cultural?.entertainment?.films || []).slice(0, 2).join(', ');
+  const prices = (temporalContext.cultural?.dailyLife?.typicalPrices || []).slice(0, 4).join(', ');
+  const majorEvents = (temporalContext.currentAffairs?.majorEvents || []).slice(0, 2).join('; ');
+  const atmosphericDetails = (temporalContext.atmosphericDetails || []).slice(0, 4).join(' ');
+  const fashionGuidance = '\n\nFASHION INTEGRATION TECHNIQUES:\n- First appearance: Describe outfit to establish class/personality\n- Accessories: Gloves, hats, pocket watches, jewelry reveal status\n- Time-specific: Different outfits for different times of day\n- Character traits: Fastidious dresser vs rumpled appearance\n- Action integration: "She tugged at her glove" or "He adjusted his tie"\n- Weather appropriate: Overcoats in winter, light linen in summer';
+  const culturalGuidance = '\n\nCULTURAL TOUCHSTONE INTEGRATION:\n- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"\n- Background details: Radio playing, newspaper headlines, theater posters\n- Social commentary: Characters discuss current events naturally\n- Class indicators: Aristocrats discuss opera, servants discuss music halls\n- Authentic references: Use actual songs, films, events from the specific date';
+  return '\n\nTEMPORAL CONTEXT:\n\nThis story takes place in ' + dateStr + ' during ' + season + '.\n\nSeasonal Atmosphere:\n- Weather patterns: ' + seasonWeather + '\n- Season: ' + season + '\n\nPeriod Fashion (describe naturally):\n- Men formal: ' + mensFormeal + '\n- Men casual: ' + mensCasual + '\n- Men accessories: ' + mensAcc + '\n- Women formal: ' + womensFormeal + '\n- Women casual: ' + womensCasual + '\n- Women accessories: ' + womensAcc + '\n\nCultural Context (reference naturally):\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\n- Typical prices: ' + prices + (majorEvents ? '\n- Current events: ' + majorEvents : '') + '\n\nAtmospheric Details:\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\n\nUSAGE REQUIREMENTS:\n1. Date references: Mention month/season at least once early in story\n2. Fashion descriptions: Every character gets fashion description on first appearance\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.'
+    + '\n9. SEASONAL LANGUAGE — EXCLUSIVE ALLOW-LIST:\n   Allowed seasonal vocabulary (only these are permitted): ' + getSeasonAllowList(lockedSeason) + '\n   Forbidden seasonal words (never use, even in metaphors or dialogue): ' + forbiddenSeasons + ' and their adjective forms.\n   Replace any forbidden seasonal word immediately — in narration, dialogue, and internal character thought.\n   Do not use forbidden words even as part of a simile, metaphor, or poetic line.';
+};
+
 export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
@@ -1778,6 +2010,14 @@ export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?:
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const era = cmlCase.meta?.era?.decade ?? "Unknown era";
   const cast = inputs.cast.characters || [];
+
+  // §1.6: Compute active character names (characters present in any scene in this batch)
+  // Used to filter portraits, voice sketches, and personality blocks to reduce token cost.
+  const activeCharacterNames = new Set<string>(
+    (scenes as any[]).flatMap((s: any) =>
+      Array.isArray(s.characters) ? (s.characters as string[]) : [],
+    ),
+  );
 
   // Derive victim name for guardrail injection
   const proseVictimName = resolveVictimName(inputs.cast);
@@ -1826,178 +2066,26 @@ ${victimIdentityRule}`;
   const pronounAccuracyBlock = buildPronounAccuracyBlock(cast); // [PHASE 1]
   const hasNonBinaryCast = cast.some((c: any) => c.gender?.toLowerCase() === 'non-binary');
 
-  // Build character personality/voice/humour guidance from character profiles
-  let characterPersonalityContext = '';
-  if (inputs.characterProfiles && Array.isArray(inputs.characterProfiles.profiles)) {
-    const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = {
-      understatement: 'Increases seriousness by pretending not to. Deadpan delivery of extraordinary facts.',
-      dry_wit: 'Sharp observations about human behaviour. Concise, often one-liners.',
-      polite_savagery: 'Maintains perfect civility while delivering devastating verbal incisions.',
-      self_deprecating: 'Turns wit inward. Disarming, often hides intelligence or pain.',
-      observational: 'Notices absurdity in situations and people. Comments wryly on what others miss.',
-      deadpan: 'Delivers the remarkable as though it were mundane. Flat affect, maximum impact.',
-      sardonic: 'Darker edge. Mocking tone that reveals cynicism or world-weariness.',
-      blunt: 'Says what others are thinking. Lacks social filter. Comic through honesty.',
-      none: 'This character is not humorous. They are earnest, tense, or grief-stricken.',
-    };
-
-    const personalities = inputs.characterProfiles.profiles.map((profile: any) => {
-      const name = profile.name || 'Unknown';
-      const persona = profile.publicPersona || '';
-      const secret = profile.privateSecret || '';
-      const stakes = profile.stakes || '';
-      const internalConflict = profile.internalConflict || '';
-      const personalStake = profile.personalStakeInCase || '';
-      const humourStyle = profile.humourStyle || 'none';
-      const humourLevel = typeof profile.humourLevel === 'number' ? profile.humourLevel : 0;
-      const speechMannerisms = profile.speechMannerisms || '';
-      const styleDesc = HUMOUR_STYLE_DESCRIPTIONS[humourStyle] || '';
-
-      let humourGuidance = '';
-      if (humourStyle !== 'none' && humourLevel > 0) {
-        const frequency = humourLevel >= 0.7 ? 'frequently' : humourLevel >= 0.4 ? 'occasionally' : 'rarely';
-        humourGuidance = '\n  Humour: ' + humourStyle.replace(/_/g, ' ') + ' (level ' + humourLevel.toFixed(1) + ' - ' + frequency + ' witty). ' + styleDesc;
-      } else {
-        humourGuidance = '\n  Humour: None - this character plays it straight. Their seriousness provides contrast for wittier characters.';
-      }
-
-      const physicalMannerisms = profile.physicalMannerisms || '';
-      const privateLonging = profile.privateLonging || '';
-      const motiveSeed = profile.motiveSeed || '';
-      const motiveStrength = profile.motiveStrength || '';
-
-      const voiceLine = speechMannerisms ? '\n  Voice & Mannerisms: ' + speechMannerisms : '';
-      const conflictLine = internalConflict ? '\n  Internal Conflict: ' + internalConflict : '';
-      const stakeLine = personalStake ? '\n  Personal Stake in Case: ' + personalStake : '';
-      // physicalMannerisms - schema note: "deploy at most one per scene, not as a list"
-      const physicalLine = physicalMannerisms ? '\n  Physical tells (deploy one per scene, not all at once): ' + physicalMannerisms : '';
-      // privateLonging - schema note: "let it leak into one or two moments"
-      const longingLine = privateLonging ? '\n  Private longing (let surface in 1-2 moments, never central): ' + privateLonging : '';
-      const motiveLine = motiveSeed ? '\n  Motive seed: ' + motiveSeed + (motiveStrength ? ' (' + motiveStrength + ')' : '') : '';
-
-      // For non-binary characters, open the entry with their pronoun identity so
-      // the LLM activates the correct pronoun context when writing about them.
-      const castChar = (inputs.cast?.characters ?? []).find((c: any) => c.name === name);
-      const gender = (castChar as any)?.gender?.toLowerCase() ?? '';
-      const pronounTag = gender === 'non-binary' ? ' [they/them/their — singular]' : '';
-
-      return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
-    }).join('\n\n');
-
-    characterPersonalityContext = '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
-  }
+  // §1.6: Character personality block (extracted — see buildCharacterPersonalityBlock above)
+  const characterPersonalityContext = buildCharacterPersonalityBlock(
+    inputs.characterProfiles,
+    inputs.cast,
+    activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
+  );
 
   const physicalPlausibilityRules = `\nPHYSICAL PLAUSIBILITY REQUIREMENTS:\n\nAll physical evidence must obey real-world physics:\n\n1. VIABLE Evidence by Location:\n   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents\n   Exterior (calm): secured items, structural damage, witness observations\n   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence\n\n2. IMPLAUSIBLE Evidence (DO NOT USE):\n   ❌ Footprints on wooden deck (treated wood doesn't retain prints)\n   ❌ Footprints in rain/storm (washed away immediately)\n   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)\n   ❌ Light objects in storm (blown away)\n\n3. For struggle evidence use:\n   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds\n   ❌ Objects embedded in hard surfaces, shattered steel/iron`;
 
   const eraAuthenticityRules = era !== "Unknown era" ? `\nERA AUTHENTICITY (${era}):\n\n1. FORBIDDEN terms (did not exist):\n   ${era === '1950s' ? '❌ cell phone, internet, email, computer, GPS, digital camera, text message, app, online' : '❌ Modern technology'}\n\n2. REQUIRED period markers (include 2+ per scene):\n   ✓ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady\n   ✓ Period technology: ${era === '1950s' ? 'telephone, telegram, radio, typewriter' : 'period-appropriate items'}\n   ✓ Fashion: ${era === '1950s' ? 'gloves, hats, formal suits, stockings' : 'period clothing'}\n\n3. Use period-authentic language and social norms` : '';
 
-  // Build location profiles context (avoid nested template literals)
-  // Strip raw prose paragraphs first to prevent context leakage into generated prose.
-  let locationProfilesContext = '';
-  if (inputs.locationProfiles) {
-    const loc = stripLocationParagraphs(inputs.locationProfiles);
-    const primaryName = loc.primary?.name || 'N/A';
-    const primaryPlace = loc.primary?.place || '';
-    const primaryCountry = loc.primary?.country || '';
-    const geographicContext = primaryPlace && primaryCountry 
-      ? primaryPlace + ', ' + primaryCountry 
-      : primaryPlace || primaryCountry || '';
-    const primarySummary = loc.primary?.summary || '';
-    const keyLocs = (loc.keyLocations || []).map((l: any) => 
-      '- ' + l.name + ' (' + l.type + '): ' + l.purpose
-    ).join('\\n');
-    const mood = loc.atmosphere?.mood || 'N/A';
-    const weather = loc.atmosphere?.weather || 'N/A';
-    
-    // Build comprehensive sensory palette
-    const sensoryExamples = (loc.keyLocations || []).slice(0, 3).map((l: any) => {
-      const senses = l.sensoryDetails || {};
-      const sights = (senses.sights || []).slice(0, 3).join(', ');
-      const sounds = (senses.sounds || []).slice(0, 3).join(', ');
-      const smells = (senses.smells || []).slice(0, 3).join(', ');
-      const tactile = (senses.tactile || []).slice(0, 2).join(', ');
-      return l.name + ' (' + l.type + '):\\n  - Visual: ' + sights + '\\n  - Sounds: ' + sounds + '\\n  - Scents: ' + smells + (tactile ? '\\n  - Touch: ' + tactile : '');
-    }).join('\\n\\n');
-    
-    const locationLine = geographicContext 
-      ? 'Primary Location: ' + primaryName + ' (' + geographicContext + ')\\n' + primarySummary
-      : 'Primary Location: ' + primaryName + '\\n' + primarySummary;
-    
-    // Add specific sensory usage examples
-    const sensoryGuidance = '\n\n⛔ REFERENCE DATA — DO NOT TRANSCRIBE VERBATIM: The above profiles are structural guides only. Generate original prose that evokes these qualities; do not reproduce the exact phrasing or sentence structure of the profile paragraphs.\n\nSCENE OPENING RULE: When opening a scene in a new location, write what the POV character directly observes and physically senses at that moment — not a general description of the room\'s qualities. The reader must feel present, not briefed. Sensory details must be observed by the character, not stated as fact about the place.\n\nSENSORY WRITING TECHNIQUES:\n- Opening paragraphs: Lead with 2-3 sensory details to ground the scene\n- Movement between locations: Note sensory changes (quiet study → noisy dining room)\n- Emotional scenes: Use sensory details to reinforce mood (cold rain during argument)\n- Period authenticity: Use period-specific sensory details from location/temporal profiles\n- Avoid: Over-reliance on visual only; use sound, smell, touch, temperature';
-    
-    locationProfilesContext = '\\n\\nLOCATION PROFILES:\\n\\nYou have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.\\n\\n' + locationLine + '\\n\\nKey Locations Available:\\n' + keyLocs + '\\n\\nAtmosphere: ' + mood + '\\nWeather: ' + weather + '\\n\\nUSAGE GUIDELINES:\\n1. First mention of location: Ground the scene using sensory details drawn from the profiles — paraphrase these into what the POV character directly observes and experiences, not a summary of the room\'s general qualities\\n2. Geographic grounding: Reference the specific place (' + (geographicContext || 'setting') + ') naturally in dialogue or narrative\\n3. Action scenes: Integrate physical layout details (access, sightlines, constraints)\\n4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette\\n5. Era details: Weave in period markers naturally\\n6. Consistency: Keep all location descriptions aligned with profiles\\n7. Each chapter opening must anchor to a named location from this list\\n8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening\\n9. Do NOT use generic repeated manor/storm filler without profile-specific details\\n\\nSENSORY PALETTE (use 2-3 senses per scene):\\n' + sensoryExamples + sensoryGuidance;
+  // §1.6: Location profiles block (extracted — see buildLocationProfilesBlock above)
+  const locationProfilesContext = buildLocationProfilesBlock(
+    inputs.locationProfiles,
+    scenesOverride,
+    chapterStart,
+  );
 
-    // Append chapter-specific sensory palette hints derived from sensoryVariants objects
-    if (Array.isArray(scenesOverride) && scenesOverride.length > 0 && Array.isArray(loc.keyLocations)) {
-      const paletteHints: string[] = [];
-      scenesOverride.forEach((scene: any, idx: number) => {
-        const sceneSettingObj = scene.setting;
-        const sceneSetting: string = (typeof sceneSettingObj?.location === 'string' ? sceneSettingObj.location : '').toLowerCase();
-        const sceneTimeOfDay: string = (typeof sceneSettingObj?.timeOfDay === 'string' ? sceneSettingObj.timeOfDay : '').toLowerCase();
-        const sceneWeather: string = (typeof sceneSettingObj?.atmosphere === 'string' ? sceneSettingObj.atmosphere : '').toLowerCase();
-        const chapterNum = chapterStart + idx;
-        const matchedLocation = (loc.keyLocations as any[]).find((kl: any) =>
-          (kl.id && sceneSetting.includes(kl.id.toLowerCase())) ||
-          (kl.name && sceneSetting.includes(kl.name.toLowerCase()))
-        );
-        if (matchedLocation?.sensoryVariants?.length > 0) {
-          // Try to match by timeOfDay + weather; fall back to cycling by chapter number
-          const variants: any[] = matchedLocation.sensoryVariants;
-          let variant: any = (sceneTimeOfDay || sceneWeather)
-            ? (variants.find((v: any) =>
-                (!sceneTimeOfDay || v.timeOfDay?.toLowerCase().includes(sceneTimeOfDay) || sceneTimeOfDay.includes(v.timeOfDay?.toLowerCase())) &&
-                (!sceneWeather || v.weather?.toLowerCase().includes(sceneWeather) || sceneWeather.includes(v.weather?.toLowerCase()))
-              ) ?? variants[chapterNum % variants.length])
-            : variants[chapterNum % variants.length];
-          if (variant) {
-            const sights = (variant.sights || []).slice(0, 2).join(', ');
-            const sounds = (variant.sounds || []).slice(0, 2).join(', ');
-            const smells = (variant.smells || []).slice(0, 2).join(', ');
-            paletteHints.push(
-              `  Chapter ${chapterNum} (${matchedLocation.name}, ${variant.timeOfDay} / ${variant.weather} — ${variant.mood}):\n` +
-              `    Sights: ${sights}\n    Sounds: ${sounds}\n    Smells: ${smells}`
-            );
-          }
-        }
-      });
-      if (paletteHints.length > 0) {
-        locationProfilesContext += '\\n\\nCHAPTER SENSORY PALETTE HINTS (evoke these qualities without copying verbatim):\\n' + paletteHints.join('\\n');
-      }
-    }
-  }
-
-  // Build temporal context (specific date, season, fashion, current affairs)
-  let temporalContextBlock = '';
-  if (inputs.temporalContext) {
-    const dateInfo = inputs.temporalContext.specificDate;
-    const dateStr = dateInfo.month + ' ' + dateInfo.year;
-    const season = inputs.temporalContext.seasonal?.season || 'N/A';
-    const seasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
-    const lockedSeason = seasonLock?.season || season;
-    const forbiddenSeasons = ['spring', 'summer', 'autumn', 'winter']
-      .filter((s) => s !== lockedSeason)
-      .join(', ');
-    const seasonWeather = (inputs.temporalContext.seasonal?.weather || []).slice(0, 3).join(', ');
-    const mensFormeal = (inputs.temporalContext.fashion?.mensWear?.formal || []).slice(0, 4).join(', ');
-    const mensCasual = (inputs.temporalContext.fashion?.mensWear?.casual || []).slice(0, 3).join(', ');
-    const mensAcc = (inputs.temporalContext.fashion?.mensWear?.accessories || []).slice(0, 3).join(', ');
-    const womensFormeal = (inputs.temporalContext.fashion?.womensWear?.formal || []).slice(0, 4).join(', ');
-    const womensCasual = (inputs.temporalContext.fashion?.womensWear?.casual || []).slice(0, 3).join(', ');
-    const womensAcc = (inputs.temporalContext.fashion?.womensWear?.accessories || []).slice(0, 3).join(', ');
-    const music = (inputs.temporalContext.cultural?.entertainment?.popularMusic || []).slice(0, 3).join(', ');
-    const films = (inputs.temporalContext.cultural?.entertainment?.films || []).slice(0, 2).join(', ');
-    const prices = (inputs.temporalContext.cultural?.dailyLife?.typicalPrices || []).slice(0, 4).join(', ');
-    const majorEvents = (inputs.temporalContext.currentAffairs?.majorEvents || []).slice(0, 2).join('; ');
-    const atmosphericDetails = (inputs.temporalContext.atmosphericDetails || []).slice(0, 4).join(' ');
-    
-    const fashionGuidance = '\\n\\nFASHION INTEGRATION TECHNIQUES:\\n- First appearance: Describe outfit to establish class/personality\\n- Accessories: Gloves, hats, pocket watches, jewelry reveal status\\n- Time-specific: Different outfits for different times of day\\n- Character traits: Fastidious dresser vs rumpled appearance\\n- Action integration: "She tugged at her glove" or "He adjusted his tie"\\n- Weather appropriate: Overcoats in winter, light linen in summer';
-    
-    const culturalGuidance = '\\n\\nCULTURAL TOUCHSTONE INTEGRATION:\\n- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"\\n- Background details: Radio playing, newspaper headlines, theater posters\\n- Social commentary: Characters discuss current events naturally\\n- Class indicators: Aristocrats discuss opera, servants discuss music halls\\n- Authentic references: Use actual songs, films, events from the specific date';
-    
-    temporalContextBlock = '\\n\\nTEMPORAL CONTEXT:\\n\\nThis story takes place in ' + dateStr + ' during ' + season + '.\\n\\nSeasonal Atmosphere:\\n- Weather patterns: ' + seasonWeather + '\\n- Season: ' + season + '\\n\\nPeriod Fashion (describe naturally):\\n- Men formal: ' + mensFormeal + '\\n- Men casual: ' + mensCasual + '\\n- Men accessories: ' + mensAcc + '\\n- Women formal: ' + womensFormeal + '\\n- Women casual: ' + womensCasual + '\\n- Women accessories: ' + womensAcc + '\\n\\nCultural Context (reference naturally):\\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\\n- Typical prices: ' + prices + (majorEvents ? '\\n- Current events: ' + majorEvents : '') + '\\n\\nAtmospheric Details:\\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\\n\\nUSAGE REQUIREMENTS:\\n1. Date references: Mention month/season at least once early in story\\n2. Fashion descriptions: Every character gets fashion description on first appearance\\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.'
-    + '\\n9. SEASONAL LANGUAGE — EXCLUSIVE ALLOW-LIST:\\n   Allowed seasonal vocabulary (only these are permitted): ' + getSeasonAllowList(lockedSeason) + '\\n   Forbidden seasonal words (never use, even in metaphors or dialogue): ' + forbiddenSeasons + ' and their adjective forms.\\n   Replace any forbidden seasonal word immediately — in narration, dialogue, and internal character thought.\\n   Do not use forbidden words even as part of a simile, metaphor, or poetic line.';
-  }
+  // §1.6: Temporal context block (extracted — see buildTemporalContextBlock above)
+  const temporalContextBlock = buildTemporalContextBlock(inputs.temporalContext);
 
 
   // Build continuity context from chapter 2 onwards (character names, setting terms from earlier chapters)
@@ -2094,7 +2182,7 @@ ${victimIdentityRule}`;
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
-  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes, inputs.narrativeState?.characterPronouns); // [PHASE 1]
+  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes, inputs.narrativeState?.characterPronouns, activeCharacterNames.size > 0 ? activeCharacterNames : undefined); // [PHASE 1]
 
   const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
     inputs.provisionalScoringFeedback,
@@ -2107,9 +2195,9 @@ ${victimIdentityRule}`;
   const _medT   = getChapterWordTargets("medium");
   const _longT  = getChapterWordTargets("long");
   const chapterWordGuidance: Record<string, string> = {
-    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortT.preferredWords + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — MINIMUM ${_shortT.hardFloorWords} words; TARGET ≥ ${_shortT.preferredWords} words — do not stop early`,
-    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medT.preferredWords + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — MINIMUM ${_medT.hardFloorWords} words; TARGET ≥ ${_medT.preferredWords} words — do not stop early`,
-    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longT.preferredWords + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — MINIMUM ${_longT.hardFloorWords} words; TARGET ≥ ${_longT.preferredWords} words — do not stop early`,
+    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortT.preferredWords + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — TARGET ≥ ${_shortT.preferredWords} words — do not stop early`,
+    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medT.preferredWords + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — TARGET ≥ ${_medT.preferredWords} words — do not stop early`,
+    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longT.preferredWords + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — TARGET ≥ ${_longT.preferredWords} words — do not stop early`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
@@ -2118,7 +2206,7 @@ ${victimIdentityRule}`;
   const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
-    `- Target: AT LEAST ${chapterTargetWords} words per chapter. Do not stop before reaching this threshold.`,
+    `- Target: ${chapterTargetWords} words per chapter. Do not stop before reaching this threshold.`,
     '- Overshoot rather than undershoot. When in doubt, write one more paragraph.',
     '- Expand with concrete action beats, clue-linked dialogue, and sensory detail.',
     '- Never pad with recap, repeated atmosphere, or generic filler.',
@@ -3312,10 +3400,8 @@ export const attemptUnderflowExpansion = async (
   ].join(" ");
 
   const user = [
-    currentWords < ledgerEntry.hardFloorWords
-      ? `Chapter ${chapterNumber} is below the hard floor (${currentWords}/${ledgerEntry.hardFloorWords}).`
-      : `Chapter ${chapterNumber} is below the preferred target (${currentWords}/${ledgerEntry.preferredWords}).`,
-    `Expand by roughly ${expansionHint} words so the chapter reaches at least ${expansionTarget} words and preferably ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
+    `Chapter ${chapterNumber} has ${currentWords} words and needs to reach the target of ${ledgerEntry.preferredWords + 200} words.`,
+    `Expand by roughly ${expansionHint} words to reach the target of ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
     'Do not stop at the first threshold crossing. Continue until the chapter feels fully developed and complete.',
     'Never pad with recap or repeated atmosphere. Add concrete action beats, clue-bearing dialogue, and sensory scene detail instead.',
     requiredClues.length > 0
@@ -3538,6 +3624,7 @@ export async function generateProse(
   let underflowExpansionAttempts = 0;
   let underflowExpansionRecovered = 0;
   let underflowExpansionFailed = 0;
+  const chapterWordCounts: Array<{ chapter: number; words: number }> = [];
   // FIX-C2: eagerly track which batch indices required at least one retry so the
   // count survives a throw that exits generateProse() before the post-loop aggregation.
   const retriedBatches = new Set<number>();
@@ -3770,8 +3857,22 @@ export async function generateProse(
             // Fires when the chapter passes all hard checks but is still below the preferred
             // word target. With a permissive hard_floor_relaxation_ratio the hard floor may
             // be cleared while the chapter is still meaningfully short of preferred length.
+            // The preferred_miss_expansion_ratio gate prevents expansion from firing for
+            // chapters that are merely marginally below the aspirational preferred count —
+            // without it, every LLM output (which typically clears the low hard floor but
+            // misses the preferred target) would trigger an expansion call.
+            // ?? 1.0 fallback: if story-validation dist is stale (field not yet compiled),
+            // undefined * n === NaN and x < NaN is always false, silently disabling all
+            // expansion. Falling back to 1.0 preserves the old behaviour (expand every
+            // preferred-miss chapter) rather than silently doing nothing.
+            const preferredMissRatio = getGenerationParams().agent9_prose.underflow_expansion.preferred_miss_expansion_ratio ?? 1.0;
+            const obligationWordCount = obligations?.wordTarget.wordCount ?? 0;
+            const obligationPreferredWords = obligations?.wordTarget.preferredWords ?? 0;
             const hasPreferredMissOnly =
-              hardErrors.length === 0 && preferredMisses.length > 0;
+              hardErrors.length === 0 &&
+              preferredMisses.length > 0 &&
+              obligationPreferredWords > 0 &&
+              obligationWordCount < obligationPreferredWords * preferredMissRatio;
 
             return {
               hardErrors,
@@ -3789,7 +3890,9 @@ export async function generateProse(
           // passed the hard floor but is still below the preferred target, attempt a chapter-local
           // expansion. The expansion prompt includes clue placement obligations so it is safe to
           // run even when clue/placement hard errors co-exist with the word count failure.
-          if ((evaluation.hasHardFloorUnderflow || evaluation.hasPreferredMissOnly) && ledgerEntry) {
+          // Gated by agent9_prose.underflow_expansion.enabled (default: true).
+          const expansionEnabled = getGenerationParams().agent9_prose.underflow_expansion.enabled;
+          if (expansionEnabled && (evaluation.hasHardFloorUnderflow || evaluation.hasPreferredMissOnly) && ledgerEntry) {
             underflowExpansionAttempts += 1;
             try {
               const expanded = await attemptUnderflowExpansion(
@@ -3999,13 +4102,40 @@ export async function generateProse(
           const chapter = proseBatch.chapters[i];
           const chapterNumber = chapterStart + i;
           chapters.push(chapter);
+          chapterWordCounts.push({ chapter: chapterNumber, words: countWords((chapter.paragraphs ?? []).join(' ')) });
           // Extract summary immediately so the next batch's prompt has full continuity
           const summary = extractChapterSummary(chapter, chapterNumber, castNames);
           chapterSummaries.push(summary);
         }
         if (liveNarrativeState) {
           const lastProseChapter = proseBatch.chapters[proseBatch.chapters.length - 1];
-          liveNarrativeState = updateNSD(liveNarrativeState, { paragraphs: lastProseChapter?.paragraphs });
+          // §1.3: Propagate clue reveals from the batch scenes into the internal NSD
+          const batchRevealedIds = batchScenes
+            .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
+            .map((id: unknown) => String(id))
+            .filter(Boolean);
+          liveNarrativeState = updateNSD(liveNarrativeState, {
+            paragraphs: lastProseChapter?.paragraphs,
+            cluesRevealedIds: batchRevealedIds,
+          });
+
+          // §1.2: Set victimConfirmedDeadChapter when victim and death language first co-occur
+          if (liveNarrativeState.victimConfirmedDeadChapter === undefined) {
+            const victimNameLower = resolveVictimName(inputs.cast).toLowerCase();
+            if (victimNameLower) {
+              const batchText = proseBatch.chapters
+                .flatMap((ch: any) => (Array.isArray(ch.paragraphs) ? ch.paragraphs : []))
+                .join(' ')
+                .toLowerCase();
+              const deathPattern = /\b(dead|body|corpse|killed|murder(?:ed)?|lifeless|deceased|slain|strangled|shot|stabbed)\b/;
+              if (batchText.includes(victimNameLower) && deathPattern.test(batchText)) {
+                liveNarrativeState = {
+                  ...liveNarrativeState,
+                  victimConfirmedDeadChapter: chapterStart,
+                };
+              }
+            }
+          }
         }
 
         // Feed chapter-level deficits forward so chapter N can correct chapter N+1.
@@ -4105,6 +4235,7 @@ export async function generateProse(
     expansionAttempts: underflowExpansionAttempts,
     expansionRecovered: underflowExpansionRecovered,
     expansionFailed: underflowExpansionFailed,
+    chapterWordCounts,
   };
 
   return {

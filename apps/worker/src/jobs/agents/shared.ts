@@ -36,6 +36,7 @@ import type {
 } from "@cml/story-validation";
 import { buildRetryFeedback, getFailedComponents } from "@cml/story-validation";
 import type { ScoringLogger } from "../scoring-logger.js";
+import type { RunLogger } from "../run-logger.js";
 import type { MysteryGenerationInputs } from "../mystery-orchestrator.js";
 
 // ============================================================================
@@ -122,6 +123,9 @@ export interface OrchestratorContext {
   retryManager: RetryManager | undefined;
   scoringLogger: ScoringLogger | undefined;
   reportRepository: FileReportRepository | undefined;
+
+  // ── Run logger (always active — not gated on ENABLE_SCORING) ────────────
+  runLogger: RunLogger;
 
   // ── Mutable collective tracking ──────────────────────────────────────────
   errors: string[];

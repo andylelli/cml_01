@@ -136,20 +136,25 @@ export class PhysicalPlausibilityValidator implements Validator {
       }
     }
 
-    // Check for footprints in adverse weather
-    const hasStorm = scene.text.match(/storm|heavy rain|downpour/i);
-    const hasRain = scene.text.match(/rain|wet|water/i);
-    const hasWind = scene.text.match(/wind|gust|breeze/i);
-    const isOutdoor = scene.text.match(/deck|outside|exterior|outdoor/i);
+    // Check for footprints in adverse weather — sentence-level to prevent false positives
+    // from rain in paragraph 1 and footprints in paragraph 5 with no physical connection.
+    const weatherSentences = scene.text.split(/(?<=[.!?])\s+/);
+    for (const sentence of weatherSentences) {
+      const sentHasFootprint = /\bfootprints?\b/i.test(sentence);
+      const sentHasStormRain = /\bstorm\b|\bheavy\s+rain\b|\bdownpour\b/i.test(sentence)
+        || (/\brain\b/i.test(sentence) && /\bwind\b|\bgust\b|\bbreeze\b/i.test(sentence));
+      const sentIsOutdoor = /\b(?:deck|outside|outdoors?|exterior|garden|yard|grounds|lawn)\b/i.test(sentence);
 
-    if (isOutdoor && (hasStorm || (hasRain && hasWind))) {
-      errors.push({
-        type: 'weather_destroys_evidence',
-        message: 'Footprints cannot survive outdoor in storm/rain conditions',
-        severity: 'major',
-        sceneNumber: scene.number,
-        suggestion: 'Use weather-resistant evidence: secured objects, structural damage, or move evidence to protected interior location'
-      });
+      if (sentHasFootprint && sentHasStormRain && sentIsOutdoor) {
+        errors.push({
+          type: 'weather_destroys_evidence',
+          message: 'Footprints cannot survive outdoor in storm/rain conditions',
+          severity: 'major',
+          sceneNumber: scene.number,
+          suggestion: 'Use weather-resistant evidence: secured objects, structural damage, or move evidence to protected interior location'
+        });
+        break;
+      }
     }
 
     return errors;

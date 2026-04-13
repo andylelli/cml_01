@@ -217,6 +217,55 @@ describe('ProseConsistencyValidator — pronoun_drift', () => {
     const driftErrors = result.errors.filter((e) => e.type === 'pronoun_drift');
     expect(driftErrors.length).toBeGreaterThanOrEqual(1);
   });
+
+  it('does NOT fire when competitor appears in the same paragraph but outside the 200-char window', () => {
+    // Christopher Regan (male) is at the start of the paragraph, 250+ chars before
+    // Catherine Nolan (female). "his" appears after Catherine's name.
+    // The paragraph-level competitor check should suppress this false positive —
+    // both characters are in the same paragraph so the pronoun is ambiguous.
+    const longPrefix =
+      'Christopher Regan spread the documents across the table and studied them with meticulous care, ' +
+      'paying particular attention to the annotations that someone had made in the margin. ';
+    // longPrefix is ~170 chars; add more to exceed the 200-char window
+    const padding =
+      'He had arrived early that morning and had not yet spoken to anyone else in the household. ';
+    const suffix = 'Catherine Nolan entered and surveyed the scene. His handwriting, she recognised, was rather more distinctive than one might expect.';
+    const text = longPrefix + padding + suffix;
+    // Verify Christopher is >200 chars from Catherine
+    const christopherPos = text.indexOf('Christopher');
+    const catherinePos = text.indexOf('Catherine');
+    expect(catherinePos - christopherPos).toBeGreaterThan(200);
+
+    const story = makeStory([makeScene({ number: 1, text })]);
+    const cml = makeCMLWithCast([
+      { name: 'Catherine Nolan', gender: 'female' },
+      { name: 'Christopher Regan', gender: 'male' },
+    ]);
+    const result = validator.validate(story, cml);
+    const driftErrors = result.errors.filter((e) => e.type === 'pronoun_drift');
+    // Christopher is in the same paragraph → competitor suppresses → no drift error
+    expect(driftErrors).toHaveLength(0);
+  });
+
+  it('fires on a later name occurrence when the first has a competitor (continue, not break)', () => {
+    // First paragraph: Catherine + Christopher together → competitor suppresses position 1.
+    // Second paragraph: Catherine alone near "his" → should still be detected (position 2).
+    const text =
+      'Christopher Regan and Catherine Nolan spoke briefly at the door. She went inside.\n\n' +
+      'Later, Catherine stood at the window alone. His coat was on the chair beside her.';
+    const story = makeStory([makeScene({ number: 1, text })]);
+    const cml = makeCMLWithCast([
+      { name: 'Catherine Nolan', gender: 'female' },
+      { name: 'Christopher Regan', gender: 'male' },
+    ]);
+    const result = validator.validate(story, cml);
+    const driftErrors = result.errors.filter(
+      (e) => e.type === 'pronoun_drift' && e.message.includes('Catherine'),
+    );
+    // Position 1 (para 1): competitor present → suppressed.
+    // Position 2 (para 2): only Catherine, "his" nearby → fires.
+    expect(driftErrors.length).toBeGreaterThanOrEqual(1);
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
+import { jsonrepair } from "jsonrepair";
 import type { PromptComponents } from "./types.js";
 
 export interface ClueExtractionInputs {
@@ -471,7 +472,12 @@ export async function extractClues(
     });
 
     // Parse JSON response
-    const clueData = JSON.parse(response.content);
+    let clueData: any;
+    try {
+      clueData = JSON.parse(response.content);
+    } catch {
+      clueData = JSON.parse(jsonrepair(response.content));
+    }
 
     // WP3D: Validate supportsInferenceStep and evidenceType on parsed clues
     for (const clue of clueData.clues) {

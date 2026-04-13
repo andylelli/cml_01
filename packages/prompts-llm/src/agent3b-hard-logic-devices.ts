@@ -154,6 +154,24 @@ Output JSON only, with this exact structure:
         { "id": "clock_reading", "value": "ten minutes past eleven", "description": "The exact time shown on the stopped clock face" },
         { "id": "tamper_amount", "value": "forty minutes", "description": "The exact amount the clock was wound back" }
       ]
+
+NOTE — TIME VALUES IN lockedFacts: All clock times MUST be written in old-style English word form. 
+CORRECT: "ten minutes past eleven", "a quarter to three", "twenty past midnight"
+WRONG: "11:10 PM", "11:10", "23:10", "2:45", "12:20 AM"
+Never use digits, colons, AM/PM, or 24-hour notation for any time locked fact.
+
+NOTE — QUANTITIES IN lockedFacts: ALL numeric values MUST be written in word form, not digits.
+CORRECT: "forty minutes", "fourteen feet", "six pounds", "thirty yards"
+WRONG: "40 minutes", "14 feet", "6 pounds", "30 yards"
+This applies to durations, distances, weights, temperatures, counts — every value.
+
+NOTE — ERA MEASUREMENT UNITS: This is a ${inputs.decade} story. All measurements MUST use the period-standard imperial system.
+- Distance / length: feet, inches, yards, miles  —  NEVER metres, centimetres, kilometres
+- Weight / mass: ounces, pounds, stones, tons  —  NEVER grams, kilograms
+- Temperature: degrees Fahrenheit  —  NEVER Celsius or Centigrade
+- Volume: pints, gallons, fluid ounces  —  NEVER litres, millilitres
+CORRECT: "fourteen feet", "six pounds three ounces", "ninety-eight point six degrees Fahrenheit"
+WRONG: "four metres", "three kilograms", "thirty-seven degrees Celsius"
     }
   ]
 }
@@ -172,7 +190,10 @@ Requirements:
 4) Make mechanisms diagrammable and contradiction-driven.
 5) If difficulty is "increase" or "extreme", include at least one multi-step or precision-timing construction.
 6) For each device, include a 'moralAmbiguity' field: one sentence explaining a gray area that makes the crime morally complex (why a reader might feel unexpected sympathy for the culprit, or be disturbed by the verdict).
-7) For the primary device (first in the list), populate 'lockedFacts' with 2-4 specific physical values that must appear verbatim in the prose — exact clock times, compass bearings, temperatures, distances, weights, counts. These become irrefutable ground truth that the prose agent must never contradict across chapters. Other devices may include lockedFacts if appropriate, or omit the field.
+7) For the primary device (first in the list), populate 'lockedFacts' with 2-4 specific physical values that must appear verbatim in the prose — clock times, compass bearings, temperatures, distances, weights, counts. These become irrefutable ground truth that the prose agent must never contradict across chapters. Other devices may include lockedFacts if appropriate, or omit the field.
+   CRITICAL — TIME FORMAT: Any clock time in lockedFacts MUST be written in old-style English word form. Examples: "ten minutes past eleven", "a quarter to three", "twenty past midnight", "half past nine at night". NEVER use digit notation such as "11:10 PM", "11:10", "23:10", or "2:45".
+   CRITICAL — WORD FORM FOR ALL VALUES: Every numeric value in lockedFacts must be spelled out in words. Write "forty minutes" not "40 minutes", "fourteen feet" not "14 feet", "six pounds" not "6 lbs". Digits in locked fact values break the repair system.
+   CRITICAL — IMPERIAL UNITS: All measurements must use the imperial system standard for ${inputs.decade} stories. Distances in feet/yards/miles, weights in ounces/pounds/stones, temperatures in degrees Fahrenheit, volumes in pints/gallons. NEVER use metric units (metres, centimetres, kilograms, litres, Celsius/Centigrade).
 
 Return JSON only.`;
 

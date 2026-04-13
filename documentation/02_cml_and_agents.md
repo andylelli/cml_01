@@ -62,7 +62,7 @@ Clue states used in NSD transfer traces and release-gate diagnostics:
 
 ## Agent responsibilities
 ### Validation Framework (NEW - Phase 1 Implemented)
-**All artifact-generating agents (2b, 2c, 2d, 2e, 3b) now include schema validation + automatic retry:**
+**All artifact-generating agents (2b, 2c, 2d, 2e, 3b, 6.5) now include schema validation + automatic retry:**
 - Each agent validates its output against the corresponding schema immediately after generation
 - If validation fails, the agent automatically retries with validation error feedback (up to 2 attempts by default)
 - Validation errors are fed back into the prompt on retry attempts to guide the LLM toward correct output
@@ -133,7 +133,7 @@ Generates rich psychological profiles from the cast (post-CML) including:
 Generates comprehensive location profiles including:
 - Primary location with geographic specificity (place, country)
 - Key locations with full sensory palettes (sights, sounds, smells, tactile)
-- `sensoryVariants`: 2-4 short alternative palette strings per key location (≤15 words each), offering different atmospheric angles (time of day, weather, emotional register). Used by agent9 to cycle atmosphere across chapters without repetition.
+- `sensoryVariants`: 3–4 structured sensory palette objects per key location, keyed by `timeOfDay` + `weather`. Each variant is a full object with `id`, `timeOfDay`, `weather`, `sights[]`, `sounds[]`, `smells[]`, and `mood`. Agent 9 selects the most appropriate variant per chapter to avoid atmospheric repetition.
 - Atmospheric context (mood, weather, era markers)
 - 3-6 paragraphs per location
 - **Schema validation with retry:** Validates against `location_profiles.schema.yaml`
@@ -230,6 +230,16 @@ Critical fair-play violations (Clue Visibility, Information Parity, No Withholdi
 **Hard stop (implemented):** Persistent critical fair-play failures after CML retry abort the pipeline with a clear error instead of producing an unsolvable mystery.
 **Cost circuit breaker (implemented):** Fair-play retry cost is capped at $0.15 to prevent runaway LLM spend on irrecoverable failures.
 
+### Agent 6.5 — World Builder (LLM)
+Synthesises all prior structured facts into a single `world_document` artifact that serves as the primary creative brief for both Agent 7 (outline enrichment) and Agent 9 (prose generation).
+- Consumes: CML, character profiles, location profiles, temporal context, background context, hard-logic devices, clue distribution
+- Outputs `world_document` (stored inside the full CML file as `WORLD_DOCUMENT`)
+- Must not invent new character secrets, relationships, or clues — adds texture, voice, and era specificity only
+- Key output sections: `historicalMoment` (eraRegister, emotionalRegister, currentTensions, physicalConstraints, wartimeServiceContext), `characterPortraits` (portrait + eraIntersection per cast member), `characterVoiceSketches` (voiceDescription + fragments per register + humourNote), `locationRegisters` (emotionalRegister, cameraAngle, eraNote per key location), `storyEmotionalArc` (arcDescription ≥300 words, dominantRegister, turningPoints, endingNote), `humourPlacementMap` (all 12 scene positions with permission, permitted characters/forms, rationale), `storyTheme`, `breakMoment`, `revealImplications`
+- `arcDescription` must be ≥300 words across multiple paragraphs; single-paragraph summaries fail validation
+- `humourPlacementMap`: all 12 scene positions required; every entry (including `forbidden`) must include a non-empty `rationale`
+- **Schema validation with retry:** Validates against `world_document.schema.yaml` (up to 3 attempts)
+
 ### Agent 7 — Narrative Outliner
 Creates outline with clue placement and discriminating test timing.
 - Accepts optional `qualityGuardrails` parameter to steer outline generation.
@@ -251,7 +261,7 @@ Legacy culprit fallback references now avoid `character_id` and rely on canonica
 
 ### Agent 9 — Prose Generator (LLM)
 Generates novel-quality prose with full context integration:
-- Input: outline + CML + cast + character profiles + location profiles + temporal context
+- Input: outline + CML + cast + character profiles + location profiles + temporal context + world document
 
 ### NarrativeState (threaded through prose batches)
 
@@ -262,18 +272,14 @@ interface NarrativeState {
   version: 1;
   /** Ground-truth physical evidence values — prose must never contradict. */
   lockedFacts: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
-  /** character name → "he/him/his" | "she/her/her" | "they/them/their" */
+  /** Map from character name to pronoun string "he/him/his" | "she/her/her" | "they/them/their". */
   characterPronouns: Record<string, string>;
-  /** Opening-sentence style classes used so far — keeps last 8, oldest first.
-   *  Classes: dialogue-open | noun-phrase-atmosphere | expository-setup |
-   *           temporal-subordinate | character-action | time-anchor | general-descriptive */
-  usedOpeningStyles: string[];
-  /** Adjective+noun sensory phrases used so far — keeps last 20, oldest first. */
-  usedSensoryPhrases: string[];
   /** Clue IDs already revealed to the reader. */
   cluesRevealedToReader: string[];
-  /** Brief per-chapter summaries accumulated as each batch completes. */
-  chapterSummaries: Array<{ chapterNumber: number; summary: string }>;
+  /** Last paragraph of the most recently completed chapter — used for opening continuity. */
+  continuityTail: string;
+  /** Chapter number in which the victim's death is confirmed on-page (first such chapter). */
+  victimConfirmedDeadChapter?: number;
 }
 
 // Lifecycle:

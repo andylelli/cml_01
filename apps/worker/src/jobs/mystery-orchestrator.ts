@@ -41,6 +41,7 @@ import {
 } from "@cml/story-validation";
 import type { GenerationReport, ValidationReport, PhaseScore } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
+import { RunLogger } from "./run-logger.js";
 import {
   runAgent1,
   runAgent2,
@@ -194,6 +195,9 @@ export async function generateMystery(
   let reportRepository: FileReportRepository | undefined;
   let scoringLogger: ScoringLogger | undefined;
 
+  const logsDir = join(WORKER_APP_ROOT, "logs");
+  const runLogger = new RunLogger(logsDir, runId, projectId);
+
   if (enableScoring) {
     try {
       const retryConfigPath = join(WORKER_APP_ROOT, "config", "retry-limits.yaml");
@@ -201,7 +205,6 @@ export async function generateMystery(
       scoreAggregator = new ScoreAggregator({ mode: "standard" }, retryManager);
       const resolvedReportsDir = join(WORKSPACE_ROOT, "apps", "api", "data", "reports");
       reportRepository = new FileReportRepository(resolvedReportsDir);
-      const logsDir = join(WORKER_APP_ROOT, "logs");
       scoringLogger = new ScoringLogger(logsDir);
       warnings.push("Scoring system enabled - tracking quality metrics and retries");
     } catch (error) {
@@ -219,6 +222,7 @@ export async function generateMystery(
     if (onProgress) {
       onProgress({ stage, message, percentage, timestamp: new Date() });
     }
+    runLogger.logProgress(stage, message, warnings, errors);
   };
 
   const savePartialReport = async () => {
@@ -290,6 +294,7 @@ export async function generateMystery(
       retryManager,
       scoringLogger,
       reportRepository,
+      runLogger,
       errors,
       warnings,
       agentCosts,
@@ -437,6 +442,7 @@ export async function generateMystery(
     const totalDurationMs = Date.now() - startTime;
     const totalCost = Object.values(agentCosts).reduce((sum, cost) => sum + cost, 0);
     reportProgress("complete", "Mystery generation complete!", 100);
+    runLogger.logComplete("complete", Date.now() - startTime, warnings, errors);
 
     let scoringReport: GenerationReport | undefined;
     if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
@@ -657,6 +663,7 @@ export async function generateMystery(
       }
     }
 
+    runLogger.logComplete("failed", Date.now() - startTime, warnings, errors);
     throw new Error(`Mystery generation failed: ${errorMessage}`);
   }
 }

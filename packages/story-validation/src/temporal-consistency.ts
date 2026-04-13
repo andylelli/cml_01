@@ -47,10 +47,18 @@ const SEASON_PATTERNS: Array<{ season: CanonicalSeason; pattern: RegExp }> = [
   { season: 'winter', pattern: /\b(winter|wintertime|wintry)\b/i },
 ];
 
+// Months that are also common English words (modal verb / motion verb).
+// Require Title Case so lowercase "may" and "march" don't trigger false positives.
+const AMBIGUOUS_MONTHS = new Set(['may', 'march']);
+
 const MONTH_PATTERNS: Array<{ month: string; pattern: RegExp }> = [
   ...Object.keys(MONTH_TO_SEASON).map((month) => ({
     month,
-    pattern: new RegExp(`\\b${month}\\b`, 'i'),
+    // Ambiguous months need a capital first letter to avoid matching common verbs
+    // (e.g. "he may leave" or "they march forward").
+    pattern: AMBIGUOUS_MONTHS.has(month)
+      ? new RegExp(`\\b${month[0].toUpperCase()}${month.slice(1)}\\b`)
+      : new RegExp(`\\b${month}\\b`, 'i'),
   })),
   ...Object.entries(MONTH_ABBREVIATIONS).map(([abbr, month]) => ({
     month,
@@ -72,7 +80,10 @@ export function analyzeTemporalConsistency(
   const monthMentions = new Set<string>();
 
   for (const { month, pattern } of MONTH_PATTERNS) {
-    if (pattern.test(lowered)) {
+    // Ambiguous month patterns require Title Case, so test against the original text.
+    // Other patterns are case-insensitive and can use the pre-lowercased copy.
+    const testTarget = AMBIGUOUS_MONTHS.has(month) ? text : lowered;
+    if (pattern.test(testTarget)) {
       monthMentions.add(month);
     }
   }

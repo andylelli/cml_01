@@ -128,11 +128,27 @@ export interface Agent9WordPolicyConfig {
 }
 
 export interface Agent9UnderflowExpansionConfig {
+  /**
+   * Master switch for the underflow expansion pass.
+   * When false the expansion LLM call is skipped entirely and chapters that are below
+   * either the hard floor or the preferred target proceed directly to retry.
+   * Default: true.
+   */
+  enabled: boolean;
   min_additional_words: number;
   max_additional_words: number;
   buffer_words: number;
   temperature: number;
   max_tokens: number;
+  /**
+   * Fraction of preferred chapter words below which a preferred-miss (non-hard-floor)
+   * chapter triggers expansion.  Chapters above this fraction are already "close enough"
+   * and do not need an expansion call.
+   * e.g. 0.85 means expansion fires when wordCount < preferredWords * 0.85.
+   * Set to 1.0 to always expand on preferred-miss; set to 0.0 to never expand on preferred-miss.
+   * Supported range: 0.0 – 1.0
+   */
+  preferred_miss_expansion_ratio: number;
 }
 
 export interface Agent9GenerationConfig {
@@ -413,11 +429,13 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       },
     },
     underflow_expansion: {
+      enabled: true,
       min_additional_words: 220,
       max_additional_words: 680,
       buffer_words: 220,
       temperature: 0.2,
       max_tokens: 2600,
+      preferred_miss_expansion_ratio: 0.85,
     },
     generation: {
       default_max_attempts: 3,
@@ -827,6 +845,13 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
             500,
             16000,
           ),
+        ),
+        enabled: (partial.agent9_prose?.underflow_expansion?.enabled ?? DEFAULT_CONFIG.agent9_prose.underflow_expansion.enabled) !== false,
+        preferred_miss_expansion_ratio: clampNumber(
+          partial.agent9_prose?.underflow_expansion?.preferred_miss_expansion_ratio,
+          DEFAULT_CONFIG.agent9_prose.underflow_expansion.preferred_miss_expansion_ratio,
+          0,
+          1,
         ),
       },
       generation: {

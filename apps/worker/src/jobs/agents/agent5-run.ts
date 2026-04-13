@@ -197,19 +197,30 @@ function checkSuspectElimination(cml: CaseData, clues: ClueDistributionResult): 
 export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("clues", "Extracting and organizing clues...", 50);
 
-  const clueDensity =
+  const clueDensity: "minimal" | "moderate" | "dense" =
     ctx.inputs.targetLength === "short" ? "minimal"
     : ctx.inputs.targetLength === "long" ? "dense"
     : "moderate";
 
   const cluesStart = Date.now();
-  let clues = await extractClues(ctx.client, {
+  let clues: Awaited<ReturnType<typeof extractClues>>;
+  const cluesInputBase = {
     cml: ctx.cml!,
     clueDensity,
     redHerringBudget: 2,
     runId: ctx.runId,
     projectId: ctx.projectId || "",
-  });
+  };
+  try {
+    clues = await extractClues(ctx.client, cluesInputBase);
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      ctx.warnings.push("Agent 5: JSON parse failure on first attempt; retrying");
+      clues = await extractClues(ctx.client, cluesInputBase);
+    } else {
+      throw err;
+    }
+  }
 
   ctx.agentCosts["agent5_clues"] = clues.cost;
   ctx.agentDurations["agent5_clues"] = Date.now() - cluesStart;
@@ -272,12 +283,14 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 
   // ── WP4: Inference Path Coverage Gate ─────────────────────────────────────
   const coverageResult = checkInferencePathCoverage(ctx.cml!, clues);
+  // Hoist suspect-elimination check so FIX-J can reuse results without a second call.
+  const initialSuspectEliminationIssues = checkSuspectElimination(ctx.cml!, clues);
   const allCoverageIssues: ClueGuardrailIssue[] = [
     ...coverageResult.issues,
     ...checkContradictionPairs(ctx.cml!, clues),
     ...checkFalseAssumptionContradiction(ctx.cml!, clues),
     ...checkDiscriminatingTestReachability(ctx.cml!, clues),
-    ...checkSuspectElimination(ctx.cml!, clues),
+    ...initialSuspectEliminationIssues,
   ];
 
   allCoverageIssues.forEach((issue) =>
@@ -336,6 +349,62 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     postCoverageGuardrails.fixes.forEach((fix) =>
       ctx.warnings.push(`Post-coverage guardrail auto-fix: ${fix}`)
     );
+  }
+
+  // ── FIX-J: Per-suspect clue coverage gate ─────────────────────────────────
+  // Every eligible non-culprit suspect must have at least one clue referencing
+  // them by name. If the coverage retry didn't address this, regenerate with
+  // targeted suspect-coverage feedback before committing to ctx.clues.
+  const suspectEliminationIssues = initialSuspectEliminationIssues;
+  const uncoveredSuspects = suspectEliminationIssues.filter((i) => i.severity === "warning");
+  if (uncoveredSuspects.length > 0) {
+    ctx.warnings.push(
+      `Agent 5: ${uncoveredSuspects.length} suspect(s) have zero clue coverage; regenerating with targeted suspect feedback`,
+    );
+    uncoveredSuspects.forEach((i) => ctx.warnings.push(`  - ${i.message}`));
+
+    const suspectRetryStart = Date.now();
+    const suspectCoverageFeedback = {
+      overallStatus: "fail" as const,
+      violations: uncoveredSuspects.map((i) => ({
+        severity: "critical" as const,
+        rule: "Suspect Clue Coverage",
+        description: i.message,
+        suggestion:
+          "Add at least one clue that names this suspect or references them as an alibi/elimination subject so the reader can logically rule them out.",
+      })),
+      warnings: [],
+      recommendations: [
+        "Every eligible non-culprit suspect must appear in at least one clue",
+        "Clues can reference a suspect via their alibi, observed behaviour, or elimination evidence",
+        "Adding elimination clues for uncovered suspects does not require extra inference steps",
+      ],
+    };
+    ctx.reportProgress("clues", "Regenerating clues to address suspect coverage gaps...", 60);
+    clues = await extractClues(ctx.client, {
+      cml: ctx.cml!,
+      clueDensity,
+      redHerringBudget: 2,
+      fairPlayFeedback: suspectCoverageFeedback,
+      runId: ctx.runId,
+      projectId: ctx.projectId || "",
+    });
+    ctx.agentCosts["agent5_clues"] =
+      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+    ctx.agentDurations["agent5_clues"] =
+      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - suspectRetryStart);
+
+    const postSuspectGuardrails = applyClueGuardrails(ctx.cml!, clues);
+    postSuspectGuardrails.fixes.forEach((fix) =>
+      ctx.warnings.push(`Post-suspect-coverage guardrail auto-fix: ${fix}`)
+    );
+
+    // Re-check; if suspects are still uncovered after retry, log a warning only
+    // (do not hard-fail — the story can still be generated, just with a gap).
+    const postRetrySuspectIssues = checkSuspectElimination(ctx.cml!, clues);
+    postRetrySuspectIssues
+      .filter((i) => i.severity === "warning")
+      .forEach((i) => ctx.warnings.push(`Agent 5: Post-retry suspect gap: ${i.message}`));
   }
 
   ctx.clues = clues;

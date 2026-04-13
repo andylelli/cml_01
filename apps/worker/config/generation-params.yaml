@@ -207,6 +207,9 @@ agent9_prose:
       long: 2400
 
   underflow_expansion:
+    # Master switch — set to false to skip the expansion LLM call entirely.
+    # When disabled, chapters below hard floor or preferred target go straight to retry.
+    enabled: false
     # Expansion hint sizing for chapter-local underflow recovery
     # Supported range: 50 - 2000
     min_additional_words: 260
@@ -219,6 +222,13 @@ agent9_prose:
     temperature: 0.18
     # Supported range: 500 - 16000
     max_tokens: 3000
+    # Only fire expansion for preferred-miss (non-hard-floor) chapters when the chapter is
+    # below this fraction of the preferred word target. Prevents expansion from firing on
+    # every chapter just because they are marginally below the aspirational preferred count.
+    # e.g. 0.85 → fire when wordCount < preferredWords * 0.85 (e.g. < 1360 for medium).
+    # Set to 1.0 to always expand on preferred-miss; 0.0 to never expand on preferred-miss.
+    # Supported range: 0.0 - 1.0
+    preferred_miss_expansion_ratio: 0.85
 
   generation:
     # Default batch retry cap (can still be overridden by call-site argument)
