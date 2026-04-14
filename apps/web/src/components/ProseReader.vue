@@ -80,6 +80,9 @@ const goToChapter = (index: number) => {
 
     <!-- Chapter content -->
     <div class="flex-1 rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+      <p v-if="prose.note" class="mb-4 rounded border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900">
+        {{ prose.note }}
+      </p>
       <div v-if="currentChapter" class="prose prose-slate max-w-none">
         <h2 class="mb-4 text-2xl font-serif font-bold text-slate-900">
           {{ currentChapter.title }}

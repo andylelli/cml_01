@@ -121,7 +121,8 @@ export function applyDeterministicCluePreAssignment(
   narrative: NarrativeOutline,
   cml: CaseData,
   clues: ClueDistributionResult,
-  minCoverageRatio = 0.6
+  minCoverageRatio = 0.6,
+  maxThresholdFillAssignments = Number.POSITIVE_INFINITY,
 ): DeterministicClueAssignmentStats {
   const refs = flattenNarrativeScenes(narrative);
   const totalScenes = refs.length;
@@ -259,7 +260,7 @@ export function applyDeterministicCluePreAssignment(
   }
 
   // 4) If still below threshold, fill additional empty scenes with act-balanced picks
-  while (countClueScenes() < minRequired) {
+  while (countClueScenes() < minRequired && thresholdFillAssignments < maxThresholdFillAssignments) {
     const actTotals = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
     const actCovered = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
     for (const ref of refs) {
@@ -282,6 +283,18 @@ export function applyDeterministicCluePreAssignment(
   }
 
   return { totalScenes, minRequired, before, after: countClueScenes(), mappingAssignments, essentialAssignments, gapFillAssignments, thresholdFillAssignments };
+}
+
+function buildCluePacingGuardrails(expectedScenes: number, minRatio: number): string[] {
+  const minClueScenes = Math.ceil(expectedScenes * minRatio);
+  const act1 = Math.max(1, Math.floor(minClueScenes * 0.25));
+  const act2 = Math.max(1, Math.floor(minClueScenes * 0.45));
+  const act3 = Math.max(1, minClueScenes - act1 - act2);
+  return [
+    `Clue pacing requirement: at least ${minClueScenes} of ${expectedScenes} scenes must include non-empty cluesRevealed arrays.`,
+    `Act clue distribution requirement: Act I >= ${act1} clue-bearing scenes, Act II >= ${act2}, Act III >= ${act3}.`,
+    "Do not defer most clues to late chapters; ensure clue-bearing scenes appear in all acts.",
+  ];
 }
 
 // ============================================================================
@@ -520,6 +533,11 @@ async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOu
 
 export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
+  const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;
+  const minClueSceneRatio = narrativePacingConfig.min_clue_scene_ratio;
+  const maxDeterministicGapFill = 3;
+  const expectedSceneTarget = getSceneTarget(ctx.inputs.targetLength ?? "medium");
+  const pacingGuardrails = buildCluePacingGuardrails(expectedSceneTarget, minClueSceneRatio);
 
   let narrative: NarrativeOutline;
 
@@ -534,7 +552,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           targetLength: ctx.inputs.targetLength,
           narrativeStyle: ctx.inputs.narrativeStyle,
           detectiveType: ctx.inputs.detectiveType,
-          qualityGuardrails: retryFeedback ? [retryFeedback] : undefined,
+          qualityGuardrails: retryFeedback ? [retryFeedback, ...pacingGuardrails] : pacingGuardrails,
           runId: ctx.runId,
           projectId: ctx.projectId || "",
         });
@@ -620,6 +638,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       targetLength: ctx.inputs.targetLength,
       narrativeStyle: ctx.inputs.narrativeStyle,
       detectiveType: ctx.inputs.detectiveType,
+      qualityGuardrails: pacingGuardrails,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -645,7 +664,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       targetLength: ctx.inputs.targetLength,
       narrativeStyle: ctx.inputs.narrativeStyle,
       detectiveType: ctx.inputs.detectiveType,
-      qualityGuardrails: schemaRepairGuardrails,
+      qualityGuardrails: [...schemaRepairGuardrails, ...pacingGuardrails],
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -710,6 +729,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           `(these are exact counts, not ranges; they add up to ${actI + actII + actIII}). ` +
           `Count your scenes carefully before returning. ` +
           `Each scene is a distinct chapter in the final novel — do not merge or drop scenes.`,
+          ...pacingGuardrails,
         ],
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -763,7 +783,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       targetLength: ctx.inputs.targetLength,
       narrativeStyle: ctx.inputs.narrativeStyle,
       detectiveType: ctx.inputs.detectiveType,
-      qualityGuardrails: [...outlineGuardrails, ...countGuardrails],
+      qualityGuardrails: [...outlineGuardrails, ...countGuardrails, ...pacingGuardrails],
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -803,34 +823,18 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     const clueSceneCount = allOutlineScenes.filter(
       (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
     ).length;
-    const minClueScenes = Math.ceil(totalOutlineSceneCount * 0.6);
+    const minClueScenes = Math.ceil(totalOutlineSceneCount * minClueSceneRatio);
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
 
     if (totalOutlineSceneCount > 0 && clueSceneCount < minClueScenes) {
       ctx.warnings.push(
-        `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Applying deterministic clue pre-assignment.`
+        `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Trying narrative regeneration before deterministic patching.`
       );
 
-      const deterministicOnCurrent = applyDeterministicCluePreAssignment(
-        narrative, ctx.cml!, ctx.clues!, 0.6
-      );
-
-      if (deterministicOnCurrent.after >= deterministicOnCurrent.minRequired) {
-        ctx.warnings.push(
-          `Deterministic clue pre-assignment satisfied pacing without retry: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes now carry clues (mapping ${deterministicOnCurrent.mappingAssignments}, essential ${deterministicOnCurrent.essentialAssignments}, gap-fill ${deterministicOnCurrent.gapFillAssignments}, threshold-fill ${deterministicOnCurrent.thresholdFillAssignments}).`
-        );
+      {
         ctx.reportProgress(
           "narrative",
-          `Deterministic clue anchoring applied: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes have clues`,
-          86
-        );
-      } else {
-        ctx.warnings.push(
-          `Deterministic clue pre-assignment on current outline reached ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} (need ≥${deterministicOnCurrent.minRequired}); retrying outline with reinforced pacing.`
-        );
-        ctx.reportProgress(
-          "narrative",
-          `Clue pacing retry: ${deterministicOnCurrent.after}/${deterministicOnCurrent.totalScenes} scenes have clues (≥${deterministicOnCurrent.minRequired} required)`,
+          `Clue pacing retry: ${clueSceneCount}/${totalOutlineSceneCount} scenes have clues (≥${minClueScenes} required)`,
           86
         );
 
@@ -842,8 +846,9 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           narrativeStyle: ctx.inputs.narrativeStyle,
           detectiveType: ctx.inputs.detectiveType,
           qualityGuardrails: [
-            `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${deterministicOnCurrent.after} of ${deterministicOnCurrent.totalScenes} scenes after deterministic repair. The minimum required is ${deterministicOnCurrent.minRequired} scenes (60% of all scenes). You MUST populate the cluesRevealed array with at least one clue ID in at least ${deterministicOnCurrent.minRequired} scenes. Spread clues across ALL three acts — every act must have multiple clue-bearing scenes. Do not cluster all clues in the final act.`,
+            `CRITICAL PACING FAILURE: Your previous outline placed clues in only ${clueSceneCount} of ${totalOutlineSceneCount} scenes. The minimum required is ${minClueScenes} scenes. You MUST populate cluesRevealed with at least one clue ID in at least ${minClueScenes} scenes and distribute clues across all three acts.`,
             ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
+            ...pacingGuardrails,
           ],
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -857,7 +862,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         const retriedClueCount = retriedOutlineScenes.filter(
           (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
         ).length;
-        const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * 0.6);
+        const retriedMinClueScenes = Math.ceil(retriedOutlineScenes.length * minClueSceneRatio);
         const pacingRetryCountCheck = checkNarrativeSceneCountFloor(pacingRetried, sceneCountLock);
 
         if (!pacingRetryCountCheck.ok) {
@@ -870,8 +875,18 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
             `Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`
           );
         } else {
+          const remainingGap = retriedMinClueScenes - retriedClueCount;
+          if (remainingGap > maxDeterministicGapFill) {
+            throw new Error(
+              `Outline pacing gate failed: retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need >= ${retriedMinClueScenes}). Remaining gap ${remainingGap} exceeds deterministic fill cap ${maxDeterministicGapFill}.`,
+            );
+          }
           const deterministicOnRetry = applyDeterministicCluePreAssignment(
-            pacingRetried, ctx.cml!, ctx.clues!, 0.6
+            pacingRetried,
+            ctx.cml!,
+            ctx.clues!,
+            minClueSceneRatio,
+            maxDeterministicGapFill,
           );
           if (deterministicOnRetry.after >= deterministicOnRetry.minRequired) {
             narrative = pacingRetried;
@@ -884,8 +899,8 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
               86
             );
           } else {
-            ctx.warnings.push(
-              `Outline pacing retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need ≥${retriedMinClueScenes}); deterministic post-retry anchoring also insufficient (${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}). Proceeding with best-available outline; clue visibility may be reduced.`
+            throw new Error(
+              `Outline pacing gate failed: retry and bounded deterministic anchoring both insufficient (${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}, need >= ${deterministicOnRetry.minRequired}).`,
             );
           }
         }

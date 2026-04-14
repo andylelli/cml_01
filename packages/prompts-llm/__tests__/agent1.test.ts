@@ -27,34 +27,34 @@ describe("Agent 1: Era & Setting Refiner", () => {
       expect(prompt.messages).toHaveLength(2);
     });
 
-    it("includes setting specialist system prompt", () => {
+    it("includes upgraded system prompt with explicit authority", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
-      expect(prompt.system).toContain("mystery setting specialist");
-      expect(prompt.system).toContain("Historical authenticity");
-      expect(prompt.system).toContain("anachronism detection");
+      expect(prompt.system).toContain("Agent 1, a historical-setting refiner");
+      expect(prompt.system).toContain("Non-negotiable rules");
+      expect(prompt.system).toContain("Return JSON only");
     });
 
-    it("includes era constraints template", () => {
+    it("includes era constraints source and era fields", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
-      expect(prompt.developer).toContain("Era Constraints Template");
+      expect(prompt.developer).toContain("Era constraints source");
       expect(prompt.developer).toContain("technology");
       expect(prompt.developer).toContain("forensics");
       expect(prompt.developer).toContain("socialNorms");
     });
 
-    it("includes location constraints template", () => {
+    it("includes location constraints source", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
-      expect(prompt.developer).toContain("Location Constraints Template");
+      expect(prompt.developer).toContain("Location constraints source");
       expect(prompt.developer).toContain("physicalConstraints");
     });
 
-    it("includes JSON output format specification", () => {
+    it("includes JSON output schema specification", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
-      expect(prompt.developer).toContain("Output Format");
+      expect(prompt.developer).toContain("Output schema");
       expect(prompt.developer).toContain('"era"');
       expect(prompt.developer).toContain('"location"');
       expect(prompt.developer).toContain('"atmosphere"');
@@ -159,11 +159,11 @@ describe("Agent 1: Era & Setting Refiner", () => {
   });
 
   describe("buildSettingPrompt - requirements", () => {
-    it("requires anachronism detection", () => {
+    it("requires anachronism handling and realism closure", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
       expect(prompt.developer).toContain("anachronisms");
-      expect(prompt.user).toContain("anachronisms");
+      expect(prompt.developer).toContain("implausibilities");
     });
 
     it("requires physical constraints", () => {
@@ -176,14 +176,14 @@ describe("Agent 1: Era & Setting Refiner", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
       expect(prompt.developer).toContain("atmosphere");
-      expect(prompt.user).toContain("Atmosphere");
+      expect(prompt.developer).toContain("period anchors");
     });
 
     it("requires realism recommendations", () => {
       const prompt = buildSettingPrompt(baseInputs);
       
       expect(prompt.developer).toContain("recommendations");
-      expect(prompt.user).toContain("recommendations");
+      expect(prompt.developer).toContain("silent checklist");
     });
   });
 });

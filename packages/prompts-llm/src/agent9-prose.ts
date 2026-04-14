@@ -23,6 +23,13 @@ import {
 } from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
 import { classifyOpeningStyle, updateNSD } from "./types/narrative-state.js";
+import type { AssetLibrary } from "./types/asset-library.js";
+import { buildAssetLibrary, selectChapterAtoms } from "./asset-library.js";
+import {
+  ARC_POSITION_REGISTER,
+  ARC_POS_TO_SCENE_TYPE,
+  HIGH_TENSION_POSITIONS,
+} from "./constants/arc-position.js";
 
 export interface ProseChapter {
   title: string;
@@ -74,7 +81,13 @@ export interface ProseGenerationInputs {
   batchSize?: number;
   /** Called after each batch of chapters is successfully generated and validated.
    *  The fourth argument contains validation issues from any failed attempts for this batch. */
-  onBatchComplete?: (chapters: ProseChapter[], batchStart: number, batchEnd: number, validationIssues: string[]) => Promise<void> | void;
+  onBatchComplete?: (
+    chapters: ProseChapter[],
+    batchStart: number,
+    batchEnd: number,
+    validationIssues: string[],
+    usedTextureAtomIds?: string[],
+  ) => Promise<void> | void;
   /** Called immediately before the LLM call for each batch with the obligation atom IDs selected
    *  for that batch. The orchestrator uses this to stamp deployedAssets once the batch commits. */
   onAtomsSelected?: (atomIds: string[]) => void;
@@ -882,23 +895,6 @@ const enforceMonthSeasonLockOnChapter = (
 //      physicalConstraints — are unchanged and must be kept.)
 // ─────────────────────────────────────────────────────────────────────────
 /**
- * Maps the arc-position labels used in buildWorldBriefBlock to the
- * scenePosition labels used in humourPlacementMap (CML 2.0 schema).
- * Without this mapping the lookup always misses because the two sets
- * of labels differ (e.g. 'opening' vs 'opening_scene').
- */
-const ARC_POS_TO_SCENE_TYPE: Record<string, string> = {
-  opening:      'opening_scene',
-  early:        'first_investigation',
-  first_turn:   'tension_scene',
-  mid:          'mid_investigation',
-  second_turn:  'second_interview',
-  pre_climax:   'pre_climax',
-  climax:       'discriminating_test',
-  resolution:   'resolution',
-};
-
-/**
  * Builds the WORLD DOCUMENT brief block injected into per-chapter prose prompts.
  *
  * When a WorldDocument is present, it supersedes raw character/location/temporal
@@ -912,8 +908,20 @@ const buildWorldBriefBlock = (
   totalChapters: number,
   characterPronouns?: Record<string, string>, // [PHASE 1] inline (he/him) labels in Character Voices headings
   activeCharacterNames?: Set<string>,
+  narrativeState?: NarrativeState,
 ): string => {
   if (!worldDoc) return '';
+
+  // §3.2: Compute arc position once at function scope — used for register-matched
+  // voice fragment selection, humour permission, and turning-point lookup.
+  const arcPosition = chapterIndex <= 1 ? 'opening'
+    : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
+    : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
+    : chapterIndex <= Math.floor(totalChapters * 0.55) ? 'mid'
+    : chapterIndex <= Math.floor(totalChapters * 0.7) ? 'second_turn'
+    : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
+    : chapterIndex === totalChapters - 1 ? 'resolution'
+    : 'climax';
 
   const lines: string[] = [];
   lines.push('\n\nWORLD DOCUMENT (use this as your primary creative context):');
@@ -965,18 +973,10 @@ const buildWorldBriefBlock = (
       if (arc.arcDescription) lines.push(`\nArc:\n${arc.arcDescription}`);
     }
     if (Array.isArray(arc.turningPoints)) {
-    const arcPosition = chapterIndex <= 1 ? 'opening'
-      : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
-      : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
-      : chapterIndex <= Math.floor(totalChapters * 0.55) ? 'mid'
-      : chapterIndex <= Math.floor(totalChapters * 0.7) ? 'second_turn'
-      : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
-      : chapterIndex === totalChapters - 1 ? 'resolution'
-      : 'climax';
-    const tp = arc.turningPoints.find((t: any) => t.position === arcPosition);
-    if (tp?.emotionalDescription) {
-      lines.push(`\n## Emotional register at this point in the story\n${tp.emotionalDescription}`);
-    }
+      const tp = arc.turningPoints.find((t: any) => t.position === arcPosition);
+      if (tp?.emotionalDescription) {
+        lines.push(`\n## Emotional register at this point in the story\n${tp.emotionalDescription}`);
+      }
     }
     // Ending note — only in final act (helps shape denouement texture)
     if (arc.endingNote && chapterIndex >= Math.floor(totalChapters * 0.75)) {
@@ -1003,8 +1003,23 @@ const buildWorldBriefBlock = (
       const pronounsLabel = characterPronouns?.[sketch.name] ? ` (${characterPronouns[sketch.name]})` : ''; // [PHASE 1]
       lines.push(`\n### ${sketch.name}${pronounsLabel}`);
       if (sketch.voiceDescription) lines.push(sketch.voiceDescription);
-      // Show up to 3 fragments across all registers so the LLM can vary voice by context
-      const fragments = (sketch.fragments ?? []).slice(0, 3);
+      // §3.2: Register-matched fragment selection — prefer dominant arc register;
+      // humorous fragments are elevated when permitted, suppressed when forbidden.
+      const dominantRegister = ARC_POSITION_REGISTER[arcPosition] ?? 'neutral';
+      const voiceHumourEntry = worldDoc.humourPlacementMap?.find(
+        (e: any) => e.scenePosition === ARC_POS_TO_SCENE_TYPE[arcPosition],
+      );
+      const voiceHumourPermitted = voiceHumourEntry?.humourPermission !== 'forbidden';
+      const sorted = [...(sketch.fragments ?? [])].sort((a: any, b: any) => {
+        const aReg: string = a.register ?? 'neutral';
+        const bReg: string = b.register ?? 'neutral';
+        const aMatch = aReg === dominantRegister ? 0 : 1;
+        const bMatch = bReg === dominantRegister ? 0 : 1;
+        const aHumour = aReg === 'humorous' ? (voiceHumourPermitted ? -1 : 2) : 0;
+        const bHumour = bReg === 'humorous' ? (voiceHumourPermitted ? -1 : 2) : 0;
+        return (aMatch + aHumour) - (bMatch + bHumour);
+      });
+      const fragments = sorted.slice(0, 3);
       for (const frag of fragments) {
         lines.push(`[${frag.register}] ${frag.text}`);
       }
@@ -1022,20 +1037,12 @@ const buildWorldBriefBlock = (
 
   // Humour placement map — scene-position-specific humour permission
   if (Array.isArray(worldDoc.humourPlacementMap) && worldDoc.humourPlacementMap.length > 0) {
-    const arcPosForHumour = chapterIndex <= 1 ? 'opening'
-      : chapterIndex <= Math.floor(totalChapters * 0.25) ? 'early'
-      : chapterIndex <= Math.floor(totalChapters * 0.4) ? 'first_turn'
-      : chapterIndex <= Math.floor(totalChapters * 0.55) ? 'mid'
-      : chapterIndex <= Math.floor(totalChapters * 0.7) ? 'second_turn'
-      : chapterIndex <= Math.floor(totalChapters * 0.8) ? 'pre_climax'
-      : chapterIndex === totalChapters - 1 ? 'resolution'
-      : 'climax';
-    const mappedSceneType = ARC_POS_TO_SCENE_TYPE[arcPosForHumour] ?? arcPosForHumour;
+    const mappedSceneType = ARC_POS_TO_SCENE_TYPE[arcPosition] ?? arcPosition;
     const humourEntry = worldDoc.humourPlacementMap.find((e: any) => e.scenePosition === mappedSceneType);
     if (humourEntry) {
       const permitted = humourEntry.permittedCharacters?.join(', ') ?? '';
       const forms = humourEntry.permittedForms?.join(', ') ?? '';
-      lines.push(`\n## Humour guidance for this story position (${arcPosForHumour})`);
+      lines.push(`\n## Humour guidance for this story position (${arcPosition})`);
       lines.push(`Permission: ${humourEntry.humourPermission}${humourEntry.condition ? ` — condition: ${humourEntry.condition}` : ''}`);
       if (permitted) lines.push(`Characters who may be funny: ${permitted}`);
       if (forms) lines.push(`Permitted forms: ${forms}`);
@@ -1043,18 +1050,45 @@ const buildWorldBriefBlock = (
     }
   }
 
-  // Break moment — include near the right scene position
-  const bm = worldDoc.breakMoment;
-  if (bm) {
-    const relativePos = chapterIndex / Math.max(1, totalChapters);
-    if (relativePos >= 0.6 && relativePos <= 0.85) {
-      lines.push(`\n## Character Break Moment (this section of the story)\nCharacter: ${bm.character}\nForm: ${bm.form}\nNarrative function: ${bm.narrativeFunction}`);
+  // §4.1 + §4.2: relativePos shared by both the break-moment and reveal-implications gates
+  const relativePos = chapterIndex / Math.max(1, totalChapters);
+
+  // §4.2: Break moment — full obligation at 60–85%, approach signal (texture only) at 40–60%
+  if (worldDoc?.breakMoment?.character) {
+    const bm = worldDoc.breakMoment;
+    const breakMomentAlreadyDeployed =
+      (narrativeState?.deployedAssets?.['break_moment:story:full']?.length ?? 0) > 0;
+    if (!breakMomentAlreadyDeployed && relativePos >= 0.60 && relativePos <= 0.85) {
+      lines.push(
+        `\n## Character Break Moment (this section of the story)\n` +
+        `Character: ${bm.character}\n` +
+        `Form: ${bm.form ?? ''}\n` +
+        `Narrative function: ${bm.narrativeFunction ?? ''}`,
+      );
+    } else if (relativePos >= 0.40 && relativePos < 0.60) {
+      lines.push(
+        `\n## Character Pressure\n` +
+        `${bm.character} is approaching a point of breakdown. ` +
+        `Stress and strain should be accumulating visibly — through behaviour, not statement. ` +
+        `No confrontation yet.`,
+      );
     }
   }
 
-  // Reveal implications — only in final act
-  if (worldDoc.revealImplications && chapterIndex >= Math.floor(totalChapters * 0.75)) {
-    lines.push(`\n## Reveal Implications (plant these subtly)\n${worldDoc.revealImplications}`);
+  // §4.1: Two-phase reveal implications
+  // - Chapters 0–1: silent (too early to plant)
+  // - Chapters 2 → 74%: forward-planting texture ("Reveal Groundwork")
+  // - 75%+: full retrospective injection ("Reveal Implications")
+  if (typeof worldDoc.revealImplications === 'string' && worldDoc.revealImplications.length > 0) {
+    if (relativePos >= 0.75) {
+      lines.push(`\n## Reveal Implications (plant these subtly)\n${worldDoc.revealImplications}`);
+    } else if (chapterIndex >= 2) {
+      const fragment = worldDoc.revealImplications.split('.')[0]?.slice(0, 100) ?? worldDoc.revealImplications.slice(0, 100);
+      lines.push(
+        `\n## Reveal Groundwork (texture — do not explain, only plant)\n` +
+        `Plant a detail related to: "${fragment}" — do not explain its significance yet.`,
+      );
+    }
   }
 
   return lines.join('\n');
@@ -1324,6 +1358,10 @@ export function buildChapterObligationBlock(
   temporalLock: { month: string; season: CanonicalSeason } | undefined,
   clueDistribution?: ClueDistributionResult,
   wordTarget?: { targetWords: number },
+  sensoryVariantsByChapter?: Record<number, any>,
+  narrativeState?: NarrativeState,
+  currentArcPosition?: string,
+  worldDoc?: any,
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -1419,7 +1457,45 @@ export function buildChapterObligationBlock(
     if (isDiscriminatingTestChapter) {
       lines.push('  - Discriminating test required: YES. Dramatize the trap or confrontation explicitly; do not summarize it afterward.');
     }
+    // §3.3b: Sensory obligation injection
+    const selectedVariant = sensoryVariantsByChapter?.[chapterNumber];
+    if (selectedVariant) {
+      lines.push(
+        `  - Sensory obligation — use at least two of: ` +
+        `${(selectedVariant.sights ?? []).slice(0, 2).join(', ')} | ` +
+        `${(selectedVariant.sounds ?? []).slice(0, 2).join(', ')} | ` +
+        `${(selectedVariant.smells ?? []).slice(0, 1).join(', ')}. ` +
+        `Mood: ${selectedVariant.mood ?? ''}.`,
+      );
+    }
   });
+
+  // §4.4: Tonal contrast enforcement — when two consecutive chapters are both high-tension,
+  // inject an explicit relief instruction (stronger than the existing per-chapter tonal hint).
+  if (
+    currentArcPosition &&
+    narrativeState?.previousChapterArcPosition &&
+    HIGH_TENSION_POSITIONS.has(narrativeState.previousChapterArcPosition) &&
+    HIGH_TENSION_POSITIONS.has(currentArcPosition)
+  ) {
+    const humourEntry = Array.isArray(worldDoc?.humourPlacementMap)
+      ? worldDoc.humourPlacementMap.find(
+          (e: any) => e.scenePosition === ARC_POS_TO_SCENE_TYPE[currentArcPosition],
+        )
+      : undefined;
+    if (humourEntry?.humourPermission !== 'forbidden' && humourEntry?.permittedCharacters?.length > 0) {
+      lines.push(
+        `\n- Tonal contrast required: the previous chapter was high-tension. ` +
+        `${humourEntry.permittedCharacters[0]} may use ${humourEntry.permittedForms?.[0] ?? 'understatement'} ` +
+        `to provide a brief moment of relief before tension resumes.`,
+      );
+    } else {
+      lines.push(
+        `\n- Tonal contrast required: the previous chapter was high-tension. ` +
+        `This chapter must include at least one beat of relief, pause, or quiet observation.`,
+      );
+    }
+  }
 
   if ((lockedFacts ?? []).length > 0) {
     lines.push('- Locked fact phrase obligations:');
@@ -1653,6 +1729,7 @@ interface PromptSectionInputs {
   sceneGroundingChecklist: string;
   provisionalScoringFeedbackBlock: string;
   worldDocumentBlock: string;
+  texturePoolBlock?: string;
 }
 
 export function formatProvisionalScoringFeedbackBlock(
@@ -1662,9 +1739,13 @@ export function formatProvisionalScoringFeedbackBlock(
     deficits: string[];
     directives: string[];
   }> | undefined,
+  recurringPhraseWarnings?: string[],
 ): string {
   const effectiveFeedback = Array.isArray(feedback) ? feedback.slice(-2) : [];
-  if (effectiveFeedback.length === 0) return '';
+  const effectivePhraseWarnings = Array.isArray(recurringPhraseWarnings)
+    ? recurringPhraseWarnings.filter((p) => typeof p === 'string' && p.trim().length > 0).slice(0, 10)
+    : [];
+  if (effectiveFeedback.length === 0 && effectivePhraseWarnings.length === 0) return '';
 
   const lines: string[] = [];
   // Isolation wrapper — instructs the model that this block is private diagnostic
@@ -1683,6 +1764,11 @@ export function formatProvisionalScoringFeedbackBlock(
       lines.push(`  Address in upcoming chapters: ${item.directives.join(' | ')}`);
     }
   }
+  if (effectivePhraseWarnings.length > 0) {
+    lines.push(
+      `- Phrases to avoid (already overused in earlier chapters): ${effectivePhraseWarnings.map((p) => `"${p}"`).join(', ')}.`,
+    );
+  }
   lines.push('[END INTERNAL DIAGNOSTICS]');
   return lines.join('\n');
 }
@@ -1696,6 +1782,7 @@ const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextB
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
     { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
+    { key: 'texture_pool', content: sections.texturePoolBlock ?? '', priority: 'medium' },
     { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high' }, // Fix A1: temporal consistency promoted from medium
     { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical' },
     { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical' },
@@ -1740,6 +1827,7 @@ const applyPromptBudgeting = (
     pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
     character_personality: 1400, // raised from 900: physicalMannerisms + privateLonging + motiveSeed add ~150 tokens per character
     location_profiles: 1000,
+    texture_pool: 600,
     temporal_context: 850,
     continuity_context: 500,
     humour_guide: 850,
@@ -1825,8 +1913,43 @@ export const buildCharacterPersonalityBlock = (
   characterProfiles: any,
   castDesign: CastDesign,
   activeNames?: Set<string>,
+  library?: AssetLibrary,
+  deployedAssets?: Record<string, number[]>,
+  arcPosition?: string,
 ): string => {
   if (!characterProfiles || !Array.isArray(characterProfiles.profiles)) return '';
+
+  // §3.1: When asset library is available, use scoped obligation-pool atoms instead of
+  // the flat verbose block. Falls back to the existing rich block when no library is given.
+  if (library && deployedAssets) {
+    const profiles = activeNames?.size
+      ? characterProfiles.profiles.filter((p: any) => activeNames.has(p.name))
+      : characterProfiles.profiles;
+    let result = '\n\n## Character Reference\n';
+    for (const profile of profiles) {
+      const name: string = profile.name;
+      if (!name) continue;
+      const isIntroductionChapter = !(deployedAssets[`portrait:${name}:first_impression`]?.length > 0);
+      if (isIntroductionChapter && library[`portrait:${name}:first_impression`]) {
+        result += `\n### ${name}\n${library[`portrait:${name}:first_impression`].content}\n`;
+      } else {
+        const { obligationAtoms } = selectChapterAtoms(
+          library,
+          new Set([name]),
+          new Set<string>(),
+          deployedAssets,
+          arcPosition ?? 'mid',
+        );
+        const charAtoms = obligationAtoms.filter((a) => a.scopeKey === name);
+        if (charAtoms.length > 0) {
+          result += `\n### ${name}\n`;
+          charAtoms.forEach((a) => { result += `${a.content}\n`; });
+        }
+      }
+    }
+    return result;
+  }
+
   const HUMOUR_STYLE_DESCRIPTIONS: Record<string, string> = {
     understatement: 'Increases seriousness by pretending not to. Deadpan delivery of extraordinary facts.',
     dry_wit: 'Sharp observations about human behaviour. Concise, often one-liners.',
@@ -1887,10 +2010,42 @@ export const buildCharacterPersonalityBlock = (
  * (for sensoryVariants matching), and the 1-based chapter number of the first
  * scene in the batch.
  */
+
+/**
+ * §3.3a: Select the most contextually appropriate sensory variant for a scene.
+ *
+ * Priority: time+weather match > time-only match > any candidate.
+ * Anti-repeat: if only one candidate remains and it was last used, shuffle.
+ * Stable rotation: fallback uses `chapterIndex % candidates.length`.
+ */
+export function selectSensoryVariant(
+  variants: any[],
+  chapterIndex: number,
+  lastUsed: string | undefined,
+  scene: { timeOfDay?: string; weather?: string },
+): any | undefined {
+  if (!variants?.length) return undefined;
+  // Normalize to lowercase so callers don't need to pre-process case
+  const sceneTime = (scene.timeOfDay ?? '').toLowerCase();
+  const sceneWeather = (scene.weather ?? '').toLowerCase();
+  let candidates = variants.filter(
+    (v) => (v.timeOfDay ?? '').toLowerCase() === sceneTime && (v.weather ?? '').toLowerCase() === sceneWeather,
+  );
+  if (!candidates.length) candidates = variants.filter((v) => (v.timeOfDay ?? '').toLowerCase() === sceneTime);
+  if (!candidates.length) candidates = [...variants];
+  // Anti-repeat: avoid re-using the same variant when alternatives exist
+  if (candidates.length === 1 && candidates[0].id === lastUsed) {
+    const alternates = variants.filter((v) => v.id !== lastUsed);
+    if (alternates.length) candidates = alternates;
+  }
+  return candidates[chapterIndex % candidates.length];
+}
+
 export const buildLocationProfilesBlock = (
   locationProfiles: any,
   scenesOverride: unknown[] | undefined,
   chapterStart: number,
+  lastUsedSensoryVariant?: Record<string, string>,
 ): string => {
   if (!locationProfiles) return '';
   const loc = stripLocationParagraphs(locationProfiles);
@@ -1942,12 +2097,14 @@ export const buildLocationProfilesBlock = (
       );
       if (matchedLocation?.sensoryVariants?.length > 0) {
         const variants: any[] = matchedLocation.sensoryVariants;
-        let variant: any = (sceneTimeOfDay || sceneWeather)
-          ? (variants.find((v: any) =>
-              (!sceneTimeOfDay || v.timeOfDay?.toLowerCase().includes(sceneTimeOfDay) || sceneTimeOfDay.includes(v.timeOfDay?.toLowerCase())) &&
-              (!sceneWeather || v.weather?.toLowerCase().includes(sceneWeather) || sceneWeather.includes(v.weather?.toLowerCase()))
-            ) ?? variants[chapterNum % variants.length])
-          : variants[chapterNum % variants.length];
+        const locationKey: string = matchedLocation.id ?? matchedLocation.name ?? '';
+        const lastUsed = lastUsedSensoryVariant?.[locationKey];
+        let variant: any = selectSensoryVariant(
+          variants,
+          chapterNum - 1,
+          lastUsed,
+          { timeOfDay: sceneTimeOfDay, weather: sceneWeather },
+        );
         if (variant) {
           const sights = (variant.sights || []).slice(0, 2).join(', ');
           const sounds = (variant.sounds || []).slice(0, 2).join(', ');
@@ -1963,6 +2120,14 @@ export const buildLocationProfilesBlock = (
       locationResult += '\n\nCHAPTER SENSORY PALETTE HINTS (evoke these qualities without copying verbatim):\n' + paletteHints.join('\n');
     }
   }
+  // §3.5: Inject overall sensory palette from atmosphere.sensoryPalette
+  const palette = loc.primary?.atmosphere?.sensoryPalette;
+  if (palette?.dominant) {
+    const secondary = Array.isArray(palette.secondary) && palette.secondary.length > 0
+      ? ` Secondary: ${(palette.secondary as string[]).slice(0, 3).join(', ')}.`
+      : '';
+    locationResult += `\n\nOverall palette: ${palette.dominant}.${secondary}`;
+  }
   return locationResult;
 };
 
@@ -1974,14 +2139,27 @@ export const buildTemporalContextBlock = (
   temporalContext: any,
 ): string => {
   if (!temporalContext) return '';
-  const dateInfo = temporalContext.specificDate;
-  const dateStr = dateInfo.month + ' ' + dateInfo.year;
-  const season = temporalContext.seasonal?.season || 'N/A';
+  const canonicalSeasonSet = new Set<CanonicalSeason>(['spring', 'summer', 'autumn', 'winter']);
+  const month = typeof temporalContext.specificDate?.month === 'string' && temporalContext.specificDate.month.trim().length > 0
+    ? temporalContext.specificDate.month.trim()
+    : 'Unknown month';
+  const yearValue = temporalContext.specificDate?.year;
+  const year = (typeof yearValue === 'number' || typeof yearValue === 'string')
+    ? String(yearValue)
+    : 'Unknown year';
+  const dateStr = `${month} ${year}`;
+  const explicitSeasonRaw = typeof temporalContext.seasonal?.season === 'string'
+    ? temporalContext.seasonal.season.trim().toLowerCase()
+    : '';
+  const explicitSeason = canonicalSeasonSet.has(explicitSeasonRaw as CanonicalSeason)
+    ? (explicitSeasonRaw as CanonicalSeason)
+    : undefined;
+  const season = explicitSeason ?? 'N/A';
   const seasonLock = deriveTemporalSeasonLock(temporalContext);
-  const lockedSeason = seasonLock?.season || season;
-  const forbiddenSeasons = ['spring', 'summer', 'autumn', 'winter']
-    .filter((s) => s !== lockedSeason)
-    .join(', ');
+  const lockedSeason: CanonicalSeason | undefined = seasonLock?.season ?? explicitSeason;
+  const forbiddenSeasons = lockedSeason
+    ? (['spring', 'summer', 'autumn', 'winter'] as const).filter((s) => s !== lockedSeason).join(', ')
+    : '';
   const seasonWeather = (temporalContext.seasonal?.weather || []).slice(0, 3).join(', ');
   const mensFormeal = (temporalContext.fashion?.mensWear?.formal || []).slice(0, 4).join(', ');
   const mensCasual = (temporalContext.fashion?.mensWear?.casual || []).slice(0, 3).join(', ');
@@ -1991,13 +2169,68 @@ export const buildTemporalContextBlock = (
   const womensAcc = (temporalContext.fashion?.womensWear?.accessories || []).slice(0, 3).join(', ');
   const music = (temporalContext.cultural?.entertainment?.popularMusic || []).slice(0, 3).join(', ');
   const films = (temporalContext.cultural?.entertainment?.films || []).slice(0, 2).join(', ');
+  const theaterStr = (temporalContext.cultural?.entertainment?.theater || []).slice(0, 2).join(', ');
+  const radioStr = (temporalContext.cultural?.entertainment?.radio || []).slice(0, 2).join(', ');
+  const litPubs = (temporalContext.cultural?.literature?.recentPublications || []).slice(0, 3);
+  const litGenres = (temporalContext.cultural?.literature?.popularGenres || []).slice(0, 3);
+  const techItems = [
+    ...(temporalContext.cultural?.technology?.recentInventions || []).slice(0, 3),
+    ...(temporalContext.cultural?.technology?.commonDevices || []).slice(0, 3),
+  ];
+  const dailyActivities = (temporalContext.cultural?.dailyLife?.commonActivities || []).slice(0, 3);
+  const socialRituals = (temporalContext.cultural?.dailyLife?.socialRituals || []).slice(0, 3);
+  const seasonalDaylight = temporalContext.seasonal?.daylight;
+  const seasonalActivities = (temporalContext.seasonal?.seasonalActivities || []).slice(0, 4);
+  const seasonalHolidays = (temporalContext.seasonal?.holidays || []).slice(0, 3);
   const prices = (temporalContext.cultural?.dailyLife?.typicalPrices || []).slice(0, 4).join(', ');
   const majorEvents = (temporalContext.currentAffairs?.majorEvents || []).slice(0, 2).join('; ');
   const atmosphericDetails = (temporalContext.atmosphericDetails || []).slice(0, 4).join(' ');
+  const entertainmentLine = '- Music/entertainment: ' + music +
+    (films ? '; Films: ' + films : '') +
+    (theaterStr ? '; Theatre: ' + theaterStr : '') +
+    (radioStr ? '; Radio: ' + radioStr : '');
+  const literatureLine = (litPubs.length || litGenres.length)
+    ? '\n- Literature: ' + [...litPubs, ...litGenres.map((g: string) => `[${g}]`)].join(' | ')
+    : '';
+  const technologyLine = techItems.length
+    ? '\n- Technology: ' + techItems.join(' | ')
+    : '';
+  const dailyLifeLine = dailyActivities.length
+    ? '\n- Daily life: ' + dailyActivities.join(', ')
+    : '';
+  const socialRitualsLine = socialRituals.length
+    ? '\n- Social rituals: ' + socialRituals.join(', ')
+    : '';
+  const socialAttitudes = temporalContext.socialAttitudes;
+  const socialAttitudesParts: string[] = [];
+  if ((socialAttitudes?.class || []).length) {
+    socialAttitudesParts.push(`class: ${(socialAttitudes.class as string[]).slice(0, 2).join(', ')}`);
+  }
+  if ((socialAttitudes?.gender || []).length) {
+    socialAttitudesParts.push(`gender: ${(socialAttitudes.gender as string[]).slice(0, 2).join(', ')}`);
+  }
+  if ((socialAttitudes?.generalNorms || []).length) {
+    socialAttitudesParts.push(`norms: ${(socialAttitudes.generalNorms as string[]).slice(0, 2).join(', ')}`);
+  }
+  const socialAttitudesLine = socialAttitudesParts.length
+    ? '\n- Social attitudes — ' + socialAttitudesParts.join(' | ')
+    : '';
+  const seasonLockRule = lockedSeason
+    ? '\n8. Season lock (hard): This timeline is anchored to ' + month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.'
+    : '\n8. Season lock (hard): No canonical season is provided. Keep seasonal language internally consistent within each chapter and avoid mixing different seasons.';
+  const seasonalLanguageRule = lockedSeason
+    ? '\n9. SEASONAL LANGUAGE — EXCLUSIVE ALLOW-LIST:\n   Allowed seasonal vocabulary (only these are permitted): ' + getSeasonAllowList(lockedSeason) + '\n   Forbidden seasonal words (never use, even in metaphors or dialogue): ' + forbiddenSeasons + ' and their adjective forms.\n   Replace any forbidden seasonal word immediately — in narration, dialogue, and internal character thought.\n   Do not use forbidden words even as part of a simile, metaphor, or poetic line.'
+    : '\n9. SEASONAL LANGUAGE — CONSISTENCY RULE:\n   Because no canonical season is locked, avoid explicit seasonal labels unless the chapter establishes one and then remains consistent with it.';
   const fashionGuidance = '\n\nFASHION INTEGRATION TECHNIQUES:\n- First appearance: Describe outfit to establish class/personality\n- Accessories: Gloves, hats, pocket watches, jewelry reveal status\n- Time-specific: Different outfits for different times of day\n- Character traits: Fastidious dresser vs rumpled appearance\n- Action integration: "She tugged at her glove" or "He adjusted his tie"\n- Weather appropriate: Overcoats in winter, light linen in summer';
   const culturalGuidance = '\n\nCULTURAL TOUCHSTONE INTEGRATION:\n- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"\n- Background details: Radio playing, newspaper headlines, theater posters\n- Social commentary: Characters discuss current events naturally\n- Class indicators: Aristocrats discuss opera, servants discuss music halls\n- Authentic references: Use actual songs, films, events from the specific date';
-  return '\n\nTEMPORAL CONTEXT:\n\nThis story takes place in ' + dateStr + ' during ' + season + '.\n\nSeasonal Atmosphere:\n- Weather patterns: ' + seasonWeather + '\n- Season: ' + season + '\n\nPeriod Fashion (describe naturally):\n- Men formal: ' + mensFormeal + '\n- Men casual: ' + mensCasual + '\n- Men accessories: ' + mensAcc + '\n- Women formal: ' + womensFormeal + '\n- Women casual: ' + womensCasual + '\n- Women accessories: ' + womensAcc + '\n\nCultural Context (reference naturally):\n- Music/entertainment: ' + music + (films ? '; Films: ' + films : '') + '\n- Typical prices: ' + prices + (majorEvents ? '\n- Current events: ' + majorEvents : '') + '\n\nAtmospheric Details:\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\n\nUSAGE REQUIREMENTS:\n1. Date references: Mention month/season at least once early in story\n2. Fashion descriptions: Every character gets fashion description on first appearance\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\n5. Seasonal consistency: Weather and atmosphere must match ' + dateInfo.month + ' and ' + season + ' throughout\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\n7. Month-season lock: If a chapter mentions ' + dateInfo.month + ', do not use conflicting season labels in that chapter.\n8. Season lock (hard): This timeline is anchored to ' + dateInfo.month + ' (' + lockedSeason + '). Avoid incompatible seasonal labels (' + forbiddenSeasons + ') in the same chapter.'
-    + '\n9. SEASONAL LANGUAGE — EXCLUSIVE ALLOW-LIST:\n   Allowed seasonal vocabulary (only these are permitted): ' + getSeasonAllowList(lockedSeason) + '\n   Forbidden seasonal words (never use, even in metaphors or dialogue): ' + forbiddenSeasons + ' and their adjective forms.\n   Replace any forbidden seasonal word immediately — in narration, dialogue, and internal character thought.\n   Do not use forbidden words even as part of a simile, metaphor, or poetic line.';
+  return '\n\nTEMPORAL CONTEXT:\n\nThis story takes place in ' + dateStr + ' during ' + season + '.\n\nSeasonal Atmosphere:\n- Weather patterns: ' + seasonWeather +
+    (seasonalDaylight ? '\n- Daylight: ' + seasonalDaylight : '') +
+    (seasonalActivities.length ? '\n- Seasonal activities: ' + seasonalActivities.join(', ') : '') +
+    (seasonalHolidays.length ? '\n- Seasonal occasions: ' + seasonalHolidays.join(', ') : '') +
+    '\n- Season: ' + season + '\n\nPeriod Fashion (describe naturally):\n- Men formal: ' + mensFormeal + '\n- Men casual: ' + mensCasual + '\n- Men accessories: ' + mensAcc + '\n- Women formal: ' + womensFormeal + '\n- Women casual: ' + womensCasual + '\n- Women accessories: ' + womensAcc + '\n\nCultural Context (reference naturally):\n' + entertainmentLine + '\n- Typical prices: ' + prices + (majorEvents ? '\n- Current events: ' + majorEvents : '') + literatureLine + technologyLine + dailyLifeLine + socialRitualsLine + '\n\nAtmospheric Details:\n' + atmosphericDetails + fashionGuidance + culturalGuidance + '\n\nUSAGE REQUIREMENTS:\n1. Date references: Mention month/season at least once early in story\n2. Fashion descriptions: Every character gets fashion description on first appearance\n3. Cultural touchstones: Reference music/entertainment 2-3 times across story\n4. Prices/daily life: Use when relevant (meals, tickets, wages)\n5. Seasonal consistency: Weather and atmosphere must match ' + month + ' and ' + season + ' throughout\n6. Historical accuracy: NO anachronisms for ' + dateStr + '\n7. Month-season lock: If a chapter mentions ' + month + ', do not use conflicting season labels in that chapter.'
+    + seasonLockRule
+    + seasonalLanguageRule
+    + socialAttitudesLine;
 };
 
 export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
@@ -2009,7 +2242,9 @@ export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?:
 
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const era = cmlCase.meta?.era?.decade ?? "Unknown era";
-  const cast = inputs.cast.characters || [];
+  const cast = Array.isArray((inputs.cast as any)?.characters)
+    ? (inputs.cast as any).characters
+    : [];
 
   // §1.6: Compute active character names (characters present in any scene in this batch)
   // Used to filter portraits, voice sketches, and personality blocks to reduce token cost.
@@ -2018,6 +2253,72 @@ export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?:
       Array.isArray(s.characters) ? (s.characters as string[]) : [],
     ),
   );
+
+  // §3.1/3.2/3.4: Compute arc position, build asset library, and derive texture pool
+  const proseArcPosition = (() => {
+    const ci = chapterStart - 1;
+    const tc = (outline as any)?.totalScenes ?? scenes.length;
+    return ci <= 1 ? 'opening'
+      : ci <= Math.floor(tc * 0.25) ? 'early'
+      : ci <= Math.floor(tc * 0.4) ? 'first_turn'
+      : ci <= Math.floor(tc * 0.55) ? 'mid'
+      : ci <= Math.floor(tc * 0.7) ? 'second_turn'
+      : ci <= Math.floor(tc * 0.8) ? 'pre_climax'
+      : ci === tc - 1 ? 'resolution'
+      : 'climax';
+  })();
+  const assetLibrary: AssetLibrary = buildAssetLibrary(
+    inputs.worldDocument,
+    inputs.characterProfiles,
+    inputs.locationProfiles,
+    inputs.temporalContext,
+  );
+  const assetDeployedAssets: Record<string, number[]> = inputs.narrativeState?.deployedAssets ?? {};
+  const { obligationAtoms: selectedObligationAtoms, textureAtoms } = selectChapterAtoms(
+    assetLibrary,
+    activeCharacterNames.size > 0 ? activeCharacterNames : new Set<string>(),
+    new Set<string>(),
+    assetDeployedAssets,
+    proseArcPosition,
+  );
+  const textureAtomsForPrompt = textureAtoms.slice(0, 10);
+  const textureAtomIds = textureAtomsForPrompt.map((a) => a.id);
+  // Only stamp obligations we know are injected via the character context path.
+  // Story/window atoms selected here are not guaranteed to be emitted every batch.
+  const selectedObligationAtomIds = selectedObligationAtoms
+    .filter((a) => a.scope === 'character')
+    .map((a) => a.id);
+  const texturePoolBlock = textureAtomsForPrompt.length > 0
+    ? `\n\n## Texture Pool\nDraw on these as opportunities arise — you are not required to use them.\n\n` +
+      textureAtomsForPrompt.map((a) => `- ${a.content}`).join('\n')
+    : '';
+  // §3.3b: Pre-compute sensory variants per chapter for obligation injection
+  const sensoryVariantsByChapter: Record<number, any> = {};
+  if (Array.isArray(scenesOverride) && inputs.locationProfiles) {
+    const locProfiles = stripLocationParagraphs(inputs.locationProfiles);
+    (scenesOverride as any[]).forEach((scene, idx) => {
+      const chapterNum = chapterStart + idx;
+      const sceneSettingObj = (scene as any).setting;
+      const sceneSetting = (typeof sceneSettingObj?.location === 'string' ? sceneSettingObj.location : '').toLowerCase();
+      const sceneTimeOfDay = typeof sceneSettingObj?.timeOfDay === 'string' ? sceneSettingObj.timeOfDay : '';
+      const sceneWeather = typeof sceneSettingObj?.atmosphere === 'string' ? sceneSettingObj.atmosphere : '';
+      const matchedLocation = ((locProfiles.keyLocations ?? []) as any[]).find((kl: any) =>
+        (kl.id && sceneSetting.includes(kl.id.toLowerCase())) ||
+        (kl.name && sceneSetting.includes(kl.name.toLowerCase()))
+      );
+      if (matchedLocation?.sensoryVariants?.length > 0) {
+        const locationKey: string = matchedLocation.id ?? matchedLocation.name ?? '';
+        const lastUsed = inputs.narrativeState?.lastUsedSensoryVariant?.[locationKey];
+        const variant = selectSensoryVariant(
+          matchedLocation.sensoryVariants,
+          chapterNum - 1,
+          lastUsed,
+          { timeOfDay: sceneTimeOfDay, weather: sceneWeather },
+        );
+        if (variant) sensoryVariantsByChapter[chapterNum] = variant;
+      }
+    });
+  }
 
   // Derive victim name for guardrail injection
   const proseVictimName = resolveVictimName(inputs.cast);
@@ -2071,6 +2372,9 @@ ${victimIdentityRule}`;
     inputs.characterProfiles,
     inputs.cast,
     activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
+    Object.keys(assetLibrary).length > 0 ? assetLibrary : undefined,
+    assetDeployedAssets, // always pass — empty {} is valid (chapter 1 has no prior deployments)
+    proseArcPosition,
   );
 
   const physicalPlausibilityRules = `\nPHYSICAL PLAUSIBILITY REQUIREMENTS:\n\nAll physical evidence must obey real-world physics:\n\n1. VIABLE Evidence by Location:\n   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents\n   Exterior (calm): secured items, structural damage, witness observations\n   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence\n\n2. IMPLAUSIBLE Evidence (DO NOT USE):\n   ❌ Footprints on wooden deck (treated wood doesn't retain prints)\n   ❌ Footprints in rain/storm (washed away immediately)\n   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)\n   ❌ Light objects in storm (blown away)\n\n3. For struggle evidence use:\n   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds\n   ❌ Objects embedded in hard surfaces, shattered steel/iron`;
@@ -2082,6 +2386,7 @@ ${victimIdentityRule}`;
     inputs.locationProfiles,
     scenesOverride,
     chapterStart,
+    inputs.narrativeState?.lastUsedSensoryVariant,
   );
 
   // §1.6: Temporal context block (extracted — see buildTemporalContextBlock above)
@@ -2182,10 +2487,18 @@ ${victimIdentityRule}`;
   const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
-  const worldDocumentBlock = buildWorldBriefBlock(inputs.worldDocument, chapterStart - 1, totalScenes, inputs.narrativeState?.characterPronouns, activeCharacterNames.size > 0 ? activeCharacterNames : undefined); // [PHASE 1]
+  const worldDocumentBlock = buildWorldBriefBlock(
+    inputs.worldDocument,
+    chapterStart - 1,
+    totalScenes,
+    inputs.narrativeState?.characterPronouns,
+    activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
+    inputs.narrativeState,
+  ); // [PHASE 1]
 
   const provisionalScoringFeedbackBlock = formatProvisionalScoringFeedbackBlock(
     inputs.provisionalScoringFeedback,
+    inputs.narrativeState?.recurringPhraseWarnings,
   );
 
   // Para-range bounds are derived from the hard floor and chapter target so the paragraph count
@@ -2221,6 +2534,10 @@ ${victimIdentityRule}`;
     {
       targetWords: chapterTargetWords,
     },
+    Object.keys(sensoryVariantsByChapter).length > 0 ? sensoryVariantsByChapter : undefined,
+    inputs.narrativeState,
+    proseArcPosition,
+    inputs.worldDocument,
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,
@@ -2280,6 +2597,7 @@ ${victimIdentityRule}`;
     sceneGroundingChecklist,
     provisionalScoringFeedbackBlock,
     worldDocumentBlock,
+    texturePoolBlock,
   });
 
   const baseSystem = `${system}${amateurPoliceWarning}`;
@@ -2290,9 +2608,18 @@ ${victimIdentityRule}`;
     promptContextBlocks,
     6200,
   );
+  let composedSystemWithAssetSelfReport = composedSystem;
+  if (textureAtomIds.length > 0) {
+    composedSystemWithAssetSelfReport +=
+      `\n\n## Asset Self-Report (required)\n` +
+      `At the very END of your response, after all prose, add a single line:\n` +
+      `<used_assets>${textureAtomIds.join(',')}</used_assets>\n` +
+      `Replace the list with only the IDs of texture assets you actually used. ` +
+      `If you used none, output <used_assets></used_assets>.`;
+  }
 
   const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-    { role: "system", content: composedSystem },
+    { role: "system", content: composedSystemWithAssetSelfReport },
     { role: "user", content: user },
   ];
 
@@ -2367,7 +2694,25 @@ ${victimIdentityRule}`;
     sectionSizes[block.key] = block.content.length;
   }
 
-  return { system, developer: developerWithContracts, user, messages, sectionSizes };
+  return {
+    system,
+    developer: developerWithContracts,
+    user,
+    messages,
+    sectionSizes,
+    selectedObligationAtomIds,
+    textureAtomIds,
+  };
+};
+
+const normalizeProseCastOrThrow = (inputCast: unknown): CastDesign => {
+  const maybeCast = inputCast as { characters?: unknown } | null | undefined;
+  if (!maybeCast || !Array.isArray(maybeCast.characters)) {
+    throw new Error(
+      "Agent 9 input validation failed: cast.characters is required and must be an array before prose generation.",
+    );
+  }
+  return inputCast as CastDesign;
 };
 
 const chunkScenes = (scenes: unknown[], chunkSize: number) => {
@@ -2385,6 +2730,18 @@ export const stripAuditField = (parsed: any): any => {
   const { audit: _audit, ...rest } = parsed;
   return rest;
 };
+
+function extractAndStripUsedAssets(rawResponse: string): {
+  prose: string;
+  usedAssetIds: string[];
+} {
+  const match = rawResponse.match(/<used_assets>([\s\S]*?)<\/used_assets>/i);
+  const usedAssetIds = match
+    ? match[1].split(',').map((s) => s.trim()).filter(Boolean)
+    : [];
+  const prose = rawResponse.replace(/<used_assets>[\s\S]*?<\/used_assets>/gi, '').trimEnd();
+  return { prose, usedAssetIds };
+}
 
 const parseProseResponse = (content: string) => {
   try {
@@ -3605,7 +3962,9 @@ export async function generateProse(
   const pronounValidator = new CharacterConsistencyValidator();
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const progressCallback = inputs.onProgress || (() => {});
-  const castNames = inputs.cast.characters.map(c => c.name);
+  const cast = normalizeProseCastOrThrow(inputs.cast);
+  const castCharacters = cast.characters;
+  const castNames = castCharacters.map(c => c.name);
   const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
   const pronounCheckingEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
@@ -3652,6 +4011,17 @@ export async function generateProse(
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
     const cmlCase = (inputs.caseData as any)?.CASE ?? {};
+    // §4.4: Arc position for this batch — used to populate previousChapterArcPosition in NSD
+    const totalScenesCount = (inputs.outline as any)?.totalScenes ?? scenes.length;
+    const arcAnchorChapter = chapterEnd;
+    const currentBatchArcPosition = arcAnchorChapter <= 1 ? 'opening'
+      : arcAnchorChapter <= Math.floor(totalScenesCount * 0.25) ? 'early'
+      : arcAnchorChapter <= Math.floor(totalScenesCount * 0.4) ? 'first_turn'
+      : arcAnchorChapter <= Math.floor(totalScenesCount * 0.55) ? 'mid'
+      : arcAnchorChapter <= Math.floor(totalScenesCount * 0.7) ? 'second_turn'
+      : arcAnchorChapter <= Math.floor(totalScenesCount * 0.8) ? 'pre_climax'
+      : arcAnchorChapter === totalScenesCount ? 'resolution'
+      : 'climax';
     const chapterRequirementLedger = buildChapterRequirementLedger(
       cmlCase,
       batchScenes,
@@ -3682,6 +4052,9 @@ export async function generateProse(
           chapterStart,
           chapterSummaries,
         );
+        if (inputs.onAtomsSelected) {
+          inputs.onAtomsSelected(prompt.selectedObligationAtomIds ?? []);
+        }
 
         // E5: Compute prompt fingerprint on first attempt only (captures base prompt structure)
         if (attempt === 1) {
@@ -3726,10 +4099,14 @@ export async function generateProse(
         });
 
         let proseBatch: Omit<ProseGenerationResult, "cost" | "durationMs">;
+        let batchUsedTextureAtomIds: string[] = [];
         // Store raw response immediately so next retry can include it as the assistant turn.
         lastBatchRawResponse = response.content;
         try {
-          proseBatch = parseProseResponse(response.content);
+          const extracted = extractAndStripUsedAssets(response.content);
+          const allowedTextureAtoms = new Set(prompt.textureAtomIds ?? []);
+          batchUsedTextureAtomIds = extracted.usedAssetIds.filter((id) => allowedTextureAtoms.has(id));
+          proseBatch = parseProseResponse(extracted.prose);
         } catch (parseError: unknown) {
           const rawLength = response.content.length;
           const rawTail = response.content.slice(-300);
@@ -3784,8 +4161,8 @@ export async function generateProse(
 
           // Deterministic pronoun repair before validation — catches unambiguous mismatches cheaply.
           // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
-          if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
-            const pronRepair = repairChapterPronouns(chapter, inputs.cast.characters);
+          if (pronounCheckingEnabled && castCharacters.length > 0) {
+            const pronRepair = repairChapterPronouns(chapter, castCharacters);
             if (pronRepair.repairCount > 0) {
               chapter = pronRepair.chapter;
               proseBatch.chapters[i] = chapter;
@@ -3905,7 +4282,7 @@ export async function generateProse(
                 inputs.runId,
                 inputs.projectId,
                 temporalSeasonLock, // [WORLD FIX B]
-                inputs.cast.characters, // [ANALYSIS_16 PHASE D]
+                castCharacters, // [ANALYSIS_16 PHASE D]
               );
               chapter = enforceMonthSeasonLockOnChapter(
                 sanitizeGeneratedChapter(expanded, castNames),
@@ -3913,8 +4290,8 @@ export async function generateProse(
               );
               proseBatch.chapters[i] = chapter;
               // Repeat pronoun repair after expansion — expansion is a full LLM rewrite.
-              if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
-                const pronRepair = repairChapterPronouns(chapter, inputs.cast.characters);
+              if (pronounCheckingEnabled && castCharacters.length > 0) {
+                const pronRepair = repairChapterPronouns(chapter, castCharacters);
                 if (pronRepair.repairCount > 0) {
                   chapter = pronRepair.chapter;
                   proseBatch.chapters[i] = chapter;
@@ -3939,7 +4316,7 @@ export async function generateProse(
           // Targeted pronoun repair: validate → fix validator-confirmed characters → re-validate.
           // Any mismatches that survive repair are unresolvable and escalate to an LLM retry.
           // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
-          if (pronounCheckingEnabled && inputs.cast.characters.length > 0) {
+          if (pronounCheckingEnabled && castCharacters.length > 0) {
             const chapterText = chapter.paragraphs.join('\n\n');
             const pronounStory = { id: 'pronoun-check', projectId: 'pronoun-check',
               scenes: [{ number: chapterNumber, title: chapter.title, text: chapterText }] };
@@ -3959,7 +4336,7 @@ export async function generateProse(
               // to a flagged female character and have their pronouns flipped.
               const onlyNames = new Set<string>(flaggedNames);
               const repaired = flaggedNames.length > 0
-                ? repairPronouns(chapterText, inputs.cast.characters, { onlyNames })
+                ? repairPronouns(chapterText, castCharacters, { onlyNames })
                 : { repairCount: 0, text: chapterText };
 
               if (repaired.repairCount > 0) {
@@ -4117,6 +4494,7 @@ export async function generateProse(
           liveNarrativeState = updateNSD(liveNarrativeState, {
             paragraphs: lastProseChapter?.paragraphs,
             cluesRevealedIds: batchRevealedIds,
+            arcPosition: currentBatchArcPosition,  // §4.4: track previous chapter arc position
           });
 
           // §1.2: Set victimConfirmedDeadChapter when victim and death language first co-occur
@@ -4132,6 +4510,63 @@ export async function generateProse(
                 liveNarrativeState = {
                   ...liveNarrativeState,
                   victimConfirmedDeadChapter: chapterStart,
+                };
+              }
+            }
+          }
+
+          // §3.3c: Stamp lastUsedSensoryVariant for each scene's primary location after commit
+          if (inputs.locationProfiles) {
+            const locProfs = stripLocationParagraphs(inputs.locationProfiles);
+            const updatedSensory = { ...liveNarrativeState.lastUsedSensoryVariant };
+            let sensoryUpdated = false;
+            for (let si = 0; si < batchScenes.length; si++) {
+              const scene = batchScenes[si] as any;
+              const sceneSettingObj = scene.setting;
+              const sceneLoc = (typeof sceneSettingObj?.location === 'string' ? sceneSettingObj.location : '').toLowerCase();
+              const sceneTimeOfDay = typeof sceneSettingObj?.timeOfDay === 'string' ? sceneSettingObj.timeOfDay : '';
+              const sceneWeather = typeof sceneSettingObj?.atmosphere === 'string' ? sceneSettingObj.atmosphere : '';
+              const matchedLocation = ((locProfs.keyLocations ?? []) as any[]).find((kl: any) =>
+                (kl.id && sceneLoc.includes(kl.id.toLowerCase())) ||
+                (kl.name && sceneLoc.includes(kl.name.toLowerCase()))
+              );
+              if (matchedLocation?.sensoryVariants?.length > 0) {
+                const locationKey: string = matchedLocation.id ?? matchedLocation.name ?? '';
+                const variant = selectSensoryVariant(
+                  matchedLocation.sensoryVariants,
+                  batchStart + si,
+                  updatedSensory[locationKey],
+                  { timeOfDay: sceneTimeOfDay, weather: sceneWeather },
+                );
+                if (variant?.id) {
+                  updatedSensory[locationKey] = variant.id;
+                  sensoryUpdated = true;
+                }
+              }
+            }
+            if (sensoryUpdated) {
+              liveNarrativeState = { ...liveNarrativeState, lastUsedSensoryVariant: updatedSensory };
+            }
+          }
+
+          // §5.4: Pending warning pattern — each commit recalculates recurring phrase
+          // warnings and forwards them only to the next batch.
+          const recurringPhraseWarnings = detectRecurringPhrases(chapters).slice(0, 10);
+          liveNarrativeState = { ...liveNarrativeState, recurringPhraseWarnings };
+
+          // Break-moment one-time deployment stamping. The full break-moment instruction
+          // is injected only in the 60-85% window; once committed, mark it as deployed.
+          if (inputs.worldDocument?.breakMoment?.character) {
+            const relativeBatchPos = chapterEnd / Math.max(1, sceneCount);
+            if (relativeBatchPos >= 0.60 && relativeBatchPos <= 0.85) {
+              const existing = liveNarrativeState.deployedAssets['break_moment:story:full'] ?? [];
+              if (existing.length === 0) {
+                liveNarrativeState = {
+                  ...liveNarrativeState,
+                  deployedAssets: {
+                    ...liveNarrativeState.deployedAssets,
+                    'break_moment:story:full': [chapterEnd],
+                  },
                 };
               }
             }
@@ -4155,7 +4590,13 @@ export async function generateProse(
         // Notify caller — pass validation issues from any failed attempts so the
         // orchestrator can surface them in the run history panel (§3.2).
         if (inputs.onBatchComplete) {
-          await inputs.onBatchComplete(proseBatch.chapters, chapterStart, chapterEnd, lastBatchErrors);
+          await inputs.onBatchComplete(
+            proseBatch.chapters,
+            chapterStart,
+            chapterEnd,
+            lastBatchErrors,
+            batchUsedTextureAtomIds,
+          );
         }
 
         batchSuccess = true;
@@ -4242,7 +4683,7 @@ export async function generateProse(
     status: "draft",
     tone: inputs.narrativeStyle,
     chapters,
-    cast: inputs.cast.characters.map((c) => c.name),
+    cast: castCharacters.map((c) => c.name),
     note,
     cost,
     durationMs,

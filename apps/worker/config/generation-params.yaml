@@ -102,6 +102,9 @@ agent3_cml:
       default_max_attempts: 3
     inference_requirements:
       default_max_steps: 5
+    quality:
+      evidence_clue_backfill_threshold: 3
+      fail_when_backfill_exceeds_threshold: true
 
 agent3b_hard_logic_devices:
   status: implemented
@@ -141,6 +144,9 @@ agent6_fairplay:
       model:
         temperature: 0.2
         max_tokens: 1500
+      pass_criteria:
+        min_confidence: likely
+        max_remediation_cycles: 1
     retries:
       max_fair_play_attempts: 2
       max_total_attempts_with_targeted_regen: 3

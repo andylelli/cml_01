@@ -175,8 +175,7 @@ describe("ErrorNotification.vue", () => {
     expect(wrapper.text()).toContain("1 more errors");
   });
 
-  it.skip("auto-dismisses info messages after 5 seconds", async () => {
-    // TODO: Auto-dismiss not implemented yet in component
+  it("auto-dismisses info messages after 5 seconds", async () => {
     const errors: ErrorItem[] = [
       {
         id: "1",

@@ -18,7 +18,7 @@ Complete reference for every file the system writes to disk during normal operat
 | `c:\CML\stories\project_{token}.txt` | API server | plain text | — |
 | *(browser download — not written to disk)* | `POST /api/projects/:id/export` | JSON | (inline download) |
 | `c:\CML\validation\quality-report-{run}.json` | Manual / test fixtures | JSON | — |
-| `c:\CML\apps\worker\logs\run_{runId}.json` | Worker orchestrator (`RunLogger`) | JSON | — |
+| `c:\CML\apps\worker\logs\run_{YYYYMMDD}_{shortRunId}.json` | Worker orchestrator (`RunLogger`) | JSON | — |
 
 ---
 
@@ -262,10 +262,10 @@ The `details` object of the `phase_diagnostic` entry emitted by Agent 9 includes
 
 ---
 
-## 10 · `apps/worker/logs/run_{runId}.json` — Per-Run Operational Log
+## 10 · `apps/worker/logs/run_{YYYYMMDD}_{shortRunId}.json` — Per-Run Operational Log
 
 **Source:** `RunLogger` class in `apps/worker/src/jobs/run-logger.ts`, instantiated in `apps/worker/src/jobs/mystery-orchestrator.ts`.  
-**Default path:** `c:\CML\apps\worker\logs\run_{runId}.json` (one file per run, created at pipeline start).  
+**Default path:** `c:\CML\apps\worker\logs\run_{YYYYMMDD}_{shortRunId}.json` (one file per run, created at pipeline start).  
 **Env override:** None — always written.  
 **Format:** JSON (pretty-printed, rewritten in full after every update).  
 **API endpoint:** None — file-only.  
@@ -349,7 +349,7 @@ The `details` object of the `phase_diagnostic` entry emitted by Agent 9 includes
 | `CML_JSON_DB_PATH` | `data/store.json` | §6 |
 | `ENABLE_SCORING` | `false` | §5, §7 (both disabled when `false`) |
 
-> **§10 (run log) has no env controls** — it is unconditionally enabled and always writes to `apps/worker/logs/run_{runId}.json`.
+> **§10 (run log) has no env controls** — it is unconditionally enabled and always writes to `apps/worker/logs/run_{YYYYMMDD}_{shortRunId}.json`.
 
 ---
 
@@ -386,7 +386,7 @@ $j.runEvents | Where-Object { $_.runId -eq "run_XXXX" } |
 ### Current state of a specific run log
 
 ```powershell
-Get-Content "apps\worker\logs\run_XXXX.json" -Raw | ConvertFrom-Json |
+Get-Content "apps\worker\logs\run_YYYYMMDD_XXXXXXXX.json" -Raw | ConvertFrom-Json |
   Select-Object status, durationMs, warnings, errors,
     @{N='chapters'; E={ $_.wordCounts.chapters }},
     @{N='totalWords'; E={ $_.wordCounts.total }}

@@ -33,18 +33,19 @@ describe("Agent 2: Cast & Motive Designer", () => {
       expect(prompt.messages).toHaveLength(2);
     });
 
-    it("includes character design specialist system prompt", () => {
+    it("includes upgraded system prompt with explicit authority", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.system).toContain("character design specialist");
-      expect(prompt.system).toContain("psychologically rich");
-      expect(prompt.system).toContain("diverse casts");
+      expect(prompt.system).toContain("Agent 2, a cast-and-motive architect");
+      expect(prompt.system).toContain("Non-negotiable rules");
+      expect(prompt.system).toContain("Return JSON only");
     });
 
-    it("includes character profile template", () => {
+    it("includes execution plan and character schema", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.developer).toContain("Character Profile Template");
+      expect(prompt.developer).toContain("Execution plan");
+      expect(prompt.developer).toContain("Character schema");
       expect(prompt.developer).toContain("ageRange");
       expect(prompt.developer).toContain("occupation");
       expect(prompt.developer).toContain("publicPersona");
@@ -53,10 +54,10 @@ describe("Agent 2: Cast & Motive Designer", () => {
       expect(prompt.developer).toContain("motiveStrength");
     });
 
-    it("includes relationship web template", () => {
+    it("includes relationship schema", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.developer).toContain("Relationship Web Template");
+      expect(prompt.developer).toContain("Relationship schema");
       expect(prompt.developer).toContain("tension");
       expect(prompt.developer).toContain("sharedHistory");
     });
@@ -64,7 +65,7 @@ describe("Agent 2: Cast & Motive Designer", () => {
     it("includes diversity check requirements", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.developer).toContain("Diversity");
+      expect(prompt.developer).toContain("Diversity schema");
       expect(prompt.developer).toContain("stereotypeCheck");
       expect(prompt.developer).toContain("recommendations");
     });
@@ -72,21 +73,18 @@ describe("Agent 2: Cast & Motive Designer", () => {
     it("includes crime dynamics analysis", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.developer).toContain("Crime Dynamics");
+      expect(prompt.developer).toContain("Crime dynamics schema");
       expect(prompt.developer).toContain("possibleCulprits");
       expect(prompt.developer).toContain("redHerrings");
       expect(prompt.developer).toContain("victimCandidates");
       expect(prompt.developer).toContain("detectiveCandidates");
     });
 
-    it("includes JSON output format specification", () => {
+    it("includes output contract and top-level key restrictions", () => {
       const prompt = buildCastPrompt(baseInputs);
 
-      expect(prompt.developer).toContain("Output Format");
-      expect(prompt.developer).toContain('"characters"');
-      expect(prompt.developer).toContain('"relationships"');
-      expect(prompt.developer).toContain('"diversity"');
-      expect(prompt.developer).toContain('"crimeDynamics"');
+      expect(prompt.developer).toContain("Output contract");
+      expect(prompt.developer).toContain("characters, relationships, diversity, crimeDynamics");
     });
 
     it("includes all character names in user prompt", () => {

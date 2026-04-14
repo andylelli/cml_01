@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 
 export type ErrorSeverity = "error" | "warning" | "info";
 
@@ -73,6 +73,41 @@ const toggleDetails = (id: string) => {
   }
   expandedIds.value = next;
 };
+
+const infoDismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+watch(
+  () => props.errors,
+  (errors) => {
+    const visibleIds = new Set(errors.map((e) => e.id));
+
+    for (const [id, timer] of infoDismissTimers) {
+      if (!visibleIds.has(id)) {
+        clearTimeout(timer);
+        infoDismissTimers.delete(id);
+      }
+    }
+
+    for (const error of errors) {
+      if (error.severity !== "info") continue;
+      if (infoDismissTimers.has(error.id)) continue;
+
+      const timer = setTimeout(() => {
+        emit("dismiss", error.id);
+        infoDismissTimers.delete(error.id);
+      }, 5000);
+      infoDismissTimers.set(error.id, timer);
+    }
+  },
+  { immediate: true, deep: true },
+);
+
+onBeforeUnmount(() => {
+  for (const timer of infoDismissTimers.values()) {
+    clearTimeout(timer);
+  }
+  infoDismissTimers.clear();
+});
 </script>
 
 <template>

@@ -14,7 +14,8 @@ export { generateLocationProfiles } from "./agent2c-location-profiles.js";
 export { generateTemporalContext } from "./agent2d-temporal-context.js";
 export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant } from "./agent9-prose.js";
+export { ARC_POS_TO_SCENE_TYPE, ARC_POSITION_REGISTER, HIGH_TENSION_POSITIONS } from "./constants/arc-position.js";
 export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
@@ -59,8 +60,8 @@ export type { HardLogicDeviceIdea } from "./types.js";
 export { initNarrativeState, updateNSD, migrateNarrativeState } from "./types/narrative-state.js";
 export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
 
-// Asset library (Phase 2 — obligation stamping + texture selection)
-export { buildAssetLibrary, selectChapterAtoms } from "./asset-library.js";
+// Asset library (Phase 2/5 — obligation stamping + texture selection + diagnostics)
+export { buildAssetLibrary, selectChapterAtoms, buildAssetDiagnosticReport } from "./asset-library.js";
 export type { Asset, AssetLibrary } from "./types/asset-library.js";
 export type { BackgroundContextInput } from "./types.js";
 

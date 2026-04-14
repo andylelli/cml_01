@@ -105,8 +105,7 @@ describe("RunHistory.vue", () => {
     expect(icons.length).toBeGreaterThan(0);
   });
 
-  it.skip("limits preview mode to maxEvents", () => {
-    // TODO: maxEvents feature not implemented in component
+  it("limits preview mode to maxEvents", () => {
     const manyEvents: RunEvent[] = Array.from({ length: 10 }, (_, i) => ({
       step: `step_${i}`,
       message: `Event ${i}`,
@@ -152,8 +151,7 @@ describe("RunHistory.vue", () => {
     expect(wrapper.text()).not.toContain("View full history");
   });
 
-  it.skip("emits view-full event when 'View full history' clicked", async () => {
-    // TODO: view-full event not implemented in component
+  it("emits view-full event when 'View full history' clicked", async () => {
     const manyEvents: RunEvent[] = Array.from({ length: 10 }, (_, i) => ({
       step: `step_${i}`,
       message: `Event ${i}`,
@@ -199,8 +197,7 @@ describe("RunHistory.vue", () => {
     expect(errorIcons.length).toBe(2);
   });
 
-  it.skip("shows most recent events first in preview mode", () => {
-    // TODO: Preview mode not implemented in component
+  it("shows most recent events first in preview mode", () => {
     const events: RunEvent[] = [
       { step: "step1", message: "First" },
       { step: "step2", message: "Second" },
@@ -229,8 +226,7 @@ describe("RunHistory.vue", () => {
     expect(wrapper.text()).not.toContain("Run:");
   });
 
-  it.skip("applies correct styling to different event types", () => {
-    // TODO: Test selector needs update to match actual component styling
+  it("applies correct styling to different event types", () => {
     const wrapper = mount(RunHistory, {
       props: {
         events: [

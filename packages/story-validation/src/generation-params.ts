@@ -52,6 +52,10 @@ export interface Agent3CmlConfig extends AgentStatusConfig {
     inference_requirements: {
       default_max_steps: number;
     };
+    quality: {
+      evidence_clue_backfill_threshold: number;
+      fail_when_backfill_exceeds_threshold: boolean;
+    };
   };
 }
 
@@ -78,6 +82,10 @@ export interface Agent6FairPlayConfig extends AgentStatusConfig {
     };
     blind_reader: {
       model: ModelConfig;
+      pass_criteria: {
+        min_confidence: "likely" | "certain";
+        max_remediation_cycles: number;
+      };
     };
     retries: {
       max_fair_play_attempts: number;
@@ -340,6 +348,10 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       model: { temperature: 0.7, max_tokens: 8000 },
       generation: { default_max_attempts: 3 },
       inference_requirements: { default_max_steps: 5 },
+      quality: {
+        evidence_clue_backfill_threshold: 3,
+        fail_when_backfill_exceeds_threshold: true,
+      },
     },
   },
   agent3b_hard_logic_devices: {
@@ -367,7 +379,13 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
     status: "implemented",
     params: {
       audit: { model: { temperature: 0.3, max_tokens: 2500 } },
-      blind_reader: { model: { temperature: 0.2, max_tokens: 1500 } },
+      blind_reader: {
+        model: { temperature: 0.2, max_tokens: 1500 },
+        pass_criteria: {
+          min_confidence: "likely",
+          max_remediation_cycles: 1,
+        },
+      },
       retries: {
         max_fair_play_attempts: 2,
         max_total_attempts_with_targeted_regen: 3,
@@ -652,6 +670,19 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         inference_requirements: {
           default_max_steps: Math.floor(clampNumber(source.agent3_cml?.params?.inference_requirements?.default_max_steps, DEFAULT_CONFIG.agent3_cml.params.inference_requirements.default_max_steps, 1, 20)),
         },
+        quality: {
+          evidence_clue_backfill_threshold: Math.floor(
+            clampNumber(
+              source.agent3_cml?.params?.quality?.evidence_clue_backfill_threshold,
+              DEFAULT_CONFIG.agent3_cml.params.quality.evidence_clue_backfill_threshold,
+              0,
+              20,
+            )
+          ),
+          fail_when_backfill_exceeds_threshold:
+            (source.agent3_cml?.params?.quality?.fail_when_backfill_exceeds_threshold ??
+              DEFAULT_CONFIG.agent3_cml.params.quality.fail_when_backfill_exceeds_threshold) !== false,
+        },
       },
     },
     agent3b_hard_logic_devices: {
@@ -703,6 +734,20 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           model: {
             temperature: clampNumber(source.agent6_fairplay?.params?.blind_reader?.model?.temperature, DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.model.temperature, 0, 1),
             max_tokens: Math.floor(clampNumber(source.agent6_fairplay?.params?.blind_reader?.model?.max_tokens, DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.model.max_tokens, 256, 20000)),
+          },
+          pass_criteria: {
+            min_confidence:
+              source.agent6_fairplay?.params?.blind_reader?.pass_criteria?.min_confidence === "certain"
+                ? "certain"
+                : DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.pass_criteria.min_confidence,
+            max_remediation_cycles: Math.floor(
+              clampNumber(
+                source.agent6_fairplay?.params?.blind_reader?.pass_criteria?.max_remediation_cycles,
+                DEFAULT_CONFIG.agent6_fairplay.params.blind_reader.pass_criteria.max_remediation_cycles,
+                0,
+                5,
+              ),
+            ),
           },
         },
         retries: {

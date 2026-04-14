@@ -619,6 +619,47 @@ const runPipeline = async (
 ) => {
   const repo = await repoPromise;
 
+  const persistPartialArtifacts = async (partial: Record<string, unknown>) => {
+    const partialArtifactMap: Array<{ key: string; type: string; message: string }> = [
+      { key: "setting", type: "setting", message: "Partial setting artifact persisted after failure" },
+      { key: "cast", type: "cast", message: "Partial cast artifact persisted after failure" },
+      { key: "backgroundContext", type: "background_context", message: "Partial background context persisted after failure" },
+      { key: "hardLogicDevices", type: "hard_logic_devices", message: "Partial hard-logic devices persisted after failure" },
+      { key: "cml", type: "cml", message: "Partial CML persisted after failure" },
+      { key: "clues", type: "clues", message: "Partial clues persisted after failure" },
+      { key: "fairPlayAudit", type: "fair_play_report", message: "Partial fair-play report persisted after failure" },
+      { key: "narrative", type: "outline", message: "Partial outline persisted after failure" },
+      { key: "characterProfiles", type: "character_profiles", message: "Partial character profiles persisted after failure" },
+      { key: "locationProfiles", type: "location_profiles", message: "Partial location profiles persisted after failure" },
+      { key: "temporalContext", type: "temporal_context", message: "Partial temporal context persisted after failure" },
+      { key: "worldDocument", type: "world_document", message: "Partial world document persisted after failure" },
+      { key: "noveltyAudit", type: "novelty_audit", message: "Partial novelty audit persisted after failure" },
+      { key: "validationReport", type: "quality_report", message: "Partial quality report persisted after failure" },
+    ];
+
+    for (const descriptor of partialArtifactMap) {
+      const payload = partial[descriptor.key];
+      if (payload === undefined || payload === null) continue;
+      await repo.createArtifact(projectId, descriptor.type, payload, null);
+      await repo.addRunEvent(runId, `${descriptor.type}_partial_done`, descriptor.message);
+    }
+
+    const prosePayload = partial.prose;
+    if (prosePayload && typeof prosePayload === "object") {
+      const sanitizedProse = sanitizeProsePayload(prosePayload as Record<string, unknown>);
+      await repo.createArtifact(projectId, "prose_partial", sanitizedProse, null);
+      await repo.addRunEvent(runId, "prose_partial_done", "Partial prose persisted after failure");
+    }
+
+    await repo.createArtifact(projectId, "pipeline_failure_snapshot", {
+      runId,
+      capturedAt: new Date().toISOString(),
+      warnings: Array.isArray(partial.warnings) ? partial.warnings : [],
+      errors: Array.isArray(partial.errors) ? partial.errors : [],
+    }, null);
+    await repo.addRunEvent(runId, "pipeline_failure_snapshot_done", "Failure snapshot persisted");
+  };
+
   try {
     // Initialize Azure OpenAI client
     const config = {
@@ -817,6 +858,19 @@ const runPipeline = async (
     }
 
   } catch (error) {
+    const partialArtifacts = (error as any)?.partialArtifacts;
+    if (partialArtifacts && typeof partialArtifacts === "object") {
+      try {
+        await persistPartialArtifacts(partialArtifacts as Record<string, unknown>);
+      } catch (persistError) {
+        await repo.addRunEvent(
+          runId,
+          "partial_persist_warning",
+          `Failed to persist some partial artifacts: ${describeError(persistError)}`,
+        );
+      }
+    }
+
     await repo.addRunEvent(
       runId,
       "pipeline_error",

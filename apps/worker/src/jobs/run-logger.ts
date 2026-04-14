@@ -1,7 +1,7 @@
 /**
  * Run Logger
  *
- * Writes a single JSON file per run to apps/worker/logs/run_{runId}.json.
+ * Writes a single JSON file per run to apps/worker/logs/run_{YYYYMMDD}_{shortRunId}.json.
  * Updated incrementally — the file is flushed after every mutation so that if
  * the run crashes the last-known state is already on disk.
  *
@@ -43,12 +43,20 @@ export class RunLogger {
   private filePath: string;
   private state: RunLogState;
 
+  private static formatRunLogFileName(runId: string): string {
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    // Prefer compact ID in filename while keeping full runId in JSON payload.
+    const normalizedId = String(runId).replace(/^run_/, "");
+    const shortRunId = normalizedId.slice(0, 8) || "unknown";
+    return `run_${date}_${shortRunId}.json`;
+  }
+
   constructor(logsDir: string, runId: string, projectId: string | undefined) {
     if (!existsSync(logsDir)) {
       mkdirSync(logsDir, { recursive: true });
     }
 
-    this.filePath = join(logsDir, `run_${runId}.json`);
+    this.filePath = join(logsDir, RunLogger.formatRunLogFileName(runId));
 
     this.state = {
       runId,

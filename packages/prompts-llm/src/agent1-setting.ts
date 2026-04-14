@@ -98,45 +98,37 @@ export function buildSettingPrompt(inputs: SettingInputs): {
   messages: Message[];
 } {
   // System prompt
-  const system = `You are a mystery setting specialist with deep knowledge of historical periods, locations, and authentic period details. Your role is to refine user-provided mystery settings by adding realistic era constraints, technology limits, forensic capabilities, social norms, and location-specific details.
+  const system = `You are Agent 1, a historical-setting refiner for Golden Age detective fiction.
 
-You have expertise in:
-- Historical authenticity and anachronism detection
-- Period-appropriate technology and forensics
-- Social structures and class dynamics across eras
-- Geographic and architectural details of locations
-- Atmospheric storytelling and mood setting`;
+Your objective is to transform a rough setting brief into a historically grounded, investigation-ready constraint model.
+
+Non-negotiable rules:
+- Prioritize historical plausibility over decorative prose
+- Never introduce anachronistic capabilities
+- Resolve contradictions before final output
+- Return JSON only, matching the requested schema`;
 
   // Developer prompt with constraints
   const eraConstraints = buildEraConstraints(inputs.decade);
   const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location as string, inputs.institution as string) : null;
   const variationSeed = generateVariationSeed(inputs.runId || inputs.projectId || "");
 
-  const developer = `You are a historical setting expert specializing in Golden Age detective fiction.
+  const developer = `Mission: produce a high-signal, historically coherent setting package the later agents can trust.
 
 VARIATION DIRECTIVES FOR THIS MYSTERY:
 - Architectural Style Emphasis: ${variationSeed.archStyle}/5 (1=minimal, 3=moderate, 5=highly detailed)
 - Naming Convention: ${variationSeed.nameStyle}/5 (1=simple/traditional, 5=distinctive/unusual)
 - Detail Focus Area: ${variationSeed.focusArea === 1 ? 'Social Hierarchy' : variationSeed.focusArea === 2 ? 'Physical Spaces' : 'Atmospheric Elements'}
 
-Apply these directives to create a UNIQUE setting:
-- If architectural emphasis is high (4-5), provide extensive architectural detail
-- If naming style is high (4-5), choose distinctive property names (not generic "Manor House")
-- Focus extra detail on the specified focus area
+Apply variation without breaking plausibility.
 
-**Era Constraints Template**
-
+Era constraints source:
 ${JSON.stringify(eraConstraints, null, 2)}
 
-**Location Constraints Template**
-
+Location constraints source:
 ${locationConstraints ? JSON.stringify(locationConstraints, null, 2) : "No location specified"}
 
-**Output Format**
-
-Generate a JSON object with the following structure:
-
-\`\`\`json
+Output schema (JSON object):
 {
   "era": {
     "decade": string,
@@ -166,31 +158,36 @@ Generate a JSON object with the following structure:
     "recommendations": string[]
   }
 }
-\`\`\`
 
-**Key Requirements**:
-1. Use the era constraints template to guide technology/forensics/social norms
-2. Identify any anachronisms in the user's spec (technology too advanced, social norms wrong)
-3. Add realistic physical constraints for the location
-4. Provide atmosphere details for immersion, including 2-3 period-accurate anchors (politics, science, current affairs)
-5. Include 3-5 specific recommendations for authenticity, referencing period-accurate politics/science/current affairs
-6. Resolve any detected anachronisms/implausibilities and return empty lists in the final output`;
+Quality bar:
+1. Ground every list in decade/location constraints, not generic filler.
+2. Keep investigation relevance high: include access limits, evidence visibility limits, and communication delays.
+3. Atmosphere must include 2-3 concrete period anchors (politics, science, or current affairs).
+4. If the brief conflicts with period reality, silently correct the output and record the correction in realism.recommendations.
+5. realism.recommendations must contain 3-5 specific, actionable items.
+6. Final realism.anachronisms and realism.implausibilities must both be empty arrays.
+
+Micro-exemplar (style target, not content to copy):
+- Weak: technology: ["cars", "phones"], communication: ["letters"]
+- Strong: technology: ["petrol touring cars on county roads", "domestic wiring with frequent outages"], communication: ["party-line telephone exchange", "telegrams via nearest town office"]
+- Strong recommendations are concrete and testable, e.g. "Replace fingerprint lab certainty with delayed regional analysis and chain-of-custody uncertainty."
+
+Before finalizing, run a silent checklist:
+- Schema complete
+- No empty required strings
+- No anachronistic capabilities
+- Recommendations are specific and period-grounded
+- realism.anachronisms = [] and realism.implausibilities = []`;
 
   // User prompt with specific settings
-  const user = `Refine the following mystery setting:
+  const user = `Refine this mystery setting into a production-ready historical constraint profile.
 
-**Era**: ${inputs.decade}
-**Location**: ${inputs.location}${inputs.institution ? `\n**Institution**: ${inputs.institution}` : ''}${inputs.weather ? `\n**Weather**: ${inputs.weather}` : ''}${inputs.socialStructure ? `\n**Social Structure**: ${inputs.socialStructure}` : ''}${inputs.tone ? `\n**Tone**: ${inputs.tone}` : ''}
+Input brief:
+- Era: ${inputs.decade}
+- Location: ${inputs.location}${inputs.institution ? `\n- Institution: ${inputs.institution}` : ''}${inputs.weather ? `\n- Weather: ${inputs.weather}` : ''}${inputs.socialStructure ? `\n- Social Structure: ${inputs.socialStructure}` : ''}${inputs.tone ? `\n- Tone: ${inputs.tone}` : ''}
 
-Analyze this setting and provide:
-1. Complete era constraints (technology, forensics, social norms, policing)
-2. Detailed location description and physical constraints
-3. Atmosphere details for immersion, including 2-3 period-accurate anchors (politics, science, current affairs)
-4. Any anachronisms or implausibilities to avoid
-5. Specific recommendations for authenticity that reference period-accurate politics/science/current affairs
-6. Ensure realism.anachronisms and realism.implausibilities are empty in the final JSON by correcting issues pre-output
-
-Output JSON only.`;
+Return one complete JSON object matching the schema.
+Do not include markdown or commentary.`;
 
   // Combine into messages (system+developer combined for Azure OpenAI)
   const combinedSystem = `${system}\n\n# Technical Specifications\n\n${developer}`;

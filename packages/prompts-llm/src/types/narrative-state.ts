@@ -118,7 +118,7 @@ export function migrateNarrativeState(raw: Partial<NarrativeState> & Record<stri
  */
 export function updateNSD(
   current: NarrativeState,
-  lastChapter: { paragraphs?: string[]; cluesRevealedIds?: string[] },
+  lastChapter: { paragraphs?: string[]; cluesRevealedIds?: string[]; arcPosition?: string },
 ): NarrativeState {
   const newClues = [...current.cluesRevealedToReader];
   for (const id of (lastChapter.cluesRevealedIds ?? [])) {
@@ -131,6 +131,7 @@ export function updateNSD(
     ...current,
     cluesRevealedToReader: newClues,
     continuityTail,
+    previousChapterArcPosition: lastChapter.arcPosition ?? current.previousChapterArcPosition,
   };
 }
 

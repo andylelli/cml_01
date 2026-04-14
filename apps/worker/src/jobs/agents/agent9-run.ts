@@ -16,13 +16,15 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import {
+  buildAssetDiagnosticReport,
+  buildAssetLibrary,
   generateProse,
   initNarrativeState,
   updateNSD,
   resolveVictimName,
   type NarrativeState,
 } from "@cml/prompts-llm";
-import { validateArtifact } from "@cml/cml";
+import { validateArtifact, validateCml } from "@cml/cml";
 import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
@@ -368,7 +370,9 @@ const parseWordFormQuantity = (value: string): { amount: number; unit: string } 
  * Matches: "8:30 PM", "11:15 AM", "9 PM", "8 AM".
  * Returns null if no AM/PM-qualified time found.
  */
-const extractDigitFormHour = (text: string): number | null => {
+const extractDigitFormHour = (
+  text: string,
+): { hour: number; minute: number; explicitMeridiem: boolean; raw: string } | null => {
   const lower = text.toLowerCase();
   const hhmm = lower.match(/\b(\d{1,2}):(\d{2})\s*(am|pm)\b/);
   if (hhmm) {
@@ -376,14 +380,14 @@ const extractDigitFormHour = (text: string): number | null => {
     const m = parseInt(hhmm[2], 10);
     if (hhmm[3] === 'pm' && h < 12) h += 12;
     if (hhmm[3] === 'am' && h === 12) h = 0;
-    return h + m / 60;
+    return { hour: h, minute: m, explicitMeridiem: true, raw: hhmm[0] };
   }
   const hOnly = lower.match(/\b(\d{1,2})\s*(am|pm)\b/);
   if (hOnly) {
     let h = parseInt(hOnly[1], 10);
     if (hOnly[2] === 'pm' && h < 12) h += 12;
     if (hOnly[2] === 'am' && h === 12) h = 0;
-    return h;
+    return { hour: h, minute: 0, explicitMeridiem: true, raw: hOnly[0] };
   }
   return null;
 };
@@ -402,24 +406,42 @@ const extractFirstTimeString = (text: string): string | null =>
  * mutually exclusive times for the same event that cause permanent
  * locked_fact_missing_value failures on every chapter that references the fact.
  */
-const detectLockedFactClueTimeMismatch = (factValue: string, clueText: string): string | null => {
+const detectLockedFactClueTimeMismatch = (
+  factValue: string,
+  clueText: string,
+):
+  | { type: "ambiguity" | "mismatch"; rawClueTime: string; factMinutes: number; clueMinutes: number }
+  | null => {
   const factParsed = parseWordFormTime(factValue.trim());
   const factHour = factParsed
-    ? factParsed.hour + factParsed.minute / 60
+    ? { hour: factParsed.hour, minute: factParsed.minute, explicitMeridiem: false }
     : extractDigitFormHour(factValue);
   if (factHour === null) return null;
 
   const clueHour = extractDigitFormHour(clueText);
   if (clueHour === null) return null;
 
-  // Consider hours that differ by ≥1 as a mismatch (tolerates minute-level rounding).
-  // Special case: a difference of exactly 12 hours means the word-form canonical has no
-  // AM/PM marker and the clue uses the opposite period (e.g. "ten minutes past eleven"
-  // [treated as 11 AM] vs "11:10 PM" [= 23:10]). This is an AM/PM ambiguity in the
-  // canonical, not a genuine time conflict — no warning should fire.
-  const diff = Math.abs(factHour - clueHour);
-  if (diff >= 1 && Math.round(diff * 60) !== 720) {
-    return extractFirstTimeString(clueText) ?? `${Math.floor(clueHour)}:00`;
+  const factMinutes = factHour.hour * 60 + factHour.minute;
+  const clueMinutes = clueHour.hour * 60 + clueHour.minute;
+  const diffMinutes = Math.abs(factMinutes - clueMinutes);
+
+  // AM/PM ambiguity must be explicit in CML; never silently infer one side.
+  if (factHour.explicitMeridiem !== clueHour.explicitMeridiem && diffMinutes >= 60) {
+    return {
+      type: "ambiguity",
+      rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
+      factMinutes,
+      clueMinutes,
+    };
+  }
+
+  if (diffMinutes >= 60) {
+    return {
+      type: "mismatch",
+      rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
+      factMinutes,
+      clueMinutes,
+    };
   }
   return null;
 };
@@ -941,6 +963,97 @@ const evaluateChapterHeadingArtifacts = (prose: any) => {
   return { duplicatedHeadingCount: offending.length, hasArtifacts: offending.length > 0 };
 };
 
+type CmlUsageValidationResult = {
+  errors: string[];
+  warnings: string[];
+};
+
+const validateCmlUsageForProse = (
+  cml: any,
+  clues: any,
+  castDesign: any,
+  maxSceneNumber: number,
+): CmlUsageValidationResult => {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const cmlCase = (cml as any)?.CASE ?? cml;
+  const castNames = new Set<string>(
+    ((castDesign?.characters ?? []) as any[])
+      .map((c: any) => String(c?.name ?? "").trim())
+      .filter((name: string) => name.length > 0),
+  );
+  const clueIds = new Set<string>(
+    ((clues?.clues ?? []) as any[])
+      .map((clue: any) => String(clue?.id ?? "").trim())
+      .filter((id: string) => id.length > 0),
+  );
+
+  const culpritNames: string[] = Array.isArray(cmlCase?.culpability?.culprits)
+    ? cmlCase.culpability.culprits.map((name: any) => String(name ?? "").trim()).filter(Boolean)
+    : [];
+  for (const culprit of culpritNames) {
+    if (!castNames.has(culprit)) {
+      errors.push(
+        `CML usage invalid: culprit \"${culprit}\" is not present in cast.characters.`,
+      );
+    }
+  }
+
+  const mapping = Array.isArray(cmlCase?.prose_requirements?.clue_to_scene_mapping)
+    ? cmlCase.prose_requirements.clue_to_scene_mapping
+    : [];
+  for (const entry of mapping as any[]) {
+    const clueId = String(entry?.clue_id ?? "").trim();
+    const actNumberRaw = entry?.act_number;
+    const sceneNumberRaw = entry?.scene_number;
+    const hasSceneNumber = sceneNumberRaw !== undefined && sceneNumberRaw !== null && String(sceneNumberRaw).trim() !== "";
+    const actNumber = Number(actNumberRaw);
+    const sceneNumber = hasSceneNumber ? Number(sceneNumberRaw) : undefined;
+
+    if (!clueId) {
+      errors.push("CML usage invalid: prose_requirements.clue_to_scene_mapping entry is missing clue_id.");
+      continue;
+    }
+    if (!Number.isFinite(actNumber) || !Number.isInteger(actNumber) || actNumber < 1) {
+      errors.push(
+        `CML usage invalid: clue mapping for \"${clueId}\" has invalid act_number (${String(actNumberRaw)}).`,
+      );
+      continue;
+    }
+    if (hasSceneNumber && (!Number.isFinite(sceneNumber) || !Number.isInteger(sceneNumber!))) {
+      errors.push(
+        `CML usage invalid: clue mapping for \"${clueId}\" has non-integer scene_number (${String(sceneNumberRaw)}).`,
+      );
+      continue;
+    }
+    if (hasSceneNumber && (sceneNumber! < 1 || (maxSceneNumber > 0 && sceneNumber! > maxSceneNumber))) {
+      errors.push(
+        `CML usage invalid: clue mapping for \"${clueId}\" points to scene ${sceneNumber}, outside valid range 1-${maxSceneNumber}.`,
+      );
+    }
+    if (!clueIds.has(clueId)) {
+      warnings.push(
+        `CML usage warning: clue mapping references \"${clueId}\" but this id is not present in clue distribution.`,
+      );
+    }
+  }
+
+  const identityRules = Array.isArray(cmlCase?.prose_requirements?.identity_rules)
+    ? cmlCase.prose_requirements.identity_rules
+    : [];
+  for (const rule of identityRules as any[]) {
+    const character = String(rule?.character ?? "").trim();
+    if (character && !castNames.has(character)) {
+      warnings.push(
+        `CML usage warning: identity rule references unknown cast character \"${character}\".`,
+      );
+    }
+  }
+
+  return { errors, warnings };
+};
+
 // ============================================================================
 // Writing guides loader (uses workspaceRoot from ctx — not import.meta.url)
 // ============================================================================
@@ -981,17 +1094,47 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     workspaceRoot,
   } = ctx;
 
-  const cml = ctx.cml!;
-  const cast = ctx.cast!;
-  const characterProfiles = ctx.characterProfiles!;
-  const locationProfiles = ctx.locationProfiles!;
-  const temporalContext = ctx.temporalContext!;
-  const hardLogicDevices = ctx.hardLogicDevices!;
-  const narrative = ctx.narrative!;
-  const clues = ctx.clues!;
-  const coverageResult = ctx.coverageResult!;
-  const outlineCoverageIssues = ctx.outlineCoverageIssues!;
+  if (!ctx.cml || !ctx.cast || !ctx.characterProfiles || !ctx.locationProfiles || !ctx.temporalContext || !ctx.hardLogicDevices || !ctx.narrative || !ctx.clues || !ctx.coverageResult || !ctx.outlineCoverageIssues) {
+    throw new Error("Agent 9 precondition failed: missing required upstream artifacts before prose generation.");
+  }
+
+  const cml = ctx.cml;
+  const cast = ctx.cast;
+  const castDesign = (cast as any).cast;
+  if (!castDesign || !Array.isArray(castDesign.characters)) {
+    throw new Error("Agent 9 precondition failed: cast.cast.characters is missing or malformed.");
+  }
+
+  const characterProfiles = ctx.characterProfiles;
+  const locationProfiles = ctx.locationProfiles;
+  const temporalContext = ctx.temporalContext;
+  const hardLogicDevices = ctx.hardLogicDevices;
+  const narrative = ctx.narrative;
+  const clues = ctx.clues;
+  const coverageResult = ctx.coverageResult;
+  const outlineCoverageIssues = ctx.outlineCoverageIssues;
   const fairPlayAudit = ctx.fairPlayAudit;
+
+  // Full CML/schema preflight before prose generation to fail fast on invalid structures
+  // and cross-reference usage errors that prose retries cannot repair.
+  const cmlSchemaValidation = validateCml(cml);
+  if (!cmlSchemaValidation.valid) {
+    cmlSchemaValidation.errors.forEach((error) =>
+      ctx.errors.push(`CML schema failure: ${error}`),
+    );
+    const summary = cmlSchemaValidation.errors.slice(0, 6).join("; ");
+    throw new Error(`Agent 9 aborted before prose generation: CML schema validation failed: ${summary}`);
+  }
+
+  const sceneCountForUsage =
+    narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
+  const cmlUsageValidation = validateCmlUsageForProse(cml, clues, castDesign, sceneCountForUsage);
+  cmlUsageValidation.warnings.forEach((warning) => ctx.warnings.push(warning));
+  if (cmlUsageValidation.errors.length > 0) {
+    cmlUsageValidation.errors.forEach((error) => ctx.errors.push(error));
+    const summary = cmlUsageValidation.errors.slice(0, 6).join("; ");
+    throw new Error(`Agent 9 aborted before prose generation: CML usage validation failed: ${summary}`);
+  }
 
   reportProgress("prose", "Generating prose chapter by chapter with per-chapter validation...", 91);
 
@@ -1074,6 +1217,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // This mirrors the annotation loop above and avoids spurious mismatch warnings
   // from entirely unrelated timed clues (e.g. a murder-weapon clue mentioning
   // "8 PM" being flagged against a clock-reading locked fact).
+  const cmlIntegrityViolations: string[] = [];
   for (const fact of annotatedLockedFacts) {
     const factValue = String(fact.value ?? '');
     const factKeywords = String(fact.description ?? '')
@@ -1087,15 +1231,38 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       if (overlap < 2) continue; // clue is not associated with this locked fact
       const mismatchTime = detectLockedFactClueTimeMismatch(factValue, clueText);
       if (mismatchTime) {
-        ctx.warnings.push(
-          `[CML integrity] Locked fact "${fact.description}" (canonical: "${factValue}") conflicts with clue "${clue.id}" which states a different time ("${mismatchTime}"). This will cause locked_fact_missing_value on every chapter referencing this fact. Fix the CML before re-running.`,
-        );
+        const cluePath = `clues.clues[${clues.clues.indexOf(clue)}].description`;
+        const factPath = `hardLogicDevices.devices[*].lockedFacts[description=${JSON.stringify(
+          String(fact.description ?? "")
+        )}].value`;
+        const details = {
+          clue_id: String(clue.id ?? ""),
+          locked_fact_description: String(fact.description ?? ""),
+          canonical_value: factValue,
+          parsed_clue_time: mismatchTime.rawClueTime,
+          violation_type: mismatchTime.type,
+          cml_field_path: factPath,
+          clue_field_path: cluePath,
+        };
+        const mismatchMessage =
+          `[CML integrity] Locked fact "${fact.description}" (canonical: "${factValue}") conflicts with clue "${clue.id}" time ("${mismatchTime.rawClueTime}") [${mismatchTime.type}]. Field paths: ${factPath} vs ${cluePath}.`;
+        cmlIntegrityViolations.push(mismatchMessage);
+        ctx.warnings.push(mismatchMessage);
+        ctx.errors.push(`[CML integrity details] ${JSON.stringify(details)}`);
       }
     }
   }
 
+  if (cmlIntegrityViolations.length > 0) {
+    cmlIntegrityViolations.forEach((message) => ctx.errors.push(message));
+    const actionablePaths = cmlIntegrityViolations.slice(0, 6).join(" | ");
+    throw new Error(
+      `Agent 9 aborted before prose generation due to ${cmlIntegrityViolations.length} CML integrity contradiction(s). Correct the referenced CML/clue fields and rerun. ${actionablePaths}`,
+    );
+  }
+
   const characterGenderMap: Record<string, string> = Object.fromEntries(
-    cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
+    castDesign.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
   );
   let narrativeState: NarrativeState = initNarrativeState(
     annotatedLockedFacts,
@@ -1139,7 +1306,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const adaptedBatch = adaptProseForScoring(batch, (cml as any).CASE, clues);
         const batchScore = await scorer.score({}, adaptedBatch, {
           previous_phases: {
-            agent2_cast: cast.cast,
+            agent2_cast: castDesign,
             agent2b_character_profiles: characterProfiles.profiles,
             agent2c_location_profiles: locationProfiles,
           },
@@ -1152,7 +1319,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const adaptedAll = adaptProseForScoring(accumulated, (cml as any).CASE, clues);
         const cumulativeScore = await scorer.score({}, adaptedAll, {
           previous_phases: {
-            agent2_cast: cast.cast,
+            agent2_cast: castDesign,
             agent2b_character_profiles: characterProfiles.profiles,
             agent2c_location_profiles: locationProfiles,
           },
@@ -1195,7 +1362,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
       const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, {
         previous_phases: {
-          agent2_cast: cast.cast,
+          agent2_cast: castDesign,
           agent2b_character_profiles: characterProfiles.profiles,
           agent2c_location_profiles: locationProfiles,
         },
@@ -1228,14 +1395,21 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const proseStart = Date.now();
   ctx.proseScoringSnapshot.startedAtMs = proseStart;
   const accumulatedChapters: any[] = [];
+  const assetLibrary = buildAssetLibrary(
+    ctx.worldDocument,
+    characterProfiles,
+    locationProfiles,
+    temporalContext,
+  );
 
   // §2.5: Obligation atom stamping — cleared in onAtomsSelected, consumed in onBatchComplete
   let pendingObligationAtomIds: string[] = [];
+  let pendingTextureAtomIds: string[] = [];
 
   prose = await generateProse(client, {
     caseData: cml,
     outline: narrative,
-    cast: cast.cast,
+    cast: castDesign,
     ...proseModelOverride,
     detectiveType: inputs.detectiveType,
     worldDocument: ctx.worldDocument,
@@ -1263,7 +1437,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     onAtomsSelected: (ids: string[]) => {
       pendingObligationAtomIds = ids;
     },
-    onBatchComplete: async (batchChapters: any, batchStart: number, batchEnd: number, validationIssues: any) => {
+    onBatchComplete: async (
+      batchChapters: any,
+      batchStart: number,
+      batchEnd: number,
+      validationIssues: any,
+      usedTextureAtomIds?: string[],
+    ) => {
+      pendingTextureAtomIds = Array.isArray(usedTextureAtomIds) ? usedTextureAtomIds : [];
       const nsdBefore = {
         clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
       };
@@ -1275,9 +1456,19 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         .map((id: any) => String(id))
         .filter(Boolean);
       const lastBatchChapter = batchChapters[batchChapters.length - 1];
+      const arcAnchorChapter = batchEnd;
+      const batchArcPosition = arcAnchorChapter <= 1 ? 'opening'
+        : arcAnchorChapter <= Math.floor(totalSceneCount * 0.25) ? 'early'
+        : arcAnchorChapter <= Math.floor(totalSceneCount * 0.4) ? 'first_turn'
+        : arcAnchorChapter <= Math.floor(totalSceneCount * 0.55) ? 'mid'
+        : arcAnchorChapter <= Math.floor(totalSceneCount * 0.7) ? 'second_turn'
+        : arcAnchorChapter <= Math.floor(totalSceneCount * 0.8) ? 'pre_climax'
+        : arcAnchorChapter === totalSceneCount ? 'resolution'
+        : 'climax';
       narrativeState = updateNSD(narrativeState, {
         paragraphs: lastBatchChapter?.paragraphs,
         cluesRevealedIds: batchRevealedIds,
+        arcPosition: batchArcPosition,  // §4.4: track previous chapter arc position
       });
 
       // §1.2: Set victimConfirmedDeadChapter when victim name + death language first co-occur
@@ -1303,6 +1494,17 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         }
         narrativeState = { ...narrativeState, deployedAssets: updatedDeployedAssets };
         pendingObligationAtomIds = [];
+      }
+
+      // §5.1: Stamp only validated texture atom IDs reported by the LLM.
+      if (pendingTextureAtomIds.length > 0) {
+        const updatedDeployedAssets = { ...narrativeState.deployedAssets };
+        for (const atomId of pendingTextureAtomIds) {
+          if (!assetLibrary[atomId]) continue;
+          updatedDeployedAssets[atomId] = [...(updatedDeployedAssets[atomId] ?? []), batchStart];
+        }
+        narrativeState = { ...narrativeState, deployedAssets: updatedDeployedAssets };
+        pendingTextureAtomIds = [];
       }
 
       const newlyRevealedClues = batchRevealedIds.filter(
@@ -1365,7 +1567,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const adaptedBatch = adaptProseForScoring(batchChapters, (cml as any).CASE, clues);
           const batchScore = await scorer.score({}, adaptedBatch, {
             previous_phases: {
-              agent2_cast: cast.cast,
+              agent2_cast: castDesign,
               agent2b_character_profiles: characterProfiles.profiles,
               agent2c_location_profiles: locationProfiles,
             },
@@ -1378,7 +1580,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const adaptedAll = adaptProseForScoring(accumulatedChapters, (cml as any).CASE, clues);
           const partialScore = await scorer.score({}, adaptedAll, {
             previous_phases: {
-              agent2_cast: cast.cast,
+              agent2_cast: castDesign,
               agent2b_character_profiles: characterProfiles.profiles,
               agent2c_location_profiles: locationProfiles,
             },
@@ -1455,7 +1657,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     },
   });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
   // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
   // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
@@ -1572,7 +1774,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const adapted = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
     const score = await scorer.score({}, adapted, {
       previous_phases: {
-        agent2_cast: cast.cast,
+        agent2_cast: castDesign,
         agent2b_character_profiles: characterProfiles.profiles,
         agent2c_location_profiles: locationProfiles,
       },
@@ -1719,7 +1921,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const retriedProse = await generateProse(client, {
       caseData: cml,
       outline: narrative,
-      cast: cast.cast,
+      cast: castDesign,
       ...proseModelOverride,
       detectiveType: inputs.detectiveType,
       worldDocument: ctx.worldDocument,
@@ -1769,7 +1971,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     prose = applyDeterministicProsePostProcessing(
       sanitizeProseResult(retriedProse),
       locationProfiles,
-      cast.cast.characters,
+      castDesign.characters,
     );
     prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
     prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
@@ -1791,7 +1993,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const validationStart = Date.now();
   const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
@@ -1959,9 +2161,31 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     reportProgress("validation", "Applied auto-fixes for encoding issues", 99);
   }
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, cast.cast.characters);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
+
+  const assetDeploymentReport = buildAssetDiagnosticReport(
+    assetLibrary,
+    narrativeState.deployedAssets,
+  );
+  if (enableScoring && scoreAggregator && scoringLogger) {
+    scoringLogger.logPhaseDiagnostic(
+      "agent9_prose",
+      "Prose Generation",
+      "asset_deployment",
+      { report: assetDeploymentReport },
+      runId,
+      projectId || "",
+    );
+    scoreAggregator.upsertDiagnostic(
+      "agent9_prose_asset_deployment",
+      "agent9_prose",
+      "Prose Generation",
+      "asset_deployment",
+      { report: assetDeploymentReport },
+    );
+  }
 
   if (enableScoring && scoreAggregator && scoringLogger) {
     const finalizedPostGenerationDetails = buildPostGenerationSummaryDetails(

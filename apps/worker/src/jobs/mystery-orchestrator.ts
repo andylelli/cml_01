@@ -38,6 +38,7 @@ import {
   ScoreAggregator,
   RetryManager,
   FileReportRepository,
+  getGenerationParams,
 } from "@cml/story-validation";
 import type { GenerationReport, ValidationReport, PhaseScore } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
@@ -249,6 +250,8 @@ export async function generateMystery(
     postGenerationSummaryLogged: false,
   };
 
+  let ctx: OrchestratorContext | undefined;
+
   try {
     // ── Resolve init-time settings ──────────────────────────────────────────
     const resolveLocationPreset = (preset?: string) => {
@@ -281,7 +284,7 @@ export async function generateMystery(
     );
 
     // ── Build shared context ────────────────────────────────────────────────
-    const ctx: OrchestratorContext = {
+    ctx = {
       client,
       inputs,
       runId,
@@ -336,21 +339,64 @@ export async function generateMystery(
     // ── CML Validation Gate ─────────────────────────────────────────────────
     // Prevents spending prose-generation cost on broken mystery structure.
     const cmlValidationErrors: string[] = [];
+    const cmlQualityConfig = (getGenerationParams().agent3_cml.params as any)?.quality ?? {};
+    const evidenceBackfillThreshold = Math.max(
+      0,
+      Number(cmlQualityConfig.evidence_clue_backfill_threshold ?? 3),
+    );
+    const failOnBackfillThreshold =
+      cmlQualityConfig.fail_when_backfill_exceeds_threshold !== false;
+    let backfilledEvidenceClues: string[] = [];
 
     // Back-fill discriminating_test.evidence_clues from finalised clues if missing.
     // Agent 3 generates the CML skeleton before clues exist; we populate here.
     const discrimTestNode = (ctx.cml as any)?.CASE?.discriminating_test;
-    if (
-      discrimTestNode &&
-      (!discrimTestNode.evidence_clues || discrimTestNode.evidence_clues.length === 0)
-    ) {
+    if (discrimTestNode) {
+      const currentEvidence = Array.isArray(discrimTestNode.evidence_clues)
+        ? discrimTestNode.evidence_clues.map((id: unknown) => String(id))
+        : [];
       const essentialIds = ctx.clues!.clues
         .filter((c) => c.criticality === "essential")
         .map((c) => c.id);
-      if (essentialIds.length > 0) {
-        discrimTestNode.evidence_clues = essentialIds;
+      backfilledEvidenceClues = essentialIds.filter((id) => !currentEvidence.includes(id));
+      if (backfilledEvidenceClues.length > 0) {
+        discrimTestNode.evidence_clues = [...currentEvidence, ...backfilledEvidenceClues];
         warnings.push(
-          `CML gate: back-filled evidence_clues with ${essentialIds.length} essential clue(s)`
+          `CML gate: back-filled evidence_clues with ${backfilledEvidenceClues.length} clue(s): ${backfilledEvidenceClues.join(", ")}`
+        );
+
+        const backfillDiagnostic = {
+          injected_count: backfilledEvidenceClues.length,
+          injected_clues: backfilledEvidenceClues,
+          threshold: evidenceBackfillThreshold,
+          reason: "discriminating_test.evidence_clues missing essential clue IDs required for proof traceability",
+        };
+
+        if (enableScoring && scoreAggregator && scoringLogger) {
+          scoringLogger.logPhaseDiagnostic(
+            "agent3_cml",
+            "CML Generation",
+            "evidence_clue_backfill",
+            backfillDiagnostic,
+            runId,
+            projectId || "",
+          );
+          scoreAggregator.upsertDiagnostic(
+            "agent3_cml_evidence_clue_backfill",
+            "agent3_cml",
+            "CML Generation",
+            "evidence_clue_backfill",
+            backfillDiagnostic,
+          );
+        }
+      }
+
+      if (
+        failOnBackfillThreshold &&
+        backfilledEvidenceClues.length > evidenceBackfillThreshold
+      ) {
+        cmlValidationErrors.push(
+          `Discriminating test evidence_clues required heavy backfill (${backfilledEvidenceClues.length} > threshold ${evidenceBackfillThreshold}). Injected clues: ${backfilledEvidenceClues.join(", ")}`,
         );
       }
     }
@@ -664,7 +710,29 @@ export async function generateMystery(
     }
 
     runLogger.logComplete("failed", Date.now() - startTime, warnings, errors);
-    throw new Error(`Mystery generation failed: ${errorMessage}`);
+    const failureError = new Error(`Mystery generation failed: ${errorMessage}`);
+    (failureError as any).partialArtifacts = {
+      runId,
+      projectId,
+      setting: ctx?.setting,
+      cast: ctx?.cast,
+      backgroundContext: ctx?.backgroundContext,
+      hardLogicDevices: ctx?.hardLogicDevices,
+      cml: ctx?.cml,
+      clues: ctx?.clues,
+      fairPlayAudit: ctx?.fairPlayAudit,
+      narrative: ctx?.narrative,
+      characterProfiles: ctx?.characterProfiles,
+      locationProfiles: ctx?.locationProfiles,
+      temporalContext: ctx?.temporalContext,
+      worldDocument: ctx?.worldDocument,
+      prose: ctx?.prose,
+      noveltyAudit: ctx?.noveltyAudit,
+      validationReport: ctx?.validationReport,
+      warnings: [...warnings],
+      errors: [...errors],
+    };
+    throw failureError;
   }
 }
 

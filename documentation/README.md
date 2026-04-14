@@ -74,3 +74,6 @@ Notes:
 ## Adding open-source seed CMLs
 Use the grabber/ folder to generate CML 2.0 samples from public-domain or open-source whodunnits.
 Outputs should be saved to examples/ as *_cml2.yaml files.
+
+## Analysis and Issues
+- See `documentation/analysis/README.md` for the current run-analysis index and active issue lists.

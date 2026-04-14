@@ -33,6 +33,28 @@ type FairPlayFailureClass =
   | "constraint_space_insufficient"
   | "clue_only";
 
+const CONFIDENCE_RANK: Record<string, number> = {
+  impossible: 0,
+  weak: 1,
+  uncertain: 2,
+  likely: 3,
+  certain: 4,
+};
+
+const normalizeConfidence = (value: string | undefined): string =>
+  String(value ?? "").trim().toLowerCase();
+
+const classifyMissingInfoCategories = (items: string[]): string[] => {
+  const categories = new Set<string>();
+  for (const item of items) {
+    const lower = item.toLowerCase();
+    if (/\balibi|timeline|whereabouts\b/.test(lower)) categories.add("alibi gap");
+    if (/\bphysical|forensic|trace|fingerprint|fiber|blood|tool\b/.test(lower)) categories.add("physical-link gap");
+    if (/\bwitness|behavior|statement|testimony|motive\b/.test(lower)) categories.add("witness-behavior gap");
+  }
+  return Array.from(categories);
+};
+
 function classifyFairPlayFailure(
   coverageResult: InferenceCoverageResult,
   fairPlayAudit: FairPlayAuditResult | null,
@@ -85,6 +107,13 @@ function classifyFairPlayFailure(
 
 export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const fairPlayConfig = getGenerationParams().agent6_fairplay.params;
+  const minBlindConfidence = normalizeConfidence(
+    (fairPlayConfig.blind_reader as any)?.pass_criteria?.min_confidence ?? "likely",
+  );
+  const maxBlindRemediationCycles = Math.max(
+    0,
+    Number((fairPlayConfig.blind_reader as any)?.pass_criteria?.max_remediation_cycles ?? 1),
+  );
   ctx.reportProgress("fairplay", "Auditing fair play compliance...", 62);
 
   const clueDensity =
@@ -246,7 +275,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       blindResult.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
       actualCulpritName.toLowerCase().includes(blindResult.suspectedCulprit.toLowerCase());
 
-    if (readerGotItRight && (blindResult.confidenceLevel === "certain" || blindResult.confidenceLevel === "likely")) {
+    const blindPasses =
+      readerGotItRight &&
+      (CONFIDENCE_RANK[normalizeConfidence(blindResult.confidenceLevel)] ?? -1) >=
+        (CONFIDENCE_RANK[minBlindConfidence] ?? CONFIDENCE_RANK.likely);
+
+    if (blindPasses) {
       ctx.reportProgress("fairplay", "Blind reader simulation: PASS", 74);
     } else {
       ctx.warnings.push(
@@ -257,10 +291,13 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         ctx.warnings.push(`Blind reader missing info: ${blindResult.missingInformation.join("; ")}`);
       }
 
-      if (blindResult.confidenceLevel === "impossible" || !readerGotItRight) {
+      let latestBlind = blindResult;
+      let latestReaderPass = blindPasses;
+
+      for (let cycle = 1; !latestReaderPass && cycle <= maxBlindRemediationCycles; cycle++) {
+        const missingCategories = classifyMissingInfoCategories(latestBlind.missingInformation);
         ctx.warnings.push(
-          "CRITICAL: Blind reader cannot identify culprit. " +
-          "The clue set does not contain enough evidence for deduction."
+          `CRITICAL: Blind reader gate failed (cycle ${cycle}/${maxBlindRemediationCycles}). Regenerating clues with targeted requirements.`
         );
 
         ctx.reportProgress("clues", "Regenerating clues based on blind reader feedback...", 60);
@@ -276,16 +313,17 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
                 severity: "critical" as const,
                 rule: "Information Parity",
                 description:
-                  `A blind reader using only the clues suspected "${blindResult.suspectedCulprit}" ` +
-                  `instead of the actual culprit "${actualCulpritName}". Reasoning: ${blindResult.reasoning}`,
+                  `A blind reader suspected "${latestBlind.suspectedCulprit}" instead of actual culprit "${actualCulpritName}". Reasoning: ${latestBlind.reasoning}`,
                 suggestion:
-                  `Add clues that make the following deducible: ${blindResult.missingInformation.join("; ")}`,
+                  `Add direct discriminating evidence for culprit "${actualCulpritName}" and at least one elimination/alibi clue per non-culprit suspect. Fill blind-reader gaps: ${latestBlind.missingInformation.join("; ")}`,
               },
             ],
-            warnings: [],
-            recommendations: blindResult.missingInformation.map(
-              (info: string) => `Provide evidence for: ${info}`
-            ),
+            warnings: missingCategories.map((c) => `Blind reader category gap: ${c}`),
+            recommendations: [
+              ...latestBlind.missingInformation.map((info: string) => `Provide evidence for: ${info}`),
+              "Ensure at least one culprit-discriminating clue that does not apply to non-culprits.",
+              "Ensure each non-culprit has at least one elimination or alibi clue.",
+            ],
           },
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -297,7 +335,6 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - blindRetryStart);
         applyClueGuardrails(ctx.cml!, ctx.clues);
 
-        // FP-7: re-audit after blind-reader clue regen
         const blindReAuditStart = Date.now();
         fairPlayAudit = await auditFairPlay(ctx.client, {
           caseData: ctx.cml!,
@@ -313,6 +350,36 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule)
         );
         await recordFairPlayScore();
+
+        latestBlind = await blindReaderSimulation(
+          ctx.client,
+          ctx.clues,
+          falseAssumptionStatement,
+          castNamesForBlind,
+          { runId: ctx.runId, projectId: ctx.projectId || "" }
+        );
+        ctx.agentCosts["agent6_blind_reader"] =
+          (ctx.agentCosts["agent6_blind_reader"] || 0) + latestBlind.cost;
+        ctx.agentDurations["agent6_blind_reader"] =
+          (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
+
+        const latestGotItRight =
+          latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
+          actualCulpritName.toLowerCase().includes(latestBlind.suspectedCulprit.toLowerCase());
+        latestReaderPass =
+          latestGotItRight &&
+          (CONFIDENCE_RANK[normalizeConfidence(latestBlind.confidenceLevel)] ?? -1) >=
+            (CONFIDENCE_RANK[minBlindConfidence] ?? CONFIDENCE_RANK.likely);
+
+        if (latestReaderPass) {
+          ctx.reportProgress("fairplay", "Blind reader simulation: PASS after remediation", 74);
+        }
+      }
+
+      if (!latestReaderPass) {
+        throw new Error(
+          `Agent 6 blind-reader gate failed: simulated suspect "${latestBlind.suspectedCulprit}" (confidence ${latestBlind.confidenceLevel}) does not meet configured pass criteria (culprit=${actualCulpritName}, minConfidence=${minBlindConfidence}).`,
+        );
       }
     }
   }

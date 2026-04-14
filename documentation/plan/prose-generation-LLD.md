@@ -1731,73 +1731,73 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` complete · `[!]`
 
 | # | Section | Task | File | Status |
 |---|---------|------|------|--------|
-| 3.1 | §3.1 | Replace flat portrait + voice injection with scoped obligation pool | `agent9-prose.ts` | `[ ]` |
-| 3.2 | §3.2 | Register-matched voice fragment selection (import `ARC_POSITION_REGISTER`) | `agent9-prose.ts` | `[ ]` |
-| 3.3a | §3.3 | `selectSensoryVariant()` in `buildLocationProfilesBlock()` | `agent9-prose.ts` | `[ ]` |
-| 3.3b | §3.3 | Add sensory variant obligation injection to `buildChapterObligationBlock()` | `agent9-prose.ts` | `[ ]` |
-| 3.3c | §3.3 | Add `lastUsedSensoryVariant` stamping to `updateNSD()` | `types/narrative-state.ts` | `[ ]` |
-| 3.4 | §3.4 | Texture pool injection — `buildTexturePoolBlock()` + register in `buildPromptContextBlocks()` | `agent9-prose.ts` | `[ ]` |
-| 3.5 | §3.5 | Inject `atmosphere.sensoryPalette` into location profiles block | `agent9-prose.ts` | `[ ]` |
+| 3.1 | §3.1 | Replace flat portrait + voice injection with scoped obligation pool | `agent9-prose.ts` | `[x]` |
+| 3.2 | §3.2 | Register-matched voice fragment selection (import `ARC_POSITION_REGISTER`) | `agent9-prose.ts` | `[x]` |
+| 3.3a | §3.3 | `selectSensoryVariant()` in `buildLocationProfilesBlock()` | `agent9-prose.ts` | `[x]` |
+| 3.3b | §3.3 | Add sensory variant obligation injection to `buildChapterObligationBlock()` | `agent9-prose.ts` | `[x]` |
+| 3.3c | §3.3 | Add `lastUsedSensoryVariant` stamping after batch commit in `generateProse()` | `agent9-prose.ts` | `[x]` |
+| 3.4 | §3.4 | Texture pool injection — `texturePoolBlock` + register in `buildPromptContextBlocks()` | `agent9-prose.ts` | `[x]` |
+| 3.5 | §3.5 | Inject `atmosphere.sensoryPalette` into location profiles block | `agent9-prose.ts` | `[x]` |
 | 3.6 | §3.6 | Inject `keyLocations[n].accessControl` into location profiles block | `agent9-prose.ts` | `[ ]` |
 
 ### Phase 4 — Story Rhythm and Timing Gates
 
 | # | Section | Task | File | Status |
 |---|---------|------|------|--------|
-| 4.0 | §4.1 pre | Hoist `relativePos` to outer scope of `buildWorldBriefBlock()` (prerequisite for 4.1 + 4.2) | `agent9-prose.ts` | `[ ]` |
-| 4.1 | §4.1 | Two-phase `revealImplications` injection (string-typed, not array) | `agent9-prose.ts` | `[ ]` |
-| 4.2 | §4.2 | Break moment approach signal — add 40–60% pre-signal block | `agent9-prose.ts` | `[ ]` |
-| 4.3 | §4.3 | Break moment full obligation — add atom to `buildAssetLibrary()` | `agent9-prose.ts` | `[ ]` |
-| 4.4a | §4.4 | Tonal contrast — update `updateNSD()` to accept + store `arcPosition` | `types/narrative-state.ts` | `[ ]` |
-| 4.4b | §4.4 | Tonal contrast — add `previousChapterArcPosition` enforcement to `buildChapterObligationBlock()` | `agent9-prose.ts` | `[ ]` |
-| 4.4c | §4.4 | Pass `arcPosition` at all `updateNSD()` call sites | `agent9-prose.ts`, `agent9-run.ts` | `[ ]` |
+| 4.0 | §4.1 pre | Hoist `relativePos` to outer scope of `buildWorldBriefBlock()` (prerequisite for 4.1 + 4.2) | `agent9-prose.ts` | `[x]` |
+| 4.1 | §4.1 | Two-phase `revealImplications` injection (string-typed, not array) | `agent9-prose.ts` | `[x]` |
+| 4.2 | §4.2 | Break moment approach signal — add 40–60% pre-signal block | `agent9-prose.ts` | `[x]` |
+| 4.3 | §4.3 | Break moment full obligation — add atom to `buildAssetLibrary()` | `agent9-prose.ts` | `[x]` |
+| 4.4a | §4.4 | Tonal contrast — update `updateNSD()` to accept + store `arcPosition` | `types/narrative-state.ts` | `[x]` |
+| 4.4b | §4.4 | Tonal contrast — add `previousChapterArcPosition` enforcement to `buildChapterObligationBlock()` | `agent9-prose.ts` | `[x]` |
+| 4.4c | §4.4 | Pass `arcPosition` at all `updateNSD()` call sites | `agent9-prose.ts`, `agent9-run.ts` | `[x]` |
 
 ### Phase 5 — Diagnostics and Quality Feedback Loop
 
 | # | Section | Task | File | Status |
 |---|---------|------|------|--------|
-| 5.1 | §5.1 | LLM self-report `<used_assets>` — parse tag from prose output, stamp `deployedAssets` | `agent9-prose.ts`, `agent9-run.ts` | `[ ]` |
-| 5.2 | §5.2 | Budget enforcement — cap texture atoms consumed per chapter | `agent9-prose.ts` | `[ ]` |
-| 5.3 | §5.3 | End-of-run asset diagnostic — `buildAssetDiagnosticReport()`, write to log | `agent9-run.ts` | `[ ]` |
-| 5.4a | §5.4 | `detectRecurringPhrases()` — implement phrase frequency scan | `agent9-prose.ts` | `[ ]` |
-| 5.4b | §5.4 | Wire phrase warnings into `provisional_scoring_feedback` block | `agent9-prose.ts` | `[ ]` |
-| 5.4c | §5.4 | Clear phrase warnings after injection (pending-warnings pattern) | `agent9-prose.ts` | `[ ]` |
+| 5.1 | §5.1 | LLM self-report `<used_assets>` — parse tag from prose output, stamp `deployedAssets` | `agent9-prose.ts`, `agent9-run.ts` | `[x]` |
+| 5.2 | §5.2 | Budget enforcement — cap texture atoms consumed per chapter | `asset-library.ts` | `[x]` |
+| 5.3 | §5.3 | End-of-run asset diagnostic — `buildAssetDiagnosticReport()`, write to log | `asset-library.ts`, `agent9-run.ts` | `[x]` |
+| 5.4a | §5.4 | `detectRecurringPhrases()` — implement phrase frequency scan | `agent9-prose.ts` | `[x]` |
+| 5.4b | §5.4 | Wire phrase warnings into `provisional_scoring_feedback` block | `agent9-prose.ts` | `[x]` |
+| 5.4c | §5.4 | Clear phrase warnings after injection (pending-warnings pattern) | `agent9-prose.ts` | `[x]` |
 
 ### Phase 6 — Temporal Context Completeness
 
 | # | Section | Task | File | Status |
 |---|---------|------|------|--------|
-| 6.0 | §1.6 pre | Ensure `buildTemporalContextBlock()` is extracted (§1.6c) before adding fields | `agent9-prose.ts` | `[ ]` |
-| 6.1 | §6.1 | Inject `seasonal.daylight` | `agent9-prose.ts` | `[ ]` |
-| 6.2 | §6.2 | Inject `seasonal.holidays[]` and `seasonal.seasonalActivities[]` | `agent9-prose.ts` | `[ ]` |
-| 6.3 | §6.3 | Inject `cultural.entertainment.theater[]` and `radio[]` | `agent9-prose.ts` | `[ ]` |
-| 6.4 | §6.4 | Inject `cultural.literature.*` | `agent9-prose.ts` | `[ ]` |
-| 6.5 | §6.5 | Inject `cultural.technology.*` | `agent9-prose.ts` | `[ ]` |
-| 6.6 | §6.6 | Inject `cultural.dailyLife.commonActivities[]` and `socialRituals[]` | `agent9-prose.ts` | `[ ]` |
-| 6.7 | §6.7 | Inject `socialAttitudes.*` (lowest priority — appended last) | `agent9-prose.ts` | `[ ]` |
+| 6.0 | §1.6 pre | Ensure `buildTemporalContextBlock()` is extracted (§1.6c) before adding fields | `agent9-prose.ts` | `[x]` |
+| 6.1 | §6.1 | Inject `seasonal.daylight` | `agent9-prose.ts` | `[x]` |
+| 6.2 | §6.2 | Inject `seasonal.holidays[]` and `seasonal.seasonalActivities[]` | `agent9-prose.ts` | `[x]` |
+| 6.3 | §6.3 | Inject `cultural.entertainment.theater[]` and `radio[]` | `agent9-prose.ts` | `[x]` |
+| 6.4 | §6.4 | Inject `cultural.literature.*` | `agent9-prose.ts` | `[x]` |
+| 6.5 | §6.5 | Inject `cultural.technology.*` | `agent9-prose.ts` | `[x]` |
+| 6.6 | §6.6 | Inject `cultural.dailyLife.commonActivities[]` and `socialRituals[]` | `agent9-prose.ts` | `[x]` |
+| 6.7 | §6.7 | Inject `socialAttitudes.*` (lowest priority — appended last) | `agent9-prose.ts` | `[x]` |
 
 ### Cross-cutting / Infrastructure
 
 | # | Section | Task | File | Status |
 |---|---------|------|------|--------|
-| X.1 | Cross-cutting | Create `constants/arc-position.ts` with `ARC_POS_TO_SCENE_TYPE` and `ARC_POSITION_REGISTER` | `constants/arc-position.ts` (new) | `[ ]` |
-| X.2 | Cross-cutting | Register `texture_pool` block (medium, 600 tokens) in `applyPromptBudgeting()` | `agent9-prose.ts` | `[ ]` |
-| X.3 | Cross-cutting | Update `updateNSD()` final signature — accept `cluesRevealedIds`, `arcPosition` | `types/narrative-state.ts` | `[ ]` |
-| X.4 | Cross-cutting | Update all `updateNSD()` call sites to pass new parameters | `agent9-prose.ts`, `agent9-run.ts` | `[ ]` |
+| X.1 | Cross-cutting | Create `constants/arc-position.ts` with `ARC_POS_TO_SCENE_TYPE` and `ARC_POSITION_REGISTER` | `constants/arc-position.ts` (new) | `[x]` |
+| X.2 | Cross-cutting | Register `texture_pool` block (medium, 600 tokens) in `applyPromptBudgeting()` | `agent9-prose.ts` | `[x]` |
+| X.3 | Cross-cutting | Update `updateNSD()` final signature — accept `cluesRevealedIds`, `arcPosition` | `types/narrative-state.ts` | `[x]` |
+| X.4 | Cross-cutting | Update all `updateNSD()` call sites to pass new parameters | `agent9-prose.ts`, `agent9-run.ts` | `[x]` |
 
 ---
 
 ### Completion summary
 
 ```
-Phase 1:   0 / 8   tasks complete
-Phase 2:   0 / 7   tasks complete
-Phase 3:   0 / 8   tasks complete
-Phase 4:   0 / 7   tasks complete
-Phase 5:   0 / 6   tasks complete
-Phase 6:   0 / 8   tasks complete
-Cross-cut: 0 / 4   tasks complete
+Phase 1:   8 / 8   tasks complete
+Phase 2:   7 / 7   tasks complete
+Phase 3:   7 / 8   tasks complete
+Phase 4:   7 / 7   tasks complete
+Phase 5:   6 / 6   tasks complete
+Phase 6:   8 / 8   tasks complete
+Cross-cut: 4 / 4   tasks complete
 ─────────────────────────────────
-Total:     0 / 48  tasks complete
+Total:     47 / 48 tasks complete
 ```
 

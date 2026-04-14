@@ -97,16 +97,25 @@ export function buildAssetLibrary(
       });
   }
 
-  // -- Reveal implication atoms --
-  if (Array.isArray(worldDoc?.revealImplications)) {
-    (worldDoc.revealImplications as string[]).forEach((impl, i) => {
-      add({
-        id: `reveal:story:${i}`,
-        source: 'worldDoc.revealImplications',
-        scope: 'window', scopeKey: '',
-        tier: 'texture', budget: 1, priority: 'medium',
-        content: impl,
-      });
+  // -- Reveal implication atom — string per schema (not array) --
+  if (typeof worldDoc?.revealImplications === 'string' && worldDoc.revealImplications.length > 0) {
+    add({
+      id: 'reveal:story:0',
+      source: 'worldDoc.revealImplications',
+      scope: 'window', scopeKey: '',
+      tier: 'texture', budget: 1, priority: 'medium',
+      content: worldDoc.revealImplications,
+    });
+  }
+
+  // §4.3: Break moment atom — window-scoped, budget:1 so it fires exactly once
+  if (worldDoc?.breakMoment) {
+    add({
+      id: 'break_moment:story:full',
+      source: 'worldDoc.breakMoment',
+      scope: 'window', scopeKey: '',
+      tier: 'obligation', budget: 1, priority: 'high',
+      content: `${worldDoc.breakMoment.character}: ${worldDoc.breakMoment.form ?? ''} — ${worldDoc.breakMoment.narrativeFunction ?? ''}`,
     });
   }
 
@@ -164,5 +173,49 @@ export function selectChapterAtoms(
   // arcPosition is used in Phase 3 (§3.2) for register-matched voice fragment elevation.
   void arcPosition;
 
-  return { obligationAtoms: obligation, textureAtoms: texture };
+  // Defensive guard (§5.2): re-check texture budget at return time in case deployedAssets
+  // changed after the initial filter pass.
+  const hardCapTexture = texture.filter((a) =>
+    a.budget === 0 || (deployedAssets[a.id] ?? []).length < a.budget,
+  );
+
+  return { obligationAtoms: obligation, textureAtoms: hardCapTexture };
+}
+
+export function buildAssetDiagnosticReport(
+  library: AssetLibrary,
+  deployedAssets: Record<string, number[]>,
+): string {
+  const lines: string[] = ['# Asset Deployment Diagnostic'];
+
+  const neverDeployed = Object.values(library).filter(
+    (a) => !(deployedAssets[a.id]?.length > 0),
+  );
+  const overDeployed = Object.values(library).filter(
+    (a) => a.budget > 0 && (deployedAssets[a.id]?.length ?? 0) > a.budget,
+  );
+
+  lines.push(`\n## Never Deployed (${neverDeployed.length})`);
+  for (const a of neverDeployed) {
+    lines.push(`- [${a.tier}] ${a.id} (budget: ${a.budget})`);
+  }
+
+  lines.push(`\n## Over-Deployed (${overDeployed.length})`);
+  for (const a of overDeployed) {
+    const count = deployedAssets[a.id]?.length ?? 0;
+    lines.push(`- ${a.id}: deployed ${count}x against budget ${a.budget}`);
+  }
+
+  const byScope = new Map<string, number>();
+  for (const [id, chapters] of Object.entries(deployedAssets)) {
+    if (!library[id]) continue;
+    const scope = library[id].scope;
+    byScope.set(scope, (byScope.get(scope) ?? 0) + chapters.length);
+  }
+  lines.push('\n## Deployment by Scope');
+  for (const [scope, count] of byScope.entries()) {
+    lines.push(`- ${scope}: ${count} deployments`);
+  }
+
+  return lines.join('\n');
 }

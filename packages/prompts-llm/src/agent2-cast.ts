@@ -226,108 +226,67 @@ interface PromptComponents {
 // ============================================================================
 
 export function buildCastPrompt(inputs: CastInputs): PromptComponents {
-  const system = `You are a character design specialist for classic mystery fiction, with expertise in creating psychologically rich, diverse casts of suspects. Your role is to take user-provided character names and develop detailed profiles with hidden motives, secrets, alibis, and interpersonal tensions.
+  const system = `You are Agent 2, a cast-and-motive architect for Golden Age mystery design.
 
-You have expertise in:
-- Character psychology and motivation
-- Relationship dynamics and hidden tensions
-- Stereotype avoidance and diverse representation
-- Classic mystery archetypes (amateur sleuth, professional, witness, etc.)
-- Alibi construction and access plausibility
-- Creating red herrings and misdirection`;
+Objective: generate a tightly coupled suspect network with strong motive logic, clear opportunity structure, and fair-play misdirection.
 
-  const developer = `# Character Profile Template
+Non-negotiable rules:
+- Every character must be narratively useful
+- Motive, means, and opportunity must align
+- Avoid cliches and stereotype shortcuts
+- Return JSON only and obey enum constraints exactly`;
 
-For each character, generate:
+  const developer = `Execution plan:
+1. Build exactly the requested character roster first.
+2. Assign one detective and lock that role.
+3. Build motive/opportunity profile per non-detective.
+4. Build relationship web with meaningful tension.
+5. Derive crimeDynamics from the completed roster.
+6. Run a silent schema and guardrail check before final output.
 
-## Basic Profile
-- **name**: (from user-provided list)
-- **ageRange**: (e.g., "late 20s", "mid 40s", "60s")
-- **occupation**: (profession or role)
-- **roleArchetype**: (e.g., "amateur sleuth", "professional detective", "victim", "primary suspect", "comic relief", "voice of reason")
+Character schema (all fields required):
+- name, ageRange, occupation, roleArchetype
+- publicPersona, privateSecret
+- motiveSeed, motiveStrength (weak|moderate|strong|compelling)
+- alibiWindow, accessPlausibility (impossible|unlikely|possible|easy)
+- stakes, characterArcPotential
+- gender (male|female|non-binary)
 
-## Public vs Private
-- **publicPersona**: What others see (facade, reputation, social mask)
-- **privateSecret**: Hidden truth (scandal, debt, affair, addiction, trauma)
+Relationship schema:
+- pairs[] with character1, character2, relationship, tension (none|low|moderate|high), sharedHistory
 
-## Motive & Opportunity
-- **motiveSeed**: Reason they *could* be involved (greed, revenge, protection, fear, love)
-- **motiveStrength**: "weak" | "moderate" | "strong" | "compelling"
-- **alibiWindow**: When they were/weren't accessible during crime window
-- **accessPlausibility**: MUST be exactly one of: "impossible" | "unlikely" | "possible" | "easy" (access to crime scene/means). "likely" is NOT valid — use "easy" instead.
-- **stakes**: What they stand to gain or lose
+Diversity schema:
+- stereotypeCheck (must end as [])
+- recommendations
 
-## Character Arc
-- **characterArcPotential**: How they might evolve through investigation
+Crime dynamics schema:
+- possibleCulprits
+- redHerrings
+- victimCandidates
+- detectiveCandidates
 
-# Relationship Web Template
+Quality bar:
+- Distinct voices and social positions; avoid near-duplicate characters.
+- Every non-detective has plausible motiveSeed + alibiWindow + accessPlausibility coherence.
+- Red herrings are plausible but not arbitrary.
+- Relationship tensions should explain at least part of motive distribution.
+- roleArchetype labels should be specific and diverse, not generic repeats.
 
-Generate pairs of relationships:
-- **character1** and **character2**: (names)
-- **relationship**: (e.g., "siblings", "employer/employee", "former lovers", "rivals")
-- **tension**: "none" | "low" | "moderate" | "high"
-- **sharedHistory**: Brief backstory of their connection
+Micro-exemplars (patterns to follow, not content to copy):
+- Good motive/opportunity coupling:
+  motiveSeed: "Will loses controlling shares if victim survives audit" + alibiWindow: "left drawing room 8:40-9:05" + accessPlausibility: "easy"
+- Weak coupling to avoid:
+  motiveSeed: "seems suspicious" + alibiWindow: "around evening" + accessPlausibility: "possible"
+- Good red herring:
+  A character with public conflict and staged incriminating behavior, but with a later-verifiable contradiction that removes them as culprit.
+- Detective rule example:
+  The detective roleArchetype label must never appear in possibleCulprits.
 
-# Diversity & Realism Check
-
-- **stereotypeCheck**: List any potential stereotypes to avoid
-- **recommendations**: Suggestions for authentic, diverse representation
- - **Requirement**: Final stereotypeCheck must be empty; resolve any issues before output
-
-# Crime Dynamics
-
-Analyze the cast for:
-- **possibleCulprits**: Characters with strong motive + access
-- **redHerrings**: Characters who seem guilty but aren't
-- **victimCandidates**: Who might be the victim (if murder)
-- **detectiveCandidates**: Who could be the investigator
-
-# Output Format
-
-Return JSON only:
-\`\`\`json
-{
-  "characters": [
-    {
-      "name": "...",
-      "ageRange": "...",
-      "occupation": "...",
-      "roleArchetype": "...",
-      "publicPersona": "...",
-      "privateSecret": "...",
-      "motiveSeed": "...",
-      "motiveStrength": "weak|moderate|strong|compelling",
-      "alibiWindow": "...",
-      "accessPlausibility": "impossible|unlikely|possible|easy",
-      "stakes": "...",
-      "characterArcPotential": "...",
-      "gender": "male|female|non-binary"
-    }
-  ],
-  "relationships": {
-    "pairs": [
-      {
-        "character1": "...",
-        "character2": "...",
-        "relationship": "...",
-        "tension": "none|low|moderate|high",
-        "sharedHistory": "..."
-      }
-    ]
-  },
-  "diversity": {
-    "stereotypeCheck": ["..."],
-    "recommendations": ["..."]
-  },
-  "crimeDynamics": {
-    "possibleCulprits": ["..."],
-    "redHerrings": ["..."],
-    "victimCandidates": ["..."],
-    "detectiveCandidates": ["..."]
-  }
-}
-\`\`\`
-`;
+Output contract:
+- Return one JSON object only.
+- No markdown fences.
+- No null placeholders.
+- No extra top-level keys beyond characters, relationships, diversity, crimeDynamics.`;
 
   const count = inputs.characterNames?.length || inputs.castSize || 6;
   const minUniqueArchetypes = getMinimumUniqueArchetypes(count);
@@ -397,14 +356,14 @@ DETECTIVE ENTRY MANDATE: ${detectiveEntryMandate}`;
 `
     : ``;
 
-  const user = `Design detailed character profiles for the following mystery:
+  const user = `Design a high-quality suspect cast for this mystery:
 
 VARIATION DIRECTIVES FOR THIS CAST:
 ${namingDirectives}- Relationship Theme: Emphasize ${relationshipGuidance}
 - Motive Distribution: ${motiveGuidance}
 - Social Dynamic: Highlight ${dynamicGuidance}
 
-Use these directives to create a UNIQUE cast with distinctive dynamics.
+Use these directives to create a unique cast with strong internal logic.
 
 ${namesSection}
 **Setting**: ${inputs.setting}
@@ -412,7 +371,7 @@ ${namesSection}
 ${inputs.socialContext ? `**Social Context**: ${inputs.socialContext}` : ""}
 **Tone**: ${inputs.tone}
 
-Requirements:
+Hard requirements:
 1. Create complete profiles for all ${count} characters — the characters array MUST have exactly ${count} entries
 2. ONE character is the investigator/detective (roleArchetype: "${detectiveRoleLabel}") — they must NOT appear in crimeDynamics.possibleCulprits
 3. Ensure diverse representation (age, background, archetype)
@@ -436,7 +395,9 @@ CRITICAL COMPLETENESS RULES:
 ${inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0 ? `## Quality Guardrails (Must Satisfy)
 ${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}
 
-` : ''}Output JSON only.`;
+` : ''}Final step before output: silently verify all enum values and guardrails.
+
+Output JSON only.`;
 
   // Azure OpenAI requires system + developer combined
   const messages = [

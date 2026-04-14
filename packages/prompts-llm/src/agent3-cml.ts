@@ -284,6 +284,7 @@ CASE:
     design: ""
     knowledge_revealed: ""
     pass_condition: ""
+    evidence_clues: ["clue_1", "clue_2", "clue_3"]
   fair_play:
     all_clues_visible: true
     no_special_knowledge_required: true
@@ -401,6 +402,7 @@ ${hardLogicDeviceText}
       ✗ WRONG: Detective privately deduces premeditation; reader sees it only at confrontation → Information Parity 0/100
       ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs 8 minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
       ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
+    e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.
 10. Ensure all fair-play checklist items are true
 11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
 12. Ground every clue in mechanism or constraint violations
@@ -419,6 +421,7 @@ ${hardLogicDeviceText}
     - culprit_revelation_scene: Specify which act/scene reveals the culprit's identity
     - identity_rules: If using identity axis, specify how characters should be referenced before/after identity reveal
     - clue_to_scene_mapping: Map key clues to specific acts (scene number optional)
+    - Every clue ID used in discriminating_test.evidence_clues MUST be present in clue_to_scene_mapping
     This ensures Agent 9 knows exactly where to place validation-critical content.
 
 **Output Format**:
@@ -612,6 +615,9 @@ export async function generateCML(
     discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
     discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
     discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
+    discriminatingTest.evidence_clues = ensureArray(discriminatingTest.evidence_clues)
+      .map((id) => String(id ?? "").trim())
+      .filter((id) => id.length > 0);
 
     const fairPlay = ensureObject(caseBlock.fair_play);
     caseBlock.fair_play = fairPlay;

@@ -251,8 +251,7 @@ describe("ProseReader.vue", () => {
     expect(nextButton?.attributes("disabled")).toBeDefined();
   });
 
-  it.skip("displays note when provided", () => {
-    // TODO: Check if note is actually displayed in component template
+  it("displays note when provided", () => {
     const proseWithNote: ProseData = {
       status: "complete",
       chapters: [
