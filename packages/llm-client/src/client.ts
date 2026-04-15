@@ -136,6 +136,7 @@ export class AzureOpenAIClient {
           model,
           promptHash,
           responseHash,
+          response: content,
           latencyMs,
           promptTokens: usage.promptTokens,
           completionTokens: usage.completionTokens,

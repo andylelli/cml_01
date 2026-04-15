@@ -272,7 +272,27 @@ ${eraDetails}
 ---
 
 ## Prose Requirements (CRITICAL - Must be reflected in outline)
-${buildProseRequirements(caseData)}`;
+${buildProseRequirements(caseData)}
+
+---
+
+## Quality Bar
+- Scene purposes must be specific and progression-driving, not generic transitions.
+- Clue reveal and clue usage must be temporally separated to preserve fair play.
+- Character presence should reflect motive/access logic from CML constraints.
+
+## Micro-exemplars
+- Weak scene purpose: "Investigation continues."
+- Strong scene purpose: "Force two alibis into direct contradiction by replaying dining-room timing under servant testimony."
+- Weak dramatic element: "Tension rises."
+- Strong dramatic element: "Detective notices wet cuff links despite suspect claiming no outdoor movement during rain window."
+
+## Silent Pre-Output Checklist
+- exact scene count and act distribution satisfied
+- clue reveal precedes clue usage in later scenes
+- discriminating test occurs only after supporting clues appear
+- character arrays use exact cast names
+- JSON only, no markdown fences`;
 }
 
 function buildProseRequirements(caseData: CaseData): string {

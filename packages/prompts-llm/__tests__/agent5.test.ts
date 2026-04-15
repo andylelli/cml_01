@@ -29,12 +29,12 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
       inference_path: {
         steps: [
           {
-            observation: "Library clock stopped at 9:15",
+            observation: "Library clock stopped at a quarter past nine",
             correction: "Clock was tampered with",
             effect: "False timeline established",
           },
           {
-            observation: "Train arrival delayed 2 hours",
+            observation: "Train arrival delayed two hours",
             correction: "Witnesses' alibis shift",
             effect: "Access window changes",
           },
@@ -42,7 +42,7 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
       },
       constraint_space: {
         time: {
-          anchors: ["9:00 PM dinner bell", "11:30 PM last witness sighting"],
+          anchors: ["nine o'clock dinner bell", "half past eleven last witness sighting"],
           contradictions: ["Two conflicting time reports"],
         },
         access: {
@@ -129,8 +129,8 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
 
       const prompt = buildCluePrompt(inputs);
 
-      expect(prompt.developer).toContain("Library clock stopped at 9:15");
-      expect(prompt.developer).toContain("Train arrival delayed 2 hours");
+      expect(prompt.developer).toContain("Library clock stopped at a quarter past nine");
+      expect(prompt.developer).toContain("Train arrival delayed two hours");
     });
 
     it("includes constraint space facts", () => {

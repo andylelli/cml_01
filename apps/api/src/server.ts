@@ -418,6 +418,10 @@ const buildLlmLogger = () =>
     fullPromptLogFilePath:
       process.env.FULL_PROMPT_LOG_FILE_PATH ||
       path.resolve(process.cwd(), "logs", "llm-prompts-full.jsonl"),
+    logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
+    actualPromptDocsDir:
+      process.env.ACTUAL_PROMPT_DOCS_DIR ||
+      path.resolve(process.cwd(), "..", "..", "documentation", "prompts", "actual"),
   });
 
 const describeError = (error: unknown) => {

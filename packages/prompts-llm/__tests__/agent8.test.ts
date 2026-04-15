@@ -24,7 +24,7 @@ const mockGeneratedCML: CaseData = {
       victim: "Lord Ashford",
       method: "stabbed",
       location: "Locked study",
-      when: "11:47 PM",
+      when: "thirteen minutes to midnight",
     },
   },
   cast: [
@@ -42,7 +42,7 @@ const mockGeneratedCML: CaseData = {
     },
   ],
   constraint_space: {
-    time: [{ description: "Victim heard alive at 11:45 PM", constraint_type: "establishes_boundary" }],
+    time: [{ description: "Victim heard alive at a quarter to midnight", constraint_type: "establishes_boundary" }],
     access: [{ description: "Study locked from inside", constraint_type: "physical_barrier" }],
     physical: [{ description: "Bloodstain indicates left-handed attacker", constraint_type: "narrows" }],
   },
@@ -109,7 +109,7 @@ const mockSeedCML1: CaseData = {
     },
   ],
   constraint_space: {
-    time: [{ description: "Diamond seen at 10 PM", constraint_type: "establishes_boundary" }],
+    time: [{ description: "Diamond seen at ten o'clock at night", constraint_type: "establishes_boundary" }],
     access: [{ description: "Only three people had keys", constraint_type: "eliminates" }],
     physical: [{ description: "Paint stain on nightgown", constraint_type: "narrows" }],
   },
@@ -176,7 +176,7 @@ const mockSeedCML2: CaseData = {
     },
   ],
   constraint_space: {
-    time: [{ description: "Victim alive at 11:30 PM", constraint_type: "establishes_boundary" }],
+    time: [{ description: "Victim alive at half past eleven", constraint_type: "establishes_boundary" }],
     access: [{ description: "Door locked from inside", constraint_type: "physical_barrier" }],
     physical: [{ description: "Weapon suggests right-handed attacker", constraint_type: "narrows" }],
   },

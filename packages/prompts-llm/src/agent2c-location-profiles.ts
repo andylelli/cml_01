@@ -267,7 +267,25 @@ CRITICAL FIELD REQUIREMENTS:
 - sensoryVariants MUST be an array of 3-4 objects, each with: id (string), timeOfDay (morning|afternoon|evening|night), weather (string), sights (string[]), sounds (string[]), smells (string[]), mood (string). Cover morning-rain, afternoon-grey, and evening-clear as a minimum. These objects drive atmospheric variety across chapters.
 - type field MUST be one of: "interior", "exterior", "transitional"
 - Do NOT return location names as strings - always return complete objects with all required fields
-- The top-level \`atmosphere\` object is REQUIRED and must include: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting the atmosphere object entirely will fail schema validation.${enhancedFeedback}`;
+- The top-level \`atmosphere\` object is REQUIRED and must include: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting the atmosphere object entirely will fail schema validation.
+
+Quality bar:
+- Every location must support mystery mechanics (access restrictions, sightlines, concealment opportunities, evidence persistence).
+- Sensory language must be specific and period-grounded, not generic gothic filler.
+- Atmospheric variety across sensoryVariants must create scene-level contrast useful to prose generation.
+
+Micro-exemplars:
+- Weak visualDetails: "A large old room with furniture."
+- Strong visualDetails: "Gas sconces throw a tobacco-yellow wash over hunting prints; rain-dark oak absorbs light at corridor turns."
+- Weak accessControl: "People can go there sometimes."
+- Strong accessControl: "Household staff enter before dawn for coal; family access resumes after breakfast; library remains locked after dinner."
+
+Before finalizing, run a silent checklist:
+- top-level atmosphere object complete
+- keyLocations are objects, not strings
+- each sensoryDetails field has rich sentences
+- sensoryVariants cover morning-rain, afternoon-grey, evening-clear
+- JSON only, no markdown fences${enhancedFeedback}`;
 
   const user = `Generate location profiles for this mystery.
 

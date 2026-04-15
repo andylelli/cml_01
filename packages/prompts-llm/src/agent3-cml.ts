@@ -197,7 +197,35 @@ ${INFERENCE_PATH_QUALITY}
 5. The constraint_space MUST contain at least one contradiction per inference step - 
    a pair of facts that create logical tension the reader can resolve
 6. The discriminating_test.design MUST reference specific evidence the reader has 
-   already seen in earlier inference steps`;
+  already seen in earlier inference steps
+
+Quality bar:
+- Every major section must be operationally useful to downstream agents (clues, fair-play audit, narrative outline, prose).
+- Avoid generic mystery boilerplate; encode concrete contradictions, named evidence, and explicit eliminations.
+- Maintain strict axis coherence: false_assumption type, mechanism logic, and discriminating test must align.
+
+Hard constraints learned from failures:
+- Keep required setting fields non-empty, including CASE.meta.setting.institution.
+- Use canonical enum vocabulary consistently; avoid ad-hoc variant labels.
+- Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.
+- Ensure each inference step has concrete required_evidence that downstream clue extraction can convert directly to clues.
+- Use era-appropriate worded time references in narrative-facing evidence text (for example, "ten minutes to eleven", not "10:50 PM").
+
+Micro-exemplars:
+- Weak inference observation: "Witness accounts conflict."
+- Strong inference observation: "Station porter logs Dr. Vale boarding the twelve minutes past eight service while his alibi claims he was at the manor at ten past eight."
+- Weak effect: "Narrows suspects."
+- Strong effect: "Eliminates Hartwell by proving key access ended at twenty minutes to eight, forty minutes before symptom onset."
+
+Before finalizing, run a silent checklist:
+- all required top-level keys present
+- 3-5 inference steps with required_evidence in each
+- discriminating_test uses only previously exposed evidence
+- fair_play booleans true with specific explanation
+- prose_requirements populated and clue IDs traceable
+- required setting fields (including institution) are non-empty
+- canonical enum forms only
+- narrative-facing time references are era-appropriate and written in words`;
 
   const requiredSkeleton = `
 **Required YAML Skeleton (do not omit any keys)**:
@@ -400,7 +428,7 @@ ${hardLogicDeviceText}
    d. EXAMPLES:
       ✗ WRONG: Test reveals "Kenneth adjusted the clock spring" for the first time → Clue Visibility 0/100
       ✗ WRONG: Detective privately deduces premeditation; reader sees it only at confrontation → Information Parity 0/100
-      ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs 8 minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
+      ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs eight minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
       ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
     e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.
 10. Ensure all fair-play checklist items are true
@@ -423,6 +451,9 @@ ${hardLogicDeviceText}
     - clue_to_scene_mapping: Map key clues to specific acts (scene number optional)
     - Every clue ID used in discriminating_test.evidence_clues MUST be present in clue_to_scene_mapping
     This ensures Agent 9 knows exactly where to place validation-critical content.
+  18. Required setting fields must be non-empty, including CASE.meta.setting.institution.
+  19. Use canonical enum/value forms only (avoid ad-hoc variants).
+  20. Use era-appropriate worded time references in narrative-facing text (for example, "quarter past nine" rather than numeric digital notation).
 
 **Output Format**:
 Respond with ONLY valid JSON matching the CML 2.0 schema. No explanations, no markdown code blocks, no commentary.
@@ -671,8 +702,23 @@ export async function generateCML(
   for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
     try {
       // Generate CML
+      const retryContextMessage =
+        attempt > 1 && !lastValidation.valid && Array.isArray(lastValidation.errors) && lastValidation.errors.length > 0
+          ? {
+              role: "user" as const,
+              content:
+                "Correction Targets (retry mode):\n" +
+                lastValidation.errors.map((err: string) => `- ${err}`).join("\n") +
+                "\nFix these failures first. Preserve already-valid sections unless they conflict with target fixes. Do not reintroduce previously rejected enum/value forms.",
+            }
+          : undefined;
+
+      const messages = retryContextMessage
+        ? [...prompt.messages, retryContextMessage]
+        : prompt.messages;
+
       const response = await client.chatWithRetry({
-        messages: prompt.messages,
+        messages,
         model:
           process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
         temperature: config.model.temperature,

@@ -177,8 +177,8 @@ Return JSON with this structure:
     "season": "spring|summer|fall|winter",
     "month": "month name",
     "weather": ["weather detail 1", "weather detail 2", "weather detail 3"],
-    "daylight": "daylight description for this season (e.g. 'Long summer evenings, sunset after 9 PM, darkness falls around 10 PM')",
-    "time_of_day_of_crime": "Specific period when the crime occurs — use period words like 'late evening', 'after midnight', 'morning', 'afternoon' (e.g. 'Late evening — between 9 PM and 11 PM, after dinner has concluded')",
+    "daylight": "daylight description for this season (e.g. 'Long summer evenings, sunset after nine o'clock at night, darkness falls around ten o'clock at night')",
+    "time_of_day_of_crime": "Specific period when the crime occurs — use period words like 'late evening', 'after midnight', 'morning', 'afternoon' (e.g. 'Late evening — between nine and eleven at night, after dinner has concluded')",
     "holidays": ["any holidays this month"],
     "seasonalActivities": ["activity 1", "activity 2", "activity 3"]
   },
@@ -265,6 +265,24 @@ Requirements:
   - Include at least 3 seasonal activities tied to ${specificDate.month} and this location.
   - Include at least 3 typical prices and 2 social rituals in \`cultural.dailyLife\`.
   - Avoid placeholders, filler, or repeated generic phrases.
+
+Quality bar:
+- Prefer concrete historical texture over broad claims (named artifacts, practices, institutions, prices).
+- Keep cross-field consistency: seasonal weather, fashion materials, entertainment, and social attitudes should align to the same date.
+- Ensure atmosphere can be directly reused in prose scenes.
+
+Micro-exemplars:
+- Weak currentAffairs.majorEvents: "political tensions in Europe"
+- Strong currentAffairs.majorEvents: "cabinet instability after budget cuts debated in Westminster; shipping insurance rates rise after Atlantic losses"
+- Weak typicalPrices: "bread is affordable"
+- Strong typicalPrices: "Bread loaf: four pence; Coal scuttle refill: one shilling sixpence; Taxi across town: two shillings"
+
+Before finalizing, run a silent checklist:
+- exact required year/month preserved
+- all nested objects/arrays match schema
+- no anachronistic technology or attitudes
+- paragraphs are narrative, not bullet fragments
+- JSON only, no markdown fences
 
 CRITICAL: Ensure all nested objects and arrays match the schema structure exactly${validationFeedback}`;
 

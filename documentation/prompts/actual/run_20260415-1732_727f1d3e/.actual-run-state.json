@@ -1,0 +1,45 @@
+{
+  "runId": "run_727f1d3e-d287-450a-8a41-fcc49e2d1ab9",
+  "projectId": "proj_2eaaacc6-ccee-4e44-b5bb-6766aacf573c",
+  "folderName": "run_20260415-1732_727f1d3e",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "89be29d8bb0105e1",
+      "requestTimestamp": "2026-04-15T17:32:21.878Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-04-15T17:32:27.650Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "3fabda4d41c6069d",
+      "requestTimestamp": "2026-04-15T17:32:27.679Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-04-15T17:32:40.403Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2e-BackgroundContext",
+      "retryAttempt": 1,
+      "promptHash": "6ee3826be988a887",
+      "requestTimestamp": "2026-04-15T17:32:40.418Z",
+      "requestFile": "03_Agent2e-BackgroundContext_request.md",
+      "responseTimestamp": "2026-04-15T17:32:42.325Z",
+      "responseFile": "03_Agent2e-BackgroundContext_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 1,
+      "promptHash": "0bbd148225fe4534",
+      "requestTimestamp": "2026-04-15T17:32:42.346Z",
+      "requestFile": "04_Agent3b-HardLogicDeviceGenerator_request.md"
+    }
+  ]
+}

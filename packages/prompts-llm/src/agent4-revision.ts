@@ -205,6 +205,23 @@ When cast members are missing fields like age_range, role_archetype, etc.:
 - inference_path must be an object with "steps" array
 - discriminating_test.method must be: reenactment | trap | constraint_proof | administrative_pressure
 
+## Quality Bar
+- Prefer minimal surgical edits over broad rewrites.
+- Preserve existing narrative content unless a schema/type violation requires change.
+- Keep enumerations exact and normalize near-miss values to valid schema options.
+- Ensure every inferred fix is anchored to existing CML context, not invented plot expansion.
+
+## Micro-exemplars
+- Weak fix: "Add missing fields with generic placeholders everywhere."
+- Strong fix: "Add only missing cast.age_range for two suspects, infer from occupations already present, keep all existing secrets/alibis unchanged."
+
+## Silent Pre-Output Checklist
+- all required keys present
+- enums valid
+- types valid
+- no markdown wrappers
+- complete corrected JSON document returned
+
 `;
 
   // Original prompt context (abbreviated to save tokens)

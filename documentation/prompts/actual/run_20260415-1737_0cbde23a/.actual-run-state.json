@@ -1,0 +1,97 @@
+﻿{
+    "runId":  "run_0cbde23a-2cd5-4b11-81bf-73982c2c16e4",
+    "projectId":  "proj_9df0d9dc-1a8a-493c-9d39-dac62ff1424c",
+    "folderName":  "run_20260415-1737_0cbde23a",
+    "records":  [
+                    {
+                        "sequence":  1,
+                        "agent":  "Agent1-SettingRefiner",
+                        "retryAttempt":  0,
+                        "promptHash":  "485b506daf49776a",
+                        "requestTimestamp":  "2026-04-15T17:37:12.671Z",
+                        "requestFile":  "01_Agent1-SettingRefiner_request.md",
+                        "responseTimestamp":  "2026-04-15T17:37:17.543Z",
+                        "responseFile":  "01_Agent1-SettingRefiner_response.md"
+                    },
+                    {
+                        "sequence":  2,
+                        "agent":  "Agent2-CastDesigner",
+                        "retryAttempt":  0,
+                        "promptHash":  "f63c5b7b6ae67ad6",
+                        "requestTimestamp":  "2026-04-15T17:37:17.583Z",
+                        "requestFile":  "02_Agent2-CastDesigner_request.md",
+                        "responseTimestamp":  "2026-04-15T17:37:31.896Z",
+                        "responseFile":  "02_Agent2-CastDesigner_response.md"
+                    },
+                    {
+                        "sequence":  3,
+                        "agent":  "Agent2e-BackgroundContext",
+                        "retryAttempt":  0,
+                        "promptHash":  "9512f9ae71bfa4aa",
+                        "requestTimestamp":  "2026-04-15T17:37:31.926Z",
+                        "requestFile":  "03_Agent2e-BackgroundContext_request.md",
+                        "responseTimestamp":  "2026-04-15T17:37:33.998Z",
+                        "responseFile":  "03_Agent2e-BackgroundContext_response.md"
+                    },
+                    {
+                        "sequence":  4,
+                        "agent":  "Agent3b-HardLogicDeviceGenerator",
+                        "retryAttempt":  0,
+                        "promptHash":  "5824112c129bd22e",
+                        "requestTimestamp":  "2026-04-15T17:37:34.014Z",
+                        "requestFile":  "04_Agent3b-HardLogicDeviceGenerator_request.md",
+                        "responseTimestamp":  "2026-04-15T17:37:50.008Z",
+                        "responseFile":  "04_Agent3b-HardLogicDeviceGenerator_response.md"
+                    },
+                    {
+                        "sequence":  5,
+                        "agent":  "Agent3-CMLGenerator",
+                        "retryAttempt":  0,
+                        "promptHash":  "8455d162c4a5ef60",
+                        "requestTimestamp":  "2026-04-15T17:37:50.111Z",
+                        "requestFile":  "05_Agent3-CMLGenerator_request.md",
+                        "responseTimestamp":  "2026-04-15T17:38:16.970Z",
+                        "responseFile":  "05_Agent3-CMLGenerator_response.md"
+                    },
+                    {
+                        "sequence":  6,
+                        "agent":  "Agent5-ClueExtraction",
+                        "retryAttempt":  0,
+                        "promptHash":  "b8e0902eb974303b",
+                        "requestTimestamp":  "2026-04-15T17:38:17.020Z",
+                        "requestFile":  "06_Agent5-ClueExtraction_request.md",
+                        "responseTimestamp":  "2026-04-15T17:38:27.441Z",
+                        "responseFile":  "06_Agent5-ClueExtraction_response.md"
+                    },
+                    {
+                        "sequence":  7,
+                        "agent":  "Agent5-ClueExtraction",
+                        "retryAttempt":  1,
+                        "promptHash":  "",
+                        "requestTimestamp":  "2026-04-15T17:38:27.449Z",
+                        "requestFile":  "",
+                        "responseTimestamp":  "2026-04-15T17:38:52.389Z",
+                        "responseFile":  "07_Agent5-ClueExtraction_retry1_response.md"
+                    },
+                    {
+                        "sequence":  8,
+                        "agent":  "Agent5-ClueExtraction",
+                        "retryAttempt":  2,
+                        "promptHash":  "bd4772a6f90b54e9",
+                        "requestTimestamp":  "2026-04-15T17:38:27.462Z",
+                        "requestFile":  "08_Agent5-ClueExtraction_retry2_request.md",
+                        "responseTimestamp":  "2026-04-15T17:38:41.563Z",
+                        "responseFile":  "08_Agent5-ClueExtraction_retry2_response.md"
+                    },
+                    {
+                        "sequence":  9,
+                        "agent":  "Agent5-ClueExtraction",
+                        "retryAttempt":  3,
+                        "promptHash":  "34e458facadaa649",
+                        "requestTimestamp":  "2026-04-15T17:38:41.583Z",
+                        "requestFile":  "09_Agent5-ClueExtraction_retry3_request.md",
+                        "responseTimestamp":  "2026-04-15T17:38:52.383Z",
+                        "responseFile":  "09_Agent5-ClueExtraction_retry3_response.md"
+                    }
+                ]
+}

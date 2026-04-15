@@ -151,6 +151,10 @@ export function selectChapterAtoms(
     // Scope filter
     if (asset.scope === 'character' && !activeCharacterNames.has(asset.scopeKey)) continue;
     if (asset.scope === 'location' && !activeLocationIds.has(asset.scopeKey)) continue;
+    // Window-scoped atoms (e.g., reveal/break) are controlled by dedicated chapter-window
+    // logic in buildWorldBriefBlock(). Do not expose them through generic texture/obligation
+    // selection or they can leak outside their intended story window.
+    if (asset.scope === 'window') continue;
 
     // Budget filter — 0 means unlimited
     const usedCount = (deployedAssets[asset.id] ?? []).length;

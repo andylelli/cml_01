@@ -1114,6 +1114,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const coverageResult = ctx.coverageResult;
   const outlineCoverageIssues = ctx.outlineCoverageIssues;
   const fairPlayAudit = ctx.fairPlayAudit;
+  const settingRefinement = ctx.setting?.setting;
+  const backgroundContext = ctx.backgroundContext;
+  const noveltyAudit = ctx.noveltyAudit;
 
   // Full CML/schema preflight before prose generation to fail fast on invalid structures
   // and cross-reference usage errors that prose retries cannot repair.
@@ -1143,6 +1146,76 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     "Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.",
     "In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).",
   ];
+
+  const upstreamGuardrails: string[] = [];
+
+  if (settingRefinement) {
+    const eraSignals = [
+      ...(Array.isArray(settingRefinement.era?.technology) ? settingRefinement.era.technology : []),
+      ...(Array.isArray(settingRefinement.era?.communication) ? settingRefinement.era.communication : []),
+      ...(Array.isArray(settingRefinement.era?.socialNorms) ? settingRefinement.era.socialNorms : []),
+      ...(Array.isArray(settingRefinement.era?.policing) ? settingRefinement.era.policing : []),
+    ]
+      .map((v: any) => String(v).trim())
+      .filter(Boolean)
+      .slice(0, 6);
+    if (eraSignals.length > 0) {
+      upstreamGuardrails.push(
+        `Integrate at least two concrete era-grounded details per chapter from setting refinement signals: ${eraSignals.join(' | ')}.`,
+      );
+    }
+    const movementConstraints = [
+      ...(Array.isArray(settingRefinement.location?.physicalConstraints) ? settingRefinement.location.physicalConstraints : []),
+      ...(Array.isArray(settingRefinement.location?.accessControl) ? settingRefinement.location.accessControl : []),
+    ]
+      .map((v: any) => String(v).trim())
+      .filter(Boolean)
+      .slice(0, 5);
+    if (movementConstraints.length > 0) {
+      upstreamGuardrails.push(
+        `Respect setting movement/access constraints in scene action and alibis: ${movementConstraints.join(' | ')}.`,
+      );
+    }
+  }
+
+  if (backgroundContext) {
+    if (backgroundContext.backdropSummary) {
+      upstreamGuardrails.push(
+        `Sustain social coherence with this backdrop pressure: ${backgroundContext.backdropSummary}`,
+      );
+    }
+    if (Array.isArray(backgroundContext.castAnchors) && backgroundContext.castAnchors.length > 0) {
+      upstreamGuardrails.push(
+        `Maintain continuity around these socially central cast anchors where relevant: ${backgroundContext.castAnchors.slice(0, 6).join(', ')}.`,
+      );
+    }
+  }
+
+  if (fairPlayAudit) {
+    const criticalFairPlayFixes = (fairPlayAudit.violations ?? [])
+      .filter((v: any) => String(v?.severity ?? '').toLowerCase() === 'critical')
+      .slice(0, 3)
+      .map((v: any) => String(v?.suggestion || v?.description || '').trim())
+      .filter(Boolean);
+    criticalFairPlayFixes.forEach((fix) => {
+      upstreamGuardrails.push(`Fair-play repair requirement: ${fix}`);
+    });
+  }
+
+  if (noveltyAudit) {
+    const noveltySignals = [
+      ...(Array.isArray(noveltyAudit.violations) ? noveltyAudit.violations : []),
+      ...(Array.isArray(noveltyAudit.warnings) ? noveltyAudit.warnings : []),
+    ]
+      .map((v: any) => String(v).trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    noveltySignals.forEach((signal) => {
+      upstreamGuardrails.push(
+        `Novelty safeguard: avoid reproducing this flagged seed-adjacent pattern in prose expression: ${signal}`,
+      );
+    });
+  }
 
   let prose: any;
   const totalSceneCount =
@@ -1424,6 +1497,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     narrativeStyle: inputs.narrativeStyle,
     qualityGuardrails: [
       ...baselineProseGuardrails,
+      ...upstreamGuardrails,
       ...(outlineCoverageIssues.length > 0
         ? buildOutlineRepairGuardrails(outlineCoverageIssues, cml)
         : []),
@@ -1934,7 +2008,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       narrativeState,
       targetLength: inputs.targetLength,
       narrativeStyle: inputs.narrativeStyle,
-      qualityGuardrails: [...baselineProseGuardrails, ...schemaRepairGuardrails],
+      qualityGuardrails: [...baselineProseGuardrails, ...upstreamGuardrails, ...schemaRepairGuardrails],
       writingGuides: loadWritingGuides(workspaceRoot),
       runId,
       projectId: projectId || "",

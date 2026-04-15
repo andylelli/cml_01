@@ -19,6 +19,38 @@ import { getGenerationParams } from "@cml/story-validation";
 
 export type { WorldDocumentResult };
 
+const STORY_THEME_GATE = 25;
+const STORY_THEME_TARGET = 25;
+const REVEAL_IMPLICATIONS_GATE = 90;
+const MIN_ARC_PARAGRAPHS = 2;
+const REQUIRED_HUMOUR_SCENE_POSITIONS = [
+  'opening_scene',
+  'first_investigation',
+  'body_discovery',
+  'first_interview',
+  'domestic_scene',
+  'mid_investigation',
+  'second_interview',
+  'tension_scene',
+  'pre_climax',
+  'discriminating_test',
+  'revelation',
+  'resolution',
+] as const;
+
+function countWords(value: unknown): number {
+  if (typeof value !== 'string') return 0;
+  return value.split(/\s+/).filter((w: string) => w.length > 0).length;
+}
+
+function paragraphCount(value: unknown): number {
+  if (typeof value !== 'string') return 0;
+  return value
+    .split(/\n\s*\n/)
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0).length;
+}
+
 // ARC_DESC_GATE / ARC_DESC_PROMPT are loaded from generation-params.yaml at
 // call time via getArcDescParams(). Defaults: gate=200, buffer=100 → prompt=300.
 const getArcDescParams = () => {
@@ -268,13 +300,16 @@ export async function generateWorldDocument(
             `- All required fields are present\n` +
             `- characterPortraits has one entry per cast member\n` +
             `- characterVoiceSketches has one entry per cast member\n` +
+            `- characterPortraits and characterVoiceSketches preserve CASE.cast name order exactly\n` +
             `- humourPlacementMap has all 12 scene positions, each with a non-empty rationale string\n` +
             `- Every humourPlacementMap entry must have a "rationale" field — this is required even for "forbidden" entries\n` +
+            `- humourPlacementMap must include each required scenePosition exactly once (no missing/duplicate positions)\n` +
             `- validationConfirmations all set to true\n` +
             `- storyEmotionalArc.arcDescription MUST be at least ${getArcDescParams().prompt} words (target ${getArcDescParams().prompt + 50}). ` +
             `Count every word before submitting. A single dense paragraph is not enough — ` +
             `write multiple paragraphs tracing the emotional journey from opening through climax to resolution.\n` +
             `- storyTheme MUST be at least 25 words — a complete sentence with a subject, main clause, and nuanced qualifier. Not a title or fragment.\n` +
+            `- revealImplications MUST be at least ${REVEAL_IMPLICATIONS_GATE} words\n` +
             `- Return only the JSON object, no preamble`,
         },
       ];
@@ -339,6 +374,70 @@ export async function generateWorldDocument(
         if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
         continue;
       }
+
+      let castNameMismatch: string | null = null;
+      for (let i = 0; i < castMembers.length; i++) {
+        const expectedName = castMembers[i]?.name;
+        const portraitName = parsed.characterPortraits[i]?.name;
+        const voiceName = parsed.characterVoiceSketches[i]?.name;
+        if (portraitName !== expectedName) {
+          castNameMismatch =
+            `characterPortraits[${i}].name (${portraitName ?? 'undefined'}) ` +
+            `does not match CASE.cast[${i}] (${expectedName ?? 'undefined'})`;
+          break;
+        }
+        if (voiceName !== expectedName) {
+          castNameMismatch =
+            `characterVoiceSketches[${i}].name (${voiceName ?? 'undefined'}) ` +
+            `does not match CASE.cast[${i}] (${expectedName ?? 'undefined'})`;
+          break;
+        }
+      }
+
+      if (castNameMismatch) {
+        lastError = new Error(castNameMismatch);
+        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+        continue;
+      }
+    }
+
+    // humourPlacementMap completeness and rationale quality gates
+    const humourMap = Array.isArray(parsed.humourPlacementMap) ? parsed.humourPlacementMap : [];
+    const presentPositions = humourMap.map((entry: any) => entry?.scenePosition).filter((v: any) => typeof v === 'string');
+    const seenPositions = new Set<string>();
+    const duplicatePositions = new Set<string>();
+    for (const position of presentPositions) {
+      if (seenPositions.has(position)) duplicatePositions.add(position);
+      seenPositions.add(position);
+    }
+
+    const missingPositions = REQUIRED_HUMOUR_SCENE_POSITIONS.filter((position) => !seenPositions.has(position));
+    if (missingPositions.length > 0) {
+      lastError = new Error(
+        `humourPlacementMap missing required scenePosition values: ${missingPositions.join(', ')}`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    if (duplicatePositions.size > 0) {
+      lastError = new Error(
+        `humourPlacementMap has duplicate scenePosition values: ${Array.from(duplicatePositions).join(', ')}`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    const missingRationaleIndex = humourMap.findIndex((entry: any) => {
+      return typeof entry?.rationale !== 'string' || entry.rationale.trim().length === 0;
+    });
+    if (missingRationaleIndex !== -1) {
+      const badPosition = humourMap[missingRationaleIndex]?.scenePosition ?? `index_${missingRationaleIndex}`;
+      lastError = new Error(
+        `humourPlacementMap[${missingRationaleIndex}] (${badPosition}) has an empty rationale`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
     }
 
     // ValidationConfirmations gate
@@ -357,7 +456,7 @@ export async function generateWorldDocument(
     // arcDescription word count gate — hard floor at `gate` words; prompt targets gate+buffer
     const { gate: arcDescGate, prompt: arcDescPromptTarget } = getArcDescParams();
     const arcDesc = parsed.storyEmotionalArc?.arcDescription ?? '';
-    const arcDescWordCount = arcDesc.split(/\s+/).filter((w: string) => w.length > 0).length;
+    const arcDescWordCount = countWords(arcDesc);
     if (arcDescWordCount < arcDescGate) {
       lastError = new Error(
         `storyEmotionalArc.arcDescription is too short (${arcDescWordCount} words; ` +
@@ -370,16 +469,33 @@ export async function generateWorldDocument(
       continue;
     }
 
-    // storyTheme word count gate — hard floor at 20 words; prompt targets 25 words
+    const arcParagraphs = paragraphCount(arcDesc);
+    if (arcParagraphs < MIN_ARC_PARAGRAPHS) {
+      lastError = new Error(
+        `storyEmotionalArc.arcDescription must be multi-paragraph (found ${arcParagraphs}; minimum ${MIN_ARC_PARAGRAPHS})`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    // storyTheme word count gate — hard floor and target at 25 words
     const storyTheme = typeof parsed.storyTheme === 'string' ? parsed.storyTheme : '';
-    const storyThemeWordCount = storyTheme.split(/\s+/).filter((w: string) => w.length > 0).length;
-    const STORY_THEME_GATE = 20;
-    const STORY_THEME_TARGET = 25;
+    const storyThemeWordCount = countWords(storyTheme);
     if (storyThemeWordCount < STORY_THEME_GATE) {
       lastError = new Error(
         `storyTheme is too short (${storyThemeWordCount} words; minimum ${STORY_THEME_GATE}, target ${STORY_THEME_TARGET}). ` +
         `Write a complete sentence with a subject, main clause, and a nuanced qualifier about the ` +
         `story's deeper meaning — not a title, fragment, or noun phrase.`
+      );
+      if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+      continue;
+    }
+
+    // revealImplications word count gate
+    const revealImplicationsWordCount = countWords(parsed.revealImplications);
+    if (revealImplicationsWordCount < REVEAL_IMPLICATIONS_GATE) {
+      lastError = new Error(
+        `revealImplications is too short (${revealImplicationsWordCount} words; minimum ${REVEAL_IMPLICATIONS_GATE})`
       );
       if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
       continue;

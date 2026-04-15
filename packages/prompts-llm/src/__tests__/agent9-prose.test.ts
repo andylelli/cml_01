@@ -284,7 +284,7 @@ const baseCaseData: any = {
     false_assumption: { statement: "The victim died after midnight." },
     constraint_space: {
       time: {
-        anchors: ["The mantel clock stopped at 11:47 p.m."],
+        anchors: ["The mantel clock stopped at thirteen minutes to midnight."],
       },
     },
     clue_registry: [{ clue_id: "clue_clock" }],
@@ -345,7 +345,7 @@ const baseInputs: any = {
     atmosphericDetails: ["Cold rain tapped at the windowpanes."],
   },
   lockedFacts: [
-    { id: "lf_clock", description: "mantel clock reading", value: "11:47 p.m." },
+    { id: "lf_clock", description: "mantel clock reading", value: "thirteen minutes to midnight" },
     { id: "lf_poison", description: "poison dose", value: "three drops" },
   ],
   clueDistribution: {
@@ -402,8 +402,8 @@ describe("Agent 9 prompt hardening fixes", () => {
 
     expect(block).toContain("FROZEN TIMELINE STATE");
     expect(block).toContain("November (autumn)");
-    expect(block).toContain("The mantel clock stopped at 11:47 p.m.");
-    expect(block).toContain("11:47 p.m.");
+    expect(block).toContain("The mantel clock stopped at thirteen minutes to midnight.");
+    expect(block).toContain("thirteen minutes to midnight");
   });
 
   it("Fix 4 uses an exclusive season allow-list in the prompt checklist", () => {
@@ -513,5 +513,178 @@ describe("Agent 9 prompt hardening fixes", () => {
     });
     expect(stripped.audit).toBeUndefined();
     expect(stripped.status).toBe("draft");
+  });
+
+  it("aligns reveal implications with two-phase injection (groundwork before late-story full reveal)", () => {
+    const earlyInputs = {
+      ...baseInputs,
+      outline: {
+        acts: [{ act_number: 1, scenes: [baseScene] }],
+        totalScenes: 10,
+      },
+      worldDocument: {
+        revealImplications:
+          "Mrs. Vale hesitates when asked about the clock. On the reveal, this pause proves she knew the true time of death.",
+      },
+    };
+
+    const earlyPrompt = buildProsePrompt(earlyInputs as any, [baseScene], 3, []);
+    const earlySystem = earlyPrompt.messages[0].content;
+    expect(earlySystem).toContain("## Reveal Groundwork");
+    expect(earlySystem).not.toContain("## Reveal Implications (plant these subtly)");
+
+    const latePrompt = buildProsePrompt(earlyInputs as any, [baseScene], 9, []);
+    const lateSystem = latePrompt.messages[0].content;
+    expect(lateSystem).toContain("## Reveal Implications (plant these subtly)");
+  });
+
+  it("does not leak window-scoped reveal atoms through generic texture pool", () => {
+    const inputs = {
+      ...baseInputs,
+      worldDocument: {
+        revealImplications: "UNIQUE_REVEAL_LEAK_SENTENCE that must remain window-gated.",
+      },
+      characterProfiles: { profiles: [] },
+      locationProfiles: undefined,
+      temporalContext: undefined,
+      narrativeState: {
+        lockedFacts: [],
+        characterPronouns: {},
+        cluesRevealedToReader: [],
+        continuityTail: "",
+        deployedAssets: {},
+        lastUsedSensoryVariant: {},
+        recurringPhraseWarnings: [],
+      },
+    };
+
+    const prompt = buildProsePrompt(inputs as any, [baseScene], 1, []);
+    const system = prompt.messages[0].content;
+    expect(system).not.toContain("## Texture Pool");
+    expect(system).not.toContain("UNIQUE_REVEAL_LEAK_SENTENCE");
+  });
+
+  it("adds explicit continuity handoff guidance to narrative state block when continuity tail exists", () => {
+    const prompt = buildProsePrompt(
+      {
+        ...baseInputs,
+        narrativeState: {
+          lockedFacts: [],
+          characterPronouns: {},
+          cluesRevealedToReader: [],
+          continuityTail: "She left the ledger open at the line naming Edgar's payment.",
+          deployedAssets: {},
+          lastUsedSensoryVariant: {},
+          recurringPhraseWarnings: [],
+        },
+      } as any,
+      [baseScene],
+      4,
+      [
+        {
+          chapterNumber: 3,
+          title: "Chapter 3: The Ledger",
+          charactersPresent: ["Clara Whitfield"],
+          settingTerms: ["study"],
+          keyEvents: ["She closed the ledger without looking up."],
+        },
+      ],
+    );
+
+    const system = prompt.messages[0].content;
+    expect(system).toContain("CONTINUITY HANDOFF");
+    expect(system).toContain("She left the ledger open at the line naming Edgar's payment.");
+    expect(system).toContain("must open as a continuation");
+  });
+
+  it("adds continuity checks to the pre-submit checklist when continuity is available", () => {
+    const prompt = buildProsePrompt(
+      {
+        ...baseInputs,
+        narrativeState: {
+          lockedFacts: [],
+          characterPronouns: {},
+          cluesRevealedToReader: [],
+          continuityTail: "A key turned in the corridor door.",
+          deployedAssets: {},
+          lastUsedSensoryVariant: {},
+          recurringPhraseWarnings: [],
+        },
+      } as any,
+      [
+        baseScene,
+        {
+          ...baseScene,
+          sceneNumber: 2,
+          title: "Aftermath",
+          summary: "The questioning continues.",
+        },
+      ],
+      5,
+      [],
+    );
+
+    const checklist = prompt.messages[prompt.messages.length - 1].content;
+    expect(checklist).toContain("First chapter in this batch opens by continuing the previous chapter closing beat");
+    expect(checklist).toContain("Each chapter opening after the first clearly hands off from the previous chapter ending");
+  });
+
+  it("injects setting, background, and fair-play contract blocks when upstream artifacts are present", () => {
+    const caseData = {
+      ...baseCaseData,
+      SETTING_REFINEMENT: {
+        era: {
+          decade: "1930s",
+          technology: ["Valve radios", "Manual typewriters"],
+          communication: ["Operator-routed calls"],
+          socialNorms: ["Formal address in public rooms"],
+          policing: ["Local constabulary first response"],
+        },
+        location: {
+          type: "Country manor",
+          description: "A rain-locked estate",
+          physicalConstraints: ["Single usable stair after midnight"],
+          geographicIsolation: "Nearest town is forty minutes away by car.",
+          accessControl: ["Library key held by butler after dinner"],
+        },
+        atmosphere: {
+          weather: "cold rain",
+          timeOfDay: "night",
+          mood: "contained dread",
+        },
+        realism: {
+          recommendations: ["Keep telephony delayed by switchboard traffic"],
+        },
+      },
+      BACKGROUND_CONTEXT: {
+        status: "ok",
+        backdropSummary: "An inheritance dispute traps heirs and staff in performative civility.",
+        era: { decade: "1930s", socialStructure: "gentry and servants under shared scandal pressure" },
+        setting: { location: "Blackwood Hall", institution: "private residence", weather: "rain" },
+        castAnchors: ["Clara Whitfield", "Edgar Vale"],
+        theme: "Respectability versus truth",
+      },
+      CASE: {
+        ...baseCaseData.CASE,
+        fair_play: {
+          explanation: "All decisive evidence appears before confrontation.",
+        },
+      },
+    } as any;
+
+    const prompt = buildProsePrompt(
+      {
+        ...baseInputs,
+        caseData,
+      } as any,
+      [baseScene],
+      4,
+      [],
+    );
+
+    const system = prompt.messages[0].content;
+    expect(system).toContain("SETTING REFINEMENT CONSTRAINTS");
+    expect(system).toContain("BACKGROUND CONTEXT (social coherence anchor)");
+    expect(system).toContain("FAIR-PLAY AND INFERENCE CONTRACT");
   });
 });

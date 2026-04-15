@@ -53,7 +53,7 @@ export function classifyOpeningStyle(openingSentence: string): string {
   if (/^(when|after|before|as|by the time)/.test(s)) return 'temporal-subordinate';
   // character-action: a named character (one word) + any motion/state/speech verb
   if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|turned|moved|stepped|came|went|approached|returned|glanced|gazed|looked|paused|stopped|raised|leaned|rose|drew|shook|nodded|said|asked|replied|stared|peered|bent|reached|seized|grasped|held|placed|set|picked|dropped|threw|carried|hurried|ran|rushed|noticed|watched|examined|surveyed|studied|pressed|pulled|pushed|removed|produced|found|searched|checked|picked|read|wrote|spoke|heard|felt|knew|thought|considered|decided|began|started)/.test(s)) return 'character-action';
-  // digit-based time anchor (9 PM, 9.30 a.m., etc.)
+  // digit-based time anchor (nine o'clock at night, half past nine in figure form, etc.)
   if (/\d{1,2}(\.\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s)) return 'time-anchor';
   // word-based time anchor (At half past nine..., At midnight..., etc.)
   if (/^at (half past|a quarter (to|past)|[a-z]+ o'clock|midnight|noon|dawn|dusk|daybreak|nightfall|sunrise|sunset)/i.test(s)) return 'time-anchor';

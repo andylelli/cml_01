@@ -25,7 +25,7 @@ const mockCaseData: CaseData = {
       victim: "Lord Ashford",
       method: "stabbed",
       location: "Locked study",
-      when: "11:47 PM",
+      when: "thirteen minutes to midnight",
     },
   },
   cast: [
@@ -43,7 +43,7 @@ const mockCaseData: CaseData = {
       evidence_sensitivity: [
         {
           evidence_type: "temporal",
-          vulnerability: "Was seen at the club at 11:30 PM",
+          vulnerability: "Was seen at the club at half past eleven",
         },
       ],
     },
@@ -63,7 +63,7 @@ const mockCaseData: CaseData = {
   constraint_space: {
     time: [
       {
-        description: "Victim heard alive at 11:45 PM",
+        description: "Victim heard alive at a quarter to midnight",
         constraint_type: "establishes_boundary",
       },
       {
@@ -98,8 +98,8 @@ const mockCaseData: CaseData = {
       },
       {
         type: "elimination",
-        observation: "Nephew seen at club at 11:30",
-        reasoning: "Nephew couldn't reach manor by 11:45",
+        observation: "Nephew seen at club at half past eleven",
+        reasoning: "Nephew couldn't reach manor by a quarter to midnight",
       },
     ],
     discriminating_test: {
@@ -127,7 +127,7 @@ const mockClues: ClueDistributionResult = {
     {
       id: "clue_1",
       category: "temporal",
-      description: "Victim heard alive at 11:45 PM by maid",
+      description: "Victim heard alive at a quarter to midnight by maid",
       sourceInCML: "constraint_space.time[0]",
       pointsTo: "Establishes time of death window",
       placement: "early",
@@ -145,7 +145,7 @@ const mockClues: ClueDistributionResult = {
     {
       id: "clue_3",
       category: "testimonial",
-      description: "Nephew has alibi - seen at club at 11:30 PM",
+      description: "Nephew has alibi - seen at club at half past eleven",
       sourceInCML: "cast[nephew].evidence_sensitivity",
       pointsTo: "Eliminates nephew as suspect",
       placement: "mid",
@@ -288,7 +288,7 @@ describe("Agent 6: Fair Play Auditor - Prompt Building", () => {
     });
 
     expect(prompt.developer).toContain("Essential Clues");
-    expect(prompt.developer).toContain("heard alive at 11:45");
+    expect(prompt.developer).toContain("heard alive at a quarter to midnight");
     expect(prompt.developer).toContain("locked from inside");
     expect(prompt.developer).toContain("left-handed");
   });

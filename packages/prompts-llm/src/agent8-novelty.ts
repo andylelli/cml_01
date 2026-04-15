@@ -264,6 +264,22 @@ For each seed CML, evaluate:
 - **Warning**: Overall similarity ${thresholdPercent}-${Math.min(100, thresholdPercent + 10)}% for any seed
 - **Fail**: Overall similarity > ${Math.min(100, thresholdPercent + 10)}% for any seed
 
+## Quality Bar
+- Justify high similarity scores with specific matched elements, not vague summaries.
+- Differentiate acceptable structural reuse from disallowed content copying.
+- Provide recommendations that meaningfully reduce future similarity risk.
+
+## Micro-exemplars
+- Weak warning: "Some similarities exist."
+- Strong warning: "Character similarity 0.74 driven by mirrored role triangle (heiress-doctor-steward) and near-identical inheritance-conflict motive arc."
+
+## Silent Pre-Output Checklist
+- all similarity dimensions scored for each seed
+- weighted overall similarity matches configured formula
+- status matches threshold policy
+- violations/warnings cite concrete matched elements
+- JSON only, no markdown fences
+
 ## Output Format
 
 Return a JSON object:

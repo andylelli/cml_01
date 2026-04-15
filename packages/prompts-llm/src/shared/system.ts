@@ -74,6 +74,6 @@ CRITICAL DESIGN ORDER — follow this sequence every time:
   ✓ CORRECT: Inference step 2 required_evidence includes "clock spring tension inconsistency" → discriminating test exploits that already-known evidence
 
 Anti-patterns to avoid:
-✗ "Timeline discrepancies" → ✓ "Clock in study shows 9:15, witness heard crash at 9:45"
+✗ "Timeline discrepancies" → ✓ "Clock in study shows a quarter past nine, witness heard crash at a quarter to ten"
 ✗ "Access patterns suggest hidden entry" → ✓ "Mud on library windowsill matches garden soil, but window was locked from inside"
-✗ "Behavioral tells indicate deception" → ✓ "Mrs. Harrison claims she was reading, but the library lamp was cold when checked at 10 PM"`;
+✗ "Behavioral tells indicate deception" → ✓ "Mrs. Harrison claims she was reading, but the library lamp was cold when checked at ten o'clock at night"`;

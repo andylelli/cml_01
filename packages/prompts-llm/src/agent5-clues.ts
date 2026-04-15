@@ -24,6 +24,22 @@ export interface ClueExtractionInputs {
   };
   runId?: string;
   projectId?: string;
+  retryAttempt?: number; // 1-based attempt index for logging/file naming
+}
+
+// Keep a per-run extraction attempt counter so retries are labeled consistently
+// in generated request/response artifacts (first attempt has no retry suffix).
+const clueAttemptCounterByRun = new Map<string, number>();
+
+function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
+  if (typeof inputs.retryAttempt === "number" && Number.isFinite(inputs.retryAttempt) && inputs.retryAttempt >= 1) {
+    return Math.floor(inputs.retryAttempt);
+  }
+
+  const runKey = `${inputs.runId || "unknown-run"}::${inputs.projectId || "unknown-project"}`;
+  const next = (clueAttemptCounterByRun.get(runKey) || 0) + 1;
+  clueAttemptCounterByRun.set(runKey, next);
+  return next;
 }
 
 export interface Clue {
@@ -45,9 +61,17 @@ export interface RedHerring {
   misdirection: string;             // How it misleads
 }
 
+export interface ClueExtractionAudit {
+  missingDiscriminatingEvidenceIds?: string[];
+  weakEliminationSuspects?: string[];
+  invalidSourcePaths?: string[];
+}
+
 export interface ClueDistributionResult {
   clues: Clue[];
   redHerrings: RedHerring[];
+  status?: "pass" | "fail";
+  audit?: ClueExtractionAudit;
   clueTimeline: {
     early: string[];                // Clue IDs for Act I
     mid: string[];                  // Clue IDs for Act II
@@ -235,7 +259,7 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
 - **Behavioral**: Pattern evidence (habits, reactions, suspicious actions)
 - **Testimonial**: Witness statements and testimony
 
-**Example**: ❌ "Timeline discrepancies" ✅ "Mrs. Whitmore says 9:45, but library clock stopped at 9:15"
+**Example**: ❌ "Timeline discrepancies" ✅ "Mrs. Whitmore says a quarter to ten, but library clock stopped at a quarter past nine"
 
 Return valid JSON.`;
 
@@ -358,9 +382,68 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
 `;
   }
 
+  developer += `## Quality Bar
+- Essential clues must form a solvable chain, not disconnected facts.
+- Clue wording should be concrete enough for scene-level prose rendering.
+- Placement should enforce fair-play timing rather than clustering clues at reveal.
+
+## Hard Constraints Learned from Failures
+- Discriminating-test clue ID coverage is mandatory: every ID in CASE.discriminating_test.evidence_clues must appear as a clue id.
+- Required discriminating-test clue IDs must be criticality: essential and placement: early|mid.
+- Elimination clues must include a concrete alibi window, corroborator/evidence source, and explicit exclusion logic in pointsTo.
+- sourceInCML must use legal CML paths only; do not invent path families.
+- Red herrings must support the false assumption and include non-overlap justification vs true culprit mechanism facts.
+- Narrative-facing time wording must be era-appropriate and written in words (for example, "quarter past nine", not "9:15 PM").
+- supportsInferenceStep and step-indexed sourceInCML references must stay within actual inference-path bounds.
+- Red herring text must not reuse correction-language tokens from inference_path.steps[].correction.
+
+## Source Path Legality (Critical)
+Allowed source roots include:
+- CASE.inference_path.steps[N].observation
+- CASE.inference_path.steps[N].correction
+- CASE.inference_path.steps[N].required_evidence[M]
+- CASE.constraint_space.time.anchors[M]
+- CASE.constraint_space.time.contradictions[M]
+- CASE.constraint_space.access.actors[M]
+- CASE.constraint_space.access.objects[M]
+- CASE.constraint_space.access.permissions[M]
+- CASE.constraint_space.physical.laws[M]
+- CASE.constraint_space.physical.traces[M]
+- CASE.cast[N].alibi_window
+- CASE.cast[N].access_plausibility
+- CASE.cast[N].evidence_sensitivity[M]
+- CASE.discriminating_test.evidence_clues[M]
+- CASE.prose_requirements.clue_to_scene_mapping[M].clue_id
+Forbidden examples:
+- CASE.constraint_space.access.footprints[0]
+- CASE.character_behavior.*
+- CASE.character_testimonial.*
+- CASE.cast.Name.*
+
+## Micro-exemplars
+- Weak clue: "Someone was nervous around dinner."
+- Strong clue: "Port wine decanter seal is broken before service despite butler log marking it intact at ten past seven."
+- Weak sourceInCML: "case notes"
+- Strong sourceInCML: "CASE.constraint_space.time.anchors[1]"
+
+## Silent Pre-Output Checklist
+- every clue traceable to CML
+- essential clues placed early/mid only
+- supportsInferenceStep populated when applicable
+- red herrings support false assumption without inventing facts
+- all discriminating-test evidence clue IDs present in clue list
+- elimination clues include qualifying alibi/corroboration/exclusion detail
+- no illegal sourceInCML paths
+- no out-of-range inference-step indices
+- no digit-based clock notation in description/pointsTo
+- JSON only, no markdown fences
+
+`;
+
   developer += `## Output JSON Schema
 \`\`\`json
 {
+  "status": "pass|fail",
   "clues": [
     {
       "id": "clue_1",
@@ -381,7 +464,12 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
       "supportsAssumption": "Which false assumption it supports",
       "misdirection": "How it misleads"
     }
-  ]
+  ],
+  "audit": {
+    "missingDiscriminatingEvidenceIds": [],
+    "weakEliminationSuspects": [],
+    "invalidSourcePaths": []
+  }
 }
 \`\`\``;
 
@@ -389,7 +477,7 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
   const densityCountText: Record<string, string> = { minimal: "5-8", moderate: "8-12", dense: "12-18" };
   const rhUserText = redHerringBudget > 0 ? ` and ${redHerringBudget} red herrings` : "";
 
-  const user = `Extract and organize clues from this mystery CML.
+  let user = `Extract and organize clues from this mystery CML.
 
 Generate ${densityCountText[clueDensity]} clues${rhUserText} that uphold fair play — every essential clue must be placed so the reader can solve the mystery before the detective reveals the answer.
 
@@ -397,9 +485,32 @@ Rules:
 - Do NOT invent new facts — every clue must be traceable to CML
 - Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.
 - DISCRIMINATING TEST CLUES: Any clue that enables the discriminating test to make sense must be placed "early" or "mid". The discriminating test scene exploits knowledge the reader already has — it must NEVER be the reader's first exposure to the mechanism detail.
+- DISCRIMINATING TEST ID CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear as a clue id.
 - PREMEDITATION CLUES: If the culprit's guilt depends on premeditation or planning, that evidence must be a separate reader-visible clue placed "early" or "mid". The detective cannot withhold this from the reader until confrontation.
+- ELIMINATION CLUES: Must include time window, corroborator/evidence source, and direct exclusion logic in pointsTo ("Eliminates <name> because ...").
+- SOURCE PATH LEGALITY: sourceInCML must use only legal CML path roots.
+- STYLE: Use era-appropriate worded time references in clue descriptions and pointsTo.
+- TIME FORMAT: Never use digit-based clock notation in clue descriptions or pointsTo.
+- RED HERRING SEPARATION: Do not reuse correction-language tokens from inference_path.steps[].correction in red herring description/misdirection text.
 - Cite sourceInCML for every clue
 - Return valid JSON matching the Output JSON Schema above`;
+
+  if (inputs.fairPlayFeedback && (inputs.fairPlayFeedback.violations?.length || inputs.fairPlayFeedback.warnings?.length)) {
+    const correctionTargets = [
+      ...(inputs.fairPlayFeedback.violations || []).map((v) => `[${v.severity}] ${v.rule}: ${v.description}`),
+      ...(inputs.fairPlayFeedback.warnings || []).map((w) => `[warning] ${w}`),
+    ];
+    if (correctionTargets.length > 0) {
+      user += `
+
+Retry mode (correction targets):
+- Fix these unresolved targets first:
+${correctionTargets.map((t) => `  - ${t}`).join("\n")}
+- Preserve unaffected clues unless changes are needed for consistency.
+- Populate audit arrays to show no unresolved critical defects.
+- If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.`;
+    }
+  }
 
   return {
     system,
@@ -420,6 +531,7 @@ export async function extractClues(
   const logger = client.getLogger();
   const runId = inputs.runId || `clues-${Date.now()}`;
   const projectId = inputs.projectId || "unknown";
+  const attempt = getClueAttemptNumber({ ...inputs, runId, projectId });
 
   await logger.logRequest({
     runId,
@@ -457,7 +569,7 @@ export async function extractClues(
         runId,
         projectId,
         agent: "Agent5-ClueExtraction",
-        retryAttempt: 0,
+        retryAttempt: attempt,
       },
     });
 
@@ -537,6 +649,8 @@ export async function extractClues(
     return {
       clues: clueData.clues,
       redHerrings: clueData.redHerrings || [],
+      status: clueData.status === "pass" || clueData.status === "fail" ? clueData.status : undefined,
+      audit: clueData.audit && typeof clueData.audit === "object" ? clueData.audit : undefined,
       clueTimeline,
       fairPlayChecks,
       latencyMs,

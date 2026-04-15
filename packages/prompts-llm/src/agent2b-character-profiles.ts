@@ -104,7 +104,25 @@ CHARACTER HUMOUR REQUIREMENTS:
 - BUT surprise occasionally: a colonel with self_deprecating humour or a maid with polite_savagery creates depth.
 - speechMannerisms should describe HOW they speak: speech rhythm, favourite phrases, verbal tics, formality level, and how their humour manifests in dialogue.
 - NOT every character should be funny. A mystery needs contrast: some characters are earnest, tense, or humourless. This makes the witty ones land harder.
-- The detective should typically have dry_wit or observational style at 0.4-0.6 (restrained, precise, never a comedian).`;
+- The detective should typically have dry_wit or observational style at 0.4-0.6 (restrained, precise, never a comedian).
+
+Quality bar:
+- Every profile must create a usable prose voice (speechMannerisms + internalConflict + personalStakeInCase all concrete, not placeholders).
+- Paragraphs must reveal character through action/choice, not just static biography summary.
+- Keep motive/alibi/access fields coherent with cast input and avoid contradictions.
+
+Micro-exemplars:
+- Weak internalConflict: "has doubts"
+- Strong internalConflict: "fears exposing the forged ledger will ruin the daughter she secretly supports"
+- Weak speechMannerisms: "talks formally"
+- Strong speechMannerisms: "answers in clipped legal phrases, then softens into provincial idioms when pressed"
+
+Before finalizing, run a silent checklist:
+- Exactly one profile per cast member
+- Enum values are exact
+- Detective has personalStakeInCase
+- paragraphs arrays exist and contain 4-6 entries
+- JSON only, no markdown fences`;
 
   const user = `Write narrative character profiles for the following mystery.\n\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCast: ${castNames}\n\nCast details:\n${JSON.stringify(inputs.cast.characters, null, 2)}`;
 

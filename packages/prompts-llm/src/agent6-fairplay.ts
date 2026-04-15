@@ -342,6 +342,21 @@ Perform a rigorous fair play audit of this mystery. Analyze whether the reader c
 8. **False Assumption Support**: Do the red herrings effectively support the false assumption?
 9. **Solution Uniqueness**: Do the clues point unambiguously to the culprit?
 
+## Quality Bar
+- Findings must cite concrete clue IDs, inference steps, or CML fields.
+- Distinguish critical fairness breaks from moderate craft issues.
+- Recommendations must be actionable and minimally invasive.
+
+## Micro-exemplars
+- Weak violation: "Fair play is weak."
+- Strong violation: "Critical Information Parity breach: step 3 relies on purchase receipt absent from any early/mid clue; add reader-visible clue before discriminating test."
+
+## Silent Pre-Output Checklist
+- every failed check cites exact clue IDs or CML locations
+- severity matches impact on solvability
+- recommendations are concrete and minimally invasive
+- JSON only, no markdown fences
+
 ## Output Format
 
 Return a JSON object with this structure:

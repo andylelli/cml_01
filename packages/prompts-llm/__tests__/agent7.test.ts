@@ -25,7 +25,7 @@ const mockCaseData: CaseData = {
       victim: "Lord Ashford",
       method: "stabbed",
       location: "Locked study",
-      when: "11:47 PM",
+      when: "thirteen minutes to midnight",
     },
   },
   cast: [
@@ -51,7 +51,7 @@ const mockCaseData: CaseData = {
   constraint_space: {
     time: [
       {
-        description: "Victim heard alive at 11:45 PM",
+        description: "Victim heard alive at a quarter to midnight",
         constraint_type: "establishes_boundary",
       },
       {
@@ -110,7 +110,7 @@ const mockClues: ClueDistributionResult = {
     {
       id: "clue_1",
       category: "temporal",
-      description: "Victim heard alive at 11:45 PM",
+      description: "Victim heard alive at a quarter to midnight",
       sourceInCML: "constraint_space.time[0]",
       pointsTo: "Time of death window",
       placement: "early",
@@ -298,7 +298,7 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     expect(prompt.developer).toContain("Key Constraints");
     expect(prompt.developer).toContain("Temporal");
     expect(prompt.developer).toContain("Access");
-    expect(prompt.developer).toContain("heard alive at 11:45");
+    expect(prompt.developer).toContain("heard alive at a quarter to midnight");
     expect(prompt.developer).toContain("locked from inside");
   });
 

@@ -878,6 +878,53 @@ const enforceMonthSeasonLockOnChapter = (
   };
 };
 
+const REVEAL_GROUNDWORK_BANNED_TERMS = [
+  'culprit',
+  'murderer',
+  'killer',
+  'guilty',
+  'reveal',
+  'revelation',
+  'solution',
+  'confession',
+];
+
+const buildRevealGroundworkCues = (revealImplications: string): string[] => {
+  const compact = revealImplications.replace(/\s+/g, ' ').trim();
+  if (!compact) return [];
+
+  const rawSentences = compact
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim().replace(/^['"\u2018\u2019\u201c\u201d]+|['"\u2018\u2019\u201c\u201d]+$/g, ''))
+    .filter((sentence) => sentence.length >= 24)
+    .slice(0, 3);
+
+  const cues = rawSentences
+    .map((sentence) => {
+      const trimmed = sentence
+        .replace(/\b(will|would)\b[^.?!;:]*$/i, '')
+        .replace(/\b(on|at)\s+the\s+reveal\b/gi, '')
+        .replace(/\b(recontextuali[sz]e[sd]?|recolou?r(?:ed|ing)?|explain(?:ed|s|ing)?|prove(?:d|s|n)?|confir(?:m|ms|med|ming))\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!trimmed) return '';
+
+      const masked = REVEAL_GROUNDWORK_BANNED_TERMS.reduce((acc, term) => {
+        const re = new RegExp(`\\b${term}\\b`, 'gi');
+        return acc.replace(re, 'hidden-truth');
+      }, trimmed);
+
+      return masked.replace(/[.;,:\-\s]+$/g, '').trim();
+    })
+    .filter((cue) => cue.length >= 12);
+
+  if (cues.length > 0) return cues;
+
+  const fallback = compact.slice(0, 120).replace(/[.;,:\-\s]+$/g, '').trim();
+  return fallback ? [fallback] : [];
+};
+
 // ─── WORLD FIX A (ANALYSIS_17) ───────────────────────────────────────────
 // Add authoritative season enforcement into buildWorldBriefBlock().
 // Previously the World Document injected era atmosphere (eraRegister) but no
@@ -1083,11 +1130,15 @@ const buildWorldBriefBlock = (
     if (relativePos >= 0.75) {
       lines.push(`\n## Reveal Implications (plant these subtly)\n${worldDoc.revealImplications}`);
     } else if (chapterIndex >= 2) {
-      const fragment = worldDoc.revealImplications.split('.')[0]?.slice(0, 100) ?? worldDoc.revealImplications.slice(0, 100);
-      lines.push(
-        `\n## Reveal Groundwork (texture — do not explain, only plant)\n` +
-        `Plant a detail related to: "${fragment}" — do not explain its significance yet.`,
-      );
+      const cues = buildRevealGroundworkCues(worldDoc.revealImplications);
+      lines.push('\n## Reveal Groundwork (texture — do not explain, only plant)');
+      if (cues.length > 0) {
+        cues.forEach((cue) => {
+          lines.push(`- Plant one subtle observable beat related to: "${cue}". Do not explain significance yet.`);
+        });
+      } else {
+        lines.push('- Plant one subtle anomaly that can be re-read later. Do not explain significance yet.');
+      }
     }
   }
 
@@ -1383,6 +1434,12 @@ export function buildChapterObligationBlock(
   );
 
   const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
+  const continuityTail = typeof narrativeState?.continuityTail === 'string'
+    ? narrativeState.continuityTail.replace(/\s+/g, ' ').trim()
+    : '';
+  const continuityTailExcerpt = continuityTail.length > 220
+    ? `${continuityTail.slice(0, 220).trimEnd()}...`
+    : continuityTail;
 
   (scenesForChapter as any[]).forEach((scene, idx) => {
     const chapterNumber = chapterStart + idx;
@@ -1401,6 +1458,18 @@ export function buildChapterObligationBlock(
       lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
     }
     lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
+
+    if (continuityTailExcerpt && idx === 0) {
+      lines.push(
+        `  - Continuity bridge: in the first 120 words, visibly connect from the previous chapter's final beat. ` +
+        `Carry forward one unresolved element (object, accusation, emotional pressure, or immediate physical action) from: "${continuityTailExcerpt}".`,
+      );
+    } else if (idx > 0) {
+      lines.push(
+        `  - Inter-chapter handoff: Chapter ${chapterNumber} must open by continuing unresolved pressure from the end of Chapter ${chapterNumber - 1}. ` +
+        `Use a concrete bridge (same object, question, movement trail, or emotional beat), not a reset atmosphere paragraph.`,
+      );
+    }
 
     if (requiredClueIds.length > 0) {
       lines.push(`  - CLUE OBLIGATIONS — mandatory prose elements (do NOT omit or bury):`);
@@ -1629,6 +1698,16 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
     lines.push(`\nVICTIM STATE: The victim's death was confirmed on-page in Chapter ${state.victimConfirmedDeadChapter}. Do not treat the victim as alive or ambiguous in any subsequent chapter.`);
   }
 
+  if (typeof state.continuityTail === 'string' && state.continuityTail.trim().length > 0) {
+    const continuityTail = state.continuityTail.replace(/\s+/g, ' ').trim();
+    const excerpt = continuityTail.length > 260
+      ? `${continuityTail.slice(0, 260).trimEnd()}...`
+      : continuityTail;
+    lines.push(`\nCONTINUITY HANDOFF — previous chapter closing beat:`);
+    lines.push(`  • "${excerpt}"`);
+    lines.push('  • The next chapter must open as a continuation of this beat, not as a disconnected reset.');
+  }
+
   lines.push('═══════════════════════════════════════════════════════');
   return lines.join('\n');
 }
@@ -1714,6 +1793,9 @@ interface PromptSectionInputs {
   /** True when any cast member uses they/them/their — elevates character_personality to critical priority. */
   hasNonBinaryCast: boolean;
   characterConsistencyRules: string;
+  settingRefinementBlock: string;
+  backgroundContextBlock: string;
+  fairPlayContractBlock: string;
   characterPersonalityContext: string;
   physicalPlausibilityRules: string;
   eraAuthenticityRules: string;
@@ -1777,7 +1859,10 @@ const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextB
   const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
     { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical' }, // [PHASE 1] position 0
     { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
+    { key: 'setting_refinement', content: sections.settingRefinementBlock, priority: 'high' },
+    { key: 'background_context', content: sections.backgroundContextBlock, priority: 'medium' },
     { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
+    { key: 'fair_play_contract', content: sections.fairPlayContractBlock, priority: 'critical' },
     { key: 'character_personality', content: sections.characterPersonalityContext, priority: sections.hasNonBinaryCast ? 'critical' : 'high' },
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
@@ -1825,6 +1910,9 @@ const applyPromptBudgeting = (
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
     pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
+    setting_refinement: 700,
+    background_context: 450,
+    fair_play_contract: 700,
     character_personality: 1400, // raised from 900: physicalMannerisms + privateLonging + motiveSeed add ~150 tokens per character
     location_profiles: 1000,
     texture_pool: 600,
@@ -2233,6 +2321,112 @@ export const buildTemporalContextBlock = (
     + socialAttitudesLine;
 };
 
+export const buildSettingRefinementBlock = (caseData: CaseData): string => {
+  const setting = (caseData as any)?.SETTING_REFINEMENT;
+  if (!setting || typeof setting !== 'object') return '';
+
+  const era = setting.era ?? {};
+  const loc = setting.location ?? {};
+  const atmosphere = setting.atmosphere ?? {};
+  const realism = setting.realism ?? {};
+
+  const technology = Array.isArray(era.technology) ? era.technology.slice(0, 4).join(' | ') : '';
+  const communication = Array.isArray(era.communication) ? era.communication.slice(0, 3).join(' | ') : '';
+  const socialNorms = Array.isArray(era.socialNorms) ? era.socialNorms.slice(0, 3).join(' | ') : '';
+  const policing = Array.isArray(era.policing) ? era.policing.slice(0, 3).join(' | ') : '';
+  const constraints = Array.isArray(loc.physicalConstraints) ? loc.physicalConstraints.slice(0, 4).join(' | ') : '';
+  const access = Array.isArray(loc.accessControl) ? loc.accessControl.slice(0, 4).join(' | ') : '';
+  const recommendations = Array.isArray(realism.recommendations) ? realism.recommendations.slice(0, 4) : [];
+
+  const lines: string[] = ['\n\nSETTING REFINEMENT CONSTRAINTS (authoritative grounding):'];
+  if (era.decade) lines.push(`- Era anchor: ${era.decade}.`);
+  if (technology) lines.push(`- Era technology texture: ${technology}`);
+  if (communication) lines.push(`- Communication limits: ${communication}`);
+  if (socialNorms) lines.push(`- Social norms to respect: ${socialNorms}`);
+  if (policing) lines.push(`- Policing/procedure constraints: ${policing}`);
+  if (loc.type || loc.description) {
+    lines.push(`- Location frame: ${loc.type ?? 'setting'}${loc.description ? ` — ${loc.description}` : ''}`);
+  }
+  if (loc.geographicIsolation) lines.push(`- Isolation pressure: ${loc.geographicIsolation}`);
+  if (constraints) lines.push(`- Physical movement constraints: ${constraints}`);
+  if (access) lines.push(`- Access-control realities: ${access}`);
+  if (atmosphere.weather || atmosphere.timeOfDay || atmosphere.mood) {
+    lines.push(
+      `- Baseline atmosphere: ${atmosphere.weather ?? 'unspecified weather'} | ${atmosphere.timeOfDay ?? 'unspecified time'} | ${atmosphere.mood ?? 'unspecified mood'}`,
+    );
+  }
+  if (recommendations.length > 0) {
+    lines.push('- Realism recommendations (must influence scene choices):');
+    recommendations.forEach((rec: string) => lines.push(`  - ${rec}`));
+  }
+
+  return lines.join('\n');
+};
+
+export const buildBackgroundContextBlock = (caseData: CaseData): string => {
+  const background = (caseData as any)?.BACKGROUND_CONTEXT ?? (caseData as any)?.background_context;
+  if (!background || typeof background !== 'object') return '';
+
+  const lines: string[] = ['\n\nBACKGROUND CONTEXT (social coherence anchor):'];
+  if (background.backdropSummary) lines.push(`- Backdrop summary: ${background.backdropSummary}`);
+  if (background.theme) lines.push(`- Background theme pressure: ${background.theme}`);
+  if (background.era?.decade || background.era?.socialStructure) {
+    lines.push(`- Era-social frame: ${background.era?.decade ?? 'unspecified decade'} | ${background.era?.socialStructure ?? 'unspecified social structure'}`);
+  }
+  if (background.setting?.location || background.setting?.institution || background.setting?.weather) {
+    lines.push(
+      `- Social arena: ${background.setting?.location ?? 'unspecified location'} | ${background.setting?.institution ?? 'unspecified institution'}${background.setting?.weather ? ` | weather: ${background.setting.weather}` : ''}`,
+    );
+  }
+  if (Array.isArray(background.castAnchors) && background.castAnchors.length > 0) {
+    lines.push(`- Cast anchors for social continuity: ${background.castAnchors.slice(0, 8).join(', ')}`);
+  }
+  lines.push('- Keep chapter interactions legible through this shared social pressure; avoid disconnected scene-to-scene social logic.');
+  return lines.join('\n');
+};
+
+export const buildFairPlayContractBlock = (caseData: CaseData): string => {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const fairPlay = cmlCase.fair_play ?? {};
+  const falseAssumption = cmlCase.false_assumption ?? {};
+  const inferenceSteps = Array.isArray(cmlCase.inference_path?.steps) ? cmlCase.inference_path.steps : [];
+  const discriminatingTest = cmlCase.discriminating_test ?? {};
+
+  const hasAnySignal = Object.keys(fairPlay).length > 0 || inferenceSteps.length > 0 || Object.keys(discriminatingTest).length > 0;
+  if (!hasAnySignal) return '';
+
+  const lines: string[] = ['\n\nFAIR-PLAY AND INFERENCE CONTRACT (from CML logic):'];
+  if (falseAssumption.statement) {
+    lines.push(`- False assumption in force: ${falseAssumption.statement}`);
+    if (falseAssumption.what_it_hides) {
+      lines.push(`- Hidden truth to progressively expose: ${falseAssumption.what_it_hides}`);
+    }
+  }
+  if (inferenceSteps.length > 0) {
+    lines.push('- Inference path checkpoints to dramatize clearly (observation -> correction -> effect):');
+    inferenceSteps.slice(0, 4).forEach((step: any, idx: number) => {
+      const obs = String(step?.observation ?? '').trim();
+      const corr = String(step?.correction ?? '').trim();
+      const effect = String(step?.effect ?? '').trim();
+      const snippet = [obs && `obs: ${obs}`, corr && `corr: ${corr}`, effect && `effect: ${effect}`].filter(Boolean).join(' | ');
+      if (snippet) lines.push(`  - Step ${idx + 1}: ${snippet}`);
+    });
+  }
+  if (Object.keys(discriminatingTest).length > 0) {
+    if (discriminatingTest.method) lines.push(`- Discriminating test method: ${discriminatingTest.method}`);
+    if (discriminatingTest.design) lines.push(`- Discriminating test design constraint: ${discriminatingTest.design}`);
+    if (Array.isArray(discriminatingTest.evidence_clues) && discriminatingTest.evidence_clues.length > 0) {
+      lines.push(`- Test must rely on already-shown clue IDs: ${discriminatingTest.evidence_clues.join(', ')}`);
+    }
+  }
+  if (typeof fairPlay.explanation === 'string' && fairPlay.explanation.trim().length > 0) {
+    lines.push(`- Fair-play rationale: ${fairPlay.explanation.trim()}`);
+  }
+
+  lines.push('- Never solve by withheld information. Keep reader-information parity with detective reasoning.');
+  return lines.join('\n');
+};
+
 export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
@@ -2391,6 +2585,9 @@ ${victimIdentityRule}`;
 
   // §1.6: Temporal context block (extracted — see buildTemporalContextBlock above)
   const temporalContextBlock = buildTemporalContextBlock(inputs.temporalContext);
+  const settingRefinementBlock = buildSettingRefinementBlock(inputs.caseData);
+  const backgroundContextBlock = buildBackgroundContextBlock(inputs.caseData);
+  const fairPlayContractBlock = buildFairPlayContractBlock(inputs.caseData);
 
 
   // Build continuity context from chapter 2 onwards (character names, setting terms from earlier chapters)
@@ -2417,7 +2614,7 @@ ${victimIdentityRule}`;
     const factLines = inputs.lockedFacts
       .map(f => `  - ${f.description}: "${f.value}"`)
       .join('\n');
-    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):\nThe following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at 11:47 PM" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at 11:47 PM". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you write "11:10 PM" or "11:10" — that is also a HARD FAIL. Words stay as words; digits stay as digits.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to digits, 24-hour format, or any other numeric form. Correct: "ten minutes past eleven". WRONG: "11:10", "11:10 PM", "twenty-three eleven".\n\nLocked facts:\n${factLines}\n\nIf a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`;
+    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):\nThe following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked facts:\n${factLines}\n\nIf a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`;
   }
 
   // Build NSD block (narrative state document) — style register and fact history
@@ -2456,7 +2653,7 @@ ${victimIdentityRule}`;
   if (inputs.writingGuides?.craft) {
     craftGuideBlock = '\n\nWHODUNNIT CRAFT GUIDELINES (Emotional Depth & Soul):\n\n' +
       'These principles ensure the mystery has emotional resonance, not just logical mechanics.\n\n' +
-      '1. THE MURDER MUST MEAN SOMETHING: The death should destabilize emotional ecosystems. Show who loved the victim, who depended on them, who is secretly relieved. Use telling details ("Her coffee was still warm") rather than clinical statements ("The body was found at 7:30").\n\n' +
+      '1. THE MURDER MUST MEAN SOMETHING: The death should destabilize emotional ecosystems. Show who loved the victim, who depended on them, who is secretly relieved. Use telling details ("Her coffee was still warm") rather than clinical statements ("The body was found at half past seven").\n\n' +
       '2. GIVE EVERY SUSPECT A WOUND: People kill because of shame, fear, love, desperation, pride, protection, or revenge. Beyond motive, give each suspect a private longing, a contradiction, a vulnerability unrelated to the crime. Readers should think: "I do not want it to be them."\n\n' +
       '3. THE DETECTIVE NEEDS A PERSONAL STAKE: The external mystery should echo an internal one. Perhaps they see themselves in the victim, the case mirrors a past failure, or they are avoiding something in their own life.\n\n' +
       '4. ADD MOMENTS THAT DO NOT ADVANCE THE PLOT: Include micro-moments that create texture: a suspect making tea too slowly, a trembling hand lighting a cigarette, someone staring too long at a family photo. These pauses make the story feel alive.\n\n' +
@@ -2582,6 +2779,9 @@ ${victimIdentityRule}`;
     pronounAccuracyBlock, // [PHASE 1]
     hasNonBinaryCast,
     characterConsistencyRules,
+    settingRefinementBlock,
+    backgroundContextBlock,
+    fairPlayContractBlock,
     characterPersonalityContext,
     physicalPlausibilityRules,
     eraAuthenticityRules,
@@ -2683,6 +2883,16 @@ ${victimIdentityRule}`;
         ]
       : []),
     ...earlyClueCheckItems,
+    ...(inputs.narrativeState?.continuityTail?.trim()
+      ? [
+          '□ First chapter in this batch opens by continuing the previous chapter closing beat (same unresolved object, question, movement, or emotional pressure).',
+        ]
+      : []),
+    ...(scenes.length > 1
+      ? [
+          '□ Each chapter opening after the first clearly hands off from the previous chapter ending; no hard resets between consecutive chapters.',
+        ]
+      : []),
     ...pronounAuditLines,
     '□ Return valid JSON only.',
   ];
@@ -3019,7 +3229,7 @@ const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }> = [
   {
     style: 'time-anchor',
     directive:
-      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an explicit time marker — e.g. "At half past nine…" / "At midnight…" / "At a quarter to eleven…" / "At 9:30 PM…". Time must be in the first clause.',
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an explicit time marker — e.g. "At half past nine…" / "At midnight…" / "At a quarter to eleven…" / "At half past nine at night…". Time must be in the first clause.',
   },
   {
     style: 'noun-phrase-atmosphere',
@@ -3528,7 +3738,7 @@ const buildEnhancedRetryFeedback = (
         `REPAIR [opening_style]: This chapter opens with the same sentence pattern as prior chapters (entropy too low).\n` +
         `  You MUST begin the FIRST SENTENCE of this chapter with a structurally different type. Choose ONE of:\n` +
         `  • Spoken dialogue — open with a character speaking: \'"[words]," said/asked [Name].\'\n` +
-        `  • Time anchor — open with a specific time: \'At half past nine...\' or \'At midnight...\' or \'At 9 PM...\'\n` +
+        `  • Time anchor — open with a specific time: \'At half past nine...\' or \'At midnight...\' or \'At nine o'clock at night...\'\n` +
         `  • Character in motion — ONE named character acts first: \'[Name] crossed/turned/moved/stepped/approached/examined/glanced/rose/returned [the/to/into]...\'\n` +
         `  • Noun-phrase atmosphere with a genitive: \'The [noun] of the [place]...\' or \'A [noun] in the [place]...\'\n` +
         `  • Temporal subordinate — begin with a time clause: \'When.../After.../Before.../As [Name]...\'\n` +

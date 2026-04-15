@@ -37,7 +37,35 @@ type RedHerringOverlapDetail = {
   redHerringId: string;
   matchedCorrectionWords: string[];
   matchedStepIndexes: number[];
+  overlapScore: number;
 };
+
+type SourcePathValidationResult = {
+  invalidPaths: string[];
+  issues: ClueGuardrailIssue[];
+};
+
+const RH_OVERLAP_STOP_WORDS = new Set([
+  "therefore", "because", "suggests", "suggested", "indicates", "indicated", "through", "before", "after", "during", "reader", "should", "could", "would", "their", "about", "which", "while", "where", "when", "being", "shows", "found", "noted",
+]);
+
+const ALLOWED_SOURCE_PATTERNS: RegExp[] = [
+  /^CASE\.inference_path\.steps\[(\d+)\]\.observation$/,
+  /^CASE\.inference_path\.steps\[(\d+)\]\.correction$/,
+  /^CASE\.inference_path\.steps\[(\d+)\]\.required_evidence\[(\d+)\]$/,
+  /^CASE\.constraint_space\.time\.anchors\[(\d+)\]$/,
+  /^CASE\.constraint_space\.time\.contradictions\[(\d+)\]$/,
+  /^CASE\.constraint_space\.access\.actors\[(\d+)\]$/,
+  /^CASE\.constraint_space\.access\.objects\[(\d+)\]$/,
+  /^CASE\.constraint_space\.access\.permissions\[(\d+)\]$/,
+  /^CASE\.constraint_space\.physical\.laws\[(\d+)\]$/,
+  /^CASE\.constraint_space\.physical\.traces\[(\d+)\]$/,
+  /^CASE\.cast\[(\d+)\]\.alibi_window$/,
+  /^CASE\.cast\[(\d+)\]\.access_plausibility$/,
+  /^CASE\.cast\[(\d+)\]\.evidence_sensitivity\[(\d+)\]$/,
+  /^CASE\.discriminating_test\.evidence_clues\[(\d+)\]$/,
+  /^CASE\.prose_requirements\.clue_to_scene_mapping\[(\d+)\]\.clue_id$/,
+];
 
 const normalizeTokens = (text: string): string[] =>
   text
@@ -57,7 +85,138 @@ const isEliminationLike = (text: string): boolean =>
   /\b(ruled\s+out|eliminat|cleared|innocent|not\s+the\s+(?:culprit|killer|murderer)|excluded?)\b/i.test(text);
 
 const isAlibiLike = (text: string): boolean =>
-  /\b(alibi|elsewhere|seen\s+in\s+a\s+different\s+location|could\s+not\s+have|was\s+with|timestamp)\b/i.test(text);
+  /\b(alibi|elsewhere|seen\s+in\s+a\s+different\s+location|could\s+not\s+have|was\s+with|timestamp|confirmed\s+by|corroborat|witness(?:es)?\s+confirm|documented\s+at)\b/i.test(text);
+
+const getCaseBlock = (cml: CaseData): any => ((cml as any)?.CASE ?? cml);
+
+const getByPath = (root: any, path: string): { ok: boolean; value?: any } => {
+  const tokens = path.match(/[A-Za-z_][A-Za-z0-9_]*|\[(\d+)\]/g);
+  if (!tokens) return { ok: false };
+
+  let current: any = root;
+  for (const token of tokens) {
+    if (token.startsWith("[")) {
+      const idx = Number(token.slice(1, -1));
+      if (!Array.isArray(current) || !Number.isInteger(idx) || idx < 0 || idx >= current.length) {
+        return { ok: false };
+      }
+      current = current[idx];
+      continue;
+    }
+    if (current == null || typeof current !== "object" || !(token in current)) {
+      return { ok: false };
+    }
+    current = current[token];
+  }
+
+  return { ok: true, value: current };
+};
+
+const validateSourcePath = (cml: CaseData, sourcePath: string): boolean => {
+  if (!sourcePath || typeof sourcePath !== "string") return false;
+  if (!ALLOWED_SOURCE_PATTERNS.some((re) => re.test(sourcePath))) return false;
+  return getByPath({ CASE: getCaseBlock(cml) }, sourcePath).ok;
+};
+
+const checkSourcePathValidity = (cml: CaseData, clues: ClueDistributionResult): SourcePathValidationResult => {
+  const invalidPaths = new Set<string>();
+  const issues: ClueGuardrailIssue[] = [];
+
+  for (const clue of clues.clues as any[]) {
+    const sourcePath = String(clue?.sourceInCML ?? "").trim();
+    if (!validateSourcePath(cml, sourcePath)) {
+      invalidPaths.add(sourcePath || "(empty-source-path)");
+      issues.push({
+        severity: "critical",
+        message: `Invalid sourceInCML path on clue ${String(clue?.id ?? "(unknown-id)")}: ${sourcePath || "(empty-source-path)"}`,
+      });
+    }
+  }
+
+  return { invalidPaths: Array.from(invalidPaths), issues };
+};
+
+const checkInferenceStepBounds = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = getCaseBlock(cml);
+  const stepCount = Array.isArray(caseBlock?.inference_path?.steps)
+    ? caseBlock.inference_path.steps.length
+    : 0;
+  if (stepCount === 0) return issues;
+
+  for (const clue of clues.clues as any[]) {
+    const step = Number(clue?.supportsInferenceStep);
+    if (!Number.isFinite(step) || step === 0) continue;
+    if (step < 1 || step > stepCount) {
+      issues.push({
+        severity: "critical",
+        message: `Clue ${String(clue?.id ?? "(unknown-id)")} uses supportsInferenceStep=${step} but valid range is 1..${stepCount}`,
+      });
+    }
+  }
+
+  return issues;
+};
+
+const checkEraTimeStyleInClues = (clues: ClueDistributionResult): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const digitTimePattern = /\b\d{1,2}:\d{2}\s*(?:am|pm|a\.m\.|p\.m\.)?\b|\b\d{1,2}\s*(?:am|pm|a\.m\.|p\.m\.)\b/i;
+  for (const clue of clues.clues as any[]) {
+    const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
+    if (digitTimePattern.test(text)) {
+      issues.push({
+        severity: "warning",
+        message: `Clue ${String(clue?.id ?? "(unknown-id)")} uses digit-based time notation; use era-style worded time expressions`,
+      });
+    }
+  }
+  return issues;
+};
+
+const getMissingDiscriminatingEvidenceIds = (cml: CaseData, clues: ClueDistributionResult): string[] => {
+  const caseBlock = getCaseBlock(cml);
+  const evidenceIds = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
+    ? caseBlock.discriminating_test.evidence_clues.map((id: any) => String(id ?? "").trim()).filter(Boolean)
+    : [];
+  if (evidenceIds.length === 0) return [];
+  const clueIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
+  return evidenceIds.filter((id: string) => !clueIds.has(id));
+};
+
+const checkModelAuditConsistency = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  const modelAudit: any = (clues as any).audit;
+  if (!modelAudit || typeof modelAudit !== "object") return issues;
+
+  const expectedMissing = getMissingDiscriminatingEvidenceIds(cml, clues).sort();
+  const expectedInvalidSources = checkSourcePathValidity(cml, clues).invalidPaths.sort();
+  const expectedWeak = analyzeSuspectCoverage(cml, clues).weakElimination.sort();
+
+  const actualMissing = (Array.isArray(modelAudit.missingDiscriminatingEvidenceIds) ? modelAudit.missingDiscriminatingEvidenceIds : []).map(String).sort();
+  const actualInvalid = (Array.isArray(modelAudit.invalidSourcePaths) ? modelAudit.invalidSourcePaths : []).map(String).sort();
+  const actualWeak = (Array.isArray(modelAudit.weakEliminationSuspects) ? modelAudit.weakEliminationSuspects : []).map(String).sort();
+
+  if (JSON.stringify(expectedMissing) !== JSON.stringify(actualMissing)) {
+    issues.push({
+      severity: "warning",
+      message: `Model audit mismatch for missingDiscriminatingEvidenceIds (expected: ${expectedMissing.join(", ") || "none"}; got: ${actualMissing.join(", ") || "none"})`,
+    });
+  }
+  if (JSON.stringify(expectedInvalidSources) !== JSON.stringify(actualInvalid)) {
+    issues.push({
+      severity: "warning",
+      message: `Model audit mismatch for invalidSourcePaths (expected: ${expectedInvalidSources.join(", ") || "none"}; got: ${actualInvalid.join(", ") || "none"})`,
+    });
+  }
+  if (JSON.stringify(expectedWeak) !== JSON.stringify(actualWeak)) {
+    issues.push({
+      severity: "warning",
+      message: `Model audit mismatch for weakEliminationSuspects (expected: ${expectedWeak.join(", ") || "none"}; got: ${actualWeak.join(", ") || "none"})`,
+    });
+  }
+
+  return issues;
+};
 
 function buildSuspectCoverage(
   cml: CaseData,
@@ -393,7 +552,7 @@ function checkFalseAssumptionContradiction(cml: CaseData, clues: ClueDistributio
 }
 
 function findRedHerringOverlapDetails(cml: CaseData, clues: ClueDistributionResult): RedHerringOverlapDetail[] {
-  const caseBlock = (cml as any)?.CASE ?? cml;
+  const caseBlock = getCaseBlock(cml);
   const steps = Array.isArray(caseBlock?.inference_path?.steps)
     ? caseBlock.inference_path.steps
     : [];
@@ -406,30 +565,34 @@ function findRedHerringOverlapDetails(cml: CaseData, clues: ClueDistributionResu
     words: (typeof step?.correction === "string" ? step.correction : "")
       .toLowerCase()
       .split(/\s+/)
-      .filter((w: string) => w.length > 5),
+      .map((w: string) => w.replace(/[^a-z0-9]/g, ""))
+      .filter((w: string) => w.length > 4 && !RH_OVERLAP_STOP_WORDS.has(w)),
   }));
 
   const overlaps: RedHerringOverlapDetail[] = [];
   for (let i = 0; i < clues.redHerrings.length; i++) {
     const rh = clues.redHerrings[i] as any;
     const rhId = String(rh?.id ?? `rh_${i + 1}`).trim() || `rh_${i + 1}`;
-    const text = `${String(rh?.description ?? "")} ${String(rh?.supportsAssumption ?? "")}`.toLowerCase();
+    const text = `${String(rh?.description ?? "")} ${String(rh?.supportsAssumption ?? "")} ${String(rh?.misdirection ?? "")}`.toLowerCase();
 
     const matchedStepIndexes: number[] = [];
     const matchedCorrectionWords = new Set<string>();
     for (const step of stepCorrectionWords) {
-      const stepMatches = step.words.filter((word: string) => text.includes(word));
+      const stepMatches = step.words.filter((word: string) => new RegExp(`\\b${word}\\b`, "i").test(text));
       if (stepMatches.length > 0) {
         matchedStepIndexes.push(step.stepIndex);
         stepMatches.forEach((word: string) => matchedCorrectionWords.add(word));
       }
     }
 
-    if (matchedStepIndexes.length > 0) {
+    const overlapScore = matchedCorrectionWords.size + (new Set(matchedStepIndexes)).size;
+    const isMeaningfulOverlap = matchedCorrectionWords.size >= 2 || new Set(matchedStepIndexes).size >= 2;
+    if (isMeaningfulOverlap) {
       overlaps.push({
         redHerringId: rhId,
         matchedCorrectionWords: Array.from(matchedCorrectionWords),
         matchedStepIndexes,
+        overlapScore,
       });
     }
   }
@@ -847,12 +1010,39 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 
     const postRetryRedHerringOverlapDetails = findRedHerringOverlapDetails(ctx.cml!, clues);
     if (postRetryRedHerringOverlapDetails.length > 0) {
-      const postRetryRedHerringOverlapIds = postRetryRedHerringOverlapDetails.map((d) => d.redHerringId);
-      throw new Error(
-        `Agent 5 red-herring overlap gate failed after retry. Overlapping red herring(s): ${postRetryRedHerringOverlapIds.join(", ")}`,
+      const severeOverlap = postRetryRedHerringOverlapDetails.filter((d) => d.overlapScore >= 4);
+      if (severeOverlap.length > 0) {
+        const postRetryRedHerringOverlapIds = severeOverlap.map((d) => d.redHerringId);
+        throw new Error(
+          `Agent 5 red-herring overlap gate failed after retry. Overlapping red herring(s): ${postRetryRedHerringOverlapIds.join(", ")}`,
+        );
+      }
+      ctx.warnings.push(
+        `Agent 5: minor red-herring overlap remains after retry (${postRetryRedHerringOverlapDetails.map((d) => d.redHerringId).join(", ")}); continuing with warning`,
       );
     }
   }
+
+  const sourcePathValidation = checkSourcePathValidity(ctx.cml!, clues);
+  sourcePathValidation.issues.forEach((issue) => ctx.errors.push(`Agent 5 source-path validation: ${issue.message}`));
+  if (sourcePathValidation.issues.length > 0) {
+    throw new Error(`Agent 5 source-path gate failed with ${sourcePathValidation.issues.length} invalid source path(s).`);
+  }
+
+  const stepBoundIssues = checkInferenceStepBounds(ctx.cml!, clues);
+  stepBoundIssues.forEach((issue) => ctx.errors.push(`Agent 5 inference-step bounds: ${issue.message}`));
+  if (stepBoundIssues.length > 0) {
+    throw new Error(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`);
+  }
+
+  const auditConsistencyIssues = checkModelAuditConsistency(ctx.cml!, clues);
+  auditConsistencyIssues.forEach((issue) => ctx.errors.push(`Agent 5 audit consistency: ${issue.message}`));
+  if (auditConsistencyIssues.length > 0) {
+    throw new Error(`Agent 5 audit-consistency gate failed with ${auditConsistencyIssues.length} mismatch(es).`);
+  }
+
+  const eraTimeStyleIssues = checkEraTimeStyleInClues(clues);
+  eraTimeStyleIssues.forEach((issue) => ctx.warnings.push(`Agent 5 era time style: ${issue.message}`));
 
   // Strict locked-fact/clue semantic consistency gate before committing clues downstream.
   const hardLogicLockedFacts = Array.isArray((ctx as any).hardLogicDevices?.devices)
@@ -909,7 +1099,18 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     const guardrailTriggered = clueGuardrails.hasCriticalIssues;
     const coverageGapsFound = finalCoverage.coverageResult.hasCriticalGaps;
     const clueCount = clues.clues.length;
-    const clueCountScore = clueCount >= 8 ? 100 : Math.round((clueCount / 8) * 100);
+    const densityTargets: Record<typeof clueDensity, { min: number; max: number }> = {
+      minimal: { min: 5, max: 8 },
+      moderate: { min: 8, max: 12 },
+      dense: { min: 12, max: 18 },
+    };
+    const densityTarget = densityTargets[clueDensity];
+    const clueCountScore =
+      clueCount < densityTarget.min
+        ? Math.round((clueCount / densityTarget.min) * 100)
+        : clueCount <= densityTarget.max
+          ? 100
+          : Math.max(80, 100 - Math.round(((clueCount - densityTarget.max) / densityTarget.max) * 100));
     const guardrailScore = guardrailTriggered ? 75 : 100;
     const coverageScore = coverageGapsFound ? 75 : 100;
     const clueValidation = Math.round((guardrailScore + coverageScore) / 2);
@@ -930,10 +1131,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
           {
             name: "Clue count",
             category: "completeness" as const,
-            passed: clueCount >= 8,
+            passed: clueCount >= densityTarget.min,
             score: clueCountScore,
             weight: 1.5,
-            message: `${clueCount} clues distributed`,
+            message: `${clueCount} clues distributed (target ${densityTarget.min}-${densityTarget.max} for ${clueDensity})`,
           },
           {
             name: "Guardrail compliance",

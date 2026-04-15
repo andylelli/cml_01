@@ -274,7 +274,7 @@ Quality bar:
 
 Micro-exemplars (patterns to follow, not content to copy):
 - Good motive/opportunity coupling:
-  motiveSeed: "Will loses controlling shares if victim survives audit" + alibiWindow: "left drawing room 8:40-9:05" + accessPlausibility: "easy"
+  motiveSeed: "Will loses controlling shares if victim survives audit" + alibiWindow: "left drawing room from twenty to nine until five past nine" + accessPlausibility: "easy"
 - Weak coupling to avoid:
   motiveSeed: "seems suspicious" + alibiWindow: "around evening" + accessPlausibility: "possible"
 - Good red herring:

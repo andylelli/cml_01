@@ -80,6 +80,15 @@ Requirements:
 - no mechanism design, no culprit hints, no hard-logic details
 - keep this artifact focused on backdrop coherence only
 
+Quality bar:
+- backdropSummary should explain social pressure and why this specific cast shares the same narrative arena.
+- Theme should be concrete enough to guide scene tone, but must not pre-solve culprit logic.
+- castAnchors should prioritize socially central characters (detective, victim-adjacent, institutional gatekeepers).
+
+Micro-exemplars:
+- Weak backdropSummary: "They are all connected by events at the manor."
+- Strong backdropSummary: "An inheritance hearing keeps heirs, staff, and creditors under one roof while public scandal makes private loyalties expensive."
+
 CRITICAL: Ensure castAnchors is an array of strings (character names), not empty${validationFeedback}`;
 
   const user = `Generate background context for this mystery setup.
