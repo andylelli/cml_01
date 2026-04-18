@@ -55,6 +55,112 @@ const classifyMissingInfoCategories = (items: string[]): string[] => {
   return Array.from(categories);
 };
 
+const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: CaseData): string[] => {
+  const structuralRules = new Set([
+    "information parity",
+    "logical deducibility",
+    "no withholding",
+    "discriminating test timing",
+  ]);
+
+  const phrases: string[] = [];
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const culpritName = String(caseBlock?.culpability?.culprits?.[0] ?? "").trim();
+
+  for (const violation of fairPlayAudit.violations ?? []) {
+    const rule = String(violation.rule ?? "").toLowerCase().trim();
+    if (!structuralRules.has(rule)) continue;
+
+    const suggestion = String(violation.suggestion ?? "").trim();
+    const description = String(violation.description ?? "").trim();
+
+    if (rule === "information parity" || rule === "no withholding") {
+      phrases.push(
+        "Reveal every mechanism fact used by the detective as an essential clue in early or mid placement; do not reserve those facts for confrontation."
+      );
+    }
+    if (rule === "logical deducibility") {
+      phrases.push(
+        "Provide an explicit observation -> contradiction -> elimination clue chain that allows the reader to identify the culprit before the reveal."
+      );
+    }
+    if (rule === "discriminating test timing") {
+      phrases.push(
+        "All evidence exploited by the discriminating test must appear as essential early or mid clues before the Act III test scene."
+      );
+    }
+
+    const combined = `${description} ${suggestion}`.toLowerCase();
+    if (/clock/.test(combined) && /tamper|stopp|wound|time/.test(combined)) {
+      phrases.push(
+        "Include an essential early or mid clue that explicitly shows the clock was tampered with and how that changes the true timeline."
+      );
+    }
+    if (/alibi|whereabouts|timeline/.test(combined)) {
+      phrases.push(
+        "Add at least one concrete elimination or alibi clue for each eligible non-culprit suspect, with corroborating source details."
+      );
+    }
+    if (culpritName) {
+      phrases.push(
+        `Include at least one essential early or mid clue that uniquely discriminates culprit ${culpritName} from non-culprits.`
+      );
+    }
+
+    if (suggestion.length >= 16) {
+      phrases.push(suggestion);
+      continue;
+    }
+    if (description.length >= 16) {
+      phrases.push(description);
+    }
+  }
+
+  return [...new Set(phrases)].slice(0, 8);
+};
+
+const deriveBlindReaderRequiredCluePhrases = (
+  missingInformation: string[],
+  actualCulpritName: string,
+): string[] => {
+  const phrases: string[] = [];
+  for (const info of missingInformation) {
+    const trimmed = String(info ?? "").trim();
+    if (!trimmed) continue;
+    phrases.push(`Provide an essential early or mid clue covering: ${trimmed}`);
+
+    const lower = trimmed.toLowerCase();
+    if (/clock|time|timeline|tamper|alibi/.test(lower)) {
+      phrases.push(
+        "Provide concrete timeline clues that make time manipulation and suspect opportunity logically testable by the reader before Act III."
+      );
+    }
+    if (/motive|relationship|secret/.test(lower)) {
+      phrases.push(
+        "Provide motive and relationship clues as observable evidence, not late detective exposition."
+      );
+    }
+  }
+
+  if (actualCulpritName) {
+    phrases.push(
+      `Include at least one essential early or mid clue that points uniquely to culprit ${actualCulpritName}.`
+    );
+  }
+
+  return [...new Set(phrases)].slice(0, 10);
+};
+
+const hasCriticalFairPlayViolations = (
+  fairPlayAudit: FairPlayAuditResult,
+  criticalFairPlayRules: Set<string>,
+): boolean => {
+  const violations = Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [];
+  return violations.some(
+    (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule),
+  );
+};
+
 function classifyFairPlayFailure(
   coverageResult: InferenceCoverageResult,
   fairPlayAudit: FairPlayAuditResult | null,
@@ -154,6 +260,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           violations: fairPlayAudit.violations,
           warnings: fairPlayAudit.warnings,
           recommendations: fairPlayAudit.recommendations,
+          requiredCluePhrases: deriveRequiredCluePhrases(fairPlayAudit, ctx.cml),
         },
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -171,9 +278,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   ctx.agentDurations["agent6_fairplay"] = Date.now() - fairPlayStart;
 
   const criticalFairPlayRules = ctx.criticalFairPlayRules;
-  let hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
-    (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule)
-  );
+  let hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
 
   if (fairPlayAudit.overallStatus === "fail") {
     if (hasCriticalFairPlayFailure) {
@@ -324,6 +429,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
               "Ensure at least one culprit-discriminating clue that does not apply to non-culprits.",
               "Ensure each non-culprit has at least one elimination or alibi clue.",
             ],
+            requiredCluePhrases: deriveBlindReaderRequiredCluePhrases(
+              latestBlind.missingInformation,
+              actualCulpritName,
+            ),
           },
           runId: ctx.runId,
           projectId: ctx.projectId || "",
@@ -346,9 +455,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
           (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - blindReAuditStart);
-        hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
-          (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule)
-        );
+        hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
 
         latestBlind = await blindReaderSimulation(
@@ -390,9 +497,24 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   if (fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure) {
     const failureClass = classifyFairPlayFailure(ctx.coverageResult!, fairPlayAudit, ctx.cml!);
+    const criticalStructuralRules = new Set([
+      "information parity",
+      "logical deducibility",
+      "no withholding",
+      "solution uniqueness",
+      "discriminating test timing",
+    ]);
+    const hasStructuralCriticalRule = (fairPlayAudit?.violations ?? []).some(
+      (v) => v.severity === "critical" && criticalStructuralRules.has(String(v.rule ?? "").toLowerCase().trim()),
+    );
+    const shouldEscalateCmlRevision =
+      failureClass === "inference_path_abstract"
+      || failureClass === "constraint_space_insufficient"
+      || failureClass === "clue_coverage"
+      || (failureClass === "clue_only" && hasStructuralCriticalRule);
 
     if (
-      (failureClass === "inference_path_abstract" || failureClass === "constraint_space_insufficient") &&
+      shouldEscalateCmlRevision &&
       fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST
     ) {
       const setting = ctx.setting!;
@@ -413,6 +535,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
             "(2) a correction that follows from stated evidence, " +
             "(3) an effect that names the suspect eliminated, " +
             "(4) required_evidence listing 2-4 specific facts."
+        : failureClass === "clue_coverage" || failureClass === "clue_only"
+          ? "Fair-play clue coverage remains structurally insufficient. Revise CML so the reader can logically solve the case BEFORE discriminating test: " +
+            "(1) inference_path steps must explicitly surface the mechanism fact(s) (no withholding), " +
+            "(2) discriminating_test.design must exploit already-exposed evidence rather than introducing new facts, " +
+            "(3) discriminating_test.evidence_clues must list 2-3 canonical clue IDs expected to appear as early/mid essential clues, " +
+            "(4) at least one step effect must uniquely narrow to culprit via elimination logic."
           : "The constraint_space is too sparse. Add: " +
             "(1) at least one temporal contradiction, " +
             "(2) at least 2 access constraints, " +
@@ -498,9 +626,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         ctx.agentDurations["agent6_fairplay"] =
           (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - reAuditStart);
         fairPlayRetryCost += fairPlayAudit.cost;
-        hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
-          (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule)
-        );
+        hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
       }
     } else if (
@@ -524,6 +650,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           violations: fairPlayAudit!.violations,
           warnings: fairPlayAudit!.warnings,
           recommendations: fairPlayAudit!.recommendations,
+          requiredCluePhrases: deriveRequiredCluePhrases(fairPlayAudit!, ctx.cml),
         },
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -547,9 +674,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       ctx.agentDurations["agent6_fairplay"] =
         (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - finalAuditStart);
       fairPlayRetryCost += fairPlayAudit.cost;
-      hasCriticalFairPlayFailure = fairPlayAudit.violations.some(
-        (v) => v.severity === "critical" || criticalFairPlayRules.has(v.rule)
-      );
+      hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
       await recordFairPlayScore();
     }
 

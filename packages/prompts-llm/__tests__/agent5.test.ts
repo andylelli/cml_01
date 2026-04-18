@@ -282,6 +282,49 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
       expect(prompt.user).toContain("traceable to CML");
     });
 
+    it("includes deterministic bounds and cast index mapping guidance", () => {
+      const inputs: ClueExtractionInputs = {
+        cml: mockCML,
+        clueDensity: "moderate",
+        redHerringBudget: 1,
+      };
+
+      const prompt = buildCluePrompt(inputs);
+      expect(prompt.developer).toContain("Deterministic Bounds");
+      expect(prompt.developer).toContain("Cast Name -> Index Map");
+      expect(prompt.developer).toContain("Inspector Blake -> 0");
+    });
+
+    it("auto-escalates effective density when mandatory requirements exceed requested density", () => {
+      const highRequirementCml = {
+        CML_VERSION: 2.0,
+        CASE: {
+          ...mockCML.CASE,
+          inference_path: {
+            steps: [
+              { observation: "obs 1", correction: "corr 1" },
+              { observation: "obs 2", correction: "corr 2" },
+              { observation: "obs 3", correction: "corr 3" },
+              { observation: "obs 4", correction: "corr 4" },
+              { observation: "obs 5", correction: "corr 5" },
+              { observation: "obs 6", correction: "corr 6" },
+            ],
+          },
+        },
+      };
+
+      const inputs: ClueExtractionInputs = {
+        cml: highRequirementCml as any,
+        clueDensity: "minimal",
+        redHerringBudget: 0,
+      };
+
+      const prompt = buildCluePrompt(inputs);
+      expect(prompt.developer).toContain("Requested density**: minimal");
+      expect(prompt.developer).toContain("Effective density**: moderate");
+      expect(prompt.user).toContain("Generate 8-12 clues");
+    });
+
     it("emphasizes fair play requirement", () => {
       const inputs: ClueExtractionInputs = {
         cml: mockCML,
@@ -293,6 +336,59 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
 
       expect(prompt.user).toContain("fair play");
       expect(prompt.user).toContain("reader can solve the mystery");
+    });
+
+    it("uses explicit overlap forbidden terms in retry payload", () => {
+      const inputs: ClueExtractionInputs = {
+        cml: mockCML,
+        clueDensity: "moderate",
+        redHerringBudget: 2,
+        fairPlayFeedback: {
+          overallStatus: "fail",
+          violations: [
+            {
+              severity: "critical",
+              rule: "Red Herring Separation",
+              description: "Red herring rh_2 overlaps inference corrections.",
+              suggestion: "Rewrite overlapping language.",
+            },
+          ],
+          forbiddenTerms: ["clock", "witnesses"],
+          preferredTerms: ["emmeline", "accepted"],
+          requiredReplacements: ["clock -> accepted", "witnesses -> emmeline"],
+          redHerringIdsToRewrite: ["rh_2"],
+        },
+      };
+
+      const prompt = buildCluePrompt(inputs);
+
+      expect(prompt.user).toContain("forbidden_terms[]");
+      expect(prompt.user).toContain("  - clock");
+      expect(prompt.user).toContain("  - witnesses");
+      expect(prompt.user).toContain("preferred_terms[]");
+      expect(prompt.user).toContain("  - emmeline");
+      expect(prompt.user).toContain("  - accepted");
+      expect(prompt.user).toContain("  - clock -> accepted");
+      expect(prompt.user).toContain("  - witnesses -> emmeline");
+      expect(prompt.user).toContain("Hard retry contract");
+      expect(prompt.user).toContain("none of those terms may appear in redHerrings[].description or redHerrings[].misdirection");
+      expect(prompt.user).toContain("Explicitly rewrite rh_2");
+    });
+
+    it("adds proactive red-herring lexical guardrails on first attempt", () => {
+      const inputs: ClueExtractionInputs = {
+        cml: mockCML,
+        clueDensity: "moderate",
+        redHerringBudget: 2,
+      };
+
+      const prompt = buildCluePrompt(inputs);
+
+      expect(prompt.developer).toContain("Red Herring Lexical Guardrails (proactive first-attempt)");
+      expect(prompt.developer).toContain("correction_terms_forbidden_in_red_herrings");
+      expect(prompt.developer).toContain("preferred_false_assumption_terms");
+      expect(prompt.developer).toContain("red_herring_contract");
+      expect(prompt.user).toContain("FIRST-ATTEMPT RED HERRING CONTRACT");
     });
   });
 });

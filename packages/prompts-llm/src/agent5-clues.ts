@@ -21,6 +21,11 @@ export interface ClueExtractionInputs {
     violations?: Array<{ severity: "critical" | "moderate" | "minor"; rule: string; description: string; suggestion: string }>;
     warnings?: string[];
     recommendations?: string[];
+    requiredCluePhrases?: string[];
+    forbiddenTerms?: string[];
+    preferredTerms?: string[];
+    requiredReplacements?: string[];
+    redHerringIdsToRewrite?: string[];
   };
   runId?: string;
   projectId?: string;
@@ -230,38 +235,109 @@ function inferCategory(text: string): "temporal" | "spatial" | "physical" | "beh
   return "testimonial"; // Default: witness statements, testimony
 }
 
+function deriveEffectiveDensity(
+  requestedDensity: "minimal" | "moderate" | "dense",
+  requiredCount: number,
+): { effectiveDensity: "minimal" | "moderate" | "dense"; overflow: boolean } {
+  const maxByDensity: Record<"minimal" | "moderate" | "dense", number> = {
+    minimal: 8,
+    moderate: 12,
+    dense: 18,
+  };
+
+  if (requiredCount <= maxByDensity[requestedDensity]) {
+    return { effectiveDensity: requestedDensity, overflow: false };
+  }
+
+  if (requestedDensity === "minimal" && requiredCount <= maxByDensity.moderate) {
+    return { effectiveDensity: "moderate", overflow: false };
+  }
+  if (requiredCount <= maxByDensity.dense) {
+    return { effectiveDensity: "dense", overflow: false };
+  }
+  return { effectiveDensity: "dense", overflow: true };
+}
+
+function buildValidSourcePaths(caseData: any): string[] {
+  const paths: string[] = [];
+
+  const steps = Array.isArray(caseData?.inference_path?.steps) ? caseData.inference_path.steps : [];
+  for (let i = 0; i < steps.length; i++) {
+    paths.push(`CASE.inference_path.steps[${i}].observation`);
+    paths.push(`CASE.inference_path.steps[${i}].correction`);
+    const reqEvidence = Array.isArray(steps[i]?.required_evidence) ? steps[i].required_evidence : [];
+    for (let j = 0; j < reqEvidence.length; j++) {
+      paths.push(`CASE.inference_path.steps[${i}].required_evidence[${j}]`);
+    }
+  }
+
+  const pushIndexed = (base: string, arr: unknown[] | undefined): void => {
+    if (!Array.isArray(arr)) return;
+    for (let i = 0; i < arr.length; i++) paths.push(`${base}[${i}]`);
+  };
+
+  pushIndexed("CASE.constraint_space.time.anchors", caseData?.constraint_space?.time?.anchors);
+  pushIndexed("CASE.constraint_space.time.contradictions", caseData?.constraint_space?.time?.contradictions);
+  pushIndexed("CASE.constraint_space.access.actors", caseData?.constraint_space?.access?.actors);
+  pushIndexed("CASE.constraint_space.access.objects", caseData?.constraint_space?.access?.objects);
+  pushIndexed("CASE.constraint_space.access.permissions", caseData?.constraint_space?.access?.permissions);
+  pushIndexed("CASE.constraint_space.physical.laws", caseData?.constraint_space?.physical?.laws);
+  pushIndexed("CASE.constraint_space.physical.traces", caseData?.constraint_space?.physical?.traces);
+
+  const cast = Array.isArray(caseData?.cast) ? caseData.cast : [];
+  for (let i = 0; i < cast.length; i++) {
+    paths.push(`CASE.cast[${i}].alibi_window`);
+    paths.push(`CASE.cast[${i}].access_plausibility`);
+    const sensitivity = Array.isArray(cast[i]?.evidence_sensitivity) ? cast[i].evidence_sensitivity : [];
+    for (let j = 0; j < sensitivity.length; j++) {
+      paths.push(`CASE.cast[${i}].evidence_sensitivity[${j}]`);
+    }
+  }
+
+  const testEvidence = Array.isArray(caseData?.discriminating_test?.evidence_clues)
+    ? caseData.discriminating_test.evidence_clues
+    : [];
+  for (let i = 0; i < testEvidence.length; i++) {
+    paths.push(`CASE.discriminating_test.evidence_clues[${i}]`);
+  }
+
+  const clueSceneMap = Array.isArray(caseData?.prose_requirements?.clue_to_scene_mapping)
+    ? caseData.prose_requirements.clue_to_scene_mapping
+    : [];
+  for (let i = 0; i < clueSceneMap.length; i++) {
+    paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
+  }
+
+  return paths;
+}
+
 /**
  * Build prompt for clue extraction and organization
  */
 export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents {
   const { cml, clueDensity, redHerringBudget } = inputs;
   const caseData = cml.CASE as any;
+  const stepCount = Array.isArray(caseData?.inference_path?.steps)
+    ? caseData.inference_path.steps.length
+    : 0;
 
   // ELEGANT SOLUTION: Pre-analyze CML to generate explicit requirements
   const requiredClues = generateExplicitClueRequirements(cml);
+  const { effectiveDensity, overflow: densityOverflow } = deriveEffectiveDensity(clueDensity, requiredClues.length);
 
   // --- System prompt ---
-  const system = `You are a clue extraction specialist for Golden Age mystery fiction. Extract clues ONLY from existing CML facts and organize them for fair play presentation.
+  const system = `You are a clue extraction specialist for Golden Age mystery fiction.
+Extract clues ONLY from existing CML facts.
+Do not invent facts.
+Keep clues reader-observable and fair play ordered.
+Return valid JSON only.
 
-**Rules**:
-- Extract clues ONLY from existing CML facts — never invent new information
-- Every clue must be traceable to the CML structure
-- Concrete, specific descriptions (not abstract)
-- Observable by reader in scenes, not detective-only information
-- Cite sourceInCML for every clue
-- All essential clues must appear before the solution so the reader can solve the mystery
-- fair play is the core principle: every logical step must be supported by visible evidence
-
-**Clue Categories**:
-- **Temporal**: Time-based evidence (clocks, schedules, alibis, timelines)
-- **Spatial**: Location and access evidence (rooms, distances, locked doors)
-- **Physical**: Tangible evidence (objects, traces, fingerprints, injuries)
-- **Behavioral**: Pattern evidence (habits, reactions, suspicious actions)
-- **Testimonial**: Witness statements and testimony
-
-**Example**: ❌ "Timeline discrepancies" ✅ "Mrs. Whitmore says a quarter to ten, but library clock stopped at a quarter past nine"
-
-Return valid JSON.`;
+Clue categories:
+- Temporal
+- Spatial
+- Physical
+- Behavioral
+- Testimonial`;
 
   // --- Developer prompt ---
   const primaryAxis = caseData?.false_assumption?.type
@@ -271,6 +347,10 @@ Return valid JSON.`;
   const title = caseData?.meta?.title || "Untitled";
   const category = caseData?.meta?.crime_class?.category || "crime";
   const falseAssumptionStatement = caseData?.false_assumption?.statement || "N/A";
+  const correctionLexicon = Array.isArray(caseData?.inference_path?.steps)
+    ? [...new Set(caseData.inference_path.steps.flatMap((s: any) => extractKeyTerms(String(s?.correction ?? ""))))]
+    : [];
+  const falseAssumptionLexicon = [...new Set(extractKeyTerms(String(falseAssumptionStatement)))];
 
   // Constraint space
   const constraintSpace = caseData?.constraint_space ?? {};
@@ -291,13 +371,33 @@ Return valid JSON.`;
     moderate: { label: "moderate", count: "8-12 clues", range: "2-4" },
     dense: { label: "dense", count: "12-18 clues", range: "4-6" },
   };
-  const densityInfo = densityDetails[clueDensity];
+  const densityInfo = densityDetails[effectiveDensity];
+
+  const castIndexMap: Array<{ name: string; index: number }> = Array.isArray(caseData?.cast)
+    ? caseData.cast.map((c: any, index: number) => ({ name: String(c?.name ?? "").trim(), index })).filter((x: any) => x.name)
+    : [];
+  const validSourcePaths = buildValidSourcePaths(caseData);
+
+  const bounds = {
+    stepPathMin: 0,
+    stepPathMax: Math.max(stepCount - 1, 0),
+    supportsStepMin: 1,
+    supportsStepMax: Math.max(stepCount, 1),
+    anchorMin: 0,
+    anchorMax: Math.max(timeAnchors.length - 1, 0),
+    contradictionMin: 0,
+    contradictionMax: Math.max(timeContradictions.length - 1, 0),
+    castMin: 0,
+    castMax: Math.max(castIndexMap.length - 1, 0),
+  };
 
   let developer = `## CML Summary
 **Title**: ${title}
 **Crime**: ${category}
 **Primary axis**: ${primaryAxis}
 **Cast**: ${castCount} characters
+**Requested density**: ${clueDensity}
+**Effective density**: ${effectiveDensity}${effectiveDensity !== clueDensity ? " (auto-escalated to satisfy mandatory requirements)" : ""}
 
 ## Mandatory Clue Requirements (${requiredClues.length} required)
 `;
@@ -330,13 +430,49 @@ ${physicalTraces.map(t => `- ${t}`).join('\n') || 'None'}
     developer += `\n`;
   }
 
-  developer += `## Clue Density: ${densityInfo.label}
-Generate ${densityInfo.count} total. Additional optional clues (${densityInfo.range} extra) for texture.
+  developer += `## Hard Precedence (resolve in order)
+1. sourceInCML legality
+2. index bounds and cast name-index correctness
+3. discriminating-test clue ID coverage
+4. suspect elimination quality
+5. red-herring separation
+6. optional texture
+
+## Generation Order (Critical)
+1. Build clues[].id and clues[].sourceInCML first.
+2. Validate source paths against valid_source_paths[] when available; otherwise allowed roots + bounds.
+3. Populate clue description/pointsTo text.
+4. Build elimination details.
+5. Generate red herrings last.
+6. Set status based on unresolved hard-rule defects.
+
+## Deterministic Bounds (use exactly)
+- inference_path steps path index range: ${bounds.stepPathMin}..${bounds.stepPathMax}
+- supportsInferenceStep valid range: ${bounds.supportsStepMin}..${bounds.supportsStepMax}
+- constraint_space.time.anchors index range: ${bounds.anchorMin}..${bounds.anchorMax}
+- constraint_space.time.contradictions index range: ${bounds.contradictionMin}..${bounds.contradictionMax}
+- cast index range: ${bounds.castMin}..${bounds.castMax}
+
+## Cast Name -> Index Map (for CASE.cast[N] paths)
+${castIndexMap.length > 0 ? castIndexMap.map((c) => `- ${c.name} -> ${c.index}`).join("\n") : "- None"}
+
+## Clue Density: ${densityInfo.label}
+Generate ${densityOverflow ? `at least ${requiredClues.length} clues (mandatory requirements exceed dense target range)` : `${densityInfo.count} total`}.
+Additional optional clues (${densityInfo.range} extra) for texture.
 
 ## Red Herring Budget: ${redHerringBudget}
 `;
   if (redHerringBudget > 0) {
     developer += `Create ${redHerringBudget} red herrings that support the false assumption: "${falseAssumptionStatement}"\n\n`;
+    developer += `## Red Herring Lexical Guardrails (proactive first-attempt)
+- correction_terms_forbidden_in_red_herrings:
+${correctionLexicon.length > 0 ? correctionLexicon.map((t) => `  - ${t}`).join("\n") : "  - none"}
+- preferred_false_assumption_terms:
+${falseAssumptionLexicon.length > 0 ? falseAssumptionLexicon.map((t) => `  - ${t}`).join("\n") : "  - none"}
+- red_herring_contract:
+  - Use preferred_false_assumption_terms where possible.
+  - Avoid correction_terms_forbidden_in_red_herrings in redHerrings[].description and redHerrings[].misdirection.
+  - Include one sentence in each misdirection explicitly justifying non-overlap with true-solution mechanism language.\n\n`;
   } else {
     developer += `No red herrings requested.\n\n`;
   }
@@ -364,6 +500,7 @@ Criticality levels:
 - Late clues minimum: ${clueTargets.late_clues_min ?? "N/A"}
 
 If targets conflict with clue density, prioritize fair play (essential clues and early placement).
+If mandatory requirements exceed requested density, satisfy mandatory requirements first and keep optional clues minimal.
 
 `;
   }
@@ -396,6 +533,16 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
 - Narrative-facing time wording must be era-appropriate and written in words (for example, "quarter past nine", not "9:15 PM").
 - supportsInferenceStep and step-indexed sourceInCML references must stay within actual inference-path bounds.
 - Red herring text must not reuse correction-language tokens from inference_path.steps[].correction.
+- If inference_path has ${stepCount} step(s), valid supportsInferenceStep/source step indices are 1..${stepCount} and 0..${Math.max(stepCount - 1, 0)} respectively.
+- Cast paths must use CASE.cast[N] with N from the Name->Index map above. Do not substitute names inside brackets.
+
+## Failure-Mode Hardening (pass-first)
+- If valid_source_paths[] is provided, sourceInCML should exactly match one listed path.
+- If sourceInCML is CASE.cast[N].*, suspect references in clue text/pointsTo must match cast index N.
+- Required discriminating-test IDs must be present in clues[].id and placed early|mid as essential.
+- Elimination clues must include alibi window + corroborator + explicit exclusion logic.
+- Red-herring forbidden terms apply to description/misdirection only; supportsAssumption may restate the false assumption.
+- Set status="pass" only when missing discriminating IDs, weak elimination suspects, and invalid source paths are all empty.
 
 ## Source Path Legality (Critical)
 Allowed source roots include:
@@ -420,6 +567,9 @@ Forbidden examples:
 - CASE.character_testimonial.*
 - CASE.cast.Name.*
 
+## valid_source_paths[] (exact match preferred)
+${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n") : "- none"}
+
 ## Micro-exemplars
 - Weak clue: "Someone was nervous around dinner."
 - Strong clue: "Port wine decanter seal is broken before service despite butler log marking it intact at ten past seven."
@@ -430,12 +580,14 @@ Forbidden examples:
 - every clue traceable to CML
 - essential clues placed early/mid only
 - supportsInferenceStep populated when applicable
+- at least one contradiction clue exists for every inference step with supportsInferenceStep mapping
 - red herrings support false assumption without inventing facts
 - all discriminating-test evidence clue IDs present in clue list
 - elimination clues include qualifying alibi/corroboration/exclusion detail
 - no illegal sourceInCML paths
 - no out-of-range inference-step indices
 - no digit-based clock notation in description/pointsTo
+- set status="pass" only when all audit arrays are empty; otherwise status="fail"
 - JSON only, no markdown fences
 
 `;
@@ -476,10 +628,13 @@ Forbidden examples:
   // --- User prompt ---
   const densityCountText: Record<string, string> = { minimal: "5-8", moderate: "8-12", dense: "12-18" };
   const rhUserText = redHerringBudget > 0 ? ` and ${redHerringBudget} red herrings` : "";
+  const userClueCountDirective = densityOverflow
+    ? `at least ${requiredClues.length}`
+    : densityCountText[effectiveDensity];
 
   let user = `Extract and organize clues from this mystery CML.
 
-Generate ${densityCountText[clueDensity]} clues${rhUserText} that uphold fair play — every essential clue must be placed so the reader can solve the mystery before the detective reveals the answer.
+Generate ${userClueCountDirective} clues${rhUserText} that uphold fair play — every essential clue must be placed so the reader can solve the mystery before the detective reveals the answer.
 
 Rules:
 - Do NOT invent new facts — every clue must be traceable to CML
@@ -489,9 +644,14 @@ Rules:
 - PREMEDITATION CLUES: If the culprit's guilt depends on premeditation or planning, that evidence must be a separate reader-visible clue placed "early" or "mid". The detective cannot withhold this from the reader until confrontation.
 - ELIMINATION CLUES: Must include time window, corroborator/evidence source, and direct exclusion logic in pointsTo ("Eliminates <name> because ...").
 - SOURCE PATH LEGALITY: sourceInCML must use only legal CML path roots.
+- SOURCE PATH EXACT MATCH: if valid_source_paths[] is present in the developer prompt, sourceInCML must exactly match one listed path.
 - STYLE: Use era-appropriate worded time references in clue descriptions and pointsTo.
 - TIME FORMAT: Never use digit-based clock notation in clue descriptions or pointsTo.
 - RED HERRING SEPARATION: Do not reuse correction-language tokens from inference_path.steps[].correction in red herring description/misdirection text.
+- RED HERRING FIELD SCOPE: forbidden overlap terms apply to redHerrings[].description and redHerrings[].misdirection; supportsAssumption may restate the false assumption.
+- FIRST-ATTEMPT RED HERRING CONTRACT: avoid correction-language tokens in red herrings from the start, not only in retry mode.
+- CAST PATH CONSISTENCY: If sourceInCML is CASE.cast[N].*, then clue description/pointsTo suspect references must match the name at cast index N.
+- STATUS CONTRACT: Return status="pass" only when all audit arrays are empty; otherwise return status="fail".
 - Cite sourceInCML for every clue
 - Return valid JSON matching the Output JSON Schema above`;
 
@@ -501,14 +661,54 @@ Rules:
       ...(inputs.fairPlayFeedback.warnings || []).map((w) => `[warning] ${w}`),
     ];
     if (correctionTargets.length > 0) {
+      const explicitForbiddenTerms = Array.isArray(inputs.fairPlayFeedback.forbiddenTerms)
+        ? inputs.fairPlayFeedback.forbiddenTerms.map((t) => String(t).trim()).filter(Boolean)
+        : [];
+      const correctionTerms = Array.isArray(caseData?.inference_path?.steps)
+        ? caseData.inference_path.steps.flatMap((s: any) => extractKeyTerms(String(s?.correction ?? "")))
+        : [];
+      const forbiddenTerms = [...new Set([...explicitForbiddenTerms, ...correctionTerms])].slice(0, 18);
+      const preferredTerms = Array.isArray(inputs.fairPlayFeedback.preferredTerms)
+        ? [...new Set(inputs.fairPlayFeedback.preferredTerms.map((t) => String(t).trim()).filter(Boolean))].slice(0, 18)
+        : [];
+      const requiredReplacements = Array.isArray(inputs.fairPlayFeedback.requiredReplacements)
+        ? inputs.fairPlayFeedback.requiredReplacements.map((t) => String(t).trim()).filter(Boolean)
+        : [];
+      const rewriteTargets = Array.isArray(inputs.fairPlayFeedback.redHerringIdsToRewrite)
+        ? inputs.fairPlayFeedback.redHerringIdsToRewrite.map((id) => String(id).trim()).filter(Boolean)
+        : [];
+      const requiredCluePhrases = Array.isArray(inputs.fairPlayFeedback.requiredCluePhrases)
+        ? [...new Set(inputs.fairPlayFeedback.requiredCluePhrases.map((p) => String(p).trim()).filter(Boolean))].slice(0, 12)
+        : [];
       user += `
 
 Retry mode (correction targets):
 - Fix these unresolved targets first:
 ${correctionTargets.map((t) => `  - ${t}`).join("\n")}
+- Retry scope: rewrite only targeted IDs when provided; keep unaffected IDs and wording stable unless a dependency requires change.
 - Preserve unaffected clues unless changes are needed for consistency.
 - Populate audit arrays to show no unresolved critical defects.
-- If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.`;
+- If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.
+${requiredCluePhrases.length > 0 ? `- REQUIRED CLUE CONTENT (must be covered by essential early/mid clues):\n${requiredCluePhrases.map((p) => `  - ${p}`).join("\n")}` : ""}
+
+Structured correction payload (apply exactly):
+- must_fix[]:
+${correctionTargets.map((t) => `  - ${t}`).join("\n")}
+${forbiddenTerms.length > 0 ? `- forbidden_terms[] (do not use in red herring description/misdirection):\n${forbiddenTerms.map((t) => `  - ${t}`).join("\n")}` : "- forbidden_terms[]: none"}
+- preferred_terms[] (use these instead when possible):
+${preferredTerms.length > 0 ? preferredTerms.map((t) => `  - ${t}`).join("\n") : "  - none"}
+- required_replacements[]:
+${requiredReplacements.length > 0
+  ? requiredReplacements.map((r) => `  - ${r}`).join("\n")
+  : "  - old phrase -> replacement phrase (for every overlap-triggering phrase)\n  - old phrase -> replacement phrase (for every invalid source path token)"}
+
+Hard retry contract:
+- If forbidden_terms[] is non-empty, none of those terms may appear in redHerrings[].description or redHerrings[].misdirection.
+- If that cannot be satisfied while keeping red herring coherence, return status=\"fail\" with the blocking term list in audit.invalidSourcePaths.`;
+      if (rewriteTargets.length > 0 || correctionTargets.some((t) => /red\s*herring\s*(rh_1|rh_2)|rh_1|rh_2/i.test(t))) {
+        user += `
+- Explicitly rewrite ${rewriteTargets.length > 0 ? rewriteTargets.join(", ") : "both rh_1 and rh_2"} and include a non-overlap justification sentence in each misdirection field.`;
+      }
     }
   }
 
@@ -539,8 +739,11 @@ export async function extractClues(
     agent: "Agent5-ClueExtraction",
     operation: "extract_clues",
     metadata: {
+      retryAttempt: attempt,
       clueDensity: inputs.clueDensity,
       redHerringBudget: inputs.redHerringBudget,
+      feedbackViolationCount: inputs.fairPlayFeedback?.violations?.length ?? 0,
+      feedbackWarningCount: inputs.fairPlayFeedback?.warnings?.length ?? 0,
     },
   });
 
@@ -554,6 +757,9 @@ export async function extractClues(
       projectId,
       agent: "Agent5-ClueExtraction",
       operation: "chat_request",
+      metadata: {
+        retryAttempt: attempt,
+      },
     });
 
     const response = await client.chat({

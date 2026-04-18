@@ -52,6 +52,7 @@ export {
   captureNarrativeSceneCountSnapshot,
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,
+  rebalanceNarrativeSceneCountsDeterministically,
 } from "./agent7-run.js";
 export {
   applyDeterministicProsePostProcessing,

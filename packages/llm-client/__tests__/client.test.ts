@@ -1,4 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "fs";
+import { join } from "path";
+import { tmpdir } from "os";
 import { CircuitBreaker, isRetryableError } from "../src/retry";
 import { RateLimiter } from "../src/ratelimit";
 import { CostTracker } from "../src/cost-tracker";
@@ -124,5 +127,141 @@ describe("LLMLogger", () => {
     const hash1 = LLMLogger.hashContent("content 1");
     const hash2 = LLMLogger.hashContent("content 2");
     expect(hash1).not.toBe(hash2);
+  });
+
+  it("normalizes first attempt retryAttempt to 1 in actual prompt state", async () => {
+    const docsDir = mkdtempSync(join(tmpdir(), "cml-logger-"));
+    try {
+      const testLogger = new LLMLogger({
+        logToConsole: false,
+        logToFile: false,
+        logActualPromptDocsToFile: true,
+        actualPromptDocsDir: docsDir,
+      });
+
+      await testLogger.logFullPrompt({
+        runId: "run_test_retry_normalization",
+        projectId: "proj_test",
+        agent: "Agent5-ClueExtraction",
+        operation: "chat_request_full_prompt",
+        model: "gpt-4o-mini",
+        temperature: 0.4,
+        maxTokens: 100,
+        promptHash: "hash_req_1",
+        retryAttempt: 0,
+        messages: [{ role: "user", content: "hello" }],
+      });
+
+      await testLogger.logResponse({
+        runId: "run_test_retry_normalization",
+        projectId: "proj_test",
+        agent: "Agent5-ClueExtraction",
+        operation: "chat_response",
+        model: "gpt-4o-mini",
+        promptHash: "hash_req_1",
+        responseHash: "hash_resp_1",
+        response: "ok",
+        success: true,
+        retryAttempt: 0,
+        timestamp: new Date().toISOString(),
+        metadata: {},
+      });
+
+      const runFolder = readdirSync(docsDir, { withFileTypes: true }).find((e) => e.isDirectory())?.name;
+      expect(runFolder).toBeTruthy();
+      const statePath = join(docsDir, String(runFolder), ".actual-run-state.json");
+      const state = JSON.parse(readFileSync(statePath, "utf8"));
+      expect(state.records).toHaveLength(1);
+      expect(state.records[0].retryAttempt).toBe(1);
+    } finally {
+      rmSync(docsDir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects response-only completion and increments missing_request_count", async () => {
+    const docsDir = mkdtempSync(join(tmpdir(), "cml-logger-"));
+    try {
+      const testLogger = new LLMLogger({
+        logToConsole: false,
+        logToFile: false,
+        logActualPromptDocsToFile: true,
+        actualPromptDocsDir: docsDir,
+      });
+
+      await testLogger.logResponse({
+        runId: "run_test_missing_request",
+        projectId: "proj_test",
+        agent: "Agent5-ClueExtraction",
+        operation: "chat_response",
+        model: "gpt-4o-mini",
+        promptHash: "hash_resp_only",
+        responseHash: "hash_resp_only_body",
+        response: "body",
+        success: true,
+        retryAttempt: 1,
+        timestamp: new Date().toISOString(),
+        metadata: {},
+      });
+
+      const runFolder = readdirSync(docsDir, { withFileTypes: true }).find((e) => e.isDirectory())?.name;
+      expect(runFolder).toBeTruthy();
+      const statePath = join(docsDir, String(runFolder), ".actual-run-state.json");
+      const state = JSON.parse(readFileSync(statePath, "utf8"));
+      expect(state.records).toHaveLength(0);
+      expect(state.integrity.missing_request_count).toBeGreaterThanOrEqual(1);
+    } finally {
+      rmSync(docsDir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects empty response body and increments empty_response_body_count", async () => {
+    const docsDir = mkdtempSync(join(tmpdir(), "cml-logger-"));
+    try {
+      const testLogger = new LLMLogger({
+        logToConsole: false,
+        logToFile: false,
+        logActualPromptDocsToFile: true,
+        actualPromptDocsDir: docsDir,
+      });
+
+      await testLogger.logFullPrompt({
+        runId: "run_test_empty_response",
+        projectId: "proj_test",
+        agent: "Agent5-ClueExtraction",
+        operation: "chat_request_full_prompt",
+        model: "gpt-4o-mini",
+        temperature: 0.4,
+        maxTokens: 100,
+        promptHash: "hash_req_empty",
+        retryAttempt: 1,
+        messages: [{ role: "user", content: "hello" }],
+      });
+
+      await testLogger.logResponse({
+        runId: "run_test_empty_response",
+        projectId: "proj_test",
+        agent: "Agent5-ClueExtraction",
+        operation: "chat_response",
+        model: "gpt-4o-mini",
+        promptHash: "hash_req_empty",
+        responseHash: "hash_empty",
+        response: "   ",
+        success: true,
+        retryAttempt: 1,
+        timestamp: new Date().toISOString(),
+        metadata: {},
+      });
+
+      const runFolder = readdirSync(docsDir, { withFileTypes: true }).find((e) => e.isDirectory())?.name;
+      expect(runFolder).toBeTruthy();
+      const statePath = join(docsDir, String(runFolder), ".actual-run-state.json");
+      const state = JSON.parse(readFileSync(statePath, "utf8"));
+      expect(state.records).toHaveLength(1);
+      expect(Boolean(state.records[0].responseFile)).toBe(false);
+      expect(state.integrity.empty_response_body_count).toBeGreaterThanOrEqual(1);
+      expect(state.integrity.missing_response_count).toBeGreaterThanOrEqual(1);
+    } finally {
+      rmSync(docsDir, { recursive: true, force: true });
+    }
   });
 });

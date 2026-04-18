@@ -1,6 +1,6 @@
-# Prose Generation — High-Level Design (HLD)
+﻿# Prose Generation — High-Level Design (HLD)
 
-**Based on:** `documentation/09_prose_generation.md`  
+**Based on:** `documentation/10_prose_generation/10_prose_generation.md`  
 **LLD:** `documentation/plan/prose-generation-LLD.md`  
 **Status of this document:** High-level phased plan. Low-level task breakdown in the LLD.
 
@@ -8,7 +8,7 @@
 
 ## Context
 
-`documentation/09_prose_generation.md` defines the target prose generation architecture:
+`documentation/10_prose_generation/10_prose_generation.md` defines the target prose generation architecture:
 the Asset Library, per-chapter context scoping, atom-level deployment tracking, story
 rhythm controls, and the quality feedback loop. The current implementation delivers the
 scaffolding (world document injection, obligation contract, NSD block, clue descriptions)
@@ -353,3 +353,6 @@ phases. Phases 3 and 4 together represent the full §09 architectural target. Ph
 closes the measurement loop that allows systematic quality improvement over time. Phase 6
 saturates the temporal context block with all the period-texture material the spec
 specifies, delivering the full era-immersion capability of Agent 2d.
+
+
+

@@ -188,10 +188,6 @@ export class ScoreAggregator {
     const releaseGateDetails =
       (releaseGateDiagnostic?.details as Record<string, unknown> | undefined) ?? {};
     const releaseGateStatusRaw = releaseGateDetails['validation_status'];
-    const releaseGateStatus: 'passed' | 'failed' | 'unknown' =
-      releaseGateStatusRaw === 'passed' || releaseGateStatusRaw === 'failed'
-        ? releaseGateStatusRaw
-        : 'unknown';
     const releaseGateHardStopCount = Number(
       releaseGateDetails['release_gate_hard_stop_count'] ?? 0
     );
@@ -199,19 +195,67 @@ export class ScoreAggregator {
       releaseGateDetails['release_gate_warning_count'] ?? 0
     );
 
+    const inferredDeterministicHardGateFailure = this.phases.some((phase) => {
+      const failureReason = String(phase.score.failure_reason ?? '').toLowerCase();
+      const phaseErrors = Array.isArray(phase.errors)
+        ? phase.errors.join(' ').toLowerCase()
+        : '';
+      return (
+        phase.passed === false &&
+        (/gate failed|hard gate|hard-stop|hard stop/.test(failureReason) ||
+          /gate failed|hard gate|hard-stop|hard stop/.test(phaseErrors))
+      );
+    });
+
+    const effectiveReleaseGateHardStopCount = Math.max(
+      releaseGateHardStopCount,
+      inferredDeterministicHardGateFailure ? 1 : 0,
+    );
+
+    const effectiveReleaseGateStatusRaw =
+      releaseGateStatusRaw === 'passed' || releaseGateStatusRaw === 'failed'
+        ? releaseGateStatusRaw
+        : inferredDeterministicHardGateFailure
+          ? 'failed'
+          : releaseGateStatusRaw;
+    const releaseGateStatus: 'passed' | 'failed' | 'unknown' =
+      effectiveReleaseGateStatusRaw === 'passed' || effectiveReleaseGateStatusRaw === 'failed'
+        ? effectiveReleaseGateStatusRaw
+        : effectiveReleaseGateHardStopCount > 0
+          ? 'failed'
+          : releaseGateWarningCount > 0
+            ? 'failed'
+            : this.diagnostics.some((d) => d.diagnostic_type === 'release_gate_summary')
+              ? 'passed'
+              : 'unknown';
+
     const runOutcome: GenerationReport['run_outcome'] =
-      releaseGateHardStopCount > 0
+      effectiveReleaseGateHardStopCount > 0
         ? 'aborted'
+        : releaseGateStatus === 'failed'
+          ? 'failed'
         : passed
           ? 'passed'
           : 'failed';
 
     const runOutcomeReason =
       runOutcome === 'aborted'
-        ? 'Release gate hard-stop'
+        ? inferredDeterministicHardGateFailure
+          ? 'Deterministic hard gate failure'
+          : 'Release gate hard-stop'
+        : runOutcome === 'failed' && releaseGateStatus === 'failed'
+          ? 'Release gate failed'
         : runOutcome === 'failed'
           ? 'One or more phases failed threshold'
           : undefined;
+
+    const adjustedOverallScore =
+      runOutcome === 'aborted'
+        ? Math.min(overallScore, 59)
+        : runOutcome === 'failed'
+          ? Math.min(overallScore, 74)
+          : overallScore;
+    const adjustedOverallGrade = calculateGrade(adjustedOverallScore);
 
     const releaseGateSummary =
       (releaseGateDetails['validation_summary'] as Record<string, unknown> | undefined) ??
@@ -287,19 +331,19 @@ export class ScoreAggregator {
       generated_at: completedAt.toISOString(),
       total_duration_ms: totalDuration,
       total_cost: parseFloat(totalCost.toFixed(4)),
-      overall_score: parseFloat(overallScore.toFixed(2)),
-      overall_grade: overallGrade,
+      overall_score: parseFloat(adjustedOverallScore.toFixed(2)),
+      overall_grade: adjustedOverallGrade,
       passed,
       run_outcome: runOutcome,
       run_outcome_reason: runOutcomeReason,
       scoring_outcome: {
-        score: parseFloat(overallScore.toFixed(2)),
-        grade: overallGrade,
-        passed_threshold: passed,
+        score: parseFloat(adjustedOverallScore.toFixed(2)),
+        grade: adjustedOverallGrade,
+        passed_threshold: runOutcome === 'passed',
       },
       release_gate_outcome: {
         status: releaseGateStatus,
-        hard_stop_count: releaseGateHardStopCount,
+        hard_stop_count: effectiveReleaseGateHardStopCount,
         warning_count: releaseGateWarningCount,
       },
       phases: this.phases,

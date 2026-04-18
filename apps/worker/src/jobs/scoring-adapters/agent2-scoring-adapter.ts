@@ -28,16 +28,33 @@ export interface CastDesignOutput {
 }
 
 export function adaptCastForScoring(castDesign: CastDesign): CastDesignOutput {
+  interface RelationshipPair {
+    character1: string;
+    character2: string;
+    relationship: string;
+    tension: string;
+  }
+
+  const possibleCulprits = Array.isArray((castDesign as any)?.crimeDynamics?.possibleCulprits)
+    ? (castDesign as any).crimeDynamics.possibleCulprits
+    : [];
+  const redHerrings = Array.isArray((castDesign as any)?.crimeDynamics?.redHerrings)
+    ? (castDesign as any).crimeDynamics.redHerrings
+    : [];
+  const relationshipPairs: RelationshipPair[] = Array.isArray((castDesign as any)?.relationships?.pairs)
+    ? (castDesign as any).relationships.pairs as RelationshipPair[]
+    : [];
+
   const cast: CastMember[] = castDesign.characters.map(ch => {
     // Derive culprit eligibility from the crimeDynamics block
-    const isEligible = castDesign.crimeDynamics.possibleCulprits.includes(ch.name);
-    const isRedHerring = castDesign.crimeDynamics.redHerrings.includes(ch.name);
+    const isEligible = possibleCulprits.includes(ch.name);
+    const isRedHerring = redHerrings.includes(ch.name);
     const culprit_eligibility = isEligible ? 'eligible' : 'ineligible';
 
     // Build relationship list from the relationship web
-    const relationships = castDesign.relationships.pairs
-      .filter(p => p.character1 === ch.name || p.character2 === ch.name)
-      .map(p => {
+    const relationships = relationshipPairs
+      .filter((p: RelationshipPair) => p.character1 === ch.name || p.character2 === ch.name)
+      .map((p: RelationshipPair) => {
         const other = p.character1 === ch.name ? p.character2 : p.character1;
         return `${other}: ${p.relationship} (tension: ${p.tension})`;
       });

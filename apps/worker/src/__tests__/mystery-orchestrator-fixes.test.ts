@@ -60,6 +60,87 @@ describe("mystery orchestrator fix coverage", () => {
     expect(check.message).toContain("changed");
   });
 
+  it("deterministic scene-count rebalance restores exact medium target", () => {
+    const underfilled = {
+      acts: [
+        {
+          actNumber: 1,
+          title: "Act I",
+          purpose: "Setup",
+          scenes: Array.from({ length: 7 }, (_, i) => ({
+            sceneNumber: i + 1,
+            act: 1,
+            title: `A1-${i + 1}`,
+            setting: { location: "Hall", timeOfDay: "Night", atmosphere: "Tense" },
+            characters: ["Detective"],
+            purpose: "Advance setup",
+            cluesRevealed: i % 2 === 0 ? ["c1"] : [],
+            dramaticElements: {},
+            summary: "Setup beat.",
+            estimatedWordCount: 1200,
+          })),
+        },
+        {
+          actNumber: 2,
+          title: "Act II",
+          purpose: "Investigation",
+          scenes: Array.from({ length: 10 }, (_, i) => ({
+            sceneNumber: 8 + i,
+            act: 2,
+            title: `A2-${i + 1}`,
+            setting: { location: "Library", timeOfDay: "Evening", atmosphere: "Uneasy" },
+            characters: ["Detective", "Suspect"],
+            purpose: "Advance investigation",
+            cluesRevealed: i % 3 === 0 ? ["c2"] : [],
+            dramaticElements: {},
+            summary: "Investigation beat.",
+            estimatedWordCount: 1300,
+          })),
+        },
+        {
+          actNumber: 3,
+          title: "Act III",
+          purpose: "Resolution",
+          scenes: Array.from({ length: 7 }, (_, i) => ({
+            sceneNumber: 18 + i,
+            act: 3,
+            title: `A3-${i + 1}`,
+            setting: { location: "Study", timeOfDay: "Dawn", atmosphere: "Charged" },
+            characters: ["Detective", "Culprit"],
+            purpose: "Advance resolution",
+            cluesRevealed: i === 0 ? ["c3"] : [],
+            dramaticElements: {},
+            summary: "Resolution beat.",
+            estimatedWordCount: 1400,
+          })),
+        },
+      ],
+      totalScenes: 24,
+      estimatedTotalWords: 0,
+      pacingNotes: [],
+      cost: 0,
+      durationMs: 0,
+    } as any;
+
+    const clues = {
+      clues: [
+        { id: "c1", criticality: "essential", placement: "early" },
+        { id: "c2", criticality: "essential", placement: "mid" },
+        { id: "c3", criticality: "supporting", placement: "late" },
+      ],
+      clueTimeline: { early: ["c1"], mid: ["c2"], late: ["c3"] },
+    } as any;
+
+    const result = __testables.rebalanceNarrativeSceneCountsDeterministically(underfilled, 30, clues);
+    expect(result.changed).toBe(true);
+
+    const snapshot = __testables.captureNarrativeSceneCountSnapshot(underfilled);
+    expect(snapshot.totalScenes).toBe(30);
+    expect(snapshot.perAct[1]).toBe(8);
+    expect(snapshot.perAct[2]).toBe(14);
+    expect(snapshot.perAct[3]).toBe(8);
+  });
+
   it("prose post-processing rewrites scaffold leakage and dedups repeated long paragraphs", () => {
     const scaffold = "At the old hall, the smell of oil and wet stone mixed with wind and weather, creating an atmosphere ripe for revelation.";
     const repeated = "This is an intentionally long repeated paragraph used for deterministic dedup testing. ".repeat(4);

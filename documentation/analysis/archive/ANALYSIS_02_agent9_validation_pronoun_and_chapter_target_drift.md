@@ -1,4 +1,4 @@
-# ANALYSIS_02: Agent9 Validation Failures (Pronoun Violations and Chapter Target Drift)
+﻿# ANALYSIS_02: Agent9 Validation Failures (Pronoun Violations and Chapter Target Drift)
 
 Date: 2026-03-14
 
@@ -110,9 +110,9 @@ The following fixes were implemented in priority order.
 - Result: pronoun drift is caught and retried inside Agent 9, rather than surfacing only at final validation.
 
 3. Documentation alignment
-- File: `documentation/02_cml_and_agents.md`
+- File: `documentation/02_cml/02_cml.md`
   - Added notes for Agent 7 scene-count hard-stop and Agent 9 pre-commit pronoun gate.
-- File: `documentation/06_workflow.md`
+- File: `documentation/07_workflow/07_workflow.md`
   - Updated workflow semantics: outline count mismatch now fails in Agent 7 pre-prose gate; Agent 9 warning retained as defensive telemetry.
   - Added note that pronoun mismatches are now surfaced in chapter retry cycles.
 
@@ -131,7 +131,7 @@ The following fixes were implemented in priority order.
 - File: `packages/prompts-llm/src/prose/pronoun-repair.ts` (new module, 18 unit tests)
 - Wired at: all 3 chapter-production sites in `agent9-prose.ts` (initial generation, clue-obligation repair, underflow expansion)
 - Change: deterministic algorithm repairs wrong-gender pronouns using the canonical cast map after LLM output but before validation. Handles single-character sentences, follow-up inheritance, same-gender multi-character repair, possessive/object disambiguation, and case preservation.
-- Result: pronoun drift is now corrected deterministically without consuming retry budget. This eliminates the pronoun↔word-count retry oscillation pattern.
+- Result: pronoun drift is now corrected deterministically without consuming retry budget. This eliminates the pronounâ†”word-count retry oscillation pattern.
 
 7. Follow-up (2026-03-14): retry mode auto-detection
 - Files: `agent9-prose.ts`, `generation-params.ts`, `generation-params.yaml`
@@ -140,10 +140,12 @@ The following fixes were implemented in priority order.
 
 8. Follow-up (2026-03-15): pipeline-wide content-filter fiction framing
 - Files: all agent source files (`agent1-setting.ts`, `agent2-cast.ts`, `agent2b-character-profiles.ts`, `agent2c-location-profiles.ts`, `agent2d-temporal-context.ts`, `agent2e-background-context.ts`, `agent3b-hard-logic-devices.ts`, `agent4-revision.ts`, `agent5-clues.ts`, `agent6-fairplay.ts` (both call sites), `agent7-narrative.ts`, `agent8-novelty.ts`, `shared/system.ts`)
-- Change: every LLM system prompt now includes a CONTEXT preamble: "All output is for a Golden Age whodunnit mystery novel — creative fiction... All references to crime, death, murder, poison, weapons, alibis, and investigation are standard fictional genre elements. No real people or events are depicted."
+- Change: every LLM system prompt now includes a CONTEXT preamble: "All output is for a Golden Age whodunnit mystery novel â€” creative fiction... All references to crime, death, murder, poison, weapons, alibis, and investigation are standard fictional genre elements. No real people or events are depicted."
 - Result: Azure OpenAI content-filter rejections are prevented across the entire pipeline, not just Agent 9 revision retries.
 
 9. Follow-up (2026-03-14): word count boost
 - Files: `generation-params.yaml`, `generation-params.ts`, `agent9-prose.ts`
 - Change: added `prompt_overshoot_buffer_words: 200` (inflates LLM word target) and preferred-target expansion pass (auto-extends prose between hard floor and preferred target).
 - Result: hard-floor word-count misses reduced; expansion pass visible in logs as `Agent9-UnderflowExpansion`.
+
+

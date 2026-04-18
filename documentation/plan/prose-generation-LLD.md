@@ -1,7 +1,7 @@
-# Low-Level Design — Prose Generation Architecture
+﻿# Low-Level Design — Prose Generation Architecture
 
 **Parent HLD:** `documentation/plan/prose-generation-HLD.md`  
-**Spec:** `documentation/09_prose_generation.md`  
+**Spec:** `documentation/10_prose_generation/10_prose_generation.md`  
 **Status:** Complete — all sections fully detailed with code-level specifications.
 
 Each section answers:
@@ -1800,4 +1800,7 @@ Cross-cut: 4 / 4   tasks complete
 ─────────────────────────────────
 Total:     47 / 48 tasks complete
 ```
+
+
+
 

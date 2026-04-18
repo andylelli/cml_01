@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-04-16T19:13:10.508Z",
+  "ledger": {
+    "jsonlPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T18-53-24-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent5-ClueExtraction.jsonl",
+    "mdPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T18-53-24-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent5-ClueExtraction.md"
+  },
+  "totals": {
+    "iterations": 3,
+    "warningTotal": 0,
+    "deterministicFallbackCount": 0,
+    "noOpIterationCount": 2,
+    "resumeFingerprintMismatchCount": 0
+  },
+  "statusCounts": {
+    "pass": 1,
+    "stop": 2
+  },
+  "stopReasonCounts": {
+    "Canary passed with zero unresolved warnings.": 1,
+    "Suggest mode completed planning pass.": 2
+  },
+  "signatureCounts": {
+    "cml.required_evidence_missing": 3
+  }
+}

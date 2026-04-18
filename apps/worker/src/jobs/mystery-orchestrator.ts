@@ -65,6 +65,7 @@ import {
   captureNarrativeSceneCountSnapshot,
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,
+  rebalanceNarrativeSceneCountsDeterministically,
   applyDeterministicProsePostProcessing,
   isDiscriminatingTestCoverageError,
   isSuspectClosureCoverageError,
@@ -355,12 +356,45 @@ export async function generateMystery(
       const currentEvidence = Array.isArray(discrimTestNode.evidence_clues)
         ? discrimTestNode.evidence_clues.map((id: unknown) => String(id))
         : [];
-      const essentialIds = ctx.clues!.clues
+      const canonicalExistingEvidence = currentEvidence.filter((id: string) => /^clue_[a-z0-9_-]+$/i.test(id));
+      const designText = String(discrimTestNode.design ?? "").toLowerCase();
+      const knowledgeText = String(discrimTestNode.knowledge_revealed ?? "").toLowerCase();
+      const testContextTokens = new Set(
+        `${designText} ${knowledgeText}`
+          .replace(/[^a-z0-9\s]/g, " ")
+          .split(/\s+/)
+          .filter((w) => w.length >= 5),
+      );
+
+      const scoredEssential = ctx.clues!.clues
         .filter((c) => c.criticality === "essential")
-        .map((c) => c.id);
-      backfilledEvidenceClues = essentialIds.filter((id) => !currentEvidence.includes(id));
+        .map((c) => {
+          const text = `${String(c.description ?? "")} ${String(c.pointsTo ?? "")}`.toLowerCase();
+          let score = 0;
+          for (const token of testContextTokens) {
+            if (text.includes(token)) score += 1;
+          }
+          if (c.placement === "early" || c.placement === "mid") score += 2;
+          if (c.evidenceType === "observation" || c.evidenceType === "contradiction") score += 1;
+          return { id: String(c.id), score };
+        })
+        .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id));
+
+      const maxBackfillIds = Math.max(1, evidenceBackfillThreshold);
+      const targetedEssentialIds = scoredEssential
+        .filter((entry) => entry.score > 0)
+        .map((entry) => entry.id)
+        .slice(0, maxBackfillIds);
+      const fallbackEssentialIds = scoredEssential
+        .map((entry) => entry.id)
+        .slice(0, maxBackfillIds);
+      const selectedEssentialIds = (targetedEssentialIds.length > 0 ? targetedEssentialIds : fallbackEssentialIds);
+
+      backfilledEvidenceClues = selectedEssentialIds.filter(
+        (id) => !canonicalExistingEvidence.includes(id),
+      );
       if (backfilledEvidenceClues.length > 0) {
-        discrimTestNode.evidence_clues = [...currentEvidence, ...backfilledEvidenceClues];
+        discrimTestNode.evidence_clues = [...canonicalExistingEvidence, ...backfilledEvidenceClues];
         warnings.push(
           `CML gate: back-filled evidence_clues with ${backfilledEvidenceClues.length} clue(s): ${backfilledEvidenceClues.join(", ")}`
         );
@@ -762,6 +796,7 @@ export const __testables = {
   captureNarrativeSceneCountSnapshot,
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,
+  rebalanceNarrativeSceneCountsDeterministically,
   applyDeterministicProsePostProcessing,
   isDiscriminatingTestCoverageError,
   isSuspectClosureCoverageError,

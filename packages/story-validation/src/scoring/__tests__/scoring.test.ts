@@ -437,4 +437,31 @@ describe("ScoreAggregator", () => {
     expect(report.run_outcome).toBe("aborted");
     expect(report.run_outcome_reason).toBe("Release gate hard-stop");
   });
+
+  it("infers deterministic hard gate failure from failed phase diagnostics", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore(
+      "agent5-clue-extraction",
+      "Clue Extraction",
+      makeScore({
+        agent: "agent5-clue-extraction",
+        total: 20,
+        passed: false,
+        validation_score: 10,
+        quality_score: 20,
+        completeness_score: 20,
+        consistency_score: 20,
+        failure_reason: "Hard gate failed: clue path validation",
+      }),
+      900,
+      0,
+      ["deterministic hard-stop triggered by source path rules"],
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.release_gate_outcome?.hard_stop_count).toBeGreaterThanOrEqual(1);
+    expect(report.release_gate_outcome?.status).toBe("failed");
+    expect(report.run_outcome).toBe("aborted");
+    expect(report.run_outcome_reason).toBe("Deterministic hard gate failure");
+  });
 });

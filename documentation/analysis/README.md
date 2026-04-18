@@ -3,6 +3,7 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
+- `ANALYSIS_56_run_20f9ca27_prompt_review.md`
 - `ANALYSIS_55_run_34d713c0_error_warning_report.md`
 - `ISSUES_05.md`
 - `ANALYSIS_54_run_71e31ebd_error_warning_report.md`
@@ -12,6 +13,7 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 
 | Date       | Analysis | Run ID (short) | Status | Primary failure class |
 |------------|----------|----------------|--------|-----------------------|
+| 2026-04-18 | `ANALYSIS_56` | `20f9ca27` | failed | Agent 4 revision non-convergence after fair-play escalation; prompt-contract drift in retries and audit traceability |
 | 2026-04-14 | `ANALYSIS_55` | `34d713c0` | failed | Agent 5 discriminating-test evidence mapping + weak suspect elimination/alibi gate failure |
 | 2026-04-14 | `ANALYSIS_54` | `71e31ebd` | failed | Agent 5 suspect-coverage hard gate failure after retry |
 | 2026-04-14 | `ANALYSIS_53` | `27958eec` | failed | Agent 9 pre-prose CML integrity contradiction abort |
@@ -19,6 +21,7 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 | 2026-04-13 | `ANALYSIS_51` | n/a | strategy doc | Pre-prose enrichment strategy review |
 
 ## Analysis Reports
+- `ANALYSIS_56_run_20f9ca27_prompt_review.md`
 - `ANALYSIS_55_run_34d713c0_error_warning_report.md`
 - `ANALYSIS_54_run_71e31ebd_error_warning_report.md`
 - `ANALYSIS_53_run_27958eec_error_warning_report.md`

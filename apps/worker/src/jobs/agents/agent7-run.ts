@@ -48,6 +48,11 @@ type NarrativeSceneCountSnapshot = {
   perAct: Record<1 | 2 | 3, number>;
 };
 
+type SceneCountRebalanceResult = {
+  changed: boolean;
+  summary: string;
+};
+
 // ============================================================================
 // Outline quality-gate regex constants
 // ============================================================================
@@ -115,6 +120,177 @@ export function checkNarrativeSceneCountFloor(
     }
   }
   return { ok: true };
+}
+
+function computeTargetActSceneCounts(expectedTotalScenes: number): Record<1 | 2 | 3, number> {
+  const pacing = getGenerationParams().agent7_narrative.params.pacing;
+  const act1 = Math.round(expectedTotalScenes * pacing.act_distribution.act1_ratio);
+  const act2 = Math.round(expectedTotalScenes * pacing.act_distribution.act2_ratio);
+  const act3 = expectedTotalScenes - act1 - act2;
+  return { 1: act1, 2: act2, 3: act3 };
+}
+
+function makeBridgeScene(
+  act: 1 | 2 | 3,
+  actSceneNumber: number,
+  seedScene: any,
+  clueId?: string,
+): any {
+  const inferredLocation =
+    typeof seedScene?.setting?.location === "string" && seedScene.setting.location.trim().length > 0
+      ? seedScene.setting.location
+      : "investigation setting";
+  const inferredTime =
+    typeof seedScene?.setting?.timeOfDay === "string" && seedScene.setting.timeOfDay.trim().length > 0
+      ? seedScene.setting.timeOfDay
+      : "Later that day";
+  const inferredAtmosphere =
+    typeof seedScene?.setting?.atmosphere === "string" && seedScene.setting.atmosphere.trim().length > 0
+      ? seedScene.setting.atmosphere
+      : "Tense and investigative";
+  const inferredCharacters = Array.isArray(seedScene?.characters)
+    ? seedScene.characters.filter((name: unknown) => typeof name === "string" && name.trim().length > 0).slice(0, 3)
+    : [];
+
+  return {
+    sceneNumber: 0,
+    act,
+    title: `Bridge Scene ${act}.${actSceneNumber}`,
+    setting: {
+      location: inferredLocation,
+      timeOfDay: inferredTime,
+      atmosphere: inferredAtmosphere,
+    },
+    characters: inferredCharacters,
+    purpose: "Bridge investigation beats while preserving scene-count contract and narrative continuity.",
+    cluesRevealed: clueId ? [clueId] : [],
+    dramaticElements: {
+      tension: "A new connective beat tightens the investigative thread before the next major turn.",
+      microMomentBeats: [
+        "A character briefly hesitates, revealing anxiety beneath procedural dialogue.",
+      ],
+    },
+    summary:
+      "The detective team re-evaluates recent testimony and positions before moving to the next major reveal. The beat preserves pacing while tightening continuity between clue discovery and later deductions.",
+    estimatedWordCount:
+      typeof seedScene?.estimatedWordCount === "number" && Number.isFinite(seedScene.estimatedWordCount)
+        ? Math.max(900, Math.round(seedScene.estimatedWordCount))
+        : 1400,
+  };
+}
+
+function normalizeNarrativeSceneNumbersAndTotals(narrative: NarrativeOutline): void {
+  let sceneCounter = 1;
+  let totalWords = 0;
+  for (const [actIndex, actBlock] of (narrative.acts ?? []).entries()) {
+    const actNumber = ((actBlock?.actNumber ?? actIndex + 1) as 1 | 2 | 3) || ((actIndex + 1) as 1 | 2 | 3);
+    actBlock.actNumber = actNumber;
+    let actWords = 0;
+    const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
+    for (const scene of scenes) {
+      scene.sceneNumber = sceneCounter++;
+      scene.act = actNumber;
+      if (!scene.setting || typeof scene.setting !== "object") {
+        scene.setting = { location: "investigation setting", timeOfDay: "Unknown", atmosphere: "Tense" };
+      }
+      if (!Array.isArray(scene.characters)) scene.characters = [];
+      if (!Array.isArray(scene.cluesRevealed)) scene.cluesRevealed = [];
+      if (!scene.dramaticElements || typeof scene.dramaticElements !== "object") scene.dramaticElements = {};
+      if (typeof scene.title !== "string" || scene.title.trim().length === 0) {
+        scene.title = `Scene ${scene.sceneNumber}`;
+      }
+      if (typeof scene.purpose !== "string" || scene.purpose.trim().length === 0) {
+        scene.purpose = "Advance the investigation while preserving continuity.";
+      }
+      if (typeof scene.summary !== "string" || scene.summary.trim().length === 0) {
+        scene.summary = "A connective investigative beat maintains pacing and continuity.";
+      }
+      if (typeof scene.estimatedWordCount !== "number" || !Number.isFinite(scene.estimatedWordCount)) {
+        scene.estimatedWordCount = 1400;
+      }
+      actWords += scene.estimatedWordCount;
+    }
+    actBlock.estimatedWordCount = actWords;
+    totalWords += actWords;
+  }
+  narrative.totalScenes = sceneCounter - 1;
+  narrative.estimatedTotalWords = totalWords;
+}
+
+export function rebalanceNarrativeSceneCountsDeterministically(
+  narrative: NarrativeOutline,
+  expectedTotalScenes: number,
+  clues?: ClueDistributionResult,
+): SceneCountRebalanceResult {
+  const targetActs = computeTargetActSceneCounts(expectedTotalScenes);
+  if (!Array.isArray(narrative.acts)) narrative.acts = [];
+
+  for (const act of [1, 2, 3] as const) {
+    let actBlock = narrative.acts.find((candidate: any) => Number(candidate?.actNumber) === act);
+    if (!actBlock) {
+      actBlock = {
+        actNumber: act,
+        title: `Act ${act}`,
+        purpose: "Narrative progression",
+        scenes: [],
+        estimatedWordCount: 0,
+      };
+      narrative.acts.push(actBlock);
+    }
+    if (!Array.isArray(actBlock.scenes)) actBlock.scenes = [];
+    if (typeof actBlock.title !== "string" || actBlock.title.trim().length === 0) {
+      actBlock.title = `Act ${act}`;
+    }
+    if (typeof actBlock.purpose !== "string" || actBlock.purpose.trim().length === 0) {
+      actBlock.purpose = "Narrative progression";
+    }
+
+    const preferredClues = ((): string[] => {
+      if (!clues) return [];
+      const placement = getPlacementForAct(act);
+      const timelineIds = clues.clueTimeline?.[placement] ?? [];
+      const fallbackIds = clues.clues.map((entry) => entry.id).filter((id): id is string => typeof id === "string" && id.length > 0);
+      return [...timelineIds, ...fallbackIds];
+    })();
+
+    while (actBlock.scenes.length < targetActs[act]) {
+      const insertionIndex = Math.max(0, actBlock.scenes.length - 1);
+      const seedScene = actBlock.scenes[insertionIndex] ?? actBlock.scenes[actBlock.scenes.length - 1] ?? {};
+      const clueId = preferredClues[(actBlock.scenes.length + act) % Math.max(1, preferredClues.length)];
+      const bridge = makeBridgeScene(act, insertionIndex + 1, seedScene, clueId);
+      actBlock.scenes.splice(insertionIndex, 0, bridge);
+    }
+
+    while (actBlock.scenes.length > targetActs[act]) {
+      const removableIndex = actBlock.scenes.findIndex(
+        (scene: any, index: number) =>
+          index > 0 &&
+          index < actBlock.scenes.length - 1 &&
+          (!Array.isArray(scene?.cluesRevealed) || scene.cluesRevealed.length === 0),
+      );
+      if (removableIndex >= 0) {
+        actBlock.scenes.splice(removableIndex, 1);
+      } else {
+        actBlock.scenes.splice(Math.max(0, actBlock.scenes.length - 2), 1);
+      }
+    }
+  }
+
+  narrative.acts.sort((a: any, b: any) => Number(a?.actNumber ?? 0) - Number(b?.actNumber ?? 0));
+  normalizeNarrativeSceneNumbersAndTotals(narrative);
+
+  const after = captureNarrativeSceneCountSnapshot(narrative);
+  const targetSummary = `Act I=${targetActs[1]}, Act II=${targetActs[2]}, Act III=${targetActs[3]}`;
+  const actualSummary = `Act I=${after.perAct[1]}, Act II=${after.perAct[2]}, Act III=${after.perAct[3]}`;
+  const changed = after.totalScenes === expectedTotalScenes &&
+    after.perAct[1] === targetActs[1] &&
+    after.perAct[2] === targetActs[2] &&
+    after.perAct[3] === targetActs[3];
+
+  return {
+    changed,
+    summary: `target(${targetSummary}) actual(${actualSummary}) total=${after.totalScenes}`,
+  };
 }
 
 export function applyDeterministicCluePreAssignment(
@@ -748,12 +924,29 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         ctx.warnings.push(`Scene count final gate: retry produced ${retriedActualCount} scenes — within ±${sceneTolerance} of target ${expectedScenes}, accepted.`);
         await rescoreNarrative(ctx, narrative);
       } else {
-        // Both attempts produced a count outside tolerance. Abort.
-        throw new Error(
-          `Scene count enforcement failed: after all retries, narrative has ${retriedActualCount} scenes ` +
-          `but the pipeline requires ${expectedScenes} ±${sceneTolerance}. ` +
-          `Aborting — cannot continue to prose generation with wrong scene count.`
+        // Last-resort deterministic repair to prevent hard failure on scene-count drift.
+        const deterministicRepair = rebalanceNarrativeSceneCountsDeterministically(
+          sceneCountRetried,
+          expectedScenes,
+          ctx.clues,
         );
+        const repairedCount = (sceneCountRetried.acts ?? []).flatMap((a: any) =>
+          Array.isArray(a.scenes) ? a.scenes : []
+        ).length;
+        if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
+          narrative = sceneCountRetried;
+          ctx.warnings.push(
+            `Scene count final gate: deterministic repair applied (${deterministicRepair.summary}) and recovered count ${repairedCount} for target ${expectedScenes}.`
+          );
+          await rescoreNarrative(ctx, narrative);
+        } else {
+          // Both LLM retries and deterministic repair failed; abort.
+          throw new Error(
+            `Scene count enforcement failed: after retries and deterministic repair, narrative has ${repairedCount} scenes ` +
+            `but the pipeline requires ${expectedScenes} ±${sceneTolerance}. ` +
+            `Aborting — cannot continue to prose generation with wrong scene count.`
+          );
+        }
       }
     }
   }

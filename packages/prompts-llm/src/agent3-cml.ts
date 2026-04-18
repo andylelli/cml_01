@@ -210,6 +210,7 @@ Hard constraints learned from failures:
 - Ensure discriminating_test.evidence_clues is non-empty and each clue ID appears in prose_requirements.clue_to_scene_mapping.
 - Ensure each inference step has concrete required_evidence that downstream clue extraction can convert directly to clues.
 - Use era-appropriate worded time references in narrative-facing evidence text (for example, "ten minutes to eleven", not "10:50 PM").
+- Ensure each inference effect is consistent with final culprit assignment; do not eliminate the declared culprit in any inference step.
 
 Micro-exemplars:
 - Weak inference observation: "Witness accounts conflict."
@@ -225,7 +226,8 @@ Before finalizing, run a silent checklist:
 - prose_requirements populated and clue IDs traceable
 - required setting fields (including institution) are non-empty
 - canonical enum forms only
-- narrative-facing time references are era-appropriate and written in words`;
+- narrative-facing time references are era-appropriate and written in words
+- inference effects do not contradict culprit assignment`;
 
   const requiredSkeleton = `
 **Required YAML Skeleton (do not omit any keys)**:

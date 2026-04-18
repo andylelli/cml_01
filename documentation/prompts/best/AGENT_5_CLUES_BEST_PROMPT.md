@@ -1,75 +1,181 @@
-# Agent 5 - Clue Extraction Prompt Analog (Runtime-Equivalent)
+# Agent 5 Best Prompt (Lightweight, Strong, Purpose-Built)
 
-Source of truth: `packages/prompts-llm/src/agent5-clues.ts`
+Purpose: extract fair-play clues from an existing CML case with strict traceability and minimal prompt bloat.
 
-## Message Stack Actually Sent
-1. `system`: clue extraction role with fair-play rules
-2. `developer`: CML-derived clue requirement checklist + schema contract
-3. `user`: density and red-herring constrained extraction request
+Design principle (airplane model):
+- Super light: no repeated rules, no decorative prose.
+- Very strong: hard constraints are explicit and machine-checkable.
+- Specific purpose: clue extraction only, not validation theater.
 
-## System Prompt Analog (Verbatim Core)
+Source of truth for runtime implementation: `packages/prompts-llm/src/agent5-clues.ts`
+
+## 1) Mission
+Use existing CML facts to produce clues and red herrings that let a reader solve the case before reveal.
+
+Non-negotiable:
+- No invented facts.
+- Every clue is traceable to CML.
+- Essential clues are early or mid, never late.
+- Return valid JSON only.
+
+## 2) Minimal Message Stack
+1. `system`: role + immutable rules (short)
+2. `developer`: case-derived requirements + hard bounds + schema
+3. `user`: request + retry deltas (only when needed)
+
+## 3) System Prompt (Lean)
 ```text
-You are a clue extraction specialist for Golden Age mystery fiction. Extract clues only from existing CML facts and organize them for fair play presentation.
-
-Rules:
-- No new facts
-- Every clue must be traceable to CML
-- Reader-observable clues
-- Essential clues must appear before solution
+You are a clue extraction specialist for Golden Age mystery fiction.
+Extract clues only from existing CML facts.
+Do not invent facts.
+Keep clues reader-observable and fair-play ordered.
+Return valid JSON only.
 ```
 
-## Developer Prompt Analog (Runtime-Equivalent)
+## 4) Developer Prompt (Structural Strength)
+Always include these sections, once each.
+
+### A. Case Snapshot
+- title, crime category, axis, cast count
+
+### B. Mandatory Requirements (Generated from CML)
+For each inference step:
+- one observation clue requirement
+- one contradiction clue requirement
+
+Also require:
+- discriminating-test prerequisite clue(s)
+- culprit premeditation visibility clue(s), if applicable
+- elimination clue(s) for eligible non-culprit suspects
+
+### C. Deterministic Bounds
+- inference step path index range
+- supportsInferenceStep valid range
+- time anchors range
+- time contradictions range
+- cast index range
+- cast name->index map
+
+### D. Source Path Contract
+- Allowed roots are explicitly listed.
+- `sourceInCML` must match an allowed root and be in range.
+- No synthesized path families.
+
+### E. Red-Herring Contract (when enabled)
+- Red herrings must support false assumption only.
+- Forbidden overlap terms are explicit (`forbidden_terms[]`).
+- Preferred assumption terms are explicit (`preferred_terms[]`).
+- Forbidden terms cannot appear in `description` or `misdirection`.
+
+### F. Output Schema
+Single JSON object with:
+- `status`
+- `clues[]`
+- `redHerrings[]`
+- `audit`
+
+## 5) User Prompt (Execution Contract)
 ```text
-Includes runtime-generated sections:
-- CML summary (title, crime, axis, cast)
-- Mandatory clue requirements from `generateExplicitClueRequirements(cml)`
-  - observation clues per inference step
-  - contradiction clues per inference step
-  - discriminating-test prerequisite clues
-  - premeditation visibility clues
-  - suspect elimination clues
-- Constraint-space context
-- Density and red-herring budget directives
-- Optional fair-play feedback block
+Extract and organize clues from this CML.
 
-Quality bar:
-- Essential clues should form a solvable chain rather than disconnected facts.
-- Clue wording should be concrete enough for scene-level prose rendering.
-- Placement should enforce fair-play timing, not last-minute clustering.
+Hard rules:
+- No invented facts.
+- Essential clues must be early/mid only.
+- Every CASE.discriminating_test.evidence_clues ID must appear as clues[].id.
+- Elimination clues must include time window, corroborator, and explicit exclusion logic.
+- sourceInCML must use legal roots and valid indices.
+- Use era-appropriate worded time references.
+- No digit-based clock notation in description/pointsTo.
+- Return valid JSON matching schema.
+```
 
-Hard constraints learned from failures:
-- Discriminating-test clue ID coverage is mandatory: every ID in `CASE.discriminating_test.evidence_clues` must appear as a clue `id`.
-- Required discriminating-test clue IDs must be `criticality: essential` and `placement: early|mid`.
-- Elimination clues must include a concrete alibi window, corroborator/evidence source, and explicit exclusion logic in `pointsTo`.
-- `sourceInCML` must be a legal path rooted in known CML structures; do not invent path families.
-- Red herrings must explicitly support the false assumption and include non-overlap justification versus true culprit mechanism facts.
-- Narrative-facing time wording must be era-appropriate and written in words (for example, "quarter past nine", not "9:15 PM").
-- `supportsInferenceStep` and step-indexed `sourceInCML` references must stay inside the actual inference-path bounds.
-- Red herring wording must avoid reusing correction-language terms from `inference_path.steps[].correction`.
+## 6) Generation Order (Critical)
+1. Build `clues[].id` and `clues[].sourceInCML`.
+2. Validate all source paths against allowed roots and bounds.
+3. Populate clue text fields.
+4. Build elimination details.
+5. Generate red herrings last.
+6. Set `status` based on unresolved hard-rule defects.
 
-Micro-exemplars:
-- Weak clue: "Someone was nervous around dinner."
-- Strong clue: "Port decanter seal is broken before service despite butler log marking it intact at ten past seven."
-- Weak sourceInCML: "case notes"
-- Strong sourceInCML: "CASE.constraint_space.time.anchors[1]"
+## 7) Retry Contract (Delta Only)
+In retry mode, add only unresolved failures and explicit correction payload:
+- `must_fix[]`
+- `forbidden_terms[]`
+- `preferred_terms[]`
+- `required_replacements[]`
 
-Silent checklist before return:
-- every clue traceable to CML
-- essential clues placed early/mid
-- supportsInferenceStep set when applicable
-- red herrings support false assumption without inventing facts
-- all discriminating-test evidence clue IDs present in clue list
-- elimination clues include qualifying alibi/corroboration/exclusion detail
-- no illegal `sourceInCML` paths
-- no out-of-range step indices in `supportsInferenceStep` / `sourceInCML`
-- no digit-based clock notation in clue descriptions/pointsTo
-- JSON only, no markdown fences
+Retry scope rule:
+- Rewrite only targeted red herring IDs (or only targeted clues). Keep unaffected IDs and text stable unless a dependency forces a change.
 
-Output schema:
+Hard retry rules:
+- `must_fix[]` is mandatory.
+- `forbidden_terms[]` are absolute bans in red-herring text.
+- If compliance is impossible, return `status="fail"` and list blockers in `audit.invalidSourcePaths`.
+
+## 8) Failure-Mode Hardening (Pass-First)
+Use these rules to prevent the exact recurring failures seen in runs.
+
+### A. Source Path and Index Drift
+- Prefer runtime-provided `valid_source_paths[]` exact matching when available.
+- If `valid_source_paths[]` is not provided, enforce allowed-root + bounds checks before writing clue text.
+- Never use name tokens inside brackets (for example, `CASE.cast[Philip Slater]` is illegal).
+
+### B. Cast Name/Path Mismatch
+- If `sourceInCML` is `CASE.cast[N].*`, clue suspect references must match cast index `N` exactly.
+- For elimination clues, the suspect named in `pointsTo` must match the same cast index source.
+
+### C. Discriminating-Test ID Coverage
+- Compute required IDs from `CASE.discriminating_test.evidence_clues` first.
+- Guarantee each required ID exists in `clues[].id`.
+- Required IDs must be `criticality: essential` and `placement: early|mid`.
+
+### D. Weak Elimination Clues
+- Every elimination clue must include:
+  - explicit alibi window text
+  - corroborator/evidence source
+  - exclusion statement beginning with `Eliminates <name> because ...`
+
+### E. Red-Herring Overlap Recurrence
+- Apply forbidden terms only to `redHerrings[].description` and `redHerrings[].misdirection`.
+- `redHerrings[].supportsAssumption` may restate the false assumption in plain form.
+- Do not echo inference correction wording in description/misdirection.
+
+### F. Status/Audit Consistency
+- Set `status="pass"` only when all three computed sets are empty:
+  - missing discriminating IDs
+  - weak elimination suspects
+  - invalid source paths
+- Otherwise set `status="fail"`.
+
+### G. Time-Notation Drift
+- Description and `pointsTo` must use worded time expressions.
+- Never use digit-based clock notation in clue prose.
+
+## 9) Canonical Output Schema
+```json
 {
   "status": "pass|fail",
-  "clues": [{"id":"...","category":"temporal|spatial|physical|behavioral|testimonial","description":"...","sourceInCML":"...","pointsTo":"...","placement":"early|mid|late","criticality":"essential|supporting|optional","supportsInferenceStep":1,"evidenceType":"observation|contradiction|elimination"}],
-  "redHerrings": [{"id":"...","description":"...","supportsAssumption":"...","misdirection":"..."}],
+  "clues": [
+    {
+      "id": "clue_1",
+      "category": "temporal|spatial|physical|behavioral|testimonial",
+      "description": "...",
+      "sourceInCML": "...",
+      "pointsTo": "...",
+      "placement": "early|mid|late",
+      "criticality": "essential|supporting|optional",
+      "supportsInferenceStep": 1,
+      "evidenceType": "observation|contradiction|elimination"
+    }
+  ],
+  "redHerrings": [
+    {
+      "id": "rh_1",
+      "description": "...",
+      "supportsAssumption": "...",
+      "misdirection": "..."
+    }
+  ],
   "audit": {
     "missingDiscriminatingEvidenceIds": [],
     "weakEliminationSuspects": [],
@@ -78,37 +184,23 @@ Output schema:
 }
 ```
 
-## User Prompt Analog (Runtime-Equivalent)
-```text
-Extract and organize clues from this mystery CML.
+## 10) Optional Strict Extension (Use Only If Needed)
+Add only when retry traceability is required:
+- `redHerringRewrites[]` with `id`, `oldPhrase`, `newPhrase`, `reason`
+- `audit.blockingTerms[]`
+- `audit.pathViolations[]`
 
-Generate {{densityRange}} clues and {{redHerringBudget}} red herrings.
+Do not include this extension in first-attempt runs unless required by active failure mode.
 
-Hard rules:
-- No invented facts
-- Essential clues must be early or mid (never late)
-- Discriminating-test-enabling clues must be early/mid
-- Premeditation evidence must be reader-visible before confrontation
-- Every `CASE.discriminating_test.evidence_clues` ID must appear as a clue `id`
-- Elimination clues must explicitly state time window + corroboration + elimination logic
-- `sourceInCML` must use only legal CML path roots
-- Use era-appropriate worded time references in clue descriptions and pointsTo
-- No digit-based clock notation in clue descriptions/pointsTo
-- Red herring text must not reuse correction-language tokens from inference-step corrections
-- Return valid JSON matching schema
+## 11) Runtime Ownership Boundary
+Prompt responsibilities:
+- generation behavior
+- explicit contracts
 
-Retry mode (when prior errors are provided):
-- Start with `Correction Targets` and fix those targets first.
-- Preserve unaffected clues unless needed for consistency.
-- Populate `audit` arrays to show no unresolved critical defects.
-- Include a per-red-herring rewrite table when overlap is flagged: `old phrase -> replacement phrase`.
-```
+Runtime responsibilities (deterministic, outside prompt):
+- source path validation
+- bounds checks
+- audit consistency checks
+- overlap scoring and hard gates
 
-## Runtime Gates
-- Post-parse timeline computation (`early/mid/late`)
-- fairPlayChecks generation
-- normalization for `supportsInferenceStep` / `evidenceType`
-- deterministic `sourceInCML` legality + index-bounds validation
-- deterministic inference-step bounds validation for `supportsInferenceStep`
-- model-audit consistency verification against deterministic facts
-- calibrated red-herring overlap severity gate (minor overlap warns; severe overlap fails)
+Keep runtime logic out of model-facing instruction text unless it changes output behavior.

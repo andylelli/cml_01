@@ -1,8 +1,8 @@
-# Agent 9 - Prose Generator Best Prompt Analog (Runtime-Equivalent)
+﻿# Agent 9 - Prose Generator Best Prompt Analog (Runtime-Equivalent)
 
 Source of truth:
 - `packages/prompts-llm/src/agent9-prose.ts`
-- `documentation/09_prose_generation.md`
+- `documentation/10_prose_generation/10_prose_generation.md`
 
 Use with:
 - `documentation/prompts/PROMPT_BACKBONE_STANDARD.md`
@@ -156,7 +156,7 @@ Runtime-equivalent rule:
 - Use `world_document` as the creative synthesis layer that carries the substance of upstream outputs.
 - Treat all injected material as actionable prose constraints, not optional background.
 
-From `documentation/09_prose_generation.md`:
+From `documentation/10_prose_generation/10_prose_generation.md`:
 - The guiding ambition is that every pre-prose intelligence item can surface at the right moment and form.
 - Some upstream agents are intentionally consumed via synthesis (primarily World Document) rather than direct raw-field injection.
 - Asset Library chapter-scoped atomization is the planned mechanism for complete per-atom deployment tracking; not all of that is live yet.
@@ -328,13 +328,13 @@ Live behavior:
 Important current limitation:
 - `cluesRevealedToReader` is updated on the orchestrator copy, but not fed back into the in-process `liveNarrativeState` during a single `generateProse()` run, so the NSD "already revealed" line remains effectively unfed in that pass.
 
-Planned-but-not-live state extensions from `09_prose_generation.md`:
+Planned-but-not-live state extensions from `10_prose_generation.md`:
 - `deployedAssets`
 - `lastUsedSensoryVariantPerLocation`
 - `dominantRegisterHistory`
 - full victim-state setter wiring (`victimConfirmedDeadChapter` assignment path)
 
-## Compliance Map to `documentation/09_prose_generation.md`
+## Compliance Map to `documentation/10_prose_generation/10_prose_generation.md`
 Implemented and aligned:
 - Section 5 prompt assembly model (`system` composition, block budgeting, obligation contract, checklist turn)
 - Section 5.4 world-brief standing arc frame and season lock behavior
@@ -342,7 +342,7 @@ Implemented and aligned:
 - Section 8 validation/retry architecture and deterministic gating
 - humour architecture: style guide + character humour constraints (placement gating currently partial due enum mismatch)
 
-Spec notes marked in `09_prose_generation.md` as planned/not-yet:
+Spec notes marked in `10_prose_generation.md` as planned/not-yet:
 - `storyEmotionalArc.arcDescription` injection
 - Asset Library atomization and deployment ledger (`deployedAssets`)
 - active character/location scoped atom filtering
@@ -517,16 +517,18 @@ Outline scenes:
 `role: user`
 ```text
 BEFORE SUBMITTING YOUR JSON - verify this checklist:
-□ Each chapter reaches hard floor 1040 words and aims for 1300+ words.
-□ If you mention locked evidence, use exact locked phrase verbatim.
-□ Allowed seasonal words only: autumn, autumnal, fall.
-□ Forbidden seasonal words: spring, summer, winter.
-□ Chapter 4: clue_clock appears in first 25%, followed immediately by explicit inference paragraph.
-□ First chapter in this batch opens by continuing the previous chapter closing beat.
-□ PRONOUN AUDIT - verify named characters against canonical pronouns before output.
-□ Return valid JSON only.
+â–¡ Each chapter reaches hard floor 1040 words and aims for 1300+ words.
+â–¡ If you mention locked evidence, use exact locked phrase verbatim.
+â–¡ Allowed seasonal words only: autumn, autumnal, fall.
+â–¡ Forbidden seasonal words: spring, summer, winter.
+â–¡ Chapter 4: clue_clock appears in first 25%, followed immediately by explicit inference paragraph.
+â–¡ First chapter in this batch opens by continuing the previous chapter closing beat.
+â–¡ PRONOUN AUDIT - verify named characters against canonical pronouns before output.
+â–¡ Return valid JSON only.
 ```
 
 Notes:
 - Retry attempts append the prior raw assistant output (except final retry) and an additional retry-feedback `user` turn.
 - The exact wording of many blocks is runtime-generated, but the packet shape above is the live contract.
+
+

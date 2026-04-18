@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-04-18T18:19:30.451Z",
+  "ledger": {
+    "jsonlPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-18T18-14-21-run_20f9ca27-9933-4c85-bb51-9146f093c292-Agent7-NarrativeOutline.jsonl",
+    "mdPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-18T18-14-21-run_20f9ca27-9933-4c85-bb51-9146f093c292-Agent7-NarrativeOutline.md"
+  },
+  "totals": {
+    "iterations": 4,
+    "warningTotal": 0,
+    "deterministicFallbackCount": 0,
+    "noOpIterationCount": 0,
+    "resumeFingerprintMismatchCount": 0
+  },
+  "statusCounts": {
+    "continue": 3,
+    "stop": 1
+  },
+  "stopReasonCounts": {
+    "Signature remained unchanged for 3 iterations (maxUnchanged=2).": 1
+  },
+  "signatureCounts": {
+    "cml.required_evidence_missing": 1,
+    "agent5.time_style_violation": 3
+  }
+}

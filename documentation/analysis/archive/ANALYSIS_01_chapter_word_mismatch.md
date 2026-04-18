@@ -1,4 +1,4 @@
-# ANALYSIS_01: Technical Causes of Chapter and Word Count Mismatches
+﻿# ANALYSIS_01: Technical Causes of Chapter and Word Count Mismatches
 
 Date: 2026-03-13
 
@@ -116,7 +116,7 @@ Two mechanisms now reduce chapter word-count hard-floor misses:
 
 1. **Prompt overshoot buffer** (`prompt_overshoot_buffer_words: 200`)
    - File: `apps/worker/config/generation-params.yaml` (under `agent9_prose.word_policy`)
-   - File: `packages/story-validation/src/generation-params.ts` (added to `Agent9WordPolicyConfig`, `DEFAULT_CONFIG`, merge logic clamped 0–600)
+   - File: `packages/story-validation/src/generation-params.ts` (added to `Agent9WordPolicyConfig`, `DEFAULT_CONFIG`, merge logic clamped 0â€“600)
    - Behavior: the word target sent to the LLM is inflated by the buffer amount, compensating for the model's systematic tendency to undershoot targets.
 
 2. **Preferred-target expansion pass (Option E)**
@@ -221,7 +221,7 @@ With these controls, mismatches that are structurally valid (for example partial
 **Implementation targets**
 - UI quality/report components under `apps/web`
 - API report DTO shaping under `apps/api`
-- docs updates in `documentation/05_ui_spec.md`, `documentation/06_workflow.md`, and `README.md`
+- docs updates in `documentation/06_ui_spec/06_ui_spec.md`, `documentation/07_workflow/07_workflow.md`, and `README.md`
 
 **Exit criteria**
 - No UI panel displays ambiguous `X/Y` without metric context.
@@ -253,7 +253,7 @@ With these controls, mismatches that are structurally valid (for example partial
 
 **Implementation targets**
 - analytics/report tooling
-- documentation updates in `documentation/03_architecture_backend.md`, `documentation/04_llm_ai.md`, `documentation/06_workflow.md`
+- documentation updates in `documentation/04_architecture_backend/04_architecture_backend.md`, `documentation/05_llm_ai/05_llm_ai.md`, `documentation/07_workflow/07_workflow.md`
 
 **Exit criteria**
 - Trend dashboards use deduplicated counts.
@@ -397,9 +397,9 @@ Phase 1 is complete. Canonical target contract enforcement and diagnostics prove
 - `apps/api/src/__tests__/server.test.ts`
 - `apps/web/src/components/ScoreCard.vue`
 - `apps/web/src/components/__tests__/ScoreCard.test.ts`
-- `documentation/03_architecture_backend.md`
-- `documentation/04_llm_ai.md`
-- `documentation/06_workflow.md`
+- `documentation/04_architecture_backend/04_architecture_backend.md`
+- `documentation/05_llm_ai/05_llm_ai.md`
+- `documentation/07_workflow/07_workflow.md`
 
 ### Verification update
 - Ran: `npm run -w @cml/story-validation test`
@@ -501,3 +501,4 @@ Phase 3 is closed without a live run by user request. Deterministic worker/repor
 
 ### Phase 4 closeout decision
 Phase 4 is complete. UI/API presentation semantics now align with reconciliation diagnostics, and partial prose generation is a first-class, explicitly labeled consumer state.
+

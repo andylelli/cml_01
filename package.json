@@ -9,7 +9,24 @@
     "build": "npm run -w @cml/api build",
     "dev": "npm run -w @cml/api build && npm run -w @cml/api dev",
     "lint": "echo \"lint: TODO\"",
-    "test": "npm run -w @cml/api test ; npm run -w @cml/worker test ; npm run -w @cml/web test"
+    "test": "npm run -w @cml/api test ; npm run -w @cml/worker test ; npm run -w @cml/web test",
+    "test:canary-loop": "node --test scripts/canary-loop/__tests__",
+    "canary:core": "npm run -w @cml/worker build && node scripts/canary-core.mjs",
+    "canary:agent-loop": "node scripts/canary-agent-loop.mjs",
+    "canary:agent1": "npm run canary:agent-loop -- --agent Agent1-SettingRefiner --startFromAgent Agent1-SettingRefiner --hydratePriorFromRun true",
+    "canary:agent2": "npm run canary:agent-loop -- --agent Agent2-CastDesigner --startFromAgent Agent2-CastDesigner --hydratePriorFromRun true",
+    "canary:agent2b": "npm run canary:agent-loop -- --agent Agent2b-CharacterProfiles --startFromAgent Agent2b-CharacterProfiles --hydratePriorFromRun true",
+    "canary:agent2c": "npm run canary:agent-loop -- --agent Agent2c-LocationProfiles --startFromAgent Agent2c-LocationProfiles --hydratePriorFromRun true",
+    "canary:agent2d": "npm run canary:agent-loop -- --agent Agent2d-TemporalContext --startFromAgent Agent2d-TemporalContext --hydratePriorFromRun true",
+    "canary:agent2e": "npm run canary:agent-loop -- --agent Agent2e-BackgroundContext --startFromAgent Agent2e-BackgroundContext --hydratePriorFromRun true",
+    "canary:agent3": "npm run canary:agent-loop -- --agent Agent3-CMLGenerator --startFromAgent Agent3-CMLGenerator --hydratePriorFromRun true",
+    "canary:agent3b": "npm run canary:agent-loop -- --agent Agent3b-HardLogicDeviceGenerator --startFromAgent Agent3b-HardLogicDeviceGenerator --hydratePriorFromRun true",
+    "canary:agent4": "npm run canary:agent-loop -- --agent Agent4-Revision --startFromAgent Agent4-Revision --hydratePriorFromRun true",
+    "canary:agent5": "npm run canary:agent-loop -- --agent Agent5-ClueExtraction --startFromAgent Agent5-ClueExtraction --hydratePriorFromRun true",
+    "canary:agent6": "npm run canary:agent-loop -- --agent Agent6-FairPlay --startFromAgent Agent6-FairPlay --hydratePriorFromRun true",
+    "canary:agent65": "npm run canary:agent-loop -- --agent Agent65-WorldBuilder --startFromAgent Agent65-WorldBuilder --hydratePriorFromRun true",
+    "canary:agent7": "npm run canary:agent-loop -- --agent Agent7-NarrativeOutline --startFromAgent Agent7-NarrativeOutline --hydratePriorFromRun true",
+    "canary:agent9": "npm run canary:agent-loop -- --agent Agent9-Prose --startFromAgent Agent9-Prose --hydratePriorFromRun true"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

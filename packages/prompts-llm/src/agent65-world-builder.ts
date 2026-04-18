@@ -51,6 +51,77 @@ function paragraphCount(value: unknown): number {
     .filter((p: string) => p.length > 0).length;
 }
 
+function forceMultiParagraphArcDescription(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  const compact = value.trim();
+  if (!compact) return '';
+
+  if (paragraphCount(compact) >= MIN_ARC_PARAGRAPHS) {
+    return compact;
+  }
+
+  const sentences = compact
+    .split(/(?<=[.!?])\s+/)
+    .map((s: string) => s.trim())
+    .filter(Boolean);
+
+  if (sentences.length < 2) {
+    return compact;
+  }
+
+  const midpoint = Math.max(1, Math.floor(sentences.length / 2));
+  const first = sentences.slice(0, midpoint).join(' ').trim();
+  const second = sentences.slice(midpoint).join(' ').trim();
+
+  if (!first || !second) {
+    return compact;
+  }
+
+  return `${first}\n\n${second}`;
+}
+
+function enforceRevealImplicationsFloor(
+  value: unknown,
+  minimumWords: number,
+  storyTheme: unknown,
+  dominantRegister: unknown
+): string {
+  const base = typeof value === 'string' ? value.trim() : '';
+  if (countWords(base) >= minimumWords) {
+    return base;
+  }
+
+  const theme = typeof storyTheme === 'string' ? storyTheme.trim() : '';
+  const register = typeof dominantRegister === 'string' ? dominantRegister.trim() : '';
+  const additions: string[] = [
+    'Taken together, these implications should be treated as cumulative pressure that reshapes how each suspect interprets risk, loyalty, and consequence over the final act.',
+    'The reader should feel that each reveal narrows the moral room for self-deception while broadening the emotional stakes for every relationship still in play.',
+    'Practically, this means each subsequent scene should convert abstract suspicion into concrete interpersonal cost, so the final revelation feels inevitable rather than abrupt.',
+  ];
+
+  if (theme) {
+    additions.push(
+      `These outcomes should reinforce the story theme: ${theme.replace(/\s+/g, ' ').trim()}.`
+    );
+  }
+
+  if (register) {
+    additions.push(
+      `Maintain the dominant emotional register (${register.replace(/\s+/g, ' ').trim()}) while escalating clarity around motive and accountability.`
+    );
+  }
+
+  let composed = base;
+  for (const sentence of additions) {
+    composed = composed ? `${composed} ${sentence}` : sentence;
+    if (countWords(composed) >= minimumWords) {
+      break;
+    }
+  }
+
+  return composed.trim();
+}
+
 // ARC_DESC_GATE / ARC_DESC_PROMPT are loaded from generation-params.yaml at
 // call time via getArcDescParams(). Defaults: gate=200, buffer=100 → prompt=300.
 const getArcDescParams = () => {
@@ -455,7 +526,10 @@ export async function generateWorldDocument(
 
     // arcDescription word count gate — hard floor at `gate` words; prompt targets gate+buffer
     const { gate: arcDescGate, prompt: arcDescPromptTarget } = getArcDescParams();
-    const arcDesc = parsed.storyEmotionalArc?.arcDescription ?? '';
+    const arcDesc = forceMultiParagraphArcDescription(parsed.storyEmotionalArc?.arcDescription ?? '');
+    if (parsed.storyEmotionalArc && arcDesc) {
+      parsed.storyEmotionalArc.arcDescription = arcDesc;
+    }
     const arcDescWordCount = countWords(arcDesc);
     if (arcDescWordCount < arcDescGate) {
       lastError = new Error(
@@ -492,6 +566,12 @@ export async function generateWorldDocument(
     }
 
     // revealImplications word count gate
+    parsed.revealImplications = enforceRevealImplicationsFloor(
+      parsed.revealImplications,
+      REVEAL_IMPLICATIONS_GATE,
+      parsed.storyTheme,
+      parsed.storyEmotionalArc?.dominantRegister,
+    );
     const revealImplicationsWordCount = countWords(parsed.revealImplications);
     if (revealImplicationsWordCount < REVEAL_IMPLICATIONS_GATE) {
       lastError = new Error(

@@ -18,6 +18,7 @@ import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
+import { jsonrepair } from "jsonrepair";
 
 // ============================================================================
 // Types
@@ -54,6 +55,43 @@ export interface FairPlayAuditResult {
   summary: string;
   cost: number;
   durationMs: number;
+}
+
+function parseJsonWithRepair<T>(raw: string, contextLabel: string): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    // Fall through to repair/extraction attempts.
+  }
+
+  try {
+    const repaired = jsonrepair(raw);
+    return JSON.parse(repaired) as T;
+  } catch {
+    // Fall through to bounded extraction attempts.
+  }
+
+  const trimmed = raw.trim();
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start !== -1 && end > start) {
+    const candidate = trimmed.slice(start, end + 1);
+    try {
+      return JSON.parse(candidate) as T;
+    } catch {
+      // Fall through to repaired candidate.
+    }
+
+    try {
+      const repairedCandidate = jsonrepair(candidate);
+      return JSON.parse(repairedCandidate) as T;
+    } catch {
+      // Fall through to terminal error.
+    }
+  }
+
+  const preview = raw.slice(0, 280).replace(/\s+/g, " ");
+  throw new Error(`Failed to parse ${contextLabel} JSON after repair attempts. Preview: ${preview}`);
 }
 
 // ============================================================================
@@ -426,12 +464,10 @@ export async function auditFairPlay(
   const cost = costTracker.getSummary().byAgent["Agent6-FairPlayAuditor"] || 0;
 
   // Parse the audit result
-  let auditData: Omit<FairPlayAuditResult, "cost" | "durationMs">;
-  try {
-    auditData = JSON.parse(response.content);
-  } catch (error) {
-    throw new Error(`Failed to parse fair play audit JSON: ${error}`);
-  }
+  const auditData = parseJsonWithRepair<Omit<FairPlayAuditResult, "cost" | "durationMs">>(
+    response.content,
+    "fair play audit"
+  );
 
   // Validate required fields
   if (!auditData.overallStatus || !auditData.checks || !auditData.summary) {
@@ -516,6 +552,29 @@ export async function blindReaderSimulation(
   const costTracker = client.getCostTracker();
   const cost = costTracker.getSummary().byAgent["Agent6-BlindReader"] || 0;
 
-  const result = JSON.parse(response.content);
-  return { ...result, cost, durationMs };
+  const result = parseJsonWithRepair<Partial<BlindReaderResult>>(response.content, "blind reader");
+  const confidence =
+    result.confidenceLevel === "certain" ||
+    result.confidenceLevel === "likely" ||
+    result.confidenceLevel === "uncertain" ||
+    result.confidenceLevel === "impossible"
+      ? result.confidenceLevel
+      : "uncertain";
+
+  return {
+    suspectedCulprit:
+      typeof result.suspectedCulprit === "string" && result.suspectedCulprit.trim().length > 0
+        ? result.suspectedCulprit
+        : "Unknown",
+    reasoning:
+      typeof result.reasoning === "string" && result.reasoning.trim().length > 0
+        ? result.reasoning
+        : "No clear reasoning provided.",
+    confidenceLevel: confidence,
+    missingInformation: Array.isArray(result.missingInformation)
+      ? result.missingInformation.filter((item): item is string => typeof item === "string")
+      : [],
+    cost,
+    durationMs,
+  };
 }

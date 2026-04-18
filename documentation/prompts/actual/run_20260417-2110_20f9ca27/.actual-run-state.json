@@ -1,0 +1,172 @@
+{
+  "runId": "run_20f9ca27-9933-4c85-bb51-9146f093c292",
+  "projectId": "proj_0b9d9c24-d00c-455d-a7a2-b502f3126204",
+  "folderName": "run_20260417-2110_20f9ca27",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "69d23a6b5bad9ae2",
+      "requestTimestamp": "2026-04-17T21:10:17.615Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-04-17T21:10:23.461Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "4f551ad47c379385",
+      "requestTimestamp": "2026-04-17T21:10:23.509Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-04-17T21:10:35.833Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2e-BackgroundContext",
+      "retryAttempt": 1,
+      "promptHash": "c8fa155654706d43",
+      "requestTimestamp": "2026-04-17T21:10:35.866Z",
+      "requestFile": "03_Agent2e-BackgroundContext_request.md",
+      "responseTimestamp": "2026-04-17T21:10:38.600Z",
+      "responseFile": "03_Agent2e-BackgroundContext_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 1,
+      "promptHash": "7b391c368a926e7e",
+      "requestTimestamp": "2026-04-17T21:10:38.611Z",
+      "requestFile": "04_Agent3b-HardLogicDeviceGenerator_request.md",
+      "responseTimestamp": "2026-04-17T21:10:51.656Z",
+      "responseFile": "04_Agent3b-HardLogicDeviceGenerator_response.md"
+    },
+    {
+      "sequence": 5,
+      "agent": "Agent3-CMLGenerator",
+      "retryAttempt": 1,
+      "promptHash": "b0cfc152553945b7",
+      "requestTimestamp": "2026-04-17T21:10:51.724Z",
+      "requestFile": "05_Agent3-CMLGenerator_request.md",
+      "responseTimestamp": "2026-04-17T21:11:18.528Z",
+      "responseFile": "05_Agent3-CMLGenerator_response.md"
+    },
+    {
+      "sequence": 6,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 1,
+      "promptHash": "5710e62a422316ee",
+      "requestTimestamp": "2026-04-17T21:11:18.565Z",
+      "requestFile": "06_Agent5-ClueExtraction_request.md",
+      "responseTimestamp": "2026-04-17T21:11:30.616Z",
+      "responseFile": "06_Agent5-ClueExtraction_response.md"
+    },
+    {
+      "sequence": 7,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 2,
+      "promptHash": "dd0677eff40efe79",
+      "requestTimestamp": "2026-04-17T21:11:30.633Z",
+      "requestFile": "07_Agent5-ClueExtraction_retry1_request.md",
+      "responseTimestamp": "2026-04-17T21:11:42.902Z",
+      "responseFile": "07_Agent5-ClueExtraction_retry1_response.md"
+    },
+    {
+      "sequence": 8,
+      "agent": "Agent6-FairPlayAuditor",
+      "retryAttempt": 1,
+      "promptHash": "cb1b79e50e1afc56",
+      "requestTimestamp": "2026-04-17T21:11:42.927Z",
+      "requestFile": "08_Agent6-FairPlayAuditor_request.md",
+      "responseTimestamp": "2026-04-17T21:11:49.483Z",
+      "responseFile": "08_Agent6-FairPlayAuditor_response.md"
+    },
+    {
+      "sequence": 9,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 1,
+      "promptHash": "317a01c8d0600537",
+      "requestTimestamp": "2026-04-17T21:11:49.497Z",
+      "requestFile": "09_Agent5-ClueExtraction_request.md",
+      "responseTimestamp": "2026-04-17T21:12:01.835Z",
+      "responseFile": "09_Agent5-ClueExtraction_response.md"
+    },
+    {
+      "sequence": 10,
+      "agent": "Agent6-FairPlayAuditor",
+      "retryAttempt": 1,
+      "promptHash": "f890c13ecbbef19a",
+      "requestTimestamp": "2026-04-17T21:12:01.851Z",
+      "requestFile": "10_Agent6-FairPlayAuditor_request.md",
+      "responseTimestamp": "2026-04-17T21:12:08.591Z",
+      "responseFile": "10_Agent6-FairPlayAuditor_response.md"
+    },
+    {
+      "sequence": 11,
+      "agent": "Agent6-BlindReader",
+      "retryAttempt": 1,
+      "promptHash": "c87793655a88ee2e",
+      "requestTimestamp": "2026-04-17T21:12:08.617Z",
+      "requestFile": "11_Agent6-BlindReader_request.md",
+      "responseTimestamp": "2026-04-17T21:12:12.255Z",
+      "responseFile": "11_Agent6-BlindReader_response.md"
+    },
+    {
+      "sequence": 12,
+      "agent": "Agent4-Revision",
+      "retryAttempt": 1,
+      "promptHash": "78b66bb433a53e29",
+      "requestTimestamp": "2026-04-17T21:12:12.269Z",
+      "requestFile": "12_Agent4-Revision_request.md",
+      "responseTimestamp": "2026-04-17T21:12:42.619Z",
+      "responseFile": "12_Agent4-Revision_response.md"
+    },
+    {
+      "sequence": 13,
+      "agent": "Agent4-Revision",
+      "retryAttempt": 2,
+      "promptHash": "88b124a23dedfea2",
+      "requestTimestamp": "2026-04-17T21:12:42.642Z",
+      "requestFile": "13_Agent4-Revision_retry1_request.md",
+      "responseTimestamp": "2026-04-17T21:13:10.261Z",
+      "responseFile": "13_Agent4-Revision_retry1_response.md"
+    },
+    {
+      "sequence": 14,
+      "agent": "Agent4-Revision",
+      "retryAttempt": 3,
+      "promptHash": "d7ec7682e84f088d",
+      "requestTimestamp": "2026-04-17T21:13:10.282Z",
+      "requestFile": "14_Agent4-Revision_retry2_request.md",
+      "responseTimestamp": "2026-04-17T21:13:38.064Z",
+      "responseFile": "14_Agent4-Revision_retry2_response.md"
+    },
+    {
+      "sequence": 15,
+      "agent": "Agent4-Revision",
+      "retryAttempt": 4,
+      "promptHash": "ab3ba1a7322e84fc",
+      "requestTimestamp": "2026-04-17T21:13:38.088Z",
+      "requestFile": "15_Agent4-Revision_retry3_request.md",
+      "responseTimestamp": "2026-04-17T21:14:07.687Z",
+      "responseFile": "15_Agent4-Revision_retry3_response.md"
+    },
+    {
+      "sequence": 16,
+      "agent": "Agent4-Revision",
+      "retryAttempt": 5,
+      "promptHash": "8240d242e17c1ce2",
+      "requestTimestamp": "2026-04-17T21:14:07.712Z",
+      "requestFile": "16_Agent4-Revision_retry4_request.md",
+      "responseTimestamp": "2026-04-17T21:14:34.690Z",
+      "responseFile": "16_Agent4-Revision_retry4_response.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 8,
+    "missing_response_count": 0,
+    "empty_response_body_count": 0
+  }
+}

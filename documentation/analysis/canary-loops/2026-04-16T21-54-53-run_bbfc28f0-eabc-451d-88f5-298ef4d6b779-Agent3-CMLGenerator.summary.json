@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-04-16T22:10:20.022Z",
+  "ledger": {
+    "jsonlPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T21-54-53-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent3-CMLGenerator.jsonl",
+    "mdPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T21-54-53-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent3-CMLGenerator.md"
+  },
+  "totals": {
+    "iterations": 3,
+    "warningTotal": 0,
+    "deterministicFallbackCount": 0,
+    "noOpIterationCount": 0,
+    "resumeFingerprintMismatchCount": 0
+  },
+  "statusCounts": {
+    "continue": 2,
+    "stop": 1
+  },
+  "stopReasonCounts": {
+    "New higher-severity failure class detected (agent5.time_style_violation -> agent5.red_herring_overlap).": 1
+  },
+  "signatureCounts": {
+    "cml.required_evidence_missing": 1,
+    "agent5.red_herring_overlap": 1,
+    "agent5.time_style_violation": 1
+  }
+}

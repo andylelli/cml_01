@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-04-16T21:09:06.413Z",
+  "ledger": {
+    "jsonlPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T21-06-35-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent3-CMLGenerator.jsonl",
+    "mdPath": "C:\\CML\\documentation\\analysis\\canary-loops\\2026-04-16T21-06-35-run_bbfc28f0-eabc-451d-88f5-298ef4d6b779-Agent3-CMLGenerator.md"
+  },
+  "totals": {
+    "iterations": 1,
+    "warningTotal": 0,
+    "deterministicFallbackCount": 0,
+    "noOpIterationCount": 0,
+    "resumeFingerprintMismatchCount": 0
+  },
+  "statusCounts": {
+    "continue": 1
+  },
+  "stopReasonCounts": {},
+  "signatureCounts": {
+    "cml.required_evidence_missing": 1
+  }
+}

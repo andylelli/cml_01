@@ -33,11 +33,18 @@ interface ActualPromptRecord {
   responseFile?: string;
 }
 
+interface AttemptIntegrityCounters {
+  missing_request_count: number;
+  missing_response_count: number;
+  empty_response_body_count: number;
+}
+
 interface ActualPromptRunState {
   runId: string;
   projectId: string;
   folderName: string;
   records: ActualPromptRecord[];
+  integrity?: AttemptIntegrityCounters;
 }
 
 export class LLMLogger {
@@ -247,7 +254,7 @@ export class LLMLogger {
       const existing = state.records.find(
         (record) =>
           record.promptHash === entry.promptHash &&
-          record.retryAttempt === entry.retryAttempt &&
+          record.retryAttempt === this.normalizeStoredRetryAttempt(entry.retryAttempt) &&
           record.agent === entry.agent
       );
 
@@ -256,7 +263,7 @@ export class LLMLogger {
         ({
           sequence: this.nextSequence(state),
           agent: entry.agent,
-          retryAttempt: entry.retryAttempt,
+          retryAttempt: this.normalizeStoredRetryAttempt(entry.retryAttempt),
           promptHash: entry.promptHash,
           requestTimestamp: entry.timestamp,
           requestFile: "",
@@ -266,6 +273,16 @@ export class LLMLogger {
       record.requestFile = this.buildRequestFilename(record.sequence, entry.agent, entry.retryAttempt);
 
       this.writeRequestMarkdown(runDir, record.requestFile, entry);
+      const requestExists = existsSync(join(runDir, record.requestFile));
+      if (!requestExists) {
+        const integrity = this.ensureIntegrityCounters(state.integrity);
+        integrity.missing_request_count += 1;
+        state.integrity = integrity;
+        this.writeRunState(runDir, state);
+        this.writeRunIndex(runDir, state);
+        this.writeActualRootReadme();
+        return;
+      }
 
       if (!existing) {
         state.records.push(record);
@@ -290,12 +307,55 @@ export class LLMLogger {
     try {
       const runDir = this.getOrCreateRunDir(entry.runId, entry.projectId, entry.timestamp);
       const state = this.readRunState(runDir, entry.runId, entry.projectId);
-      const record = this.findOrCreateResponseRecord(state, entry);
+      const record = this.findResponseRecord(state, entry);
+
+      if (!record) {
+        const integrity = this.ensureIntegrityCounters(state.integrity);
+        integrity.missing_request_count += 1;
+        state.integrity = integrity;
+        this.writeRunState(runDir, state);
+        this.writeRunIndex(runDir, state);
+        this.writeActualRootReadme();
+        return;
+      }
+
+      const responseBody = String(entry.response ?? "").trim();
+      if (!responseBody) {
+        const integrity = this.ensureIntegrityCounters(state.integrity);
+        integrity.empty_response_body_count += 1;
+        state.integrity = integrity;
+        this.writeRunState(runDir, state);
+        this.writeRunIndex(runDir, state);
+        this.writeActualRootReadme();
+        return;
+      }
+
+      const requestExists = Boolean(record.requestFile) && existsSync(join(runDir, record.requestFile));
+      if (!requestExists) {
+        const integrity = this.ensureIntegrityCounters(state.integrity);
+        integrity.missing_request_count += 1;
+        state.integrity = integrity;
+        this.writeRunState(runDir, state);
+        this.writeRunIndex(runDir, state);
+        this.writeActualRootReadme();
+        return;
+      }
+
+      const responseFile = this.buildResponseFilename(record.sequence, entry.agent, entry.retryAttempt);
+      this.writeResponseMarkdown(runDir, responseFile, record, entry);
+      const responseExists = existsSync(join(runDir, responseFile));
+      if (!responseExists) {
+        const integrity = this.ensureIntegrityCounters(state.integrity);
+        integrity.missing_response_count += 1;
+        state.integrity = integrity;
+        this.writeRunState(runDir, state);
+        this.writeRunIndex(runDir, state);
+        this.writeActualRootReadme();
+        return;
+      }
 
       record.responseTimestamp = entry.timestamp;
-      record.responseFile = this.buildResponseFilename(record.sequence, entry.agent, entry.retryAttempt);
-
-      this.writeResponseMarkdown(runDir, record.responseFile, record, entry);
+      record.responseFile = responseFile;
       this.writeRunState(runDir, state);
       this.writeRunIndex(runDir, state);
       this.writeActualRootReadme();
@@ -327,6 +387,7 @@ export class LLMLogger {
       projectId,
       folderName,
       records: [],
+      integrity: this.defaultIntegrityCounters(),
     };
     this.writeRunState(runDir, state);
     this.writeRunIndex(runDir, state);
@@ -371,6 +432,7 @@ export class LLMLogger {
         projectId,
         folderName: basename(runDir),
         records: [],
+        integrity: this.defaultIntegrityCounters(),
       };
     }
 
@@ -379,6 +441,7 @@ export class LLMLogger {
       if (!Array.isArray(parsed.records)) {
         parsed.records = [];
       }
+      parsed.integrity = this.ensureIntegrityCounters(parsed.integrity);
       return parsed;
     } catch {
       return {
@@ -386,15 +449,18 @@ export class LLMLogger {
         projectId,
         folderName: basename(runDir),
         records: [],
+        integrity: this.defaultIntegrityCounters(),
       };
     }
   }
 
   private writeRunState(runDir: string, state: ActualPromptRunState): void {
+    this.updateIntegrityCounters(runDir, state);
     const statePath = join(runDir, ".actual-run-state.json");
     const normalized = {
       ...state,
       records: [...state.records].sort((a, b) => a.sequence - b.sequence),
+      integrity: this.ensureIntegrityCounters(state.integrity),
     };
     writeFileSync(statePath, `${JSON.stringify(normalized, null, 2)}\n`);
   }
@@ -430,6 +496,14 @@ export class LLMLogger {
         `| ${record.sequence} | ${record.requestTimestamp} | ${record.agent} | ${retryCell} | ${requestLink} | ${responseLink} |`
       );
     }
+
+    const integrity = this.ensureIntegrityCounters(state.integrity);
+    lines.push("");
+    lines.push("## Integrity Counters");
+    lines.push("");
+    lines.push(`- missing_request_count: ${integrity.missing_request_count}`);
+    lines.push(`- missing_response_count: ${integrity.missing_response_count}`);
+    lines.push(`- empty_response_body_count: ${integrity.empty_response_body_count}`);
 
     lines.push("");
     lines.push("## Request / Response Pairs");
@@ -561,13 +635,14 @@ export class LLMLogger {
     writeFileSync(join(runDir, fileName), `${lines.join("\n")}\n`);
   }
 
-  private findOrCreateResponseRecord(state: ActualPromptRunState, entry: LLMLogEntry): ActualPromptRecord {
+  private findResponseRecord(state: ActualPromptRunState, entry: LLMLogEntry): ActualPromptRecord | undefined {
+    const normalizedRetryAttempt = this.normalizeStoredRetryAttempt(entry.retryAttempt);
     const byExactKey = [...state.records]
       .reverse()
       .find(
         (record) =>
           record.promptHash === entry.promptHash &&
-          record.retryAttempt === entry.retryAttempt &&
+          record.retryAttempt === normalizedRetryAttempt &&
           record.agent === entry.agent
       );
 
@@ -575,17 +650,14 @@ export class LLMLogger {
       return byExactKey;
     }
 
-    const sequence = this.nextSequence(state);
-    const created: ActualPromptRecord = {
-      sequence,
-      agent: entry.agent,
-      retryAttempt: entry.retryAttempt,
-      promptHash: entry.promptHash,
-      requestTimestamp: entry.timestamp,
-      requestFile: "",
-    };
-    state.records.push(created);
-    return created;
+    return [...state.records]
+      .reverse()
+      .find(
+        (record) =>
+          record.agent === entry.agent &&
+          record.retryAttempt === normalizedRetryAttempt &&
+          !record.responseFile,
+      );
   }
 
   private nextSequence(state: ActualPromptRunState): number {
@@ -623,6 +695,46 @@ export class LLMLogger {
       return 0;
     }
     return Math.min(Math.max(rawRetryAttempt - 1, 1), 4);
+  }
+
+  private normalizeStoredRetryAttempt(rawRetryAttempt: number): number {
+    if (!Number.isFinite(rawRetryAttempt) || rawRetryAttempt < 1) {
+      return 1;
+    }
+    return Math.floor(rawRetryAttempt);
+  }
+
+  private defaultIntegrityCounters(): AttemptIntegrityCounters {
+    return {
+      missing_request_count: 0,
+      missing_response_count: 0,
+      empty_response_body_count: 0,
+    };
+  }
+
+  private ensureIntegrityCounters(value: AttemptIntegrityCounters | undefined): AttemptIntegrityCounters {
+    return {
+      missing_request_count: Number(value?.missing_request_count ?? 0),
+      missing_response_count: Number(value?.missing_response_count ?? 0),
+      empty_response_body_count: Number(value?.empty_response_body_count ?? 0),
+    };
+  }
+
+  private updateIntegrityCounters(runDir: string, state: ActualPromptRunState): void {
+    const integrity = this.ensureIntegrityCounters(state.integrity);
+    const records = [...state.records];
+    const missingRequestFromRecords = records.filter(
+      (record) => !record.requestFile || !existsSync(join(runDir, record.requestFile)),
+    ).length;
+    const missingResponseFromRecords = records.filter(
+      (record) => !record.responseFile || !existsSync(join(runDir, record.responseFile)),
+    ).length;
+
+    // Preserve explicit missing-request increments produced by response-only attempts.
+    integrity.missing_request_count = Math.max(integrity.missing_request_count, missingRequestFromRecords);
+    // Reflect current unresolved response artifacts.
+    integrity.missing_response_count = missingResponseFromRecords;
+    state.integrity = integrity;
   }
 
   private getRetryFilePart(rawRetryAttempt: number): string {
