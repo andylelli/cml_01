@@ -1,6 +1,6 @@
 # Agent Canary Framework - High-Level Design (HLD)
 
-**Status of this document:** High-level phased plan for autonomous canary loops by `runId` and `agent`.
+**Status of this document:** High-level design for the implemented autonomous canary loop framework, maintained to match current behavior.
 
 ---
 
@@ -36,6 +36,7 @@ This framework is intended to remove manual handoffs and make per-agent stabiliz
 3. Preserve safety: scoped edits, test gates, and explicit stop conditions.
 4. Improve convergence speed by reusing deterministic failure signatures and prior fixes.
 5. Start pipeline execution from any agent boundary while hydrating upstream agent outputs from the same run.
+6. Keep boundary-safe canary entrypoints usable when upstream hydration is partial, with explicit warnings and bounded policy controls.
 
 ## Non-Goals
 
@@ -56,16 +57,17 @@ This framework is intended to remove manual handoffs and make per-agent stabiliz
 - test outputs and retry traces
 4. Build and validate a same-run upstream hydration bundle for `Agent1..startFromAgent-1`.
 5. Build a normalized failure summary and classify failure types.
-6. Propose and apply candidate fixes scoped to likely files.
-7. Execute validation strategy per iteration:
+6. Normalize non-success canary executions to a critical `canary.execution_failure` signature before continuation policy evaluation.
+7. Propose and apply candidate fixes scoped to likely files.
+8. Execute validation strategy per iteration:
 - targeted unit tests
 - agent-focused canary command
-8. Record each iteration with:
+9. Record each iteration with:
 - failure signature
 - changed files
 - test/canary outcome
-- decision (continue or stop)
-9. Stop when any terminal condition is met.
+- decision (`continue`, `pass`, `pass_with_warnings`, or `stop`)
+10. Stop when any terminal condition is met.
 
 ---
 
@@ -182,7 +184,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 - `tests: { command: string; passed: boolean; summary: string }[]`
 - `canary: { command: string; passed: boolean; summary: string }`
 - `outputSignature?: FailureSignature`
-- `decision: "continue" | "pass" | "stop"`
+- `decision: "continue" | "pass" | "pass_with_warnings" | "stop"`
 - `stopReason?: string`
 
 ---
@@ -203,6 +205,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 7. Run resumed canary execution from `startFromAgent` using hydrated upstream context.
 8. Compare failure signature delta:
 - pass -> stop success
+- warning-only stagnation with a passing canary -> `pass_with_warnings`
 - moved failure -> continue
 - unchanged failure (N times) -> stop bounded failure
 - new higher-severity class -> stop for review (default)
@@ -216,6 +219,8 @@ Per-iteration machine-readable report plus concise summary in terminal:
 3. **No-destructive-ops gate**: forbid reset/clean style operations.
 4. **Convergence gate**: stop after configurable unchanged-signature repeats.
 5. **Escalation gate**: when failure migrates upstream/downstream, re-plan rather than continue blind edits.
+6. **Boundary-safe hydration gate**: if required upstream hydration artifacts are missing but the resolved canary command can self-hydrate boundary context (`canary-agent-boundary` or `canary-agent9`), downgrade precheck failure to warning and continue.
+7. **Failure normalization gate**: any non-success canary run (`passed !== true`, non-zero exit code, or failure-like status) is normalized to critical class `canary.execution_failure`.
 
 ---
 
@@ -293,7 +298,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 
 1. Start boundary scope: v1 supports one explicit `startFromAgent` boundary per invocation only. Multi-hop dependency sessions are deferred.
 2. Shared-file protection: `apply` mode requires explicit confirmation when edits touch shared files (`apps/worker/src/jobs/mystery-orchestrator.ts`, schema validators, and other configured shared paths).
-3. Default shortcut matrix: ship a predefined per-agent shortcut matrix (`canary:agent1`, `canary:agent2`, `canary:agent2e`, `canary:agent3`, `canary:agent3b`, `canary:agent4`, `canary:agent5`, `canary:agent6`, `canary:agent65`, `canary:agent7`, `canary:agent9`) that maps to `canary:agent-loop` with agent-specific defaults.
+3. Default shortcut matrix: ship a predefined per-agent shortcut matrix (`canary:agent1`, `canary:agent2`, `canary:agent2b`, `canary:agent2c`, `canary:agent2d`, `canary:agent2e`, `canary:agent3`, `canary:agent3b`, `canary:agent4`, `canary:agent5`, `canary:agent6`, `canary:agent65`, `canary:agent7`, `canary:agent9`) that maps to `canary:agent-loop` with agent-specific defaults.
 4. Knowledge cache location: v1 uses runtime-only local storage (ignored/untracked workspace path). Repo-persisted cache is deferred to a later phase.
 
 ---

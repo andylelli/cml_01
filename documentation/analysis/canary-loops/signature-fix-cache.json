@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-18T18:37:54.489Z",
+  "updatedAt": "2026-04-19T09:40:14.576Z",
   "entries": {
     "Agent3-CMLGenerator|cml.required_evidence_missing|llm_output_shape": {
       "signatureClass": "cml.required_evidence_missing",
@@ -164,10 +164,10 @@
         "pb.prompt.retry-packet-contract-harden"
       ],
       "confidence": 0.88,
-      "uses": 4,
+      "uses": 6,
       "passCount": 0,
       "stopCount": 0,
-      "updatedAt": "2026-04-18T18:37:54.488Z"
+      "updatedAt": "2026-04-19T09:34:02.559Z"
     },
     "Agent7-NarrativeOutline|agent5.time_style_violation|prompt_contract": {
       "signatureClass": "agent5.time_style_violation",
@@ -176,10 +176,10 @@
         "pb.prompt.retry-packet-contract-harden"
       ],
       "confidence": 0.75,
-      "uses": 6,
+      "uses": 10,
       "passCount": 0,
-      "stopCount": 2,
-      "updatedAt": "2026-04-18T18:30:38.484Z"
+      "stopCount": 4,
+      "updatedAt": "2026-04-19T09:40:14.575Z"
     },
     "Agent65-WorldBuilder|cml.required_evidence_missing|llm_output_shape": {
       "signatureClass": "cml.required_evidence_missing",

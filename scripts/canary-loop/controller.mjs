@@ -941,7 +941,23 @@ function shouldReturnWarningOnlyPass({ validation, outputSignature, stopReason }
 }
 
 function normalizeOutputSignatureForValidation({ signature, validation }) {
-  if (validation?.canary?.passed !== false) {
+  const canary = validation?.canary;
+  const status = String(canary?.status ?? "").toLowerCase();
+  const hasFailureStatus = [
+    "fail",
+    "failure",
+    "error",
+    "unknown",
+    "chapter_window_violation",
+    "skipped_tests_failed",
+  ].includes(status);
+  const canaryFailed =
+    !canary ||
+    canary.passed !== true ||
+    (Number.isFinite(canary.exitCode) && canary.exitCode !== 0) ||
+    hasFailureStatus;
+
+  if (!canaryFailed) {
     return signature;
   }
 
