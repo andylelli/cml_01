@@ -2,6 +2,9 @@ import fs from "fs/promises";
 import path from "path";
 import { updateTelemetryRollups } from "./report.mjs";
 
+const RUN_DIR_PREFIX = "canary-loop";
+const LEDGER_FILE_PREFIX = "canary-ledger";
+
 export async function createLedger({ workspaceRoot, runId, agent, resumePath, resumedEntries = [] }) {
   if (resumePath) {
     const jsonlPath = resumePath;
@@ -22,7 +25,7 @@ export async function createLedger({ workspaceRoot, runId, agent, resumePath, re
   const outputDir = await createRunOutputDir(rootOutputDir);
   const timestamp = new Date().toISOString().replace(/[:]/g, "-").replace(/\..+$/, "");
   const safeAgent = sanitize(agent);
-  const baseName = `${timestamp}-${runId}-${safeAgent}`;
+  const baseName = `${LEDGER_FILE_PREFIX}-${timestamp}-${runId}-${safeAgent}`;
   const jsonlPath = path.join(outputDir, `${baseName}.jsonl`);
   const mdPath = path.join(outputDir, `${baseName}.md`);
 
@@ -65,7 +68,7 @@ function buildFolderTimestamp(date) {
   const day = String(date.getUTCDate()).padStart(2, "0");
   const hours = String(date.getUTCHours()).padStart(2, "0");
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-  return `${year}${month}${day}-${hours}${minutes}`;
+  return `${RUN_DIR_PREFIX}-${year}${month}${day}-${hours}${minutes}`;
 }
 
 export async function appendLedgerEntry(ledger, entry) {

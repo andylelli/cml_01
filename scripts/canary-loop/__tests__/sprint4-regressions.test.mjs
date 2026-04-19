@@ -66,7 +66,7 @@ test("signature fix cache safety blocks early code fallback", () => {
 test("telemetry rollups produce run summary and dashboard artifacts", async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "canary-rollup-"));
   const outDir = path.join(tempRoot, "logs", "canary-loops");
-  const runDir = path.join(outDir, "260419-1400");
+  const runDir = path.join(outDir, "canary-loop-260419-1400");
   await fs.mkdir(outDir, { recursive: true });
   await fs.mkdir(runDir, { recursive: true });
 
@@ -95,8 +95,8 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
 
   await updateTelemetryRollups({ ledger });
 
-  const runSummaryPath = path.join(runDir, "example.summary.json");
-  const dashboardPath = path.join(runDir, "SUMMARY.json");
+  const runSummaryPath = path.join(runDir, "canary-run-summary-example.json");
+  const dashboardPath = path.join(runDir, "canary-dashboard-summary.json");
 
   const runSummary = JSON.parse(await fs.readFile(runSummaryPath, "utf8"));
   const dashboard = JSON.parse(await fs.readFile(dashboardPath, "utf8"));

@@ -1,32 +1,55 @@
 import fs from "fs/promises";
 import path from "path";
 
+const RUN_SUMMARY_PREFIX = "canary-run-summary";
+const ATTEMPT_HISTORY_PREFIX = "canary-attempt-history";
+const DASHBOARD_SUMMARY_PREFIX = "canary-dashboard-summary";
+
 export async function updateTelemetryRollups({ ledger }) {
   if (!ledger?.workspaceRoot || !ledger?.jsonlPath) {
     return;
   }
 
   const runSummary = buildRunSummary(ledger);
-  const runSummaryBase = ledger.jsonlPath.replace(/\.jsonl$/i, ".summary");
-  await fs.writeFile(`${runSummaryBase}.json`, `${JSON.stringify(runSummary, null, 2)}\n`, "utf8");
-  await fs.writeFile(`${runSummaryBase}.md`, renderRunSummaryMarkdown(runSummary), "utf8");
+  const outDir = ledger.outputDir ?? path.dirname(ledger.jsonlPath);
+  const ledgerBaseName = path.basename(ledger.jsonlPath, ".jsonl");
+  const runSummaryBaseName = ledgerBaseName.startsWith("canary-ledger-")
+    ? ledgerBaseName.replace(/^canary-ledger-/, `${RUN_SUMMARY_PREFIX}-`)
+    : `${RUN_SUMMARY_PREFIX}-${ledgerBaseName}`;
+  await fs.writeFile(
+    path.join(outDir, `${runSummaryBaseName}.json`),
+    `${JSON.stringify(runSummary, null, 2)}\n`,
+    "utf8"
+  );
+  await fs.writeFile(
+    path.join(outDir, `${runSummaryBaseName}.md`),
+    renderRunSummaryMarkdown(runSummary),
+    "utf8"
+  );
 
   const attemptHistory = await buildAttemptHistory(ledger);
-  const outDir = ledger.outputDir ?? path.dirname(ledger.jsonlPath);
   await fs.writeFile(
-    path.join(outDir, "ATTEMPT_HISTORY.json"),
+    path.join(outDir, `${ATTEMPT_HISTORY_PREFIX}.json`),
     `${JSON.stringify(attemptHistory, null, 2)}\n`,
     "utf8"
   );
   await fs.writeFile(
-    path.join(outDir, "ATTEMPT_HISTORY.md"),
+    path.join(outDir, `${ATTEMPT_HISTORY_PREFIX}.md`),
     renderAttemptHistoryMarkdown(attemptHistory),
     "utf8"
   );
 
   const globalSummary = await buildGlobalSummary(ledger.workspaceRoot);
-  await fs.writeFile(path.join(outDir, "SUMMARY.json"), `${JSON.stringify(globalSummary, null, 2)}\n`, "utf8");
-  await fs.writeFile(path.join(outDir, "SUMMARY.md"), renderGlobalSummaryMarkdown(globalSummary), "utf8");
+  await fs.writeFile(
+    path.join(outDir, `${DASHBOARD_SUMMARY_PREFIX}.json`),
+    `${JSON.stringify(globalSummary, null, 2)}\n`,
+    "utf8"
+  );
+  await fs.writeFile(
+    path.join(outDir, `${DASHBOARD_SUMMARY_PREFIX}.md`),
+    renderGlobalSummaryMarkdown(globalSummary),
+    "utf8"
+  );
 }
 
 async function buildAttemptHistory(ledger) {
@@ -240,7 +263,13 @@ async function findSummaryFilesRecursively(rootDir) {
       files.push(...nested);
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith(".summary.json")) {
+    if (
+      entry.isFile()
+      && (
+        entry.name.endsWith(".summary.json")
+        || /^canary-run-summary-.*\.json$/i.test(entry.name)
+      )
+    ) {
       files.push(absolutePath);
     }
   }
