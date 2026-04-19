@@ -35,6 +35,14 @@ async function main() {
       rawArgs.confirmSharedEdits,
       DEFAULTS.confirmSharedEdits
     ),
+    rollbackFailedChanges: parseBoolean(
+      rawArgs.rollbackFailedChanges,
+      DEFAULTS.rollbackFailedChanges
+    ),
+    autoExpandUpstreamScope: parseBoolean(
+      rawArgs.autoExpandUpstreamScope,
+      DEFAULTS.autoExpandUpstreamScope
+    ),
   });
 
   const result = await runCanaryLoop({

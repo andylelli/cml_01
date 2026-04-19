@@ -94,6 +94,72 @@ function parseJsonWithRepair<T>(raw: string, contextLabel: string): T {
   throw new Error(`Failed to parse ${contextLabel} JSON after repair attempts. Preview: ${preview}`);
 }
 
+const isOverallStatus = (value: unknown): value is FairPlayAuditResult["overallStatus"] =>
+  value === "pass" || value === "fail" || value === "needs-revision";
+
+const isCheckStatus = (value: unknown): value is FairPlayCheck["status"] =>
+  value === "pass" || value === "fail" || value === "warning";
+
+const isViolationSeverity = (value: unknown): value is FairPlayViolation["severity"] =>
+  value === "critical" || value === "moderate" || value === "minor";
+
+function normalizeFairPlayAuditPayload(
+  payload: Partial<Omit<FairPlayAuditResult, "cost" | "durationMs">>,
+): Omit<FairPlayAuditResult, "cost" | "durationMs"> {
+  const checks: FairPlayCheck[] = Array.isArray(payload.checks)
+    ? payload.checks
+      .map((entry: any) => ({
+        rule: String(entry?.rule ?? "unspecified-rule").trim() || "unspecified-rule",
+        status: isCheckStatus(entry?.status) ? entry.status : "warning",
+        details: String(entry?.details ?? "No details provided.").trim() || "No details provided.",
+        recommendations: Array.isArray(entry?.recommendations)
+          ? entry.recommendations.map((r: unknown) => String(r).trim()).filter(Boolean)
+          : undefined,
+      }))
+    : [];
+
+  const violations: FairPlayViolation[] = Array.isArray(payload.violations)
+    ? payload.violations
+      .map((entry: any) => ({
+        severity: isViolationSeverity(entry?.severity) ? entry.severity : "moderate",
+        rule: String(entry?.rule ?? "unspecified-rule").trim() || "unspecified-rule",
+        description: String(entry?.description ?? "No description provided.").trim() || "No description provided.",
+        location: String(entry?.location ?? "unspecified-location").trim() || "unspecified-location",
+        suggestion: String(entry?.suggestion ?? "Provide concrete fair-play evidence in early/mid clues.").trim() || "Provide concrete fair-play evidence in early/mid clues.",
+      }))
+    : [];
+
+  const warnings = Array.isArray(payload.warnings)
+    ? payload.warnings.map((w: unknown) => String(w).trim()).filter(Boolean)
+    : [];
+  const recommendations = Array.isArray(payload.recommendations)
+    ? payload.recommendations.map((r: unknown) => String(r).trim()).filter(Boolean)
+    : [];
+
+  let overallStatus: FairPlayAuditResult["overallStatus"];
+  if (isOverallStatus(payload.overallStatus)) {
+    overallStatus = payload.overallStatus;
+  } else if (checks.some((c) => c.status === "fail") || violations.some((v) => v.severity === "critical" || v.severity === "moderate")) {
+    overallStatus = "fail";
+  } else if (checks.some((c) => c.status === "warning") || warnings.length > 0) {
+    overallStatus = "needs-revision";
+  } else {
+    overallStatus = "pass";
+  }
+
+  const summary = String(payload.summary ?? "").trim() ||
+    `Fair play audit normalized from partial output: ${violations.length} violation(s), ${warnings.length} warning(s), ${checks.length} check(s).`;
+
+  return {
+    overallStatus,
+    checks,
+    violations,
+    warnings,
+    recommendations,
+    summary,
+  };
+}
+
 // ============================================================================
 // Prompt Builder
 // ============================================================================
@@ -464,15 +530,12 @@ export async function auditFairPlay(
   const cost = costTracker.getSummary().byAgent["Agent6-FairPlayAuditor"] || 0;
 
   // Parse the audit result
-  const auditData = parseJsonWithRepair<Omit<FairPlayAuditResult, "cost" | "durationMs">>(
+  const rawAuditData = parseJsonWithRepair<Partial<Omit<FairPlayAuditResult, "cost" | "durationMs">>>(
     response.content,
     "fair play audit"
   );
 
-  // Validate required fields
-  if (!auditData.overallStatus || !auditData.checks || !auditData.summary) {
-    throw new Error("Invalid audit result: missing required fields (overallStatus, checks, summary)");
-  }
+  const auditData = normalizeFairPlayAuditPayload(rawAuditData);
 
   return {
     ...auditData,

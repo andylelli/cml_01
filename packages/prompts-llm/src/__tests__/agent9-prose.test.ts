@@ -1,22 +1,37 @@
 import { describe, expect, it, vi } from "vitest";
 
 const mockedGenerationParams = {
+  story_length_policy: {
+    targets: { short: 10, medium: 20, long: 30 },
+    chapter_target_tolerance: 2,
+    word_targets: {
+      short: { chapter_count: 10, min_words: 7500, max_words: 12500, chapter_ideal_words: 1000 },
+      medium: { chapter_count: 20, min_words: 25500, max_words: 42500, chapter_ideal_words: 1300 },
+      long: { chapter_count: 30, min_words: 49500, max_words: 82500, chapter_ideal_words: 1800 },
+    },
+    total_word_budget_ratio: { min_ratio: 0.75, max_ratio: 1.25 },
+  },
   agent9_prose: {
-    word_policy: {
-      min_hard_floor_words: 800,
-      hard_floor_relaxation_ratio: 0.8,
-      preferred_chapter_words: {
-        short: 1000,
-        medium: 1300,
-        long: 1800,
+    story_length_policy: {
+      targets: { short: 10, medium: 20, long: 30 },
+      chapter_target_tolerance: 2,
+      word_targets: {
+        short: { chapter_count: 10, min_words: 7500, max_words: 12500, chapter_ideal_words: 1000 },
+        medium: { chapter_count: 20, min_words: 25500, max_words: 42500, chapter_ideal_words: 1300 },
+        long: { chapter_count: 30, min_words: 49500, max_words: 82500, chapter_ideal_words: 1800 },
       },
+      total_word_budget_ratio: { min_ratio: 0.75, max_ratio: 1.25 },
     },
     underflow_expansion: {
-      min_additional_words: 200,
-      max_additional_words: 900,
-      buffer_words: 200,
+      enabled: true,
+      expansion_size_ratio: {
+        min_additional_words_ratio: 0.16,
+        max_additional_words_ratio: 0.56,
+        buffer_words_ratio: 0.18,
+      },
       temperature: 0.2,
-      max_tokens: 2000,
+      max_tokens_ratio: 1.7,
+      preferred_miss_expansion_ratio: 0.85,
     },
     style_linter: {
       entropy: {

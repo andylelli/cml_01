@@ -411,7 +411,7 @@ describe("WP4E: checkSuspectElimination", () => {
 
 describe("WP6A: classifyFairPlayFailure", () => {
   const classifyFairPlayFailure = (
-    coverageResult: InferenceCoverageResult,
+    coverageResult: InferenceCoverageResult | null | undefined,
     _fairPlayAudit: any,
     cml: any
   ) => {
@@ -437,7 +437,7 @@ describe("WP6A: classifyFairPlayFailure", () => {
     ].length;
 
     if (totalConstraints < 4) return "constraint_space_insufficient";
-    if (coverageResult.hasCriticalGaps) return "clue_coverage";
+    if (coverageResult?.hasCriticalGaps) return "clue_coverage";
     return "clue_only";
   };
 
@@ -495,5 +495,17 @@ describe("WP6A: classifyFairPlayFailure", () => {
     };
 
     expect(classifyFairPlayFailure(coverage, null, cml)).toBe("clue_only");
+  });
+
+  it("does not throw when coverage result is missing", () => {
+    const cml = makeCml({
+      constraint_space: {
+        time: { contradictions: ["a"], anchors: ["b"] },
+        access: { actors: ["c", "d"] },
+        physical: { traces: ["e"] },
+      },
+    });
+
+    expect(classifyFairPlayFailure(undefined, null, cml)).toBe("clue_only");
   });
 });

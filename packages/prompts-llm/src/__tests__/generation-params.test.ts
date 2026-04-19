@@ -18,8 +18,9 @@ describe("generation params loader", () => {
     resetGenerationParamsCacheForTests();
 
     const config = getGenerationParams();
-    expect(config.agent9_prose.word_policy.hard_floor_relaxation_ratio).toBe(0.77);
-    expect(config.agent9_prose.word_policy.preferred_chapter_words.medium).toBe(1600);
+    expect(config.agent9_prose.story_length_policy.word_targets.medium.chapter_count).toBe(20);
+    expect(config.agent9_prose.story_length_policy.total_word_budget_ratio.min_ratio).toBe(0.75);
+    expect(config.agent9_prose.underflow_expansion.max_tokens_ratio).toBe(1.76);
     expect(config.agent9_prose.generation.default_max_attempts).toBe(3);
   });
 
@@ -31,19 +32,28 @@ describe("generation params loader", () => {
       configPath,
       [
         "agent9_prose:",
-        "  word_policy:",
-        "    hard_floor_relaxation_ratio: 0.85",
-        "    min_hard_floor_words: 700",
-        "    preferred_chapter_words:",
-        "      short: 1200",
-        "      medium: 1500",
-        "      long: 2200",
+        "  story_length_policy:",
+        "    chapter_target_tolerance: 3",
+        "    word_targets:",
+        "      short:",
+        "        chapter_count: 12",
+        "        chapter_ideal_words: 950",
+        "      medium:",
+        "        chapter_count: 22",
+        "        chapter_ideal_words: 1650",
+        "      long:",
+        "        chapter_count: 32",
+        "        chapter_ideal_words: 2100",
+        "    total_word_budget_ratio:",
+        "      min_ratio: 0.8",
+        "      max_ratio: 1.3",
         "  underflow_expansion:",
-        "    min_additional_words: 260",
-        "    max_additional_words: 900",
-        "    buffer_words: 300",
+        "    expansion_size_ratio:",
+        "      min_additional_words_ratio: 0.2",
+        "      max_additional_words_ratio: 0.6",
+        "      buffer_words_ratio: 0.15",
         "    temperature: 0.15",
-        "    max_tokens: 3000",
+        "    max_tokens_ratio: 1.9",
         "  generation:",
         "    default_max_attempts: 4",
         "",
@@ -55,10 +65,11 @@ describe("generation params loader", () => {
     resetGenerationParamsCacheForTests();
 
     const config = getGenerationParams();
-    expect(config.agent9_prose.word_policy.hard_floor_relaxation_ratio).toBe(0.85);
-    expect(config.agent9_prose.word_policy.min_hard_floor_words).toBe(700);
-    expect(config.agent9_prose.word_policy.preferred_chapter_words.long).toBe(2200);
-    expect(config.agent9_prose.underflow_expansion.max_tokens).toBe(3000);
+  expect(config.agent9_prose.story_length_policy.word_targets.short.chapter_count).toBe(12);
+  expect(config.agent9_prose.story_length_policy.word_targets.medium.chapter_ideal_words).toBe(1650);
+  expect(config.agent9_prose.story_length_policy.total_word_budget_ratio.max_ratio).toBe(1.3);
+  expect(config.agent9_prose.underflow_expansion.expansion_size_ratio.max_additional_words_ratio).toBe(0.6);
+  expect(config.agent9_prose.underflow_expansion.max_tokens_ratio).toBe(1.9);
     expect(config.agent9_prose.generation.default_max_attempts).toBe(4);
 
     rmSync(dir, { recursive: true, force: true });

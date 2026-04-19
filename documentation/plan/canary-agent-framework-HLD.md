@@ -62,12 +62,14 @@ This framework is intended to remove manual handoffs and make per-agent stabiliz
 8. Execute validation strategy per iteration:
 - targeted unit tests
 - agent-focused canary command
-9. Record each iteration with:
+9. Roll back unresolved implementation edits by default and archive before/after snapshots in the active run folder.
+10. Optionally auto-expand start boundary upstream when signature stage/class indicates upstream-generated data is likely the root cause.
+11. Record each iteration with:
 - failure signature
 - changed files
 - test/canary outcome
 - decision (`continue`, `pass`, `pass_with_warnings`, or `stop`)
-10. Stop when any terminal condition is met.
+12. Stop when any terminal condition is met.
 
 ---
 
@@ -91,6 +93,8 @@ Per-agent shortcut command (conceptual):
 - `--allow-files <glob,...>` optional edit allowlist
 - `--startFromAgent <agent_name>` default selected `--agent`
 - `--hydratePriorFromRun true|false` default `true`
+- `--rollbackFailedChanges true|false` default `true`
+- `--autoExpandUpstreamScope true|false` default `false`
 
 ### Output
 
@@ -126,6 +130,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 5. **Fix Planner and Patch Engine**
 - Produces concrete code-change plans per failure class.
 - Applies patches in scoped files only.
+- Rolls back unresolved implementation edits (default behavior) and archives before/after snapshots for postmortem reuse.
 - Adds or updates regression tests where appropriate.
 
 6. **Validation Executor**
@@ -133,11 +138,15 @@ Per-iteration machine-readable report plus concise summary in terminal:
 - Runs agent canary command second.
 - Collects structured pass/fail diagnostics.
 
-7. **Iteration Ledger**
+7. **Upstream Scope Expansion Selector**
+- Optionally widens `startFromAgent` upstream when signature stage/class points to upstream-generated defects.
+- Keeps expansion bounded to valid upstream positions for the selected `agent`.
+
+8. **Iteration Ledger**
 - Persists each loop step to a JSONL/Markdown trace.
 - Supports resume and postmortem.
 
-8. **Knowledge Cache (optional first pass, required later)**
+9. **Knowledge Cache (optional first pass, required later)**
 - Stores successful fix patterns keyed by failure signature.
 - Improves future convergence for recurring failures.
 
@@ -151,6 +160,8 @@ Per-iteration machine-readable report plus concise summary in terminal:
 - `agent: string`
 - `startFromAgent?: string`
 - `hydratePriorFromRun?: boolean`
+- `rollbackFailedChanges?: boolean`
+- `autoExpandUpstreamScope?: boolean`
 - `maxIterations: number`
 - `mode: "suggest" | "apply"`
 - `testScope: "targeted" | "full"`
@@ -209,6 +220,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 - moved failure -> continue
 - unchanged failure (N times) -> stop bounded failure
 - new higher-severity class -> stop for review (default)
+9. On unresolved outcomes, roll back implementation edits (default) and archive failed change snapshots under the run folder.
 
 ---
 
@@ -221,6 +233,8 @@ Per-iteration machine-readable report plus concise summary in terminal:
 5. **Escalation gate**: when failure migrates upstream/downstream, re-plan rather than continue blind edits.
 6. **Boundary-safe hydration gate**: if required upstream hydration artifacts are missing but the resolved canary command can self-hydrate boundary context (`canary-agent-boundary` or `canary-agent9`), downgrade precheck failure to warning and continue.
 7. **Failure normalization gate**: any non-success canary run (`passed !== true`, non-zero exit code, or failure-like status) is normalized to critical class `canary.execution_failure`.
+8. **Rollback gate**: unresolved implementation edits are reverted by default; failed edit snapshots are retained in-run for future reference.
+9. **Upstream expansion gate**: optional scope expansion may move `startFromAgent` upstream only when inferred signature stage supports it and the boundary remains upstream of selected `agent`.
 
 ---
 
@@ -275,13 +289,20 @@ Per-iteration machine-readable report plus concise summary in terminal:
 ## Observability
 
 1. Emit one ledger file per loop run under a dedicated folder, for example:
-- `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.jsonl`
-- `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.md`
-2. Include artifact integrity checks in preflight:
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
+2. Emit per-run summaries and dashboards in the same run folder:
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
+3. Archive failed implementation edits per unresolved iteration:
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/failed-changes/iterNN/{before,after,manifest.json}`
+4. Include artifact integrity checks in preflight:
 - missing request count
 - missing response count
 - empty response body count
-3. Include failure timeline summary for quick triage.
+5. Include failure timeline summary for quick triage.
 
 ---
 
@@ -299,7 +320,7 @@ Per-iteration machine-readable report plus concise summary in terminal:
 1. Start boundary scope: v1 supports one explicit `startFromAgent` boundary per invocation only. Multi-hop dependency sessions are deferred.
 2. Shared-file protection: `apply` mode requires explicit confirmation when edits touch shared files (`apps/worker/src/jobs/mystery-orchestrator.ts`, schema validators, and other configured shared paths).
 3. Default shortcut matrix: ship a predefined per-agent shortcut matrix (`canary:agent1`, `canary:agent2`, `canary:agent2b`, `canary:agent2c`, `canary:agent2d`, `canary:agent2e`, `canary:agent3`, `canary:agent3b`, `canary:agent4`, `canary:agent5`, `canary:agent6`, `canary:agent65`, `canary:agent7`, `canary:agent9`) that maps to `canary:agent-loop` with agent-specific defaults.
-4. Knowledge cache location: v1 uses runtime-only local storage (ignored/untracked workspace path). Repo-persisted cache is deferred to a later phase.
+4. Knowledge cache location: v1 stores signature fix cache in `logs/canary-loops/signature-fix-cache.json`.
 
 ---
 

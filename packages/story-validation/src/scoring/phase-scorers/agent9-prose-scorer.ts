@@ -322,10 +322,9 @@ export class ProseScorer
   private scoreProseQuality(prose: string): number {
     let score = 0;
 
-    // Word count — threshold based on ratio-derived hard floor contract.
+    // Word count — threshold based on resolved story-length policy chapter minimum.
     const targets = getStoryLengthTarget(this.targetLength);
-    const hardFloorRatio = getGenerationParams().agent9_prose.word_policy.hard_floor_relaxation_ratio;
-    const hardFloorWords = Math.floor(targets.chapterMinWords * hardFloorRatio);
+    const hardFloorWords = targets.chapterMinWords;
     const wordCount = prose.split(/\s+/).length;
     if (wordCount >= hardFloorWords) score += 30;
     else if (wordCount >= Math.round(hardFloorWords * 0.6)) score += 20;

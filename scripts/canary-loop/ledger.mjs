@@ -6,8 +6,10 @@ export async function createLedger({ workspaceRoot, runId, agent, resumePath, re
   if (resumePath) {
     const jsonlPath = resumePath;
     const mdPath = jsonlPath.replace(/\.jsonl$/i, ".md");
+    const outputDir = path.dirname(jsonlPath);
     return {
       workspaceRoot,
+      outputDir,
       jsonlPath,
       mdPath,
       entries: resumedEntries,
@@ -15,8 +17,9 @@ export async function createLedger({ workspaceRoot, runId, agent, resumePath, re
     };
   }
 
-  const outputDir = path.join(workspaceRoot, "documentation", "analysis", "canary-loops");
-  await fs.mkdir(outputDir, { recursive: true });
+  const rootOutputDir = path.join(workspaceRoot, "logs", "canary-loops");
+  await fs.mkdir(rootOutputDir, { recursive: true });
+  const outputDir = await createRunOutputDir(rootOutputDir);
   const timestamp = new Date().toISOString().replace(/[:]/g, "-").replace(/\..+$/, "");
   const safeAgent = sanitize(agent);
   const baseName = `${timestamp}-${runId}-${safeAgent}`;
@@ -32,11 +35,37 @@ export async function createLedger({ workspaceRoot, runId, agent, resumePath, re
 
   return {
     workspaceRoot,
+    outputDir,
     jsonlPath,
     mdPath,
     entries: [],
     resumed: false,
   };
+}
+
+async function createRunOutputDir(rootOutputDir) {
+  const stamp = buildFolderTimestamp(new Date());
+  let candidate = path.join(rootOutputDir, stamp);
+  let index = 1;
+
+  while (true) {
+    try {
+      await fs.mkdir(candidate, { recursive: false });
+      return candidate;
+    } catch {
+      index += 1;
+      candidate = path.join(rootOutputDir, `${stamp}-${String(index).padStart(2, "0")}`);
+    }
+  }
+}
+
+function buildFolderTimestamp(date) {
+  const year = String(date.getUTCFullYear()).slice(-2);
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${year}${month}${day}-${hours}${minutes}`;
 }
 
 export async function appendLedgerEntry(ledger, entry) {

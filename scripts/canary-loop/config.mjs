@@ -9,6 +9,8 @@ export const DEFAULTS = {
   stopOnNewFailureClass: true,
   hydratePriorFromRun: true,
   confirmSharedEdits: false,
+  rollbackFailedChanges: true,
+  autoExpandUpstreamScope: false,
 };
 
 export const MIN_CONFIDENCE = 0.6;

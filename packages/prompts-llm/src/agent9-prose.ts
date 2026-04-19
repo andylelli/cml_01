@@ -18,6 +18,7 @@ import {
   STORY_LENGTH_TARGETS,
   anonymizeUnknownTitledNames,
   getGenerationParams,
+  getStoryLengthTarget,
   repairChapterPronouns,
   repairPronouns,
 } from "@cml/story-validation";
@@ -207,16 +208,12 @@ const countWords = (value: string): number => {
 };
 
 const getChapterWordTargets = (targetLength: "short" | "medium" | "long") => {
-  const config = getGenerationParams().agent9_prose.word_policy;
-  // Hard floor is a fraction of the preferred chapter target, NOT of STORY_LENGTH_TARGETS.chapterMinWords.
-  // Using the preferred words as the base keeps the floor proportional to what we actually ask the model
-  // to produce (e.g. short story: floor(1300 × 0.77) = 1001 rather than floor(800 × 0.88) = 704).
+  const target = getStoryLengthTarget(targetLength);
+  // Hard floor comes from resolved story-length policy: floor(min_words / chapter_count).
+  // Preferred words are the chapter ideal words for the selected length.
   return {
-    hardFloorWords: Math.max(
-      config.min_hard_floor_words,
-      Math.floor(config.preferred_chapter_words[targetLength] * config.hard_floor_relaxation_ratio),
-    ),
-    preferredWords: config.preferred_chapter_words[targetLength],
+    hardFloorWords: target.chapterMinWords,
+    preferredWords: target.chapterIdealWords,
   };
 };
 
@@ -3924,11 +3921,21 @@ export const attemptUnderflowExpansion = async (
     : ledgerEntry.preferredWords;
   const missingWords = Math.max(0, expansionTarget - currentWords);
   const expansionConfig = getGenerationParams().agent9_prose.underflow_expansion;
+  const sizeRatio = expansionConfig.expansion_size_ratio;
+  const minAdditionalWords = Math.max(
+    1,
+    Math.floor(ledgerEntry.preferredWords * sizeRatio.min_additional_words_ratio),
+  );
+  const maxAdditionalWords = Math.max(
+    minAdditionalWords,
+    Math.ceil(ledgerEntry.preferredWords * sizeRatio.max_additional_words_ratio),
+  );
+  const bufferWords = Math.max(0, Math.round(ledgerEntry.preferredWords * sizeRatio.buffer_words_ratio));
   const expansionHint = Math.max(
-    expansionConfig.min_additional_words,
+    minAdditionalWords,
     Math.min(
-      expansionConfig.max_additional_words,
-      missingWords + expansionConfig.buffer_words,
+      maxAdditionalWords,
+      missingWords + bufferWords,
     ),
   );
   const sceneSummary = typeof scene?.summary === "string" ? scene.summary : "";
@@ -3992,7 +3999,7 @@ export const attemptUnderflowExpansion = async (
     ],
     model,
     temperature: expansionConfig.temperature,
-    maxTokens: expansionConfig.max_tokens,
+    maxTokens: Math.max(500, Math.ceil(ledgerEntry.preferredWords * expansionConfig.max_tokens_ratio)),
     jsonMode: true,
     logContext: {
       runId: runId ?? "",

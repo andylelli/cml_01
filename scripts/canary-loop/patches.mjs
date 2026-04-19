@@ -10,11 +10,11 @@ const DEFAULT_ALLOW_GLOBS = [
   "scripts/**",
   "packages/**",
   "apps/**",
-  "documentation/analysis/canary-loops/**",
+  "logs/canary-loops/**",
 ];
 
 export async function acquireRunLock({ workspaceRoot, runId, agent }) {
-  const lockDir = path.join(workspaceRoot, "documentation", "analysis", "canary-loops", ".locks");
+  const lockDir = path.join(workspaceRoot, "logs", "canary-loops", ".locks");
   await fs.mkdir(lockDir, { recursive: true });
   const lockPath = path.join(lockDir, `${sanitize(runId)}-${sanitize(agent)}.lock`);
   try {
@@ -44,6 +44,7 @@ export async function releaseRunLock(lock) {
 
 export async function applyPlaybookPatch({
   workspaceRoot,
+  outputDir,
   request,
   normalizedAgent,
   signature,
@@ -55,11 +56,11 @@ export async function applyPlaybookPatch({
   chapterWindow,
   hydration,
 }) {
+  const runOutputDir =
+    outputDir ??
+    path.join(workspaceRoot, "logs", "canary-loops");
   const patchFilePath = path.join(
-    workspaceRoot,
-    "documentation",
-    "analysis",
-    "canary-loops",
+    runOutputDir,
     "patch-staging",
     `${sanitize(request.runId)}-${sanitize(normalizedAgent.canonicalAgent)}-${sanitize(
       sessionId
@@ -82,7 +83,8 @@ export async function applyPlaybookPatch({
     chapterWindow,
   };
 
-  const changedFiles = await writeIfChanged(patchFilePath, `${JSON.stringify(payload, null, 2)}\n`);
+  const changeDetails = await writeIfChanged(patchFilePath, `${JSON.stringify(payload, null, 2)}\n`);
+  const changedFiles = changeDetails.map((change) => change.filePath);
   const effectiveAllow = request.allowFiles?.length ? request.allowFiles : DEFAULT_ALLOW_GLOBS;
   const effectiveDeny = [...GENERATED_ARTIFACT_DENY_GLOBS, ...(request.denyFiles ?? [])];
 
@@ -97,9 +99,87 @@ export async function applyPlaybookPatch({
 
   return {
     changedFiles,
+    changeDetails,
     notes: changedFiles.length
       ? ["Applied deterministic patch-staging payload."]
       : ["No-op patch: generated payload already up to date."],
+  };
+}
+
+export async function rollbackFailedImplementationChanges({
+  workspaceRoot,
+  outputDir,
+  iteration,
+  changeDetails,
+  reason,
+}) {
+  const runOutputDir =
+    outputDir ??
+    path.join(workspaceRoot, "logs", "canary-loops");
+  const implementationChanges = (changeDetails ?? []).filter((change) => {
+    if (!change?.filePath) {
+      return false;
+    }
+    return !isPathInside(change.filePath, runOutputDir);
+  });
+
+  if (implementationChanges.length === 0) {
+    return {
+      rolledBackCount: 0,
+      archivedDir: null,
+      restoredFiles: [],
+    };
+  }
+
+  const archiveDir = path.join(
+    runOutputDir,
+    "failed-changes",
+    `iter${String(iteration).padStart(2, "0")}`
+  );
+  const manifest = {
+    archivedAt: new Date().toISOString(),
+    reason: String(reason ?? "unresolved iteration result"),
+    files: [],
+  };
+
+  for (const change of implementationChanges) {
+    const filePath = change.filePath;
+    const relativePath = toPosix(path.relative(workspaceRoot, filePath));
+    const afterContent = await readTextIfExists(filePath);
+
+    if (typeof change.previousContent === "string") {
+      const beforePath = path.join(archiveDir, "before", relativePath);
+      await fs.mkdir(path.dirname(beforePath), { recursive: true });
+      await fs.writeFile(beforePath, change.previousContent, "utf8");
+    }
+
+    if (typeof afterContent === "string") {
+      const afterPath = path.join(archiveDir, "after", relativePath);
+      await fs.mkdir(path.dirname(afterPath), { recursive: true });
+      await fs.writeFile(afterPath, afterContent, "utf8");
+    }
+
+    if (change.existedBefore) {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, change.previousContent ?? "", "utf8");
+      manifest.files.push({ path: relativePath, action: "restore_previous" });
+    } else {
+      try {
+        await fs.unlink(filePath);
+      } catch {
+        // Ignore already-removed files.
+      }
+      manifest.files.push({ path: relativePath, action: "delete_new_file" });
+    }
+  }
+
+  await fs.mkdir(archiveDir, { recursive: true });
+  await fs.writeFile(path.join(archiveDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
+  return {
+    rolledBackCount: implementationChanges.length,
+    archivedDir: archiveDir,
+    restoredFiles: manifest.files.map((entry) => entry.path),
   };
 }
 
@@ -168,7 +248,26 @@ async function writeIfChanged(filePath, nextContent) {
   }
 
   await fs.writeFile(filePath, nextContent, "utf8");
-  return [filePath];
+  return [
+    {
+      filePath,
+      existedBefore: previous !== null,
+      previousContent: previous,
+    },
+  ];
+}
+
+async function readTextIfExists(filePath) {
+  try {
+    return await fs.readFile(filePath, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function isPathInside(targetPath, parentPath) {
+  const relative = path.relative(path.resolve(parentPath), path.resolve(targetPath));
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
 function sanitize(text) {

@@ -55,6 +55,35 @@ const classifyMissingInfoCategories = (items: string[]): string[] => {
   return Array.from(categories);
 };
 
+const toStringArray = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.map((item) => String(item ?? "").trim()).filter((item) => item.length > 0)
+    : [];
+
+const firstNonEmpty = (...values: Array<unknown>): string => {
+  for (const value of values) {
+    const text = String(value ?? "").trim();
+    if (text.length > 0) return text;
+  }
+  return "";
+};
+
+const normalizeComplexityLevel = (value: unknown): "simple" | "moderate" | "complex" => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (normalized === "simple" || normalized === "moderate" || normalized === "complex") {
+    return normalized;
+  }
+  return "moderate";
+};
+
+const normalizeDifficultyMode = (value: unknown): "standard" | "increase" | "extreme" => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (normalized === "standard" || normalized === "increase" || normalized === "extreme") {
+    return normalized;
+  }
+  return "standard";
+};
+
 const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: CaseData): string[] => {
   const structuralRules = new Set([
     "information parity",
@@ -122,6 +151,7 @@ const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: Cas
 const deriveBlindReaderRequiredCluePhrases = (
   missingInformation: string[],
   actualCulpritName: string,
+  suspectedCulpritName?: string,
 ): string[] => {
   const phrases: string[] = [];
   for (const info of missingInformation) {
@@ -148,6 +178,13 @@ const deriveBlindReaderRequiredCluePhrases = (
     );
   }
 
+  const suspected = String(suspectedCulpritName ?? "").trim();
+  if (actualCulpritName && suspected && suspected.toLowerCase() !== actualCulpritName.toLowerCase()) {
+    phrases.push(
+      `Include at least one essential elimination clue that explicitly rules out ${suspected} using corroborated timeline or physical evidence.`
+    );
+  }
+
   return [...new Set(phrases)].slice(0, 10);
 };
 
@@ -162,7 +199,7 @@ const hasCriticalFairPlayViolations = (
 };
 
 function classifyFairPlayFailure(
-  coverageResult: InferenceCoverageResult,
+  coverageResult: InferenceCoverageResult | null | undefined,
   fairPlayAudit: FairPlayAuditResult | null,
   cml: CaseData
 ): FairPlayFailureClass {
@@ -199,7 +236,7 @@ function classifyFairPlayFailure(
   if (totalConstraints < 4) return "constraint_space_insufficient";
 
   if (
-    coverageResult.hasCriticalGaps ||
+    coverageResult?.hasCriticalGaps ||
     criticalRules.has("clue visibility") ||
     criticalRules.has("logical deducibility")
   ) return "clue_coverage";
@@ -429,9 +466,14 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
               "Ensure at least one culprit-discriminating clue that does not apply to non-culprits.",
               "Ensure each non-culprit has at least one elimination or alibi clue.",
             ],
+            requiredReplacements: [
+              `Add one clue whose pointsTo states a unique mechanism link to culprit \"${actualCulpritName}\" that no non-culprit satisfies.`,
+              `Add one clue whose pointsTo explicitly states \"Eliminates ${latestBlind.suspectedCulprit} because ...\" with corroborating evidence source.`,
+            ],
             requiredCluePhrases: deriveBlindReaderRequiredCluePhrases(
               latestBlind.missingInformation,
               actualCulpritName,
+              latestBlind.suspectedCulprit,
             ),
           },
           runId: ctx.runId,
@@ -513,15 +555,99 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       || failureClass === "clue_coverage"
       || (failureClass === "clue_only" && hasStructuralCriticalRule);
 
+    const caseBlock = (ctx.cml as any)?.CASE ?? ctx.cml ?? {};
+    const cmlMeta = caseBlock?.meta ?? {};
+    const cmlSetting = cmlMeta?.setting ?? {};
+    const cmlEra = cmlMeta?.era ?? {};
+    const cmlCast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+
+    const castNames =
+      (ctx.cast?.cast?.characters ?? [])
+        .map((c: any) => String(c?.name ?? "").trim())
+        .filter((name: string) => name.length > 0)
+      || [];
+    const effectiveCastNames = castNames.length > 0
+      ? castNames
+      : cmlCast.map((c: any) => String(c?.name ?? "").trim()).filter((name: string) => name.length > 0);
+
+    const effectiveDecade = firstNonEmpty(
+      ctx.setting?.setting?.era?.decade,
+      cmlEra?.decade,
+      "1930s",
+    );
+    const effectiveLocationDescription = firstNonEmpty(
+      ctx.setting?.setting?.location?.description,
+      cmlSetting?.location,
+      ctx.locationSpec?.location,
+      "country estate",
+    );
+    const effectiveInstitution = firstNonEmpty(
+      ctx.setting?.setting?.location?.type,
+      cmlSetting?.institution,
+      ctx.locationSpec?.institution,
+      "Estate",
+    );
+    const effectiveWeather = firstNonEmpty(
+      ctx.setting?.setting?.atmosphere?.weather,
+      "Overcast",
+    );
+    const effectiveSocialStructure = firstNonEmpty(
+      toStringArray(ctx.setting?.setting?.era?.socialNorms).join(", "),
+      "Class tensions shape suspect motives and opportunity.",
+    );
+
+    const effectiveHardLogicDirectives =
+      ctx.hardLogicDirectives
+      || ctx.initialHardLogicDirectives
+      || {
+        complexityLevel: "medium",
+        mechanismFamilies: ["physical-constraint proof"],
+        hardLogicModes: ["fair-play chain"],
+        difficultyMode: "moderate",
+      };
+
+    const effectiveBackgroundContext =
+      ctx.backgroundContext
+      || {
+        status: "synthetic",
+        backdropSummary: "Hydrated upstream context unavailable; preserve existing CML facts and repair structural fair-play weaknesses only.",
+        era: {
+          decade: effectiveDecade,
+          socialStructure: effectiveSocialStructure,
+        },
+        setting: {
+          location: effectiveLocationDescription,
+          institution: effectiveInstitution,
+          weather: effectiveWeather,
+        },
+        castAnchors: effectiveCastNames,
+        theme: ctx.inputs.theme || "mystery",
+      };
+
+    const canRunStructuralCmlRevision =
+      !!ctx.cml
+      && effectiveCastNames.length > 0
+      && Array.isArray(effectiveHardLogicDirectives.mechanismFamilies)
+      && Array.isArray(effectiveHardLogicDirectives.hardLogicModes);
+
+    if (shouldEscalateCmlRevision && !canRunStructuralCmlRevision) {
+      ctx.warnings.push(
+        `Fair play failure classified as "${failureClass}" but structural CML retry was skipped: missing hydrated upstream context (setting/cast/hard logic/background).`
+      );
+    }
+
     if (
+      canRunStructuralCmlRevision &&
       shouldEscalateCmlRevision &&
       fairPlayRetryCost <= MAX_FAIR_PLAY_RETRY_COST
     ) {
-      const setting = ctx.setting!;
-      const cast = ctx.cast!;
-      const hardLogicDirectives = ctx.hardLogicDirectives!;
-      const hardLogicDevices = ctx.hardLogicDevices!;
-      const backgroundContext = ctx.backgroundContext!;
+      const hardLogicDevices = ctx.hardLogicDevices ?? { devices: [] };
+
+      if (!ctx.setting || !ctx.cast || !ctx.backgroundContext || !ctx.hardLogicDevices) {
+        ctx.warnings.push(
+          "Agent 6 structural retry used synthesized upstream context from hydrated CML because full setting/cast/background artifacts were unavailable."
+        );
+      }
 
       ctx.warnings.push(
         `Fair play failure classified as "${failureClass}" — retrying CML generation (Agent 4) ` +
@@ -553,24 +679,30 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       const cmlYaml =
         typeof ctx.cml === "string" ? (ctx.cml as string) : JSON.stringify(ctx.cml, null, 2);
       const revisionPrompt = buildCMLPrompt({
-        decade: setting.setting.era.decade,
-        location: setting.setting.location.description,
-        institution: setting.setting.location.type,
+        decade: effectiveDecade,
+        location: effectiveLocationDescription,
+        institution: effectiveInstitution,
         tone: ctx.inputs.tone || "Golden Age Mystery",
-        weather: setting.setting.atmosphere.weather,
-        socialStructure: setting.setting.era.socialNorms.join(", "),
+        weather: effectiveWeather,
+        socialStructure: effectiveSocialStructure,
         theme: ctx.inputs.theme || "mystery",
-        castSize: cast.cast.characters.length,
-        castNames: cast.cast.characters.map((c: any) => c.name),
-        detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
-        victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
-        complexityLevel: hardLogicDirectives.complexityLevel,
-        mechanismFamilies: hardLogicDirectives.mechanismFamilies,
+        castSize: effectiveCastNames.length,
+        castNames: effectiveCastNames,
+        detectiveType: firstNonEmpty(
+          ctx.cast?.cast?.crimeDynamics?.detectiveCandidates?.[0],
+          "Detective"
+        ),
+        victimArchetype: firstNonEmpty(
+          ctx.cast?.cast?.crimeDynamics?.victimCandidates?.[0],
+          "Victim"
+        ),
+        complexityLevel: normalizeComplexityLevel(effectiveHardLogicDirectives.complexityLevel),
+        mechanismFamilies: toStringArray(effectiveHardLogicDirectives.mechanismFamilies),
         primaryAxis: ctx.primaryAxis,
-        hardLogicModes: hardLogicDirectives.hardLogicModes,
-        difficultyMode: hardLogicDirectives.difficultyMode,
+        hardLogicModes: toStringArray(effectiveHardLogicDirectives.hardLogicModes),
+        difficultyMode: normalizeDifficultyMode(effectiveHardLogicDirectives.difficultyMode),
         hardLogicDevices: hardLogicDevices.devices,
-        backgroundContext,
+        backgroundContext: effectiveBackgroundContext,
         noveltyConstraints: ctx.noveltyConstraints,
         runId: ctx.runId,
         projectId: ctx.projectId || "",

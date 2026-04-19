@@ -125,14 +125,9 @@ export interface Agent8NoveltyConfig extends AgentStatusConfig {
   };
 }
 
-export interface Agent9WordPolicyConfig {
-  hard_floor_relaxation_ratio: number;
-  min_hard_floor_words: number;
-  preferred_chapter_words: {
-    short: number;
-    medium: number;
-    long: number;
-  };
+export interface StoryLengthBudgetRatioConfig {
+  min_ratio: number;
+  max_ratio: number;
 }
 
 export interface Agent9UnderflowExpansionConfig {
@@ -143,11 +138,13 @@ export interface Agent9UnderflowExpansionConfig {
    * Default: true.
    */
   enabled: boolean;
-  min_additional_words: number;
-  max_additional_words: number;
-  buffer_words: number;
+  expansion_size_ratio: {
+    min_additional_words_ratio: number;
+    max_additional_words_ratio: number;
+    buffer_words_ratio: number;
+  };
   temperature: number;
-  max_tokens: number;
+  max_tokens_ratio: number;
   /**
    * Fraction of preferred chapter words below which a preferred-miss (non-hard-floor)
    * chapter triggers expansion.  Chapters above this fraction are already "close enough"
@@ -243,6 +240,7 @@ export interface Agent9ValidationConfig {
 }
 
 export interface StoryLengthWordTargetConfig {
+  chapter_count: number;
   min_words: number;
   max_words: number;
   chapter_ideal_words: number;
@@ -256,6 +254,7 @@ export interface StoryLengthPolicyConfig {
     medium: StoryLengthWordTargetConfig;
     long: StoryLengthWordTargetConfig;
   };
+  total_word_budget_ratio: StoryLengthBudgetRatioConfig;
 }
 
 export interface GenerationParamsConfig {
@@ -275,7 +274,7 @@ export interface GenerationParamsConfig {
   agent65_world_builder: Agent65WorldBuilderConfig;
   agent8_novelty: Agent8NoveltyConfig;
   agent9_prose: {
-    word_policy: Agent9WordPolicyConfig;
+    story_length_policy: StoryLengthPolicyConfig;
     underflow_expansion: Agent9UnderflowExpansionConfig;
     generation: Agent9GenerationConfig;
     prose_model: Agent9ProseModelConfig;
@@ -288,12 +287,16 @@ export interface GenerationParamsConfig {
 
 const DEFAULT_CONFIG: GenerationParamsConfig = {
   story_length_policy: {
-    targets: { short: 20, medium: 30, long: 42 },
+    targets: { short: 10, medium: 20, long: 30 },
     chapter_target_tolerance: 2,
     word_targets: {
-      short:  { min_words: 15000, max_words: 25000,  chapter_ideal_words: 1000 },
-      medium: { min_words: 40000, max_words: 60000,  chapter_ideal_words: 1700 },
-      long:   { min_words: 70000, max_words: 100000, chapter_ideal_words: 2200 },
+      short:  { chapter_count: 10, min_words: 7_500, max_words: 12_500, chapter_ideal_words: 1000 },
+      medium: { chapter_count: 20, min_words: 25_500, max_words: 42_500, chapter_ideal_words: 1700 },
+      long:   { chapter_count: 30, min_words: 49_500, max_words: 82_500, chapter_ideal_words: 2200 },
+    },
+    total_word_budget_ratio: {
+      min_ratio: 0.75,
+      max_ratio: 1.25,
     },
   },
   agent1_setting: {
@@ -383,7 +386,7 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
         model: { temperature: 0.2, max_tokens: 1500 },
         pass_criteria: {
           min_confidence: "likely",
-          max_remediation_cycles: 1,
+          max_remediation_cycles: 2,
         },
       },
       retries: {
@@ -435,24 +438,28 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
     },
   },
   agent9_prose: {
-    word_policy: {
-      // Hard floor = floor(preferred_chapter_words[length] * ratio)
-      // 0.77 gives short:1001 / medium:1232 / long:1848 — proportional to what we ask the model to write
-      hard_floor_relaxation_ratio: 0.77,
-      min_hard_floor_words: 600,
-      preferred_chapter_words: {
-        short: 1300,
-        medium: 1600,
-        long: 2400,
+    story_length_policy: {
+      targets: { short: 10, medium: 20, long: 30 },
+      chapter_target_tolerance: 2,
+      word_targets: {
+        short: { chapter_count: 10, min_words: 7_500, max_words: 12_500, chapter_ideal_words: 1000 },
+        medium: { chapter_count: 20, min_words: 25_500, max_words: 42_500, chapter_ideal_words: 1700 },
+        long: { chapter_count: 30, min_words: 49_500, max_words: 82_500, chapter_ideal_words: 2200 },
+      },
+      total_word_budget_ratio: {
+        min_ratio: 0.75,
+        max_ratio: 1.25,
       },
     },
     underflow_expansion: {
       enabled: true,
-      min_additional_words: 220,
-      max_additional_words: 680,
-      buffer_words: 220,
+      expansion_size_ratio: {
+        min_additional_words_ratio: 0.16,
+        max_additional_words_ratio: 0.56,
+        buffer_words_ratio: 0.18,
+      },
       temperature: 0.2,
-      max_tokens: 2600,
+      max_tokens_ratio: 1.76,
       preferred_miss_expansion_ratio: 0.85,
     },
     generation: {
@@ -558,25 +565,64 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
     src: any,
     defaults: StoryLengthWordTargetConfig,
   ): StoryLengthWordTargetConfig => ({
+    chapter_count: Math.max(1, Math.floor(clampNumber(src?.chapter_count, defaults.chapter_count, 1, 200))),
     min_words: Math.max(1, Math.floor(clampNumber(src?.min_words, defaults.min_words, 100, 500000))),
     max_words: Math.max(1, Math.floor(clampNumber(src?.max_words, defaults.max_words, 100, 1000000))),
     chapter_ideal_words: Math.max(1, Math.floor(clampNumber(src?.chapter_ideal_words, defaults.chapter_ideal_words, 50, 10000))),
   });
 
-  const merged: GenerationParamsConfig = {
-    story_length_policy: {
-      targets: {
-        short:  Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.short,  DEFAULT_CONFIG.story_length_policy.targets.short,  1, 200))),
-        medium: Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.medium, DEFAULT_CONFIG.story_length_policy.targets.medium, 1, 200))),
-        long:   Math.max(1, Math.floor(clampNumber(source.story_length_policy?.targets?.long,   DEFAULT_CONFIG.story_length_policy.targets.long,   1, 200))),
-      },
-      chapter_target_tolerance: Math.max(0, Math.floor(clampNumber(source.story_length_policy?.chapter_target_tolerance, DEFAULT_CONFIG.story_length_policy.chapter_target_tolerance, 0, 50))),
-      word_targets: {
-        short:  mergeWordTarget(source.story_length_policy?.word_targets?.short,  DEFAULT_CONFIG.story_length_policy.word_targets.short),
-        medium: mergeWordTarget(source.story_length_policy?.word_targets?.medium, DEFAULT_CONFIG.story_length_policy.word_targets.medium),
-        long:   mergeWordTarget(source.story_length_policy?.word_targets?.long,   DEFAULT_CONFIG.story_length_policy.word_targets.long),
-      },
+  const lengthSource = source.agent9_prose?.story_length_policy ?? source.story_length_policy ?? {};
+  const ratioDefaults = DEFAULT_CONFIG.story_length_policy.total_word_budget_ratio;
+  const totalWordBudgetRatio: StoryLengthBudgetRatioConfig = {
+    min_ratio: clampNumber(lengthSource?.total_word_budget_ratio?.min_ratio, ratioDefaults.min_ratio, 0.1, 2.0),
+    max_ratio: clampNumber(lengthSource?.total_word_budget_ratio?.max_ratio, ratioDefaults.max_ratio, 0.2, 3.0),
+  };
+
+  const mergeWordTargetDerived = (
+    src: any,
+    defaults: StoryLengthWordTargetConfig,
+  ): StoryLengthWordTargetConfig => {
+    const mergedTarget = mergeWordTarget(src, defaults);
+    const chapterCount = Math.max(1, mergedTarget.chapter_count);
+    const ideal = Math.max(1, mergedTarget.chapter_ideal_words);
+    const totalIdeal = chapterCount * ideal;
+    const minWords = Math.max(1, Math.floor(totalIdeal * totalWordBudgetRatio.min_ratio));
+    const maxWords = Math.max(minWords, Math.ceil(totalIdeal * totalWordBudgetRatio.max_ratio));
+    return {
+      chapter_count: chapterCount,
+      chapter_ideal_words: ideal,
+      min_words: minWords,
+      max_words: maxWords,
+    };
+  };
+
+  const resolvedStoryLengthPolicy: StoryLengthPolicyConfig = {
+    targets: {
+      short: mergeWordTarget(lengthSource?.word_targets?.short, DEFAULT_CONFIG.story_length_policy.word_targets.short).chapter_count,
+      medium: mergeWordTarget(lengthSource?.word_targets?.medium, DEFAULT_CONFIG.story_length_policy.word_targets.medium).chapter_count,
+      long: mergeWordTarget(lengthSource?.word_targets?.long, DEFAULT_CONFIG.story_length_policy.word_targets.long).chapter_count,
     },
+    chapter_target_tolerance: Math.max(
+      0,
+      Math.floor(
+        clampNumber(
+          lengthSource?.chapter_target_tolerance,
+          DEFAULT_CONFIG.story_length_policy.chapter_target_tolerance,
+          0,
+          50,
+        ),
+      ),
+    ),
+    word_targets: {
+      short: mergeWordTargetDerived(lengthSource?.word_targets?.short, DEFAULT_CONFIG.story_length_policy.word_targets.short),
+      medium: mergeWordTargetDerived(lengthSource?.word_targets?.medium, DEFAULT_CONFIG.story_length_policy.word_targets.medium),
+      long: mergeWordTargetDerived(lengthSource?.word_targets?.long, DEFAULT_CONFIG.story_length_policy.word_targets.long),
+    },
+    total_word_budget_ratio: totalWordBudgetRatio,
+  };
+
+  const merged: GenerationParamsConfig = {
+    story_length_policy: resolvedStoryLengthPolicy,
     agent1_setting: {
       status: typeof source.agent1_setting?.status === "string" ? source.agent1_setting.status : DEFAULT_CONFIG.agent1_setting.status,
       params: {
@@ -810,86 +856,52 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
       },
     },
     agent9_prose: {
-      word_policy: {
-        hard_floor_relaxation_ratio: clampNumber(
-          partial.agent9_prose?.word_policy?.hard_floor_relaxation_ratio,
-          DEFAULT_CONFIG.agent9_prose.word_policy.hard_floor_relaxation_ratio,
-          0,
-          1,
-        ),
-        min_hard_floor_words: Math.floor(
-          clampNumber(
-            partial.agent9_prose?.word_policy?.min_hard_floor_words,
-            DEFAULT_CONFIG.agent9_prose.word_policy.min_hard_floor_words,
-            200,
-            2000,
-          ),
-        ),
-        preferred_chapter_words: {
-          short: Math.floor(
-            clampNumber(
-              partial.agent9_prose?.word_policy?.preferred_chapter_words?.short,
-              DEFAULT_CONFIG.agent9_prose.word_policy.preferred_chapter_words.short,
-              400,
-              5000,
-            ),
-          ),
-          medium: Math.floor(
-            clampNumber(
-              partial.agent9_prose?.word_policy?.preferred_chapter_words?.medium,
-              DEFAULT_CONFIG.agent9_prose.word_policy.preferred_chapter_words.medium,
-              600,
-              7000,
-            ),
-          ),
-          long: Math.floor(
-            clampNumber(
-              partial.agent9_prose?.word_policy?.preferred_chapter_words?.long,
-              DEFAULT_CONFIG.agent9_prose.word_policy.preferred_chapter_words.long,
-              800,
-              9000,
-            ),
-          ),
+      story_length_policy: {
+        targets: {
+          short: resolvedStoryLengthPolicy.targets.short,
+          medium: resolvedStoryLengthPolicy.targets.medium,
+          long: resolvedStoryLengthPolicy.targets.long,
         },
+        chapter_target_tolerance: resolvedStoryLengthPolicy.chapter_target_tolerance,
+        word_targets: {
+          short: { ...resolvedStoryLengthPolicy.word_targets.short },
+          medium: { ...resolvedStoryLengthPolicy.word_targets.medium },
+          long: { ...resolvedStoryLengthPolicy.word_targets.long },
+        },
+        total_word_budget_ratio: { ...resolvedStoryLengthPolicy.total_word_budget_ratio },
       },
       underflow_expansion: {
-        min_additional_words: Math.floor(
-          clampNumber(
-            partial.agent9_prose?.underflow_expansion?.min_additional_words,
-            DEFAULT_CONFIG.agent9_prose.underflow_expansion.min_additional_words,
-            50,
-            2000,
+        expansion_size_ratio: {
+          min_additional_words_ratio: clampNumber(
+            partial.agent9_prose?.underflow_expansion?.expansion_size_ratio?.min_additional_words_ratio,
+            DEFAULT_CONFIG.agent9_prose.underflow_expansion.expansion_size_ratio.min_additional_words_ratio,
+            0.01,
+            1.5,
           ),
-        ),
-        max_additional_words: Math.floor(
-          clampNumber(
-            partial.agent9_prose?.underflow_expansion?.max_additional_words,
-            DEFAULT_CONFIG.agent9_prose.underflow_expansion.max_additional_words,
-            100,
-            4000,
+          max_additional_words_ratio: clampNumber(
+            partial.agent9_prose?.underflow_expansion?.expansion_size_ratio?.max_additional_words_ratio,
+            DEFAULT_CONFIG.agent9_prose.underflow_expansion.expansion_size_ratio.max_additional_words_ratio,
+            0.05,
+            3.0,
           ),
-        ),
-        buffer_words: Math.floor(
-          clampNumber(
-            partial.agent9_prose?.underflow_expansion?.buffer_words,
-            DEFAULT_CONFIG.agent9_prose.underflow_expansion.buffer_words,
-            0,
-            3000,
+          buffer_words_ratio: clampNumber(
+            partial.agent9_prose?.underflow_expansion?.expansion_size_ratio?.buffer_words_ratio,
+            DEFAULT_CONFIG.agent9_prose.underflow_expansion.expansion_size_ratio.buffer_words_ratio,
+            0.0,
+            2.0,
           ),
-        ),
+        },
         temperature: clampNumber(
           partial.agent9_prose?.underflow_expansion?.temperature,
           DEFAULT_CONFIG.agent9_prose.underflow_expansion.temperature,
           0,
           1,
         ),
-        max_tokens: Math.floor(
-          clampNumber(
-            partial.agent9_prose?.underflow_expansion?.max_tokens,
-            DEFAULT_CONFIG.agent9_prose.underflow_expansion.max_tokens,
-            500,
-            16000,
-          ),
+        max_tokens_ratio: clampNumber(
+          partial.agent9_prose?.underflow_expansion?.max_tokens_ratio,
+          DEFAULT_CONFIG.agent9_prose.underflow_expansion.max_tokens_ratio,
+          0.5,
+          10.0,
         ),
         enabled: (partial.agent9_prose?.underflow_expansion?.enabled ?? DEFAULT_CONFIG.agent9_prose.underflow_expansion.enabled) !== false,
         preferred_miss_expansion_ratio: clampNumber(
@@ -1186,11 +1198,11 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
   };
 
   if (
-    merged.agent9_prose.underflow_expansion.max_additional_words <
-    merged.agent9_prose.underflow_expansion.min_additional_words
+    merged.agent9_prose.underflow_expansion.expansion_size_ratio.max_additional_words_ratio <
+    merged.agent9_prose.underflow_expansion.expansion_size_ratio.min_additional_words_ratio
   ) {
-    merged.agent9_prose.underflow_expansion.max_additional_words =
-      merged.agent9_prose.underflow_expansion.min_additional_words;
+    merged.agent9_prose.underflow_expansion.expansion_size_ratio.max_additional_words_ratio =
+      merged.agent9_prose.underflow_expansion.expansion_size_ratio.min_additional_words_ratio;
   }
 
   const entropy = merged.agent9_prose.style_linter.entropy;

@@ -5,7 +5,7 @@
  * Do NOT hardcode scene/chapter counts, word targets, or per-chapter word
  * targets anywhere else in the codebase.
  *
- * YAML override: numeric targets are configured under story_length_policy in
+ * YAML override: numeric targets are configured under agent9_prose.story_length_policy in
  * apps/worker/config/generation-params.yaml (override with CML_GENERATION_PARAMS_PATH).
  *
  * Architecture note:
@@ -16,7 +16,7 @@
 import { getGenerationParams } from './generation-params.js';
 
 /** Canonical source path used by diagnostics for provenance. */
-export const STORY_LENGTH_TARGETS_SOURCE = "apps/worker/config/generation-params.yaml#story_length_policy" as const;
+export const STORY_LENGTH_TARGETS_SOURCE = "apps/worker/config/generation-params.yaml#agent9_prose.story_length_policy" as const;
 
 /** Canonical story length keys. */
 export const STORY_LENGTH_KEYS = ["short", "medium", "long"] as const;

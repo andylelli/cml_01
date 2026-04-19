@@ -20,7 +20,12 @@ import {
   selectPlaybooks,
   buildPlannedActions,
 } from "./playbooks.mjs";
-import { acquireRunLock, applyPlaybookPatch, releaseRunLock } from "./patches.mjs";
+import {
+  acquireRunLock,
+  applyPlaybookPatch,
+  releaseRunLock,
+  rollbackFailedImplementationChanges,
+} from "./patches.mjs";
 import { resolveValidationPlan, runValidationPlan } from "./validate.mjs";
 import { createLedger, appendLedgerEntry, loadLedgerForResume } from "./ledger.mjs";
 import {
@@ -39,7 +44,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
   const registeredAgentCodes = await loadRegisteredAgentCodes(workspaceRoot);
   const mappingConformance = getAgentMappingConformance(registeredAgentCodes);
   const normalizedAgent = normalizeAgentInput(request.agent, registeredAgentCodes);
-  const normalizedStartFromAgent = normalizeAgentInput(startBoundaryInput, registeredAgentCodes);
+  let normalizedStartFromAgent = normalizeAgentInput(startBoundaryInput, registeredAgentCodes);
 
   const precheckErrors = validateRequest({
     request,
@@ -68,7 +73,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
     allowMissingAgentRecords: true,
   });
 
-  const hydration = buildHydrationBundle({
+  let hydration = buildHydrationBundle({
     artifactBundle,
     startFromAgentCode: normalizedStartFromAgent.code,
     selectedAgentCode: normalizedAgent.code,
@@ -210,6 +215,30 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
       rootCause,
       hydration: hydration.bundle,
     };
+  }
+
+  if (request.mode === "apply" && request.autoExpandUpstreamScope) {
+    const expandedStartCode = suggestExpandedStartFromSignature({
+      signature,
+      selectedAgentCode: normalizedAgent.code,
+      currentStartCode: normalizedStartFromAgent.code,
+    });
+    if (expandedStartCode && expandedStartCode !== normalizedStartFromAgent.code) {
+      const expandedStart = normalizeAgentInput(`agent${expandedStartCode}`, registeredAgentCodes);
+      if (expandedStart) {
+        normalizedStartFromAgent = expandedStart;
+        request.startFromAgent = expandedStart.canonicalAgent;
+        hydration = buildHydrationBundle({
+          artifactBundle,
+          startFromAgentCode: normalizedStartFromAgent.code,
+          selectedAgentCode: normalizedAgent.code,
+          hydratePriorFromRun: request.hydratePriorFromRun,
+        });
+        await logNarration(
+          `Activity: Auto-expanded start boundary to '${expandedStart.canonicalAgent}' based on signature stage '${signature.stage}'.`
+        );
+      }
+    }
   }
 
   if (request.mode === "suggest") {
@@ -378,6 +407,7 @@ async function runApplyLoop({
 
       const patchResult = await applyPlaybookPatch({
         workspaceRoot,
+        outputDir: ledger.outputDir,
         request,
         normalizedAgent,
         signature: currentSignature,
@@ -473,6 +503,18 @@ async function runApplyLoop({
         },
       });
       if (validation.infrastructureError) {
+        const rollback = await maybeRollbackIterationChanges({
+          workspaceRoot,
+          request,
+          ledger,
+          iteration,
+          patchResult,
+          reason: validation.infrastructureMessage,
+          logNarration,
+        });
+        if (rollback.note) {
+          plannedActions.push(rollback.note);
+        }
         const entry = buildIterationRecord({
           iteration,
           request,
@@ -511,6 +553,13 @@ async function runApplyLoop({
       await logNarration(
         `Activity: Iteration ${iteration} validation finished. Canary passed: ${canaryPassed ? "yes" : "no"}. Warning count: ${validation.canary?.warningsCount ?? 0}.`
       );
+      await emitIterationDiagnostics({
+        logNarration,
+        iteration,
+        validation,
+        unresolvedWarnings,
+        canaryPassed,
+      });
       if (canaryPassed && !unresolvedWarnings) {
         const entry = buildIterationRecord({
           iteration,
@@ -576,6 +625,19 @@ async function runApplyLoop({
         unchangedCount,
       });
       unchangedCount = failureDecision.nextUnchangedCount;
+
+      const rollback = await maybeRollbackIterationChanges({
+        workspaceRoot,
+        request,
+        ledger,
+        iteration,
+        patchResult,
+        reason: failureDecision.stopReason ?? "Unresolved output signature.",
+        logNarration,
+      });
+      if (rollback.note) {
+        plannedActions.push(rollback.note);
+      }
 
       const entry = buildIterationRecord({
         iteration,
@@ -699,6 +761,7 @@ async function createCanaryNarrator(workspaceRoot) {
   const runStamp = formatRunStamp(new Date());
   const treatAsDirectory = stat?.isDirectory() || (!stat && path.extname(basePath) === "");
   if (treatAsDirectory) {
+    await archiveCanaryLogDirectory(basePath, runStamp);
     latestPath = path.join(basePath, "canary-log.txt");
     runPath = path.join(basePath, `canary-log-${runStamp}.txt`);
   } else {
@@ -713,17 +776,260 @@ async function createCanaryNarrator(workspaceRoot) {
   await fs.writeFile(latestPath, "", "utf8");
   await fs.writeFile(runPath, "", "utf8");
 
+  let lastSection = "";
+  let currentIteration = null;
+  let lastFailureClass = null;
+
   return async (message) => {
-    const line = `[${new Date().toISOString()}] ${formatNarrationLine(message)}\n`;
+    const formatted = formatNarrationLine(message);
+    const section = detectNarrationSection(formatted, {
+      currentIteration,
+      lastFailureClass,
+    });
+    if (section?.iteration != null) {
+      currentIteration = section.iteration;
+    }
+    if (section?.failureClass != null) {
+      lastFailureClass = section.failureClass;
+    }
+
+    const lines = [];
+    if (section?.header && section.header !== lastSection) {
+      lines.push(`[${new Date().toISOString()}] ============== ${section.header} ==============\n`);
+      lastSection = section.header;
+    }
+    lines.push(`[${new Date().toISOString()}] ${formatted}\n`);
+
     try {
       await Promise.all([
-        fs.appendFile(latestPath, line, "utf8"),
-        fs.appendFile(runPath, line, "utf8"),
+        fs.appendFile(latestPath, lines.join(""), "utf8"),
+        fs.appendFile(runPath, lines.join(""), "utf8"),
       ]);
     } catch {
       // Narration logging must never block canary execution.
     }
   };
+}
+
+async function archiveCanaryLogDirectory(basePath, runStamp) {
+  await fs.mkdir(basePath, { recursive: true });
+  const entries = await fs.readdir(basePath, { withFileTypes: true });
+  const entriesToArchive = entries.filter((entry) => entry.name !== "archive");
+  if (!entriesToArchive.length) {
+    return;
+  }
+
+  const archiveRoot = path.join(basePath, "archive");
+  await fs.mkdir(archiveRoot, { recursive: true });
+
+  let archiveFolder = path.join(archiveRoot, runStamp);
+  let suffix = 1;
+  while (await statIfExists(archiveFolder)) {
+    archiveFolder = path.join(archiveRoot, `${runStamp}-${suffix.toString().padStart(2, "0")}`);
+    suffix += 1;
+  }
+  await fs.mkdir(archiveFolder, { recursive: true });
+
+  for (const entry of entriesToArchive) {
+    const from = path.join(basePath, entry.name);
+    const to = path.join(archiveFolder, entry.name);
+    await fs.rename(from, to);
+  }
+}
+
+function detectNarrationSection(message, state) {
+  const compact = String(message ?? "").trim();
+  if (!compact) {
+    return { header: null, iteration: state.currentIteration };
+  }
+
+  if (/^Activity: Started canary loop\b/.test(compact)) {
+    return { header: "RUN START", iteration: null, failureClass: state.lastFailureClass };
+  }
+
+  const iterationMatch = compact.match(/^Activity: Iteration (\d+) started\b/);
+  if (iterationMatch) {
+    const iteration = Number.parseInt(iterationMatch[1], 10);
+    return {
+      header: `ITERATION ${iteration}`,
+      iteration,
+      failureClass: state.lastFailureClass,
+    };
+  }
+
+  if (/^(Test start:|Canary start:)/.test(compact)) {
+    if (state.currentIteration != null) {
+      return {
+        header: `ITERATION ${state.currentIteration} VALIDATION`,
+        iteration: state.currentIteration,
+        failureClass: state.lastFailureClass,
+      };
+    }
+    return { header: "VALIDATION", iteration: null, failureClass: state.lastFailureClass };
+  }
+
+  const diagnosticsMatch = compact.match(/^Activity: Iteration (\d+) diagnostics summary\./);
+  if (diagnosticsMatch) {
+    const iteration = Number.parseInt(diagnosticsMatch[1], 10);
+    return {
+      header: `ITERATION ${iteration} DIAGNOSTICS`,
+      iteration,
+      failureClass: state.lastFailureClass,
+    };
+  }
+
+  if (/^Activity: Iteration \d+ applied \d+ file change\(s\)\./.test(compact)) {
+    return {
+      header: "PATCH APPLY",
+      iteration: state.currentIteration,
+      failureClass: state.lastFailureClass,
+    };
+  }
+
+  if (/^(Root cause:|Cause:|Likely root cause:)/.test(compact)) {
+    return {
+      header: "ROOT CAUSE",
+      iteration: state.currentIteration,
+      failureClass: state.lastFailureClass,
+    };
+  }
+
+  const failureClassMatch = compact.match(/class '([^']+)'/);
+  if (/^Error: Iteration \d+ still failing with\b/.test(compact) && failureClassMatch) {
+    const nextFailureClass = failureClassMatch[1];
+    const header =
+      state.lastFailureClass && state.lastFailureClass !== nextFailureClass
+        ? "FAILURE CLASS CHANGE"
+        : "FAILURE CLASS";
+    return {
+      header,
+      iteration: state.currentIteration,
+      failureClass: nextFailureClass,
+    };
+  }
+
+  if (
+    /^(Activity: Iteration \d+ decision is 'stop'\.|Warning: Loop reached unchanged-signature safety limit|Activity: Released run lock\.)/.test(
+      compact
+    )
+  ) {
+    return {
+      header: "RUN END",
+      iteration: state.currentIteration,
+      failureClass: state.lastFailureClass,
+    };
+  }
+
+  return {
+    header: null,
+    iteration: state.currentIteration,
+    failureClass: state.lastFailureClass,
+  };
+}
+
+async function emitIterationDiagnostics({
+  logNarration,
+  iteration,
+  validation,
+  unresolvedWarnings,
+  canaryPassed,
+}) {
+  const warnings = [];
+  const errors = [];
+
+  for (const test of validation.tests ?? []) {
+    if (!test?.passed) {
+      errors.push(`Test failed: ${compactCommandLabel(test.command)} - ${compactIssueMessage(test.summary)}`);
+    }
+  }
+
+  const canaryStatus = String(validation.canary?.status ?? "unknown");
+  const canaryExitCode = validation.canary?.exitCode;
+  if (!canaryPassed) {
+    const exitPart = Number.isFinite(canaryExitCode) ? ` exitCode=${canaryExitCode}` : "";
+    errors.push(`Canary did not pass (status='${canaryStatus}'${exitPart}).`);
+  }
+
+  const warningCount = Number(validation.canary?.warningsCount ?? 0);
+  if (warningCount > 0) {
+    warnings.push(`Canary reported ${warningCount} warning(s).`);
+  }
+  if (unresolvedWarnings) {
+    warnings.push("Unresolved warning-level signatures remain after validation.");
+  }
+
+  const extracted = extractDiagnosticsFromText([
+    validation.canary?.summary,
+    validation.canary?.stdout,
+    validation.canary?.stderr,
+  ]);
+  warnings.push(...extracted.warnings);
+  errors.push(...extracted.errors);
+
+  const dedupedWarnings = uniqueCompactMessages(warnings).slice(0, 8);
+  const dedupedErrors = uniqueCompactMessages(errors).slice(0, 8);
+
+  await logNarration(
+    `Activity: Iteration ${iteration} diagnostics summary. Errors: ${dedupedErrors.length}. Warnings: ${dedupedWarnings.length}.`
+  );
+
+  if (!dedupedWarnings.length && !dedupedErrors.length) {
+    await logNarration("Activity: Iteration diagnostics: no warning/error details captured.");
+    return;
+  }
+
+  for (const warning of dedupedWarnings) {
+    await logNarration(`Warning detail: ${warning}`);
+  }
+  for (const error of dedupedErrors) {
+    await logNarration(`Error detail: ${error}`);
+  }
+}
+
+function extractDiagnosticsFromText(chunks) {
+  const warnings = [];
+  const errors = [];
+  const text = chunks
+    .filter(Boolean)
+    .map((value) => String(value))
+    .join("\n");
+  if (!text.trim()) {
+    return { warnings, errors };
+  }
+
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = compactIssueMessage(rawLine);
+    if (!line) {
+      continue;
+    }
+    if (/^(?:warning|warn)\b[:\s-]*/i.test(line) || /\bwarning\b/i.test(line)) {
+      warnings.push(line);
+      continue;
+    }
+    if (/^(?:error|fail(?:ed|ure)?)\b[:\s-]*/i.test(line) || /\berror\b/i.test(line)) {
+      errors.push(line);
+    }
+  }
+
+  return { warnings, errors };
+}
+
+function uniqueCompactMessages(items) {
+  const seen = new Set();
+  const results = [];
+  for (const item of items ?? []) {
+    const value = compactIssueMessage(item);
+    if (!value) {
+      continue;
+    }
+    const key = value.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    results.push(value);
+  }
+  return results;
 }
 
 function formatNarrationLine(message) {
@@ -809,6 +1115,12 @@ function validateRequest({ request, normalizedAgent, normalizedStartFromAgent })
   }
   if (typeof request.confirmSharedEdits !== "boolean") {
     errors.push("--confirmSharedEdits must be true or false.");
+  }
+  if (typeof request.rollbackFailedChanges !== "boolean") {
+    errors.push("--rollbackFailedChanges must be true or false.");
+  }
+  if (typeof request.autoExpandUpstreamScope !== "boolean") {
+    errors.push("--autoExpandUpstreamScope must be true or false.");
   }
 
   if (request.startChapter !== undefined) {
@@ -1109,6 +1421,83 @@ export function buildDefaultRequest(overrides) {
     overrideFileCap: undefined,
     startChapter: undefined,
     confirmSharedEdits: DEFAULTS.confirmSharedEdits,
+    rollbackFailedChanges: DEFAULTS.rollbackFailedChanges,
+    autoExpandUpstreamScope: DEFAULTS.autoExpandUpstreamScope,
     ...overrides,
   };
+}
+
+async function maybeRollbackIterationChanges({
+  workspaceRoot,
+  request,
+  ledger,
+  iteration,
+  patchResult,
+  reason,
+  logNarration,
+}) {
+  if (!request.rollbackFailedChanges) {
+    return { note: null };
+  }
+  if (!Array.isArray(patchResult?.changeDetails) || patchResult.changeDetails.length === 0) {
+    return { note: null };
+  }
+
+  const rollback = await rollbackFailedImplementationChanges({
+    workspaceRoot,
+    outputDir: ledger.outputDir,
+    iteration,
+    changeDetails: patchResult.changeDetails,
+    reason,
+  });
+
+  if (!rollback.rolledBackCount) {
+    return { note: null };
+  }
+
+  const note = `Rolled back ${rollback.rolledBackCount} unresolved implementation change(s); archived snapshots at ${rollback.archivedDir}.`;
+  await logNarration(`Activity: ${note}`);
+  return { note };
+}
+
+function suggestExpandedStartFromSignature({ signature, selectedAgentCode, currentStartCode }) {
+  const selectedIndex = PIPELINE_AGENT_ORDER.indexOf(selectedAgentCode);
+  const currentStartIndex = PIPELINE_AGENT_ORDER.indexOf(currentStartCode);
+  if (selectedIndex < 0 || currentStartIndex < 0) {
+    return null;
+  }
+
+  const stage = String(signature?.stage ?? "").toLowerCase();
+  const className = String(signature?.class ?? "").toLowerCase();
+  const message = String(signature?.message ?? "").toLowerCase();
+
+  let suggestedCode = null;
+  if (stage === "cml-revision" || stage === "schema" || className.startsWith("cml.")) {
+    suggestedCode = "4";
+  } else if (stage === "fairplay" || className.startsWith("agent6.")) {
+    suggestedCode = "6";
+  } else if (stage === "clues" || className.startsWith("agent5.")) {
+    suggestedCode = "5";
+  } else if (className === "canary.execution_failure") {
+    if (message.includes("fair play") || message.includes("deducibility") || message.includes("withholding")) {
+      suggestedCode = "4";
+    }
+  }
+
+  if (!suggestedCode) {
+    return null;
+  }
+
+  const suggestedIndex = PIPELINE_AGENT_ORDER.indexOf(suggestedCode);
+  if (suggestedIndex < 0) {
+    return null;
+  }
+  if (suggestedIndex > selectedIndex) {
+    return null;
+  }
+  if (suggestedIndex >= currentStartIndex) {
+    return null;
+  }
+
+  return suggestedCode;
 }

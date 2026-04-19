@@ -1,6 +1,0 @@
-# Canary Loop Ledger
-
-- runId: `run_bbfc28f0-eabc-451d-88f5-298ef4d6b779`
-- agent: `Agent3-CMLGenerator`
-- startedAt: `2026-04-18T13:58:34.316Z`
-

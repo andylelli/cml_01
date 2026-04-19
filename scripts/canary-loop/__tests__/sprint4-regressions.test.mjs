@@ -9,6 +9,7 @@ import {
 } from "../config.mjs";
 import { getCachedFix } from "../cache.mjs";
 import { updateTelemetryRollups } from "../report.mjs";
+import { classifyFailureText } from "../signatures.mjs";
 
 test("all registered worker agents have canary/test mapping conformance", async () => {
   const registered = await loadRegisteredAgentCodes(process.cwd());
@@ -64,13 +65,15 @@ test("signature fix cache safety blocks early code fallback", () => {
 
 test("telemetry rollups produce run summary and dashboard artifacts", async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "canary-rollup-"));
-  const outDir = path.join(tempRoot, "documentation", "analysis", "canary-loops");
+  const outDir = path.join(tempRoot, "logs", "canary-loops");
+  const runDir = path.join(outDir, "260419-1400");
   await fs.mkdir(outDir, { recursive: true });
+  await fs.mkdir(runDir, { recursive: true });
 
   const ledger = {
     workspaceRoot: tempRoot,
-    jsonlPath: path.join(outDir, "example.jsonl"),
-    mdPath: path.join(outDir, "example.md"),
+    jsonlPath: path.join(runDir, "example.jsonl"),
+    mdPath: path.join(runDir, "example.md"),
     entries: [
       {
         iteration: 1,
@@ -92,8 +95,8 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
 
   await updateTelemetryRollups({ ledger });
 
-  const runSummaryPath = path.join(outDir, "example.summary.json");
-  const dashboardPath = path.join(outDir, "SUMMARY.json");
+  const runSummaryPath = path.join(runDir, "example.summary.json");
+  const dashboardPath = path.join(runDir, "SUMMARY.json");
 
   const runSummary = JSON.parse(await fs.readFile(runSummaryPath, "utf8"));
   const dashboard = JSON.parse(await fs.readFile(dashboardPath, "utf8"));
@@ -101,4 +104,39 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
   assert.equal(runSummary.totals.iterations, 2);
   assert.equal(runSummary.totals.deterministicFallbackCount, 1);
   assert.equal(dashboard.runCount >= 1, true);
+});
+
+test("signature classifier does not treat fair-play discriminating test text as ID-coverage failure", () => {
+  const text = [
+    "CANARY_STATUS success",
+    "WARNINGS_COUNT 7",
+    "- [critical] Logical Deducibility: The reader cannot follow the inference path due to misleading witness statements.",
+    "- [critical] Discriminating Test Timing: The discriminating test does not appear at the proper time.",
+    "- [critical] Information Parity: The detective has information about the stopped clock that the reader does not.",
+    "Fair play failure classified as \"clue_coverage\" but structural CML retry was skipped.",
+  ].join("\n");
+
+  const signature = classifyFailureText({
+    agent: "Agent6-FairPlay",
+    text,
+    source: "validation_executor",
+  });
+
+  assert.notEqual(signature.class, "agent5.discriminating_id_coverage");
+});
+
+test("signature classifier does not treat timestamps as Agent5 time-style violations", () => {
+  const text = [
+    "2026-04-19T16:59:24.537Z [INFO] Agent6-FairPlayAuditor | chat_request",
+    "2026-04-19T16:59:31.204Z [INFO] Agent6-FairPlayAuditor | chat_response",
+    "WARNINGS [\"Fair play failure classified as clue_coverage\"]",
+  ].join("\n");
+
+  const signature = classifyFailureText({
+    agent: "Agent6-FairPlay",
+    text,
+    source: "validation_executor",
+  });
+
+  assert.notEqual(signature.class, "agent5.time_style_violation");
 });

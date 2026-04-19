@@ -45,6 +45,8 @@
 - `--overrideFileCap <n>` optional (requires explicit opt-in; default disabled)
 - `--startChapter <n>` optional; Agent 9 only (1-based chapter index)
 - `--confirmSharedEdits true|false` default `false`; required when apply mode touches configured shared files
+- `--rollbackFailedChanges true|false` default `true`; revert unresolved implementation edits and archive snapshots in run folder
+- `--autoExpandUpstreamScope true|false` default `false`; widen `--startFromAgent` upstream when signature stage/class indicates upstream-generated defects
 
 Implementation note:
 - `--canaryCommand` accepts multi-token command values and is parsed as a joined token sequence until the next `--flag`.
@@ -141,8 +143,13 @@ Defaults, agent-to-command map, allowed paths.
 
 ## 3.2 Documentation outputs
 
-- `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.jsonl`
-- `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/failed-changes/iterNN/{before,after,manifest.json}` (when rollback executes)
 
 ---
 
@@ -167,7 +174,9 @@ Defaults, agent-to-command map, allowed paths.
   resume?: string,
   overrideFileCap?: number,
   startChapter?: number,          // Agent9-only chapter restart index (1-based)
-  confirmSharedEdits?: boolean    // required when touching configured shared files in apply mode
+  confirmSharedEdits?: boolean,   // required when touching configured shared files in apply mode
+  rollbackFailedChanges?: boolean,
+  autoExpandUpstreamScope?: boolean
 }
 ```
 
@@ -332,19 +341,21 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 2. `LOAD_ARTIFACTS -> HYDRATE_CONTEXT` if artifacts resolved.
 3. `HYDRATE_CONTEXT -> CLASSIFY_FAILURE` if required upstream dependencies are hydrated.
 4. `HYDRATE_CONTEXT -> CLASSIFY_FAILURE` with warning downgrade when required upstream artifacts are missing but resolved canary command is boundary-safe (`canary-agent-boundary` or `canary-agent9`) and can self-hydrate context.
-5. `HYDRATE_CONTEXT -> STOP_FAIL` on missing required upstream artifacts under `hydratePriorFromRun=true` when boundary-safe downgrade is not applicable.
-6. `CLASSIFY_FAILURE -> ROOT_CAUSE_ANALYSIS` when signature found and `confidence >= MIN_CONFIDENCE`.
-7. `CLASSIFY_FAILURE -> STOP_FAIL` when signature confidence is below `MIN_CONFIDENCE` (default `0.6`).
-8. `ROOT_CAUSE_ANALYSIS -> BUILD_RETRY_PACKET` when root cause hypothesis confidence is acceptable (default `>=0.7`).
-9. `BUILD_RETRY_PACKET -> PLAN_FIX` after packet integrity checks pass.
-10. `PLAN_FIX -> APPLY_FIX` only in `apply` mode; otherwise emit plan and stop.
-11. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
-12. `RUN_TESTS -> RUN_CANARY` only when tests pass.
-13. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
-14. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
-15. `COMPARE_SIGNATURE -> STOP_PASS_WITH_WARNINGS` when unchanged-signature bound is hit, canary passes, and remaining signature severity is warning.
-16. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
-17. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure (without boundary-safe downgrade), low-confidence classification/root-cause hypothesis, or no-op patch.
+5. `HYDRATE_CONTEXT -> HYDRATE_CONTEXT` (boundary expansion) when `autoExpandUpstreamScope=true` and signature stage/class maps to an upstream root-cause layer; recompute hydration bundle for the expanded boundary.
+6. `HYDRATE_CONTEXT -> STOP_FAIL` on missing required upstream artifacts under `hydratePriorFromRun=true` when boundary-safe downgrade is not applicable.
+7. `CLASSIFY_FAILURE -> ROOT_CAUSE_ANALYSIS` when signature found and `confidence >= MIN_CONFIDENCE`.
+8. `CLASSIFY_FAILURE -> STOP_FAIL` when signature confidence is below `MIN_CONFIDENCE` (default `0.6`).
+9. `ROOT_CAUSE_ANALYSIS -> BUILD_RETRY_PACKET` when root cause hypothesis confidence is acceptable (default `>=0.7`).
+10. `BUILD_RETRY_PACKET -> PLAN_FIX` after packet integrity checks pass.
+11. `PLAN_FIX -> APPLY_FIX` only in `apply` mode; otherwise emit plan and stop.
+12. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
+13. `RUN_TESTS -> RUN_CANARY` only when tests pass.
+14. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
+15. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
+16. `COMPARE_SIGNATURE -> STOP_PASS_WITH_WARNINGS` when unchanged-signature bound is hit, canary passes, and remaining signature severity is warning.
+17. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
+18. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` with rollback side-effect when unresolved iteration output is produced and `rollbackFailedChanges=true`.
+19. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure (without boundary-safe downgrade), low-confidence classification/root-cause hypothesis, or no-op patch.
 
 ## 6.3 Continue/stop logic
 
@@ -384,8 +395,9 @@ Stop otherwise with explicit reason.
 1. Determine upstream chain for `startFromAgent` using canonical pipeline ordering.
 2. For each upstream agent, resolve latest successful artifact payload from same `runId`.
 3. Normalize artifact payloads into orchestrator-context-compatible shapes.
-4. Mark missing required upstream artifacts as precheck errors when `hydratePriorFromRun=true`, unless boundary-safe canary downgrade policy applies.
-5. Persist hydration diagnostics in ledger for reproducibility.
+5. Mark missing required upstream artifacts as precheck errors when `hydratePriorFromRun=true`, unless boundary-safe canary downgrade policy applies.
+6. For legacy run layouts where no branch records exist, downgrade missing `Agent2b/2c/2d` as optional upstream warnings for downstream boundaries.
+7. Persist hydration diagnostics in ledger for reproducibility.
 
 ## 7.3 Log scraping
 

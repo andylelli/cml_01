@@ -108,14 +108,18 @@ function classifyMessage(agent, candidate) {
       stage: "clues",
       validator: candidate.source,
     }) ??
-    matchRule(lowered, /discriminating.*coverage|id coverage|coverage error/, {
+    matchRule(
+      lowered,
+      /discriminating[-\s]test\s+evidence\s+clue\s+id|discriminating\s+evidence\s+id\s+contract|missing\s+clue\s+id\(s\)|evidence_clues\s+id\s+must\s+exist|discriminating[-\s]id\s+gate\s+failed/,
+      {
       className: "agent5.discriminating_id_coverage",
       severity: "critical",
       kind: "error",
       confidence: 0.85,
       stage: "clues",
       validator: candidate.source,
-    }) ??
+      }
+    ) ??
     matchRule(lowered, /weak elimination evidence|suspect elimination coverage/, {
       className: "agent5.weak_elimination_evidence",
       severity: "critical",
@@ -124,7 +128,7 @@ function classifyMessage(agent, candidate) {
       stage: "clues",
       validator: candidate.source,
     }) ??
-    matchRule(lowered, /time style|digit-time|\b\d{1,2}:\d{2}\b/, {
+    matchRule(lowered, /era time-style gate failed|digit-based time notation|era-style worded time|agent 5 era time style/, {
       className: "agent5.time_style_violation",
       severity: "warning",
       kind: "warning",

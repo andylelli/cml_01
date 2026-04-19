@@ -30,12 +30,12 @@ describe("story length targets runtime config", () => {
 
     const baselineYaml = readFileSync(baselinePath, "utf8");
     const overriddenYaml = baselineYaml
-      .replace("short: 20", "short: 22")
-      .replace("medium: 30", "medium: 33")
-      .replace("long: 42", "long: 45")
+      .replace("chapter_count: 10", "chapter_count: 22")
+      .replace("chapter_count: 20", "chapter_count: 33")
+      .replace("chapter_count: 30", "chapter_count: 45")
       .replace("chapter_target_tolerance: 2", "chapter_target_tolerance: 4")
-      .replace("min_words: 15000", "min_words: 18000")
-      .replace("max_words: 25000", "max_words: 28000")
+      .replace("min_ratio: 0.75", "min_ratio: 0.68")
+      .replace("max_ratio: 1.25", "max_ratio: 1.32")
       .replace("chapter_ideal_words: 1000", "chapter_ideal_words: 1200");
 
     writeFileSync(configPath, overriddenYaml, "utf8");
@@ -57,16 +57,16 @@ describe("story length targets runtime config", () => {
     const resolved = getStoryLengthTarget("short");
     expect(meta.target.chapters).toBe(22);
     expect(meta.target.scenes).toBe(22);
-    expect(meta.target.minWords).toBe(18000);
-    expect(meta.target.maxWords).toBe(28000);
-    expect(meta.target.chapterMinWords).toBe(818);
+    expect(meta.target.minWords).toBe(17952);
+    expect(meta.target.maxWords).toBe(34848);
+    expect(meta.target.chapterMinWords).toBe(816);
     expect(meta.target.chapterIdealWords).toBe(1200);
-    expect(resolved.minWords).toBe(18000);
-    expect(resolved.maxWords).toBe(28000);
-    expect(resolved.chapterMinWords).toBe(818);
+    expect(resolved.minWords).toBe(17952);
+    expect(resolved.maxWords).toBe(34848);
+    expect(resolved.chapterMinWords).toBe(816);
     expect(resolved.chapterIdealWords).toBe(1200);
-    expect(meta.fingerprint).toContain("story_length_policy:short:22+/-4/18000-28000/818/1200");
-    expect(meta.fingerprint).toContain("short:22+/-4/18000-28000/818/1200");
+    expect(meta.fingerprint).toContain("story_length_policy:short:22+/-4/17952-34848/816/1200");
+    expect(meta.fingerprint).toContain("short:22+/-4/17952-34848/816/1200");
 
     rmSync(dir, { recursive: true, force: true });
   });

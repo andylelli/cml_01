@@ -124,7 +124,7 @@ async function persistCache(cache, workspaceRoot) {
 }
 
 function getCachePath(workspaceRoot) {
-  return path.join(workspaceRoot, "documentation", "analysis", "canary-loops", CACHE_FILE);
+  return path.join(workspaceRoot, "logs", "canary-loops", CACHE_FILE);
 }
 
 async function readJsonIfPresent(filePath) {

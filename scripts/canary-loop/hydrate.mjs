@@ -1,6 +1,8 @@
 import path from "path";
 import { parseAgentCode, PIPELINE_AGENT_ORDER, getCanonicalAgentForCode } from "./config.mjs";
 
+const LEGACY_OPTIONAL_UPSTREAM_CODES = new Set(["2b", "2c", "2d"]);
+
 export function buildHydrationBundle({
   artifactBundle,
   startFromAgentCode,
@@ -72,9 +74,15 @@ export function buildHydrationBundle({
   const records = Array.isArray(artifactBundle?.runState?.records)
     ? artifactBundle.runState.records
     : [];
+  const observedAgentCodes = new Set(
+    records
+      .map((record) => parseAgentCode(record?.agent))
+      .filter((code) => typeof code === "string" && code.length > 0)
+  );
 
   const hydratedArtifacts = {};
   const missingRequiredArtifacts = [];
+  const downgradedOptionalArtifacts = [];
 
   for (const upstreamCode of upstreamCodes) {
     const artifacts = resolveLatestAgentArtifacts({
@@ -85,6 +93,10 @@ export function buildHydrationBundle({
 
     const agentName = describeAgent(upstreamCode);
     if (!artifacts?.responseFilePath) {
+      if (canDowngradeLegacyOptionalUpstream({ upstreamCode, startFromAgentCode, observedAgentCodes })) {
+        downgradedOptionalArtifacts.push(agentName);
+        continue;
+      }
       missingRequiredArtifacts.push(agentName);
       continue;
     }
@@ -119,6 +131,14 @@ export function buildHydrationBundle({
     };
   }
 
+  if (downgradedOptionalArtifacts.length) {
+    warnings.push(
+      `Legacy run layout detected; downgraded missing optional upstream artifacts: ${downgradedOptionalArtifacts.join(
+        ", "
+      )}.`
+    );
+  }
+
   return {
     ok: true,
     errors: [],
@@ -130,11 +150,28 @@ export function buildHydrationBundle({
       hydratedArtifacts,
       missingRequiredArtifacts: [],
       integrity: {
-        partial: false,
+        partial: downgradedOptionalArtifacts.length > 0,
         warnings,
       },
     },
   };
+}
+
+function canDowngradeLegacyOptionalUpstream({ upstreamCode, startFromAgentCode, observedAgentCodes }) {
+  if (!LEGACY_OPTIONAL_UPSTREAM_CODES.has(upstreamCode)) {
+    return false;
+  }
+
+  // The 2b/2c/2d branches were introduced later in the pipeline. If the source
+  // run has no records for any branch-specific agents and we are hydrating for
+  // a downstream boundary, treat them as legacy-optional rather than required.
+  const startsDownstreamOfBranch = PIPELINE_AGENT_ORDER.indexOf(startFromAgentCode) > PIPELINE_AGENT_ORDER.indexOf("2d");
+  if (!startsDownstreamOfBranch) {
+    return false;
+  }
+
+  const hasAnyBranchRecords = ["2b", "2c", "2d"].some((code) => observedAgentCodes.has(code));
+  return !hasAnyBranchRecords;
 }
 
 function resolveLatestAgentArtifacts({ records, runFolder, upstreamCode }) {

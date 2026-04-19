@@ -50,10 +50,13 @@ Allow canary execution to begin at any registered agent while reusing previously
 4. Execute pipeline from `startFromAgent` through downstream stages.
 5. Keep retry/fix scope centered on the selected `agent`, but validate full downstream impact.
 
+Optional scope expansion behavior:
+- when `--autoExpandUpstreamScope=true`, the loop may move `startFromAgent` upstream if signature stage/class indicates upstream-generated data is likely causing the current agent failure.
+
 ### Hydration guarantees
 
 - Hydration must use artifacts from the same `runId`.
-- Missing required upstream artifacts fail precheck unless a deterministic fallback is explicitly defined for that upstream stage.
+- Missing required upstream artifacts normally fail precheck, but can be downgraded to warnings when the resolved canary command is boundary-safe (`canary-agent-boundary` or `canary-agent9`) and can self-hydrate runtime context.
 - Hydrated upstream artifacts are treated as read-only for the iteration unless the selected playbook explicitly targets upstream correction.
 
 ---
@@ -87,8 +90,14 @@ Each iteration follows this sequence:
 
 6. Compare result and decide
 - pass only when canary passes and unresolved errors/warnings are zero
+- return `pass_with_warnings` when canary passes but warning-level signature remains unchanged past `maxUnchanged`
+- normalize non-success canary outcomes to critical class `canary.execution_failure` before continuation/stop policy evaluation
 - otherwise continue if bounded progress conditions hold
 - stop on iteration/safety bounds
+
+7. Rollback unresolved implementation changes
+- when `--rollbackFailedChanges=true` (default), unresolved implementation edits are reverted before the next iteration/stop return
+- snapshots of reverted edits are archived under the active run folder for future consultation
 
 ---
 
@@ -100,6 +109,9 @@ A run is `pass` only when all are true:
 - unresolved warnings for the selected agent = `0`
 
 Warning handling is blocking in v1 (`warningBudget=0`).
+
+Bounded exception:
+- if canary passes and only warning-level signature remains unchanged past the unchanged-signature bound, the loop exits non-fatally as `pass_with_warnings`.
 
 ---
 
@@ -132,10 +144,17 @@ npm run canary:agent2e -- --runId <runId|latest>
 - `--resume <ledgerPath>` optional
 - `--overrideFileCap <n>` optional (explicit opt-in)
 - `--startChapter <n>` optional, Agent 9 only
+- `--confirmSharedEdits true|false` optional; required in apply mode when edits touch configured shared files
+- `--rollbackFailedChanges true|false` default `true`; rollback unresolved implementation changes and archive snapshots in the run folder
+- `--autoExpandUpstreamScope true|false` default `false`; auto-expand `--startFromAgent` upstream when signature stage indicates upstream-generated data is likely the root cause
+
+Implementation note:
+- `--canaryCommand` supports multi-token command values and consumes tokens until the next `--flag`.
+- archived rollback snapshots are written to `logs/canary-loops/<YYMMDD-HHMM[-nn]>/failed-changes/iterNN/` when unresolved implementation changes are reverted.
 
 ### Exit Codes
 
-- `0` pass
+- `0` success (`pass`, `pass_with_warnings`, or `suggest_plan_ready`)
 - `1` stopped by bounded failure/safety gate
 - `2` precheck or artifact resolution failure
 - `3` validation infrastructure failure (tests/canary command execution issue)
@@ -155,7 +174,7 @@ Rules:
 - if targeted tests are missing, the loop degrades to full tests (or fails if package mapping is unknown)
 - canary command fallback to an unrelated agent is not allowed
 - if `--startFromAgent` is provided, it must be a registered pipeline agent and not later than the selected `--agent` focus scope when strict mode is enabled
-- if `hydratePriorFromRun=true`, missing required upstream artifacts for `--startFromAgent` fail precheck
+- if `hydratePriorFromRun=true`, missing required upstream artifacts for `--startFromAgent` fail precheck unless boundary-safe canary downgrade applies (warning + continue)
 
 ---
 
@@ -188,14 +207,22 @@ The loop is safe-by-default:
 - per-iteration file-touch cap (default 4 files)
 - lock file to prevent concurrent loops on the same run
 - no-op edit detection to avoid useless churn
+- unresolved implementation changes are rolled back by default and archived in-run (`failed-changes/iterNN/`)
 
 ---
 
 ## Outputs
 
 Per execution, the loop writes:
-- JSONL ledger: `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.jsonl`
-- Markdown summary: `documentation/analysis/canary-loops/<timestamp>-<runId>-<agent>.md`
+- run folder: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/`
+- JSONL ledger: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
+- Markdown summary: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
+- Consolidated summaries: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json` and `.summary.md`
+
+Operational/support files in the same folder:
+- run-level rollups: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json` and `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
+- lock files: `logs/canary-loops/.locks/*`
+- signature cache: `logs/canary-loops/signature-fix-cache.json`
 
 Each ledger iteration records:
 - input/output signatures
@@ -204,7 +231,61 @@ Each ledger iteration records:
 - selected playbook/actions
 - changed files
 - test and canary outcomes
-- continue/pass/stop decision
+- continue/pass/pass_with_warnings/stop decision
+
+---
+
+## Relevant Log Files
+
+Use this map when triaging a failing or looping canary run.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
+  Canonical iteration ledger for a single loop execution. Check decisions, signatures, playbooks, and stop reason first.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
+  Human-readable per-run summary generated from the ledger.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
+  Structured summary artifact (when generated) for tooling/report aggregation.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.md`
+  Markdown summary companion to `.summary.json`.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json`
+  Aggregate summary across recent canary-loop runs in this workspace.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
+  Human-readable aggregate summary across recent runs.
+
+- `logs/canary-loops/.locks/*`
+  Concurrency lock artifacts. Inspect when a run appears stuck or reports lock contention.
+
+- `logs/canary-loops/signature-fix-cache.json`
+  Signature remediation cache used to reduce repeated classification/fix churn.
+
+- `documentation/prompts/actual/run_<id>/INDEX.md`
+  Index for captured prompt/response artifacts for a specific run.
+
+- `documentation/prompts/actual/run_<id>/*_request.md`
+  Per-agent request payload snapshots used for root-cause analysis and retry packet quality checks.
+
+- `documentation/prompts/actual/run_<id>/*_response.md`
+  Per-agent model response snapshots used to validate whether prompt-contract changes took effect.
+
+- `documentation/prompts/actual/run_<id>/.actual-run-state.json`
+  Run-state metadata captured alongside prompt artifacts.
+
+- `apps/api/data/reports/**/run_<id>.json`
+  Persisted API report fallback used when prompt artifacts are missing or incomplete.
+
+- `logs/activity.jsonl`
+  Application activity stream. Useful for correlating canary-loop timeline events with API/worker behavior.
+
+- `logs/llm.jsonl`
+  LLM interaction log stream for prompt/response diagnostics outside per-run artifact folders.
+
+- `logs/vitest-*.txt`
+  Test output captures used when validating targeted/full test behavior during remediation.
 
 ---
 
@@ -233,41 +314,95 @@ This keeps the system aligned with robust generation quality rather than sanitiz
 
 ## Typical Usage Patterns
 
-1. Diagnose only (no edits)
+1. Description: Diagnose a failure without applying any edits.
 
 ```bash
 npm run canary:agent-loop -- --runId latest --agent Agent5-ClueExtraction --mode suggest
 ```
 
-2. Apply bounded fixes for one failure class
+Breakdown:
+- `npm run canary:agent-loop --` launches the loop CLI and passes remaining args through.
+- `--runId latest` analyzes the most recent run artifacts.
+- `--agent Agent5-ClueExtraction` scopes diagnosis to Agent 5 signatures/playbooks.
+- `--mode suggest` produces recommendations only (no file edits).
+
+2. Description: Apply bounded fixes for one failure class.
 
 ```bash
 npm run canary:agent-loop -- --runId run_20260415_1930 --agent Agent5-ClueExtraction --maxIterations 5 --testScope targeted
 ```
 
-3. Agent 9 partial restart from chapter boundary
+Breakdown:
+- `--runId run_20260415_1930` pins to a specific historical run.
+- `--agent Agent5-ClueExtraction` targets Agent 5 remediation policy.
+- `--maxIterations 5` caps retry attempts.
+- `--testScope targeted` runs mapped targeted tests instead of full-suite tests.
+
+3. Description: Run a full pipeline retry from Agent 1 through Agent 9, with Agent 9 as decision focus.
+
+```bash
+npm run canary:agent-loop -- --runId latest --agent Agent9-Prose --startFromAgent Agent1-SettingRefiner --hydratePriorFromRun true --maxIterations 5 --testScope full
+```
+
+Breakdown:
+- `--agent Agent9-Prose` sets final focus/stop policy at the prose stage.
+- `--startFromAgent Agent1-SettingRefiner` re-executes the full downstream pipeline from Agent 1.
+- `--hydratePriorFromRun true` loads any required upstream artifacts from the same run when available.
+- `--maxIterations 5` keeps retries bounded.
+- `--testScope full` runs full validation coverage each iteration.
+
+4. Description: Agent 9 partial restart from a chapter boundary.
 
 ```bash
 npm run canary:agent-loop -- --runId run_20260415_2026 --agent Agent9-Prose --startChapter 9 --maxIterations 3
 ```
 
-4. Restrict editable files for high-safety runs
+Breakdown:
+- `--startChapter 9` restarts prose remediation at chapter 9 (1-based).
+- `--agent Agent9-Prose` enables Agent 9 chapter-aware contracts.
+- `--maxIterations 3` limits retries for quick, bounded chapter recovery.
+
+5. Description: Restrict editable files for high-safety runs.
 
 ```bash
 npm run canary:agent-loop -- --runId latest --agent Agent6-FairPlay --allowFiles "packages/prompts-llm/src/**,packages/story-validation/src/**"
 ```
 
-5. Start execution at Agent 2e using run hydration (shortcut script)
+Breakdown:
+- `--agent Agent6-FairPlay` targets fair-play validation signatures.
+- `--allowFiles "..."` constrains edits to prompt and validation package paths.
+- `--runId latest` uses the newest run to reduce operator lookup overhead.
+
+6. Description: Start execution at Agent 2e using the shortcut script.
 
 ```bash
 npm run canary:agent2e -- --runId run_20260417-2110_20f9ca27
 ```
 
-6. Start execution at Agent 5 and hydrate Agent 1/2/2e/3b/3 outputs from the same run
+Breakdown:
+- `canary:agent2e` preconfigures `--agent` and `--startFromAgent` for Agent 2e.
+- `--runId run_20260417-2110_20f9ca27` selects the run to hydrate/analyze.
+
+7. Description: Start execution at Agent 5 and hydrate upstream outputs from the same run.
 
 ```bash
 npm run canary:agent-loop -- --runId run_20260417-2110_20f9ca27 --agent Agent5-ClueExtraction --startFromAgent Agent5-ClueExtraction --hydratePriorFromRun true
 ```
+
+Breakdown:
+- `--startFromAgent Agent5-ClueExtraction` resumes pipeline execution at Agent 5.
+- `--hydratePriorFromRun true` injects required upstream artifacts from the same `runId`.
+- `--agent Agent5-ClueExtraction` keeps retry focus on Agent 5 signatures.
+
+8. Description: Run the full baseline canary once (no retry loop).
+
+```bash
+npm run canary:core
+```
+
+Breakdown:
+- `canary:core` builds `@cml/worker` then executes `scripts/canary-core.mjs`.
+- This is useful as a clean full-run baseline before or after loop-based remediation.
 
 ---
 
@@ -292,8 +427,8 @@ npm run canary:agent-loop -- --runId run_20260417-2110_20f9ca27 --agent Agent5-C
 
 ## Current Repository Note
 
-At the time of writing, `package.json` exposes `canary:core` as the shared concrete canary command.
+The repository currently exposes `canary:agent-loop` and per-agent wrappers (`canary:agent1`, `canary:agent2`, `canary:agent2b`, `canary:agent2c`, `canary:agent2d`, `canary:agent2e`, `canary:agent3`, `canary:agent3b`, `canary:agent4`, `canary:agent5`, `canary:agent6`, `canary:agent65`, `canary:agent7`, `canary:agent9`) in `package.json`.
 
-The `canary:agent-loop` command and full all-agent map are defined by the canary-loop design and should be wired in scripts/config as implementation lands.
+Boundary-safe agent mappings use `scripts/canary-agent-boundary.mjs --agent <code>` for most agents, while Agent 9 uses `scripts/canary-agent9.mjs`.
 
-The per-agent shortcuts (for example `canary:agent2e`) and `startFromAgent + hydratePriorFromRun` execution path are specified behavior and should be treated as required wiring targets.
+`canary:core` still exists, but selected-agent loop execution is expected to run through the mapped per-agent canary commands.

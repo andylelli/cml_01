@@ -10,32 +10,6 @@
 # - Agent 1-9 sections below are runtime-consumed by their corresponding
 #   generation/audit paths.
 
-story_length_policy:
-  # Chapter / scene targets for each story length.
-  # Scenes === chapters: agent7 generates exactly `targets.X` scenes,
-  # agent9 converts each scene 1:1 into a prose chapter.
-  targets:
-    short: 20
-    medium: 30
-    long: 42
-  # Allowed +/- deviation used only by the prose scorer completeness check.
-  # The narrative scorer (agent7) enforces zero-tolerance exact match.
-  chapter_target_tolerance: 2
-  # Word budget targets for each story length.
-  word_targets:
-    short:
-      min_words: 15000
-      max_words: 25000
-      chapter_ideal_words: 1000
-    medium:
-      min_words: 40000
-      max_words: 60000
-      chapter_ideal_words: 1700
-    long:
-      min_words: 70000
-      max_words: 100000
-      chapter_ideal_words: 2200
-
 agent1_setting:
   status: implemented
   params:
@@ -198,36 +172,56 @@ agent8_novelty:
       structural: 0.05
 
 agent9_prose:
-  word_policy:
-    # Hard floor (chapter pre-commit gate) = floor(preferred_chapter_words * ratio)
-    # 0.77 gives short:1001 / medium:1232 / long:1848
-    # Supported range: 0.0 - 1.0
-    hard_floor_relaxation_ratio: 0.4
-    # Absolute lower bound for hard-floor words after ratio is applied
-    # Supported range: 200 - 2000
-    min_hard_floor_words: 600
-    # Preferred chapter density targets (soft-pressure + diagnostics)
-    preferred_chapter_words:
-      short: 1300
-      medium: 1600
-      long: 2400
+  story_length_policy:
+    # Narrative/prose sizing policy by story length.
+    # Scenes == chapters: Agent7 emits one scene per chapter and Agent9 keeps a 1:1 mapping.
+    # chapter_target_tolerance is used by completeness scoring only.
+    chapter_target_tolerance: 2
+    # Per-length chapter plan.
+    # total_ideal_words = chapter_count * chapter_ideal_words
+    word_targets:
+      short:
+        chapter_ideal_words: 1000
+        chapter_count: 10
+      medium:
+        chapter_ideal_words: 1700
+        chapter_count: 20
+      long:
+        chapter_ideal_words: 2200
+        chapter_count: 30
+
+    # Derived total-word bounds as ratios of total ideal words.
+    # total_min_words = floor(chapter_count * chapter_ideal_words * min_ratio)
+    # total_max_words = ceil(chapter_count * chapter_ideal_words * max_ratio)
+    total_word_budget_ratio:
+      # Supported range: 0.1 - 2.0
+      min_ratio: 0.75
+      # Supported range: 0.2 - 3.0
+      max_ratio: 1.25
 
   underflow_expansion:
     # Master switch — set to false to skip the expansion LLM call entirely.
-    # When disabled, chapters below hard floor or preferred target go straight to retry.
+    # When disabled, under-target chapters go straight to retry.
     enabled: false
-    # Expansion hint sizing for chapter-local underflow recovery
-    # Supported range: 50 - 2000
-    min_additional_words: 260
-    # Supported range: 100 - 4000
-    max_additional_words: 900
-    # Supported range: 0 - 3000
-    buffer_words: 280
+    # Ratio-based expansion sizing relative to chapter_ideal_words.
+    # min_additional_words = floor(chapter_ideal_words * min_additional_words_ratio)
+    # max_additional_words = ceil(chapter_ideal_words * max_additional_words_ratio)
+    # buffer_words = round(chapter_ideal_words * buffer_words_ratio)
+    expansion_size_ratio:
+      # Supported range: 0.01 - 1.50
+      min_additional_words_ratio: 0.16
+      # Supported range: 0.05 - 3.00
+      max_additional_words_ratio: 0.56
+      # Supported range: 0.00 - 2.00
+      buffer_words_ratio: 0.18
     # LLM call tuning for underflow expansion path
     # Supported range: 0.0 - 1.0
     temperature: 0.18
-    # Supported range: 500 - 16000
-    max_tokens: 3000
+    # Ratio-based token budget for the expansion call.
+    # max_tokens = ceil(chapter_ideal_words * max_tokens_ratio)
+    # Example (medium, 1700 ideal words): 1700 * 1.76 ~= 3000 tokens.
+    # Supported range: 0.5 - 10.0
+    max_tokens_ratio: 1.76
     # Only fire expansion for preferred-miss (non-hard-floor) chapters when the chapter is
     # below this fraction of the preferred word target. Prevents expansion from firing on
     # every chapter just because they are marginally below the aspirational preferred count.
