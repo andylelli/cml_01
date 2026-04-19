@@ -46,12 +46,18 @@
 - `--startChapter <n>` optional; Agent 9 only (1-based chapter index)
 - `--confirmSharedEdits true|false` default `false`; required when apply mode touches configured shared files
 
+Implementation note:
+- `--canaryCommand` accepts multi-token command values and is parsed as a joined token sequence until the next `--flag`.
+
 ## 2.2.1 Per-agent shortcut scripts (required command surface)
 
 The CLI must expose per-agent convenience wrappers for resume execution. Example names:
 
 - `npm run canary:agent1`
 - `npm run canary:agent2`
+- `npm run canary:agent2b`
+- `npm run canary:agent2c`
+- `npm run canary:agent2d`
 - `npm run canary:agent2e`
 - `npm run canary:agent3`
 - `npm run canary:agent3b`
@@ -89,7 +95,7 @@ Each wrapper resolves to `canary:agent-loop` with:
 
 ## 2.4 Exit Codes
 
-- `0`: passed (canary pass)
+- `0`: success terminal outcome (`pass`, `pass_with_warnings`, or `suggest_plan_ready`)
 - `1`: stopped due to bounded failure or safety gate
 - `2`: preflight or artifact resolution failure
 - `3`: validation command infrastructure failure (test/canary command could not execute)
@@ -251,7 +257,7 @@ Defaults, agent-to-command map, allowed paths.
   tests: Array<{ command: string, passed: boolean, summary: string }>,
   canary: { command: string, passed: boolean, summary: string },
   outputSignature?: FailureSignature,
-  decision: "continue" | "pass" | "stop",
+  decision: "continue" | "pass" | "pass_with_warnings" | "stop",
   stopReason?: string
 }
 ```
@@ -274,6 +280,7 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 - `cml.required_evidence_missing`
 - `cml.schema_required_field_missing`
 - `orchestrator.backfill_threshold_breach`
+- `canary.execution_failure`
 - `unknown.pipeline_failure`
 
 ## 5.2 Signature extraction precedence
@@ -295,8 +302,8 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 
 1. Both errors and warnings are classified and tracked as first-class signatures.
 2. For targeted agent loops, unresolved warnings are blocking by default (`warningBudget=0`).
-3. Pass criteria require zero unresolved errors, zero unresolved warnings for the selected agent, and canary pass.
-4. Optional future mode may allow non-blocking warnings, but not in v1.
+3. Primary pass criteria require zero unresolved errors, zero unresolved warnings for the selected agent, and canary pass.
+4. Bounded exception: if canary passes and warning-level signature remains unchanged beyond `maxUnchanged`, loop returns non-fatal `pass_with_warnings` instead of hard stop.
 
 ---
 
@@ -316,6 +323,7 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 - `RUN_CANARY`
 - `COMPARE_SIGNATURE`
 - `STOP_PASS`
+- `STOP_PASS_WITH_WARNINGS`
 - `STOP_FAIL`
 
 ## 6.2 Transition rules
@@ -323,18 +331,20 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 1. `PRECHECK -> LOAD_ARTIFACTS` if CLI is valid.
 2. `LOAD_ARTIFACTS -> HYDRATE_CONTEXT` if artifacts resolved.
 3. `HYDRATE_CONTEXT -> CLASSIFY_FAILURE` if required upstream dependencies are hydrated.
-4. `HYDRATE_CONTEXT -> STOP_FAIL` on missing required upstream artifacts under `hydratePriorFromRun=true`.
-5. `CLASSIFY_FAILURE -> ROOT_CAUSE_ANALYSIS` when signature found and `confidence >= MIN_CONFIDENCE`.
-6. `CLASSIFY_FAILURE -> STOP_FAIL` when signature confidence is below `MIN_CONFIDENCE` (default `0.6`).
-7. `ROOT_CAUSE_ANALYSIS -> BUILD_RETRY_PACKET` when root cause hypothesis confidence is acceptable (default `>=0.7`).
-8. `BUILD_RETRY_PACKET -> PLAN_FIX` after packet integrity checks pass.
-9. `PLAN_FIX -> APPLY_FIX` only in `apply` mode; otherwise emit plan and stop.
-10. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
-11. `RUN_TESTS -> RUN_CANARY` only when tests pass.
-12. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
-13. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
-14. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
-15. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure, or low-confidence root-cause hypothesis.
+4. `HYDRATE_CONTEXT -> CLASSIFY_FAILURE` with warning downgrade when required upstream artifacts are missing but resolved canary command is boundary-safe (`canary-agent-boundary` or `canary-agent9`) and can self-hydrate context.
+5. `HYDRATE_CONTEXT -> STOP_FAIL` on missing required upstream artifacts under `hydratePriorFromRun=true` when boundary-safe downgrade is not applicable.
+6. `CLASSIFY_FAILURE -> ROOT_CAUSE_ANALYSIS` when signature found and `confidence >= MIN_CONFIDENCE`.
+7. `CLASSIFY_FAILURE -> STOP_FAIL` when signature confidence is below `MIN_CONFIDENCE` (default `0.6`).
+8. `ROOT_CAUSE_ANALYSIS -> BUILD_RETRY_PACKET` when root cause hypothesis confidence is acceptable (default `>=0.7`).
+9. `BUILD_RETRY_PACKET -> PLAN_FIX` after packet integrity checks pass.
+10. `PLAN_FIX -> APPLY_FIX` only in `apply` mode; otherwise emit plan and stop.
+11. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
+12. `RUN_TESTS -> RUN_CANARY` only when tests pass.
+13. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
+14. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
+15. `COMPARE_SIGNATURE -> STOP_PASS_WITH_WARNINGS` when unchanged-signature bound is hit, canary passes, and remaining signature severity is warning.
+16. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
+17. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure (without boundary-safe downgrade), low-confidence classification/root-cause hypothesis, or no-op patch.
 
 ## 6.3 Continue/stop logic
 
@@ -344,6 +354,9 @@ Continue if all true:
 3. No new higher-severity class when `stopOnNewFailureClass=true`
 4. Latest output signature confidence remains `>= MIN_CONFIDENCE`
 5. Warning signatures are strictly decreasing and not stuck unchanged beyond `maxUnchanged`
+
+Output signature normalization rule:
+1. If validation canary is non-success (`passed !== true`, non-zero exit code, or failure-like status), output signature is forced to class `canary.execution_failure` with critical severity before continuation policy checks.
 
 Stop otherwise with explicit reason.
 
@@ -371,7 +384,7 @@ Stop otherwise with explicit reason.
 1. Determine upstream chain for `startFromAgent` using canonical pipeline ordering.
 2. For each upstream agent, resolve latest successful artifact payload from same `runId`.
 3. Normalize artifact payloads into orchestrator-context-compatible shapes.
-4. Mark missing required upstream artifacts as precheck errors when `hydratePriorFromRun=true`.
+4. Mark missing required upstream artifacts as precheck errors when `hydratePriorFromRun=true`, unless boundary-safe canary downgrade policy applies.
 5. Persist hydration diagnostics in ledger for reproducibility.
 
 ## 7.3 Log scraping
