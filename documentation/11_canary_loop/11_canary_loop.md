@@ -132,7 +132,10 @@ npm run canary:agent2e -- --runId <runId|latest>
 - `--runId <id|latest>` required
 - `--agent <name>` required
 - `--startFromAgent <name>` optional (defaults to `--agent`)
+- `--yaml <file>` optional; load run request fields from a YAML file. Relative paths resolve under `scripts/canary-loop/`.
+- `--inputYaml <file>` optional legacy alias for `--yaml`.
 - `--hydratePriorFromRun true|false` default `true`
+- `--quickRun true|false` default `false`; enables a fast-path preset that minimizes unnecessary reruns
 - `--mode suggest|apply` default `apply`
 - `--maxIterations <n>` default `5`
 - `--maxUnchanged <n>` default `2`
@@ -147,6 +150,24 @@ npm run canary:agent2e -- --runId <runId|latest>
 - `--confirmSharedEdits true|false` optional; required in apply mode when edits touch configured shared files
 - `--rollbackFailedChanges true|false` default `true`; rollback unresolved implementation changes and archive snapshots in the run folder
 - `--autoExpandUpstreamScope true|false` default `false`; auto-expand `--startFromAgent` upstream when signature stage indicates upstream-generated data is likely the root cause
+
+Quick run preset behavior (`--quickRun=true`):
+- pins `--startFromAgent` to the selected `--agent` boundary
+- forces `--hydratePriorFromRun=true`
+- forces runtime upstream hydration mode (`CANARY_FORCE_FRESH_UPSTREAM=false`)
+- disables broadening/escalation paths that increase rerun scope (`--autoExpandUpstreamScope=false`, `--enableMajorRework=false`)
+- forces targeted tests and tight unchanged stopping (`--testScope=targeted`, `maxUnchanged<=1`)
+
+Terminal major-rework reset behavior:
+- when `enableMajorRework=true`, the loop forces major-rework escalation on the terminal iteration
+- if that terminal major-rework attempt still hits an iteration-budget stop (`maxIterations` or `maxUnchanged`), the loop resets the iteration counter to `0` once and starts a fresh apply window
+- safety stops like low-confidence signatures are not reset
+
+YAML request file behavior:
+- YAML root must be an object with the same keys accepted by CLI flags (`runId`, `agent`, `startFromAgent`, `mode`, `maxIterations`, `maxUnchanged`, `testScope`, `quickRun`, `enableMajorRework`, etc.)
+- YAML may be either root-level fields or `{ inputs: { ... } }`
+- if `agent` or `startFromAgent` is blank in YAML, the CLI prompts at runtime in interactive terminals
+- CLI flags override YAML values when both are provided
 
 Implementation note:
 - `--canaryCommand` supports multi-token command values and consumes tokens until the next `--flag`.
@@ -217,6 +238,7 @@ Per execution, the loop writes:
 - run folder: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/`
 - JSONL ledger: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
 - Markdown summary: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
+- Major rework detail log: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.jsonl` and `.md`
 - Consolidated summaries: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json` and `.summary.md`
 
 Operational/support files in the same folder:
@@ -244,6 +266,12 @@ Use this map when triaging a failing or looping canary run.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
   Human-readable per-run summary generated from the ledger.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.md`
+  Dedicated major-rework narrative by iteration (selection rationale, terminal-force status, reset behavior, scope, and rework brief links).
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.jsonl`
+  Structured major-rework iteration records for tooling/analysis.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
   Structured summary artifact (when generated) for tooling/report aggregation.

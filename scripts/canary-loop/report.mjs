@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { parseJsonText } from "./json.mjs";
 
 const RUN_SUMMARY_PREFIX = "canary-run-summary";
 const ATTEMPT_HISTORY_PREFIX = "canary-attempt-history";
@@ -72,6 +73,7 @@ async function buildAttemptHistory(ledger) {
       outputSignatureClass: outputClass,
       changedFiles: Array.isArray(entry?.changedFiles) ? entry.changedFiles : [],
       selectedPlaybooks: Array.isArray(entry?.selectedPlaybooks) ? entry.selectedPlaybooks : [],
+      featureSnapshot: entry?.featureSnapshot ?? null,
       patchStagingFiles: patchStaging
         .filter((item) => item.iteration === iteration)
         .map((item) => item.path),
@@ -140,7 +142,7 @@ async function readRollbackArtifacts(outDir) {
     const manifestPath = path.join(artifactDir, "manifest.json");
     let manifest = null;
     try {
-      manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
+      manifest = parseJsonText(await fs.readFile(manifestPath, "utf8"));
     } catch {
       manifest = null;
     }
@@ -194,6 +196,7 @@ function buildRunSummary(ledger) {
   const resumeFingerprintMismatchCount = entries.filter((entry) =>
     String(entry.stopReason ?? "").includes("fingerprint mismatch")
   ).length;
+  const featureNarrative = buildFeatureNarrative(entries);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -211,7 +214,132 @@ function buildRunSummary(ledger) {
     statusCounts,
     stopReasonCounts,
     signatureCounts,
+    featureNarrative,
   };
+}
+
+function buildFeatureNarrative(entries) {
+  const all = Array.isArray(entries) ? entries : [];
+  const snapshots = all
+    .map((entry) => entry?.featureSnapshot)
+    .filter(Boolean);
+  if (!snapshots.length) {
+    return {
+      available: false,
+      enabled: {},
+      scope: {},
+      observed: {},
+      narrative: [
+        "Feature narrative unavailable for this run because entries predate feature-snapshot instrumentation.",
+      ],
+    };
+  }
+
+  const first = snapshots[0] ?? {};
+  const firstEnabled = first.enabled ?? {};
+  const firstScope = first.scope ?? {};
+
+  const majorReworkIterations = all.filter((entry) =>
+    (entry?.selectedPlaybooks ?? []).some((id) => String(id).startsWith("pb.rework."))
+  ).length;
+  const escalationCounts = countBy(
+    snapshots
+      .map((snapshot) => String(snapshot?.observed?.escalationStage ?? "none"))
+      .filter(Boolean)
+  );
+  const cacheHitIterations = snapshots.filter((snapshot) => snapshot?.observed?.usedCachedFix === true).length;
+  const oscillationSignalIterations = snapshots.filter(
+    (snapshot) => snapshot?.observed?.oscillationDetected === true
+  ).length;
+  const historicalIntelIterations = snapshots.filter((snapshot) => {
+    const observed = snapshot?.observed ?? {};
+    return Number(observed.historicalFailureCount ?? 0) > 0 || Number(observed.priorRunFailedPlaybooksCount ?? 0) > 0;
+  }).length;
+  const rollbackIterations = all.filter((entry) =>
+    (entry?.plannedActions ?? []).some((action) => /^Rolled back\s+\d+/i.test(String(action)))
+  ).length;
+  const partialRollbackIterations = all.filter((entry) =>
+    (entry?.plannedActions ?? []).some((action) => /partial-win/i.test(String(action)))
+  ).length;
+  const autoExpandedTo = String(firstScope.autoExpandedTo ?? "").trim();
+
+  return {
+    available: true,
+    enabled: {
+      hydratePriorFromRun: firstEnabled.hydratePriorFromRun === true,
+      rollbackFailedChanges: firstEnabled.rollbackFailedChanges === true,
+      partialRollbackEnabled: firstEnabled.partialRollbackEnabled === true,
+      autoExpandUpstreamScope: firstEnabled.autoExpandUpstreamScope === true,
+      enableMajorRework: firstEnabled.enableMajorRework !== false,
+    },
+    scope: {
+      selectedAgent: String(firstScope.selectedAgent ?? ""),
+      requestedStartBoundary: String(firstScope.requestedStartBoundary ?? ""),
+      effectiveStartBoundary: String(firstScope.effectiveStartBoundary ?? ""),
+      isBroadScopeBoundary: firstScope.isBroadScopeBoundary === true,
+      autoExpandedBoundary: autoExpandedTo || null,
+    },
+    observed: {
+      majorReworkIterations,
+      rollbackIterations,
+      partialRollbackIterations,
+      cacheHitIterations,
+      oscillationSignalIterations,
+      historicalIntelIterations,
+      escalationCounts,
+    },
+    narrative: buildFeatureNarrativeLines({
+      enabled: {
+        hydratePriorFromRun: firstEnabled.hydratePriorFromRun === true,
+        rollbackFailedChanges: firstEnabled.rollbackFailedChanges === true,
+        partialRollbackEnabled: firstEnabled.partialRollbackEnabled === true,
+        autoExpandUpstreamScope: firstEnabled.autoExpandUpstreamScope === true,
+        enableMajorRework: firstEnabled.enableMajorRework !== false,
+      },
+      scope: {
+        selectedAgent: String(firstScope.selectedAgent ?? ""),
+        requestedStartBoundary: String(firstScope.requestedStartBoundary ?? ""),
+        effectiveStartBoundary: String(firstScope.effectiveStartBoundary ?? ""),
+        isBroadScopeBoundary: firstScope.isBroadScopeBoundary === true,
+        autoExpandedBoundary: autoExpandedTo || null,
+      },
+      observed: {
+        majorReworkIterations,
+        rollbackIterations,
+        partialRollbackIterations,
+        cacheHitIterations,
+        oscillationSignalIterations,
+        historicalIntelIterations,
+      },
+    }),
+  };
+}
+
+function buildFeatureNarrativeLines({ enabled, scope, observed }) {
+  const lines = [];
+  lines.push(
+    `Deep changes (major rework): ${enabled.enableMajorRework ? "enabled" : "disabled"}; selected in ${observed.majorReworkIterations} iteration(s).`
+  );
+  lines.push(
+    `Scope boundary: requested='${scope.requestedStartBoundary || "n/a"}', effective='${scope.effectiveStartBoundary || "n/a"}', selected='${scope.selectedAgent || "n/a"}', broad-scope boundary=${scope.isBroadScopeBoundary}.`
+  );
+  if (scope.autoExpandedBoundary) {
+    lines.push(`Auto-expand upstream scope: enabled and applied to '${scope.autoExpandedBoundary}'.`);
+  } else {
+    lines.push(
+      `Auto-expand upstream scope: ${enabled.autoExpandUpstreamScope ? "enabled but not triggered" : "disabled"}.`
+    );
+  }
+  lines.push(
+    `Rollback behavior: rollback=${enabled.rollbackFailedChanges}, partialRollback=${enabled.partialRollbackEnabled}, rollback events=${observed.rollbackIterations}, partial-win keep events=${observed.partialRollbackIterations}.`
+  );
+  lines.push(
+    `Historical intelligence: used in ${observed.historicalIntelIterations} iteration(s); cache hits in ${observed.cacheHitIterations} iteration(s); oscillation signals in ${observed.oscillationSignalIterations} iteration(s).`
+  );
+  lines.push(
+    `Hydration mode: prior-run hydration is ${enabled.hydratePriorFromRun ? "enabled" : "disabled"}.`
+  );
+  return lines;
 }
 
 async function buildGlobalSummary(workspaceRoot) {
@@ -221,7 +349,7 @@ async function buildGlobalSummary(workspaceRoot) {
   const summaries = [];
   for (const filePath of summaryFiles) {
     try {
-      const payload = JSON.parse(await fs.readFile(filePath, "utf8"));
+      const payload = parseJsonText(await fs.readFile(filePath, "utf8"));
       summaries.push(payload);
     } catch {
       // Skip malformed summary payloads.
@@ -308,6 +436,16 @@ function renderRunSummaryMarkdown(summary) {
     lines.push(`- ${key}: ${value}`);
   }
 
+  lines.push("", "## Feature Narrative", "");
+  const featureLines = summary.featureNarrative?.narrative ?? [];
+  if (!featureLines.length) {
+    lines.push("- Feature narrative unavailable for this run (older ledger format).", "");
+  } else {
+    for (const line of featureLines) {
+      lines.push(`- ${line}`);
+    }
+  }
+
   return `${lines.join("\n")}\n`;
 }
 
@@ -381,6 +519,25 @@ function renderAttemptHistoryMarkdown(history) {
         for (const restored of attempt.rollback.restoredFiles) {
           lines.push(`  - ${restored.path} (${restored.action})`);
         }
+      }
+    }
+
+    const snapshot = attempt.featureSnapshot ?? null;
+    if (snapshot) {
+      const enabled = snapshot.enabled ?? {};
+      const observed = snapshot.observed ?? {};
+      const scope = snapshot.scope ?? {};
+      lines.push(
+        `- feature summary: escalation='${observed.escalationStage ?? "none"}', majorReworkSelected=${observed.majorReworkSelected === true}, cachedFix=${observed.usedCachedFix === true}, promptRetries=${Number(observed.promptRetryCount ?? 0)}, historicalFailures=${Number(observed.historicalFailureCount ?? 0)}`
+      );
+      lines.push(
+        `- feature flags: majorRework=${enabled.enableMajorRework === true}, partialRollback=${enabled.partialRollbackEnabled === true}, autoExpand=${enabled.autoExpandUpstreamScope === true}, rollback=${enabled.rollbackFailedChanges === true}`
+      );
+      lines.push(
+        `- feature scope: requested='${scope.requestedStartBoundary ?? ""}', effective='${scope.effectiveStartBoundary ?? ""}', selected='${scope.selectedAgent ?? ""}'`
+      );
+      if (scope.autoExpandedTo) {
+        lines.push(`- feature scope: auto-expanded to '${scope.autoExpandedTo}'`);
       }
     }
 

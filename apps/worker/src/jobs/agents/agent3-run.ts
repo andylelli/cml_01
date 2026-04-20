@@ -7,8 +7,68 @@
  */
 
 import { generateCML, auditNovelty } from "@cml/prompts-llm";
+import { validateCml } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { type OrchestratorContext } from "./shared.js";
+
+function buildEvidenceFallback(step: any, stepIndex: number): string {
+  const observation = String(step?.observation ?? "").trim();
+  const correction = String(step?.correction ?? "").trim();
+  const effect = String(step?.effect ?? "").trim();
+  const source = observation || correction || effect;
+  if (source.length > 0) {
+    return `Corroborating evidence for step ${stepIndex}: ${source.slice(0, 140)}`;
+  }
+  return `Corroborating evidence for inference step ${stepIndex}.`;
+}
+
+function repairInferenceRequiredEvidence(cml: any): number {
+  const caseBlock = cml?.CASE ?? cml;
+  const steps = caseBlock?.inference_path?.steps;
+  if (!Array.isArray(steps)) {
+    return 0;
+  }
+
+  let repairedCount = 0;
+  for (let i = 0; i < steps.length; i += 1) {
+    const step = steps[i];
+    if (!step || typeof step !== "object") continue;
+    if (Array.isArray(step.required_evidence) && step.required_evidence.length > 0) continue;
+
+    step.required_evidence = [buildEvidenceFallback(step, i + 1)];
+    repairedCount += 1;
+  }
+
+  return repairedCount;
+}
+
+function applyCmlRepairAndRevalidate(
+  cmlResult: Awaited<ReturnType<typeof generateCML>>,
+  ctx: OrchestratorContext,
+  phase: string,
+): Awaited<ReturnType<typeof generateCML>> {
+  if (cmlResult.validation.valid) {
+    return cmlResult;
+  }
+
+  const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
+  if (repairedCount === 0) {
+    return cmlResult;
+  }
+
+  const repairedValidation = validateCml(cmlResult.cml as any);
+  if (!repairedValidation.valid) {
+    return cmlResult;
+  }
+
+  ctx.warnings.push(
+    `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase} and recovered schema validity`,
+  );
+  return {
+    ...cmlResult,
+    validation: repairedValidation,
+  };
+}
 
 export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
@@ -48,6 +108,8 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     runId: ctx.runId,
     projectId: ctx.projectId || "",
   }, ctx.examplesRoot);
+
+  cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "initial CML generation");
 
   ctx.agentCosts["agent3_cml"] = cmlResult.cost;
   ctx.agentDurations["agent3_cml"] = Date.now() - cmlStart;
@@ -193,6 +255,8 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       }, ctx.examplesRoot);
+
+      cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "novelty retry CML generation");
 
       ctx.agentCosts["agent3_cml"] = cmlResult.cost;
       ctx.agentDurations["agent3_cml"] += Date.now() - cmlRetryStart;

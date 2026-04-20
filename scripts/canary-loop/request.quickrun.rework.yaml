@@ -1,0 +1,64 @@
+# Target run ID to analyze. Use "latest" to auto-resolve the newest run.
+runId: run_0cbde23a-2cd5-4b11-81bf-73982c2c16e4
+
+# Selected worker agent to fix/test (for example Agent6-FairPlay).
+# Leave blank to be prompted at runtime in interactive terminals.
+agent: ""
+
+# Boundary agent to start hydration/replay from.
+# Leave blank to default/prompt to the selected agent.
+startFromAgent: ""
+
+# Loop mode: "apply" writes changes; "suggest" only plans fixes.
+mode: apply
+
+# Reuse upstream artifacts from the prior run when available.
+hydratePriorFromRun: true
+
+# Fast-path preset: narrows scope, uses targeted tests, and reduces churn.
+quickRun: true
+
+# Allow major rework escalation when normal playbooks do not converge.
+enableMajorRework: true
+
+# Maximum loop iterations before stopping.
+maxIterations: 5
+
+# Stop after this many unchanged failure signatures.
+maxUnchanged: 1
+
+# Validation scope: "targeted" (agent tests) or "full" (broader suite).
+testScope: targeted
+
+# Optional explicit canary command override. Blank uses per-agent default.
+canaryCommand: ""
+
+# Stop immediately when a new failure class appears.
+stopOnNewFailureClass: true
+
+# Optional comma-separated allowlist globs for files that may be edited.
+allowFiles: ""
+
+# Optional comma-separated denylist globs for files that must not be edited.
+denyFiles: ""
+
+# Optional ledger path to resume a prior canary loop.
+resume: ""
+
+# Optional explicit patch file-cap override.
+overrideFileCap: ""
+
+# Optional Agent9-only chapter boundary (integer >= 1).
+startChapter: ""
+
+# Required true when apply-mode edits touch configured shared files.
+confirmSharedEdits: true
+
+# Roll back unresolved implementation changes after failed iterations.
+rollbackFailedChanges: true
+
+# Keep successful file edits while rolling back only failed ones.
+partialRollbackEnabled: false
+
+# Auto-expand start boundary upstream when analysis indicates upstream root cause.
+autoExpandUpstreamScope: true

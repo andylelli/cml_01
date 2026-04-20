@@ -5,6 +5,11 @@ import {
   MAX_FILES_PER_ITERATION,
   SHARED_FILE_CONFIRM_GLOBS,
 } from "./config.mjs";
+import {
+  buildMajorReworkPacket,
+  hasMajorReworkPlaybook,
+  renderMajorReworkBrief,
+} from "./rework.mjs";
 
 const DEFAULT_ALLOW_GLOBS = [
   "scripts/**",
@@ -55,6 +60,7 @@ export async function applyPlaybookPatch({
   sessionId,
   chapterWindow,
   hydration,
+  reworkContext,
 }) {
   const runOutputDir =
     outputDir ??
@@ -83,7 +89,34 @@ export async function applyPlaybookPatch({
     chapterWindow,
   };
 
-  const changeDetails = await writeIfChanged(patchFilePath, `${JSON.stringify(payload, null, 2)}\n`);
+  const changeDetails = [];
+  let majorReworkPacket = null;
+  let majorReworkBriefPath = null;
+  if (hasMajorReworkPlaybook(selectedPlaybooks)) {
+    majorReworkPacket = buildMajorReworkPacket({
+      agent: normalizedAgent.canonicalAgent,
+      agentScope: reworkContext,
+      signature,
+      rootCause,
+      retryFeedbackPacket,
+      selectedPlaybooks,
+      iteration,
+    });
+    payload.majorReworkPacket = majorReworkPacket;
+
+    majorReworkBriefPath = path.join(
+      runOutputDir,
+      "rework-lab",
+      `${sanitize(request.runId)}-${sanitize(normalizedAgent.canonicalAgent)}-${sanitize(sessionId)}-iter${iteration}.md`
+    );
+    changeDetails.push(
+      ...(await writeIfChanged(majorReworkBriefPath, renderMajorReworkBrief(majorReworkPacket)))
+    );
+  }
+
+  changeDetails.push(
+    ...(await writeIfChanged(patchFilePath, `${JSON.stringify(payload, null, 2)}\n`))
+  );
   const changedFiles = changeDetails.map((change) => change.filePath);
   const effectiveAllow = request.allowFiles?.length ? request.allowFiles : DEFAULT_ALLOW_GLOBS;
   const effectiveDeny = [...GENERATED_ARTIFACT_DENY_GLOBS, ...(request.denyFiles ?? [])];
@@ -100,8 +133,15 @@ export async function applyPlaybookPatch({
   return {
     changedFiles,
     changeDetails,
+    majorReworkPacket,
+    majorReworkBriefPath,
     notes: changedFiles.length
-      ? ["Applied deterministic patch-staging payload."]
+      ? [
+          "Applied deterministic patch-staging payload.",
+          ...(hasMajorReworkPlaybook(selectedPlaybooks)
+            ? ["Generated major-rework research brief and packet for this iteration."]
+            : []),
+        ]
       : ["No-op patch: generated payload already up to date."],
   };
 }
@@ -112,22 +152,34 @@ export async function rollbackFailedImplementationChanges({
   iteration,
   changeDetails,
   reason,
+  keepFilePaths = [],
 }) {
   const runOutputDir =
     outputDir ??
     path.join(workspaceRoot, "logs", "canary-loops");
+  const keepSet = new Set(
+    (keepFilePaths ?? []).map((filePath) => path.resolve(String(filePath)))
+  );
   const implementationChanges = (changeDetails ?? []).filter((change) => {
     if (!change?.filePath) {
       return false;
     }
+    if (keepSet.has(path.resolve(change.filePath))) {
+      return false;
+    }
     return !isPathInside(change.filePath, runOutputDir);
   });
+
+  const keptFiles = (changeDetails ?? [])
+    .filter((change) => change?.filePath && keepSet.has(path.resolve(change.filePath)))
+    .map((change) => toPosix(path.relative(workspaceRoot, change.filePath)));
 
   if (implementationChanges.length === 0) {
     return {
       rolledBackCount: 0,
       archivedDir: null,
       restoredFiles: [],
+      keptFiles,
     };
   }
 
@@ -140,6 +192,7 @@ export async function rollbackFailedImplementationChanges({
     archivedAt: new Date().toISOString(),
     reason: String(reason ?? "unresolved iteration result"),
     files: [],
+    keptFiles,
   };
 
   for (const change of implementationChanges) {
@@ -180,6 +233,7 @@ export async function rollbackFailedImplementationChanges({
     rolledBackCount: implementationChanges.length,
     archivedDir: archiveDir,
     restoredFiles: manifest.files.map((entry) => entry.path),
+    keptFiles,
   };
 }
 

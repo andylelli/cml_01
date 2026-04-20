@@ -114,6 +114,16 @@ export function selectPlaybooks(signature, policyContext = {}) {
   const promptRetryCount = Number.isInteger(policyContext.promptRetryCount)
     ? policyContext.promptRetryCount
     : 0;
+  const historicalFailureCount = Number.isInteger(policyContext.historicalFailureCount)
+    ? policyContext.historicalFailureCount
+    : 0;
+  const enableMajorRework = policyContext.enableMajorRework !== false;
+  const oscillationDetected = policyContext.oscillationDetected === true;
+  const priorRunFailedPlaybooks = new Set(
+    Array.isArray(policyContext.priorRunFailedPlaybooks)
+      ? policyContext.priorRunFailedPlaybooks.map((value) => String(value))
+      : []
+  );
 
   const fallbackPrompt = "pb.prompt.retry-packet-contract-harden";
   if (!signature) {
@@ -126,16 +136,55 @@ export function selectPlaybooks(signature, policyContext = {}) {
 
   const promptPlaybook = PROMPT_PLAYBOOK_BY_CLASS[signature.class] ?? fallbackPrompt;
   const codePlaybook = CODE_PLAYBOOK_BY_CLASS[signature.class];
+  const majorReworkPlaybooks = [
+    "pb.rework.llm-request-contract-overhaul",
+    "pb.rework.response-processing-robustness",
+    "pb.rework.story-logic-research-lab",
+  ];
 
   const hasPromptRetriesExhausted = promptRetryCount >= 2;
   const runtimeOrPolicyRootCause =
     rootCauseLayer === "runtime_validation" || rootCauseLayer === "orchestrator_policy";
+
+  if (
+    enableMajorRework
+    && (
+      promptRetryCount >= 3
+      || historicalFailureCount >= 4
+      || oscillationDetected
+    )
+  ) {
+    return {
+      selectedPlaybooks: majorReworkPlaybooks,
+      escalationStage: "rework",
+      rationale:
+        "Repeated unresolved iterations detected; escalating to major rework of LLM contract, response processing, and story-logic design research.",
+    };
+  }
 
   if (!codePlaybook) {
     return {
       selectedPlaybooks: [promptPlaybook],
       escalationStage: "prompt",
       rationale: "No compatible code-mode playbook for signature class.",
+    };
+  }
+
+  if (priorRunFailedPlaybooks.has(promptPlaybook) && !priorRunFailedPlaybooks.has(codePlaybook)) {
+    return {
+      selectedPlaybooks: [codePlaybook],
+      escalationStage: "code",
+      rationale:
+        "Historical unsuccessful runs already used this prompt playbook for the same class; escalating to deterministic code-mode playbook.",
+    };
+  }
+
+  if (priorRunFailedPlaybooks.has(codePlaybook) && !hasPromptRetriesExhausted) {
+    return {
+      selectedPlaybooks: [promptPlaybook],
+      escalationStage: "prompt",
+      rationale:
+        "Historical unsuccessful runs already used this code playbook for the same class; retrying constrained prompt-mode remediation first.",
     };
   }
 

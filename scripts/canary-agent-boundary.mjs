@@ -24,6 +24,7 @@ import {
 } from "../apps/worker/dist/jobs/agents/index.js";
 import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-paths.js";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
+import { parseJsonText } from "./canary-loop/json.mjs";
 
 const workspaceRoot = process.cwd();
 loadDotEnv({ path: path.join(workspaceRoot, ".env") });
@@ -61,6 +62,8 @@ const REQUIRED_CODES = {
   "7": ["2", "3", "5"],
 };
 
+const SYNTHESIS_ORDER = ["1", "2", "2e", "3b", "3", "5", "6", "2b", "2c", "2d", "65", "7"];
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runId = String(args.runId ?? "").trim();
@@ -75,6 +78,7 @@ async function main() {
 
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
+  const forceFreshUpstream = parseBooleanEnv(process.env.CANARY_FORCE_FRESH_UPSTREAM, false);
 
   if (!endpoint || !apiKey) {
     console.log("CANARY_SKIPPED_MISSING_AZURE_ENV");
@@ -105,6 +109,7 @@ async function main() {
     runState: artifactBundle.runState,
     runFolder: artifactBundle.runFolder,
     requiredCodes: REQUIRED_CODES[agentCode] ?? [],
+    forceFreshUpstream,
   });
 
   const ctx = await buildBaseContext({
@@ -118,6 +123,7 @@ async function main() {
     agentCode,
     missingRequiredCodes,
     ctx,
+    forceFreshUpstream,
   });
 
   console.log("CANARY_AGENT", AGENT_LABELS[agentCode]);
@@ -175,9 +181,16 @@ async function runAgent4BoundaryCheck(ctx) {
   ctx.reportProgress("agent4", "Hydrated CML passes revision boundary checks", 100);
 }
 
-async function hydrateUpstreamArtifacts({ runState, runFolder, requiredCodes }) {
+async function hydrateUpstreamArtifacts({ runState, runFolder, requiredCodes, forceFreshUpstream = false }) {
   const out = {};
   const missingRequiredCodes = [];
+
+  if (forceFreshUpstream) {
+    return {
+      upstreamByCode: {},
+      missingRequiredCodes: [...new Set(requiredCodes)],
+    };
+  }
 
   for (const code of requiredCodes) {
     try {
@@ -207,27 +220,102 @@ async function hydrateUpstreamArtifacts({ runState, runFolder, requiredCodes }) 
   };
 }
 
-async function synthesizeMissingRequiredContext({ agentCode, missingRequiredCodes, ctx }) {
+async function synthesizeMissingRequiredContext({ agentCode, missingRequiredCodes, ctx, forceFreshUpstream = false }) {
   if (!missingRequiredCodes.length) {
     return;
   }
 
-  const derivableForAgent = {
-    "65": ["2b", "2c", "2d"],
-  };
-
-  const allowed = new Set(derivableForAgent[agentCode] ?? []);
-  const unsupported = missingRequiredCodes.filter((code) => !allowed.has(code));
-  if (unsupported.length > 0) {
+  const executionPlan = buildSynthesisPlan(missingRequiredCodes);
+  if (!executionPlan.length) {
     throw new Error(
-      `Missing required hydrated response for agent code(s): ${unsupported.join(", ")}.`
+      `Missing required hydrated response for agent code(s): ${missingRequiredCodes.join(", ")}.`
     );
   }
 
-  for (const code of missingRequiredCodes) {
+  if (!forceFreshUpstream) {
+    const allowedLegacy = new Set(["2b", "2c", "2d"]);
+    const unsupported = missingRequiredCodes.filter((code) => !allowedLegacy.has(code));
+    if (unsupported.length > 0) {
+      throw new Error(
+        `Missing required hydrated response for agent code(s): ${unsupported.join(", ")}.`
+      );
+    }
+  }
+
+  for (const code of executionPlan) {
+    if (hasContextForCode(ctx, code)) {
+      continue;
+    }
     console.log("SYNTHESIZING_CODE", code);
     await runAgentBoundary(code, ctx);
   }
+}
+
+function buildSynthesisPlan(requiredCodes) {
+  const requiredSet = new Set(requiredCodes);
+  const closure = new Set();
+
+  function visit(code) {
+    if (!code || closure.has(code)) {
+      return;
+    }
+    const deps = REQUIRED_CODES[code] ?? [];
+    for (const dep of deps) {
+      visit(dep);
+    }
+    closure.add(code);
+  }
+
+  for (const code of requiredSet) {
+    visit(code);
+  }
+
+  return SYNTHESIS_ORDER.filter((code) => closure.has(code));
+}
+
+function hasContextForCode(ctx, code) {
+  switch (code) {
+    case "1":
+      return Boolean(ctx.setting);
+    case "2":
+      return Boolean(ctx.cast);
+    case "2e":
+      return Boolean(ctx.backgroundContext);
+    case "3b":
+      return Boolean(ctx.hardLogicDevices);
+    case "3":
+      return Boolean(ctx.cml);
+    case "5":
+      return Boolean(ctx.clues);
+    case "6":
+      return Boolean(ctx.fairPlayAudit);
+    case "2b":
+      return Boolean(ctx.characterProfiles);
+    case "2c":
+      return Boolean(ctx.locationProfiles);
+    case "2d":
+      return Boolean(ctx.temporalContext);
+    case "65":
+      return Boolean(ctx.worldDocument);
+    case "7":
+      return Boolean(ctx.narrativeOutline);
+    default:
+      return false;
+  }
+}
+
+function parseBooleanEnv(value, fallback) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "y", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "n", "off"].includes(normalized)) {
+    return false;
+  }
+  return fallback;
 }
 
 function applyHydratedContext(ctx, upstreamByCode) {
@@ -358,7 +446,7 @@ function extractResponseJson(markdown) {
   }
   const raw = textBlockMatch[1].trim();
   try {
-    return JSON.parse(raw);
+    return parseJsonText(raw);
   } catch (error) {
     throw new Error(
       `Response body JSON parse failed: ${error instanceof Error ? error.message : String(error)}`

@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { readJsonIfPresent } from "./json.mjs";
 
 const CACHE_FILE = "signature-fix-cache.json";
 const MAX_CACHE_AGE_DAYS = 30;
@@ -127,11 +128,3 @@ function getCachePath(workspaceRoot) {
   return path.join(workspaceRoot, "logs", "canary-loops", CACHE_FILE);
 }
 
-async function readJsonIfPresent(filePath) {
-  try {
-    const text = await fs.readFile(filePath, "utf8");
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}

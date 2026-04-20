@@ -4,6 +4,7 @@ import { config as loadDotEnv } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
+import { parseJsonText } from "./canary-loop/json.mjs";
 import { deriveHardLogicDirectives, buildNoveltyConstraints, normalizePrimaryAxis, runAgent3 } from "../apps/worker/dist/jobs/agents/index.js";
 import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-paths.js";
 
@@ -145,7 +146,7 @@ function extractResponseJson(markdown) {
   }
   const raw = textBlockMatch[1].trim();
   try {
-    return JSON.parse(raw);
+    return parseJsonText(raw);
   } catch (error) {
     throw new Error(`Response body JSON parse failed: ${error instanceof Error ? error.message : String(error)}`);
   }

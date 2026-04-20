@@ -8,13 +8,16 @@ export const DEFAULTS = {
   testScope: "targeted",
   stopOnNewFailureClass: true,
   hydratePriorFromRun: true,
+  quickRun: false,
   confirmSharedEdits: false,
   rollbackFailedChanges: true,
+  partialRollbackEnabled: true,
   autoExpandUpstreamScope: false,
+  enableMajorRework: true,
 };
 
-export const MIN_CONFIDENCE = 0.6;
-export const MIN_ROOT_CAUSE_CONFIDENCE = 0.7;
+export const MIN_CONFIDENCE = Number.parseFloat(process.env.CANARY_MIN_SIGNATURE_CONFIDENCE ?? "0.6");
+export const MIN_ROOT_CAUSE_CONFIDENCE = Number.parseFloat(process.env.CANARY_MIN_ROOT_CAUSE_CONFIDENCE ?? "0.7");
 export const MAX_FILES_PER_ITERATION = 4;
 export const GENERATED_ARTIFACT_DENY_GLOBS = ["documentation/prompts/actual/run_*/**"];
 export const SHARED_FILE_CONFIRM_GLOBS = [

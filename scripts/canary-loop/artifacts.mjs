@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { parseAgentCode } from "./config.mjs";
+import { readJsonIfPresent } from "./json.mjs";
 
 export async function resolveArtifacts({
   workspaceRoot,
@@ -233,18 +234,6 @@ function normalizeRecordFile(fileName) {
   }
   const trimmed = fileName.trim();
   return trimmed ? trimmed : null;
-}
-
-async function readJsonIfPresent(filePath) {
-  if (!filePath || !(await exists(filePath))) {
-    return null;
-  }
-  try {
-    const text = await fs.readFile(filePath, "utf8");
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
 }
 
 async function exists(filePath) {

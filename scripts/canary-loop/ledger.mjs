@@ -129,6 +129,24 @@ function renderMarkdown(entries) {
         `- retry packet warnings_to_clear: ${entry.retryFeedbackPacket.warningsToClear?.length ?? 0}`
       );
     }
+    if (entry.featureSnapshot) {
+      const enabled = entry.featureSnapshot.enabled ?? {};
+      const observed = entry.featureSnapshot.observed ?? {};
+      const scope = entry.featureSnapshot.scope ?? {};
+      lines.push("- feature snapshot:");
+      lines.push(
+        `  - enabled: majorRework=${enabled.enableMajorRework === true}, partialRollback=${enabled.partialRollbackEnabled === true}, autoExpand=${enabled.autoExpandUpstreamScope === true}, rollback=${enabled.rollbackFailedChanges === true}, hydratePrior=${enabled.hydratePriorFromRun === true}`
+      );
+      lines.push(
+        `  - scope: requestedStart='${scope.requestedStartBoundary ?? ""}', effectiveStart='${scope.effectiveStartBoundary ?? ""}', selectedAgent='${scope.selectedAgent ?? ""}', broadBoundary=${scope.isBroadScopeBoundary === true}`
+      );
+      if (scope.autoExpandedTo) {
+        lines.push(`  - scope: auto-expanded boundary to '${scope.autoExpandedTo}'`);
+      }
+      lines.push(
+        `  - observed: escalation=${observed.escalationStage ?? "none"}, majorReworkSelected=${observed.majorReworkSelected === true}, cachedFix=${observed.usedCachedFix === true}, promptRetries=${Number(observed.promptRetryCount ?? 0)}, historicalFailures=${Number(observed.historicalFailureCount ?? 0)}, oscillationDetected=${observed.oscillationDetected === true}`
+      );
+    }
     lines.push("");
   }
   return `${lines.join("\n")}\n`;

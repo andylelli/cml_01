@@ -16,6 +16,8 @@
  * @property {number=} overrideFileCap
  * @property {number=} startChapter
  * @property {boolean=} confirmSharedEdits
+ * @property {boolean=} partialRollbackEnabled
+ * @property {boolean=} enableMajorRework
  */
 
 /**

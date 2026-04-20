@@ -120,14 +120,18 @@ function classifyMessage(agent, candidate) {
       validator: candidate.source,
       }
     ) ??
-    matchRule(lowered, /weak elimination evidence|suspect elimination coverage/, {
+    matchRule(
+      lowered,
+      /weak elimination evidence|weak elimination\/?alibi evidence|suspect elimination coverage|suspect-coverage gate failed|suspect coverage gate failed/,
+      {
       className: "agent5.weak_elimination_evidence",
       severity: "critical",
       kind: "error",
       confidence: 0.82,
       stage: "clues",
       validator: candidate.source,
-    }) ??
+      }
+    ) ??
     matchRule(lowered, /era time-style gate failed|digit-based time notation|era-style worded time|agent 5 era time style/, {
       className: "agent5.time_style_violation",
       severity: "warning",

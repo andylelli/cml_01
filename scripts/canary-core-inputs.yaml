@@ -34,12 +34,12 @@
 # - runId: string (optional override)
 # - projectId: string (optional)
 
-theme: "A classic country-house murder with tangled inheritance motives"
+theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place discriminating test no later than chapter 2 of 3, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
 eraPreference: "1930s"
 locationPreset: CountryHouse
-tone: "Cozy"
-primaryAxis: identity
-castSize: 7
+tone: "Classic"
+primaryAxis: temporal
+castSize: 6
 castNames:
   - "Eleanor Voss"
   - "Dr. Mallory Finch"
