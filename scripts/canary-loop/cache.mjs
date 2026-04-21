@@ -27,6 +27,9 @@ export function getCachedFix({ cache, agent, signature, rootCause, policyContext
   if (signature.class === "unknown.pipeline_failure") {
     return null;
   }
+  if (policyContext?.disableCache === true || policyContext?.stagnationDetected === true) {
+    return null;
+  }
 
   const key = buildCacheKey(agent, signature.class, rootCause.sourceLayer);
   const entry = cache.entries[key];

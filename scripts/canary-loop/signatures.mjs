@@ -122,6 +122,18 @@ function classifyMessage(agent, candidate) {
     ) ??
     matchRule(
       lowered,
+      /removed\s+non-canonical\s+discriminating_test\.evidence_clues|seeded\s+discriminating_test\.evidence_clues\s+from\s+clue\s+set/,
+      {
+      className: "agent5.discriminating_id_coverage",
+      severity: "warning",
+      kind: "warning",
+      confidence: 0.74,
+      stage: "clues",
+      validator: candidate.source,
+      }
+    ) ??
+    matchRule(
+      lowered,
       /weak elimination evidence|weak elimination\/?alibi evidence|suspect elimination coverage|suspect-coverage gate failed|suspect coverage gate failed/,
       {
       className: "agent5.weak_elimination_evidence",

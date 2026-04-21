@@ -18,6 +18,19 @@
  * @property {boolean=} confirmSharedEdits
  * @property {boolean=} partialRollbackEnabled
  * @property {boolean=} enableMajorRework
+ * @property {boolean=} majorReworkAgentV2
+ * @property {{
+ *   enabledByDefault?: boolean,
+ *   maxInputTokens?: number,
+ *   maxOutputTokens?: number,
+ *   maxThinkTokensPerWave?: number,
+ *   maxActTokensPerWave?: number,
+ *   maxCampaignTokens?: number,
+ *   minRemainingPercentForBroadWork?: number,
+ *   maxFilesPerWave?: number,
+ *   maxPhaseRetries?: { P1?: number, P2?: number, P3?: number },
+ *   enforceNarrativeAcceptanceGates?: boolean,
+ * }=} majorReworkConfig
  */
 
 /**

@@ -116,7 +116,7 @@ test("quick run preset enforces hydration-first fast defaults", () => {
   // Quick-run preset defaults to shallow retries; CLI may explicitly override this.
   assert.equal(quick.enableMajorRework, false);
   assert.equal(quick.testScope, "targeted");
-  assert.equal(quick.maxUnchanged, 1);
+  assert.equal(quick.maxUnchanged, 4);
 });
 
 test("terminal major rework reset triggers on terminal safety stops", () => {

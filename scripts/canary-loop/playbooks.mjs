@@ -119,6 +119,8 @@ export function selectPlaybooks(signature, policyContext = {}) {
     : 0;
   const enableMajorRework = policyContext.enableMajorRework !== false;
   const oscillationDetected = policyContext.oscillationDetected === true;
+  const fallbackTrendDetected = policyContext.fallbackTrendDetected === true;
+  const stagnationDetected = policyContext.stagnationDetected === true;
   const priorRunFailedPlaybooks = new Set(
     Array.isArray(policyContext.priorRunFailedPlaybooks)
       ? policyContext.priorRunFailedPlaybooks.map((value) => String(value))
@@ -149,16 +151,19 @@ export function selectPlaybooks(signature, policyContext = {}) {
   if (
     enableMajorRework
     && (
+      stagnationDetected
+      ||
       promptRetryCount >= 3
       || historicalFailureCount >= 4
       || oscillationDetected
+      || fallbackTrendDetected
     )
   ) {
     return {
       selectedPlaybooks: majorReworkPlaybooks,
       escalationStage: "rework",
       rationale:
-        "Repeated unresolved iterations detected; escalating to major rework of LLM contract, response processing, and story-logic design research.",
+        "Repeated unresolved iterations detected (including stagnation/fallback trends when present); escalating to major rework of LLM contract, response processing, and story-logic design research.",
     };
   }
 

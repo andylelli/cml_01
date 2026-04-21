@@ -22,10 +22,10 @@ quickRun: true
 enableMajorRework: true
 
 # Maximum loop iterations before stopping.
-maxIterations: 5
+maxIterations: 6
 
 # Stop after this many unchanged failure signatures.
-maxUnchanged: 1
+maxUnchanged: 3
 
 # Validation scope: "targeted" (agent tests) or "full" (broader suite).
 testScope: targeted
@@ -34,7 +34,7 @@ testScope: targeted
 canaryCommand: ""
 
 # Stop immediately when a new failure class appears.
-stopOnNewFailureClass: true
+stopOnNewFailureClass: false
 
 # Optional comma-separated allowlist globs for files that may be edited.
 allowFiles: ""
@@ -61,4 +61,4 @@ rollbackFailedChanges: true
 partialRollbackEnabled: false
 
 # Auto-expand start boundary upstream when analysis indicates upstream root cause.
-autoExpandUpstreamScope: true
+autoExpandUpstreamScope: false

@@ -3,10 +3,14 @@ import assert from "node:assert/strict";
 import { classifyFailureText } from "../signatures.mjs";
 import { buildRetryFeedbackPacket, selectPlaybooks } from "../playbooks.mjs";
 import {
+  classifyMajorReworkEscalation,
   decideLoopContinuation,
+  detectFallbackTrend,
+  enforceMajorReworkPhaseGates,
   hasUnresolvedWarnings,
   resolveSelectedPlaybooks,
   resolvePassState,
+  shouldSuppressAutoExpansion,
 } from "../controller.mjs";
 import { resolveValidationPlan } from "../validate.mjs";
 import {
@@ -126,6 +130,75 @@ test("playbook selection escalates to major rework after repeated unresolved his
   assert.match(decision.rationale, /major rework/i);
 });
 
+test("playbook selection escalates to major rework on fallback trend signal", () => {
+  const signature = {
+    class: "canary.execution_failure",
+  };
+
+  const decision = selectPlaybooks(signature, {
+    rootCauseLayer: "orchestrator_policy",
+    promptRetryCount: 1,
+    historicalFailureCount: 0,
+    enableMajorRework: true,
+    fallbackTrendDetected: true,
+  });
+
+  assert.equal(decision.escalationStage, "rework");
+  assert.equal(decision.selectedPlaybooks.length >= 3, true);
+});
+
+test("major rework escalation classifier emits fallback and retry signals", () => {
+  const signal = classifyMajorReworkEscalation({
+    request: {
+      enableMajorRework: true,
+    },
+    promptRetryCount: 3,
+    historicalFailureCount: 2,
+    oscillationDetected: false,
+    classHistory: [
+      "agent6.fairplay_structural_critical",
+      "canary.execution_failure",
+    ],
+    currentSignatureClass: "unknown.pipeline_failure",
+    shouldForceTerminalMajorRework: false,
+  });
+
+  assert.equal(signal.fallbackTrendDetected, true);
+  assert.equal(signal.signals.includes("prompt_retries_exhausted"), true);
+  assert.equal(signal.signals.includes("fallback_trend_detected"), true);
+});
+
+test("fallback trend detector requires two recent generic fallback classes", () => {
+  assert.equal(
+    detectFallbackTrend(["agent5.red_herring_overlap", "canary.execution_failure"], "unknown.pipeline_failure"),
+    true
+  );
+  assert.equal(
+    detectFallbackTrend(["agent5.red_herring_overlap", "agent6.fairplay_structural_critical"], "unknown.pipeline_failure"),
+    false
+  );
+});
+
+test("auto-expansion is suppressed when canary command is pinned to selected agent", () => {
+  const suppressed = shouldSuppressAutoExpansion({
+    selectedAgentCode: "6",
+    expandedStartCode: "5",
+    pinnedCanaryAgentCode: "6",
+  });
+
+  assert.equal(suppressed, true);
+});
+
+test("auto-expansion is allowed when canary command is not pinned", () => {
+  const suppressed = shouldSuppressAutoExpansion({
+    selectedAgentCode: "6",
+    expandedStartCode: "5",
+    pinnedCanaryAgentCode: null,
+  });
+
+  assert.equal(suppressed, false);
+});
+
 test("major rework escalation is not overridden by cached playbooks", () => {
   const selected = resolveSelectedPlaybooks({
     playbookDecision: {
@@ -158,6 +231,41 @@ test("cached playbooks still apply for non-rework escalation", () => {
   });
 
   assert.deepEqual(selected, ["pb.code.agent5.id-normalize-seed-synthesize"]);
+});
+
+test("cached playbooks are bypassed when stagnation is detected", () => {
+  const selected = resolveSelectedPlaybooks({
+    playbookDecision: {
+      escalationStage: "code",
+      selectedPlaybooks: ["pb.code.agent6.structural-escalation-and-null-guard"],
+    },
+    cachedFix: {
+      playbooks: ["pb.rework.llm-request-contract-overhaul"],
+    },
+    policyContext: {
+      stagnationDetected: true,
+    },
+  });
+
+  assert.deepEqual(selected, ["pb.code.agent6.structural-escalation-and-null-guard"]);
+});
+
+test("playbook selection escalates to rework on stagnation signal", () => {
+  const signature = {
+    class: "agent6.fairplay_structural_critical",
+  };
+
+  const decision = selectPlaybooks(signature, {
+    rootCauseLayer: "runtime_validation",
+    promptRetryCount: 0,
+    historicalFailureCount: 0,
+    enableMajorRework: true,
+    stagnationDetected: true,
+  });
+
+  assert.equal(decision.escalationStage, "rework");
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.llm-request-contract-overhaul"), true);
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.response-processing-robustness"), true);
 });
 
 test("warning blocking and continuation transitions are bounded", () => {
@@ -260,6 +368,31 @@ test("continuation stops on generic execution-class regression", () => {
   assert.match(transition.stopReason, /Regression detected/i);
 });
 
+test("continuation does not hard-stop when canary failure remains stage-specific", () => {
+  const transition = decideLoopContinuation({
+    request: {
+      maxIterations: 5,
+      maxUnchanged: 2,
+      stopOnNewFailureClass: false,
+      mode: "apply",
+    },
+    iteration: 2,
+    unchangedCount: 0,
+    previousSignature: {
+      class: "agent5.weak_elimination_evidence",
+      severity: "critical",
+    },
+    outputSignature: {
+      class: "agent5.invalid_source_path",
+      severity: "critical",
+      confidence: 0.9,
+    },
+    classHistory: ["agent5.weak_elimination_evidence"],
+  });
+
+  assert.equal(transition.decision, "continue");
+});
+
 test("continuation stops on oscillating failure classes", () => {
   const transition = decideLoopContinuation({
     request: {
@@ -342,6 +475,10 @@ test("major rework packet and brief are deterministic and structured", () => {
 
   assert.equal(packet.agent, "Agent6-FairPlay");
   assert.equal(packet.redesignTracks.length, 3);
+  assert.equal(packet.implementationPlan.capability, "deep_complex_multiphase_implementation");
+  assert.equal(packet.implementationPlan.phases.length, 3);
+  assert.equal(packet.implementationPlan.sequenceConstraints.length >= 2, true);
+  assert.equal(packet.implementationPlan.rollbackTriggers.length >= 2, true);
   assert.match(packet.objective, /sweeping redesign/i);
   assert.equal(packet.scope.agents.includes("Agent5"), true);
   assert.equal(packet.scope.agents.includes("Agent6"), true);
@@ -349,5 +486,87 @@ test("major rework packet and brief are deterministic and structured", () => {
   const brief = renderMajorReworkBrief(packet);
   assert.match(brief, /Major Rework Brief/);
   assert.match(brief, /Track 3 - Story Logic Research Lab/);
+  assert.match(brief, /Multiphase Implementation Plan/);
+  assert.match(brief, /P2 - Contract \+ Runtime Hardening/);
   assert.match(brief, /agents in scope/i);
+});
+
+test("major rework phase gates enforce P1 before P2/P3", () => {
+  const decision = enforceMajorReworkPhaseGates({
+    selectedPlaybooks: [
+      "pb.rework.llm-request-contract-overhaul",
+      "pb.rework.response-processing-robustness",
+      "pb.rework.story-logic-research-lab",
+    ],
+    ledgerEntries: [],
+    currentSignature: {
+      class: "agent6.fairplay_structural_critical",
+    },
+  });
+
+  assert.equal(decision.applied, true);
+  assert.deepEqual(decision.selectedPlaybooks, ["pb.rework.llm-request-contract-overhaul"]);
+  assert.equal(decision.suppressedPlaybooks.includes("pb.rework.response-processing-robustness"), true);
+  assert.equal(decision.suppressedPlaybooks.includes("pb.rework.story-logic-research-lab"), true);
+  assert.equal(decision.gateStatus.p1Complete, false);
+});
+
+test("major rework phase gates allow P2 after P1 evidence and defer P3", () => {
+  const decision = enforceMajorReworkPhaseGates({
+    selectedPlaybooks: [
+      "pb.rework.llm-request-contract-overhaul",
+      "pb.rework.response-processing-robustness",
+      "pb.rework.story-logic-research-lab",
+    ],
+    ledgerEntries: [
+      {
+        selectedPlaybooks: ["pb.rework.llm-request-contract-overhaul"],
+        outputSignature: {
+          class: "agent6.fairplay_structural_critical",
+        },
+      },
+    ],
+    currentSignature: {
+      class: "agent6.fairplay_structural_critical",
+    },
+  });
+
+  assert.equal(decision.applied, true);
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.llm-request-contract-overhaul"), true);
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.response-processing-robustness"), true);
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.story-logic-research-lab"), false);
+  assert.equal(decision.gateStatus.p1Complete, true);
+  assert.equal(decision.gateStatus.p2Complete, false);
+});
+
+test("major rework phase gates allow P3 after P2 evidence", () => {
+  const decision = enforceMajorReworkPhaseGates({
+    selectedPlaybooks: [
+      "pb.rework.llm-request-contract-overhaul",
+      "pb.rework.response-processing-robustness",
+      "pb.rework.story-logic-research-lab",
+    ],
+    ledgerEntries: [
+      {
+        selectedPlaybooks: ["pb.rework.llm-request-contract-overhaul"],
+        outputSignature: {
+          class: "agent6.fairplay_structural_critical",
+        },
+      },
+      {
+        selectedPlaybooks: ["pb.rework.response-processing-robustness"],
+        outputSignature: {
+          class: "agent6.fairplay_structural_critical",
+        },
+      },
+    ],
+    currentSignature: {
+      class: "agent6.fairplay_structural_critical",
+    },
+  });
+
+  assert.equal(decision.applied, false);
+  assert.equal(decision.selectedPlaybooks.includes("pb.rework.story-logic-research-lab"), true);
+  assert.equal(decision.gateStatus.p1Complete, true);
+  assert.equal(decision.gateStatus.p2Complete, true);
 });

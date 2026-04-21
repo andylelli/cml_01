@@ -140,3 +140,21 @@ test("signature classifier does not treat timestamps as Agent5 time-style violat
 
   assert.notEqual(signature.class, "agent5.time_style_violation");
 });
+
+test("signature classifier maps Agent5 evidence-clue warning markers to known warning class", () => {
+  const text = [
+    "CANARY_STATUS success",
+    "WARNINGS_COUNT 2",
+    "WARNINGS [\"Agent 5: removed non-canonical discriminating_test.evidence_clues entries; will rely on canonical clue IDs and deterministic backfill for traceability.\",\"Agent 5: seeded discriminating_test.evidence_clues from clue set: clue_7, clue_5, clue_4\"]",
+  ].join("\n");
+
+  const signature = classifyFailureText({
+    agent: "Agent5-ClueExtraction",
+    text,
+    source: "validation_executor",
+  });
+
+  assert.equal(signature.class, "agent5.discriminating_id_coverage");
+  assert.equal(signature.severity, "warning");
+  assert.equal(signature.confidence >= 0.6, true);
+});

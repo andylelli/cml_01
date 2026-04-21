@@ -15,6 +15,11 @@ It also supports pipeline resume execution from an arbitrary agent boundary, whi
 
 It is not a general full-pipeline runner. It is a targeted stabilization loop.
 
+Documentation layering for canary loop:
+- this document (`11_canary_loop`) is the primary operational and behavioral description
+- detailed implementation/spec details are maintained in `documentation/plan/canary-agent-framework-LLD.md`
+- major rework orchestration workflow is maintained in `documentation/11_canary_loop/11_b_major_rework.md`
+
 ---
 
 ## What It Runs Against
@@ -101,6 +106,64 @@ Each iteration follows this sequence:
 
 ---
 
+## How Major Rework Works
+
+Major rework is an explicit escalation mode for recurring unresolved failures where prompt-only or narrow deterministic fixes are no longer converging.
+
+### When major rework is entered
+
+Major rework selection is triggered by playbook policy when unresolved history, retry depth, or oscillation signals indicate normal retry cycles are exhausted.
+
+It can also be forced on the terminal iteration when `--enableMajorRework=true`.
+
+Quick-run interaction:
+- `--quickRun=true` disables major rework by default (`--enableMajorRework=false`) to prioritize shortest boundary-local retries.
+- if `--enableMajorRework=true` is explicitly provided, the explicit flag wins and major rework remains enabled.
+
+### What gets generated
+
+When major rework playbooks are selected, the loop generates a structured major-rework packet and a human-readable brief.
+
+The brief includes:
+- objective and scope
+- redesign tracks (contract, response processing, story-logic)
+- multiphase implementation plan (P1/P2/P3)
+- sequence constraints and rollback triggers
+- evaluation and safety checks
+
+### Runtime phase gating (enforced)
+
+Major rework is applied as a gated sequence, not a one-shot broad rewrite.
+
+Phase policy:
+- P1 (`pb.rework.llm-request-contract-overhaul`) is the required first phase.
+- P2 (`pb.rework.response-processing-robustness`) is blocked until P1 has prior non-generic output-signature evidence.
+- P3 (`pb.rework.story-logic-research-lab`) is blocked until P2 has prior non-generic output-signature evidence.
+
+During each iteration, deferred playbooks are removed from active selection and logged as phase-gated deferrals.
+
+### Terminal-iteration reset behavior
+
+When major rework is forced on the terminal iteration and the outcome still hits an iteration-budget stop (`maxIterations` or `maxUnchanged`), the loop can reset iteration counter to `0` once and open a fresh apply window.
+
+This reset is bounded and does not apply to safety stops (for example low-confidence signature stops).
+
+### Observability and audit trail
+
+Major rework is recorded per iteration in dedicated logs:
+- `canary-major-rework-*.jsonl` (structured)
+- `canary-major-rework-*.md` (narrative)
+
+Each iteration includes:
+- selected/deferred playbooks
+- escalation rationale
+- terminal-force and reset state
+- brief path
+- packet metrics (must-fix, redesign tracks, phases, constraints)
+- phase-gate status (`P1 complete`, `P2 complete`, blockers)
+
+---
+
 ## Pass Criteria
 
 A run is `pass` only when all are true:
@@ -170,7 +233,9 @@ YAML request file behavior:
 - CLI flags override YAML values when both are provided
 
 Implementation note:
-- `--canaryCommand` supports multi-token command values and consumes tokens until the next `--flag`.
+- `--canaryCommand` supports multi-token command values.
+- Prefer quoting or `--canaryCommand=...` for deterministic parsing, for example: `--canaryCommand="node scripts/canary-agent-boundary.mjs --agent 6"`.
+- Unquoted nested flags used by boundary runners (for example `--agent`, `--startChapter`) are preserved as part of `--canaryCommand`.
 - archived rollback snapshots are written to `logs/canary-loops/<YYMMDD-HHMM[-nn]>/failed-changes/iterNN/` when unresolved implementation changes are reverted.
 
 ### Exit Codes

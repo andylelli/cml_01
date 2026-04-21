@@ -61,6 +61,7 @@ export async function applyPlaybookPatch({
   chapterWindow,
   hydration,
   reworkContext,
+  wavePlan,
 }) {
   const runOutputDir =
     outputDir ??
@@ -87,6 +88,7 @@ export async function applyPlaybookPatch({
     chapterStart: chapterWindow?.start,
     fromChapter: chapterWindow?.start,
     chapterWindow,
+    wavePlan,
   };
 
   const changeDetails = [];
@@ -128,6 +130,9 @@ export async function applyPlaybookPatch({
     effectiveDeny,
     overrideFileCap: request.overrideFileCap,
     confirmSharedEdits: request.confirmSharedEdits,
+    majorReworkMode: hasMajorReworkPlaybook(selectedPlaybooks),
+    rollbackGuaranteed: request.rollbackFailedChanges === true,
+    defaultFileCap: Number(request.majorReworkConfig?.maxFilesPerWave ?? MAX_FILES_PER_ITERATION),
   });
 
   return {
@@ -135,6 +140,7 @@ export async function applyPlaybookPatch({
     changeDetails,
     majorReworkPacket,
     majorReworkBriefPath,
+    wavePlan,
     notes: changedFiles.length
       ? [
           "Applied deterministic patch-staging payload.",
@@ -153,6 +159,9 @@ export async function rollbackFailedImplementationChanges({
   changeDetails,
   reason,
   keepFilePaths = [],
+  rollbackMode = "whole",
+  rollbackEvidence = [],
+  waveId = null,
 }) {
   const runOutputDir =
     outputDir ??
@@ -191,6 +200,9 @@ export async function rollbackFailedImplementationChanges({
   const manifest = {
     archivedAt: new Date().toISOString(),
     reason: String(reason ?? "unresolved iteration result"),
+    rollbackMode,
+    rollbackEvidence,
+    waveId,
     files: [],
     keptFiles,
   };
@@ -244,10 +256,13 @@ function validatePatchScope({
   effectiveDeny,
   overrideFileCap,
   confirmSharedEdits,
+  majorReworkMode,
+  rollbackGuaranteed,
+  defaultFileCap,
 }) {
   const fileCap = Number.isInteger(overrideFileCap) && overrideFileCap > 0
     ? overrideFileCap
-    : MAX_FILES_PER_ITERATION;
+    : defaultFileCap;
 
   if (changedFiles.length > fileCap) {
     throw new Error(
@@ -260,7 +275,7 @@ function validatePatchScope({
     if (matchesAny(relativePath, effectiveDeny)) {
       throw new Error(`Patch scope violation: '${relativePath}' matches deny glob.`);
     }
-    if (!matchesAny(relativePath, effectiveAllow)) {
+    if (!matchesAny(relativePath, effectiveAllow) && !(majorReworkMode && rollbackGuaranteed)) {
       throw new Error(`Patch scope violation: '${relativePath}' is outside allowlist.`);
     }
     if (matchesAny(relativePath, SHARED_FILE_CONFIRM_GLOBS) && !confirmSharedEdits) {

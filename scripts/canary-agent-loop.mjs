@@ -9,7 +9,12 @@ import {
   buildDefaultRequest,
   runCanaryLoop,
 } from "./canary-loop/controller.mjs";
-import { parseBoolean, parseInteger, DEFAULTS } from "./canary-loop/config.mjs";
+import {
+  parseBoolean,
+  parseInteger,
+  DEFAULTS,
+  MAJOR_REWORK_DEFAULTS,
+} from "./canary-loop/config.mjs";
 
 const workspaceRoot = process.cwd();
 const defaultRequestYamlDir = path.join(workspaceRoot, "scripts", "canary-loop");
@@ -31,6 +36,7 @@ async function main() {
   const runtimeAgentInputs = await resolveRuntimeAgentInputs({
     agent: mergedArgs.agent,
     startFromAgent: mergedArgs.startFromAgent,
+    interactive: parseBoolean(mergedArgs.interactive, false),
   });
 
   let request = buildDefaultRequest({
@@ -76,6 +82,53 @@ async function main() {
       mergedArgs.enableMajorRework,
       DEFAULTS.enableMajorRework
     ),
+    majorReworkAgentV2: parseBoolean(
+      mergedArgs.majorReworkAgentV2,
+      DEFAULTS.majorReworkAgentV2
+    ),
+    majorReworkConfig: {
+      enabledByDefault: parseBoolean(
+        mergedArgs.mrEnabledByDefault,
+        MAJOR_REWORK_DEFAULTS.enabledByDefault
+      ),
+      maxInputTokens: parseInteger(
+        mergedArgs.mrMaxInputTokens,
+        MAJOR_REWORK_DEFAULTS.maxInputTokens
+      ),
+      maxOutputTokens: parseInteger(
+        mergedArgs.mrMaxOutputTokens,
+        MAJOR_REWORK_DEFAULTS.maxOutputTokens
+      ),
+      maxThinkTokensPerWave: parseInteger(
+        mergedArgs.mrMaxThinkTokensPerWave,
+        MAJOR_REWORK_DEFAULTS.maxThinkTokensPerWave
+      ),
+      maxActTokensPerWave: parseInteger(
+        mergedArgs.mrMaxActTokensPerWave,
+        MAJOR_REWORK_DEFAULTS.maxActTokensPerWave
+      ),
+      maxCampaignTokens: parseInteger(
+        mergedArgs.mrMaxCampaignTokens,
+        MAJOR_REWORK_DEFAULTS.maxCampaignTokens
+      ),
+      minRemainingPercentForBroadWork: parseInteger(
+        mergedArgs.mrMinRemainingPercentForBroadWork,
+        MAJOR_REWORK_DEFAULTS.minRemainingPercentForBroadWork
+      ),
+      maxFilesPerWave: parseInteger(
+        mergedArgs.mrMaxFilesPerWave,
+        MAJOR_REWORK_DEFAULTS.maxFilesPerWave
+      ),
+      maxPhaseRetries: {
+        P1: parseInteger(mergedArgs.mrMaxPhaseRetriesP1, MAJOR_REWORK_DEFAULTS.maxPhaseRetries.P1),
+        P2: parseInteger(mergedArgs.mrMaxPhaseRetriesP2, MAJOR_REWORK_DEFAULTS.maxPhaseRetries.P2),
+        P3: parseInteger(mergedArgs.mrMaxPhaseRetriesP3, MAJOR_REWORK_DEFAULTS.maxPhaseRetries.P3),
+      },
+      enforceNarrativeAcceptanceGates: parseBoolean(
+        mergedArgs.mrEnforceNarrativeAcceptanceGates,
+        MAJOR_REWORK_DEFAULTS.enforceNarrativeAcceptanceGates
+      ),
+    },
   });
 
   request = applyQuickRunPreset(request);
@@ -134,7 +187,7 @@ function normalizeYamlInputs(parsedYaml) {
   return parsedYaml;
 }
 
-async function resolveRuntimeAgentInputs({ agent, startFromAgent }) {
+async function resolveRuntimeAgentInputs({ agent, startFromAgent, interactive = false }) {
   const trimmedAgent = normalizeCliString(agent);
   const trimmedStartFromAgent = normalizeCliString(startFromAgent);
   if (trimmedAgent && trimmedStartFromAgent) {
@@ -144,15 +197,27 @@ async function resolveRuntimeAgentInputs({ agent, startFromAgent }) {
     };
   }
 
-  if (!input.isTTY || !output.isTTY) {
+  if (!interactive) {
     if (!trimmedAgent) {
       throw new Error(
-        "Agent is blank. Provide --agent, set agent in --yaml/--inputYaml, or run in an interactive terminal."
+        "Agent is blank. Provide --agent or set agent in --yaml/--inputYaml. Interactive prompts are disabled by default; pass --interactive true to enable prompts."
       );
     }
     return {
       agent: trimmedAgent,
-      startFromAgent: trimmedStartFromAgent,
+      startFromAgent: trimmedStartFromAgent ?? trimmedAgent,
+    };
+  }
+
+  if (!input.isTTY || !output.isTTY) {
+    if (!trimmedAgent) {
+      throw new Error(
+        "Agent is blank. Provide --agent, set agent in --yaml/--inputYaml, or run in an interactive terminal with --interactive true."
+      );
+    }
+    return {
+      agent: trimmedAgent,
+      startFromAgent: trimmedStartFromAgent ?? trimmedAgent,
     };
   }
 
@@ -205,11 +270,61 @@ function firstDefined(...values) {
 function parseArgs(argv) {
   const out = {};
   const multiTokenKeys = new Set(["canaryCommand"]);
+  const recognizedTopLevelKeys = new Set([
+    "runId",
+    "agent",
+    "startFromAgent",
+    "hydratePriorFromRun",
+    "quickRun",
+    "mode",
+    "maxIterations",
+    "maxUnchanged",
+    "testScope",
+    "canaryCommand",
+    "stopOnNewFailureClass",
+    "allowFiles",
+    "denyFiles",
+    "resume",
+    "overrideFileCap",
+    "startChapter",
+    "confirmSharedEdits",
+    "rollbackFailedChanges",
+    "partialRollbackEnabled",
+    "autoExpandUpstreamScope",
+    "enableMajorRework",
+    "majorReworkAgentV2",
+    "mrEnabledByDefault",
+    "mrMaxInputTokens",
+    "mrMaxOutputTokens",
+    "mrMaxThinkTokensPerWave",
+    "mrMaxActTokensPerWave",
+    "mrMaxCampaignTokens",
+    "mrMinRemainingPercentForBroadWork",
+    "mrMaxFilesPerWave",
+    "mrMaxPhaseRetriesP1",
+    "mrMaxPhaseRetriesP2",
+    "mrMaxPhaseRetriesP3",
+    "mrEnforceNarrativeAcceptanceGates",
+    "yaml",
+    "inputYaml",
+    "interactive",
+  ]);
+  const nestedCanaryKeys = new Set(["agent", "startChapter"]);
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (!token.startsWith("--")) {
       continue;
     }
+
+    // Support --key=value form for deterministic non-interactive automation.
+    const eqIndex = token.indexOf("=");
+    if (eqIndex > 2) {
+      const key = token.slice(2, eqIndex);
+      const value = token.slice(eqIndex + 1);
+      out[key] = value;
+      continue;
+    }
+
     const key = token.slice(2);
     const next = argv[i + 1];
     if (!next || next.startsWith("--")) {
@@ -220,8 +335,27 @@ function parseArgs(argv) {
     if (multiTokenKeys.has(key)) {
       const values = [];
       let cursor = i + 1;
-      while (cursor < argv.length && !argv[cursor].startsWith("--")) {
-        values.push(argv[cursor]);
+      while (cursor < argv.length) {
+        const candidate = argv[cursor];
+        if (!candidate.startsWith("--")) {
+          values.push(candidate);
+          cursor += 1;
+          continue;
+        }
+
+        const candidateKey = candidate.replace(/^--/, "").split("=", 1)[0];
+        const looksLikeBoundaryCommand = values.some((part) => /canary-agent-boundary\.mjs$/i.test(String(part)));
+        const looksLikeAgent9Command = values.some((part) => /canary-agent9\.mjs$/i.test(String(part)));
+        const isNestedCanaryFlag = nestedCanaryKeys.has(candidateKey);
+
+        if (
+          recognizedTopLevelKeys.has(candidateKey)
+          && !(isNestedCanaryFlag && (looksLikeBoundaryCommand || looksLikeAgent9Command))
+        ) {
+          break;
+        }
+
+        values.push(candidate);
         cursor += 1;
       }
       out[key] = values.join(" ");

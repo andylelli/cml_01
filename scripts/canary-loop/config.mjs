@@ -4,9 +4,9 @@ import path from "path";
 export const DEFAULTS = {
   mode: "apply",
   maxIterations: 5,
-  maxUnchanged: 2,
+  maxUnchanged: 3,
   testScope: "targeted",
-  stopOnNewFailureClass: true,
+  stopOnNewFailureClass: false,
   hydratePriorFromRun: true,
   quickRun: false,
   confirmSharedEdits: false,
@@ -14,6 +14,24 @@ export const DEFAULTS = {
   partialRollbackEnabled: true,
   autoExpandUpstreamScope: false,
   enableMajorRework: true,
+  majorReworkAgentV2: true,
+};
+
+export const MAJOR_REWORK_DEFAULTS = {
+  enabledByDefault: true,
+  maxInputTokens: 12000,
+  maxOutputTokens: 2500,
+  maxThinkTokensPerWave: 35000,
+  maxActTokensPerWave: 20000,
+  maxCampaignTokens: 180000,
+  minRemainingPercentForBroadWork: 15,
+  maxFilesPerWave: 4,
+  maxPhaseRetries: {
+    P1: 2,
+    P2: 2,
+    P3: 2,
+  },
+  enforceNarrativeAcceptanceGates: true,
 };
 
 export const MIN_CONFIDENCE = Number.parseFloat(process.env.CANARY_MIN_SIGNATURE_CONFIDENCE ?? "0.6");

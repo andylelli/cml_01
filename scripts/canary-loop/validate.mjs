@@ -172,6 +172,8 @@ export async function runValidationPlan({
 		};
 	}
 
+	const narrativeGates = summarizeNarrativeGateStatus(canaryResult.stdout);
+
 	return {
 		infrastructureError: false,
 		tests,
@@ -181,10 +183,36 @@ export async function runValidationPlan({
 			summary: summarizeOutput(canaryResult),
 			status,
 			warningsCount,
+				narrativeGates,
 			stdout: canaryResult.stdout,
 			stderr: canaryResult.stderr,
 			exitCode: canaryResult.exitCode,
 		},
+	};
+}
+
+function summarizeNarrativeGateStatus(stdout) {
+	const text = String(stdout ?? "");
+	const markers = [
+		"Logical Deducibility",
+		"Information Parity",
+		"Discriminating Test Timing",
+		"Clue Traceability",
+		"Fair Play",
+	];
+	const hits = [];
+	for (const marker of markers) {
+		const regex = new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+		if (regex.test(text)) {
+			hits.push(marker);
+		}
+	}
+
+	const criticalNarrativeCount = (text.match(/\[critical\].*(logical deducibility|information parity|discriminating test timing|clue traceability|fair play)/gi) ?? []).length;
+	return {
+		matchedMarkers: hits,
+		criticalCount: criticalNarrativeCount,
+		hasRegression: criticalNarrativeCount > 0,
 	};
 }
 

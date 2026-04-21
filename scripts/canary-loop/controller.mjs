@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import {
   DEFAULTS,
+  MAJOR_REWORK_DEFAULTS,
   MIN_CONFIDENCE,
   MIN_ROOT_CAUSE_CONFIDENCE,
   loadRegisteredAgentCodes,
@@ -11,7 +12,19 @@ import {
   getAgentMappingConformance,
   PIPELINE_AGENT_ORDER,
 } from "./config.mjs";
-import { inferMajorReworkAgentScope } from "./rework.mjs";
+import {
+  inferMajorReworkAgentScope,
+  initMajorReworkBudgetState,
+  buildMajorReworkWavePlan,
+  writeMajorReworkTodos,
+  shouldTakeMajorReworkCheckpoint,
+  writeMajorReworkCheckpoint,
+  assessMajorReworkDelta,
+  classifyRollbackDecision,
+  appendMajorReworkLearning,
+  loadMajorReworkLearning,
+  finalizeMajorReworkTodos,
+} from "./rework.mjs";
 import { resolveArtifacts } from "./artifacts.mjs";
 import { buildHydrationBundle } from "./hydrate.mjs";
 import { classifyFailureSignature, classifyFailureText } from "./signatures.mjs";
@@ -277,6 +290,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
   }
 
   if (request.mode === "apply" && request.autoExpandUpstreamScope) {
+    const pinnedCanaryAgentCode = extractPinnedCanaryAgentCode(validationPlan?.canaryCommand);
     const expandedStartCode = suggestExpandedStartFromSignature({
       signature: initialSignature,
       selectedAgentCode: normalizedAgent.code,
@@ -285,6 +299,15 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
     if (expandedStartCode && expandedStartCode !== normalizedStartFromAgent.code) {
       const expandedStart = normalizeAgentInput(`agent${expandedStartCode}`, registeredAgentCodes);
       if (expandedStart) {
+        if (shouldSuppressAutoExpansion({
+          selectedAgentCode: normalizedAgent.code,
+          expandedStartCode,
+          pinnedCanaryAgentCode,
+        })) {
+          await logNarration(
+            `Analysis: Auto-expansion to '${expandedStart.canonicalAgent}' suppressed because canary command is pinned to selected agent '${normalizedAgent.canonicalAgent}'.`
+          );
+        } else {
         autoExpandedStartBoundary = expandedStart.canonicalAgent;
         normalizedStartFromAgent = expandedStart;
         request.startFromAgent = expandedStart.canonicalAgent;
@@ -297,6 +320,7 @@ export async function runCanaryLoop({ workspaceRoot, request }) {
         await logNarration(
           `Activity: Auto-expanded start boundary to '${expandedStart.canonicalAgent}' based on signature stage '${initialSignature.stage}'.`
         );
+        }
       }
     }
   }
@@ -508,6 +532,13 @@ async function runApplyLoop({
   const startingIteration = resumeContext?.nextIteration ?? 1;
   const applySessionId = new Date().toISOString().replace(/[:.]/g, "-");
   let majorReworkResetUsed = false;
+  const effectiveMajorReworkConfig = {
+    ...MAJOR_REWORK_DEFAULTS,
+    ...(request.majorReworkConfig ?? {}),
+  };
+  const majorReworkBudget = initMajorReworkBudgetState(effectiveMajorReworkConfig);
+  const majorReworkLearning = await loadMajorReworkLearning({ outputDir: ledger.outputDir });
+  let majorReworkWaveOrdinal = deriveWaveOrdinalSeed(majorReworkLearning);
 
   try {
     lock = await acquireRunLock({
@@ -536,24 +567,45 @@ async function runApplyLoop({
       const policyContext = {
         rootCauseLayer: currentRootCause.sourceLayer,
         promptRetryCount,
+        stagnationDetected: unchangedCount > 0,
+        disableCache: unchangedCount > 0,
         historicalFailureCount: Number(
           historicalIntelligence?.failureCountByClass?.[currentSignature.class] ?? 0
         ),
         enableMajorRework: request.enableMajorRework,
         oscillationDetected: detectSignatureOscillation(classHistory),
         priorRunFailedPlaybooks:
-          historicalIntelligence?.failedPlaybooksByClass?.[currentSignature.class] ?? [],
+          [
+            ...(historicalIntelligence?.failedPlaybooksByClass?.[currentSignature.class] ?? []),
+            ...collectLearningFailedPlaybooks({
+              majorReworkLearning,
+              signatureClass: currentSignature.class,
+            }),
+          ],
       };
       const shouldForceTerminalMajorRework =
         request.enableMajorRework === true
         && !majorReworkResetUsed
         && iteration >= request.maxIterations;
+      const escalationSignal = classifyMajorReworkEscalation({
+        request,
+        promptRetryCount,
+        historicalFailureCount: policyContext.historicalFailureCount,
+        oscillationDetected: policyContext.oscillationDetected,
+        classHistory,
+        currentSignatureClass: currentSignature.class,
+        shouldForceTerminalMajorRework,
+      });
       const selectionPolicyContext = shouldForceTerminalMajorRework
         ? {
           ...policyContext,
           promptRetryCount: Math.max(Number(policyContext.promptRetryCount ?? 0), 3),
+          fallbackTrendDetected: escalationSignal.fallbackTrendDetected,
         }
-        : policyContext;
+        : {
+          ...policyContext,
+          fallbackTrendDetected: escalationSignal.fallbackTrendDetected,
+        };
       const playbookDecision = selectPlaybooks(currentSignature, selectionPolicyContext);
       const terminalMajorReworkTriggered =
         shouldForceTerminalMajorRework && playbookDecision.escalationStage === "rework";
@@ -564,10 +616,76 @@ async function runApplyLoop({
         rootCause: currentRootCause,
         policyContext,
       });
-      const selectedPlaybooks = resolveSelectedPlaybooks({
+      let selectedPlaybooks = resolveSelectedPlaybooks({
         playbookDecision,
         cachedFix,
+        policyContext,
       });
+      const phaseGateDecision = enforceMajorReworkPhaseGates({
+        selectedPlaybooks,
+        ledgerEntries: ledger.entries,
+        currentSignature,
+      });
+      selectedPlaybooks = phaseGateDecision.selectedPlaybooks;
+      const wavePlan = buildMajorReworkWavePlan({
+        runId: request.runId,
+        iteration,
+        waveOrdinal: ++majorReworkWaveOrdinal,
+        signature: currentSignature,
+        selectedPlaybooks,
+        validationPlan,
+        gateStatus: phaseGateDecision.gateStatus,
+        config: effectiveMajorReworkConfig,
+        budgetState: majorReworkBudget,
+      });
+      let todoArtifacts = null;
+
+      if (playbookDecision.escalationStage === "rework") {
+        todoArtifacts = await writeMajorReworkTodos({
+          outputDir: ledger.outputDir,
+          wavePlan,
+        });
+      }
+
+      if (!wavePlan.admissibility.allowed) {
+        const stopReason = `Wave admissibility blocked: ${wavePlan.admissibility.blockedBy.join(", ")}.`;
+        const entry = buildIterationRecord({
+          iteration,
+          request,
+          signature: currentSignature,
+          rootCause: currentRootCause,
+          retryFeedbackPacket,
+          selectedPlaybooks,
+          majorRework: buildMajorReworkEnvelope({
+            wavePlan,
+            phaseGateStatus: phaseGateDecision.gateStatus,
+            expectedEvidence: wavePlan.expectedEvidence,
+            observedEvidence: ["wave_admissibility_blocked"],
+            deltaAssessment: "unchanged",
+            state: "MR_WAVE_PLAN",
+          }),
+          decision: "stop",
+          stopReason,
+        });
+        await appendLedgerEntry(ledger, entry);
+        await logNarration(`Warning: ${stopReason}`);
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "stop_apply_policy",
+          completionReason: stopReason,
+          logNarration,
+        });
+        return {
+          exitCode: 1,
+          status: "stop_apply_policy",
+          messages: [stopReason, ...precheckWarnings],
+          ledger,
+          signature: currentSignature,
+          rootCause: currentRootCause,
+          hydration,
+        };
+      }
       const deterministicFallbackExceptions = collectDeterministicFallbackExceptions({
         selectedPlaybooks,
         cacheReason: cachedFix?.reason,
@@ -582,16 +700,34 @@ async function runApplyLoop({
       let suppressedDeepReworkPlaybooks = [];
       plannedActions.push(`Escalation stage: ${playbookDecision.escalationStage}.`);
       plannedActions.push(`Selection rationale: ${playbookDecision.rationale}`);
+      if (phaseGateDecision.applied) {
+        plannedActions.push(`Major rework phase gate: ${phaseGateDecision.rationale}`);
+      }
       if (cachedFix) {
         plannedActions.push(`Cache applied: ${cachedFix.reason}.`);
       }
       await logNarration(
         `Analysis: Escalation '${playbookDecision.escalationStage}' selected ${selectedPlaybooks.length} playbook(s)${cachedFix ? ` with cache (${cachedFix.reason})` : ""}.`
       );
+      if (escalationSignal.signals.length > 0) {
+        await logNarration(
+          `Analysis: Escalation classifier signals: ${escalationSignal.signals.join(", ")}.`
+        );
+      }
       if (selectedPlaybooks.length > 0) {
         await logNarration(
           `Analysis: Selected playbooks: ${selectedPlaybooks.join(", ")}.`
         );
+      }
+      if (phaseGateDecision.applied) {
+        await logNarration(
+          `Analysis: Major rework phase gate active. ${phaseGateDecision.rationale}`
+        );
+        if (phaseGateDecision.suppressedPlaybooks.length > 0) {
+          await logNarration(
+            `Analysis: Phase-gated playbooks deferred: ${phaseGateDecision.suppressedPlaybooks.join(", ")}.`
+          );
+        }
       }
       if (terminalMajorReworkTriggered) {
         await logNarration(
@@ -617,7 +753,11 @@ async function runApplyLoop({
       const featureSnapshot = buildFeatureSnapshot({
         request,
         normalizedAgent,
-        policyContext,
+        policyContext: {
+          ...policyContext,
+          fallbackTrendDetected: escalationSignal.fallbackTrendDetected,
+          escalationSignals: escalationSignal.signals,
+        },
         playbookDecision,
         cachedFix,
         selectedPlaybooks,
@@ -643,7 +783,14 @@ async function runApplyLoop({
           historicalFailureClasses: Object.keys(historicalIntelligence?.failureCountByClass ?? {}),
           pipelineOrder: PIPELINE_AGENT_ORDER,
         }),
+        wavePlan,
       });
+
+      majorReworkBudget.consumedCampaignTokens += Number(wavePlan.tokenDemand?.total ?? 0);
+      majorReworkBudget.remainingCampaignTokens = Math.max(
+        0,
+        Number(effectiveMajorReworkConfig?.maxCampaignTokens ?? 0) - majorReworkBudget.consumedCampaignTokens
+      );
       await logNarration(
         `Activity: Iteration ${iteration} applied ${patchResult.changedFiles.length} file change(s).`
       );
@@ -659,6 +806,14 @@ async function runApplyLoop({
           plannedActions,
           deterministicFallbackExceptions,
           changedFiles: [],
+          majorRework: buildMajorReworkEnvelope({
+            wavePlan,
+            phaseGateStatus: phaseGateDecision.gateStatus,
+            expectedEvidence: wavePlan.expectedEvidence,
+            observedEvidence: ["no_op_patch"],
+            deltaAssessment: "unchanged",
+            state: "MR_APPLY",
+          }),
           decision: "stop",
           stopReason: "No-op patch detected; stopping to avoid ineffective loop.",
           tests: [],
@@ -686,6 +841,22 @@ async function runApplyLoop({
           stopReason: entry.stopReason,
           quickRun: request.quickRun === true,
           suppressedDeepReworkPlaybooks,
+          phaseGateStatus: phaseGateDecision.gateStatus,
+          wavePlan,
+          todoArtifacts,
+          expectedEvidence: wavePlan.expectedEvidence,
+          observedEvidence: ["no_op_patch"],
+          deltaAssessment: "unchanged",
+          changedFiles: patchResult.changedFiles,
+          changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
+          plannedActions,
+          tests: [],
+          canary: {
+            command: validationPlan.canaryCommand,
+            passed: false,
+            summary: "Canary not executed because patch was a no-op.",
+          },
+          checkpointTaken: false,
           featureSnapshot,
           majorReworkPacket: patchResult.majorReworkPacket,
           majorReworkBriefPath: patchResult.majorReworkBriefPath,
@@ -693,6 +864,13 @@ async function runApplyLoop({
         await logNarration(
           `Warning: Iteration ${iteration} produced a no-op patch. Stopping to avoid churn.`
         );
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "stop_no_op_patch",
+          completionReason: entry.stopReason,
+          logNarration,
+        });
         return {
           exitCode: 1,
           status: "stop_no_op_patch",
@@ -771,6 +949,14 @@ async function runApplyLoop({
           plannedActions,
           changedFiles: patchResult.changedFiles,
           tests: validation.tests ?? [],
+          majorRework: buildMajorReworkEnvelope({
+            wavePlan,
+            phaseGateStatus: phaseGateDecision.gateStatus,
+            expectedEvidence: wavePlan.expectedEvidence,
+            observedEvidence: ["infrastructure_command_failure"],
+            deltaAssessment: "regressed",
+            state: "MR_VALIDATE",
+          }),
           featureSnapshot,
           canary: {
             command: validationPlan.canaryCommand,
@@ -797,6 +983,23 @@ async function runApplyLoop({
           stopReason: validation.infrastructureMessage,
           quickRun: request.quickRun === true,
           suppressedDeepReworkPlaybooks,
+          phaseGateStatus: phaseGateDecision.gateStatus,
+          wavePlan,
+          todoArtifacts,
+          expectedEvidence: wavePlan.expectedEvidence,
+          observedEvidence: ["infrastructure_command_failure"],
+          deltaAssessment: "regressed",
+          changedFiles: patchResult.changedFiles,
+          changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
+          plannedActions,
+          tests: validation.tests ?? [],
+          canary: {
+            command: validationPlan.canaryCommand,
+            passed: false,
+            summary: validation.infrastructureMessage,
+          },
+          rollbackDecision: rollback.rollbackDecision,
+          checkpointTaken: false,
           featureSnapshot,
           majorReworkPacket: patchResult.majorReworkPacket,
           majorReworkBriefPath: patchResult.majorReworkBriefPath,
@@ -804,6 +1007,13 @@ async function runApplyLoop({
         await logNarration(
           `Error: Iteration ${iteration} hit an infrastructure command failure. ${validation.infrastructureMessage}`
         );
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "infra_command_failure",
+          completionReason: validation.infrastructureMessage,
+          logNarration,
+        });
         return {
           exitCode: 3,
           status: "infra_command_failure",
@@ -817,6 +1027,10 @@ async function runApplyLoop({
 
       const unresolvedWarnings = hasUnresolvedWarnings(validation);
       const canaryPassed = Boolean(validation.canary?.passed);
+      const narrativeGateRegression =
+        request.enableMajorRework === true
+        && effectiveMajorReworkConfig.enforceNarrativeAcceptanceGates === true
+        && validation.canary?.narrativeGates?.hasRegression === true;
       await logNarration(
         `Activity: Iteration ${iteration} validation finished. Canary passed: ${canaryPassed ? "yes" : "no"}. Warning count: ${validation.canary?.warningsCount ?? 0}.`
       );
@@ -827,7 +1041,7 @@ async function runApplyLoop({
         unresolvedWarnings,
         canaryPassed,
       });
-      if (canaryPassed && !unresolvedWarnings) {
+      if (canaryPassed && !unresolvedWarnings && !narrativeGateRegression) {
         const entry = buildIterationRecord({
           iteration,
           request,
@@ -839,6 +1053,14 @@ async function runApplyLoop({
           deterministicFallbackExceptions,
           changedFiles: patchResult.changedFiles,
           tests: validation.tests,
+          majorRework: buildMajorReworkEnvelope({
+            wavePlan,
+            phaseGateStatus: phaseGateDecision.gateStatus,
+            expectedEvidence: wavePlan.expectedEvidence,
+            observedEvidence: ["canary_passed_no_unresolved_warnings"],
+            deltaAssessment: "improved",
+            state: "MR_STOP_PASS",
+          }),
           featureSnapshot,
           canary: validation.canary,
           decision: "pass",
@@ -861,6 +1083,18 @@ async function runApplyLoop({
           stopReason: entry.stopReason,
           quickRun: request.quickRun === true,
           suppressedDeepReworkPlaybooks,
+          phaseGateStatus: phaseGateDecision.gateStatus,
+          wavePlan,
+          todoArtifacts,
+          expectedEvidence: wavePlan.expectedEvidence,
+          observedEvidence: ["canary_passed_no_unresolved_warnings"],
+          deltaAssessment: "improved",
+          changedFiles: patchResult.changedFiles,
+          changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
+          plannedActions,
+          tests: validation.tests,
+          canary: validation.canary,
+          checkpointTaken: false,
           featureSnapshot,
           majorReworkPacket: patchResult.majorReworkPacket,
           majorReworkBriefPath: patchResult.majorReworkBriefPath,
@@ -875,6 +1109,13 @@ async function runApplyLoop({
           outcome: "pass",
         });
         await logNarration(`Activity: Iteration ${iteration} passed with no unresolved warnings.`);
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "pass",
+          completionReason: "validation_passed_no_unresolved_warnings",
+          logNarration,
+        });
         return {
           exitCode: 0,
           status: "pass",
@@ -885,6 +1126,11 @@ async function runApplyLoop({
           changedFiles: patchResult.changedFiles,
           hydration,
         };
+      }
+      if (narrativeGateRegression) {
+        await logNarration(
+          `Warning: Narrative acceptance gates blocked pass (${validation.canary?.narrativeGates?.criticalCount ?? 0} critical marker(s)).`
+        );
       }
 
       const outputSignature = normalizeOutputSignatureForValidation({
@@ -904,6 +1150,11 @@ async function runApplyLoop({
       });
       const outputRootCause = analyzeRootCause(outputSignature);
       const outputRetryPacket = buildRetryFeedbackPacket(outputSignature, outputRootCause);
+      const delta = assessMajorReworkDelta({
+        previousSignature: currentSignature,
+        outputSignature,
+        validation,
+      });
 
       const failureDecision = decideLoopContinuation({
         request,
@@ -935,27 +1186,6 @@ async function runApplyLoop({
       }
       unchangedCount = effectiveFailureDecision.nextUnchangedCount;
 
-      await appendMajorReworkLogEntry(majorReworkLog, {
-        workspaceRoot,
-        iteration,
-        signatureClass: currentSignature.class,
-        outputSignatureClass: outputSignature.class,
-        rootCauseLayer: currentRootCause.sourceLayer,
-        escalationStage: playbookDecision.escalationStage,
-        selectionRationale: playbookDecision.rationale,
-        selectedPlaybooks,
-        terminalMajorReworkTriggered,
-        forcedTerminalMajorRework: shouldForceTerminalMajorRework,
-        resetApplied: shouldResetForMajorRework,
-        decision: effectiveFailureDecision.decision,
-        stopReason: effectiveFailureDecision.stopReason,
-        quickRun: request.quickRun === true,
-        suppressedDeepReworkPlaybooks,
-        featureSnapshot,
-        majorReworkPacket: patchResult.majorReworkPacket,
-        majorReworkBriefPath: patchResult.majorReworkBriefPath,
-      });
-
       const rollback = await maybeRollbackIterationChanges({
         workspaceRoot,
         request,
@@ -966,8 +1196,23 @@ async function runApplyLoop({
         previousSignature: currentSignature,
         outputSignature,
         decision: effectiveFailureDecision.decision,
+        rollbackDecision: classifyRollbackDecision({
+          previousSignature: currentSignature,
+          outputSignature,
+          deltaAssessment: delta.deltaAssessment,
+          decision: effectiveFailureDecision.decision,
+          partialRollbackEnabled: request.partialRollbackEnabled,
+          confidence: outputSignature.confidence,
+          changedFiles: patchResult.changedFiles,
+        }),
         logNarration,
       });
+      const checkpointTaken = shouldTakeMajorReworkCheckpoint({
+        config: effectiveMajorReworkConfig,
+        budgetState: majorReworkBudget,
+        nextTokenDemand: wavePlan.tokenDemand,
+      });
+      let checkpointPath;
       if (rollback.note) {
         plannedActions.push(rollback.note);
       }
@@ -984,6 +1229,16 @@ async function runApplyLoop({
         deterministicFallbackExceptions,
         changedFiles: patchResult.changedFiles,
         tests: validation.tests,
+        majorRework: buildMajorReworkEnvelope({
+          wavePlan,
+          phaseGateStatus: phaseGateDecision.gateStatus,
+          expectedEvidence: wavePlan.expectedEvidence,
+          observedEvidence: delta.observedEvidence,
+          deltaAssessment: delta.deltaAssessment,
+          rollbackDecision: rollback.rollbackDecision,
+          checkpointTaken,
+          state: "MR_DELTA_REVIEW",
+        }),
         featureSnapshot,
         canary: validation.canary,
         decision: effectiveFailureDecision.decision,
@@ -998,6 +1253,78 @@ async function runApplyLoop({
         rootCause: currentRootCause,
         selectedPlaybooks,
         outcome: effectiveFailureDecision.decision === "stop" ? "stop" : "continue",
+      });
+      if (playbookDecision.escalationStage === "rework") {
+        await appendMajorReworkLearning({
+          outputDir: ledger.outputDir,
+          runId: request.runId,
+          campaignId: wavePlan.campaignId,
+          signatureClass: currentSignature.class,
+          rootCauseLayer: currentRootCause.sourceLayer,
+          entry: {
+            phase: wavePlan.phase,
+            waveId: wavePlan.waveId,
+            selectedPlaybooks,
+            outcome: effectiveFailureDecision.decision === "stop" ? "stop" : "continue",
+            deltaAssessment: delta.deltaAssessment,
+            rollbackMode: rollback.rollbackDecision?.mode ?? "none",
+            keptFiles: rollback.rollbackDecision?.keptFiles ?? [],
+            revertedFiles: rollback.rollbackDecision?.revertedFiles ?? [],
+            recommendationTags: toLearningRecommendationTags({
+              decision: effectiveFailureDecision.decision,
+              deltaAssessment: delta.deltaAssessment,
+            }),
+          },
+        });
+      }
+
+      if (checkpointTaken) {
+        checkpointPath = await writeMajorReworkCheckpoint({
+          outputDir: ledger.outputDir,
+          runId: request.runId,
+          iteration,
+          phase: wavePlan.phase,
+          signatureClass: outputSignature.class,
+          budgetState: majorReworkBudget,
+          reason: "token_budget_threshold",
+        });
+        majorReworkBudget.checkpointsTaken += 1;
+        await logNarration(`Activity: Major rework checkpoint written at ${checkpointPath}.`);
+      }
+
+      await appendMajorReworkLogEntry(majorReworkLog, {
+        workspaceRoot,
+        iteration,
+        signatureClass: currentSignature.class,
+        outputSignatureClass: outputSignature.class,
+        rootCauseLayer: currentRootCause.sourceLayer,
+        escalationStage: playbookDecision.escalationStage,
+        selectionRationale: playbookDecision.rationale,
+        selectedPlaybooks,
+        terminalMajorReworkTriggered,
+        forcedTerminalMajorRework: shouldForceTerminalMajorRework,
+        resetApplied: shouldResetForMajorRework,
+        decision: effectiveFailureDecision.decision,
+        stopReason: effectiveFailureDecision.stopReason,
+        quickRun: request.quickRun === true,
+        suppressedDeepReworkPlaybooks,
+        phaseGateStatus: phaseGateDecision.gateStatus,
+        wavePlan,
+        todoArtifacts,
+        expectedEvidence: wavePlan.expectedEvidence,
+        observedEvidence: delta.observedEvidence,
+        deltaAssessment: delta.deltaAssessment,
+        changedFiles: patchResult.changedFiles,
+        changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
+        plannedActions,
+        tests: validation.tests,
+        canary: validation.canary,
+        rollbackDecision: rollback.rollbackDecision,
+        checkpointTaken,
+        checkpointPath,
+        featureSnapshot,
+        majorReworkPacket: patchResult.majorReworkPacket,
+        majorReworkBriefPath: patchResult.majorReworkBriefPath,
       });
       await logNarration(
         `Error: Iteration ${iteration} still failing with '${describeSignatureClass(outputSignature.class)}' (class '${outputSignature.class}', severity '${outputSignature.severity}').`
@@ -1022,6 +1349,13 @@ async function runApplyLoop({
           await logNarration(
             "Warning: Loop reached unchanged-signature safety limit, but canary passed and only warning-level issues remain. Returning non-fatal warning result."
           );
+          await finalizeMajorReworkTodosOnTerminal({
+            request,
+            ledger,
+            terminalStatus: "pass_with_warnings",
+            completionReason: effectiveFailureDecision.stopReason,
+            logNarration,
+          });
           return {
             exitCode: 0,
             status: "pass_with_warnings",
@@ -1039,6 +1373,13 @@ async function runApplyLoop({
         await logNarration(
           `Warning: Loop stopped by safety policy. Reason: ${effectiveFailureDecision.stopReason}`
         );
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "stop_apply_policy",
+          completionReason: effectiveFailureDecision.stopReason,
+          logNarration,
+        });
         return {
           exitCode: 1,
           status: "stop_apply_policy",
@@ -1056,6 +1397,13 @@ async function runApplyLoop({
         await logNarration(
           "Warning: New root-cause confidence dropped below safe threshold. Loop stopped."
         );
+        await finalizeMajorReworkTodosOnTerminal({
+          request,
+          ledger,
+          terminalStatus: "stop_low_confidence_root_cause",
+          completionReason: `low_confidence_root_cause_${currentRootCause.confidence}`,
+          logNarration,
+        });
         return {
           exitCode: 1,
           status: "stop_low_confidence_root_cause",
@@ -1076,6 +1424,13 @@ async function runApplyLoop({
       }
     }
 
+    await finalizeMajorReworkTodosOnTerminal({
+      request,
+      ledger,
+      terminalStatus: "stop_max_iterations",
+      completionReason: `Reached max iterations (${request.maxIterations}).`,
+      logNarration,
+    });
     return {
       exitCode: 1,
       status: "stop_max_iterations",
@@ -1174,6 +1529,20 @@ async function appendMajorReworkLogEntry(majorReworkLog, entry) {
     `- quick run suppression candidates: ${(entry.suppressedDeepReworkPlaybooks ?? []).length ? entry.suppressedDeepReworkPlaybooks.join(", ") : "none"}`,
   ];
 
+  if (entry.wavePlan) {
+    lines.push(`- wave: \`${entry.wavePlan.waveId ?? "n/a"}\` (${entry.wavePlan.phase ?? "n/a"})`);
+    lines.push(`- campaign: \`${entry.wavePlan.campaignId ?? "n/a"}\``);
+    lines.push(
+      `- budget snapshot: campaignRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingCampaignTokens ?? 0)}, waveThinkRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingWaveThinkTokens ?? 0)}, waveActRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingWaveActTokens ?? 0)}`
+    );
+    lines.push(
+      `- token demand: think=${Number(entry.wavePlan.tokenDemand?.thinkTokens ?? 0)}, act=${Number(entry.wavePlan.tokenDemand?.actTokens ?? 0)}, total=${Number(entry.wavePlan.tokenDemand?.total ?? 0)}`
+    );
+    lines.push(
+      `- admissibility blockers: ${(entry.wavePlan.admissibility?.blockedBy ?? []).length ? entry.wavePlan.admissibility.blockedBy.join(" | ") : "none"}`
+    );
+  }
+
   const scope = entry.featureSnapshot?.scope ?? {};
   if (scope.selectedAgent || scope.requestedStartBoundary || scope.effectiveStartBoundary) {
     lines.push(
@@ -1186,13 +1555,113 @@ async function appendMajorReworkLogEntry(majorReworkLog, entry) {
     lines.push(`- major rework brief: ${rel}`);
   }
   if (entry.majorReworkPacket) {
-    lines.push(`- major rework packet focus: ${entry.majorReworkPacket.focusArea ?? "n/a"}`);
-    lines.push(`- major rework packet constraints: ${(entry.majorReworkPacket.constraints ?? []).length}`);
-    lines.push(`- major rework packet must-fix count: ${(entry.majorReworkPacket.mustFix ?? []).length}`);
+    lines.push(`- objective: ${entry.majorReworkPacket.objective ?? "n/a"}`);
+    lines.push(`- packet must-fix count: ${(entry.majorReworkPacket.safety?.constraintsFromRetryPacket?.mustFix ?? []).length}`);
+    lines.push(`- packet warnings-to-clear count: ${(entry.majorReworkPacket.safety?.constraintsFromRetryPacket?.warningsToClear ?? []).length}`);
+    lines.push(`- redesign tracks: ${(entry.majorReworkPacket.redesignTracks ?? []).length}`);
+    lines.push(`- implementation phases: ${(entry.majorReworkPacket.implementationPlan?.phases ?? []).length}`);
+    lines.push(`- phase sequence constraints: ${(entry.majorReworkPacket.implementationPlan?.sequenceConstraints ?? []).length}`);
+    lines.push(`- rollback triggers: ${(entry.majorReworkPacket.implementationPlan?.rollbackTriggers ?? []).length}`);
+  }
+  if (entry.phaseGateStatus) {
+    lines.push(`- phase gate P1 complete: \`${entry.phaseGateStatus.p1Complete === true}\``);
+    lines.push(`- phase gate P2 complete: \`${entry.phaseGateStatus.p2Complete === true}\``);
+    lines.push(`- phase gate control point detected: \`${entry.phaseGateStatus.hasControlPoint === true}\``);
+    lines.push(
+      `- phase gate blockers: ${(entry.phaseGateStatus.blockedBy ?? []).length ? entry.phaseGateStatus.blockedBy.join(" | ") : "none"}`
+    );
+  }
+
+  if ((entry.expectedEvidence ?? []).length) {
+    lines.push(`- expected evidence: ${(entry.expectedEvidence ?? []).join(" | ")}`);
+  }
+  if ((entry.observedEvidence ?? []).length) {
+    lines.push(`- observed evidence: ${(entry.observedEvidence ?? []).join(" | ")}`);
+  }
+  if (entry.deltaAssessment) {
+    lines.push(`- delta assessment: \`${entry.deltaAssessment}\``);
+  }
+
+  if ((entry.changedFiles ?? []).length) {
+    lines.push(`- changed files (${entry.changedFiles.length}): ${(entry.changedFiles ?? []).join(", ")}`);
+  }
+  if ((entry.changeDescriptions ?? []).length) {
+    lines.push("- change descriptions:");
+    for (const description of entry.changeDescriptions) {
+      lines.push(`  - ${description}`);
+    }
+  }
+  if ((entry.plannedActions ?? []).length) {
+    lines.push("- planned actions:");
+    for (const action of entry.plannedActions) {
+      lines.push(`  - ${action}`);
+    }
+  }
+
+  if ((entry.tests ?? []).length) {
+    lines.push("- validation tests:");
+    for (const testResult of entry.tests) {
+      lines.push(
+        `  - ${compactCommandLabel(testResult.command)} => ${testResult.passed ? "pass" : "fail"} (${compactIssueMessage(testResult.summary ?? "", 90)})`
+      );
+    }
+  }
+  if (entry.canary) {
+    lines.push(
+      `- canary: ${entry.canary.passed === true ? "pass" : "fail"} (${compactIssueMessage(entry.canary.summary ?? "", 110)})`
+    );
+    if (entry.canary.narrativeGates) {
+      lines.push(
+        `- narrative gates: critical=${Number(entry.canary.narrativeGates.criticalCount ?? 0)}, markers=${(entry.canary.narrativeGates.matchedMarkers ?? []).length ? entry.canary.narrativeGates.matchedMarkers.join(", ") : "none"}`
+      );
+    }
+  }
+
+  if (entry.rollbackDecision) {
+    lines.push(`- rollback mode: \`${entry.rollbackDecision.mode ?? "none"}\``);
+    lines.push(`- rollback rationale: ${entry.rollbackDecision.rationale ?? "none"}`);
+    lines.push(
+      `- rollback kept files: ${(entry.rollbackDecision.keptFiles ?? []).length ? entry.rollbackDecision.keptFiles.join(", ") : "none"}`
+    );
+    lines.push(
+      `- rollback reverted files: ${(entry.rollbackDecision.revertedFiles ?? []).length ? entry.rollbackDecision.revertedFiles.join(", ") : "none"}`
+    );
+    lines.push(
+      `- rollback evidence: ${(entry.rollbackDecision.evidence ?? []).length ? entry.rollbackDecision.evidence.join(" | ") : "none"}`
+    );
+  }
+
+  if (entry.checkpointTaken === true) {
+    lines.push(`- checkpoint: taken (${entry.checkpointPath ? entry.checkpointPath : "path unavailable"})`);
+  } else {
+    lines.push("- checkpoint: not taken");
+  }
+
+  if (entry.todoArtifacts) {
+    lines.push(
+      `- todo artifacts: campaign=${entry.todoArtifacts.campaignPath ?? "n/a"}, phase=${entry.todoArtifacts.phasePath ?? "n/a"}, wave=${entry.todoArtifacts.wavePath ?? "n/a"}`
+    );
   }
 
   lines.push("");
   await fs.appendFile(majorReworkLog.paths.mdPath, `${lines.join("\n")}\n`, "utf8");
+}
+
+function summarizeChangeDetails(changeDetails = [], workspaceRoot) {
+  const items = Array.isArray(changeDetails) ? changeDetails : [];
+  if (!items.length) {
+    return [];
+  }
+  return items.map((change) => {
+    const absolute = String(change?.filePath ?? "");
+    const rel = workspaceRoot && absolute
+      ? path.relative(workspaceRoot, absolute).split(path.sep).join("/")
+      : absolute;
+    if (change?.existedBefore === true) {
+      return `updated ${rel}`;
+    }
+    return `created ${rel}`;
+  });
 }
 
 async function createCanaryNarrator(workspaceRoot) {
@@ -1510,10 +1979,97 @@ function countPromptRetriesForClass({ entries, signatureClass }) {
   }).length;
 }
 
-export function resolveSelectedPlaybooks({ playbookDecision, cachedFix }) {
+const MAJOR_REWORK_PHASE_PLAYBOOKS = {
+  P1: "pb.rework.llm-request-contract-overhaul",
+  P2: "pb.rework.response-processing-robustness",
+  P3: "pb.rework.story-logic-research-lab",
+};
+
+export function enforceMajorReworkPhaseGates({
+  selectedPlaybooks = [],
+  ledgerEntries = [],
+  currentSignature,
+}) {
+  const selected = (selectedPlaybooks ?? []).map((id) => String(id));
+  const hasReworkPlaybook = selected.some((id) => id.startsWith("pb.rework."));
+  if (!hasReworkPlaybook) {
+    return {
+      applied: false,
+      selectedPlaybooks: selected,
+      suppressedPlaybooks: [],
+      rationale: "No major rework playbooks selected.",
+      gateStatus: {
+        p1Complete: false,
+        p2Complete: false,
+        hasControlPoint: !isGenericExecutionClass(currentSignature?.class),
+        blockedBy: [],
+      },
+    };
+  }
+
+  const entries = Array.isArray(ledgerEntries) ? ledgerEntries : [];
+  const p1Complete = entries.some((entry) => isCompletedReworkPhaseEntry(entry, MAJOR_REWORK_PHASE_PLAYBOOKS.P1));
+  const p2Complete = entries.some((entry) => isCompletedReworkPhaseEntry(entry, MAJOR_REWORK_PHASE_PLAYBOOKS.P2));
+  const hasControlPoint = !isGenericExecutionClass(currentSignature?.class);
+
+  const allowed = new Set(selected);
+  const suppressed = [];
+  const blockedBy = [];
+  if (!p1Complete) {
+    if (!hasControlPoint) {
+      blockedBy.push("P1 requires a non-generic failure control point.");
+    }
+    blockedBy.push("P2 and P3 are blocked until P1 completes with non-generic output evidence.");
+    for (const playbook of [MAJOR_REWORK_PHASE_PLAYBOOKS.P2, MAJOR_REWORK_PHASE_PLAYBOOKS.P3]) {
+      if (allowed.delete(playbook)) {
+        suppressed.push(playbook);
+      }
+    }
+  } else if (!p2Complete) {
+    blockedBy.push("P3 is blocked until P2 completes with non-generic output evidence.");
+    if (allowed.delete(MAJOR_REWORK_PHASE_PLAYBOOKS.P3)) {
+      suppressed.push(MAJOR_REWORK_PHASE_PLAYBOOKS.P3);
+    }
+  }
+
+  const gatedSelection = selected.filter((id) => allowed.has(id));
+  const rationale = blockedBy.length
+    ? blockedBy.join(" ")
+    : "All required prior phases satisfied; no phase gating applied.";
+
+  return {
+    applied: suppressed.length > 0,
+    selectedPlaybooks: gatedSelection,
+    suppressedPlaybooks: suppressed,
+    rationale,
+    gateStatus: {
+      p1Complete,
+      p2Complete,
+      hasControlPoint,
+      blockedBy,
+    },
+  };
+}
+
+function isCompletedReworkPhaseEntry(entry, phasePlaybook) {
+  if (!entry || !Array.isArray(entry.selectedPlaybooks) || !entry.selectedPlaybooks.includes(phasePlaybook)) {
+    return false;
+  }
+  const outputClass = String(entry?.outputSignature?.class ?? "");
+  if (!outputClass || isGenericExecutionClass(outputClass)) {
+    return false;
+  }
+  return true;
+}
+
+export function resolveSelectedPlaybooks({ playbookDecision, cachedFix, policyContext = {} }) {
   const selectedByDecision = Array.isArray(playbookDecision?.selectedPlaybooks)
     ? playbookDecision.selectedPlaybooks
     : [];
+
+  if (policyContext?.stagnationDetected === true || policyContext?.disableCache === true) {
+    return selectedByDecision;
+  }
 
   // Rework escalation must not be masked by cached prompt/code playbooks.
   if (playbookDecision?.escalationStage === "rework") {
@@ -1590,6 +2146,12 @@ function validateRequest({ request, normalizedAgent, normalizedStartFromAgent })
   if (typeof request.enableMajorRework !== "boolean") {
     errors.push("--enableMajorRework must be true or false.");
   }
+  if (typeof request.majorReworkAgentV2 !== "boolean") {
+    errors.push("--majorReworkAgentV2 must be true or false.");
+  }
+  if (!request.majorReworkConfig || typeof request.majorReworkConfig !== "object") {
+    errors.push("--majorReworkConfig must be an object.");
+  }
 
   if (request.startChapter !== undefined) {
     if (!Number.isInteger(request.startChapter) || request.startChapter < 1) {
@@ -1601,6 +2163,91 @@ function validateRequest({ request, normalizedAgent, normalizedStartFromAgent })
   }
 
   return errors;
+}
+
+function collectLearningFailedPlaybooks({ majorReworkLearning, signatureClass }) {
+  if (!majorReworkLearning || !Array.isArray(majorReworkLearning.entries)) {
+    return [];
+  }
+  const target = String(signatureClass ?? "");
+  const failed = new Set();
+  for (const entry of majorReworkLearning.entries) {
+    if (String(majorReworkLearning.signatureClass ?? "") !== target) {
+      continue;
+    }
+    if (String(entry?.outcome ?? "") !== "stop") {
+      continue;
+    }
+    for (const playbook of entry?.selectedPlaybooks ?? []) {
+      failed.add(String(playbook));
+    }
+  }
+  return [...failed];
+}
+
+function deriveWaveOrdinalSeed(majorReworkLearning) {
+  if (!majorReworkLearning || !Array.isArray(majorReworkLearning.entries)) {
+    return 0;
+  }
+  let maxOrdinal = 0;
+  for (const entry of majorReworkLearning.entries) {
+    const waveId = String(entry?.waveId ?? "");
+    const match = waveId.match(/-W(\d+)$/i);
+    if (!match) {
+      continue;
+    }
+    const candidate = Number.parseInt(match[1], 10);
+    if (Number.isInteger(candidate) && candidate > maxOrdinal) {
+      maxOrdinal = candidate;
+    }
+  }
+  return maxOrdinal;
+}
+
+async function finalizeMajorReworkTodosOnTerminal({
+  request,
+  ledger,
+  terminalStatus,
+  completionReason,
+  logNarration,
+}) {
+  if (request.enableMajorRework !== true || !ledger?.outputDir) {
+    return;
+  }
+  try {
+    const finalized = await finalizeMajorReworkTodos({
+      outputDir: ledger.outputDir,
+      terminalStatus,
+      completionReason,
+    });
+    const touchedCount = [
+      finalized?.campaignPath,
+      ...(finalized?.phasePaths ?? []),
+      ...(finalized?.wavePaths ?? []),
+    ].filter(Boolean).length;
+    if (touchedCount > 0) {
+      await logNarration(
+        `Activity: Finalized ${touchedCount} major-rework todo artifact(s) with terminal status '${terminalStatus}'.`
+      );
+    }
+  } catch (error) {
+    await logNarration(
+      `Warning: Failed to finalize major-rework todo artifacts. ${String(error?.message ?? error)}`
+    );
+  }
+}
+
+function toLearningRecommendationTags({ decision, deltaAssessment }) {
+  if (decision === "stop" && (deltaAssessment === "regressed" || deltaAssessment === "unchanged")) {
+    return ["avoid", "re-scope"];
+  }
+  if (deltaAssessment === "improved") {
+    return ["retry"];
+  }
+  if (deltaAssessment === "mixed") {
+    return ["retry", "escalate"];
+  }
+  return ["escalate"];
 }
 
 function buildIterationRecord({
@@ -1617,6 +2264,7 @@ function buildIterationRecord({
   tests = [],
   featureSnapshot,
   canary,
+  majorRework,
   decision,
   stopReason,
 }) {
@@ -1644,9 +2292,50 @@ function buildIterationRecord({
         passed: false,
         summary: "Canary execution is not part of suggest mode.",
       },
+    majorRework,
     outputSignature,
     decision,
     stopReason,
+  };
+}
+
+function buildMajorReworkEnvelope({
+  wavePlan,
+  phaseGateStatus,
+  expectedEvidence = [],
+  observedEvidence = [],
+  deltaAssessment = "unchanged",
+  rollbackDecision,
+  checkpointTaken = false,
+  state = "MR_DELTA_REVIEW",
+}) {
+  if (!wavePlan) {
+    return undefined;
+  }
+
+  return {
+    campaignId: wavePlan.campaignId,
+    phase: wavePlan.phase,
+    waveId: wavePlan.waveId,
+    state,
+    phaseGateStatus: phaseGateStatus ?? {
+      p1Complete: false,
+      p2Complete: false,
+      hasControlPoint: false,
+      blockedBy: [],
+    },
+    expectedEvidence,
+    observedEvidence,
+    deltaAssessment,
+    rollbackDecision: rollbackDecision ?? {
+      mode: "none",
+      rationale: "No rollback decision captured.",
+      keptFiles: [],
+      revertedFiles: [],
+      evidence: [],
+    },
+    checkpointTaken,
+    budgetSnapshot: wavePlan.budgetSnapshot,
   };
 }
 
@@ -1693,8 +2382,78 @@ function buildFeatureSnapshot({
       promptRetryCount: Number(policyContext?.promptRetryCount ?? 0),
       historicalFailureCount: Number(policyContext?.historicalFailureCount ?? 0),
       oscillationDetected: policyContext?.oscillationDetected === true,
+      fallbackTrendDetected: policyContext?.fallbackTrendDetected === true,
+      escalationSignals: Array.isArray(policyContext?.escalationSignals)
+        ? policyContext.escalationSignals
+        : [],
       priorRunFailedPlaybooksCount: priorFailed.length,
     },
+  };
+}
+
+const GENERIC_FALLBACK_CLASSES = new Set([
+  "unknown.pipeline_failure",
+  "canary.execution_failure",
+  "infra_command_failure",
+]);
+
+function isFallbackSignatureClass(signatureClass) {
+  return GENERIC_FALLBACK_CLASSES.has(String(signatureClass ?? ""));
+}
+
+export function detectFallbackTrend(classHistory = [], currentSignatureClass) {
+  const ordered = [
+    ...(Array.isArray(classHistory) ? classHistory : []),
+    currentSignatureClass,
+  ]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean);
+  const recent = ordered.slice(-3);
+  if (recent.length < 2) {
+    return false;
+  }
+
+  const fallbackCount = recent.filter((signatureClass) => isFallbackSignatureClass(signatureClass)).length;
+  return fallbackCount >= 2;
+}
+
+export function classifyMajorReworkEscalation({
+  request,
+  promptRetryCount,
+  historicalFailureCount,
+  oscillationDetected,
+  classHistory,
+  currentSignatureClass,
+  shouldForceTerminalMajorRework,
+}) {
+  if (request?.enableMajorRework !== true) {
+    return {
+      fallbackTrendDetected: false,
+      signals: [],
+    };
+  }
+
+  const signals = [];
+  const fallbackTrendDetected = detectFallbackTrend(classHistory, currentSignatureClass);
+  if (Number(promptRetryCount ?? 0) >= 3) {
+    signals.push("prompt_retries_exhausted");
+  }
+  if (Number(historicalFailureCount ?? 0) >= 4) {
+    signals.push("historical_failures_high");
+  }
+  if (oscillationDetected === true) {
+    signals.push("signature_oscillation");
+  }
+  if (fallbackTrendDetected) {
+    signals.push("fallback_trend_detected");
+  }
+  if (shouldForceTerminalMajorRework === true) {
+    signals.push("terminal_iteration_force");
+  }
+
+  return {
+    fallbackTrendDetected,
+    signals,
   };
 }
 
@@ -1888,6 +2647,19 @@ function normalizeOutputSignatureForValidation({ signature, validation }) {
     return signature;
   }
 
+  // Preserve specific non-generic signatures discovered in validation output
+  // so continuation can target the real failing control point instead of a generic bucket.
+  if (signature && !isGenericExecutionClass(signature.class)) {
+    return {
+      ...signature,
+      message:
+        signature.message ||
+        validation?.canary?.summary ||
+        validation?.canary?.stderr ||
+        validation?.canary?.stdout,
+    };
+  }
+
   return {
     ...signature,
     class: "canary.execution_failure",
@@ -2041,6 +2813,10 @@ export function buildDefaultRequest(overrides) {
     partialRollbackEnabled: DEFAULTS.partialRollbackEnabled,
     autoExpandUpstreamScope: DEFAULTS.autoExpandUpstreamScope,
     enableMajorRework: DEFAULTS.enableMajorRework,
+    majorReworkAgentV2: DEFAULTS.majorReworkAgentV2,
+    majorReworkConfig: {
+      ...MAJOR_REWORK_DEFAULTS,
+    },
     ...overrides,
   };
 }
@@ -2059,7 +2835,6 @@ export function applyQuickRunPreset(request) {
     autoExpandUpstreamScope: false,
     enableMajorRework: false,
     testScope: "targeted",
-    maxUnchanged: Math.min(Math.max(Number(base.maxUnchanged) || 0, 0), 1),
   };
 }
 
@@ -2073,6 +2848,7 @@ async function maybeRollbackIterationChanges({
   previousSignature,
   outputSignature,
   decision,
+  rollbackDecision,
   logNarration,
 }) {
   if (!request.rollbackFailedChanges) {
@@ -2082,14 +2858,25 @@ async function maybeRollbackIterationChanges({
     return { note: null };
   }
 
-  const keepFilePaths = request.partialRollbackEnabled
-    ? selectPartialRollbackKeepFiles({
-      workspaceRoot,
-      changeDetails: patchResult.changeDetails,
-      previousSignature,
-      outputSignature,
-      decision,
-    })
+  const effectiveRollbackDecision = rollbackDecision ?? classifyRollbackDecision({
+    previousSignature,
+    outputSignature,
+    deltaAssessment: "unchanged",
+    decision,
+    partialRollbackEnabled: request.partialRollbackEnabled,
+    confidence: outputSignature?.confidence,
+    changedFiles: patchResult.changedFiles,
+  });
+
+  if (effectiveRollbackDecision.mode === "none") {
+    return {
+      note: null,
+      rollbackDecision: effectiveRollbackDecision,
+    };
+  }
+
+  const keepFilePaths = effectiveRollbackDecision.mode === "partial"
+    ? effectiveRollbackDecision.keptFiles
     : [];
 
   const rollback = await rollbackFailedImplementationChanges({
@@ -2099,10 +2886,19 @@ async function maybeRollbackIterationChanges({
     changeDetails: patchResult.changeDetails,
     reason,
     keepFilePaths,
+    rollbackMode: effectiveRollbackDecision.mode,
+    rollbackEvidence: effectiveRollbackDecision.evidence,
+    waveId: patchResult.wavePlan?.waveId,
   });
 
   if (!rollback.rolledBackCount) {
-    return { note: null };
+    return {
+      note: null,
+      rollbackDecision: {
+        ...effectiveRollbackDecision,
+        revertedFiles: rollback.restoredFiles ?? [],
+      },
+    };
   }
 
   const partialNote = rollback.keptFiles?.length
@@ -2110,7 +2906,14 @@ async function maybeRollbackIterationChanges({
     : "";
   const note = `Rolled back ${rollback.rolledBackCount} unresolved implementation change(s); archived snapshots at ${rollback.archivedDir}.${partialNote}`;
   await logNarration(`Activity: ${note}`);
-  return { note };
+  return {
+    note,
+    rollbackDecision: {
+      ...effectiveRollbackDecision,
+      revertedFiles: rollback.restoredFiles ?? effectiveRollbackDecision.revertedFiles,
+      keptFiles: rollback.keptFiles ?? effectiveRollbackDecision.keptFiles,
+    },
+  };
 }
 
 function selectPartialRollbackKeepFiles({
@@ -2255,6 +3058,32 @@ function suggestExpandedStartFromSignature({ signature, selectedAgentCode, curre
   }
 
   return suggestedCode;
+}
+
+function extractPinnedCanaryAgentCode(canaryCommand) {
+  const command = String(canaryCommand ?? "");
+  if (!/node\s+scripts\/canary-agent-boundary\.mjs/i.test(command)) {
+    return null;
+  }
+  const match = command.match(/--agent\s+([0-9]+[a-z]?)/i);
+  if (!match) {
+    return null;
+  }
+  return String(match[1] ?? "").toLowerCase();
+}
+
+export function shouldSuppressAutoExpansion({
+  selectedAgentCode,
+  expandedStartCode,
+  pinnedCanaryAgentCode,
+}) {
+  const selected = String(selectedAgentCode ?? "").toLowerCase();
+  const expanded = String(expandedStartCode ?? "").toLowerCase();
+  const pinned = String(pinnedCanaryAgentCode ?? "").toLowerCase();
+  if (!selected || !expanded || !pinned) {
+    return false;
+  }
+  return pinned === selected && expanded !== selected;
 }
 
 function shouldRollbackAtEndOfRun(status) {

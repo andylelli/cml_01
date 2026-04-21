@@ -1159,9 +1159,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 
   const evidenceIdNormalization = sanitizeDiscriminatingEvidenceClueIds(ctx.cml!);
   if (evidenceIdNormalization.removed.length > 0) {
-    ctx.warnings.push(
-      "Agent 5: removed non-canonical discriminating_test.evidence_clues entries; " +
-      "will rely on canonical clue IDs and deterministic backfill for traceability.",
+    ctx.reportProgress(
+      "clues",
+      "Agent 5: normalized non-canonical discriminating_test.evidence_clues entries; using canonical clue IDs for deterministic traceability.",
+      51,
     );
   }
 
@@ -1714,8 +1715,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       const caseBlock = getCaseBlock(ctx.cml!);
       if (caseBlock?.discriminating_test) {
         caseBlock.discriminating_test.evidence_clues = seededEvidenceIds;
-        ctx.warnings.push(
-          `Agent 5: seeded discriminating_test.evidence_clues from clue set: ${seededEvidenceIds.join(", ")}`,
+        ctx.reportProgress(
+          "clues",
+          `Agent 5: deterministically seeded discriminating_test.evidence_clues from canonical clue IDs (${seededEvidenceIds.join(", ")}).`,
+          61,
         );
         finalCoverage = buildCoverageSnapshot(clues);
       }

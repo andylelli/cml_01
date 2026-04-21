@@ -1,7 +1,7 @@
-# Agent Canary Framework - Detailed Low-Level Design (LLD)
+# Agent Canary Framework - Detailed Design (DLD)
 
-**Parent HLD:** `documentation/plan/canary-agent-framework-HLD.md`  
-**Goal:** Implementation-ready design for autonomous per-run/per-agent canary fix loops.
+**Primary Description:** `documentation/11_canary_loop/11_canary_loop.md`  
+**Goal:** Implementation-ready code/spec design for autonomous per-run/per-agent canary fix loops.
 
 ---
 
@@ -14,7 +14,7 @@
 5. Framework must be safe-by-default:
 - no destructive git operations
 - bounded iteration count
-- allowlisted edit scope
+- reversible edit scope with guaranteed rollback artifacts
 6. First release supports all registered agents, including Agent 9 prose generation flows.
 7. v1 supports one explicit `startFromAgent` boundary per invocation only; multi-hop dependency sessions are out of scope.
 8. v1 knowledge cache is runtime-only local storage; repo-persisted cache is out of scope.
@@ -33,6 +33,8 @@
 - `--agent <name>` required
 - `--startFromAgent <name>` optional; defaults to `--agent`
 - `--hydratePriorFromRun true|false` default `true`
+- `--quickRun true|false` default `false`; fast-path preset for boundary-local retries
+- `--enableMajorRework true|false` default `true`; allow deep redesign escalation
 - `--mode suggest|apply` default `apply`
 - `--maxIterations <n>` default `5`
 - `--maxUnchanged <n>` default `2`
@@ -48,8 +50,14 @@
 - `--rollbackFailedChanges true|false` default `true`; revert unresolved implementation edits and archive snapshots in run folder
 - `--autoExpandUpstreamScope true|false` default `false`; widen `--startFromAgent` upstream when signature stage/class indicates upstream-generated defects
 
+Quick-run major-rework interaction:
+- quick-run preset defaults `enableMajorRework=false` to reduce broad rerun scope
+- explicit `--enableMajorRework=true` overrides quick-run suppression and keeps major rework enabled
+
 Implementation note:
-- `--canaryCommand` accepts multi-token command values and is parsed as a joined token sequence until the next `--flag`.
+- `--canaryCommand` accepts multi-token command values.
+- Prefer quoting or `--canaryCommand=...` for deterministic parsing.
+- Unquoted boundary-runner nested flags (`--agent`, `--startChapter`) remain attached to `--canaryCommand`.
 
 ## 2.2.1 Per-agent shortcut scripts (required command surface)
 
@@ -163,6 +171,8 @@ Defaults, agent-to-command map, allowed paths.
   agent: string,                  // e.g. Agent5-ClueExtraction
   startFromAgent?: string,        // default = agent
   hydratePriorFromRun?: boolean,  // default = true
+  quickRun?: boolean,
+  enableMajorRework?: boolean,
   mode: "suggest" | "apply",
   maxIterations: number,
   maxUnchanged: number,
@@ -261,6 +271,12 @@ Defaults, agent-to-command map, allowed paths.
     passContract: string[]
   },
   selectedPlaybooks: string[],
+  phaseGateStatus?: {
+    p1Complete: boolean,
+    p2Complete: boolean,
+    hasControlPoint: boolean,
+    blockedBy: string[]
+  },
   plannedActions: string[],
   changedFiles: string[],
   tests: Array<{ command: string, passed: boolean, summary: string }>,
@@ -348,14 +364,15 @@ This v1 taxonomy is seed coverage for known recurring classes and must be extens
 9. `ROOT_CAUSE_ANALYSIS -> BUILD_RETRY_PACKET` when root cause hypothesis confidence is acceptable (default `>=0.7`).
 10. `BUILD_RETRY_PACKET -> PLAN_FIX` after packet integrity checks pass.
 11. `PLAN_FIX -> APPLY_FIX` only in `apply` mode; otherwise emit plan and stop.
-12. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
-13. `RUN_TESTS -> RUN_CANARY` only when tests pass.
-14. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
-15. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
-16. `COMPARE_SIGNATURE -> STOP_PASS_WITH_WARNINGS` when unchanged-signature bound is hit, canary passes, and remaining signature severity is warning.
-17. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
-18. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` with rollback side-effect when unresolved iteration output is produced and `rollbackFailedChanges=true`.
-19. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure (without boundary-safe downgrade), low-confidence classification/root-cause hypothesis, or no-op patch.
+12. `PLAN_FIX -> PLAN_FIX` (phase-gating refinement) when major rework is selected and blocked phases must be deferred until prerequisites are satisfied.
+13. `APPLY_FIX -> RUN_TESTS` if patch scope gate passes.
+14. `RUN_TESTS -> RUN_CANARY` only when tests pass.
+15. `RUN_CANARY -> STOP_PASS` if canary passes and no unresolved warning signatures remain.
+16. `RUN_CANARY -> COMPARE_SIGNATURE` if canary fails, or if warnings persist.
+17. `COMPARE_SIGNATURE -> STOP_PASS_WITH_WARNINGS` when unchanged-signature bound is hit, canary passes, and remaining signature severity is warning.
+18. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` if continue conditions hold.
+19. `COMPARE_SIGNATURE -> ROOT_CAUSE_ANALYSIS` with rollback side-effect when unresolved iteration output is produced and `rollbackFailedChanges=true`.
+20. Any state -> `STOP_FAIL` on safety breach, max iteration, unresolved infrastructure error, unsupported agent command contract, invalid Agent 9 chapter bounds, hydration dependency failure (without boundary-safe downgrade), low-confidence classification/root-cause hypothesis, or no-op patch.
 
 ## 6.3 Continue/stop logic
 
@@ -370,6 +387,26 @@ Output signature normalization rule:
 1. If validation canary is non-success (`passed !== true`, non-zero exit code, or failure-like status), output signature is forced to class `canary.execution_failure` with critical severity before continuation policy checks.
 
 Stop otherwise with explicit reason.
+
+## 6.4 Major rework phase-gate mechanics
+
+Major rework uses three ordered playbooks:
+- `P1`: `pb.rework.llm-request-contract-overhaul`
+- `P2`: `pb.rework.response-processing-robustness`
+- `P3`: `pb.rework.story-logic-research-lab`
+
+Runtime enforcement:
+1. If no rework playbook is selected, phase gate is a no-op.
+2. If rework is selected and `P1` is not yet complete, defer `P2` and `P3`.
+3. `P1` completion requires prior iteration evidence: selected `P1` plus non-generic `outputSignature.class`.
+4. If `P1` is complete and `P2` is not, defer `P3`.
+5. `P2` completion requires prior iteration evidence: selected `P2` plus non-generic `outputSignature.class`.
+6. Once `P1` and `P2` are complete, allow `P3`.
+
+Phase-gate observability:
+- write deferred playbooks and gate blockers to narration + planned actions
+- persist `phaseGateStatus` in major-rework logs (`.jsonl` and `.md`)
+- include major-rework brief path and packet metrics for each iteration
 
 ---
 
@@ -494,15 +531,19 @@ Log boundary rules:
 
 ## 9.1 Safety checks before apply
 
-1. All target files must match effective allowlist.
+1. Any repository file may be changed when rollback artifacts are captured and reversible restore is guaranteed.
 2. Reject edits in generated artifact folders (`documentation/prompts/actual/run_*`).
 3. Reject if patch plan includes delete/rename outside configured bounds.
 4. Reject if patch touches > `MAX_FILES_PER_ITERATION` (default 4) unless `--overrideFileCap` is explicitly set.
 5. Acquire per-run lock file before apply to avoid concurrent loop collisions.
 6. Enforce prompt-first gate: do not apply code-mode playbook until prompt-mode attempt(s) are exhausted per policy.
 7. For Agent 9 + `startChapter`, disallow edits that would invalidate earlier locked chapter outputs unless explicitly allowlisted.
-8. For resumed execution, disallow unplanned mutation of hydrated upstream artifacts unless selected playbook explicitly targets upstream stages.
+8. For resumed execution, disallow unplanned mutaFtion of hydrated upstream artifacts unless selected playbook explicitly targets upstream stages.
 9. In `apply` mode, if patch plan touches configured shared files, require `--confirmSharedEdits=true`; otherwise fail precheck/apply gate.
+
+Scope-filter behavior:
+- `--allowFiles/--denyFiles` remain operator controls for narrowing scope, but are not a hard requirement for touching a file when rollback guarantees are present.
+- when scope filters are bypassed, the run must record explicit rationale in ledger and rollback manifest.
 
 ## 9.2 Patch application
 
@@ -697,7 +738,7 @@ Sprint 4 exit criteria:
 - Mitigation: confidence score and safe stop on low-confidence in v1.
 
 2. Risk: excessive edit scope in shared files.
-- Mitigation: per-iteration file cap and allowlist gate.
+- Mitigation: per-iteration file cap, shared-file confirmation gate, and mandatory rollback snapshots for all touched files.
 
 3. Risk: canary command mismatch per agent.
 - Mitigation: explicit override option and command map in config.
