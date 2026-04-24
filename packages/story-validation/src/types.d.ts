@@ -57,7 +57,8 @@ export interface CMLData {
                 location?: string;
             };
             crime_class?: {
-                victim_identity_status?: string;
+                    category?: string;
+                    subtype?: string;
             };
         };
         cast: Array<{

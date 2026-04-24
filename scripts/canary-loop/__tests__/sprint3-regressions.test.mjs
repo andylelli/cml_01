@@ -489,6 +489,8 @@ test("major rework packet and brief are deterministic and structured", () => {
   assert.match(brief, /Multiphase Implementation Plan/);
   assert.match(brief, /P2 - Contract \+ Runtime Hardening/);
   assert.match(brief, /agents in scope/i);
+  assert.match(brief, /Delta From Previous Wave/);
+  assert.match(brief, /strategy changes:/i);
 });
 
 test("major rework phase gates enforce P1 before P2/P3", () => {

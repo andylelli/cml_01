@@ -163,4 +163,67 @@ describe("mystery orchestrator fix coverage", () => {
     const err = { type: "suspect_elimination_coverage_incomplete", message: "coverage missing" };
     expect(__testables.isSuspectEliminationCoverageError(err)).toBe(true);
   });
+
+  it("downgrades standalone Logical Deducibility critical flag when deterministic coverage has no structural corroboration", () => {
+    const result = __testables.deriveStructuralBlockingFairPlayViolations({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Logical Deducibility",
+            description: "Reader cannot deduce culprit.",
+            location: "inference_path",
+            suggestion: "Tighten clue chain and elimination logic.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: false,
+        uncoveredSteps: [],
+      },
+      allCoverageIssues: [],
+    });
+
+    expect(result.blockingViolations).toHaveLength(0);
+    expect(result.downgradedLogicalDeducibility).toBe(true);
+  });
+
+  it("keeps Logical Deducibility critical flag blocking when deterministic coverage corroborates structural gaps", () => {
+    const result = __testables.deriveStructuralBlockingFairPlayViolations({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Logical Deducibility",
+            description: "Reader cannot deduce culprit.",
+            location: "inference_path",
+            suggestion: "Tighten clue chain and elimination logic.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: true,
+        uncoveredSteps: [1],
+      },
+      allCoverageIssues: [],
+    });
+
+    expect(result.blockingViolations).toHaveLength(1);
+    expect(result.blockingViolations[0].rule).toBe("Logical Deducibility");
+    expect(result.downgradedLogicalDeducibility).toBe(false);
+  });
 });

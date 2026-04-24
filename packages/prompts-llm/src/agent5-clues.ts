@@ -35,6 +35,40 @@ export interface ClueExtractionInputs {
 // Keep a per-run extraction attempt counter so retries are labeled consistently
 // in generated request/response artifacts (first attempt has no retry suffix).
 const clueAttemptCounterByRun = new Map<string, number>();
+const MAX_TRACKED_CLUE_RUN_KEYS = 1000;
+
+const STEP_SOURCE_RE = /^CASE\.inference_path\.steps\[(\d+)\]\./i;
+const CORRECTION_SOURCE_RE = /CASE\.inference_path\.steps\[\d+\]\.correction/i;
+const CONTRADICTION_SOURCE_RE = /CASE\.constraint_space\.time\.contradictions\[\d+\]/i;
+
+const inferStepFromSourcePath = (sourcePath: unknown): number | undefined => {
+  const normalized = String(sourcePath ?? "").trim();
+  const match = normalized.match(STEP_SOURCE_RE);
+  if (!match) return undefined;
+  const stepIndex = Number(match[1]);
+  if (!Number.isInteger(stepIndex) || stepIndex < 0) return undefined;
+  return stepIndex + 1;
+};
+
+const inferEvidenceType = (clue: any): "observation" | "contradiction" | "elimination" => {
+  const normalized = String(clue?.evidenceType ?? "").trim().toLowerCase();
+  if (normalized === "observation" || normalized === "contradiction" || normalized === "elimination") {
+    return normalized;
+  }
+
+  const sourcePath = String(clue?.sourceInCML ?? "").trim();
+  const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
+
+  if (CORRECTION_SOURCE_RE.test(sourcePath) || CONTRADICTION_SOURCE_RE.test(sourcePath)) {
+    return "contradiction";
+  }
+
+  if (/\b(eliminat|ruled\s+out|not\s+the\s+(?:culprit|killer|murderer)|alibi|excluded?|cleared|innocent)\b/i.test(clueText)) {
+    return "elimination";
+  }
+
+  return "observation";
+};
 
 function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
   if (typeof inputs.retryAttempt === "number" && Number.isFinite(inputs.retryAttempt) && inputs.retryAttempt >= 1) {
@@ -42,6 +76,15 @@ function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
   }
 
   const runKey = `${inputs.runId || "unknown-run"}::${inputs.projectId || "unknown-project"}`;
+
+  // Keep bounded process memory for long-lived worker processes.
+  if (!clueAttemptCounterByRun.has(runKey) && clueAttemptCounterByRun.size >= MAX_TRACKED_CLUE_RUN_KEYS) {
+    const oldestKey = clueAttemptCounterByRun.keys().next().value;
+    if (oldestKey) {
+      clueAttemptCounterByRun.delete(oldestKey);
+    }
+  }
+
   const next = (clueAttemptCounterByRun.get(runKey) || 0) + 1;
   clueAttemptCounterByRun.set(runKey, next);
   return next;
@@ -112,10 +155,14 @@ interface RequiredClueSpec {
 function generateExplicitClueRequirements(cml: Record<string, unknown>): RequiredClueSpec[] {
   const requirements: RequiredClueSpec[] = [];
   const caseData = cml.CASE as any;
+  const culpritNames: string[] = Array.isArray(caseData?.culpability?.culprits) ? caseData.culpability.culprits : [];
+  const inferenceSteps = Array.isArray(caseData?.inference_path?.steps)
+    ? caseData.inference_path.steps
+    : [];
 
   // 1. Inference path coverage (observation + contradiction for each step)
-  if (Array.isArray(caseData?.inference_path?.steps)) {
-    caseData.inference_path.steps.forEach((step: any, idx: number) => {
+  if (inferenceSteps.length > 0) {
+    inferenceSteps.forEach((step: any, idx: number) => {
       const stepNum = idx + 1;
       
       // Observation clue (makes the step visible to reader)
@@ -144,6 +191,39 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
     });
   }
 
+  // 1a. First-pass contradiction chain clue (explicit anti-false-assumption requirement)
+  const firstCorrection = String(inferenceSteps[0]?.correction ?? "").trim();
+  const falseAssumptionStatement = String(caseData?.false_assumption?.statement ?? "").trim();
+  const contradictionAnchor = firstCorrection || falseAssumptionStatement;
+  if (contradictionAnchor) {
+    requirements.push({
+      requirement: `Generate one essential early or mid contradiction clue that explicitly overturns the false assumption with reader-visible evidence before the discriminating test. Anchor: "${contradictionAnchor.substring(0, 140)}..."`,
+      supportsInferenceStep: firstCorrection ? 1 : undefined,
+      evidenceType: "contradiction",
+      criticality: "essential",
+      sourceInCML: firstCorrection
+        ? "CASE.inference_path.steps[0].correction"
+        : "CASE.false_assumption.statement",
+      keyTerms: extractKeyTerms(contradictionAnchor),
+      suggestedPlacement: "mid",
+      category: inferCategory(contradictionAnchor)
+    });
+  }
+
+  // 1b. Mechanism visibility clue
+  if (caseData?.hidden_model?.mechanism?.description) {
+    requirements.push({
+      requirement: `Generate at least one essential early or mid observation clue that makes the core mechanism reader-visible before the discriminating test. The clue must surface this mechanism detail concretely: "${(caseData.hidden_model.mechanism.description || '').substring(0, 140)}..."`,
+      supportsInferenceStep: undefined,
+      evidenceType: "observation",
+      criticality: "essential",
+      sourceInCML: "CASE.hidden_model.mechanism.description",
+      keyTerms: extractKeyTerms(caseData.hidden_model.mechanism.description),
+      suggestedPlacement: "early",
+      category: inferCategory(caseData.hidden_model.mechanism.description),
+    });
+  }
+
   // 2. Discriminating test evidence
   // CRITICAL: These clues MUST be placed early or mid — they must reach the reader BEFORE the discriminating test scene.
   // The test should exploit already-known evidence, not introduce it for the first time.
@@ -162,10 +242,29 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
 
   // 2b. Culprit premeditation / planning evidence
   // If the culprit's guilt relies on premeditation, that must be reader-visible BEFORE confrontation.
-  const culpritNames: string[] = Array.isArray(caseData?.culpability?.culprits) ? caseData.culpability.culprits : [];
   const culpritCast = Array.isArray(caseData?.cast)
     ? caseData.cast.filter((c: any) => culpritNames.includes(c.name))
     : [];
+
+  culpritCast.forEach((culprit: any) => {
+    const mechanismAnchor = caseData?.hidden_model?.mechanism?.description
+      || caseData?.discriminating_test?.knowledge_revealed
+      || culprit.motive_seed
+      || culprit.private_secret
+      || "";
+
+    requirements.push({
+      requirement: `Generate one essential mid-story clue whose description or pointsTo explicitly names ${culprit.name} and states the unique trace, preparation detail, or mechanism link that points to ${culprit.name} rather than any non-culprit.`,
+      supportsInferenceStep: undefined,
+      evidenceType: "observation",
+      criticality: "essential",
+      sourceInCML: "CASE.culpability.culprits[0]",
+      keyTerms: [culprit.name, ...extractKeyTerms(mechanismAnchor)].slice(0, 4),
+      suggestedPlacement: "mid",
+      category: inferCategory(mechanismAnchor),
+    });
+  });
+
   culpritCast.forEach((culprit: any) => {
     if (culprit.motive_seed || culprit.private_secret) {
       requirements.push({
@@ -190,7 +289,7 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
 
     suspects.forEach((suspect: any) => {
       requirements.push({
-        requirement: `Generate a clue that provides elimination evidence for suspect: ${suspect.name}`,
+        requirement: `Generate a clue that explicitly eliminates suspect ${suspect.name} using corroborated alibi or physical evidence. The pointsTo text must state the exclusion logic directly (for example: "Eliminates ${suspect.name} because ...").`,
         supportsInferenceStep: undefined,
         evidenceType: "elimination",
         criticality: "essential",
@@ -200,6 +299,23 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
         category: "testimonial" // Most eliminations are alibi/testimonial
       });
     });
+
+    // 3b. First-pass elimination chain clue that narrows toward culprit
+    const primaryNonCulprit = suspects[0];
+    const primaryCulprit = culpritNames[0];
+    if (primaryNonCulprit && primaryCulprit) {
+      const suspectIndex = caseData.cast.findIndex((c: any) => c?.name === primaryNonCulprit.name);
+      requirements.push({
+        requirement: `Generate one essential early or mid elimination clue that explicitly rules out ${primaryNonCulprit.name} and narrows the solution toward culprit ${primaryCulprit}. The pointsTo text must start with "Eliminates ${primaryNonCulprit.name} because ..." and cite corroborated evidence.`,
+        supportsInferenceStep: undefined,
+        evidenceType: "elimination",
+        criticality: "essential",
+        sourceInCML: suspectIndex >= 0 ? `CASE.cast[${suspectIndex}].alibi_window` : "CASE.cast[0].alibi_window",
+        keyTerms: [primaryNonCulprit.name, primaryCulprit],
+        suggestedPlacement: "mid",
+        category: "testimonial"
+      });
+    }
   }
 
   return requirements;
@@ -324,6 +440,29 @@ export function buildCluePrompt(inputs: ClueExtractionInputs): PromptComponents 
   // ELEGANT SOLUTION: Pre-analyze CML to generate explicit requirements
   const requiredClues = generateExplicitClueRequirements(cml);
   const { effectiveDensity, overflow: densityOverflow } = deriveEffectiveDensity(clueDensity, requiredClues.length);
+  const firstPassRequiredSlots = [
+    {
+      id: "clue_mechanism_visibility_core",
+      placement: "early|mid",
+      criticality: "essential",
+      evidenceType: "observation",
+      contract: "Reader-visible mechanism detail appears before the discriminating test.",
+    },
+    {
+      id: "clue_core_contradiction_chain",
+      placement: "early|mid",
+      criticality: "essential",
+      evidenceType: "contradiction",
+      contract: "Explicitly overturns the false assumption using concrete reader-observable evidence.",
+    },
+    {
+      id: "clue_core_elimination_chain",
+      placement: "early|mid",
+      criticality: "essential",
+      evidenceType: "elimination",
+      contract: "Explicitly eliminates a non-culprit with corroborated logic and narrows toward the culprit.",
+    },
+  ];
 
   // --- System prompt ---
   const system = `You are a clue extraction specialist for Golden Age mystery fiction.
@@ -409,6 +548,17 @@ Clue categories:
     if (req.keyTerms.length > 0) developer += ` | terms: ${req.keyTerms.join(', ')}`;
     developer += `\n\n`;
   });
+
+  developer += `## First-pass Required Output Slots (non-negotiable IDs)
+${firstPassRequiredSlots
+  .map(
+    (slot, idx) =>
+      `${idx + 1}. id=${slot.id} | placement=${slot.placement} | criticality=${slot.criticality} | evidenceType=${slot.evidenceType}\n` +
+      `   contract: ${slot.contract}`,
+  )
+  .join("\n")}
+
+`;
 
   developer += `## Temporal Constraints
 ${[...timeAnchors, ...timeContradictions].map(a => `- ${a}`).join('\n') || 'None'}
@@ -587,6 +737,7 @@ ${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n")
 - no illegal sourceInCML paths
 - no out-of-range inference-step indices
 - no digit-based clock notation in description/pointsTo
+- required fixed slot IDs exist exactly once with essential early/mid placement
 - set status="pass" only when all audit arrays are empty; otherwise status="fail"
 - JSON only, no markdown fences
 
@@ -639,8 +790,13 @@ Generate ${userClueCountDirective} clues${rhUserText} that uphold fair play — 
 Rules:
 - Do NOT invent new facts — every clue must be traceable to CML
 - Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.
+- OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each — clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain — and each must be criticality="essential" with placement="early" or "mid".
+- MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description. The reader must encounter the method before the discriminating test exploits it.
+- CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption with concrete scene-observable evidence before Act III.
+- ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution toward the culprit.
 - DISCRIMINATING TEST CLUES: Any clue that enables the discriminating test to make sense must be placed "early" or "mid". The discriminating test scene exploits knowledge the reader already has — it must NEVER be the reader's first exposure to the mechanism detail.
 - DISCRIMINATING TEST ID CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear as a clue id.
+- CULPRIT-UNIQUE CLUE: At least one essential clue must explicitly name the culprit in description or pointsTo and state the unique mechanism trace, preparation detail, or access fact that points to that culprit rather than any non-culprit.
 - PREMEDITATION CLUES: If the culprit's guilt depends on premeditation or planning, that evidence must be a separate reader-visible clue placed "early" or "mid". The detective cannot withhold this from the reader until confrontation.
 - ELIMINATION CLUES: Must include time window, corroborator/evidence source, and direct exclusion logic in pointsTo ("Eliminates <name> because ...").
 - SOURCE PATH LEGALITY: sourceInCML must use only legal CML path roots.
@@ -797,37 +953,45 @@ export async function extractClues(
       clueData = JSON.parse(jsonrepair(response.content));
     }
 
-    // WP3D: Validate supportsInferenceStep and evidenceType on parsed clues
-    for (const clue of clueData.clues) {
-      if (clue.criticality === "essential" && !clue.supportsInferenceStep) {
+    const normalizedClues = Array.isArray(clueData?.clues) ? clueData.clues : [];
+    const normalizedRedHerrings = Array.isArray(clueData?.redHerrings) ? clueData.redHerrings : [];
+
+    // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
+    // Prefer inferred values from source paths over null/default model outputs.
+    for (const clue of normalizedClues) {
+      const inferredStep = inferStepFromSourcePath(clue?.sourceInCML);
+      const currentStep = Number(clue?.supportsInferenceStep);
+      if (Number.isInteger(currentStep) && currentStep > 0) {
+        clue.supportsInferenceStep = currentStep;
+      } else if (typeof inferredStep === "number") {
+        clue.supportsInferenceStep = inferredStep;
+      } else if (clue.criticality === "essential") {
         clue.supportsInferenceStep = 0; // Flag as unmapped for guardrail to catch
       }
-      if (!clue.evidenceType) {
-        clue.evidenceType = "observation"; // Default
-      }
+      clue.evidenceType = inferEvidenceType(clue);
     }
 
     // Organize clues by placement
     const clueTimeline = {
-      early: clueData.clues
+      early: normalizedClues
         .filter((c: Clue) => c.placement === "early")
         .map((c: Clue) => c.id),
-      mid: clueData.clues
+      mid: normalizedClues
         .filter((c: Clue) => c.placement === "mid")
         .map((c: Clue) => c.id),
-      late: clueData.clues
+      late: normalizedClues
         .filter((c: Clue) => c.placement === "late")
         .map((c: Clue) => c.id),
     };
 
     // Fair play checks
-    const essentialClues = clueData.clues.filter((c: Clue) => c.criticality === "essential");
+    const essentialClues = normalizedClues.filter((c: Clue) => c.criticality === "essential");
     const fairPlayChecks = {
       allEssentialCluesPresent: essentialClues.length >= 3, // Minimum viable
-      noNewFactsIntroduced: clueData.clues.every(
+      noNewFactsIntroduced: normalizedClues.every(
         (c: Clue) => c.sourceInCML && c.sourceInCML.trim() !== "" && c.sourceInCML !== "N/A"
       ),
-      redHerringsDontBreakLogic: clueData.redHerrings.length <= inputs.redHerringBudget,
+      redHerringsDontBreakLogic: normalizedRedHerrings.length <= inputs.redHerringBudget,
     };
 
     const latencyMs = Date.now() - startTime;
@@ -845,16 +1009,16 @@ export async function extractClues(
       success: true,
       latencyMs,
       metadata: {
-        clueCount: clueData.clues.length,
-        redHerringCount: clueData.redHerrings.length,
+        clueCount: normalizedClues.length,
+        redHerringCount: normalizedRedHerrings.length,
         essentialClueCount: essentialClues.length,
         fairPlayPassed: Object.values(fairPlayChecks).every(Boolean),
       },
     });
 
     return {
-      clues: clueData.clues,
-      redHerrings: clueData.redHerrings || [],
+      clues: normalizedClues,
+      redHerrings: normalizedRedHerrings,
       status: clueData.status === "pass" || clueData.status === "fail" ? clueData.status : undefined,
       audit: clueData.audit && typeof clueData.audit === "object" ? clueData.audit : undefined,
       clueTimeline,

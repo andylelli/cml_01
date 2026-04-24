@@ -8,7 +8,7 @@
 ## CML 2.0 schema alignment
 Use schema/cml_2_0.schema.yaml. Generated CML must include:
 - CML_VERSION = 2.0
-- meta, surface_model, hidden_model, false_assumption, constraint_space, inference_path, discriminating_test, fair_play, quality_controls
+- meta, cast, culpability, surface_model, hidden_model, false_assumption, constraint_space, inference_path, discriminating_test, fair_play, quality_controls
 - false_assumption.type in {temporal, spatial, identity, behavioral, authority}
 - discriminating_test.method in {reenactment, trap, constraint_proof, administrative_pressure}
 - crime_class.category in {murder, theft, disappearance, fraud}
@@ -21,7 +21,7 @@ If additional values are needed, update schema explicitly or normalize to allowe
 // packages/story-validation/src/types.ts (shared by all validators and scorers)
 interface CMLData {
   CASE: {
-    meta:   { era?: { decade?: string }; setting?: { location?: string }; crime_class?: { victim_identity_status?: string } };
+    meta:   { era?: { decade?: string }; setting?: { location?: string }; crime_class?: { category?: string; subtype?: string } };
     cast:   Array<{ name: string; role_archetype: string; gender?: string }>;
     crime_scene?:       { primary_location: string; location_type: 'interior' | 'exterior' };
     discriminating_test?: { method?: string; design?: string; pass_condition?: string };

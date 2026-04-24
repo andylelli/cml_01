@@ -176,6 +176,8 @@ interface MysteryGenerationResult {
     agentDurations: Record<string, number>;
     revisedByAgent4: boolean;
     revisionAttempts?: number;
+    revisedByAgent4FairPlay: boolean;
+    fairPlayRevisionAttempts: number;
   };
   status: 'success' | 'warning' | 'failure';
   warnings: string[];

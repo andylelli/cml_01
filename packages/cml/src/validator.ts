@@ -20,6 +20,169 @@ type SchemaNode = {
 
 const schemaFileCache = new Map<string, Record<string, SchemaNode>>();
 
+const ABSTRACT_REQUIRED_EVIDENCE_PATTERNS = [
+  /\btimeline discrepancy\b/i,
+  /\bsuspicious behavior\b/i,
+  /\bhidden motive\b/i,
+  /\bdetective insight\b/i,
+  /\bimportant evidence\b/i,
+  /\bcritical clue\b/i,
+  /\bgeneral contradiction\b/i,
+  /\balibi issue\b/i,
+  /\bincriminating detail\b/i,
+];
+
+const DETECTIVE_ONLY_BEHAVIOR_PATTERNS = [
+  /\bsignals? of guilt\b/i,
+  /\bguilt emerges?\b/i,
+  /\breacts? defensively\b/i,
+  /\bobserved reactions?\b/i,
+  /\breactions? to(?: the)? (?:established )?(?:timeline|clock|evidence|question(?:ing)?|reenactment|discrepanc(?:y|ies))/i,
+  /\bbehavior during (?:the )?(?:reenactment|test)\b.*\breveals? guilt\b/i,
+  /\bconfess(?:ion|es|ed)?\b/i,
+];
+
+const GROUNDING_STOP_WORDS = new Set([
+  "about",
+  "after",
+  "again",
+  "along",
+  "already",
+  "also",
+  "among",
+  "before",
+  "being",
+  "between",
+  "could",
+  "controlled",
+  "demonstration",
+  "deliberately",
+  "during",
+  "earlier",
+  "examined",
+  "explain",
+  "explains",
+  "events",
+  "every",
+  "evidence",
+  "expose",
+  "facts",
+  "found",
+  "guest",
+  "guests",
+  "having",
+  "knowledge",
+  "internal",
+  "later",
+  "mechanical",
+  "mechanism",
+  "means",
+  "method",
+  "mislead",
+  "misleading",
+  "night",
+  "other",
+  "prove",
+  "proven",
+  "reader",
+  "revealed",
+  "shows",
+  "significance",
+  "solution",
+  "someone",
+  "something",
+  "signs",
+  "staged",
+  "suspects",
+  "their",
+  "there",
+  "these",
+  "those",
+  "timeline",
+  "through",
+  "false",
+  "create",
+  "creates",
+  "created",
+  "conversation",
+  "control",
+  "controll",
+  "confront",
+  "confrontation",
+  "detection",
+  "details",
+  "death",
+  "discuss",
+  "emerge",
+  "inconsistent",
+  "inability",
+  "inconsistencies",
+  "investigation",
+  "investigators",
+  "manipulation",
+  "reenact",
+  "regarding",
+  "using",
+  "without",
+  "witnesses",
+  "whereabouts",
+  "where",
+  "which",
+  "asking",
+  "around",
+  "alibis",
+  "window",
+]);
+
+const DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS = new Set([
+  "reenactment",
+  "surrounding",
+  "putting",
+  "scrutiny",
+  "staging",
+  "stage",
+  "observation",
+  "under",
+  "compare",
+  "comparing",
+  "against",
+  "testimony",
+  "testimonies",
+  "reveal",
+  "reveals",
+  "revealed",
+  "comparison",
+  "prove",
+  "proves",
+  "proven",
+  "manipulated",
+  "manipulating",
+  "shifting",
+  "control",
+  "investigation",
+  "detection",
+  "without",
+]);
+
+const IRREGULAR_GROUNDING_TOKEN_MAP: Record<string, string> = {
+  testimonies: "testimony",
+  comparison: "compare",
+  comparing: "compare",
+  revealed: "reveal",
+  reveals: "reveal",
+  proven: "prove",
+  proves: "prove",
+  manipulation: "manipulate",
+  manipulated: "manipulate",
+  manipulates: "manipulate",
+  controlled: "control",
+  controlling: "control",
+  shifting: "shift",
+  shifted: "shift",
+  investigations: "investigation",
+  rewound: "wound",
+};
+
 const loadSchemaFile = (filename: string): Record<string, SchemaNode> => {
   if (schemaFileCache.has(filename)) return schemaFileCache.get(filename)!;
   const currentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -122,6 +285,25 @@ const validateInferencePathQuality = (caseBlock: any, errors: string[]): void =>
     // WP9A-2: Must have required_evidence with at least 1 entry
     if (!Array.isArray(step.required_evidence) || step.required_evidence.length === 0) {
       errors.push(prefix + ".required_evidence is missing or empty — each step needs at least 1 evidence item");
+    } else {
+      step.required_evidence.forEach((entry: unknown, entryIndex: number) => {
+        const evidenceText = String(entry || "").trim();
+        if (evidenceText.length < 12) {
+          errors.push(
+            `${prefix}.required_evidence[${entryIndex}] is too brief — use a concrete artifact, witness statement, timestamp, physical trace, or access record`,
+          );
+        }
+        if (ABSTRACT_REQUIRED_EVIDENCE_PATTERNS.some((pattern) => pattern.test(evidenceText))) {
+          errors.push(
+            `${prefix}.required_evidence[${entryIndex}] is too abstract (\"${evidenceText}\") — replace it with a concrete artifact, witness statement, timestamp, physical trace, or access record`,
+          );
+        }
+        if (usesDetectiveOnlyBehavioralShorthand(evidenceText)) {
+          errors.push(
+            `${prefix}.required_evidence[${entryIndex}] relies on detective-only behavioral shorthand ("${evidenceText}") — replace it with a concrete pre-test observation, document, timeline fact, physical trace, or access record`,
+          );
+        }
+      });
     }
 
     // WP9A-3: reader_observable should be true (warn if false)
@@ -139,6 +321,135 @@ const validateInferencePathQuality = (caseBlock: any, errors: string[]): void =>
   }
 };
 
+const normalizeGroundingText = (value: unknown): string =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s'-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const normalizeGroundingToken = (token: string): string => {
+  const base = token.toLowerCase().replace(/'s$/i, "").trim();
+  if (!base) return "";
+
+  const mapped = IRREGULAR_GROUNDING_TOKEN_MAP[base] ?? base;
+  let normalized = mapped;
+
+  if (normalized.length > 6 && normalized.endsWith("ing")) {
+    normalized = normalized.slice(0, -3);
+  } else if (normalized.length > 5 && normalized.endsWith("ed")) {
+    normalized = normalized.slice(0, -2);
+  } else if (normalized.length > 5 && normalized.endsWith("es")) {
+    normalized = normalized.slice(0, -2);
+  } else if (normalized.length > 4 && normalized.endsWith("s")) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  return normalized;
+};
+
+const collectCaseNameTokens = (caseBlock: any): Set<string> => {
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const tokens = cast.flatMap((member: any) => normalizeGroundingText(member?.name).split(" "));
+  return new Set(tokens.map(normalizeGroundingToken).filter((token: string) => token.length >= 4));
+};
+
+const extractGroundingTerms = (
+  text: unknown,
+  ignoredTokens: Set<string> = new Set(),
+  extraStopWords: Set<string> = new Set(),
+): string[] => {
+  const normalized = normalizeGroundingText(text);
+  if (!normalized) return [];
+
+  const terms = normalized
+    .split(" ")
+    .map(normalizeGroundingToken)
+    .filter((token) => token.length >= 5 || /\d/.test(token))
+    .filter((token) => !GROUNDING_STOP_WORDS.has(token))
+    .filter((token) => !extraStopWords.has(token))
+    .filter((token) => !ignoredTokens.has(token));
+
+  return [...new Set(terms)].slice(0, 8);
+};
+
+const extractGroundingPhrases = (
+  text: unknown,
+  ignoredTokens: Set<string> = new Set(),
+  extraStopWords: Set<string> = new Set(),
+): string[] => {
+  const terms = extractGroundingTerms(text, ignoredTokens, extraStopWords);
+  if (terms.length < 2) return [];
+
+  const phrases: string[] = [];
+  for (let i = 0; i < terms.length - 1; i += 1) {
+    phrases.push(`${terms[i]} ${terms[i + 1]}`);
+  }
+
+  return [...new Set(phrases)].slice(0, 6);
+};
+
+const collectReaderVisibleEvidenceCorpus = (steps: any[]): string => {
+  return steps
+    .filter((step) => step?.reader_observable !== false)
+    .flatMap((step) => {
+      const requiredEvidence = Array.isArray(step?.required_evidence) ? step.required_evidence : [];
+      return [step?.observation, step?.correction, step?.effect, ...requiredEvidence];
+    })
+    .map((value) => normalizeGroundingText(value))
+    .filter(Boolean)
+    .join(" ");
+};
+
+const usesDetectiveOnlyBehavioralShorthand = (text: unknown): boolean => {
+  const normalized = String(text || "").trim();
+  if (!normalized) return false;
+  return DETECTIVE_ONLY_BEHAVIOR_PATTERNS.some((pattern) => pattern.test(normalized));
+};
+
+const validateConcretePreTestFact = (
+  pathLabel: string,
+  sourceText: unknown,
+  errors: string[],
+): void => {
+  const normalizedSource = String(sourceText || "").trim();
+  if (!normalizedSource) return;
+
+  if (usesDetectiveOnlyBehavioralShorthand(normalizedSource)) {
+    errors.push(
+      `${pathLabel} relies on detective-only reaction/confession language ("${normalizedSource}") — replace it with a concrete pre-test fact, contradiction, mechanism detail, or elimination the reader can verify without interpreting emotions`,
+    );
+  }
+};
+
+const validateGroundedReaderEvidence = (
+  pathLabel: string,
+  sourceText: unknown,
+  evidenceCorpus: string,
+  ignoredTokens: Set<string>,
+  errors: string[],
+  extraStopWords: Set<string> = new Set(),
+): void => {
+  const normalizedSource = normalizeGroundingText(sourceText);
+  if (!normalizedSource) return;
+
+  const terms = extractGroundingTerms(sourceText, ignoredTokens, extraStopWords);
+  if (terms.length < 3) return;
+
+  const coveredTerms = terms.filter((term) => evidenceCorpus.includes(term));
+  const phrases = extractGroundingPhrases(sourceText, ignoredTokens, extraStopWords);
+  const coveredPhrases = phrases.filter((phrase) => evidenceCorpus.includes(phrase));
+  const minimumCoverage = terms.length <= 4 ? 2 : Math.min(3, Math.ceil(terms.length * 0.5));
+  if (coveredPhrases.length > 0 || coveredTerms.length >= minimumCoverage) {
+    return;
+  }
+
+  const missingTerms = terms.filter((term) => !evidenceCorpus.includes(term)).slice(0, 4);
+  errors.push(
+    `${pathLabel} is not grounded in reader-visible inference evidence — add these mechanism/test terms to earlier observations or required_evidence: ${missingTerms.join(", ")}`,
+  );
+};
+
 // WP9B: Cross-reference validation
 const validateCrossReferences = (caseBlock: any, errors: string[]): void => {
   if (!caseBlock) return;
@@ -146,8 +457,16 @@ const validateCrossReferences = (caseBlock: any, errors: string[]): void => {
   // 9B-2: discriminating_test.design should reference concepts from inference_path
   const discrimTest = caseBlock.discriminating_test;
   const steps = caseBlock?.inference_path?.steps ?? [];
+  const evidenceCorpus = collectReaderVisibleEvidenceCorpus(steps);
+  const ignoredNameTokens = collectCaseNameTokens(caseBlock);
 
   if (discrimTest?.design && steps.length > 0) {
+    validateConcretePreTestFact(
+      "CASE.discriminating_test.design",
+      discrimTest.design,
+      errors,
+    );
+
     const designText = (discrimTest.design || "").toLowerCase();
     const stepTexts = steps.map((s: any) =>
       ((s.observation || "") + " " + (s.correction || "") + " " + (s.effect || "")).toLowerCase()
@@ -165,7 +484,44 @@ const validateCrossReferences = (caseBlock: any, errors: string[]): void => {
       // We push as a non-blocking observation rather than a hard error.
       // errors.push("CASE.discriminating_test.design appears disconnected from inference_path steps");
     }
+
+    validateGroundedReaderEvidence(
+      "CASE.discriminating_test.design",
+      discrimTest.design,
+      evidenceCorpus,
+      ignoredNameTokens,
+      errors,
+      DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS,
+    );
   }
+
+  validateConcretePreTestFact(
+    "CASE.discriminating_test.knowledge_revealed",
+    discrimTest?.knowledge_revealed,
+    errors,
+  );
+
+  validateGroundedReaderEvidence(
+    "CASE.discriminating_test.knowledge_revealed",
+    discrimTest?.knowledge_revealed,
+    evidenceCorpus,
+    ignoredNameTokens,
+    errors,
+  );
+
+  validateConcretePreTestFact(
+    "CASE.discriminating_test.pass_condition",
+    discrimTest?.pass_condition,
+    errors,
+  );
+
+  validateGroundedReaderEvidence(
+    "CASE.hidden_model.mechanism.description",
+    caseBlock?.hidden_model?.mechanism?.description,
+    evidenceCorpus,
+    ignoredNameTokens,
+    errors,
+  );
 
   // 9B-3: fair_play.explanation should not be too generic
   const fairPlayExplanation = caseBlock?.fair_play?.explanation || "";

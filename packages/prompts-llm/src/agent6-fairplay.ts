@@ -436,20 +436,21 @@ Perform a rigorous fair play audit of this mystery. Analyze whether the reader c
 
 ## Audit Checklist
 
-1. **Clue Visibility**: Are all essential clues revealed before the discriminating test?
+1. **Clue Visibility**: Are all essential clues revealed before the discriminating test, including at least one essential early/mid mechanism-visibility clue (not late)?
 2. **Information Parity**: Does the reader have the same information as the detective?
 3. **Special Knowledge**: Is any specialized knowledge required? If so, is it explained?
-4. **Logical Deducibility**: Can the reader follow the inference path using only the clues provided?
-5. **Discriminating Test Timing**: Does the discriminating test scene appear at the timing specified in the Quality Controls section above, and do all clues the test relies on appear in earlier scenes before it?
+4. **Logical Deducibility**: Can the reader follow an observation -> correction -> elimination chain using only clues that are essential and placed early/mid before Act III?
+5. **Discriminating Test Timing**: Does the discriminating test scene appear at the timing specified in the Quality Controls section above, and do all clues the test relies on appear in earlier scenes before it (the test must confirm evidence, not introduce it)?
 6. **No Withholding**: Are there any facts the detective knows but the reader doesn't? Cross-reference the Hidden Model and the cast alibi/access/opportunity data against the clue set.
 7. **Constraint Consistency**: Do the clues align with the constraint space (time, access, physical evidence, social trust channels)?
 8. **False Assumption Support**: Do the red herrings effectively support the false assumption?
-9. **Solution Uniqueness**: Do the clues point unambiguously to the culprit?
+9. **Solution Uniqueness**: Do the clues point unambiguously to the culprit, with at least one essential elimination clue ruling out a non-culprit before reveal?
 
 ## Quality Bar
 - Findings must cite concrete clue IDs, inference steps, or CML fields.
 - Distinguish critical fairness breaks from moderate craft issues.
 - Recommendations must be actionable and minimally invasive.
+- Treat semantically equivalent clues as valid even when wording differs; fail only when evidence role, placement timing, or deduction ordering is missing.
 
 ## Micro-exemplars
 - Weak violation: "Fair play is weak."

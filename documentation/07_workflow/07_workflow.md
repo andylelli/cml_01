@@ -193,6 +193,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - Quality controls (inference path requirements, clue visibility targets, discriminating test timing)
 - **Validation**: Uses `@cml/cml` validator
   - If validation fails, retries once with temporal axis
+- **CML viability gate (implemented)**: Validation now blocks CML before clue extraction when mechanism/test knowledge is not grounded in reader-visible inference evidence, when `required_evidence` remains abstract placeholder text, or when discriminating-test proof relies on detective-only reaction/confession shorthand (`signals of guilt`, defensive reactions, confession) instead of factual pre-test evidence.
 - **Artifacts Created**:
   - `cml` - The complete CML document
   - `cml_validation` - Validation result `{ valid, errors }`
@@ -248,7 +249,9 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `clues_validation` - Validation result
 - **Event**: `clues_done` - "Clues generated"
 - **Feedback Loop**: If the fair-play audit fails, clues are regenerated once using the audit’s violations and recommendations before re-auditing.
+- **Prevention-first first-pass contract (implemented)**: Agent 5 prompt now requires three fixed essential early/mid clue slots in the initial output (`clue_mechanism_visibility_core`, `clue_core_contradiction_chain`, `clue_core_elimination_chain`) so mechanism visibility, contradiction, and elimination are present before the discriminating test.
 - **Deterministic Guardrails**: Before fair-play audit, clues are checked for early/mid essential placement, unique clue IDs, and detective-only/private clue phrasing; critical guardrail failures trigger one targeted clue regeneration and then fail if still unresolved.
+- **Mechanism visibility guardrail (implemented)**: Before fair-play audit, Agent 5 also requires at least one early/mid clue to make the core mechanism visible before the discriminating test.
 
 ### Step 7: Fair Play Report Generation
 - **Derives**: LLM-based fair-play audit from CML + clues, including:
@@ -259,7 +262,9 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - `fair_play_report` - `{ overallStatus, summary, checks[], violations[], warnings[], recommendations[] }`
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
 - **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit.
+- **Strict feedback payload (implemented)**: Agent 6 regeneration feedback now includes explicit acceptance statements requiring early/mid essential mechanism + contradiction + elimination clues and reader-solvable observation -> correction -> elimination ordering before Act III.
 - **Continuation rule**: If violations remain after retry, they are surfaced as warnings and the pipeline continues to later stages.
+- **Retry role**: retries remain bounded safety paths; correctness is expected from first-pass prompt contracts.
 
 ### Step 8: Outline Generation
 - **Derives**: `{ status, tone, chapters, summary }`

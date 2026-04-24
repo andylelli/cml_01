@@ -67,7 +67,8 @@ Major rework uses an explicit think-act loop with phase gating.
 Phase advancement rules:
 - do not start `P2` until `P1` has non-generic output evidence.
 - do not start `P3` until `P2` has non-generic output evidence.
-- on regression, rollback to last stable wave and re-plan.
+- phase-gated playbooks are deferred when prerequisites are unmet and logged as deferred, not silently dropped.
+- on regression, rollback decision is made per wave (`whole`, `partial`, `none`) using signature delta/severity/confidence evidence.
 
 ---
 
@@ -109,8 +110,20 @@ Major rework must use explicit, versioned to-do lists.
 
 - every task includes owner, expected evidence, and completion criterion.
 - only one wave may be `in-progress` at a time.
+- when a new wave starts, any prior in-progress wave is auto-closed as `completed` with completion reason `superseded_by_<nextWaveId>`.
 - unfinished tasks roll forward explicitly; no silent carryover.
 - blocked tasks must record blocker class and next unblock action.
+
+Runtime to-do lifecycle statuses:
+- campaign/phase/wave are finalized to `completed` on terminal `pass`/`pass_with_warnings`.
+- campaign/phase/wave are finalized to `blocked_admissibility` when wave admissibility blocks execution (for example `target_files_exceed_wave_cap`).
+- campaign/phase/wave are finalized to `stopped_policy` for other non-pass terminal outcomes.
+- tasks not already terminal (`done`, `blocked`, `skipped`) are normalized to `blocked` with `blockedReason` during supersede/finalize transitions.
+
+Wave execution observability:
+- when a wave is planned but blocked before apply, logs must emit explicit planned-not-executed semantics rather than implying the wave executed.
+- major-rework markdown entries include `wave execution` with `planned_not_executed` or `planned_or_executed`.
+- attempt-history entries mirror this with `majorReworkExecution` and associated `majorReworkState`/phase/wave identifiers.
 
 Recommended wave template:
 
@@ -141,11 +154,11 @@ Use hard token budgets to prevent context collapse and hallucinated planning.
 Per-think-cycle budget (recommended defaults):
 - `max_input_tokens`: 12000
 - `max_output_tokens`: 2500
-- `max_total_tokens`: 14500
 
 Per-major-rework-wave budget:
 - `max_total_think_tokens`: 35000
 - `max_total_act_tokens`: 20000
+- `max_files_per_wave`: 4
 
 Session cap:
 - `max_major_rework_tokens`: 180000
@@ -156,6 +169,7 @@ Token safety rules:
 - chunk long logs and summarize before planning.
 - never run unconstrained full-history prompts in major rework mode.
 - if remaining budget < 15%, switch to minimal action mode (no broad redesign).
+- if wave admissibility is blocked by token/file caps, terminate the iteration with policy stop (no patch apply).
 
 ## 2) Change Scope Safety
 
@@ -170,7 +184,7 @@ Scope control policy:
 
 Rollback policy (mandatory):
 - whole rollback: if a wave regresses to generic execution failure, increases critical severity, or fails safety gates, revert all implementation edits from that wave.
-- partial rollback: if a wave shows measurable improvement for a subset of files, keep only the files linked to proven improvements and rollback the rest.
+- partial rollback: if a wave shows measurable improvement (`improved` or `mixed`) and output confidence is high enough (>= 0.75), keep only evidence-backed files and rollback the rest.
 - every rollback decision must record rationale, kept-file list, reverted-file list, and evidence markers used for the decision.
 - partial rollback is never allowed when outcome confidence is below threshold.
 
@@ -247,7 +261,7 @@ A major rework campaign can close only if:
 ## Artifacts Required Per Campaign
 
 - major rework packet (`json`) with phase plan and constraints
-- major rework brief (`md`) with rationale and wave status
+- major rework brief (`md`) with rationale, wave status, and explicit `Delta From Previous Wave` section (strategy changes, new targets, new evidence checks, dropped actions)
 - per-wave execution log (decision, changes, tests, canary)
 - rollback manifest for failed waves
 - final quality summary with logic + prose gate results
@@ -257,14 +271,19 @@ Suggested paths:
 - `logs/canary-loops/<run>/canary-major-rework-*.jsonl`
 - `logs/canary-loops/<run>/canary-major-rework-*.md`
 - `logs/canary-loops/<run>/rework-lab/*.md`
+- `logs/canary-loops/<run>/rework-lab/wave-*.todo.json`
+- `logs/canary-loops/<run>/rework-lab/phase-P*.todo.json`
+- `logs/canary-loops/<run>/rework-lab/campaign-todo.json`
 - `logs/canary-loops/<run>/rework-lab/major-rework-learning.json`
 
 Learning ledger minimum content:
 - signature class and root-cause layer
 - selected playbooks and phase/wave context
-- file-level outcomes (`kept`, `reverted`, `neutral`)
+- file-level outcomes (`keptFiles`, `revertedFiles`, `changedImplementationFiles`)
 - measured deltas (warnings reduced, critical class changed, narrative gates changed)
 - recommendation tags for next attempt (`retry`, `avoid`, `escalate`, `re-scope`)
+- normalized counters (`attemptedTaskCount`, `executedTaskCount`, `executionBlockedCount`)
+- evidence arrays (`evidenceSatisfied`, `evidenceFailed`) and `admissibilityBlockers`
 
 Cross-attempt visibility policy:
 - every new major-rework attempt must ingest at least the latest learning ledger and recent attempt history before planning.
@@ -281,6 +300,13 @@ Stop and return `stop_apply_policy` when:
 - token/session safety caps are hit without safe checkpointing.
 - phase prerequisites cannot be satisfied after bounded retries.
 - regression severity exceeds safety threshold.
+
+Additional terminal runtime outcomes:
+- `stop_no_op_patch`: selected playbook wave produced no effective file delta; canary is skipped for that iteration.
+- `infra_command_failure`: test/canary infrastructure command failed during validation.
+- `pass_with_warnings`: canary passed and only warning-level signature remained unchanged past bound.
+- `stop_max_iterations`: iteration ceiling reached without pass.
+- admissibility-stop iterations should include an explicit summary action such as: wave planned but not executed due to blocker(s).
 
 Return `pass` only when all hard logic and narrative gates pass.
 

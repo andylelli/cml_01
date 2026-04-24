@@ -81,7 +81,7 @@ describe("agent5-run testables", () => {
     expect(issues.some((i: any) => i.severity === "critical" && /missing clue id\(s\): clue_glove/i.test(i.message))).toBe(true);
   });
 
-  it("warns when all mapped discriminating evidence clues are late", () => {
+  it("fails critically when mapped discriminating evidence clues are late", () => {
     const cml = {
       CASE: {
         discriminating_test: {
@@ -100,8 +100,79 @@ describe("agent5-run testables", () => {
     } as any;
 
     const issues = __testables.checkDiscriminatingTestReachability(cml, clues);
-    expect(issues.some((i: any) => i.severity === "warning" && /late placement/i.test(i.message))).toBe(true);
-    expect(issues.some((i: any) => i.severity === "critical")).toBe(false);
+    expect(issues.some((i: any) => i.severity === "critical" && /early\/mid|late placement/i.test(i.message))).toBe(true);
+  });
+
+  it("fails when no early or mid clue makes the mechanism visible before the test", () => {
+    const cml = {
+      CASE: {
+        hidden_model: {
+          mechanism: {
+            description: "A forged railway timetable and reset library clock create the false arrival window.",
+          },
+        },
+        discriminating_test: {
+          knowledge_revealed: "Only the forged timetable and reset library clock explain the false arrival window.",
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_1",
+          description: "A forged railway timetable is found in the study blotter.",
+          pointsTo: "This supports the false arrival window.",
+          placement: "late",
+        },
+        {
+          id: "clue_2",
+          description: "Fresh grease marks show the library clock was reset after supper.",
+          pointsTo: "This reveals the false arrival window depends on the altered clock.",
+          placement: "late",
+        },
+      ],
+      redHerrings: [],
+    } as any;
+
+    const issues = __testables.checkMechanismVisibility(cml, clues);
+    expect(issues.some((i: any) => i.severity === "critical" && /late-only|mechanism/i.test(i.message))).toBe(true);
+  });
+
+  it("passes when an early or mid clue makes the mechanism visible before the test", () => {
+    const cml = {
+      CASE: {
+        hidden_model: {
+          mechanism: {
+            description: "A forged railway timetable and reset library clock create the false arrival window.",
+          },
+        },
+        discriminating_test: {
+          knowledge_revealed: "Only the forged timetable and reset library clock explain the false arrival window.",
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_1",
+          description: "A forged railway timetable is tucked inside the porter ledger.",
+          pointsTo: "This supports the false arrival window before the trap is staged.",
+          placement: "mid",
+        },
+        {
+          id: "clue_2",
+          description: "Fresh grease marks show the library clock was reset after supper.",
+          pointsTo: "This reveals the false arrival window depends on the altered clock.",
+          placement: "mid",
+        },
+      ],
+      redHerrings: [],
+    } as any;
+
+    const issues = __testables.checkMechanismVisibility(cml, clues);
+    expect(issues).toEqual([]);
   });
 
   it("treats non-canonical discriminating evidence labels as non-ID metadata", () => {
@@ -217,6 +288,51 @@ describe("agent5-run testables", () => {
 
     const selected = __testables.selectDiscriminatingEvidenceCandidateIds(cml, clues, 2);
     expect(selected).toEqual(["clue_clock_tamper"]);
+  });
+
+  it("prefers early/mid discriminating evidence candidates over late clues", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          design: "Use clock contradiction and witness timeline to expose the culprit",
+          knowledge_revealed: "Only one suspect knew the altered clock sequence",
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_late_highscore",
+          description: "Clock contradiction witness timeline altered sequence culprit",
+          pointsTo: "Clock contradiction witness timeline altered sequence culprit",
+          criticality: "essential",
+          placement: "late",
+          evidenceType: "observation",
+        },
+        {
+          id: "clue_mid_ok",
+          description: "Witness timeline contradicts the clock account.",
+          pointsTo: "Timeline contradiction.",
+          criticality: "essential",
+          placement: "mid",
+          evidenceType: "observation",
+        },
+        {
+          id: "clue_early_ok",
+          description: "Clock casing shows early tampering marks.",
+          pointsTo: "Clock contradiction.",
+          criticality: "essential",
+          placement: "early",
+          evidenceType: "contradiction",
+        },
+      ],
+      redHerrings: [],
+    } as any;
+
+    const selected = __testables.selectDiscriminatingEvidenceCandidateIds(cml, clues, 2);
+    expect(selected).toEqual(["clue_mid_ok", "clue_early_ok"]);
+    expect(selected).not.toContain("clue_late_highscore");
   });
 
   it("detects red-herring overlap with true-solution correction language", () => {
@@ -463,5 +579,224 @@ describe("agent5-run testables", () => {
     expect(text.includes("stopped")).toBe(false);
     expect(text.includes("study")).toBe(false);
     expect(clues.redHerrings[0].supportsAssumption).toBe("The time of death was obvious.");
+  });
+
+  it("sanitizer never introduces a replacement that is itself a correction-text token", () => {
+    // Simulate the exact failure mode: "clock" is the overlap term, and the
+    // naive replacement pool contains "witness" which also appears in corrections.
+    const cml = {
+      CASE: {
+        false_assumption: {
+          statement: "The murder occurred at the time indicated by the clock.",
+          why_it_seems_reasonable: "Witnesses saw the clock showing the time of death.",
+        },
+        inference_path: {
+          steps: [
+            { correction: "The clock time indicates a discrepancy with witness accounts." },
+            { correction: "The scratch on the key shows it was manipulated." },
+            { correction: "Hugo proximity to the clock at the time of the murder narrows the suspect." },
+          ],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [],
+      redHerrings: [
+        {
+          id: "rh_2",
+          description: "The clock in the hallway appeared tampered.",
+          misdirection: "Everyone assumed the clock was reliable.",
+        },
+      ],
+    } as any;
+
+    __testables.sanitizeRedHerringOverlap(
+      cml,
+      clues,
+      [{ redHerringId: "rh_2", matchedCorrectionWords: ["clock"], matchedStepIndexes: [1, 2, 3], overlapScore: 5 }],
+      ["witness", "timing"], // preferred terms that are themselves correction words
+    );
+
+    // After sanitization the replacement must NOT itself be a correction token
+    const resultText = `${clues.redHerrings[0].description} ${clues.redHerrings[0].misdirection}`.toLowerCase();
+    // "clock" should be gone
+    expect(resultText.includes("clock")).toBe(false);
+    // The replacement must not be "witness" or "time"/"timing" (both in corrections)
+    const correctionTokens = ["witness", "clock", "time", "scratch", "key", "hugo", "proximity", "murder"];
+    for (const token of correctionTokens) {
+      // The replacement itself should not re-introduce a correction token as a standalone word
+      // (we check words that were injected as replacements — if the whole text contained none
+      // of them before, they came from the sanitizer)
+      // Simpler check: the original had "clock" twice; after replace neither occurrence
+      // should have been swapped to a correction token word
+      const words = resultText.split(/\s+/).map(w => w.replace(/[^a-z]/g, ""));
+      const originalWords = new Set(["the", "in", "hallway", "appeared", "tampered", "everyone", "assumed", "was", "reliable"]);
+      const injectedWords = words.filter(w => w.length > 2 && !originalWords.has(w) && w !== "clock");
+      for (const injected of injectedWords) {
+        expect(correctionTokens).not.toContain(injected);
+      }
+    }
+  });
+
+  it("prunes persistently overlapping red herrings after retry fallback", () => {
+    const clues = {
+      clues: [],
+      redHerrings: [
+        { id: "rh_1", description: "overlap one", misdirection: "mislead one" },
+        { id: "rh_2", description: "safe two", misdirection: "mislead two" },
+      ],
+    } as any;
+
+    const removed = __testables.pruneOverlappingRedHerrings(clues, ["rh_1", "rh_missing"]);
+
+    expect(removed).toEqual(["rh_1"]);
+    expect(clues.redHerrings.map((rh: any) => rh.id)).toEqual(["rh_2"]);
+  });
+
+  it("synthesizes missing direct culprit-evidence clues deterministically", () => {
+    const cml = {
+      CASE: {
+        culpability: { culprits: ["Eleanor Voss"] },
+        inference_path: {
+          steps: [
+            {
+              effect: "Evidence narrows opportunity toward Eleanor Voss.",
+            },
+          ],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_seed",
+          sourceInCML: "CASE.inference_path.steps[0].effect",
+          description: "A muddy footprint crossed the corridor.",
+          pointsTo: "Suggests late-night movement in the east wing.",
+          placement: "mid",
+          criticality: "supporting",
+          evidenceType: "observation",
+          supportsInferenceStep: 1,
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_seed"], late: [] },
+    } as any;
+
+    const repairs = __testables.synthesizeMissingCulpritDiscriminatingClues(cml, clues, ["Eleanor Voss"]);
+    expect(repairs.length).toBe(1);
+
+    const generated = clues.clues.find((clue: any) => clue.id.startsWith("clue_culprit_direct_"));
+    expect(generated).toBeTruthy();
+    expect(String(generated.description)).toContain("Eleanor Voss");
+    expect(String(generated.pointsTo).toLowerCase()).toContain("direct evidence");
+    expect(generated.criticality).toBe("essential");
+    expect(clues.clueTimeline.mid).toContain(generated.id);
+  });
+
+  it("fails deterministic contracts on invalid source paths", () => {
+    const cml = {
+      CASE: {
+        cast: [],
+        culpability: { culprits: [] },
+        discriminating_test: { evidence_clues: ["clue_clock"] },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_clock",
+          sourceInCML: "CASE.cast[99].alibi_window",
+          description: "Aled Price was at the station at quarter to nine.",
+          pointsTo: "Directly implicates Aled Price.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "observation",
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_clock"], late: [] },
+    } as any;
+
+    expect(() => __testables.enforceAgent5DeterministicContracts(cml, clues)).toThrow(
+      /source-path gate failed/i,
+    );
+  });
+
+  it("auto-repairs out-of-range constraint-space actor source paths", () => {
+    const cml = {
+      CASE: {
+        cast: [],
+        culpability: { culprits: [] },
+        discriminating_test: {
+          design: "Compare access opportunities against actor list",
+          evidence_clues: ["clue_access_actor"],
+        },
+        constraint_space: {
+          access: {
+            actors: ["butler", "porter"],
+          },
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_access_actor",
+          sourceInCML: "CASE.constraint_space.access.actors[4]",
+          description: "A household actor had privileged corridor access.",
+          pointsTo: "Access opportunity was limited to listed actors.",
+          placement: "mid",
+          criticality: "supporting",
+          evidenceType: "observation",
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_access_actor"], late: [] },
+    } as any;
+
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+
+    expect(result.warnings.some((w: string) => /source-path auto-repair/i.test(w))).toBe(true);
+    expect(clues.clues[0].sourceInCML).toBe("CASE.constraint_space.access.actors[1]");
+  });
+
+  it("synthesizes missing discriminating evidence IDs during deterministic contract enforcement", () => {
+    const cml = {
+      CASE: {
+        cast: [{ name: "Iwan Hale", culprit_eligibility: "eligible", alibi_window: "after supper" }],
+        culpability: { culprits: ["Iwan Hale"] },
+        discriminating_test: {
+          design: "Use clock-smudge and alibi mismatch to isolate culprit",
+          knowledge_revealed: "Only the culprit could have reached the clock before supper",
+          evidence_clues: ["clue_clock_smudge"],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_seed",
+          sourceInCML: "CASE.cast[0].alibi_window",
+          description: "Fresh grease near the clock key shows someone reached the clock before supper.",
+          pointsTo: "Supports the claim that Iwan Hale reached the clock before supper.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "observation",
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_seed"], late: [] },
+    } as any;
+
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+
+    expect(result.warnings.some((w: string) => /evidence-id deterministic synthesis/i.test(w))).toBe(true);
+    expect(clues.clues.some((clue: any) => clue.id === "clue_clock_smudge")).toBe(true);
   });
 });

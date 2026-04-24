@@ -20,8 +20,8 @@ export class CaseTransitionValidator implements Validator {
     const hasMurderSignal = MURDER_TERMS.test(text);
     const hasBridgeSignal = BRIDGE_TERMS.test(text);
 
-    const cmlCrimeCategory = cml?.CASE?.meta?.crime_class?.victim_identity_status?.toLowerCase() || '';
-    const shouldEnforce = hasDisappearanceSignal || cmlCrimeCategory.includes('missing') || cmlCrimeCategory.includes('unknown');
+    const cmlCrimeCategory = cml?.CASE?.meta?.crime_class?.category?.toLowerCase() || '';
+    const shouldEnforce = hasDisappearanceSignal || cmlCrimeCategory === 'disappearance';
 
     if (shouldEnforce && hasMurderSignal && !hasBridgeSignal) {
       errors.push({

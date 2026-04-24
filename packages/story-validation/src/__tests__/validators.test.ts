@@ -187,14 +187,14 @@ describe("CaseTransitionValidator", () => {
     expect(result.errors[0].severity).toBe("major");
   });
 
-  it("passes when CML has missing status but story has bridge", () => {
+  it("passes when CML category is disappearance and story has bridge", () => {
     const story = makeStory([
       makeScene({ number: 1, text: "He had disappeared last week." }),
       makeScene({ number: 2, text: "Confirmed dead — identified the body near the lake." }),
     ]);
     const cml: CMLData = {
       CASE: {
-        meta: { crime_class: { victim_identity_status: "missing" } },
+        meta: { crime_class: { category: "disappearance" } },
         cast: [],
       },
     };
@@ -202,14 +202,14 @@ describe("CaseTransitionValidator", () => {
     expect(result.valid).toBe(true);
   });
 
-  it("flags missing bridge even with CML missing status", () => {
+  it("flags missing bridge when CML category is disappearance", () => {
     const story = makeStory([
       makeScene({ number: 1, text: "She had vanished entirely." }),
       makeScene({ number: 2, text: "The murder weapon was recovered." }),
     ]);
     const cml: CMLData = {
       CASE: {
-        meta: { crime_class: { victim_identity_status: "missing" } },
+        meta: { crime_class: { category: "disappearance" } },
         cast: [],
       },
     };

@@ -179,15 +179,16 @@ agent9_prose:
     chapter_target_tolerance: 2
     # Per-length chapter plan.
     # total_ideal_words = chapter_count * chapter_ideal_words
+    word_target_multiplier: 1.25
     word_targets:
       short:
         chapter_ideal_words: 1000
         chapter_count: 10
       medium:
-        chapter_ideal_words: 1700
+        chapter_ideal_words: 1500
         chapter_count: 20
       long:
-        chapter_ideal_words: 2200
+        chapter_ideal_words: 2000
         chapter_count: 30
 
     # Derived total-word bounds as ratios of total ideal words.

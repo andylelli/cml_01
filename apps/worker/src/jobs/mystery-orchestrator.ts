@@ -163,6 +163,8 @@ export interface MysteryGenerationResult {
     agentDurations: Record<string, number>;
     revisedByAgent4: boolean;
     revisionAttempts?: number;
+    revisedByAgent4FairPlay: boolean;
+    fairPlayRevisionAttempts: number;
   };
 
   status: "success" | "warning" | "failure";
@@ -171,6 +173,68 @@ export interface MysteryGenerationResult {
 }
 
 export type ProgressCallback = (progress: MysteryGenerationProgress) => void;
+
+type FairPlayViolationLike = {
+  severity?: string;
+  rule?: string;
+};
+
+const deriveStructuralBlockingFairPlayViolations = (params: {
+  fairPlayAudit?: FairPlayAuditResult | null;
+  coverageResult?: { hasCriticalGaps?: boolean; uncoveredSteps?: unknown[] } | null;
+  allCoverageIssues?: Array<{ severity?: string; message?: string }> | null;
+}): { blockingViolations: FairPlayViolationLike[]; downgradedLogicalDeducibility: boolean } => {
+  const fairPlayAudit = params.fairPlayAudit;
+  if (!fairPlayAudit || fairPlayAudit.overallStatus !== "fail") {
+    return { blockingViolations: [], downgradedLogicalDeducibility: false };
+  }
+
+  const structurallyBlockingRules = new Set([
+    "clue visibility",
+    "logical deducibility",
+    "no withholding",
+  ]);
+
+  const criticalViolations = (fairPlayAudit.violations ?? []).filter(
+    (v) => String(v?.severity ?? "").toLowerCase() === "critical"
+  );
+  const candidateBlocking = criticalViolations.filter((v) =>
+    structurallyBlockingRules.has(String(v?.rule ?? "").toLowerCase().trim())
+  );
+
+  const hasCoverageCorroboration = Boolean(
+    params.coverageResult?.hasCriticalGaps
+    || (params.coverageResult?.uncoveredSteps?.length ?? 0) > 0
+    || (params.allCoverageIssues ?? []).some((issue) =>
+      String(issue?.severity ?? "").toLowerCase() === "critical"
+      && /inference step|discriminating test|suspect|elimination|coverage gap|uncovered/i.test(
+        String(issue?.message ?? "")
+      )
+    )
+  );
+
+  const hasParityCorroboration = criticalViolations.some((v) => {
+    const rule = String(v?.rule ?? "").toLowerCase().trim();
+    return (
+      rule === "clue visibility"
+      || rule === "no withholding"
+      || rule === "discriminating test timing"
+    );
+  });
+
+  const logicalDeducibilityCorroborated = hasCoverageCorroboration || hasParityCorroboration;
+
+  let downgradedLogicalDeducibility = false;
+  const blockingViolations = candidateBlocking.filter((v) => {
+    const rule = String(v?.rule ?? "").toLowerCase().trim();
+    if (rule !== "logical deducibility") return true;
+    if (logicalDeducibilityCorroborated) return true;
+    downgradedLogicalDeducibility = true;
+    return false;
+  });
+
+  return { blockingViolations, downgradedLogicalDeducibility };
+};
 
 // ============================================================================
 // Main Orchestrator
@@ -315,6 +379,8 @@ export async function generateMystery(
       seedEntries: seedEntries as Array<{ filename: string; cml: CaseData }>,
       revisedByAgent4: false,
       revisionAttempts: undefined,
+      revisedByAgent4FairPlay: false,
+      fairPlayRevisionAttempts: 0,
       proseScoringSnapshot,
       proseChapterScores: [],
       proseSecondRunChapterScores: [],
@@ -437,14 +503,18 @@ export async function generateMystery(
 
     // Structurally breaking fair-play violations block prose generation.
     if (ctx.fairPlayAudit && ctx.fairPlayAudit.overallStatus === "fail") {
-      const structurallyBlockingRules = new Set([
-        "Clue Visibility",
-        "Logical Deducibility",
-        "No Withholding",
-      ]);
-      const blockingViolations = ctx.fairPlayAudit.violations.filter(
-        (v) => v.severity === "critical" && v.rule && structurallyBlockingRules.has(v.rule)
-      );
+      const { blockingViolations, downgradedLogicalDeducibility } = deriveStructuralBlockingFairPlayViolations({
+        fairPlayAudit: ctx.fairPlayAudit,
+        coverageResult: ctx.coverageResult,
+        allCoverageIssues: ctx.allCoverageIssues,
+      });
+
+      if (downgradedLogicalDeducibility) {
+        warnings.push(
+          "Fair-play: downgraded uncorroborated Logical Deducibility critical flag to warning because deterministic clue coverage shows no structural gaps"
+        );
+      }
+
       if (blockingViolations.length > 0) {
         cmlValidationErrors.push(
           `Fair play audit failed with ${blockingViolations.length} structural violation(s) ` +
@@ -575,6 +645,8 @@ export async function generateMystery(
         agentDurations,
         revisedByAgent4: ctx.revisedByAgent4,
         revisionAttempts: ctx.revisionAttempts,
+        revisedByAgent4FairPlay: ctx.revisedByAgent4FairPlay,
+        fairPlayRevisionAttempts: ctx.fairPlayRevisionAttempts,
       },
       status,
       warnings,
@@ -793,6 +865,7 @@ export async function generateMysterySimple(
 
 // Test-only exports for deterministic guardrail unit coverage.
 export const __testables = {
+  deriveStructuralBlockingFairPlayViolations,
   captureNarrativeSceneCountSnapshot,
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,

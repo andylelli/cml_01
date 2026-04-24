@@ -34,22 +34,22 @@
 # - runId: string (optional override)
 # - projectId: string (optional)
 
-theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place discriminating test no later than chapter 2 of 3, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
+theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
 eraPreference: "1930s"
 locationPreset: CountryHouse
 tone: "Classic"
 primaryAxis: temporal
-castSize: 6
+castSize: 4
 castNames:
   - "Eleanor Voss"
   - "Dr. Mallory Finch"
   - "Captain Ivor Hale"
   - "Beatrice Quill"
-  - "Sylvia Trent"
-  - "Hugo Vane"
-  - "Agnes Pike"
+#  - "Sylvia Trent"
+#  - "Hugo Vane"
+#  - "Agnes Pike"
 detectiveType: amateur
-targetLength: medium
+targetLength: short
 narrativeStyle: classic
 skipNoveltyCheck: false
 similarityThreshold: 0.9

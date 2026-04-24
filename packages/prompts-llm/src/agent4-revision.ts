@@ -19,6 +19,7 @@ export interface RevisionInputs {
   invalidCml: string;                // YAML string that failed validation
   validationErrors: string[];        // List of validation error messages
   attempt: number;                   // Current revision attempt (1-5)
+  maxAttempts?: number;              // Max revision attempts for prompt context
   runId?: string;                    // For logging
   projectId?: string;                // For logging
 }
@@ -42,14 +43,18 @@ function categorizeErrors(errors: string[]): {
   missingRequired: string[];
   typeErrors: string[];
   allowedValueErrors: string[];
+  groundingErrors: string[];
 } {
   const missingRequired: string[] = [];
   const typeErrors: string[] = [];
   const allowedValueErrors: string[] = [];
+  const groundingErrors: string[] = [];
 
   for (const error of errors) {
     if (error.includes("is required")) {
       missingRequired.push(error);
+    } else if (error.includes("not grounded in reader-visible inference evidence")) {
+      groundingErrors.push(error);
     } else if (error.includes("must be one of")) {
       allowedValueErrors.push(error);
     } else if (error.includes("must be")) {
@@ -60,7 +65,7 @@ function categorizeErrors(errors: string[]): {
     }
   }
 
-  return { missingRequired, typeErrors, allowedValueErrors };
+  return { missingRequired, typeErrors, allowedValueErrors, groundingErrors };
 }
 
 /**
@@ -87,7 +92,8 @@ function groupErrorsBySection(errors: string[]): Map<string, string[]> {
  * Build revision prompt with error context and targeted fixes
  */
 export function buildRevisionPrompt(inputs: RevisionInputs): PromptComponents {
-  const { originalPrompt, invalidCml, validationErrors, attempt } = inputs;
+  const { originalPrompt, invalidCml, validationErrors, attempt, maxAttempts } = inputs;
+  const promptMaxAttempts = typeof maxAttempts === "number" && maxAttempts > 0 ? maxAttempts : 5;
 
   // Categorize and group errors for better targeting
   const categorized = categorizeErrors(validationErrors);
@@ -115,7 +121,7 @@ You MUST return ONLY valid JSON that matches the CML 2.0 schema.`;
   // Developer prompt: Error analysis and schema guidance
   let developer = `# Revision Context
 
-## Attempt ${attempt} of 5
+## Attempt ${attempt} of ${promptMaxAttempts}
 
 ## Validation Errors (${validationErrors.length} total)
 
@@ -146,6 +152,14 @@ You MUST return ONLY valid JSON that matches the CML 2.0 schema.`;
   if (categorized.allowedValueErrors.length > 0) {
     developer += `### Allowed Value Errors (${categorized.allowedValueErrors.length})\n\n`;
     for (const error of categorized.allowedValueErrors) {
+      developer += `- ${error}\n`;
+    }
+    developer += "\n";
+  }
+
+  if (categorized.groundingErrors.length > 0) {
+    developer += `### Grounding Errors (${categorized.groundingErrors.length})\n\n`;
+    for (const error of categorized.groundingErrors) {
       developer += `- ${error}\n`;
     }
     developer += "\n";
@@ -185,7 +199,7 @@ When cast members are missing fields like age_range, role_archetype, etc.:
 - license: "CC-BY-4.0" (standard for CML files)
 - era: Extract from existing content or use original prompt era
 - setting: Extract location/context from existing content
-- crime_class: murder | theft | blackmail | kidnapping | fraud
+- crime_class: murder | theft | disappearance | fraud
 
 ### Missing Culpability Fields
 - culprit_count: Number of actual culprits (usually 1-2)
@@ -194,7 +208,7 @@ When cast members are missing fields like age_range, role_archetype, etc.:
 ### Missing Surface/Hidden Model
 - accepted_facts: Array of facts investigator believes at start
 - inferred_conclusions: Array of deductions from accepted facts
-- outcome: The actual truth (object with description)
+- outcome.result: The actual truth as a string summary
 
 ### Missing False Assumption
 - statement: The key wrong assumption
@@ -204,6 +218,19 @@ When cast members are missing fields like age_range, role_archetype, etc.:
 ### Type Errors
 - inference_path must be an object with "steps" array
 - discriminating_test.method must be: reenactment | trap | constraint_proof | administrative_pressure
+
+### Structural Fair-Play Repairs (critical)
+- Ensure every inference step has reader_observable: true unless a schema-level exception explicitly requires otherwise.
+- Ensure each inference step has 2-4 concrete required_evidence entries.
+- Reject abstract placeholders in required_evidence (e.g., "timeline discrepancy", "suspicious behavior", "detective insight").
+- If discriminating_test design references mechanism details, ensure those same details already exist in earlier required_evidence.
+- If an error says a mechanism/test fact is "not grounded in reader-visible inference evidence", copy the named terms into one or more earlier inference_path.steps[*].observation and required_evidence entries, and keep those steps reader_observable: true.
+- If grounding errors name procedure-wrapper terms (for example: reenactment, surrounding, putting, under scrutiny, staged), do NOT force those terms into required_evidence. Rewrite discriminating_test.design into a fact-forward contradiction statement tied to existing evidence.
+- Fix grounding errors by strengthening earlier evidence, not by weakening or deleting discriminating_test / hidden_model facts unless they directly contradict the existing CML.
+- Never satisfy grounding or fair-play repairs by injecting detective-only behavioral shorthand such as "signals of guilt", suspicious reactions, observed defensiveness, or confession into required_evidence or discriminating_test fields.
+- discriminating_test.design, discriminating_test.knowledge_revealed, and discriminating_test.pass_condition must describe factual mechanism proof, contradiction, or elimination the reader can verify; guest reactions alone are not proof.
+- Keep discriminating_test evidence IDs canonical and traceable to prose_requirements.clue_to_scene_mapping.
+- Ensure fair_play.explanation explicitly references inference steps and evidence flow (for example: Step 1..., Step 2...).
 
 ## Quality Bar
 - Prefer minimal surgical edits over broad rewrites.
@@ -250,6 +277,9 @@ ${invalidCml}
 4. **Preserve existing content** - don't rewrite working sections
 5. **Maintain narrative coherence** - fixes must make logical sense
 6. **Return COMPLETE JSON** - the entire fixed CML document, not just the changed sections
+7. **For grounding errors, revise earlier inference_path evidence** - do not dodge the error by making the discriminating test vaguer; instead add the missing mechanism/test facts to earlier reader-visible observations and required_evidence.
+  - Exception: if the failed terms are procedural wrappers (reenactment/staged/surrounding/under scrutiny/putting), rewrite discriminating_test.design to name the concrete contradiction being proven; do not backfill those wrapper words into evidence.
+8. **Do not repair with reaction-only proof** - never use "signals of guilt", defensive reactions, or confession as the discriminating test's knowledge_revealed or pass_condition; use factual pre-test evidence instead.
 
 **IMPORTANT**: Return ONLY the corrected JSON. No explanations, no markdown code blocks, just the raw JSON that will parse and validate successfully.`;
 
@@ -284,6 +314,12 @@ export async function reviseCml(
     typeof value === "string" && value.trim() ? value : fallback;
 
   const normalizeCml = (raw: Record<string, unknown>) => {
+    const normalizeEnum = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T => {
+      const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+      const match = allowed.find((item) => item.toLowerCase() === normalized);
+      return match ?? fallback;
+    };
+
     const cml = ensureObject(raw);
     cml.CML_VERSION = 2.0;
 
@@ -292,13 +328,22 @@ export async function reviseCml(
 
     const meta = ensureObject(caseBlock.meta);
     caseBlock.meta = meta;
-    meta.title = ensureString(meta.title, "Untitled Mystery");
+    meta.title = ensureString(meta.title, "Untitled");
     meta.author = ensureString(meta.author, "CML Generator");
     meta.license = ensureString(meta.license, "CC-BY-4.0");
 
     const era = ensureObject(meta.era);
     meta.era = era;
     era.decade = ensureString(era.decade, "1930s");
+    if (era.specific_year !== undefined && typeof era.specific_year !== "number") {
+      delete era.specific_year;
+    }
+    if (era.specific_month !== undefined && typeof era.specific_month !== "string") {
+      delete era.specific_month;
+    }
+    if (era.wartime !== undefined && typeof era.wartime !== "boolean") {
+      delete era.wartime;
+    }
     era.realism_constraints = ensureArray(era.realism_constraints);
 
     const setting = ensureObject(meta.setting);
@@ -308,21 +353,22 @@ export async function reviseCml(
 
     const crimeClass = ensureObject(meta.crime_class);
     meta.crime_class = crimeClass;
-    crimeClass.category = ensureString(crimeClass.category, "murder");
+    crimeClass.category = normalizeEnum(crimeClass.category, ["murder", "theft", "disappearance", "fraud"], "murder");
     crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
 
     caseBlock.cast = Array.isArray(caseBlock.cast)
       ? caseBlock.cast.map((member, index) => {
           const existing = ensureObject(member);
-          const eligibility = ensureString(existing.culprit_eligibility, "eligible");
-          const normalizedEligibility = ["eligible", "ineligible", "locked"].includes(eligibility)
-            ? eligibility
-            : "eligible";
-          const culpability = ensureString(existing.culpability, "unknown");
-          const normalizedCulpability = ["guilty", "innocent", "unknown"].includes(culpability)
-            ? culpability
-            : "unknown";
-          return {
+          const normalizedEligibility = normalizeEnum(existing.culprit_eligibility, ["eligible", "ineligible", "locked"], "eligible");
+          const normalizedCulpability = normalizeEnum(existing.culpability, ["guilty", "innocent", "unknown"], "unknown");
+          const normalizedRole = existing.role === undefined
+            ? undefined
+            : normalizeEnum(existing.role, ["detective", "victim", "culprit", "suspect", "witness", "bystander"], "suspect");
+          const normalizedGender = existing.gender === undefined
+            ? undefined
+            : normalizeEnum(existing.gender, ["male", "female", "non-binary"], "non-binary");
+          const normalizedMember: Record<string, unknown> = {
+            ...existing,
             name: ensureString(existing.name, `Suspect ${index + 1}`),
             age_range: ensureString(existing.age_range, "adult"),
             role_archetype: ensureString(existing.role_archetype, "suspect"),
@@ -340,19 +386,32 @@ export async function reviseCml(
             culprit_eligibility: normalizedEligibility,
             culpability: normalizedCulpability,
           };
+
+          if (normalizedRole !== undefined) {
+            normalizedMember.role = normalizedRole;
+          }
+          if (normalizedGender !== undefined) {
+            normalizedMember.gender = normalizedGender;
+          }
+          if (existing.moral_complexity !== undefined) {
+            normalizedMember.moral_complexity = ensureString(existing.moral_complexity, "complex motivations");
+          }
+
+          return normalizedMember;
         })
       : [];
 
     const culpability = ensureObject(caseBlock.culpability);
     caseBlock.culpability = culpability;
-    culpability.culprit_count = typeof culpability.culprit_count === "number" ? culpability.culprit_count : 1;
+    const culpritCount = typeof culpability.culprit_count === "number" ? culpability.culprit_count : 1;
+    culpability.culprit_count = culpritCount === 2 ? 2 : 1;
     culpability.culprits = ensureArray(culpability.culprits);
 
     const surface = ensureObject(caseBlock.surface_model);
     caseBlock.surface_model = surface;
     const surfaceNarrative = ensureObject(surface.narrative);
     surface.narrative = surfaceNarrative;
-    surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "A mystery unfolds.");
+    surfaceNarrative.summary = ensureString(surfaceNarrative.summary, "Unknown");
     surface.accepted_facts = ensureArray(surface.accepted_facts);
     surface.inferred_conclusions = ensureArray(surface.inferred_conclusions);
 
@@ -360,18 +419,18 @@ export async function reviseCml(
     caseBlock.hidden_model = hidden;
     const hiddenMechanism = ensureObject(hidden.mechanism);
     hidden.mechanism = hiddenMechanism;
-    hiddenMechanism.description = ensureString(hiddenMechanism.description, "Poisoned tea.");
+    hiddenMechanism.description = ensureString(hiddenMechanism.description, "Unknown");
     hiddenMechanism.delivery_path = ensureArray(hiddenMechanism.delivery_path);
     const hiddenOutcome = ensureObject(hidden.outcome);
     hidden.outcome = hiddenOutcome;
-    hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");
+    hiddenOutcome.result = ensureString(hiddenOutcome.result, "Unknown");
 
     const falseAssumption = ensureObject(caseBlock.false_assumption);
     caseBlock.false_assumption = falseAssumption;
-    falseAssumption.statement = ensureString(falseAssumption.statement, "Death was natural.");
-    falseAssumption.type = ensureString(falseAssumption.type, "temporal");
-    falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
-    falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
+    falseAssumption.statement = ensureString(falseAssumption.statement, "Unknown assumption");
+    falseAssumption.type = normalizeEnum(falseAssumption.type, ["temporal", "spatial", "identity", "behavioral", "authority"], "temporal");
+    falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Unknown");
+    falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Unknown");
 
     const constraintSpace = ensureObject(caseBlock.constraint_space);
     caseBlock.constraint_space = constraintSpace;
@@ -399,51 +458,140 @@ export async function reviseCml(
     inferencePath.steps = Array.isArray(inferencePath.steps) && inferencePath.steps.length
       ? inferencePath.steps
       : [
-          { observation: "Symptom onset", correction: "Poison delay", effect: "Alibi weakens" },
-          { observation: "Access log", correction: "Hidden entry", effect: "Access narrowed" },
-          { observation: "Motive clue", correction: "Blackmail reveal", effect: "Suspect isolated" },
+          {
+            observation: "The teacup ring remains on the study desk beside fresh ash.",
+            correction: "The victim drank tea in the study, not in the dining room.",
+            effect: "The timeline anchor shifts to a later private meeting.",
+          },
+          {
+            observation: "The service corridor latch is scratched from the inside.",
+            correction: "Someone exited through the corridor after the household retired.",
+            effect: "Only staff-level access plausibly fits the movement.",
+          },
+          {
+            observation: "A pawn ticket bears the same initials as the blackmail note.",
+            correction: "The debt pressure links motive and opportunity to one suspect.",
+            effect: "The suspect pool narrows to a testable single hypothesis.",
+          },
         ];
+
+    const isAbstractEvidence = (text: string) => {
+      const normalized = text.toLowerCase();
+      const abstractMarkers = [
+        "timeline discrepancy",
+        "suspicious behavior",
+        "hidden motive",
+        "detective insight",
+        "something was wrong",
+        "inconsistency",
+        "general contradiction",
+      ];
+      return abstractMarkers.some((marker) => normalized.includes(marker));
+    };
+
+    const evidenceAnchors = [
+      ...ensureArray(constraintTime.anchors),
+      ...ensureArray(constraintTime.windows),
+      ...ensureArray(constraintTime.contradictions),
+      ...ensureArray(constraintAccess.actors),
+      ...ensureArray(constraintAccess.objects),
+      ...ensureArray(constraintAccess.permissions),
+      ...ensureArray(constraintPhysical.laws),
+      ...ensureArray(constraintPhysical.traces),
+      ...ensureArray(constraintSocial.trust_channels),
+      ...ensureArray(constraintSocial.authority_sources),
+    ]
+      .map((entry) => ensureString(entry, "").trim())
+      .filter((entry) => entry.length > 0)
+      .slice(0, 20);
+
+    const fallbackEvidence = (index: number, observation: string, correction: string) => {
+      const anchorA = evidenceAnchors[index % Math.max(evidenceAnchors.length, 1)] ||
+        "A dated document anchors the event timing.";
+      const anchorB =
+        evidenceAnchors[(index + 1) % Math.max(evidenceAnchors.length, 1)] ||
+        "A physical trace corroborates the corrected sequence.";
+      return [
+        `${anchorA}`,
+        `${anchorB}`,
+        `${observation} is directly visible to witnesses in-scene.`,
+        `${correction} follows from these concrete records without private knowledge.`,
+      ];
+    };
+
     const inferenceSteps = ensureArray(inferencePath.steps);
     inferencePath.steps = inferenceSteps.map((step, index) => {
       const stepObj = ensureObject(step);
       const existingRequiredEvidence = ensureArray(stepObj.required_evidence)
         .map((item) => (typeof item === "string" ? item.trim() : ""))
-        .filter((item) => item.length > 0);
+        .filter((item) => item.length > 0)
+        .filter((item) => !isAbstractEvidence(item));
       const observation = ensureString(stepObj.observation, `Observation ${index + 1}`);
       const correction = ensureString(stepObj.correction, `Correction ${index + 1}`);
 
-      // Keep model-provided evidence when present; otherwise synthesize at least
-      // one concrete evidence anchor so downstream validation can proceed.
-      const requiredEvidence =
+      // Keep model-provided concrete evidence when present; otherwise synthesize
+      // concrete anchors to avoid abstract fair-play failures.
+      const requiredEvidenceCandidates =
         existingRequiredEvidence.length > 0
           ? existingRequiredEvidence
-          : [
-              `${observation} is corroborated by an explicit scene detail.`,
-              `${correction} is supported by a documented contradiction in the case facts.`,
-            ];
+          : fallbackEvidence(index, observation, correction);
+
+      const requiredEvidence = requiredEvidenceCandidates.slice(0, 4);
+      while (requiredEvidence.length < 2) {
+        const fallback = fallbackEvidence(index + requiredEvidence.length, observation, correction)[0];
+        if (!requiredEvidence.includes(fallback)) {
+          requiredEvidence.push(fallback);
+        } else {
+          break;
+        }
+      }
 
       return {
-        observation,
+        observation: observation.length >= 20 ? observation : `${observation} is grounded in a concrete scene-level fact.`,
         correction,
         effect: ensureString(stepObj.effect, `Effect ${index + 1}`),
         required_evidence: requiredEvidence,
+        reader_observable: typeof stepObj.reader_observable === "boolean" ? stepObj.reader_observable : true,
       };
     });
 
     const discriminatingTest = ensureObject(caseBlock.discriminating_test);
     caseBlock.discriminating_test = discriminatingTest;
-    const method = ensureString(discriminatingTest.method, "trap");
-    discriminatingTest.method = [
-      "reenactment",
-      "trap",
-      "constraint_proof",
-      "administrative_pressure",
-    ].includes(method)
-      ? method
-      : "trap";
+    discriminatingTest.method = normalizeEnum(
+      discriminatingTest.method,
+      ["reenactment", "trap", "constraint_proof", "administrative_pressure"],
+      "trap"
+    );
     discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
     discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
     discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
+
+    // Keep discriminating-test evidence references canonical so Agent 5 does not
+    // need heuristic reseeding that can pick late-only clues.
+    const proseRequirements = ensureObject(caseBlock.prose_requirements);
+    caseBlock.prose_requirements = proseRequirements;
+    const mappedClueIds = ensureArray(proseRequirements.clue_to_scene_mapping)
+      .map((entry) => ensureObject(entry))
+      .map((entry) => ({
+        clue_id: ensureString(entry.clue_id, ""),
+        act_number: typeof entry.act_number === "number" ? entry.act_number : 99,
+        scene_number: typeof entry.scene_number === "number" ? entry.scene_number : 99,
+      }))
+      .filter((entry) => /^clue_[a-z0-9_-]+$/i.test(entry.clue_id))
+      .sort((a, b) => a.act_number - b.act_number || a.scene_number - b.scene_number)
+      .map((entry) => entry.clue_id);
+
+    const rawDiscriminatingEvidenceIds = ensureArray(discriminatingTest.evidence_clues)
+      .map((value) => ensureString(value, ""))
+      .filter(Boolean);
+    const canonicalDiscriminatingEvidenceIds = rawDiscriminatingEvidenceIds
+      .filter((id) => /^clue_[a-z0-9_-]+$/i.test(id));
+
+    if (canonicalDiscriminatingEvidenceIds.length > 0) {
+      discriminatingTest.evidence_clues = canonicalDiscriminatingEvidenceIds;
+    } else if (mappedClueIds.length > 0) {
+      discriminatingTest.evidence_clues = mappedClueIds.slice(0, 3);
+    }
 
     const fairPlay = ensureObject(caseBlock.fair_play);
     caseBlock.fair_play = fairPlay;
@@ -452,7 +600,23 @@ export async function reviseCml(
       typeof fairPlay.no_special_knowledge_required === "boolean" ? fairPlay.no_special_knowledge_required : true;
     fairPlay.no_late_information = typeof fairPlay.no_late_information === "boolean" ? fairPlay.no_late_information : true;
     fairPlay.reader_can_solve = typeof fairPlay.reader_can_solve === "boolean" ? fairPlay.reader_can_solve : true;
-    fairPlay.explanation = ensureString(fairPlay.explanation, "All clues provided before reveal.");
+    const rawFairPlayExplanation = ensureString(fairPlay.explanation, "");
+    if (rawFairPlayExplanation && /step\s*\d+/i.test(rawFairPlayExplanation)) {
+      fairPlay.explanation = rawFairPlayExplanation;
+    } else {
+      const synthesizedExplanation = ensureArray(inferencePath.steps)
+        .map((step, index) => {
+          const stepObj = ensureObject(step);
+          const evidence = ensureArray(stepObj.required_evidence)
+            .map((entry) => ensureString(entry, ""))
+            .filter(Boolean)
+            .slice(0, 2)
+            .join("; ");
+          return `Step ${index + 1}: ${evidence || "Concrete evidence is shown before deduction."}`;
+        })
+        .join(" ");
+      fairPlay.explanation = synthesizedExplanation || "Step 1: Concrete evidence is shown before deduction.";
+    }
 
     const qualityControls = ensureObject(caseBlock.quality_controls);
     caseBlock.quality_controls = qualityControls;
@@ -479,10 +643,11 @@ export async function reviseCml(
 
     const discriminatingRequirements = ensureObject(qualityControls.discriminating_test_requirements);
     qualityControls.discriminating_test_requirements = discriminatingRequirements;
-    const timing = ensureString(discriminatingRequirements.timing, "early_act3");
-    discriminatingRequirements.timing = ["late_act2", "early_act3", "mid_act3"].includes(timing)
-      ? timing
-      : "early_act3";
+    discriminatingRequirements.timing = normalizeEnum(
+      discriminatingRequirements.timing,
+      ["late_act2", "early_act3", "mid_act3"],
+      "early_act3"
+    );
     discriminatingRequirements.must_reference_inference_step =
       typeof discriminatingRequirements.must_reference_inference_step === "boolean"
         ? discriminatingRequirements.must_reference_inference_step
@@ -492,7 +657,7 @@ export async function reviseCml(
   };
 
   let currentCml = inputs.invalidCml;
-  let currentErrors = inputs.validationErrors;
+  let currentErrors = [...inputs.validationErrors];
   let attempt = inputs.attempt || 1;
   let revisionsApplied: string[] = [];
 
@@ -516,6 +681,7 @@ export async function reviseCml(
       invalidCml: currentCml,
       validationErrors: currentErrors,
       attempt,
+      maxAttempts: resolvedMaxAttempts,
     };
 
     const prompt = buildRevisionPrompt(revisionInput);
@@ -681,7 +847,7 @@ export async function reviseCml(
 
         if (attempt < resolvedMaxAttempts) {
           // Try again with parsing error feedback
-          currentErrors.push(`Output parsing failed: ${jsonMessage}`);
+          currentErrors = [...currentErrors, `Output parsing failed: ${jsonMessage}`];
           revisionsApplied.push(`Attempt ${attempt}: Output parse failed, retrying`);
           attempt++;
           continue;
@@ -754,7 +920,7 @@ export async function reviseCml(
 
       if (attempt < resolvedMaxAttempts) {
         // Update for next iteration
-        currentCml = yaml.dump(cml);
+        currentCml = yaml.dump(normalized);
         currentErrors = validation.errors;
         attempt++;
         continue;
@@ -765,12 +931,13 @@ export async function reviseCml(
         );
       }
     } catch (error) {
+      const message = (error as Error)?.message || String(error);
       await logger.logError({
         runId,
         projectId,
         agent: "Agent4-Revision",
         operation: "revise_cml",
-        errorMessage: (error as Error).message,
+        errorMessage: message,
         stackTrace: (error as Error).stack,
         retryAttempt: attempt,
         metadata: {
@@ -778,6 +945,13 @@ export async function reviseCml(
           attempt,
         },
       });
+
+      if (attempt < resolvedMaxAttempts) {
+        revisionsApplied.push(`Attempt ${attempt}: runtime error (${message}), retrying`);
+        currentErrors = [...currentErrors, `Runtime error on attempt ${attempt}: ${message}`];
+        attempt++;
+        continue;
+      }
 
       throw error;
     }

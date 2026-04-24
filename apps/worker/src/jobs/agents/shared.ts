@@ -172,6 +172,8 @@ export interface OrchestratorContext {
   // ── Result flags ─────────────────────────────────────────────────────────
   revisedByAgent4: boolean;
   revisionAttempts: number | undefined;
+  revisedByAgent4FairPlay: boolean;
+  fairPlayRevisionAttempts: number;
 
   // ── Prose-specific state (initialised before Agent 9) ───────────────────
   narrativeState?: NarrativeState;

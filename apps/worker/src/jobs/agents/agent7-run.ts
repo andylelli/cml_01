@@ -53,6 +53,12 @@ type SceneCountRebalanceResult = {
   summary: string;
 };
 
+export function computeDeterministicGapFillCap(totalScenes: number): number {
+  const normalizedScenes = Number.isFinite(totalScenes) ? Math.max(0, Math.floor(totalScenes)) : 0;
+  const scaledCap = Math.ceil(normalizedScenes * 0.25);
+  return Math.max(3, Math.min(8, scaledCap));
+}
+
 // ============================================================================
 // Outline quality-gate regex constants
 // ============================================================================
@@ -711,7 +717,6 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
   const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;
   const minClueSceneRatio = narrativePacingConfig.min_clue_scene_ratio;
-  const maxDeterministicGapFill = 3;
   const expectedSceneTarget = getSceneTarget(ctx.inputs.targetLength ?? "medium");
   const pacingGuardrails = buildCluePacingGuardrails(expectedSceneTarget, minClueSceneRatio);
 
@@ -1068,6 +1073,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
             `Outline pacing retry succeeded: ${retriedClueCount}/${retriedOutlineScenes.length} scenes now carry clues.`
           );
         } else {
+          const maxDeterministicGapFill = computeDeterministicGapFillCap(retriedOutlineScenes.length);
           const remainingGap = retriedMinClueScenes - retriedClueCount;
           if (remainingGap > maxDeterministicGapFill) {
             throw new Error(

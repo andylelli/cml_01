@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildCluePrompt } from "../src/agent5-clues";
+import { buildCluePrompt, extractClues } from "../src/agent5-clues";
 import type { ClueExtractionInputs } from "../src/agent5-clues";
 
 describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
@@ -16,12 +16,30 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
         {
           name: "Inspector Blake",
           evidence_sensitivity: ["pocket watch", "train ticket"],
+          motive_seed: "Protect a damaging secret",
+          private_secret: "Knows the clock was altered before supper",
         },
         {
           name: "Lady Ashford",
           evidence_sensitivity: ["diary entry"],
+          motive_seed: "Avoid exposure of forged estate accounts",
+          private_secret: "Reset the library clock after forging the railway timetable",
         },
       ],
+      culpability: {
+        culprit_count: 1,
+        culprits: ["Lady Ashford"],
+      },
+      hidden_model: {
+        mechanism: {
+          description: "Lady Ashford forged the railway timetable and reset the library clock to fake the arrival window.",
+        },
+      },
+      discriminating_test: {
+        design: "Use the forged railway timetable and library clock contradiction to expose the culprit.",
+        knowledge_revealed: "Only the forged timetable plus reset clock can sustain the false arrival window.",
+        evidence_clues: ["clue_1", "clue_2"],
+      },
       false_assumption: {
         type: "temporal",
         statement: "The murder occurred at midnight",
@@ -131,6 +149,21 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
 
       expect(prompt.developer).toContain("Library clock stopped at a quarter past nine");
       expect(prompt.developer).toContain("Train arrival delayed two hours");
+    });
+
+    it("requires mechanism visibility and culprit-unique clues on first pass", () => {
+      const inputs: ClueExtractionInputs = {
+        cml: mockCML,
+        clueDensity: "moderate",
+        redHerringBudget: 0,
+      };
+
+      const prompt = buildCluePrompt(inputs);
+
+      expect(prompt.developer).toContain("core mechanism reader-visible before the discriminating test");
+      expect(prompt.developer).toContain("explicitly names Lady Ashford");
+      expect(prompt.user).toContain("MECHANISM VISIBILITY");
+      expect(prompt.user).toContain("CULPRIT-UNIQUE CLUE");
     });
 
     it("includes constraint space facts", () => {
@@ -321,8 +354,8 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
 
       const prompt = buildCluePrompt(inputs);
       expect(prompt.developer).toContain("Requested density**: minimal");
-      expect(prompt.developer).toContain("Effective density**: moderate");
-      expect(prompt.user).toContain("Generate 8-12 clues");
+      expect(prompt.developer).toContain("Effective density**: dense");
+      expect(prompt.user).toContain("Generate 12-18 clues");
     });
 
     it("emphasizes fair play requirement", () => {
@@ -389,6 +422,105 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
       expect(prompt.developer).toContain("preferred_false_assumption_terms");
       expect(prompt.developer).toContain("red_herring_contract");
       expect(prompt.user).toContain("FIRST-ATTEMPT RED HERRING CONTRACT");
+    });
+  });
+
+  describe("extractClues", () => {
+    const makeClient = (content: string) => ({
+      getLogger: () => ({
+        logRequest: async () => undefined,
+        logResponse: async () => undefined,
+        logError: async () => undefined,
+      }),
+      getCostTracker: () => ({
+        getSummary: () => ({
+          byAgent: {
+            "Agent5-ClueExtraction": 0.01,
+          },
+        }),
+      }),
+      chat: async () => ({
+        content,
+        model: "test-model",
+        latencyMs: 5,
+      }),
+    });
+
+    it("defaults missing clues and redHerrings arrays to empty arrays", async () => {
+      const client = makeClient(JSON.stringify({ status: "pass" })) as any;
+
+      const result = await extractClues(client, {
+        cml: mockCML as any,
+        clueDensity: "minimal",
+        redHerringBudget: 0,
+        runId: "run-a5-partial",
+        projectId: "proj-a5-partial",
+      });
+
+      expect(result.clues).toEqual([]);
+      expect(result.redHerrings).toEqual([]);
+      expect(result.clueTimeline).toEqual({ early: [], mid: [], late: [] });
+    });
+
+    it("infers supportsInferenceStep and evidenceType from source path when missing", async () => {
+      const client = makeClient(
+        JSON.stringify({
+          clues: [
+            {
+              id: "clue_a",
+              category: "temporal",
+              description: "Clock hands were moved after dinner.",
+              sourceInCML: "CASE.inference_path.steps[0].observation",
+              pointsTo: "Timeline tampering",
+              placement: "mid",
+              criticality: "essential",
+            },
+          ],
+        }),
+      ) as any;
+
+      const result = await extractClues(client, {
+        cml: mockCML as any,
+        clueDensity: "minimal",
+        redHerringBudget: 0,
+        runId: "run-a5-defaults",
+        projectId: "proj-a5-defaults",
+      });
+
+      expect(result.clues).toHaveLength(1);
+      expect(result.clues[0].supportsInferenceStep).toBe(1);
+      expect(result.clues[0].evidenceType).toBe("observation");
+      expect(result.redHerrings).toEqual([]);
+    });
+
+    it("normalizes correction-source clues to contradiction evidenceType", async () => {
+      const client = makeClient(
+        JSON.stringify({
+          clues: [
+            {
+              id: "clue_b",
+              category: "temporal",
+              description: "Witness ordering conflicts with the original clock sequence.",
+              sourceInCML: "CASE.inference_path.steps[1].correction",
+              pointsTo: "The prior timeline assumption is contradicted.",
+              placement: "mid",
+              criticality: "essential",
+            },
+          ],
+        }),
+      ) as any;
+
+      const result = await extractClues(client, {
+        cml: mockCML as any,
+        clueDensity: "minimal",
+        redHerringBudget: 0,
+        runId: "run-a5-contradiction-infer",
+        projectId: "proj-a5-contradiction-infer",
+      });
+
+      expect(result.clues).toHaveLength(1);
+      expect(result.clues[0].supportsInferenceStep).toBe(2);
+      expect(result.clues[0].evidenceType).toBe("contradiction");
     });
   });
 });

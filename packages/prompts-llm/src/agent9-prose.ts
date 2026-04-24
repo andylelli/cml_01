@@ -217,6 +217,17 @@ const getChapterWordTargets = (targetLength: "short" | "medium" | "long") => {
   };
 };
 
+const getWordTargetMultiplier = (): number => {
+  const raw = getGenerationParams().agent9_prose?.story_length_policy?.word_target_multiplier;
+  if (typeof raw !== "number" || Number.isNaN(raw)) return 1;
+  return Math.max(0.5, Math.min(3, raw));
+};
+
+const getPromptPreferredWords = (targetLength: "short" | "medium" | "long"): number => {
+  const { preferredWords } = getChapterWordTargets(targetLength);
+  return Math.max(1, Math.round(preferredWords * getWordTargetMultiplier()));
+};
+
 const CLUE_TOKEN_STOPWORDS = new Set<string>([
   // Common auxiliary and preposition words that provide no discriminating signal
   "about", "after", "again", "against", "also", "been", "between", "both", "could", "does", "done",
@@ -1152,11 +1163,18 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const falseAssumption = cmlCase.false_assumption?.statement ?? "";
   const culpritNames = cmlCase.culpability?.culprits ?? [];
   const culprit = Array.isArray(culpritNames) ? culpritNames.join(", ") : "Unknown";
+  const castCharacters = Array.isArray((cast as any)?.characters)
+    ? (cast as any).characters
+    : Array.isArray(cmlCase?.cast)
+      ? cmlCase.cast
+      : Array.isArray(cmlCase?.cast?.characters)
+        ? cmlCase.cast.characters
+        : [];
   // Annotate each character with their pronoun form so the user message —
   // the last instruction the LLM reads before generating — carries explicit
   // pronoun identity alongside every name. For non-binary characters the
   // annotation uses the singular form to prime the correct completion path.
-  const castNames = cast.characters.map((c: any) => {
+  const castNames = castCharacters.map((c: any) => {
     const g = (c.gender ?? '').toLowerCase();
     if (g === 'non-binary') return `${c.name} (they/them)`;
     if (g === 'female')     return `${c.name} (she/her)`;
@@ -1166,14 +1184,14 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
 
   // When any cast member is non-binary, add an explicit forbidden-forms reminder
   // directly in the user message — the proximal generation trigger.
-  const nonBinaryCast = cast.characters.filter((c: any) => (c.gender ?? '').toLowerCase() === 'non-binary');
+  const nonBinaryCast = castCharacters.filter((c: any) => (c.gender ?? '').toLowerCase() === 'non-binary');
   const nonBinaryUserReminder = nonBinaryCast.length > 0
     ? `\n\n⚠ PRONOUN REMINDER: ${nonBinaryCast.map((c: any) => c.name).join(', ')} use they/them/their (singular). ` +
       `Never write she/her or he/him for these characters.`
     : '';
 
   // Resolve victim's full name from cast by role field or roleArchetype substring
-  const victimCharacter = cast.characters.find(
+  const victimCharacter = castCharacters.find(
     (c: any) => {
       if (c.role === 'victim') return true;
       const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
@@ -1196,7 +1214,8 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
  * Used to enforce named-victim guardrails in prose prompts.
  */
 export const resolveVictimName = (cast: CastDesign): string => {
-  const victimChar = cast.characters.find(
+  const castCharacters = Array.isArray((cast as any)?.characters) ? (cast as any).characters : [];
+  const victimChar = castCharacters.find(
     (c: any) => {
       if (c.role === 'victim') return true;
       const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
@@ -2701,15 +2720,19 @@ ${victimIdentityRule}`;
   const _shortT = getChapterWordTargets("short");
   const _medT   = getChapterWordTargets("medium");
   const _longT  = getChapterWordTargets("long");
+  const _shortPromptPreferred = getPromptPreferredWords("short");
+  const _medPromptPreferred = getPromptPreferredWords("medium");
+  const _longPromptPreferred = getPromptPreferredWords("long");
   const chapterWordGuidance: Record<string, string> = {
-    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortT.preferredWords + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — TARGET ≥ ${_shortT.preferredWords} words — do not stop early`,
-    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medT.preferredWords + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — TARGET ≥ ${_medT.preferredWords} words — do not stop early`,
-    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longT.preferredWords + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — TARGET ≥ ${_longT.preferredWords} words — do not stop early`,
+    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortPromptPreferred + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — TARGET ≥ ${_shortPromptPreferred} words — do not stop early`,
+    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medPromptPreferred + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — TARGET ≥ ${_medPromptPreferred} words — do not stop early`,
+    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longPromptPreferred + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — TARGET ≥ ${_longPromptPreferred} words — do not stop early`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
   const chapterWordTargets = getChapterWordTargets(targetLength);
-  const chapterTargetWords = chapterWordTargets.preferredWords + 200;
+  const chapterPromptPreferredWords = getPromptPreferredWords(targetLength);
+  const chapterTargetWords = chapterPromptPreferredWords + 200;
   const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
@@ -3915,9 +3938,10 @@ export const attemptUnderflowExpansion = async (
 ): Promise<ProseChapter> => {
   const chapterText = (chapter.paragraphs ?? []).join("\n\n");
   const currentWords = countWords(chapterText);
-  // If below hard floor, target the hard floor; otherwise target the preferred word count.
+  // If below hard floor, target above the floor (buffer) so minor model undershoot still clears it.
+  const hardFloorBuffer = Math.max(80, Math.round(ledgerEntry.preferredWords * 0.08));
   const expansionTarget = currentWords < ledgerEntry.hardFloorWords
-    ? ledgerEntry.hardFloorWords
+    ? ledgerEntry.hardFloorWords + hardFloorBuffer
     : ledgerEntry.preferredWords;
   const missingWords = Math.max(0, expansionTarget - currentWords);
   const expansionConfig = getGenerationParams().agent9_prose.underflow_expansion;
@@ -3975,6 +3999,7 @@ export const attemptUnderflowExpansion = async (
 
   const user = [
     `Chapter ${chapterNumber} has ${currentWords} words and needs to reach the target of ${ledgerEntry.preferredWords + 200} words.`,
+    `Hard minimum: ${ledgerEntry.hardFloorWords} words. Do not return below this minimum.`,
     `Expand by roughly ${expansionHint} words to reach the target of ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
     'Do not stop at the first threshold crossing. Continue until the chapter feels fully developed and complete.',
     'Never pad with recap or repeated atmosphere. Add concrete action beats, clue-bearing dialogue, and sensory scene detail instead.',
@@ -3999,7 +4024,11 @@ export const attemptUnderflowExpansion = async (
     ],
     model,
     temperature: expansionConfig.temperature,
-    maxTokens: Math.max(500, Math.ceil(ledgerEntry.preferredWords * expansionConfig.max_tokens_ratio)),
+    maxTokens: Math.max(
+      500,
+      Math.ceil(ledgerEntry.preferredWords * expansionConfig.max_tokens_ratio),
+      Math.ceil((ledgerEntry.hardFloorWords + 220) * 2.2),
+    ),
     jsonMode: true,
     logContext: {
       runId: runId ?? "",
@@ -4441,13 +4470,13 @@ export async function generateProse(
             const preferredMisses = obligations?.preferredMisses ?? [];
             const hasOnlyHardFloorUnderflow =
               hardErrors.length > 0 &&
-              hardErrors.every((error) => /word count below hard floor/i.test(error));
+              hardErrors.every((error) => /word count below (hard floor|minimum)/i.test(error));
             // True whenever the hard floor is hit, even if other hard errors also exist.
             // Expansion fires in this case so the model can grow the chapter while
             // simultaneously satisfying any co-present clue/placement obligations
             // (which are included in the expansion prompt).
             const hasHardFloorUnderflow =
-              hardErrors.some((error) => /word count below hard floor/i.test(error));
+              hardErrors.some((error) => /word count below (hard floor|minimum)/i.test(error));
             // Fires when the chapter passes all hard checks but is still below the preferred
             // word target. With a permissive hard_floor_relaxation_ratio the hard floor may
             // be cleared while the chapter is still meaningfully short of preferred length.
@@ -4487,44 +4516,68 @@ export async function generateProse(
           // Gated by agent9_prose.underflow_expansion.enabled (default: true).
           const expansionEnabled = getGenerationParams().agent9_prose.underflow_expansion.enabled;
           if (expansionEnabled && (evaluation.hasHardFloorUnderflow || evaluation.hasPreferredMissOnly) && ledgerEntry) {
-            underflowExpansionAttempts += 1;
-            try {
-              const expanded = await attemptUnderflowExpansion(
-                client,
-                chapter,
-                chapterNumber,
-                batchScenes[i],
-                ledgerEntry,
-                inputs.model,
-                inputs.runId,
-                inputs.projectId,
-                temporalSeasonLock, // [WORLD FIX B]
-                castCharacters, // [ANALYSIS_16 PHASE D]
-              );
-              chapter = enforceMonthSeasonLockOnChapter(
-                sanitizeGeneratedChapter(expanded, castNames),
-                temporalSeasonLock,
-              );
-              proseBatch.chapters[i] = chapter;
-              // Repeat pronoun repair after expansion — expansion is a full LLM rewrite.
-              if (pronounCheckingEnabled && castCharacters.length > 0) {
-                const pronRepair = repairChapterPronouns(chapter, castCharacters);
-                if (pronRepair.repairCount > 0) {
-                  chapter = pronRepair.chapter;
-                  proseBatch.chapters[i] = chapter;
-                  console.warn(
-                    `[Agent 9] Post-expansion pronoun repair: ch${chapterNumber} — ${pronRepair.repairCount} replacement(s) applied.`,
-                  );
+            const maxExpansionPasses = evaluation.hasHardFloorUnderflow ? 6 : 1;
+            let attemptedExpansion = false;
+            let expansionErrored = false;
+            for (let expansionPass = 1; expansionPass <= maxExpansionPasses; expansionPass++) {
+              underflowExpansionAttempts += 1;
+              attemptedExpansion = true;
+              try {
+                const expanded = await attemptUnderflowExpansion(
+                  client,
+                  chapter,
+                  chapterNumber,
+                  batchScenes[i],
+                  ledgerEntry,
+                  inputs.model,
+                  inputs.runId,
+                  inputs.projectId,
+                  temporalSeasonLock, // [WORLD FIX B]
+                  castCharacters, // [ANALYSIS_16 PHASE D]
+                );
+                chapter = enforceMonthSeasonLockOnChapter(
+                  sanitizeGeneratedChapter(expanded, castNames),
+                  temporalSeasonLock,
+                );
+                proseBatch.chapters[i] = chapter;
+                // Repeat pronoun repair after expansion — expansion is a full LLM rewrite.
+                if (pronounCheckingEnabled && castCharacters.length > 0) {
+                  const pronRepair = repairChapterPronouns(chapter, castCharacters);
+                  if (pronRepair.repairCount > 0) {
+                    chapter = pronRepair.chapter;
+                    proseBatch.chapters[i] = chapter;
+                    console.warn(
+                      `[Agent 9] Post-expansion pronoun repair: ch${chapterNumber} — ${pronRepair.repairCount} replacement(s) applied.`,
+                    );
+                  }
                 }
+                evaluation = evaluateCandidate(chapter, false);
+
+                // Stop early when the hard floor is satisfied or when this chapter only needed
+                // preferred-target enrichment.
+                if (!evaluation.hasHardFloorUnderflow || !evaluation.hardErrors.some((error) => /word count below (hard floor|minimum)/i.test(error))) {
+                  break;
+                }
+
+                // If this was not a pure underflow case, avoid repeated expansion loops.
+                const hasNonUnderflowHardErrors = evaluation.hardErrors.some(
+                  (error) => !/word count below (hard floor|minimum)/i.test(error),
+                );
+                if (hasNonUnderflowHardErrors) {
+                  break;
+                }
+              } catch {
+                expansionErrored = true;
+                break;
               }
-              evaluation = evaluateCandidate(chapter, false);
-              if (evaluation.hasOnlyHardFloorUnderflow || evaluation.hardErrors.length > 0) {
-                underflowExpansionFailed += 1;
-              } else {
+            }
+
+            if (attemptedExpansion) {
+              if (!expansionErrored && !evaluation.hasHardFloorUnderflow && evaluation.hardErrors.length === 0) {
                 underflowExpansionRecovered += 1;
+              } else {
+                underflowExpansionFailed += 1;
               }
-            } catch {
-              underflowExpansionFailed += 1;
             }
           }
 

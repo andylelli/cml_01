@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import os from "os";
 import path from "path";
 import {
   GENERATED_ARTIFACT_DENY_GLOBS,
@@ -17,17 +18,47 @@ const DEFAULT_ALLOW_GLOBS = [
   "apps/**",
   "logs/canary-loops/**",
 ];
+const STALE_LOCK_MAX_AGE_MS = 30 * 60 * 1000;
 
 export async function acquireRunLock({ workspaceRoot, runId, agent }) {
   const lockDir = path.join(workspaceRoot, "logs", "canary-loops", ".locks");
   await fs.mkdir(lockDir, { recursive: true });
   const lockPath = path.join(lockDir, `${sanitize(runId)}-${sanitize(agent)}.lock`);
-  try {
+
+  const writeFreshLock = async () => {
     const handle = await fs.open(lockPath, "wx");
-    await handle.writeFile(`${new Date().toISOString()}\n`);
+    await handle.writeFile(
+      `${JSON.stringify({
+        createdAt: new Date().toISOString(),
+        pid: process.pid,
+        hostname: os.hostname(),
+      })}\n`
+    );
     return { lockPath, handle };
-  } catch {
-    throw new Error(`Canary loop lock already exists: ${lockPath}`);
+  };
+
+  try {
+    return await writeFreshLock();
+  } catch (error) {
+    if (error?.code !== "EEXIST") {
+      throw error;
+    }
+
+    const stale = await isStaleLock(lockPath);
+    if (!stale.stale) {
+      const detail = stale.reason ? ` (${stale.reason})` : "";
+      throw new Error(`Canary loop lock already exists: ${lockPath}${detail}`);
+    }
+
+    try {
+      await fs.unlink(lockPath);
+    } catch (unlinkError) {
+      if (unlinkError?.code !== "ENOENT") {
+        throw new Error(`Canary loop lock already exists: ${lockPath} (stale cleanup failed)`);
+      }
+    }
+
+    return await writeFreshLock();
   }
 }
 
@@ -44,6 +75,68 @@ export async function releaseRunLock(lock) {
     await fs.unlink(lock.lockPath);
   } catch {
     // Ignore unlink errors for lock cleanup.
+  }
+}
+
+async function isStaleLock(lockPath) {
+  let stats;
+  try {
+    stats = await fs.stat(lockPath);
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return { stale: true, reason: "lock_missing" };
+    }
+    return { stale: false, reason: "lock_stat_failed" };
+  }
+
+  const ageMs = Date.now() - Number(stats.mtimeMs ?? Date.now());
+  if (ageMs > STALE_LOCK_MAX_AGE_MS) {
+    return { stale: true, reason: `expired_${Math.floor(ageMs / 1000)}s` };
+  }
+
+  const metadata = await readLockMetadata(lockPath);
+  if (!Number.isInteger(metadata?.pid) || metadata.pid <= 0) {
+    return { stale: false, reason: "missing_pid_recent" };
+  }
+
+  if (!(await isProcessRunning(metadata.pid))) {
+    return { stale: true, reason: `dead_pid_${metadata.pid}` };
+  }
+
+  return { stale: false, reason: `active_pid_${metadata.pid}` };
+}
+
+async function readLockMetadata(lockPath) {
+  try {
+    const raw = await fs.readFile(lockPath, "utf8");
+    const line = String(raw ?? "").split(/\r?\n/, 1)[0].trim();
+    if (!line) {
+      return null;
+    }
+
+    if (line.startsWith("{")) {
+      const parsed = JSON.parse(line);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return parsed;
+      }
+      return null;
+    }
+
+    // Backward compatibility for historical lock format containing only timestamp.
+    return {
+      createdAt: line,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function isProcessRunning(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === "EPERM";
   }
 }
 

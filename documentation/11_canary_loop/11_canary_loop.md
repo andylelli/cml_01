@@ -197,29 +197,47 @@ npm run canary:agent2e -- --runId <runId|latest>
 - `--startFromAgent <name>` optional (defaults to `--agent`)
 - `--yaml <file>` optional; load run request fields from a YAML file. Relative paths resolve under `scripts/canary-loop/`.
 - `--inputYaml <file>` optional legacy alias for `--yaml`.
+- `--interactive true|false` default `false`; allow runtime prompts for missing `agent`/`startFromAgent` in TTY sessions
 - `--hydratePriorFromRun true|false` default `true`
 - `--quickRun true|false` default `false`; enables a fast-path preset that minimizes unnecessary reruns
 - `--mode suggest|apply` default `apply`
 - `--maxIterations <n>` default `5`
-- `--maxUnchanged <n>` default `2`
+- `--maxUnchanged <n>` default `3`
 - `--testScope targeted|full` default `targeted`
 - `--canaryCommand <cmd>` optional override
-- `--stopOnNewFailureClass true|false` default `true`
+- `--stopOnNewFailureClass true|false` default `false`; when enabled, stop on new higher-severity failure class
 - `--allowFiles <glob,...>` optional
 - `--denyFiles <glob,...>` optional
 - `--resume <ledgerPath>` optional
 - `--overrideFileCap <n>` optional (explicit opt-in)
 - `--startChapter <n>` optional, Agent 9 only
-- `--confirmSharedEdits true|false` optional; required in apply mode when edits touch configured shared files
+- `--confirmSharedEdits true|false` default `false`; required in apply mode when edits touch configured shared files
 - `--rollbackFailedChanges true|false` default `true`; rollback unresolved implementation changes and archive snapshots in the run folder
+- `--partialRollbackEnabled true|false` default `true`; allow partial-win rollback decisions to keep selected files while reverting others
 - `--autoExpandUpstreamScope true|false` default `false`; auto-expand `--startFromAgent` upstream when signature stage indicates upstream-generated data is likely the root cause
+- `--enableMajorRework true|false` default `true`; permit major-rework escalation
+- `--majorReworkAgentV2 true|false` default `true`; validates major-rework agent mode flag in request contract
+
+Major rework tuning options (advanced):
+- `--mrEnabledByDefault true|false` default `true`
+- `--mrMaxInputTokens <n>` default `12000`
+- `--mrMaxOutputTokens <n>` default `2500`
+- `--mrMaxThinkTokensPerWave <n>` default `35000`
+- `--mrMaxActTokensPerWave <n>` default `20000`
+- `--mrMaxCampaignTokens <n>` default `180000`
+- `--mrMinRemainingPercentForBroadWork <n>` default `15`
+- `--mrMaxFilesPerWave <n>` default `4`
+- `--mrMaxPhaseRetriesP1 <n>` default `2`
+- `--mrMaxPhaseRetriesP2 <n>` default `2`
+- `--mrMaxPhaseRetriesP3 <n>` default `2`
+- `--mrEnforceNarrativeAcceptanceGates true|false` default `true`
 
 Quick run preset behavior (`--quickRun=true`):
 - pins `--startFromAgent` to the selected `--agent` boundary
 - forces `--hydratePriorFromRun=true`
 - forces runtime upstream hydration mode (`CANARY_FORCE_FRESH_UPSTREAM=false`)
 - disables broadening/escalation paths that increase rerun scope (`--autoExpandUpstreamScope=false`, `--enableMajorRework=false`)
-- forces targeted tests and tight unchanged stopping (`--testScope=targeted`, `maxUnchanged<=1`)
+- forces targeted tests (`--testScope=targeted`)
 
 Terminal major-rework reset behavior:
 - when `enableMajorRework=true`, the loop forces major-rework escalation on the terminal iteration
@@ -229,7 +247,8 @@ Terminal major-rework reset behavior:
 YAML request file behavior:
 - YAML root must be an object with the same keys accepted by CLI flags (`runId`, `agent`, `startFromAgent`, `mode`, `maxIterations`, `maxUnchanged`, `testScope`, `quickRun`, `enableMajorRework`, etc.)
 - YAML may be either root-level fields or `{ inputs: { ... } }`
-- if `agent` or `startFromAgent` is blank in YAML, the CLI prompts at runtime in interactive terminals
+- if `agent` is blank and `--interactive` is not enabled, the CLI exits with precheck-style input error
+- if `agent`/`startFromAgent` are blank and `--interactive=true` in a TTY terminal, the CLI prompts for values
 - CLI flags override YAML values when both are provided
 
 Implementation note:
@@ -304,10 +323,25 @@ Per execution, the loop writes:
 - JSONL ledger: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
 - Markdown summary: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
 - Major rework detail log: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.jsonl` and `.md`
-- Consolidated summaries: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json` and `.summary.md`
+- Run summary rollups: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.json` and `.md`
+- Attempt history: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-attempt-history.json` and `.md`
+- Dashboard rollups: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-dashboard-summary.json` and `.md`
+
+Edited-file logging requirement:
+- every iteration that edits files must record the edited file names in `changedFiles`
+- `changedFiles` must be present in the JSONL ledger iteration entry and mirrored in `canary-attempt-history.json`
+- `changedImplementationFiles` must be emitted for implementation edits (excluding run artifacts under `logs/canary-loops/**`) and mirrored in `canary-attempt-history.json`
+- per-run markdown/json summaries must expose edited file names derived from the same canonical `changedFiles` list
+
+Major-rework execution-state logging:
+- when a major-rework wave is created but blocked by admissibility before apply, the iteration is logged as planned-not-executed (not just a generic stop)
+- major-rework markdown entries include `wave execution` with one of `planned_not_executed` or `planned_or_executed`
+- attempt-history entries include `majorReworkPhase`, `majorReworkWaveId`, `majorReworkState`, and `majorReworkExecution`
+- run summary rollups include `plannedNotExecutedWaveCount`
+- dashboard rollups include `admissibilityBlockerCounts` split by blocker type (for example `target_files_exceed_wave_cap`)
+- attempt-history markdown header includes a `Terminal Reason Taxonomy` section with category descriptions and observed counts
 
 Operational/support files in the same folder:
-- run-level rollups: `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json` and `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
 - lock files: `logs/canary-loops/.locks/*`
 - signature cache: `logs/canary-loops/signature-fix-cache.json`
 
@@ -334,21 +368,31 @@ Use this map when triaging a failing or looping canary run.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.md`
   Dedicated major-rework narrative by iteration (selection rationale, terminal-force status, reset behavior, scope, and rework brief links).
+  Includes `wave execution` to distinguish planned-but-blocked vs executed waves.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-major-rework-<timestamp>-<runId>-<agent>.jsonl`
   Structured major-rework iteration records for tooling/analysis.
 
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
-  Structured summary artifact (when generated) for tooling/report aggregation.
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.json`
+  Structured per-run summary rollup derived from ledger entries.
+  Includes `plannedNotExecutedWaveCount` for admissibility-blocked wave plans.
 
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.md`
-  Markdown summary companion to `.summary.json`.
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.md`
+  Markdown companion to the per-run summary rollup.
 
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json`
-  Aggregate summary across recent canary-loop runs in this workspace.
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-attempt-history.json`
+  Run attempt-history index. Each attempt must include `changedFiles` listing edited file names for that iteration.
+  Includes `changedImplementationFiles` for non-artifact implementation edits when available.
+  Major-rework attempts also include execution-state fields (`majorReworkPhase`, `majorReworkWaveId`, `majorReworkState`, `majorReworkExecution`).
 
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
-  Human-readable aggregate summary across recent runs.
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-attempt-history.md`
+  Human-readable attempt-history companion including changed files, changed implementation files, playbooks, rollback snapshots, and terminal reason taxonomy.
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-dashboard-summary.json`
+  Aggregated dashboard rollup (run count, total iterations/warnings, deterministic fallback totals, and admissibility blocker breakdown).
+
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-dashboard-summary.md`
+  Human-readable companion to `canary-dashboard-summary.json`.
 
 - `logs/canary-loops/.locks/*`
   Concurrency lock artifacts. Inspect when a run appears stuck or reports lock contention.

@@ -7,6 +7,7 @@ import {
   loadRegisteredAgentCodes,
   getAgentMappingConformance,
 } from "../config.mjs";
+import { acquireRunLock, releaseRunLock } from "../patches.mjs";
 import { getCachedFix } from "../cache.mjs";
 import { updateTelemetryRollups } from "../report.mjs";
 import { classifyFailureText } from "../signatures.mjs";
@@ -63,6 +64,31 @@ test("signature fix cache safety blocks early code fallback", () => {
   assert.deepEqual(allowed?.playbooks, ["pb.code.agent5.id-normalize-seed-synthesize"]);
 });
 
+test("run lock acquisition auto-recovers stale lock files", async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "canary-lock-recover-"));
+  const lockDir = path.join(tempRoot, "logs", "canary-loops", ".locks");
+  await fs.mkdir(lockDir, { recursive: true });
+
+  const lockPath = path.join(lockDir, "run_stale-Agent6-FairPlay.lock");
+  await fs.writeFile(lockPath, `${new Date(0).toISOString()}\n`, "utf8");
+  const oldDate = new Date(Date.now() - (31 * 60 * 1000));
+  await fs.utimes(lockPath, oldDate, oldDate);
+
+  const lock = await acquireRunLock({
+    workspaceRoot: tempRoot,
+    runId: "run_stale",
+    agent: "Agent6-FairPlay",
+  });
+
+  assert.ok(lock?.lockPath.endsWith("run_stale-Agent6-FairPlay.lock"));
+  const metadataRaw = await fs.readFile(lock.lockPath, "utf8");
+  const metadata = JSON.parse(metadataRaw.trim());
+  assert.equal(Number.isInteger(metadata.pid), true);
+
+  await releaseRunLock(lock);
+  await fs.rm(tempRoot, { recursive: true, force: true });
+});
+
 test("telemetry rollups produce run summary and dashboard artifacts", async () => {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "canary-rollup-"));
   const outDir = path.join(tempRoot, "logs", "canary-loops");
@@ -79,14 +105,24 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
         iteration: 1,
         decision: "continue",
         inputSignature: { class: "agent5.invalid_source_path" },
+        changedFiles: [
+          path.join(tempRoot, "scripts", "canary-loop", "controller.mjs"),
+          path.join(runDir, "artifact.md"),
+        ],
         canary: { warningsCount: 1 },
         deterministicFallbackExceptions: ["deterministic_fallback:pb.code.agent5.id-normalize-seed-synthesize"],
       },
       {
         iteration: 2,
         decision: "stop",
-        stopReason: "Signature remained unchanged.",
+        stopReason: "Wave admissibility blocked: target_files_exceed_wave_cap, think_tokens_exceed_wave_cap.",
         inputSignature: { class: "agent5.invalid_source_path" },
+        majorRework: {
+          state: "MR_WAVE_PLAN",
+          phase: "P2",
+          waveId: "MR-P2-W1",
+        },
+        changedFiles: [],
         canary: { warningsCount: 0 },
         deterministicFallbackExceptions: [],
       },
@@ -97,12 +133,28 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
 
   const runSummaryPath = path.join(runDir, "canary-run-summary-example.json");
   const dashboardPath = path.join(runDir, "canary-dashboard-summary.json");
+  const dashboardMarkdownPath = path.join(runDir, "canary-dashboard-summary.md");
+  const attemptHistoryPath = path.join(runDir, "canary-attempt-history.json");
+  const attemptHistoryMarkdownPath = path.join(runDir, "canary-attempt-history.md");
 
   const runSummary = JSON.parse(await fs.readFile(runSummaryPath, "utf8"));
   const dashboard = JSON.parse(await fs.readFile(dashboardPath, "utf8"));
+  const attemptHistory = JSON.parse(await fs.readFile(attemptHistoryPath, "utf8"));
+  const dashboardMarkdown = await fs.readFile(dashboardMarkdownPath, "utf8");
+  const attemptHistoryMarkdown = await fs.readFile(attemptHistoryMarkdownPath, "utf8");
 
   assert.equal(runSummary.totals.iterations, 2);
   assert.equal(runSummary.totals.deterministicFallbackCount, 1);
+  assert.equal(runSummary.totals.plannedNotExecutedWaveCount, 1);
+  assert.equal(dashboard.admissibilityBlockerCounts.target_files_exceed_wave_cap, 1);
+  assert.equal(dashboard.admissibilityBlockerCounts.think_tokens_exceed_wave_cap, 1);
+  assert.equal(attemptHistory.stats.withChangedImplementationFiles, 1);
+  assert.deepEqual(attemptHistory.attempts[0].changedImplementationFiles, [
+    path.join(tempRoot, "scripts", "canary-loop", "controller.mjs"),
+  ]);
+  assert.equal(attemptHistory.attempts[1].majorReworkExecution, "planned_not_executed");
+  assert.match(dashboardMarkdown, /Admissibility Blockers/i);
+  assert.match(attemptHistoryMarkdown, /Terminal Reason Taxonomy/i);
   assert.equal(dashboard.runCount >= 1, true);
 });
 

@@ -58,7 +58,7 @@ export interface CMLData {
     meta: {
       era?: { decade?: string };
       setting?: { location?: string };
-      crime_class?: { victim_identity_status?: string };
+      crime_class?: { category?: string; subtype?: string };
     };
     cast: Array<{
       name: string;

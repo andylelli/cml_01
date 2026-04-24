@@ -63,6 +63,25 @@ async function buildAttemptHistory(ledger) {
     const iteration = Number(entry?.iteration ?? 0);
     const outputClass = entry?.outputSignature?.class ?? null;
     const inputClass = entry?.inputSignature?.class ?? null;
+    const majorRework = entry?.majorRework ?? null;
+    const majorReworkPhase = majorRework?.phase ?? null;
+    const majorReworkWaveId = majorRework?.waveId ?? null;
+    const majorReworkState = majorRework?.state ?? null;
+    const blockedByAdmissibility =
+      majorReworkState === "MR_WAVE_PLAN"
+      && String(entry?.stopReason ?? "").startsWith("Wave admissibility blocked:");
+    const majorReworkExecution = blockedByAdmissibility
+      ? "planned_not_executed"
+      : majorReworkWaveId
+        ? "planned_or_executed"
+        : "none";
+    const changedFiles = Array.isArray(entry?.changedFiles) ? entry.changedFiles : [];
+    const changedImplementationFiles = Array.isArray(entry?.changedImplementationFiles)
+      ? entry.changedImplementationFiles
+      : deriveChangedImplementationFiles({
+        changedFiles,
+        outputDir: outDir,
+      });
 
     return {
       iteration,
@@ -71,7 +90,12 @@ async function buildAttemptHistory(ledger) {
       stopReason: entry?.stopReason ?? null,
       inputSignatureClass: inputClass,
       outputSignatureClass: outputClass,
-      changedFiles: Array.isArray(entry?.changedFiles) ? entry.changedFiles : [],
+      majorReworkPhase,
+      majorReworkWaveId,
+      majorReworkState,
+      majorReworkExecution,
+      changedFiles,
+      changedImplementationFiles,
       selectedPlaybooks: Array.isArray(entry?.selectedPlaybooks) ? entry.selectedPlaybooks : [],
       featureSnapshot: entry?.featureSnapshot ?? null,
       patchStagingFiles: patchStaging
@@ -91,6 +115,7 @@ async function buildAttemptHistory(ledger) {
     stats: {
       attempts: attempts.length,
       withChangedFiles: attempts.filter((item) => item.changedFiles.length > 0).length,
+      withChangedImplementationFiles: attempts.filter((item) => item.changedImplementationFiles.length > 0).length,
       withRollbackSnapshots: attempts.filter((item) => item.rollback !== null).length,
       patchStagingFileCount: patchStaging.length,
     },
@@ -193,6 +218,12 @@ function buildRunSummary(ledger) {
   const noOpIterationCount = entries.filter(
     (entry) => Array.isArray(entry.changedFiles) && entry.changedFiles.length === 0
   ).length;
+  const plannedNotExecutedWaveCount = entries.filter((entry) => {
+    if (entry?.majorRework?.state !== "MR_WAVE_PLAN") {
+      return false;
+    }
+    return String(entry?.stopReason ?? "").startsWith("Wave admissibility blocked:");
+  }).length;
   const resumeFingerprintMismatchCount = entries.filter((entry) =>
     String(entry.stopReason ?? "").includes("fingerprint mismatch")
   ).length;
@@ -209,6 +240,7 @@ function buildRunSummary(ledger) {
       warningTotal,
       deterministicFallbackCount,
       noOpIterationCount,
+      plannedNotExecutedWaveCount,
       resumeFingerprintMismatchCount,
     },
     statusCounts,
@@ -362,6 +394,15 @@ async function buildGlobalSummary(workspaceRoot) {
     (sum, item) => sum + Number(item.totals?.deterministicFallbackCount ?? 0),
     0
   );
+  const admissibilityBlockerCounts = {};
+  for (const summary of summaries) {
+    const stopReasons = summary?.stopReasonCounts ?? {};
+    for (const [reason, count] of Object.entries(stopReasons)) {
+      for (const blocker of extractAdmissibilityBlockers(reason)) {
+        admissibilityBlockerCounts[blocker] = (admissibilityBlockerCounts[blocker] ?? 0) + Number(count ?? 0);
+      }
+    }
+  }
 
   return {
     generatedAt: new Date().toISOString(),
@@ -369,7 +410,61 @@ async function buildGlobalSummary(workspaceRoot) {
     totalIterations,
     totalWarnings,
     deterministicFallbackCount,
+    admissibilityBlockerCounts,
   };
+}
+
+function extractAdmissibilityBlockers(stopReason) {
+  const text = String(stopReason ?? "").trim();
+  if (!text.toLowerCase().startsWith("wave admissibility blocked:")) {
+    return [];
+  }
+  const payload = text.replace(/^wave admissibility blocked:\s*/i, "").replace(/\.$/, "");
+  return payload
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function deriveChangedImplementationFiles({ changedFiles = [], outputDir }) {
+  const items = Array.isArray(changedFiles) ? changedFiles : [];
+  if (!items.length || !outputDir) {
+    return [];
+  }
+  const logsRoot = path.resolve(path.join(outputDir, ".."));
+  return items.filter((filePath) => {
+    const absolute = path.resolve(String(filePath ?? ""));
+    const rel = path.relative(logsRoot, absolute);
+    const insideLogsRoot = rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+    return !insideLogsRoot;
+  });
+}
+
+function classifyTerminalReason(attempt) {
+  const decision = String(attempt?.decision ?? "").toLowerCase();
+  const reason = String(attempt?.stopReason ?? "").toLowerCase();
+  if (decision === "pass") {
+    return "pass";
+  }
+  if (reason.includes("warning") && decision === "stop") {
+    return "stop_with_warnings";
+  }
+  if (reason.includes("wave admissibility blocked")) {
+    return "stop_admissibility_blocked";
+  }
+  if (reason.includes("no-op patch")) {
+    return "stop_no_op_patch";
+  }
+  if (reason.includes("infrastructure") || reason.includes("infra")) {
+    return "infra_command_failure";
+  }
+  if (reason.includes("max") && reason.includes("iteration")) {
+    return "stop_max_iterations";
+  }
+  if (decision === "stop") {
+    return "stop_other";
+  }
+  return "continue";
 }
 
 async function findSummaryFilesRecursively(rootDir) {
@@ -422,6 +517,7 @@ function renderRunSummaryMarkdown(summary) {
     `- warningTotal: \`${summary.totals.warningTotal}\``,
     `- deterministicFallbackCount: \`${summary.totals.deterministicFallbackCount}\``,
     `- noOpIterationCount: \`${summary.totals.noOpIterationCount}\``,
+    `- plannedNotExecutedWaveCount: \`${summary.totals.plannedNotExecutedWaveCount}\``,
     "",
     "## Status Counts",
     "",
@@ -461,6 +557,17 @@ function renderGlobalSummaryMarkdown(summary) {
     "",
   ];
 
+  const blockerEntries = Object.entries(summary.admissibilityBlockerCounts ?? {});
+  lines.push("## Admissibility Blockers", "");
+  if (!blockerEntries.length) {
+    lines.push("- none", "");
+  } else {
+    for (const [blocker, count] of blockerEntries) {
+      lines.push(`- ${blocker}: ${count}`);
+    }
+    lines.push("");
+  }
+
   return `${lines.join("\n")}\n`;
 }
 
@@ -471,10 +578,26 @@ function renderAttemptHistoryMarkdown(history) {
     `- generatedAt: \`${history.generatedAt}\``,
     `- attempts: \`${history.stats.attempts}\``,
     `- attempts with changed files: \`${history.stats.withChangedFiles}\``,
+    `- attempts with changed implementation files: \`${history.stats.withChangedImplementationFiles}\``,
     `- attempts with rollback snapshots: \`${history.stats.withRollbackSnapshots}\``,
     `- patch staging files: \`${history.stats.patchStagingFileCount}\``,
     "",
   ];
+
+  const taxonomyCounts = countBy(history.attempts.map((attempt) => classifyTerminalReason(attempt)));
+  lines.push("## Terminal Reason Taxonomy", "");
+  lines.push("- `pass`: validation passed with no unresolved warnings");
+  lines.push("- `stop_with_warnings`: loop stopped with warning-level unresolved state");
+  lines.push("- `stop_admissibility_blocked`: wave planned but blocked before execution by admissibility policy");
+  lines.push("- `stop_no_op_patch`: no effective patch delta was produced");
+  lines.push("- `infra_command_failure`: test/canary infrastructure command failed");
+  lines.push("- `stop_max_iterations`: iteration ceiling reached");
+  lines.push("- `stop_other`: other stop policies");
+  lines.push("- `continue`: non-terminal iteration", "");
+  for (const [key, value] of Object.entries(taxonomyCounts)) {
+    lines.push(`- observed ${key}: ${value}`);
+  }
+  lines.push("");
 
   if (!history.attempts.length) {
     lines.push("No attempts recorded.", "");
@@ -490,6 +613,11 @@ function renderAttemptHistoryMarkdown(history) {
     }
     lines.push(`- input signature: \`${attempt.inputSignatureClass ?? "none"}\``);
     lines.push(`- output signature: \`${attempt.outputSignatureClass ?? "none"}\``);
+    if (attempt.majorReworkWaveId || attempt.majorReworkExecution !== "none") {
+      lines.push(
+        `- major rework: phase='${attempt.majorReworkPhase ?? "n/a"}', wave='${attempt.majorReworkWaveId ?? "n/a"}', state='${attempt.majorReworkState ?? "n/a"}', execution='${attempt.majorReworkExecution ?? "none"}'`
+      );
+    }
 
     if (attempt.selectedPlaybooks.length) {
       lines.push(`- playbooks: ${attempt.selectedPlaybooks.join(", ")}`);
@@ -498,6 +626,12 @@ function renderAttemptHistoryMarkdown(history) {
     if (attempt.changedFiles.length) {
       lines.push("- changed files:");
       for (const filePath of attempt.changedFiles) {
+        lines.push(`  - ${filePath}`);
+      }
+    }
+    if (attempt.changedImplementationFiles.length) {
+      lines.push("- changed implementation files:");
+      for (const filePath of attempt.changedImplementationFiles) {
         lines.push(`  - ${filePath}`);
       }
     }

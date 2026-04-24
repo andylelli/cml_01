@@ -194,10 +194,22 @@ ${INFERENCE_PATH_QUALITY}
 4. required_evidence must list 2-4 CML facts per step. These are the facts that 
    Agent 5 MUST surface as clues for the reader. If you cannot list concrete evidence, 
    the observation is too abstract - rewrite it.
+  Avoid abstract placeholders in required_evidence (for example: "timeline discrepancy",
+  "suspicious behavior", "hidden motive", "detective insight"). Each entry must name
+  a concrete artifact, witness statement, document, timestamp, physical trace, or access record.
+  Do NOT use detective-only behavioral shorthand as evidence (for example: "signals of guilt",
+  "suspicious reactions", "observed defensiveness", or "confession").
 5. The constraint_space MUST contain at least one contradiction per inference step - 
    a pair of facts that create logical tension the reader can resolve
 6. The discriminating_test.design MUST reference specific evidence the reader has 
   already seen in earlier inference steps
+7. If discriminating_test.design references a mechanism detail (clock tampering, forged pass,
+   access key use, poison preparation, ledger alteration), that exact mechanism evidence must
+   already appear in required_evidence of at least one earlier inference step.
+8. discriminating_test.design, discriminating_test.knowledge_revealed, and discriminating_test.pass_condition
+   must describe a factual contradiction, mechanism exposure, or suspect elimination the reader can verify.
+   Do NOT make the proof depend on reactions, defensiveness, "signals of guilt", or confession.
+9. Do NOT use procedure-only wrapper wording in discriminating_test.design (for example: "a reenactment is staged", "putting guests under scrutiny", "events surrounding", "under observation") unless the sentence also states the concrete contradiction or mechanism fact being proven from earlier evidence.
 
 Quality bar:
 - Every major section must be operationally useful to downstream agents (clues, fair-play audit, narrative outline, prose).
@@ -217,12 +229,17 @@ Micro-exemplars:
 - Strong inference observation: "Station porter logs Dr. Vale boarding the twelve minutes past eight service while his alibi claims he was at the manor at ten past eight."
 - Weak effect: "Narrows suspects."
 - Strong effect: "Eliminates Hartwell by proving key access ended at twenty minutes to eight, forty minutes before symptom onset."
+- Weak discriminating test: "A suspect reacts defensively during the reenactment and reveals guilt."
+- Strong discriminating test: "The porter log, forged timetable, and altered clock prove only Hartwell's alibi depends on the false timeline."
+- Weak discriminating test design: "A reenactment is staged, putting guests under scrutiny."
+- Strong discriminating test design: "Comparing the porter log with the forged timetable and reset clock proves Hartwell's claimed arrival is impossible."
 
 Before finalizing, run a silent checklist:
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
 - discriminating_test uses only previously exposed evidence
 - fair_play booleans true with specific explanation
+- required_evidence entries are concrete and non-abstract in every step
 - prose_requirements populated and clue IDs traceable
 - required setting fields (including institution) are non-empty
 - canonical enum forms only
@@ -433,6 +450,8 @@ ${hardLogicDeviceText}
       ✓ CORRECT: Inference step 2 required_evidence = ["clock spring shows fresh tool marks", "Kenneth's pocket watch runs eight minutes fast"] → Test applies that KNOWN evidence to stage a controlled comparison
       ✓ CORRECT: Inference step 3 required_evidence = ["receipt dated two weeks before murder", "Kenneth's handwriting on order form"] → Confrontation synthesises what reader already deduced
     e. EVIDENCE TRACEABILITY: discriminating_test.evidence_clues MUST be a non-empty array of clue IDs and each listed clue ID must appear in prose_requirements.clue_to_scene_mapping.
+    f. ANTI-ABSTRACTION: If discriminating_test.design references mechanism details (for example clock spring marks, forged signatures, key transfer, poison preparation, altered ledger entries), those exact details must already appear as concrete required_evidence in earlier inference steps.
+    g. FACT-FORWARD TEST DESIGN: Do not stop at procedure wrappers ("reenactment", "staged", "under scrutiny", "surrounding events"). The design sentence must explicitly name the contradiction or mechanism fact being proven from earlier evidence.
 10. Ensure all fair-play checklist items are true
 11. Fill quality_controls with realistic numeric targets that match the inference path and fair-play plan
 12. Ground every clue in mechanism or constraint violations

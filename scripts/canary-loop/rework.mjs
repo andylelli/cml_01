@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const MAJOR_REWORK_PREFIX = "pb.rework.";
+const TERMINAL_TASK_STATUSES = new Set(["done", "blocked", "skipped"]);
 
 export function hasMajorReworkPlaybook(selectedPlaybooks) {
   return (selectedPlaybooks ?? []).some((id) => String(id).startsWith(MAJOR_REWORK_PREFIX));
@@ -39,6 +40,11 @@ export function buildMajorReworkPacket({
     },
     objective:
       "Enable sweeping redesign of request contracts, response processing, and logic-validation architecture while preserving safety and rollbackability.",
+    deltaFromPreviousWave: buildDeltaFromPreviousWave({
+      iteration,
+      selectedPlaybooks,
+      signatureClass,
+    }),
     redesignTracks: [
       buildLlmContractTrack(signatureClass),
       buildResponseProcessingTrack(signatureClass),
@@ -161,9 +167,31 @@ export function renderMajorReworkBrief(packet) {
     "",
     packet.objective,
     "",
-    "## Redesign Tracks",
+    "## Delta From Previous Wave",
     "",
+    "- strategy changes:",
   ];
+
+  const delta = packet.deltaFromPreviousWave ?? {};
+  for (const item of delta.strategyChanges ?? ["No explicit prior-wave delta provided."]) {
+    lines.push(`  - ${item}`);
+  }
+  lines.push("- new target files:");
+  for (const item of delta.newTargetFiles ?? ["none captured"]) {
+    lines.push(`  - ${item}`);
+  }
+  lines.push("- new evidence checks:");
+  for (const item of delta.newEvidenceChecks ?? ["none captured"]) {
+    lines.push(`  - ${item}`);
+  }
+  lines.push("- dropped actions:");
+  for (const item of delta.droppedActions ?? ["none captured"]) {
+    lines.push(`  - ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Redesign Tracks");
+  lines.push("");
 
   for (const track of packet.redesignTracks ?? []) {
     lines.push(`### ${track.id}`);
@@ -589,11 +617,14 @@ export async function finalizeMajorReworkTodos({
     };
   }
 
-  const normalizedTerminalStatus = String(terminalStatus ?? "stopped").trim() || "stopped";
-  const terminalCampaignStatus = normalizedTerminalStatus === "pass"
-    || normalizedTerminalStatus === "pass_with_warnings"
-    ? "completed"
-    : "stopped";
+  const normalizedTerminalStatus = String(terminalStatus ?? "stopped_policy").trim() || "stopped_policy";
+  const normalizedLifecycle = normalizeLifecycleStatus({
+    terminalStatus: normalizedTerminalStatus,
+    completionReason,
+  });
+  const terminalCampaignStatus = normalizedLifecycle.campaignStatus;
+  const terminalPhaseStatus = normalizedLifecycle.phaseStatus;
+  const terminalWaveStatus = normalizedLifecycle.waveStatus;
   const finalizedAt = new Date().toISOString();
   const reason = String(completionReason ?? `terminal_${normalizedTerminalStatus}`).trim()
     || `terminal_${normalizedTerminalStatus}`;
@@ -643,7 +674,7 @@ export async function finalizeMajorReworkTodos({
       }
       const updated = {
         ...payload,
-        status: terminalCampaignStatus,
+        status: terminalPhaseStatus,
         terminalStatus: normalizedTerminalStatus,
         completedAt: finalizedAt,
         completionReason: reason,
@@ -666,7 +697,8 @@ export async function finalizeMajorReworkTodos({
       }
       const updated = {
         ...payload,
-        status: terminalCampaignStatus,
+        status: terminalWaveStatus,
+        tasks: normalizeWaveTasksToTerminal(payload?.tasks, reason),
         terminalStatus: normalizedTerminalStatus,
         completedAt: finalizedAt,
         completionReason: reason,
@@ -852,6 +884,7 @@ async function ensureSingleInProgressWave({ labDir, nextWaveId }) {
       const updated = {
         ...payload,
         status: "completed",
+        tasks: normalizeWaveTasksToTerminal(payload?.tasks, `superseded_by_${nextWaveId}`),
         completedAt: new Date().toISOString(),
         completionReason: `superseded_by_${nextWaveId}`,
       };
@@ -970,7 +1003,7 @@ export async function appendMajorReworkLearning({
     // New learning file.
   }
 
-  existing.entries.push(entry);
+  existing.entries.push(normalizeLearningEntry(entry));
   existing.updatedAt = new Date().toISOString();
   await fs.writeFile(learningPath, `${JSON.stringify(existing, null, 2)}\n`, "utf8");
   return learningPath;
@@ -993,6 +1026,114 @@ export async function loadMajorReworkLearning({ outputDir }) {
 function isGenericClass(className) {
   return ["unknown.pipeline_failure", "canary.execution_failure", "infra_command_failure"]
     .includes(String(className ?? ""));
+}
+
+function buildDeltaFromPreviousWave({ iteration, selectedPlaybooks = [], signatureClass }) {
+  const playbooks = (selectedPlaybooks ?? []).map((item) => String(item));
+  const strategyChanges = [];
+  if (iteration > 1) {
+    strategyChanges.push(`Iteration ${iteration} focuses on replay-safe adaptation for '${signatureClass}'.`);
+  }
+  if (playbooks.length > 0) {
+    strategyChanges.push(`Playbook emphasis: ${playbooks.join(", ")}.`);
+  }
+
+  const newTargetFiles = [];
+  if (playbooks.some((id) => id.includes("llm-request-contract"))) {
+    newTargetFiles.push("packages/prompts-llm/**");
+  }
+  if (playbooks.some((id) => id.includes("response-processing"))) {
+    newTargetFiles.push("apps/worker/src/jobs/agents/**");
+  }
+  if (playbooks.some((id) => id.includes("story-logic"))) {
+    newTargetFiles.push("packages/story-validation/**");
+  }
+
+  return {
+    strategyChanges: strategyChanges.length > 0 ? strategyChanges : ["No explicit strategy change recorded."],
+    newTargetFiles: newTargetFiles.length > 0 ? [...new Set(newTargetFiles)] : ["none captured"],
+    newEvidenceChecks: [
+      `Output signature diverges from ${String(signatureClass ?? "unknown")}.`,
+      "Critical marker count does not increase.",
+    ],
+    droppedActions: ["none captured"],
+  };
+}
+
+function normalizeWaveTasksToTerminal(tasks, reason) {
+  if (!Array.isArray(tasks)) {
+    return tasks;
+  }
+  return tasks.map((task) => {
+    const status = String(task?.status ?? "").trim().toLowerCase();
+    if (TERMINAL_TASK_STATUSES.has(status)) {
+      return task;
+    }
+    return {
+      ...task,
+      status: "blocked",
+      blockedReason: String(reason ?? "wave_terminated_before_execution"),
+    };
+  });
+}
+
+function normalizeLifecycleStatus({ terminalStatus, completionReason }) {
+  const normalizedTerminalStatus = String(terminalStatus ?? "").toLowerCase();
+  const reason = String(completionReason ?? "").toLowerCase();
+  if (normalizedTerminalStatus === "pass" || normalizedTerminalStatus === "pass_with_warnings") {
+    return {
+      campaignStatus: "completed",
+      phaseStatus: "completed",
+      waveStatus: "completed",
+    };
+  }
+  if (reason.includes("admissibility") || reason.includes("target_files_exceed_wave_cap")) {
+    return {
+      campaignStatus: "blocked_admissibility",
+      phaseStatus: "blocked_admissibility",
+      waveStatus: "blocked_admissibility",
+    };
+  }
+  return {
+    campaignStatus: "stopped_policy",
+    phaseStatus: "stopped_policy",
+    waveStatus: "stopped_policy",
+  };
+}
+
+function normalizeLearningEntry(entry) {
+  const normalized = {
+    ...(entry ?? {}),
+  };
+  const attemptedTaskCount = Number(
+    normalized.attemptedTaskCount
+      ?? (Array.isArray(normalized.selectedPlaybooks) ? normalized.selectedPlaybooks.length : 0)
+  );
+  const revertedFiles = Array.isArray(normalized.revertedFiles) ? normalized.revertedFiles : [];
+  const keptFiles = Array.isArray(normalized.keptFiles) ? normalized.keptFiles : [];
+  const changedImplementationFiles = Array.isArray(normalized.changedImplementationFiles)
+    ? normalized.changedImplementationFiles
+    : [...new Set([...keptFiles, ...revertedFiles])];
+
+  return {
+    ...normalized,
+    attemptedTaskCount,
+    executedTaskCount: Number(
+      normalized.executedTaskCount
+      ?? (attemptedTaskCount > 0 ? attemptedTaskCount : 0)
+    ),
+    executionBlockedCount: Number(normalized.executionBlockedCount ?? 0),
+    changedImplementationFiles,
+    evidenceSatisfied: Array.isArray(normalized.evidenceSatisfied)
+      ? normalized.evidenceSatisfied
+      : [],
+    evidenceFailed: Array.isArray(normalized.evidenceFailed)
+      ? normalized.evidenceFailed
+      : [],
+    admissibilityBlockers: Array.isArray(normalized.admissibilityBlockers)
+      ? normalized.admissibilityBlockers
+      : [],
+  };
 }
 
 function severityRank(severity) {

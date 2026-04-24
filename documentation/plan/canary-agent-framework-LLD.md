@@ -32,15 +32,18 @@
 - `--runId <id|latest>` required
 - `--agent <name>` required
 - `--startFromAgent <name>` optional; defaults to `--agent`
+- `--yaml <file>` optional; load request fields from YAML (relative to `scripts/canary-loop/`)
+- `--inputYaml <file>` optional legacy alias for `--yaml`
+- `--interactive true|false` default `false`; allow runtime prompts for missing agent inputs in TTY sessions
 - `--hydratePriorFromRun true|false` default `true`
 - `--quickRun true|false` default `false`; fast-path preset for boundary-local retries
 - `--enableMajorRework true|false` default `true`; allow deep redesign escalation
 - `--mode suggest|apply` default `apply`
 - `--maxIterations <n>` default `5`
-- `--maxUnchanged <n>` default `2`
+- `--maxUnchanged <n>` default `3`
 - `--testScope targeted|full` default `targeted`
 - `--canaryCommand <cmd>` optional
-- `--stopOnNewFailureClass true|false` default `true`
+- `--stopOnNewFailureClass true|false` default `false`
 - `--allowFiles <glob,...>` optional
 - `--denyFiles <glob,...>` optional
 - `--resume <ledgerPath>` optional
@@ -48,7 +51,23 @@
 - `--startChapter <n>` optional; Agent 9 only (1-based chapter index)
 - `--confirmSharedEdits true|false` default `false`; required when apply mode touches configured shared files
 - `--rollbackFailedChanges true|false` default `true`; revert unresolved implementation edits and archive snapshots in run folder
+- `--partialRollbackEnabled true|false` default `true`; allow partial-win rollback decisions
 - `--autoExpandUpstreamScope true|false` default `false`; widen `--startFromAgent` upstream when signature stage/class indicates upstream-generated defects
+- `--majorReworkAgentV2 true|false` default `true`
+
+Advanced major-rework tuning options:
+- `--mrEnabledByDefault true|false` default `true`
+- `--mrMaxInputTokens <n>` default `12000`
+- `--mrMaxOutputTokens <n>` default `2500`
+- `--mrMaxThinkTokensPerWave <n>` default `35000`
+- `--mrMaxActTokensPerWave <n>` default `20000`
+- `--mrMaxCampaignTokens <n>` default `180000`
+- `--mrMinRemainingPercentForBroadWork <n>` default `15`
+- `--mrMaxFilesPerWave <n>` default `4`
+- `--mrMaxPhaseRetriesP1 <n>` default `2`
+- `--mrMaxPhaseRetriesP2 <n>` default `2`
+- `--mrMaxPhaseRetriesP3 <n>` default `2`
+- `--mrEnforceNarrativeAcceptanceGates true|false` default `true`
 
 Quick-run major-rework interaction:
 - quick-run preset defaults `enableMajorRework=false` to reduce broad rerun scope
@@ -153,10 +172,12 @@ Defaults, agent-to-command map, allowed paths.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.jsonl`
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.md`
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.json`
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/<timestamp>-<runId>-<agent>.summary.md`
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.json`
-- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/SUMMARY.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-dashboard-summary.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-dashboard-summary.md`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-attempt-history.json`
+- `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-attempt-history.md`
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/failed-changes/iterNN/{before,after,manifest.json}` (when rollback executes)
 
 ---
@@ -186,7 +207,21 @@ Defaults, agent-to-command map, allowed paths.
   startChapter?: number,          // Agent9-only chapter restart index (1-based)
   confirmSharedEdits?: boolean,   // required when touching configured shared files in apply mode
   rollbackFailedChanges?: boolean,
-  autoExpandUpstreamScope?: boolean
+  partialRollbackEnabled?: boolean,
+  autoExpandUpstreamScope?: boolean,
+  majorReworkAgentV2?: boolean,
+  majorReworkConfig?: {
+    enabledByDefault?: boolean,
+    maxInputTokens?: number,
+    maxOutputTokens?: number,
+    maxThinkTokensPerWave?: number,
+    maxActTokensPerWave?: number,
+    maxCampaignTokens?: number,
+    minRemainingPercentForBroadWork?: number,
+    maxFilesPerWave?: number,
+    maxPhaseRetries?: { P1?: number, P2?: number, P3?: number },
+    enforceNarrativeAcceptanceGates?: boolean
+  }
 }
 ```
 
@@ -551,6 +586,8 @@ Scope-filter behavior:
 2. Validate post-patch syntax/compile for touched package where feasible.
 3. Compute `changedFiles` from pre/post workspace snapshot delta (not raw git diff) to avoid unrelated dirty-worktree noise.
 4. If no effective file delta is detected, record no-op and trigger bounded stop/strategy change.
+5. For non-no-op iterations, `changedFiles` is mandatory and must be propagated to all per-run log artifacts that track attempts (JSONL ledger, markdown summary sections, and `canary-attempt-history.json`).
+6. `changedImplementationFiles` must be emitted alongside `changedFiles` for implementation edits, excluding generated run artifacts under `logs/canary-loops/**`.
 
 ---
 
@@ -617,6 +654,11 @@ Packet quality rules:
 
 One `IterationRecord` JSON object per line.
 
+Requirement:
+- each apply iteration must include `changedFiles` (empty array allowed only for true no-op attempts)
+- `changedFiles` entries must be normalized file paths for edited files only
+- when major-rework context is present, iteration logs should include explicit wave execution-state semantics so planned-but-unexecuted waves are distinguishable from executed waves
+
 ## 11.2 Markdown summary format
 
 Per-iteration sections:
@@ -625,6 +667,14 @@ Per-iteration sections:
 3. Changed files
 4. Tests and canary result
 5. Decision and reason
+
+Summary parity requirement:
+- markdown/json summaries and `canary-attempt-history.json` must reflect the same per-iteration `changedFiles` values emitted to JSONL
+- attempt-history and major-rework markdown should also expose `changedImplementationFiles` when present
+- attempt-history entries with major rework should include: `majorReworkPhase`, `majorReworkWaveId`, `majorReworkState`, `majorReworkExecution`
+- run summary rollups should include `plannedNotExecutedWaveCount` for admissibility-blocked wave plans
+- dashboard rollups should expose admissibility blocker splits via `admissibilityBlockerCounts`
+- attempt-history markdown header should include a terminal reason taxonomy with observed counts
 
 ## 11.3 Resume behavior
 

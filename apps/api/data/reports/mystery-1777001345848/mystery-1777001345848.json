@@ -1,0 +1,2090 @@
+{
+  "project_id": "mystery-1777001345848",
+  "run_id": "mystery-1777001345848",
+  "generated_at": "2026-04-24T03:32:12.904Z",
+  "total_duration_ms": 187056,
+  "total_cost": 0.0124,
+  "overall_score": 74,
+  "overall_grade": "C",
+  "passed": false,
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): Eleanor Voss",
+  "scoring_outcome": {
+    "score": 74,
+    "grade": "C",
+    "passed_threshold": false
+  },
+  "release_gate_outcome": {
+    "status": "unknown",
+    "hard_stop_count": 0,
+    "warning_count": 0
+  },
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5/5 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "88% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "6/6 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 6679,
+      "cost": 0.00044097405,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5/5 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "88% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "6/6 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000009,
+        "quality_score": 60,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 88,
+        "grade": "B",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Eleanor Voss: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Sylvia Trent: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Hugo Vane: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Agnes Pike: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 75%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Relationships don't reference other cast members",
+            "severity": "minor"
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (7 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "7 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 16523,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Eleanor Voss: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Sylvia Trent: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Hugo Vane: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Agnes Pike: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 75%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Relationships don't reference other cast members",
+          "severity": "minor"
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (7 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "7 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Era completeness: 100%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Location completeness: 100%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ]
+      },
+      "duration_ms": 2637,
+      "cost": 0.00021677205000000002,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Era completeness: 100%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Location completeness: 100%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 80,
+        "consistency_score": 100,
+        "total": 96,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": false,
+            "score": 40,
+            "weight": 1,
+            "message": "Only 2 types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 14560,
+      "cost": 0.0010020004499999998,
+      "threshold": 85,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": false,
+          "score": 40,
+          "weight": 1,
+          "message": "Only 2 types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "score": {
+        "agent": "agent3-cml-generation",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Schema validation",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Valid after 1 attempt(s)"
+          },
+          {
+            "name": "Structural revision (Agent 4)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No structural revision needed"
+          }
+        ]
+      },
+      "duration_ms": 28199,
+      "cost": 0.0026603131499999995,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Schema validation",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Valid after 1 attempt(s)"
+        },
+        {
+          "name": "Structural revision (Agent 4)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No structural revision needed"
+        }
+      ]
+    },
+    {
+      "agent": "agent8_novelty",
+      "phase_name": "Novelty Audit",
+      "score": {
+        "agent": "agent8-novelty-audit",
+        "validation_score": 22,
+        "quality_score": 80,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 80,
+        "grade": "B",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Similarity below threshold",
+            "category": "validation",
+            "passed": true,
+            "score": 22,
+            "weight": 2,
+            "message": "78% similar to \"The Mysterious Affair at Styles\" — pass"
+          },
+          {
+            "name": "Novelty violation",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Critical: Plot similarity 0.80 with 'The Mysterious Affair at Styles' (same crime method of mechanical deception and similar false assumption about time of death)"
+          }
+        ]
+      },
+      "duration_ms": 4414,
+      "cost": 0.00072696195,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Similarity below threshold",
+          "category": "validation",
+          "passed": true,
+          "score": 22,
+          "weight": 2,
+          "message": "78% similar to \"The Mysterious Affair at Styles\" — pass"
+        },
+        {
+          "name": "Novelty violation",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Critical: Plot similarity 0.80 with 'The Mysterious Affair at Styles' (same crime method of mechanical deception and similar false assumption about time of death)"
+        }
+      ]
+    },
+    {
+      "agent": "agent5_clues",
+      "phase_name": "Clue Distribution",
+      "score": {
+        "agent": "agent5-clue-distribution",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 80,
+        "consistency_score": 92,
+        "total": 94,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Clue count",
+            "category": "completeness",
+            "passed": true,
+            "score": 80,
+            "weight": 1.5,
+            "message": "16 clues distributed (target 5-8 for minimal)"
+          },
+          {
+            "name": "Guardrail compliance",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All guardrails passed"
+          },
+          {
+            "name": "Inference coverage",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Full inference coverage (0 minor issues)"
+          },
+          {
+            "name": "Narrative clue quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "0 warning-level issue(s), 0 auto-fix(es)"
+          },
+          {
+            "name": "Deterministic consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 92,
+            "weight": 1.5,
+            "message": "Retry penalty=8 (coverage retry=false, suspect retry=false, red-herring retry=true)"
+          }
+        ]
+      },
+      "duration_ms": 31812,
+      "cost": 0.00485097525,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Clue count",
+          "category": "completeness",
+          "passed": true,
+          "score": 80,
+          "weight": 1.5,
+          "message": "16 clues distributed (target 5-8 for minimal)"
+        },
+        {
+          "name": "Guardrail compliance",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All guardrails passed"
+        },
+        {
+          "name": "Inference coverage",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Full inference coverage (0 minor issues)"
+        },
+        {
+          "name": "Narrative clue quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "0 warning-level issue(s), 0 auto-fix(es)"
+        },
+        {
+          "name": "Deterministic consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 92,
+          "weight": 1.5,
+          "message": "Retry penalty=8 (coverage retry=false, suspect retry=false, red-herring retry=true)"
+        }
+      ]
+    },
+    {
+      "agent": "agent6_fairplay",
+      "phase_name": "Fair-play Audit",
+      "score": {
+        "agent": "agent6-fair-play-audit",
+        "validation_score": 45,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 45,
+        "grade": "F",
+        "passed": false,
+        "failure_reason": "Fair play audit failed (3 violation(s))",
+        "tests": [
+          {
+            "name": "Overall fair play status",
+            "category": "validation",
+            "passed": false,
+            "score": 45,
+            "weight": 2,
+            "message": "Status: fail (3 violation(s))"
+          },
+          {
+            "name": "Information Parity",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "The reader lacks full understanding of the clock's tampering mechanism, which is crucial for solving the case.",
+            "severity": "critical"
+          },
+          {
+            "name": "Logical Deducibility",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "The reader cannot logically deduce the solution due to insufficient clarity on the tampering mechanism.",
+            "severity": "critical"
+          },
+          {
+            "name": "Solution Uniqueness",
+            "category": "validation",
+            "passed": false,
+            "score": 0,
+            "weight": 1.5,
+            "message": "The clues do not lead unambiguously to Eleanor as the culprit due to the lack of clarity on the tampering.",
+            "severity": "critical"
+          }
+        ]
+      },
+      "duration_ms": 30253,
+      "cost": 0.0025184923499999997,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Overall fair play status",
+          "category": "validation",
+          "passed": false,
+          "score": 45,
+          "weight": 2,
+          "message": "Status: fail (3 violation(s))"
+        },
+        {
+          "name": "Information Parity",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "The reader lacks full understanding of the clock's tampering mechanism, which is crucial for solving the case.",
+          "severity": "critical"
+        },
+        {
+          "name": "Logical Deducibility",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "The reader cannot logically deduce the solution due to insufficient clarity on the tampering mechanism.",
+          "severity": "critical"
+        },
+        {
+          "name": "Solution Uniqueness",
+          "category": "validation",
+          "passed": false,
+          "score": 0,
+          "weight": 1.5,
+          "message": "The clues do not lead unambiguously to Eleanor as the culprit due to the lack of clarity on the tampering.",
+          "severity": "critical"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "phases_passed": 6,
+    "phases_failed": 2,
+    "total_phases": 8,
+    "pass_rate": 75,
+    "weakest_phase": "Fair-play Audit",
+    "strongest_phase": "CML Generation",
+    "failure_reasons": [
+      "agent8-novelty-audit: Score below threshold",
+      "agent6-fair-play-audit: Fair play audit failed (3 violation(s))"
+    ],
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.0124
+  },
+  "threshold_config": {
+    "mode": "standard"
+  },
+  "in_progress": false,
+  "aborted": true,
+  "abort_reason": "Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): Eleanor Voss"
+}

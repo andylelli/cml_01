@@ -64,6 +64,13 @@ const RH_OVERLAP_GENERIC_TERMS = new Set([
   "occurred", "happened", "timestamp",
 ]);
 
+const MECHANISM_VISIBILITY_STOP_WORDS = new Set([
+  "about", "after", "again", "already", "before", "being", "could",
+  "during", "earlier", "evidence", "explain", "explains", "knowledge",
+  "later", "method", "reader", "revealed", "shows", "therefore",
+  "through", "using", "which", "window", "false", "only", "culprit",
+]);
+
 const isOverlapCandidateToken = (token: string): boolean =>
   token.length > 4
   && !RH_OVERLAP_STOP_WORDS.has(token)
@@ -95,6 +102,23 @@ const normalizeTokens = (text: string): string[] =>
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
+
+const extractMechanismVisibilityTerms = (text: string): string[] =>
+  [...new Set(normalizeTokens(text)
+    .filter((token) => token.length >= 5)
+    .filter((token) => !MECHANISM_VISIBILITY_STOP_WORDS.has(token)))].slice(0, 8);
+
+const extractMechanismVisibilityPhrases = (text: string): string[] => {
+  const terms = extractMechanismVisibilityTerms(text);
+  if (terms.length < 2) return [];
+
+  const phrases: string[] = [];
+  for (let i = 0; i < terms.length - 1; i += 1) {
+    phrases.push(`${terms[i]} ${terms[i + 1]}`);
+  }
+
+  return [...new Set(phrases)].slice(0, 6);
+};
 
 const nameAppearsInText = (name: string, text: string): boolean => {
   const nameTokens = normalizeTokens(name).filter((t) => t.length > 2);
@@ -201,6 +225,22 @@ const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionResult):
   const stepCount = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps.length : 0;
   const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
 
+  const clampLastArrayIndexInPath = (path: string): string => {
+    const match = path.match(/^(.*)\[(\d+)\](.*)$/);
+    if (!match) return "";
+
+    const parentPath = match[1];
+    const index = Number(match[2]);
+    const suffix = match[3] || "";
+    if (!Number.isInteger(index) || index < 0) return "";
+
+    const parent = getByPath({ CASE: caseBlock }, parentPath);
+    if (!parent.ok || !Array.isArray(parent.value) || parent.value.length === 0) return "";
+
+    const clamped = Math.min(index, parent.value.length - 1);
+    return `${parentPath}[${clamped}]${suffix}`;
+  };
+
   for (const clue of clues.clues as any[]) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const sourcePath = String(clue?.sourceInCML ?? "").trim();
@@ -225,6 +265,10 @@ const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionResult):
       } else if (castIdx >= 0 && castIdx < cast.length && cast[castIdx]?.alibi_window !== undefined) {
         repaired = `CASE.cast[${castIdx}].alibi_window`;
       }
+    }
+
+    if (!repaired) {
+      repaired = clampLastArrayIndexInPath(sourcePath);
     }
 
     if (repaired && validateSourcePath(cml, repaired)) {
@@ -565,6 +609,75 @@ function findCulpritDiscriminatingGaps(cml: CaseData, clues: ClueDistributionRes
   }
 
   return gaps;
+}
+
+function synthesizeMissingCulpritDiscriminatingClues(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  culpritNames: string[],
+): string[] {
+  if (!Array.isArray(clues?.clues) || culpritNames.length === 0) return [];
+
+  const caseBlock = getCaseBlock(cml);
+  const inferenceSteps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  const template = clues.clues.find((clue: any) => clue?.criticality === "essential") ?? clues.clues[0];
+  if (!template) return [];
+
+  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
+  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
+  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
+  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
+  (clues as any).clueTimeline = timeline;
+
+  const existingIds = new Set(
+    clues.clues.map((clue: any) => String(clue?.id ?? "").trim()).filter(Boolean),
+  );
+  const nextId = (prefix: string): string => {
+    let id = prefix;
+    let suffix = 2;
+    while (existingIds.has(id)) {
+      id = `${prefix}_${suffix}`;
+      suffix += 1;
+    }
+    existingIds.add(id);
+    return id;
+  };
+
+  const repairs: string[] = [];
+  culpritNames.forEach((culprit, idx) => {
+    const normalizedCulprit = String(culprit ?? "").trim();
+    if (!normalizedCulprit) return;
+
+    let supportsInferenceStep = Math.min(Math.max(1, inferenceSteps.length), inferenceSteps.length || 1);
+    let sourceInCML = `CASE.culpability.culprits[${idx}]`;
+    for (let i = 0; i < inferenceSteps.length; i += 1) {
+      const step = inferenceSteps[i] ?? {};
+      const effect = String(step?.effect ?? "");
+      const correction = String(step?.correction ?? "");
+      if (nameAppearsInText(normalizedCulprit, `${effect} ${correction}`)) {
+        supportsInferenceStep = i + 1;
+        sourceInCML = `CASE.inference_path.steps[${i}].effect`;
+        break;
+      }
+    }
+
+    const clueId = nextId(`clue_culprit_direct_${idx + 1}`);
+    clues.clues.push({
+      ...template,
+      id: clueId,
+      sourceInCML,
+      description: `Direct evidence links ${normalizedCulprit} to the mechanism access point before the discriminating test.`,
+      pointsTo: `Physical trace and opportunity evidence indicate ${normalizedCulprit} had means and opportunity, making this a direct evidence clue for culprit identification.`,
+      placement: "mid",
+      criticality: "essential",
+      evidenceType: "observation",
+      supportsInferenceStep,
+    });
+    timeline.mid.push(clueId);
+    repairs.push(`${clueId}: synthesized direct culprit evidence for ${normalizedCulprit}`);
+  });
+
+  return repairs;
 }
 
 const WORD_TO_NUM: Record<string, number> = {
@@ -946,18 +1059,39 @@ function sanitizeRedHerringOverlap(
   if (!Array.isArray(clues.redHerrings) || overlapDetails.length === 0) return repairs;
 
   const caseBlock = getCaseBlock(cml);
-  const assumptionTokens = String(caseBlock?.false_assumption?.statement ?? "")
+  // Build correction token set so we never introduce a replacement that is itself
+  // an inference-correction word (e.g. "witness", "timing" from "witness accounts").
+  const correctionTokensForSanitizer = new Set<string>();
+  const inferenceStepsForSanitizer = Array.isArray(caseBlock?.inference_path?.steps)
+    ? caseBlock.inference_path.steps
+    : [];
+  for (const step of inferenceStepsForSanitizer) {
+    String(step?.correction ?? "")
+      .toLowerCase()
+      .split(/\s+/)
+      .map((w: string) => w.replace(/[^a-z0-9]/g, ""))
+      .filter((w: string) => isOverlapCandidateToken(w))
+      .forEach((w: string) => correctionTokensForSanitizer.add(w));
+  }
+  const assumptionTokens = `${String(caseBlock?.false_assumption?.statement ?? "")} ${String(caseBlock?.false_assumption?.why_it_seems_reasonable ?? "")}`
     .toLowerCase()
     .split(/\s+/)
     .map((w: string) => w.replace(/[^a-z0-9]/g, ""))
     .filter((w: string) => isOverlapCandidateToken(w));
-  const replacementPool = [...new Set([
+  const replacementCandidates = [...new Set([
     ...preferredTerms.map((t) => String(t ?? "").toLowerCase().trim()).filter((t) => isOverlapCandidateToken(t)),
     ...assumptionTokens,
     "timing",
     "witness",
     "reported",
   ])];
+  // Exclude any candidate that appears in correction token set — using it as a
+  // replacement would simply re-trigger the overlap gate on the next check.
+  const filteredReplacements = replacementCandidates.filter((t) => !correctionTokensForSanitizer.has(t));
+  // Absolute fallback terms: neutral words very unlikely to appear in mystery inference corrections.
+  const replacementPool = filteredReplacements.length > 0
+    ? filteredReplacements
+    : ["ostensible", "purported", "apparent", "rumoured"];
 
   let replacementIndex = 0;
   for (const detail of overlapDetails) {
@@ -989,6 +1123,26 @@ function sanitizeRedHerringOverlap(
   return repairs;
 }
 
+function pruneOverlappingRedHerrings(
+  clues: ClueDistributionResult,
+  redHerringIds: string[],
+): string[] {
+  if (!Array.isArray(clues.redHerrings) || redHerringIds.length === 0) return [];
+
+  const toDrop = new Set(redHerringIds.map((id) => String(id ?? "").trim()).filter(Boolean));
+  if (toDrop.size === 0) return [];
+
+  const removed: string[] = [];
+  clues.redHerrings = clues.redHerrings.filter((rh: any) => {
+    const id = String(rh?.id ?? "").trim();
+    const keep = !toDrop.has(id);
+    if (!keep && id) removed.push(id);
+    return keep;
+  });
+
+  return removed;
+}
+
 function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
   const issues: ClueGuardrailIssue[] = [];
   const caseBlock = (cml as any)?.CASE ?? cml;
@@ -1018,9 +1172,14 @@ function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDistribut
       return issues;
     }
 
-    const earlyMidMapped = mappedClues.filter((c: any) => c.placement === "early" || c.placement === "mid");
-    if (earlyMidMapped.length === 0) {
-      issues.push({ severity: "warning", message: "All clues related to the discriminating test are in late placement" });
+    const lateMapped = mappedClues.filter((c: any) => c.placement !== "early" && c.placement !== "mid");
+    if (lateMapped.length > 0) {
+      issues.push({
+        severity: "critical",
+        message: `Discriminating test evidence clue(s) must be early/mid, found non-compliant placement on: ${lateMapped
+          .map((c: any) => String(c?.id ?? "(unknown-id)"))
+          .join(", ")}`,
+      });
     }
     return issues;
   }
@@ -1039,8 +1198,43 @@ function checkDiscriminatingTestReachability(cml: CaseData, clues: ClueDistribut
   }
   const earlyMidRelevant = relevantClues.filter((c: any) => c.placement === "early" || c.placement === "mid");
   if (relevantClues.length > 0 && earlyMidRelevant.length === 0) {
-    issues.push({ severity: "warning", message: "All clues related to the discriminating test are in late placement" });
+    issues.push({ severity: "critical", message: "All clues related to the discriminating test are in late placement" });
   }
+  return issues;
+}
+
+function checkMechanismVisibility(cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] {
+  const issues: ClueGuardrailIssue[] = [];
+  const caseBlock = getCaseBlock(cml);
+  const mechanismText = `${String(caseBlock?.hidden_model?.mechanism?.description ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`.trim();
+  const terms = extractMechanismVisibilityTerms(mechanismText);
+  if (terms.length < 3) return issues;
+
+  const phrases = extractMechanismVisibilityPhrases(mechanismText);
+  const matchingClues = clues.clues.filter((clue: any) => {
+    const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
+    const tokenSet = new Set(normalizeTokens(text));
+    const termMatches = terms.filter((term) => tokenSet.has(term)).length;
+    const phraseMatch = phrases.some((phrase) => text.includes(phrase));
+    return phraseMatch || termMatches >= 2;
+  });
+
+  if (matchingClues.length === 0) {
+    issues.push({
+      severity: "critical",
+      message: "No clue makes the core mechanism reader-visible before the discriminating test.",
+    });
+    return issues;
+  }
+
+  const earlyMidMatches = matchingClues.filter((clue: any) => clue?.placement === "early" || clue?.placement === "mid");
+  if (earlyMidMatches.length === 0) {
+    issues.push({
+      severity: "critical",
+      message: `Mechanism-visible clue(s) are late-only: ${matchingClues.map((clue: any) => String(clue?.id ?? "(unknown-id)")).join(", ")}`,
+    });
+  }
+
   return issues;
 }
 
@@ -1132,7 +1326,7 @@ function selectDiscriminatingEvidenceCandidateIds(
     .replace(/[^a-z0-9\s]/g, " ");
   const discrimTokens = new Set(discrimText.split(/\s+/).filter((t) => t.length >= 5));
 
-  return clues.clues
+  const scored = clues.clues
     .map((c: any) => {
       const text = `${String(c?.description ?? "")} ${String(c?.pointsTo ?? "")}`.toLowerCase();
       let score = 0;
@@ -1142,12 +1336,148 @@ function selectDiscriminatingEvidenceCandidateIds(
       if (c?.criticality === "essential") score += 2;
       if (c?.placement === "early" || c?.placement === "mid") score += 1;
       if (c?.evidenceType === "observation" || c?.evidenceType === "contradiction") score += 1;
-      return { id: String(c?.id ?? "").trim(), score };
+      return {
+        id: String(c?.id ?? "").trim(),
+        score,
+        placement: String(c?.placement ?? "").toLowerCase(),
+      };
     })
-    .filter((entry) => Boolean(entry.id) && CANONICAL_CLUE_ID_RE.test(entry.id))
+    .filter((entry) => Boolean(entry.id) && CANONICAL_CLUE_ID_RE.test(entry.id));
+
+  const earlyMid = scored
+    .filter((entry) => entry.placement === "early" || entry.placement === "mid")
     .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id))
     .slice(0, Math.max(1, maxIds))
     .map((entry) => entry.id);
+
+  if (earlyMid.length > 0) {
+    return earlyMid;
+  }
+
+  return scored
+    .sort((a, b) => (b.score - a.score) || a.id.localeCompare(b.id))
+    .slice(0, Math.max(1, maxIds))
+    .map((entry) => entry.id);
+}
+
+export function enforceAgent5DeterministicContracts(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  options?: { hardLogicLockedFacts?: string[] },
+): { warnings: string[] } {
+  const warnings: string[] = [];
+
+  const sourcePathRepairs = repairInvalidSourcePaths(cml, clues);
+  sourcePathRepairs.forEach((repair) => warnings.push(`Agent 5 source-path auto-repair: ${repair}`));
+
+  const sourcePathValidation = checkSourcePathValidity(cml, clues);
+  if (sourcePathValidation.issues.length > 0) {
+    throw new Error(`Agent 5 source-path gate failed with ${sourcePathValidation.issues.length} invalid source path(s).`);
+  }
+
+  reconcileModelAudit(cml, clues);
+
+  const stepBoundIssues = checkInferenceStepBounds(cml, clues);
+  if (stepBoundIssues.length > 0) {
+    throw new Error(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`);
+  }
+
+  const castPathConsistencyIssues = checkCastNamePathConsistency(cml, clues);
+  if (castPathConsistencyIssues.length > 0) {
+    throw new Error(`Agent 5 cast-path consistency gate failed with ${castPathConsistencyIssues.length} issue(s).`);
+  }
+
+  const auditConsistencyIssues = checkModelAuditConsistency(cml, clues);
+  if (auditConsistencyIssues.length > 0) {
+    throw new Error(`Agent 5 audit-consistency gate failed with ${auditConsistencyIssues.length} mismatch(es).`);
+  }
+
+  let eraTimeStyleIssues = checkEraTimeStyleInClues(clues);
+  if (eraTimeStyleIssues.length > 0) {
+    const eraRepairs = sanitizeEraTimeStyleInClues(clues);
+    eraRepairs.forEach((repair) => warnings.push(`Agent 5 era-style sanitizer: ${repair}`));
+    eraTimeStyleIssues = checkEraTimeStyleInClues(clues);
+  }
+  if (eraTimeStyleIssues.length > 0) {
+    throw new Error(`Agent 5 era time-style gate failed with ${eraTimeStyleIssues.length} digit-based time issue(s).`);
+  }
+
+  const timeConflicts = findLockedFactClueTimeConflicts(cml, clues, options?.hardLogicLockedFacts);
+  if (timeConflicts.length > 0) {
+    throw new Error(`Agent 5 CML-clue consistency gate failed (${timeConflicts.length} time conflict(s)).`);
+  }
+
+  const culpritGaps = findCulpritDiscriminatingGaps(cml, clues);
+  if (culpritGaps.length > 0) {
+    const culpritRepairs = synthesizeMissingCulpritDiscriminatingClues(cml, clues, culpritGaps);
+    culpritRepairs.forEach((repair) => warnings.push(`Agent 5 culprit-evidence deterministic synthesis: ${repair}`));
+    const remainingCulpritGaps = findCulpritDiscriminatingGaps(cml, clues);
+    if (remainingCulpritGaps.length > 0) {
+      throw new Error(
+        `Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): ${remainingCulpritGaps.join(", ")}`,
+      );
+    }
+  }
+
+  const missingEvidenceIds = getMissingDiscriminatingEvidenceIds(cml, clues);
+  if (missingEvidenceIds.length > 0) {
+    const synthRepairs = synthesizeMissingDiscriminatingEvidenceClues(cml, clues, missingEvidenceIds);
+    synthRepairs.forEach((repair) => warnings.push(`Agent 5 evidence-id deterministic synthesis: ${repair}`));
+  }
+  const remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(cml, clues);
+  if (remainingMissingEvidenceIds.length > 0) {
+    throw new Error(
+      `Agent 5 discriminating evidence ID gate failed. Missing clue id(s): ${remainingMissingEvidenceIds.join(", ")}`,
+    );
+  }
+
+  const discrimReachabilityIssues = checkDiscriminatingTestReachability(cml, clues)
+    .filter((issue) => issue.severity === "critical");
+  if (discrimReachabilityIssues.length > 0) {
+    throw new Error(
+      `Agent 5 discriminating test timing gate failed with ${discrimReachabilityIssues.length} critical issue(s).`,
+    );
+  }
+
+  const mechanismVisibilityIssues = checkMechanismVisibility(cml, clues)
+    .filter((issue) => issue.severity === "critical");
+  if (mechanismVisibilityIssues.length > 0) {
+    throw new Error(
+      `Agent 5 mechanism visibility gate failed with ${mechanismVisibilityIssues.length} critical issue(s).`,
+    );
+  }
+
+  return { warnings };
+}
+
+export function recomputeInferenceCoverageForAgent6(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+): InferenceCoverageResult {
+  return recomputeCoverageSnapshotForAgent6(cml, clues).coverageResult;
+}
+
+export function recomputeCoverageSnapshotForAgent6(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+): { coverageResult: InferenceCoverageResult; allCoverageIssues: ClueGuardrailIssue[] } {
+  const inferredCoverage = checkInferencePathCoverage(cml, clues);
+  const contradictionIssues = checkContradictionPairs(cml, clues);
+  const falseAssumptionIssues = checkFalseAssumptionContradiction(cml, clues);
+  const discrimTestIssues = checkDiscriminatingTestReachability(cml, clues);
+  const mechanismVisibilityIssues = checkMechanismVisibility(cml, clues);
+  const suspectIssues = checkSuspectElimination(cml, clues);
+  return {
+    coverageResult: inferredCoverage,
+    allCoverageIssues: [
+      ...inferredCoverage.issues,
+      ...contradictionIssues,
+      ...falseAssumptionIssues,
+      ...discrimTestIssues,
+      ...mechanismVisibilityIssues,
+      ...suspectIssues,
+    ],
+  };
 }
 
 // ============================================================================
@@ -1229,15 +1559,20 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   try {
     clues = await extractWithAttempt(cluesInputBase);
   } catch (err) {
-    if (err instanceof SyntaxError) {
-      ctx.warnings.push("Agent 5: JSON parse failure on first attempt; retrying");
+    const retryableExtractionFailure =
+      err instanceof SyntaxError
+      || err instanceof TypeError
+      || /json|parse|unexpected token|structured output/i.test(String((err as Error)?.message ?? ""));
+    if (retryableExtractionFailure) {
+      ctx.warnings.push("Agent 5: first extraction attempt failed due to malformed model payload; retrying once");
       clues = await extractWithAttempt(cluesInputBase);
     } else {
       throw err;
     }
   }
 
-  ctx.agentCosts["agent5_clues"] = clues.cost;
+  ctx.agentCosts["agent5_clues"] =
+    (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
   ctx.agentDurations["agent5_clues"] = Date.now() - cluesStart;
 
   ctx.reportProgress("clues", `${clues.clues.length} clues distributed`, 62);
@@ -1312,7 +1647,8 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       projectId: ctx.projectId || "",
     });
 
-    ctx.agentCosts["agent5_clues"] = clues.cost;
+    ctx.agentCosts["agent5_clues"] =
+      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
     ctx.agentDurations["agent5_clues"] =
       (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
 
@@ -1353,9 +1689,6 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   const initialCoverage = buildCoverageSnapshot(clues);
   const coverageResult = initialCoverage.coverageResult;
   const allCoverageIssues: ClueGuardrailIssue[] = initialCoverage.allCoverageIssues;
-  // Hoist suspect-elimination check so FIX-J can reuse results without a second call.
-  const initialSuspectEliminationIssues = initialCoverage.suspectIssues;
-
   allCoverageIssues.forEach((issue) =>
     ctx.warnings.push(`Inference coverage: [${issue.severity}] ${issue.message}`)
   );
@@ -1632,9 +1965,19 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         const postSanitizeOverlap = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
         if (postSanitizeOverlap.length > 0) {
           const postRetryRedHerringOverlapIds = postSanitizeOverlap.map((d) => d.redHerringId);
-          failAgent5(
-            `Agent 5 red-herring overlap gate failed after retry. Overlapping red herring(s): ${postRetryRedHerringOverlapIds.join(", ")}`,
-          );
+          const pruned = pruneOverlappingRedHerrings(clues, postRetryRedHerringOverlapIds);
+          if (pruned.length > 0) {
+            ctx.warnings.push(
+              `Agent 5 red-herring overlap hardening: pruned persistently overlapping red herring(s) after retry (${pruned.join(", ")})`,
+            );
+          }
+
+          const remainingSevereOverlap = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
+          if (remainingSevereOverlap.length > 0) {
+            failAgent5(
+              `Agent 5 red-herring overlap gate failed after retry. Overlapping red herring(s): ${remainingSevereOverlap.map((d) => d.redHerringId).join(", ")}`,
+            );
+          }
         }
       }
       ctx.warnings.push(
@@ -1701,9 +2044,14 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 
   const culpritGaps = findCulpritDiscriminatingGaps(ctx.cml!, clues);
   if (culpritGaps.length > 0) {
-    failAgent5(
-      `Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): ${culpritGaps.join(", ")}`,
-    );
+    const culpritRepairs = synthesizeMissingCulpritDiscriminatingClues(ctx.cml!, clues, culpritGaps);
+    culpritRepairs.forEach((repair) => ctx.warnings.push(`Agent 5 culprit-evidence deterministic synthesis: ${repair}`));
+    const remainingCulpritGaps = findCulpritDiscriminatingGaps(ctx.cml!, clues);
+    if (remainingCulpritGaps.length > 0) {
+      failAgent5(
+        `Agent 5 culprit-discriminating clue gate failed. Missing direct evidence clue for culprit(s): ${remainingCulpritGaps.join(", ")}`,
+      );
+    }
   }
 
   let finalCoverage = buildCoverageSnapshot(clues);
@@ -1923,7 +2271,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 export const __testables = {
   buildSuspectCoverage,
   analyzeSuspectCoverage,
+  enforceAgent5DeterministicContracts,
+  recomputeInferenceCoverageForAgent6,
   checkDiscriminatingTestReachability,
+  checkMechanismVisibility,
   sanitizeDiscriminatingEvidenceClueIds,
   synthesizeMissingDiscriminatingEvidenceClues,
   selectDiscriminatingEvidenceCandidateIds,
@@ -1931,6 +2282,8 @@ export const __testables = {
   checkCastNamePathConsistency,
   repairInvalidSourcePaths,
   sanitizeRedHerringOverlap,
+  synthesizeMissingCulpritDiscriminatingClues,
+  pruneOverlappingRedHerrings,
   findRedHerringOverlapDetails,
   detectTemporalLexicalCollision,
   findRedHerringTrueSolutionOverlap,

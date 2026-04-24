@@ -175,6 +175,9 @@ test("todo and learning artifacts persist for major rework waves", async () => {
   const learning = await loadMajorReworkLearning({ outputDir });
   assert.equal(Array.isArray(learning?.entries), true);
   assert.equal(learning.entries.length, 1);
+  assert.equal(Number.isInteger(learning.entries[0].attemptedTaskCount), true);
+  assert.equal(Number.isInteger(learning.entries[0].executedTaskCount), true);
+  assert.equal(Array.isArray(learning.entries[0].changedImplementationFiles), true);
 });
 
 test("todo payload validator rejects missing task evidence fields", () => {
@@ -214,7 +217,11 @@ test("writeMajorReworkTodos auto-completes prior in-progress wave when advancing
   await fs.mkdir(labDir, { recursive: true });
   await fs.writeFile(
     path.join(labDir, "wave-MR-P1-W0.todo.json"),
-    `${JSON.stringify({ waveId: "MR-P1-W0", status: "in-progress" }, null, 2)}\n`,
+    `${JSON.stringify({
+      waveId: "MR-P1-W0",
+      status: "in-progress",
+      tasks: [{ id: "MR-P1-W0-T1", title: "Execute", owner: "Planner", status: "not-started" }],
+    }, null, 2)}\n`,
     "utf8"
   );
 
@@ -244,6 +251,8 @@ test("writeMajorReworkTodos auto-completes prior in-progress wave when advancing
   );
   assert.equal(priorWave.status, "completed");
   assert.match(String(priorWave.completionReason ?? ""), /superseded_by_MR-P1-W1/i);
+  assert.equal(priorWave.tasks[0].status, "blocked");
+  assert.match(String(priorWave.tasks[0].blockedReason ?? ""), /superseded_by_MR-P1-W1/i);
   assert.equal(paths.wavePath.endsWith("wave-MR-P1-W1.todo.json"), true);
 });
 
@@ -263,6 +272,16 @@ test("finalizeMajorReworkTodos closes in-progress campaign and phase files", asy
     `${JSON.stringify({ phase: "P3", status: "in-progress" }, null, 2)}\n`,
     "utf8"
   );
+  await fs.writeFile(
+    path.join(labDir, "wave-MR-P3-W4.todo.json"),
+    `${JSON.stringify({
+      waveId: "MR-P3-W4",
+      phase: "P3",
+      status: "in-progress",
+      tasks: [{ id: "MR-P3-W4-T1", title: "Execute", owner: "Planner", status: "not-started" }],
+    }, null, 2)}\n`,
+    "utf8"
+  );
 
   await finalizeMajorReworkTodos({
     outputDir,
@@ -272,9 +291,49 @@ test("finalizeMajorReworkTodos closes in-progress campaign and phase files", asy
 
   const campaign = JSON.parse(await fs.readFile(path.join(labDir, "campaign-todo.json"), "utf8"));
   const phase = JSON.parse(await fs.readFile(path.join(labDir, "phase-P3.todo.json"), "utf8"));
+  const wave = JSON.parse(await fs.readFile(path.join(labDir, "wave-MR-P3-W4.todo.json"), "utf8"));
 
-  assert.equal(campaign.status, "stopped");
+  assert.equal(campaign.status, "stopped_policy");
   assert.equal(campaign.terminalStatus, "stop_apply_policy");
-  assert.equal(phase.status, "stopped");
+  assert.equal(phase.status, "stopped_policy");
   assert.equal(phase.completionReason, "safety_stop");
+  assert.equal(wave.status, "stopped_policy");
+  assert.equal(wave.tasks[0].status, "blocked");
+});
+
+test("finalizeMajorReworkTodos maps admissibility stops to blocked_admissibility", async () => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "major-rework-agent-admissibility-"));
+  const outputDir = path.join(tempRoot, "logs", "canary-loops", "canary-loop-260421-1302");
+  const labDir = path.join(outputDir, "rework-lab");
+  await fs.mkdir(labDir, { recursive: true });
+
+  await fs.writeFile(
+    path.join(labDir, "campaign-todo.json"),
+    `${JSON.stringify({ campaignId: "MR-run_1", status: "in-progress", activePhase: "P3" }, null, 2)}\n`,
+    "utf8"
+  );
+  await fs.writeFile(
+    path.join(labDir, "phase-P3.todo.json"),
+    `${JSON.stringify({ phase: "P3", status: "in-progress" }, null, 2)}\n`,
+    "utf8"
+  );
+  await fs.writeFile(
+    path.join(labDir, "wave-MR-P3-W4.todo.json"),
+    `${JSON.stringify({ waveId: "MR-P3-W4", phase: "P3", status: "in-progress", tasks: [] }, null, 2)}\n`,
+    "utf8"
+  );
+
+  await finalizeMajorReworkTodos({
+    outputDir,
+    terminalStatus: "stop_apply_policy",
+    completionReason: "Wave admissibility blocked: target_files_exceed_wave_cap.",
+  });
+
+  const campaign = JSON.parse(await fs.readFile(path.join(labDir, "campaign-todo.json"), "utf8"));
+  const phase = JSON.parse(await fs.readFile(path.join(labDir, "phase-P3.todo.json"), "utf8"));
+  const wave = JSON.parse(await fs.readFile(path.join(labDir, "wave-MR-P3-W4.todo.json"), "utf8"));
+
+  assert.equal(campaign.status, "blocked_admissibility");
+  assert.equal(phase.status, "blocked_admissibility");
+  assert.equal(wave.status, "blocked_admissibility");
 });

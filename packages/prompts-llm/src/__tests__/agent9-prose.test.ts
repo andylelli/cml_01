@@ -4,6 +4,7 @@ const mockedGenerationParams = {
   story_length_policy: {
     targets: { short: 10, medium: 20, long: 30 },
     chapter_target_tolerance: 2,
+    word_target_multiplier: 1.25,
     word_targets: {
       short: { chapter_count: 10, min_words: 7500, max_words: 12500, chapter_ideal_words: 1000 },
       medium: { chapter_count: 20, min_words: 25500, max_words: 42500, chapter_ideal_words: 1300 },
@@ -15,6 +16,7 @@ const mockedGenerationParams = {
     story_length_policy: {
       targets: { short: 10, medium: 20, long: 30 },
       chapter_target_tolerance: 2,
+      word_target_multiplier: 1.25,
       word_targets: {
         short: { chapter_count: 10, min_words: 7500, max_words: 12500, chapter_ideal_words: 1000 },
         medium: { chapter_count: 20, min_words: 25500, max_words: 42500, chapter_ideal_words: 1300 },
@@ -408,6 +410,24 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(prompt.messages[0].content).toContain("it MUST use the exact phrase shown");
   });
 
+  it("applies word_target_multiplier when sending chapter ideal words to the LLM prompt", () => {
+    mockedGenerationParams.agent9_prose.story_length_policy.word_target_multiplier = 1.0;
+    const baselinePrompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    const baselineJoined = baselinePrompt.messages.map((m) => m.content).join("\n\n");
+    const baselineMatch = baselineJoined.match(/Target:\s*(\d+)\s*words per chapter/i);
+    expect(baselineMatch).not.toBeNull();
+    const baselineTarget = Number(baselineMatch?.[1] ?? 0);
+
+    mockedGenerationParams.agent9_prose.story_length_policy.word_target_multiplier = 1.25;
+    const boostedPrompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    const boostedJoined = boostedPrompt.messages.map((m) => m.content).join("\n\n");
+    const boostedMatch = boostedJoined.match(/Target:\s*(\d+)\s*words per chapter/i);
+    expect(boostedMatch).not.toBeNull();
+    const boostedTarget = Number(boostedMatch?.[1] ?? 0);
+
+    expect(boostedTarget).toBeGreaterThan(baselineTarget);
+  });
+
   it("Fix 3 builds a frozen timeline state block from temporal lock and time anchors", () => {
     const block = buildTimelineStateBlock(
       { month: "november", season: "autumn" } as any,
@@ -511,6 +531,7 @@ describe("Agent 9 prompt hardening fixes", () => {
     );
 
     const userPrompt = chat.mock.calls[0][0].messages[1].content as string;
+    expect(userPrompt).toContain("Hard minimum: 800 words. Do not return below this minimum.");
     expect(userPrompt).toContain("Overshoot rather than undershoot");
     expect(userPrompt).toContain("Do not stop at the first threshold crossing");
     expect(userPrompt).toContain("Never pad with recap or repeated atmosphere");

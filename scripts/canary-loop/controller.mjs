@@ -648,7 +648,9 @@ async function runApplyLoop({
       }
 
       if (!wavePlan.admissibility.allowed) {
-        const stopReason = `Wave admissibility blocked: ${wavePlan.admissibility.blockedBy.join(", ")}.`;
+        const blockedBy = wavePlan.admissibility.blockedBy.join(", ");
+        const stopReason = `Wave admissibility blocked: ${blockedBy}.`;
+        const nonExecutionSummary = `Major rework wave planned but not executed: ${wavePlan.waveId} (${wavePlan.phase}); blockers=${blockedBy}.`;
         const entry = buildIterationRecord({
           iteration,
           request,
@@ -656,6 +658,7 @@ async function runApplyLoop({
           rootCause: currentRootCause,
           retryFeedbackPacket,
           selectedPlaybooks,
+          plannedActions: [nonExecutionSummary],
           majorRework: buildMajorReworkEnvelope({
             wavePlan,
             phaseGateStatus: phaseGateDecision.gateStatus,
@@ -669,6 +672,7 @@ async function runApplyLoop({
         });
         await appendLedgerEntry(ledger, entry);
         await logNarration(`Warning: ${stopReason}`);
+        await logNarration(`Analysis: ${nonExecutionSummary}`);
         await finalizeMajorReworkTodosOnTerminal({
           request,
           ledger,
@@ -785,6 +789,10 @@ async function runApplyLoop({
         }),
         wavePlan,
       });
+      const changedImplementationFiles = deriveImplementationChangedFiles({
+        changedFiles: patchResult.changedFiles,
+        workspaceRoot,
+      });
 
       majorReworkBudget.consumedCampaignTokens += Number(wavePlan.tokenDemand?.total ?? 0);
       majorReworkBudget.remainingCampaignTokens = Math.max(
@@ -806,6 +814,7 @@ async function runApplyLoop({
           plannedActions,
           deterministicFallbackExceptions,
           changedFiles: [],
+          changedImplementationFiles: [],
           majorRework: buildMajorReworkEnvelope({
             wavePlan,
             phaseGateStatus: phaseGateDecision.gateStatus,
@@ -848,6 +857,7 @@ async function runApplyLoop({
           observedEvidence: ["no_op_patch"],
           deltaAssessment: "unchanged",
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
           plannedActions,
           tests: [],
@@ -948,6 +958,7 @@ async function runApplyLoop({
           selectedPlaybooks,
           plannedActions,
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           tests: validation.tests ?? [],
           majorRework: buildMajorReworkEnvelope({
             wavePlan,
@@ -990,6 +1001,7 @@ async function runApplyLoop({
           observedEvidence: ["infrastructure_command_failure"],
           deltaAssessment: "regressed",
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
           plannedActions,
           tests: validation.tests ?? [],
@@ -1052,6 +1064,7 @@ async function runApplyLoop({
           plannedActions,
           deterministicFallbackExceptions,
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           tests: validation.tests,
           majorRework: buildMajorReworkEnvelope({
             wavePlan,
@@ -1090,6 +1103,7 @@ async function runApplyLoop({
           observedEvidence: ["canary_passed_no_unresolved_warnings"],
           deltaAssessment: "improved",
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
           plannedActions,
           tests: validation.tests,
@@ -1124,6 +1138,7 @@ async function runApplyLoop({
           signature: currentSignature,
           rootCause: currentRootCause,
           changedFiles: patchResult.changedFiles,
+          changedImplementationFiles,
           hydration,
         };
       }
@@ -1228,6 +1243,7 @@ async function runApplyLoop({
         plannedActions,
         deterministicFallbackExceptions,
         changedFiles: patchResult.changedFiles,
+        changedImplementationFiles,
         tests: validation.tests,
         majorRework: buildMajorReworkEnvelope({
           wavePlan,
@@ -1315,6 +1331,7 @@ async function runApplyLoop({
         observedEvidence: delta.observedEvidence,
         deltaAssessment: delta.deltaAssessment,
         changedFiles: patchResult.changedFiles,
+        changedImplementationFiles,
         changeDescriptions: summarizeChangeDetails(patchResult.changeDetails, workspaceRoot),
         plannedActions,
         tests: validation.tests,
@@ -1530,7 +1547,12 @@ async function appendMajorReworkLogEntry(majorReworkLog, entry) {
   ];
 
   if (entry.wavePlan) {
+    const blockedAtPlan =
+      entry.wavePlan?.admissibility?.allowed === false
+      && entry.decision === "stop"
+      && String(entry.stopReason ?? "").startsWith("Wave admissibility blocked:");
     lines.push(`- wave: \`${entry.wavePlan.waveId ?? "n/a"}\` (${entry.wavePlan.phase ?? "n/a"})`);
+    lines.push(`- wave execution: \`${blockedAtPlan ? "planned_not_executed" : "planned_or_executed"}\``);
     lines.push(`- campaign: \`${entry.wavePlan.campaignId ?? "n/a"}\``);
     lines.push(
       `- budget snapshot: campaignRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingCampaignTokens ?? 0)}, waveThinkRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingWaveThinkTokens ?? 0)}, waveActRemaining=${Number(entry.wavePlan.budgetSnapshot?.remainingWaveActTokens ?? 0)}`
@@ -1584,6 +1606,11 @@ async function appendMajorReworkLogEntry(majorReworkLog, entry) {
 
   if ((entry.changedFiles ?? []).length) {
     lines.push(`- changed files (${entry.changedFiles.length}): ${(entry.changedFiles ?? []).join(", ")}`);
+  }
+  if ((entry.changedImplementationFiles ?? []).length) {
+    lines.push(
+      `- changed implementation files (${entry.changedImplementationFiles.length}): ${(entry.changedImplementationFiles ?? []).join(", ")}`
+    );
   }
   if ((entry.changeDescriptions ?? []).length) {
     lines.push("- change descriptions:");
@@ -1662,6 +1689,22 @@ function summarizeChangeDetails(changeDetails = [], workspaceRoot) {
     }
     return `created ${rel}`;
   });
+}
+
+function deriveImplementationChangedFiles({ changedFiles = [], workspaceRoot }) {
+  const items = Array.isArray(changedFiles) ? changedFiles : [];
+  if (!workspaceRoot || !items.length) {
+    return [];
+  }
+
+  const logsRoot = path.resolve(path.join(workspaceRoot, "logs", "canary-loops"));
+  const isPathInsideLogsRoot = (filePath) => {
+    const absolute = path.resolve(String(filePath ?? ""));
+    const rel = path.relative(logsRoot, absolute);
+    return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+  };
+
+  return items.filter((filePath) => !isPathInsideLogsRoot(filePath));
 }
 
 async function createCanaryNarrator(workspaceRoot) {
@@ -2261,6 +2304,7 @@ function buildIterationRecord({
   plannedActions = [],
   deterministicFallbackExceptions = [],
   changedFiles = [],
+  changedImplementationFiles = [],
   tests = [],
   featureSnapshot,
   canary,
@@ -2279,6 +2323,7 @@ function buildIterationRecord({
     plannedActions,
     deterministicFallbackExceptions,
     changedFiles,
+    changedImplementationFiles,
     tests,
     featureSnapshot:
       featureSnapshot ??

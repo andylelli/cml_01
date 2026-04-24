@@ -249,6 +249,7 @@ export interface StoryLengthWordTargetConfig {
 export interface StoryLengthPolicyConfig {
   targets: { short: number; medium: number; long: number };
   chapter_target_tolerance: number;
+  word_target_multiplier: number;
   word_targets: {
     short: StoryLengthWordTargetConfig;
     medium: StoryLengthWordTargetConfig;
@@ -289,6 +290,7 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
   story_length_policy: {
     targets: { short: 10, medium: 20, long: 30 },
     chapter_target_tolerance: 2,
+    word_target_multiplier: 1.0,
     word_targets: {
       short:  { chapter_count: 10, min_words: 7_500, max_words: 12_500, chapter_ideal_words: 1000 },
       medium: { chapter_count: 20, min_words: 25_500, max_words: 42_500, chapter_ideal_words: 1700 },
@@ -441,6 +443,7 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
     story_length_policy: {
       targets: { short: 10, medium: 20, long: 30 },
       chapter_target_tolerance: 2,
+      word_target_multiplier: 1.0,
       word_targets: {
         short: { chapter_count: 10, min_words: 7_500, max_words: 12_500, chapter_ideal_words: 1000 },
         medium: { chapter_count: 20, min_words: 25_500, max_words: 42_500, chapter_ideal_words: 1700 },
@@ -612,6 +615,12 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           50,
         ),
       ),
+    ),
+    word_target_multiplier: clampNumber(
+      lengthSource?.word_target_multiplier,
+      DEFAULT_CONFIG.story_length_policy.word_target_multiplier,
+      0.5,
+      3.0,
     ),
     word_targets: {
       short: mergeWordTargetDerived(lengthSource?.word_targets?.short, DEFAULT_CONFIG.story_length_policy.word_targets.short),
@@ -863,6 +872,7 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           long: resolvedStoryLengthPolicy.targets.long,
         },
         chapter_target_tolerance: resolvedStoryLengthPolicy.chapter_target_tolerance,
+        word_target_multiplier: resolvedStoryLengthPolicy.word_target_multiplier,
         word_targets: {
           short: { ...resolvedStoryLengthPolicy.word_targets.short },
           medium: { ...resolvedStoryLengthPolicy.word_targets.medium },
