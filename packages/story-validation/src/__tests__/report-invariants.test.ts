@@ -211,6 +211,48 @@ describe('GenerationReport invariants', () => {
     );
   });
 
+  it('flags failed outcomes that still claim passed=true', () => {
+    const report = {
+      project_id: 'proj-1',
+      run_id: 'run-1',
+      generated_at: new Date('2026-03-09T00:00:00Z').toISOString(),
+      total_duration_ms: 1,
+      total_cost: 0,
+      overall_score: 88,
+      overall_grade: 'B',
+      passed: true,
+      phases: [
+        {
+          agent: 'agent2_cast',
+          phase_name: 'Cast Design',
+          passed: true,
+        },
+      ],
+      summary: {
+        phases_passed: 1,
+        phases_failed: 0,
+        total_phases: 1,
+        pass_rate: 100,
+        weakest_phase: 'agent2_cast',
+        strongest_phase: 'agent2_cast',
+        retry_stats: {
+          total_retries: 0,
+          phases_retried: 0,
+          retry_rate: '0.00',
+          retried_phases: [],
+        },
+        total_cost: 0,
+      },
+      threshold_config: { mode: 'standard' },
+      run_outcome: 'failed',
+    };
+
+    const violations = validateGenerationReportInvariants(report);
+    expect(violations.map(v => v.code)).toContain(
+      'outcome_failed_requires_passed_false'
+    );
+  });
+
   it('accepts passed outcomes when no phase failure signals exist', () => {
     const report = {
       project_id: 'proj-1',

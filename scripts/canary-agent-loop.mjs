@@ -141,6 +141,14 @@ async function main() {
   if (request.quickRun) {
     // Boundary canary execution reads this env variable directly.
     process.env.CANARY_FORCE_FRESH_UPSTREAM = "false";
+    process.env.CANARY_QUICK_RUN = "true";
+    process.env.CANARY_QUICKRUN_REQUEST_YAML = path.join(
+      defaultRequestYamlDir,
+      "request.quickrun.rework.yaml"
+    );
+  } else {
+    process.env.CANARY_QUICK_RUN = "false";
+    delete process.env.CANARY_QUICKRUN_REQUEST_YAML;
   }
 
   const result = await runCanaryLoop({

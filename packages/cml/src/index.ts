@@ -1,4 +1,15 @@
 import { validateCml } from "./validator.js";
+import {
+  GROUNDING_STOP_WORDS,
+  DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS,
+  normalizeGroundingText,
+  normalizeGroundingToken,
+  collectCaseNameTokens,
+  extractGroundingTerms,
+  extractGroundingPhrases,
+  collectReaderVisibleEvidenceCorpus,
+  isGroundedAgainstCorpus,
+} from "./grounding.js";
 import { validateArtifact, validateArtifacts, getArtifactTypes } from "./artifact-validator.js";
 import {
   CharacterProfileAccessor,
@@ -10,6 +21,17 @@ import {
 export const packageName = "@cml/cml";
 export { validateCml };
 export { validateArtifact, validateArtifacts, getArtifactTypes };
+export {
+  GROUNDING_STOP_WORDS,
+  DISCRIMINATING_TEST_PROCEDURE_STOP_WORDS,
+  normalizeGroundingText,
+  normalizeGroundingToken,
+  collectCaseNameTokens,
+  extractGroundingTerms,
+  extractGroundingPhrases,
+  collectReaderVisibleEvidenceCorpus,
+  isGroundedAgainstCorpus,
+};
 export {
   CharacterProfileAccessor,
   LocationProfileAccessor,

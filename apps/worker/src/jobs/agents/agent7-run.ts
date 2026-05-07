@@ -675,6 +675,51 @@ function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): Ou
   return issues;
 }
 
+function evaluateOutlinePreCommitCompleteness(narrative: NarrativeOutline): string[] {
+  const issues: string[] = [];
+  const allScenes = flattenNarrativeScenes(narrative);
+
+  if (allScenes.length === 0) {
+    return ["Outline contains zero scenes."];
+  }
+
+  const sceneNumbers = allScenes
+    .map((ref) => Number(ref.scene?.sceneNumber))
+    .filter((value) => Number.isFinite(value));
+  if (sceneNumbers.length !== allScenes.length) {
+    issues.push("One or more scenes are missing numeric sceneNumber values.");
+  } else {
+    const sorted = [...sceneNumbers].sort((left, right) => left - right);
+    for (let i = 0; i < sorted.length; i += 1) {
+      if (sorted[i] !== i + 1) {
+        issues.push("Scene numbering must be contiguous from 1..N before prose handoff.");
+        break;
+      }
+    }
+  }
+
+  const missingCoreFields = allScenes.filter((ref) => {
+    const title = String(ref.scene?.title ?? "").trim();
+    const purpose = String(ref.scene?.purpose ?? "").trim();
+    const summary = String(ref.scene?.summary ?? "").trim();
+    return title.length === 0 || purpose.length === 0 || summary.length === 0;
+  });
+  if (missingCoreFields.length > 0) {
+    issues.push(
+      `Found ${missingCoreFields.length} scene(s) missing title/purpose/summary required for prose handoff.`,
+    );
+  }
+
+  const missingCharacterScenes = allScenes.filter((ref) => !Array.isArray(ref.scene?.characters) || ref.scene.characters.length === 0);
+  if (missingCharacterScenes.length > 0) {
+    issues.push(
+      `Found ${missingCharacterScenes.length} scene(s) with empty characters arrays.`,
+    );
+  }
+
+  return issues.slice(0, 8);
+}
+
 // ============================================================================
 // Re-score helper used after narrative is replaced by retry
 // ============================================================================
@@ -1104,6 +1149,58 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           }
         }
       }
+    }
+  }
+
+  // ── Pre-commit completeness gate (single bundled remediation pass) ──────
+  {
+    const preCommitIssues = evaluateOutlinePreCommitCompleteness(narrative);
+    if (preCommitIssues.length > 0) {
+      const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
+      ctx.warnings.push(
+        `Outline pre-commit completeness gate found ${preCommitIssues.length} issue(s); running bundled remediation pass.`,
+      );
+      ctx.reportProgress("narrative", "Bundled remediation: fixing outline completeness gaps", 86);
+
+      const remediationStart = Date.now();
+      const remediatedNarrative = await formatNarrative(ctx.client, {
+        caseData: ctx.cml!,
+        clues: ctx.clues!,
+        targetLength: ctx.inputs.targetLength,
+        narrativeStyle: ctx.inputs.narrativeStyle,
+        detectiveType: ctx.inputs.detectiveType,
+        qualityGuardrails: [
+          "BUNDLED PRE-COMMIT CONTRACT: fix all listed outline completeness issues in this single response.",
+          ...preCommitIssues.map((issue) => `Pre-commit issue: ${issue}`),
+          ...buildNarrativeSceneCountGuardrails(sceneCountLock, "pre-commit completeness remediation"),
+          ...pacingGuardrails,
+        ],
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+
+      ctx.agentCosts["agent7_narrative"] =
+        (ctx.agentCosts["agent7_narrative"] ?? 0) + remediatedNarrative.cost;
+      ctx.agentDurations["agent7_narrative"] =
+        (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - remediationStart);
+
+      const countCheck = checkNarrativeSceneCountFloor(remediatedNarrative, sceneCountLock);
+      const remainingIssues = evaluateOutlinePreCommitCompleteness(remediatedNarrative);
+
+      if (!countCheck.ok) {
+        throw new Error(
+          `Outline pre-commit remediation failed scene-count lock: ${countCheck.message}.`,
+        );
+      }
+      if (remainingIssues.length > 0) {
+        throw new Error(
+          `Outline pre-commit remediation left unresolved completeness issues: ${remainingIssues.join(" | ")}`,
+        );
+      }
+
+      narrative = remediatedNarrative;
+      ctx.warnings.push("Outline pre-commit remediation succeeded.");
+      await rescoreNarrative(ctx, narrative);
     }
   }
 

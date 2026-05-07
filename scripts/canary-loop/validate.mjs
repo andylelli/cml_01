@@ -148,6 +148,8 @@ export async function runValidationPlan({
 	const warningsCount = Number.isFinite(Number(warningsCountRaw))
 		? Number(warningsCountRaw)
 		: 0;
+	const firstPassTelemetry = parseAgentFirstPassTelemetry(canaryResult.stdout);
+	const agent6RescueTelemetry = parseAgent6RescueTelemetry(canaryResult.stdout);
 
 	const chapterWindowCheck = evaluateChapterWindow({
 		normalizedAgent,
@@ -165,6 +167,8 @@ export async function runValidationPlan({
 				summary: chapterWindowCheck.message,
 				status: "chapter_window_violation",
 				warningsCount,
+				firstPassTelemetry,
+				agent6RescueTelemetry,
 				stdout: canaryResult.stdout,
 				stderr: canaryResult.stderr,
 				exitCode: canaryResult.exitCode,
@@ -183,11 +187,69 @@ export async function runValidationPlan({
 			summary: summarizeOutput(canaryResult),
 			status,
 			warningsCount,
-				narrativeGates,
+			firstPassTelemetry,
+			agent6RescueTelemetry,
+			narrativeGates,
 			stdout: canaryResult.stdout,
 			stderr: canaryResult.stderr,
 			exitCode: canaryResult.exitCode,
 		},
+	};
+}
+
+export function parseAgentFirstPassTelemetry(stdout) {
+	const agent5Status = String(parseMarker(stdout, "AGENT5_FIRST_PASS_STATUS") ?? "").trim().toLowerCase();
+	const agent5RetryRaw = String(parseMarker(stdout, "AGENT5_RETRY_INVOKED") ?? "").trim().toLowerCase();
+	const agent5FailureClass = String(parseMarker(stdout, "AGENT5_FAILURE_CLASS") ?? "").trim();
+
+	const agent6Status = String(parseMarker(stdout, "AGENT6_FIRST_PASS_STATUS") ?? "").trim().toLowerCase();
+	const agent6RetryRaw = String(parseMarker(stdout, "AGENT6_RETRY_INVOKED") ?? "").trim().toLowerCase();
+	const agent6FailureClass = String(parseMarker(stdout, "AGENT6_FAILURE_CLASS") ?? "").trim();
+
+	const hasAgent5 = Boolean(agent5Status || agent5RetryRaw || agent5FailureClass);
+	const hasAgent6 = Boolean(agent6Status || agent6RetryRaw || agent6FailureClass);
+	if (!hasAgent5 && !hasAgent6) {
+		return null;
+	}
+
+	const parseRetryFlag = (raw) => raw === "true" || raw === "1" || raw === "yes";
+
+	return {
+		agent5: hasAgent5
+			? {
+				firstPassStatus: agent5Status || "unknown",
+				retryInvoked: parseRetryFlag(agent5RetryRaw),
+				failureClass: agent5FailureClass || "none",
+			}
+			: null,
+		agent6: hasAgent6
+			? {
+				firstPassStatus: agent6Status || "unknown",
+				retryInvoked: parseRetryFlag(agent6RetryRaw),
+				failureClass: agent6FailureClass || "none",
+			}
+			: null,
+	};
+}
+
+export function parseAgent6RescueTelemetry(stdout) {
+	const parsed = parseJsonMarker(stdout, "AGENT6_RESCUE_TELEMETRY");
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+		return null;
+	}
+
+	const rescueWarningCounts = normalizeCountRecord(parsed.rescueWarningCounts);
+	const syntheticClueCounts = normalizeCountRecord(parsed.syntheticClueCounts);
+
+	return {
+		available: parsed.available !== false,
+		retryInvoked: parsed.retryInvoked === true,
+		failureClass: String(parsed.failureClass ?? "none").trim() || "none",
+		finalWarningCount: toFiniteNumber(parsed.finalWarningCount),
+		rescueWarningTotal: toFiniteNumber(parsed.rescueWarningTotal),
+		rescueWarningCounts,
+		syntheticClueTotal: toFiniteNumber(parsed.syntheticClueTotal),
+		syntheticClueCounts,
 	};
 }
 
@@ -277,6 +339,34 @@ function parseMarker(stdout, marker) {
 	const regex = new RegExp(`${escapeRegex(marker)}\\s+(.+)`);
 	const match = String(stdout ?? "").match(regex);
 	return match ? match[1].trim() : null;
+}
+
+function parseJsonMarker(stdout, marker) {
+	const raw = parseMarker(stdout, marker);
+	if (!raw) {
+		return null;
+	}
+
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
+}
+
+function normalizeCountRecord(value) {
+	if (!value || typeof value !== "object" || Array.isArray(value)) {
+		return {};
+	}
+
+	return Object.fromEntries(
+		Object.entries(value).map(([key, count]) => [String(key), toFiniteNumber(count)])
+	);
+}
+
+function toFiniteNumber(value) {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function escapeRegex(text) {

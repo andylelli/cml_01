@@ -179,10 +179,78 @@ type FairPlayViolationLike = {
   rule?: string;
 };
 
+const canonicalizeTraceabilityClueId = (value: unknown): string => {
+  const normalized = String(value ?? "").trim();
+  return /^clue_[a-z0-9_-]+$/i.test(normalized) ? normalized : "";
+};
+
+const hasDeterministicPreTestTraceabilityBreak = (params: {
+  cml?: CaseData | null;
+  clues?: ClueDistributionResult | null;
+}): boolean => {
+  const caseBlock = (params.cml as any)?.CASE ?? params.cml;
+  const clueList = Array.isArray(params.clues?.clues) ? params.clues.clues : [];
+  if (!caseBlock || clueList.length === 0) return false;
+
+  const discriminatingScene = caseBlock?.prose_requirements?.discriminating_test_scene ?? {};
+  const discriminatingAct = Number(discriminatingScene?.act_number);
+  const discriminatingSceneNumber = Number(discriminatingScene?.scene_number);
+  const hasDiscriminatingScene = Number.isFinite(discriminatingAct) && discriminatingAct > 0
+    && Number.isFinite(discriminatingSceneNumber) && discriminatingSceneNumber > 0;
+
+  const clueMap = new Map(
+    clueList
+      .map((clue: any) => [canonicalizeTraceabilityClueId(clue?.id), clue] as const)
+      .filter(([clueId]) => clueId.length > 0),
+  );
+  const mappingById = new Map(
+    ((caseBlock?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+      .map((entry) => ({
+        clueId: canonicalizeTraceabilityClueId(entry?.clue_id),
+        actNumber: Number(entry?.act_number),
+        sceneNumber: Number(entry?.scene_number),
+      }))
+      .filter((entry) => entry.clueId.length > 0)
+      .map((entry) => [entry.clueId, entry] as const),
+  );
+
+  const evidenceClueIds = ((caseBlock?.discriminating_test?.evidence_clues ?? []) as unknown[])
+    .map((id) => canonicalizeTraceabilityClueId(id))
+    .filter(Boolean);
+  if (evidenceClueIds.length === 0) return true;
+
+  for (const clueId of evidenceClueIds) {
+    const clue = clueMap.get(clueId);
+    if (!clue) return true;
+
+    const criticality = String((clue as any)?.criticality ?? "").trim().toLowerCase();
+    const placement = String((clue as any)?.placement ?? "").trim().toLowerCase();
+    if (criticality !== "essential" || (placement !== "early" && placement !== "mid")) {
+      return true;
+    }
+
+    const mapping = mappingById.get(clueId);
+    if (!mapping) return true;
+    if (!Number.isFinite(mapping.actNumber) || !Number.isFinite(mapping.sceneNumber)) return true;
+
+    if (
+      hasDiscriminatingScene
+      && (mapping.actNumber > discriminatingAct
+        || (mapping.actNumber === discriminatingAct && mapping.sceneNumber >= discriminatingSceneNumber))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const deriveStructuralBlockingFairPlayViolations = (params: {
   fairPlayAudit?: FairPlayAuditResult | null;
   coverageResult?: { hasCriticalGaps?: boolean; uncoveredSteps?: unknown[] } | null;
   allCoverageIssues?: Array<{ severity?: string; message?: string }> | null;
+  cml?: CaseData | null;
+  clues?: ClueDistributionResult | null;
 }): { blockingViolations: FairPlayViolationLike[]; downgradedLogicalDeducibility: boolean } => {
   const fairPlayAudit = params.fairPlayAudit;
   if (!fairPlayAudit || fairPlayAudit.overallStatus !== "fail") {
@@ -213,20 +281,19 @@ const deriveStructuralBlockingFairPlayViolations = (params: {
     )
   );
 
-  const hasParityCorroboration = criticalViolations.some((v) => {
-    const rule = String(v?.rule ?? "").toLowerCase().trim();
-    return (
-      rule === "clue visibility"
-      || rule === "no withholding"
-      || rule === "discriminating test timing"
-    );
+  const hasTraceabilityCorroboration = hasDeterministicPreTestTraceabilityBreak({
+    cml: params.cml,
+    clues: params.clues,
   });
 
-  const logicalDeducibilityCorroborated = hasCoverageCorroboration || hasParityCorroboration;
+  const logicalDeducibilityCorroborated = hasCoverageCorroboration || hasTraceabilityCorroboration;
 
   let downgradedLogicalDeducibility = false;
   const blockingViolations = candidateBlocking.filter((v) => {
     const rule = String(v?.rule ?? "").toLowerCase().trim();
+    if (rule === "clue visibility" || rule === "no withholding") {
+      return hasCoverageCorroboration || hasTraceabilityCorroboration;
+    }
     if (rule !== "logical deducibility") return true;
     if (logicalDeducibilityCorroborated) return true;
     downgradedLogicalDeducibility = true;
@@ -234,6 +301,50 @@ const deriveStructuralBlockingFairPlayViolations = (params: {
   });
 
   return { blockingViolations, downgradedLogicalDeducibility };
+};
+
+const evaluateEarlyStructuralAbort = (params: {
+  fairPlayAudit?: FairPlayAuditResult | null;
+  coverageResult?: { hasCriticalGaps?: boolean; uncoveredSteps?: unknown[] } | null;
+  allCoverageIssues?: Array<{ severity?: string; message?: string }> | null;
+  cml?: CaseData | null;
+  clues?: ClueDistributionResult | null;
+}): {
+  shouldAbort: boolean;
+  reason?: string;
+  blockingRules: string[];
+  downgradedLogicalDeducibility: boolean;
+} => {
+  const fairPlayAudit = params.fairPlayAudit;
+  if (!fairPlayAudit || fairPlayAudit.overallStatus !== "fail") {
+    return {
+      shouldAbort: false,
+      blockingRules: [],
+      downgradedLogicalDeducibility: false,
+    };
+  }
+
+  const { blockingViolations, downgradedLogicalDeducibility } = deriveStructuralBlockingFairPlayViolations(params);
+  const blockingRules = blockingViolations
+    .map((violation) => String(violation?.rule ?? "").trim())
+    .filter((rule) => rule.length > 0);
+
+  if (blockingRules.length === 0) {
+    return {
+      shouldAbort: false,
+      blockingRules: [],
+      downgradedLogicalDeducibility,
+    };
+  }
+
+  return {
+    shouldAbort: true,
+    reason:
+      `Fair play audit failed with ${blockingRules.length} structural blocking violation(s): ` +
+      blockingRules.join(", "),
+    blockingRules,
+    downgradedLogicalDeducibility,
+  };
 };
 
 // ============================================================================
@@ -399,6 +510,23 @@ export async function generateMystery(
     await runAgent3(ctx);   // CML Generator (+ Agent 4 auto-revision)
     await runAgent5(ctx);   // Clue Distributor
     await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
+
+    const earlyStructuralAbort = evaluateEarlyStructuralAbort({
+      fairPlayAudit: ctx.fairPlayAudit,
+      coverageResult: ctx.coverageResult,
+      allCoverageIssues: ctx.allCoverageIssues,
+      cml: ctx.cml,
+      clues: ctx.clues,
+    });
+    if (earlyStructuralAbort.shouldAbort) {
+      const errorMsg =
+        `CML validation failed before downstream profile generation:\n` +
+        `  • ${earlyStructuralAbort.reason}\n\n` +
+        `Fix CML structure before attempting downstream narrative/prose stages.`;
+      errors.push(errorMsg);
+      throw new Error(errorMsg);
+    }
+
     await runAgent2b(ctx);  // Character Profiles
     await runAgent2c(ctx);  // Location Profiles
     await runAgent2d(ctx);  // Temporal Context
@@ -507,6 +635,8 @@ export async function generateMystery(
         fairPlayAudit: ctx.fairPlayAudit,
         coverageResult: ctx.coverageResult,
         allCoverageIssues: ctx.allCoverageIssues,
+        cml: ctx.cml,
+        clues: ctx.clues,
       });
 
       if (downgradedLogicalDeducibility) {
@@ -866,6 +996,7 @@ export async function generateMysterySimple(
 // Test-only exports for deterministic guardrail unit coverage.
 export const __testables = {
   deriveStructuralBlockingFairPlayViolations,
+  evaluateEarlyStructuralAbort,
   captureNarrativeSceneCountSnapshot,
   checkNarrativeSceneCountFloor,
   applyDeterministicCluePreAssignment,

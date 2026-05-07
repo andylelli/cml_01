@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { config as loadDotEnv } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
-import { loadSeedCMLFiles } from "@cml/prompts-llm";
+import { loadSeedCMLFiles, reviseCml } from "@cml/prompts-llm";
 import { getGenerationParams } from "@cml/story-validation";
 import { validateCml } from "@cml/cml";
 import {
@@ -21,9 +21,11 @@ import {
   runAgent6,
   runAgent7,
   runAgent65,
+  runAgent9,
 } from "../apps/worker/dist/jobs/agents/index.js";
 import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-paths.js";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
+import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 import { parseJsonText } from "./canary-loop/json.mjs";
 
 const workspaceRoot = process.cwd();
@@ -44,6 +46,7 @@ const AGENT_LABELS = {
   "2d": "Agent2d-TemporalContext",
   "65": "Agent65-WorldBuilder",
   "7": "Agent7-NarrativeOutline",
+  "9": "Agent9-Prose",
 };
 
 const REQUIRED_CODES = {
@@ -60,6 +63,7 @@ const REQUIRED_CODES = {
   "2d": ["1", "2e", "3"],
   "65": ["1", "2", "2e", "3", "3b", "5", "2b", "2c", "2d"],
   "7": ["2", "3", "5"],
+  "9": ["1", "2", "2e", "3b", "3", "5", "6", "2b", "2c", "2d", "7"],
 };
 
 const SYNTHESIS_ORDER = ["1", "2", "2e", "3b", "3", "5", "6", "2b", "2c", "2d", "65", "7"];
@@ -68,12 +72,13 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runId = String(args.runId ?? "").trim();
   const agentCode = normalizeAgentCode(args.agent);
+  const startChapter = toPositiveInt(args.startChapter) ?? undefined;
 
   if (!runId) {
     throw new Error("runId is required for canary-agent-boundary");
   }
   if (!agentCode || !AGENT_LABELS[agentCode]) {
-    throw new Error("--agent is required and must be one of: 1,2,2e,3b,3,4,5,6,2b,2c,2d,65,7");
+    throw new Error("--agent is required and must be one of: 1,2,2e,3b,3,4,5,6,2b,2c,2d,65,7,9");
   }
 
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
@@ -102,6 +107,7 @@ async function main() {
     workspaceRoot,
     runId,
     agentCode,
+    startChapter,
     allowMissingAgentRecords: true,
   });
 
@@ -112,10 +118,16 @@ async function main() {
     forceFreshUpstream,
   });
 
+  const canaryInputConfig = await loadCanaryInputOverrides({
+    workspaceRoot,
+    quickRun: parseBooleanEnv(process.env.CANARY_QUICK_RUN, false),
+  });
+
   const ctx = await buildBaseContext({
     client,
     runId: artifactBundle.runId,
     projectId: artifactBundle.runState.projectId,
+    canaryInputs: canaryInputConfig.inputs,
   });
 
   applyHydratedContext(ctx, upstreamByCode);
@@ -126,15 +138,33 @@ async function main() {
     forceFreshUpstream,
   });
 
+  if (startChapter) {
+    console.log("FROM_CHAPTER", startChapter);
+    console.log("CHAPTER_START", startChapter);
+  }
+
   console.log("CANARY_AGENT", AGENT_LABELS[agentCode]);
   console.log("RUN_ID", artifactBundle.runId);
+  console.log("CANARY_INPUTS_FILE", canaryInputConfig.sources.coreInputsPath);
+  if (canaryInputConfig.sources.quickRunEnabled && canaryInputConfig.sources.quickRunRequestPath) {
+    console.log("CANARY_QUICKRUN_OVERRIDES_FILE", canaryInputConfig.sources.quickRunRequestPath);
+  }
   console.log("HYDRATED_CODES", Object.keys(upstreamByCode).join(",") || "none");
 
-  if (agentCode === "4") {
-    await runAgent4BoundaryCheck(ctx);
-  } else {
-    await runAgentBoundary(agentCode, ctx);
+  try {
+    if (agentCode === "4") {
+      await runAgent4BoundaryCheck(ctx);
+    } else {
+      await runAgentBoundary(agentCode, ctx);
+    }
+  } catch (error) {
+    emitFirstPassTelemetry(agentCode, ctx);
+    emitAgent6RescueTelemetry(agentCode, ctx);
+    throw error;
   }
+
+  emitFirstPassTelemetry(agentCode, ctx);
+  emitAgent6RescueTelemetry(agentCode, ctx);
 
   console.log("CANARY_STATUS success");
   console.log("WARNINGS_COUNT", String(ctx.warnings.length));
@@ -157,6 +187,7 @@ async function runAgentBoundary(agentCode, ctx) {
     "2d": runAgent2d,
     "65": runAgent65,
     "7": runAgent7,
+    "9": runAgent9,
   };
 
   const handler = handlers[agentCode];
@@ -167,18 +198,184 @@ async function runAgentBoundary(agentCode, ctx) {
   await handler(ctx);
 }
 
+function emitFirstPassTelemetry(agentCode, ctx) {
+  const normalized = normalizeAgentCode(agentCode);
+
+  if (normalized === "5" || normalized === "6" || typeof ctx.agent5FirstPassPassed === "boolean") {
+    const status =
+      typeof ctx.agent5FirstPassPassed === "boolean"
+        ? (ctx.agent5FirstPassPassed ? "pass" : "fail")
+        : "unknown";
+    const retryInvoked =
+      typeof ctx.agent5RetryInvoked === "boolean"
+        ? String(ctx.agent5RetryInvoked)
+        : "false";
+    const failureClass = String(ctx.agent5FailureClass ?? "none").trim() || "none";
+    console.log("AGENT5_FIRST_PASS_STATUS", status);
+    console.log("AGENT5_RETRY_INVOKED", retryInvoked);
+    console.log("AGENT5_FAILURE_CLASS", failureClass);
+  }
+
+  if (normalized === "6" || typeof ctx.agent6FirstPassPassed === "boolean") {
+    const status =
+      typeof ctx.agent6FirstPassPassed === "boolean"
+        ? (ctx.agent6FirstPassPassed ? "pass" : "fail")
+        : "unknown";
+    const retryInvoked =
+      typeof ctx.agent6RetryInvoked === "boolean"
+        ? String(ctx.agent6RetryInvoked)
+        : "false";
+    const failureClass = String(ctx.agent6FailureClass ?? "none").trim() || "none";
+    console.log("AGENT6_FIRST_PASS_STATUS", status);
+    console.log("AGENT6_RETRY_INVOKED", retryInvoked);
+    console.log("AGENT6_FAILURE_CLASS", failureClass);
+  }
+}
+
+function emitAgent6RescueTelemetry(agentCode, ctx) {
+  const normalized = normalizeAgentCode(agentCode);
+  if (normalized !== "6") {
+    return;
+  }
+
+  const telemetry = summarizeAgent6RescueTelemetry(ctx);
+  if (!telemetry) {
+    return;
+  }
+
+  console.log("AGENT6_RESCUE_TELEMETRY", JSON.stringify(telemetry));
+}
+
+function summarizeAgent6RescueTelemetry(ctx) {
+  const warnings = Array.isArray(ctx?.warnings)
+    ? ctx.warnings.map((warning) => String(warning ?? "").trim()).filter(Boolean)
+    : [];
+  const clueIds = Array.isArray(ctx?.clues?.clues)
+    ? ctx.clues.clues.map((clue) => String(clue?.id ?? "").trim()).filter(Boolean)
+    : [];
+
+  const rescueWarningCounts = {
+    strictStepFallback: 0,
+    parityBridge: 0,
+    auditVisibility: 0,
+    fairPlayBackstop: 0,
+    guardrailAutoFix: 0,
+    synthesizedUpstreamContext: 0,
+    otherRescue: 0,
+  };
+
+  const classifyRescueWarning = (warning) => {
+    if (/strict-step fallback/i.test(warning)) return "strictStepFallback";
+    if (/parity bridge/i.test(warning)) return "parityBridge";
+    if (/clue_audit_visibility|audit-flagged hidden information/i.test(warning)) return "auditVisibility";
+    if (/deterministic fair-play backstop/i.test(warning)) return "fairPlayBackstop";
+    if (/guardrail auto-fix/i.test(warning)) return "guardrailAutoFix";
+    if (/synthesized upstream context/i.test(warning)) return "synthesizedUpstreamContext";
+    if (/strict direct culprit slot repair|strict late clue slot repair/i.test(warning)) return "otherRescue";
+    return null;
+  };
+
+  for (const warning of warnings) {
+    const category = classifyRescueWarning(warning);
+    if (!category) continue;
+    rescueWarningCounts[category] += 1;
+  }
+
+  const syntheticClueCounts = {
+    parityBridge: 0,
+    fairPlayBackstop: 0,
+    contradictionBackstop: 0,
+    auditVisibility: 0,
+  };
+  for (const clueId of clueIds) {
+    if (/^clue_parity_bridge(?:_|$)/i.test(clueId)) {
+      syntheticClueCounts.parityBridge += 1;
+      continue;
+    }
+    if (/^clue_fp_backstop_step_/i.test(clueId)) {
+      syntheticClueCounts.fairPlayBackstop += 1;
+      continue;
+    }
+    if (/^clue_fp_contradiction_step_/i.test(clueId)) {
+      syntheticClueCounts.contradictionBackstop += 1;
+      continue;
+    }
+    if (/^clue_audit_visibility/i.test(clueId)) {
+      syntheticClueCounts.auditVisibility += 1;
+    }
+  }
+
+  const rescueWarningTotal = Object.values(rescueWarningCounts).reduce((sum, count) => sum + Number(count ?? 0), 0);
+  const syntheticClueTotal = Object.values(syntheticClueCounts).reduce((sum, count) => sum + Number(count ?? 0), 0);
+  const available = rescueWarningTotal > 0 || syntheticClueTotal > 0 || ctx?.agent6RetryInvoked === true;
+  if (!available) {
+    return null;
+  }
+
+  return {
+    available: true,
+    retryInvoked: ctx?.agent6RetryInvoked === true,
+    failureClass: String(ctx?.agent6FailureClass ?? "none").trim() || "none",
+    finalWarningCount: warnings.length,
+    rescueWarningTotal,
+    rescueWarningCounts,
+    syntheticClueTotal,
+    syntheticClueCounts,
+  };
+}
+
 async function runAgent4BoundaryCheck(ctx) {
   if (!ctx.cml) {
     throw new Error("Agent4 boundary requires hydrated CML from Agent3 output.");
   }
 
-  const validation = validateCml(ctx.cml);
-  if (!validation.valid) {
-    const top = validation.errors.slice(0, 5).join("; ");
-    throw new Error(`Agent4 revision boundary failed CML validation: ${top}`);
+  const initialValidation = validateCml(ctx.cml);
+  if (initialValidation.valid) {
+    ctx.reportProgress("agent4", "Hydrated CML passes revision boundary checks", 100);
+    return;
   }
 
-  ctx.reportProgress("agent4", "Hydrated CML passes revision boundary checks", 100);
+  ctx.warnings.push(
+    `Agent4 boundary: hydrated CML failed validation with ${initialValidation.errors.length} error(s); running Agent4 revision semantics.`,
+  );
+
+  const originalPrompt = {
+    system: "Boundary Agent4 revision execution",
+    developer:
+      "Apply CML 2.0 schema-compliant, minimal structural repairs while preserving valid existing narrative content.",
+    user:
+      "Repair hydrated CML validation failures for canary boundary execution while preserving fair-play structure and required_evidence completeness.",
+  };
+
+  const revised = await reviseCml(
+    ctx.client,
+    {
+      originalPrompt,
+      invalidCml: JSON.stringify(ctx.cml, null, 2),
+      validationErrors: initialValidation.errors,
+      attempt: 1,
+      maxAttempts: 1,
+      runId: ctx.runId,
+      projectId: ctx.projectId || "",
+    },
+    1,
+  );
+
+  ctx.cml = revised.cml;
+  ctx.revisedByAgent4 = true;
+  ctx.revisionAttempts = revised.attempt;
+
+  const revisedValidation = validateCml(ctx.cml);
+  if (!revisedValidation.valid) {
+    const top = revisedValidation.errors.slice(0, 5).join("; ");
+    throw new Error(`Agent4 revision boundary failed CML validation after revision: ${top}`);
+  }
+
+  ctx.reportProgress(
+    "agent4",
+    `Hydrated CML revised successfully (${initialValidation.errors.length} -> 0 validation errors)`,
+    100,
+  );
 }
 
 async function hydrateUpstreamArtifacts({ runState, runFolder, requiredCodes, forceFreshUpstream = false }) {
@@ -234,7 +431,12 @@ async function synthesizeMissingRequiredContext({ agentCode, missingRequiredCode
 
   if (!forceFreshUpstream) {
     const allowedLegacy = new Set(["2b", "2c", "2d"]);
-    const unsupported = missingRequiredCodes.filter((code) => !allowedLegacy.has(code));
+    const unsupported = missingRequiredCodes.filter((code) => {
+      if (agentCode === "9") {
+        return false;
+      }
+      return !allowedLegacy.has(code);
+    });
     if (unsupported.length > 0) {
       throw new Error(
         `Missing required hydrated response for agent code(s): ${unsupported.join(", ")}.`
@@ -298,7 +500,7 @@ function hasContextForCode(ctx, code) {
     case "65":
       return Boolean(ctx.worldDocument);
     case "7":
-      return Boolean(ctx.narrativeOutline);
+      return Boolean(ctx.narrative && ctx.coverageResult && Array.isArray(ctx.outlineCoverageIssues));
     default:
       return false;
   }
@@ -352,15 +554,36 @@ function applyHydratedContext(ctx, upstreamByCode) {
   if (upstreamByCode["65"]) {
     ctx.worldDocument = wrapWorldDocument(upstreamByCode["65"]);
   }
+  if (upstreamByCode["7"]) {
+    const normalizedNarrative = wrapNarrative(upstreamByCode["7"]);
+    ctx.narrative = normalizedNarrative;
+    if (Array.isArray(upstreamByCode["7"]?.outlineCoverageIssues)) {
+      ctx.outlineCoverageIssues = upstreamByCode["7"].outlineCoverageIssues;
+    }
+    if (upstreamByCode["7"]?.coverageResult) {
+      ctx.coverageResult = upstreamByCode["7"].coverageResult;
+    }
+  }
 }
 
-async function buildBaseContext({ client, runId, projectId }) {
-  const { examplesRoot } = resolveWorkerRuntimePaths(import.meta.url);
+async function buildBaseContext({ client, runId, projectId, canaryInputs = {} }) {
+  const runtimePaths = resolveWorkerRuntimePaths(import.meta.url);
+  const examplesRoot = path.join(workspaceRoot, "examples");
   const seedEntries = await loadSeedCMLFiles(examplesRoot);
-  const theme = process.env.DEFAULT_MYSTERY_THEME ?? "A classic country-house murder with tangled inheritance motives";
+  const theme = String(canaryInputs.theme ?? process.env.DEFAULT_MYSTERY_THEME ?? "").trim();
+  if (!theme) {
+    throw new Error("Canary execution requires a non-empty theme. Set it in scripts/canary-core-inputs.yaml.");
+  }
   const primaryAxis = normalizePrimaryAxis(undefined);
   const initialHardLogicDirectives = deriveHardLogicDirectives(theme, primaryAxis, undefined);
   const noveltyConstraints = buildNoveltyConstraints(seedEntries);
+
+  const castSizeRaw = canaryInputs.castSize ?? process.env.DEFAULT_CAST_SIZE;
+  const castSize = castSizeRaw === undefined ? undefined : Number(castSizeRaw);
+  const skipNoveltyCheck =
+    typeof canaryInputs.skipNoveltyCheck === "boolean"
+      ? canaryInputs.skipNoveltyCheck
+      : parseBooleanEnv(process.env.CANARY_SKIP_NOVELTY_CHECK, undefined);
 
   const fairPlayParams = getGenerationParams()?.agent6_fairplay?.params;
   const criticalFairPlayRules = new Set(
@@ -373,14 +596,20 @@ async function buildBaseContext({ client, runId, projectId }) {
     client,
     runId,
     projectId,
+    startTime: Date.now(),
     examplesRoot,
+    workerAppRoot: runtimePaths.workerAppRoot,
+    workspaceRoot,
     seedEntries,
     primaryAxis,
     initialHardLogicDirectives,
     hardLogicDirectives: initialHardLogicDirectives,
     noveltyConstraints,
+    maxCmlRevisionAttempts: Number(process.env.MAX_CML_REVISION_ATTEMPTS ?? 2),
     revisedByAgent4: false,
     revisionAttempts: undefined,
+    revisedByAgent4FairPlay: false,
+    fairPlayRevisionAttempts: 0,
     errors: [],
     warnings: [],
     agentCosts: {},
@@ -395,26 +624,45 @@ async function buildBaseContext({ client, runId, projectId }) {
     reportRepository: undefined,
     retryManager: undefined,
     scoringLogger: undefined,
+    runLogger: {
+      logProgress: () => {},
+      logChapterWords: () => {},
+      logComplete: () => {},
+    },
     noveltyAudit: undefined,
     savePartialReport: async () => {},
     reportProgress: (stage, message) => {
       console.log(`PROGRESS ${stage} - ${message}`);
     },
+    proseScoringSnapshot: {
+      startedAtMs: null,
+      chaptersGenerated: 0,
+      latestChapterScore: null,
+      latestCumulativeScore: null,
+      postGenerationSummaryLogged: false,
+    },
+    proseChapterScores: [],
+    proseSecondRunChapterScores: [],
+    prosePassAccounting: [],
+    proseRewritePassCount: 0,
+    proseRepairPassCount: 0,
+    latestProseScore: null,
+    nsdTransferTrace: [],
     inputs: {
       runId,
       projectId,
       theme,
-      tone: process.env.DEFAULT_MYSTERY_TONE ?? "Golden Age Mystery",
-      narrativeStyle: process.env.DEFAULT_NARRATIVE_STYLE ?? "classic",
-      targetLength: process.env.DEFAULT_TARGET_LENGTH ?? "medium",
-      detectiveType: process.env.DEFAULT_DETECTIVE_TYPE ?? "amateur",
-      eraPreference: process.env.DEFAULT_ERA_PREFERENCE ?? "1930s",
-      castSize: Number(process.env.DEFAULT_CAST_SIZE ?? 6),
-      skipNoveltyCheck: true,
+      tone: canaryInputs.tone ?? process.env.DEFAULT_MYSTERY_TONE,
+      narrativeStyle: canaryInputs.narrativeStyle ?? process.env.DEFAULT_NARRATIVE_STYLE,
+      targetLength: canaryInputs.targetLength ?? process.env.DEFAULT_TARGET_LENGTH,
+      detectiveType: canaryInputs.detectiveType ?? process.env.DEFAULT_DETECTIVE_TYPE,
+      eraPreference: canaryInputs.eraPreference ?? process.env.DEFAULT_ERA_PREFERENCE,
+      castSize: Number.isFinite(castSize) ? castSize : undefined,
+      skipNoveltyCheck,
     },
     locationSpec: {
-      location: process.env.DEFAULT_LOCATION ?? "English countryside",
-      institution: process.env.DEFAULT_INSTITUTION ?? "country house",
+      location: canaryInputs.locationPreset ?? process.env.DEFAULT_LOCATION,
+      institution: process.env.DEFAULT_INSTITUTION,
     },
   };
 }
@@ -536,6 +784,22 @@ function wrapWorldDocument(raw) {
   return raw;
 }
 
+function wrapNarrative(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { acts: [] };
+  }
+  if (Array.isArray(raw.acts)) {
+    return raw;
+  }
+  if (raw.narrative && Array.isArray(raw.narrative.acts)) {
+    return raw.narrative;
+  }
+  if (raw.outline && Array.isArray(raw.outline.acts)) {
+    return raw.outline;
+  }
+  return { acts: [] };
+}
+
 function parseAgentCode(input) {
   const text = String(input ?? "").trim();
   const match = text.match(/agent\s*([0-9]+(?:\.[0-9]+)?[a-z]?)/i);
@@ -569,6 +833,17 @@ function parseArgs(argv) {
     i += 1;
   }
   return out;
+}
+
+function toPositiveInt(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+  const parsed = Number.parseInt(String(value), 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return null;
+  }
+  return parsed;
 }
 
 main().catch((error) => {

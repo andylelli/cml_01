@@ -24,18 +24,18 @@ import {
 } from "./shared.js";
 import {
   enforceAgent5DeterministicContracts,
+  buildStrictPromptFeedback,
   recomputeCoverageSnapshotForAgent6,
 } from "./agent5-run.js";
+import {
+  classifyFairPlayFailure,
+  shouldEscalateStructuralCmlRevision,
+  type FairPlayFailureClass,
+} from "./agent6-escalation-policy.js";
 
 // ============================================================================
 // classifyFairPlayFailure (agent-6 only)
 // ============================================================================
-
-type FairPlayFailureClass =
-  | "clue_coverage"
-  | "inference_path_abstract"
-  | "constraint_space_insufficient"
-  | "clue_only";
 
 const CONFIDENCE_RANK: Record<string, number> = {
   impossible: 0,
@@ -91,12 +91,148 @@ const normalizeDifficultyMode = (value: unknown): "standard" | "increase" | "ext
 const appendUniqueStrings = (base: string[] | undefined, additions: string[]): string[] =>
   [...new Set([...(base ?? []), ...additions].map((entry) => String(entry ?? "").trim()).filter(Boolean))];
 
+const deriveCastPathNameIndexMap = (cml?: CaseData): Array<{ index: number; name: string }> => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  return cast
+    .map((member: any, index: number) => ({ index, name: String(member?.name ?? "").trim() }))
+    .filter((entry: { index: number; name: string }) => entry.name.length > 0);
+};
+
+const deriveCastPathBindingRules = (cml?: CaseData): string[] => {
+  const map = deriveCastPathNameIndexMap(cml);
+  const rules = [
+    "CAST PATH COUPLING CONTRACT: If sourceInCML is CASE.cast[N].*, suspect references in description/pointsTo must match cast[N].name exactly.",
+    "CAST PATH COUPLING CONTRACT: Never rewrite suspect names independently of sourceInCML cast index binding.",
+  ];
+  for (const entry of map.slice(0, 12)) {
+    rules.push(`cast_index_to_name_map[${entry.index}] = ${entry.name}`);
+  }
+  return rules;
+};
+
+const buildUnifiedRetryContractPhrases = (cml?: CaseData): string[] => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const evidenceIds = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
+    ? caseBlock.discriminating_test.evidence_clues
+        .map((id: unknown) => String(id ?? "").trim())
+        .filter((id: string) => id.length > 0)
+    : [];
+
+  const phrases = [
+    "UNIFIED RETRY CONTRACT: Keep cast-path coupling, discriminating evidence ID parity, and mechanism-visibility ordering jointly true in the same output.",
+    "MECHANISM VISIBILITY ORDER: Before Act III, the reader can execute observation -> correction -> elimination using essential early|mid clues; the discriminating test only confirms.",
+    "DISCRIMINATING ID PARITY CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear in clues[].id and be essential early|mid.",
+    "CAST PATH COUPLING CONTRACT: If sourceInCML uses CASE.cast[N].*, clue suspect references must use cast[N].name and no other suspect name.",
+    "FAIL-FAST CONTRACT: If cast-path coupling, source-path legality, or discriminating evidence ID parity fails, status must be fail.",
+  ];
+
+  if (evidenceIds.length > 0) {
+    phrases.push(`DISCRIMINATING ID SET: ${evidenceIds.join(", ")}`);
+  }
+
+  return phrases;
+};
+
+const isAmbiguousSuspectRewriteDirective = (text: string): boolean => {
+  const normalized = String(text ?? "").toLowerCase();
+  if (!normalized) return false;
+  const mentionsSuspectRewrite = /(suspect|culprit|name|rewrite|rename)/.test(normalized);
+  const hasSourceCoupling = /(sourceincml|source path|case\.cast|cast\[|index|binding|coupl)/.test(normalized);
+  return mentionsSuspectRewrite && !hasSourceCoupling;
+};
+
 const STRICT_FIRST_PASS_ACCEPTANCE_STATEMENTS = [
   "ACCEPTANCE: clue_mechanism_visibility_core must be essential and early|mid, and must make the mechanism reader-visible before the discriminating test.",
   "ACCEPTANCE: clue_core_contradiction_chain must be essential and early|mid, and must overturn the false assumption with concrete evidence.",
   "ACCEPTANCE: clue_core_elimination_chain must be essential and early|mid, and must explicitly eliminate at least one eligible non-culprit.",
   "ACCEPTANCE: Before Act III, the reader can execute observation -> correction -> elimination to narrow uniquely to the culprit; the discriminating test only confirms.",
 ] as const;
+
+const FIXED_RETRY_TARGET_CLUE_IDS = [
+  "clue_mechanism_visibility_core",
+  "clue_core_contradiction_chain",
+  "clue_core_elimination_chain",
+] as const;
+
+const normalizeViolationCode = (rule: unknown): string =>
+  String(rule ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+const deriveRetryViolationCodes = (fairPlayAudit: FairPlayAuditResult): string[] =>
+  [...new Set(
+    (Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [])
+      .map((violation) => normalizeViolationCode(violation?.rule))
+      .filter(Boolean),
+  )].slice(0, 12);
+
+const deriveRetryTargetedClueIds = (
+  fairPlayAudit: FairPlayAuditResult,
+  cml?: CaseData,
+  clues?: { clues?: Array<{ id?: string }> },
+): string[] => {
+  const caseBlock = (cml as any)?.CASE ?? cml;
+  const currentClueIds = Array.isArray(clues?.clues)
+    ? clues.clues.map((clue) => String(clue?.id ?? "").trim()).filter(Boolean)
+    : [];
+  const normalizedRules = new Set(
+    (Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [])
+      .map((violation) => String(violation?.rule ?? "").trim().toLowerCase())
+      .filter(Boolean),
+  );
+  const targetedIds = new Set<string>();
+  const discriminatingIds = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
+    ? caseBlock.discriminating_test.evidence_clues
+        .map((id: unknown) => String(id ?? "").trim())
+        .filter(Boolean)
+    : [];
+
+  const needsStructuralDelta = [
+    "clue visibility",
+    "information parity",
+    "logical deducibility",
+    "discriminating test timing",
+    "no withholding",
+    "solution uniqueness",
+  ].some((rule) => normalizedRules.has(rule));
+
+  if (needsStructuralDelta) {
+    FIXED_RETRY_TARGET_CLUE_IDS.forEach((id) => targetedIds.add(id));
+    discriminatingIds.forEach((id: string) => targetedIds.add(id));
+  }
+
+  if (normalizedRules.has("false assumption support") || normalizedRules.has("red herring separation")) {
+    ["rh_1", "rh_2"].forEach((id) => targetedIds.add(id));
+  }
+
+  if (targetedIds.size === 0 && discriminatingIds.length > 0) {
+    discriminatingIds.forEach((id: string) => targetedIds.add(id));
+  }
+
+  for (const clueId of currentClueIds) {
+    if (FIXED_RETRY_TARGET_CLUE_IDS.includes(clueId as typeof FIXED_RETRY_TARGET_CLUE_IDS[number])) {
+      targetedIds.add(clueId);
+    }
+  }
+
+  return Array.from(targetedIds).slice(0, 18);
+};
+
+const deriveRetryPreserveClueIds = (
+  clues: { clues?: Array<{ id?: string }> } | undefined,
+  targetedClueIds: string[],
+): string[] => {
+  const targetedSet = new Set(targetedClueIds);
+  return Array.isArray(clues?.clues)
+    ? clues.clues
+        .map((clue) => String(clue?.id ?? "").trim())
+        .filter((id) => id.length > 0 && !targetedSet.has(id))
+        .slice(0, 24)
+    : [];
+};
 
 const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: CaseData): string[] => {
   const structuralRules = new Set([
@@ -107,6 +243,8 @@ const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: Cas
   ]);
 
   const phrases: string[] = [];
+  const unifiedRetryContractPhrases = buildUnifiedRetryContractPhrases(cml);
+  const castPathBindingRules = deriveCastPathBindingRules(cml);
   const caseBlock = (cml as any)?.CASE ?? cml;
   const culpritName = String(caseBlock?.culpability?.culprits?.[0] ?? "").trim();
   const discriminatingDesign = String(caseBlock?.discriminating_test?.design ?? "").trim();
@@ -195,27 +333,74 @@ const deriveRequiredCluePhrases = (fairPlayAudit: FairPlayAuditResult, cml?: Cas
 
     // Keep structural directives unambiguous: only include free-form suggestion text when it is concrete.
     if (suggestion.length >= 16 && /(early|mid|essential|before|eliminat|contradiction|mechanism|discriminating)/i.test(suggestion)) {
+      if (isAmbiguousSuspectRewriteDirective(suggestion)) {
+        phrases.push(
+          "If a suspect reference is rewritten, preserve sourceInCML CASE.cast[N].* coupling with cast[N].name from the cast-index map.",
+        );
+        continue;
+      }
       phrases.push(suggestion);
       continue;
     }
     if (description.length >= 16 && /(early|mid|essential|before|eliminat|contradiction|mechanism|discriminating)/i.test(description)) {
+      if (isAmbiguousSuspectRewriteDirective(description)) {
+        phrases.push(
+          "If a suspect reference is rewritten, preserve sourceInCML CASE.cast[N].* coupling with cast[N].name from the cast-index map.",
+        );
+        continue;
+      }
       phrases.push(description);
     }
   }
 
-  return [...new Set([...STRICT_FIRST_PASS_ACCEPTANCE_STATEMENTS, ...phrases])].slice(0, 12);
+  return [
+    ...new Set([
+      ...STRICT_FIRST_PASS_ACCEPTANCE_STATEMENTS,
+      ...unifiedRetryContractPhrases,
+      ...castPathBindingRules,
+      ...phrases,
+    ]),
+  ].slice(0, 16);
 };
 
-const buildFairPlayFeedbackPayload = (fairPlayAudit: FairPlayAuditResult, cml?: CaseData) => {
+const buildFairPlayFeedbackPayload = (
+  fairPlayAudit: FairPlayAuditResult,
+  cml?: CaseData,
+  clues?: { clues?: Array<{ id?: string }> },
+) => {
   const acceptanceSummary =
     "First-pass acceptance contract: essential early|mid mechanism, contradiction, and elimination clues; reader-solvable observation -> correction -> elimination chain before Act III.";
+  const unifiedContractSummary =
+    "Unified retry contract: keep cast-path coupling, discriminating evidence ID parity, and mechanism-visibility ordering non-conflicting in one output.";
+  const castPathBindingRules = deriveCastPathBindingRules(cml);
+  const castPathNameIndexMap = deriveCastPathNameIndexMap(cml);
+  const violationCodes = deriveRetryViolationCodes(fairPlayAudit);
+  const targetedClueIds = deriveRetryTargetedClueIds(fairPlayAudit, cml, clues);
+  const preserveClueIds = deriveRetryPreserveClueIds(clues, targetedClueIds);
+  const strictPromptFeedback = cml ? buildStrictPromptFeedback(cml) : undefined;
+  const requiredCluePhrases = [
+    ...new Set([
+      ...deriveRequiredCluePhrases(fairPlayAudit, cml),
+      ...castPathBindingRules,
+    ]),
+  ].slice(0, 18);
 
   return {
     overallStatus: fairPlayAudit.overallStatus,
     violations: fairPlayAudit.violations,
-    warnings: appendUniqueStrings(fairPlayAudit.warnings, [acceptanceSummary]),
-    recommendations: appendUniqueStrings(fairPlayAudit.recommendations, [acceptanceSummary]),
-    requiredCluePhrases: deriveRequiredCluePhrases(fairPlayAudit, cml),
+    warnings: appendUniqueStrings(fairPlayAudit.warnings, [acceptanceSummary, unifiedContractSummary]),
+    recommendations: fairPlayAudit.recommendations,
+    violationCodes,
+    targetedClueIds,
+    preserveClueIds,
+    requiredCluePhrases,
+    castPathBindingRules,
+    castPathNameIndexMap,
+    strictSourcePaths: strictPromptFeedback?.strictSourcePaths,
+    requiredIdToSourceMappings: strictPromptFeedback?.requiredIdToSourceMappings,
+    requiredStepCoverageFloors: strictPromptFeedback?.requiredStepCoverageFloors,
+    requiredLateClueSlot: strictPromptFeedback?.requiredLateClueSlot,
+    requiredDirectCulpritClue: strictPromptFeedback?.requiredDirectCulpritClue,
   };
 };
 
@@ -275,58 +460,6 @@ const hasCriticalFairPlayViolations = (
   );
 };
 
-function classifyFairPlayFailure(
-  coverageResult: InferenceCoverageResult | null | undefined,
-  fairPlayAudit: FairPlayAuditResult | null,
-  cml: CaseData
-): FairPlayFailureClass {
-  const caseBlock = (cml as any)?.CASE ?? cml;
-  const steps = caseBlock?.inference_path?.steps ?? [];
-
-  const abstractSteps = steps.filter((s: any) => {
-    const obs = (s.observation || "").trim();
-    const hasEvidence = Array.isArray(s.required_evidence) && s.required_evidence.length > 0;
-    return obs.length < 30 || !hasEvidence;
-  });
-
-  const criticalRules = new Set(
-    (fairPlayAudit?.violations ?? [])
-      .filter((v) => v.severity === "critical")
-      .map((v) => String(v.rule ?? "").toLowerCase().trim())
-  );
-
-  // Escalate timing+parity structural failures before softer abstract-step heuristics.
-  if (
-    criticalRules.has("discriminating test timing") &&
-    (criticalRules.has("information parity") || criticalRules.has("no withholding"))
-  ) return "inference_path_abstract";
-
-  if (
-    (criticalRules.has("logical deducibility") || criticalRules.has("no withholding")) &&
-    abstractSteps.length >= Math.ceil(steps.length * 0.5)
-  ) return "inference_path_abstract";
-
-  if (abstractSteps.length >= Math.ceil(steps.length * 0.5)) return "inference_path_abstract";
-
-  const cs = caseBlock?.constraint_space ?? {};
-  const totalConstraints = [
-    ...(cs.time?.contradictions ?? []),
-    ...(cs.time?.anchors ?? []),
-    ...(cs.access?.actors ?? []),
-    ...(cs.physical?.traces ?? []),
-  ].length;
-
-  if (totalConstraints < 4) return "constraint_space_insufficient";
-
-  if (
-    coverageResult?.hasCriticalGaps ||
-    criticalRules.has("clue visibility") ||
-    criticalRules.has("logical deducibility")
-  ) return "clue_coverage";
-
-  return "clue_only";
-}
-
 const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contextLabel: string): void => {
   if (!ctx.clues || !ctx.cml) return;
   const pushError = (message: string) => {
@@ -354,24 +487,44 @@ const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contex
       )
     : undefined;
 
-  let deterministicContracts: { warnings: string[] };
-  try {
-    deterministicContracts = enforceAgent5DeterministicContracts(ctx.cml, ctx.clues, {
-      hardLogicLockedFacts,
-    });
-  } catch (error) {
-    const message = (error as Error).message || "";
-    const isMechanismVisibilityFailure = /mechanism visibility gate failed/i.test(message);
-
-    if (!isMechanismVisibilityFailure) {
-      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
-      throw error;
+  const expectedEvidenceIds = Array.isArray(((ctx.cml as any)?.CASE ?? (ctx.cml as any))?.discriminating_test?.evidence_clues)
+    ? (((ctx.cml as any)?.CASE ?? (ctx.cml as any)).discriminating_test.evidence_clues as unknown[])
+      .map((id) => String(id ?? "").trim())
+      .filter(Boolean)
+    : [];
+  const listCurrentClueIds = (): Set<string> => new Set(
+    (Array.isArray(ctx.clues?.clues) ? ctx.clues.clues : [])
+      .map((clue: any) => String(clue?.id ?? "").trim())
+      .filter(Boolean),
+  );
+  const initialClueIds = listCurrentClueIds();
+  const preserveRecoveredEvidenceIdWarnings = () => {
+    if (expectedEvidenceIds.length === 0) return;
+    const currentClueIds = listCurrentClueIds();
+    for (const clueId of expectedEvidenceIds) {
+      if (initialClueIds.has(clueId) || !currentClueIds.has(clueId)) continue;
+      const alreadyLogged = ctx.warnings.some((warning) =>
+        /evidence-id deterministic synthesis/i.test(String(warning)) && String(warning).includes(clueId),
+      );
+      if (alreadyLogged) continue;
+      ctx.warnings.push(
+        `Agent 6 (${contextLabel}) Agent 5 evidence-id deterministic synthesis: added missing clue id ${clueId} during regenerated clue validation.`,
+      );
     }
+  };
 
-    const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
+  const runDeterministicContracts = () => enforceAgent5DeterministicContracts(ctx.cml!, ctx.clues!, {
+    hardLogicLockedFacts,
+  });
+
+  const retryDeterministicContractsWithParityBridge = (
+    message: string,
+    errorContext: string,
+  ): { warnings: string[] } => {
+    const parityBridgeId = ensureParityBridgeClue(ctx.cml!, ctx.clues!);
     if (!parityBridgeId) {
-      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
-      throw error;
+      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}${errorContext}): ${message}`);
+      throw new Error(message);
     }
 
     ctx.warnings.push(
@@ -379,14 +532,58 @@ const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contex
     );
 
     try {
-      deterministicContracts = enforceAgent5DeterministicContracts(ctx.cml, ctx.clues, {
-        hardLogicLockedFacts,
-      });
+      return runDeterministicContracts();
     } catch (retryError) {
       pushError(
-        `Agent 6 regenerated clue deterministic contract (${contextLabel}, mechanism fallback): ${(retryError as Error).message}`,
+        `Agent 6 regenerated clue deterministic contract (${contextLabel}${errorContext}): ${(retryError as Error).message}`,
       );
       throw retryError;
+    }
+  };
+
+  let deterministicContracts: { warnings: string[] };
+  try {
+    deterministicContracts = runDeterministicContracts();
+  } catch (error) {
+    const message = (error as Error).message || "";
+    const isMechanismVisibilityFailure = /mechanism visibility gate failed/i.test(message);
+    const isStrictStepCoverageFailure = /strict step coverage gate failed/i.test(message);
+
+    preserveRecoveredEvidenceIdWarnings();
+
+    if (!isMechanismVisibilityFailure && !isStrictStepCoverageFailure) {
+      pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
+      throw error;
+    }
+
+    if (isStrictStepCoverageFailure) {
+      const backstopRepairs = ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
+      if (backstopRepairs.length === 0) {
+        pushError(`Agent 6 regenerated clue deterministic contract (${contextLabel}): ${message}`);
+        throw error;
+      }
+
+      backstopRepairs.forEach((repair) =>
+        ctx.warnings.push(`Agent 6 (${contextLabel}) strict-step fallback: ${repair}`),
+      );
+
+      try {
+        deterministicContracts = runDeterministicContracts();
+      } catch (retryError) {
+        const retryMessage = (retryError as Error).message || "";
+        if (!/mechanism visibility gate failed/i.test(retryMessage)) {
+          pushError(
+            `Agent 6 regenerated clue deterministic contract (${contextLabel}, strict-step fallback): ${retryMessage}`,
+          );
+          throw retryError;
+        }
+        deterministicContracts = retryDeterministicContractsWithParityBridge(
+          retryMessage,
+          ", strict-step + mechanism fallback",
+        );
+      }
+    } else {
+      deterministicContracts = retryDeterministicContractsWithParityBridge(message, ", mechanism fallback");
     }
   }
   deterministicContracts.warnings.forEach((warning) =>
@@ -420,6 +617,56 @@ const applyAgent5ContractsToRegeneratedClues = (ctx: OrchestratorContext, contex
     ctx.coverageResult = updatedCoverageSnapshot.coverageResult;
     ctx.allCoverageIssues = updatedCoverageSnapshot.allCoverageIssues;
   }
+};
+
+const trimSynthesizedClueText = (text: string): string =>
+  String(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[,;:\- ]+|[,;:\- ]+$/g, "");
+
+const toSentenceCase = (text: string): string => {
+  const trimmed = trimSynthesizedClueText(text);
+  if (!trimmed) return "";
+  const sentence = `${trimmed.charAt(0).toUpperCase()}${trimmed.slice(1)}`;
+  return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+};
+
+const lowerFirstSentence = (text: string): string => {
+  const trimmed = trimSynthesizedClueText(text).replace(/[.!?]+$/, "");
+  if (!trimmed) return "";
+  return `${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}`;
+};
+
+const normalizeGroundedClueSentence = (rawText: string, fallback: string): string => {
+  const normalized = trimSynthesizedClueText(rawText);
+  if (!normalized) return toSentenceCase(fallback);
+
+  const useToRevealMatch = normalized.match(
+    /^(?:use|trace|follow|check|highlight|present|recreate)\s+(.+?)\s+to\s+(?:prove|show|reveal|demonstrate|confirm|highlight)\s+(.+)$/i,
+  );
+  if (useToRevealMatch) {
+    return toSentenceCase(`${useToRevealMatch[1]} indicate ${useToRevealMatch[2]}`);
+  }
+
+  const matchWithMatch = normalized.match(/^(?:match|compare)\s+(.+?)\s+with\s+(.+)$/i);
+  if (matchWithMatch) {
+    return toSentenceCase(`${matchWithMatch[1]} align with ${matchWithMatch[2]}`);
+  }
+
+  const trapRevealMatch = normalized.match(
+    /^(?:a |the )?(?:controlled )?(?:trap|test|confrontation|experiment)\s+(?:reveals|shows|highlights|proves|confirms)\s+(.+)$/i,
+  );
+  if (trapRevealMatch) {
+    return toSentenceCase(trapRevealMatch[1]);
+  }
+
+  const beforeTestMatch = normalized.match(/^before the (?:discriminating )?test,?\s*(.+)$/i);
+  if (beforeTestMatch) {
+    return toSentenceCase(beforeTestMatch[1]);
+  }
+
+  return toSentenceCase(normalized);
 };
 
 const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null => {
@@ -525,13 +772,15 @@ const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null => {
   };
 
   const bridgeSource = selectBridgeSource();
+  const bridgeStatement = normalizeGroundedClueSentence(
+    discrimKnowledge || discrimDesign,
+    "Concrete case evidence points to a mechanism detail already present in the file.",
+  );
 
-  const bridgeDescription = discrimKnowledge
-    ? `Pre-test reader-visible mechanism clue: ${discrimKnowledge}`
-    : `Pre-test reader-visible mechanism clue: ${discrimDesign}`;
-  const bridgePointsTo = discrimDesign
-    ? `Before the discriminating test, the reader can infer this mechanism from shared evidence: ${discrimDesign}`
-    : "Before the discriminating test, the reader can infer the mechanism from shared evidence without detective-only knowledge.";
+  const bridgeDescription = bridgeStatement;
+  const bridgePointsTo = toSentenceCase(
+    `Connects the earlier evidence to the conclusion that ${lowerFirstSentence(bridgeStatement)}`,
+  );
 
   clueList.push({
     ...template,
@@ -587,12 +836,17 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
 
   for (let i = 0; i < inferenceSteps.length; i += 1) {
     const stepNumber = i + 1;
-    const hasEarlyMidEssentialForStep = clueList.some(
+    let hasEarlyMidEssentialForStep = clueList.some(
       (clue) => clue?.criticality === "essential"
         && (clue?.placement === "early" || clue?.placement === "mid")
         && Number(clue?.supportsInferenceStep) === stepNumber,
     );
-    if (hasEarlyMidEssentialForStep) continue;
+    let hasEarlyMidContradictionForStep = clueList.some(
+      (clue) => clue?.criticality === "essential"
+        && (clue?.placement === "early" || clue?.placement === "mid")
+        && Number(clue?.supportsInferenceStep) === stepNumber
+        && String(clue?.evidenceType ?? "").toLowerCase() === "contradiction",
+    );
 
     const step = inferenceSteps[i] ?? {};
     const observation = String(step?.observation ?? "").trim();
@@ -601,130 +855,88 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
     const requiredEvidence = Array.isArray(step?.required_evidence)
       ? step.required_evidence.map((e: any) => String(e ?? "").trim()).filter(Boolean)
       : [];
+    const firstRequiredEvidenceText = requiredEvidence.find(
+      (entry: string) => !/^CASE\./.test(entry) && /[\s,.;:]/.test(entry),
+    ) ?? "";
 
     const preferredEvidencePath = requiredEvidence.find((entry: string) => /^CASE\./.test(entry));
     const sourceInCML = preferredEvidencePath || (correction
       ? `CASE.inference_path.steps[${i}].correction`
       : `CASE.inference_path.steps[${i}].observation`);
 
-    const description = observation
-      ? `Reader-visible clue (inference step ${stepNumber}): ${observation}`
-      : `Reader-visible clue (inference step ${stepNumber}): ${correction || effect}`;
-    const pointsTo = correction
-      ? `Supports correction for inference step ${stepNumber}: ${correction}`
-      : `Supports inference step ${stepNumber}: ${effect || "narrows suspect possibilities"}`;
+    const description = normalizeGroundedClueSentence(
+      observation || firstRequiredEvidenceText || correction || effect,
+      "A concrete case detail surfaces in the shared evidence.",
+    );
+    const pointsTo = normalizeGroundedClueSentence(
+      correction || effect || firstRequiredEvidenceText || observation,
+      "Concrete case evidence narrows suspect possibilities.",
+    );
 
     const clueId = nextId(`clue_fp_backstop_step_${stepNumber}`);
     const placement = stepNumber <= 2 ? "early" : "mid";
 
+    if (!hasEarlyMidEssentialForStep) {
+      const evidenceType = correction ? "contradiction" : "observation";
+      clueList.push({
+        ...template,
+        id: clueId,
+        sourceInCML,
+        description,
+        pointsTo,
+        placement,
+        criticality: "essential",
+        evidenceType,
+        supportsInferenceStep: stepNumber,
+      });
+
+      if (placement === "early") {
+        timeline.early.push(clueId);
+      } else {
+        timeline.mid.push(clueId);
+      }
+
+      repairs.push(`added ${clueId} as ${placement} essential clue for inference step ${stepNumber}`);
+      hasEarlyMidEssentialForStep = true;
+      if (evidenceType === "contradiction") {
+        hasEarlyMidContradictionForStep = true;
+      }
+    }
+
+    if (hasEarlyMidContradictionForStep) continue;
+
+    const contradictionId = nextId(`clue_fp_contradiction_step_${stepNumber}`);
+    const contradictionSource = correction
+      ? `CASE.inference_path.steps[${i}].correction`
+      : `CASE.inference_path.steps[${i}].observation`;
+    const contradictionDescription = normalizeGroundedClueSentence(
+      observation || firstRequiredEvidenceText || correction || effect,
+      "A concrete case detail undercuts the false account.",
+    );
+    const contradictionPointsTo = normalizeGroundedClueSentence(
+      correction || effect || firstRequiredEvidenceText || observation,
+      "Concrete case evidence overturns the false account.",
+    );
+
     clueList.push({
       ...template,
-      id: clueId,
-      sourceInCML,
-      description,
-      pointsTo,
+      id: contradictionId,
+      sourceInCML: contradictionSource,
+      description: contradictionDescription,
+      pointsTo: contradictionPointsTo,
       placement,
       criticality: "essential",
-      evidenceType: correction ? "contradiction" : "observation",
+      evidenceType: "contradiction",
       supportsInferenceStep: stepNumber,
     });
 
     if (placement === "early") {
-      timeline.early.push(clueId);
+      timeline.early.push(contradictionId);
     } else {
-      timeline.mid.push(clueId);
+      timeline.mid.push(contradictionId);
     }
 
-    repairs.push(`added ${clueId} as ${placement} essential clue for inference step ${stepNumber}`);
-  }
-
-  return repairs;
-};
-
-const synthesizeAuditVisibilityClues = (
-  cml: CaseData,
-  clues: any,
-  fairPlayAudit: FairPlayAuditResult,
-): string[] => {
-  const criticalRules = new Set(["information parity", "no withholding", "logical deducibility", "clue visibility"]);
-  const relevantViolations = (fairPlayAudit?.violations ?? []).filter(
-    (violation) => violation?.severity === "critical"
-      && criticalRules.has(String(violation?.rule ?? "").toLowerCase().trim()),
-  );
-  if (relevantViolations.length === 0) return [];
-
-  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
-  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
-  if (clueList.length === 0) return [];
-
-  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
-  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
-  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
-  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
-  (clues as any).clueTimeline = timeline;
-
-  const existingIds = new Set(
-    clueList.map((clue) => String(clue?.id ?? "").trim()).filter((id) => id.length > 0),
-  );
-  const nextId = (prefix: string): string => {
-    let candidate = prefix;
-    let suffix = 2;
-    while (existingIds.has(candidate)) {
-      candidate = `${prefix}_${suffix}`;
-      suffix += 1;
-    }
-    existingIds.add(candidate);
-    return candidate;
-  };
-
-  const template = clueList.find((clue) => clue?.criticality === "essential") ?? clueList[0];
-  if (!template) return [];
-
-  const sourceInCML = (() => {
-    const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
-    for (let i = 0; i < steps.length; i += 1) {
-      if (String(steps[i]?.correction ?? "").trim()) return `CASE.inference_path.steps[${i}].correction`;
-      if (String(steps[i]?.observation ?? "").trim()) return `CASE.inference_path.steps[${i}].observation`;
-    }
-    return "CASE.discriminating_test.design";
-  })();
-
-  const candidatePhrases = new Set<string>();
-  for (const violation of relevantViolations) {
-    const description = String(violation?.description ?? "").replace(/\s+/g, " ").trim();
-    if (!description) continue;
-    const aboutMatch = description.match(/\babout\s+the\s+([^.;]+)/i);
-    const ofMatch = description.match(/\bknowledge\s+of\s+the\s+([^.;]+)/i);
-    const phrase = (aboutMatch?.[1] ?? ofMatch?.[1] ?? description).trim();
-    if (phrase.length >= 8) candidatePhrases.add(phrase);
-  }
-
-  const repairs: string[] = [];
-  for (const phrase of candidatePhrases) {
-    const phraseTokens = phrase.toLowerCase().split(/\s+/).filter((token) => token.length >= 5);
-    if (phraseTokens.length === 0) continue;
-
-    const alreadyVisible = clueList.some((clue) => {
-      const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
-      const overlap = phraseTokens.filter((token) => text.includes(token)).length;
-      return overlap >= Math.min(2, phraseTokens.length);
-    });
-    if (alreadyVisible) continue;
-
-    const clueId = nextId("clue_audit_visibility");
-    clueList.push({
-      ...template,
-      id: clueId,
-      sourceInCML,
-      description: `Reader-visible pre-test clue: ${phrase}.`,
-      pointsTo: "This clue is established for the reader before the discriminating test so later deductions rely on already-visible evidence.",
-      placement: "early",
-      criticality: "essential",
-      evidenceType: "observation",
-      supportsInferenceStep: 1,
-    });
-    timeline.early.push(clueId);
-    repairs.push(`added ${clueId} to surface audit-flagged hidden information (${phrase}) before test`);
+    repairs.push(`added ${contradictionId} as ${placement} essential contradiction clue for inference step ${stepNumber}`);
   }
 
   return repairs;
@@ -740,6 +952,170 @@ const deriveEffectiveCastNamesForStructuralRevision = (ctx: OrchestratorContext)
   return (ctx.cast?.cast?.characters ?? [])
     .map((c: any) => String(c?.name ?? "").trim())
     .filter((name: string) => name.length > 0);
+};
+
+const canonicalizeClueId = (value: unknown): string => {
+  const normalized = String(value ?? "").trim();
+  return /^clue_[a-z0-9_-]+$/i.test(normalized) ? normalized : "";
+};
+
+const deriveClueDeliveryMethod = (clue: any): string => {
+  const evidenceType = String(clue?.evidenceType ?? "").trim().toLowerCase();
+  if (evidenceType === "contradiction") return "Cross-check contradiction";
+  if (evidenceType === "elimination") return "Corroborated elimination";
+
+  const category = String(clue?.category ?? "").trim().toLowerCase();
+  if (category === "testimonial") return "Witness statement";
+  if (category === "behavioral") return "Behavioral observation";
+  return "Direct observation";
+};
+
+const placementRank = (placement: string): number => {
+  if (placement === "early") return 0;
+  if (placement === "mid") return 1;
+  return 2;
+};
+
+const buildClueTimelineOrderMap = (clues: any): Map<string, number> => {
+  const order = new Map<string, number>();
+  const timeline = (clues as any)?.clueTimeline ?? {};
+  let index = 0;
+  for (const bucket of [timeline.early, timeline.mid, timeline.late]) {
+    if (!Array.isArray(bucket)) continue;
+    for (const clueId of bucket) {
+      const normalizedId = canonicalizeClueId(clueId);
+      if (!normalizedId || order.has(normalizedId)) continue;
+      order.set(normalizedId, index);
+      index += 1;
+    }
+  }
+  return order;
+};
+
+const derivePreTestSceneTarget = (
+  placement: string,
+  indexWithinPlacement: number,
+  discriminatingAct: number,
+  discriminatingScene: number,
+): { act_number: number; scene_number: number } => {
+  let actNumber = placement === "early" ? 1 : placement === "mid" ? Math.max(1, discriminatingAct - 1) : discriminatingAct;
+  const maxPreTestScene = Math.max(1, discriminatingScene - 1);
+  let sceneNumber = Math.min(Math.max(1, indexWithinPlacement + 1), maxPreTestScene);
+
+  if (actNumber > discriminatingAct || (actNumber === discriminatingAct && sceneNumber >= discriminatingScene)) {
+    if (discriminatingScene > 1) {
+      actNumber = discriminatingAct;
+      sceneNumber = Math.max(1, discriminatingScene - 1);
+    } else {
+      actNumber = Math.max(1, discriminatingAct - 1);
+      sceneNumber = 1;
+    }
+  }
+
+  return { act_number: actNumber, scene_number: sceneNumber };
+};
+
+const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any): string[] => {
+  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
+  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  if (clueList.length === 0) return [];
+
+  const proseRequirements = ((caseBlock as any).prose_requirements ??= {});
+  const discriminatingScene = ((proseRequirements as any).discriminating_test_scene ??= {});
+  const discriminatingAct = Number.isInteger(Number(discriminatingScene.act_number)) && Number(discriminatingScene.act_number) > 0
+    ? Number(discriminatingScene.act_number)
+    : 3;
+  const discriminatingSceneNumber = Number.isInteger(Number(discriminatingScene.scene_number)) && Number(discriminatingScene.scene_number) > 0
+    ? Number(discriminatingScene.scene_number)
+    : 3;
+
+  const evidenceIdSet = new Set(
+    (Array.isArray(caseBlock?.discriminating_test?.evidence_clues) ? caseBlock.discriminating_test.evidence_clues : [])
+      .map((id: unknown) => canonicalizeClueId(id))
+      .filter(Boolean),
+  );
+  const timelineOrder = buildClueTimelineOrderMap(clues);
+  const relevantClues = clueList
+    .filter((clue) => {
+      const clueId = canonicalizeClueId(clue?.id);
+      if (!clueId) return false;
+      if (evidenceIdSet.has(clueId)) return true;
+      const placement = String(clue?.placement ?? "").trim().toLowerCase();
+      const criticality = String(clue?.criticality ?? "").trim().toLowerCase();
+      return criticality === "essential" && (placement === "early" || placement === "mid");
+    })
+    .sort((left, right) => {
+      const leftPlacement = String(left?.placement ?? "").trim().toLowerCase();
+      const rightPlacement = String(right?.placement ?? "").trim().toLowerCase();
+      const rankDelta = placementRank(leftPlacement) - placementRank(rightPlacement);
+      if (rankDelta !== 0) return rankDelta;
+
+      const leftId = canonicalizeClueId(left?.id);
+      const rightId = canonicalizeClueId(right?.id);
+      const leftOrder = timelineOrder.get(leftId) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = timelineOrder.get(rightId) ?? Number.MAX_SAFE_INTEGER;
+      if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+      return leftId.localeCompare(rightId);
+    });
+
+  if (relevantClues.length === 0) return [];
+
+  const existingEntries = Array.isArray(proseRequirements.clue_to_scene_mapping)
+    ? proseRequirements.clue_to_scene_mapping
+    : [];
+  const mappingById = new Map<string, any>();
+  for (const rawEntry of existingEntries) {
+    const entry = rawEntry && typeof rawEntry === "object" ? { ...rawEntry } : {};
+    const clueId = canonicalizeClueId(entry.clue_id);
+    if (!clueId) continue;
+    entry.clue_id = clueId;
+    mappingById.set(clueId, entry);
+  }
+
+  const counters = new Map<string, number>();
+  const updates: string[] = [];
+  for (const clue of relevantClues) {
+    const clueId = canonicalizeClueId(clue?.id);
+    if (!clueId) continue;
+    const placement = String(clue?.placement ?? "").trim().toLowerCase();
+    const placementIndex = counters.get(placement) ?? 0;
+    counters.set(placement, placementIndex + 1);
+
+    const target = derivePreTestSceneTarget(
+      placement === "early" || placement === "mid" ? placement : evidenceIdSet.has(clueId) ? "mid" : "early",
+      placementIndex,
+      discriminatingAct,
+      discriminatingSceneNumber,
+    );
+    const deliveryMethod = deriveClueDeliveryMethod(clue);
+    const existing = mappingById.get(clueId) ?? { clue_id: clueId };
+
+    const changed = Number(existing.act_number) !== target.act_number
+      || Number(existing.scene_number) !== target.scene_number
+      || String(existing.delivery_method ?? "").trim().length === 0;
+
+    if (changed) {
+      mappingById.set(clueId, {
+        ...existing,
+        clue_id: clueId,
+        act_number: target.act_number,
+        scene_number: target.scene_number,
+        delivery_method: String(existing.delivery_method ?? "").trim() || deliveryMethod,
+      });
+      updates.push(`${clueId} -> Act ${target.act_number}, Scene ${target.scene_number}`);
+    }
+  }
+
+  if (updates.length === 0) return [];
+
+  proseRequirements.clue_to_scene_mapping = Array.from(mappingById.values()).sort(
+    (left, right) =>
+      Number(left?.act_number ?? 99) - Number(right?.act_number ?? 99)
+      || Number(left?.scene_number ?? 99) - Number(right?.scene_number ?? 99)
+      || String(left?.clue_id ?? "").localeCompare(String(right?.clue_id ?? "")),
+  );
+
+  return updates;
 };
 
 export function createFairPlayRetryBudgetTracker(maxRetryCostUsd: number) {
@@ -762,13 +1138,14 @@ export const __testables = {
   applyAgent5ContractsToRegeneratedClues,
   buildFairPlayFeedbackPayload,
   classifyFairPlayFailure,
+  shouldEscalateStructuralCmlRevision,
   createFairPlayRetryBudgetTracker,
   deriveBlindReaderRequiredCluePhrases,
   deriveRequiredCluePhrases,
   deriveEffectiveCastNamesForStructuralRevision,
   ensureCriticalFairPlayBackstopClues,
-  synthesizeAuditVisibilityClues,
   ensureParityBridgeClue,
+  synchronizeClueTraceabilityFromCurrentClues,
 };
 
 // ============================================================================
@@ -829,6 +1206,24 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   let fairPlayAttempt = 0;
   let emittedFinalCriticalFailureSummary = false;
   const fairPlayStart = Date.now();
+  let agent6RetryInvoked = false;
+  let firstFairPlayStatus: FairPlayAuditResult["overallStatus"] | null = null;
+  let agent6FailureClass = "none";
+  ctx.agent6FirstPassPassed = false;
+  ctx.agent6RetryInvoked = false;
+  ctx.agent6FailureClass = "none";
+
+  const auditCurrentFairPlay = async (): Promise<FairPlayAuditResult> => {
+    if (ctx.cml && ctx.clues) {
+      synchronizeClueTraceabilityFromCurrentClues(ctx.cml, ctx.clues);
+    }
+    return auditFairPlay(ctx.client, {
+      caseData: ctx.cml!,
+      clues: ctx.clues!,
+      runId: ctx.runId,
+      projectId: ctx.projectId || "",
+    });
+  };
 
   if (ctx.cml && ctx.clues) {
     const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
@@ -842,12 +1237,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   while (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
     fairPlayAttempt++;
-    fairPlayAudit = await auditFairPlay(ctx.client, {
-      caseData: ctx.cml!,
-      clues: ctx.clues!,
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
+    fairPlayAudit = await auditCurrentFairPlay();
+    if (firstFairPlayStatus === null) {
+      firstFairPlayStatus = fairPlayAudit.overallStatus;
+    }
     fairPlayAuditCostDuringLoop += fairPlayAudit.cost;
 
     if (fairPlayAttempt > 1) {
@@ -857,6 +1250,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     if (fairPlayAudit.overallStatus === "pass") break;
 
     if (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
+      agent6RetryInvoked = true;
       emitAgent6Warning(
         `Agent 6: Fair play audit ${fairPlayAudit.overallStatus}; regenerating clues to address feedback (attempt ${
           fairPlayAttempt + 1
@@ -870,7 +1264,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         cml: ctx.cml!,
         clueDensity,
         redHerringBudget: 2,
-        fairPlayFeedback: buildFairPlayFeedbackPayload(fairPlayAudit, ctx.cml),
+        fairPlayFeedback: buildFairPlayFeedbackPayload(fairPlayAudit, ctx.cml, ctx.clues),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       });
@@ -1017,6 +1411,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       let latestReaderPass = blindPasses;
 
       for (let cycle = 1; !latestReaderPass && cycle <= maxBlindRemediationCycles; cycle++) {
+        agent6RetryInvoked = true;
         const missingCategories = classifyMissingInfoCategories(latestBlind.missingInformation);
         ctx.warnings.push(
           `CRITICAL: Blind reader gate failed (cycle ${cycle}/${maxBlindRemediationCycles}). Regenerating clues with targeted requirements.`
@@ -1068,12 +1463,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         retryBudget.consume(ctx.clues.cost, `blind-reader clue remediation cycle ${cycle}`);
 
         const blindReAuditStart = Date.now();
-        fairPlayAudit = await auditFairPlay(ctx.client, {
-          caseData: ctx.cml!,
-          clues: ctx.clues,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
+        fairPlayAudit = await auditCurrentFairPlay();
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
@@ -1124,21 +1514,11 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       ctx.allCoverageIssues = coverageSnapshot.allCoverageIssues;
     }
     const failureClass = classifyFairPlayFailure(ctx.coverageResult!, fairPlayAudit, ctx.cml!);
-    const criticalStructuralRules = new Set([
-      "information parity",
-      "logical deducibility",
-      "no withholding",
-      "solution uniqueness",
-      "discriminating test timing",
-    ]);
-    const hasStructuralCriticalRule = (fairPlayAudit?.violations ?? []).some(
-      (v) => v.severity === "critical" && criticalStructuralRules.has(String(v.rule ?? "").toLowerCase().trim()),
-    );
-    const shouldEscalateCmlRevision =
-      failureClass === "inference_path_abstract"
-      || failureClass === "constraint_space_insufficient"
-      || failureClass === "clue_coverage"
-      || (failureClass === "clue_only" && hasStructuralCriticalRule);
+    agent6FailureClass = failureClass;
+    const shouldEscalateCmlRevision = shouldEscalateStructuralCmlRevision({
+      failureClass,
+      fairPlayAudit,
+    });
 
     const caseBlock = (ctx.cml as any)?.CASE ?? ctx.cml ?? {};
     const cmlMeta = caseBlock?.meta ?? {};
@@ -1219,6 +1599,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       retryBudget.getConsumed() <= MAX_FAIR_PLAY_RETRY_COST
     ) {
       const hardLogicDevices = ctx.hardLogicDevices ?? { devices: [] };
+      agent6RetryInvoked = true;
 
       if (!ctx.setting || !ctx.cast || !ctx.backgroundContext || !ctx.hardLogicDevices) {
         emitAgent6Warning(
@@ -1263,7 +1644,9 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
             "(1) a concrete, scene-level observation the reader can witness, " +
             "(2) a correction that follows from stated evidence, " +
             "(3) an effect that names the suspect eliminated, " +
-            "(4) required_evidence listing 2-4 specific facts." +
+            "(4) required_evidence listing 2-4 specific facts where every item names at least one concrete anchor (person, object, location, time phrase, trace, document, or access record), " +
+            "(5) no abstract placeholders like 'timeline discrepancy', 'suspicious behavior', 'an inconsistency', or 'detective intuition' without concrete nouns from the case data, " +
+            "(6) each correction must quote or paraphrase at least one required_evidence item and state why it eliminates or narrows a named suspect." +
             revisionViolationContext
         : failureClass === "clue_coverage" || failureClass === "clue_only"
           ? "Fair-play clue coverage remains structurally insufficient. Revise CML so the reader can logically solve the case BEFORE discriminating test: " +
@@ -1342,12 +1725,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         if (ctx.clues) {
           const feedbackAuditStart = Date.now();
           try {
-            const provisionalAudit = await auditFairPlay(ctx.client, {
-              caseData: ctx.cml!,
-              clues: ctx.clues,
-              runId: ctx.runId,
-              projectId: ctx.projectId || "",
-            });
+            const provisionalAudit = await auditCurrentFairPlay();
             ctx.agentCosts["agent6_fairplay"] =
               (ctx.agentCosts["agent6_fairplay"] || 0) + provisionalAudit.cost;
             ctx.agentDurations["agent6_fairplay"] =
@@ -1368,7 +1746,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           clueDensity,
           redHerringBudget: 2,
           // Pass revised-CML audit context so clue placement aligns with current structural failures.
-          fairPlayFeedback: buildFairPlayFeedbackPayload(revisionFeedbackAudit, ctx.cml),
+          fairPlayFeedback: buildFairPlayFeedbackPayload(revisionFeedbackAudit, ctx.cml, ctx.clues),
           runId: ctx.runId,
           projectId: ctx.projectId || "",
         });
@@ -1380,12 +1758,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         retryBudget.consume(ctx.clues.cost, "post-CML-revision clue regeneration");
 
         const reAuditStart = Date.now();
-        fairPlayAudit = await auditFairPlay(ctx.client, {
-          caseData: ctx.cml!,
-          clues: ctx.clues,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
+        fairPlayAudit = await auditCurrentFairPlay();
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
@@ -1399,6 +1772,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       retryBudget.getConsumed() <= MAX_FAIR_PLAY_RETRY_COST &&
       fairPlayConfig.retries.max_total_attempts_with_targeted_regen >= 3
     ) {
+      agent6RetryInvoked = true;
       emitAgent6Warning(
         "Fair play failure classified as \"clue_only\" — CML structure is sound; " +
         `regenerating clues with targeted per-violation feedback (attempt 3 of ${fairPlayConfig.retries.max_total_attempts_with_targeted_regen})`,
@@ -1411,7 +1785,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         cml: ctx.cml!,
         clueDensity,
         redHerringBudget: 2,
-        fairPlayFeedback: buildFairPlayFeedbackPayload(fairPlayAudit!, ctx.cml),
+        fairPlayFeedback: buildFairPlayFeedbackPayload(fairPlayAudit!, ctx.cml, ctx.clues),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
       });
@@ -1423,12 +1797,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       retryBudget.consume(ctx.clues.cost, "final targeted clue regeneration");
 
       const finalAuditStart = Date.now();
-      fairPlayAudit = await auditFairPlay(ctx.client, {
-        caseData: ctx.cml!,
-        clues: ctx.clues,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      });
+      fairPlayAudit = await auditCurrentFairPlay();
       ctx.agentCosts["agent6_fairplay"] =
         (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
       ctx.agentDurations["agent6_fairplay"] =
@@ -1439,7 +1808,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     }
 
     // WP8A-Deterministic Backstop: when critical fair-play violations still remain,
-    // synthesize early/mid essential inference-step clues and re-audit once.
+    // only add case-grounded inference-step or parity clues and re-audit once.
     if (
       fairPlayAudit!.overallStatus === "fail"
       && hasCriticalFairPlayFailure
@@ -1448,14 +1817,13 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       && retryBudget.getConsumed() <= MAX_FAIR_PLAY_RETRY_COST
     ) {
       const backstopRepairs = ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
-      const auditVisibilityRepairs = synthesizeAuditVisibilityClues(ctx.cml, ctx.clues, fairPlayAudit!);
-      backstopRepairs.push(...auditVisibilityRepairs);
       const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
       if (parityBridgeId) {
         backstopRepairs.push(`added ${parityBridgeId} as early essential parity bridge clue`);
       }
 
       if (backstopRepairs.length > 0) {
+        agent6RetryInvoked = true;
         backstopRepairs.forEach((repair) =>
           emitAgent6Warning(`Agent 6 deterministic fair-play backstop: ${repair}`, "persistent-risk"),
         );
@@ -1463,12 +1831,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         applyAgent5ContractsToRegeneratedClues(ctx, "critical-fairplay-backstop");
 
         const backstopAuditStart = Date.now();
-        fairPlayAudit = await auditFairPlay(ctx.client, {
-          caseData: ctx.cml,
-          clues: ctx.clues,
-          runId: ctx.runId,
-          projectId: ctx.projectId || "",
-        });
+        fairPlayAudit = await auditCurrentFairPlay();
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
@@ -1507,6 +1870,14 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     ctx.coverageResult = finalCoverageSnapshot.coverageResult;
     ctx.allCoverageIssues = finalCoverageSnapshot.allCoverageIssues;
   }
+
+  ctx.agent6FirstPassPassed = firstFairPlayStatus === "pass";
+  ctx.agent6RetryInvoked = agent6RetryInvoked;
+  ctx.agent6FailureClass = fairPlayAudit!.overallStatus === "pass"
+    ? "none"
+    : agent6FailureClass === "none"
+      ? "unclassified"
+      : agent6FailureClass;
 
   ctx.fairPlayAudit = fairPlayAudit!;
   ctx.hasCriticalFairPlayFailure = hasCriticalFairPlayFailure;

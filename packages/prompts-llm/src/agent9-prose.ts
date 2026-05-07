@@ -2443,7 +2443,13 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   return lines.join('\n');
 };
 
-export const buildProsePrompt = (inputs: ProseGenerationInputs, scenesOverride?: unknown[], chapterStart = 1, chapterSummaries: ChapterSummary[] = []) => {
+export const buildProsePrompt = (
+  inputs: ProseGenerationInputs,
+  scenesOverride?: unknown[],
+  chapterStart = 1,
+  chapterSummaries: ChapterSummary[] = [],
+  priorChapters: ProseChapter[] = [],
+) => {
   const { outline, targetLength = "medium", narrativeStyle = "classic" } = inputs;
   const outlineActs = Array.isArray(outline.acts) ? outline.acts : [];
   const scenes = Array.isArray(scenesOverride)
@@ -2611,6 +2617,8 @@ ${victimIdentityRule}`;
   if (chapterSummaries.length > 0) {
     continuityBlock = buildContinuityContext(chapterSummaries, chapterStart);
   }
+
+  const storyToDateBlock = buildStoryToDateBlock(priorChapters, chapterStart);
 
   // Build discriminating test checklist for late chapters.
   // The threshold is relative: we show the checklist once we're past 70% of the story.
@@ -2793,7 +2801,7 @@ ${victimIdentityRule}`;
     })),
     cast.map((c: any) => c.name),
   );
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     pronounAccuracyBlock, // [PHASE 1]
@@ -3219,6 +3227,46 @@ function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart
   context += '═══════════════════════════════════════════════════════════\n';
   
   return context;
+}
+
+function buildStoryToDateBlock(priorChapters: ProseChapter[], currentChapterStart: number): string {
+  const normalize = (value: unknown): string => String(value ?? '').replace(/\r\n/g, '\n').trim();
+  const lines: string[] = [];
+  lines.push('\n\nSTORY TO DATE (REFERENCE ONLY — DO NOT COPY VERBATIM):');
+
+  if (!Array.isArray(priorChapters) || priorChapters.length === 0 || currentChapterStart <= 1) {
+    lines.push('- No previous chapter text exists yet for this batch.');
+    return lines.join('\n');
+  }
+
+  lines.push(
+    '- Full prior chapter text is provided below for continuity, factual consistency, and reference accuracy.',
+  );
+  lines.push(
+    '- Use this to keep character voice, chronology, clue state, and location continuity aligned with earlier chapters.',
+  );
+  lines.push(
+    '- Do not quote, copy, or paraphrase these paragraphs too closely; write fresh prose that remains consistent with them.',
+  );
+
+  for (let idx = 0; idx < priorChapters.length; idx++) {
+    const chapterNumber = idx + 1;
+    const chapter = priorChapters[idx];
+    const title = normalize(chapter?.title || `Chapter ${chapterNumber}`);
+    const paragraphs = Array.isArray(chapter?.paragraphs)
+      ? chapter.paragraphs.map((p) => normalize(p)).filter(Boolean)
+      : [];
+    lines.push(`\n--- BEGIN PRIOR CHAPTER ${chapterNumber} ---`);
+    lines.push(`Title: ${title}`);
+    if (paragraphs.length > 0) {
+      lines.push(paragraphs.join('\n\n'));
+    } else {
+      lines.push('[No paragraph text recorded]');
+    }
+    lines.push(`--- END PRIOR CHAPTER ${chapterNumber} ---`);
+  }
+
+  return lines.join('\n');
 }
 
 /**
@@ -4297,6 +4345,7 @@ export async function generateProse(
           batchScenes,
           chapterStart,
           chapterSummaries,
+          chapters,
         );
         if (inputs.onAtomsSelected) {
           inputs.onAtomsSelected(prompt.selectedObligationAtomIds ?? []);

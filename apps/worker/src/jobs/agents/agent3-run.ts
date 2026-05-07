@@ -70,18 +70,14 @@ function applyCmlRepairAndRevalidate(
   };
 }
 
-export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
-  ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
-
+function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints: any) {
   const setting = ctx.setting!;
   const cast = ctx.cast!;
   const backgroundContext = ctx.backgroundContext!;
   const hardLogicDevices = ctx.hardLogicDevices!;
   const hardLogicDirectives = ctx.hardLogicDirectives!;
 
-  // ── Agent 3: CML generation ────────────────────────────────────────────────
-  const cmlStart = Date.now();
-  let cmlResult = await generateCML(ctx.client, {
+  return {
     decade: setting.setting.era.decade,
     location: setting.setting.location.description,
     institution: setting.setting.location.type,
@@ -104,10 +100,22 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     difficultyMode: hardLogicDirectives.difficultyMode,
     hardLogicDevices: hardLogicDevices.devices,
     backgroundContext,
-    noveltyConstraints: ctx.noveltyConstraints,
+    noveltyConstraints,
     runId: ctx.runId,
     projectId: ctx.projectId || "",
-  }, ctx.examplesRoot);
+  };
+}
+
+export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
+  ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
+
+  // ── Agent 3: CML generation ────────────────────────────────────────────────
+  const cmlStart = Date.now();
+  let cmlResult = await generateCML(
+    ctx.client,
+    buildCmlGenerationRequest(ctx, ctx.noveltyConstraints),
+    ctx.examplesRoot,
+  );
 
   cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "initial CML generation");
 
@@ -228,33 +236,11 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
 
       ctx.reportProgress("cml", "Regenerating CML with stronger novelty constraints...", 54);
       const cmlRetryStart = Date.now();
-      cmlResult = await generateCML(ctx.client, {
-        decade: setting.setting.era.decade,
-        location: setting.setting.location.description,
-        institution: setting.setting.location.type,
-        tone: ctx.inputs.narrativeStyle || "Golden Age Mystery",
-        weather: setting.setting.atmosphere.weather,
-        socialStructure: setting.setting.era.socialNorms.join(", "),
-        theme:
-          ctx.inputs.theme && ctx.inputs.theme.trim().length > 0
-            ? `${ctx.inputs.theme} | hard-logic modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`
-            : `Hard-logic mystery | modes: ${hardLogicDirectives.hardLogicModes.join(", ") || "standard"}`,
-        castSize: cast.cast.characters.length,
-        castNames: cast.cast.characters.map((c: any) => c.name),
-        castGenders: Object.fromEntries(cast.cast.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender])),
-        detectiveType: cast.cast.crimeDynamics.detectiveCandidates[0] || "Detective",
-        victimArchetype: cast.cast.crimeDynamics.victimCandidates[0] || "Victim",
-        complexityLevel: hardLogicDirectives.complexityLevel,
-        mechanismFamilies: hardLogicDirectives.mechanismFamilies,
-        primaryAxis: ctx.primaryAxis,
-        hardLogicModes: hardLogicDirectives.hardLogicModes,
-        difficultyMode: hardLogicDirectives.difficultyMode,
-        hardLogicDevices: hardLogicDevices.devices,
-        backgroundContext,
-        noveltyConstraints: strongerConstraints,
-        runId: ctx.runId,
-        projectId: ctx.projectId || "",
-      }, ctx.examplesRoot);
+      cmlResult = await generateCML(
+        ctx.client,
+        buildCmlGenerationRequest(ctx, strongerConstraints),
+        ctx.examplesRoot,
+      );
 
       cmlResult = applyCmlRepairAndRevalidate(cmlResult, ctx, "novelty retry CML generation");
 

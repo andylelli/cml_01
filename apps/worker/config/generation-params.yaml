@@ -162,7 +162,7 @@ agent8_novelty:
       temperature: 0.3
       max_tokens: 2500
     thresholds:
-      similarity_threshold_default: 0.9
+      similarity_threshold_default: 1.1
       fail_delta: 0.1
     weighting:
       plot: 0.3

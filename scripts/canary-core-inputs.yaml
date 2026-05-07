@@ -1,5 +1,13 @@
 # Core canary story inputs for scripts/canary-core.mjs
 #
+# This file is also used as the baseline input override for
+# scripts/canary-agent-boundary.mjs targeted canary runs.
+#
+# Precedence:
+# 1) generation-params.yaml baseline
+# 2) this file (canary override)
+# 3) quick-run only: scripts/canary-loop/request.quickrun.rework.yaml canaryInputOverrides
+#
 # How to use:
 # - Default path: scripts/canary-core-inputs.yaml
 # - Override path: set CANARY_CORE_INPUTS_YAML=/absolute/or/relative/path.yaml

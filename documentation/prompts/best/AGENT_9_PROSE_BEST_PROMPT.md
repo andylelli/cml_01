@@ -134,7 +134,7 @@ Use these call parameters with the message packet:
 ## Message Stack Actually Sent
 Initial attempt per batch:
 1. `system`: `composedSystemWithAssetSelfReport`
-2. `user`: `Write the full prose following the outline scenes...` with chapter obligation block, timeline block, context summary, and outline scenes JSON
+2. `user`: `Write the full prose following the outline scenes...` with chapter obligation block, timeline block, full Story To Date block (all prior chapter text, reference-only), context summary, and outline scenes JSON
 3. `user`: mandatory pre-output checklist turn (`BEFORE SUBMITTING YOUR JSON`) including hard-floor words, locked facts, season checks, early-clue checks, continuity handoff checks, pronoun audit table, and `Return valid JSON only`
 
 Retry attempts (attempt > 1):

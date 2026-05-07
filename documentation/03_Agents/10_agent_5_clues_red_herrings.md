@@ -65,6 +65,7 @@ Implemented retry/gate sequence in `runAgent5(...)`:
 - red-herring overlap retry with lexical constraints; severe persistent overlap can hard-fail
 - discriminating-test ID-contract retry when required evidence clue IDs are missing
 - deterministic synthesis/backfill can create missing required evidence clues before final hard gate
+- strict step-coverage floor backstop deterministically synthesizes mapped contradiction clues for missing inference steps before the strict step gate hard-fails
 - final hard gates fail on unresolved critical coverage, illegal paths, out-of-range step indices, cast-path inconsistencies, audit mismatch, era-time style violations, locked-fact time conflicts, or missing culprit-discriminating clues
 
 ## 6) Downstream Consumers

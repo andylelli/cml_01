@@ -179,8 +179,9 @@ export class ScoreAggregator {
 
     const overallGrade = calculateGrade(overallScore);
 
-    // Determine if all phases passed
-    const passed = this.phases.every((p) => p.passed);
+    // Determine if all phases passed threshold. This is not the final run status,
+    // because release-gate hard stops can still force failed/aborted outcomes.
+    const phaseThresholdPassed = this.phases.every((p) => p.passed);
 
     const releaseGateDiagnostic = this.diagnostics.find(
       (d) => d.diagnostic_type === 'release_gate_summary'
@@ -234,9 +235,12 @@ export class ScoreAggregator {
         ? 'aborted'
         : releaseGateStatus === 'failed'
           ? 'failed'
-        : passed
+        : phaseThresholdPassed
           ? 'passed'
           : 'failed';
+
+    // Canonical report pass/fail now derives from run_outcome only.
+    const passed = runOutcome === 'passed';
 
     const runOutcomeReason =
       runOutcome === 'aborted'

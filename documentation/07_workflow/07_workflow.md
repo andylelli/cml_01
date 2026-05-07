@@ -129,6 +129,7 @@ This document describes the current implementation of the mystery generation wor
 
 Report status semantics:
 - Treat `run_outcome` as authoritative for run status (`passed | failed | aborted`).
+- Treat `passed` as derived from `run_outcome` only (`passed=true` iff `run_outcome=passed`), not as an independent signal.
 - Treat `overall_score`/`overall_grade` as scoring context, not final release truth.
 - Use `validation_snapshots.pre_repair`, `validation_snapshots.post_repair`, and `validation_snapshots.release_gate` to interpret issue-count deltas (`validation_reconciliation`).
 - Treat post-generation prose metrics as scoped fields: `prose_duration_ms_first_pass` / `prose_duration_ms_total` and `prose_cost_first_pass` / `prose_cost_total`; use `rewrite_pass_count`, `repair_pass_count`, and `per_pass_accounting` for lifecycle attribution.
@@ -194,6 +195,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Validation**: Uses `@cml/cml` validator
   - If validation fails, retries once with temporal axis
 - **CML viability gate (implemented)**: Validation now blocks CML before clue extraction when mechanism/test knowledge is not grounded in reader-visible inference evidence, when `required_evidence` remains abstract placeholder text, or when discriminating-test proof relies on detective-only reaction/confession shorthand (`signals of guilt`, defensive reactions, confession) instead of factual pre-test evidence.
+- **Agent 4 first-pass required-evidence contract (implemented)**: For missing `required_evidence`/structural fair-play revision classes, Agent 4 prompt now enforces explicit first-pass invariants (preserve inference-step order/count, require 2-4 concrete `required_evidence` entries per step, forbid abstract placeholders, and perform an internal pre-output self-check) so correction quality is prevention-first rather than retry-dependent.
 - **Artifacts Created**:
   - `cml` - The complete CML document
   - `cml_validation` - Validation result `{ valid, errors }`
@@ -263,7 +265,8 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Event**: `fair_play_report_done` - "Fair-play report generated"
 - **Guardrail**: overallStatus of fail/needs-revision triggers one automatic clue-regeneration attempt and re-audit.
 - **Strict feedback payload (implemented)**: Agent 6 regeneration feedback now includes explicit acceptance statements requiring early/mid essential mechanism + contradiction + elimination clues and reader-solvable observation -> correction -> elimination ordering before Act III.
-- **Continuation rule**: If violations remain after retry, they are surfaced as warnings and the pipeline continues to later stages.
+- **Early structural hard-stop (implemented)**: immediately after Agent 6, the orchestrator now evaluates structurally-blocking fair-play violations and aborts before running downstream profile/outline/prose stages when those violations remain.
+- **Continuation rule**: only non-structural residual fair-play violations continue as warnings to later stages.
 - **Retry role**: retries remain bounded safety paths; correctness is expected from first-pass prompt contracts.
 
 ### Step 8: Outline Generation
@@ -278,6 +281,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
   - Runs deterministic clue pre-assignment first (mapping-aware, essential-clue anchoring, gap-filling, act-balanced threshold fill).
   - Falls back to one LLM outline retry only if deterministic repair is still below threshold, then applies a final deterministic pass on the retry result.
 - **Scene-count lock (implemented)**: Outline retries (coverage or pacing) include exact count guardrails and are rejected if total scenes or any act's scene count differs from the baseline outline.
+- **Pre-commit completeness gate (implemented)**: Agent 7 now runs a bundled remediation pass that must simultaneously satisfy scene-number continuity, required scene fields (title/purpose/summary), and non-empty character lists before handoff.
 
 ### Step 9: Prose Generation
 - **Derives**: Chapter-by-chapter narrative from outline + cast (LLM)
@@ -290,6 +294,7 @@ No deterministic stub artifacts are created; each artifact is stored as the corr
 - **Template-leakage prevention hardening (implemented)**: worker post-processing now rewrites known scaffold-signature leakage and replaces repeated long paragraphs with deterministic chapter-specific variants before release-gate checks.
 - **Chapter validation (implemented)**: generation retries now include readability density checks and scene-grounding checks (location anchor + sensory + atmosphere cues) in addition to existing consistency checks.
 - **Pre-commit completeness gate (implemented)**: before each chapter batch is committed, Agent 9 now enforces deterministic completeness checks (minimum words by target length and required clue-obligation coverage per chapter from CML mapping + scene clue assignments). Any missing obligation forces retry rather than persisting incomplete prose.
+- **Outline completeness precondition (implemented)**: Agent 9 now hard-stops before prose generation if Agent 7 still reports blocking outline coverage gaps (missing discriminating-test scene or missing suspect-closure scene).
 - **Error-class retry micro-prompts (implemented)**: retry attempts now include targeted corrective directives for clue visibility, word-count, and scene-grounding failures instead of generic retry text.
 - **Prompt budgeting (implemented)**: Agent 9 now assembles prompts from priority-tagged context blocks with token estimation, per-block caps, and deterministic pruning (`optional` -> `medium` -> `high`; critical blocks preserved).
 - **Entropy hardening (implemented)**: opening-style entropy now uses an adaptive threshold in standard prose generation (lower early-chapter floor, canonical later floor), and entropy-only residual failures no longer hard-abort prose after retry exhaustion.

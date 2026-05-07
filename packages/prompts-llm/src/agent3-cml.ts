@@ -25,6 +25,7 @@ import {
   CML_2_0_SCHEMA_SUMMARY,
   AXIS_TYPE_DESCRIPTIONS,
 } from "./shared/schemas.js";
+import { groundDiscriminatingKnowledgeRevealed } from "./shared/grounding.js";
 import {
   loadSeedCMLFiles,
   extractStructuralPatterns,
@@ -194,6 +195,11 @@ ${INFERENCE_PATH_QUALITY}
 4. required_evidence must list 2-4 CML facts per step. These are the facts that 
    Agent 5 MUST surface as clues for the reader. If you cannot list concrete evidence, 
    the observation is too abstract - rewrite it.
+  REQUIRED_EVIDENCE ANTI-ABSTRACTNESS CONTRACT:
+  - Each required_evidence item must name at least one concrete anchor from CML context (person, object, document, location, timestamp/time phrase, physical trace, access record, witness statement).
+  - Reject placeholders and generic summaries (for example: "timeline discrepancy", "suspicious behavior", "motive pressure", "detective insight", "inconsistency", "anomaly").
+  - Reject detective-only private cognition phrasing (for example: "he seems guilty", "she appears nervous") as evidence.
+  - If a step cannot be supported by 2-4 concrete entries, rewrite the step so concrete evidence exists before final output.
   Avoid abstract placeholders in required_evidence (for example: "timeline discrepancy",
   "suspicious behavior", "hidden motive", "detective insight"). Each entry must name
   a concrete artifact, witness statement, document, timestamp, physical trace, or access record.
@@ -439,6 +445,8 @@ ${hardLogicDeviceText}
       constraint that tightens)
    d. required_evidence: An array of 2-4 specific CML facts the reader must see to make this
       correction. Each entry must be a concrete observation witnessable in a scene.
+    Every entry must include at least one concrete anchor (person/object/document/location/time phrase/trace/access record/witness statement).
+    Forbidden entries include abstract placeholders and detective-only interpretation (for example "suspicious behavior", "signals of guilt", "detective insight").
    e. reader_observable: true (all steps must be reader-observable for fair play)
 9. Create discriminating test appropriate for ${inputs.primaryAxis} axis, following these HARD RULES:
    a. DESIGN ORDER: Write all inference_path steps FIRST (progressively revealing the mechanism). Design the discriminating test LAST, based only on what those steps already establish.
@@ -475,6 +483,11 @@ ${hardLogicDeviceText}
   18. Required setting fields must be non-empty, including CASE.meta.setting.institution.
   19. Use canonical enum/value forms only (avoid ad-hoc variants).
   20. Use era-appropriate worded time references in narrative-facing text (for example, "quarter past nine" rather than numeric digital notation).
+  21. REQUIRED SELF-CHECK BEFORE OUTPUT:
+    - Iterate all inference_path.steps.
+    - Verify each step has required_evidence length 2-4.
+    - Verify each required_evidence entry is concrete and anchored (not abstract, not detective-private cognition).
+    - If any step fails, rewrite that step before returning JSON.
 
 **Output Format**:
 Respond with ONLY valid JSON matching the CML 2.0 schema. No explanations, no markdown code blocks, no commentary.
@@ -670,6 +683,10 @@ export async function generateCML(
     discriminatingTest.evidence_clues = ensureArray(discriminatingTest.evidence_clues)
       .map((id) => String(id ?? "").trim())
       .filter((id) => id.length > 0);
+
+    // Deterministic pre-check: keep knowledge_revealed grounded in reader-visible
+    // inference evidence before schema/fair-play validation.
+    groundDiscriminatingKnowledgeRevealed(caseBlock);
 
     const fairPlay = ensureObject(caseBlock.fair_play);
     caseBlock.fair_play = fairPlay;

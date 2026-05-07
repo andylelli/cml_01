@@ -195,7 +195,7 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
     });
 
     describe("clue density handling", () => {
-      it("handles minimal density", () => {
+      it("handles minimal density request with deterministic auto-escalation", () => {
         const inputs: ClueExtractionInputs = {
           cml: mockCML,
           clueDensity: "minimal",
@@ -204,8 +204,10 @@ describe("Agent 5: Clue Distribution & Red Herring Agent", () => {
 
         const prompt = buildCluePrompt(inputs);
 
-        expect(prompt.developer).toContain("minimal");
-        expect(prompt.developer).toContain("5-8 essential clues");
+        expect(prompt.developer).toContain("Requested density**: minimal");
+        expect(prompt.developer).toContain("Effective density**: moderate");
+        expect(prompt.developer).toContain("8-12 clues total");
+        expect(prompt.developer).toContain("auto-escalated to satisfy mandatory requirements");
       });
 
       it("handles moderate density", () => {

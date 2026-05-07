@@ -1,0 +1,112 @@
+{
+  "runId": "run_c5ba16da-6a98-44cc-90d4-e82e88297e54",
+  "projectId": "proj_5d0737ca-1687-4758-8df4-053bf4545e8c",
+  "folderName": "run_20260425-1728_c5ba16da",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "b692f2bfe6dae2e1",
+      "requestTimestamp": "2026-04-25T17:28:10.102Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-04-25T17:28:15.083Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "7a7295ded03bbd0a",
+      "requestTimestamp": "2026-04-25T17:28:15.126Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-04-25T17:28:29.328Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "9c9065a1b895cb87",
+      "requestTimestamp": "2026-04-25T17:28:29.368Z",
+      "requestFile": "03_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-04-25T17:28:43.567Z",
+      "responseFile": "03_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent2e-BackgroundContext",
+      "retryAttempt": 1,
+      "promptHash": "60de85aec6ff977d",
+      "requestTimestamp": "2026-04-25T17:28:43.593Z",
+      "requestFile": "04_Agent2e-BackgroundContext_request.md",
+      "responseTimestamp": "2026-04-25T17:28:45.631Z",
+      "responseFile": "04_Agent2e-BackgroundContext_response.md"
+    },
+    {
+      "sequence": 5,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 1,
+      "promptHash": "5a143b53921add7a",
+      "requestTimestamp": "2026-04-25T17:28:45.651Z",
+      "requestFile": "05_Agent3b-HardLogicDeviceGenerator_request.md",
+      "responseTimestamp": "2026-04-25T17:28:55.132Z",
+      "responseFile": "05_Agent3b-HardLogicDeviceGenerator_response.md"
+    },
+    {
+      "sequence": 6,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 2,
+      "promptHash": "5de79e9bb090d68d",
+      "requestTimestamp": "2026-04-25T17:28:55.148Z",
+      "requestFile": "06_Agent3b-HardLogicDeviceGenerator_retry1_request.md",
+      "responseTimestamp": "2026-04-25T17:29:05.854Z",
+      "responseFile": "06_Agent3b-HardLogicDeviceGenerator_retry1_response.md"
+    },
+    {
+      "sequence": 7,
+      "agent": "Agent3-CMLGenerator",
+      "retryAttempt": 1,
+      "promptHash": "e4076f4945a58da3",
+      "requestTimestamp": "2026-04-25T17:29:05.987Z",
+      "requestFile": "07_Agent3-CMLGenerator_request.md",
+      "responseTimestamp": "2026-04-25T17:29:31.107Z",
+      "responseFile": "07_Agent3-CMLGenerator_response.md"
+    },
+    {
+      "sequence": 8,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 1,
+      "promptHash": "6eb0f44dd43f122b",
+      "requestTimestamp": "2026-04-25T17:29:31.169Z",
+      "requestFile": "08_Agent5-ClueExtraction_request.md",
+      "responseTimestamp": "2026-04-25T17:29:45.017Z",
+      "responseFile": "08_Agent5-ClueExtraction_response.md"
+    },
+    {
+      "sequence": 9,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 2,
+      "promptHash": "20a18ecd0c78fd8f",
+      "requestTimestamp": "2026-04-25T17:29:45.084Z",
+      "requestFile": "09_Agent5-ClueExtraction_retry1_request.md",
+      "responseTimestamp": "2026-04-25T17:29:58.790Z",
+      "responseFile": "09_Agent5-ClueExtraction_retry1_response.md"
+    },
+    {
+      "sequence": 10,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 3,
+      "promptHash": "869253feaa453655",
+      "requestTimestamp": "2026-04-25T17:29:58.853Z",
+      "requestFile": "10_Agent5-ClueExtraction_retry2_request.md",
+      "responseTimestamp": "2026-04-25T17:30:08.919Z",
+      "responseFile": "10_Agent5-ClueExtraction_retry2_response.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 3,
+    "missing_response_count": 0,
+    "empty_response_body_count": 0
+  }
+}

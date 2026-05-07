@@ -10,6 +10,7 @@ import {
   hasUnresolvedWarnings,
   resolveSelectedPlaybooks,
   resolvePassState,
+  suggestExpandedStartFromSignature,
   shouldSuppressAutoExpansion,
 } from "../controller.mjs";
 import { resolveValidationPlan } from "../validate.mjs";
@@ -80,6 +81,28 @@ test("playbook selection enforces prompt-first before code escalation", () => {
   });
   assert.equal(escalatedDecision.escalationStage, "code");
   assert.deepEqual(escalatedDecision.selectedPlaybooks, ["pb.code.agent5.id-normalize-seed-synthesize"]);
+});
+
+test("required_evidence_missing stays prompt-first before deterministic code fallback", () => {
+  const signature = {
+    class: "cml.required_evidence_missing",
+  };
+
+  const promptDecision = selectPlaybooks(signature, {
+    rootCauseLayer: "llm_output_shape",
+    promptRetryCount: 1,
+  });
+
+  assert.equal(promptDecision.escalationStage, "prompt");
+  assert.deepEqual(promptDecision.selectedPlaybooks, ["pb.prompt.retry-packet-contract-harden"]);
+
+  const codeDecision = selectPlaybooks(signature, {
+    rootCauseLayer: "llm_output_shape",
+    promptRetryCount: 2,
+  });
+
+  assert.equal(codeDecision.escalationStage, "code");
+  assert.deepEqual(codeDecision.selectedPlaybooks, ["pb.code.cml.required-evidence-repair"]);
 });
 
 test("playbook selection escalates when prompt playbook previously failed", () => {
@@ -197,6 +220,32 @@ test("auto-expansion is allowed when canary command is not pinned", () => {
   });
 
   assert.equal(suppressed, false);
+});
+
+test("cml-revision signatures expand to Agent3 upstream boundary", () => {
+  const expanded = suggestExpandedStartFromSignature({
+    signature: {
+      stage: "cml-revision",
+      class: "cml.required_evidence_missing",
+    },
+    selectedAgentCode: "6",
+    currentStartCode: "6",
+  });
+
+  assert.equal(expanded, "3");
+});
+
+test("cml signature does not expand when upstream already included", () => {
+  const expanded = suggestExpandedStartFromSignature({
+    signature: {
+      stage: "cml-revision",
+      class: "cml.invalid_shape",
+    },
+    selectedAgentCode: "6",
+    currentStartCode: "3",
+  });
+
+  assert.equal(expanded, null);
 });
 
 test("major rework escalation is not overridden by cached playbooks", () => {

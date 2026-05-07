@@ -11,6 +11,7 @@ import { acquireRunLock, releaseRunLock } from "../patches.mjs";
 import { getCachedFix } from "../cache.mjs";
 import { updateTelemetryRollups } from "../report.mjs";
 import { classifyFailureText } from "../signatures.mjs";
+import { parseAgent6RescueTelemetry } from "../validate.mjs";
 
 test("all registered worker agents have canary/test mapping conformance", async () => {
   const registered = await loadRegisteredAgentCodes(process.cwd());
@@ -109,7 +110,33 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
           path.join(tempRoot, "scripts", "canary-loop", "controller.mjs"),
           path.join(runDir, "artifact.md"),
         ],
-        canary: { warningsCount: 1 },
+        canary: {
+          warningsCount: 1,
+          firstPassTelemetry: {
+            agent5: {
+              firstPassStatus: "fail",
+              retryInvoked: true,
+              failureClass: "agent5.invalid_source_path",
+            },
+            agent6: null,
+          },
+          agent6RescueTelemetry: {
+            available: true,
+            retryInvoked: true,
+            failureClass: "clue_coverage",
+            finalWarningCount: 4,
+            rescueWarningTotal: 3,
+            rescueWarningCounts: {
+              strictStepFallback: 2,
+              synthesizedUpstreamContext: 1,
+            },
+            syntheticClueTotal: 2,
+            syntheticClueCounts: {
+              contradictionBackstop: 1,
+              parityBridge: 1,
+            },
+          },
+        },
         deterministicFallbackExceptions: ["deterministic_fallback:pb.code.agent5.id-normalize-seed-synthesize"],
       },
       {
@@ -123,7 +150,31 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
           waveId: "MR-P2-W1",
         },
         changedFiles: [],
-        canary: { warningsCount: 0 },
+        canary: {
+          warningsCount: 0,
+          firstPassTelemetry: {
+            agent5: null,
+            agent6: {
+              firstPassStatus: "fail",
+              retryInvoked: true,
+              failureClass: "clue_coverage",
+            },
+          },
+          agent6RescueTelemetry: {
+            available: true,
+            retryInvoked: true,
+            failureClass: "inference_path_abstract",
+            finalWarningCount: 1,
+            rescueWarningTotal: 1,
+            rescueWarningCounts: {
+              strictStepFallback: 1,
+            },
+            syntheticClueTotal: 1,
+            syntheticClueCounts: {
+              contradictionBackstop: 1,
+            },
+          },
+        },
         deterministicFallbackExceptions: [],
       },
     ],
@@ -146,6 +197,24 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
   assert.equal(runSummary.totals.iterations, 2);
   assert.equal(runSummary.totals.deterministicFallbackCount, 1);
   assert.equal(runSummary.totals.plannedNotExecutedWaveCount, 1);
+  assert.equal(runSummary.firstPassTelemetry.available, true);
+  assert.equal(runSummary.firstPassTelemetry.agent5.samples, 1);
+  assert.equal(runSummary.firstPassTelemetry.agent5.retryInvokedCount, 1);
+  assert.equal(runSummary.firstPassTelemetry.agent5.failureClassCounts["agent5.invalid_source_path"], 1);
+  assert.equal(runSummary.firstPassTelemetry.agent6.samples, 1);
+  assert.equal(runSummary.firstPassTelemetry.agent6.retryInvokedCount, 1);
+  assert.equal(runSummary.firstPassTelemetry.agent6.failureClassCounts.clue_coverage, 1);
+  assert.equal(runSummary.agent6RescueTelemetry.available, true);
+  assert.equal(runSummary.agent6RescueTelemetry.samples, 2);
+  assert.equal(runSummary.agent6RescueTelemetry.warningCounts.first, 4);
+  assert.equal(runSummary.agent6RescueTelemetry.warningCounts.last, 1);
+  assert.equal(runSummary.agent6RescueTelemetry.warningCounts.nonIncreasing, true);
+  assert.equal(runSummary.agent6RescueTelemetry.rescueWarningTotals.first, 3);
+  assert.equal(runSummary.agent6RescueTelemetry.rescueWarningTotals.last, 1);
+  assert.equal(runSummary.agent6RescueTelemetry.syntheticClueTotals.first, 2);
+  assert.equal(runSummary.agent6RescueTelemetry.syntheticClueTotals.last, 1);
+  assert.equal(runSummary.agent6RescueTelemetry.rescueWarningCounts.strictStepFallback, 3);
+  assert.equal(runSummary.agent6RescueTelemetry.syntheticClueCounts.contradictionBackstop, 2);
   assert.equal(dashboard.admissibilityBlockerCounts.target_files_exceed_wave_cap, 1);
   assert.equal(dashboard.admissibilityBlockerCounts.think_tokens_exceed_wave_cap, 1);
   assert.equal(attemptHistory.stats.withChangedImplementationFiles, 1);
@@ -155,7 +224,25 @@ test("telemetry rollups produce run summary and dashboard artifacts", async () =
   assert.equal(attemptHistory.attempts[1].majorReworkExecution, "planned_not_executed");
   assert.match(dashboardMarkdown, /Admissibility Blockers/i);
   assert.match(attemptHistoryMarkdown, /Terminal Reason Taxonomy/i);
+  const runSummaryMarkdown = await fs.readFile(path.join(runDir, "canary-run-summary-example.md"), "utf8");
+  assert.match(runSummaryMarkdown, /Agent 6 Rescue Telemetry/i);
   assert.equal(dashboard.runCount >= 1, true);
+});
+
+test("validation parser extracts Agent 6 rescue telemetry markers", () => {
+  const stdout = [
+    'AGENT6_RESCUE_TELEMETRY {"available":true,"retryInvoked":true,"failureClass":"inference_path_abstract","finalWarningCount":4,"rescueWarningTotal":2,"rescueWarningCounts":{"strictStepFallback":1,"synthesizedUpstreamContext":1},"syntheticClueTotal":1,"syntheticClueCounts":{"contradictionBackstop":1}}',
+  ].join("\n");
+
+  const parsed = parseAgent6RescueTelemetry(stdout);
+  assert.equal(parsed.available, true);
+  assert.equal(parsed.retryInvoked, true);
+  assert.equal(parsed.failureClass, "inference_path_abstract");
+  assert.equal(parsed.finalWarningCount, 4);
+  assert.equal(parsed.rescueWarningTotal, 2);
+  assert.equal(parsed.rescueWarningCounts.strictStepFallback, 1);
+  assert.equal(parsed.syntheticClueTotal, 1);
+  assert.equal(parsed.syntheticClueCounts.contradictionBackstop, 1);
 });
 
 test("signature classifier does not treat fair-play discriminating test text as ID-coverage failure", () => {

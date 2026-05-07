@@ -851,8 +851,8 @@ omitted â€” intentional signalling about completeness.
 
 ### 5.2 The obligation contract
 
-The first user message carries three components: the chapter obligation contract, the
-timeline state block, and the context summary.
+The first user message carries four components: the chapter obligation contract, the
+timeline state block, a full-text story-to-date reference block, and the context summary.
 
 **Chapter obligation contract** (`buildChapterObligationBlock`) â€” per chapter in the batch:
 
@@ -885,7 +885,14 @@ timeline state block, and the context summary.
 - Up to 5 established timeline facts from `constraint_space.time.anchors`  
 - Time-sensitive locked fact phrases (filtered to time/clock/hour-related facts)
 
-**Context summary** (`buildContextSummary`) â€” third component of the user message:
+**Story to date (full text)** (`buildStoryToDateBlock`) â€” appended to the user message:
+
+- Includes the full committed text of all prior chapters (`Chapter 1 ... Chapter N-1`) in verbatim form.
+- Framed as reference-only continuity context (`DO NOT COPY VERBATIM`) so the model uses it for accuracy without echoing passages.
+- Used for chronology, character-voice consistency, clue-state continuity, and location continuity.
+- For chapter 1, emits an explicit no-prior-text marker.
+
+**Context summary** (`buildContextSummary`) â€” fourth component of the user message:
 
 - Title, era, setting, crime class, culprit identity, victim name
 - Full cast with inline pronoun annotation `(she/her)` / `(he/him)` / `(they/them)`

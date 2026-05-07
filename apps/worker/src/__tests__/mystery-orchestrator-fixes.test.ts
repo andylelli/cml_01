@@ -226,4 +226,198 @@ describe("mystery orchestrator fix coverage", () => {
     expect(result.blockingViolations[0].rule).toBe("Logical Deducibility");
     expect(result.downgradedLogicalDeducibility).toBe(false);
   });
+
+  it("downgrades clue visibility and no withholding when deterministic traceability shows evidence is pre-test", () => {
+    const result = __testables.deriveStructuralBlockingFairPlayViolations({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Clue Visibility",
+            description: "Essential clue allegedly arrives too late.",
+            location: "clue_1",
+            suggestion: "Move the clue earlier.",
+          },
+          {
+            severity: "critical",
+            rule: "No Withholding",
+            description: "Reader allegedly lacks detective parity.",
+            location: "clue_2",
+            suggestion: "Reveal the fact earlier.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: false,
+        uncoveredSteps: [],
+      },
+      allCoverageIssues: [],
+      cml: {
+        CASE: {
+          discriminating_test: {
+            evidence_clues: ["clue_1", "clue_2"],
+          },
+          prose_requirements: {
+            discriminating_test_scene: {
+              act_number: 3,
+              scene_number: 4,
+            },
+            clue_to_scene_mapping: [
+              { clue_id: "clue_1", act_number: 1, scene_number: 2 },
+              { clue_id: "clue_2", act_number: 2, scene_number: 1 },
+            ],
+          },
+        },
+      } as any,
+      clues: {
+        clues: [
+          { id: "clue_1", placement: "early", criticality: "essential" },
+          { id: "clue_2", placement: "mid", criticality: "essential" },
+        ],
+      } as any,
+    });
+
+    expect(result.blockingViolations).toHaveLength(0);
+    expect(result.downgradedLogicalDeducibility).toBe(false);
+  });
+
+  it("keeps clue visibility blocking when deterministic traceability still shows late or unmapped evidence", () => {
+    const result = __testables.deriveStructuralBlockingFairPlayViolations({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Clue Visibility",
+            description: "Essential clue arrives too late.",
+            location: "clue_1",
+            suggestion: "Move the clue earlier.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: false,
+        uncoveredSteps: [],
+      },
+      allCoverageIssues: [],
+      cml: {
+        CASE: {
+          discriminating_test: {
+            evidence_clues: ["clue_1"],
+          },
+          prose_requirements: {
+            discriminating_test_scene: {
+              act_number: 3,
+              scene_number: 4,
+            },
+            clue_to_scene_mapping: [
+              { clue_id: "clue_1", act_number: 3, scene_number: 4 },
+            ],
+          },
+        },
+      } as any,
+      clues: {
+        clues: [
+          { id: "clue_1", placement: "late", criticality: "essential" },
+        ],
+      } as any,
+    });
+
+    expect(result.blockingViolations).toHaveLength(1);
+    expect(result.blockingViolations[0].rule).toBe("Clue Visibility");
+  });
+
+  it("early structural abort triggers when fair-play blocking violations remain after Agent 6", () => {
+    const decision = __testables.evaluateEarlyStructuralAbort({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Clue Visibility",
+            description: "Essential clue arrives too late.",
+            location: "clue_1",
+            suggestion: "Move the clue earlier.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: true,
+        uncoveredSteps: [1],
+      },
+      allCoverageIssues: [],
+      cml: {
+        CASE: {
+          discriminating_test: {
+            evidence_clues: ["clue_1"],
+          },
+          prose_requirements: {
+            discriminating_test_scene: {
+              act_number: 3,
+              scene_number: 4,
+            },
+            clue_to_scene_mapping: [
+              { clue_id: "clue_1", act_number: 3, scene_number: 4 },
+            ],
+          },
+        },
+      } as any,
+      clues: {
+        clues: [{ id: "clue_1", placement: "late", criticality: "essential" }],
+      } as any,
+    });
+
+    expect(decision.shouldAbort).toBe(true);
+    expect(decision.blockingRules).toContain("Clue Visibility");
+  });
+
+  it("early structural abort stays open when only uncorroborated logical deducibility remains", () => {
+    const decision = __testables.evaluateEarlyStructuralAbort({
+      fairPlayAudit: {
+        overallStatus: "fail",
+        checks: [],
+        violations: [
+          {
+            severity: "critical",
+            rule: "Logical Deducibility",
+            description: "Reader cannot deduce culprit.",
+            location: "inference_path",
+            suggestion: "Tighten elimination chain.",
+          },
+        ],
+        warnings: [],
+        recommendations: [],
+        summary: "",
+        cost: 0,
+        durationMs: 0,
+      },
+      coverageResult: {
+        hasCriticalGaps: false,
+        uncoveredSteps: [],
+      },
+      allCoverageIssues: [],
+    });
+
+    expect(decision.shouldAbort).toBe(false);
+    expect(decision.downgradedLogicalDeducibility).toBe(true);
+  });
 });

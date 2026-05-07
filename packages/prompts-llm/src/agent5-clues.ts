@@ -21,11 +21,21 @@ export interface ClueExtractionInputs {
     violations?: Array<{ severity: "critical" | "moderate" | "minor"; rule: string; description: string; suggestion: string }>;
     warnings?: string[];
     recommendations?: string[];
+    violationCodes?: string[];
+    targetedClueIds?: string[];
+    preserveClueIds?: string[];
     requiredCluePhrases?: string[];
+    castPathBindingRules?: string[];
+    castPathNameIndexMap?: Array<{ index: number; name: string }>;
     forbiddenTerms?: string[];
     preferredTerms?: string[];
     requiredReplacements?: string[];
     redHerringIdsToRewrite?: string[];
+    strictSourcePaths?: string[];
+    requiredIdToSourceMappings?: Array<{ id: string; sourceInCML: string }>;
+    requiredStepCoverageFloors?: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
+    requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
+    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
   };
   runId?: string;
   projectId?: string;
@@ -655,14 +665,24 @@ If mandatory requirements exceed requested density, satisfy mandatory requiremen
 `;
   }
 
-  if (inputs.fairPlayFeedback) {
-    const { overallStatus, violations = [], warnings = [], recommendations = [] } = inputs.fairPlayFeedback;
+  const feedbackViolations = Array.isArray(inputs.fairPlayFeedback?.violations)
+    ? inputs.fairPlayFeedback.violations
+    : [];
+  const feedbackWarnings = Array.isArray(inputs.fairPlayFeedback?.warnings)
+    ? inputs.fairPlayFeedback.warnings
+    : [];
+  const feedbackRecommendations = Array.isArray(inputs.fairPlayFeedback?.recommendations)
+    ? inputs.fairPlayFeedback.recommendations
+    : [];
+
+  if (feedbackViolations.length > 0 || feedbackWarnings.length > 0) {
+    const overallStatus = inputs.fairPlayFeedback?.overallStatus;
     developer += `## Fair Play Audit Feedback
 Status: **${overallStatus ?? "needs-review"}**
 
-Violations: ${violations.length > 0 ? violations.map((v, i) => `${i + 1}. [${v.severity}] ${v.rule}: ${v.description}`).join('; ') : 'None'}
-Warnings: ${warnings.join('; ') || 'None'}
-Recommendations: ${recommendations.join('; ') || 'None'}
+Violations: ${feedbackViolations.length > 0 ? feedbackViolations.map((v, i) => `${i + 1}. [${v.severity}] ${v.rule}: ${v.description}`).join('; ') : 'None'}
+Warnings: ${feedbackWarnings.join('; ') || 'None'}
+Recommendations: ${feedbackRecommendations.join('; ') || 'None'}
 
 Regeneration: Adjust placement so essential clues appear before the discriminating test.
 
@@ -688,11 +708,13 @@ Regeneration: Adjust placement so essential clues appear before the discriminati
 
 ## Failure-Mode Hardening (pass-first)
 - If valid_source_paths[] is provided, sourceInCML should exactly match one listed path.
-- If sourceInCML is CASE.cast[N].*, suspect references in clue text/pointsTo must match cast index N.
+- CAST PATH BINDING CONTRACT: If sourceInCML is CASE.cast[N].*, suspect references in description/pointsTo must name cast[N].name and no other suspect.
+- Do not reference a different suspect name when sourceInCML points to CASE.cast[N].*.
 - Required discriminating-test IDs must be present in clues[].id and placed early|mid as essential.
 - Elimination clues must include alibi window + corroborator + explicit exclusion logic.
 - Red-herring forbidden terms apply to description/misdirection only; supportsAssumption may restate the false assumption.
 - Set status="pass" only when missing discriminating IDs, weak elimination suspects, and invalid source paths are all empty.
+- If cast-path binding, source-path legality, or discriminating evidence ID contracts fail, status MUST be "fail".
 
 ## Source Path Legality (Critical)
 Allowed source roots include:
@@ -720,6 +742,21 @@ Forbidden examples:
 ## valid_source_paths[] (exact match preferred)
 ${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n") : "- none"}
 
+## Deterministic Output Contracts
+- FIRST-PASS CONTRACT: satisfy every contract in the initial output; downstream deterministic guardrails are safety nets, not primary completion paths.
+- REQUIRED FIELDS CONTRACT: every clue must include non-empty id, sourceInCML, pointsTo, and supportsInferenceStep.
+- FIELD CONSISTENCY CONTRACT: if sourceInCML is CASE.inference_path.steps[N].*, supportsInferenceStep must equal N+1.
+- PER-STEP COVERAGE CONTRACT: for each inference step in range 1..${stepCount}, include at least one mapped clue and at least one contradiction clue.
+- SOURCE LEGALITY CONTRACT: sourceInCML must exactly match an entry in valid_source_paths[]; never invent or transform paths.
+- SOURCE FORMAT CONTRACT: use bracket-index leaf paths only (for example CASE.inference_path.steps[1].correction). Dot-index and intermediate-node paths are forbidden.
+- SUSPECT PARITY CONTRACT: if any non-culprit suspect is named, include elimination/alibi evidence parity for that suspect.
+- TOP-LEVEL KEY CONTRACT: output top-level keys exactly as status, clues, redHerrings, audit.
+- FORBIDDEN KEY CONTRACT: do not output red_herrings.
+- STATUS DERIVATION CONTRACT: return status="pass" only when all hard contracts are satisfied and all audit arrays are empty.
+- DISCRIMINATING ID EXACTNESS: preserve ID strings exactly; clue_1 must remain clue_1 (do not output clue1).
+- FULL OBJECT CONTRACT: emit full clue objects only, never partial clue objects.
+- ANTI-COLLAPSE OUTPUT RULE: status="fail" does not permit empty clues[] when evidence exists; output best-effort clues and put defects in audit arrays.
+
 ## Micro-exemplars
 - Weak clue: "Someone was nervous around dinner."
 - Strong clue: "Port wine decanter seal is broken before service despite butler log marking it intact at ten past seven."
@@ -735,10 +772,12 @@ ${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n")
 - all discriminating-test evidence clue IDs present in clue list
 - elimination clues include qualifying alibi/corroboration/exclusion detail
 - no illegal sourceInCML paths
+- every CASE.cast[N].* clue references cast[N].name consistently in description/pointsTo
 - no out-of-range inference-step indices
 - no digit-based clock notation in description/pointsTo
 - required fixed slot IDs exist exactly once with essential early/mid placement
-- set status="pass" only when all audit arrays are empty; otherwise status="fail"
+- if cast-path binding/source-path legality/discriminating-ID coverage fails, set status="fail"
+- set status="pass" only when all audit arrays are empty and no cast-path mismatch remains
 - JSON only, no markdown fences
 
 `;
@@ -790,26 +829,29 @@ Generate ${userClueCountDirective} clues${rhUserText} that uphold fair play — 
 Rules:
 - Do NOT invent new facts — every clue must be traceable to CML
 - Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.
-- OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each — clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain — and each must be criticality="essential" with placement="early" or "mid".
-- MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description. The reader must encounter the method before the discriminating test exploits it.
-- CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption with concrete scene-observable evidence before Act III.
-- ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution toward the culprit.
-- DISCRIMINATING TEST CLUES: Any clue that enables the discriminating test to make sense must be placed "early" or "mid". The discriminating test scene exploits knowledge the reader already has — it must NEVER be the reader's first exposure to the mechanism detail.
+- OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each - clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain.
+- MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description.
+- CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption.
+- ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution.
 - DISCRIMINATING TEST ID CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear as a clue id.
-- CULPRIT-UNIQUE CLUE: At least one essential clue must explicitly name the culprit in description or pointsTo and state the unique mechanism trace, preparation detail, or access fact that points to that culprit rather than any non-culprit.
-- PREMEDITATION CLUES: If the culprit's guilt depends on premeditation or planning, that evidence must be a separate reader-visible clue placed "early" or "mid". The detective cannot withhold this from the reader until confrontation.
-- ELIMINATION CLUES: Must include time window, corroborator/evidence source, and direct exclusion logic in pointsTo ("Eliminates <name> because ...").
-- SOURCE PATH LEGALITY: sourceInCML must use only legal CML path roots.
-- SOURCE PATH EXACT MATCH: if valid_source_paths[] is present in the developer prompt, sourceInCML must exactly match one listed path.
-- STYLE: Use era-appropriate worded time references in clue descriptions and pointsTo.
-- TIME FORMAT: Never use digit-based clock notation in clue descriptions or pointsTo.
-- RED HERRING SEPARATION: Do not reuse correction-language tokens from inference_path.steps[].correction in red herring description/misdirection text.
-- RED HERRING FIELD SCOPE: forbidden overlap terms apply to redHerrings[].description and redHerrings[].misdirection; supportsAssumption may restate the false assumption.
-- FIRST-ATTEMPT RED HERRING CONTRACT: avoid correction-language tokens in red herrings from the start, not only in retry mode.
-- CAST PATH CONSISTENCY: If sourceInCML is CASE.cast[N].*, then clue description/pointsTo suspect references must match the name at cast index N.
+- CAST PATH BINDING CONTRACT: If sourceInCML is CASE.cast[N].*, suspect references in description/pointsTo must name cast[N].name and no other suspect.
 - STATUS CONTRACT: Return status="pass" only when all audit arrays are empty; otherwise return status="fail".
+- FAIL-FAST STATUS: status MUST be "fail" if any cast-path mismatch, illegal source path, or missing discriminating-test evidence clue ID remains.
+- REQUIRED FIELDS CONTRACT: each clue MUST include non-empty sourceInCML, pointsTo, and supportsInferenceStep.
+- PER-STEP COVERAGE CONTRACT: each inference step (1..${stepCount}) MUST have at least one mapped clue and at least one contradiction clue.
+- SUSPECT PARITY CONTRACT: any named non-culprit suspect MUST have elimination/alibi evidence parity.
+- TOP-LEVEL KEY CONTRACT: output exactly status, clues, redHerrings, audit; do not output red_herrings.
+- FAIL-FAST STATUS EXTENSION: status MUST be fail if any required clue fields are missing, if any step lacks mapped or contradiction coverage, or if suspect parity fails.
+- SOURCE FORMAT CONTRACT: sourceInCML MUST use bracket-index leaf paths only (no dot-index and no intermediate-node paths).
+- DISCRIMINATING ID EXACTNESS: keep discriminating clue IDs as exact string matches, including underscores.
+- FULL OBJECT CONTRACT: each clue object MUST include id, category, description, sourceInCML, pointsTo, placement, criticality, supportsInferenceStep, evidenceType.
+- SELF-CHECK OUTPUT RULE: run all checks internally and output JSON only; do not output checklist commentary.
+- ANTI-COLLAPSE OUTPUT RULE: if checks fail, keep status="fail" but still output a non-empty best-effort clues[] set unless CML evidence is unusable.
+- If quality controls require late clues, satisfy late placement with supporting or optional clues only.
+- Essential solving clues must remain early or mid.
 - Cite sourceInCML for every clue
-- Return valid JSON matching the Output JSON Schema above`;
+- Return valid JSON matching the Output JSON Schema above
+`;
 
   if (inputs.fairPlayFeedback && (inputs.fairPlayFeedback.violations?.length || inputs.fairPlayFeedback.warnings?.length)) {
     const correctionTargets = [
@@ -830,26 +872,122 @@ Rules:
       const requiredReplacements = Array.isArray(inputs.fairPlayFeedback.requiredReplacements)
         ? inputs.fairPlayFeedback.requiredReplacements.map((t) => String(t).trim()).filter(Boolean)
         : [];
+      const violationCodes = Array.isArray(inputs.fairPlayFeedback.violationCodes)
+        ? [...new Set(inputs.fairPlayFeedback.violationCodes.map((code) => String(code).trim()).filter(Boolean))].slice(0, 12)
+        : [];
+      const targetedClueIds = Array.isArray(inputs.fairPlayFeedback.targetedClueIds)
+        ? [...new Set(inputs.fairPlayFeedback.targetedClueIds.map((id) => String(id).trim()).filter(Boolean))].slice(0, 18)
+        : [];
+      const preserveClueIds = Array.isArray(inputs.fairPlayFeedback.preserveClueIds)
+        ? [...new Set(inputs.fairPlayFeedback.preserveClueIds.map((id) => String(id).trim()).filter(Boolean))].slice(0, 24)
+        : [];
       const rewriteTargets = Array.isArray(inputs.fairPlayFeedback.redHerringIdsToRewrite)
         ? inputs.fairPlayFeedback.redHerringIdsToRewrite.map((id) => String(id).trim()).filter(Boolean)
         : [];
       const requiredCluePhrases = Array.isArray(inputs.fairPlayFeedback.requiredCluePhrases)
         ? [...new Set(inputs.fairPlayFeedback.requiredCluePhrases.map((p) => String(p).trim()).filter(Boolean))].slice(0, 12)
         : [];
+      const castPathBindingRules = Array.isArray(inputs.fairPlayFeedback.castPathBindingRules)
+        ? [...new Set(inputs.fairPlayFeedback.castPathBindingRules.map((p) => String(p).trim()).filter(Boolean))].slice(0, 12)
+        : [];
+      const payloadCastIndexMap = Array.isArray(inputs.fairPlayFeedback.castPathNameIndexMap)
+        ? inputs.fairPlayFeedback.castPathNameIndexMap
+            .map((entry) => ({ index: Number(entry?.index), name: String(entry?.name ?? "").trim() }))
+            .filter((entry) => Number.isInteger(entry.index) && entry.index >= 0 && entry.name.length > 0)
+            .slice(0, 20)
+        : [];
+      const strictSourcePaths = Array.isArray(inputs.fairPlayFeedback.strictSourcePaths)
+        ? [...new Set(inputs.fairPlayFeedback.strictSourcePaths.map((path) => String(path).trim()).filter(Boolean))].slice(0, 40)
+        : [];
+      const requiredIdToSourceMappings = Array.isArray(inputs.fairPlayFeedback.requiredIdToSourceMappings)
+        ? inputs.fairPlayFeedback.requiredIdToSourceMappings
+            .map((entry) => ({
+              id: String(entry?.id ?? "").trim(),
+              sourceInCML: String(entry?.sourceInCML ?? "").trim(),
+            }))
+            .filter((entry) => entry.id.length > 0 && entry.sourceInCML.length > 0)
+            .slice(0, 24)
+        : [];
+      const requiredStepCoverageFloors = Array.isArray(inputs.fairPlayFeedback.requiredStepCoverageFloors)
+        ? inputs.fairPlayFeedback.requiredStepCoverageFloors
+            .map((entry) => ({
+              step: Number(entry?.step),
+              requireContradiction: Boolean(entry?.requireContradiction),
+              requireMapped: Boolean(entry?.requireMapped),
+            }))
+            .filter((entry) => Number.isInteger(entry.step) && entry.step > 0)
+            .slice(0, 16)
+        : [];
+      const requiredLateClueSlot = inputs.fairPlayFeedback.requiredLateClueSlot
+        ? {
+            id: String(inputs.fairPlayFeedback.requiredLateClueSlot.id ?? "").trim(),
+            placement: String(inputs.fairPlayFeedback.requiredLateClueSlot.placement ?? "").trim(),
+            criticality: String(inputs.fairPlayFeedback.requiredLateClueSlot.criticality ?? "").trim(),
+          }
+        : undefined;
+      const requiredDirectCulpritClue = inputs.fairPlayFeedback.requiredDirectCulpritClue
+        ? {
+            id: String(inputs.fairPlayFeedback.requiredDirectCulpritClue.id ?? "").trim(),
+            culpritName: String(inputs.fairPlayFeedback.requiredDirectCulpritClue.culpritName ?? "").trim(),
+            allowedSourcePaths: Array.isArray(inputs.fairPlayFeedback.requiredDirectCulpritClue.allowedSourcePaths)
+              ? inputs.fairPlayFeedback.requiredDirectCulpritClue.allowedSourcePaths
+                  .map((path) => String(path).trim())
+                  .filter(Boolean)
+                  .slice(0, 12)
+              : [],
+            requiredPhrases: Array.isArray(inputs.fairPlayFeedback.requiredDirectCulpritClue.requiredPhrases)
+              ? inputs.fairPlayFeedback.requiredDirectCulpritClue.requiredPhrases
+                  .map((phrase) => String(phrase).trim())
+                  .filter(Boolean)
+                  .slice(0, 12)
+              : [],
+          }
+        : undefined;
+      const effectiveCastIndexMap = payloadCastIndexMap.length > 0 ? payloadCastIndexMap : castIndexMap;
       user += `
 
-Retry mode (correction targets):
-- Fix these unresolved targets first:
-${correctionTargets.map((t) => `  - ${t}`).join("\n")}
-- Retry scope: rewrite only targeted IDs when provided; keep unaffected IDs and wording stable unless a dependency requires change.
+    Retry mode (bounded delta repair):
+    - Retry scope: use violation_codes[], targeted_clue_ids[], and preserve_clue_ids[] below as the authoritative delta contract.
+    - Do not reopen unaffected clues or red herrings beyond the bounded scope declared below.
 - Preserve unaffected clues unless changes are needed for consistency.
 - Populate audit arrays to show no unresolved critical defects.
 - If any target mentions red-herring overlap, include rewrite table entries as: old phrase -> replacement phrase.
 ${requiredCluePhrases.length > 0 ? `- REQUIRED CLUE CONTENT (must be covered by essential early/mid clues):\n${requiredCluePhrases.map((p) => `  - ${p}`).join("\n")}` : ""}
 
-Structured correction payload (apply exactly):
+    Structured correction payload (bounded delta; apply exactly):
+    - violation_codes[]:
+    ${violationCodes.length > 0 ? violationCodes.map((code) => `  - ${code}`).join("\n") : "  - none"}
 - must_fix[]:
 ${correctionTargets.map((t) => `  - ${t}`).join("\n")}
+    - targeted_clue_ids[]:
+    ${targetedClueIds.length > 0 ? targetedClueIds.map((id) => `  - ${id}`).join("\n") : "  - none"}
+    - preserve_clue_ids[]:
+    ${preserveClueIds.length > 0 ? preserveClueIds.map((id) => `  - ${id}`).join("\n") : "  - none"}
+- strict_source_paths[]:
+${strictSourcePaths.length > 0 ? strictSourcePaths.map((path) => `  - ${path}`).join("\n") : "  - none"}
+- required_id_to_source_mappings[]:
+${requiredIdToSourceMappings.length > 0
+  ? requiredIdToSourceMappings.map((entry) => `  - ${entry.id} -> ${entry.sourceInCML}`).join("\n")
+  : "  - none"}
+- required_step_coverage_floors[]:
+${requiredStepCoverageFloors.length > 0
+  ? requiredStepCoverageFloors.map((entry) => `  - step ${entry.step} | contradiction=${entry.requireContradiction} | mapped=${entry.requireMapped}`).join("\n")
+  : "  - none"}
+- required_late_clue_slot:
+${requiredLateClueSlot?.id
+  ? `  - id=${requiredLateClueSlot.id} | placement=${requiredLateClueSlot.placement} | criticality=${requiredLateClueSlot.criticality}`
+  : "  - none"}
+- required_direct_culprit_clue:
+${requiredDirectCulpritClue?.id
+  ? [
+      `  - id=${requiredDirectCulpritClue.id} | culprit=${requiredDirectCulpritClue.culpritName}`,
+      `  - allowed_source_paths=${requiredDirectCulpritClue.allowedSourcePaths.length > 0 ? requiredDirectCulpritClue.allowedSourcePaths.join(", ") : "none"}`,
+      `  - required_phrases=${requiredDirectCulpritClue.requiredPhrases.length > 0 ? requiredDirectCulpritClue.requiredPhrases.join(", ") : "none"}`,
+    ].join("\n")
+  : "  - none"}
+- cast_index_to_name_map[] (authoritative for CASE.cast[N].*):
+${effectiveCastIndexMap.length > 0 ? effectiveCastIndexMap.map((c) => `  - [${c.index}] ${c.name}`).join("\n") : "  - none"}
+${castPathBindingRules.length > 0 ? `- cast_path_binding_rules[]:\n${castPathBindingRules.map((rule) => `  - ${rule}`).join("\n")}` : "- cast_path_binding_rules[]: none"}
 ${forbiddenTerms.length > 0 ? `- forbidden_terms[] (do not use in red herring description/misdirection):\n${forbiddenTerms.map((t) => `  - ${t}`).join("\n")}` : "- forbidden_terms[]: none"}
 - preferred_terms[] (use these instead when possible):
 ${preferredTerms.length > 0 ? preferredTerms.map((t) => `  - ${t}`).join("\n") : "  - none"}
@@ -859,7 +997,17 @@ ${requiredReplacements.length > 0
   : "  - old phrase -> replacement phrase (for every overlap-triggering phrase)\n  - old phrase -> replacement phrase (for every invalid source path token)"}
 
 Hard retry contract:
+- Rewrite targeted_clue_ids[] only; add missing IDs from targeted_clue_ids[] when must_fix[] requires them.
+- Preserve preserve_clue_ids[] unchanged unless a targeted dependency forces a paired update.
+- If targeted_clue_ids[] is empty, limit changes to the minimum new IDs required by must_fix[].
+- strict_source_paths[] are the authoritative legal retry sourceInCML leaves; do not emit any clue outside that whitelist.
+- Keep every required_id_to_source_mappings[] clue ID exact, early|mid, and essential.
+- Satisfy every required_step_coverage_floors[] entry in the same output; do not defer contradiction coverage to a later retry.
+- If required_late_clue_slot is present, keep that exact ID late and non-essential.
+- If required_direct_culprit_clue is present, keep that exact ID, name the culprit explicitly, and use one of its allowed_source_paths.
 - If forbidden_terms[] is non-empty, none of those terms may appear in redHerrings[].description or redHerrings[].misdirection.
+- Retry CAST PATH BINDING CONTRACT (MANDATORY): for each clue with sourceInCML=CASE.cast[N].*, suspect references in description/pointsTo must match cast[N].name from cast_index_to_name_map[].
+- Mandatory pre-output self-check: iterate every clue and verify cast-path binding, source-path legality, and discriminating evidence ID coverage before final output.
 - If that cannot be satisfied while keeping red herring coherence, return status=\"fail\" with the blocking term list in audit.invalidSourcePaths.`;
       if (rewriteTargets.length > 0 || correctionTargets.some((t) => /red\s*herring\s*(rh_1|rh_2)|rh_1|rh_2/i.test(t))) {
         user += `

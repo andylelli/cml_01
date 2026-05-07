@@ -387,6 +387,27 @@ const baseInputs: any = {
 };
 
 describe("Agent 9 prompt hardening fixes", () => {
+  it("injects full prior chapter text as Story To Date context", () => {
+    const priorChapters = [
+      {
+        title: "Chapter 1: Discovery",
+        paragraphs: [
+          "Vivienne entered the study and found the clock stopped at ten minutes past eleven.",
+          "Muriel watched the doorway in silence.",
+        ],
+      },
+    ];
+
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 2, [], priorChapters as any);
+    const userMessage = prompt.messages.find((m) => m.role === "user")?.content ?? "";
+
+    expect(userMessage).toContain("STORY TO DATE (REFERENCE ONLY — DO NOT COPY VERBATIM)");
+    expect(userMessage).toContain("--- BEGIN PRIOR CHAPTER 1 ---");
+    expect(userMessage).toContain("Title: Chapter 1: Discovery");
+    expect(userMessage).toContain("Vivienne entered the study and found the clock stopped at ten minutes past eleven.");
+    expect(userMessage).toContain("--- END PRIOR CHAPTER 1 ---");
+  });
+
   it("Fix 1 adds a per-chapter obligation block with clue, location, clearance, and season obligations", () => {
     const block = buildChapterObligationBlock(
       [baseScene],

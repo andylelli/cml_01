@@ -13,6 +13,7 @@ import type { PromptComponents } from "./types.js";
 import { validateCml } from "@cml/cml";
 import yaml from "js-yaml";
 import { jsonrepair } from "jsonrepair";
+import { groundDiscriminatingKnowledgeRevealed } from "./shared/grounding.js";
 
 export interface RevisionInputs {
   originalPrompt: PromptComponents;  // Original Agent 3 prompt for context
@@ -36,6 +37,14 @@ export interface RevisionResult {
   cost: number;                      // Estimated cost
 }
 
+function hasRequiredEvidenceMissingSignal(error: string): boolean {
+  const lowered = error.toLowerCase();
+  return (
+    lowered.includes("required_evidence")
+    && (lowered.includes("is required") || lowered.includes("missing") || lowered.includes("empty"))
+  );
+}
+
 /**
  * Parse validation errors into structured categories
  */
@@ -51,7 +60,7 @@ function categorizeErrors(errors: string[]): {
   const groundingErrors: string[] = [];
 
   for (const error of errors) {
-    if (error.includes("is required")) {
+    if (error.includes("is required") || hasRequiredEvidenceMissingSignal(error)) {
       missingRequired.push(error);
     } else if (error.includes("not grounded in reader-visible inference evidence")) {
       groundingErrors.push(error);
@@ -94,6 +103,12 @@ function groupErrorsBySection(errors: string[]): Map<string, string[]> {
 export function buildRevisionPrompt(inputs: RevisionInputs): PromptComponents {
   const { originalPrompt, invalidCml, validationErrors, attempt, maxAttempts } = inputs;
   const promptMaxAttempts = typeof maxAttempts === "number" && maxAttempts > 0 ? maxAttempts : 5;
+  const requiredEvidenceGapErrors = validationErrors.filter(hasRequiredEvidenceMissingSignal);
+  const hasStructuralFairPlayCoverageError = validationErrors.some((error) =>
+    /fair-play clue coverage remains structurally insufficient/i.test(error),
+  );
+  const enforceRequiredEvidenceFirstPassContract =
+    requiredEvidenceGapErrors.length > 0 || hasStructuralFairPlayCoverageError;
 
   // Categorize and group errors for better targeting
   const categorized = categorizeErrors(validationErrors);
@@ -163,6 +178,22 @@ You MUST return ONLY valid JSON that matches the CML 2.0 schema.`;
       developer += `- ${error}\n`;
     }
     developer += "\n";
+  }
+
+  if (enforceRequiredEvidenceFirstPassContract) {
+    developer += `### First-Pass Required-Evidence Contract (non-negotiable)
+
+- Apply this contract across the entire revision output, regardless of error-class branch.
+- Do not weaken these invariants when fixing non-required_evidence errors.
+
+- Preserve the existing \'inference_path.steps\' count and order. Do not drop, merge, or reorder steps.
+- Every step MUST include \'required_evidence\' with 2-4 concrete, reader-visible entries.
+- Do NOT return any step without \'required_evidence\'.
+- Do NOT use abstract placeholders in \'required_evidence\' (e.g., \'timeline discrepancy\', \'suspicious behavior\', \'detective insight\').
+- If a step is missing evidence, synthesize concrete entries from that step's observation/correction plus existing constraint-space anchors.
+- Keep the revision surgical: fix structure and evidence completeness first, then preserve all unaffected narrative content.
+
+`;
   }
 
   // Show errors grouped by section
@@ -259,6 +290,42 @@ When cast members are missing fields like age_range, role_archetype, etc.:
 `;
 
   // User prompt: The actual revision task
+  const structuralInvariantsBlock = `
+
+## Non-Negotiable Inference-Step Structural Invariants (FIRST PASS)
+
+- These invariants apply to every revision pass regardless of validation error category.
+- Never drop or dilute these invariants to satisfy an unrelated branch fix.
+
+- For EVERY \'inference_path.steps[i]\', retain \'required_evidence\'.
+- For EVERY \'inference_path.steps[i]\', \'required_evidence\' MUST contain 2-4 entries.
+- Every \'required_evidence\' entry MUST be concrete and reader-visible (objects, traces, timestamps, witness statements, document details).
+- Forbidden abstract placeholders in \'required_evidence\': "timeline discrepancy", "suspicious behavior", "detective insight", "inconsistency", "anomaly".
+- If any step has missing, empty, or abstract \'required_evidence\', replace it with concrete evidence sourced from that step's observation/correction and existing CML facts.
+- Do NOT remove steps, collapse steps, or delete \'required_evidence\' to force validation.
+
+`;
+
+  const requiredEvidenceContractBlock = enforceRequiredEvidenceFirstPassContract
+    ? `
+
+## First-Pass Required-Evidence Contract (MANDATORY)
+
+- Preserve the current \'inference_path.steps\' count and order exactly.
+- Every \'inference_path.steps[i]\' MUST include \'required_evidence\' with 2-4 non-empty, concrete entries.
+- Do NOT output any step that omits \'required_evidence\'.
+- Do NOT use abstract placeholders such as: "timeline discrepancy", "suspicious behavior", "detective insight".
+- If evidence is missing, synthesize concrete evidence from the same step's observation/correction and existing CML constraint anchors.
+
+## Required Self-Check (perform internally before final output)
+
+1. Iterate all \'inference_path.steps[i]\'.
+2. Verify \'required_evidence\' exists and length is between 2 and 4.
+3. Verify each evidence entry is concrete and reader-visible.
+4. If any check fails, self-correct before emitting final JSON.
+`
+    : "";
+
   const user = `# Revision Task
 
 Fix ALL validation errors in the CML below. Return the COMPLETE, corrected CML as valid JSON.
@@ -280,6 +347,8 @@ ${invalidCml}
 7. **For grounding errors, revise earlier inference_path evidence** - do not dodge the error by making the discriminating test vaguer; instead add the missing mechanism/test facts to earlier reader-visible observations and required_evidence.
   - Exception: if the failed terms are procedural wrappers (reenactment/staged/surrounding/under scrutiny/putting), rewrite discriminating_test.design to name the concrete contradiction being proven; do not backfill those wrapper words into evidence.
 8. **Do not repair with reaction-only proof** - never use "signals of guilt", defensive reactions, or confession as the discriminating test's knowledge_revealed or pass_condition; use factual pre-test evidence instead.
+${structuralInvariantsBlock}
+${requiredEvidenceContractBlock}
 
 **IMPORTANT**: Return ONLY the corrected JSON. No explanations, no markdown code blocks, just the raw JSON that will parse and validate successfully.`;
 
@@ -565,6 +634,10 @@ export async function reviseCml(
     discriminatingTest.design = ensureString(discriminatingTest.design, "Confront with evidence");
     discriminatingTest.knowledge_revealed = ensureString(discriminatingTest.knowledge_revealed, "Access window");
     discriminatingTest.pass_condition = ensureString(discriminatingTest.pass_condition, "Culprit reacts");
+
+    // Deterministic pre-check: force knowledge_revealed to stay grounded in
+    // reader-visible inference evidence before re-validation.
+    groundDiscriminatingKnowledgeRevealed(caseBlock);
 
     // Keep discriminating-test evidence references canonical so Agent 5 does not
     // need heuristic reseeding that can pick late-only clues.

@@ -2,6 +2,86 @@ import { describe, expect, it } from "vitest";
 import { __testables } from "../jobs/agents/agent5-run.js";
 
 describe("agent5-run testables", () => {
+  it("builds strict first-attempt prompt payload from CML inputs", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          {
+            name: "Iwan Hale",
+            culprit_eligibility: "eligible",
+            access_plausibility: "Had after-hours key access",
+            alibi_window: "Quarter past nine to ten o'clock",
+          },
+          { name: "Agnes Pike", culprit_eligibility: "eligible" },
+        ],
+        culpability: { culprits: ["Iwan Hale"] },
+        inference_path: {
+          steps: [
+            {
+              observation: "Grease marks ring the clock key slot.",
+              correction: "The clock was staged to fake the timeline.",
+              required_evidence: ["Porter confirms key cabinet was opened."],
+            },
+          ],
+        },
+        discriminating_test: {
+          design: "Confront with key-grease sequence.",
+          evidence_clues: ["clue_clock_trace"],
+        },
+        quality_controls: {
+          clue_visibility_requirements: {
+            late_clues_min: 1,
+          },
+        },
+        constraint_space: {
+          time: { anchors: ["seven o'clock bell"], contradictions: [] },
+          access: { actors: ["butler"], objects: ["clock key"], permissions: [] },
+          physical: { laws: [], traces: ["grease streak"] },
+        },
+      },
+    } as any;
+
+    const payload = __testables.buildStrictPromptFeedback(cml);
+    expect(payload).toBeTruthy();
+    expect(payload?.strictSourcePaths.length).toBeGreaterThan(0);
+    expect(payload?.requiredIdToSourceMappings.some((entry: any) => entry.id === "clue_clock_trace")).toBe(true);
+    expect(payload?.requiredStepCoverageFloors).toEqual([
+      { step: 1, requireContradiction: true, requireMapped: true },
+    ]);
+    expect(payload?.requiredLateClueSlot?.id).toBe("clue_late_optional_slot_1");
+    expect(payload?.requiredDirectCulpritClue?.id).toBe("clue_culprit_direct_iwan_hale");
+  });
+
+  it("enforces one strict id-to-source mapping per clue id", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          { name: "Iwan Hale", culprit_eligibility: "eligible" },
+        ],
+        culpability: { culprits: ["Iwan Hale"] },
+        inference_path: {
+          steps: [
+            {
+              observation: "clue_clock_trace appears in witness notes.",
+              correction: "The timeline was staged.",
+              required_evidence: [],
+            },
+          ],
+        },
+        discriminating_test: {
+          design: "Confront with clock trace evidence.",
+          evidence_clues: ["clue_clock_trace"],
+        },
+      },
+    } as any;
+
+    const payload = __testables.buildStrictPromptFeedback(cml);
+    const mappings = (payload?.requiredIdToSourceMappings ?? []).filter((entry: any) => entry.id === "clue_clock_trace");
+
+    expect(mappings).toHaveLength(1);
+    expect(mappings[0]?.sourceInCML).toBe("CASE.discriminating_test.evidence_clues[0]");
+  });
+
   it("flags suspects that are named but lack elimination/alibi evidence", () => {
     const cml = {
       CASE: {
@@ -545,6 +625,68 @@ describe("agent5-run testables", () => {
     expect(clues.clues[0].sourceInCML).toBe("CASE.cast[0].access_plausibility");
   });
 
+  it("auto-repairs cast-path name mismatch by binding clue text to cast index name", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          { name: "Aled Price", alibi_window: "after supper" },
+          { name: "Megan Rowe", alibi_window: "in conservatory" },
+        ],
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_cast_mismatch",
+          sourceInCML: "CASE.cast[1].alibi_window",
+          description: "Aled Price was recorded in the conservatory before tea.",
+          pointsTo: "Eliminates Aled Price because the signed service log corroborates this alibi.",
+          evidenceType: "elimination",
+          placement: "mid",
+          criticality: "essential",
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_cast_mismatch"], late: [] },
+    } as any;
+
+    const repairs = __testables.repairCastNamePathConsistency(cml, clues);
+    expect(repairs.length).toBe(1);
+    expect(String(clues.clues[0].description)).toContain("Megan Rowe");
+    expect(String(clues.clues[0].pointsTo)).toContain("Megan Rowe");
+    expect(__testables.checkCastNamePathConsistency(cml, clues)).toEqual([]);
+  });
+
+  it("injects expected suspect name into elimination pointsTo when missing for cast path", () => {
+    const cml = {
+      CASE: {
+        cast: [{ name: "Aled Price", alibi_window: "after supper" }],
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_cast_missing_name",
+          sourceInCML: "CASE.cast[0].alibi_window",
+          description: "Service log records a continuous pantry duty window.",
+          pointsTo: "Corroborated alibi excludes this suspect from the study.",
+          evidenceType: "elimination",
+          placement: "mid",
+          criticality: "essential",
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_cast_missing_name"], late: [] },
+    } as any;
+
+    const repairs = __testables.repairCastNamePathConsistency(cml, clues);
+    expect(repairs.length).toBe(1);
+    expect(String(clues.clues[0].pointsTo)).toContain("Eliminates Aled Price because");
+    expect(__testables.checkCastNamePathConsistency(cml, clues)).toEqual([]);
+  });
+
   it("deterministically sanitizes severe red-herring overlap terms", () => {
     const cml = {
       CASE: {
@@ -798,5 +940,316 @@ describe("agent5-run testables", () => {
 
     expect(result.warnings.some((w: string) => /evidence-id deterministic synthesis/i.test(w))).toBe(true);
     expect(clues.clues.some((clue: any) => clue.id === "clue_clock_smudge")).toBe(true);
+  });
+
+  it("repairs strict mapping, direct culprit slot, and late optional slot deterministically", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          {
+            name: "Iwan Hale",
+            culprit_eligibility: "eligible",
+            access_plausibility: "Had after-hours key access",
+            alibi_window: "Quarter past nine to ten o'clock",
+          },
+        ],
+        culpability: { culprits: ["Iwan Hale"] },
+        inference_path: {
+          steps: [
+            {
+              observation: "Grease marks ring the clock key slot.",
+              correction: "The clock was staged to fake the timeline.",
+              effect: "Narrows access to Iwan Hale.",
+              required_evidence: [
+                "Porter confirms key cabinet was opened.",
+                "Clock grease sits fresh on the key slot.",
+              ],
+            },
+          ],
+        },
+        hidden_model: {
+          mechanism: {
+            description: "The clock in the study was tampered with to create a false timeline.",
+          },
+        },
+        discriminating_test: {
+          design: "Confront with clock trace evidence.",
+          knowledge_revealed: "Clock trace evidence exposes the staged timeline.",
+          evidence_clues: ["clue_clock_trace"],
+        },
+        quality_controls: {
+          clue_visibility_requirements: {
+            late_clues_min: 1,
+          },
+        },
+        constraint_space: {
+          time: { anchors: ["seven o'clock bell"], contradictions: [] },
+          access: { actors: ["butler"], objects: ["clock key"], permissions: [] },
+          physical: { laws: [], traces: ["grease streak"] },
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_clock_trace",
+          sourceInCML: "CASE.cast[0].alibi_window",
+          description: "Fresh grease near the clock key shows someone reached the mechanism after supper.",
+          pointsTo: "Supports the clock-trace claim.",
+          placement: "late",
+          criticality: "supporting",
+          evidenceType: "observation",
+          supportsInferenceStep: 1,
+        },
+        {
+          id: "clue_clock_trace_contradiction",
+          sourceInCML: "CASE.inference_path.steps[0].correction",
+          description: "The grease marks show the clock was staged after the visible time was set.",
+          pointsTo: "Contradicts the innocent reading of the clock face before the test.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "contradiction",
+          supportsInferenceStep: 1,
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_clock_trace_contradiction"], late: ["clue_clock_trace"] },
+    } as any;
+
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+    expect(result.warnings.length).toBeGreaterThan(0);
+
+    const evidenceClue = clues.clues.find((clue: any) => clue.id === "clue_clock_trace");
+    expect(evidenceClue?.sourceInCML).toBe("CASE.cast[0].alibi_window");
+    expect(evidenceClue?.placement).toBe("mid");
+    expect(evidenceClue?.criticality).toBe("essential");
+
+    const directCulprit = clues.clues.find((clue: any) => clue.id === "clue_culprit_direct_iwan_hale");
+    expect(directCulprit).toBeTruthy();
+    expect(String(directCulprit?.description)).toContain("Iwan Hale");
+    expect(String(directCulprit?.pointsTo).toLowerCase()).toContain("direct evidence");
+    expect(String(directCulprit?.pointsTo).toLowerCase()).toContain("means and opportunity");
+    expect(["early", "mid"]).toContain(String(directCulprit?.placement));
+    expect(directCulprit?.criticality).toBe("essential");
+
+    const lateSlot = clues.clues.find((clue: any) => clue.id === "clue_late_optional_slot_1");
+    expect(lateSlot).toBeTruthy();
+    expect(lateSlot?.placement).toBe("late");
+    expect(lateSlot?.criticality).toBe("optional");
+  });
+
+  it("synthesizes missing strict mapping ids before the strict contract gate runs", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          {
+            name: "Iwan Hale",
+            culprit_eligibility: "eligible",
+            access_plausibility: "Had after-hours key access",
+            alibi_window: "Quarter past nine to ten o'clock",
+          },
+        ],
+        culpability: { culprits: ["Iwan Hale"] },
+        inference_path: {
+          steps: [
+            {
+              observation: "Grease marks ring the clock key slot.",
+              correction: "The clock was staged to fake the timeline.",
+              effect: "Narrows access to Iwan Hale.",
+              required_evidence: [
+                "Porter confirms key cabinet was opened.",
+                "Clock grease sits fresh on the key slot.",
+              ],
+            },
+          ],
+        },
+        hidden_model: {
+          mechanism: {
+            description: "The clock in the study was tampered with to create a false timeline.",
+          },
+        },
+        discriminating_test: {
+          design: "Confront with clock trace evidence.",
+          knowledge_revealed: "Clock trace evidence exposes the staged timeline.",
+          evidence_clues: ["clue_clock_trace"],
+        },
+        quality_controls: {
+          clue_visibility_requirements: {
+            late_clues_min: 1,
+          },
+        },
+        prose_requirements: {
+          clue_to_scene_mapping: [
+            { clue_id: "clue_clock_trace", act_number: 1, scene_number: 2 },
+            { clue_id: "clue_core_contradiction_chain", act_number: 2, scene_number: 1 },
+          ],
+        },
+        constraint_space: {
+          time: { anchors: ["seven o'clock bell"], contradictions: [] },
+          access: { actors: ["butler"], objects: ["clock key"], permissions: [] },
+          physical: { laws: [], traces: ["grease streak"] },
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_clock_trace",
+          sourceInCML: "CASE.cast[0].alibi_window",
+          description: "Fresh grease near the clock key shows someone reached the mechanism after supper.",
+          pointsTo: "Supports the clock-trace claim.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "observation",
+          supportsInferenceStep: 1,
+        },
+        {
+          id: "clue_clock_trace_contradiction",
+          sourceInCML: "CASE.inference_path.steps[0].correction",
+          description: "The grease marks show the clock was staged after the visible time was set.",
+          pointsTo: "Contradicts the innocent reading of the clock face before the test.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "contradiction",
+          supportsInferenceStep: 1,
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: [], mid: ["clue_clock_trace", "clue_clock_trace_contradiction"], late: [] },
+    } as any;
+
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+
+    expect(result.warnings.some((w: string) => /strict mapping contract synthesis/i.test(w))).toBe(true);
+    expect(clues.clues.some((clue: any) => clue.id === "clue_core_contradiction_chain")).toBe(true);
+  });
+
+  it("synthesizes strict-step contradiction clues when strict step coverage floors are unmet", () => {
+    const cml = {
+      CASE: {
+        cast: [],
+        culpability: { culprits: [] },
+        inference_path: {
+          steps: [
+            {
+              observation: "The stopped clock shows a quarter past ten.",
+              correction: "The visible time cannot be trusted.",
+              required_evidence: [
+                "The brass bezel is warm to the touch.",
+                "The key slot carries fresh grease.",
+              ],
+            },
+            {
+              observation: "A porter heard the crash from the east corridor.",
+              correction: "The corridor witness narrows the movement window.",
+              required_evidence: [
+                "The porter signed the corridor log at half past ten.",
+                "The corridor lamp was still lit after the crash.",
+              ],
+            },
+          ],
+        },
+        discriminating_test: {
+          design: "Compare the stopped clock against the corridor witness account.",
+          knowledge_revealed: "The corridor witness fixes the true sequence.",
+          evidence_clues: [],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_step_1_obs",
+          sourceInCML: "CASE.inference_path.steps[0].observation",
+          description: "The stopped clock shows a quarter past ten.",
+          pointsTo: "Sets the visible timeline anchor.",
+          placement: "early",
+          criticality: "essential",
+          evidenceType: "observation",
+          supportsInferenceStep: 1,
+        },
+        {
+          id: "clue_step_2_obs",
+          sourceInCML: "CASE.inference_path.steps[1].observation",
+          description: "A porter heard the crash from the east corridor.",
+          pointsTo: "Maps the corridor witness to the second inference step.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "observation",
+          supportsInferenceStep: 2,
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: ["clue_step_1_obs"], mid: ["clue_step_2_obs"], late: [] },
+    } as any;
+
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+
+    expect(result.warnings.some((entry) => /strict-step deterministic synthesis/i.test(entry))).toBe(true);
+    expect(clues.clues.some((entry: any) =>
+      String(entry?.id ?? "").startsWith("clue_fp_contradiction_step_2")
+      && entry?.supportsInferenceStep === 2
+      && entry?.placement === "early"
+      && entry?.criticality === "essential"
+      && entry?.evidenceType === "contradiction"
+    )).toBe(true);
+  });
+
+  it("fails deterministic contracts on meta-audit clue text", () => {
+    const cml = {
+      CASE: {
+        cast: [],
+        culpability: { culprits: [] },
+        inference_path: {
+          steps: [
+            {
+              observation: "The mantel clock stands at quarter past ten.",
+              correction: "The visible time must be tested against witness accounts.",
+              required_evidence: [
+                "The clock hands sit askew on the enamel face.",
+                "The clock key bears a fresh grease smear.",
+              ],
+            },
+          ],
+        },
+        discriminating_test: {
+          design: "Compare the mantel clock with the witness account.",
+          knowledge_revealed: "The witness account exposes the false time.",
+          evidence_clues: [],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_meta_obs",
+          sourceInCML: "CASE.inference_path.steps[0].observation",
+          description: "Reader-visible pre-test clue: the reader cannot follow the deduction chain.",
+          pointsTo: "States an Information Parity problem instead of case evidence.",
+          placement: "early",
+          criticality: "essential",
+          evidenceType: "observation",
+          supportsInferenceStep: 1,
+        },
+        {
+          id: "clue_step_1_contradiction",
+          sourceInCML: "CASE.inference_path.steps[0].correction",
+          description: "The visible time must be tested against witness accounts.",
+          pointsTo: "Contradicts a naive reading of the mantel clock.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "contradiction",
+          supportsInferenceStep: 1,
+        },
+      ],
+      redHerrings: [],
+      clueTimeline: { early: ["clue_meta_obs"], mid: ["clue_step_1_contradiction"], late: [] },
+    } as any;
+
+    expect(() => __testables.enforceAgent5DeterministicContracts(cml, clues)).toThrow(/meta clue gate failed/i);
   });
 });

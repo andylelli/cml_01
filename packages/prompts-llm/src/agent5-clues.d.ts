@@ -22,6 +22,40 @@ export interface ClueExtractionInputs {
         }>;
         warnings?: string[];
         recommendations?: string[];
+        violationCodes?: string[];
+        targetedClueIds?: string[];
+        preserveClueIds?: string[];
+        requiredCluePhrases?: string[];
+        castPathBindingRules?: string[];
+        castPathNameIndexMap?: Array<{
+            index: number;
+            name: string;
+        }>;
+        forbiddenTerms?: string[];
+        preferredTerms?: string[];
+        requiredReplacements?: string[];
+        redHerringIdsToRewrite?: string[];
+        strictSourcePaths?: string[];
+        requiredIdToSourceMappings?: Array<{
+            id: string;
+            sourceInCML: string;
+        }>;
+        requiredStepCoverageFloors?: Array<{
+            step: number;
+            requireContradiction: boolean;
+            requireMapped: boolean;
+        }>;
+        requiredLateClueSlot?: {
+            id: string;
+            placement: "late" | "mid" | "early";
+            criticality: "optional" | "supporting" | "essential";
+        };
+        requiredDirectCulpritClue?: {
+            id: string;
+            culpritName: string;
+            allowedSourcePaths: string[];
+            requiredPhrases: string[];
+        };
     };
     runId?: string;
     projectId?: string;

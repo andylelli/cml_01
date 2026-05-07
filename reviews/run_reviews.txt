@@ -36,6 +36,24 @@ Story file:
 Reviewer:
 Overall assessment: PASS | DEGRADED | FAIL
 
+Agent-by-agent outcome check (required near top)
+- Agent1-SettingRefiner: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent2-CastDesigner: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent2e-BackgroundContext: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent3b-HardLogicDeviceGenerator: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent3-CMLGenerator: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent5-ClueExtraction: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent6-FairPlay: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent2b-CharacterProfiles: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent2c-LocationProfiles: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent2d-TemporalContext: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent65-WorldBuilder: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent7-NarrativeOutline: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- Agent9-Prose: PASS | WARN | FAIL | SKIPPED | NOT-RUN
+- First failing agent:
+- Last fully-passing upstream agent:
+- Quick notes:
+
 Observed defects
 - [Severity] Defect title
   Evidence:

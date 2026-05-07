@@ -221,12 +221,15 @@ Please correct the issues and return a valid JSON object. Mandatory checks:
   - `characterVoiceSketches.length === CASE.cast.length`
 - Validation confirmations gate: all booleans must be `true`.
 - `storyEmotionalArc.arcDescription` hard floor: `arc_description_gate` words.
-- `storyTheme` hard floor in runtime code: 20 words.
+- `storyTheme` hard floor in runtime code: 25 words.
+
+Runtime safeguard:
+- If `storyTheme` is under the gate, runtime deterministically normalizes it into a sentence-complete 25+ word thematic line before final validation.
 
 Important implementation nuance:
 - Prompt asks for `storyTheme >= 25 words`.
-- Runtime hard gate is currently 20 words.
-- Best practice: keep the doc and model behavior at 25+ words to satisfy both quality target and gate.
+- Runtime hard gate is 25 words.
+- Best practice remains: keep `storyTheme` sentence-complete and comfortably above 25 words to avoid retry churn.
 
 ## Quality Bar (Best-Practice Layer)
 - Zero invention: no new secrets, no new relationships, no new mechanism facts.

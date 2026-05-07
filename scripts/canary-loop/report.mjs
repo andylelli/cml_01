@@ -228,6 +228,8 @@ function buildRunSummary(ledger) {
     String(entry.stopReason ?? "").includes("fingerprint mismatch")
   ).length;
   const featureNarrative = buildFeatureNarrative(entries);
+  const firstPassTelemetry = summarizeFirstPassTelemetry(entries);
+  const agent6RescueTelemetry = summarizeAgent6RescueTelemetry(entries);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -247,7 +249,114 @@ function buildRunSummary(ledger) {
     stopReasonCounts,
     signatureCounts,
     featureNarrative,
+    firstPassTelemetry,
+    agent6RescueTelemetry,
   };
+}
+
+function summarizeFirstPassTelemetry(entries) {
+  const summarizeAgent = (agentKey) => {
+    const samples = entries
+      .map((entry) => entry?.canary?.firstPassTelemetry?.[agentKey])
+      .filter(Boolean);
+
+    const firstPassStatusCounts = countBy(
+      samples
+        .map((item) => String(item?.firstPassStatus ?? "unknown").toLowerCase())
+        .filter(Boolean)
+    );
+    const retryInvokedCount = samples.filter((item) => item?.retryInvoked === true).length;
+    const failureClassCounts = countBy(
+      samples
+        .map((item) => String(item?.failureClass ?? "none").trim())
+        .filter((value) => value.length > 0)
+    );
+
+    return {
+      samples: samples.length,
+      firstPassStatusCounts,
+      retryInvokedCount,
+      failureClassCounts,
+    };
+  };
+
+  const agent5 = summarizeAgent("agent5");
+  const agent6 = summarizeAgent("agent6");
+  const available = agent5.samples > 0 || agent6.samples > 0;
+
+  return {
+    available,
+    agent5,
+    agent6,
+  };
+}
+
+function summarizeAgent6RescueTelemetry(entries) {
+  const samples = (Array.isArray(entries) ? entries : [])
+    .map((entry) => entry?.canary?.agent6RescueTelemetry)
+    .filter((item) => item && item.available !== false);
+
+  if (!samples.length) {
+    return {
+      available: false,
+      samples: 0,
+    };
+  }
+
+  return {
+    available: true,
+    samples: samples.length,
+    warningCounts: summarizeNumericSeries(samples.map((item) => item?.finalWarningCount)),
+    rescueWarningTotals: summarizeNumericSeries(samples.map((item) => item?.rescueWarningTotal)),
+    syntheticClueTotals: summarizeNumericSeries(samples.map((item) => item?.syntheticClueTotal)),
+    rescueWarningCounts: sumCountMaps(samples.map((item) => item?.rescueWarningCounts)),
+    syntheticClueCounts: sumCountMaps(samples.map((item) => item?.syntheticClueCounts)),
+  };
+}
+
+function summarizeNumericSeries(values) {
+  const normalized = (Array.isArray(values) ? values : [])
+    .map((value) => Number(value ?? 0))
+    .filter((value) => Number.isFinite(value));
+
+  if (!normalized.length) {
+    return {
+      first: 0,
+      last: 0,
+      min: 0,
+      max: 0,
+      delta: 0,
+      nonIncreasing: true,
+    };
+  }
+
+  const first = normalized[0];
+  const last = normalized[normalized.length - 1];
+  return {
+    first,
+    last,
+    min: Math.min(...normalized),
+    max: Math.max(...normalized),
+    delta: last - first,
+    nonIncreasing: last <= first,
+  };
+}
+
+function sumCountMaps(maps) {
+  const totals = {};
+  for (const record of Array.isArray(maps) ? maps : []) {
+    if (!record || typeof record !== "object" || Array.isArray(record)) {
+      continue;
+    }
+    for (const [key, value] of Object.entries(record)) {
+      const numeric = Number(value ?? 0);
+      if (!Number.isFinite(numeric)) {
+        continue;
+      }
+      totals[key] = (totals[key] ?? 0) + numeric;
+    }
+  }
+  return totals;
 }
 
 function buildFeatureNarrative(entries) {
@@ -540,6 +649,47 @@ function renderRunSummaryMarkdown(summary) {
     for (const line of featureLines) {
       lines.push(`- ${line}`);
     }
+  }
+
+  const firstPassTelemetry = summary.firstPassTelemetry;
+  if (firstPassTelemetry?.available) {
+    lines.push("", "## First-pass Telemetry", "");
+    for (const agentKey of ["agent5", "agent6"]) {
+      const section = firstPassTelemetry?.[agentKey];
+      if (!section || Number(section.samples ?? 0) === 0) {
+        continue;
+      }
+      const statusEntries = Object.entries(section.firstPassStatusCounts ?? {})
+        .map(([status, count]) => `${status}:${count}`)
+        .join(", ");
+      const failureEntries = Object.entries(section.failureClassCounts ?? {})
+        .map(([failureClass, count]) => `${failureClass}:${count}`)
+        .join(", ");
+      lines.push(`- ${agentKey}: samples=${section.samples}, firstPassStatus=[${statusEntries || "none"}], retryInvoked=${section.retryInvokedCount}`);
+      lines.push(`- ${agentKey}: failureClasses=[${failureEntries || "none"}]`);
+    }
+  }
+
+  const agent6RescueTelemetry = summary.agent6RescueTelemetry;
+  if (agent6RescueTelemetry?.available) {
+    const rescueEntries = Object.entries(agent6RescueTelemetry.rescueWarningCounts ?? {})
+      .map(([key, count]) => `${key}:${count}`)
+      .join(", ");
+    const clueEntries = Object.entries(agent6RescueTelemetry.syntheticClueCounts ?? {})
+      .map(([key, count]) => `${key}:${count}`)
+      .join(", ");
+    lines.push("", "## Agent 6 Rescue Telemetry", "");
+    lines.push(
+      `- warnings: first=${agent6RescueTelemetry.warningCounts.first}, last=${agent6RescueTelemetry.warningCounts.last}, delta=${agent6RescueTelemetry.warningCounts.delta}, nonIncreasing=${agent6RescueTelemetry.warningCounts.nonIncreasing}`
+    );
+    lines.push(
+      `- rescue warnings: first=${agent6RescueTelemetry.rescueWarningTotals.first}, last=${agent6RescueTelemetry.rescueWarningTotals.last}, delta=${agent6RescueTelemetry.rescueWarningTotals.delta}, nonIncreasing=${agent6RescueTelemetry.rescueWarningTotals.nonIncreasing}`
+    );
+    lines.push(
+      `- synthetic clues: first=${agent6RescueTelemetry.syntheticClueTotals.first}, last=${agent6RescueTelemetry.syntheticClueTotals.last}, delta=${agent6RescueTelemetry.syntheticClueTotals.delta}, nonIncreasing=${agent6RescueTelemetry.syntheticClueTotals.nonIncreasing}`
+    );
+    lines.push(`- rescue warning categories=[${rescueEntries || "none"}]`);
+    lines.push(`- synthetic clue categories=[${clueEntries || "none"}]`);
   }
 
   return `${lines.join("\n")}\n`;

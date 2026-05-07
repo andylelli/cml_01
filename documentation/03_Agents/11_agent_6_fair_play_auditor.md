@@ -60,6 +60,7 @@ Implemented retry/escalation sequence in `runAgent6(...)`:
 - blind-reader gate with confidence threshold; can run bounded remediation cycles with targeted clue feedback
 - structural failure classification (`clue_coverage`, `inference_path_abstract`, `constraint_space_insufficient`, `clue_only`)
 - if structural critical failure persists, can escalate to Agent 4 CML revision, then re-run clues + fair-play audit
+- `inference_path_abstract` escalation now enforces concrete-anchor revision rules (no abstract placeholders, required evidence anchored to concrete entities/records, and correction text that explicitly narrows named suspects)
 - if classified `clue_only`, can run a targeted final clue regeneration attempt
 - tracks retry spend against max configured retry cost
 

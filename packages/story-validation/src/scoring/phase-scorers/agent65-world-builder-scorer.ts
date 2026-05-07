@@ -41,6 +41,7 @@ const EXPECTED_HUMOUR_POSITIONS = new Set([
 ]);
 
 const countWords = (text: string): number => (text ?? '').trim().split(/\s+/).filter(Boolean).length;
+const STORY_THEME_WORD_GATE = 25;
 
 /**
  * Scores the World Builder phase (Agent 6.5)
@@ -285,13 +286,13 @@ export class Agent65WorldBuilderScorer implements Scorer<any, WorldBuilderOutput
   private scoreStoryTheme(output: WorldBuilderOutput): TestResult[] {
     const theme = output?.storyTheme ?? '';
     const words = countWords(theme);
-    if (words >= 20) {
-      return [pass('storyTheme ≥20 words', 'quality', 2)];
+    if (words >= STORY_THEME_WORD_GATE) {
+      return [pass('storyTheme ≥25 words', 'quality', 2)];
     }
-    if (words >= 10) {
-      return [partial('storyTheme ≥20 words', 'quality', 50, 2, `storyTheme has ${words} words`)];
+    if (words >= Math.ceil(STORY_THEME_WORD_GATE / 2)) {
+      return [partial('storyTheme ≥25 words', 'quality', 50, 2, `storyTheme has ${words} words`)];
     }
-    return [fail('storyTheme ≥20 words', 'quality', 2, `storyTheme too short: "${theme}"`)];
+    return [fail('storyTheme ≥25 words', 'quality', 2, `storyTheme too short: "${theme}"`)];
   }
 
   private grade(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {

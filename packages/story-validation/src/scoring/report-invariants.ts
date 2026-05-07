@@ -170,6 +170,13 @@ export function validateGenerationReportInvariants(
     });
   }
 
+  if (outcome === 'failed' && passed === true) {
+    violations.push({
+      code: 'outcome_failed_requires_passed_false',
+      message: 'run_outcome=failed requires passed=false.',
+    });
+  }
+
   if (outcome === 'aborted' && passed === true) {
     violations.push({
       code: 'aborted_run_cannot_pass',

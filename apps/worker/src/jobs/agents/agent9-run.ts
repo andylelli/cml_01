@@ -1139,6 +1139,17 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     throw new Error(`Agent 9 aborted before prose generation: CML usage validation failed: ${summary}`);
   }
 
+  const blockingOutlineIssues = outlineCoverageIssues.filter((issue) =>
+    issue.type === "missing_discriminating_test_scene"
+    || issue.type === "missing_suspect_closure_scene",
+  );
+  if (blockingOutlineIssues.length > 0) {
+    const summary = blockingOutlineIssues.map((issue) => issue.message).join("; ");
+    throw new Error(
+      `Agent 9 aborted before prose generation: outline pre-commit completeness gate failed: ${summary}`,
+    );
+  }
+
   reportProgress("prose", "Generating prose chapter by chapter with per-chapter validation...", 91);
 
   const baselineProseGuardrails = [

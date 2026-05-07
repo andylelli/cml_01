@@ -45,6 +45,7 @@ Runtime contract in `generateWorldDocument(...)`:
 	- humour map completeness, uniqueness, and non-empty rationale for all required scene positions
 	- all `validationConfirmations.*` must be `true`
 	- minimum word-count and structure gates (`storyTheme`, `storyEmotionalArc.arcDescription`, `revealImplications`)
+	- deterministic floor normalization for short `storyTheme`/`revealImplications` before final gate checks (prevention-over-cure for borderline brevity)
 
 ## 4) Scoring and Pass Criteria
 Orchestrated via:

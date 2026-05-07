@@ -3063,7 +3063,7 @@ function inferAgentFocusToken(className) {
   return null;
 }
 
-function suggestExpandedStartFromSignature({ signature, selectedAgentCode, currentStartCode }) {
+export function suggestExpandedStartFromSignature({ signature, selectedAgentCode, currentStartCode }) {
   const selectedIndex = PIPELINE_AGENT_ORDER.indexOf(selectedAgentCode);
   const currentStartIndex = PIPELINE_AGENT_ORDER.indexOf(currentStartCode);
   if (selectedIndex < 0 || currentStartIndex < 0) {
@@ -3076,7 +3076,7 @@ function suggestExpandedStartFromSignature({ signature, selectedAgentCode, curre
 
   let suggestedCode = null;
   if (stage === "cml-revision" || stage === "schema" || className.startsWith("cml.")) {
-    suggestedCode = "4";
+    suggestedCode = "3";
   } else if (stage === "fairplay" || className.startsWith("agent6.")) {
     suggestedCode = "6";
   } else if (stage === "clues" || className.startsWith("agent5.")) {

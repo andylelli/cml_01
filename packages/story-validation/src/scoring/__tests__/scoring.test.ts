@@ -438,6 +438,27 @@ describe("ScoreAggregator", () => {
     expect(report.run_outcome_reason).toBe("Release gate hard-stop");
   });
 
+  it("sets passed=false when release gate fails even if phase thresholds passed", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore("agent2-cast", "Cast", makeScore({ total: 92 }), 1000);
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "failed",
+        validation_summary: { totalIssues: 2, critical: 1, major: 1, moderate: 0, minor: 0 },
+        release_gate_hard_stop_count: 0,
+        release_gate_warning_count: 0,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.run_outcome).toBe("failed");
+    expect(report.passed).toBe(false);
+  });
+
   it("infers deterministic hard gate failure from failed phase diagnostics", () => {
     const agg = new ScoreAggregator(standardConfig);
     agg.addPhaseScore(

@@ -236,8 +236,15 @@ Quick run preset behavior (`--quickRun=true`):
 - pins `--startFromAgent` to the selected `--agent` boundary
 - forces `--hydratePriorFromRun=true`
 - forces runtime upstream hydration mode (`CANARY_FORCE_FRESH_UPSTREAM=false`)
+- enables quick-run canary input override mode (`CANARY_QUICK_RUN=true`)
+- applies canary input overrides from `scripts/canary-loop/request.quickrun.rework.yaml` before boundary/core canary execution
 - disables broadening/escalation paths that increase rerun scope (`--autoExpandUpstreamScope=false`, `--enableMajorRework=false`)
 - forces targeted tests (`--testScope=targeted`)
+
+Canary input precedence (core + boundary runners):
+- base runtime behavior uses `apps/worker/config/generation-params.yaml`
+- canary runs override generation inputs from `scripts/canary-core-inputs.yaml`
+- quick-run canary loops apply final per-run overrides from `scripts/canary-loop/request.quickrun.rework.yaml` (optional `canaryInputOverrides` block)
 
 Terminal major-rework reset behavior:
 - when `enableMajorRework=true`, the loop forces major-rework escalation on the terminal iteration
@@ -247,6 +254,7 @@ Terminal major-rework reset behavior:
 YAML request file behavior:
 - YAML root must be an object with the same keys accepted by CLI flags (`runId`, `agent`, `startFromAgent`, `mode`, `maxIterations`, `maxUnchanged`, `testScope`, `quickRun`, `enableMajorRework`, etc.)
 - YAML may be either root-level fields or `{ inputs: { ... } }`
+- quick-run request YAML may include `canaryInputOverrides` to override `scripts/canary-core-inputs.yaml` for canary generation inputs
 - if `agent` is blank and `--interactive` is not enabled, the CLI exits with precheck-style input error
 - if `agent`/`startFromAgent` are blank and `--interactive=true` in a TTY terminal, the CLI prompts for values
 - CLI flags override YAML values when both are provided
@@ -341,6 +349,21 @@ Major-rework execution-state logging:
 - dashboard rollups include `admissibilityBlockerCounts` split by blocker type (for example `target_files_exceed_wave_cap`)
 - attempt-history markdown header includes a `Terminal Reason Taxonomy` section with category descriptions and observed counts
 
+Agent boundary first-pass telemetry (Agent 5/6):
+- canary boundary output now emits parseable markers when available: `AGENT5_FIRST_PASS_STATUS`, `AGENT5_RETRY_INVOKED`, `AGENT5_FAILURE_CLASS`, `AGENT6_FIRST_PASS_STATUS`, `AGENT6_RETRY_INVOKED`, `AGENT6_FAILURE_CLASS`
+- validation parser captures these markers into iteration canary payloads under `canary.firstPassTelemetry`
+- run-summary rollups aggregate this data under `firstPassTelemetry` with per-agent sample counts, first-pass status counts, retry-invoked counts, and failure-class histograms
+- markdown run summary includes a `First-pass Telemetry` section when telemetry is present
+- initial Agent 5 outputs now pass the full deterministic contract bundle before Agent 6 is allowed to audit them; Agent 6 only reruns that bundle after its own clue regenerations
+
+Agent 6 rescue telemetry:
+- boundary output now emits `AGENT6_RESCUE_TELEMETRY` as JSON when Agent 6 context is available
+- payload fields include `finalWarningCount`, `rescueWarningTotal`, `rescueWarningCounts`, `syntheticClueTotal`, `syntheticClueCounts`, plus retry/failure-class context
+- validation parser captures this under `canary.agent6RescueTelemetry`
+- run-summary rollups aggregate first/last/delta trend data for warnings, rescue-warning totals, and synthetic clue totals, and also sum category counts across iterations
+- markdown run summary includes an `Agent 6 Rescue Telemetry` section when this data is present
+- synthetic clue rescue now excludes audit-language visibility clue synthesis; remaining rescue clues should be case-grounded parity-bridge or inference-step backstop repairs only
+
 Operational/support files in the same folder:
 - lock files: `logs/canary-loops/.locks/*`
 - signature cache: `logs/canary-loops/signature-fix-cache.json`
@@ -376,6 +399,7 @@ Use this map when triaging a failing or looping canary run.
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.json`
   Structured per-run summary rollup derived from ledger entries.
   Includes `plannedNotExecutedWaveCount` for admissibility-blocked wave plans.
+  Includes `firstPassTelemetry` rollups for Agent 5/6 when boundary markers are available.
 
 - `logs/canary-loops/<YYMMDD-HHMM[-nn]>/canary-run-summary-<timestamp>-<runId>-<agent>.md`
   Markdown companion to the per-run summary rollup.
@@ -566,6 +590,6 @@ Breakdown:
 
 The repository currently exposes `canary:agent-loop` and per-agent wrappers (`canary:agent1`, `canary:agent2`, `canary:agent2b`, `canary:agent2c`, `canary:agent2d`, `canary:agent2e`, `canary:agent3`, `canary:agent3b`, `canary:agent4`, `canary:agent5`, `canary:agent6`, `canary:agent65`, `canary:agent7`, `canary:agent9`) in `package.json`.
 
-Boundary-safe agent mappings use `scripts/canary-agent-boundary.mjs --agent <code>` for most agents, while Agent 9 uses `scripts/canary-agent9.mjs`.
+Boundary-safe agent mappings use `scripts/canary-agent-boundary.mjs --agent <code>` for most agents. Agent 9 keeps the `scripts/canary-agent9.mjs` entrypoint, and that wrapper now delegates to `scripts/canary-agent-boundary.mjs --agent 9` for real hydrated boundary execution.
 
 `canary:core` still exists, but selected-agent loop execution is expected to run through the mapped per-agent canary commands.

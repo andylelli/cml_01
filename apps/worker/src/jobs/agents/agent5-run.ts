@@ -52,6 +52,16 @@ type TemporalLexicalCollisionResult = {
   explanation: string;
 };
 
+type StrictPromptFeedbackPayload = {
+  overallStatus: "pass" | "fail" | "needs-revision";
+  recommendations: string[];
+  strictSourcePaths: string[];
+  requiredIdToSourceMappings: Array<{ id: string; sourceInCML: string }>;
+  requiredStepCoverageFloors: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
+  requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
+  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
+};
+
 const RH_OVERLAP_STOP_WORDS = new Set([
   "therefore", "because", "suggests", "suggested", "indicates", "indicated", "through", "before", "after", "during", "reader", "should", "could", "would", "their", "about", "which", "while", "where", "when", "being", "shows", "found", "noted",
 ]);
@@ -70,6 +80,21 @@ const MECHANISM_VISIBILITY_STOP_WORDS = new Set([
   "later", "method", "reader", "revealed", "shows", "therefore",
   "through", "using", "which", "window", "false", "only", "culprit",
 ]);
+
+const META_AUDIT_CLUE_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+  { pattern: /reader-visible pre-test clue/i, label: "Reader-visible pre-test clue" },
+  { pattern: /fair play audit/i, label: "fair play audit" },
+  { pattern: /information parity/i, label: "Information Parity" },
+  { pattern: /logical deducibility/i, label: "Logical Deducibility" },
+  { pattern: /clue visibility/i, label: "Clue Visibility" },
+  { pattern: /no withholding/i, label: "No Withholding" },
+  { pattern: /discriminating test timing/i, label: "Discriminating Test Timing" },
+  { pattern: /first-pass acceptance contract/i, label: "first-pass acceptance contract" },
+  { pattern: /structured correction payload/i, label: "structured correction payload" },
+  { pattern: /hard retry contract/i, label: "hard retry contract" },
+  { pattern: /correction target/i, label: "correction target" },
+  { pattern: /needs-revision/i, label: "needs-revision" },
+];
 
 const isOverlapCandidateToken = (token: string): boolean =>
   token.length > 4
@@ -95,6 +120,21 @@ const ALLOWED_SOURCE_PATTERNS: RegExp[] = [
 ];
 
 const CANONICAL_CLUE_ID_RE = /^clue_[a-z0-9_-]+$/i;
+
+const classifyAgent5FailureClass = (message: string): string => {
+  const normalized = String(message ?? "").toLowerCase();
+  if (/red-?herring\s+overlap/.test(normalized)) return "agent5.red_herring_overlap";
+  if (/source-?path|source path/.test(normalized)) return "agent5.invalid_source_path";
+  if (/discriminating.*(id|evidence clue)|evidence id/.test(normalized)) return "agent5.discriminating_id_coverage";
+  if (/weak elimination|suspect-coverage/.test(normalized)) return "agent5.weak_elimination_evidence";
+  if (/time-style|digit-based time/.test(normalized)) return "agent5.time_style_violation";
+  return "agent5.unknown_failure";
+};
+
+const strictPromptContractsEnabled = (): boolean => {
+  const value = String(process.env.AGENT5_STRICT_PROMPT_CONTRACTS ?? "").trim().toLowerCase();
+  return value === "1" || value === "true" || value === "yes" || value === "on";
+};
 
 const normalizeTokens = (text: string): string[] =>
   text
@@ -219,6 +259,620 @@ const checkSourcePathValidity = (cml: CaseData, clues: ClueDistributionResult): 
   return { invalidPaths: Array.from(invalidPaths), issues };
 };
 
+const toClueIdSlug = (value: string): string =>
+  String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+  || "culprit";
+
+const pushIndexedSourcePaths = (
+  acc: string[],
+  base: string,
+  arr: unknown[] | undefined,
+): void => {
+  if (!Array.isArray(arr)) return;
+  for (let i = 0; i < arr.length; i += 1) {
+    acc.push(`${base}[${i}]`);
+  }
+};
+
+const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
+  const caseBlock = getCaseBlock(cml);
+  const paths: string[] = [];
+
+  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  for (let i = 0; i < steps.length; i += 1) {
+    paths.push(`CASE.inference_path.steps[${i}].observation`);
+    paths.push(`CASE.inference_path.steps[${i}].correction`);
+    const reqEvidence = Array.isArray(steps[i]?.required_evidence) ? steps[i].required_evidence : [];
+    for (let j = 0; j < reqEvidence.length; j += 1) {
+      paths.push(`CASE.inference_path.steps[${i}].required_evidence[${j}]`);
+    }
+  }
+
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.time.anchors", caseBlock?.constraint_space?.time?.anchors);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.time.contradictions", caseBlock?.constraint_space?.time?.contradictions);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.actors", caseBlock?.constraint_space?.access?.actors);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.objects", caseBlock?.constraint_space?.access?.objects);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.access.permissions", caseBlock?.constraint_space?.access?.permissions);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.physical.laws", caseBlock?.constraint_space?.physical?.laws);
+  pushIndexedSourcePaths(paths, "CASE.constraint_space.physical.traces", caseBlock?.constraint_space?.physical?.traces);
+
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  for (let i = 0; i < cast.length; i += 1) {
+    paths.push(`CASE.cast[${i}].alibi_window`);
+    paths.push(`CASE.cast[${i}].access_plausibility`);
+    const sensitivity = Array.isArray(cast[i]?.evidence_sensitivity) ? cast[i].evidence_sensitivity : [];
+    for (let j = 0; j < sensitivity.length; j += 1) {
+      paths.push(`CASE.cast[${i}].evidence_sensitivity[${j}]`);
+    }
+  }
+
+  const testEvidence = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
+    ? caseBlock.discriminating_test.evidence_clues
+    : [];
+  for (let i = 0; i < testEvidence.length; i += 1) {
+    paths.push(`CASE.discriminating_test.evidence_clues[${i}]`);
+  }
+
+  const clueSceneMap = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+    : [];
+  for (let i = 0; i < clueSceneMap.length; i += 1) {
+    paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
+  }
+
+  return [...new Set(paths)].filter((path) => validateSourcePath(cml, path));
+};
+
+const buildStrictStepCoverageFloors = (cml: CaseData): Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }> => {
+  const caseBlock = getCaseBlock(cml);
+  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  return steps.map((_step: any, index: number) => ({
+    step: index + 1,
+    requireContradiction: true,
+    requireMapped: true,
+  }));
+};
+
+const buildStrictLateClueSlot = (cml: CaseData): { id: string; placement: "late"; criticality: "optional" | "supporting" } | undefined => {
+  const caseBlock = getCaseBlock(cml);
+  const lateMin = Number(caseBlock?.quality_controls?.clue_visibility_requirements?.late_clues_min ?? 0);
+  if (!Number.isFinite(lateMin) || lateMin <= 0) return undefined;
+  return {
+    id: "clue_late_optional_slot_1",
+    placement: "late",
+    criticality: "optional",
+  };
+};
+
+const buildStrictDirectCulpritClue = (
+  cml: CaseData,
+  strictSourcePaths: string[],
+): { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] } | undefined => {
+  const caseBlock = getCaseBlock(cml);
+  const culprits = Array.isArray(caseBlock?.culpability?.culprits)
+    ? caseBlock.culpability.culprits.map((name: any) => String(name ?? "").trim()).filter(Boolean)
+    : [];
+  const culpritName = culprits[0];
+  if (!culpritName) return undefined;
+
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const castIndex = cast.findIndex((entry: any) => String(entry?.name ?? "").trim() === culpritName);
+  const allowedSourcePaths: string[] = [];
+
+  if (castIndex >= 0) {
+    const castPaths = [
+      `CASE.cast[${castIndex}].access_plausibility`,
+      `CASE.cast[${castIndex}].alibi_window`,
+      `CASE.cast[${castIndex}].evidence_sensitivity[0]`,
+    ];
+    castPaths.forEach((path) => {
+      if (strictSourcePaths.includes(path)) allowedSourcePaths.push(path);
+    });
+  }
+
+  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  for (let i = 0; i < steps.length; i += 1) {
+    const stepText = `${String(steps[i]?.observation ?? "")} ${String(steps[i]?.correction ?? "")} ${String(steps[i]?.effect ?? "")}`;
+    if (!nameAppearsInText(culpritName, stepText)) continue;
+    const observationPath = `CASE.inference_path.steps[${i}].observation`;
+    const correctionPath = `CASE.inference_path.steps[${i}].correction`;
+    if (strictSourcePaths.includes(observationPath)) allowedSourcePaths.push(observationPath);
+    if (strictSourcePaths.includes(correctionPath)) allowedSourcePaths.push(correctionPath);
+  }
+
+  return {
+    id: `clue_culprit_direct_${toClueIdSlug(culpritName)}`,
+    culpritName,
+    allowedSourcePaths: [...new Set(allowedSourcePaths)].slice(0, 8),
+    requiredPhrases: [culpritName, "direct evidence", "means and opportunity"],
+  };
+};
+
+const buildStrictIdToSourceMappings = (
+  cml: CaseData,
+  strictSourcePaths: string[],
+  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+): Array<{ id: string; sourceInCML: string }> => {
+  const caseBlock = getCaseBlock(cml);
+  const mappings: Array<{ id: string; sourceInCML: string }> = [];
+
+  const evidenceIds = getCanonicalEvidenceClueIds(cml);
+  evidenceIds.forEach((id: string, index: number) => {
+    const sourceInCML = `CASE.discriminating_test.evidence_clues[${index}]`;
+    if (strictSourcePaths.includes(sourceInCML)) {
+      mappings.push({ id, sourceInCML });
+    }
+  });
+
+  if (requiredDirectCulpritClue?.id && requiredDirectCulpritClue.allowedSourcePaths.length > 0) {
+    mappings.push({
+      id: requiredDirectCulpritClue.id,
+      sourceInCML: requiredDirectCulpritClue.allowedSourcePaths[0],
+    });
+  }
+
+  const clueSceneMap = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+    : [];
+  clueSceneMap.forEach((entry: any, index: number) => {
+    const clueId = String(entry?.clue_id ?? "").trim();
+    if (!clueId || !CANONICAL_CLUE_ID_RE.test(clueId)) return;
+    const sourceInCML = `CASE.prose_requirements.clue_to_scene_mapping[${index}].clue_id`;
+    if (strictSourcePaths.includes(sourceInCML)) {
+      mappings.push({ id: clueId, sourceInCML });
+    }
+  });
+
+  // Enforce one source path per clue ID to avoid contradictory strict contracts.
+  const uniqueById = new Map<string, { id: string; sourceInCML: string }>();
+  mappings.forEach((entry) => {
+    if (!uniqueById.has(entry.id)) {
+      uniqueById.set(entry.id, entry);
+    }
+  });
+
+  return Array.from(uniqueById.values());
+};
+
+export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPayload | undefined => {
+  const strictSourcePaths = buildStrictSourcePathWhitelist(cml);
+  const requiredStepCoverageFloors = buildStrictStepCoverageFloors(cml);
+  const requiredLateClueSlot = buildStrictLateClueSlot(cml);
+  const requiredDirectCulpritClue = buildStrictDirectCulpritClue(cml, strictSourcePaths);
+  const requiredIdToSourceMappings = buildStrictIdToSourceMappings(cml, strictSourcePaths, requiredDirectCulpritClue);
+
+  if (
+    strictSourcePaths.length === 0
+    && requiredIdToSourceMappings.length === 0
+    && requiredStepCoverageFloors.length === 0
+    && !requiredLateClueSlot
+    && !requiredDirectCulpritClue
+  ) {
+    return undefined;
+  }
+
+  return {
+    overallStatus: "needs-revision",
+    recommendations: [
+      "Strict first-attempt contracts are active: apply strict source whitelist and required ID->source mappings exactly.",
+      "If any strict contract cannot be satisfied, return status=fail with unresolved blockers in audit.invalidSourcePaths.",
+      "Do not defer strict mapping and direct culprit evidence requirements to retry mode.",
+    ],
+    strictSourcePaths,
+    requiredIdToSourceMappings,
+    requiredStepCoverageFloors,
+    requiredLateClueSlot,
+    requiredDirectCulpritClue,
+  };
+};
+
+const rebuildClueTimelineFromPlacements = (clues: ClueDistributionResult): void => {
+  const timeline = { early: [] as string[], mid: [] as string[], late: [] as string[] };
+  for (const clue of clues.clues as any[]) {
+    const clueId = String(clue?.id ?? "").trim();
+    if (!clueId) continue;
+    const placement = String(clue?.placement ?? "").toLowerCase();
+    if (placement === "early") timeline.early.push(clueId);
+    else if (placement === "late") timeline.late.push(clueId);
+    else timeline.mid.push(clueId);
+  }
+  (clues as any).clueTimeline = timeline;
+};
+
+const inferClueCategoryFromSourcePath = (sourceInCML: string): "temporal" | "spatial" | "physical" | "behavioral" | "testimonial" => {
+  if (sourceInCML.includes(".physical.")) return "physical";
+  if (sourceInCML.includes(".access.")) return "spatial";
+  if (sourceInCML.includes("CASE.cast[")) return "behavioral";
+  if (sourceInCML.includes(".time.")) return "temporal";
+  return "testimonial";
+};
+
+const inferSupportsInferenceStepFromSourcePath = (sourceInCML: string, fallback: number): number => {
+  const match = sourceInCML.match(/CASE\.inference_path\.steps\[(\d+)\]\./);
+  if (!match) return fallback;
+  const step = Number(match[1]);
+  return Number.isInteger(step) ? step + 1 : fallback;
+};
+
+const findPreferredCulpritStep = (cml: CaseData, culpritName: string): number => {
+  const caseBlock = getCaseBlock(cml);
+  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  for (let i = 0; i < steps.length; i += 1) {
+    const stepText = `${String(steps[i]?.observation ?? "")} ${String(steps[i]?.correction ?? "")} ${String(steps[i]?.effect ?? "")}`;
+    if (nameAppearsInText(culpritName, stepText)) {
+      return i + 1;
+    }
+  }
+  return Math.max(1, steps.length || 1);
+};
+
+const applyStrictIdToSourceMappingRepairs = (
+  clues: ClueDistributionResult,
+  requiredMappings: Array<{ id: string; sourceInCML: string }>,
+): string[] => {
+  const repairs: string[] = [];
+  for (const mapping of requiredMappings) {
+    const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === mapping.id) as any;
+    if (!clue) continue;
+
+    if (String(clue?.criticality ?? "") !== "essential") {
+      clue.criticality = "essential";
+      repairs.push(`strict mapping contract criticality repair: ${mapping.id} -> essential`);
+    }
+
+    const placement = String(clue?.placement ?? "").toLowerCase();
+    if (placement !== "early" && placement !== "mid") {
+      clue.placement = "mid";
+      repairs.push(`strict mapping contract placement repair: ${mapping.id} -> mid`);
+    }
+
+    const inferredStep = inferSupportsInferenceStepFromSourcePath(mapping.sourceInCML, Number(clue?.supportsInferenceStep) || 1);
+    if (/CASE\.inference_path\.steps\[\d+\]\./.test(mapping.sourceInCML) && Number(clue?.supportsInferenceStep) !== inferredStep) {
+      clue.supportsInferenceStep = inferredStep;
+      repairs.push(`strict mapping contract supportsInferenceStep repair: ${mapping.id} -> ${inferredStep}`);
+    }
+  }
+
+  return repairs;
+};
+
+const ensureStrictDirectCulpritClue = (
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+): string[] => {
+  if (!requiredDirectCulpritClue) return [];
+
+  const repairs: string[] = [];
+  const culpritName = requiredDirectCulpritClue.culpritName;
+  let clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredDirectCulpritClue.id) as any;
+
+  if (!clue) {
+    clue = clues.clues.find((entry: any) => {
+      const clueId = String(entry?.id ?? "").trim();
+      const clueText = `${String(entry?.description ?? "")} ${String(entry?.pointsTo ?? "")}`;
+      return clueId.startsWith("clue_culprit_direct_") && nameAppearsInText(culpritName, clueText);
+    }) as any;
+    if (clue) {
+      clue.id = requiredDirectCulpritClue.id;
+      repairs.push(`strict direct culprit slot repair: renamed donor clue to ${requiredDirectCulpritClue.id}`);
+    }
+  }
+
+  if (!clue) {
+    const sourceInCML = requiredDirectCulpritClue.allowedSourcePaths[0] ?? buildStrictSourcePathWhitelist(cml)[0] ?? "";
+    clue = {
+      id: requiredDirectCulpritClue.id,
+      category: inferClueCategoryFromSourcePath(sourceInCML),
+      description: `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test.`,
+      sourceInCML,
+      pointsTo: `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit.`,
+      placement: "mid",
+      criticality: "essential",
+      supportsInferenceStep: inferSupportsInferenceStepFromSourcePath(sourceInCML, findPreferredCulpritStep(cml, culpritName)),
+      evidenceType: "observation",
+    };
+    clues.clues.push(clue);
+    repairs.push(`strict direct culprit slot repair: synthesized ${requiredDirectCulpritClue.id}`);
+  }
+
+  if (
+    requiredDirectCulpritClue.allowedSourcePaths.length > 0
+    && !requiredDirectCulpritClue.allowedSourcePaths.includes(String(clue?.sourceInCML ?? "").trim())
+  ) {
+    clue.sourceInCML = requiredDirectCulpritClue.allowedSourcePaths[0];
+    repairs.push(`strict direct culprit source repair: ${requiredDirectCulpritClue.id} -> ${requiredDirectCulpritClue.allowedSourcePaths[0]}`);
+  }
+
+  if (String(clue?.criticality ?? "") !== "essential") {
+    clue.criticality = "essential";
+    repairs.push(`strict direct culprit criticality repair: ${requiredDirectCulpritClue.id} -> essential`);
+  }
+
+  const placement = String(clue?.placement ?? "").toLowerCase();
+  if (placement !== "early" && placement !== "mid") {
+    clue.placement = "mid";
+    repairs.push(`strict direct culprit placement repair: ${requiredDirectCulpritClue.id} -> mid`);
+  }
+
+  if (String(clue?.evidenceType ?? "").trim().toLowerCase() !== "observation") {
+    clue.evidenceType = "observation";
+    repairs.push(`strict direct culprit evidenceType repair: ${requiredDirectCulpritClue.id} -> observation`);
+  }
+
+  const expectedStep = inferSupportsInferenceStepFromSourcePath(
+    String(clue?.sourceInCML ?? ""),
+    findPreferredCulpritStep(cml, culpritName),
+  );
+  if (!Number.isInteger(Number(clue?.supportsInferenceStep)) || Number(clue?.supportsInferenceStep) <= 0) {
+    clue.supportsInferenceStep = expectedStep;
+    repairs.push(`strict direct culprit supportsInferenceStep repair: ${requiredDirectCulpritClue.id} -> ${expectedStep}`);
+  }
+
+  const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
+  const missingPhrases = requiredDirectCulpritClue.requiredPhrases.filter((phrase) => !clueText.toLowerCase().includes(String(phrase).toLowerCase()));
+  if (!nameAppearsInText(culpritName, clueText) || missingPhrases.length > 0) {
+    clue.description = `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test.`;
+    clue.pointsTo = `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit.`;
+    repairs.push(`strict direct culprit phrasing repair: ${requiredDirectCulpritClue.id}`);
+  }
+
+  return repairs;
+};
+
+const ensureStrictLateClueSlot = (
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  strictSourcePaths: string[],
+  protectedClueIds: string[],
+  requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" },
+): string[] => {
+  if (!requiredLateClueSlot) return [];
+
+  const repairs: string[] = [];
+  const protectedIdSet = new Set(protectedClueIds.map((id) => String(id ?? "").trim()).filter(Boolean));
+  let clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredLateClueSlot.id) as any;
+
+  if (!clue) {
+    clue = clues.clues.find((entry: any) => {
+      const clueId = String(entry?.id ?? "").trim();
+      const placement = String(entry?.placement ?? "").toLowerCase();
+      const criticality = String(entry?.criticality ?? "").toLowerCase();
+      return !protectedIdSet.has(clueId)
+        && placement === "late"
+        && (criticality === "optional" || criticality === "supporting");
+    }) as any;
+    if (clue) {
+      clue.id = requiredLateClueSlot.id;
+      repairs.push(`strict late clue slot repair: renamed donor clue to ${requiredLateClueSlot.id}`);
+    }
+  }
+
+  if (!clue) {
+    const sourceInCML = strictSourcePaths.find((path) => path.startsWith("CASE.constraint_space.time.anchors[") || path.startsWith("CASE.constraint_space.physical.traces["))
+      ?? strictSourcePaths[0]
+      ?? "";
+    const sourceValue = sourceInCML
+      ? getByPath({ CASE: getCaseBlock(cml) }, sourceInCML).value
+      : undefined;
+    const sourceText = String(sourceValue ?? "background timing detail").trim() || "background timing detail";
+    const supportsInferenceStep = inferSupportsInferenceStepFromSourcePath(
+      sourceInCML,
+      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path.steps.length : 1),
+    );
+    clue = {
+      id: requiredLateClueSlot.id,
+      category: inferClueCategoryFromSourcePath(sourceInCML),
+      description: `${sourceText.charAt(0).toUpperCase()}${sourceText.slice(1)} remains a late texture detail in the case background.`,
+      sourceInCML,
+      pointsTo: "Adds late texture without changing the essential deduction chain.",
+      placement: "late",
+      criticality: requiredLateClueSlot.criticality,
+      supportsInferenceStep,
+      evidenceType: "observation",
+    };
+    clues.clues.push(clue);
+    repairs.push(`strict late clue slot repair: synthesized ${requiredLateClueSlot.id}`);
+  }
+
+  if (String(clue?.placement ?? "").toLowerCase() !== requiredLateClueSlot.placement) {
+    clue.placement = requiredLateClueSlot.placement;
+    repairs.push(`strict late clue slot placement repair: ${requiredLateClueSlot.id} -> ${requiredLateClueSlot.placement}`);
+  }
+
+  if (String(clue?.criticality ?? "").toLowerCase() !== requiredLateClueSlot.criticality) {
+    clue.criticality = requiredLateClueSlot.criticality;
+    repairs.push(`strict late clue slot criticality repair: ${requiredLateClueSlot.id} -> ${requiredLateClueSlot.criticality}`);
+  }
+
+  if (!String(clue?.sourceInCML ?? "").trim() && strictSourcePaths[0]) {
+    clue.sourceInCML = strictSourcePaths[0];
+    repairs.push(`strict late clue slot source repair: ${requiredLateClueSlot.id} -> ${strictSourcePaths[0]}`);
+  }
+
+  if (!Number.isInteger(Number(clue?.supportsInferenceStep)) || Number(clue?.supportsInferenceStep) <= 0) {
+    clue.supportsInferenceStep = inferSupportsInferenceStepFromSourcePath(
+      String(clue?.sourceInCML ?? ""),
+      Math.max(1, Array.isArray(getCaseBlock(cml)?.inference_path?.steps) ? getCaseBlock(cml).inference_path.steps.length : 1),
+    );
+    repairs.push(`strict late clue slot supportsInferenceStep repair: ${requiredLateClueSlot.id} -> ${clue.supportsInferenceStep}`);
+  }
+
+  return repairs;
+};
+
+const applyStrictPromptContractRepairs = (
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  strictPromptFeedback?: StrictPromptFeedbackPayload,
+): string[] => {
+  if (!strictPromptFeedback) return [];
+
+  const discriminatingEvidenceIds = new Set(getCanonicalEvidenceClueIds(cml));
+
+  const repairs = [
+    ...synthesizeMissingDiscriminatingEvidenceClues(
+      cml,
+      clues,
+      strictPromptFeedback.requiredIdToSourceMappings
+        .map((entry) => String(entry?.id ?? "").trim())
+        .filter((id) => id.length > 0)
+        .filter((id) => !discriminatingEvidenceIds.has(id))
+        .filter((id) => !clues.clues.some((clue: any) => String(clue?.id ?? "").trim() === id)),
+    ).map((repair) => `strict mapping contract synthesis: ${repair}`),
+    ...ensureStrictDirectCulpritClue(cml, clues, strictPromptFeedback.requiredDirectCulpritClue),
+    ...ensureStrictLateClueSlot(
+      cml,
+      clues,
+      strictPromptFeedback.strictSourcePaths,
+      [
+        ...strictPromptFeedback.requiredIdToSourceMappings.map((entry) => entry.id),
+        strictPromptFeedback.requiredDirectCulpritClue?.id ?? "",
+      ],
+      strictPromptFeedback.requiredLateClueSlot,
+    ),
+    ...applyStrictIdToSourceMappingRepairs(clues, strictPromptFeedback.requiredIdToSourceMappings),
+  ];
+
+  if (repairs.length > 0) {
+    rebuildClueTimelineFromPlacements(clues);
+  }
+
+  return repairs;
+};
+
+const checkStrictIdToSourceMappings = (
+  clues: ClueDistributionResult,
+  requiredMappings: Array<{ id: string; sourceInCML: string }>,
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  for (const mapping of requiredMappings) {
+    const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === mapping.id) as any;
+    if (!clue) {
+      issues.push({ severity: "critical", message: `Strict mapping contract missing clue id: ${mapping.id}` });
+      continue;
+    }
+    const placement = String(clue?.placement ?? "").toLowerCase();
+    if (placement !== "early" && placement !== "mid") {
+      issues.push({ severity: "critical", message: `Strict mapping contract requires early/mid placement for ${mapping.id}` });
+    }
+    if (String(clue?.criticality ?? "") !== "essential") {
+      issues.push({ severity: "critical", message: `Strict mapping contract requires essential criticality for ${mapping.id}` });
+    }
+  }
+  return issues;
+};
+
+const checkStrictDirectCulpritClue = (
+  clues: ClueDistributionResult,
+  requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] },
+): ClueGuardrailIssue[] => {
+  if (!requiredDirectCulpritClue) return [];
+
+  const issues: ClueGuardrailIssue[] = [];
+  const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredDirectCulpritClue.id) as any;
+  if (!clue) {
+    return [{ severity: "critical", message: `Strict direct culprit slot missing clue id: ${requiredDirectCulpritClue.id}` }];
+  }
+
+  if (
+    requiredDirectCulpritClue.allowedSourcePaths.length > 0
+    && !requiredDirectCulpritClue.allowedSourcePaths.includes(String(clue?.sourceInCML ?? "").trim())
+  ) {
+    issues.push({ severity: "critical", message: `Strict direct culprit slot uses non-whitelisted source on ${requiredDirectCulpritClue.id}` });
+  }
+
+  const placement = String(clue?.placement ?? "").toLowerCase();
+  if (placement !== "early" && placement !== "mid") {
+    issues.push({ severity: "critical", message: `Strict direct culprit slot must be early/mid on ${requiredDirectCulpritClue.id}` });
+  }
+  if (String(clue?.criticality ?? "") !== "essential") {
+    issues.push({ severity: "critical", message: `Strict direct culprit slot must be essential on ${requiredDirectCulpritClue.id}` });
+  }
+
+  const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
+  if (!nameAppearsInText(requiredDirectCulpritClue.culpritName, clueText)) {
+    issues.push({ severity: "critical", message: `Strict direct culprit slot must name ${requiredDirectCulpritClue.culpritName}` });
+  }
+  const missingPhrases = requiredDirectCulpritClue.requiredPhrases.filter((phrase) => !clueText.toLowerCase().includes(String(phrase).toLowerCase()));
+  if (missingPhrases.length > 0) {
+    issues.push({ severity: "critical", message: `Strict direct culprit slot missing required phrases on ${requiredDirectCulpritClue.id}: ${missingPhrases.join(", ")}` });
+  }
+
+  return issues;
+};
+
+const checkStrictLateClueSlot = (
+  clues: ClueDistributionResult,
+  requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" },
+): ClueGuardrailIssue[] => {
+  if (!requiredLateClueSlot) return [];
+
+  const clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredLateClueSlot.id) as any;
+  if (!clue) {
+    return [{ severity: "critical", message: `Strict late clue slot missing clue id: ${requiredLateClueSlot.id}` }];
+  }
+
+  const issues: ClueGuardrailIssue[] = [];
+  if (String(clue?.placement ?? "").toLowerCase() !== requiredLateClueSlot.placement) {
+    issues.push({ severity: "critical", message: `Strict late clue slot must remain ${requiredLateClueSlot.placement} on ${requiredLateClueSlot.id}` });
+  }
+  if (String(clue?.criticality ?? "").toLowerCase() !== requiredLateClueSlot.criticality) {
+    issues.push({ severity: "critical", message: `Strict late clue slot must remain ${requiredLateClueSlot.criticality} on ${requiredLateClueSlot.id}` });
+  }
+
+  return issues;
+};
+
+const checkStrictStepCoverageFloors = (
+  clues: ClueDistributionResult,
+  requiredStepCoverageFloors: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>,
+): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  for (const floor of requiredStepCoverageFloors) {
+    const stepClues = clues.clues.filter((entry: any) => Number(entry?.supportsInferenceStep) === floor.step);
+    if (floor.requireMapped && stepClues.length === 0) {
+      issues.push({ severity: "critical", message: `Strict step coverage floor failed: step ${floor.step} has no mapped clue` });
+    }
+    if (floor.requireContradiction && !stepClues.some((entry: any) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction")) {
+      issues.push({ severity: "critical", message: `Strict step coverage floor failed: step ${floor.step} has no contradiction clue` });
+    }
+  }
+  return issues;
+};
+
+const checkMetaAuditClueText = (clues: ClueDistributionResult): ClueGuardrailIssue[] => {
+  const issues: ClueGuardrailIssue[] = [];
+  for (const clue of clues.clues as any[]) {
+    const clueId = String(clue?.id ?? "(unknown-id)");
+    const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
+    const matched = META_AUDIT_CLUE_PATTERNS.find(({ pattern }) => pattern.test(clueText));
+    if (matched) {
+      issues.push({
+        severity: "critical",
+        message: `Meta-audit clue text detected on ${clueId}: ${matched.label}`,
+      });
+    }
+  }
+  return issues;
+};
+
+const checkStrictPromptContracts = (
+  clues: ClueDistributionResult,
+  strictPromptFeedback?: StrictPromptFeedbackPayload,
+): ClueGuardrailIssue[] => {
+  if (!strictPromptFeedback) return [];
+
+  return [
+    ...checkStrictIdToSourceMappings(clues, strictPromptFeedback.requiredIdToSourceMappings),
+    ...checkStrictDirectCulpritClue(clues, strictPromptFeedback.requiredDirectCulpritClue),
+    ...checkStrictLateClueSlot(clues, strictPromptFeedback.requiredLateClueSlot),
+  ];
+};
+
 const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionResult): string[] => {
   const repairs: string[] = [];
   const caseBlock = getCaseBlock(cml);
@@ -317,6 +971,62 @@ const checkCastNamePathConsistency = (cml: CaseData, clues: ClueDistributionResu
   }
 
   return issues;
+};
+
+const escapeRegexNameLiteral = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const replaceNameCaseInsensitive = (text: string, fromName: string, toName: string): string => {
+  if (!text || !fromName || !toName || fromName.toLowerCase() === toName.toLowerCase()) return text;
+  const re = new RegExp(escapeRegexNameLiteral(fromName), "gi");
+  return text.replace(re, toName);
+};
+
+const repairCastNamePathConsistency = (cml: CaseData, clues: ClueDistributionResult): string[] => {
+  const repairs: string[] = [];
+  const caseBlock = getCaseBlock(cml);
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const castNames = cast
+    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((name: string) => Boolean(name));
+
+  for (const clue of clues.clues as any[]) {
+    const sourcePath = String(clue?.sourceInCML ?? "").trim();
+    const castPathMatch = sourcePath.match(/^CASE\.cast\[(\d+)\]\./);
+    if (!castPathMatch) continue;
+
+    const castIndex = Number(castPathMatch[1]);
+    const expectedName = String(cast[castIndex]?.name ?? "").trim();
+    if (!expectedName) continue;
+
+    const clueId = String(clue?.id ?? "(unknown-id)");
+    const description = String(clue?.description ?? "");
+    const pointsTo = String(clue?.pointsTo ?? "");
+    const clueText = `${description} ${pointsTo}`;
+    const mentionedNames = castNames.filter((name: string) => nameAppearsInText(name, clueText));
+    const isElimination = String(clue?.evidenceType ?? "").toLowerCase() === "elimination";
+
+    if (mentionedNames.length === 1 && mentionedNames[0] !== expectedName) {
+      const wrongName = mentionedNames[0];
+      const nextDescription = replaceNameCaseInsensitive(description, wrongName, expectedName);
+      const nextPointsTo = replaceNameCaseInsensitive(pointsTo, wrongName, expectedName);
+      clue.description = nextDescription;
+      clue.pointsTo = nextPointsTo;
+      repairs.push(`${clueId}: replaced cast-name mismatch "${wrongName}" -> "${expectedName}" for ${sourcePath}`);
+      continue;
+    }
+
+    if (isElimination && !nameAppearsInText(expectedName, `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`)) {
+      const normalizedPointsTo = String(clue?.pointsTo ?? "").trim();
+      if (normalizedPointsTo.length > 0) {
+        clue.pointsTo = `Eliminates ${expectedName} because ${normalizedPointsTo}`;
+      } else {
+        clue.pointsTo = `Eliminates ${expectedName} because corroborated evidence excludes this suspect.`;
+      }
+      repairs.push(`${clueId}: injected expected suspect name "${expectedName}" into elimination pointsTo for ${sourcePath}`);
+    }
+  }
+
+  return repairs;
 };
 
 const checkInferenceStepBounds = (cml: CaseData, clues: ClueDistributionResult): ClueGuardrailIssue[] => {
@@ -1360,12 +2070,144 @@ function selectDiscriminatingEvidenceCandidateIds(
     .map((entry) => entry.id);
 }
 
+function synthesizeStrictStepCoverageBackstopClues(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  requiredStepCoverageFloors: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>,
+  strictSourcePaths: string[] = [],
+): string[] {
+  if (requiredStepCoverageFloors.length === 0) return [];
+
+  const caseBlock = getCaseBlock(cml);
+  const steps = Array.isArray(caseBlock?.inference_path?.steps)
+    ? caseBlock.inference_path.steps
+    : [];
+  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  if (steps.length === 0 || clueList.length === 0) return [];
+
+  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
+  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
+  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
+  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
+  (clues as any).clueTimeline = timeline;
+
+  const existingIds = new Set(
+    clueList
+      .map((clue) => String(clue?.id ?? "").trim())
+      .filter((id) => id.length > 0),
+  );
+
+  const nextId = (prefix: string): string => {
+    let candidate = prefix;
+    let suffix = 2;
+    while (existingIds.has(candidate)) {
+      candidate = `${prefix}_${suffix}`;
+      suffix += 1;
+    }
+    existingIds.add(candidate);
+    return candidate;
+  };
+
+  const ensureSentence = (text: string, fallback: string): string => {
+    const normalized = replaceDigitTimesWithEraWords(String(text ?? "").replace(/\s+/g, " ").trim());
+    const candidate = normalized || fallback;
+    if (!candidate) return "";
+    return /[.!?]$/.test(candidate) ? candidate : `${candidate}.`;
+  };
+
+  const template = clueList.find((clue) => String(clue?.criticality ?? "").toLowerCase() === "essential") ?? clueList[0];
+  if (!template) return [];
+
+  const repairs: string[] = [];
+
+  for (const floor of requiredStepCoverageFloors) {
+    const stepNumber = Number(floor?.step);
+    if (!Number.isInteger(stepNumber) || stepNumber <= 0 || stepNumber > steps.length) continue;
+
+    const stepIndex = stepNumber - 1;
+    const stepClues = clueList.filter((entry: any) => Number(entry?.supportsInferenceStep) === stepNumber);
+    const hasMapped = stepClues.length > 0;
+    const hasContradiction = stepClues.some(
+      (entry: any) => String(entry?.evidenceType ?? "").toLowerCase() === "contradiction",
+    );
+
+    const needsMapped = Boolean(floor.requireMapped) && !hasMapped;
+    const needsContradiction = Boolean(floor.requireContradiction) && !hasContradiction;
+    if (!needsMapped && !needsContradiction) continue;
+
+    const step = steps[stepIndex] ?? {};
+    const requiredEvidence = Array.isArray(step?.required_evidence)
+      ? step.required_evidence.map((entry: any) => String(entry ?? "").trim()).filter(Boolean)
+      : [];
+
+    const preferredRequiredEvidencePath = requiredEvidence.find((entry: string) => /^CASE\./.test(entry));
+    const humanEvidence = requiredEvidence.find((entry: string) => !/^CASE\./.test(entry)) ?? "";
+
+    const correctionPath = `CASE.inference_path.steps[${stepIndex}].correction`;
+    const observationPath = `CASE.inference_path.steps[${stepIndex}].observation`;
+
+    const sourceCandidates = [
+      preferredRequiredEvidencePath,
+      correctionPath,
+      observationPath,
+    ].filter((entry): entry is string => Boolean(entry));
+
+    const sourceInCML = sourceCandidates.find((path) => {
+      if (!validateSourcePath(cml, path)) return false;
+      return strictSourcePaths.length === 0 || strictSourcePaths.includes(path);
+    })
+      || strictSourcePaths.find((path) => path.startsWith(`CASE.inference_path.steps[${stepIndex}]`))
+      || strictSourcePaths.find((path) => path.startsWith("CASE.constraint_space.time.contradictions["))
+      || strictSourcePaths.find((path) => path.startsWith("CASE.constraint_space.time.anchors["))
+      || correctionPath;
+
+    const description = ensureSentence(
+      String(step?.observation ?? "") || humanEvidence || String(step?.correction ?? "") || String(step?.effect ?? ""),
+      `Inference step ${stepNumber} exposes a concrete case detail that the reader can verify`,
+    );
+    const pointsTo = ensureSentence(
+      String(step?.correction ?? "") || String(step?.effect ?? "") || humanEvidence || String(step?.observation ?? ""),
+      `This clue narrows the inference path for step ${stepNumber}`,
+    );
+
+    const clueId = nextId(
+      needsContradiction ? `clue_fp_contradiction_step_${stepNumber}` : `clue_fp_backstop_step_${stepNumber}`,
+    );
+    const placement = stepNumber <= 2 ? "early" : "mid";
+
+    clueList.push({
+      ...template,
+      id: clueId,
+      sourceInCML,
+      description,
+      pointsTo,
+      placement,
+      criticality: "essential",
+      evidenceType: needsContradiction ? "contradiction" : "observation",
+      supportsInferenceStep: stepNumber,
+    });
+
+    if (placement === "early") timeline.early.push(clueId);
+    else timeline.mid.push(clueId);
+
+    repairs.push(
+      `added ${clueId} as ${placement} essential ${needsContradiction ? "contradiction" : "observation"} clue for strict step ${stepNumber}`,
+    );
+  }
+
+  return repairs;
+}
+
 export function enforceAgent5DeterministicContracts(
   cml: CaseData,
   clues: ClueDistributionResult,
   options?: { hardLogicLockedFacts?: string[] },
 ): { warnings: string[] } {
   const warnings: string[] = [];
+  const strictPromptFeedback = buildStrictPromptFeedback(cml);
+
+  const strictRepairs = applyStrictPromptContractRepairs(cml, clues, strictPromptFeedback);
+  strictRepairs.forEach((repair) => warnings.push(`Agent 5 ${repair}`));
 
   const sourcePathRepairs = repairInvalidSourcePaths(cml, clues);
   sourcePathRepairs.forEach((repair) => warnings.push(`Agent 5 source-path auto-repair: ${repair}`));
@@ -1381,6 +2223,9 @@ export function enforceAgent5DeterministicContracts(
   if (stepBoundIssues.length > 0) {
     throw new Error(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`);
   }
+
+  const castPathRepairs = repairCastNamePathConsistency(cml, clues);
+  castPathRepairs.forEach((repair) => warnings.push(`Agent 5 cast-path auto-repair: ${repair}`));
 
   const castPathConsistencyIssues = checkCastNamePathConsistency(cml, clues);
   if (castPathConsistencyIssues.length > 0) {
@@ -1429,6 +2274,49 @@ export function enforceAgent5DeterministicContracts(
     throw new Error(
       `Agent 5 discriminating evidence ID gate failed. Missing clue id(s): ${remainingMissingEvidenceIds.join(", ")}`,
     );
+  }
+
+  const strictFollowupRepairs = applyStrictPromptContractRepairs(cml, clues, strictPromptFeedback);
+  strictFollowupRepairs.forEach((repair) => warnings.push(`Agent 5 ${repair}`));
+
+  let strictStepCoverageIssues = checkStrictStepCoverageFloors(
+    clues,
+    strictPromptFeedback?.requiredStepCoverageFloors ?? [],
+  ).filter((issue) => issue.severity === "critical");
+
+  if (strictStepCoverageIssues.length > 0) {
+    const strictBackstopRepairs = synthesizeStrictStepCoverageBackstopClues(
+      cml,
+      clues,
+      strictPromptFeedback?.requiredStepCoverageFloors ?? [],
+      strictPromptFeedback?.strictSourcePaths ?? [],
+    );
+
+    strictBackstopRepairs.forEach((repair) => warnings.push(`Agent 5 strict-step deterministic synthesis: ${repair}`));
+
+    if (strictBackstopRepairs.length > 0) {
+      reconcileModelAudit(cml, clues);
+      strictStepCoverageIssues = checkStrictStepCoverageFloors(
+        clues,
+        strictPromptFeedback?.requiredStepCoverageFloors ?? [],
+      ).filter((issue) => issue.severity === "critical");
+    }
+  }
+
+  if (strictStepCoverageIssues.length > 0) {
+    throw new Error(`Agent 5 strict step coverage gate failed with ${strictStepCoverageIssues.length} critical issue(s).`);
+  }
+
+  const strictContractIssues = checkStrictPromptContracts(clues, strictPromptFeedback)
+    .filter((issue) => issue.severity === "critical");
+  if (strictContractIssues.length > 0) {
+    throw new Error(`Agent 5 strict contract gate failed with ${strictContractIssues.length} critical issue(s).`);
+  }
+
+  const metaAuditIssues = checkMetaAuditClueText(clues)
+    .filter((issue) => issue.severity === "critical");
+  if (metaAuditIssues.length > 0) {
+    throw new Error(`Agent 5 meta clue gate failed with ${metaAuditIssues.length} critical issue(s).`);
   }
 
   const discrimReachabilityIssues = checkDiscriminatingTestReachability(cml, clues)
@@ -1501,7 +2389,47 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     : ctx.inputs.targetLength === "long" ? "dense"
     : "moderate";
 
+  const strictPromptFeedbackBase = strictPromptContractsEnabled()
+    ? buildStrictPromptFeedback(ctx.cml!)
+    : undefined;
+  const mergeStrictPromptFeedback = (feedback?: any): any => {
+    if (!strictPromptFeedbackBase) return feedback;
+
+    const result: any = { ...(feedback ?? {}) };
+    const existingRecommendations = Array.isArray(result.recommendations)
+      ? result.recommendations.map((item: unknown) => String(item ?? "").trim()).filter(Boolean)
+      : [];
+    const strictRecommendations = strictPromptFeedbackBase.recommendations
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean);
+
+    result.overallStatus = result.overallStatus ?? strictPromptFeedbackBase.overallStatus;
+    result.violations = Array.isArray(result.violations) ? result.violations : [];
+    result.warnings = Array.isArray(result.warnings) ? result.warnings : [];
+    result.recommendations = [...new Set([...existingRecommendations, ...strictRecommendations])];
+
+    result.strictSourcePaths = Array.isArray(result.strictSourcePaths) && result.strictSourcePaths.length > 0
+      ? result.strictSourcePaths
+      : strictPromptFeedbackBase.strictSourcePaths;
+    result.requiredIdToSourceMappings = Array.isArray(result.requiredIdToSourceMappings)
+      && result.requiredIdToSourceMappings.length > 0
+      ? result.requiredIdToSourceMappings
+      : strictPromptFeedbackBase.requiredIdToSourceMappings;
+    result.requiredStepCoverageFloors = Array.isArray(result.requiredStepCoverageFloors)
+      && result.requiredStepCoverageFloors.length > 0
+      ? result.requiredStepCoverageFloors
+      : strictPromptFeedbackBase.requiredStepCoverageFloors;
+    result.requiredLateClueSlot = result.requiredLateClueSlot || strictPromptFeedbackBase.requiredLateClueSlot;
+    result.requiredDirectCulpritClue = result.requiredDirectCulpritClue || strictPromptFeedbackBase.requiredDirectCulpritClue;
+
+    return result;
+  };
+
   const cluesStart = Date.now();
+  let agent5RetryInvoked = false;
+  ctx.agent5FirstPassPassed = true;
+  ctx.agent5RetryInvoked = false;
+  ctx.agent5FailureClass = "none";
   const recordHardFailPhaseScore = (reason: string): void => {
     if (!ctx.enableScoring || !ctx.scoreAggregator) return;
     const hardFailTotal = 55;
@@ -1538,6 +2466,9 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   };
 
   const failAgent5 = (message: string): never => {
+    ctx.agent5FirstPassPassed = false;
+    ctx.agent5RetryInvoked = agent5RetryInvoked;
+    ctx.agent5FailureClass = classifyAgent5FailureClass(message);
     recordHardFailPhaseScore(message);
     throw new Error(message);
   };
@@ -1553,6 +2484,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     cml: ctx.cml!,
     clueDensity,
     redHerringBudget: 2,
+    fairPlayFeedback: mergeStrictPromptFeedback(),
     runId: ctx.runId,
     projectId: ctx.projectId || "",
   };
@@ -1564,6 +2496,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       || err instanceof TypeError
       || /json|parse|unexpected token|structured output/i.test(String((err as Error)?.message ?? ""));
     if (retryableExtractionFailure) {
+      agent5RetryInvoked = true;
       ctx.warnings.push("Agent 5: first extraction attempt failed due to malformed model payload; retrying once");
       clues = await extractWithAttempt(cluesInputBase);
     } else {
@@ -1608,11 +2541,12 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     ];
 
     const retryCluesStart = Date.now();
+    agent5RetryInvoked = true;
     clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
-      fairPlayFeedback: {
+      fairPlayFeedback: mergeStrictPromptFeedback({
         overallStatus: "fail",
         violations: [
           ...clueGuardrails.issues
@@ -1642,7 +2576,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
             (path) => `Repair path exactly: ${path} -> use one of [${legalSourceTemplates.join(" | ")}]`,
           ),
         ],
-      },
+      }),
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -1730,11 +2664,12 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 
     ctx.reportProgress("clues", "Regenerating clues to address coverage gaps...", 58);
     const coverageRetryStart = Date.now();
+    agent5RetryInvoked = true;
     clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
-      fairPlayFeedback: coverageFeedback,
+      fairPlayFeedback: mergeStrictPromptFeedback(coverageFeedback),
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -1801,6 +2736,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     });
 
     const suspectRetryStart = Date.now();
+    agent5RetryInvoked = true;
     const suspectCoverageFeedback = {
       overallStatus: "fail" as const,
       violations: suspectViolations,
@@ -1817,7 +2753,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
-      fairPlayFeedback: suspectCoverageFeedback,
+      fairPlayFeedback: mergeStrictPromptFeedback(suspectCoverageFeedback),
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -1892,6 +2828,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     }
 
     const redHerringRetryStart = Date.now();
+    agent5RetryInvoked = true;
     const overlapTerms = [...new Set(initialRedHerringOverlapDetails.flatMap((d) => d.matchedCorrectionWords || []))]
       .map((t) => String(t).trim().toLowerCase())
       .filter(Boolean);
@@ -1908,7 +2845,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
-      fairPlayFeedback: {
+      fairPlayFeedback: mergeStrictPromptFeedback({
         overallStatus: "fail",
         violations: initialRedHerringOverlapIds.map((id: string) => ({
         
@@ -1938,7 +2875,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         preferredTerms: temporalCollision.allowedTerms,
         requiredReplacements: replacementTargets,
         redHerringIdsToRewrite: initialRedHerringOverlapIds,
-      },
+      }),
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -2004,6 +2941,11 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   if (stepBoundIssues.length > 0) {
     failAgent5(`Agent 5 step-index gate failed with ${stepBoundIssues.length} out-of-range inference step reference(s).`);
   }
+
+  const castPathRepairs = repairCastNamePathConsistency(ctx.cml!, clues);
+  castPathRepairs.forEach((repair) =>
+    ctx.warnings.push(`Agent 5 cast-path auto-repair: ${repair}`),
+  );
 
   const castPathConsistencyIssues = checkCastNamePathConsistency(ctx.cml!, clues);
   castPathConsistencyIssues.forEach((issue) => ctx.errors.push(`Agent 5 cast-path consistency: ${issue.message}`));
@@ -2083,11 +3025,12 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     ctx.reportProgress("clues", "Regenerating clues to satisfy discriminating evidence ID contract...", 61);
 
     const idContractRetryStart = Date.now();
+    agent5RetryInvoked = true;
     clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
-      fairPlayFeedback: {
+      fairPlayFeedback: mergeStrictPromptFeedback({
         overallStatus: "fail",
         violations: [
           {
@@ -2104,7 +3047,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
           "Preserve unaffected clue IDs and wording unless dependency requires change.",
           "Keep sourceInCML paths legal and in-range.",
         ],
-      },
+      }),
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
@@ -2147,6 +3090,16 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       );
       finalCoverage = buildCoverageSnapshot(clues);
     }
+  }
+
+  try {
+    const deterministicContracts = enforceAgent5DeterministicContracts(ctx.cml!, clues, {
+      hardLogicLockedFacts,
+    });
+    deterministicContracts.warnings.forEach((warning) => ctx.warnings.push(warning));
+    finalCoverage = buildCoverageSnapshot(clues);
+  } catch (error) {
+    failAgent5((error as Error).message || "Agent 5 deterministic contract gate failed.");
   }
 
   // Final hard gate: if critical inference/discriminating-test coverage still fails
@@ -2266,11 +3219,16 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     );
     try { await ctx.savePartialReport(); } catch { /* best-effort */ }
   }
+
+  ctx.agent5FirstPassPassed = !agent5RetryInvoked;
+  ctx.agent5RetryInvoked = agent5RetryInvoked;
+  ctx.agent5FailureClass = "none";
 }
 
 export const __testables = {
   buildSuspectCoverage,
   analyzeSuspectCoverage,
+  buildStrictPromptFeedback,
   enforceAgent5DeterministicContracts,
   recomputeInferenceCoverageForAgent6,
   checkDiscriminatingTestReachability,
@@ -2280,6 +3238,7 @@ export const __testables = {
   selectDiscriminatingEvidenceCandidateIds,
   sanitizeEraTimeStyleInClues,
   checkCastNamePathConsistency,
+  repairCastNamePathConsistency,
   repairInvalidSourcePaths,
   sanitizeRedHerringOverlap,
   synthesizeMissingCulpritDiscriminatingClues,

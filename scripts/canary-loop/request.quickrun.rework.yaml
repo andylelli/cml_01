@@ -18,6 +18,14 @@ hydratePriorFromRun: true
 # Fast-path preset: narrows scope, uses targeted tests, and reduces churn.
 quickRun: true
 
+# Optional canary generation-input overrides used only when quickRun=true.
+# These values override scripts/canary-core-inputs.yaml for boundary/core canary execution.
+# canaryInputOverrides:
+#   targetLength: short
+#   narrativeStyle: classic
+#   skipNoveltyCheck: false
+#   proseBatchSize: 1
+
 # Allow major rework escalation when normal playbooks do not converge.
 enableMajorRework: true
 

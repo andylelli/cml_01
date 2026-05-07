@@ -356,10 +356,20 @@ describe("agent6-run flow", () => {
     const requiredCluePhrases = Array.isArray(retryInputs?.fairPlayFeedback?.requiredCluePhrases)
       ? retryInputs.fairPlayFeedback.requiredCluePhrases
       : [];
+    const targetedClueIds = Array.isArray(retryInputs?.fairPlayFeedback?.targetedClueIds)
+      ? retryInputs.fairPlayFeedback.targetedClueIds
+      : [];
+    const preserveClueIds = Array.isArray(retryInputs?.fairPlayFeedback?.preserveClueIds)
+      ? retryInputs.fairPlayFeedback.preserveClueIds
+      : [];
     const joined = requiredCluePhrases.join(" ");
 
     expect(joined).toContain("PAIR CONTRACT");
     expect(joined).toContain("observation -> correction -> elimination");
     expect(joined).toContain("clue_core_contradiction_chain");
+    expect(joined).toContain("DISCRIMINATING ID PARITY CONTRACT");
+    expect(joined).toContain("CAST PATH COUPLING CONTRACT");
+    expect(targetedClueIds).toContain("clue_mechanism_visibility_core");
+    expect(preserveClueIds).toContain("clue_seed");
   });
 });

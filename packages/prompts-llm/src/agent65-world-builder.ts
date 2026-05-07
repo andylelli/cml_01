@@ -43,6 +43,14 @@ function countWords(value: unknown): number {
   return value.split(/\s+/).filter((w: string) => w.length > 0).length;
 }
 
+function normalizeWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function stripTerminalPunctuation(value: string): string {
+  return value.replace(/[.!?]+$/g, '').trim();
+}
+
 function paragraphCount(value: unknown): number {
   if (typeof value !== 'string') return 0;
   return value
@@ -125,44 +133,45 @@ function enforceRevealImplicationsFloor(
 function enforceStoryThemeFloor(
   value: unknown,
   minimumWords: number,
-  storyPremise: unknown,
+  caseTheme: unknown,
   dominantRegister: unknown,
 ): string {
-  const base = typeof value === 'string' ? value.trim() : '';
-  if (countWords(base) >= minimumWords) {
+  const base = normalizeWhitespace(typeof value === 'string' ? value : '');
+  if (countWords(base) >= minimumWords && /[.!?]$/.test(base)) {
     return base;
   }
 
-  const premise = typeof storyPremise === 'string' ? storyPremise.trim() : '';
-  const register = typeof dominantRegister === 'string' ? dominantRegister.trim() : '';
+  const theme = normalizeWhitespace(typeof caseTheme === 'string' ? caseTheme : '');
+  const register = normalizeWhitespace(typeof dominantRegister === 'string' ? dominantRegister : '');
 
-  const fallbackLead = base || 'Beneath the puzzle, the mystery argues that truth emerges only when people confront the stories they tell to excuse fear, loyalty, and self-interest.';
-  const additions: string[] = [
-    'Its deeper meaning is that evidence does not merely identify a culprit; it compels each character to choose between preserving appearances and accepting moral accountability.',
-    'The final revelation should therefore feel like an ethical reckoning, where emotional consequences arrive alongside logical resolution rather than after it.',
+  const stem = stripTerminalPunctuation(base)
+    || 'At its core, the mystery argues that truth emerges only when people confront the stories they tell to excuse fear, loyalty, and self-interest';
+  const clauses: string[] = [
+    'and reveals that evidence carries ethical weight, forcing characters to choose accountability over social performance when appearances and facts collide',
   ];
 
-  if (premise) {
-    additions.push(
-      `This theme should stay anchored to the established premise: ${premise.replace(/\s+/g, ' ').trim()}.`
+  if (theme) {
+    clauses.push(
+      `while remaining anchored to the established theme of ${theme}`
     );
   }
 
   if (register) {
-    additions.push(
-      `Keep this thematic throughline consistent with the dominant emotional register (${register.replace(/\s+/g, ' ').trim()}) so tone and meaning reinforce each other.`
+    clauses.push(
+      `and sustaining a ${register.toLowerCase()} emotional register so the resolution lands as moral consequence rather than a mere puzzle trick`
     );
   }
 
-  let composed = fallbackLead;
-  for (const sentence of additions) {
-    composed = `${composed} ${sentence}`.trim();
+  let composed = stem;
+  for (const clause of clauses) {
+    const separator = /[,;:]$/.test(composed) ? ' ' : ', ';
+    composed = normalizeWhitespace(`${composed}${separator}${clause}`);
     if (countWords(composed) >= minimumWords) {
       break;
     }
   }
 
-  return composed.trim();
+  return `${stripTerminalPunctuation(composed)}.`;
 }
 
 // ARC_DESC_GATE / ARC_DESC_PROMPT are loaded from generation-params.yaml at
@@ -211,9 +220,11 @@ Critical constraints:
     A single-paragraph summary is insufficient regardless of word count — the emotional
     journey must unfold across clearly distinct paragraphs.
     Trace opening → rising tension → first turn → mid → second turn → climax → resolution.
+  - FIRST-PASS CONTRACT: satisfy storyTheme, revealImplications, and arcDescription minimum lengths in the initial response; do not rely on deterministic fallback expansion.
   - humourPlacementMap: every entry (all 12 scene positions) MUST include a non-empty
     "rationale" string. This applies to "forbidden" entries too — explain WHY it is forbidden.
     Omitting rationale on any entry will cause schema validation failure.
+  - FIRST-PASS CONTRACT: include all required humourPlacementMap scene positions exactly once in the initial response.
 
 You will produce a single JSON object. Return only the JSON. No preamble, no commentary.`;
 
@@ -267,6 +278,7 @@ MANDATORY FIELD LENGTHS:
 - storyTheme: MINIMUM 25 words. Write a complete sentence with a subject, main clause, and a nuanced
   qualifier about the story's deeper meaning. Not a title, a noun phrase, or a fragment.
   A storyTheme shorter than 25 words will fail the quality gate.
+- SELF-CHECK CONTRACT (INTERNAL): before returning JSON, verify the minimum lengths and required scene-position coverage are already satisfied on this first pass.
 
 Required structure:
 {
@@ -392,6 +404,7 @@ export async function generateWorldDocument(
   messages.push({ role: 'user', content: buildWorldBuilderUserMessage(inputs) });
 
   let lastError: Error | null = null;
+  const caseTheme = String((inputs.caseData as any)?.CASE?.meta?.theme ?? '').trim();
 
   // Max 3 attempts: attempt 1 is the initial generation; attempts 2 and 3 are retries.
   // Having a 3rd attempt ensures that when attempt 1 fails for reason X (JSON/schema/cast),
@@ -601,7 +614,7 @@ export async function generateWorldDocument(
     parsed.storyTheme = enforceStoryThemeFloor(
       parsed.storyTheme,
       STORY_THEME_GATE,
-      parsed.revealImplications,
+      caseTheme,
       parsed.storyEmotionalArc?.dominantRegister,
     );
     const storyTheme = typeof parsed.storyTheme === 'string' ? parsed.storyTheme : '';
@@ -638,3 +651,11 @@ export async function generateWorldDocument(
 
   throw new Error(`Agent 6.5 World Builder failed after 3 attempts: ${lastError?.message}`);
 }
+
+export const __testables = {
+  countWords,
+  paragraphCount,
+  forceMultiParagraphArcDescription,
+  enforceRevealImplicationsFloor,
+  enforceStoryThemeFloor,
+};

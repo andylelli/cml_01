@@ -160,6 +160,12 @@ export interface OrchestratorContext {
   allCoverageIssues?: ClueGuardrailIssue[];
   fairPlayAudit?: FairPlayAuditResult; // may be reassigned by Agent 6 retries
   hasCriticalFairPlayFailure?: boolean;
+  agent5FirstPassPassed?: boolean;
+  agent5RetryInvoked?: boolean;
+  agent5FailureClass?: string;
+  agent6FirstPassPassed?: boolean;
+  agent6RetryInvoked?: boolean;
+  agent6FailureClass?: string;
   narrative?: NarrativeOutline;        // may be reassigned by Agent 7 retries
   outlineCoverageIssues?: OutlineCoverageIssue[];
   characterProfiles?: CharacterProfilesResult;
