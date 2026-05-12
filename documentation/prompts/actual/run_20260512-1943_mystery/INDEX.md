@@ -43,3 +43,6 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 - 10 Agent2b-CharacterProfiles (first): [request](./10_Agent2b-CharacterProfiles_request.md) | [response](./10_Agent2b-CharacterProfiles_response.md)
 - 11 Agent2c-LocationProfiles (first): [request](./11_Agent2c-LocationProfiles_request.md) | [response](./11_Agent2c-LocationProfiles_response.md)
 - 12 Agent2d-TemporalContext (first): [request](./12_Agent2d-TemporalContext_request.md) | [response](./12_Agent2d-TemporalContext_response.md)
+- 13 Agent65-WorldBuilder (first): [request](./13_Agent65-WorldBuilder_request.md) | [response](./13_Agent65-WorldBuilder_response.md)
+- 14 Agent65-WorldBuilder (retry 1): [request](./14_Agent65-WorldBuilder_retry1_request.md) | [response](./14_Agent65-WorldBuilder_retry1_response.md)
+- 15 Agent7-NarrativeFormatter (first): [request](./15_Agent7-NarrativeFormatter_request.md) | response pending

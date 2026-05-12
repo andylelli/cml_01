@@ -143,4 +143,18 @@
       "responseTimestamp": "2026-05-12T19:47:53.137Z",
       "responseFile": "14_Agent65-WorldBuilder_retry1_response.md"
     },
-    
+    {
+      "sequence": 15,
+      "agent": "Agent7-NarrativeFormatter",
+      "retryAttempt": 1,
+      "promptHash": "7502e36d0eaf8f1a",
+      "requestTimestamp": "2026-05-12T19:47:53.181Z",
+      "requestFile": "15_Agent7-NarrativeFormatter_request.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 1,
+    "missing_response_count": 1,
+    "empty_response_body_count": 0
+  }
+}
