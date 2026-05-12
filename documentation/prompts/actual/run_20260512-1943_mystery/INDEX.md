@@ -21,7 +21,8 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 | 12 | 2026-05-12T19:46:43.147Z | Agent2d-TemporalContext | - | [12_Agent2d-TemporalContext_request.md](./12_Agent2d-TemporalContext_request.md) | [12_Agent2d-TemporalContext_response.md](./12_Agent2d-TemporalContext_response.md) |
 | 13 | 2026-05-12T19:46:57.918Z | Agent65-WorldBuilder | - | [13_Agent65-WorldBuilder_request.md](./13_Agent65-WorldBuilder_request.md) | [13_Agent65-WorldBuilder_response.md](./13_Agent65-WorldBuilder_response.md) |
 | 14 | 2026-05-12T19:47:25.825Z | Agent65-WorldBuilder | 1 | [14_Agent65-WorldBuilder_retry1_request.md](./14_Agent65-WorldBuilder_retry1_request.md) | [14_Agent65-WorldBuilder_retry1_response.md](./14_Agent65-WorldBuilder_retry1_response.md) |
-| 15 | 2026-05-12T19:47:53.181Z | Agent7-NarrativeFormatter | - | [15_Agent7-NarrativeFormatter_request.md](./15_Agent7-NarrativeFormatter_request.md) | (pending) |
+| 15 | 2026-05-12T19:47:53.181Z | Agent7-NarrativeFormatter | - | [15_Agent7-NarrativeFormatter_request.md](./15_Agent7-NarrativeFormatter_request.md) | [15_Agent7-NarrativeFormatter_response.md](./15_Agent7-NarrativeFormatter_response.md) |
+| 16 | 2026-05-12T19:48:16.410Z | Agent9-ProseGenerator-Ch1 | - | [16_Agent9-ProseGenerator-Ch1_request.md](./16_Agent9-ProseGenerator-Ch1_request.md) | (pending) |
 
 ## Integrity Counters
 
@@ -45,4 +46,5 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 - 12 Agent2d-TemporalContext (first): [request](./12_Agent2d-TemporalContext_request.md) | [response](./12_Agent2d-TemporalContext_response.md)
 - 13 Agent65-WorldBuilder (first): [request](./13_Agent65-WorldBuilder_request.md) | [response](./13_Agent65-WorldBuilder_response.md)
 - 14 Agent65-WorldBuilder (retry 1): [request](./14_Agent65-WorldBuilder_retry1_request.md) | [response](./14_Agent65-WorldBuilder_retry1_response.md)
-- 15 Agent7-NarrativeFormatter (first): [request](./15_Agent7-NarrativeFormatter_request.md) | response pending
+- 15 Agent7-NarrativeFormatter (first): [request](./15_Agent7-NarrativeFormatter_request.md) | [response](./15_Agent7-NarrativeFormatter_response.md)
+- 16 Agent9-ProseGenerator-Ch1 (first): [request](./16_Agent9-ProseGenerator-Ch1_request.md) | response pending
