@@ -1,0 +1,788 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1778530512992`
+- Project ID: ``
+- Timestamp: `2026-05-11T20:20:55.597Z`
+- Agent: `Agent9-ProseGenerator-Ch2`
+- Operation: `chat_request_full_prompt`
+- Model: `GPT-4o-mini`
+- Temperature: `0.42`
+- Max Tokens: `4500`
+- Attempt: `first`
+- Prompt Hash: `3ba6da5f17411d37`
+
+## Message 1 (role=system)
+
+```text
+You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
+
+⛔ ABSOLUTE RULE — CHARACTER NAMES:
+The ONLY characters who exist in this story are: Eleanor Voss (woman), Dr. Mallory Finch (man), Captain Ivor Hale (man), Beatrice Quill (woman).
+Do NOT invent, borrow, or introduce ANY character not on that list — no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
+Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
+⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: Eleanor Voss, Dr. Mallory Finch, Captain Ivor Hale, Beatrice Quill?" If not, remove them.
+Any invented named character will fail validation and abort the entire generation.
+⚠️ BEFORE YOU WRITE each chapter, also ask yourself: "Am I using the correct pronouns for every character — she/her for women, he/him for men, they/them for non-binary characters?" If not, correct it before writing a single word.
+⛔ GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times — a woman is always she/her, a man is always he/him, a non-binary character is always they/them/their. Never swap, default, or guess.
+
+Rules:
+- Do not introduce new facts beyond the CML and outline.
+- Preserve all clues, alibis, and the core mystery logic.
+- Maintain strict setting fidelity to the specified location and era.
+- Write immersive, sensory-rich prose that transports readers to the setting
+- Include scene-setting passages that establish atmosphere, time, and place
+- Use varied sentence structure and sophisticated vocabulary
+- Show character emotions through actions and dialogue, not just telling
+- Create distinct character voices and personalities based on their profiles
+- Avoid stereotypes and reduce bias.
+- Keep language original; do not copy copyrighted text.
+- Output valid JSON only.
+- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
+- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. If a sensory phrase (e.g., "air thick with tension", "smell of polished wood") has appeared in any prior chapter, rephrase it entirely. No atmospheric sentence should appear verbatim or near-verbatim in more than one chapter.
+- TEMPLATE LEAKAGE BAN: Never emit scaffold prose like "At The [Location] ... the smell of ... atmosphere ripe for revelation". Rewrite any scaffold-like sentence into chapter-specific prose tied to character action.
+- TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
+- DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
+- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "The murderer acted out of desperation to protect a loved one, blurring the lines of justice." — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.
+
+
+⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.
+
+PRONOUN ACCURACY — MANDATORY CONTINUITY CONTRACT
+
+The following pronouns are locked facts, on the same level as character names
+and hard-logic device values. Using the wrong pronoun is a continuity error,
+not a style choice.
+
+Canonical pronoun table (subject / object / possessive / reflexive):
+  • Eleanor Voss: she/her/her/herself
+  • Dr. Mallory Finch: he/him/his/himself
+  • Captain Ivor Hale: he/him/his/himself
+  • Beatrice Quill: she/her/her/herself
+
+MANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence
+that contains a pronoun and verify it against the table. If any mismatch is found,
+correct it before outputting. This check is not optional.
+
+Rules:
+1. Every sentence is subject to this table — no exceptions for dialogue, reflection,
+   narration, or attribution.
+2. When characters of different genders appear in the same sentence and a pronoun
+   could refer to more than one of them, use the character's name instead of a pronoun
+   to eliminate ambiguity entirely.
+3. A pronoun must never migrate from one character to another across a semicolon,
+   comma splice, or consecutive sentence — even when the same pronoun gender applies
+   to multiple characters.
+4. "Her" takes two grammatical functions — both are exclusively female:
+   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"
+   • Possessive determiner (before a noun): "her coat", "her voice"
+   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".
+5. Reflexive pronouns (himself/herself/themselves) must match the table above.
+   "Graham Worsley excused herself" is a pronoun error regardless of sentence position.
+6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must
+   agree with the SPEAKER's gender — not the last character named inside the quoted speech.
+7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun
+   gender must still match the referent character's canonical set in the table.
+8. Singular "they/them/their" for a specific named non-binary character carries the same
+   mandatory status as gendered pronouns. It is not a plural — treat it as grammatically
+   identical to he/him/his or she/her/her for the purposes of agreement.
+
+
+CRITICAL CHARACTER CONSISTENCY RULES:
+
+1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.
+   COMPLETE CAST (no other named characters exist): Eleanor Voss, Dr. Mallory Finch, Captain Ivor Hale, Beatrice Quill
+   - "Mr. Jennings entered the room" → ILLEGAL. Jennings is not in the cast.
+   - "Constable Reed took notes" → ILLEGAL. Reed is not in the cast.
+   - "A constable took notes" → LEGAL (no name given).
+
+2. Character roles are fixed:
+   - Eleanor Voss: character
+   - Dr. Mallory Finch: character
+   - Captain Ivor Hale: character
+   - Beatrice Quill: character
+   - Never place characters in locations inconsistent with their role
+
+WORLD DOCUMENT (use this as your primary creative context):
+
+## Era: 1933, October
+In October 1933, the English countryside is cloaked in a muted palette of browns and oranges, with overcast skies that threaten rain at any moment. The brisk air carries a distinct chill that seeps into every corner of the grand country house estate, where guests gather for a weekend retreat. As twilight descends earlier in the day, the atmosphere grows thick with tension, reflecting the underlying unease of a society grappling with the repercussions of an ongoing economic depression and the specter of rising fascism across the channel. Each day is marked by whispers of class disparity and financial strain, as the upper class struggles to maintain appearances while the lower class faces dire consequences. The Great Depression casts a long shadow over social interactions, where every laugh feels strained, and every conversation is tinged with anxiety. Guests at Little Middleton Manor, adorned in their finery, navigate the delicate balance of social expectations against the harsh realities of their lives. The air is heavy with the scent of damp earth and the distant sound of thunder adds to the oppressive atmosphere, reminding all that beneath the surface of elegance lies a world fraught with secrets and fears.
+Emotional register: A dominant sense of anxiety and urgency permeates society, as individuals grapple with their precarious social status.
+Physical constraints: Limited communication due to the reliance on early home telephones. | Isolation from nearby towns due to poor transportation options. | Shortening daylight hours limiting evening activities.
+Current tensions (weave into background texture): The Great Depression continues to affect economies worldwide. | Political instability in Germany as Hitler consolidates power. | The British government debates further measures to address unemployment.
+Wartime context — Many men returning from service face unemployment and mental health issues.: Communities are strained, with soldiers struggling to reintegrate into civilian life. Absence effect: The absence of many men during wartime has disrupted family dynamics, leading to a tense atmosphere.
+
+## Season Lock (mandatory — derived from 1933, October)
+Season: autumn. Allowed vocabulary: autumn, autumnal, fall
+Forbidden seasonal words — never use in narration, dialogue, or metaphor: spring, summer, winter and their adjectival forms.
+Every weather description, atmosphere, and time-of-year reference must be consistent with autumn.
+
+## Story Theme
+The story explores how the facades of respectability in a crumbling social order can mask deep-seated secrets, leading to moral dilemmas and tragic consequences, and reveals that evidence carries ethical weight, forcing characters to choose accountability over social performance when appearances and facts collide.
+
+## Story Emotional Register
+Dominant: The overall emotional character of the story is one of tension and unease, punctuated by moments of revelation and introspection.
+
+Arc:
+The story begins at Little Middleton Manor, where Eleanor Voss hosts a family reunion amidst the backdrop of the Great Depression. Laughter and music fill the air, but beneath the surface, a sense of unease simmers as Eleanor grapples with her own secrets and the weight of her embezzlement. As the evening progresses, the tension rises when Eleanor is found dead in her study, and the investigation unfolds. Each character's hidden motives come to light, revealing their struggles against societal expectations and personal demons. The first turn occurs as the clock in the study becomes a focal point, its tampering leading to conflicting timelines and misunderstandings that deepen the mystery. The characters find themselves entangled in a web of suspicion, each fearing exposure of their own secrets. The mid-section sees the investigation intensify, with Dr.
+
+Mallory Finch's nervous demeanor and Captain Hale's bravado causing friction among the guests. As evidence mounts, the emotional stakes rise, revealing the characters' vulnerabilities and desperation. The second turn occurs when the true nature of the clock's tampering is uncovered, linking it to Dr. Finch, whose motives are revealed as he faces the possibility of losing everything. The climax arrives when the evidence culminates in a confrontation, forcing Dr. Finch to confront his actions and the consequences of his choices. In the resolution, the remaining characters reflect on their own moral dilemmas, realizing that the facades they maintain are as fragile as the lives they lead. The emotional journey concludes with a somber acknowledgment of the secrets that bind them together and the haunting consequences of their actions.
+
+## Emotional register at this point in the story
+A festive atmosphere conceals the undercurrents of tension and financial strain.
+
+## Character Portraits (appearance & era)
+
+### Eleanor Voss
+Eleanor Voss embodies the struggle of maintaining a façade of wealth and respectability amidst the economic strain of the Great Depression. Her desperate attempts to mask her financial troubles through embezzlement reflect the moral dilemmas faced by those in her social class, where appearances often take precedence over integrity.
+Era intersection: Her private struggles with embezzlement intersect with the broader societal pressures of financial ruin.
+
+### Dr. Mallory Finch
+Dr. Mallory Finch serves as a reflection of the ethical decay present in a society grappling with desperation. His unethical experiments on patients highlight the lengths individuals may go to protect their status and reputation, revealing the darker side of ambition during tumultuous times.
+Era intersection: His fear of exposure mirrors the collective anxiety surrounding the loss of social standing in the 1930s.
+
+### Captain Ivor Hale
+Captain Ivor Hale represents the psychological scars left by war, battling PTSD while trying to uphold his reputation as a war hero. His internal conflict and paranoia underscore the societal pressures faced by returning soldiers, emphasizing the fragility of honor in a changing world.
+Era intersection: His fear of being exposed connects with the broader theme of hidden trauma in a community still reeling from war.
+
+### Beatrice Quill
+Beatrice Quill, as a maid, reveals the struggles of the lower class amidst the upper class's façade. Her desperate measures to support her family by stealing reflect the moral compromises individuals make under the strain of economic hardship, emphasizing the divide between the classes.
+Era intersection: Her actions highlight the harsh realities faced by working-class individuals during the Great Depression.
+
+## Character Voices
+
+### Eleanor Voss (she/her/her)
+Eleanor speaks with a melodic cadence, exuding charm and confidence.
+[comfortable] Oh, darling, isn't the evening just divine? I could float away on these lovely moments.
+[evasive] I suppose every family has its little secrets, but we mustn't dwell on such things tonight.
+[stressed] What if they find out? I can't let my world crumble, not now!
+Humour: Her observational humor often surfaces during social gatherings, deflecting suspicion.
+
+### Dr. Mallory Finch (he/him/his)
+Dr. Finch speaks in a clipped, precise manner, reflecting his authoritative nature.
+[comfortable] The human body is a marvel, really. Just a few adjustments can yield extraordinary results.
+[evasive] I've always believed that morality can be subjective in the name of progress.
+[stressed] This can't happen! My career depends on my reputation, and I can't afford any slip-ups!
+Humour: His dry wit surfaces during tense moments, providing a stark contrast to the gravity of the situation.
+
+### Captain Ivor Hale (he/him/his)
+Captain Hale's commanding voice carries a weight of authority and experience.
+[comfortable] In my day, we faced much worse and emerged stronger for it.
+[evasive] The past is the past; what matters is how we present ourselves now.
+[stressed] If they discover the truth, it could ruin everything I’ve built!
+Humour: His sardonic remarks often serve as a defense mechanism against his inner turmoil.
+
+### Beatrice Quill (she/her/her)
+Beatrice speaks softly, her voice often laced with nervousness.
+[comfortable] I do love the way the light dances in the garden; it makes me feel at peace.
+[evasive] Oh, it’s nothing really, just a little something I found lying around.
+[stressed] Please, you must believe me. I only wanted to help my family!
+Humour: Her self-deprecating humor often emerges in uncomfortable situations, reflecting her outsider status.
+
+## Location Registers (scene framing guides)
+
+Drawing Room: The drawing room serves as a stage for unspoken dramas, where laughter masks the tension and every glance carries the weight of hidden truths. Guests feel the pressure of societal expectations, where every interaction is a performance in a play of intrigue.. Camera angle: A close-up of flickering candlelight juxtaposed with the anxious faces of the guests sets the scene for the unfolding mystery.. Era: The oppressive atmosphere of the Great Depression looms even in the elegance of the drawing room.
+
+Library: The library stands as a sanctuary of knowledge and secrecy, filled with the whispers of the past. It feels both inviting and foreboding, where the weight of history hangs heavy in the air, creating an atmosphere ripe for revelation amidst the shadows.. Camera angle: A wide shot captures the dimly lit shelves, inviting the reader to explore the depths of hidden knowledge.. Era: The era's reliance on literature for escapism reflects the characters' desires to find solace in stories.
+
+Cellar: The cellar's dim ambiance and cool, musty air evoke a sense of dread, serving as the heart of the mystery. It's a place where the weight of secrets feels palpable, amplifying the tension as shadows loom larger in the corners.. Camera angle: A low-angle shot emphasizes the oppressive shadows, enhancing the feeling of entrapment within the walls.. Era: The cellar's isolation reflects the characters' internal struggles against the backdrop of societal pressures.
+
+Gardens: The gardens, with their vibrant colors, offer a deceptive beauty that contrasts with the underlying tension of the manor. Here, the gentle rustle of leaves mingles with the whispers of secrets, creating an atmosphere that is both serene and ominous, inviting exploration yet hinting at danger.. Camera angle: A sweeping shot captures the juxtaposition of the vibrant gardens against the looming dark woods, symbolizing hidden threats.. Era: The seasonal transition mirrors the characters' internal conflicts as they navigate their own changes.
+
+## Humour guidance for this story position (opening)
+Permission: permitted
+Characters who may be funny: Eleanor Voss
+Rationale: Eleanor's charm allows for light-hearted observations amidst the tension.
+
+FAIR-PLAY AND INFERENCE CONTRACT (from CML logic):
+- False assumption in force: Eleanor's death occurred shortly after the clock chimed eleven.
+- Hidden truth to progressively expose: The clock was tampered with to shift the timeline of the murder.
+- Inference path checkpoints to dramatize clearly (observation -> correction -> effect):
+  - Step 1: obs: The clock in the study shows ten minutes past eleven when found. | corr: The clock was tampered with to show a later time than actual time of death. | effect: Eliminates the possibility that Eleanor died at eleven.
+  - Step 2: obs: Witnesses recall hearing the clock chime at unusual times. | corr: The clock malfunctioned due to tampering. | effect: Narrows the timeline of the murder.
+  - Step 3: obs: Fingerprints found on the clock's winding key match Dr. Mallory Finch. | corr: Dr. Finch had access to the clock and had the opportunity to tamper with it. | effect: Narrows the suspect pool to Dr. Mallory Finch.
+- Discriminating test method: trap
+- Discriminating test design constraint: The discriminating test compares clock, study, and minut against the claimed timeline.
+- Test must rely on already-shown clue IDs: clue_1, clue_2, clue_3, clue_7, clue_core_contradiction_chain
+- Fair-play rationale: Step 1: The clock's face time (early) and witness accounts of chimes (mid) establish the timeline misrepresentation. Step 2: Fingerprint evidence eliminates other suspects and focuses on Dr. Finch. Step 3: The clock winding comparison reveals tampering.
+- Never solve by withheld information. Keep reader-information parity with detective reasoning.
+
+## Character Reference
+
+### Eleanor Voss
+Eleanor speaks with a melodic cadence, often punctuating her sentences with light laughter
+She has a penchant for dramatic pauses, particularly when she wishes to draw attention to her charm or deflect suspicion.
+Eleanor grapples with the tension of wanting to maintain her social facade while knowing that her actions are jeopardizing her integrity. Each interaction is laced with the fear that her secrets will be exposed.
+
+### Dr. Mallory Finch
+Finch speaks in a clipped, precise manner, often punctuating his sentences with dry observations that reflect his no-nonsense attitude
+He rarely indulges in small talk, preferring to get straight to the point.
+Dr. Finch wrestles with the moral implications of his actions, torn between his desire for recognition in the medical field and the fear of losing everything he has worked for. His arrogance blinds him to the true consequences of his choices.
+
+### Captain Ivor Hale
+Captain Hale speaks with a commanding authority, often punctuating his stories with sardonic remarks that reflect his disillusionment
+His speech is marked by a rhythmic cadence, as if he were still addressing troops rather than friends.
+Haunted by the memories of his military past, Captain Hale faces a profound internal conflict between the man he presents to the world and the soldier he once was. The fear of exposure amplifies his paranoia, creating a tempest within.
+
+### Beatrice Quill
+Beatrice speaks softly, often apologizing for her presence
+Her sentences are punctuated with nervous laughter, and she tends to downplay her thoughts, reflecting her position as an outsider in the manor's elite world.
+Beatrice grapples with the moral implications of her actions, torn between her love for her family and the shame of her theft. Each day, she faces the reality of her choices, creating a cycle of guilt and desperation.
+
+
+
+PHYSICAL PLAUSIBILITY REQUIREMENTS:
+
+All physical evidence must obey real-world physics:
+
+1. VIABLE Evidence by Location:
+   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents
+   Exterior (calm): secured items, structural damage, witness observations
+   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence
+
+2. IMPLAUSIBLE Evidence (DO NOT USE):
+   ❌ Footprints on wooden deck (treated wood doesn't retain prints)
+   ❌ Footprints in rain/storm (washed away immediately)
+   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)
+   ❌ Light objects in storm (blown away)
+
+3. For struggle evidence use:
+   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds
+   ❌ Objects embedded in hard surfaces, shattered steel/iron
+ERA AUTHENTICITY (1930s):
+
+1. FORBIDDEN terms (did not exist):
+   ❌ Modern technology
+
+2. REQUIRED period markers (include 2+ per scene):
+   ✓ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady
+   ✓ Period technology: period-appropriate items
+   ✓ Fashion: period clothing
+
+3. Use period-authentic language and social norms
+
+LOCATION PROFILES:
+
+You have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.
+
+Primary Location: Little Middleton Manor (Little Middleton, England)
+An imposing manor shrouded in secrets, Little Middleton Manor stands isolated amidst its manicured gardens and dense woodlands, a perfect backdrop for intrigue.
+
+Key Locations Available:
+- Drawing Room (interior): Gathering space
+- Library (interior): Clue discovery
+- Cellar (interior): Crime scene
+- Gardens (exterior): Clue discovery
+
+Atmosphere: Tense and foreboding, reflecting the underlying class tensions and paranoia of the era.
+Weather: Overcast with intermittent rain, typical of the English countryside in autumn.
+
+Era markers: Petrol-powered automobiles parked in the courtyard, a sign of the family's wealth and status. | An early home telephone with a party line in the study, creating a sense of connectivity yet isolation. | Typewriters in the study, clacking away as urgent messages are composed amid the rising tensions.
+
+USAGE GUIDELINES:
+1. First mention of location: Ground the scene using sensory details drawn from the profiles — paraphrase these into what the POV character directly observes and experiences, not a summary of the room's general qualities
+2. Geographic grounding: Reference the specific place (Little Middleton, England) naturally in dialogue or narrative
+3. Action scenes: Integrate physical layout details (access, sightlines, constraints)
+4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette
+5. Era details: Weave in period markers naturally
+6. Consistency: Keep all location descriptions aligned with profiles
+7. Each chapter opening must anchor to a named location from this list
+8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening
+9. Do NOT use generic repeated manor/storm filler without profile-specific details
+
+SENSORY PALETTE (use 2-3 senses per scene):
+Drawing Room (interior):
+  - Visual: The rich, dark wood of the furniture contrasts with the vibrant colors of the floral patterns on the upholstery, creating a sense of opulence., Golden light spills from the chandelier overhead, illuminating dust motes that dance lazily in the air.
+  - Sounds: The soft murmur of conversation fills the air, punctuated by the occasional laughter that feels strangely out of place., The distant crackle of the fire blends with the sound of the rain tapping against the windowpanes, creating a cozy yet unsettling symphony.
+  - Scents: The scent of burning wood mingles with the faint aroma of aged leather from the books lining the shelves, creating an inviting yet mysterious atmosphere., Hints of lavender from the potpourri on the mantelpiece add a touch of floral sweetness that contrasts sharply with the tension in the room.
+  - Touch: The plush fabric of the sofas invites weary guests to sink into their depths, offering a momentary escape from the tension outside., The chill of the air feels sharper near the windows, where the rain-soaked glass sends a shiver through anyone who dares to draw near.
+
+Library (interior):
+  - Visual: The dim light filtering through the tall windows casts elongated shadows across the room, creating an atmosphere of mystery and intrigue., Dust motes float lazily in the beams of light, illuminating the spines of books that range from history to fiction, each holding its own world within.
+  - Sounds: The soft rustling of pages turning as a reader immerses themselves in a forgotten story, punctuated by the occasional creak of the floorboards., The rhythmic clacking of the typewriter adds an urgent cadence to the stillness, a reminder that words can shape destinies.
+  - Scents: The rich, earthy scent of old books fills the air, mingling with the faintest hint of polish from the furniture, a testament to the care taken in this sanctuary., A subtle whiff of tobacco lingers from the last visitor, a trace of their presence that adds to the librar
+[truncated for prompt budget]
+
+## Texture Pool
+Draw on these as opportunities arise — you are not required to use them.
+
+- In October 1933, the English countryside is cloaked in a muted palette of browns and oranges, with overcast skies that threaten rain at any moment
+- The brisk air carries a distinct chill that seeps into every corner of the grand country house estate, where guests gather for a weekend retreat
+- As twilight descends earlier in the day, the atmosphere grows thick with tension, reflecting the underlying unease of a society grappling with the repercussions of an ongoing economic depression and the specter of rising fascism across the channel
+- Each day is marked by whispers of class disparity and financial strain, as the upper class struggles to maintain appearances while the lower class faces dire consequences
+- The Great Depression casts a long shadow over social interactions, where every laugh feels strained, and every conversation is tinged with anxiety
+
+TEMPORAL CONTEXT:
+
+This story takes place in October 1933 during N/A.
+
+Seasonal Atmosphere:
+- Weather patterns: overcast skies, intermittent rain, chilly breezes
+- Daylight: Shortening days with twilight settling around five o'clock in the evening
+- Seasonal activities: apple picking in local orchards, attending harvest festivals, preparing for Halloween with decorations
+- Seasonal occasions: Halloween
+- Season: N/A
+
+Period Fashion (describe naturally):
+- Men formal: three-piece tweed suits, wing-collared shirts, woolen overcoats
+- Men casual: corduroy trousers, knit sweaters, flat caps
+- Men accessories: pocket watches, silk ties, leather gloves
+- Women formal: tea-length dresses with dropped waistlines, velvet evening gowns, tailored jackets
+- Women casual: knitted cardigans, blouses with patterned skirts, long woolen scarves
+- Women accessories: cloche hats, beaded handbags, string of pearls
+
+Cultural Context (reference naturally):
+- Music/entertainment: 'Smoke Gets in Your Eyes' by Jerome Kern, 'Night and Day' by Cole Porter, Swing Jazz gaining popularity; Films: 'King Kong' released this year, 'The Invisible Man'; Theatre: 'The Front Page', 'Pygmalion'; Radio: The BBC broadcasts news and entertainment programs, Musical variety shows growing in popularity
+- Typical prices: Bread loaf: four pence, A new suit: three pounds, A movie ticket: six pence
+- Current events: The Great Depression continues to affect economies worldwide; Political instability in Germany as Hitler consolidates power
+- Literature: 'The Glass Key' by Dashiell Hammett | 'Murder in the Cathedral' by T.S. Eliot | 'The Maltese Falcon' by Dashiell Hammett | [detective fiction] | [social realism] | [political commentary]
+- Technology: the first practical radio transceiver | the development of the first commercial flight services | the widespread use of the typewriter in homes and offices | manual typewriters | early home telephones | petrol-powered cars gaining prominence
+- Daily life: going for walks in the countryside, attending local fairs and markets, visiting family and friends during weekends
+- Social rituals: afternoon tea with family, weekly church services, evening gatherings for games and card playing
+
+Atmospheric Details:
+The scent of damp earth mingles with the crispness of fallen leaves as the rain sporadically taps against the windows. The dim light of oil lamps flickers, casting shadows that dance across the ornate wallpaper, enhancing the air of mystery within the country house. The distant sound of laughter from a harvest festival juxtaposes the tension inside, where whispers of class tensions and fears of the unknown linger.
+
+FASHION INTEGRATION TECHNIQUES:
+- First appearance: Describe outfit to establish class/personality
+- Accessories: Gloves, hats, pocket watches, jewelry reveal status
+- Time-specific: Different outfits for different times of day
+- Character traits: Fastidious dresser vs rumpled appearance
+- Action integration: "She tugged at her glove" or "He adjusted his tie"
+- Weather appropriate: Overcoats in winter, light linen in summer
+
+CULTURAL TOUCHSTONE INTEGRATION:
+- Casual conversation: "Did you hear that new jazz record?" or "I saw the latest Chaplin film"
+- Background details: Radio playing, newspaper headlines, theater posters
+- Social commentary: Characters discuss current events naturally
+- Class indicators:
+[truncated for prompt budget]
+
+NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):
+The following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.
+
+FAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.
+
+CRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.
+
+Locked facts:
+  - The exact time shown on the stopped clock face: "ten minutes past eleven"
+  - The exact amount the clock was wound back: "forty minutes"
+  - The time the murder was intended to appear as happening: "twenty minutes past ten"
+  - The time the clock is supposed to chime after tampering: "eleven o'clock"
+
+If a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.
+
+⛔ CLUES TO SURFACE IN THESE CHAPTERS — mandatory:
+The following evidence MUST be clearly observable to an attentive reader. Do not bury it in atmosphere or passing dialogue. Each clue must be concrete, specific, and noticeable:
+
+• [clue_core_contradiction_chain] The clock was tampered with to show a later time than actual time of death.
+  Category: temporal | Criticality: essential | Supports inference step 1
+  Points to: This contradicts the timeline of Eleanor's death.
+
+For each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.
+
+═══ NARRATIVE STATE (read-only — do not contradict) ═══
+
+LOCKED FACTS — use verbatim whenever this evidence is described:
+  • The exact time shown on the stopped clock face: "ten minutes past eleven"
+  • The exact amount the clock was wound back: "forty minutes"
+  • The time the murder was intended to appear as happening: "twenty minutes past ten"
+  • The time the clock is supposed to chime after tampering: "eleven o'clock"
+
+CHARACTER PRONOUNS — never deviate from these:
+  • Eleanor Voss: she/her/her
+  • Dr. Mallory Finch: he/him/his
+  • Captain Ivor Hale: he/him/his
+  • Beatrice Quill: she/her/her
+
+CLUES ALREADY REVEALED TO READER: clue_mechanism_visibility_core — do not reveal these as new information.
+
+CONTINUITY HANDOFF — previous chapter closing beat:
+  • "As they stood in the study, the rain continued to fall outside, a relentless reminder of the world beyond the manor's walls. Each drop seemed to echo the unspoken fears that lingered in the air. The clock, with its frozen hands, was a stark reminder of the fra..."
+  • The next chapter must open as a continuation of this beat, not as a disconnected reset.
+═══════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════
+📚 CONTINUITY CONTEXT - CHARACTER & SETTING CONSISTENCY
+═══════════════════════════════════════════════════════════
+
+**CRITICAL: You are writing chapters 2+. Maintain consistency with earlier chapters.**
+
+**Character Names Used in Chapters 1-1:**
+Eleanor Voss, Beatrice Quill
+
+✓ RULE: Use EXACTLY these names. Do NOT vary spelling, add titles, or introduce new forms.
+✓ Example: if earlier chapters used "Clara Whitfield", keep using "Clara Whitfield" — never "Mrs. Whitfield" unless that is the character's canonical name in the list above.
+
+**Setting Vocabulary Established in Earlier Chapters:**
+study, kitchen, manor
+
+✓ RULE: Continue using this location vocabulary. Maintain consistency with established setting type.
+✓ Do NOT introduce new location types that contradict earlier chapters.
+
+**Recent Chapter Summary (for narrative continuity):**
+Chapter 1: Chapter 1: Discovery
+  Events: The morning light filtered through the heavy drapes of the study of Eleanor Voss, casting a muted glow across the room.
+
+⚠️ **VALIDATION:** Character name mismatches and setting drift are common failure modes.
+Double-check every character name against the list above before using it.
+═══════════════════════════════════════════════════════════
+
+
+HUMOUR & WIT GUIDELINES (Golden Age Mystery Style):
+
+Humour is STRUCTURAL, not decorative. Every humorous moment must serve at least one purpose: hide information, reveal character, control pacing, provide tonal contrast, expose social truth, or sharpen the final reveal.
+
+TONE: Balance classical structure with modern-clean, restrained, irony-aware voice. Aim for crisp prose, controlled formality, mildly sharpened dryness. Think: polite language, ruthless implication.
+
+APPROVED HUMOUR STYLES (use all of these naturally throughout):
+1. UNDERSTATEMENT (primary tool) - Increase seriousness by pretending not to. Example: "The evening deteriorated somewhat after the stabbing."
+2. DRY OBSERVATIONAL WIT - Draw humour from human behaviour. Example: "Everyone preferred harmony. This required extensive dishonesty."
+3. POLITE SAVAGERY - Maintain civility while delivering verbal incision. Example: "He was devoted to principle," said the solicitor. "His own," said the detective.
+4. CHARACTER-DRIVEN CONTRAST - Humour from personality friction (literal vs dramatic, pragmatic vs romantic, rigid vs modern). Never farce, always friction.
+5. PRECISION CRUELTY (sparingly) - Short, exact, devastating. Example: "He had the moral backbone of warm custard." Use rarely for maximum impact.
+
+ADVANCED TECHNIQUE - PUZZLE CAMOUFLAGE: Readers lower their analytical guard when amused. Hide key habits in jokes, plant timeline clues in sarcasm, mask technical details with mild mockery. The joke makes the fact feel harmless.
+
+SOCIAL X-RAY: Use humour to expose class blindness, moral hypocrisy, gender expectations, inheritance absurdity, respectability theatre. Let irony reveal, not preach.
+
+DETECTIVE VOICE: The detective should rarely laugh, occasionally observe, almost never banter. Deliver one devastatingly mild remark per major scene. Example: "I do not accuse you. I merely observe that facts appear less cooperative in your presence."
+
+RHYTHM: Tension -> Dry remark -> Silence -> Investigation resumes. Never stack jokes. Never let humour dominate a scene. Small, controlled, regular infusions.
+
+BALANCE: For every 3 pages of investigation, insert 1 understated observation. If readers would laugh loudly, it is too much. Aim for the quiet exhale through the nose.
+
+RUNNING GAGS AS STRUCTURE: Introduce a recurring minor joke casually, repeat it, then make it central to the solution. Reader reaction: Amusement -> Recognition -> Admiration.
+
+EMOTIONAL HUMOUR: Humour can mask vulnerability. Example: "He disliked arguments. They implied things might change." Modern emotional subtlety inside classical tone.
+
+FORBIDDEN: Humour at the moment of corpse discovery, in physical description of the dead, during genuine grief, in the core logical explanation. No broad parody, no farce, no anachronistic sarcasm, no characters existing only for comic relief, no humour that weakens intellectual tension.
+
+GUIDING PRINCIPLE: Do not try to be funny. Try to be exact. Exactness produces dryness. Dryness produces intelligence. Intelligence produces quiet amusement. Quiet amusement is the perfect companion to murder.
+
+WHODUNNIT CRAFT GUIDELINES (Emotional Depth & Soul):
+
+These principles ensure the mystery has emotional resonance, not just logical mechanics.
+
+1. THE MURDER MUST MEAN SOMETHING: The death should destabilize emotional ecosystems. Show who loved the victim, who depended on them, who is secretly relieved. Use telling details ("Her coffee was still warm") rather than clinical statements ("The body was found at half past seven").
+
+2. GIVE EVERY SUSPECT A WOUND: People kill because of shame, fear, love, desperation, pride, protection, or revenge. Beyond motive, give each suspect a private longing, a contradiction, a vulnerability unrelated to the crime. Readers should think: "I do not want it to be them."
+
+3. THE DETECTIVE NEEDS A PERSONAL STAKE: The external mystery should echo an internal one. Perhaps they see themselves in the victim, the case mirrors a past failure, or they are avoiding something in their own life.
+
+4. ADD MOMENTS THAT DO NOT ADVANCE THE PLOT: Include micro-moments that create texture: a suspect making tea too slowly, a trembling hand lighting a cigarette, someone staring too long at a family photo. These pauses make the story feel alive.
+
+5. LET EMOTION LEAK INTO DIALOGUE: Avoid clinical information exchange. Write subtext-rich dialogue where characters do not always say what they mean. Example: "You think I would lie about that?" "I think people lie when they are scared." "I am not scared." "Your hands say otherwise."
+
+6. RAISE MORAL COMPLEXITY: The most soulful mysteries make readers uncomfortable. What if the victim was not entirely good? What if the killer had a reason that almost makes sense? If the reader finishes thinking "I do not know how I feel about that," you have succeeded.
+
+7. SENSORY ATMOSPHERE AS SOUL: Use recurring sensory anchors (the smell of lilies from the funeral, rain tapping like nervous fingers) to build mood. Atmosphere is not decoration; it is the story breathing.
+
+8. LET SOMEONE BREAK: At least once, someone should crack: cry unexpectedly, laugh hysterically, confess something unrelated, admit they are tired. Emotion destabilizes the procedural rhythm and makes the story human.
+
+9. MAKE THE REVEAL HURT: The best reveals do not just surprise; they wound. The reveal should recontextualize earlier tenderness, expose a betrayal, or force the detective to confront something personal. If the reveal only satisfies logic, it feels clinical. If it rearranges relationships, it feels human.
+
+SCENE GROUNDING CHECKLIST (MUST FOLLOW):
+Known location profile anchors: Little Middleton Manor, Drawing Room, Library, Cellar, Gardens, the study
+LOCATION NAME CAPITALISATION (HARD REQUIREMENT — validated):
+All named locations in your prose MUST use the EXACT capitalisation from the CML profiles.
+Canonical forms: "Little Middleton Manor", "Drawing Room", "Library", "Cellar", "Gardens", "the study"
+Writing a location in lowercase (e.g. "drawing room" instead of "Drawing Room") is a validated error. Every time you mention a named location, copy its capitalisation from the list above.
+- Chapter 2: OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with spoken dialogue — e.g. '"[words]," [Name] said/asked/replied/murmured.' The opening quote must be the first character on the line. Anchor opening in "the study". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark. These are validated requirements, not style suggestions; missing them triggers a retry.
+
+[⚠ INTERNAL QUALITY DIAGNOSTICS — DO NOT REPRODUCE ANY PART OF THIS SECTION IN YOUR STORY OUTPUT. These are private generator observations for your consideration only. Your narrative must read as if this section does not exist. Never include phrases from this block in character dialogue, narration, or description.]
+
+PRIOR CHAPTER QUALITY OBSERVATIONS:
+- Chapter 1 (score 90/100):
+  Quality gaps noted: word density below preferred target (767/1000); scene grounding weakness
+  Address in upcoming chapters: Increase chapter density with concrete investigation action and sensory-grounded beats; avoid recap-only padding. | Open next chapter with a named location anchor plus at least two sensory cues and one atmosphere marker.
+[END INTERNAL DIAGNOSTICS]
+
+PROMPT BUDGET SUMMARY: budget=32000 tokens; fixed=6068; context=9856; dropped=[none]; truncated=[location_profiles, temporal_context]
+
+# Prose Output Schema
+Return JSON with this structure:
+
+{
+  "status": "draft",
+  "tone": "classic|modern|atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter title",
+      "summary": "1-2 sentence summary",
+      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]
+    }
+  ],
+  "cast": ["Name 1", "Name 2"],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph N | absent",
+    "season_words_used": "list seasonal words used in this batch | none",
+    "discriminating_test_present": "yes: chapter N paragraph M | no",
+    "required_clues_present": "clue_id or description: chapter N paragraph M | absent",
+    "early_observation_present": "description: chapter N paragraph M (first 25%) | absent",
+    "early_inference_present": "yes: paragraph immediately following observation | no"
+  }
+}
+
+The audit field is a self-check only. Fill it honestly. It will be stripped before storage.
+
+Requirements:
+- Write exactly one chapter per outline scene (1 total).
+- Chapter numbering starts at 2 and increments by 1 per scene.
+- Each chapter has 5-8 substantial paragraphs (each 120–180 words) — TARGET ≥ 1250 words — do not stop early.
+- Use classic tone and short length guidance.
+- Reflect the outline summary in each chapter.
+- Keep all logic consistent with CML (no new facts).
+- Chapter title format: EVERY chapter title MUST follow exactly "Chapter N: [Descriptive title]" (e.g. "Chapter 1: The Frozen Clock"). Do NOT use number-only ("Chapter 1") or title-only ("The Frozen Clock") formats — mixed formats are a validation error.
+
+WORD COUNT CONTRACT (NON-NEGOTIABLE):
+- Target: 1250 words per chapter. Do not stop before reaching this threshold.
+- Overshoot rather than undershoot. When in doubt, write one more paragraph.
+- Expand with concrete action beats, clue-linked dialogue, and sensory detail.
+- Never pad with recap, repeated atmosphere, or generic filler.
+
+NOVEL-QUALITY PROSE REQUIREMENTS:
+
+1. SCENE-SETTING: Every chapter MUST open with the following in the FIRST TWO PARAGRAPHS — this is a VALIDATION REQUIREMENT and chapters that omit it are retried:
+   (a) 2+ sensory words from: smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim
+   (b) 1+ atmosphere/time word from: rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark
+   (c) A named location anchor from the setting profiles
+
+   Then establish time of day, weather, and lighting; describe the location using sensory details; set mood and atmosphere before advancing plot beats.
+   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+
+   Generate new descriptions using actual location and character names from the provided profiles.
+
+2. SHOW, DON'T TELL: Use concrete details and actions
+   ❌ "She was nervous."
+   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."
+   - Body language reveals emotion
+   - Actions reveal character
+   - Environment reflects internal state
+
+3. VARIED SENTENCE STRUCTURE:
+   - Mix short, punchy sentences with longer, flowing ones
+   - Use sentence rhythm to control pacing
+   - Short sentences for tension, longer for description
+   - Paragraph variety: Some 2 lines, some 8 lines
+
+4. DIALOGUE THAT REVEALS CHARACTER:
+   - Each character has distinct speech patterns (see character profiles)
+   - Use dialogue tags sparingly (action beats instead)
+   - Subtext: characters don't always say what they mean
+   - Class/background affects vocabulary and formality
+   - Tension through what's NOT said
+   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
+
+   Use only character names from the provided cast list.
+
+5. SENSORY IMMERSION:
+   - Include multiple senses per scene (2-3 minimum)
+   - Period-specific sensory details from location/temporal profiles
+   - Tactile details create immediacy
+   - Use sensory palette provided in location profiles
+   - Vary sensory focus: visual → auditory → olfactory → tactile
+
+6. PARAGRAPH STRUCTURE:
+   - Opening: Hook with action, dialogue, or atmospheric detail
+   - Middle: Develop scene, reveal information, build tension
+   - Closing: End with revelation, question, or transition
+   - Each paragraph should advance story or deepen character
+
+7. PACING VARIATION:
+   - Action scenes: Short paragraphs (2-4 lines), quick succession
+   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm
+   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description
+   - Revelation scenes: Build slowly with long paragraphs, climax with short punch
+
+8. EMOTIONAL SUBTEXT & TENSION:
+   - Characters have hidden secrets/stakes (see character profiles)
+   - Every interaction carries subtext based on relationships
+   - Build tension through: pauses, interrupted speech, avoided topics, body language
+   - Mystery atmosphere: Suspicion, unease, watchfulness
+   - Use weather/atmosphere to mirror emotional tension
+
+QUALITY GUARDRAILS (MUST SATISFY):
+1. FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.
+2. FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.
+3. FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.
+4. FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters.
+5. Use only canonical cast names from CML. Do not invent titled placeholders like 'Detective Surname', 'Inspector Surname', 'a woman Surname', or 'a man Surname'.
+6. Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.
+7. In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).
+8. Integrate at least two concrete era-grounded details per chapter from setting refinement signals: petrol-powered automobiles for local travel | early home telephones with party lines | typewriters for correspondence | telegrams for urgent messages | aerogrammes for overseas correspondence | impact of the Great Depression on class structures.
+9. Respect setting movement/access constraints in scene action and alibis: architectural layout creates natural barriers | weather influences outdoor evidence collection | specific movement patterns dictated by the estate's design | restricted areas such as the library and cellar | daily routines dictate access to certain rooms.
+10. Sustain social coherence with this backdrop pressure: A gathering at the estate for a family reunion amidst the economic strain of the Great Depression and rising political tensions forces the heirs and staff into a tense atmosphere of suspicion and hidden motives.
+11. Maintain continuity around these socially central cast anchors where relevant: Eleanor Voss, Dr. Mallory Finch, Captain Ivor Hale, Beatrice Quill.
+12. Novelty safeguard: avoid reproducing this flagged seed-adjacent pattern in prose expression: Critical: Plot similarity 0.85 with 'The Mysterious Affair at Styles' (same temporal crime and victim method)
+13. Novelty safeguard: avoid reproducing this flagged seed-adjacent pattern in prose expression: Moderate: Setting similarity 0.90 with 'The Mysterious Affair at Styles' (same era and country manor setting)
+
+CRITICAL PROSE REQUIREMENTS:
+
+The CML specifies exact requirements for certain validation-critical scenes. You MUST include these elements at the specified positions.
+
+**Discriminating Test Scene (Act 3, Scene 4):**
+Required elements: Execute the discriminating test, Observe the culprit's reaction or result, Draw conclusion about guilt
+Test type: trap
+
+**Suspect Clearance Scenes:**
+- Eleanor Voss (Act 3, Scene 5): She is the victim.
+  Clues: clue_id_1, clue_id_2
+- Beatrice Quill (Act 3, Scene 5): Alibi verified by others.
+  Clues: clue_id_1, clue_id_2
+
+**Culprit Revelation Scene (Act 3, Scene 6):**
+Method: Confrontation with evidence
+
+**Clue Placement for These Chapters:**
+- clue_core_contradiction_chain must appear in Act 1, Scene 2 via Cross-check contradiction
+
+**VALIDATION CONSEQUENCE:** If these requirements are not met exactly, story validation will fail and the entire generation will be rejected, costing $5-8 to regenerate. Follow these specifications precisely.
+
+
+## Asset Self-Report (required)
+At the very END of your response, after all prose, add a single line:
+<used_assets>era:story:0,era:story:1,era:story:2,era:story:3,era:story:4</used_assets>
+Replace the list with only the IDs of texture assets you actually used. If you used none, output <used_assets></used_assets>.
+```
+
+## Message 2 (role=user)
+
+```text
+Write the full prose following the outline scenes.
+
+
+
+CHAPTER OBLIGATION CONTRACT (MUST SATISFY):
+- Chapter 2:
+  - Word count: Target 1250 words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.
+  - Location anchor: the study.
+  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark. A chapter that omits all of these from its opening paragraph will be rejected.
+  - Continuity bridge: in the first 120 words, visibly connect from the previous chapter's final beat. Carry forward one unresolved element (object, accusation, emotional pressure, or immediate physical action) from: "As they stood in the study, the rain continued to fall outside, a relentless reminder of the world beyond the manor's walls. Each drop seemed to echo the unspoken fears that lingered in the air. The clock, with its froze...".
+  - CLUE OBLIGATIONS — mandatory prose elements (do NOT omit or bury):
+    • The clock was tampered with to show a later time than actual time of death. [clue_core_contradiction_chain] ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter
+      Points to: This contradicts the timeline of Eleanor's death.
+      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):
+         Paragraph 1: The POV character physically approaches or directly observes this evidence.
+           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).
+         Paragraph 2 (immediately following): The detective or POV character explicitly reasons
+           about what this evidence implies — who it implicates, why it may be unreliable,
+           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.
+  - Tonal contrast: include at least one beat of relief or ironic counterpoint. Do not sustain maximum tension for every paragraph.
+- Locked fact phrase obligations:
+  - If this batch mentions The exact time shown on the stopped clock face, write exactly: "ten minutes past eleven".
+  - If this batch mentions The exact amount the clock was wound back, write exactly: "forty minutes".
+  - If this batch mentions The time the murder was intended to appear as happening, write exactly: "twenty minutes past ten".
+  - If this batch mentions The time the clock is supposed to chime after tampering, write exactly: "eleven o'clock".
+- Seasonal vocabulary allow-list: autumn, autumnal, fall.
+- Forbidden seasonal words: spring, summer, winter.
+
+FROZEN TIMELINE STATE (DO NOT ALTER):
+- Timeline anchor: October (autumn).
+- Month, season, weather, and time-of-year language in this batch must stay compatible with autumn.
+- Established timeline fact: Eleanor was last seen alive at ten forty-five.
+- Established timeline fact: The clock was found showing ten minutes past eleven.
+- If referenced, use exact time phrase: "ten minutes past eleven" (The exact time shown on the stopped clock face).
+- If referenced, use exact time phrase: "forty minutes" (The exact amount the clock was wound back).
+- If referenced, use exact time phrase: "twenty minutes past ten" (The time the murder was intended to appear as happening).
+- If referenced, use exact time phrase: "eleven o'clock" (The time the clock is supposed to chime after tampering).
+
+STORY TO DATE (REFERENCE ONLY — DO NOT COPY VERBATIM):
+- Full prior chapter text is provided below for continuity, factual consistency, and reference accuracy.
+- Use this to keep character voice, chronology, clue state, and location continuity aligned with earlier chapters.
+- Do not quote, copy, or paraphrase these paragraphs too closely; write fresh prose that remains consistent with them.
+
+--- BEGIN PRIOR CHAPTER 1 ---
+Title: Chapter 1: Discovery
+The morning light filtered through the heavy drapes of the study of Eleanor Voss, casting a muted glow across the room. Outside, the rain fell steadily, a rhythmic patter against the windowpanes that seemed to echo the tension within. the captain Hale stood by the fireplace, his gaze fixed on the clock that hung above the mantelpiece. The clock's face was frozen, the hands pointing stubbornly to ten minutes past eleven. It was a time that now held a sinister weight, marking the moment when Eleanor's life had been extinguished. The air was thick with an unspoken dread, a palpable reminder of the tragedy that had unfolded within these walls just hours before.
+
+As Captain Hale stepped closer to the clock, he felt a shiver run down his spine. The mechanism relies on the clock in the study to expose the false timing. It had been wound back, but to what purpose? She could not shake the feeling that the clock was more than just a timekeeper; it was a witness to Eleanor's final moments. The memory of its chime lingered in her mind, a haunting reminder of the life that had been lost. What had transpired in this room? Who had been here, and what secrets did the clock hold? Her thoughts raced as she considered the implications of its tampering. The timing of Eleanor's death was now shrouded in uncertainty, and every tick of the clock seemed to mock her with its silence.
+
+the doctor Finch entered the study, his expression a mask of professionalism that barely concealed the turmoil beneath. He glanced at Captain Hale, who stood rigidly by the clock. 'What do we know so far?' he asked, his voice steady despite the chaos that swirled around them. Hale turned, his brow furrowing as he replied, 'Eleanor was last seen alive at ten forty-five. The clock shows ten minutes past eleven, but it was tampered with. We need to determine how and why.' Finch nodded, his mind racing with the implications. Every guest had access to this room, and each one had a motive, however concealed. The tension in the air was thick enough to slice through, and he could feel the weight of suspicion settling upon them all.
+
+Beatrice Quill stood in the doorway, her hands clasped tightly in front of her. She had been summoned to the study, and the sight of the clock only intensified her unease. 'Is it true? Is she really...?' Her voice trailed off, the words catching in her throat. Captain Hale met his gaze, his expression softening momentarily. 'I'm afraid so, Beatrice. Eleanor is gone.' The gravity of the situation pressed down on her, and she felt the room close in around her. 'I was just in the kitchen,' she murmured, her voice barely above a whisper. 'I didn't hear anything.'
+
+Hale's eyes narrowed as he considered his words. 'You were in the kitchen, you say? What time did you leave?' Beatrice hesitated, her mind racing. 'I... I don't know. I was preparing breakfast, and then... I came here when I was called.' The uncertainty in her voice only added to the tension in the room. Finch stepped forward, his analytical mind working through the puzzle. 'If the clock was tampered with, it could mean that someone wanted to create an alibi or shift the blame. We need to find out who had access to the clock and when.'
+
+The atmosphere in the study felt charged, as if the walls themselves were holding their breath, waiting for the truth to emerge. Hale glanced at the clock once more, its hands frozen in time, a silent witness to the tragedy that had unfolded. 'We must act quickly,' he said, his voice firm. 'The detective will be here soon, and we need to have our stories straight. No one can afford to appear suspicious, not now.' Beatrice nodded, her heart racing as she tried to gather her thoughts. The weight of their shared secrets loomed over them, a dark cloud that threatened to consume them all.
+
+As they stood in the study, the rain continued to fall outside, a relentless reminder of the world beyond the manor's walls. Each drop seemed to echo the unspoken fears that lingered in the air. The clock, with its frozen hands, was a stark reminder of the fragility of life, and the secrets that lay hidden within the shadows of Little Middleton Manor. The morning had begun with the promise of a family reunion, but it had quickly devolved into a nightmare, one that would unravel the very fabric of their lives.
+--- END PRIOR CHAPTER 1 ---
+
+# Case Overview
+Title: The Clockwork Deception
+Era: 1930s
+Setting: Little Middleton
+Crime: murder (clock tampering)
+Culprit: Dr. Mallory Finch
+False assumption: Eleanor's death occurred shortly after the clock chimed eleven.
+Cast: Eleanor Voss (she/her), Dr. Mallory Finch (he/him), Captain Ivor Hale (he/him), Beatrice Quill (she/her)
+
+Setting Lock: Keep all scenes and descriptions consistent with the stated setting (Little Middleton). Do not introduce a different location type.
+
+Outline scenes:
+[
+  {
+    "sceneNumber": 2,
+    "act": 1,
+    "title": "Initial Interrogation",
+    "setting": {
+      "location": "the study",
+      "timeOfDay": "Late morning",
+      "atmosphere": "Suspenseful, with an air of accusation"
+    },
+    "characters": [
+      "Eleanor Voss",
+      "Captain Ivor Hale",
+      "Dr. Mallory Finch",
+      "Beatrice Quill"
+    ],
+    "purpose": "Establish alibis and initial suspicions",
+    "cluesRevealed": [
+      "clue_core_contradiction_chain"
+    ],
+    "dramaticElements": {
+      "conflict": "Tensions rise as conflicting stories emerge.",
+      "tension": "Each character's alibi is questioned, creating mistrust.",
+      "microMomentBeats": [
+        "Dr. Finch fidgets with his glasses, avoiding eye contact."
+      ]
+    },
+    "summary": "As the detective arrives, the suspects are questioned about their whereabouts. Conflicting alibis start to emerge, and the tension in the room thickens as each person tries to deflect suspicion.",
+    "estimatedWordCount": 1800,
+    "emotionalRegister": "Discomfort grows as Eleanor's secrets threaten to surface amidst the laughter.",
+    "dominantCharacterNote": {
+      "name": "Eleanor Voss",
+      "voiceRegister": "Eleanor speaks with a melodic cadence, exuding charm and confidence."
+    },
+    "humourGuidance": {
+      "permission": "conditional",
+      "character": "Eleanor Voss",
+      "condition": "only light humor about social interactions"
+    },
+    "eraTextureNote": "Limited communication due to the reliance on early home telephones.; Isolation from nearby towns due to poor transportation options.; Shortening daylight hours limiting evening activities.",
+    "locationRegisterNote": ""
+  }
+]
+```
+
+## Message 3 (role=user)
+
+```text
+BEFORE SUBMITTING YOUR JSON — verify this checklist:
+□ Each chapter reaches the hard floor of 500 words and aims for 1250 words or more.
+□ If you mention locked evidence, you used the exact locked phrase verbatim.
+□ Allowed seasonal words only: autumn, autumnal, fall.
+□ Forbidden seasonal words: spring, summer, winter.
+□ Chapter 2: "The clock was tampered with to show a later time than actual time of death." is placed in the first 25% of the chapter, followed by an explicit inference or suspicion paragraph.
+□ First chapter in this batch opens by continuing the previous chapter closing beat (same unresolved object, question, movement, or emotional pressure).
+□ PRONOUN AUDIT — for every character you named in your chapters, list the pronouns you actually used, then verify against the canonical table. Correct any mismatch before outputting. Do NOT include this audit in your JSON output.
+  Character            | Canonical     | Used in draft | Match?
+  ---------------------|---------------|---------------|-------
+  Eleanor Voss         | she/her/her/herself       | [fill in]     | [yes/no]
+  Dr. Mallory Finch    | he/him/his/himself        | [fill in]     | [yes/no]
+  Captain Ivor Hale    | he/him/his/himself        | [fill in]     | [yes/no]
+  Beatrice Quill       | she/her/her/herself       | [fill in]     | [yes/no]
+□ Return valid JSON only.
+```

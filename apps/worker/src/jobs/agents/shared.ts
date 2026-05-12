@@ -45,6 +45,18 @@ import type { MysteryGenerationInputs } from "../mystery-orchestrator.js";
 
 export type DifficultyMode = "standard" | "increase" | "extreme";
 
+// ============================================================================
+// Locked Fact Registry — Pillar 1
+// ============================================================================
+
+export type LockedFact = {
+  id: string;
+  value: string;
+  description: string;
+};
+
+export type LockedFactRegistry = LockedFact[];
+
 export type CmlPrimaryAxis = "temporal" | "spatial" | "identity" | "behavioral" | "authority";
 
 export type HardLogicDirectives = {
@@ -174,6 +186,9 @@ export interface OrchestratorContext {
   worldDocument?: WorldDocumentResult;
   prose?: ProseGenerationResult;       // may be reassigned by Agent 9 retries
   validationReport?: ValidationReport;
+
+  // ── Pillar 1: Locked Fact Registry (populated by Agent 3b when enableLockedFactRegistry) ─
+  lockedFactRegistry?: LockedFactRegistry;
 
   // ── Result flags ─────────────────────────────────────────────────────────
   revisedByAgent4: boolean;

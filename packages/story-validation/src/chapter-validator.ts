@@ -327,6 +327,9 @@ export class ChapterValidator {
     const atmosphereMarkers = [
       'rain', 'wind', 'fog', 'storm', 'mist', 'thunder',
       'evening', 'morning', 'night', 'dawn', 'dusk', 'season',
+      'afternoon', 'midday', 'noon', 'midnight', 'twilight',
+      'sunrise', 'sunset', 'daylight', 'sunlight', 'overcast',
+      'cloudy', 'bright', 'grey', 'gray', 'dark', 'light',
     ].filter((term) => openingBlockText.includes(term)).length;
 
     const chapterWideHasLocationAnchor = expectedAnchors.some((term) => fullText.includes(term));
@@ -497,8 +500,18 @@ export class ChapterValidator {
     }
 
     // --- Instruction-shaped prose (imperative + storytelling nouns) ---
-    const instructionPattern = /\b(ensure|make sure|remember to|don't forget|include|incorporate|weave in|establish|convey|demonstrate)\b.*\b(tension|atmosphere|clue|motive|suspicion|suspense|mystery)\b/i;
-    if (instructionPattern.test(joined)) {
+    // True prompt-directive imperatives have no grammatical subject — the verb appears
+    // at the START of a sentence (e.g. "Include tension here.", "Establish the atmosphere.").
+    // Checking anywhere in a sentence produces false positives on standard narrative prose
+    // such as "She tried to establish the motive" or "Holmes sought to convey his suspicion."
+    // Split the joined text into individual sentences and test each sentence start.
+    const IMPERATIVE_VERBS = /^(ensure|make\s+sure|remember\s+to|don't\s+forget|include|incorporate|weave\s+in|establish|convey|demonstrate)\b/i;
+    const STORYTELLING_NOUNS = /\b(tension|atmosphere|clue|motive|suspicion|suspense|mystery)\b/i;
+    const sentences = joined.split(/(?<=[.!?])\s+/);
+    const hasInstructionShaped = sentences.some(
+      (s) => IMPERATIVE_VERBS.test(s.trimStart()) && STORYTELLING_NOUNS.test(s)
+    );
+    if (hasInstructionShaped) {
       issues.push({
         severity: 'major',
         message: `Chapter ${chapter.chapterNumber} contains instruction-shaped prose (prompt leakage)`,

@@ -1628,6 +1628,22 @@ not consumed.
 | Attempts 2 to Nâˆ’1 | `buildEnhancedRetryFeedback()` appended as a new `user` turn; the previous raw LLM response added as a prior `assistant` turn so the model edits rather than rewrites |
 | Final attempt (N) | `buildEnhancedRetryFeedback()` appended as a new `user` turn; **no prior assistant turn** â€” the model rebuilds from scratch with a `REBUILD` directive |
 
+**Failure-class protocol (`retry-protocol.ts`):**
+- Canonical retry classes: `encoding`, `structure`, `completeness`, `continuity`, `clue_timing`, `template`, `tone_pacing`, `fair_play`.
+- Repeated dominant class triggers deterministic strategy switching:
+  - `split_chapter` for `structure`/`completeness`
+  - `freshen_atoms` for `template`
+  - `tighten_obligation` for `clue_timing`/`continuity`/`fair_play`
+- Mixed clue+template failures now carry a dual mitigation packet (`tighten_obligation` + `freshen_atoms` parameters) so retries keep clue obligations fixed while forcing lexical/structural variation.
+- Non-convergent repeat classes can stop early before max-attempt exhaustion.
+
+**Template gate staging:**
+- When a batch still has narrative hard errors (for example missing clue obligations), paragraph fingerprint/ngram template issues are logged but deferred as hard blockers for that attempt.
+- Once narrative hard errors clear, template checks resume as hard gates.
+
+**Semantic clue-anchor fallback:**
+- Pre-commit clue validation still enforces fair-play timing and chapter obligations, but now accepts equivalent observational language derived from clue intent (`description` + `pointsTo`) rather than requiring brittle phrase-token overlap.
+
 `buildEnhancedRetryFeedback()` categorises the batch errors into typed buckets (clue
 validation, pronoun, character/name, setting, discriminating test, word count, quality,
 other) and generates targeted micro-prompt directives per bucket. For example:
@@ -1646,6 +1662,11 @@ If a batch exhausts all attempts and still carries hard failures (excluding the
 entropy-only exception above), the orchestrator throws with a structured error message
 listing the first 5 failures and the total count. The error carries `retriedBatches` as
 a property so the caller can report how many chapter batches required at least one retry.
+
+**Batch commit trace telemetry:**
+- Every committed batch now emits a `BatchCommitRecord` entry in `validationDetails.batchCommitRecords`.
+- Record fields include chapter range, attempt count, deterministic gate outcomes, newly revealed clue IDs, cumulative clue set, deployed atom IDs, continuity-tail preview, prompt fingerprint hash, batch duration, and batch cost.
+- The worker mirrors this into `nsdTransferTrace` for report/diagnostic parity.
 
 ---
 

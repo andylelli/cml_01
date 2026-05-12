@@ -64,3 +64,4 @@ similarityThreshold: 0.9
 proseBatchSize: 1
 # runId: "mystery-custom-run-id"
 # projectId: "proj_example"
+enableLockedFactRegistry: true

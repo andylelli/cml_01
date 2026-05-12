@@ -30,6 +30,7 @@ Inputs:
 - `startFromAgent` (optional explicit pipeline restart boundary; defaults to `agent`)
 - `hydratePriorFromRun` (default `true`)
 - optional mode/options (iteration cap, test scope, chapter start for Agent 9)
+- optional runtime rollback switch for Agent 9 redesign: `AGENT9_REDESIGN_V1=true|false`
 
 Primary artifact sources:
 - `documentation/prompts/actual/run_*`
@@ -103,6 +104,7 @@ Each iteration follows this sequence:
 7. Rollback unresolved implementation changes
 - when `--rollbackFailedChanges=true` (default), unresolved implementation edits are reverted before the next iteration/stop return
 - snapshots of reverted edits are archived under the active run folder for future consultation
+- for Agent 9 redesign rollout, setting `AGENT9_REDESIGN_V1=false` is the first-line rollback lever before reverting code changes
 
 ---
 

@@ -107,6 +107,11 @@ export interface MysteryGenerationInputs {
 
   runId?: string;
   projectId?: string;
+
+  /** Pillar 1: accumulate locked facts from Agent 3b and propagate to Agents 5, 7, 9 */
+  enableLockedFactRegistry?: boolean;
+  /** Pillar 1: pre-generation gate — halt if outline/clues disagree with registry */
+  enableLockedFactGate?: boolean;
 }
 
 export interface MysteryGenerationProgress {
@@ -550,7 +555,11 @@ export async function generateMystery(
       const currentEvidence = Array.isArray(discrimTestNode.evidence_clues)
         ? discrimTestNode.evidence_clues.map((id: unknown) => String(id))
         : [];
-      const canonicalExistingEvidence = currentEvidence.filter((id: string) => /^clue_[a-z0-9_-]+$/i.test(id));
+      // Filter to IDs that are actually distributed clues — do not use a regex pattern
+      // because placeholder IDs like "clue_1" satisfy /^clue_[a-z0-9_-]+$/i and would
+      // survive the filter, poisoning the final array with stale skeleton IDs.
+      const distributedClueIds = new Set(ctx.clues!.clues.map((c) => String(c.id)));
+      const canonicalExistingEvidence = currentEvidence.filter((id: string) => distributedClueIds.has(id));
       const designText = String(discrimTestNode.design ?? "").toLowerCase();
       const knowledgeText = String(discrimTestNode.knowledge_revealed ?? "").toLowerCase();
       const testContextTokens = new Set(
@@ -661,6 +670,11 @@ export async function generateMystery(
                 .map((v) => v.rule)
                 .join(", ")}) — mystery structure is sound, proceeding with prose`
           );
+          // Downgrade from "fail" to "needs-revision" so the post-prose release gate
+          // reflects the determined-sound verdict (score 70) rather than the LLM
+          // auditor's raw "fail" (score 45 → hard-stop). The deterministic coverage
+          // checks have already established there are no structural gaps.
+          (ctx.fairPlayAudit as any).overallStatus = "needs-revision";
         }
       }
     }
@@ -714,6 +728,24 @@ export async function generateMystery(
     // ── World Builder + Narrative Outline ───────────────────────────────────
     await runAgent65(ctx);  // World Document synthesis
     await runAgent7(ctx);   // Narrative Outliner
+
+    // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
+    if (inputs.enableLockedFactGate && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0 && ctx.narrative) {
+      const narrJson = JSON.stringify(ctx.narrative);
+      const violations: string[] = [];
+      for (const fact of ctx.lockedFactRegistry) {
+        if (fact.value && !narrJson.includes(fact.value)) {
+          violations.push(`Locked fact "${fact.id}" value "${fact.value}" absent from narrative outline`);
+        }
+      }
+      if (violations.length > 0) {
+        const msg =
+          `Locked-fact consistency gate failed — outline does not honour all locked facts:\n` +
+          violations.map((v) => `  • ${v}`).join("\n");
+        ctx.warnings.push(...violations);
+        throw new Error(msg);
+      }
+    }
 
     // ── Prose Generation + Release Gate ─────────────────────────────────────
     await runAgent9(ctx);

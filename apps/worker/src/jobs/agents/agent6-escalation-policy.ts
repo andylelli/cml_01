@@ -1,4 +1,4 @@
-import type { FairPlayAuditResult } from "@cml/prompts-llm";
+import type { FairPlayAuditResult, StructuralAuditResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import type { InferenceCoverageResult } from "./shared.js";
 
@@ -109,7 +109,23 @@ export function classifyFairPlayFailure(
 export function shouldEscalateStructuralCmlRevision(params: {
   failureClass: FairPlayFailureClass;
   fairPlayAudit: FairPlayAuditResult | null;
+  /** When provided, the deterministic structural audit result takes priority over LLM signals.
+   * If passed = true, no CML revision is needed regardless of LLM output.
+   * If passed = false, escalation is always triggered. */
+  structuralAuditResult?: StructuralAuditResult;
 }): boolean {
+  // Phase 2: deterministic structural audit takes authority over LLM violations
+  if (params.structuralAuditResult) {
+    // Structural gaps confirmed deterministically → always escalate to CML revision
+    if (!params.structuralAuditResult.passed) {
+      return true;
+    }
+    // All structural gaps closed before LLM call → no CML revision needed
+    // The LLM may still flag narrative issues but those don't warrant CML revision
+    return false;
+  }
+
+  // Fallback: original LLM-based logic (used when structural audit was not run)
   if (
     params.failureClass === "inference_path_abstract"
     || params.failureClass === "constraint_space_insufficient"

@@ -40,6 +40,8 @@ export interface ClueExtractionInputs {
   runId?: string;
   projectId?: string;
   retryAttempt?: number; // 1-based attempt index for logging/file naming
+  /** Pillar 1: canonical locked facts from registry — must be honoured verbatim in clue descriptions */
+  lockedFacts?: Array<{ id: string; value: string; description: string }>;
 }
 
 // Keep a per-run extraction attempt counter so retries are labeled consistently
@@ -635,6 +637,15 @@ ${falseAssumptionLexicon.length > 0 ? falseAssumptionLexicon.map((t) => `  - ${t
   - Include one sentence in each misdirection explicitly justifying non-overlap with true-solution mechanism language.\n\n`;
   } else {
     developer += `No red herrings requested.\n\n`;
+  }
+
+  // Pillar 1: inject canonical locked facts so clue descriptions honour them verbatim
+  if (Array.isArray(inputs.lockedFacts) && inputs.lockedFacts.length > 0) {
+    developer += `## CANONICAL LOCKED FACTS — Honour Verbatim\nThe following values are ground truth established by the hard-logic device generator.\nAny clue description that references these concepts MUST use these exact values (in word form, not digits).\nDo not write a different time, distance, quantity, or measurement in any clue description.\n\n`;
+    for (const fact of inputs.lockedFacts) {
+      developer += `- **${fact.id}**: "${fact.value}" — ${fact.description}\n`;
+    }
+    developer += `\n`;
   }
 
   developer += `## Clue Placement Strategy

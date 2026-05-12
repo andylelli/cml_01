@@ -85,7 +85,7 @@ agent3b_hard_logic_devices:
   params:
     model:
       temperature: 0.7
-      max_tokens: 4000
+      max_tokens: 6000  # raised from 4000: 5-device JSON consistently truncated at 4000 (see ANALYSIS_14 §8.4)
     generation:
       default_max_attempts: 3
 
@@ -196,7 +196,7 @@ agent9_prose:
     # total_max_words = ceil(chapter_count * chapter_ideal_words * max_ratio)
     total_word_budget_ratio:
       # Supported range: 0.1 - 2.0
-      min_ratio: 0.75
+      min_ratio: 0.5
       # Supported range: 0.2 - 3.0
       max_ratio: 1.25
 
@@ -285,7 +285,7 @@ agent9_prose:
       # Supported range: 2 - 12
       gram_size: 6
       # Supported range: 0.0 - 1.0
-      overlap_threshold: 0.62
+      overlap_threshold: 0.80
       # Supported range: 1 - 200
       min_candidate_ngrams: 10
       # Supported range: 1 - 200

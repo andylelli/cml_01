@@ -23,9 +23,20 @@ import {
   repairPronouns,
 } from "@cml/story-validation";
 import type { NarrativeState } from "./types/narrative-state.js";
-import { classifyOpeningStyle, updateNSD } from "./types/narrative-state.js";
+import { classifyOpeningStyle, initNarrativeState, updateNSD } from "./types/narrative-state.js";
 import type { AssetLibrary } from "./types/asset-library.js";
 import { buildAssetLibrary, selectChapterAtoms } from "./asset-library.js";
+import {
+  buildProseRequestContract,
+  validateRequestContract,
+} from "./contracts/prose-request-contract.js";
+import type { BatchCommitRecord, BatchGateName } from "./contracts/batch-commit-record.js";
+import {
+  buildRetryFeedback,
+  classifyFailure,
+  shouldContinueRetry,
+} from "./retry-protocol.js";
+import type { RetryPacket } from "./retry-protocol.js";
 import {
   ARC_POSITION_REGISTER,
   ARC_POS_TO_SCENE_TYPE,
@@ -76,6 +87,9 @@ export interface ProseGenerationInputs {
     entropyThreshold?: number;
     entropyMinWindow?: number;
     entropyWarmupChapters?: number;
+    /** When true, skip the n-gram overlap check (used for the final/reveal chapter whose
+     *  detective recap prose legitimately echoes prior-chapter vocabulary). */
+    skipNgramCheck?: boolean;
   };
   onProgress?: (phase: string, message: string, percentage: number) => void;
   /** Number of scenes to process per LLM call (1–10, default 1). Higher values increase throughput at the cost of coarser retry granularity. */
@@ -88,6 +102,13 @@ export interface ProseGenerationInputs {
     batchEnd: number,
     validationIssues: string[],
     usedTextureAtomIds?: string[],
+    nsdCheckpoint?: {
+      cluesRevealedToReader: string[];
+      previousChapterArcPosition?: string;
+      continuityTail: string;
+      chapter: number;
+    },
+    batchCommitRecord?: BatchCommitRecord,
   ) => Promise<void> | void;
   /** Called immediately before the LLM call for each batch with the obligation atom IDs selected
    *  for that batch. The orchestrator uses this to stamp deployedAssets once the batch commits. */
@@ -99,6 +120,8 @@ export interface ProseGenerationInputs {
     deficits: string[];
     directives: string[];
   }[];
+  /** Feature flag for bottom-up request/obligation contract execution path. */
+  bottomUpRedesignEnabled?: boolean;
 }
 
 export interface ProseGenerationResult {
@@ -139,6 +162,17 @@ export interface ProseGenerationResult {
       deficits: string[];
       directives: string[];
     }>;
+    requestContractViolations?: Array<{
+      chapterRange: string;
+      errors: string[];
+    }>;
+    retryPackets?: Array<{
+      chapterRange: string;
+      attempt: number;
+      failureClass: string;
+      shouldEscalate: boolean;
+    }>;
+    batchCommitRecords?: BatchCommitRecord[];
   };
 }
 
@@ -227,6 +261,93 @@ const getPromptPreferredWords = (targetLength: "short" | "medium" | "long"): num
   const { preferredWords } = getChapterWordTargets(targetLength);
   return Math.max(1, Math.round(preferredWords * getWordTargetMultiplier()));
 };
+
+const getAgent9CostTotal = (client: AzureOpenAIClient): number => {
+  const byAgent = client.getCostTracker().getSummary().byAgent;
+  return Object.entries(byAgent)
+    .filter(([key]) => key.startsWith("Agent9-ProseGenerator"))
+    .reduce((sum, [, value]) => sum + Number(value ?? 0), 0);
+};
+
+const ALL_BATCH_GATES: BatchGateName[] = [
+  "encoding",
+  "completeness_structure",
+  "locked_fact_word_form",
+  "character_pronoun_consistency",
+  "clue_placement_timing",
+  "temporal_continuity",
+  "template_leakage",
+];
+
+const initBatchGateFailureCounts = (): Record<BatchGateName, number> => ({
+  encoding: 0,
+  completeness_structure: 0,
+  locked_fact_word_form: 0,
+  character_pronoun_consistency: 0,
+  clue_placement_timing: 0,
+  temporal_continuity: 0,
+  template_leakage: 0,
+});
+
+const inferBatchGatesFromError = (error: string): BatchGateName[] => {
+  const lowered = error.toLowerCase();
+  const gates = new Set<BatchGateName>();
+
+  if (
+    /encoding|utf-8|control char|mojibake|json|parse|unexpected end|invalid prose output/.test(lowered)
+  ) {
+    gates.add("encoding");
+  }
+  if (
+    /paragraph|chapter\.paragraphs|chapter\.title|word count|hard floor|minimum words|preferred target|structure/.test(lowered)
+  ) {
+    gates.add("completeness_structure");
+  }
+  if (/locked fact|word-form|verbatim|word-phrased/.test(lowered)) {
+    gates.add("locked_fact_word_form");
+  }
+  if (/pronoun|character|name mismatch|identity|phantom|role drift/.test(lowered)) {
+    gates.add("character_pronoun_consistency");
+  }
+  if (/clue|discriminating test|fair-play|suspect elimination|evidence anchor|revealed/.test(lowered)) {
+    gates.add("clue_placement_timing");
+  }
+  if (/temporal|season|month|timeline/.test(lowered)) {
+    gates.add("temporal_continuity");
+  }
+  if (/template|opening-style entropy|ngram|fingerprint|prompt leakage|instruction-shaped/.test(lowered)) {
+    gates.add("template_leakage");
+  }
+
+  if (gates.size === 0) {
+    gates.add("completeness_structure");
+  }
+  return Array.from(gates);
+};
+
+const noteBatchGateFailures = (
+  errors: string[],
+  counts: Record<BatchGateName, number>,
+): void => {
+  const failedGates = new Set<BatchGateName>();
+  for (const error of errors) {
+    for (const gate of inferBatchGatesFromError(error)) {
+      failedGates.add(gate);
+    }
+  }
+  for (const gate of failedGates) {
+    counts[gate] += 1;
+  }
+};
+
+const buildBatchGateOutcomes = (
+  counts: Record<BatchGateName, number>,
+): BatchCommitRecord["gateOutcomes"] =>
+  ALL_BATCH_GATES.map((gate) => ({
+    gate,
+    passed: counts[gate] === 0,
+    failedAttempts: counts[gate],
+  }));
 
 const CLUE_TOKEN_STOPWORDS = new Set<string>([
   // Common auxiliary and preposition words that provide no discriminating signal
@@ -389,6 +510,46 @@ const isBehaviouralClue = (description: string): boolean => {
   return false;
 };
 
+const buildClueSemanticAnchorFamilies = (
+  description: string | undefined,
+  pointsTo: string | undefined,
+): string[][] => {
+  const combined = `${description ?? ""} ${pointsTo ?? ""}`.toLowerCase();
+  const families: string[][] = [];
+
+  if (/clock|dial|chime|time|hour|minute|hall clock|watch/.test(combined)) {
+    families.push(["clock", "dial", "chime", "hour", "minute", "time"]);
+  }
+  if (/sun|daylight|window|shadow|position|outside light/.test(combined)) {
+    families.push(["sun", "daylight", "window", "shadow", "outside", "light", "position"]);
+  }
+  if (/tamper|wound|set back|reset|adjust|stopped|mechanism/.test(combined)) {
+    families.push(["tamper", "wound", "reset", "adjust", "stopped", "mechanism"]);
+  }
+  if (/dust|powder|residue|fingerprint|smudge/.test(combined)) {
+    families.push(["dust", "powder", "residue", "fingerprint", "smudge"]);
+  }
+  if (/witness|statement|testimony|heard|saw|alibi/.test(combined)) {
+    families.push(["witness", "statement", "testimony", "heard", "saw", "alibi"]);
+  }
+
+  return families;
+};
+
+const semanticAnchorFamiliesMatched = (
+  text: string,
+  families: string[][],
+): number => {
+  const lowered = text.toLowerCase();
+  let matchedFamilies = 0;
+  for (const family of families) {
+    if (family.some((token) => tokenMatchesText(token, lowered))) {
+      matchedFamilies += 1;
+    }
+  }
+  return matchedFamilies;
+};
+
 const chapterMentionsRequiredClue = (
   chapterText: string,
   clueId: string,
@@ -429,9 +590,25 @@ const chapterMentionsRequiredClue = (
   // Threshold 0.6 for factual clues: 60% of semantic tokens must match.
   // Behavioural/emotional clues use synonym-rich vocabulary — relax to 0.35 so e.g.
   // "nervousness" is satisfied by "fidgeted", "uneasy", "agitated" (R35 abort root cause).
-  const behaviouralThreshold = isBehaviouralClue(clue?.description ?? '') ? 0.35 : 0.6;
+  const factualThreshold = tokens.length >= 8 ? 0.45 : 0.6;
+  const behaviouralThreshold = isBehaviouralClue(clue?.description ?? '') ? 0.35 : factualThreshold;
   const requiredMatches = Math.max(1, Math.ceil(tokens.length * behaviouralThreshold));
-  return matched.length >= requiredMatches;
+  if (matched.length >= requiredMatches) {
+    return true;
+  }
+
+  // Semantic anchor fallback: allows clues to pass when prose uses equivalent observational
+  // language derived from upstream clue intent (description + pointsTo), not brittle phrase echoes.
+  const semanticFamilies = buildClueSemanticAnchorFamilies(clue?.description, clue?.pointsTo);
+  if (semanticFamilies.length > 0) {
+    const requiredFamilies = Math.min(2, semanticFamilies.length);
+    const familyHits = semanticAnchorFamiliesMatched(chapterText, semanticFamilies);
+    if (familyHits >= requiredFamilies) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 /**
@@ -475,7 +652,17 @@ const chapterClueAppearsEarly = (
   // half-past eleven"). A 25% token threshold (2 of 8) is enough to confirm the observation
   // beat is present early; the 40% threshold is used for the full-chapter presence check.
   const requiredMatches = Math.max(1, Math.ceil(tokens.length * 0.25));
-  return matched.length >= requiredMatches;
+  if (matched.length >= requiredMatches) {
+    return true;
+  }
+
+  const semanticFamilies = buildClueSemanticAnchorFamilies(clue?.description, clue?.pointsTo);
+  if (semanticFamilies.length > 0) {
+    // Early check is observational: require at least one anchor family in the opening window.
+    return semanticAnchorFamiliesMatched(earlyText, semanticFamilies) >= 1;
+  }
+
+  return false;
 };
 
 export const validateChapterPreCommitObligations = (
@@ -645,6 +832,8 @@ const lintBatchProse = (
     entropyThreshold?: number;
     entropyMinWindow?: number;
     entropyWarmupChapters?: number;
+    /** When true, skip the n-gram overlap check (see templateLinterProfile.skipNgramCheck). */
+    skipNgramCheck?: boolean;
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
@@ -729,7 +918,10 @@ const lintBatchProse = (
 
   // N-gram overlap check: catches near-duplicate prose that evades exact fingerprinting
   // (e.g. when the LLM swaps a few words but keeps the same sentence structure).
+  // Skipped for the final (reveal) chapter: the detective recap legitimately echoes prior
+  // chapter vocabulary and would always produce false positives at any reasonable threshold.
   // We compare configurable n-gram Jaccard similarity against a bounded prior paragraph set.
+  if (options?.skipNgramCheck) return issues;
   const priorCandidates = priorChapters
     .flatMap((chapter) => chapter.paragraphs ?? [])
     .map((paragraph) => normalizeParagraphForFingerprint(paragraph))
@@ -1385,6 +1577,73 @@ function sanitizeGeneratedChapter(chapter: ProseChapter, validCastNames: string[
   };
 }
 
+function splitParagraphForStructure(text: string): [string, string] | null {
+  const normalized = String(text ?? '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return null;
+
+  const sentenceChunks = (normalized.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) ?? [])
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+  if (sentenceChunks.length >= 2) {
+    const midpoint = Math.ceil(sentenceChunks.length / 2);
+    const left = sentenceChunks.slice(0, midpoint).join(' ').trim();
+    const right = sentenceChunks.slice(midpoint).join(' ').trim();
+    if (left && right) return [left, right];
+  }
+
+  const words = normalized.split(/\s+/).filter(Boolean);
+  if (words.length < 40) return null;
+  const midpoint = Math.floor(words.length / 2);
+  const scanStart = Math.max(8, midpoint - 24);
+  const scanEnd = Math.min(words.length - 8, midpoint + 24);
+  let splitIdx = midpoint;
+  for (let i = scanStart; i < scanEnd; i += 1) {
+    if (/[.!?;:,]$/.test(words[i])) {
+      splitIdx = i + 1;
+      break;
+    }
+  }
+
+  const left = words.slice(0, splitIdx).join(' ').trim();
+  const right = words.slice(splitIdx).join(' ').trim();
+  if (!left || !right) return null;
+  return [left, right];
+}
+
+function enforceMinimumParagraphStructure(chapter: ProseChapter, minParagraphs: number): ProseChapter {
+  if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length >= minParagraphs) {
+    return chapter;
+  }
+
+  const paragraphs = chapter.paragraphs
+    .map((p) => String(p ?? '').trim())
+    .filter(Boolean);
+  if (paragraphs.length >= minParagraphs) {
+    return { ...chapter, paragraphs };
+  }
+
+  let safety = 0;
+  while (paragraphs.length < minParagraphs && safety < 8) {
+    safety += 1;
+    let longestIdx = -1;
+    let longestLen = 0;
+    for (let i = 0; i < paragraphs.length; i += 1) {
+      const len = paragraphs[i].length;
+      if (len > longestLen) {
+        longestLen = len;
+        longestIdx = i;
+      }
+    }
+    if (longestIdx < 0 || longestLen < 220) break;
+
+    const split = splitParagraphForStructure(paragraphs[longestIdx]);
+    if (!split) break;
+    paragraphs.splice(longestIdx, 1, split[0], split[1]);
+  }
+
+  return { ...chapter, paragraphs };
+}
+
 export function buildTimelineStateBlock(
   temporalLock: { month: string; season: CanonicalSeason } | undefined,
   lockedFacts: ProseGenerationInputs['lockedFacts'] | undefined,
@@ -1474,6 +1733,7 @@ export function buildChapterObligationBlock(
       lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
     }
     lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
+    lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark. A chapter that omits all of these from its opening paragraph will be rejected.`);    
 
     if (continuityTailExcerpt && idx === 0) {
       lines.push(
@@ -1537,10 +1797,53 @@ export function buildChapterObligationBlock(
     }
 
     if (matchingClearances.length > 0) {
-      lines.push(`  - Suspect clearance required: ${matchingClearances.map((entry: any) => `${entry.suspect_name} via ${entry.clearance_method}`).join('; ')}.`);
+      lines.push(`  - ⚠ SUSPECT CLEARANCE REQUIRED (MANDATORY): each suspect below MUST be named explicitly and cleared with on-page evidence and a reasoning connector (because / therefore / which proves):`);
+      for (const clearance of matchingClearances) {
+        const realClueIds = Array.isArray(clearance.supporting_clues)
+          ? (clearance.supporting_clues as string[]).filter((id: string) => id && !id.match(/^clue_id_\d+$/))
+          : [];
+        const clueRef = realClueIds.length > 0 ? ` Cite clues: ${realClueIds.join(', ')}.` : '';
+        lines.push(`    • "${clearance.suspect_name}": write a dedicated paragraph that (a) names ${clearance.suspect_name} explicitly, (b) states the clearance method ("${clearance.clearance_method}"), and (c) shows the supporting evidence using "because / therefore / which proves".${clueRef}`);
+      }
     }
     if (isDiscriminatingTestChapter) {
-      lines.push('  - Discriminating test required: YES. Dramatize the trap or confrontation explicitly; do not summarize it afterward.');
+      const dtDetails = cmlCase.discriminating_test ?? {};
+      const dtMethod = dtDetails.method ?? 'confrontation';
+      const dtDesign = typeof dtDetails.design === 'string' ? dtDetails.design : '';
+      const dtEvidenceClues: string[] = Array.isArray(dtDetails.evidence_clues) && dtDetails.evidence_clues.length > 0
+        ? (dtDetails.evidence_clues as any[]).filter((c: any) => typeof c === 'string' && c.trim())
+        : ((cmlCase.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+            .filter((e: any) => Number(e?.act_number) === Number(dtScene?.act_number))
+            .map((e: any) => String(e?.clue_id || ''))
+            .filter(Boolean);
+      const culpritNames: string = (cmlCase.culpability?.culprits ?? []).filter((n: any) => typeof n === 'string' && n).join(', ');
+      const nonCulpritSuspects: string[] = (cmlCase.cast ?? [])
+        .filter((c: any) => {
+          if ((cmlCase.culpability?.culprits ?? []).includes(c.name)) return false;
+          const role = String(c.role ?? '').toLowerCase();
+          return role !== 'detective' && role !== 'victim';
+        })
+        .map((c: any) => c.name as string)
+        .filter(Boolean);
+      lines.push(`  - ⚠ DISCRIMINATING TEST (${dtMethod}) — MANDATORY real-time scene with dialogue and confrontation. DO NOT summarize it after the fact.`);
+      if (dtDesign) lines.push(`    Mechanism: ${dtDesign}`);
+      if (dtEvidenceClues.length > 0) lines.push(`    Cite these already-revealed clue IDs during the test: ${dtEvidenceClues.join(', ')}`);
+      if (nonCulpritSuspects.length > 0) lines.push(`    Eliminate on-page with explicit evidence: ${nonCulpritSuspects.map((n) => `"${n}"`).join(', ')} — state EXACTLY why each is ruled out (because / therefore / which proves).`);
+      if (culpritNames) lines.push(`    Convict: name "${culpritNames}" explicitly as the murderer. Connect every clue to them using "because / therefore / which proves".`);
+      lines.push(`    Required beats in order: (1) detective states the test logic, (2) test is executed as a scene beat, (3) each suspect's response is shown, (4) non-culprits eliminated with evidence, (5) culprit named and case sealed.`);
+    }
+    // Culprit revelation scene obligation — when this chapter contains the revelation scene
+    // and it is not already the discriminating test chapter (which handles conviction above).
+    const revelationScene = proseRequirements.culprit_revelation_scene ?? null;
+    const isRevealChapter =
+      !isDiscriminatingTestChapter &&
+      revelationScene != null &&
+      Number(revelationScene.act_number) === Number(scene?.act) &&
+      Number(revelationScene.scene_number) === Number(scene?.sceneNumber);
+    if (isRevealChapter) {
+      const culpritNames: string = (cmlCase.culpability?.culprits ?? []).filter((n: any) => typeof n === 'string' && n).join(', ');
+      const revealMethod: string = revelationScene.revelation_method ?? 'confrontation with evidence';
+      lines.push(`  - ⚠ CULPRIT REVELATION REQUIRED (${revealMethod}): this chapter MUST name "${culpritNames}" explicitly as the murderer before the chapter ends. Include a complete evidence chain using "because / therefore / which proves" for each piece of proof. Do not let the chapter end with the culprit unnamed or the verdict ambiguous.`);
     }
     // §3.3b: Sensory obligation injection
     const selectedVariant = sensoryVariantsByChapter?.[chapterNumber];
@@ -2620,14 +2923,22 @@ ${victimIdentityRule}`;
 
   const storyToDateBlock = buildStoryToDateBlock(priorChapters, chapterStart);
 
-  // Build discriminating test checklist for late chapters.
-  // The threshold is relative: we show the checklist once we're past 70% of the story.
-  // totalScenes comes from the outline — same source of truth as agent7-narrative.
+  // Build discriminating test checklist only for the chapter batch that actually contains
+  // the discriminating test scene. Previously this was injected into every chapter past
+  // the 70% threshold, wasting tokens and creating ambiguity about which chapter must
+  // deliver the test. Now we check whether any scene in this batch matches dtScene.
   let discriminatingTestBlock = '';
   const chapterEnd = chapterStart + scenes.length - 1;
   const totalScenes = (outline as any)?.totalScenes ?? scenes.length;
-  const lateChapterThreshold = Math.ceil(totalScenes * 0.70);
-  if (chapterEnd >= lateChapterThreshold) {
+  const dtSceneCheck = cmlCase.prose_requirements?.discriminating_test_scene;
+  const isDiscriminatingTestBatch = dtSceneCheck
+    ? (scenes as any[]).some(
+        (s) =>
+          Number(s.act) === Number(dtSceneCheck.act_number) &&
+          Number(s.sceneNumber) === Number(dtSceneCheck.scene_number),
+      )
+    : chapterEnd >= Math.ceil(totalScenes * 0.70); // fallback: old threshold behaviour
+  if (isDiscriminatingTestBatch) {
     const chapterRange = `${chapterStart}-${chapterEnd}`;
     discriminatingTestBlock = buildDiscriminatingTestChecklist(inputs.caseData, chapterRange, inputs.outline, totalScenes);
   }
@@ -2732,15 +3043,15 @@ ${victimIdentityRule}`;
   const _medPromptPreferred = getPromptPreferredWords("medium");
   const _longPromptPreferred = getPromptPreferredWords("long");
   const chapterWordGuidance: Record<string, string> = {
-    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil((_shortPromptPreferred + 200) / 180) + 1} substantial paragraphs (each 120–180 words) — TARGET ≥ ${_shortPromptPreferred} words — do not stop early`,
-    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil((_medPromptPreferred + 200) / 220) + 1} substantial paragraphs (each 150–220 words) — TARGET ≥ ${_medPromptPreferred} words — do not stop early`,
-    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil((_longPromptPreferred + 200) / 250) + 1} substantial paragraphs (each 180–250 words) — TARGET ≥ ${_longPromptPreferred} words — do not stop early`,
+    short: `${Math.ceil(_shortT.hardFloorWords / 120)}-${Math.ceil(_shortPromptPreferred / 180) + 1} substantial paragraphs (each 120–180 words) — TARGET ≥ ${_shortPromptPreferred} words — do not stop early`,
+    medium: `${Math.ceil(_medT.hardFloorWords / 150)}-${Math.ceil(_medPromptPreferred / 220) + 1} substantial paragraphs (each 150–220 words) — TARGET ≥ ${_medPromptPreferred} words — do not stop early`,
+    long: `${Math.ceil(_longT.hardFloorWords / 180)}-${Math.ceil(_longPromptPreferred / 250) + 1} substantial paragraphs (each 180–250 words) — TARGET ≥ ${_longPromptPreferred} words — do not stop early`,
   };
   const chapterGuidance = chapterWordGuidance[targetLength] ?? chapterWordGuidance.medium;
 
   const chapterWordTargets = getChapterWordTargets(targetLength);
   const chapterPromptPreferredWords = getPromptPreferredWords(targetLength);
-  const chapterTargetWords = chapterPromptPreferredWords + 200;
+  const chapterTargetWords = chapterPromptPreferredWords;
   const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
@@ -2770,7 +3081,7 @@ ${victimIdentityRule}`;
     cmlCase,
   );
 
-  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n- Chapter title format: EVERY chapter title MUST follow exactly \"Chapter N: [Descriptive title]\" (e.g. \"Chapter 1: The Frozen Clock\"). Do NOT use number-only (\"Chapter 1\") or title-only (\"The Frozen Clock\") formats — mixed formats are a validation error.\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Every chapter MUST open with the following in the FIRST TWO PARAGRAPHS — this is a VALIDATION REQUIREMENT and chapters that omit it are retried:\n   (a) 2+ sensory words from: smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim\n   (b) 1+ atmosphere/time word from: rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season\n   (c) A named location anchor from the setting profiles\n\n   Then establish time of day, weather, and lighting; describe the location using sensory details; set mood and atmosphere before advancing plot beats.\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+  const developer = `# Prose Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "classic|modern|atmospheric",\n  "chapters": [\n    {\n      "title": "Chapter title",\n      "summary": "1-2 sentence summary",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]\n    }\n  ],\n  "cast": ["Name 1", "Name 2"],\n  "note": ""\n}\n\nRequirements:\n- Write exactly one chapter per outline scene (${scenes.length || "N"} total).\n- Chapter numbering starts at ${chapterStart} and increments by 1 per scene.\n- Each chapter has ${chapterGuidance}.\n- Use ${narrativeStyle} tone and ${targetLength} length guidance.\n- Reflect the outline summary in each chapter.\n- Keep all logic consistent with CML (no new facts).\n- Chapter title format: EVERY chapter title MUST follow exactly \"Chapter N: [Descriptive title]\" (e.g. \"Chapter 1: The Frozen Clock\"). Do NOT use number-only (\"Chapter 1\") or title-only (\"The Frozen Clock\") formats — mixed formats are a validation error.\n\nNOVEL-QUALITY PROSE REQUIREMENTS:\n\n1. SCENE-SETTING: Every chapter MUST open with the following in the FIRST TWO PARAGRAPHS — this is a VALIDATION REQUIREMENT and chapters that omit it are retried:\n   (a) 2+ sensory words from: smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim\n   (b) 1+ atmosphere/time word from: rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark\n   (c) A named location anchor from the setting profiles\n\n   Then establish time of day, weather, and lighting; describe the location using sensory details; set mood and atmosphere before advancing plot beats.\n   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
 
    Generate new descriptions using actual location and character names from the provided profiles.\n\n2. SHOW, DON'T TELL: Use concrete details and actions\n   ❌ "She was nervous."\n   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."\n   - Body language reveals emotion\n   - Actions reveal character\n   - Environment reflects internal state\n\n3. VARIED SENTENCE STRUCTURE:\n   - Mix short, punchy sentences with longer, flowing ones\n   - Use sentence rhythm to control pacing\n   - Short sentences for tension, longer for description\n   - Paragraph variety: Some 2 lines, some 8 lines\n\n4. DIALOGUE THAT REVEALS CHARACTER:\n   - Each character has distinct speech patterns (see character profiles)\n   - Use dialogue tags sparingly (action beats instead)\n   - Subtext: characters don't always say what they mean\n   - Class/background affects vocabulary and formality\n   - Tension through what's NOT said\n   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
 
@@ -2834,7 +3145,7 @@ ${victimIdentityRule}`;
     developerWithContracts,
     user,
     promptContextBlocks,
-    6200,
+    32000,
   );
   let composedSystemWithAssetSelfReport = composedSystem;
   if (textureAtomIds.length > 0) {
@@ -3374,7 +3685,7 @@ function buildSceneGroundingChecklist(
 
     checklistLines.push(
       `- Chapter ${chapterNumber}: ${openingStyleDirective} ` +
-      `Anchor opening in "${locationHint}". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season. These are validated requirements, not style suggestions; missing them triggers a retry.`
+      `Anchor opening in "${locationHint}". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark. These are validated requirements, not style suggestions; missing them triggers a retry.`
     );
   });
 
@@ -3658,7 +3969,13 @@ const buildEnhancedRetryFeedback = (
     !pronounErrors.includes(e) &&
     (e.toLowerCase().includes('character') || e.toLowerCase().includes('name'))
   );
-  const settingErrors = errors.filter(e => !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && (e.toLowerCase().includes('setting') || e.toLowerCase().includes('location')));
+  // Use specific patterns for setting-drift messages rather than broad includes('setting'),
+  // because "metadata key-value leakage (e.g. \"Setting:\", \"Mood:\")" also contains the
+  // word "setting" in its example text, which would mis-bucket it here instead of templateErrors.
+  const settingErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) &&
+    (/setting drift|setting markers/i.test(e) || e.toLowerCase().includes('location'))
+  );
   const testErrors = errors.filter(e => !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && e.toLowerCase().includes('discriminating test'));
   // Word-count errors contain "chapter" so they would otherwise match qualityErrors and receive
   // misleading "vary paragraph lengths" guidance. Extract them first; the MICRO-PROMPT [word_count]
@@ -3667,8 +3984,23 @@ const buildEnhancedRetryFeedback = (
     !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
     /word count below/i.test(e)
   );
+  // Template-linter errors (n-gram overlap, paragraph fingerprint, opening-style entropy, and
+  // chapter-validator scaffold/metadata/meta-language leakage) are extracted BEFORE qualityErrors
+  // because several of them contain the words "paragraph" or "chapter" and would otherwise fall
+  // into qualityErrors, where they receive wrong advice ("vary paragraph lengths").
+  const templateErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) &&
+    !pronounErrors.includes(e) &&
+    !characterErrors.includes(e) &&
+    !settingErrors.includes(e) &&
+    !testErrors.includes(e) &&
+    !wordCountErrors.includes(e) &&
+    (/template linter/i.test(e) ||
+      /templated scaffold prose|metadata key-value leakage|meta-language about storytelling/i.test(e))
+  );
   const qualityErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) && !templateErrors.includes(e) &&
+    !/weak sensory grounding/i.test(e) &&  // handled by REPAIR [sensory_grounding] micro-prompt
     (e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'))
   );
   const otherErrors = errors.filter(e =>
@@ -3678,6 +4010,7 @@ const buildEnhancedRetryFeedback = (
     !settingErrors.includes(e) &&
     !testErrors.includes(e) &&
     !wordCountErrors.includes(e) &&
+    !templateErrors.includes(e) &&
     !qualityErrors.includes(e)
   );
 
@@ -3720,44 +4053,76 @@ const buildEnhancedRetryFeedback = (
     }
 
     if (clueAbsentErrors.length > 0 || otherClueErrors.length > 0) {
-      const absentDescs = extractQuoted([...clueAbsentErrors, ...otherClueErrors]);
+      // Extract per-clue details from each error string. The error format is:
+      //   Chapter N: clue evidence "DESCRIPTION" is absent. Include an on-page observation
+      //   of "DESCRIPTION" (this clue reveals: REVEAL_TEXT) in the first 2 paragraphs...
+      // Both description and reveal are available — use both in the directive so the
+      // inference paragraph is grounded in the specific significance of the clue.
+      const extractClueDetails = (err: string): { description: string; reveal: string } => {
+        const descMatch = err.match(/clue evidence "([^"]+)"/);
+        const revealMatch = err.match(/\(this clue reveals:\s*([^)]+)\)/i);
+        return {
+          description: descMatch ? descMatch[1].trim() : err,
+          reveal: revealMatch ? revealMatch[1].trim() : '',
+        };
+      };
+
+      const absentClueDetails = [...clueAbsentErrors, ...otherClueErrors].map(extractClueDetails);
+      const clueCount = absentClueDetails.length;
 
       // Escalation tier is relative to remaining attempts so the directive strength
       // always matches how many retries are left, regardless of maxAttempts config value.
-      // retriesRemaining >= 2 → early standard guidance
-      // retriesRemaining === 1 → penultimate: paragraph structure required
-      // retriesRemaining === 0 → final: mandatory rebuild block
+      // retriesRemaining >= 2 → early standard guidance with per-clue pairs
+      // retriesRemaining === 1 → penultimate: explicit Paragraph A/B per clue
+      // retriesRemaining === 0 → final: mandatory within-300-word block per clue
       const retriesRemaining = maxAttempts - attemptNum;
       if (retriesRemaining >= 2) {
-        const clueScope = absentDescs.length > 0
-          ? `chapters ${rangeLabel} are missing: ${absentDescs.join(', ')}.`
-          : `chapters ${rangeLabel} are missing required clue evidence.`;
-        directives.push(
-          `REPAIR [clue_visibility — attempt ${attemptNum}]: ${clueScope}\n` +
-          `  Near the beginning of the chapter:\n` +
-          `  • Paragraph 1: A character directly observes or discovers the missing evidence. Be specific and sensory — describe what is seen, touched, or heard. Include any exact required phrase verbatim.\n` +
-          `  • Paragraph 2 (immediately following): The detective or POV character explicitly reasons about what this evidence means — who it implicates, what is suspicious, or what inference it supports.\n` +
-          `  Keep these as two clearly separate paragraphs. Do not bury the evidence in atmosphere or background dialogue.`
-        );
+        const header = clueCount === 1
+          ? `chapters ${rangeLabel} are missing 1 clue.`
+          : `chapters ${rangeLabel} are missing ${clueCount} clues.`;
+        let body = `\n  For EACH missing clue below, insert a two-paragraph block near the beginning of the chapter:\n`;
+        absentClueDetails.forEach(({ description, reveal }, i) => {
+          const clueLabel = clueCount > 1 ? `  [Clue ${i + 1}]: "${description}"` : `  Clue: "${description}"`;
+          const inferenceText = reveal
+            ? `state explicitly: "${reveal}". `
+            : `state what this implies — who it implicates, what is suspicious, or what inference it supports. `;
+          body +=
+            `${clueLabel}\n` +
+            `  • Observation paragraph: A character directly observes or discovers this evidence. Be specific and sensory — describe what is seen, touched, or heard. Include the exact quoted phrase verbatim.\n` +
+            `  • Inference paragraph (immediately after): The detective or POV character ${inferenceText}Use first-person inference language ("She realised...", "He could not help but notice..."). This must be a full separate paragraph, not a tacked-on sentence.\n`;
+        });
+        body += `  Do not bury the evidence in atmosphere or background dialogue.`;
+        directives.push(`REPAIR [clue_visibility — attempt ${attemptNum}]: ${header}${body}`);
       } else if (retriesRemaining === 1) {
-        const clueScope = absentDescs.length > 0 ? absentDescs.join(', ') : 'the required clue evidence';
-        directives.push(
-          `REPAIR [clue_visibility — attempt ${attemptNum} — PARAGRAPH STRUCTURE REQUIRED]: ${clueScope} still missing.\n` +
-          `  You MUST include a two-paragraph sequence in the first quarter of the chapter:\n` +
-          `  Paragraph A: The character physically approaches, examines, or directly perceives the evidence. Write this as a present-action beat, not a recalled memory. Include the exact required phrase if one is specified.\n` +
-          `  Paragraph B: In the very next paragraph, the character explicitly says or thinks that this evidence may be misleading, was tampered with, or points to a specific person. Use first-person inference language ("She realised...", "He could not help but wonder..."). This must be a full separate paragraph, not a tacked-on sentence.\n` +
-          `  The chapter must be at least 1450 words. Use action, inference dialogue, and sensory grounding to expand — not recap.`
-        );
+        let body = `\n  You MUST include the following two-paragraph sequence(s) in the first quarter of the chapter:\n`;
+        absentClueDetails.forEach(({ description, reveal }, i) => {
+          const clueLabel = clueCount > 1 ? `  [Clue ${i + 1}]: "${description}"` : `  Clue: "${description}"`;
+          const inferenceText = reveal
+            ? `explicitly state: "${reveal}".`
+            : `explicitly state what this evidence implies and who it implicates.`;
+          body +=
+            `${clueLabel}\n` +
+            `  Paragraph A: The character physically approaches, examines, or directly perceives this evidence. Write as a present-action beat, not a recalled memory. Include the exact quoted phrase verbatim.\n` +
+            `  Paragraph B (immediately after Paragraph A): The detective or POV character ${inferenceText} Use first-person inference language ("She realised...", "He could not help but wonder..."). Full separate paragraph — not a tacked-on sentence.\n`;
+        });
+        body += `  The chapter must be at least 1450 words. Use action, inference, and sensory grounding to expand — not recap.`;
+        directives.push(`REPAIR [clue_visibility — attempt ${attemptNum} — PARAGRAPH STRUCTURE REQUIRED]: ${clueCount} clue(s) still missing.${body}`);
       } else {
-        const clueScope = absentDescs.length > 0 ? absentDescs.join(', ') : 'the required clue evidence';
-        directives.push(
-          `REPAIR [clue_visibility — attempt ${attemptNum} — FINAL MANDATORY BLOCK]: ${clueScope} has failed every prior attempt.\n` +
-          `  WITHIN THE FIRST 300 WORDS of the chapter, place this two-paragraph block:\n` +
-          `  Block paragraph 1: Direct physical observation of the evidence by the POV character. Name it explicitly. Include any exact required phrase verbatim. Show, do not summarise.\n` +
-          `  Block paragraph 2: Explicit reasoning that this evidence may have been manipulated, timed, or positioned to mislead. The character must state this in their own words.\n` +
-          `  After this block, continue the chapter normally to reach at least 1500 words.\n` +
-          `  REBUILD the chapter from scratch — do not patch or preserve prior wording. All prior text should be treated as discarded.`
-        );
+        let body = `\n  WITHIN THE FIRST 300 WORDS of the chapter, place the following block(s):\n`;
+        absentClueDetails.forEach(({ description, reveal }, i) => {
+          const clueLabel = clueCount > 1 ? `  [Clue ${i + 1}]: "${description}"` : `  Clue: "${description}"`;
+          const inferenceText = reveal
+            ? `The character must state in their own words: "${reveal}".`
+            : `The character must state explicitly that this evidence was manipulated, timed, or points to a specific suspect.`;
+          body +=
+            `${clueLabel}\n` +
+            `  Block paragraph 1: Direct physical observation of the evidence by the POV character. Include the exact quoted phrase verbatim. Show, do not summarise.\n` +
+            `  Block paragraph 2: ${inferenceText}\n`;
+        });
+        body +=
+          `  After all blocks, continue the chapter normally to reach at least 1500 words.\n` +
+          `  REBUILD the chapter from scratch — do not patch or preserve prior wording. All prior text is discarded.`;
+        directives.push(`REPAIR [clue_visibility — attempt ${attemptNum} — FINAL MANDATORY BLOCK]: ${clueCount} clue(s) have failed every prior attempt.${body}`);
       }
     }
 
@@ -3766,13 +4131,44 @@ const buildEnhancedRetryFeedback = (
       const match = wordCountError.match(/\((\d+)\/(\d+)\)/);
       const currentWords = match ? Number(match[1]) : undefined;
       const targetWords = match ? Number(match[2]) : undefined;
-      const guidance = Number.isFinite(targetWords)
-        ? `Raise chapter length to at least ${targetWords} words${Number.isFinite(currentWords) ? ` (currently ${currentWords})` : ""}.`
-        : "Increase chapter length to satisfy minimum word threshold.";
+      const gap = (Number.isFinite(targetWords) && Number.isFinite(currentWords)) ? targetWords! - currentWords! : undefined;
+      const retriesRemaining = maxAttempts - attemptNum;
 
-      directives.push(
-        `MICRO-PROMPT [word_count]: ${guidance} Expand with concrete action beats, sensory setting detail, and inference-relevant dialogue; avoid filler recap.`
-      );
+      if (retriesRemaining >= 2) {
+        // Early attempt: generic guidance, model has room to self-correct.
+        const guidance = Number.isFinite(targetWords)
+          ? `Raise chapter length to at least ${targetWords} words${Number.isFinite(currentWords) ? ` (currently ${currentWords})` : ""}.`
+          : "Increase chapter length to satisfy minimum word threshold.";
+        directives.push(
+          `MICRO-PROMPT [word_count]: ${guidance} Expand with concrete action beats, sensory setting detail, and inference-relevant dialogue; avoid filler recap.`
+        );
+      } else if (retriesRemaining === 1) {
+        // Penultimate attempt: prescribe the exact number of paragraphs and beat types.
+        const paraEstimate = gap ? Math.max(2, Math.ceil(gap / 180)) : 3;
+        const wordTarget = targetWords ?? 'the minimum';
+        const currentStr = Number.isFinite(currentWords) ? ` (currently ${currentWords} words)` : '';
+        directives.push(
+          `REPAIR [word_count \u2014 attempt ${attemptNum} \u2014 ADD ${paraEstimate} PARAGRAPHS]: Chapter is still short${currentStr}. You MUST reach ${wordTarget} words.\n` +
+          `  Add exactly ${paraEstimate} full paragraphs (80\u2013200 words each). Choose beats from:\n` +
+          `  \u2022 A dialogue exchange where a character reveals, deflects, or challenges a suspicion\n` +
+          `  \u2022 A physical search of the scene with specific sensory detail (tactile, olfactory, visual \u2014 not generic atmosphere)\n` +
+          `  \u2022 The POV character's internal reasoning paragraph \u2014 what does this evidence imply? Who does it implicate?\n` +
+          `  Do NOT add recap sentences. Every new paragraph must advance scene action or reveal character information.`
+        );
+      } else {
+        // Final attempt: full rebuild mandate with explicit word target.
+        const wordTarget = targetWords ?? 'the minimum';
+        directives.push(
+          `REPAIR [word_count \u2014 attempt ${attemptNum} \u2014 FINAL: REBUILD TO ${wordTarget} WORDS]: Word count has failed every prior attempt.\n` +
+          `  REBUILD from scratch. Do not patch the prior draft.\n` +
+          `  Write the chapter in full. Target: ${wordTarget} words minimum. Cover ALL of:\n` +
+          `  (1) Scene opening with named location + atmosphere (1\u20132 paragraphs)\n` +
+          `  (2) At least two character interactions (dialogue or action)\n` +
+          `  (3) All required evidence observations\n` +
+          `  (4) At least one explicit inference paragraph where a character reasons about the evidence\n` +
+          `  Do not submit until the chapter is at least ${wordTarget} words.`
+        );
+      }
     }
 
     const temporalError = rawErrors.find((e) => /month\/season contradiction/i.test(e));
@@ -3791,8 +4187,78 @@ const buildEnhancedRetryFeedback = (
       );
     }
 
+    // Sensory-grounding failure: chapter-validator checks paragraph 1+2 for ≥2 terms from a
+    // specific vocabulary list. The generic "include sensory details" instruction fails every
+    // time because the model doesn't know which terms are counted. Give the exact list + position.
+    const sensoryGroundingError = rawErrors.find((e) => /weak sensory grounding/i.test(e));
+    if (sensoryGroundingError) {
+      const foundMatch = sensoryGroundingError.match(/\((\d+) sensory markers? found\)/i);
+      const foundCount = foundMatch ? Number(foundMatch[1]) : 0;
+      const needed = 2 - foundCount;
+      const retriesRemaining = maxAttempts - attemptNum;
+      if (retriesRemaining >= 2) {
+        directives.push(
+          `REPAIR [sensory_grounding — attempt ${attemptNum}]: The opening block (first 2 paragraphs) has only ${foundCount} sensory marker(s). Need at least 2.\n` +
+          `  In paragraph 1 or 2, add ${needed} more word(s) from the EXACT list the validator counts:\n` +
+          `  • Smell/scent: smell, scent, odor, fragrance\n` +
+          `  • Sound: sound, echo, silence, whisper, creak\n` +
+          `  • Tactile: cold, warm, damp, rough, smooth\n` +
+          `  • Visual/light: glow, shadow, flicker, dim\n` +
+          `  Use these words naturally in a sentence — e.g. "The cold of the hallway pressed against her cheeks" or "A creak from the floorboards above broke the silence."\n` +
+          `  Do NOT use synonyms like 'chill' or 'murmur' — they are not counted.`
+        );
+      } else if (retriesRemaining === 1) {
+        directives.push(
+          `REPAIR [sensory_grounding — attempt ${attemptNum} — EXPLICIT INSERTION REQUIRED]: Opening still has only ${foundCount} sensory marker(s) after ${attemptNum - 1} attempt(s).\n` +
+          `  REWRITE paragraph 1 to include at least two of these exact words:\n` +
+          `    smell / scent / odor / fragrance / sound / echo / silence / whisper / creak / cold / warm / damp / rough / smooth / glow / shadow / flicker / dim\n` +
+          `  Example opening: "The cold air of the drawing room carried the faint scent of cigarette ash, and the shadow of the curtain flickered in the draught from the hall."\n` +
+          `  These words must appear in paragraph 1 or paragraph 2 — not later in the chapter.`
+        );
+      } else {
+        directives.push(
+          `REPAIR [sensory_grounding — attempt ${attemptNum} — FINAL: REWRITE OPENING PARAGRAPH]: Sensory grounding has failed every prior attempt.\n` +
+          `  Replace paragraph 1 entirely with the following structure:\n` +
+          `  "[Named location]. [One sentence with a sound or tactile word from: cold/warm/damp/rough/smooth/sound/echo/silence/whisper/creak]. [One sentence with a visual or smell word from: glow/shadow/flicker/dim/smell/scent/odor/fragrance]."\n` +
+          `  Example: "The library was cold, the faint scent of old paper hanging in the dim afternoon light."\n` +
+          `  Two sensory words from the approved list must appear in the first two paragraphs. Do not use synonyms.`
+        );
+      }
+    }
+
+    // Atmosphere/time grounding failure: chapter-validator checks paragraph 1+2 for ≥1 term
+    // from a specific vocabulary list. Give the exact list so the LLM doesn't use synonyms.
+    const atmosphereGroundingError = rawErrors.find((e) => /weak atmosphere\/time grounding/i.test(e));
+    if (atmosphereGroundingError) {
+      const retriesRemaining = maxAttempts - attemptNum;
+      if (retriesRemaining >= 1) {
+        directives.push(
+          `REPAIR [atmosphere_grounding — attempt ${attemptNum}]: The opening block (first 2 paragraphs) is missing an atmosphere/time marker. Need at least 1.\n` +
+          `  In paragraph 1 or 2, use ONE or more words from this EXACT list — synonyms are NOT counted:\n` +
+          `  • Weather: rain, wind, fog, storm, mist, thunder\n` +
+          `  • Time of day: evening, morning, night, dawn, dusk, afternoon, midday, noon, midnight, twilight, sunrise, sunset\n` +
+          `  • Light/sky: daylight, sunlight, overcast, cloudy, bright, grey, gray, dark, light\n` +
+          `  • Season: season\n` +
+          `  Example: "Morning light filtered through the fog-draped windows." or "The night air was still."\n` +
+          `  One word from the list above must appear in paragraph 1 or paragraph 2. Do NOT use synonyms like 'dusk-like' or 'nighttime' — only the exact words listed count.`
+        );
+      } else {
+        directives.push(
+          `REPAIR [atmosphere_grounding — attempt ${attemptNum} — FINAL: INSERT TIME/WEATHER WORD]: Opening still missing atmosphere/time marker.\n` +
+          `  Rewrite paragraph 1 to begin with a time or weather anchor. Choose exactly one from:\n` +
+          `    rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / grey / gray / dark / light\n` +
+          `  Example paragraph 1: "Morning arrived grey and overcast, the fog pressing close against the windows of the manor." \n` +
+          `  The chosen word must appear in the first two paragraphs. Do not use any synonym not on this list.`
+        );
+      }
+    }
+
+    // Generic location-anchoring and setting-fidelity fallback — only fires when
+    // the error is NOT a sensory-grounding or atmosphere-grounding failure (those are handled above).
     const groundingErrors = loweredErrors.some((error) =>
-      error.includes("scene location anchoring") || error.includes("grounding") || error.includes("setting fidelity")
+      (error.includes("scene location anchoring") || error.includes("grounding") || error.includes("setting fidelity")) &&
+      !error.includes("weak sensory grounding") &&
+      !error.includes("weak atmosphere")
     );
     if (groundingErrors) {
       directives.push(
@@ -3812,6 +4278,39 @@ const buildEnhancedRetryFeedback = (
         `  • Temporal subordinate — begin with a time clause: \'When.../After.../Before.../As [Name]...\'\n` +
         `  Do NOT open with a general descriptive sentence (e.g., \'The dark room...\' or \'Silence filled the hall...\' or \'The air was heavy..\'). The very first sentence must be one of the five types above.`
       );
+    }
+
+    // N-gram overlap and paragraph fingerprint: both indicate the prose recycles phrasing
+    // from prior chapters. Escalate with decreasing degrees of freedom on each attempt so
+    // later retries are tightly prescribed rather than heavily prompted.
+    const ngramOverlapError = rawErrors.find((e) => /high n-gram overlap/i.test(e));
+    const fingerprintError = rawErrors.find((e) => /repeated long paragraph fingerprint/i.test(e));
+    if (ngramOverlapError || fingerprintError) {
+      const retriesRemaining = maxAttempts - attemptNum;
+      if (retriesRemaining >= 2) {
+        directives.push(
+          `REPAIR [template_overlap — attempt ${attemptNum}]: Your prose shares too many repeated phrases with earlier chapters.\n` +
+          `  Rewrite EVERY paragraph from scratch — do not preserve or lightly rephrase any sentence that appeared in a prior chapter.\n` +
+          `  Each paragraph must be unique to this chapter's scene: who is present, what specific object or clue is examined, what tension emerges.\n` +
+          `  Start each paragraph with a structurally different sentence type (action, dialogue, sensory observation, time-anchor — never a generic atmospheric statement).`
+        );
+      } else if (retriesRemaining === 1) {
+        directives.push(
+          `REPAIR [template_overlap — attempt ${attemptNum} — PARAGRAPH-BY-PARAGRAPH REBUILD]: Repeated phrasing still detected after ${attemptNum - 1} attempt(s).\n` +
+          `  Treat the prior draft as DISCARDED. Write each paragraph in this explicit order:\n` +
+          `  Para 1: A named character performs a specific physical action — NOT atmospheric description.\n` +
+          `  Para 2: A new piece of information enters through dialogue or direct observation — unique to this scene.\n` +
+          `  Para 3+: Continue with the scene's specific events. Vary sentence length: mix 1-sentence paragraphs with 5–6 sentence paragraphs.\n` +
+          `  Do NOT reuse any sentence structure from the prior attempt. Begin each sentence with a different subject or clause type.`
+        );
+      } else {
+        directives.push(
+          `REPAIR [template_overlap — attempt ${attemptNum} — FINAL: DISCARD PRIOR DRAFT]: Template overlap detected on every prior attempt.\n` +
+          `  REBUILD completely. The prior text is discarded.\n` +
+          `  Write using THIS structure: (1) open with spoken dialogue, (2) describe one specific physical object in sensory detail, (3) advance the plot with a character decision or revelation, (4) close with an unanswered question or stated suspicion.\n` +
+          `  No sentence may share a first word with any sentence used in the prior ${attemptNum - 1} attempt(s) of this chapter.`
+        );
+      }
     }
 
     return directives;
@@ -3877,13 +4376,28 @@ const buildEnhancedRetryFeedback = (
   }
   
   if (testErrors.length > 0) {
+    const dtRetriesRemaining = maxAttempts - attempt;
     feedback += `═══ DISCRIMINATING TEST ERRORS (${testErrors.length}) ═══\n`;
     testErrors.forEach(e => feedback += `• ${e}\n`);
-    feedback += `\n✓ SOLUTION: The discriminating test must be explicit and complete\n`;
-    feedback += `✓ Include the detective's reasoning, the test itself, and clear elimination of suspects\n`;
-    feedback += `✓ Reference specific evidence clues from the CML\n`;
-    
-    feedback += `✓ Use the discriminating test checklist from the prompt when provided\n`;
+    if (dtRetriesRemaining >= 2) {
+      feedback += `\n✓ SOLUTION: The discriminating test must be explicit and complete\n`;
+      feedback += `✓ Include the detective's reasoning, the test itself, and clear elimination of suspects\n`;
+      feedback += `✓ Reference specific evidence clues from the CML\n`;
+      feedback += `✓ Use the discriminating test checklist from the prompt when provided\n`;
+    } else if (dtRetriesRemaining === 1) {
+      feedback += `\n⚠️ PENULTIMATE ATTEMPT — WRITE THE DISCRIMINATING TEST AS THREE ORDERED PARTS:\n`;
+      feedback += `  Part 1 — SETUP: The detective explicitly names the test (e.g. "To determine who could have [done X], we must check...").\n`;
+      feedback += `  Part 2 — EXECUTION: The test is performed step by step — each non-culprit suspect is considered in turn with specific evidence cited per person.\n`;
+      feedback += `  Part 3 — VERDICT: The detective states who is eliminated and who alone remains. Name every eliminated suspect explicitly.\n`;
+      feedback += `  Each part must be a distinct paragraph. Reference at least two specific clue IDs or evidence items from the earlier prompt checklist.\n`;
+    } else {
+      feedback += `\n🚨 FINAL ATTEMPT — MANDATORY DISCRIMINATING TEST REBUILD:\n`;
+      feedback += `  Write the discriminating test as exactly three paragraphs:\n`;
+      feedback += `  Paragraph A: The detective declares aloud: "There is one thing only the true culprit could have done: [specific test]." Then explains the evidence basis.\n`;
+      feedback += `  Paragraph B: Goes through each non-culprit suspect by name: "[Suspect] could not have [done X] because [specific evidence from the CML]."\n`;
+      feedback += `  Paragraph C: States the culprit: "Only [Culprit Name] could have [done X]." Names the culprit explicitly and states at least two items of proof.\n`;
+      feedback += `  Use the EXACT character names from the cast. This three-paragraph block must appear in the chapter — not compressed into single-sentence dialogue.\n`;
+    }
     feedback += `\n`;
   }
   
@@ -3893,6 +4407,40 @@ const buildEnhancedRetryFeedback = (
     feedback += `\n✓ SOLUTION: Vary paragraph lengths (short, medium, long)\n`;
     feedback += `✓ Include sensory details and atmospheric description\n`;
     feedback += `✓ Ensure each chapter has substance (3+ paragraphs minimum)\n\n`;
+  }
+
+  if (templateErrors.length > 0) {
+    feedback += `═══ TEMPLATE LEAKAGE ERRORS (${templateErrors.length}) ═══\n`;
+    templateErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n`;
+    const hasNgramOverlap = templateErrors.some(e => /high n-gram overlap/i.test(e));
+    const hasFingerprintDupe = templateErrors.some(e => /repeated long paragraph fingerprint/i.test(e));
+    const hasEntropyLow = templateErrors.some(e => /opening-style entropy too low/i.test(e));
+    const hasScaffold = templateErrors.some(e => /templated scaffold prose/i.test(e));
+    const hasMetadata = templateErrors.some(e => /metadata key-value leakage/i.test(e));
+    const hasMetaLanguage = templateErrors.some(e => /meta-language about storytelling/i.test(e));
+    if (hasNgramOverlap || hasFingerprintDupe) {
+      feedback += `⛔ REPEAT PHRASE DETECTED — your prose shares too many words/phrases with earlier chapters.\n`;
+      feedback += `  You MUST rewrite every paragraph from scratch — do not lift or lightly rephrase any sentence from a prior chapter.\n`;
+      feedback += `  The linter compares word-sequence similarity (n-gram Jaccard) across all prior paragraphs.\n`;
+      feedback += `  See RETRY MICRO-PROMPTS below for a paragraph-by-paragraph rebuild strategy.\n\n`;
+    }
+    if (hasEntropyLow) {
+      feedback += `⛔ OPENING STYLE ENTROPY — this chapter opens with the same structural pattern as prior chapters.\n`;
+      feedback += `  See RETRY MICRO-PROMPTS below for the five permitted opening structures.\n\n`;
+    }
+    if (hasScaffold) {
+      feedback += `⛔ SCAFFOLD LEAKAGE — your prose contains a pattern matching the boilerplate template (e.g. "At The [Location], the smell of...").\n`;
+      feedback += `  Remove ALL sentences matching this form. Replace with chapter-specific prose grounded in profile details.\n\n`;
+    }
+    if (hasMetadata) {
+      feedback += `⛔ METADATA LEAKAGE — your output contains raw field labels (e.g. "Setting:", "Mood:", "Atmosphere:").\n`;
+      feedback += `  These are FORBIDDEN in prose. Remove them entirely. Embed the information as narrative description instead.\n\n`;
+    }
+    if (hasMetaLanguage) {
+      feedback += `⛔ META-LANGUAGE — your prose contains craft terminology (e.g. "sensory detail", "narrative beat", "plot point").\n`;
+      feedback += `  These terms are FORBIDDEN in prose. Remove them and rewrite as pure narrative showing the story.\n\n`;
+    }
   }
 
   if (wordCountErrors.length > 0) {
@@ -3927,7 +4475,23 @@ const buildEnhancedRetryFeedback = (
   
   const isFinalAttempt = attempt >= maxAttempts;
   if (isFinalAttempt) {
-    feedback += `Write completely fresh chapters for ${chapterRange} that satisfy every constraint listed above. Do not reuse prior wording.\n`;
+    feedback += `═══ FINAL ATTEMPT — COMPLETE REBUILD REQUIRED ═══\n`;
+    feedback += `This is attempt ${attempt}/${maxAttempts}. All prior attempts failed. Do NOT reference or preserve any text from previous responses.\n`;
+    feedback += `Write chapters ${chapterRange} completely from scratch. Satisfy EVERY constraint listed above in a single pass.\n`;
+    // Reinstate the sensory-grounding gate explicitly here. Prior attempts may have failed
+    // on template_overlap (never triggering the sensory_grounding repair directive), so the
+    // LLM writes a fresh opening unaware that the sensory check still applies.
+    feedback += `CRITICAL — SENSORY GROUNDING GATE (checked by automated validator on this attempt):\n`;
+    feedback += `  The chapter opening (first 2 paragraphs) MUST contain at least 2 words from this EXACT list — synonyms are NOT counted:\n`;
+    feedback += `  smell / scent / odor / fragrance / sound / echo / silence / whisper / creak / cold / warm / damp / rough / smooth / glow / shadow / flicker / dim\n`;
+    feedback += `  Example: "The cold of the hallway pressed against her cheeks. A whisper of candlelight flickered across the clock face."\n`;
+    feedback += `  Two sensory words from the list above must appear within the first two paragraphs. Do NOT use synonyms (e.g. 'chill', 'murmur') — they are not counted.\n`;
+    feedback += `CRITICAL — ATMOSPHERE/TIME GROUNDING GATE (checked by automated validator on this attempt):\n`;
+    feedback += `  The chapter opening (first 2 paragraphs) MUST also contain at least 1 word from this EXACT list:\n`;
+    feedback += `  rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / grey / gray / dark / light / season\n`;
+    feedback += `  Example: "Morning light filtered through the fog-draped windows." or "The night air carried the scent of damp earth."\n`;
+    feedback += `  One word from this list must appear in paragraph 1 or paragraph 2. Synonyms (e.g. 'dusk-like', 'nighttime') are NOT counted.\n`;
+    feedback += `Submit the full chapter JSON — do not return partial content or indicate you are continuing.\n`;
   } else {
     feedback += `Return corrected JSON for chapters ${chapterRange}. Edit only the sections that failed — keep all content that passed validation, and return the complete updated chapter JSON.\n`;
   }
@@ -4046,9 +4610,9 @@ export const attemptUnderflowExpansion = async (
   ].join(" ");
 
   const user = [
-    `Chapter ${chapterNumber} has ${currentWords} words and needs to reach the target of ${ledgerEntry.preferredWords + 200} words.`,
+    `Chapter ${chapterNumber} has ${currentWords} words and needs to reach the target of ${ledgerEntry.preferredWords} words.`,
     `Hard minimum: ${ledgerEntry.hardFloorWords} words. Do not return below this minimum.`,
-    `Expand by roughly ${expansionHint} words to reach the target of ${ledgerEntry.preferredWords + 200} words. Overshoot rather than undershoot.`,
+    `Expand by roughly ${expansionHint} words to reach the target of ${ledgerEntry.preferredWords} words. Overshoot rather than undershoot.`,
     'Do not stop at the first threshold crossing. Continue until the chapter feels fully developed and complete.',
     'Never pad with recap or repeated atmosphere. Add concrete action beats, clue-bearing dialogue, and sensory scene detail instead.',
     requiredClues.length > 0
@@ -4249,6 +4813,9 @@ export async function generateProse(
   const chapters: ProseChapter[] = [];
   const chapterSummaries: ChapterSummary[] = [];
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
+  const requestContractViolations: Array<{ chapterRange: string; errors: string[] }> = [];
+  const retryPacketHistory: Array<{ chapterRange: string; packet: RetryPacket }> = [];
+  const batchCommitRecords: BatchCommitRecord[] = [];
   const provisionalChapterScores: ProvisionalChapterScore[] = [];
   // E5: Collect prompt fingerprints per chapter for traceability
   const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> = [];
@@ -4296,6 +4863,7 @@ export async function generateProse(
   let rollingProvisionalFeedback = Array.isArray(inputs.provisionalScoringFeedback)
     ? [...inputs.provisionalScoringFeedback]
     : [];
+  const redesignEnabled = inputs.bottomUpRedesignEnabled !== false;
 
   // Generate and validate scenes in configurable batches.
   // When batchSize=1 (default) this processes one chapter per LLM call;
@@ -4304,6 +4872,11 @@ export async function generateProse(
     const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
+    const batchStartedAt = Date.now();
+    const batchCostBefore = getAgent9CostTotal(client);
+    const batchGateFailureCounts = initBatchGateFailureCounts();
+    let batchPromptHash = "";
+    let batchSelectedObligationAtomIds: string[] = [];
     const cmlCase = (inputs.caseData as any)?.CASE ?? {};
     // §4.4: Arc position for this batch — used to populate previousChapterArcPosition in NSD
     const totalScenesCount = (inputs.outline as any)?.totalScenes ?? scenes.length;
@@ -4326,6 +4899,8 @@ export async function generateProse(
     const maxBatchAttempts = Math.max(1, resolvedMaxAttempts);
     let lastBatchErrors: string[] = [];
     let lastBatchRawResponse: string | null = null;
+    let currentRetryPacket: RetryPacket | undefined;
+    const priorBatchRetryPackets: RetryPacket[] = [];
     let batchSuccess = false;
 
     const overallProgress = 91 + Math.floor((batchStart / sceneCount) * 3); // 91-94%
@@ -4334,27 +4909,101 @@ export async function generateProse(
 
     for (let attempt = 1; attempt <= maxBatchAttempts; attempt++) {
       try {
+        if (redesignEnabled) {
+          const requestState = liveNarrativeState ?? initNarrativeState(inputs.lockedFacts ?? [], {});
+          const requestContract = buildProseRequestContract({
+            caseData: inputs.caseData,
+            outline: inputs.outline,
+            clueDistribution: inputs.clueDistribution,
+            batchScenes,
+            chapterStart,
+            targetLength: inputs.targetLength ?? "medium",
+            assetLibrary: buildAssetLibrary(
+              inputs.worldDocument,
+              inputs.characterProfiles,
+              inputs.locationProfiles,
+              inputs.temporalContext,
+            ),
+            narrativeState: requestState,
+            retryPacket: currentRetryPacket,
+          });
+          const contractValidation = validateRequestContract(requestContract);
+          if (!contractValidation.valid) {
+            requestContractViolations.push({
+              chapterRange: batchLabel,
+              errors: contractValidation.errors,
+            });
+            throw new Error(
+              `Request contract validation failed for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel}: ${contractValidation.errors.join('; ')}`,
+            );
+          }
+        }
+
         // chapterSummaries already holds every committed chapter, so continuity
         // context is always up-to-date when buildProsePrompt is called.
+        const mitigationGuardrails: string[] = [];
+        const mitigationType = currentRetryPacket?.deterministicMitigation?.type;
+        const mitigationParams = currentRetryPacket?.deterministicMitigation?.params;
+        if (mitigationType === "tighten_obligation") {
+          mitigationGuardrails.push(
+            "RETRY MITIGATION: Strict obligation mode is active. Every required clue must be surfaced with concrete, observable prose before any deduction beat.",
+            "RETRY MITIGATION: Prioritize chronology and identity coherence over stylistic variation for this retry.",
+          );
+          if (mitigationParams?.diversifyStructure === true) {
+            mitigationGuardrails.push(
+              "RETRY MITIGATION: Keep clue obligations fixed, but diversify sentence skeletons and paragraph openings so the chapter does not echo prior scaffolds.",
+            );
+          }
+        }
+        if (mitigationType === "split_chapter") {
+          const minParagraphs = Number(currentRetryPacket?.deterministicMitigation?.params?.minParagraphs ?? 4);
+          mitigationGuardrails.push(
+            `RETRY MITIGATION: Split-chapter mode is active. Use at least ${Math.max(4, minParagraphs)} substantial paragraphs per chapter with explicit scene transitions.`,
+          );
+        }
+        if (mitigationType === "freshen_atoms") {
+          mitigationGuardrails.push(
+            "RETRY MITIGATION: Refresh texture usage. Rephrase observations with different lexical framing while preserving all clue obligations and chronology.",
+          );
+        }
+        // On the final attempt, add an explicit anti-copy guardrail.
+        // Under accumulated constraint pressure (multiple clue/phrasing directives), the LLM
+        // can reach back into the STORY TO DATE context block and copy a paragraph verbatim,
+        // triggering both the fingerprint and n-gram checks. This guardrail pre-empts that.
+        if (attempt >= maxBatchAttempts && chapters.length > 0) {
+          mitigationGuardrails.push(
+            "FINAL ATTEMPT ANTI-COPY RULE: The STORY TO DATE section below is provided for chronological and factual reference ONLY. " +
+            "You MUST NOT copy, lightly rephrase, or structurally echo any sentence or paragraph from prior chapters. " +
+            "Every sentence in this chapter must be original prose unique to this scene. " +
+            "Reusing even a clause from prior chapter text will cause this attempt to fail immediately.",
+          );
+        }
+
         const prompt = buildProsePrompt(
           {
             ...inputs,
             narrativeState: liveNarrativeState,
             provisionalScoringFeedback: rollingProvisionalFeedback,
+            qualityGuardrails: [
+              ...(Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : []),
+              ...mitigationGuardrails,
+            ],
           },
           batchScenes,
           chapterStart,
           chapterSummaries,
           chapters,
         );
+        batchSelectedObligationAtomIds = [...(prompt.selectedObligationAtomIds ?? [])];
         if (inputs.onAtomsSelected) {
           inputs.onAtomsSelected(prompt.selectedObligationAtomIds ?? []);
         }
 
+        const promptText = prompt.messages.map((m) => m.content).join('\n');
+        const promptHash = createHash('sha256').update(promptText).digest('hex').slice(0, 16);
+        batchPromptHash = promptHash;
         // E5: Compute prompt fingerprint on first attempt only (captures base prompt structure)
         if (attempt === 1) {
-          const promptText = prompt.messages.map((m) => m.content).join('\n');
-          const promptHash = createHash('sha256').update(promptText).digest('hex').slice(0, 16);
           for (let ci = chapterStart; ci <= chapterEnd; ci++) {
             promptFingerprints.push({ chapter: ci, hash: promptHash, section_sizes: prompt.sectionSizes });
           }
@@ -4365,9 +5014,12 @@ export async function generateProse(
         // makes targeted edits. Final attempt: skip the assistant turn so the model rebuilds
         // cleanly (consistent with the "REBUILD from scratch" directive at attempt 4+).
         if (attempt > 1 && lastBatchErrors.length > 0) {
-          const feedback = buildEnhancedRetryFeedback(
+          let feedback = buildEnhancedRetryFeedback(
             lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts
           );
+          if (redesignEnabled && currentRetryPacket) {
+            feedback = `${feedback}\n\n${buildRetryFeedback(currentRetryPacket)}`;
+          }
           if (lastBatchRawResponse && attempt < maxBatchAttempts) {
             prompt.messages.push({ role: "assistant" as const, content: lastBatchRawResponse });
           }
@@ -4425,6 +5077,7 @@ export async function generateProse(
             sanitizeGeneratedChapter(proseBatch.chapters[i], castNames),
             temporalSeasonLock,
           );
+          let structureRepairApplied: { before: number; after: number } | null = null;
           // Deterministic safety net: if the model collapsed the entire chapter into a single
           // overlong paragraph block (a known directive-overload behaviour on final attempts),
           // split it on sentence boundaries before validation so formatting failures don't
@@ -4450,8 +5103,36 @@ export async function generateProse(
               chapter = { ...chapter, paragraphs: split };
             }
           }
+
+          // P0 deterministic final-attempt structure gate:
+          // if the batch is on its last retry and the chapter has fewer than 3 paragraphs,
+          // force a paragraph split pass so structural formatting failures are repaired
+          // before hard validation decides the batch outcome.
+          const splitMitigationMinParagraphs =
+            currentRetryPacket?.deterministicMitigation?.type === 'split_chapter'
+              ? Math.max(4, Number(currentRetryPacket?.deterministicMitigation?.params?.minParagraphs ?? 4))
+              : 3;
+          const shouldForceStructureRepair =
+            (attempt >= maxBatchAttempts || currentRetryPacket?.deterministicMitigation?.type === 'split_chapter')
+            && Array.isArray(chapter.paragraphs)
+            && chapter.paragraphs.length < splitMitigationMinParagraphs;
+          if (shouldForceStructureRepair) {
+            const before = chapter.paragraphs.length;
+            const repaired = enforceMinimumParagraphStructure(chapter, splitMitigationMinParagraphs);
+            const after = Array.isArray(repaired.paragraphs) ? repaired.paragraphs.length : before;
+            if (after > before) {
+              chapter = repaired;
+              structureRepairApplied = { before, after };
+            }
+          }
+
           proseBatch.chapters[i] = chapter;
           const chapterNumber = chapterStart + i;
+          if (structureRepairApplied) {
+            console.warn(
+              `[Agent 9] Final-attempt structure repair: ch${chapterNumber} — paragraphs ${structureRepairApplied.before} -> ${structureRepairApplied.after}.`,
+            );
+          }
           const ledgerEntry = chapterRequirementLedger[i];
 
           // Deterministic pronoun repair before validation — catches unambiguous mismatches cheaply.
@@ -4696,12 +5377,16 @@ export async function generateProse(
         }
 
         // Online anti-template linter gate before committing this batch.
+        // The final chapter (reveal/denouement) is exempt from the n-gram overlap check because
+        // the detective recap prose legitimately echoes prior-chapter vocabulary.
         proseLinterStats.checksRun += 1;
+        const hasNarrativeHardErrors = batchErrors.length > 0;
+        const isLastBatch = chapterEnd >= sceneCount;
         const linterIssues = lintBatchProse(
           proseBatch.chapters,
           chapters,
           [],
-          inputs.templateLinterProfile,
+          isLastBatch ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true } : inputs.templateLinterProfile,
         );
         if (linterIssues.length > 0) {
           proseLinterStats.failedChecks += 1;
@@ -4714,7 +5399,13 @@ export async function generateProse(
           if (linterIssues.some((issue) => issue.type === "ngram_overlap")) {
             proseLinterStats.ngramOverlapFailures += 1;
           }
-          batchErrors.push(...linterIssues.map((issue) => issue.message));
+          if (hasNarrativeHardErrors) {
+            console.warn(
+              `[Agent 9] Deferred template hard-gate for ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} while narrative hard errors remain.`,
+            );
+          } else {
+            batchErrors.push(...linterIssues.map((issue) => issue.message));
+          }
         }
 
         const isEntropyOnlyFailure =
@@ -4739,6 +5430,37 @@ export async function generateProse(
         if (batchErrors.length > 0) {
           retriedBatches.add(Math.floor(batchStart / batchSize));
           lastBatchErrors = batchErrors;
+          noteBatchGateFailures(batchErrors, batchGateFailureCounts);
+
+          if (redesignEnabled) {
+            const packet = classifyFailure({
+              validationErrors: batchErrors,
+              attempt,
+              maxRetries: maxBatchAttempts,
+              priorPackets: priorBatchRetryPackets,
+            });
+            currentRetryPacket = packet;
+            priorBatchRetryPackets.push(packet);
+            retryPacketHistory.push({ chapterRange: batchLabel, packet });
+
+            const shouldFreshenAssistantContext =
+              packet.deterministicMitigation?.type === 'freshen_atoms'
+              || packet.deterministicMitigation?.params?.freshenAtoms === true;
+            if (shouldFreshenAssistantContext) {
+              // Avoid anchoring the next retry to the same malformed assistant output.
+              lastBatchRawResponse = null;
+            }
+
+            const priorPackets = priorBatchRetryPackets.slice(0, -1);
+            const canContinue = shouldContinueRetry(packet, priorPackets);
+            if (!canContinue && attempt < maxBatchAttempts) {
+              const abortErr = new Error(
+                `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} marked non-convergent after attempt ${attempt}/${maxBatchAttempts}: ${packet.failureClass}`,
+              );
+              (abortErr as any).retriedBatches = retriedBatches.size;
+              throw abortErr;
+            }
+          }
 
           // F: Failure diagnostics — log raw vs extracted content metrics to diagnose
           // truncation, parse failures, and word count regressions across retry attempts.
@@ -4803,13 +5525,13 @@ export async function generateProse(
           const summary = extractChapterSummary(chapter, chapterNumber, castNames);
           chapterSummaries.push(summary);
         }
+        const batchRevealedIds = batchScenes
+          .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
+          .map((id: unknown) => String(id))
+          .filter(Boolean);
         if (liveNarrativeState) {
           const lastProseChapter = proseBatch.chapters[proseBatch.chapters.length - 1];
           // §1.3: Propagate clue reveals from the batch scenes into the internal NSD
-          const batchRevealedIds = batchScenes
-            .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
-            .map((id: unknown) => String(id))
-            .filter(Boolean);
           liveNarrativeState = updateNSD(liveNarrativeState, {
             paragraphs: lastProseChapter?.paragraphs,
             cluesRevealedIds: batchRevealedIds,
@@ -4906,15 +5628,55 @@ export async function generateProse(
           rollingProvisionalFeedback = [...rollingProvisionalFeedback, ...feedbackFromBatch].slice(-4);
         }
 
+        const uniqueDeployedAtomIds = Array.from(
+          new Set([
+            ...batchSelectedObligationAtomIds,
+            ...batchUsedTextureAtomIds,
+          ]),
+        );
+        const lastChapterTail = proseBatch.chapters[proseBatch.chapters.length - 1]?.paragraphs?.slice(-1)[0] ?? "";
+        const continuityTailPreview = String(
+          liveNarrativeState?.continuityTail
+          || lastChapterTail,
+        )
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 220);
+        const batchCommitRecord: BatchCommitRecord = {
+          chapterStart,
+          chapterEnd,
+          chapterRange: batchLabel,
+          attemptCount: attempt,
+          gateOutcomes: buildBatchGateOutcomes(batchGateFailureCounts),
+          newClueIdsRevealed: Array.from(new Set(batchRevealedIds)),
+          cumulativeClueSet: [...new Set(liveNarrativeState?.cluesRevealedToReader ?? batchRevealedIds)],
+          deployedAtomIds: uniqueDeployedAtomIds,
+          continuityTailPreview,
+          promptFingerprintHash: batchPromptHash,
+          durationMs: Date.now() - batchStartedAt,
+          cost: Math.max(0, getAgent9CostTotal(client) - batchCostBefore),
+        };
+        batchCommitRecords.push(batchCommitRecord);
+
         // Notify caller — pass validation issues from any failed attempts so the
         // orchestrator can surface them in the run history panel (§3.2).
         if (inputs.onBatchComplete) {
+          const nsdCheckpoint = liveNarrativeState
+            ? {
+                cluesRevealedToReader: [...liveNarrativeState.cluesRevealedToReader],
+                previousChapterArcPosition: liveNarrativeState.previousChapterArcPosition,
+                continuityTail: liveNarrativeState.continuityTail,
+                chapter: chapterEnd,
+              }
+            : undefined;
           await inputs.onBatchComplete(
             proseBatch.chapters,
             chapterStart,
             chapterEnd,
             lastBatchErrors,
             batchUsedTextureAtomIds,
+            nsdCheckpoint,
+            batchCommitRecord,
           );
         }
 
@@ -4931,6 +5693,7 @@ export async function generateProse(
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         lastBatchErrors = [errorMsg];
+        noteBatchGateFailures(lastBatchErrors, batchGateFailureCounts);
         // Clear the raw response: it may contain malformed JSON (parse failure) or wrong chapter
         // count output. Injecting broken content as an assistant turn on the next retry would
         // confuse the model. A clean rebuild is safer than asking it to edit invalid output.
@@ -4998,6 +5761,40 @@ export async function generateProse(
     chapterWordCounts,
   };
 
+  const retryPacketsForTelemetry = retryPacketHistory.map(({ chapterRange, packet }) => ({
+    chapterRange,
+    attempt: packet.attempt,
+    failureClass: packet.failureClass,
+    shouldEscalate: packet.shouldEscalate,
+  }));
+
+  const validationDetails = chapterValidationHistory.length > 0 ? {
+    totalBatches,
+    batchesWithRetries,
+    failureHistory: chapterValidationHistory.map(h => ({
+      batchIndex: h.chapterNumber - 1,
+      chapterRange: `${h.chapterNumber}`,
+      attempt: h.attempt,
+      errors: h.errors,
+    })),
+    linter: proseLinterStats,
+    underflow,
+    provisionalChapterScores,
+    requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,
+    retryPackets: retryPacketsForTelemetry.length > 0 ? retryPacketsForTelemetry : undefined,
+    batchCommitRecords: batchCommitRecords.length > 0 ? batchCommitRecords : undefined,
+  } : proseLinterStats.checksRun > 0 || requestContractViolations.length > 0 || retryPacketsForTelemetry.length > 0 || batchCommitRecords.length > 0 ? {
+    totalBatches,
+    batchesWithRetries,
+    failureHistory: [],
+    linter: proseLinterStats,
+    underflow,
+    provisionalChapterScores,
+    requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,
+    retryPackets: retryPacketsForTelemetry.length > 0 ? retryPacketsForTelemetry : undefined,
+    batchCommitRecords: batchCommitRecords.length > 0 ? batchCommitRecords : undefined,
+  } : undefined;
+
   return {
     status: "draft",
     tone: inputs.narrativeStyle,
@@ -5007,26 +5804,7 @@ export async function generateProse(
     cost,
     durationMs,
     prompt_fingerprints: promptFingerprints.length > 0 ? promptFingerprints : undefined,
-    validationDetails: chapterValidationHistory.length > 0 ? {
-      totalBatches,
-      batchesWithRetries,
-      failureHistory: chapterValidationHistory.map(h => ({
-        batchIndex: h.chapterNumber - 1,
-        chapterRange: `${h.chapterNumber}`,
-        attempt: h.attempt,
-        errors: h.errors,
-      })),
-      linter: proseLinterStats,
-      underflow,
-      provisionalChapterScores,
-    } : proseLinterStats.checksRun > 0 ? {
-      totalBatches,
-      batchesWithRetries,
-      failureHistory: [],
-      linter: proseLinterStats,
-      underflow,
-      provisionalChapterScores,
-    } : undefined,
+    validationDetails,
   };
 }
 

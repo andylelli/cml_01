@@ -41,7 +41,7 @@ export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";
 export type { ClueExtractionInputs, Clue, RedHerring, ClueDistributionResult } from "./agent5-clues.js";
 
 // Agent 6 types
-export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult, BlindReaderResult } from "./agent6-fairplay.js";
+export type { FairPlayAuditInputs, FairPlayCheck, FairPlayViolation, FairPlayAuditResult, BlindReaderResult, StructuralAuditResult, StructuralGap } from "./agent6-fairplay.js";
 
 // Agent 7 types
 export type { NarrativeFormattingInputs, Scene, ActStructure, NarrativeOutline } from "./agent7-narrative.js";
@@ -57,12 +57,34 @@ export type { NoveltyAuditInputs, SimilarityScore, NoveltyAuditResult } from "./
 export type { HardLogicDeviceIdea } from "./types.js";
 
 // Narrative state (sprint 2 — inter-batch style + fact tracking)
-export { initNarrativeState, updateNSD, migrateNarrativeState } from "./types/narrative-state.js";
+export { initNarrativeState, updateNSD, migrateNarrativeState, stampDeployedAtoms, checkNSDParity } from "./types/narrative-state.js";
 export type { NarrativeState, LockedFact } from "./types/narrative-state.js";
 
 // Asset library (Phase 2/5 — obligation stamping + texture selection + diagnostics)
 export { buildAssetLibrary, selectChapterAtoms, buildAssetDiagnosticReport } from "./asset-library.js";
 export type { Asset, AssetLibrary } from "./types/asset-library.js";
+export {
+  computeChapterObligation,
+  validateChapterReadiness,
+} from "./contracts/chapter-obligation-contract.js";
+export type { ChapterObligation } from "./contracts/chapter-obligation-contract.js";
+export {
+  buildProseRequestContract,
+  validateRequestContract,
+} from "./contracts/prose-request-contract.js";
+export type { ProseRequestContract } from "./contracts/prose-request-contract.js";
+export type {
+  BatchCommitRecord,
+  BatchGateOutcome,
+  BatchGateName,
+} from "./contracts/batch-commit-record.js";
+export type { ReleaseGateAudit, ReleaseGateStatus } from "./contracts/release-gate-audit.js";
+export {
+  classifyFailure,
+  buildRetryFeedback,
+  shouldContinueRetry,
+} from "./retry-protocol.js";
+export type { RetryPacket, RetryFailureClass } from "./retry-protocol.js";
 export type { BackgroundContextInput } from "./types.js";
 
 // Shared exports for other agents (will expand in future)

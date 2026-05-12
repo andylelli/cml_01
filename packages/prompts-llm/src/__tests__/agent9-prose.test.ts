@@ -235,12 +235,31 @@ describe("ProseGenerationResult prompt_fingerprints (E5 contract)", () => {
           paragraphFingerprintFailures: 0,
           ngramOverlapFailures: 0,
         },
+        batchCommitRecords: [
+          {
+            chapterStart: 1,
+            chapterEnd: 1,
+            chapterRange: "1",
+            attemptCount: 1,
+            gateOutcomes: [
+              { gate: "encoding", passed: true, failedAttempts: 0 },
+            ],
+            newClueIdsRevealed: ["clue_a"],
+            cumulativeClueSet: ["clue_a"],
+            deployedAtomIds: ["portrait:Inspector:first_impression"],
+            continuityTailPreview: "The inspector closed the notebook.",
+            promptFingerprintHash: "abc1234567890def",
+            durationMs: 1100,
+            cost: 0.014,
+          },
+        ],
       },
     };
 
     // Both can coexist
     expect(result.prompt_fingerprints).toHaveLength(1);
     expect(result.validationDetails?.linter.checksRun).toBe(3);
+    expect(result.validationDetails?.batchCommitRecords?.[0].chapterRange).toBe("1");
   });
 });
 

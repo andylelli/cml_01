@@ -37,6 +37,8 @@ export interface NarrativeFormattingInputs {
   qualityGuardrails?: string[];
   runId?: string;
   projectId?: string;
+  /** Pillar 1: canonical locked facts — must be honoured verbatim in all scene summaries */
+  lockedFacts?: Array<{ id: string; value: string; description: string }>;
 }
 
 export interface Scene {
@@ -109,10 +111,18 @@ Your output is a JSON scene outline that prose generators can use to write the f
   // Developer: Provide CML and clue context
   const developer = buildDeveloperContext(caseData, clues);
 
+  // Pillar 1: append canonical locked facts block to developer context
+  const lockedFactsSection =
+    Array.isArray(inputs.lockedFacts) && inputs.lockedFacts.length > 0
+      ? `\n\n## CANONICAL LOCKED FACTS — Honour Verbatim in All Scenes\nThe following values are ground truth from the hard-logic device. Every scene summary and time reference MUST use these exact values (word form, not digits). Do not invent different clock times or quantities.\n\n` +
+        inputs.lockedFacts.map((f) => `- **${f.id}**: "${f.value}" — ${f.description}`).join("\n") +
+        "\n"
+      : "";
+
   // User: Request the narrative outline
   const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? [], inputs.detectiveType);
 
-  return { system, developer, user };
+  return { system, developer: developer + lockedFactsSection, user };
 }
 
 function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {

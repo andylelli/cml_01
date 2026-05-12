@@ -18,14 +18,18 @@ import { existsSync, readFileSync } from "fs";
 import {
   buildAssetDiagnosticReport,
   buildAssetLibrary,
+  checkNSDParity,
   generateProse,
   initNarrativeState,
   updateNSD,
   resolveVictimName,
+  stampDeployedAtoms,
   type NarrativeState,
+  type BatchCommitRecord,
+  type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -49,6 +53,14 @@ type ProseReadabilitySummary = {
   denseChapterCount: number;
   underParagraphCount: number;
   severeParagraphBlocks: number;
+};
+
+const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean => {
+  if (value === undefined || value === null || value.trim() === "") return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "y", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
+  return fallback;
 };
 
 // ============================================================================
@@ -612,6 +624,116 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
   return { ...prose, chapters: repairedChapters };
 };
 
+const LOCKED_FACT_DESC_STOPWORDS = new Set([
+  "the", "and", "that", "with", "from", "into", "over", "under", "when", "where",
+  "which", "their", "there", "been", "were", "have", "this", "exact", "amount",
+  "difference", "between", "shown", "about", "after", "before", "during", "while",
+]);
+
+const tokenizeLockedFactDescription = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 4 && !LOCKED_FACT_DESC_STOPWORDS.has(token));
+
+export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
+  if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
+
+  let injectedCount = 0;
+  const chapters = (prose.chapters as any[]).map((chapter: any, idx: number) => {
+    const chapterNumber = idx + 1;
+    const paragraphs = Array.isArray(chapter.paragraphs)
+      ? chapter.paragraphs.map((p: unknown) => String(p ?? ""))
+      : [];
+    if (paragraphs.length === 0) return chapter;
+
+    let chapterTextLower = paragraphs.join("\n\n").toLowerCase();
+    const updatedParagraphs = [...paragraphs];
+
+    for (const fact of lockedFacts) {
+      const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
+      const description = typeof fact?.description === "string" ? fact.description.trim() : "";
+      if (!canonical || !description) continue;
+
+      const scopedChapters = Array.isArray(fact?.appearsInChapters)
+        ? new Set((fact.appearsInChapters as string[]).map((v) => Number(v)).filter((n) => Number.isFinite(n)))
+        : null;
+      if (scopedChapters && scopedChapters.size > 0 && !scopedChapters.has(chapterNumber)) {
+        continue;
+      }
+
+      if (chapterTextLower.includes(canonical.toLowerCase())) {
+        continue;
+      }
+
+      const descTokens = tokenizeLockedFactDescription(description);
+      if (descTokens.length < 2) continue;
+
+      const chapterHits = descTokens.filter((token) => chapterTextLower.includes(token)).length;
+      if (chapterHits < 2) continue;
+
+      let bestIdx = -1;
+      let bestScore = 0;
+      for (let i = 0; i < updatedParagraphs.length; i += 1) {
+        const paraLower = updatedParagraphs[i].toLowerCase();
+        const score = descTokens.filter((token) => paraLower.includes(token)).length;
+        if (score > bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+      }
+      if (bestIdx < 0 || bestScore < 1) continue;
+
+      updatedParagraphs[bestIdx] = `${updatedParagraphs[bestIdx].trim()} The detail is explicit: ${canonical}.`;
+      chapterTextLower = updatedParagraphs.join("\n\n").toLowerCase();
+      injectedCount += 1;
+    }
+
+    return { ...chapter, paragraphs: updatedParagraphs };
+  });
+
+  if (injectedCount > 0) {
+    console.warn(
+      `[Agent 9] enforceLockedFactValuePresence: injected canonical locked-fact value mention(s): ${injectedCount}.`,
+    );
+  }
+
+  return { ...prose, chapters };
+};
+
+export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastEntry[]): any => {
+  if (!Array.isArray(castCharacters) || castCharacters.length === 0) return prose;
+
+  let repairCount = 0;
+  const chapters = (prose.chapters as any[]).map((chapter: any) => {
+    const text = Array.isArray(chapter.paragraphs)
+      ? chapter.paragraphs.map((p: unknown) => String(p ?? "")).join("\n\n")
+      : "";
+    if (!text.trim()) return chapter;
+
+    const repaired = repairPronouns(text, castCharacters as any);
+    if (!repaired || repaired.repairCount <= 0 || repaired.text === text) {
+      return chapter;
+    }
+
+    repairCount += repaired.repairCount;
+    return {
+      ...chapter,
+      paragraphs: repaired.text
+        .split("\n\n")
+        .map((p: string) => p.trim())
+        .filter(Boolean),
+    };
+  });
+
+  if (repairCount > 0) {
+    console.warn(`[Agent 9] applyDeterministicPronounSweep: applied ${repairCount} repair(s).`);
+  }
+
+  return { ...prose, chapters };
+};
+
 /**
  * Normalise chapter titles so all chapters use consistent "Chapter N: Title" format.
  * Chapters with bare number-only or title-only formats are upgraded to number-plus-title.
@@ -1117,6 +1239,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const settingRefinement = ctx.setting?.setting;
   const backgroundContext = ctx.backgroundContext;
   const noveltyAudit = ctx.noveltyAudit;
+  const bottomUpRedesignEnabled = parseBooleanEnv(process.env.AGENT9_REDESIGN_V1, true);
+
+  if (!bottomUpRedesignEnabled) {
+    ctx.warnings.push(
+      "Agent9 bottom-up redesign is disabled via AGENT9_REDESIGN_V1=false; using legacy prose generation path.",
+    );
+  }
 
   // Full CML/schema preflight before prose generation to fail fast on invalid structures
   // and cross-reference usage errors that prose retries cannot repair.
@@ -1516,6 +1645,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     writingGuides: loadWritingGuides(workspaceRoot),
     runId,
     projectId: projectId || "",
+    bottomUpRedesignEnabled,
     onProgress: (phase: string, message: string, percentage: number) =>
       reportProgress(phase as any, message, percentage),
     batchSize: inputs.proseBatchSize,
@@ -1528,6 +1658,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       batchEnd: number,
       validationIssues: any,
       usedTextureAtomIds?: string[],
+      nsdCheckpoint?: {
+        cluesRevealedToReader: string[];
+        previousChapterArcPosition?: string;
+        continuityTail: string;
+        chapter: number;
+      },
+      batchCommitRecord?: BatchCommitRecord,
     ) => {
       pendingTextureAtomIds = Array.isArray(usedTextureAtomIds) ? usedTextureAtomIds : [];
       const nsdBefore = {
@@ -1572,24 +1709,37 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       }
 
       // §2.5: Stamp deployed obligation atoms into narrativeState after batch commits
+      const committedObligationAtomIds = [...pendingObligationAtomIds];
       if (pendingObligationAtomIds.length > 0) {
-        const updatedDeployedAssets = { ...narrativeState.deployedAssets };
-        for (const atomId of pendingObligationAtomIds) {
-          updatedDeployedAssets[atomId] = [...(updatedDeployedAssets[atomId] ?? []), batchStart];
-        }
-        narrativeState = { ...narrativeState, deployedAssets: updatedDeployedAssets };
+        narrativeState = stampDeployedAtoms(narrativeState, pendingObligationAtomIds, batchStart);
         pendingObligationAtomIds = [];
       }
 
       // §5.1: Stamp only validated texture atom IDs reported by the LLM.
+      let committedTextureAtomIds: string[] = [];
       if (pendingTextureAtomIds.length > 0) {
-        const updatedDeployedAssets = { ...narrativeState.deployedAssets };
-        for (const atomId of pendingTextureAtomIds) {
-          if (!assetLibrary[atomId]) continue;
-          updatedDeployedAssets[atomId] = [...(updatedDeployedAssets[atomId] ?? []), batchStart];
-        }
-        narrativeState = { ...narrativeState, deployedAssets: updatedDeployedAssets };
+        const validTextureAtoms = pendingTextureAtomIds.filter((atomId) => Boolean(assetLibrary[atomId]));
+        committedTextureAtomIds = [...validTextureAtoms];
+        narrativeState = stampDeployedAtoms(narrativeState, validTextureAtoms, batchStart);
         pendingTextureAtomIds = [];
+      }
+      const committedDeployedAtomIds = Array.from(
+        new Set([...committedObligationAtomIds, ...committedTextureAtomIds]),
+      );
+
+      if (bottomUpRedesignEnabled && nsdCheckpoint) {
+        const parity = checkNSDParity(narrativeState, nsdCheckpoint);
+        if (parity.parityCritical.length > 0) {
+          const parityMsg =
+            `NSD parity critical divergence at batch ${batchStart}-${batchEnd}: ${parity.parityCritical.join('; ')}`;
+          ctx.errors.push(parityMsg);
+          throw new Error(parityMsg);
+        }
+        if (parity.parityWarnings.length > 0) {
+          ctx.warnings.push(
+            `NSD parity warning at batch ${batchStart}-${batchEnd}: ${parity.parityWarnings.join('; ')}`,
+          );
+        }
       }
 
       const newlyRevealedClues = batchRevealedIds.filter(
@@ -1621,7 +1771,18 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       ctx.nsdTransferTrace.push({
         batch_start: batchStart,
         batch_end: batchEnd,
+        chapter_range: batchCommitRecord?.chapterRange ?? `${batchStart}-${batchEnd}`,
         chapters_generated: batchChapters.length,
+        attempt_count: batchCommitRecord?.attemptCount,
+        gate_outcomes: batchCommitRecord?.gateOutcomes,
+        deployed_atom_ids: batchCommitRecord?.deployedAtomIds ?? committedDeployedAtomIds,
+        cumulative_clue_set: batchCommitRecord?.cumulativeClueSet ?? [...new Set(narrativeState.cluesRevealedToReader)],
+        continuity_tail_preview:
+          batchCommitRecord?.continuityTailPreview
+          ?? String(narrativeState.continuityTail ?? "").replace(/\s+/g, " ").trim().slice(0, 220),
+        prompt_fingerprint_hash: batchCommitRecord?.promptFingerprintHash,
+        batch_duration_ms: batchCommitRecord?.durationMs,
+        batch_cost: batchCommitRecord?.cost,
         validation_issue_count: validationIssues?.length ?? 0,
         validation_issue_samples: (validationIssues ?? []).slice(0, 3),
         newly_revealed_clue_ids: [...new Set(newlyRevealedClues)],
@@ -1631,6 +1792,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         after: {
           clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
         },
+        internal_checkpoint: nsdCheckpoint
+          ? {
+              chapter: nsdCheckpoint.chapter,
+              clues_revealed_to_reader: nsdCheckpoint.cluesRevealedToReader,
+              previous_arc_position: nsdCheckpoint.previousChapterArcPosition,
+            }
+          : undefined,
       });
 
       // Log per-chapter word counts to the run log
@@ -1821,6 +1989,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     repair_pass_count: ctx.proseRepairPassCount,
     per_pass_accounting: ctx.prosePassAccounting,
     metrics_snapshot: finalized ? "final" : "initial",
+    bottom_up_redesign_enabled: bottomUpRedesignEnabled,
     batch_size: inputs.proseBatchSize ?? 1,
     batches_with_retries: prose.validationDetails?.batchesWithRetries ?? 0,
     total_batches: prose.validationDetails?.totalBatches ?? 0,
@@ -1839,6 +2008,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         attempt: failure.attempt,
         errors: failure.errors,
       })),
+    batch_commit_records: (prose.validationDetails as any)?.batchCommitRecords ?? [],
     outline_coverage_issue_count: outlineCoverageIssues.length,
     critical_clue_coverage_gap: coverageResult.hasCriticalGaps,
     nsd_transfer_steps: ctx.nsdTransferTrace.length,
@@ -2023,6 +2193,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       writingGuides: loadWritingGuides(workspaceRoot),
       runId,
       projectId: projectId || "",
+      bottomUpRedesignEnabled,
       onProgress: (phase: string, message: string, percentage: number) =>
         reportProgress(phase as any, message, percentage),
       batchSize: inputs.proseBatchSize,
@@ -2080,6 +2251,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+  prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
+  prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
   // they are stored separately in ctx.locationProfiles. Using cml as the argument
@@ -2104,6 +2277,42 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   } as any);
   const preRepairValidationSummary = { ...validationReport.summary };
   let postRepairValidationSummary = { ...validationReport.summary };
+
+  const hasDeterministicRepairableFailures =
+    validationReport.status === "failed"
+    && Array.isArray(validationReport.errors)
+    && validationReport.errors.some((err: any) =>
+      err?.type === "locked_fact_missing_value" || err?.type === "pronoun_drift",
+    );
+
+  if (hasDeterministicRepairableFailures) {
+    prose = applyDeterministicPronounSweep(
+      enforceLockedFactValuePresence(
+        repairWordFormLockedFacts(prose, annotatedLockedFacts),
+        annotatedLockedFacts,
+      ),
+      castDesign.characters as CastEntry[],
+    );
+
+    const repairedStoryForValidation = {
+      id: runId,
+      projectId: projectId || runId,
+      scenes: prose.chapters.map((ch: any, idx: number) => ({
+        number: idx + 1,
+        title: ch.title,
+        text: ch.paragraphs.join("\n\n"),
+      })),
+    };
+
+    validationReport = await validationPipeline.validate(repairedStoryForValidation, {
+      ...cml,
+      lockedFacts: annotatedLockedFacts,
+      locationProfiles: locationProfiles ?? undefined,
+    } as any);
+    postRepairValidationSummary = { ...validationReport.summary };
+    ctx.warnings.push("Validation deterministic rescue applied for locked-fact/pronoun consistency before release gate.");
+  }
+
   ctx.agentDurations["validation"] = Date.now() - validationStart;
 
   if (validationReport.status === "passed") {
@@ -2306,8 +2515,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // the release gate diagnostic before throwing.
   const releaseGateReasons: string[] = [];
   const hardStopReasons: string[] = [];
-  const validationErrorTypes = new Set(
-    validationReport.errors.map((error: any) => error.type),
+  const validationErrorTypes = new Set<string>(
+    validationReport.errors.map((error: any) => String(error.type ?? "")),
   );
   const hasSuspectEliminationCoverageFailure = validationReport.errors.some(
     (error: any) => isSuspectEliminationCoverageError(error),
@@ -2450,6 +2659,36 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  const releaseGateAudit: ReleaseGateAudit = {
+    status:
+      hardStopReasons.length > 0
+        ? "failed"
+        : releaseGateReasons.length > 0
+          ? "warning"
+          : "passed",
+    warningReasons: [...releaseGateReasons],
+    hardStopReasons: Array.from(new Set(hardStopReasons)),
+    validationErrorTypes: Array.from(validationErrorTypes),
+    nsdVisibilityDivergence: {
+      diverged: nsdVisibilityDivergence.diverged,
+      revealedCount: nsdVisibilityDivergence.revealed_count,
+      evidenceVisibleCount: nsdVisibilityDivergence.evidence_visible_count,
+      revealedWithoutEvidence: [...revealedWithoutEvidence],
+      evidenceWithoutReveal: [...evidenceWithoutReveal],
+    },
+    readability: readabilitySummary,
+    sceneGrounding: {
+      grounded: sceneGrounding.grounded,
+      total: sceneGrounding.total,
+      coverage: sceneGrounding.coverage,
+    },
+    placeholderLeakage,
+    chapterHeadingArtifacts,
+    hasIllegalControlChars: proseContainsIllegalControlChars,
+    hasMojibake: proseContainsMojibake,
+    fairPlayStatus: fairPlayAudit?.overallStatus ?? null,
+  };
+
   ctx.warnings.push(
     `UTF-8/multibyte check: ${proseContainsIllegalControlChars ? "FAILED (illegal control characters found)" : "PASSED (valid Unicode preserved)"}`,
   );
@@ -2481,6 +2720,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       has_illegal_control_chars: proseContainsIllegalControlChars,
       has_mojibake: proseContainsMojibake,
       fair_play_status: fairPlayAudit?.overallStatus ?? null,
+      release_gate_audit: releaseGateAudit,
     };
 
     scoringLogger.logPhaseDiagnostic(

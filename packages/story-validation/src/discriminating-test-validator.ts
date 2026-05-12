@@ -195,8 +195,10 @@ export class DiscriminatingTestValidator implements Validator {
       }
     }
 
-    // Check CML realization
-    if (cml?.CASE?.discriminating_test?.method && scenesWithTests.length === 0) {
+    // Check CML realization: only fire when BOTH regex and LLM semantic checks failed.
+    // If hasValidTest is true (semantic fallback passed), the test is present in natural prose —
+    // firing cml_test_not_realized would be a false positive against the LLM-validated result.
+    if (!hasValidTest && cml?.CASE?.discriminating_test?.method && scenesWithTests.length === 0) {
       errors.push({
         type: 'cml_test_not_realized',
         message: 'CML includes a discriminating test, but prose does not stage it explicitly',

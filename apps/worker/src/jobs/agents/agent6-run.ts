@@ -14,7 +14,7 @@ import {
   buildCMLPrompt,
   reviseCml,
 } from "@cml/prompts-llm";
-import type { FairPlayAuditResult } from "@cml/prompts-llm";
+import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
@@ -669,6 +669,145 @@ const normalizeGroundedClueSentence = (rawText: string, fallback: string): strin
   return toSentenceCase(normalized);
 };
 
+// ============================================================================
+// Deterministic Structural Audit (Phase 2 — runs BEFORE any LLM call)
+// ============================================================================
+
+/**
+ * Checks the three structural invariants that the LLM cannot reliably verify:
+ *   1. All discriminating_test.evidence_clues IDs are present in early|mid placement
+ *   2. Each inference step has ≥1 essential early|mid clue (by supportsInferenceStep)
+ *   3. Each non-culprit suspect has ≥1 elimination clue
+ *
+ * Returns a StructuralAuditResult that drives escalation and is injected into the
+ * Agent 6 developer context so the LLM audits only narrative quality.
+ */
+export const runDeterministicStructuralAudit = (
+  cml: CaseData,
+  clues: { clues?: Array<{ id?: string; placement?: string; criticality?: string; supportsInferenceStep?: number; description?: string; pointsTo?: string; evidenceType?: string }> },
+): StructuralAuditResult => {
+  const caseBlock = (cml as any)?.CASE ?? cml ?? {};
+  const clueList = Array.isArray(clues?.clues) ? clues.clues : [];
+
+  const gaps: StructuralGap[] = [];
+
+  // ── Check 1: discriminating_test.evidence_clues present in early|mid ────────
+  const evidenceClueIds: string[] = Array.isArray(caseBlock?.discriminating_test?.evidence_clues)
+    ? (caseBlock.discriminating_test.evidence_clues as unknown[])
+        .map((id) => String(id ?? "").trim())
+        .filter(Boolean)
+    : [];
+
+  const clueById = new Map(clueList.map((c) => [String(c.id ?? "").trim(), c]));
+  const evidenceCluesPresent: string[] = [];
+  const evidenceCluesMissing: string[] = [];
+
+  for (const id of evidenceClueIds) {
+    const clue = clueById.get(id);
+    if (clue && (clue.placement === "early" || clue.placement === "mid")) {
+      evidenceCluesPresent.push(id);
+    } else {
+      evidenceCluesMissing.push(id);
+      gaps.push({
+        kind: "evidence_clue_missing",
+        description: `discriminating_test evidence clue "${id}" is absent from early|mid distribution`,
+        clueId: id,
+      });
+    }
+  }
+
+  // ── Check 2: each inference step has ≥1 essential early|mid clue ────────────
+  const inferenceSteps = Array.isArray(caseBlock?.inference_path?.steps)
+    ? caseBlock.inference_path.steps
+    : [];
+
+  const stepsCovered: number[] = [];
+  const stepsUncovered: number[] = [];
+
+  for (let i = 0; i < inferenceSteps.length; i++) {
+    const stepNumber = i + 1;
+    const hasEarlyMidEssential = clueList.some(
+      (c) =>
+        c.criticality === "essential" &&
+        (c.placement === "early" || c.placement === "mid") &&
+        Number(c.supportsInferenceStep) === stepNumber,
+    );
+    if (hasEarlyMidEssential) {
+      stepsCovered.push(stepNumber);
+    } else {
+      stepsUncovered.push(stepNumber);
+      gaps.push({
+        kind: "inference_step_uncovered",
+        description: `Inference step ${stepNumber} has no essential early|mid clue (supportsInferenceStep=${stepNumber})`,
+        stepNumber,
+      });
+    }
+  }
+
+  // ── Check 3: each non-culprit has ≥1 eliminating clue ───────────────────────
+  const culprits = new Set(
+    Array.isArray(caseBlock?.culpability?.culprits)
+      ? (caseBlock.culpability.culprits as unknown[])
+          .map((c) => String(c ?? "").trim().toLowerCase())
+          .filter(Boolean)
+      : [],
+  );
+  const castList = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const nonCulprits = castList
+    .map((c: any) => String(c?.name ?? "").trim())
+    .filter((name: string) => name.length > 0 && !culprits.has(name.toLowerCase()));
+
+  const eliminationPresent: string[] = [];
+  const eliminationMissing: string[] = [];
+
+  for (const name of nonCulprits) {
+    const nameLower = name.toLowerCase();
+    const hasElimination = clueList.some((c) => {
+      const desc = String(c.description ?? "").toLowerCase();
+      const pointsTo = String(c.pointsTo ?? "").toLowerCase();
+      const isAboutSuspect = desc.includes(nameLower) || pointsTo.includes(nameLower);
+      const isEliminatory =
+        c.evidenceType === "elimination" ||
+        pointsTo.includes("eliminat") ||
+        pointsTo.includes("rules out") ||
+        pointsTo.includes("clears") ||
+        pointsTo.includes("alibis") ||
+        pointsTo.includes("cannot have");
+      return isAboutSuspect && isEliminatory;
+    });
+    if (hasElimination) {
+      eliminationPresent.push(name);
+    } else {
+      eliminationMissing.push(name);
+      // Elimination gaps are advisory — they don't block escalation by themselves
+      // because the backstop system handles them. Only add to gaps if we have zero eliminations.
+    }
+  }
+
+  // If NO non-culprits have elimination clues at all, treat as a structural gap
+  if (nonCulprits.length > 0 && eliminationPresent.length === 0) {
+    gaps.push({
+      kind: "elimination_missing",
+      description: `No elimination clues found for any non-culprit suspect (${eliminationMissing.join(", ")})`,
+    });
+  }
+
+  // `passed` reflects only blocking structural gaps (evidence_clue_missing, inference_step_uncovered).
+  // elimination_missing is advisory — the backstop handles it and it does not trigger escalation.
+  const blockingGaps = gaps.filter((g) => g.kind !== "elimination_missing");
+
+  return {
+    passed: blockingGaps.length === 0,
+    gaps,
+    evidenceCluesPresent,
+    evidenceCluesMissing,
+    stepsCovered,
+    stepsUncovered,
+    eliminationPresent,
+    eliminationMissing,
+  };
+};
+
 const ensureParityBridgeClue = (cml: CaseData, clues: any): string | null => {
   const caseBlock = (cml as any)?.CASE ?? cml ?? {};
   const discrimDesign = String(caseBlock?.discriminating_test?.design ?? "").trim();
@@ -1213,19 +1352,26 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   ctx.agent6RetryInvoked = false;
   ctx.agent6FailureClass = "none";
 
-  const auditCurrentFairPlay = async (): Promise<FairPlayAuditResult> => {
+  const auditCurrentFairPlay = async (structuralAuditResult?: StructuralAuditResult): Promise<FairPlayAuditResult> => {
     if (ctx.cml && ctx.clues) {
       synchronizeClueTraceabilityFromCurrentClues(ctx.cml, ctx.clues);
     }
     return auditFairPlay(ctx.client, {
       caseData: ctx.cml!,
       clues: ctx.clues!,
+      structuralAuditResult,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
   };
 
+  // ── Phase 2: pre-LLM deterministic fixes + structural audit ─────────────────
+  // Run backstops BEFORE the LLM call so the LLM audits the already-patched state.
+  // The LLM is then responsible only for narrative quality, not structural verification.
+  let preAuditStructuralResult: StructuralAuditResult | undefined;
+
   if (ctx.cml && ctx.clues) {
+    // Step A: parity bridge (already present, moved here explicitly)
     const parityBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
     if (parityBridgeId) {
       emitAgent6Warning(
@@ -1233,11 +1379,47 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         "transient-diagnostic",
       );
     }
+
+    // Step B: backstop clues (moved from post-fail block to pre-LLM)
+    const backstopRepairs = ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
+    for (const repair of backstopRepairs) {
+      emitAgent6Warning(
+        `Agent 6 pre-LLM backstop: ${repair}`,
+        "transient-diagnostic",
+      );
+    }
+    if (backstopRepairs.length > 0) {
+      // Re-run parity bridge after backstop injection
+      const secondBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
+      if (secondBridgeId) {
+        emitAgent6Warning(
+          `Agent 6 deterministic parity bridge (post-backstop): injected ${secondBridgeId}.`,
+          "transient-diagnostic",
+        );
+      }
+    }
+
+    // Step C: deterministic structural audit — result injected into every LLM call
+    preAuditStructuralResult = runDeterministicStructuralAudit(ctx.cml, ctx.clues);
+    if (preAuditStructuralResult.passed) {
+      emitAgent6Warning(
+        `Agent 6 structural pre-audit: PASS — all ${preAuditStructuralResult.stepsCovered.length} inference step(s) covered, ` +
+        `${preAuditStructuralResult.evidenceCluesPresent.length} evidence clue(s) verified in early|mid. ` +
+        `LLM will assess narrative quality only.`,
+        "transient-diagnostic",
+      );
+    } else {
+      const gapSummary = preAuditStructuralResult.gaps.map((g) => g.description).join("; ");
+      emitAgent6Warning(
+        `Agent 6 structural pre-audit: GAPS REMAIN after backstop fixes: ${gapSummary}`,
+        "persistent-risk",
+      );
+    }
   }
 
   while (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
     fairPlayAttempt++;
-    fairPlayAudit = await auditCurrentFairPlay();
+    fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
     if (firstFairPlayStatus === null) {
       firstFairPlayStatus = fairPlayAudit.overallStatus;
     }
@@ -1463,7 +1645,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         retryBudget.consume(ctx.clues.cost, `blind-reader clue remediation cycle ${cycle}`);
 
         const blindReAuditStart = Date.now();
-        fairPlayAudit = await auditCurrentFairPlay();
+        fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
@@ -1507,7 +1689,30 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   }
 
   // ── WP6B + WP8: CML Retry on Structural Failure ───────────────────────────
-  if (fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure) {
+  // Phase 2: escalation is now driven by the deterministic structural audit result.
+  // When preAuditStructuralResult.passed = true, all structural gaps were closed before
+  // the LLM call — no CML revision is needed regardless of what the LLM returned.
+  // When preAuditStructuralResult has gaps (or is unavailable), fall back to LLM-signal logic.
+  const hasRealStructuralGaps = preAuditStructuralResult
+    ? !preAuditStructuralResult.passed
+    : (fairPlayAudit!.overallStatus === "fail" && hasCriticalFairPlayFailure);
+
+  if (hasRealStructuralGaps) {
+    if (!preAuditStructuralResult?.passed && preAuditStructuralResult) {
+      // Structural gaps confirmed deterministically — log them
+      const gapSummary = preAuditStructuralResult.gaps.map((g) => g.description).join("; ");
+      emitAgent6Warning(
+        `Fair-play: structural gaps confirmed by deterministic audit: ${gapSummary}`,
+        "transient-diagnostic",
+      );
+    } else if (fairPlayAudit!.overallStatus !== "fail") {
+      // LLM passed but we still have structural gaps from pre-audit — this path should be rare
+      emitAgent6Warning(
+        "Fair-play: LLM narrative audit passed but deterministic structural gaps remain — escalating CML revision",
+        "persistent-risk",
+      );
+    }
+
     if (ctx.cml && ctx.clues) {
       const coverageSnapshot = recomputeCoverageSnapshotForAgent6(ctx.cml, ctx.clues);
       ctx.coverageResult = coverageSnapshot.coverageResult;
@@ -1518,6 +1723,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     const shouldEscalateCmlRevision = shouldEscalateStructuralCmlRevision({
       failureClass,
       fairPlayAudit,
+      structuralAuditResult: preAuditStructuralResult,
     });
 
     const caseBlock = (ctx.cml as any)?.CASE ?? ctx.cml ?? {};
@@ -1725,7 +1931,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         if (ctx.clues) {
           const feedbackAuditStart = Date.now();
           try {
-            const provisionalAudit = await auditCurrentFairPlay();
+            const provisionalAudit = await auditCurrentFairPlay(preAuditStructuralResult);
             ctx.agentCosts["agent6_fairplay"] =
               (ctx.agentCosts["agent6_fairplay"] || 0) + provisionalAudit.cost;
             ctx.agentDurations["agent6_fairplay"] =
@@ -1757,8 +1963,30 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         applyAgent5ContractsToRegeneratedClues(ctx, "post-cml-revision");
         retryBudget.consume(ctx.clues.cost, "post-CML-revision clue regeneration");
 
+        // Re-run backstops + structural audit on the revised CML + fresh clues
+        if (ctx.cml && ctx.clues) {
+          const postRevisionBridgeId = ensureParityBridgeClue(ctx.cml, ctx.clues);
+          if (postRevisionBridgeId) {
+            emitAgent6Warning(`Agent 6 post-revision parity bridge: injected ${postRevisionBridgeId}.`, "transient-diagnostic");
+          }
+          ensureCriticalFairPlayBackstopClues(ctx.cml, ctx.clues);
+          preAuditStructuralResult = runDeterministicStructuralAudit(ctx.cml, ctx.clues);
+          if (preAuditStructuralResult.passed) {
+            emitAgent6Warning(
+              "Agent 6 post-revision structural audit: PASS — LLM will assess narrative quality only.",
+              "transient-diagnostic",
+            );
+          } else {
+            const gapSummary = preAuditStructuralResult.gaps.map((g) => g.description).join("; ");
+            emitAgent6Warning(
+              `Agent 6 post-revision structural audit: gaps remain: ${gapSummary}`,
+              "persistent-risk",
+            );
+          }
+        }
+
         const reAuditStart = Date.now();
-        fairPlayAudit = await auditCurrentFairPlay();
+        fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =
@@ -1797,7 +2025,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       retryBudget.consume(ctx.clues.cost, "final targeted clue regeneration");
 
       const finalAuditStart = Date.now();
-      fairPlayAudit = await auditCurrentFairPlay();
+      fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
       ctx.agentCosts["agent6_fairplay"] =
         (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
       ctx.agentDurations["agent6_fairplay"] =
@@ -1807,10 +2035,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       await recordFairPlayScore();
     }
 
-    // WP8A-Deterministic Backstop: when critical fair-play violations still remain,
-    // only add case-grounded inference-step or parity clues and re-audit once.
+    // WP8A-Deterministic Backstop: when structural gaps still remain after CML revision,
+    // inject additional case-grounded clues and re-audit once.
+    // Note: for clean CMLs (preAuditStructuralResult.passed), backstops already ran pre-LLM.
     if (
-      fairPlayAudit!.overallStatus === "fail"
+      !preAuditStructuralResult?.passed
+      && fairPlayAudit!.overallStatus === "fail"
       && hasCriticalFairPlayFailure
       && ctx.cml
       && ctx.clues
@@ -1831,7 +2061,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         applyAgent5ContractsToRegeneratedClues(ctx, "critical-fairplay-backstop");
 
         const backstopAuditStart = Date.now();
-        fairPlayAudit = await auditCurrentFairPlay();
+        fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
           (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
         ctx.agentDurations["agent6_fairplay"] =

@@ -1,0 +1,563 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1778518410355`
+- Project ID: `unknown`
+- Timestamp: `2026-05-11T16:56:05.905Z`
+- Agent: `Agent4-Revision`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4o-mini`
+- Temperature: `0.5`
+- Max Tokens: `8000`
+- Attempt: `first`
+- Prompt Hash: `fa9e4cf9437a7372`
+
+## Message 1 (role=system)
+
+```text
+You are a CML (Case Markup Language) revision specialist. Your task is to fix validation errors in CML documents while preserving the original creative intent and narrative structure.
+
+**Core Principles**:
+- Fix ONLY the validation errors - don't rewrite working sections
+- Preserve all existing content that doesn't have errors
+- Maintain the mystery's logical consistency
+- Keep the original tone, era constraints, and character dynamics
+- Generate minimal, targeted fixes
+
+**Revision Strategy**:
+1. Analyze validation errors to understand what's missing or incorrect
+2. Examine the original CML to understand context
+3. Generate missing fields based on existing content
+4. Fix type/value errors while preserving intent
+5. Ensure all fixes maintain narrative coherence
+
+You MUST return ONLY valid JSON that matches the CML 2.0 schema.
+
+# Technical Specifications
+
+# Revision Context
+
+## Attempt 1 of 5
+
+## Validation Errors (1 total)
+
+### Type Errors (1)
+
+- The inference_path steps are too abstract. Rewrite each step with: (1) a concrete, scene-level observation the reader can witness, (2) a correction that follows from stated evidence, (3) an effect that names the suspect eliminated, (4) required_evidence listing 2-4 specific facts where every item names at least one concrete anchor (person, object, location, time phrase, trace, document, or access record), (5) no abstract placeholders like 'timeline discrepancy', 'suspicious behavior', 'an inconsistency', or 'detective intuition' without concrete nouns from the case data, (6) each correction must quote or paraphrase at least one required_evidence item and state why it eliminates or narrows a named suspect. SPECIFIC VIOLATIONS TO ADDRESS: The specific mechanism that must be reader-visible BEFORE the discriminating test: "The mechanism relies on clock, library, and nine-thirty to expose the false timing.". The discriminating test reveals: "The revealed facts are clock, library, and nine-thirty." — this MUST NOT be new information; it must trace back to prior essential clues already established in inference_path steps. Audit violation [Logical Deducibility]: The reader cannot follow the deduction chain due to late clue introduction. Required fix: Reorganize clues to ensure essential clues are available before the discriminating test. Audit violation [Information Parity]: The detective has knowledge of Eleanor's diary that the reader does not. Required fix: Introduce the diary's contents earlier to maintain parity. Audit violation [Discriminating Test Timing]: The discriminating test relies on clues introduced too late. Required fix: Adjust the timing of the test or the introduction of clues.
+
+## Errors by Section
+
+### CASE (1 errors)
+
+- The inference_path steps are too abstract. Rewrite each step with: (1) a concrete, scene-level observation the reader can witness, (2) a correction that follows from stated evidence, (3) an effect that names the suspect eliminated, (4) required_evidence listing 2-4 specific facts where every item names at least one concrete anchor (person, object, location, time phrase, trace, document, or access record), (5) no abstract placeholders like 'timeline discrepancy', 'suspicious behavior', 'an inconsistency', or 'detective intuition' without concrete nouns from the case data, (6) each correction must quote or paraphrase at least one required_evidence item and state why it eliminates or narrows a named suspect. SPECIFIC VIOLATIONS TO ADDRESS: The specific mechanism that must be reader-visible BEFORE the discriminating test: "The mechanism relies on clock, library, and nine-thirty to expose the false timing.". The discriminating test reveals: "The revealed facts are clock, library, and nine-thirty." — this MUST NOT be new information; it must trace back to prior essential clues already established in inference_path steps. Audit violation [Logical Deducibility]: The reader cannot follow the deduction chain due to late clue introduction. Required fix: Reorganize clues to ensure essential clues are available before the discriminating test. Audit violation [Information Parity]: The detective has knowledge of Eleanor's diary that the reader does not. Required fix: Introduce the diary's contents earlier to maintain parity. Audit violation [Discriminating Test Timing]: The discriminating test relies on clues introduced too late. Required fix: Adjust the timing of the test or the introduction of clues.
+
+## Common Fix Patterns
+
+### Missing Cast Fields
+When cast members are missing fields like age_range, role_archetype, etc.:
+- Infer age_range from occupation/context (e.g., "early 40s", "mid 50s")
+- Assign role_archetype based on character's role (detective, culprit_candidate, red_herring, etc.)
+- Create public_persona from existing character description
+- Generate private_secret that fits character's background
+- Define motive_seed from character's relationships/background
+- Set motive_strength: weak | moderate | strong | compelling
+- Create alibi_window with time range and verification status
+- Set access_plausibility based on character's position
+- Define stakes (what character risks losing)
+
+### Missing Meta Fields
+- license: "CC-BY-4.0" (standard for CML files)
+- era: Extract from existing content or use original prompt era
+- setting: Extract location/context from existing content
+- crime_class: murder | theft | disappearance | fraud
+
+### Missing Culpability Fields
+- culprit_count: Number of actual culprits (usually 1-2)
+- culprits: Array of character names who committed the crime
+
+### Missing Surface/Hidden Model
+- accepted_facts: Array of facts investigator believes at start
+- inferred_conclusions: Array of deductions from accepted facts
+- outcome.result: The actual truth as a string summary
+
+### Missing False Assumption
+- statement: The key wrong assumption
+- why_it_seems_reasonable: Why it's believable
+- what_it_hides: What truth it conceals
+
+### Type Errors
+- inference_path must be an object with "steps" array
+- discriminating_test.method must be: reenactment | trap | constraint_proof | administrative_pressure
+
+### Structural Fair-Play Repairs (critical)
+- Ensure every inference step has reader_observable: true unless a schema-level exception explicitly requires otherwise.
+- Ensure each inference step has 2-4 concrete required_evidence entries.
+- Reject abstract placeholders in required_evidence (e.g., "timeline discrepancy", "suspicious behavior", "detective insight").
+- If discriminating_test design references mechanism details, ensure those same details already exist in earlier required_evidence.
+- If an error says a mechanism/test fact is "not grounded in reader-visible inference evidence", copy the named terms into one or more earlier inference_path.steps[*].observation and required_evidence entries, and keep those steps reader_observable: true.
+- If grounding errors name procedure-wrapper terms (for example: reenactment, surrounding, putting, under scrutiny, staged), do NOT force those terms into required_evidence. Rewrite discriminating_test.design into a fact-forward contradiction statement tied to existing evidence.
+- Fix grounding errors by strengthening earlier evidence, not by weakening or deleting discriminating_test / hidden_model facts unless they directly contradict the existing CML.
+- Never satisfy grounding or fair-play repairs by injecting detective-only behavioral shorthand such as "signals of guilt", suspicious reactions, observed defensiveness, or confession into required_evidence or discriminating_test fields.
+- discriminating_test.design, discriminating_test.knowledge_revealed, and discriminating_test.pass_condition must describe factual mechanism proof, contradiction, or elimination the reader can verify; guest reactions alone are not proof.
+- Keep discriminating_test evidence IDs canonical and traceable to prose_requirements.clue_to_scene_mapping.
+- Ensure fair_play.explanation explicitly references inference steps and evidence flow (for example: Step 1..., Step 2...).
+
+## Quality Bar
+- Prefer minimal surgical edits over broad rewrites.
+- Preserve existing narrative content unless a schema/type violation requires change.
+- Keep enumerations exact and normalize near-miss values to valid schema options.
+- Ensure every inferred fix is anchored to existing CML context, not invented plot expansion.
+
+## Micro-exemplars
+- Weak fix: "Add missing fields with generic placeholders everywhere."
+- Strong fix: "Add only missing cast.age_range for two suspects, infer from occupations already present, keep all existing secrets/alibis unchanged."
+
+## Silent Pre-Output Checklist
+- all required keys present
+- enums valid
+- types valid
+- no markdown wrappers
+- complete corrected JSON document returned
+
+## Original Requirements (for context)
+
+**Mystery Axis**: Create a complete mystery case in CML 2.0 format with these exact specifications:
+
+**Setting & Era**:
+- Decade: 1930s
+- Location: A grand country estate featuring large rooms, a central staircase, and...
+
+
+```
+
+## Message 2 (role=user)
+
+```text
+# Revision Task
+
+Fix ALL validation errors in the CML below. Return the COMPLETE, corrected CML as valid JSON.
+
+## Invalid CML to Fix
+
+```yaml
+{
+  "CML_VERSION": 2,
+  "CASE": {
+    "meta": {
+      "title": "The Clock Strikes Murder",
+      "author": "Anonymous",
+      "license": "CC-BY-4.0",
+      "era": {
+        "decade": "1930s",
+        "realism_constraints": []
+      },
+      "setting": {
+        "location": "Little Middleton",
+        "place": "Country Estate",
+        "country": "England",
+        "institution": "Manor house"
+      },
+      "crime_class": {
+        "category": "murder",
+        "subtype": "mechanical clock tampering"
+      }
+    },
+    "cast": [
+      {
+        "name": "Eleanor Voss",
+        "age_range": "30-40",
+        "role_archetype": "victim",
+        "relationships": [
+          "Dr. Mallory Finch",
+          "Captain Ivor Hale"
+        ],
+        "public_persona": "A wealthy heiress known for her charitable works.",
+        "private_secret": "In debt due to poor investments.",
+        "motive_seed": "Financial desperation",
+        "motive_strength": "high",
+        "alibi_window": "None",
+        "access_plausibility": "high",
+        "opportunity_channels": [
+          "manor grounds"
+        ],
+        "behavioral_tells": [
+          "Nervous when discussing finances"
+        ],
+        "stakes": "Her life and reputation.",
+        "evidence_sensitivity": [
+          "high"
+        ],
+        "culprit_eligibility": "ineligible",
+        "culpability": "unknown",
+        "gender": "female"
+      },
+      {
+        "name": "Dr. Mallory Finch",
+        "age_range": "40-50",
+        "role_archetype": "suspect",
+        "relationships": [
+          "Eleanor Voss",
+          "Captain Ivor Hale"
+        ],
+        "public_persona": "A respected physician with a calm demeanor.",
+        "private_secret": "Has a crush on Eleanor.",
+        "motive_seed": "Jealousy and unrequited love.",
+        "motive_strength": "moderate",
+        "alibi_window": "9:00 PM - 10:00 PM",
+        "access_plausibility": "medium",
+        "opportunity_channels": [
+          "manor grounds"
+        ],
+        "behavioral_tells": [
+          "Fidgety when discussing Eleanor's relationships"
+        ],
+        "stakes": "His reputation and unrequited feelings.",
+        "evidence_sensitivity": [
+          "medium"
+        ],
+        "culprit_eligibility": "eligible",
+        "culpability": "unknown",
+        "gender": "female"
+      },
+      {
+        "name": "Captain Ivor Hale",
+        "age_range": "35-45",
+        "role_archetype": "suspect",
+        "relationships": [
+          "Eleanor Voss",
+          "Dr. Mallory Finch"
+        ],
+        "public_persona": "A charming army officer with a mysterious past.",
+        "private_secret": "Has gambling debts.",
+        "motive_seed": "Financial gain from Eleanor's death.",
+        "motive_strength": "high",
+        "alibi_window": "9:15 PM - 10:15 PM",
+        "access_plausibility": "high",
+        "opportunity_channels": [
+          "manor grounds"
+        ],
+        "behavioral_tells": [
+          "Evasive when questioned about finances"
+        ],
+        "stakes": "Avoiding debt collectors.",
+        "evidence_sensitivity": [
+          "high"
+        ],
+        "culprit_eligibility": "eligible",
+        "culpability": "unknown",
+        "gender": "male"
+      },
+      {
+        "name": "Beatrice Quill",
+        "age_range": "30-40",
+        "role_archetype": "detective",
+        "relationships": [
+          "Eleanor Voss",
+          "Dr. Mallory Finch",
+          "Captain Ivor Hale"
+        ],
+        "public_persona": "A sharp-witted investigator known for her keen observations.",
+        "private_secret": "Struggles with self-doubt.",
+        "motive_seed": "A desire to prove herself.",
+        "motive_strength": "high",
+        "alibi_window": "N/A",
+        "access_plausibility": "high",
+        "opportunity_channels": [
+          "manor grounds"
+        ],
+        "behavioral_tells": [
+          "Confident in her deductions"
+        ],
+        "stakes": "Her career and reputation.",
+        "evidence_sensitivity": [
+          "medium"
+        ],
+        "culprit_eligibility": "ineligible",
+        "culpability": "unknown",
+        "gender": "female"
+      }
+    ],
+    "culpability": {
+      "culprit_count": 1,
+      "culprits": [
+        "Captain Ivor Hale"
+      ]
+    },
+    "surface_model": {
+      "narrative": {
+        "summary": "During a stormy evening at a grand manor, heiress Eleanor Voss is found dead, her time of death obscured by a tampered clock. Detective Beatrice Quill must navigate class tensions and deception to reveal the true culprit behind the murder."
+      },
+      "accepted_facts": [
+        "Eleanor Voss was found dead in the library.",
+        "The clock showed a time inconsistent with witness accounts.",
+        "It was a stormy night with intermittent rain."
+      ],
+      "inferred_conclusions": [
+        "The time of death is likely manipulated.",
+        "The murderer had access to the clock."
+      ]
+    },
+    "hidden_model": {
+      "mechanism": {
+        "description": "The mechanism relies on clock, library, and nine-thirty to expose the false timing.",
+        "delivery_path": [
+          {
+            "step": "The clock was tampered with just before the murder."
+          },
+          {
+            "step": "Witnesses saw the murderer elsewhere at the time the clock indicated."
+          }
+        ]
+      },
+      "outcome": {
+        "result": "The murderer is revealed through the manipulation of time."
+      }
+    },
+    "false_assumption": {
+      "statement": "The murder occurred at the time shown on the clock.",
+      "type": "temporal",
+      "why_it_seems_reasonable": "The clock was in the room and seemed accurate, leading everyone to trust its time.",
+      "what_it_hides": "The clock was deliberately reset to mislead witnesses and investigators."
+    },
+    "constraint_space": {
+      "time": {
+        "anchors": [
+          "The clock stopped just before Eleanor's body was found.",
+          "Witnesses claim to have seen Captain Hale in the garden."
+        ],
+        "windows": [
+          "Eleanor was last seen at 9:00 PM.",
+          "The murder was reported at 10:00 PM."
+        ],
+        "contradictions": [
+          "The clock time was 9:30 PM when found, conflicting with Hale's alibi."
+        ]
+      },
+      "access": {
+        "actors": [
+          "Captain Ivor Hale",
+          "Dr. Mallory Finch"
+        ],
+        "objects": [
+          "The clock in the library",
+          "Eleanor's diary"
+        ],
+        "permissions": [
+          "As guests, all had access to the library."
+        ]
+      },
+      "physical": {
+        "laws": [
+          "Time is a measurable constant.",
+          "Mechanical clocks can be tampered with."
+        ],
+        "traces": [
+          "Scratch marks on the clock's winding mechanism."
+        ]
+      },
+      "social": {
+        "trust_channels": [
+          "Witnesses trust the clock's time."
+        ],
+        "authority_sources": [
+          "Dr. Mallory Finch's medical expertise."
+        ]
+      }
+    },
+    "inference_path": {
+      "steps": [
+        {
+          "observation": "The clock in the library shows the time as nine-thirty.",
+          "correction": "The clock was stopped and tampered with to mislead.",
+          "effect": "Eliminates the reliability of the clock as a time source.",
+          "required_evidence": [
+            "The clock had stopped just before the murder was discovered.",
+            "A faint scratch mark on the clock's winding mechanism."
+          ],
+          "reader_observable": true
+        },
+        {
+          "observation": "Witnesses report seeing Captain Hale in the garden at nine-forty-five.",
+          "correction": "The timeline shows he could not have been in the library at the time of death.",
+          "effect": "Narrows the timeline of opportunity to Dr. Mallory Finch.",
+          "required_evidence": [
+            "Witness accounts of Hale's location.",
+            "Eleanor's diary shows she was last seen alone."
+          ],
+          "reader_observable": true
+        },
+        {
+          "observation": "The clock's time conflicts with the witness statements.",
+          "correction": "The tampering of the clock indicates premeditated deceit.",
+          "effect": "Narrows suspects to Captain Hale and Dr. Finch.",
+          "required_evidence": [
+            "Conflicting witness accounts about the clock time.",
+            "A guest's watch shows a conflicting time."
+          ],
+          "reader_observable": true
+        }
+      ]
+    },
+    "discriminating_test": {
+      "method": "trap",
+      "design": "The discriminating test compares clock, library, and nine-thirty against the claimed timeline.",
+      "knowledge_revealed": "The revealed facts are clock, library, and nine-thirty.",
+      "pass_condition": "If the clock's time is proven inaccurate, it will eliminate Hale's alibi.",
+      "evidence_clues": [
+        "clue_1",
+        "clue_2",
+        "clue_3"
+      ]
+    },
+    "fair_play": {
+      "all_clues_visible": true,
+      "no_special_knowledge_required": true,
+      "no_late_information": true,
+      "reader_can_solve": true,
+      "explanation": "Step 1: The tampered clock evidence (early) and the witness's conflicting testimony (mid) lead the reader to question the clock's reliability. Step 2: The witness accounts and Eleanor's diary clarify the timeline of events, eliminating Hale's alibi. Step 3: The clock's discrepancies become the focus during the trap test, conclusively proving Hale's guilt."
+    },
+    "quality_controls": {
+      "inference_path_requirements": {
+        "min_steps": 3,
+        "max_steps": 5,
+        "require_observation_correction_effect": true
+      },
+      "clue_visibility_requirements": {
+        "essential_clues_min": 3,
+        "essential_clues_before_test": true,
+        "early_clues_min": 2,
+        "mid_clues_min": 2,
+        "late_clues_min": 1
+      },
+      "discriminating_test_requirements": {
+        "timing": "early_act3",
+        "must_reference_inference_step": true
+      }
+    },
+    "prose_requirements": {
+      "discriminating_test_scene": {
+        "act_number": 3,
+        "scene_number": 4,
+        "required_elements": [
+          "Execute the discriminating test",
+          "Observe the clock's time against a reliable source",
+          "Draw conclusion about Hale's guilt"
+        ],
+        "test_type": "timing test"
+      },
+      "suspect_clearance_scenes": [
+        {
+          "suspect_name": "Dr. Mallory Finch",
+          "act_number": 3,
+          "scene_number": 5,
+          "clearance_method": "Her medical report time shows she was attending to Eleanor."
+        },
+        {
+          "suspect_name": "Eleanor Voss",
+          "act_number": 3,
+          "scene_number": 5,
+          "clearance_method": "Eleanor is the victim."
+        }
+      ],
+      "culprit_revelation_scene": {
+        "act_number": 3,
+        "scene_number": 6,
+        "revelation_method": "Confrontation with evidence of the tampered clock."
+      },
+      "identity_rules": [],
+      "clue_to_scene_mapping": [
+        {
+          "clue_id": "clue_mechanism_visibility_core",
+          "act_number": 1,
+          "scene_number": 1,
+          "delivery_method": "Direct observation"
+        },
+        {
+          "clue_id": "clue_core_contradiction_chain",
+          "act_number": 1,
+          "scene_number": 2,
+          "delivery_method": "Cross-check contradiction"
+        },
+        {
+          "clue_id": "clue_1",
+          "act_number": 2,
+          "scene_number": 1,
+          "delivery_method": "Direct observation of the clock."
+        },
+        {
+          "clue_id": "clue_2",
+          "act_number": 2,
+          "scene_number": 2,
+          "delivery_method": "Witness statements regarding Hale's location."
+        },
+        {
+          "clue_id": "clue_3",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "A guest's watch showing conflicting time."
+        },
+        {
+          "clue_id": "clue_4",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "Cross-check contradiction"
+        },
+        {
+          "clue_id": "clue_5",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "Corroborated elimination"
+        },
+        {
+          "clue_id": "clue_core_elimination_chain",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "Corroborated elimination"
+        },
+        {
+          "clue_id": "clue_culprit_direct_captain_ivor_hale",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "Behavioral observation"
+        },
+        {
+          "clue_id": "clue_fp_contradiction_step_3",
+          "act_number": 2,
+          "scene_number": 3,
+          "delivery_method": "Cross-check contradiction"
+        }
+      ]
+    }
+  }
+}
+```
+
+## Instructions
+
+1. **Add ALL missing required fields** - don't skip any
+2. **Fix type errors** - convert to correct types
+3. **Fix allowed value errors** - use valid enum values
+4. **Preserve existing content** - don't rewrite working sections
+5. **Maintain narrative coherence** - fixes must make logical sense
+6. **Return COMPLETE JSON** - the entire fixed CML document, not just the changed sections
+7. **For grounding errors, revise earlier inference_path evidence** - do not dodge the error by making the discriminating test vaguer; instead add the missing mechanism/test facts to earlier reader-visible observations and required_evidence.
+  - Exception: if the failed terms are procedural wrappers (reenactment/staged/surrounding/under scrutiny/putting), rewrite discriminating_test.design to name the concrete contradiction being proven; do not backfill those wrapper words into evidence.
+8. **Do not repair with reaction-only proof** - never use "signals of guilt", defensive reactions, or confession as the discriminating test's knowledge_revealed or pass_condition; use factual pre-test evidence instead.
+
+
+## Non-Negotiable Inference-Step Structural Invariants (FIRST PASS)
+
+- These invariants apply to every revision pass regardless of validation error category.
+- Never drop or dilute these invariants to satisfy an unrelated branch fix.
+
+- For EVERY 'inference_path.steps[i]', retain 'required_evidence'.
+- For EVERY 'inference_path.steps[i]', 'required_evidence' MUST contain 2-4 entries.
+- Every 'required_evidence' entry MUST be concrete and reader-visible (objects, traces, timestamps, witness statements, document details).
+- Forbidden abstract placeholders in 'required_evidence': "timeline discrepancy", "suspicious behavior", "detective insight", "inconsistency", "anomaly".
+- If any step has missing, empty, or abstract 'required_evidence', replace it with concrete evidence sourced from that step's observation/correction and existing CML facts.
+- Do NOT remove steps, collapse steps, or delete 'required_evidence' to force validation.
+
+
+
+
+**IMPORTANT**: Return ONLY the corrected JSON. No explanations, no markdown code blocks, just the raw JSON that will parse and validate successfully.
+```

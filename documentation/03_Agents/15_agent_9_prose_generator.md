@@ -27,6 +27,7 @@ Runtime orchestration adds:
 - `narrativeState` transfer between chapter batches.
 - `writingGuides` from `notes/DEFINITIVE_GUIDE_TO_HUMOUR.md` and `notes/WHAT_MAKES_A_GOOD_WHODUNNIT.md` when present.
 - Batch callbacks (`onBatchComplete`, `onAtomsSelected`) used for NSD/asset tracking and incremental scoring telemetry.
+- Optional bottom-up redesign path behind `AGENT9_REDESIGN_V1` (default enabled), including chapter request-contract validation and class-based retry escalation.
 
 ### 2.2 Prompt Outputs
 Primary return type:
@@ -63,19 +64,30 @@ Pass criteria in runner:
 ## 5) Retry Behavior and Prompt Differences
 - Internal batch retries occur inside `generateProse(...)` for chapter-generation validation failures.
 - Batch-level failures are recorded in `validationDetails.failureHistory` and surfaced in runner warnings/logs.
+- Retry classification now groups failures into canonical classes (`encoding`, `structure`, `completeness`, `continuity`, `clue_timing`, `template`, `tone_pacing`, `fair_play`) and can stop early on non-convergent repeat classes.
+- Deterministic mitigation hooks are applied on repeated classes: `split_chapter`, `freshen_atoms`, and `tighten_obligation`; mixed clue+template failures can trigger combined mitigation parameters in a single retry packet.
+- Template-linter failures are deferred as hard blockers while narrative hard errors remain in the same attempt, then re-applied once narrative obligations clear.
+- Clue-obligation validation supports semantic anchor fallback (derived from clue description + pointsTo) to reduce false-negative phrase matching while preserving timing/order constraints.
 - Runner-level schema retry: if `prose` schema fails, performs one schema-repair full regeneration pass.
 - No full-phase global rewrite loop in `runAgent9`; instead it relies on targeted guardrails, deterministic repair passes, and hard release gates.
 - Deterministic post-processing includes text sanitation, chapter-title normalization, pronoun repair, locked-fact word-form repair, and location normalization.
 - Validation feedback and context signals (fair-play, novelty, setting/background constraints) are pushed back into prose guardrails on retries.
 
-## 6) Downstream Consumers
+## 6) Rollback Control
+
+- Runtime flag: `AGENT9_REDESIGN_V1`
+- `true` (default): bottom-up request-contract + retry-protocol path enabled.
+- `false`: legacy path remains active without removing new code.
+- This is the primary rollback switch for canary and production orchestration.
+
+## 7) Downstream Consumers
 - Final output consumer is the story artifact/reporting pipeline.
 
-## 7) Runtime Traceability
+## 8) Runtime Traceability
 Best-prompt reference:
 - `documentation/prompts/best/AGENT_9_PROSE_BEST_PROMPT.md`
 
-## 8) Full Field Glossary (Returned Artifact)
+## 9) Full Field Glossary (Returned Artifact)
 Top-level returned fields (`ProseGenerationResult`):
 
 | Field | Type | Required | Meaning |
@@ -108,11 +120,15 @@ Nested fields (`validationDetails`):
 | `linter` | `{ checksRun, failedChecks, openingStyleEntropyFailures, openingStyleEntropyBypasses, paragraphFingerprintFailures, ngramOverlapFailures }` | yes | Template/linter quality telemetry. |
 | `underflow` | `object` | no | Chapter word-count floor/target miss telemetry and expansions. |
 | `provisionalChapterScores` | `Array<{ chapter, score, deficits[], directives[] }>` | no | Interim chapter scoring directives used to steer later chapters. |
+| `requestContractViolations` | `Array<{ chapterRange, errors[] }>` | no | Bottom-up request-contract failures captured before LLM generation. |
+| `retryPackets` | `Array<{ chapterRange, attempt, failureClass, shouldEscalate }>` | no | Class-based retry packet telemetry for convergence diagnostics. |
+| `batchCommitRecords` | `Array<BatchCommitRecord>` | no | Per-batch commit trace: attempt count, gate outcomes, clue deltas, deployed atoms, prompt fingerprint hash, duration, and cost. |
 
-## 9) Produced Files and Prompt Artifacts
+## 10) Produced Files and Prompt Artifacts
 Related produced files:
 - `PROSE` artifact (validated by `schema/prose.schema.yaml`)
 - Story-validation report (`ctx.validationReport`) and release-gate diagnostics in run scoring logs
 - Chapter batch validation/telemetry metadata in run outputs (`validationDetails`, NSD transfer trace)
+- Release-gate contract snapshot (`release_gate_audit`) in `agent9_prose_release_gate_summary` diagnostics
 - Agent 9 prompt snapshots in `documentation/prompts/actual/<run-id>/` (when capture is enabled)
 - Agent 9 response snapshots in `documentation/prompts/actual/<run-id>/` (when capture is enabled)

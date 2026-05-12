@@ -4,7 +4,14 @@
  * Extracted from mystery-orchestrator.ts. Runs generateHardLogicDevices(),
  * handles scoring-path retry and schema validation, computes hardLogicDirectives,
  * and writes ctx.hardLogicDevices + ctx.hardLogicDirectives.
+ *
+ * Pillar 1: when enableLockedFactRegistry is true, also populates
+ * ctx.lockedFactRegistry from the primary device and emits locked-facts-{runId}.json
+ * to apps/worker/logs/.
  */
+
+import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { join } from "path";
 
 import { generateHardLogicDevices } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
@@ -101,6 +108,39 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
     ctx.initialHardLogicDirectives,
     ctx.hardLogicDevices!.devices,
   );
+
+  // ── Pillar 1 (Unit 1.1 + 1.2): Build LockedFactRegistry from primary device ──
+  if (ctx.inputs.enableLockedFactRegistry) {
+    const primaryDevice = ctx.hardLogicDevices!.devices[0];
+    const rawFacts: Array<{ id?: unknown; value?: unknown; description?: unknown }> =
+      Array.isArray(primaryDevice?.lockedFacts) ? primaryDevice.lockedFacts : [];
+
+    ctx.lockedFactRegistry = rawFacts
+      .filter((f) => typeof f.id === "string" && typeof f.value === "string" && (f.value as string).trim().length > 0)
+      .map((f) => ({
+        id: (f.id as string).trim(),
+        value: (f.value as string).trim(),
+        description: typeof f.description === "string" ? (f.description as string).trim() : "",
+      }));
+
+    // Emit to apps/worker/logs/locked-facts-{runId}.json for observability
+    try {
+      const logsDir = join(ctx.workerAppRoot, "logs");
+      if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+      writeFileSync(
+        join(logsDir, `locked-facts-${ctx.runId}.json`),
+        JSON.stringify({ runId: ctx.runId, registry: ctx.lockedFactRegistry }, null, 2),
+        "utf8",
+      );
+    } catch (err) {
+      ctx.warnings.push(`Pillar 1: failed to write locked-facts file: ${String(err)}`);
+    }
+
+    ctx.warnings.push(
+      `Pillar 1: locked fact registry built with ${ctx.lockedFactRegistry.length} fact(s): ` +
+        ctx.lockedFactRegistry.map((f) => `${f.id}="${f.value}"`).join(", "),
+    );
+  }
 
   ctx.reportProgress("hard_logic_devices", `Generated ${ctx.hardLogicDevices!.devices.length} novel hard-logic devices`, 31);
 }

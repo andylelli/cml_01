@@ -24,9 +24,36 @@ import { jsonrepair } from "jsonrepair";
 // Types
 // ============================================================================
 
+// ============================================================================
+// Structural Audit Types (populated by deterministic pre-LLM audit in agent6-run.ts)
+// ============================================================================
+
+export interface StructuralGap {
+  kind: "evidence_clue_missing" | "inference_step_uncovered" | "elimination_missing";
+  description: string;
+  clueId?: string;
+  stepNumber?: number;
+  suspectName?: string;
+}
+
+export interface StructuralAuditResult {
+  /** true only when all deterministic structural checks pass */
+  passed: boolean;
+  gaps: StructuralGap[];
+  evidenceCluesPresent: string[];
+  evidenceCluesMissing: string[];
+  stepsCovered: number[];
+  stepsUncovered: number[];
+  eliminationPresent: string[];
+  eliminationMissing: string[];
+}
+
 export interface FairPlayAuditInputs {
   caseData: CaseData;
   clues: ClueDistributionResult;
+  /** Pre-LLM deterministic structural audit result. When provided, the LLM prompt is
+   * reframed to narrative quality only — structural checks are reported as verified. */
+  structuralAuditResult?: StructuralAuditResult;
   runId?: string;
   projectId?: string;
 }
@@ -165,10 +192,19 @@ function normalizeFairPlayAuditPayload(
 // ============================================================================
 
 export function buildFairPlayPrompt(inputs: FairPlayAuditInputs): PromptComponents {
-  const { caseData, clues } = inputs;
+  const { caseData, clues, structuralAuditResult } = inputs;
+  const structurallyVerified = !!(structuralAuditResult?.passed);
 
-  // System: Define the auditor role
-  const system = `You are an expert mystery fiction fair play auditor. Your role is to rigorously validate that a detective mystery follows the classic "fair play" rules established by the Detection Club:
+  // System: Define the auditor role — scoped to narrative quality when structure is verified
+  const system = structurallyVerified
+    ? `You are an expert mystery fiction narrative quality auditor. The structural integrity of this mystery has been verified by a deterministic system before this call — all discriminating test evidence clues are present, all inference steps have essential early/mid coverage, and non-culprit eliminations are in place.
+
+Your role is to assess NARRATIVE QUALITY ONLY:
+1. Is the discriminating test a genuine inferential test, or does it rely on coincidence, confession, or authority?
+2. Does the false assumption feel convincingly planted across the clue trail?
+3. Is the solution discoverable by a careful reader who has not been told the answer?
+4. Does the clue trail feel fair (evidence before deduction) or like a trick (revelation withheld arbitrarily)?`
+    : `You are an expert mystery fiction fair play auditor. Your role is to rigorously validate that a detective mystery follows the classic "fair play" rules established by the Detection Club:
 
 1. **All clues must be revealed to the reader** before the solution
 2. **No special knowledge** required (obscure poisons, rare languages, etc.) unless explained
@@ -183,15 +219,15 @@ You audit the mystery by analyzing the CML structure (which defines the logical 
 Your goal is to ensure a reader, armed with the clues, can deduce the solution using logical reasoning—exactly as the detective does.`;
 
   // Developer: Provide the CML and clue data for analysis
-  const developer = buildDeveloperContext(caseData, clues);
+  const developer = buildDeveloperContext(caseData, clues, structuralAuditResult);
 
-  // User: Request the audit
-  const user = buildUserRequest();
+  // User: Request the audit — narrative-only when structure is verified, full audit otherwise
+  const user = buildUserRequest(structurallyVerified);
 
   return { system, developer, user };
 }
 
-function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
+function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult, structuralAuditResult?: StructuralAuditResult): string {
   const legacy = caseData as any;
   const cmlCase = (legacy?.CASE ?? {}) as any;
   const meta = cmlCase.meta ?? legacy.meta ?? {};
@@ -235,9 +271,10 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
       const effect = step.effect ? ` → ${step.effect}` : "";
       // FB-9: flag steps only visible to detective, not directly to reader
       const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
-      // FB-4: required_evidence is the direct per-step signal for Logical Deducibility
+      // FB-4: required_evidence items are CML authoring scaffold — NOT formal clue IDs
+      // Label them clearly so the LLM does not treat them as clue obligations
       const reqEvidence = Array.isArray(step.required_evidence) && step.required_evidence.length > 0
-        ? `\n   **Required evidence**: ${(step.required_evidence as string[]).join("; ")}`
+        ? `\n   **CML authoring notes (scaffold only — NOT formal clue IDs; do not audit against these)**:\n${(step.required_evidence as string[]).map((e) => `   • ${e}`).join("\n")}`
         : "";
       return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}${reqEvidence}`;
     },
@@ -319,6 +356,45 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   // Red herrings
   const redHerrings = clues.redHerrings.map((rh) => `- ${rh.description} (supports: ${rh.supportsAssumption})`).join("\n");
 
+  // Clue ID manifest — system-generated ground truth for structural checks
+  const discriminatingEvidenceIds = Array.isArray(cmlCase?.discriminating_test?.evidence_clues)
+    ? (cmlCase.discriminating_test.evidence_clues as unknown[]).map((id) => String(id ?? "").trim()).filter(Boolean)
+    : [];
+  const earlyIds = earlyClues.map((c) => c.id ?? "?").join(", ") || "none";
+  const midIds = midClues.map((c) => c.id ?? "?").join(", ") || "none";
+  const lateIds = lateClues.map((c) => c.id ?? "?").join(", ") || "none";
+
+  const inferenceStepCoverage = (() => {
+    const stepMap = new Map<number, string[]>();
+    for (const clue of essentialClues) {
+      const step = Number(clue.supportsInferenceStep);
+      if (!step) continue;
+      if (!stepMap.has(step)) stepMap.set(step, []);
+      stepMap.get(step)!.push(`${clue.id ?? "?"}(${clue.placement})`);
+    }
+    if (stepMap.size === 0) return "  No essential clues mapped to inference steps";
+    return Array.from(stepMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([step, ids]) => `  Step ${step}: ${ids.join(", ")}`)
+      .join("\n");
+  })();
+
+  // Structural status block — shown when deterministic audit result is provided
+  const structuralStatusBlock = structuralAuditResult
+    ? (() => {
+        if (structuralAuditResult.passed) {
+          const checks = [
+            `\u2713 All discriminating_test.evidence_clues IDs present in early|mid: ${structuralAuditResult.evidenceCluesPresent.join(", ") || "none required"}`,
+            `\u2713 All ${structuralAuditResult.stepsCovered.length} inference step(s) have essential early|mid coverage: steps ${structuralAuditResult.stepsCovered.join(", ")}`,
+            `\u2713 Elimination clues present for: ${structuralAuditResult.eliminationPresent.join(", ") || "no non-culprits"}`,
+          ].join("\n");
+          return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nAll structural checks PASSED before this LLM call:\n${checks}\n\n> Your task: assess NARRATIVE QUALITY only (see user request). Do not re-check structural facts above.`;
+        }
+        const gapLines = structuralAuditResult.gaps.map((g) => `\u2717 ${g.description}`).join("\n");
+        return `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive these facts)\n\nSome structural gaps remain despite deterministic backstop fixes:\n${gapLines}\n\n> These gaps are being escalated separately. Assess narrative quality and flag any additional structural issues you observe in the clue distribution.`;
+      })()
+    : "";
+
   return `# Fair Play Audit Context
 
 ## Mystery Overview
@@ -326,6 +402,7 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
 **Primary Axis / False Assumption Type**: ${primaryAxis}
 **Crime**: ${crime}
 **Culprit**: ${culpritName}
+${structuralStatusBlock}
 
 ---
 
@@ -364,6 +441,29 @@ ${inferenceSteps.join("\n")}
 
 ### Discriminating Test
 ${discrimTest}
+
+---
+
+> ⚠️ AUDIT SCOPE — READ BEFORE PROCEEDING:
+> The "## Clue Distribution" section below is your SINGLE SOURCE OF TRUTH for all structural checks.
+> The "CML authoring notes" items in the Inference Path above are scaffold text — NOT formal clue IDs.
+> Do NOT report violations for evidence strings that do not appear as formal clues.
+> Only flag violations for clue IDs that are explicitly absent from the Clue ID Manifest below.
+
+---
+
+## Clue ID Manifest (system-generated — use for structural checks)
+
+**discriminating_test.evidence_clues** (must each be present in early|mid distribution):
+${discriminatingEvidenceIds.length > 0 ? discriminatingEvidenceIds.map((id) => `- ${id}`).join("\n") : "- (none specified)"}
+
+**All clue IDs by placement**:
+- Early: ${earlyIds}
+- Mid:   ${midIds}
+- Late:  ${lateIds}
+
+**Essential clues by inference step**:
+${inferenceStepCoverage}
 
 ---
 
@@ -429,70 +529,92 @@ ${(() => {
 })()}`;
 }
 
-function buildUserRequest(): string {
-  return `# Fair Play Audit Task
+function buildUserRequest(structurallyVerified: boolean): string {
+  if (structurallyVerified) {
+    return `# Narrative Quality Audit
 
-Perform a rigorous fair play audit of this mystery. Analyze whether the reader can logically deduce the solution from the clues provided.
+Structural integrity has been verified by the system before this call. Do NOT re-check clue presence or inference step coverage.
 
-## Audit Checklist
+## Your 4 narrative quality checks
 
-1. **Clue Visibility**: Are all essential clues revealed before the discriminating test, including at least one essential early/mid mechanism-visibility clue (not late)?
-2. **Information Parity**: Does the reader have the same information as the detective?
-3. **Special Knowledge**: Is any specialized knowledge required? If so, is it explained?
-4. **Logical Deducibility**: Can the reader follow an observation -> correction -> elimination chain using only clues that are essential and placed early/mid before Act III?
-5. **Discriminating Test Timing**: Does the discriminating test scene appear at the timing specified in the Quality Controls section above, and do all clues the test relies on appear in earlier scenes before it (the test must confirm evidence, not introduce it)?
-6. **No Withholding**: Are there any facts the detective knows but the reader doesn't? Cross-reference the Hidden Model and the cast alibi/access/opportunity data against the clue set.
-7. **Constraint Consistency**: Do the clues align with the constraint space (time, access, physical evidence, social trust channels)?
-8. **False Assumption Support**: Do the red herrings effectively support the false assumption?
-9. **Solution Uniqueness**: Do the clues point unambiguously to the culprit, with at least one essential elimination clue ruling out a non-culprit before reveal?
+For each check, answer YES or NO and cite specific evidence from the Clue Distribution:
 
-## Quality Bar
-- Findings must cite concrete clue IDs, inference steps, or CML fields.
-- Distinguish critical fairness breaks from moderate craft issues.
-- Recommendations must be actionable and minimally invasive.
-- Treat semantically equivalent clues as valid even when wording differs; fail only when evidence role, placement timing, or deduction ordering is missing.
+1. **Genuine Inferential Test**: Is the discriminating test a real logical test (the culprit is exposed because only they satisfy a constraint revealed by prior clues), or does it rely on coincidence, confession, or authority? Cite the test design and the prior clue that makes it logically necessary.
 
-## Micro-exemplars
-- Weak violation: "Fair play is weak."
-- Strong violation: "Critical Information Parity breach: step 3 relies on purchase receipt absent from any early/mid clue; add reader-visible clue before discriminating test."
+2. **False Assumption Planting**: Does the false assumption feel convincingly planted? Are there ≥2 early/mid clues that reinforce the false narrative before it is overturned? Name them.
 
-## Silent Pre-Output Checklist
-- every failed check cites exact clue IDs or CML locations
-- severity matches impact on solvability
-- recommendations are concrete and minimally invasive
-- JSON only, no markdown fences
+3. **Reader Solvability**: Could a careful reader, armed only with the early and mid clues in the distribution, reach the correct culprit through observation → correction → elimination before Act III? Trace the chain explicitly.
 
-## Output Format
+4. **Clue Trail Fairness**: Does the trail feel fair — evidence before deduction, no arbitrary withholding — or does it feel like a trick? Flag any clue whose timing feels like a cheat.
 
-Return a JSON object with this structure:
+## Output format
 
 \`\`\`json
 {
   "overallStatus": "pass" | "fail" | "needs-revision",
   "checks": [
-    {
-      "rule": "Clue Visibility",
-      "status": "pass" | "fail" | "warning",
-      "details": "Description of what was checked and the result",
-      "recommendations": ["Optional suggestions for improvement"]
-    }
+    { "rule": "Genuine Inferential Test", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "False Assumption Planting", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "Reader Solvability", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "Clue Trail Fairness", "status": "pass|fail|warning", "details": "...", "recommendations": [] }
   ],
-  "violations": [
-    {
-      "severity": "critical" | "moderate" | "minor",
-      "rule": "Information Parity",
-      "description": "Specific violation found",
-      "location": "Where in the CML/clues",
-      "suggestion": "How to fix it"
-    }
-  ],
-  "warnings": ["Non-critical issues that could improve fair play"],
-  "recommendations": ["General suggestions to strengthen the mystery"],
-  "summary": "Overall assessment of the mystery's fair play compliance"
+  "violations": [],
+  "warnings": [],
+  "recommendations": [],
+  "summary": "Narrative quality assessment"
 }
 \`\`\`
 
-Be thorough and specific. If you find violations, explain exactly what's wrong and how to fix it.`;
+JSON only, no markdown fences.`;
+  }
+
+  return `# Fair Play Audit Task
+
+Use the Clue ID Manifest above as your ground truth. Only report violations for clue IDs that are explicitly absent from the manifest — do not invent clue requirements from CML authoring notes.
+
+## Structured Checklist
+
+Answer each check YES or NO, then cite the specific clue IDs or CML fields that support your answer:
+
+1. **Clue Coverage**: Does the Clue Distribution contain ≥1 essential early clue, ≥1 essential mid clue, and ≥1 essential late clue? (Count from the manifest, not from the authoring notes.)
+
+2. **Discriminating Test Support**: For each ID listed under "discriminating_test.evidence_clues" in the manifest, is it present in the Early or Mid section? List each ID and state: present / absent.
+
+3. **Inference Chain**: Is there ≥1 essential early|mid clue for each inference step? Use the "Essential clues by inference step" section in the manifest. List step number and clue ID.
+
+4. **Reader Solvability**: Using ONLY the Early + Mid clues in the distribution, can a reader execute observation → correction → elimination before Act III? Trace the chain with clue IDs.
+
+5. **Discriminating Test Timing**: Does the discriminating test appear at the timing specified in Quality Controls, and do all clues it relies on appear in earlier scenes? Cite the timing field.
+
+6. **No New Information**: Does the discriminating test introduce any fact not present in Early/Mid clues? YES = violation.
+
+7. **False Assumption Support**: Do the red herrings effectively support the false assumption?
+
+8. **Solution Uniqueness**: Do the clues point unambiguously to the culprit? Is there ≥1 essential clue that eliminates each non-culprit?
+
+## Quality Bar
+- Cite specific clue IDs, not descriptions
+- Do NOT report a violation for any item listed in "CML authoring notes" in the Inference Path
+- Distinguish critical fairness breaks from moderate craft issues
+- Recommendations must be actionable and minimally invasive
+- JSON only, no markdown fences
+
+## Output Format
+
+\`\`\`json
+{
+  "overallStatus": "pass" | "fail" | "needs-revision",
+  "checks": [
+    { "rule": "Clue Coverage", "status": "pass|fail|warning", "details": "...", "recommendations": [] }
+  ],
+  "violations": [
+    { "severity": "critical|moderate|minor", "rule": "...", "description": "...", "location": "clue ID or CML field", "suggestion": "..." }
+  ],
+  "warnings": [],
+  "recommendations": [],
+  "summary": "Overall assessment"
+}
+\`\`\``;
 }
 
 // ============================================================================

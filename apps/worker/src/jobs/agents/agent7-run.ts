@@ -765,6 +765,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   const expectedSceneTarget = getSceneTarget(ctx.inputs.targetLength ?? "medium");
   const pacingGuardrails = buildCluePacingGuardrails(expectedSceneTarget, minClueSceneRatio);
 
+  // Pillar 1: propagate locked fact registry to all formatNarrative calls
+  const lockedFactsSpread =
+    ctx.inputs.enableLockedFactRegistry && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0
+      ? { lockedFacts: ctx.lockedFactRegistry }
+      : {};
+
   let narrative: NarrativeOutline;
 
   if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
@@ -781,6 +787,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           qualityGuardrails: retryFeedback ? [retryFeedback, ...pacingGuardrails] : pacingGuardrails,
           runId: ctx.runId,
           projectId: ctx.projectId || "",
+          ...lockedFactsSpread,
         });
         return { result: narrativeResult, cost: narrativeResult.cost };
       },
@@ -867,6 +874,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       qualityGuardrails: pacingGuardrails,
       runId: ctx.runId,
       projectId: ctx.projectId || "",
+      ...lockedFactsSpread,
     });
     ctx.agentCosts["agent7_narrative"] = narrative.cost;
     ctx.agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
@@ -893,6 +901,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       qualityGuardrails: [...schemaRepairGuardrails, ...pacingGuardrails],
       runId: ctx.runId,
       projectId: ctx.projectId || "",
+      ...lockedFactsSpread,
     });
 
     ctx.agentCosts["agent7_narrative"] =
@@ -959,6 +968,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         ],
         runId: ctx.runId,
         projectId: ctx.projectId || "",
+        ...lockedFactsSpread,
       });
       ctx.agentCosts["agent7_narrative"] =
         (ctx.agentCosts["agent7_narrative"] || 0) + sceneCountRetried.cost;
@@ -1029,6 +1039,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       qualityGuardrails: [...outlineGuardrails, ...countGuardrails, ...pacingGuardrails],
       runId: ctx.runId,
       projectId: ctx.projectId || "",
+      ...lockedFactsSpread,
     });
 
     ctx.agentCosts["agent7_narrative"] =
@@ -1095,6 +1106,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           ],
           runId: ctx.runId,
           projectId: ctx.projectId || "",
+          ...lockedFactsSpread,
         });
         ctx.agentCosts["agent7_narrative"] =
           (ctx.agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
@@ -1177,6 +1189,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         ],
         runId: ctx.runId,
         projectId: ctx.projectId || "",
+        ...lockedFactsSpread,
       });
 
       ctx.agentCosts["agent7_narrative"] =

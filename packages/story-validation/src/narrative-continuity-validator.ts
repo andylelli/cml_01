@@ -69,9 +69,16 @@ export class NarrativeContinuityValidator implements Validator {
       }
     }
 
+    // Only allow the reveal-pivot to be detected in the final 30% of scenes (minimum 2).
+    // Arrest/confession vocabulary ("arrested", "confession", etc.) appears naturally in
+    // pre-reveal investigation prose and creates false pivots when scanned from scene 1.
+    // Restricting pivot detection to the final act prevents flagging legitimate investigation
+    // chapters that happen to mention these terms before the culprit is actually revealed.
+    const totalScenes = story.scenes.length;
+    const pivotWindowStart = Math.max(1, totalScenes - Math.max(2, Math.ceil(totalScenes * 0.3)));
     let pivotScene = -1;
     for (const scene of story.scenes) {
-      if (ARREST_OR_CONFESSION_TERMS.test(scene.text)) {
+      if (scene.number >= pivotWindowStart && ARREST_OR_CONFESSION_TERMS.test(scene.text)) {
         pivotScene = scene.number;
         continue;
       }

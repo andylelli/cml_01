@@ -8,6 +8,11 @@ const root = process.cwd();
 config({ path: path.join(root, ".env") });
 config({ path: path.join(root, ".env.local") });
 
+const parseEnvBool = (value, fallback) => {
+  if (value === undefined) return fallback;
+  return value.toLowerCase() === "true";
+};
+
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
 const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
 
@@ -23,9 +28,16 @@ const client = new AzureOpenAIClient({
   apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
   requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
   logger: new LLMLogger({
-    logToConsole: true,
-    logToFile: true,
-    logFilePath: process.env.LOG_FILE_PATH ?? "apps/api/logs/llm.jsonl",
+    logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
+    logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
+    logFilePath: process.env.LOG_FILE_PATH ?? path.resolve(root, "logs", "llm.jsonl"),
+    logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
+    fullPromptLogFilePath:
+      process.env.FULL_PROMPT_LOG_FILE_PATH ?? path.resolve(root, "logs", "llm-prompts-full.jsonl"),
+    logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
+    actualPromptDocsDir:
+      process.env.ACTUAL_PROMPT_DOCS_DIR ??
+      path.resolve(root, "documentation", "prompts", "actual"),
   }),
 });
 

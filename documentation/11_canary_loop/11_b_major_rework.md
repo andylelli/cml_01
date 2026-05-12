@@ -177,6 +177,7 @@ Token safety rules:
 - cap touched files per wave.
 - require explicit confirmation for shared-file edits.
 - rollback unresolved implementation changes by default.
+- when rework includes Agent 9 bottom-up contract/retry changes, preserve a runtime rollback path via `AGENT9_REDESIGN_V1=false` during verification waves.
 
 Scope control policy:
 - allow/deny filters are optimization controls, not hard blockers, when evidence-backed rollback coverage exists.

@@ -39,6 +39,16 @@ export interface NarrativeState {
   previousChapterArcPosition?: string;
   /** Recurring phrase warnings forwarded to the next chapter's scoring block (§5.4). */
   recurringPhraseWarnings: string[];
+  /** Optional chapter-level quality steering values for next-batch prompt shaping. */
+  lastChapterQualityScore?: number;
+  lastChapterDeficits?: string[];
+  /** Optional NSD parity checkpoint emitted at every commit. */
+  lastNSDCheckpoint?: {
+    chapter: number;
+    cluesRevealed: string[];
+    arcPosition?: string;
+    timestamp: number;
+  };
 }
 
 /**
@@ -103,10 +113,54 @@ export function migrateNarrativeState(raw: Partial<NarrativeState> & Record<stri
     deployedAssets: raw.deployedAssets ?? {},
     lastUsedSensoryVariant: raw.lastUsedSensoryVariant ?? {},
     recurringPhraseWarnings: raw.recurringPhraseWarnings ?? [],
+    lastChapterDeficits: raw.lastChapterDeficits ?? [],
     cluesRevealedToReader: raw.cluesRevealedToReader ?? [],
     continuityTail: raw.continuityTail ?? '',
     characterPronouns: raw.characterPronouns ?? {},
   } as NarrativeState;
+}
+
+export function stampDeployedAtoms(
+  state: NarrativeState,
+  atomIds: string[],
+  chapterNumber: number,
+): NarrativeState {
+  if (!Array.isArray(atomIds) || atomIds.length === 0) return state;
+  const deployedAssets = { ...state.deployedAssets };
+  for (const atomId of atomIds) {
+    if (!atomId) continue;
+    const existing = deployedAssets[atomId] ?? [];
+    if (!existing.includes(chapterNumber)) {
+      deployedAssets[atomId] = [...existing, chapterNumber];
+    }
+  }
+  return { ...state, deployedAssets };
+}
+
+export function checkNSDParity(
+  externalNSD: NarrativeState,
+  internalNSD: Pick<NarrativeState, 'cluesRevealedToReader' | 'previousChapterArcPosition' | 'continuityTail'>,
+): { parityCritical: string[]; parityWarnings: string[] } {
+  const parityCritical: string[] = [];
+  const parityWarnings: string[] = [];
+
+  const extClues = [...new Set(externalNSD.cluesRevealedToReader ?? [])].sort();
+  const intClues = [...new Set(internalNSD.cluesRevealedToReader ?? [])].sort();
+  if (extClues.join('|') !== intClues.join('|')) {
+    parityCritical.push('cluesRevealedToReader diverged between internal and external NSD state.');
+  }
+
+  if ((externalNSD.previousChapterArcPosition ?? '') !== (internalNSD.previousChapterArcPosition ?? '')) {
+    parityWarnings.push('previousChapterArcPosition differs between internal and external NSD state.');
+  }
+
+  const extTail = String(externalNSD.continuityTail ?? '').trim();
+  const intTail = String(internalNSD.continuityTail ?? '').trim();
+  if (extTail && intTail && extTail !== intTail) {
+    parityWarnings.push('continuityTail differs between internal and external NSD state.');
+  }
+
+  return { parityCritical, parityWarnings };
 }
 
 /**

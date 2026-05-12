@@ -1,0 +1,30 @@
+{
+  "runId": "mystery-1778427149959",
+  "projectId": "",
+  "folderName": "run_20260510-1532_mystery",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "93170cf70e5a6f0f",
+      "requestTimestamp": "2026-05-10T15:32:30.032Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-05-10T15:32:35.892Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "d9e35fedb09e89e7",
+      "requestTimestamp": "2026-05-10T15:32:35.905Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 0,
+    "missing_response_count": 1,
+    "empty_response_body_count": 0
+  }
+}

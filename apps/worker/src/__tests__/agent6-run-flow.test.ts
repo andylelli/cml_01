@@ -334,6 +334,16 @@ describe("agent6-run flow", () => {
       clues: {
         clues: [
           {
+            id: "clue_mechanism_visibility_core",
+            sourceInCML: "CASE.inference_path.steps[0].observation",
+            description: "Grease traces in the key slot show the clock stoppage was staged before supper.",
+            pointsTo: "Clock stoppage was staged by tampering before the discriminating test scene.",
+            placement: "early",
+            criticality: "essential",
+            evidenceType: "observation",
+            supportsInferenceStep: 1,
+          },
+          {
             id: "clue_seed",
             sourceInCML: "CASE.inference_path.steps[0].observation",
             description: "A porter saw the study door ajar.",
@@ -345,7 +355,7 @@ describe("agent6-run flow", () => {
           },
         ],
         redHerrings: [],
-        clueTimeline: { early: [], mid: [], late: ["clue_seed"] },
+        clueTimeline: { early: ["clue_mechanism_visibility_core"], mid: [], late: ["clue_seed"] },
       },
     } as any;
 

@@ -14,6 +14,18 @@ const EVIDENCE_TERMS = /\b(evidence|because|therefore|proof|alibi|timeline|const
 
 const normalizeName = (name: string) => name.replace(/\s+/g, ' ').trim();
 
+// Extract the surname (last word) from a full name, stripping honorifics.
+// Used to match prose that refers to suspects by surname only (e.g. "Dr. Finch"
+// when the full name is "Dr. Mallory Finch").
+const extractSurname = (fullName: string): string => {
+  const tokens = fullName.trim().split(/\s+/);
+  return tokens[tokens.length - 1];
+};
+
+// Returns true if the text contains the full name OR the surname alone.
+const nameAppearsInText = (fullName: string, text: string): boolean =>
+  text.includes(fullName) || text.includes(extractSurname(fullName));
+
 export class SuspectClosureValidator implements Validator {
   name = 'SuspectClosureValidator';
   private llmClient?: AzureOpenAIClient;
@@ -32,36 +44,63 @@ export class SuspectClosureValidator implements Validator {
     const errors: ValidationError[] = [];
     const castNames = cml.CASE.cast.map((c) => normalizeName(c.name));
     const culpritSet = new Set((cml.CASE.culpability?.culprits || []).map((name) => normalizeName(name)));
-    const suspectNames = castNames.filter((name) => !culpritSet.has(name));
+    // Detectives are never treated as suspects requiring elimination evidence.
+    const detectiveSet = new Set(
+      (cml.CASE.cast as any[])
+        .filter((c) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
+        .map((c) => normalizeName(c.name))
+    );
+    const suspectNames = castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
 
     // Validate suspect eliminations
     for (const suspect of suspectNames) {
       // Phase 1: Regex-based validation (fast, cheap)
       const hasClosure = story.scenes.some((scene) => {
         const text = scene.text || '';
-        return text.includes(suspect) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text);
+        // Use nameAppearsInText so "Dr. Finch" matches "Dr. Mallory Finch" etc.
+        return nameAppearsInText(suspect, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text);
       });
 
       let hasValidElimination = hasClosure;
 
-      // Phase 2: Semantic fallback (if regex fails and LLM is available)
+      // Phase 2: Semantic fallback (if regex fails and LLM is available).
+      // Rather than filtering scenes by name appearance (which misses elimination
+      // passages that use pronouns or title-only references), we search a
+      // concatenated reveal block (last REVEAL_SCENES scenes) and, if that fails,
+      // the full story text.
       if (!hasValidElimination && this.llmClient) {
         console.log(`[SuspectClosureValidator] Regex validation failed for ${suspect}; trying semantic fallback...`);
 
-        for (const scene of story.scenes) {
-          if (scene.text?.includes(suspect)) {
-            const semanticResult = await semanticValidateSuspectElimination(
-              scene.text || '',
-              suspect,
-              this.llmClient,
-              this.logContext
-            );
+        const REVEAL_SCENES = 3;
+        const revealScenes = story.scenes.slice(-REVEAL_SCENES);
+        const revealText = revealScenes.map((s) => s.text || '').join('\n\n');
 
-            if (semanticResult.isValid && semanticResult.confidence !== 'low') {
-              console.log(`[SuspectClosureValidator] ${suspect} elimination validated semantically in scene ${scene.number}: ${semanticResult.reasoning}`);
-              hasValidElimination = true;
-              break;
-            }
+        const revealResult = await semanticValidateSuspectElimination(
+          revealText,
+          suspect,
+          this.llmClient,
+          this.logContext
+        );
+
+        if (revealResult.isValid && revealResult.confidence !== 'low') {
+          console.log(`[SuspectClosureValidator] ${suspect} elimination validated semantically in reveal block: ${revealResult.reasoning}`);
+          hasValidElimination = true;
+        }
+
+        if (!hasValidElimination) {
+          // Full-story fallback: culprit accusation elsewhere implicitly clears suspects.
+          // Check the whole story so cross-scene elimination patterns are not missed.
+          const fullStoryText = story.scenes.map((s) => s.text || '').join('\n\n');
+          const fullResult = await semanticValidateSuspectElimination(
+            fullStoryText,
+            suspect,
+            this.llmClient,
+            this.logContext
+          );
+
+          if (fullResult.isValid && fullResult.confidence !== 'low') {
+            console.log(`[SuspectClosureValidator] ${suspect} elimination validated semantically in full story: ${fullResult.reasoning}`);
+            hasValidElimination = true;
           }
         }
 
@@ -85,29 +124,45 @@ export class SuspectClosureValidator implements Validator {
       // Phase 1: Regex-based validation
       const hasCulpritChain = story.scenes.some((scene) => {
         const text = scene.text || '';
-        return text.includes(culprit) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text);
+        return nameAppearsInText(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text);
       });
 
       let hasValidEvidence = hasCulpritChain;
 
-      // Phase 2: Semantic fallback
+      // Phase 2: Semantic fallback — search the reveal block then the full story,
+      // not individual scenes filtered by name, so pronoun-referential passages
+      // near the accusation are not silently skipped.
       if (!hasValidEvidence && this.llmClient) {
         console.log(`[SuspectClosureValidator] Regex validation failed for culprit ${culprit}; trying semantic fallback...`);
 
-        for (const scene of story.scenes) {
-          if (scene.text?.includes(culprit)) {
-            const semanticResult = await semanticValidateCulpritEvidence(
-              scene.text || '',
-              culprit,
-              this.llmClient,
-              this.logContext
-            );
+        const REVEAL_SCENES = 3;
+        const revealScenes = story.scenes.slice(-REVEAL_SCENES);
+        const revealText = revealScenes.map((s) => s.text || '').join('\n\n');
 
-            if (semanticResult.isValid && semanticResult.confidence !== 'low') {
-              console.log(`[SuspectClosureValidator] ${culprit} evidence chain validated semantically in scene ${scene.number}: ${semanticResult.reasoning}`);
-              hasValidEvidence = true;
-              break;
-            }
+        const revealResult = await semanticValidateCulpritEvidence(
+          revealText,
+          culprit,
+          this.llmClient,
+          this.logContext
+        );
+
+        if (revealResult.isValid && revealResult.confidence !== 'low') {
+          console.log(`[SuspectClosureValidator] ${culprit} evidence chain validated semantically in reveal block: ${revealResult.reasoning}`);
+          hasValidEvidence = true;
+        }
+
+        if (!hasValidEvidence) {
+          const fullStoryText = story.scenes.map((s) => s.text || '').join('\n\n');
+          const fullResult = await semanticValidateCulpritEvidence(
+            fullStoryText,
+            culprit,
+            this.llmClient,
+            this.logContext
+          );
+
+          if (fullResult.isValid && fullResult.confidence !== 'low') {
+            console.log(`[SuspectClosureValidator] ${culprit} evidence chain validated semantically in full story: ${fullResult.reasoning}`);
+            hasValidEvidence = true;
           }
         }
 

@@ -1,0 +1,66 @@
+# Core canary story inputs for scripts/canary-core.mjs
+#
+# This file is also used as the baseline input override for
+# scripts/canary-agent-boundary.mjs targeted canary runs.
+#
+# Precedence:
+# 1) generation-params.yaml baseline
+# 2) this file (canary override)
+# 3) quick-run only: scripts/canary-loop/request.quickrun.rework.yaml canaryInputOverrides
+#
+# How to use:
+# - Default path: scripts/canary-core-inputs.yaml
+# - Override path: set CANARY_CORE_INPUTS_YAML=/absolute/or/relative/path.yaml
+# - Values not listed in MysteryGenerationInputs are ignored by canary-core.
+#
+# Required:
+# - theme: string
+#
+# Optional story input parameters (all options shown below in comments):
+# - eraPreference: string (free-form), e.g. "1930s", "1940s", "1950s", "Interwar Britain"
+# - locationPreset: one of:
+#     CountryHouse | SeasideHotel | Village | Liner | Theatre
+#   or a custom free-form location string.
+# - tone: one of UI presets:
+#     Cozy | Classic | Dark
+#   (free-form string also accepted)
+# - primaryAxis: one of:
+#     temporal | spatial | identity | behavioral | authority
+#   (identity/behavioral/authority are auto-mapped by canary-core to
+#    social/psychological/mechanical for orchestrator compatibility)
+# - castSize: number
+# - castNames: string[]
+# - detectiveType: one of:
+#     police | private | amateur
+# - targetLength: one of:
+#     short | medium | long
+# - narrativeStyle: one of:
+#     classic | modern | atmospheric
+# - skipNoveltyCheck: boolean
+# - similarityThreshold: number (typically 0.0-1.0)
+# - proseBatchSize: integer (1-10)
+# - runId: string (optional override)
+# - projectId: string (optional)
+
+theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
+eraPreference: "1930s"
+locationPreset: CountryHouse
+tone: "Classic"
+primaryAxis: temporal
+castSize: 4
+castNames:
+  - "Eleanor Voss"
+  - "Dr. Mallory Finch"
+  - "Captain Ivor Hale"
+  - "Beatrice Quill"
+#  - "Sylvia Trent"
+#  - "Hugo Vane"
+#  - "Agnes Pike"
+detectiveType: amateur
+targetLength: short
+narrativeStyle: classic
+skipNoveltyCheck: false
+similarityThreshold: 0.9
+proseBatchSize: 1
+# runId: "mystery-custom-run-id"
+# projectId: "proj_example"
