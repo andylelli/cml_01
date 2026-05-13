@@ -39,6 +39,23 @@ export interface MysteryGenerationInputs {
     proseBatchSize?: number;
     runId?: string;
     projectId?: string;
+    /** Pillar 1: accumulate locked facts from Agent 3b and propagate to Agents 5, 7, 9 */
+    enableLockedFactRegistry?: boolean;
+    /** Pillar 1: pre-generation gate — halt if outline/clues disagree with registry */
+    enableLockedFactGate?: boolean;
+    /** Pillar 2: assemble Character Context Bundle from Agents 2b + 65 and pass to Agent 9 */
+    enableCharacterBundle?: boolean;
+    /** Pillar 3: halt pipeline when a quality-evaluator result has blocking=true */
+    enableBindingGates?: boolean;
+    /** Pillar 3: override a blocking gate — log audit warning instead of throwing */
+    forceWarnings?: boolean;
+    /** Pillar 6: inject BANNED PARAGRAPH blocks and structural-pivot mode into Agent 9 retry prompts
+     *  when a paragraph fingerprint failure recurs across attempts */
+    enableSurgicalFingerprintRetry?: boolean;
+    /** Pillar 4: require pivotElement, factEstablished, permittedBehavioursByAct, and
+     *  redHerringPlacement per outline scene; post-Agent-7 validator halts on null/generic values;
+     *  Agent 9 enacts pivotElement, factEstablished, and redHerringPlacement per chapter */
+    enableOutlineCompleteness?: boolean;
 }
 export interface MysteryGenerationProgress {
     stage: "setting" | "cast" | "background-context" | "hard_logic_devices" | "cml" | "clues" | "fairplay" | "narrative" | "profiles" | "location-profiles" | "temporal-context" | "prose" | "validation" | "novelty" | "novelty_math" | "complete";

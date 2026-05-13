@@ -65,3 +65,8 @@ proseBatchSize: 1
 # runId: "mystery-custom-run-id"
 # projectId: "proj_example"
 enableLockedFactRegistry: true
+enableLockedFactGate: true
+enableCharacterBundle: true
+enableBindingGates: true
+enableSurgicalFingerprintRetry: true
+enableOutlineCompleteness: true

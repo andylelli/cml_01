@@ -16,6 +16,10 @@ export type {
   ProsePassAccounting,
   ProseScoringSnapshot,
   OutlineCoverageIssue,
+  LockedFact,
+  LockedFactRegistry,
+  CharacterBundleEntry,
+  CharacterBundle,
 } from "./shared.js";
 export {
   mergeHardLogicDirectives,

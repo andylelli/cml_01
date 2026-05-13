@@ -67,6 +67,8 @@ export interface ProseGenerationInputs {
   locationProfiles?: any; // LocationProfilesResult
   temporalContext?: any; // TemporalContextResult
   worldDocument?: any; // WorldDocumentResult — when present, supersedes raw profile blocks
+  /** Pillar 2: Character Context Bundle — per-character voice, humour, forbidden clichés, and per-act behaviour contracts */
+  characterBundle?: { runId: string; characters: Array<{ name: string; voiceFragments: Array<{ register: string; text: string }>; humourStyle: string; humourLevel: number; forbiddenCliché: string; internalConflict: string; speechMannerisms: string; permittedBehavioursByAct: { act1: string; act2: string; act3: string }; }> };
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
   detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings
@@ -122,6 +124,14 @@ export interface ProseGenerationInputs {
   }[];
   /** Feature flag for bottom-up request/obligation contract execution path. */
   bottomUpRedesignEnabled?: boolean;
+  /** Pillar 6: When true, inject a BANNED PARAGRAPH block into retry prompts when a
+   *  paragraph_fingerprint match fires, and activate structural-pivot mode on repeated
+   *  fingerprint failures (attempt ≥ 2). Default false — no behaviour change when absent. */
+  enableSurgicalFingerprintRetry?: boolean;
+  /** Pillar 4: When true, each scene's pivotElement, factEstablished, and (for Act I–II)
+   *  redHerringPlacement are injected into the per-chapter obligation block as MANDATORY
+   *  directives that the prose LLM must enact. */
+  enableOutlineCompleteness?: boolean;
 }
 
 export interface ProseGenerationResult {
@@ -188,6 +198,11 @@ interface ProseLinterStats {
 interface ProseLinterIssue {
   type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap";
   message: string;
+  /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
+   *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that
+   *  buildEnhancedRetryFeedback can inject a targeted BANNED PARAGRAPH block (Unit 6.2)
+   *  instead of the vague "rewrite from scratch" instruction. */
+  matchingPriorParagraph?: string;
 }
 
 interface ClueObligationContext {
@@ -908,6 +923,9 @@ const lintBatchProse = (
         issues.push({
           type: "paragraph_fingerprint",
           message: "Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.",
+          // Pillar 6 (Unit 6.1): persist the matched text so the retry builder can
+          // inject a precise BANNED PARAGRAPH block rather than vague "rewrite" guidance.
+          matchingPriorParagraph: normalized,
         });
         break;
       }
@@ -2116,6 +2134,7 @@ interface PromptSectionInputs {
   backgroundContextBlock: string;
   fairPlayContractBlock: string;
   characterPersonalityContext: string;
+  characterContractsBlock: string;
   physicalPlausibilityRules: string;
   eraAuthenticityRules: string;
   locationProfilesContext: string;
@@ -2183,6 +2202,7 @@ const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextB
     { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
     { key: 'fair_play_contract', content: sections.fairPlayContractBlock, priority: 'critical' },
     { key: 'character_personality', content: sections.characterPersonalityContext, priority: sections.hasNonBinaryCast ? 'critical' : 'high' },
+    { key: 'character_contracts', content: sections.characterContractsBlock, priority: 'high' },
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
     { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
@@ -2310,6 +2330,56 @@ function stripLocationParagraphs(locationProfiles: any): any {
 // they can be unit-tested in isolation.  The inline originals will be removed
 // once test coverage is confirmed.
 // ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Pillar 2: Builds the CHARACTER CONTRACTS block for a specific scene's prose prompt.
+ * Per-character entry scoped to which characters are active, filtered by activeNames.
+ * Includes voice fragments, humour contract, forbidden cliché, and per-act behaviour.
+ */
+export const buildCharacterContractsBlock = (
+  characterBundle: ProseGenerationInputs['characterBundle'],
+  activeNames?: Set<string>,
+  actNumber?: number,
+): string => {
+  if (!characterBundle || !Array.isArray(characterBundle.characters) || characterBundle.characters.length === 0) {
+    return '';
+  }
+  const toShow = activeNames?.size
+    ? characterBundle.characters.filter((c) => activeNames.has(c.name))
+    : characterBundle.characters;
+  if (toShow.length === 0) return '';
+
+  const actKey = actNumber === 1 ? 'act1' : actNumber === 3 ? 'act3' : 'act2';
+  const lines: string[] = ['\n\n## CHARACTER CONTRACTS (binding for this scene)'];
+  lines.push('Each entry below constrains how this character must be written in this chapter.');
+  lines.push('These override generic style guidance when they conflict.\n');
+
+  for (const char of toShow) {
+    lines.push(`### ${char.name}`);
+    if (char.speechMannerisms) {
+      lines.push(`Voice & mannerisms: ${char.speechMannerisms}`);
+    }
+    if (char.voiceFragments.length > 0) {
+      lines.push('Sample voice fragments (match this register and rhythm):');
+      for (const frag of char.voiceFragments.slice(0, 2)) {
+        lines.push(`  [${frag.register}] "${frag.text}"`);
+      }
+    }
+    const freq = char.humourLevel >= 0.7 ? 'frequently' : char.humourLevel >= 0.4 ? 'occasionally' : 'rarely';
+    if (char.humourStyle && char.humourStyle !== 'none' && char.humourLevel > 0) {
+      lines.push(`Humour: ${char.humourStyle.replace(/_/g, ' ')} — deploy ${freq} (level ${char.humourLevel.toFixed(1)})`);
+    } else {
+      lines.push('Humour: none — this character plays it straight in all scenes');
+    }
+    lines.push(`FORBIDDEN phrase (never write for ${char.name}): "${char.forbiddenCliché}"`);
+    const actBehaviour = char.permittedBehavioursByAct[actKey];
+    if (actBehaviour) {
+      lines.push(`Act ${actNumber ?? 2} behaviour contract: ${actBehaviour}`);
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
+};
 
 /**
  * Builds the CHARACTER PERSONALITIES, VOICES & HUMOUR block for prose prompts.
@@ -2896,6 +2966,17 @@ ${victimIdentityRule}`;
     proseArcPosition,
   );
 
+  // Pillar 2: Character Contracts block — scene-specific voice/behaviour contracts
+  const sceneActNumbers = (scenes as any[]).map((s) => Number(s.act ?? 2));
+  const dominantAct = sceneActNumbers.length > 0
+    ? Math.round(sceneActNumbers.reduce((a, b) => a + b, 0) / sceneActNumbers.length)
+    : 2;
+  const characterContractsBlock = buildCharacterContractsBlock(
+    inputs.characterBundle,
+    activeCharacterNames.size > 0 ? activeCharacterNames : undefined,
+    dominantAct,
+  );
+
   const physicalPlausibilityRules = `\nPHYSICAL PLAUSIBILITY REQUIREMENTS:\n\nAll physical evidence must obey real-world physics:\n\n1. VIABLE Evidence by Location:\n   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents\n   Exterior (calm): secured items, structural damage, witness observations\n   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence\n\n2. IMPLAUSIBLE Evidence (DO NOT USE):\n   ❌ Footprints on wooden deck (treated wood doesn't retain prints)\n   ❌ Footprints in rain/storm (washed away immediately)\n   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)\n   ❌ Light objects in storm (blown away)\n\n3. For struggle evidence use:\n   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds\n   ❌ Objects embedded in hard surfaces, shattered steel/iron`;
 
   const eraAuthenticityRules = era !== "Unknown era" ? `\nERA AUTHENTICITY (${era}):\n\n1. FORBIDDEN terms (did not exist):\n   ${era === '1950s' ? '❌ cell phone, internet, email, computer, GPS, digital camera, text message, app, online' : '❌ Modern technology'}\n\n2. REQUIRED period markers (include 2+ per scene):\n   ✓ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady\n   ✓ Period technology: ${era === '1950s' ? 'telephone, telegram, radio, typewriter' : 'period-appropriate items'}\n   ✓ Fashion: ${era === '1950s' ? 'gloves, hats, formal suits, stockings' : 'period clothing'}\n\n3. Use period-authentic language and social norms` : '';
@@ -3112,7 +3193,41 @@ ${victimIdentityRule}`;
     })),
     cast.map((c: any) => c.name),
   );
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
+
+  // Pillar 4 (Unit 4.3): build per-scene completeness contract block
+  const completenessContractLines: string[] = [];
+  if (inputs.enableOutlineCompleteness) {
+    for (const scene of (scenesWithAdjustedEstimates as any[])) {
+      const sceneLines: string[] = [];
+      if (scene.pivotElement) {
+        sceneLines.push(
+          `  PIVOT ELEMENT (MANDATORY — write this into the prose, shown not told): "${scene.pivotElement}"`,
+        );
+      }
+      if (scene.factEstablished) {
+        sceneLines.push(
+          `  FACT ESTABLISHED (MANDATORY — reader must know this by chapter end): "${scene.factEstablished}"`,
+        );
+      }
+      if (scene.redHerringPlacement && scene.redHerringPlacement.redHerringId) {
+        sceneLines.push(
+          `  RED HERRING (MANDATORY — seed naturally, not flagged as false): [${scene.redHerringPlacement.redHerringId}] ${scene.redHerringPlacement.placementDetail}`,
+        );
+      }
+      if (sceneLines.length > 0) {
+        completenessContractLines.push(
+          `Chapter ${scene.sceneNumber} (Act ${scene.act}) completeness contract:`,
+          ...sceneLines,
+        );
+      }
+    }
+  }
+  const completenessContractBlock =
+    completenessContractLines.length > 0
+      ? `\n\n[SCENE COMPLETENESS CONTRACTS — MANDATORY. Each contract below lists what you MUST enact in that chapter. Do not summarise or mention these labels in the prose — enact them organically.]\n${completenessContractLines.join("\n")}`
+      : "";
+
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\nOutline scenes:\n${JSON.stringify(scenesWithAdjustedEstimates, null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     pronounAccuracyBlock, // [PHASE 1]
@@ -3122,6 +3237,7 @@ ${victimIdentityRule}`;
     backgroundContextBlock,
     fairPlayContractBlock,
     characterPersonalityContext,
+    characterContractsBlock,
     physicalPlausibilityRules,
     eraAuthenticityRules,
     locationProfilesContext,
@@ -3931,7 +4047,14 @@ const buildEnhancedRetryFeedback = (
   caseData: CaseData,
   chapterRange: string,
   attempt: number,
-  maxAttempts: number
+  maxAttempts: number,
+  options?: {
+    /** Pillar 6 (Unit 6.2): Full linter issue objects from the failed batch.
+     *  When a paragraph_fingerprint issue has matchingPriorParagraph set and
+     *  enableSurgicalFingerprintRetry is true, injects a BANNED PARAGRAPH block. */
+    linterIssues?: ProseLinterIssue[];
+    enableSurgicalFingerprintRetry?: boolean;
+  },
 ): string => {
   const cmlCase = (caseData as any)?.CASE ?? {};
   const cast = cmlCase.cast || [];
@@ -4420,10 +4543,24 @@ const buildEnhancedRetryFeedback = (
     const hasMetadata = templateErrors.some(e => /metadata key-value leakage/i.test(e));
     const hasMetaLanguage = templateErrors.some(e => /meta-language about storytelling/i.test(e));
     if (hasNgramOverlap || hasFingerprintDupe) {
-      feedback += `⛔ REPEAT PHRASE DETECTED — your prose shares too many words/phrases with earlier chapters.\n`;
-      feedback += `  You MUST rewrite every paragraph from scratch — do not lift or lightly rephrase any sentence from a prior chapter.\n`;
-      feedback += `  The linter compares word-sequence similarity (n-gram Jaccard) across all prior paragraphs.\n`;
-      feedback += `  See RETRY MICRO-PROMPTS below for a paragraph-by-paragraph rebuild strategy.\n\n`;
+      // Pillar 6 (Unit 6.2): when the flag is active and a matching prior paragraph is
+      // available, inject a targeted BANNED PARAGRAPH block instead of the vague
+      // "rewrite from scratch" message.  This gives the model exactly what it must avoid.
+      const fingerprintIssue = options?.linterIssues?.find(
+        (issue) => issue.type === "paragraph_fingerprint" && issue.matchingPriorParagraph,
+      );
+      if (hasFingerprintDupe && options?.enableSurgicalFingerprintRetry && fingerprintIssue?.matchingPriorParagraph) {
+        feedback += `⛔ BANNED PARAGRAPH — DO NOT REPRODUCE ANY SENTENCE FROM THIS TEXT:\n`;
+        feedback += `"${fingerprintIssue.matchingPriorParagraph}"\n\n`;
+        feedback += `Every sentence in your response must be a sentence that could NOT appear in the above passage.\n`;
+        feedback += `You may write about the same event, but from a different physical position, a different\n`;
+        feedback += `sensory angle, or at a different moment in the scene. You may not preserve a single clause.\n\n`;
+      } else {
+        feedback += `⛔ REPEAT PHRASE DETECTED — your prose shares too many words/phrases with earlier chapters.\n`;
+        feedback += `  You MUST rewrite every paragraph from scratch — do not lift or lightly rephrase any sentence from a prior chapter.\n`;
+        feedback += `  The linter compares word-sequence similarity (n-gram Jaccard) across all prior paragraphs.\n`;
+        feedback += `  See RETRY MICRO-PROMPTS below for a paragraph-by-paragraph rebuild strategy.\n\n`;
+      }
     }
     if (hasEntropyLow) {
       feedback += `⛔ OPENING STYLE ENTROPY — this chapter opens with the same structural pattern as prior chapters.\n`;
@@ -4898,6 +5035,10 @@ export async function generateProse(
     );
     const maxBatchAttempts = Math.max(1, resolvedMaxAttempts);
     let lastBatchErrors: string[] = [];
+    let lastLinterIssues: ProseLinterIssue[] = [];
+    // Pillar 6 (Unit 6.3): first sentence of the last failing chapter — used to derive the
+    // forbidden-opening structure for structural_pivot mode.
+    let lastBatchFirstSentence: string = '';
     let lastBatchRawResponse: string | null = null;
     let currentRetryPacket: RetryPacket | undefined;
     const priorBatchRetryPackets: RetryPacket[] = [];
@@ -4966,6 +5107,25 @@ export async function generateProse(
             "RETRY MITIGATION: Refresh texture usage. Rephrase observations with different lexical framing while preserving all clue obligations and chronology.",
           );
         }
+        // Pillar 6 (Unit 6.3): structural pivot mode — activated when a paragraph_fingerprint
+        // failure recurs on attempt ≥ 2.  Injects three concrete constraints:
+        //  (a) the forbidden opening structure parsed from the failing chapter's first sentence,
+        //  (b) three required alternative opening structures to give the model escape routes,
+        //  (c) a positional freeze banning clock-proximity phrases from the first three paragraphs.
+        if (mitigationType === "structural_pivot") {
+          const forbiddenOpening = lastBatchFirstSentence
+            ? `"${lastBatchFirstSentence.slice(0, 200)}"`
+            : "(same opening structure as prior attempt)";
+          mitigationGuardrails.push(
+            `RETRY MITIGATION: Structural pivot mode is active — paragraph fingerprint has now failed twice for this chapter.`,
+            `FORBIDDEN OPENING STRUCTURE: Do NOT begin this chapter with: ${forbiddenOpening}`,
+            `  You MUST choose a structurally different opening from one of these three alternatives:`,
+            `  (a) MID-DIALOGUE — the very first word of the chapter is spoken by a character (open quote, then speech).`,
+            `  (b) PHYSICAL ACTION — the first sentence describes a character performing a concrete physical action they have not yet performed in any prior chapter (rising, moving, picking up an object, leaving a room).`,
+            `  (c) SENSORY INTRUSION — the first sentence is an external sensory event interrupting the scene (a sound from outside, a knock, a clock ticking, a door slamming).`,
+            `POSITIONAL FREEZE: The first three paragraphs must NOT position any character "near the clock", "before the clock", "approached the clock", "gestured toward the clock", or any synonymous phrase. The clock may be referenced in dialogue only within the first three paragraphs.`,
+          );
+        }
         // On the final attempt, add an explicit anti-copy guardrail.
         // Under accumulated constraint pressure (multiple clue/phrasing directives), the LLM
         // can reach back into the STORY TO DATE context block and copy a paragraph verbatim,
@@ -5015,7 +5175,8 @@ export async function generateProse(
         // cleanly (consistent with the "REBUILD from scratch" directive at attempt 4+).
         if (attempt > 1 && lastBatchErrors.length > 0) {
           let feedback = buildEnhancedRetryFeedback(
-            lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts
+            lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
+            { linterIssues: lastLinterIssues, enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry },
           );
           if (redesignEnabled && currentRetryPacket) {
             feedback = `${feedback}\n\n${buildRetryFeedback(currentRetryPacket)}`;
@@ -5430,6 +5591,16 @@ export async function generateProse(
         if (batchErrors.length > 0) {
           retriedBatches.add(Math.floor(batchStart / batchSize));
           lastBatchErrors = batchErrors;
+          // Pillar 6 (Unit 6.2): save the full linter issue objects so the next retry
+          // can extract matchingPriorParagraph for the BANNED PARAGRAPH block.
+          lastLinterIssues = linterIssues;
+          // Pillar 6 (Unit 6.3): save the first sentence of the failing chapter so
+          // structural_pivot mode can derive a forbidden-opening structure.
+          const failingFirstParagraph = proseBatch.chapters[0]?.paragraphs?.[0] ?? '';
+          const sentenceEnd = failingFirstParagraph.search(/(?<=[.!?])\s/);
+          lastBatchFirstSentence = sentenceEnd > 0
+            ? failingFirstParagraph.slice(0, sentenceEnd).trim()
+            : failingFirstParagraph.slice(0, 200).trim();
           noteBatchGateFailures(batchErrors, batchGateFailureCounts);
 
           if (redesignEnabled) {

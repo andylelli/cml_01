@@ -271,6 +271,12 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       ctx.noveltyAudit!.warnings.forEach((w: string) => ctx.warnings.push(`  - ${w}`));
     }
 
+    // Pillar 3 (Unit 3.3): flag blocking when gate is active and status is warning.
+    // Covers both native-warning and fail-downgraded-to-warning paths above.
+    if (ctx.inputs.enableBindingGates && ctx.noveltyAudit!.status === "warning") {
+      ctx.noveltyAudit = { ...ctx.noveltyAudit!, blocking: true };
+    }
+
     ctx.reportProgress(
       "novelty_math" as any,
       `Novelty math: weights plot 0.30, character 0.25, setting 0.15, solution 0.25, structural 0.05 | threshold ${similarityThreshold.toFixed(2)} | most similar ${ctx.noveltyAudit!.mostSimilarSeed} (${ctx.noveltyAudit!.highestSimilarity.toFixed(2)})`,

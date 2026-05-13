@@ -771,6 +771,11 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       ? { lockedFacts: ctx.lockedFactRegistry }
       : {};
 
+  // Pillar 4: propagate outline completeness opts to all formatNarrative calls
+  const completenessSpread = ctx.inputs.enableOutlineCompleteness
+    ? { enableOutlineCompleteness: true as const, characterBundle: ctx.characterBundle as any }
+    : {};
+
   let narrative: NarrativeOutline;
 
   if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
@@ -788,6 +793,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           runId: ctx.runId,
           projectId: ctx.projectId || "",
           ...lockedFactsSpread,
+          ...completenessSpread,
         });
         return { result: narrativeResult, cost: narrativeResult.cost };
       },
@@ -875,6 +881,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       runId: ctx.runId,
       projectId: ctx.projectId || "",
       ...lockedFactsSpread,
+      ...completenessSpread,
     });
     ctx.agentCosts["agent7_narrative"] = narrative.cost;
     ctx.agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
@@ -902,6 +909,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       runId: ctx.runId,
       projectId: ctx.projectId || "",
       ...lockedFactsSpread,
+      ...completenessSpread,
     });
 
     ctx.agentCosts["agent7_narrative"] =
@@ -969,6 +977,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         runId: ctx.runId,
         projectId: ctx.projectId || "",
         ...lockedFactsSpread,
+        ...completenessSpread,
       });
       ctx.agentCosts["agent7_narrative"] =
         (ctx.agentCosts["agent7_narrative"] || 0) + sceneCountRetried.cost;
@@ -1040,6 +1049,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       runId: ctx.runId,
       projectId: ctx.projectId || "",
       ...lockedFactsSpread,
+      ...completenessSpread,
     });
 
     ctx.agentCosts["agent7_narrative"] =
@@ -1107,6 +1117,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           runId: ctx.runId,
           projectId: ctx.projectId || "",
           ...lockedFactsSpread,
+          ...completenessSpread,
         });
         ctx.agentCosts["agent7_narrative"] =
           (ctx.agentCosts["agent7_narrative"] ?? 0) + pacingRetried.cost;
@@ -1190,6 +1201,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         runId: ctx.runId,
         projectId: ctx.projectId || "",
         ...lockedFactsSpread,
+        ...completenessSpread,
       });
 
       ctx.agentCosts["agent7_narrative"] =
@@ -1227,6 +1239,89 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       `locationRegisterNote, dominantCharacterNote set on all ` +
       `${narrative.acts?.flatMap((a: any) => a.scenes ?? []).length ?? 0} scenes.`,
     );
+  }
+
+  // ── Pillar 4: Outline completeness gate (Unit 4.2) ───────────────────────
+  // Runs only when enableOutlineCompleteness is active.  Halts the pipeline if any
+  // scene is missing pivotElement / factEstablished (all scenes), or if an Act I–II
+  // scene is missing redHerringPlacement (which may be null, but must be present).
+  if (ctx.inputs.enableOutlineCompleteness) {
+    const GENERIC_PATTERNS = /^(n\/a|tbd|none|generic|placeholder|investigation continues|scene continues|characters discuss|more clues|\s*)$/i;
+    const allCompScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+    const missing: string[] = [];
+    for (const scene of allCompScenes) {
+      const sn = `Scene ${scene.sceneNumber} (Act ${scene.act})`;
+      const pivot = (scene as any).pivotElement;
+      const fact = (scene as any).factEstablished;
+      if (!pivot || GENERIC_PATTERNS.test(String(pivot).trim())) {
+        missing.push(`${sn}: pivotElement missing or generic ("${pivot ?? ''}")`);
+      }
+      if (!fact || GENERIC_PATTERNS.test(String(fact).trim())) {
+        missing.push(`${sn}: factEstablished missing or generic ("${fact ?? ''}")`);
+      }
+      // Act I–II scenes must have redHerringPlacement present (null is OK; undefined is not)
+      if ((scene.act === 1 || scene.act === 2) && (scene as any).redHerringPlacement === undefined) {
+        missing.push(`${sn}: redHerringPlacement absent (must be null or a placement object)`);
+      }
+    }
+    if (missing.length > 0) {
+      const msg =
+        `Outline completeness gate failed: ${missing.length} scene(s) have incomplete contracts:\n` +
+        missing.slice(0, 8).join("\n");
+      ctx.errors.push(msg);
+      throw new Error(msg);
+    }
+    ctx.warnings.push(
+      `Outline completeness gate passed: all ${allCompScenes.length} scenes have concrete` +
+      ` pivotElement, factEstablished, and redHerringPlacement contracts.`,
+    );
+  }
+
+  // ── Clue-coverage gate: every distribution ID must appear in ≥1 scene's cluesRevealed ─
+  // Agent 7 LLM sometimes front-loads clues into early scenes and leaves Agent-5-synthesized
+  // supporting/optional IDs unanchored. This gate deterministically force-assigns any
+  // uncovered ID to an appropriate scene, preserving the scene-count lock.
+  {
+    const allScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+    const coveredClueIds = new Set<string>(
+      allScenes
+        .flatMap((s: any) => Array.isArray(s.cluesRevealed) ? s.cluesRevealed : [])
+        .map(String)
+        .filter(Boolean),
+    );
+    const allDistributionIds = (ctx.clues?.clues ?? [])
+      .map((c: any) => String(c.id ?? ""))
+      .filter(Boolean);
+    const uncoveredIds = allDistributionIds.filter((id) => !coveredClueIds.has(id));
+
+    if (uncoveredIds.length > 0) {
+      // Deterministically assign each uncovered ID to the least-loaded scene in its target act.
+      for (const clueId of uncoveredIds) {
+        const clueEntry = (ctx.clues!.clues as any[]).find((c) => c.id === clueId);
+        const placement: string = clueEntry?.placement ?? "mid";
+        const targetAct = placement === "early" ? 1 : placement === "late" ? 3 : 2;
+        const actScenes = allScenes.filter((s: any) => s.act === targetAct);
+        const candidates = actScenes.length > 0 ? actScenes : allScenes;
+        const sorted = [...candidates].sort(
+          (a: any, b: any) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0),
+        );
+        const target = sorted[0];
+        if (target) {
+          if (!Array.isArray(target.cluesRevealed)) target.cluesRevealed = [];
+          if (!target.cluesRevealed.includes(clueId)) {
+            target.cluesRevealed.push(clueId);
+          }
+        }
+      }
+      ctx.warnings.push(
+        `Clue-coverage gate: deterministically force-assigned ${uncoveredIds.length} unanchored` +
+        ` clue ID(s) to scenes: ${uncoveredIds.join(", ")}.`,
+      );
+    } else {
+      ctx.warnings.push(
+        `Clue-coverage gate passed: all ${allDistributionIds.length} clue ID(s) are assigned to ≥1 scene.`,
+      );
+    }
   }
 
   ctx.narrative = narrative;

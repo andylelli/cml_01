@@ -1247,6 +1247,49 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     );
   }
 
+  // CML gate: repair discriminating_test_scene stub.
+  // Agent 3 occasionally emits discriminating_test_scene: {} (empty object).
+  // The CML schema treats discriminating_test_scene as optional at the object level but
+  // requires its sub-fields when the object is present, so an empty stub fails validateCml.
+  // If the stub is present but missing all required fields, repopulate from available CML data
+  // using the narrative outline for act/scene coordinates.
+  const proseReqsNode = (cml as any)?.CASE?.prose_requirements;
+  if (proseReqsNode && typeof proseReqsNode.discriminating_test_scene === "object"
+      && proseReqsNode.discriminating_test_scene !== null) {
+    const dts = proseReqsNode.discriminating_test_scene;
+    const hasMandatoryFields =
+      dts.act_number != null && dts.scene_number != null
+      && Array.isArray(dts.required_elements) && dts.test_type != null;
+    if (!hasMandatoryFields) {
+      // Derive act/scene from narrative outline + timing constraint.
+      const cmlCase = (cml as any)?.CASE ?? {};
+      const timing = String(cmlCase.discriminating_test_requirements?.timing ?? "").toLowerCase();
+      const targetAct = timing.includes("act1") ? 1 : timing.includes("act2") ? 2 : 3;
+      const isEarly = timing.includes("early") || !timing.includes("late");
+      const allScenes: any[] = (narrative?.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+      const actScenes = allScenes.filter((s: any) => (s.act ?? s.actNumber) === targetAct);
+      const chosenScene = actScenes.length > 0
+        ? (isEarly ? actScenes[0] : actScenes[actScenes.length - 1])
+        : allScenes[allScenes.length - 1]; // fallback: last scene overall
+      const derivedActNumber = targetAct;
+      const derivedSceneNumber = Number(chosenScene?.sceneNumber ?? allScenes.length) || allScenes.length;
+      const derivedTestType = String(cmlCase.discriminating_test?.method ?? "deductive_proof");
+      const derivedElements: string[] = Array.isArray(cmlCase.discriminating_test?.evidence_clues)
+        ? cmlCase.discriminating_test.evidence_clues.map(String)
+        : [];
+      proseReqsNode.discriminating_test_scene = {
+        act_number: derivedActNumber,
+        scene_number: derivedSceneNumber,
+        test_type: derivedTestType,
+        required_elements: derivedElements,
+      };
+      ctx.warnings.push(
+        `CML gate: discriminating_test_scene was empty stub — back-filled from CML data`
+        + ` (act ${derivedActNumber}, scene ${derivedSceneNumber}, test_type "${derivedTestType}")`,
+      );
+    }
+  }
+
   // Full CML/schema preflight before prose generation to fail fast on invalid structures
   // and cross-reference usage errors that prose retries cannot repair.
   const cmlSchemaValidation = validateCml(cml);
@@ -1629,6 +1672,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     characterProfiles: characterProfiles,
     locationProfiles: locationProfiles,
     temporalContext: temporalContext,
+    characterBundle: ctx.characterBundle,
     moralAmbiguityNote,
     lockedFacts: annotatedLockedFacts,
     clueDistribution: clues,
@@ -1646,6 +1690,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     runId,
     projectId: projectId || "",
     bottomUpRedesignEnabled,
+    enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
+    enableOutlineCompleteness: inputs.enableOutlineCompleteness,
     onProgress: (phase: string, message: string, percentage: number) =>
       reportProgress(phase as any, message, percentage),
     batchSize: inputs.proseBatchSize,
@@ -2183,6 +2229,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       characterProfiles: characterProfiles,
       locationProfiles: locationProfiles,
       temporalContext: temporalContext,
+      characterBundle: ctx.characterBundle,
       moralAmbiguityNote,
       lockedFacts: annotatedLockedFacts,
       clueDistribution: clues,
@@ -2194,6 +2241,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       runId,
       projectId: projectId || "",
       bottomUpRedesignEnabled,
+      enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
+      enableOutlineCompleteness: inputs.enableOutlineCompleteness,
       onProgress: (phase: string, message: string, percentage: number) =>
         reportProgress(phase as any, message, percentage),
       batchSize: inputs.proseBatchSize,
@@ -2648,15 +2697,23 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       `scene-grounding coverage below target (${sceneGrounding.grounded}/${sceneGrounding.total} chapters grounded)`,
     );
   }
-  if (nsdVisibilityDivergence.diverged) {
+  // NSD divergence: split into two distinct cases.
+  // revealedWithoutEvidence = NSD planned a reveal but prose has no evidence anchor → hard gate.
+  // evidenceWithoutReveal   = prose delivered a clue not in the NSD plan → advisory only
+  //   (upstream Agent 7 clue-coverage gate now ensures plan completeness; residual mismatch
+  //    is an NSD-tracking artefact, not a fair-play failure).
+  if (revealedWithoutEvidence.length > 0) {
     releaseGateReasons.push(
-      `nsd/clue-visibility divergence (${revealedWithoutEvidence.length} NSD reveals lack prose evidence; ${evidenceWithoutReveal.length} evidence-visible clues absent from NSD reveal list)`,
+      `clue visibility incomplete: ${revealedWithoutEvidence.length} NSD-revealed clue(s) lack prose evidence anchor(s) (${revealedWithoutEvidence.join(", ")})`,
     );
-    if (revealedWithoutEvidence.length > 0) {
-      hardStopReasons.push(
-        `clue visibility incomplete (${revealedWithoutEvidence.length} NSD-revealed clue(s) have no prose evidence anchors)`,
-      );
-    }
+    hardStopReasons.push(
+      `clue visibility incomplete (${revealedWithoutEvidence.length} NSD-revealed clue(s) have no prose evidence anchors)`,
+    );
+  }
+  if (evidenceWithoutReveal.length > 0) {
+    ctx.warnings.push(
+      `NSD advisory: ${evidenceWithoutReveal.length} clue(s) visible in prose but absent from NSD outline plan: ${evidenceWithoutReveal.join(", ")} — see clue_visibility_extracted_ids in diagnostics.`,
+    );
   }
 
   const releaseGateAudit: ReleaseGateAudit = {

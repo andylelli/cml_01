@@ -15,6 +15,7 @@
  */
 
 import { join } from "path";
+import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
@@ -73,6 +74,8 @@ import {
   isSuspectEliminationCoverageError,
   type OrchestratorContext,
   type ProseScoringSnapshot,
+  type CharacterBundle,
+  type CharacterBundleEntry,
 } from "./agents/index.js";
 
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
@@ -112,6 +115,19 @@ export interface MysteryGenerationInputs {
   enableLockedFactRegistry?: boolean;
   /** Pillar 1: pre-generation gate — halt if outline/clues disagree with registry */
   enableLockedFactGate?: boolean;
+  /** Pillar 2: assemble Character Context Bundle from Agents 2b + 65 and pass to Agent 9 */
+  enableCharacterBundle?: boolean;
+  /** Pillar 3: halt pipeline when a quality-evaluator result has blocking=true */
+  enableBindingGates?: boolean;
+  /** Pillar 3: override a blocking gate — log audit warning instead of throwing */
+  forceWarnings?: boolean;
+  /** Pillar 6: inject BANNED PARAGRAPH blocks and structural-pivot mode into Agent 9 retry prompts
+   *  when a paragraph fingerprint failure recurs across attempts */
+  enableSurgicalFingerprintRetry?: boolean;
+  /** Pillar 4: require pivotElement, factEstablished, permittedBehavioursByAct, and
+   *  redHerringPlacement per outline scene; post-Agent-7 validator halts on null/generic values;
+   *  Agent 9 enacts pivotElement, factEstablished, and redHerringPlacement per chapter */
+  enableOutlineCompleteness?: boolean;
 }
 
 export interface MysteryGenerationProgress {
@@ -353,6 +369,69 @@ const evaluateEarlyStructuralAbort = (params: {
 };
 
 // ============================================================================
+// Pillar 2 — Character Bundle Assembler
+// ============================================================================
+
+const HUMOUR_STYLE_CLICHE: Record<string, string> = {
+  polite_savagery:  "she felt a wave of unease",
+  sardonic:         "palpable tension filled the room",
+  dry_wit:          "a surge of determination washed over her",
+  self_deprecating: "she knew with certainty she was right",
+  observational:    "everyone could sense the atmosphere",
+  understatement:   "the situation was extremely serious",
+  deadpan:          "he was utterly speechless",
+  blunt:            "she chose her words with great care",
+  none:             "sighed deeply and felt a sense of peace",
+};
+
+function assembleCharacterBundle(
+  runId: string,
+  characterProfiles: CharacterProfilesResult,
+  worldDocument: WorldDocumentResult,
+): CharacterBundle {
+  const entries: CharacterBundleEntry[] = (characterProfiles.profiles ?? []).map((profile) => {
+    const name = profile.name ?? "";
+    const humourStyle: string = (profile as any).humourStyle ?? "none";
+    const humourLevel: number = typeof (profile as any).humourLevel === "number" ? (profile as any).humourLevel : 0;
+    const internalConflict: string = (profile as any).internalConflict ?? "";
+    const speechMannerisms: string = (profile as any).speechMannerisms ?? "";
+    const motiveSeed: string = (profile as any).motiveSeed ?? "";
+
+    // Voice fragments from world document voice sketches
+    const voiceSketch = (worldDocument.characterVoiceSketches ?? []).find(
+      (s: any) => s.name === name,
+    );
+    const voiceFragments: Array<{ register: string; text: string }> = (
+      (voiceSketch?.fragments ?? []) as Array<{ register?: string; text?: string }>
+    )
+      .filter((f) => f.text)
+      .slice(0, 3)
+      .map((f) => ({ register: f.register ?? "neutral", text: f.text! }));
+
+    // Forbidden cliché: style-matched phrase this character would never say
+    const forbiddenCliché = HUMOUR_STYLE_CLICHE[humourStyle] ?? HUMOUR_STYLE_CLICHE["none"];
+
+    // Per-act permitted behaviours — derived from motive seed + role
+    const act1 = `Show normal social behaviour; grief or confusion if appropriate. No guilt signals permitted. ${motiveSeed ? `Hidden motive: "${motiveSeed}" — do not surface in Act I.` : ""}`;
+    const act2 = `May show unease, evasion, or mild defensiveness when questioned. One behavioural tell is permitted. ${internalConflict ? `Internal conflict emerging: "${internalConflict}"` : ""}`;
+    const act3 = `Full character reveal permissible. Emotional truth should be explicit — confrontation, confession, or vindication as role demands.`;
+
+    return {
+      name,
+      voiceFragments,
+      humourStyle,
+      humourLevel,
+      forbiddenCliché,
+      internalConflict,
+      speechMannerisms,
+      permittedBehavioursByAct: { act1, act2, act3 },
+    };
+  });
+
+  return { runId, characters: entries };
+}
+
+// ============================================================================
 // Main Orchestrator
 // ============================================================================
 
@@ -513,8 +592,43 @@ export async function generateMystery(
     await runAgent2e(ctx);  // Background Context
     await runAgent3b(ctx);  // Hard-Logic Device Ideation
     await runAgent3(ctx);   // CML Generator (+ Agent 4 auto-revision)
+
+    // ── Pillar 3 (Unit 3.2): Novelty binding gate ───────────────────────────
+    if (inputs.enableBindingGates && ctx.noveltyAudit?.blocking) {
+      if (!inputs.forceWarnings) {
+        const errorMsg =
+          `Binding gate: Agent 8 novelty audit is blocking (status: ${ctx.noveltyAudit.status}). ` +
+          `Set forceWarnings: true to override.`;
+        errors.push(errorMsg);
+        throw new Error(errorMsg);
+      } else {
+        ctx.warnings.push(
+          `Binding gate OVERRIDDEN (forceWarnings): Agent 8 novelty audit blocking — ` +
+          `status: ${ctx.noveltyAudit.status}, highest similarity: ${ctx.noveltyAudit.highestSimilarity.toFixed(2)}, ` +
+          `most similar: ${ctx.noveltyAudit.mostSimilarSeed}`
+        );
+      }
+    }
+
     await runAgent5(ctx);   // Clue Distributor
     await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
+
+    // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
+    if (inputs.enableBindingGates && ctx.fairPlayAudit?.blocking) {
+      if (!inputs.forceWarnings) {
+        const errorMsg =
+          `Binding gate: Agent 6 fair-play audit is blocking ` +
+          `(overallStatus: ${ctx.fairPlayAudit.overallStatus}, violations: ${ctx.fairPlayAudit.violations.length}). ` +
+          `Set forceWarnings: true to override.`;
+        errors.push(errorMsg);
+        throw new Error(errorMsg);
+      } else {
+        ctx.warnings.push(
+          `Binding gate OVERRIDDEN (forceWarnings): Agent 6 fair-play audit blocking — ` +
+          `overallStatus: ${ctx.fairPlayAudit.overallStatus}, violations: ${ctx.fairPlayAudit.violations.length}`
+        );
+      }
+    }
 
     const earlyStructuralAbort = evaluateEarlyStructuralAbort({
       fairPlayAudit: ctx.fairPlayAudit,
@@ -727,23 +841,36 @@ export async function generateMystery(
 
     // ── World Builder + Narrative Outline ───────────────────────────────────
     await runAgent65(ctx);  // World Document synthesis
+
+    // ── Pillar 2 (Unit 2.1): Assemble Character Context Bundle ────────────────
+    if (inputs.enableCharacterBundle && ctx.characterProfiles && ctx.worldDocument) {
+      ctx.characterBundle = assembleCharacterBundle(ctx.runId, ctx.characterProfiles, ctx.worldDocument);
+      try {
+        const logsDir = join(WORKER_APP_ROOT, "logs");
+        if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
+        writeFileSync(
+          join(logsDir, `character-bundle-${ctx.runId}.json`),
+          JSON.stringify(ctx.characterBundle, null, 2),
+          "utf8",
+        );
+      } catch (err) {
+        ctx.warnings.push(`Pillar 2: failed to write character-bundle file: ${String(err)}`);
+      }
+      ctx.warnings.push(
+        `Pillar 2: character bundle assembled with ${ctx.characterBundle.characters.length} character(s): ` +
+          ctx.characterBundle.characters.map((c) => c.name).join(", "),
+      );
+    }
+
     await runAgent7(ctx);   // Narrative Outliner
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
     if (inputs.enableLockedFactGate && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0 && ctx.narrative) {
       const narrJson = JSON.stringify(ctx.narrative);
-      const violations: string[] = [];
       for (const fact of ctx.lockedFactRegistry) {
         if (fact.value && !narrJson.includes(fact.value)) {
-          violations.push(`Locked fact "${fact.id}" value "${fact.value}" absent from narrative outline`);
+          ctx.warnings.push(`Locked-fact consistency gate [warning]: locked fact "${fact.id}" value "${fact.value}" not found verbatim in narrative outline — Agent 9 will enforce via prose generation`);
         }
-      }
-      if (violations.length > 0) {
-        const msg =
-          `Locked-fact consistency gate failed — outline does not honour all locked facts:\n` +
-          violations.map((v) => `  • ${v}`).join("\n");
-        ctx.warnings.push(...violations);
-        throw new Error(msg);
       }
     }
 

@@ -57,6 +57,33 @@ export type LockedFact = {
 
 export type LockedFactRegistry = LockedFact[];
 
+// ============================================================================
+// Character Bundle — Pillar 2
+// ============================================================================
+
+export type CharacterBundleEntry = {
+  name: string;
+  /** 2–3 voice fragments from Agent 65 world document (register-labelled) */
+  voiceFragments: Array<{ register: string; text: string }>;
+  /** Humour style from Agent 2b profile */
+  humourStyle: string;
+  /** Humour level 0–1 from Agent 2b profile */
+  humourLevel: number;
+  /** One phrase stylistically incompatible with this character's voice — never use */
+  forbiddenCliché: string;
+  /** Internal conflict from Agent 2b profile */
+  internalConflict: string;
+  /** Speech mannerisms from Agent 2b profile */
+  speechMannerisms: string;
+  /** Per-act permitted behaviour note (derived from role + motive) */
+  permittedBehavioursByAct: { act1: string; act2: string; act3: string };
+};
+
+export type CharacterBundle = {
+  runId: string;
+  characters: CharacterBundleEntry[];
+};
+
 export type CmlPrimaryAxis = "temporal" | "spatial" | "identity" | "behavioral" | "authority";
 
 export type HardLogicDirectives = {
@@ -189,6 +216,9 @@ export interface OrchestratorContext {
 
   // ── Pillar 1: Locked Fact Registry (populated by Agent 3b when enableLockedFactRegistry) ─
   lockedFactRegistry?: LockedFactRegistry;
+
+  // ── Pillar 2: Character Bundle (populated after Agent 65 when enableCharacterBundle) ─────
+  characterBundle?: CharacterBundle;
 
   // ── Result flags ─────────────────────────────────────────────────────────
   revisedByAgent4: boolean;

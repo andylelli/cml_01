@@ -2111,4 +2111,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   ctx.fairPlayAudit = fairPlayAudit!;
   ctx.hasCriticalFairPlayFailure = hasCriticalFairPlayFailure;
+
+  // Pillar 3 (Unit 3.3): flag blocking when gate is active and fair-play did not pass.
+  // Covers both "fail" and "needs-revision" — earlyStructuralAbort follows and may also throw.
+  if (ctx.inputs.enableBindingGates && ctx.fairPlayAudit.overallStatus !== "pass") {
+    ctx.fairPlayAudit = { ...ctx.fairPlayAudit, blocking: true };
+  }
 }

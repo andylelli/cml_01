@@ -18,6 +18,13 @@ const ALLOWED_INPUT_KEYS = new Set([
   "proseBatchSize",
   "runId",
   "projectId",
+  "enableLockedFactRegistry",
+  "enableLockedFactGate",
+  "enableCharacterBundle",
+  "enableBindingGates",
+  "forceWarnings",
+  "enableSurgicalFingerprintRetry",
+  "enableOutlineCompleteness",
 ]);
 
 const PRIMARY_AXIS_ALIAS_MAP = {
@@ -99,6 +106,34 @@ function sanitizeCanaryInputs(raw) {
 
   if (sanitized.skipNoveltyCheck !== undefined) {
     sanitized.skipNoveltyCheck = parseOptionalBoolean(sanitized.skipNoveltyCheck);
+  }
+
+  if (sanitized.enableLockedFactRegistry !== undefined) {
+    sanitized.enableLockedFactRegistry = parseOptionalBoolean(sanitized.enableLockedFactRegistry);
+  }
+
+  if (sanitized.enableLockedFactGate !== undefined) {
+    sanitized.enableLockedFactGate = parseOptionalBoolean(sanitized.enableLockedFactGate);
+  }
+
+  if (sanitized.enableCharacterBundle !== undefined) {
+    sanitized.enableCharacterBundle = parseOptionalBoolean(sanitized.enableCharacterBundle);
+  }
+
+  if (sanitized.enableBindingGates !== undefined) {
+    sanitized.enableBindingGates = parseOptionalBoolean(sanitized.enableBindingGates);
+  }
+
+  if (sanitized.forceWarnings !== undefined) {
+    sanitized.forceWarnings = parseOptionalBoolean(sanitized.forceWarnings);
+  }
+
+  if (sanitized.enableSurgicalFingerprintRetry !== undefined) {
+    sanitized.enableSurgicalFingerprintRetry = parseOptionalBoolean(sanitized.enableSurgicalFingerprintRetry);
+  }
+
+  if (sanitized.enableOutlineCompleteness !== undefined) {
+    sanitized.enableOutlineCompleteness = parseOptionalBoolean(sanitized.enableOutlineCompleteness);
   }
 
   if (sanitized.castNames !== undefined) {

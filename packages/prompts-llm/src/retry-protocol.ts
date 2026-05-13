@@ -18,7 +18,7 @@ export interface RetryPacket {
   maxRetries: number;
   shouldEscalate: boolean;
   deterministicMitigation?: {
-    type: "split_chapter" | "freshen_atoms" | "tighten_obligation" | "none";
+    type: "split_chapter" | "freshen_atoms" | "tighten_obligation" | "structural_pivot" | "none";
     params?: Record<string, unknown>;
   };
 }
@@ -59,6 +59,9 @@ export function classifyFailure(args: {
   const candidates = validationErrors.map(classifySingle);
   const hasTemplateSignals = candidates.includes("template");
   const hasClueTimingSignals = candidates.includes("clue_timing");
+  // Pillar 6 (Unit 6.3): detect specifically a paragraph_fingerprint signal so we can
+  // escalate to structural_pivot on the second consecutive fingerprint failure.
+  const hasFingerprintSignals = validationErrors.some((e) => /paragraph fingerprint/i.test(e));
   const failureClass = candidates.sort((a, b) => rank[b] - rank[a])[0] ?? "unknown";
 
   const repeatedClass =
@@ -71,12 +74,22 @@ export function classifyFailure(args: {
     if (failureClass === "completeness" || failureClass === "structure") {
       deterministicMitigation = { type: "split_chapter" as const, params: { minParagraphs: 4 } };
     } else if (failureClass === "template") {
-      deterministicMitigation = {
-        type: "freshen_atoms" as const,
-        params: {
-          tightenObligation: hasClueTimingSignals,
-        },
-      };
+      // Pillar 6 (Unit 6.3): when a paragraph_fingerprint fires on attempt ≥ 2 (i.e. the
+      // same fingerprint failure on consecutive attempts), escalate to structural_pivot so
+      // agent9-prose.ts can inject forbidden-opening and positional-freeze constraints.
+      if (hasFingerprintSignals && attempt >= 2) {
+        deterministicMitigation = {
+          type: "structural_pivot" as const,
+          params: {},
+        };
+      } else {
+        deterministicMitigation = {
+          type: "freshen_atoms" as const,
+          params: {
+            tightenObligation: hasClueTimingSignals,
+          },
+        };
+      }
     } else if (
       failureClass === "clue_timing"
       || failureClass === "continuity"

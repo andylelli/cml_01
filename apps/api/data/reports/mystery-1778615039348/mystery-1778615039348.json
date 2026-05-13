@@ -1,14 +1,14 @@
 {
   "project_id": "mystery-1778615039348",
   "run_id": "mystery-1778615039348",
-  "generated_at": "2026-05-12T19:48:16.365Z",
-  "total_duration_ms": 257017,
+  "generated_at": "2026-05-12T19:51:24.329Z",
+  "total_duration_ms": 444981,
   "total_cost": 0.023,
   "overall_score": 74,
   "overall_grade": "C",
   "passed": false,
-  "run_outcome": "failed",
-  "run_outcome_reason": "One or more phases failed threshold",
+  "run_outcome": "aborted",
+  "run_outcome_reason": "Chapter 8 generation failed after 4 attempts: Chapter 8 failed validation after 4 attempts. Issues: Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.; Template linter: high n-gram overlap detected (0.92 >= 0.80). Rephrase this passage to avoid template leakage.",
   "scoring_outcome": {
     "score": 74,
     "grade": "C",
@@ -3137,6 +3137,277 @@
           "weight": 0.5
         }
       ]
+    },
+    {
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "score": {
+        "agent": "agent9-prose",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 85,
+        "consistency_score": 65,
+        "total": 94,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Prose quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "91% average"
+          },
+          {
+            "name": "Readability",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "97% average"
+          },
+          {
+            "name": "Clue visibility",
+            "category": "completeness",
+            "passed": true,
+            "score": 85,
+            "weight": 1.5,
+            "message": "17/18 clues",
+            "severity": "minor"
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": false,
+            "score": 50,
+            "weight": 2,
+            "message": "2/4 characters referenced",
+            "severity": "major"
+          },
+          {
+            "name": "Setting fidelity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "3/3 locations referenced"
+          },
+          {
+            "name": "Fair play compliance",
+            "category": "consistency",
+            "passed": false,
+            "score": 50,
+            "weight": 1.5,
+            "message": "50/100: timing violation in chapter(s) 3, 5",
+            "severity": "critical"
+          }
+        ],
+        "breakdown": {
+          "chapter_scores": [
+            {
+              "chapter": 1,
+              "total_chapters": 10,
+              "individual_score": 84,
+              "cumulative_score": 84,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 44,
+              "individual_consistency_score": 49,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 44,
+              "cumulative_consistency_score": 49
+            },
+            {
+              "chapter": 2,
+              "total_chapters": 10,
+              "individual_score": 89,
+              "cumulative_score": 90,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 67,
+              "individual_consistency_score": 60,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 67,
+              "cumulative_consistency_score": 65
+            },
+            {
+              "chapter": 3,
+              "total_chapters": 10,
+              "individual_score": 91,
+              "cumulative_score": 94,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 78,
+              "individual_consistency_score": 50,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 85,
+              "cumulative_consistency_score": 65
+            },
+            {
+              "chapter": 4,
+              "total_chapters": 10,
+              "individual_score": 87,
+              "cumulative_score": 94,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 61,
+              "individual_consistency_score": 49,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 85,
+              "cumulative_consistency_score": 65
+            },
+            {
+              "chapter": 5,
+              "total_chapters": 10,
+              "individual_score": 84,
+              "cumulative_score": 94,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 50,
+              "individual_consistency_score": 39,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 85,
+              "cumulative_consistency_score": 65
+            },
+            {
+              "chapter": 6,
+              "total_chapters": 10,
+              "individual_score": 89,
+              "cumulative_score": 94,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 72,
+              "individual_consistency_score": 50,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 85,
+              "cumulative_consistency_score": 65
+            },
+            {
+              "chapter": 7,
+              "total_chapters": 10,
+              "individual_score": 89,
+              "cumulative_score": 94,
+              "individual_validation_score": 100,
+              "individual_quality_score": 100,
+              "individual_completeness_score": 72,
+              "individual_consistency_score": 50,
+              "cumulative_validation_score": 100,
+              "cumulative_quality_score": 100,
+              "cumulative_completeness_score": 85,
+              "cumulative_consistency_score": 65
+            }
+          ]
+        },
+        "failure_reason": "1 critical failure(s)"
+      },
+      "duration_ms": 120562,
+      "cost": 0,
+      "threshold": 80,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Prose quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "91% average"
+        },
+        {
+          "name": "Readability",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "97% average"
+        },
+        {
+          "name": "Clue visibility",
+          "category": "completeness",
+          "passed": true,
+          "score": 85,
+          "weight": 1.5,
+          "message": "17/18 clues",
+          "severity": "minor"
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": false,
+          "score": 50,
+          "weight": 2,
+          "message": "2/4 characters referenced",
+          "severity": "major"
+        },
+        {
+          "name": "Setting fidelity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "3/3 locations referenced"
+        },
+        {
+          "name": "Fair play compliance",
+          "category": "consistency",
+          "passed": false,
+          "score": 50,
+          "weight": 1.5,
+          "message": "50/100: timing violation in chapter(s) 3, 5",
+          "severity": "critical"
+        }
+      ]
     }
   ],
   "diagnostics": [
@@ -3155,13 +3426,59 @@
         "threshold": 3,
         "reason": "discriminating_test.evidence_clues missing essential clue IDs required for proof traceability"
       }
+    },
+    {
+      "key": "agent9_prose_post_generation_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "post_generation_summary",
+      "captured_at": "2026-05-12T19:51:24.329Z",
+      "details": {
+        "fair_play_all_clues_visible": null,
+        "fair_play_discriminating_test_complete": null,
+        "fair_play_no_solution_spoilers": null,
+        "fair_play_component_score": null,
+        "template_linter_checks_run": 0,
+        "template_linter_failed_checks": 1,
+        "template_linter_opening_style_entropy_failures": 0,
+        "template_linter_opening_style_entropy_bypasses": 0,
+        "template_linter_paragraph_fingerprint_failures": 0,
+        "template_linter_ngram_overlap_failures": 0,
+        "score_total": 94,
+        "score_grade": null,
+        "score_passed_threshold": false,
+        "component_failures": [
+          "prose_generation_aborted"
+        ],
+        "failure_reason": "Chapter 8 generation failed after 4 attempts: Chapter 8 failed validation after 4 attempts. Issues: Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.; Template linter: high n-gram overlap detected (0.92 >= 0.80). Rephrase this passage to avoid template leakage.",
+        "chapters_generated": 7,
+        "prose_duration_ms_first_pass": 187939,
+        "prose_duration_ms_total": 187939,
+        "prose_cost_first_pass": 0,
+        "prose_cost_total": 0,
+        "rewrite_pass_count": 0,
+        "repair_pass_count": 0,
+        "per_pass_accounting": [],
+        "metrics_snapshot": "aborted_partial",
+        "batch_size": 1,
+        "batches_with_retries": 2,
+        "total_batches": 0,
+        "batch_failure_events": 0,
+        "batch_failure_history": [],
+        "batch_failure_samples": [],
+        "outline_coverage_issue_count": null,
+        "critical_clue_coverage_gap": null,
+        "nsd_transfer_steps": 0,
+        "nsd_transfer_trace": [],
+        "aborted_after_chapter": 7
+      }
     }
   ],
   "summary": {
-    "phases_passed": 12,
+    "phases_passed": 13,
     "phases_failed": 1,
-    "total_phases": 13,
-    "pass_rate": 92.3,
+    "total_phases": 14,
+    "pass_rate": 92.9,
     "weakest_phase": "Novelty Audit",
     "strongest_phase": "World Builder",
     "failure_reasons": [
@@ -3178,5 +3495,7 @@
   "threshold_config": {
     "mode": "standard"
   },
-  "in_progress": true
+  "in_progress": false,
+  "aborted": true,
+  "abort_reason": "Chapter 8 generation failed after 4 attempts: Chapter 8 failed validation after 4 attempts. Issues: Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.; Template linter: high n-gram overlap detected (0.92 >= 0.80). Rephrase this passage to avoid template leakage."
 }

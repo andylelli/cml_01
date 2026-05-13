@@ -23,12 +23,22 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 | 14 | 2026-05-12T19:47:25.825Z | Agent65-WorldBuilder | 1 | [14_Agent65-WorldBuilder_retry1_request.md](./14_Agent65-WorldBuilder_retry1_request.md) | [14_Agent65-WorldBuilder_retry1_response.md](./14_Agent65-WorldBuilder_retry1_response.md) |
 | 15 | 2026-05-12T19:47:53.181Z | Agent7-NarrativeFormatter | - | [15_Agent7-NarrativeFormatter_request.md](./15_Agent7-NarrativeFormatter_request.md) | [15_Agent7-NarrativeFormatter_response.md](./15_Agent7-NarrativeFormatter_response.md) |
 | 16 | 2026-05-12T19:48:16.410Z | Agent9-ProseGenerator-Ch1 | - | [16_Agent9-ProseGenerator-Ch1_request.md](./16_Agent9-ProseGenerator-Ch1_request.md) | [16_Agent9-ProseGenerator-Ch1_response.md](./16_Agent9-ProseGenerator-Ch1_response.md) |
-| 17 | 2026-05-12T19:48:28.539Z | Agent9-ProseGenerator-Ch2 | - | [17_Agent9-ProseGenerator-Ch2_request.md](./17_Agent9-ProseGenerator-Ch2_request.md) | (pending) |
+| 17 | 2026-05-12T19:48:28.539Z | Agent9-ProseGenerator-Ch2 | - | [17_Agent9-ProseGenerator-Ch2_request.md](./17_Agent9-ProseGenerator-Ch2_request.md) | [17_Agent9-ProseGenerator-Ch2_response.md](./17_Agent9-ProseGenerator-Ch2_response.md) |
+| 18 | 2026-05-12T19:48:41.478Z | Agent9-ProseGenerator-Ch3 | - | [18_Agent9-ProseGenerator-Ch3_request.md](./18_Agent9-ProseGenerator-Ch3_request.md) | [18_Agent9-ProseGenerator-Ch3_response.md](./18_Agent9-ProseGenerator-Ch3_response.md) |
+| 19 | 2026-05-12T19:48:54.024Z | Agent9-ProseGenerator-Ch4 | - | [19_Agent9-ProseGenerator-Ch4_request.md](./19_Agent9-ProseGenerator-Ch4_request.md) | [19_Agent9-ProseGenerator-Ch4_response.md](./19_Agent9-ProseGenerator-Ch4_response.md) |
+| 20 | 2026-05-12T19:49:09.748Z | Agent9-ProseGenerator-Ch5 | - | [20_Agent9-ProseGenerator-Ch5_request.md](./20_Agent9-ProseGenerator-Ch5_request.md) | [20_Agent9-ProseGenerator-Ch5_response.md](./20_Agent9-ProseGenerator-Ch5_response.md) |
+| 21 | 2026-05-12T19:49:24.936Z | Agent9-ProseGenerator-Ch6 | - | [21_Agent9-ProseGenerator-Ch6_request.md](./21_Agent9-ProseGenerator-Ch6_request.md) | [21_Agent9-ProseGenerator-Ch6_response.md](./21_Agent9-ProseGenerator-Ch6_response.md) |
+| 22 | 2026-05-12T19:49:41.419Z | Agent9-ProseGenerator-Ch6 | - | [22_Agent9-ProseGenerator-Ch6_request.md](./22_Agent9-ProseGenerator-Ch6_request.md) | [22_Agent9-ProseGenerator-Ch6_response.md](./22_Agent9-ProseGenerator-Ch6_response.md) |
+| 23 | 2026-05-12T19:49:55.944Z | Agent9-ProseGenerator-Ch7 | - | [23_Agent9-ProseGenerator-Ch7_request.md](./23_Agent9-ProseGenerator-Ch7_request.md) | [23_Agent9-ProseGenerator-Ch7_response.md](./23_Agent9-ProseGenerator-Ch7_response.md) |
+| 24 | 2026-05-12T19:50:16.958Z | Agent9-ProseGenerator-Ch8 | - | [24_Agent9-ProseGenerator-Ch8_request.md](./24_Agent9-ProseGenerator-Ch8_request.md) | [24_Agent9-ProseGenerator-Ch8_response.md](./24_Agent9-ProseGenerator-Ch8_response.md) |
+| 25 | 2026-05-12T19:50:37.629Z | Agent9-ProseGenerator-Ch8 | - | [25_Agent9-ProseGenerator-Ch8_request.md](./25_Agent9-ProseGenerator-Ch8_request.md) | [25_Agent9-ProseGenerator-Ch8_response.md](./25_Agent9-ProseGenerator-Ch8_response.md) |
+| 26 | 2026-05-12T19:50:53.398Z | Agent9-ProseGenerator-Ch8 | - | [26_Agent9-ProseGenerator-Ch8_request.md](./26_Agent9-ProseGenerator-Ch8_request.md) | [26_Agent9-ProseGenerator-Ch8_response.md](./26_Agent9-ProseGenerator-Ch8_response.md) |
+| 27 | 2026-05-12T19:51:09.891Z | Agent9-ProseGenerator-Ch8 | - | [27_Agent9-ProseGenerator-Ch8_request.md](./27_Agent9-ProseGenerator-Ch8_request.md) | [27_Agent9-ProseGenerator-Ch8_response.md](./27_Agent9-ProseGenerator-Ch8_response.md) |
 
 ## Integrity Counters
 
 - missing_request_count: 1
-- missing_response_count: 1
+- missing_response_count: 0
 - empty_response_body_count: 0
 
 ## Request / Response Pairs
@@ -49,4 +59,14 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 - 14 Agent65-WorldBuilder (retry 1): [request](./14_Agent65-WorldBuilder_retry1_request.md) | [response](./14_Agent65-WorldBuilder_retry1_response.md)
 - 15 Agent7-NarrativeFormatter (first): [request](./15_Agent7-NarrativeFormatter_request.md) | [response](./15_Agent7-NarrativeFormatter_response.md)
 - 16 Agent9-ProseGenerator-Ch1 (first): [request](./16_Agent9-ProseGenerator-Ch1_request.md) | [response](./16_Agent9-ProseGenerator-Ch1_response.md)
-- 17 Agent9-ProseGenerator-Ch2 (first): [request](./17_Agent9-ProseGenerator-Ch2_request.md) | response pending
+- 17 Agent9-ProseGenerator-Ch2 (first): [request](./17_Agent9-ProseGenerator-Ch2_request.md) | [response](./17_Agent9-ProseGenerator-Ch2_response.md)
+- 18 Agent9-ProseGenerator-Ch3 (first): [request](./18_Agent9-ProseGenerator-Ch3_request.md) | [response](./18_Agent9-ProseGenerator-Ch3_response.md)
+- 19 Agent9-ProseGenerator-Ch4 (first): [request](./19_Agent9-ProseGenerator-Ch4_request.md) | [response](./19_Agent9-ProseGenerator-Ch4_response.md)
+- 20 Agent9-ProseGenerator-Ch5 (first): [request](./20_Agent9-ProseGenerator-Ch5_request.md) | [response](./20_Agent9-ProseGenerator-Ch5_response.md)
+- 21 Agent9-ProseGenerator-Ch6 (first): [request](./21_Agent9-ProseGenerator-Ch6_request.md) | [response](./21_Agent9-ProseGenerator-Ch6_response.md)
+- 22 Agent9-ProseGenerator-Ch6 (first): [request](./22_Agent9-ProseGenerator-Ch6_request.md) | [response](./22_Agent9-ProseGenerator-Ch6_response.md)
+- 23 Agent9-ProseGenerator-Ch7 (first): [request](./23_Agent9-ProseGenerator-Ch7_request.md) | [response](./23_Agent9-ProseGenerator-Ch7_response.md)
+- 24 Agent9-ProseGenerator-Ch8 (first): [request](./24_Agent9-ProseGenerator-Ch8_request.md) | [response](./24_Agent9-ProseGenerator-Ch8_response.md)
+- 25 Agent9-ProseGenerator-Ch8 (first): [request](./25_Agent9-ProseGenerator-Ch8_request.md) | [response](./25_Agent9-ProseGenerator-Ch8_response.md)
+- 26 Agent9-ProseGenerator-Ch8 (first): [request](./26_Agent9-ProseGenerator-Ch8_request.md) | [response](./26_Agent9-ProseGenerator-Ch8_response.md)
+- 27 Agent9-ProseGenerator-Ch8 (first): [request](./27_Agent9-ProseGenerator-Ch8_request.md) | [response](./27_Agent9-ProseGenerator-Ch8_response.md)

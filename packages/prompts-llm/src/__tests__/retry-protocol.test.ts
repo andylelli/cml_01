@@ -126,4 +126,30 @@ describe("retry-protocol deterministic mitigation", () => {
     expect(packet.deterministicMitigation?.params?.freshenAtoms).toBe(true);
     expect(packet.deterministicMitigation?.params?.diversifyStructure).toBe(true);
   });
+
+  it("escalates to structural_pivot when paragraph_fingerprint fires on attempt >= 2", () => {
+    const prior: RetryPacket = {
+      attempt: 1,
+      failureClass: "template",
+      failedGates: ["paragraph fingerprint"],
+      mustFix: ["fix"],
+      warningsToClear: [],
+      maxRetries: 4,
+      shouldEscalate: false,
+      deterministicMitigation: { type: "none" },
+    };
+
+    const packet = classifyFailure({
+      validationErrors: [
+        "Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language.",
+      ],
+      attempt: 2,
+      maxRetries: 4,
+      priorPackets: [prior],
+    });
+
+    expect(packet.failureClass).toBe("template");
+    expect(packet.shouldEscalate).toBe(true);
+    expect(packet.deterministicMitigation?.type).toBe("structural_pivot");
+  });
 });

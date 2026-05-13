@@ -183,6 +183,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: false,
@@ -214,6 +215,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: true,
@@ -253,6 +255,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: false,
@@ -307,6 +310,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: false,
@@ -359,6 +363,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: true,
@@ -409,6 +414,7 @@ describe("mystery orchestrator fix coverage", () => {
         summary: "",
         cost: 0,
         durationMs: 0,
+        blocking: false,
       },
       coverageResult: {
         hasCriticalGaps: false,

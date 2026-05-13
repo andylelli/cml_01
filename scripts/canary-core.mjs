@@ -62,8 +62,16 @@ console.log("CANARY_STATUS", result.status);
 console.log("RUN_ID", result.metadata.runId);
 console.log("CANARY_CLUE_COUNT", result.clues.clues.length);
 console.log("CANARY_RED_HERRING_COUNT", result.clues.redHerrings.length);
-console.log("CANARY_CLUE_STATUS", result.clues.status ?? "none");
-console.log("CANARY_CLUE_AUDIT", JSON.stringify(result.clues.audit ?? {}));
+// Derive CANARY_CLUE_STATUS from audit arrays, not raw LLM status field.
+// The Agent 5 LLM sometimes returns status="fail" even with empty audit arrays;
+// the audit content is the authoritative fair-play check.
+const _clueAudit = result.clues.audit ?? {};
+const _auditHasFail =
+  (_clueAudit.missingDiscriminatingEvidenceIds ?? []).length > 0 ||
+  (_clueAudit.weakEliminationSuspects ?? []).length > 0 ||
+  (_clueAudit.invalidSourcePaths ?? []).length > 0;
+console.log("CANARY_CLUE_STATUS", _auditHasFail ? "fail" : "pass");
+console.log("CANARY_CLUE_AUDIT", JSON.stringify(_clueAudit));
 console.log("WARNINGS_COUNT", result.warnings.length);
 if (result.warnings.length) {
   console.log("WARNINGS", JSON.stringify(result.warnings.slice(0, 6)));

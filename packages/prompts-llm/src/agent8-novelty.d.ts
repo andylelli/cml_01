@@ -47,6 +47,8 @@ export interface NoveltyAuditResult {
     warnings: string[];
     recommendations: string[];
     summary: string;
+    /** Pillar 3: set to true by agent3-run when enableBindingGates and status is warning. */
+    blocking: boolean;
     cost: number;
     durationMs: number;
 }

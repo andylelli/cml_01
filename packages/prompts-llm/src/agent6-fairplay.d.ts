@@ -42,6 +42,8 @@ export interface FairPlayAuditResult {
     warnings: string[];
     recommendations: string[];
     summary: string;
+    /** Pillar 3: set to true by the orchestrator gate when this result should halt the pipeline. */
+    blocking: boolean;
     cost: number;
     durationMs: number;
 }

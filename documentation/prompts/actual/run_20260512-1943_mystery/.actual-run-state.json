@@ -169,12 +169,114 @@
       "retryAttempt": 1,
       "promptHash": "ef4dbc561d42b6fa",
       "requestTimestamp": "2026-05-12T19:48:28.539Z",
-      "requestFile": "17_Agent9-ProseGenerator-Ch2_request.md"
+      "requestFile": "17_Agent9-ProseGenerator-Ch2_request.md",
+      "responseTimestamp": "2026-05-12T19:48:41.265Z",
+      "responseFile": "17_Agent9-ProseGenerator-Ch2_response.md"
+    },
+    {
+      "sequence": 18,
+      "agent": "Agent9-ProseGenerator-Ch3",
+      "retryAttempt": 1,
+      "promptHash": "b03d5bd8e5c5e926",
+      "requestTimestamp": "2026-05-12T19:48:41.478Z",
+      "requestFile": "18_Agent9-ProseGenerator-Ch3_request.md",
+      "responseTimestamp": "2026-05-12T19:48:53.759Z",
+      "responseFile": "18_Agent9-ProseGenerator-Ch3_response.md"
+    },
+    {
+      "sequence": 19,
+      "agent": "Agent9-ProseGenerator-Ch4",
+      "retryAttempt": 1,
+      "promptHash": "acff4aba79c99391",
+      "requestTimestamp": "2026-05-12T19:48:54.024Z",
+      "requestFile": "19_Agent9-ProseGenerator-Ch4_request.md",
+      "responseTimestamp": "2026-05-12T19:49:09.426Z",
+      "responseFile": "19_Agent9-ProseGenerator-Ch4_response.md"
+    },
+    {
+      "sequence": 20,
+      "agent": "Agent9-ProseGenerator-Ch5",
+      "retryAttempt": 1,
+      "promptHash": "d6146251194d05ab",
+      "requestTimestamp": "2026-05-12T19:49:09.748Z",
+      "requestFile": "20_Agent9-ProseGenerator-Ch5_request.md",
+      "responseTimestamp": "2026-05-12T19:49:24.583Z",
+      "responseFile": "20_Agent9-ProseGenerator-Ch5_response.md"
+    },
+    {
+      "sequence": 21,
+      "agent": "Agent9-ProseGenerator-Ch6",
+      "retryAttempt": 1,
+      "promptHash": "13675a09a378e725",
+      "requestTimestamp": "2026-05-12T19:49:24.936Z",
+      "requestFile": "21_Agent9-ProseGenerator-Ch6_request.md",
+      "responseTimestamp": "2026-05-12T19:49:41.377Z",
+      "responseFile": "21_Agent9-ProseGenerator-Ch6_response.md"
+    },
+    {
+      "sequence": 22,
+      "agent": "Agent9-ProseGenerator-Ch6",
+      "retryAttempt": 1,
+      "promptHash": "7d2b40d501c231b4",
+      "requestTimestamp": "2026-05-12T19:49:41.419Z",
+      "requestFile": "22_Agent9-ProseGenerator-Ch6_request.md",
+      "responseTimestamp": "2026-05-12T19:49:55.513Z",
+      "responseFile": "22_Agent9-ProseGenerator-Ch6_response.md"
+    },
+    {
+      "sequence": 23,
+      "agent": "Agent9-ProseGenerator-Ch7",
+      "retryAttempt": 1,
+      "promptHash": "2fa7a61a99d6642c",
+      "requestTimestamp": "2026-05-12T19:49:55.944Z",
+      "requestFile": "23_Agent9-ProseGenerator-Ch7_request.md",
+      "responseTimestamp": "2026-05-12T19:50:16.498Z",
+      "responseFile": "23_Agent9-ProseGenerator-Ch7_response.md"
+    },
+    {
+      "sequence": 24,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "80e535637fb00fd6",
+      "requestTimestamp": "2026-05-12T19:50:16.958Z",
+      "requestFile": "24_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-12T19:50:37.595Z",
+      "responseFile": "24_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 25,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "caf1dc8d0f5998f8",
+      "requestTimestamp": "2026-05-12T19:50:37.629Z",
+      "requestFile": "25_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-12T19:50:53.365Z",
+      "responseFile": "25_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 26,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "7b292d90f68ad3ff",
+      "requestTimestamp": "2026-05-12T19:50:53.398Z",
+      "requestFile": "26_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-12T19:51:09.850Z",
+      "responseFile": "26_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 27,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "5d5070d03e88bdfc",
+      "requestTimestamp": "2026-05-12T19:51:09.891Z",
+      "requestFile": "27_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-12T19:51:24.291Z",
+      "responseFile": "27_Agent9-ProseGenerator-Ch8_response.md"
     }
   ],
   "integrity": {
     "missing_request_count": 1,
-    "missing_response_count": 1,
+    "missing_response_count": 0,
     "empty_response_body_count": 0
   }
 }

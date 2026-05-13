@@ -39,6 +39,18 @@ export interface NarrativeFormattingInputs {
   projectId?: string;
   /** Pillar 1: canonical locked facts — must be honoured verbatim in all scene summaries */
   lockedFacts?: Array<{ id: string; value: string; description: string }>;
+  /** Pillar 4: require pivotElement, factEstablished, permittedBehavioursByAct, and
+   *  redHerringPlacement per scene; post-Agent-7 validator halts on null/generic values */
+  enableOutlineCompleteness?: boolean;
+  /** Pillar 4: Character bundle for deriving permittedBehavioursByAct per scene */
+  characterBundle?: {
+    runId: string;
+    characters: Array<{
+      name: string;
+      permittedBehavioursByAct: { act1: string; act2: string; act3: string };
+      [key: string]: any;
+    }>;
+  };
 }
 
 export interface Scene {
@@ -62,6 +74,15 @@ export interface Scene {
   };
   summary: string; // 2-3 sentence scene description
   estimatedWordCount: number;
+  /** Pillar 4 (Unit 4.1): The concrete physical element (object, observation, detail) this scene turns on */
+  pivotElement?: string;
+  /** Pillar 4 (Unit 4.1): The specific fact this scene establishes or eliminates for the reader */
+  factEstablished?: string;
+  /** Pillar 4 (Unit 4.1): Permitted character behaviour notes for this scene (derived from Character Bundle) */
+  permittedBehavioursByAct?: Array<{ characterName: string; behaviour: string }>;
+  /** Pillar 4 (Unit 4.1): For Act I–II scenes — which red herring is seeded and where;
+   *  explicitly null when no red herring is planted; omitted for Act III scenes */
+  redHerringPlacement?: { redHerringId: string; placementDetail: string } | null;
 }
 
 export interface ActStructure {
@@ -119,10 +140,22 @@ Your output is a JSON scene outline that prose generators can use to write the f
         "\n"
       : "";
 
-  // User: Request the narrative outline
-  const user = buildUserRequest(caseData, targetLength, narrativeStyle, inputs.qualityGuardrails ?? [], inputs.detectiveType);
+  // Pillar 4: append outline completeness contract data to developer context
+  const completenessSection = inputs.enableOutlineCompleteness
+    ? buildCompletenessContext(inputs.characterBundle, clues)
+    : "";
 
-  return { system, developer: developer + lockedFactsSection, user };
+  // User: Request the narrative outline
+  const user = buildUserRequest(
+    caseData, targetLength, narrativeStyle,
+    inputs.qualityGuardrails ?? [],
+    inputs.detectiveType,
+    inputs.enableOutlineCompleteness
+      ? { enabled: true, redHerringIds: clues.redHerrings.map((rh) => rh.id) }
+      : undefined,
+  );
+
+  return { system, developer: developer + lockedFactsSection + completenessSection, user };
 }
 
 function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
@@ -375,7 +408,43 @@ function buildProseRequirements(caseData: CaseData): string {
   return reqText || "No prose requirements specified.";
 }
 
-function buildUserRequest(caseData: CaseData, targetLength: string, narrativeStyle: string, qualityGuardrails: string[], detectiveType?: 'police' | 'private' | 'amateur'): string {
+// ─── Pillar 4 ────────────────────────────────────────────────────────────────
+
+/** Builds the developer-context block that supplies completeness contract data to Agent 7. */
+function buildCompletenessContext(
+  characterBundle: NarrativeFormattingInputs["characterBundle"] | undefined,
+  clues: ClueDistributionResult,
+): string {
+  const lines: string[] = ["\n\n## PILLAR 4 — OUTLINE COMPLETENESS CONTRACT DATA"];
+
+  if (characterBundle && characterBundle.characters.length > 0) {
+    lines.push("\n### Character Permitted Behaviours (use for permittedBehavioursByAct per scene)");
+    for (const ch of characterBundle.characters) {
+      const b = ch.permittedBehavioursByAct;
+      lines.push(`- **${ch.name}**: Act I: ${b.act1} | Act II: ${b.act2} | Act III: ${b.act3}`);
+    }
+  }
+
+  if (clues.redHerrings.length > 0) {
+    lines.push("\n### Red Herrings (must be seeded in Act I–II scenes via redHerringPlacement)");
+    for (const rh of clues.redHerrings) {
+      lines.push(`- **${rh.id}**: ${rh.description} (misdirection: ${rh.misdirection})`);
+    }
+  } else {
+    lines.push("\n### Red Herrings: none — set redHerringPlacement: null for all Act I–II scenes");
+  }
+
+  return lines.join("\n");
+}
+
+function buildUserRequest(
+  caseData: CaseData,
+  targetLength: string,
+  narrativeStyle: string,
+  qualityGuardrails: string[],
+  detectiveType?: 'police' | 'private' | 'amateur',
+  completenessOpts?: { enabled: boolean; redHerringIds: string[] },
+): string {
   const config = getGenerationParams().agent7_narrative.params;
   const legacy = caseData as any;
   const crimeVictim: string = typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim";
@@ -434,6 +503,41 @@ The police detective/inspector is summoned in an official capacity following a f
     : "";
 
   const proseRequirementsBlock = buildProseRequirements(caseData);
+
+  // Pillar 4: pre-compute completeness contract strings for template interpolation
+  const completenessExampleFields = completenessOpts?.enabled
+    ? `,
+          "pivotElement": "The stopped pocket watch found in the victim's hand — still showing ten past eleven",
+          "factEstablished": "Establishes the victim died no later than eleven past eleven, contradicting three suspects' alibis",
+          "permittedBehavioursByAct": [{ "characterName": "[EXACT NAME]", "behaviour": "[permitted behaviour for this act from Character Permitted Behaviours above]" }],
+          "redHerringPlacement": { "redHerringId": "rh_1", "placementDetail": "[how the red herring is seeded: which character, what they say or do, what false impression is created]" }`
+    : "";
+
+  const completenessContractBlock = completenessOpts?.enabled
+    ? `
+
+## SCENE COMPLETENESS CONTRACT (Pillar 4 — MANDATORY)
+
+For EVERY scene you MUST fill these additional fields:
+
+**pivotElement** (required, all scenes): A specific concrete physical element (object, detail, observation) the scene turns on. Not a plot summary — a tangible thing.
+  ✗ Bad: "investigation continues" / "characters discuss the case" / "more evidence found"
+  ✓ Good: "The stopped pocket watch found still ticking at ten past eleven"
+
+**factEstablished** (required, all scenes): The specific new fact the reader knows or has eliminated by scene end. Name the epistemic change.
+  ✗ Bad: "more clues emerge" / "investigation advances"
+  ✓ Good: "Establishes that Dr. Finch was not in the library before 10 PM — his claimed alibi collapses"
+
+**permittedBehavioursByAct** (required, all scenes): For each named character present, copy their permitted behaviour for this act from the Character Permitted Behaviours section in your context.
+  Format: [{ "characterName": "Eleanor Voss", "behaviour": "cooperative grief; no guilt-tells in Act I" }]
+
+**redHerringPlacement** (required, Act I and Act II scenes only):
+  - If planting a red herring: { "redHerringId": "rh_1", "placementDetail": "Captain Hale mentions the clock ran at dinner — seeds timing doubt" }
+  - If Act I or II but no red herring planted this scene: null
+  - Act III scenes: omit this field entirely (do NOT include it in Act III scene objects)
+
+By the end of Acts I and II every red herring ID listed in your context must appear in at least one scene's redHerringPlacement.${completenessOpts.redHerringIds.length === 0 ? "\n(No red herrings for this run — set redHerringPlacement: null for all Act I–II scenes.)" : ""}`
+    : "";
 
   return `# Narrative Outline Task
 
@@ -582,7 +686,7 @@ Return a JSON object:
             "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
           },
           "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
-          "estimatedWordCount": 1800
+          "estimatedWordCount": 1800${completenessExampleFields}
         }
       ],
       "estimatedWordCount": 12000
@@ -598,7 +702,7 @@ Return a JSON object:
 }
 \`\`\`
 
-Create a complete, well-paced outline that brings this mystery to life.`;
+Create a complete, well-paced outline that brings this mystery to life.${completenessContractBlock}`;
 }
 
 // ============================================================================

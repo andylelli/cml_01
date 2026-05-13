@@ -56,6 +56,8 @@ export interface NoveltyAuditResult {
   warnings: string[]; // Moderate similarities to be aware of
   recommendations: string[];
   summary: string;
+  /** Pillar 3: set to true by agent3-run when enableBindingGates and status is warning. */
+  blocking: boolean;
   cost: number;
   durationMs: number;
 }
@@ -461,6 +463,7 @@ export async function auditNovelty(
     mostSimilarSeed,
     highestSimilarity,
     similarityScores: normalizedScores,
+    blocking: false,
     cost,
     durationMs,
   };
