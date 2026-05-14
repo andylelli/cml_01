@@ -140,3 +140,101 @@ describe("agent65 completeHumourPlacementMap", () => {
     expect(openings[0].rationale).toBe("First.");
   });
 });
+
+describe("agent65 structural normalization", () => {
+  const caseData = {
+    CASE: {
+      cast: [
+        { name: "Eleanor Voss", role: "detective" },
+        { name: "Captain Ivor Hale", role: "suspect" },
+        { name: "Adrian Wren", role: "victim" },
+      ],
+      culpability: {
+        culprits: [],
+      },
+    },
+  };
+
+  it("synthesizes required structural objects before schema validation", () => {
+    const normalized = __testables.normalizeWorldDocumentStructure(
+      {
+        status: "final",
+        storyTheme: "Truth matters.",
+        historicalMoment: undefined,
+        characterPortraits: [],
+        characterVoiceSketches: [],
+        locationRegisters: [],
+        storyEmotionalArc: undefined,
+        humourPlacementMap: [
+          { scenePosition: "opening_scene", humourPermission: "permitted", rationale: "" },
+          "bad trailing string",
+        ],
+        breakMoment: undefined,
+        revealImplications: undefined,
+        validationConfirmations: undefined,
+      } as any,
+      {
+        caseData: caseData as any,
+        temporalContext: { specificDate: "1932-09" } as any,
+      },
+    );
+
+    expect(normalized.historicalMoment.specificDate).toBe("1932-09");
+    expect(normalized.storyEmotionalArc.turningPoints).toHaveLength(8);
+    expect(normalized.breakMoment.character).toBe("Captain Ivor Hale");
+    expect(normalized.breakMoment.scenePosition).toBe("tension_scene");
+    expect(normalized.revealImplications).toBe("");
+    expect(normalized.validationConfirmations).toEqual({
+      noNewCharacterFacts: false,
+      noNewPlotFacts: false,
+      castComplete: false,
+      eraSpecific: false,
+      lockedFactsPreserved: false,
+      humourMapComplete: false,
+    });
+    expect(normalized.humourPlacementMap).toHaveLength(12);
+    expect(normalized.humourPlacementMap.every((entry: any) => typeof entry === "object" && !!entry)).toBe(true);
+    expect(normalized.humourPlacementMap.every((entry: any) => typeof entry.rationale === "string" && entry.rationale.length > 0)).toBe(true);
+  });
+
+  it("keeps an existing breakMoment while backfilling empty fields", () => {
+    const breakMoment = __testables.buildDefaultBreakMoment(caseData as any, {
+      character: "Captain Ivor Hale",
+      scenePosition: "",
+      form: "",
+      narrativeFunction: "",
+    });
+
+    expect(breakMoment.character).toBe("Captain Ivor Hale");
+    expect(breakMoment.scenePosition).toBe("tension_scene");
+    expect(breakMoment.form.length).toBeGreaterThan(0);
+    expect(breakMoment.narrativeFunction.length).toBeGreaterThan(0);
+  });
+
+  it("forces validation confirmations into a full boolean object", () => {
+    expect(__testables.buildDefaultValidationConfirmations(undefined)).toEqual({
+      noNewCharacterFacts: false,
+      noNewPlotFacts: false,
+      castComplete: false,
+      eraSpecific: false,
+      lockedFactsPreserved: false,
+      humourMapComplete: false,
+    });
+
+    expect(__testables.buildDefaultValidationConfirmations({
+      noNewCharacterFacts: true,
+      noNewPlotFacts: "yes",
+      castComplete: true,
+      eraSpecific: true,
+      lockedFactsPreserved: 1,
+      humourMapComplete: true,
+    })).toEqual({
+      noNewCharacterFacts: true,
+      noNewPlotFacts: false,
+      castComplete: true,
+      eraSpecific: true,
+      lockedFactsPreserved: false,
+      humourMapComplete: true,
+    });
+  });
+});
