@@ -435,7 +435,7 @@ export async function reviseCml(
             : normalizeEnum(existing.role, ["detective", "victim", "culprit", "suspect", "witness", "bystander"], "suspect");
           const normalizedGender = existing.gender === undefined
             ? undefined
-            : normalizeEnum(existing.gender, ["male", "female", "non-binary"], "non-binary");
+            : normalizeEnum(existing.gender, ["male", "female"], "male");
           const normalizedMember: Record<string, unknown> = {
             ...existing,
             name: ensureString(existing.name, `Suspect ${index + 1}`),

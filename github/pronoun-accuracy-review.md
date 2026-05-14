@@ -5,6 +5,34 @@
 
 ---
 
+## Era Rationale — Why `non-binary` Is Not Applicable
+
+CML stories are set in the **1930s, 1940s, and 1950s** — the Golden Age of detective fiction (Christie, Sayers, Allingham, Marsh). The concept of non-binary gender identity did not exist as a recognised social category in this period. All characters in CML are expected to be unambiguously gendered as `"male"` or `"female"`.
+
+As a consequence, `"non-binary"` has been **fully removed** from every layer of the pipeline:
+
+| Layer | File | Change |
+|---|---|---|
+| TypeScript type | `agent2-cast.ts` | `gender?: 'male' \| 'female'` — non-binary removed from union |
+| Prompt rule | `agent2-cast.ts:385` | Rule 11 updated: `"male"` or `"female"` only |
+| Normalisation whitelist | `agent2-cast.ts:569,631` | `['male', 'female']` only |
+| Shared type | `prompts-llm/src/types.ts` | Comment updated |
+| Validation type | `story-validation/src/types.ts` | `'non-binary'` removed from `CharacterState.gender` union |
+| `parseGender` | `character-validator.ts` | `'non-binary' \| 'nb'` branch removed |
+| `getPronounsForGender` | `character-validator.ts` | `'non-binary'` case removed |
+| `genderToPronouns` | `prose-consistency-validator.ts` | `'non-binary'` case removed |
+| Pronoun-drift skip | `prose-consistency-validator.ts` | `\|\| gender === 'non-binary'` guard removed |
+| Revision normalisation | `agent4-revision.ts:438` | Whitelist narrowed to `["male", "female"]` |
+| Case overview block | `agent9-prose.ts` | `non-binary` annotation and `nonBinaryUserReminder` removed |
+| Pronoun accuracy block | `agent9-prose.ts` | `knownGenderCast` filter, pronouns ternary, `nonBinaryWarning` block, and rule 8 removed |
+| `PromptSectionInputs` | `agent9-prose.ts` | `hasNonBinaryCast: boolean` field removed |
+| System message | `agent9-prose.ts` | `they/them for non-binary` references removed |
+| Character personality | `agent9-prose.ts` | `pronounTag` non-binary branch removed |
+| Pronoun audit | `agent9-prose.ts` | Filter and canonical fallback narrowed to male/female |
+| Retry `genderLabel` | `agent9-prose.ts` | `'NON-BINARY'` fallback removed |
+
+---
+
 ## Overview
 
 The pipeline has four distinct weakness layers, each at a different stage of the prose-generation process:
@@ -130,11 +158,13 @@ When a batch has both a `completeness` failure (word-count short) and a `pronoun
 
 1. **Fix Weakness 3 first** — fewer suppressed errors means the feedback loop fires correctly for the majority of real failures.
 
-2. **Raise `continuity` rank to 85** (between `structure` at 88 and `completeness` at 90) so that verified pronoun errors are not silently deprioritised by a word-count shortfall.
+2. **Raise `continuity` rank to 91** (above `completeness` at 90, below `clue_timing` at 95) so that verified pronoun errors take priority over a word-count shortfall when both appear in the same batch.
+
+   > ⚠️ The original recommendation said "raise to 85 (between `structure` at 88 and `completeness` at 90)". That is incorrect arithmetic — 85 < 88 < 90, so 85 is below both. The correct value to beat completeness is **91**, which is what has been implemented.
 
    ```ts
-   // retry-protocol.ts line 44
-   continuity: 85,  // raised from 80 — pronoun mismatches are deterministically verifiable
+   // retry-protocol.ts
+   continuity: 91,  // raised from 80 — pronoun mismatches must beat word-count shortfalls (completeness: 90)
    ```
 
 3. **Escalate to a full cast pronoun table on repeated failure.** In `buildEnhancedRetryFeedback`, when `attempt >= 2` and a prior attempt also emitted pronoun errors, emit the full canonical pronoun table for all characters (not just the failing ones). Targeted one-line directives alone have not fixed the problem at that point; a full reference table gives the model a lookup it cannot miss.
@@ -148,4 +178,4 @@ When a batch has both a `completeness` failure (word-count short) and a `pronoun
 | 1 | Agent 2 cast generation | `agent2-cast.ts` | `"non-binary"` is a permitted gender value | Remove from enum, prompt rule 11, and validation whitelist |
 | 2 | Deterministic pronoun repair | `pronoun-repair.ts:289` | `lastSingleCharacter` nulled on mixed-gender sentence; follow-up sentences lose repair subject | Preserve prior context value on mixed-gender skip |
 | 3 | CharacterConsistencyValidator Guard 2 | `character-validator.ts:281–292` | Correct pronoun anywhere in wide multi-sentence window suppresses a real mismatch | Restrict Guard 2 check to `sentences[i]` only |
-| 4 | Retry feedback loop | `agent9-prose.ts:4452`, `retry-protocol.ts:44` | Suppressed validator errors never reach targeted feedback; pronoun class rank loses to completeness | Fix Weakness 3; raise `continuity` rank to 85; escalate to full cast table on second+ pronoun failure |
+| 4 | Retry feedback loop | `agent9-prose.ts:4452`, `retry-protocol.ts:44` | Suppressed validator errors never reach targeted feedback; pronoun class rank loses to completeness | Fix Weakness 3; raise `continuity` rank to **91** (above completeness 90); escalate to full cast table on second+ pronoun failure |

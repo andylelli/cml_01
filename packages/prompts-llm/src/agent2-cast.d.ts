@@ -33,7 +33,7 @@ export interface CharacterProfile {
     accessPlausibility: "impossible" | "unlikely" | "possible" | "easy";
     stakes: string;
     characterArcPotential: string;
-    gender?: 'male' | 'female' | 'non-binary';
+    gender?: 'male' | 'female';
 }
 export interface RelationshipWeb {
     pairs: Array<{

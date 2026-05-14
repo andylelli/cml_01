@@ -41,7 +41,10 @@ export interface CharacterProfile {
   accessPlausibility: "impossible" | "unlikely" | "possible" | "easy";
   stakes: string;
   characterArcPotential: string;
-  gender?: 'male' | 'female' | 'non-binary';
+  // Era constraint: CML stories are set in the 1930s–1950s Golden Age of detective
+  // fiction. The concept of non-binary gender identity did not exist as a recognised
+  // social category in this period. Only 'male' and 'female' are valid values.
+  gender?: 'male' | 'female';
 }
 
 export interface RelationshipWeb {
@@ -250,7 +253,7 @@ Character schema (all fields required):
 - motiveSeed, motiveStrength (weak|moderate|strong|compelling)
 - alibiWindow, accessPlausibility (impossible|unlikely|possible|easy)
 - stakes, characterArcPotential
-- gender (male|female|non-binary)
+- gender (male|female)
 
 Relationship schema:
 - pairs[] with character1, character2, relationship, tension (none|low|moderate|high), sharedHistory
@@ -382,7 +385,7 @@ Hard requirements:
 8. Avoid stereotypes and clichés
 9. Ensure each character has both public facade and private secrets
 10. Resolve any potential stereotypes; output stereotypeCheck as []
-11. Declare \`gender\` for each character: "male", "female", or "non-binary" (required — never omit)
+11. Declare \`gender\` for each character: "male" or "female" only — no other values are permitted (required — never omit)
 12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
 13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
 
@@ -566,7 +569,7 @@ export async function designCast(
           accessPlausibility: char.accessPlausibility || "possible",
           stakes: char.stakes || "reputation",
           characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
-          gender: (() => { const g = String(char.gender ?? '').toLowerCase().trim(); return ['male', 'female', 'non-binary'].includes(g) ? g as 'male' | 'female' | 'non-binary' : undefined; })(),
+          gender: (() => { const g = String(char.gender ?? '').toLowerCase().trim(); return ['male', 'female'].includes(g) ? g as 'male' | 'female' : undefined; })(),
           relationships: Array.isArray(char.relationships) ? char.relationships : [],
         }));
       }
@@ -628,8 +631,8 @@ export async function designCast(
       // Normalise gender declarations — keep only recognised values
       cast.characters = cast.characters.map((char: any) => ({
         ...char,
-        gender: (['male', 'female', 'non-binary'].includes(String(char.gender ?? '').toLowerCase().trim())
-          ? String(char.gender).toLowerCase().trim() as 'male' | 'female' | 'non-binary'
+        gender: (['male', 'female'].includes(String(char.gender ?? '').toLowerCase().trim())
+          ? String(char.gender).toLowerCase().trim() as 'male' | 'female'
           : undefined),
       }));
 

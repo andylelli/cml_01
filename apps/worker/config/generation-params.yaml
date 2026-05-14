@@ -234,7 +234,7 @@ agent9_prose:
   generation:
     # Default batch retry cap (can still be overridden by call-site argument)
     # Supported range: 1 - 8
-    default_max_attempts: 4
+    default_max_attempts: 6  # raised from 4: fingerprint/ngram retry needs headroom to converge
 
   prose_model:
     # Main chapter-generation call tuning

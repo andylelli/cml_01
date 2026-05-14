@@ -34,7 +34,7 @@ export interface Story {
 }
 export interface CharacterState {
     name: string;
-    gender: 'male' | 'female' | 'non-binary' | 'unknown';
+    gender: 'male' | 'female' | 'unknown';
     role: string;
     pronouns: {
         subject: string;

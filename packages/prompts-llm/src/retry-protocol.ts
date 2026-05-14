@@ -41,7 +41,7 @@ const rank: Record<RetryFailureClass, number> = {
   clue_timing: 95,
   completeness: 90,
   structure: 88,
-  continuity: 80,
+  continuity: 91, // raised from 80 — pronoun mismatches must beat word-count shortfalls (completeness: 90)
   encoding: 70,
   template: 60,
   tone_pacing: 50,

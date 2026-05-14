@@ -117,3 +117,7 @@ try {
 } catch (storySaveErr) {
   console.error("STORY_SAVE_FAILED", String(storySaveErr));
 }
+
+// Exit 0 for success or warning (pipeline completed, only soft issues remain).
+// Exit 1 for hard failure (prose generation aborted, etc.).
+process.exit(result.status === "failure" ? 1 : 0);

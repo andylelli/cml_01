@@ -136,11 +136,11 @@ export class CharacterConsistencyValidator implements Validator {
     return out;
   }
 
-  private parseGender(gender?: string): 'male' | 'female' | 'non-binary' | 'unknown' {
+  private parseGender(gender?: string): 'male' | 'female' | 'unknown' {
     const g = gender?.toLowerCase();
+    // Non-binary is not applicable: CML stories are set in the 1930s–1950s Golden Age.
     if (g === 'male' || g === 'm') return 'male';
     if (g === 'female' || g === 'f') return 'female';
-    if (g === 'non-binary' || g === 'nb') return 'non-binary';
     return 'unknown';
   }
 
@@ -150,8 +150,6 @@ export class CharacterConsistencyValidator implements Validator {
         return { subject: 'he', object: 'him', possessive: 'his' };
       case 'female':
         return { subject: 'she', object: 'her', possessive: 'her' };
-      case 'non-binary':
-        return { subject: 'they', object: 'them', possessive: 'their' };
       default:
         return { subject: 'they', object: 'them', possessive: 'their' };
     }
@@ -289,7 +287,7 @@ export class CharacterConsistencyValidator implements Validator {
       const correctPronounInContext = new RegExp(
         `\\b(${Array.from(correctPronounSet).join('|')})\\b`,
         'i'
-      ).test(context);
+      ).test(sentences[i]); // restricted to character's own sentence — wide-window suppression removed
 
       // Guard 3 (sentence-boundary + full-text check):
       // If the wrong pronoun is only present in an extension sentence (not in

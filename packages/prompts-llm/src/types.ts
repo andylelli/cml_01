@@ -32,7 +32,9 @@ export interface CMLPromptInputs {
   primaryAxis: "temporal" | "spatial" | "identity" | "behavioral" | "authority";
   castSize: number;
   castNames: string[];
-  castGenders?: Record<string, string>; // name → 'male' | 'female' | 'non-binary'
+  // Era constraint: CML stories are set in the 1930s–1950s Golden Age of detective fiction.
+  // Gender identity was binary in this era — 'non-binary' is not a valid gender value.
+  castGenders?: Record<string, string>; // name → 'male' | 'female'
   detectiveType: string;
   victimArchetype: string;
   

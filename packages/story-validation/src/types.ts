@@ -39,7 +39,8 @@ export interface Story {
 
 export interface CharacterState {
   name: string;
-  gender: 'male' | 'female' | 'non-binary' | 'unknown';
+  // Era constraint: CML is set in the 1930s–1950s; 'non-binary' is not applicable.
+  gender: 'male' | 'female' | 'unknown';
   role: string;
   pronouns: {
     subject: string;  // he, she, they

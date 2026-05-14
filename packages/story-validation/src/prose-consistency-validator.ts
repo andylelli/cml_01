@@ -55,8 +55,6 @@ function genderToPronouns(gender: string | undefined): { subject: string; object
       return { subject: 'he', object: 'him', possessive: 'his' };
     case 'female':
       return { subject: 'she', object: 'her', possessive: 'her' };
-    case 'non-binary':
-      return { subject: 'they', object: 'them', possessive: 'their' };
     default:
       return null;
   }
@@ -216,7 +214,8 @@ export class ProseConsistencyValidator implements Validator {
 
     for (const castMember of cml.CASE.cast) {
       const gender = castMember.gender;
-      if (!gender || gender === 'non-binary') continue; // non-binary uses they/them; no binary drift to detect
+      // Era constraint: CML stories are set in the 1930s–1950s; all characters are binary-gendered.
+      if (!gender) continue;
 
       const canonical = genderToPronouns(gender);
       const wrong = oppositePronouns(gender);

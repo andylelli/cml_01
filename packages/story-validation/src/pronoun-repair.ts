@@ -286,7 +286,7 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
           }
           return segment;
         }
-        lastSingleCharacter = null;
+        // lastSingleCharacter intentionally preserved — follow-up sentences inherit prior subject
         return segment;
       }
 

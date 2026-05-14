@@ -1442,25 +1442,15 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
       : Array.isArray(cmlCase?.cast?.characters)
         ? cmlCase.cast.characters
         : [];
-  // Annotate each character with their pronoun form so the user message —
-  // the last instruction the LLM reads before generating — carries explicit
-  // pronoun identity alongside every name. For non-binary characters the
-  // annotation uses the singular form to prime the correct completion path.
+  // Annotate each character with their pronoun form. CML stories are set in the
+  // 1930s–1950s Golden Age of detective fiction — gender was binary in this era;
+  // 'non-binary' is not a valid gender value and will never appear in the cast.
   const castNames = castCharacters.map((c: any) => {
     const g = (c.gender ?? '').toLowerCase();
-    if (g === 'non-binary') return `${c.name} (they/them)`;
-    if (g === 'female')     return `${c.name} (she/her)`;
-    if (g === 'male')       return `${c.name} (he/him)`;
+    if (g === 'female') return `${c.name} (she/her)`;
+    if (g === 'male')   return `${c.name} (he/him)`;
     return c.name;
   }).join(', ');
-
-  // When any cast member is non-binary, add an explicit forbidden-forms reminder
-  // directly in the user message — the proximal generation trigger.
-  const nonBinaryCast = castCharacters.filter((c: any) => (c.gender ?? '').toLowerCase() === 'non-binary');
-  const nonBinaryUserReminder = nonBinaryCast.length > 0
-    ? `\n\n⚠ PRONOUN REMINDER: ${nonBinaryCast.map((c: any) => c.name).join(', ')} use they/them/their (singular). ` +
-      `Never write she/her or he/him for these characters.`
-    : '';
 
   // Resolve victim's full name from cast by role field or roleArchetype substring
   const victimCharacter = castCharacters.find(
@@ -1478,7 +1468,7 @@ const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
   const motive = culpritChar?.motive_seed ?? '';
   const motiveLock = motive ? `\n\nMOTIVE LOCK: The culprit's motive is: "${motive}". Every scene involving the culprit must remain consistent with this motive. Do not introduce alternative motivations.` : '';
 
-  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}${nonBinaryUserReminder}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.${motiveLock}`;
+  return `# Case Overview\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCrime: ${crimeClass.category ?? "murder"} (${crimeClass.subtype ?? "unknown"})\nCulprit: ${culprit}${victimLine}\nFalse assumption: ${falseAssumption}\nCast: ${castNames}\n\nSetting Lock: Keep all scenes and descriptions consistent with the stated setting (${location}). Do not introduce a different location type.${motiveLock}`;
 };
 
 /**
@@ -2146,13 +2136,10 @@ function buildNSDBlock(state: NarrativeState | undefined): string {
 function buildPronounAccuracyBlock(cast: any[]): string {
   if (!cast || cast.length === 0) return '';
 
-  // Only include characters with a known, defined gender.
-  // Unknown-gender characters are intentionally omitted: assigning them a spurious
-  // "they/them/their" mandate would contradict the validator (which has no gender
-  // stored for them) and could generate false pronoun constraints in the prompt.
+  // CML stories are set in the 1930s–1950s Golden Age — only binary genders exist.
   const knownGenderCast = cast.filter((c: any) => {
     const g = c.gender?.toLowerCase();
-    return g === 'male' || g === 'female' || g === 'non-binary';
+    return g === 'male' || g === 'female';
   });
 
   if (knownGenderCast.length === 0) return '';
@@ -2162,33 +2149,11 @@ function buildPronounAccuracyBlock(cast: any[]): string {
   // 'she/her/herself' gives three distinct tokens the model can act on.
   const pronounTable = knownGenderCast.map((c: any) => {
     const gender = c.gender!.toLowerCase();
-    const pronouns = gender === 'male'       ? 'he/him/his/himself'
-                   : gender === 'female'     ? 'she/her/her/herself'
-                   : /* non-binary */          'they/them/their/themselves';
+    const pronouns = gender === 'male' ? 'he/him/his/himself' : 'she/her/her/herself';
     return `  • ${c.name}: ${pronouns}`;
   }).join('\n');
 
-  // When any cast member is non-binary, hoist a dedicated warning block to the
-  // very top of the pronoun section — before the table and rules — so budget
-  // truncation (which cuts from the end) cannot remove it. Lists the exact
-  // forbidden forms by name to suppress the LLM's binary-gender completion priors.
-  const nonBinaryChars = knownGenderCast.filter((c: any) => c.gender?.toLowerCase() === 'non-binary');
-  let nonBinaryWarning = '';
-  if (nonBinaryChars.length > 0) {
-    const nbNames = nonBinaryChars.map((c: any) => c.name);
-    const forbiddenLine = nbNames.length === knownGenderCast.length
-      ? 'ALL characters in this story use they/them/their. NEVER write she/her/herself or he/him/his/himself for any character.'
-      : `FORBIDDEN for ${nbNames.join(', ')}: she / her / herself / he / him / his / himself. Use only: they / them / their / themselves.`;
-    const exampleChar = nbNames[0];
-    nonBinaryWarning =
-      `\n⚠ NON-BINARY CAST — SINGULAR THEY/THEM/THEIR ⚠` +
-      `\n${forbiddenLine}` +
-      `\nThese are SINGULAR pronouns for ONE individual — not a group.` +
-      `\nExample: "${exampleChar} adjusted their collar as they crossed the room." — correct.` +
-      `\nExample: "${exampleChar} adjusted her collar as she crossed the room." — WRONG.\n`;
-  }
-
-  return `\n\nPRONOUN ACCURACY — MANDATORY CONTINUITY CONTRACT${nonBinaryWarning}\n\nThe following pronouns are locked facts, on the same level as character names\nand hard-logic device values. Using the wrong pronoun is a continuity error,\nnot a style choice.\n\nCanonical pronoun table (subject / object / possessive / reflexive):\n${pronounTable}\n\nMANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence\nthat contains a pronoun and verify it against the table. If any mismatch is found,\ncorrect it before outputting. This check is not optional.\n\nRules:\n1. Every sentence is subject to this table — no exceptions for dialogue, reflection,\n   narration, or attribution.\n2. When characters of different genders appear in the same sentence and a pronoun\n   could refer to more than one of them, use the character's name instead of a pronoun\n   to eliminate ambiguity entirely.\n3. A pronoun must never migrate from one character to another across a semicolon,\n   comma splice, or consecutive sentence — even when the same pronoun gender applies\n   to multiple characters.\n4. "Her" takes two grammatical functions — both are exclusively female:\n   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"\n   • Possessive determiner (before a noun): "her coat", "her voice"\n   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".\n5. Reflexive pronouns (himself/herself/themselves) must match the table above.\n   "Graham Worsley excused herself" is a pronoun error regardless of sentence position.\n6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must\n   agree with the SPEAKER's gender — not the last character named inside the quoted speech.\n7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun\n   gender must still match the referent character's canonical set in the table.\n8. Singular "they/them/their" for a specific named non-binary character carries the same\n   mandatory status as gendered pronouns. It is not a plural — treat it as grammatically\n   identical to he/him/his or she/her/her for the purposes of agreement.`;
+  return `\n\nPRONOUN ACCURACY — MANDATORY CONTINUITY CONTRACT\n\nThe following pronouns are locked facts, on the same level as character names\nand hard-logic device values. Using the wrong pronoun is a continuity error,\nnot a style choice.\n\nCanonical pronoun table (subject / object / possessive / reflexive):\n${pronounTable}\n\nMANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence\nthat contains a pronoun and verify it against the table. If any mismatch is found,\ncorrect it before outputting. This check is not optional.\n\nRules:\n1. Every sentence is subject to this table — no exceptions for dialogue, reflection,\n   narration, or attribution.\n2. When characters of different genders appear in the same sentence and a pronoun\n   could refer to more than one of them, use the character's name instead of a pronoun\n   to eliminate ambiguity entirely.\n3. A pronoun must never migrate from one character to another across a semicolon,\n   comma splice, or consecutive sentence — even when the same pronoun gender applies\n   to multiple characters.\n4. "Her" takes two grammatical functions — both are exclusively female:\n   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"\n   • Possessive determiner (before a noun): "her coat", "her voice"\n   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".\n5. Reflexive pronouns (himself/herself/themselves) must match the table above.\n   "Graham Worsley excused herself" is a pronoun error regardless of sentence position.\n6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must\n   agree with the SPEAKER's gender — not the last character named inside the quoted speech.\n7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun\n   gender must still match the referent character's canonical set in the table.`;
 }
 
 type PromptBlockPriority = "critical" | "high" | "medium" | "optional";
@@ -2201,8 +2166,6 @@ interface PromptContextBlock {
 
 interface PromptSectionInputs {
   pronounAccuracyBlock: string; // [PHASE 1] dedicated pronoun block
-  /** True when any cast member uses they/them/their — elevates character_personality to critical priority. */
-  hasNonBinaryCast: boolean;
   characterConsistencyRules: string;
   settingRefinementBlock: string;
   backgroundContextBlock: string;
@@ -2275,7 +2238,7 @@ const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextB
     { key: 'background_context', content: sections.backgroundContextBlock, priority: 'medium' },
     { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
     { key: 'fair_play_contract', content: sections.fairPlayContractBlock, priority: 'critical' },
-    { key: 'character_personality', content: sections.characterPersonalityContext, priority: sections.hasNonBinaryCast ? 'critical' : 'high' },
+    { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high' },
     { key: 'character_contracts', content: sections.characterContractsBlock, priority: 'high' },
     { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
     { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
@@ -2545,12 +2508,7 @@ export const buildCharacterPersonalityBlock = (
     // privateLonging - schema note: "let it leak into one or two moments"
     const longingLine = privateLonging ? '\n  Private longing (let surface in 1-2 moments, never central): ' + privateLonging : '';
     const motiveLine = motiveSeed ? '\n  Motive seed: ' + motiveSeed + (motiveStrength ? ' (' + motiveStrength + ')' : '') : '';
-    // For non-binary characters, open the entry with their pronoun identity so
-    // the LLM activates the correct pronoun context when writing about them.
-    const castChar = (castDesign?.characters ?? []).find((c: any) => c.name === name);
-    const gender = (castChar as any)?.gender?.toLowerCase() ?? '';
-    const pronounTag = gender === 'non-binary' ? ' [they/them/their — singular]' : '';
-    return name + pronounTag + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
+    return name + ':\n  Public: ' + persona + '\n  Hidden: ' + secret + '\n  Stakes: ' + stakes + humourGuidance + voiceLine + motiveLine + conflictLine + physicalLine + longingLine + stakeLine;
   }).join('\n\n');
   return '\n\nCHARACTER PERSONALITIES, VOICES & HUMOUR:\n\nEach character has a distinct personality, voice, humour style, and hidden depth. Use these to create authentic, differentiated characters whose wit (or lack thereof) reveals who they are:\n\n' + personalities + '\n\nWRITING GUIDANCE:\n1. Dialogue: Each character should sound different. Humour style shapes HOW they speak, humourLevel shapes HOW OFTEN.\n2. Internal thoughts: Reference their hidden secrets and stakes to add subtext.\n3. Body language: Show personality through gestures, posture, habits.\n4. Reactions: Characters react differently to same events based on personality.\n5. Speech patterns: Use speechMannerisms for verbal tics, rhythm, formality level.\n6. Personal stake: Characters with personalStakeInCase defined should reference it at least twice across the story through internal monologue, hesitation, or action — especially the detective.\n7. HUMOUR CONTRAST: Characters with high humourLevel (0.7+) should deliver wit frequently. Characters with low/zero should play it straight. The CONTRAST between witty and earnest characters creates the best comedy.\n8. HUMOUR AS CHARACTER: A character\'s humour style reveals their psychology - self_deprecating masks insecurity, polite_savagery masks aggression, deadpan masks emotion.\n9. NEVER force humour on a character with humourLevel 0 or style none.';
 };
@@ -2997,8 +2955,8 @@ Do NOT invent, borrow, or introduce ANY character not on that list — no consta
 Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
 ⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: ${cast.map((c: any) => c.name).join(', ')}?" If not, remove them.
 Any invented named character will fail validation and abort the entire generation.
-⚠️ BEFORE YOU WRITE each chapter, also ask yourself: "Am I using the correct pronouns for every character — she/her for women, he/him for men, they/them for non-binary characters?" If not, correct it before writing a single word.
-⛔ GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times — a woman is always she/her, a man is always he/him, a non-binary character is always they/them/their. Never swap, default, or guess.
+⚠️ BEFORE YOU WRITE each chapter, also ask yourself: "Am I using the correct pronouns for every character — she/her for women, he/him for men?" If not, correct it before writing a single word.
+⛔ GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times — a woman is always she/her, a man is always he/him. Never swap, default, or guess.
 
 Rules:
 - Do not introduce new facts beyond the CML and outline.
@@ -3028,7 +2986,6 @@ ${victimIdentityRule}`;
   const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
 
   const pronounAccuracyBlock = buildPronounAccuracyBlock(cast); // [PHASE 1]
-  const hasNonBinaryCast = cast.some((c: any) => c.gender?.toLowerCase() === 'non-binary');
 
   // §1.6: Character personality block (extracted — see buildCharacterPersonalityBlock above)
   const characterPersonalityContext = buildCharacterPersonalityBlock(
@@ -3305,7 +3262,6 @@ ${victimIdentityRule}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     pronounAccuracyBlock, // [PHASE 1]
-    hasNonBinaryCast,
     characterConsistencyRules,
     settingRefinementBlock,
     backgroundContextBlock,
@@ -3384,11 +3340,10 @@ ${victimIdentityRule}`;
   // storage (like the `audit` field) — it exists only to force active self-review.
   // See ANALYSIS_24 Option C.
   const pronounAuditLines: string[] = [];
-  // R01 fix: include non-binary characters — they are the hardest case for the LLM
-  // and the PRONOUN AUDIT is the only mechanism that forces active per-character self-review.
+  // All characters in CML are binary-gendered (1930s–1950s Golden Age era).
   const castWithGender = cast.filter((c: any) => {
     const g = c.gender?.toLowerCase();
-    return g === 'male' || g === 'female' || g === 'non-binary';
+    return g === 'male' || g === 'female';
   });
   if (castWithGender.length > 0) {
     pronounAuditLines.push('□ PRONOUN AUDIT — for every character you named in your chapters, list the pronouns you actually used, then verify against the canonical table. Correct any mismatch before outputting. Do NOT include this audit in your JSON output.');
@@ -3396,7 +3351,7 @@ ${victimIdentityRule}`;
     pronounAuditLines.push('  ---------------------|---------------|---------------|-------');
     for (const c of castWithGender) {
       const g = (c.gender as string).toLowerCase();
-      const canonical = g === 'female' ? 'she/her/her/herself' : g === 'non-binary' ? 'they/them/their/themselves' : 'he/him/his/himself';
+      const canonical = g === 'female' ? 'she/her/her/herself' : 'he/him/his/himself';
       pronounAuditLines.push(`  ${c.name.padEnd(20)} | ${canonical.padEnd(25)} | [fill in]     | [yes/no]`);
     }
   }
@@ -4137,6 +4092,10 @@ const buildEnhancedRetryFeedback = (
      *  enableSurgicalFingerprintRetry is true, injects a BANNED PARAGRAPH block. */
     linterIssues?: ProseLinterIssue[];
     enableSurgicalFingerprintRetry?: boolean;
+    /** All paragraphs from prior committed chapters. When fingerprint/ngram has been
+     *  detected, injected as a comprehensive "DO NOT REPRODUCE" lock to prevent the
+     *  whack-a-mole pattern where the model cycles through different source paragraphs. */
+    priorChapterParagraphs?: string[];
   },
 ): string => {
   const cmlCase = (caseData as any)?.CASE ?? {};
@@ -4560,7 +4519,7 @@ const buildEnhancedRetryFeedback = (
       const [, name, correctPronounSet, wrongPronouns] = nameMatch;
       const castEntry = cast.find((c: any) => c.name === name);
       const gender = castEntry?.gender?.toLowerCase();
-      const genderLabel = gender === 'male' ? 'MALE' : gender === 'female' ? 'FEMALE' : 'NON-BINARY';
+      const genderLabel = gender === 'male' ? 'MALE' : 'FEMALE';
       return (
         `  ⚠️ ${name} is ${genderLabel} — use "${correctPronounSet}" ONLY.\n` +
         `     You wrote: ${wrongPronouns} — these are WRONG for this character.\n` +
@@ -4576,6 +4535,28 @@ const buildEnhancedRetryFeedback = (
     feedback += `Minimal sentence rewording is acceptable where it improves clarity (e.g. naming\n`;
     feedback += `the character explicitly instead of relying on a pronoun). Do NOT alter plot\n`;
     feedback += `points, clue details, alibis, or dialogue meaning.\n\n`;
+
+    // On second+ attempt with pronoun errors, emit the full canonical pronoun table for all
+    // characters — targeted one-line directives alone have not fixed the problem at this point.
+    if (attempt >= 2) {
+      const pronounTable = cast
+        .filter((c: any) => c.name && ['male', 'female'].includes(String(c.gender ?? '').toLowerCase()))
+        .map((c: any) => {
+          const g = String(c.gender).toLowerCase();
+          const subj = g === 'male' ? 'he' : 'she';
+          const obj  = g === 'male' ? 'him' : 'her';
+          const poss = g === 'male' ? 'his' : 'her';
+          return `  ${c.name.padEnd(24)} ${g.toUpperCase().padEnd(8)} ${subj} / ${obj} / ${poss}`;
+        })
+        .join('\n');
+      if (pronounTable) {
+        feedback += `📋 FULL CAST PRONOUN TABLE (attempt ${attempt} — use this as a reference for every pronoun in your draft):\n`;
+        feedback += `${'  NAME'.padEnd(26)}${'GENDER'.padEnd(10)}PRONOUNS\n`;
+        feedback += `${'  '.padEnd(26)}${''.padEnd(10)}subject / object / possessive\n`;
+        feedback += `${pronounTable}\n\n`;
+        feedback += `⛔ Any pronoun not matching the table above is WRONG. Fix before submitting.\n\n`;
+      }
+    }
   }
 
   if (characterErrors.length > 0) {
@@ -4704,6 +4685,23 @@ const buildEnhancedRetryFeedback = (
       } else if (hasNgramOverlap && (!options?.enableSurgicalFingerprintRetry || ngramIssues.length === 0)) {
         feedback += `⛔ NEAR-DUPLICATE PASSAGE — your prose closely echoes a prior chapter paragraph.\n`;
         feedback += `Rewrite the flagged paragraph so its sentence structure and phrasing are entirely new.\n\n`;
+      }
+      // When fingerprint/ngram has fired and prior chapter paragraphs are available, inject a
+      // comprehensive "PRIOR CHAPTER LOCK" to prevent the model from cycling through different
+      // source paragraphs each attempt (whack-a-mole pattern). Each prior paragraph's opening
+      // sentence is listed as a unique identifier; the model must produce prose that starts nothing
+      // like any of them. (min_chars=140 matches the ngram overlap min_chars config value.)
+      const priorParas = (options?.priorChapterParagraphs ?? []).filter(p => p.length >= 140);
+      if (priorParas.length > 0) {
+        feedback += `⛔ PRIOR CHAPTER DUPLICATION LOCK — ${priorParas.length} protected passage(s):\n`;
+        feedback += `Your prose has been detected copying from an earlier chapter. `;
+        feedback += `Every paragraph listed below appears in a prior chapter and is COMPLETELY OFF-LIMITS. `;
+        feedback += `Do not reproduce, rephrase, or structurally echo any of them:\n\n`;
+        for (const para of priorParas) {
+          const firstSentence = para.match(/^[^.!?]+[.!?]/)?.[0] ?? para.slice(0, 120);
+          feedback += `  • "${sanitizeForContentPolicy(firstSentence.trim())}"\n`;
+        }
+        feedback += `\nWrite as if you cannot see the prior chapters. Compose every paragraph fresh from the scene instructions alone.\n\n`;
       }
     }
     if (hasEntropyLow) {
@@ -5327,7 +5325,13 @@ export async function generateProse(
         if (attempt > 1 && lastBatchErrors.length > 0) {
           let feedback = buildEnhancedRetryFeedback(
             lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
-            { linterIssues: lastLinterIssues, enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry },
+            {
+              linterIssues: lastLinterIssues,
+              enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
+              // Pass all committed chapter paragraphs so the feedback can inject a comprehensive
+              // prior-chapter duplication lock when fingerprint/ngram issues have been detected.
+              priorChapterParagraphs: chapters.flatMap(ch => ch.paragraphs),
+            },
           );
           if (redesignEnabled && currentRetryPacket) {
             feedback = `${feedback}\n\n${buildRetryFeedback(currentRetryPacket)}`;

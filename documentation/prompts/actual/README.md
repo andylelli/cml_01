@@ -45,3 +45,6 @@ Generated from real run-time LLM request/response logs.
 - [run_20260513-2203_mystery](./run_20260513-2203_mystery/INDEX.md)
 - [run_20260513-2211_mystery](./run_20260513-2211_mystery/INDEX.md)
 - [run_20260513-2220_mystery](./run_20260513-2220_mystery/INDEX.md)
+- [run_20260514-1750_mystery](./run_20260514-1750_mystery/INDEX.md)
+- [run_20260514-1809_mystery](./run_20260514-1809_mystery/INDEX.md)
+- [run_20260514-1824_mystery](./run_20260514-1824_mystery/INDEX.md)
