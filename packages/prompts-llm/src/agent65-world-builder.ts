@@ -658,14 +658,14 @@ function chooseBreakMomentCharacter(caseData: CaseData): string {
 
   const preferred = cast.find((member: any) => {
     const name = typeof member?.name === 'string' ? member.name.trim() : '';
-    const role = String(member?.role ?? '').toLowerCase();
+    const role = (member?.role ?? '').toLowerCase();
     return !!name && !culpritSet.has(name) && role !== 'detective' && role !== 'victim';
   });
   if (preferred?.name) return preferred.name;
 
   const fallback = cast.find((member: any) => {
     const name = typeof member?.name === 'string' ? member.name.trim() : '';
-    const role = String(member?.role ?? '').toLowerCase();
+    const role = (member?.role ?? '').toLowerCase();
     return !!name && role !== 'victim';
   });
   return fallback?.name ?? 'A key witness';
