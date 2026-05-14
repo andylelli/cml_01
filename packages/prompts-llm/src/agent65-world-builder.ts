@@ -503,6 +503,17 @@ const _SOLEMN_POSITIONS = new Set<string>([
   'revelation',
 ]);
 
+const DEFAULT_ARC_TURNING_POINTS = [
+  { position: 'opening', emotionalDescription: 'The opening establishes unease and the first emotional pressure around the case.' },
+  { position: 'early', emotionalDescription: 'Early investigation turns uncertainty into active suspicion and social strain.' },
+  { position: 'first_turn', emotionalDescription: 'A first major turn reframes what the characters think they understand.' },
+  { position: 'mid', emotionalDescription: 'The middle deepens conflict and forces the investigator to reassess motives and trust.' },
+  { position: 'second_turn', emotionalDescription: 'A second revelation recasts earlier events and narrows the moral room for denial.' },
+  { position: 'pre_climax', emotionalDescription: 'Pressure peaks as hidden tensions are forced into the open.' },
+  { position: 'climax', emotionalDescription: 'The climax brings accusation, exposure, and irreversible emotional consequence.' },
+  { position: 'resolution', emotionalDescription: 'The resolution settles the truth while leaving visible emotional cost behind.' },
+] as const;
+
 /**
  * Ensures humourPlacementMap has all 12 required scene positions, each with a
  * non-empty rationale string.  Inserts sensible defaults for any missing position
@@ -510,7 +521,7 @@ const _SOLEMN_POSITIONS = new Set<string>([
  */
 function completeHumourPlacementMap(map: unknown): Array<{
   scenePosition: string;
-  humourPermission: string;
+  humourPermission: 'permitted' | 'conditional' | 'forbidden';
   rationale: string;
   condition?: string;
   permittedCharacters?: string[];
@@ -555,6 +566,168 @@ function completeHumourPlacementMap(map: unknown): Array<{
     }
   }
   return result;
+}
+
+function inferHistoricalSpecificDate(temporalContext: unknown): string {
+  const tc = temporalContext as Record<string, any> | null | undefined;
+  const candidates = [
+    tc?.specificDate,
+    tc?.historicalMoment?.specificDate,
+    tc?.date,
+    tc?.monthYear,
+    tc?.yearMonth,
+    tc?.month,
+  ];
+  const match = candidates.find((value) => typeof value === 'string' && value.trim().length > 0);
+  return typeof match === 'string' ? match.trim() : '';
+}
+
+function buildDefaultHistoricalMoment(
+  temporalContext: unknown,
+  value: unknown,
+): WorldDocumentResult['historicalMoment'] {
+  const existing = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, any>
+    : {};
+
+  return {
+    specificDate: typeof existing.specificDate === 'string'
+      ? existing.specificDate
+      : inferHistoricalSpecificDate(temporalContext),
+    eraRegister: typeof existing.eraRegister === 'string' ? existing.eraRegister : '',
+    currentTensions: Array.isArray(existing.currentTensions)
+      ? existing.currentTensions.filter((entry: unknown): entry is string => typeof entry === 'string')
+      : [],
+    physicalConstraints: Array.isArray(existing.physicalConstraints)
+      ? existing.physicalConstraints.filter((entry: unknown): entry is string => typeof entry === 'string')
+      : [],
+    emotionalRegister: typeof existing.emotionalRegister === 'string' ? existing.emotionalRegister : '',
+    wartimeServiceContext:
+      existing.wartimeServiceContext && typeof existing.wartimeServiceContext === 'object'
+        ? {
+            serviceStatus: typeof existing.wartimeServiceContext.serviceStatus === 'string'
+              ? existing.wartimeServiceContext.serviceStatus
+              : '',
+            socialTexture: typeof existing.wartimeServiceContext.socialTexture === 'string'
+              ? existing.wartimeServiceContext.socialTexture
+              : '',
+            absenceEffect: typeof existing.wartimeServiceContext.absenceEffect === 'string'
+              ? existing.wartimeServiceContext.absenceEffect
+              : '',
+          }
+        : undefined,
+  };
+}
+
+function buildDefaultStoryEmotionalArc(value: unknown): WorldDocumentResult['storyEmotionalArc'] {
+  const existing = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, any>
+    : {};
+
+  const turningPoints = Array.isArray(existing.turningPoints)
+    ? existing.turningPoints
+        .filter((entry): entry is Record<string, any> => !!entry && typeof entry === 'object' && !Array.isArray(entry))
+        .map((entry) => ({
+          position: typeof entry.position === 'string' ? entry.position : '',
+          emotionalDescription: typeof entry.emotionalDescription === 'string' ? entry.emotionalDescription : '',
+        }))
+    : [];
+
+  return {
+    dominantRegister: typeof existing.dominantRegister === 'string'
+      ? existing.dominantRegister
+      : 'Tense, investigative, and emotionally cumulative.',
+    arcDescription: typeof existing.arcDescription === 'string' ? existing.arcDescription : '',
+    turningPoints: turningPoints.length > 0 ? turningPoints : [...DEFAULT_ARC_TURNING_POINTS],
+    endingNote: typeof existing.endingNote === 'string'
+      ? existing.endingNote
+      : 'The ending should leave a residue of emotional consequence after the truth is exposed.',
+  };
+}
+
+function chooseBreakMomentCharacter(caseData: CaseData): string {
+  const cmlCase = ((caseData as any)?.CASE ?? caseData) as Record<string, any>;
+  const cast = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
+  const culpritSet = new Set<string>(
+    Array.isArray(cmlCase?.culpability?.culprits)
+      ? cmlCase.culpability.culprits
+          .filter((entry: unknown): entry is string => typeof entry === 'string')
+          .map((entry: string) => entry.trim())
+      : [],
+  );
+
+  const preferred = cast.find((member: any) => {
+    const name = typeof member?.name === 'string' ? member.name.trim() : '';
+    const role = String(member?.role ?? '').toLowerCase();
+    return !!name && !culpritSet.has(name) && role !== 'detective' && role !== 'victim';
+  });
+  if (preferred?.name) return preferred.name;
+
+  const fallback = cast.find((member: any) => {
+    const name = typeof member?.name === 'string' ? member.name.trim() : '';
+    const role = String(member?.role ?? '').toLowerCase();
+    return !!name && role !== 'victim';
+  });
+  return fallback?.name ?? 'A key witness';
+}
+
+function buildDefaultBreakMoment(caseData: CaseData, value: unknown): WorldDocumentResult['breakMoment'] {
+  const existing = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, any>
+    : {};
+
+  return {
+    character: typeof existing.character === 'string' && existing.character.trim().length > 0
+      ? existing.character
+      : chooseBreakMomentCharacter(caseData),
+    scenePosition: typeof existing.scenePosition === 'string' && existing.scenePosition.trim().length > 0
+      ? existing.scenePosition
+      : 'tension_scene',
+    form: typeof existing.form === 'string' && existing.form.trim().length > 0
+      ? existing.form
+      : 'A controlled facade slips into a visible, involuntary tell under pressure.',
+    narrativeFunction: typeof existing.narrativeFunction === 'string' && existing.narrativeFunction.trim().length > 0
+      ? existing.narrativeFunction
+      : 'Signals emotional cost and gives the prose writer a concrete human fracture before the climax.',
+  };
+}
+
+function buildDefaultValidationConfirmations(value: unknown): WorldDocumentResult['validationConfirmations'] {
+  const existing = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, any>
+    : {};
+
+  return {
+    noNewCharacterFacts: existing.noNewCharacterFacts === true,
+    noNewPlotFacts: existing.noNewPlotFacts === true,
+    castComplete: existing.castComplete === true,
+    eraSpecific: existing.eraSpecific === true,
+    lockedFactsPreserved: existing.lockedFactsPreserved === true,
+    humourMapComplete: existing.humourMapComplete === true,
+  };
+}
+
+function normalizeWorldDocumentStructure(
+  parsed: WorldDocumentResult,
+  inputs: Pick<WorldBuilderInputs, 'caseData' | 'temporalContext'>,
+): WorldDocumentResult {
+  const normalized = parsed as WorldDocumentResult & Record<string, any>;
+
+  normalized.status = normalized.status === 'draft' || normalized.status === 'final' ? normalized.status : 'final';
+  normalized.storyTheme = typeof normalized.storyTheme === 'string' ? normalized.storyTheme : '';
+  normalized.historicalMoment = buildDefaultHistoricalMoment(inputs.temporalContext, normalized.historicalMoment);
+  normalized.characterPortraits = sanitiseArrayOfObjects(normalized.characterPortraits) as WorldDocumentResult['characterPortraits'];
+  normalized.characterVoiceSketches = sanitiseArrayOfObjects(normalized.characterVoiceSketches) as WorldDocumentResult['characterVoiceSketches'];
+  normalized.locationRegisters = sanitiseArrayOfObjects(normalized.locationRegisters) as WorldDocumentResult['locationRegisters'];
+  normalized.storyEmotionalArc = buildDefaultStoryEmotionalArc(normalized.storyEmotionalArc);
+  normalized.humourPlacementMap = completeHumourPlacementMap(
+    sanitiseArrayOfObjects(normalized.humourPlacementMap),
+  ) as WorldDocumentResult['humourPlacementMap'];
+  normalized.breakMoment = buildDefaultBreakMoment(inputs.caseData, normalized.breakMoment);
+  normalized.revealImplications = typeof normalized.revealImplications === 'string' ? normalized.revealImplications : '';
+  normalized.validationConfirmations = buildDefaultValidationConfirmations(normalized.validationConfirmations);
+
+  return normalized;
 }
 
 export async function generateWorldDocument(
@@ -652,15 +825,7 @@ export async function generateWorldDocument(
     // Applied immediately after parse — before schema or content gates — so that
     // recoverable LLM defects never burn an inner-loop retry attempt.
 
-    // 1. Strip any non-object items from array fields.  The LLM occasionally appends
-    //    trailing strings or null entries to characterPortraits / characterVoiceSketches,
-    //    which causes schema validation to fail before any real content check can run.
-    if (Array.isArray(parsed.characterPortraits)) {
-      (parsed as any).characterPortraits = sanitiseArrayOfObjects(parsed.characterPortraits);
-    }
-    if (Array.isArray(parsed.characterVoiceSketches)) {
-      (parsed as any).characterVoiceSketches = sanitiseArrayOfObjects(parsed.characterVoiceSketches);
-    }
+    parsed = normalizeWorldDocumentStructure(parsed, inputs);
 
     // Inject cost/duration
     const costTracker = client.getCostTracker();
@@ -884,4 +1049,8 @@ export const __testables = {
   enforceStoryThemeFloor,
   sanitiseArrayOfObjects,
   completeHumourPlacementMap,
+  buildDefaultBreakMoment,
+  buildDefaultValidationConfirmations,
+  buildDefaultStoryEmotionalArc,
+  normalizeWorldDocumentStructure,
 };
