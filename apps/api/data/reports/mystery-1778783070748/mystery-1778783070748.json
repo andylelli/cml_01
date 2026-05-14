@@ -1,9 +1,9 @@
 {
   "project_id": "mystery-1778783070748",
   "run_id": "mystery-1778783070748",
-  "generated_at": "2026-05-14T18:26:49.997Z",
-  "total_duration_ms": 139249,
-  "total_cost": 0.0121,
+  "generated_at": "2026-05-14T18:28:48.842Z",
+  "total_duration_ms": 258094,
+  "total_cost": 0.0229,
   "overall_score": 74,
   "overall_grade": "C",
   "passed": false,
@@ -2097,15 +2097,1055 @@
           "message": "100% match"
         }
       ]
+    },
+    {
+      "agent": "agent2c_location_profiles",
+      "phase_name": "Location Profiles",
+      "score": {
+        "agent": "agent2c-location-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "The Drawing Room: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Garden: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Sensory richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average: 76%"
+          },
+          {
+            "name": "Geographic specificity",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3/3 specific"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "3 locations"
+          },
+          {
+            "name": "All senses covered",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "3/3 locations"
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 41719,
+      "cost": 0.00284228175,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "The Drawing Room: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Garden: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Sensory richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average: 76%"
+        },
+        {
+          "name": "Geographic specificity",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3/3 specific"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "3 locations"
+        },
+        {
+          "name": "All senses covered",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "3/3 locations"
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2d_temporal_context",
+      "phase_name": "Temporal Context",
+      "score": {
+        "agent": "agent2d-temporal-context",
+        "validation_score": 100,
+        "quality_score": 86.66666666666667,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 96,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "specific_date present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "time_of_day present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "season present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "weather_patterns present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Date specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Full date specified"
+          },
+          {
+            "name": "Time specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Time period specified"
+          },
+          {
+            "name": "Weather detail",
+            "category": "quality",
+            "passed": true,
+            "score": 60,
+            "weight": 1,
+            "message": "60% richness"
+          },
+          {
+            "name": "Fashion detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "90% richness"
+          },
+          {
+            "name": "Temporal richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "340 words"
+          },
+          {
+            "name": "Optional fields",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All optional fields present"
+          },
+          {
+            "name": "Substantial content",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All fields have detail"
+          },
+          {
+            "name": "Optional detail richness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% detail"
+          },
+          {
+            "name": "Season/weather consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 10944,
+      "cost": 0.0010858155000000001,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "specific_date present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "time_of_day present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "season present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "weather_patterns present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Date specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Full date specified"
+        },
+        {
+          "name": "Time specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Time period specified"
+        },
+        {
+          "name": "Weather detail",
+          "category": "quality",
+          "passed": true,
+          "score": 60,
+          "weight": 1,
+          "message": "60% richness"
+        },
+        {
+          "name": "Fashion detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "90% richness"
+        },
+        {
+          "name": "Temporal richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "340 words"
+        },
+        {
+          "name": "Optional fields",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All optional fields present"
+        },
+        {
+          "name": "Substantial content",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All fields have detail"
+        },
+        {
+          "name": "Optional detail richness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% detail"
+        },
+        {
+          "name": "Season/weather consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent65_world_builder",
+      "phase_name": "World Builder",
+      "score": {
+        "agent": "agent65-world-builder",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "validationConfirmations.noNewCharacterFacts",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.noNewPlotFacts",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.castComplete",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.eraSpecific",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.lockedFactsPreserved",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.humourMapComplete",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "characterPortraits covers full cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "voiceSketch fragments quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "humourPlacementMap complete (12 positions)",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "arcDescription word count (200-300w)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "arcTurningPoints all 8 positions",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "breakMoment all fields populated",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2
+          },
+          {
+            "name": "storyTheme ≥25 words",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2
+          }
+        ]
+      },
+      "duration_ms": 33241,
+      "cost": 0.00410980515,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "validationConfirmations.noNewCharacterFacts",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.noNewPlotFacts",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.castComplete",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.eraSpecific",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.lockedFactsPreserved",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.humourMapComplete",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "characterPortraits covers full cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "voiceSketch fragments quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "humourPlacementMap complete (12 positions)",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "arcDescription word count (200-300w)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "arcTurningPoints all 8 positions",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "breakMoment all fields populated",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2
+        },
+        {
+          "name": "storyTheme ≥25 words",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 73.33333333333333,
+        "consistency_score": 100,
+        "total": 95,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "10 chapters (target 10 ±2)"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "94% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "8/10 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "10/10"
+          },
+          {
+            "name": "CML clue coverage",
+            "category": "completeness",
+            "passed": true,
+            "score": 60,
+            "weight": 2,
+            "message": "Only 6/10 clues",
+            "severity": "major"
+          },
+          {
+            "name": "Discriminating test in outline",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 32896,
+      "cost": 0.0027506456999999997,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "10 chapters (target 10 ±2)"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "94% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "8/10 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "10/10"
+        },
+        {
+          "name": "CML clue coverage",
+          "category": "completeness",
+          "passed": true,
+          "score": 60,
+          "weight": 2,
+          "message": "Only 6/10 clues",
+          "severity": "major"
+        },
+        {
+          "name": "Discriminating test in outline",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
     }
   ],
   "summary": {
-    "phases_passed": 8,
+    "phases_passed": 12,
     "phases_failed": 1,
-    "total_phases": 9,
-    "pass_rate": 88.9,
+    "total_phases": 13,
+    "pass_rate": 92.3,
     "weakest_phase": "Novelty Audit",
-    "strongest_phase": "Character Profiles",
+    "strongest_phase": "World Builder",
     "failure_reasons": [
       "agent8-novelty-audit: Score below threshold"
     ],
@@ -2115,7 +3155,7 @@
       "retry_rate": "0.00",
       "retried_phases": []
     },
-    "total_cost": 0.0121
+    "total_cost": 0.0229
   },
   "threshold_config": {
     "mode": "standard"

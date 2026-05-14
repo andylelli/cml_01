@@ -18,7 +18,12 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 | 9 | 2026-05-14T18:26:09.088Z | Agent6-FairPlayAuditor | - | [09_Agent6-FairPlayAuditor_request.md](./09_Agent6-FairPlayAuditor_request.md) | [09_Agent6-FairPlayAuditor_response.md](./09_Agent6-FairPlayAuditor_response.md) |
 | 10 | 2026-05-14T18:26:13.750Z | Agent6-BlindReader | - | [10_Agent6-BlindReader_request.md](./10_Agent6-BlindReader_request.md) | [10_Agent6-BlindReader_response.md](./10_Agent6-BlindReader_response.md) |
 | 11 | 2026-05-14T18:26:15.984Z | Agent2b-CharacterProfiles | - | [11_Agent2b-CharacterProfiles_request.md](./11_Agent2b-CharacterProfiles_request.md) | [11_Agent2b-CharacterProfiles_response.md](./11_Agent2b-CharacterProfiles_response.md) |
-| 12 | 2026-05-14T18:26:50.004Z | Agent2c-LocationProfiles | - | [12_Agent2c-LocationProfiles_request.md](./12_Agent2c-LocationProfiles_request.md) | (pending) |
+| 12 | 2026-05-14T18:26:50.004Z | Agent2c-LocationProfiles | - | [12_Agent2c-LocationProfiles_request.md](./12_Agent2c-LocationProfiles_request.md) | [12_Agent2c-LocationProfiles_response.md](./12_Agent2c-LocationProfiles_response.md) |
+| 13 | 2026-05-14T18:27:31.732Z | Agent2d-TemporalContext | - | [13_Agent2d-TemporalContext_request.md](./13_Agent2d-TemporalContext_request.md) | [13_Agent2d-TemporalContext_response.md](./13_Agent2d-TemporalContext_response.md) |
+| 14 | 2026-05-14T18:27:42.690Z | Agent65-WorldBuilder | - | [14_Agent65-WorldBuilder_request.md](./14_Agent65-WorldBuilder_request.md) | [14_Agent65-WorldBuilder_response.md](./14_Agent65-WorldBuilder_response.md) |
+| 15 | 2026-05-14T18:28:15.950Z | Agent7-NarrativeFormatter | - | [15_Agent7-NarrativeFormatter_request.md](./15_Agent7-NarrativeFormatter_request.md) | [15_Agent7-NarrativeFormatter_response.md](./15_Agent7-NarrativeFormatter_response.md) |
+| 16 | 2026-05-14T18:28:48.881Z | Agent9-ProseGenerator-Ch1 | - | [16_Agent9-ProseGenerator-Ch1_request.md](./16_Agent9-ProseGenerator-Ch1_request.md) | [16_Agent9-ProseGenerator-Ch1_response.md](./16_Agent9-ProseGenerator-Ch1_response.md) |
+| 17 | 2026-05-14T18:28:57.028Z | Agent9-ProseGenerator-Ch2 | - | [17_Agent9-ProseGenerator-Ch2_request.md](./17_Agent9-ProseGenerator-Ch2_request.md) | (pending) |
 
 ## Integrity Counters
 
@@ -39,4 +44,9 @@ Source logs: `logs/llm.jsonl`, `logs/llm-prompts-full.jsonl`
 - 09 Agent6-FairPlayAuditor (first): [request](./09_Agent6-FairPlayAuditor_request.md) | [response](./09_Agent6-FairPlayAuditor_response.md)
 - 10 Agent6-BlindReader (first): [request](./10_Agent6-BlindReader_request.md) | [response](./10_Agent6-BlindReader_response.md)
 - 11 Agent2b-CharacterProfiles (first): [request](./11_Agent2b-CharacterProfiles_request.md) | [response](./11_Agent2b-CharacterProfiles_response.md)
-- 12 Agent2c-LocationProfiles (first): [request](./12_Agent2c-LocationProfiles_request.md) | response pending
+- 12 Agent2c-LocationProfiles (first): [request](./12_Agent2c-LocationProfiles_request.md) | [response](./12_Agent2c-LocationProfiles_response.md)
+- 13 Agent2d-TemporalContext (first): [request](./13_Agent2d-TemporalContext_request.md) | [response](./13_Agent2d-TemporalContext_response.md)
+- 14 Agent65-WorldBuilder (first): [request](./14_Agent65-WorldBuilder_request.md) | [response](./14_Agent65-WorldBuilder_response.md)
+- 15 Agent7-NarrativeFormatter (first): [request](./15_Agent7-NarrativeFormatter_request.md) | [response](./15_Agent7-NarrativeFormatter_response.md)
+- 16 Agent9-ProseGenerator-Ch1 (first): [request](./16_Agent9-ProseGenerator-Ch1_request.md) | [response](./16_Agent9-ProseGenerator-Ch1_response.md)
+- 17 Agent9-ProseGenerator-Ch2 (first): [request](./17_Agent9-ProseGenerator-Ch2_request.md) | response pending
