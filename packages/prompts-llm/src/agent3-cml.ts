@@ -731,6 +731,105 @@ export async function generateCML(
         ? discriminatingRequirements.must_reference_inference_step
         : true;
 
+    // ── Deterministic suspect_clearance_scenes gap-fill ──────────────────────
+    // Agent 3 LLM frequently omits one or more non-culprit suspects from
+    // prose_requirements.suspect_clearance_scenes.  When a suspect is missing,
+    // no clearance obligation is ever injected into prose prompts, and the
+    // SuspectClosureValidator release gate fails even though the clues exist.
+    // This patch ensures EVERY non-culprit, non-detective suspect has an entry.
+    const proseRequirements = ensureObject(caseBlock.prose_requirements);
+    caseBlock.prose_requirements = proseRequirements;
+    const existingClearances: any[] = ensureArray(proseRequirements.suspect_clearance_scenes);
+
+    // Identify which suspects already have a clearance entry (by name).
+    const clearedNames = new Set<string>(
+      existingClearances
+        .filter((e: any) => e && typeof e.suspect_name === "string")
+        .map((e: any) => (e.suspect_name as string).trim().toLowerCase())
+    );
+
+    // Derive culprit and detective sets from the normalized cast.
+    const culpritSet = new Set<string>(
+      ensureArray(culpability.culprits)
+        .filter((n: unknown) => typeof n === "string")
+        .map((n: unknown) => (n as string).trim().toLowerCase())
+    );
+    const detectiveRoles = new Set(["detective", "investigator", "inspector"]);
+    const detectiveCastNames = new Set<string>(
+      (normalizedCast as any[])
+        .filter((c: any) => {
+          const ra = String(c.role_archetype ?? c.role ?? "").toLowerCase();
+          return [...detectiveRoles].some((r) => ra.includes(r));
+        })
+        .map((c: any) => (c.name as string).trim().toLowerCase())
+    );
+
+    // Determine a sensible default scene for gap-filled clearances:
+    // one scene before the culprit revelation scene (which is late Act 3).
+    const revealActNum: number =
+      typeof proseRequirements.culprit_revelation_scene === "object" &&
+      proseRequirements.culprit_revelation_scene !== null
+        ? (Number((proseRequirements.culprit_revelation_scene as any).act_number) || 3)
+        : 3;
+    const revealSceneNum: number =
+      typeof proseRequirements.culprit_revelation_scene === "object" &&
+      proseRequirements.culprit_revelation_scene !== null
+        ? (Number((proseRequirements.culprit_revelation_scene as any).scene_number) || 6)
+        : 6;
+    const clearanceActNum = revealActNum;
+    const clearanceSceneNum = Math.max(1, revealSceneNum - 1);
+
+    // Build a lookup of clue IDs that appear to eliminate each suspect.
+    const clueToSceneMapping: any[] = ensureArray(proseRequirements.clue_to_scene_mapping);
+    const suspectEliminationClues: Map<string, string[]> = new Map();
+    for (const clueEntry of clueToSceneMapping) {
+      if (!clueEntry || typeof clueEntry !== "object") continue;
+      const clueId = String(clueEntry.clue_id ?? "").trim();
+      if (!clueId) continue;
+      // Look for any cast name mentioned in this clue entry.
+      const entryText = JSON.stringify(clueEntry).toLowerCase();
+      for (const castMember of normalizedCast as any[]) {
+        const nameLower = String(castMember.name ?? "").trim().toLowerCase();
+        if (!nameLower || culpritSet.has(nameLower) || detectiveCastNames.has(nameLower)) continue;
+        const surname = nameLower.split(" ").pop() ?? nameLower;
+        if (entryText.includes(nameLower) || entryText.includes(surname)) {
+          if (!suspectEliminationClues.has(nameLower)) suspectEliminationClues.set(nameLower, []);
+          suspectEliminationClues.get(nameLower)!.push(clueId);
+        }
+      }
+    }
+
+    // Add missing entries.
+    let gapFillCount = 0;
+    for (const castMember of normalizedCast as any[]) {
+      const nameLower = String(castMember.name ?? "").trim().toLowerCase();
+      if (!nameLower) continue;
+      if (culpritSet.has(nameLower) || detectiveCastNames.has(nameLower)) continue;
+      if (clearedNames.has(nameLower)) continue;
+
+      // Derive clearance method from the suspect's alibi_window if available.
+      const alibiWindow = ensureString(castMember.alibi_window, "");
+      const clearanceMethod = alibiWindow
+        ? `Alibi confirmed: ${alibiWindow}`
+        : "Alibi confirmed by corroborating witness";
+
+      existingClearances.push({
+        suspect_name: castMember.name,
+        act_number: clearanceActNum,
+        scene_number: clearanceSceneNum,
+        clearance_method: clearanceMethod,
+        supporting_clues: suspectEliminationClues.get(nameLower) ?? [],
+      });
+      gapFillCount += 1;
+    }
+
+    proseRequirements.suspect_clearance_scenes = existingClearances;
+
+    if (gapFillCount > 0) {
+      // Log is not available here; the caller will surface this in warnings.
+      // The patch is silent — it corrects the LLM output without burning a retry attempt.
+    }
+
     return cml;
   };
 

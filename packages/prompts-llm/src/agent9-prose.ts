@@ -196,12 +196,13 @@ interface ProseLinterStats {
 }
 
 interface ProseLinterIssue {
-  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap";
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap" | "suspect_clearance_missing";
   message: string;
   /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
    *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that
    *  buildEnhancedRetryFeedback can inject a targeted BANNED PARAGRAPH block (Unit 6.2)
-   *  instead of the vague "rewrite from scratch" instruction. */
+   *  instead of the vague "rewrite from scratch" instruction. Also set for ngram_overlap
+   *  issues (P3-D) to enable a parallel BANNED NEAR-DUPLICATE block. */
   matchingPriorParagraph?: string;
 }
 
@@ -849,6 +850,11 @@ const lintBatchProse = (
     entropyWarmupChapters?: number;
     /** When true, skip the n-gram overlap check (see templateLinterProfile.skipNgramCheck). */
     skipNgramCheck?: boolean;
+    /** P2-H: Suspect clearances required in this batch.  When populated, lintBatchProse
+     *  checks that each suspect name co-occurs with elimination vocabulary in the prose.
+     *  Failures are typed as suspect_clearance_missing — classified as clue_timing (rank 95)
+     *  by classifyFailure so they receive highest-priority retry handling. */
+    matchingClearances?: Array<{ suspect_name: string; clearance_method?: string }>;
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
@@ -956,16 +962,72 @@ const lintBatchProse = (
         if (normalized.length < styleLinterConfig.ngram.min_chars) continue;
         const candidate = toNgrams(tokenizeWords(normalized), styleLinterConfig.ngram.gram_size);
         if (candidate.size < styleLinterConfig.ngram.min_candidate_ngrams) continue;
-        for (const base of priorNgrams) {
-          const overlap = jaccardSimilarity(candidate, base);
-          if (overlap >= styleLinterConfig.ngram.overlap_threshold) {
-            issues.push({
-              type: "ngram_overlap",
-              message: `Template linter: high n-gram overlap detected (${overlap.toFixed(2)} >= ${styleLinterConfig.ngram.overlap_threshold.toFixed(2)}). Rephrase this passage to avoid template leakage.`,
-            });
-            break outer;
+        // P3-D: find the prior paragraph with the highest overlap (not just first over threshold)
+        // so matchingPriorParagraph carries the most-similar passage for the BANNED block.
+        let maxOverlap = 0;
+        let maxOverlapIdx = -1;
+        for (let bi = 0; bi < priorNgrams.length; bi++) {
+          const overlap = jaccardSimilarity(candidate, priorNgrams[bi]);
+          if (overlap > maxOverlap) {
+            maxOverlap = overlap;
+            maxOverlapIdx = bi;
           }
         }
+        if (maxOverlap >= styleLinterConfig.ngram.overlap_threshold) {
+          issues.push({
+            type: "ngram_overlap",
+            message: `Template linter: high n-gram overlap detected (${maxOverlap.toFixed(2)} >= ${styleLinterConfig.ngram.overlap_threshold.toFixed(2)}). Rephrase this passage to avoid template leakage.`,
+            matchingPriorParagraph: priorCandidates[maxOverlapIdx],
+          });
+          break outer;
+        }
+      }
+    }
+  }
+
+  // P2-H: Suspect clearance check — for any chapter carrying a clearance obligation
+  // (from prose_requirements.suspect_clearance_scenes), verify the prose names the suspect
+  // with elimination-adjacent vocabulary.  Failures are typed suspect_clearance_missing so
+  // classifyFailure() maps them to clue_timing (rank 95) for highest-priority retry handling.
+  const CLEARANCE_TERMS =
+    /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+  // P2-H evidence gate: mirrors SuspectClosureValidator's EVIDENCE_TERMS so a chapter that
+  // passes P2-H always satisfies the release gate too.  Without this, "Captain Hale was
+  // cleared." (bare clearance, no evidence connector) passes P2-H but fails the validator.
+  const CLEARANCE_EVIDENCE_TERMS =
+    /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+  if (options?.matchingClearances && options.matchingClearances.length > 0) {
+    // Per-paragraph co-location check: the suspect name, clearance term, AND evidence
+    // connector must all appear in the SAME paragraph.  Checking the full chapter blob is
+    // a weaker gate than what SuspectClosureValidator enforces (per-scene co-occurrence)
+    // and causes false-passes where a suspect name appears in one paragraph and a clearance
+    // term in another.
+    const allParagraphs = batchChapters.flatMap((ch) => ch.paragraphs ?? []);
+    for (const clearance of options.matchingClearances) {
+      const suspectName = clearance.suspect_name;
+      const escapedName = suspectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const suspectPattern = new RegExp(`\\b${escapedName}\\b`, 'i');
+      // Also match by surname alone (last word), matching SuspectClosureValidator behaviour.
+      const surnameParts = suspectName.trim().split(/\s+/);
+      const surname = surnameParts[surnameParts.length - 1];
+      const escapedSurname = surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const surnamePattern = new RegExp(`\\b${escapedSurname}\\b`, 'i');
+      const hasCoLocatedClearance = allParagraphs.some(
+        (para) =>
+          (suspectPattern.test(para) || surnamePattern.test(para)) &&
+          CLEARANCE_TERMS.test(para) &&
+          CLEARANCE_EVIDENCE_TERMS.test(para)
+      );
+      if (!hasCoLocatedClearance) {
+        issues.push({
+          type: "suspect_clearance_missing",
+          message: `Clue obligation: suspect clearance missing for "${suspectName}". ` +
+            `This chapter must include a paragraph that (a) names "${suspectName}" explicitly, ` +
+            `(b) contains a clearance phrase (e.g. "cleared", "ruled out", "innocent", "alibi holds", "alibi confirmed", "could not have"), ` +
+            `AND (c) contains an evidence connector (e.g. "because", "therefore", "which proves", "alibi", "timeline", "evidence"). ` +
+            `Example: "${suspectName}'s alibi was confirmed because multiple witnesses saw them in [location] at the time." ` +
+            `Do not split the clearance across separate paragraphs.`,
+        });
       }
     }
   }
@@ -1738,10 +1800,22 @@ export function buildChapterObligationBlock(
     const chapterNumber = chapterStart + idx;
     const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene);
     const locationAnchor = String(scene?.setting?.location || scene?.location || '').trim();
-    const matchingClearances = clearanceScenes.filter((entry: any) =>
+    // Exact match first (act + scene number). Fallback to act-only for the last scene in the
+    // batch: the CML agent's scene_number values (e.g. 4, 5, 6 for act 3 scenes) frequently do
+    // not align with the outline's global sceneNumber (e.g. 8, 9 for act 3 in a 9-scene story),
+    // causing the obligation to be silently skipped.  With proseBatchSize=1 the last-in-batch
+    // condition is always true, so every Act-3 chapter receives the clearance obligation.
+    const exactClearances = clearanceScenes.filter((entry: any) =>
       Number(entry?.act_number) === Number(scene?.act) &&
       Number(entry?.scene_number) === Number(scene?.sceneNumber),
     );
+    const matchingClearances: typeof exactClearances = exactClearances.length > 0
+      ? exactClearances
+      : idx === (scenesForChapter as any[]).length - 1
+        ? clearanceScenes.filter((entry: any) =>
+            Number(entry?.act_number) === Number(scene?.act),
+          )
+        : [];
     const isDiscriminatingTestChapter =
       Number(dtScene?.act_number) === Number(scene?.act) &&
       Number(dtScene?.scene_number) === Number(scene?.sceneNumber);
@@ -1821,7 +1895,7 @@ export function buildChapterObligationBlock(
           ? (clearance.supporting_clues as string[]).filter((id: string) => id && !id.match(/^clue_id_\d+$/))
           : [];
         const clueRef = realClueIds.length > 0 ? ` Cite clues: ${realClueIds.join(', ')}.` : '';
-        lines.push(`    • "${clearance.suspect_name}": write a dedicated paragraph that (a) names ${clearance.suspect_name} explicitly, (b) states the clearance method ("${clearance.clearance_method}"), and (c) shows the supporting evidence using "because / therefore / which proves".${clueRef}`);
+        lines.push(`    • "${clearance.suspect_name}": write a dedicated paragraph that (a) names ${clearance.suspect_name} explicitly, (b) states the clearance method ("${clearance.clearance_method}"), and (c) shows the supporting evidence using "because / therefore / which proves". Accepted clearance phrases: "cleared", "ruled out", "innocent", "alibi holds", "alibi confirmed", "could not have".${clueRef}`);
       }
     }
     if (isDiscriminatingTestChapter) {
@@ -4038,6 +4112,15 @@ function extractClueLocations(caseData: CaseData, outline: NarrativeOutline): Ma
   return clueLocations;
 }
 
+/** Strip violence/crime keywords from BANNED PARAGRAPH text to avoid Azure content-filter
+ *  triggering on the guardrail itself.  Sentence structure and non-violent phrasing is
+ *  preserved — those are what the model needs to know it must avoid. (P1-I) */
+const sanitizeForContentPolicy = (text: string): string =>
+  text.replace(
+    /\b(murder(?:ed|er|ers|ing)?|poison(?:ed|ing|ous)?|strang(?:led|ling|ulation)|stabb(?:ed|ing)|kill(?:ed|ing|er|ers)?|corpse|dead\s+body|the\s+body(?:\s+of)?|body\s+was\s+found|bludgeon(?:ed|ing)?|shot\s+(?:him|her|them))\b/gi,
+    '[crime-redacted]',
+  );
+
 /**
  * Build enhanced, categorized retry feedback
  * Helps LLM understand exactly what to fix
@@ -4434,6 +4517,22 @@ const buildEnhancedRetryFeedback = (
           `  No sentence may share a first word with any sentence used in the prior ${attemptNum - 1} attempt(s) of this chapter.`
         );
       }
+      // P3-C: when template overlap and clue timing co-occur, ease constraint pressure by
+      // permitting clue delivery across multiple paragraphs rather than forcing it to paragraph 1.
+      // Trying to hit an exact placement while avoiding all repeated phrasing is the root cause
+      // of the congestion spiral that exhausts retries without resolving either failure.
+      const hasClueTimingError = rawErrors.some(
+        (e) => /clue obligation|clue evidence|clue timing|missing required clue/i.test(e),
+      );
+      if (hasClueTimingError) {
+        directives.push(
+          `PLACEMENT RELIEF [template+clue co-occurrence — attempt ${attemptNum}]: Both a template overlap AND a clue obligation failure were detected.\n` +
+          `  Do NOT force every required clue into a single paragraph — you may spread clue delivery across 2\u20133 paragraphs or reveal clues through dialogue.\n` +
+          `  Priority: write EVERY paragraph as entirely fresh prose first. Then weave in clue details as natural observations or conversations.\n` +
+          `  A chapter that avoids template repetition but omits a clue can be corrected on the next retry. ` +
+          `A chapter that copies prior prose to satisfy a clue will fail the template check immediately.`
+        );
+      }
     }
 
     return directives;
@@ -4532,34 +4631,79 @@ const buildEnhancedRetryFeedback = (
     feedback += `✓ Ensure each chapter has substance (3+ paragraphs minimum)\n\n`;
   }
 
-  if (templateErrors.length > 0) {
-    feedback += `═══ TEMPLATE LEAKAGE ERRORS (${templateErrors.length}) ═══\n`;
-    templateErrors.forEach(e => feedback += `• ${e}\n`);
-    feedback += `\n`;
-    const hasNgramOverlap = templateErrors.some(e => /high n-gram overlap/i.test(e));
-    const hasFingerprintDupe = templateErrors.some(e => /repeated long paragraph fingerprint/i.test(e));
+  // P2-A (gate fix): also enter the TEMPLATE LEAKAGE block when linterIssues carries
+  // fingerprint or ngram issues that were deferred on the previous attempt (because narrative
+  // hard errors were present and the deferred gate prevented linter messages from being
+  // pushed into batchErrors).  Without this, the BANNED PARAGRAPH/NEAR-DUPLICATE blocks
+  // can never fire when a clue error co-occurs with a template error on every attempt.
+  const hasLinterTemplateIssue = (options?.linterIssues ?? []).some(
+    (issue) => issue.type === "paragraph_fingerprint" || issue.type === "ngram_overlap",
+  );
+  if (templateErrors.length > 0 || hasLinterTemplateIssue) {
+    const shownTemplateErrors = templateErrors.length > 0 ? templateErrors : [];
+    if (shownTemplateErrors.length > 0) {
+      feedback += `═══ TEMPLATE LEAKAGE ERRORS (${shownTemplateErrors.length}) ═══\n`;
+      shownTemplateErrors.forEach(e => feedback += `• ${e}\n`);
+      feedback += `\n`;
+    } else {
+      // Linter detected template issues but they were deferred on the prior attempt.
+      feedback += `═══ TEMPLATE LEAKAGE DETECTED ═══\n`;
+      feedback += `• Your prose closely matches or repeats a paragraph from a prior chapter.\n`;
+      feedback += `  Every paragraph must be original prose unique to this chapter's scene.\n\n`;
+    }
+    // P2-A: derive from the dedicated linter-issues channel rather than templateErrors strings.
+    // When the deferred linter gate suppresses template errors from batchErrors on attempt 1
+    // (because narrative hard errors dominate), templateErrors is empty on attempt 2 but
+    // lastLinterIssues still carries the fingerprint/ngram issue.  Using the issues channel
+    // means BANNED PARAGRAPH fires even in that deferred-gate scenario.
+    const hasNgramOverlap = (options?.linterIssues ?? []).some((issue) => issue.type === "ngram_overlap") ||
+      templateErrors.some(e => /high n-gram overlap/i.test(e));
+    const hasFingerprintDupe = (options?.linterIssues ?? []).some((issue) => issue.type === "paragraph_fingerprint") ||
+      templateErrors.some(e => /repeated long paragraph fingerprint/i.test(e));
     const hasEntropyLow = templateErrors.some(e => /opening-style entropy too low/i.test(e));
     const hasScaffold = templateErrors.some(e => /templated scaffold prose/i.test(e));
     const hasMetadata = templateErrors.some(e => /metadata key-value leakage/i.test(e));
     const hasMetaLanguage = templateErrors.some(e => /meta-language about storytelling/i.test(e));
     if (hasNgramOverlap || hasFingerprintDupe) {
-      // Pillar 6 (Unit 6.2): when the flag is active and a matching prior paragraph is
-      // available, inject a targeted BANNED PARAGRAPH block instead of the vague
-      // "rewrite from scratch" message.  This gives the model exactly what it must avoid.
-      const fingerprintIssue = options?.linterIssues?.find(
+      // Pillar 6 (Unit 6.2): when the flag is active and matching prior paragraphs are
+      // available, inject targeted BANNED PARAGRAPH blocks for ALL accumulated matches.
+      // Using filter (not find) injects every banned paragraph carried forward from prior
+      // retries, preventing the whack-a-mole pattern.
+      const fingerprintIssues = (options?.linterIssues ?? []).filter(
         (issue) => issue.type === "paragraph_fingerprint" && issue.matchingPriorParagraph,
       );
-      if (hasFingerprintDupe && options?.enableSurgicalFingerprintRetry && fingerprintIssue?.matchingPriorParagraph) {
-        feedback += `⛔ BANNED PARAGRAPH — DO NOT REPRODUCE ANY SENTENCE FROM THIS TEXT:\n`;
-        feedback += `"${fingerprintIssue.matchingPriorParagraph}"\n\n`;
-        feedback += `Every sentence in your response must be a sentence that could NOT appear in the above passage.\n`;
+      if (hasFingerprintDupe && options?.enableSurgicalFingerprintRetry && fingerprintIssues.length > 0) {
+        for (const fpIssue of fingerprintIssues) {
+          const bannedFpText = sanitizeForContentPolicy(fpIssue.matchingPriorParagraph!);
+          feedback += `⛔ BANNED PARAGRAPH — DO NOT REPRODUCE ANY SENTENCE FROM THIS TEXT:\n`;
+          feedback += `"${bannedFpText}"\n\n`;
+        }
+        feedback += `Every sentence in your response must be a sentence that could NOT appear in any of the above passages.\n`;
         feedback += `You may write about the same event, but from a different physical position, a different\n`;
         feedback += `sensory angle, or at a different moment in the scene. You may not preserve a single clause.\n\n`;
-      } else {
-        feedback += `⛔ REPEAT PHRASE DETECTED — your prose shares too many words/phrases with earlier chapters.\n`;
-        feedback += `  You MUST rewrite every paragraph from scratch — do not lift or lightly rephrase any sentence from a prior chapter.\n`;
-        feedback += `  The linter compares word-sequence similarity (n-gram Jaccard) across all prior paragraphs.\n`;
-        feedback += `  See RETRY MICRO-PROMPTS below for a paragraph-by-paragraph rebuild strategy.\n\n`;
+      } else if (!options?.enableSurgicalFingerprintRetry || fingerprintIssues.length === 0) {
+        if (hasFingerprintDupe) {
+          feedback += `⛔ REPEAT PHRASE DETECTED — your prose shares too many words/phrases with earlier chapters.\n`;
+          feedback += `  You MUST rewrite every paragraph from scratch — do not lift or lightly rephrase any sentence from a prior chapter.\n`;
+          feedback += `  The linter compares word-sequence similarity (n-gram Jaccard) across all prior paragraphs.\n`;
+          feedback += `  See RETRY MICRO-PROMPTS below for a paragraph-by-paragraph rebuild strategy.\n\n`;
+        }
+      }
+      // P3-D: inject BANNED NEAR-DUPLICATE blocks for ALL accumulated n-gram overlap matches.
+      const ngramIssues = (options?.linterIssues ?? []).filter(
+        (issue) => issue.type === "ngram_overlap" && issue.matchingPriorParagraph,
+      );
+      if (hasNgramOverlap && options?.enableSurgicalFingerprintRetry && ngramIssues.length > 0) {
+        for (const ngramIssue of ngramIssues) {
+          const bannedNgramText = sanitizeForContentPolicy(ngramIssue.matchingPriorParagraph!);
+          feedback += `⛔ NEAR-DUPLICATE PASSAGE — your prose closely echoes this prior paragraph:\n`;
+          feedback += `"${bannedNgramText}"\n\n`;
+        }
+        feedback += `Rewrite any paragraph that shares sentence structure or extended phrases with any of the above texts.\n`;
+        feedback += `Different words for the same image are not sufficient — the sentence structure must also differ.\n\n`;
+      } else if (hasNgramOverlap && (!options?.enableSurgicalFingerprintRetry || ngramIssues.length === 0)) {
+        feedback += `⛔ NEAR-DUPLICATE PASSAGE — your prose closely echoes a prior chapter paragraph.\n`;
+        feedback += `Rewrite the flagged paragraph so its sentence structure and phrasing are entirely new.\n\n`;
       }
     }
     if (hasEntropyLow) {
@@ -5009,6 +5153,9 @@ export async function generateProse(
     const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
+    // Hoist isLastBatch here (outside the attempt loop) so both P1-B guardrail
+    // and the linter call site can reference it without a forward-reference error.
+    const isLastBatch = chapterEnd >= sceneCount;
     const batchStartedAt = Date.now();
     const batchCostBefore = getAgent9CostTotal(client);
     const batchGateFailureCounts = initBatchGateFailureCounts();
@@ -5126,13 +5273,17 @@ export async function generateProse(
             `POSITIONAL FREEZE: The first three paragraphs must NOT position any character "near the clock", "before the clock", "approached the clock", "gestured toward the clock", or any synonymous phrase. The clock may be referenced in dialogue only within the first three paragraphs.`,
           );
         }
-        // On the final attempt, add an explicit anti-copy guardrail.
-        // Under accumulated constraint pressure (multiple clue/phrasing directives), the LLM
-        // can reach back into the STORY TO DATE context block and copy a paragraph verbatim,
-        // triggering both the fingerprint and n-gram checks. This guardrail pre-empts that.
-        if (attempt >= maxBatchAttempts && chapters.length > 0) {
+        // Anti-copy guardrail: fires on EVERY attempt for non-final batches.
+        // The LLM can reach back into the STORY TO DATE context block and copy a paragraph
+        // verbatim on ANY attempt — not just the final one — triggering fingerprint and n-gram
+        // checks. Pre-empt this from attempt 1 onwards.
+        // EXCEPTION: the final/reveal batch is exempt — the detective recap legitimately echoes
+        // prior-chapter vocabulary (the same reason skipNgramCheck: true is applied for isLastBatch
+        // at the linter call site). Injecting it there would force the model to avoid the recap
+        // vocabulary it needs for the denouement.
+        if (chapters.length > 0 && !isLastBatch) {
           mitigationGuardrails.push(
-            "FINAL ATTEMPT ANTI-COPY RULE: The STORY TO DATE section below is provided for chronological and factual reference ONLY. " +
+            "STORY TO DATE ANTI-COPY RULE: The STORY TO DATE section below is provided for chronological and factual reference ONLY. " +
             "You MUST NOT copy, lightly rephrase, or structurally echo any sentence or paragraph from prior chapters. " +
             "Every sentence in this chapter must be original prose unique to this scene. " +
             "Reusing even a clause from prior chapter text will cause this attempt to fail immediately.",
@@ -5542,13 +5693,52 @@ export async function generateProse(
         // the detective recap prose legitimately echoes prior-chapter vocabulary.
         proseLinterStats.checksRun += 1;
         const hasNarrativeHardErrors = batchErrors.length > 0;
-        const isLastBatch = chapterEnd >= sceneCount;
-        const linterIssues = lintBatchProse(
-          proseBatch.chapters,
-          chapters,
-          [],
-          isLastBatch ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true } : inputs.templateLinterProfile,
+        // isLastBatch is hoisted before the attempt loop to avoid forward-reference error.
+        // P2-H: compute which clearance obligations apply to this batch's scenes.
+        const allClearanceScenes: Array<{ act_number: number; scene_number: number; suspect_name: string; clearance_method?: string }> =
+          Array.isArray(cmlCase.prose_requirements?.suspect_clearance_scenes)
+            ? cmlCase.prose_requirements.suspect_clearance_scenes
+            : [];
+        // P2-H scene matching: try exact (act + scene) first; fall back to act-only for
+        // the last batch in each act when no exact match is found.  The CML agent outputs
+        // scene_number values (e.g. 4-6 for act 3) that do not align with the outline's
+        // global sceneNumber (e.g. 8-9 for act 3 in a 9-scene story), causing exact matching
+        // to silently produce zero results.  The fallback fires the clearance gate on the
+        // last chapter of each act, which is the natural position for clearance prose.
+        let batchMatchingClearances = allClearanceScenes.filter((entry) =>
+          batchScenes.some(
+            (scene: any) =>
+              Number(entry.act_number) === Number(scene.act) &&
+              Number(entry.scene_number) === Number(scene.sceneNumber),
+          ),
         );
+        if (batchMatchingClearances.length === 0 && allClearanceScenes.length > 0) {
+          const nextScene = scenes[batchStart + batchScenes.length] as any;
+          const batchActNumbers = new Set((batchScenes as any[]).map((s: any) => Number(s.act)));
+          const isLastBatchInAct = !nextScene || !batchActNumbers.has(Number(nextScene?.act));
+          if (isLastBatchInAct) {
+            batchMatchingClearances = allClearanceScenes.filter((entry) =>
+              batchActNumbers.has(Number(entry.act_number)),
+            );
+          }
+        }
+        // Skip the n-gram overlap check for the final three arc positions (pre_climax,
+        // climax, resolution — typically chapters 8-10 in a 10-chapter story).
+        // These late chapters must reference the same forensic evidence that earlier
+        // chapters established.  The pre_climax chapter builds directly on the
+        // second_turn evidence; the climax chapter (revelation) echoes all prior clues;
+        // the resolution chapter recaps the detective's deduction.  All three
+        // legitimately echo prior-chapter vocabulary, and enforcing 0.80 Jaccard
+        // overlap for them exhausts retries without meaningful quality improvement.
+        // Exact-duplicate detection (paragraph fingerprint) is still active.
+        const isLateChapter = ['pre_climax', 'climax', 'resolution'].includes(currentBatchArcPosition);
+        const linterOptions: NonNullable<Parameters<typeof lintBatchProse>[3]> = isLateChapter
+          ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true }
+          : { ...(inputs.templateLinterProfile ?? {}) };
+        if (batchMatchingClearances.length > 0) {
+          linterOptions.matchingClearances = batchMatchingClearances;
+        }
+        const linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
         if (linterIssues.length > 0) {
           proseLinterStats.failedChecks += 1;
           if (linterIssues.some((issue) => issue.type === "opening_style_entropy")) {
@@ -5593,7 +5783,19 @@ export async function generateProse(
           lastBatchErrors = batchErrors;
           // Pillar 6 (Unit 6.2): save the full linter issue objects so the next retry
           // can extract matchingPriorParagraph for the BANNED PARAGRAPH block.
-          lastLinterIssues = linterIssues;
+          // Accumulate fingerprint/n-gram issues across retries so every prior
+          // matching paragraph is carried into the BANNED block on subsequent prompts.
+          // This prevents the whack-a-mole pattern where avoiding one banned paragraph
+          // causes the LLM to land on a different prior-chapter paragraph.
+          // Other issue types (sensory grounding, clue timing, etc.) are replaced by
+          // the latest so only current failures drive the retry narrative.
+          const prevFpNgrams = lastLinterIssues.filter(
+            (prev) =>
+              (prev.type === "paragraph_fingerprint" || prev.type === "ngram_overlap") &&
+              prev.matchingPriorParagraph &&
+              !linterIssues.some((curr) => curr.matchingPriorParagraph === prev.matchingPriorParagraph),
+          );
+          lastLinterIssues = [...prevFpNgrams, ...linterIssues];
           // Pillar 6 (Unit 6.3): save the first sentence of the failing chapter so
           // structural_pivot mode can derive a forbidden-opening structure.
           const failingFirstParagraph = proseBatch.chapters[0]?.paragraphs?.[0] ?? '';

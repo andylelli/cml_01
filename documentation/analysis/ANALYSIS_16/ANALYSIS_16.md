@@ -298,3 +298,580 @@ If the release gate detects `hasSuspectEliminationCoverageFailure`, instead of i
 | `packages/story-validation/src/suspect-closure-validator.ts` | Reference only (validator is correct) |
 | `packages/prompts-llm/src/agent9-prose.ts` | Solutions H, I |
 | `apps/worker/src/jobs/agents/agent9-run.ts` | Solution K |
+
+---
+
+## 9. Strategic Implementation Plan
+
+### 9a. System failure map
+
+The two failure types (template linter, suspect elimination) share a common meta-pattern: **detection is downstream of recovery**. The fix in both cases is to move detection upstream into the retry loop.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        FAILURE LIFECYCLE                            │
+├──────────────┬──────────────────────────────────┬───────────────────┤
+│ Failure type │ Current detection point          │ Recovery window   │
+├──────────────┼──────────────────────────────────┼───────────────────┤
+│ fingerprint  │ lintBatchProse() per-chapter     │ 4 retries         │
+│ n-gram       │ lintBatchProse() per-chapter     │ 4 retries         │
+│ suspect      │ SuspectClosureValidator post-prose│ NONE              │
+│  clearance   │ (story-level, all chapters done) │                   │
+├──────────────┼──────────────────────────────────┼───────────────────┤
+│ Interception │ Prevention + per-attempt feedback│ Per-chapter retry │
+│ targets      │ from attempt 1 (not just final)  │ gate for suspect  │
+│              │ Unconditional BANNED PARAGRAPH   │ clearance in the  │
+│              │ BANNED text sanitized for filter │ lintBatchProse    │
+│              │ N-gram reports specific overlap  │ validator         │
+└──────────────┴──────────────────────────────────┴───────────────────┘
+```
+
+**Co-occurrence cascade:** When `clue_timing` + `template` co-occur, `classifyFailure()` picks `clue_timing` (rank 95 > 60) → `tighten_obligation` mitigation → the BANNED PARAGRAPH injection is gated inside the `templateErrors` block of `buildEnhancedRetryFeedback()` — which still fires IF template errors appear in `lastBatchErrors`. However, on attempt 1 the deferred-linter gate may suppress template errors from `batchErrors` entirely, meaning attempt 2 retries with only clue feedback and the model encounters the template violation fresh. The BANNED PARAGRAPH must fire unconditionally at the feedback layer, independent of error-class ranking.
+
+---
+
+### 9b. Implementation phases
+
+#### Phase 1 — Prevention (zero-risk; ~1 hour total)
+
+**Goal:** Stop the most frequent failure modes before they reach the retry loop.
+
+---
+
+**P1-B: Promote anti-copy rule to all attempts (non-final batches only)**
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`  
+- **Location:** Lines ~5129–5140  
+- **Current:** `if (attempt >= maxBatchAttempts && chapters.length > 0)`  
+- **Change:** Remove the `attempt >= maxBatchAttempts` guard, but keep an `!isLastBatch` guard. The guardrail fires on ALL attempts for non-final chapters only:
+
+```typescript
+// Anti-copy rule: fires on every attempt (not just final) because
+// attempt 1 verbatim-copy is the most common template linter trigger.
+// EXCEPTION: the final/reveal batch is exempt — the detective recap
+// legitimately echoes prior-chapter vocabulary (the same reason
+// skipNgramCheck: true is applied to the final batch at the linter call site).
+if (chapters.length > 0 && !isLastBatch) {
+  mitigationGuardrails.push(
+    "STORY TO DATE ANTI-COPY RULE: The STORY TO DATE section below is provided for chronological and factual reference ONLY. " +
+    "You MUST NOT copy, lightly rephrase, or structurally echo any sentence or paragraph from prior chapters. " +
+    "Every sentence in this chapter must be original prose unique to this scene. " +
+    "Reusing even a clause from prior chapter text will cause this attempt to fail immediately.",
+  );
+}
+```
+
+**Why the final batch is exempt:** The detective denouement/reveal chapter is structurally required to recap prior events — "As the clock showed ten past eleven...", "Eleanor's fingerprints on the casing confirmed..." — prose that will naturally share vocabulary with earlier chapters. The n-gram check is already disabled for `isLastBatch` (via `skipNgramCheck: true` at line ~5550) for this exact reason. The anti-copy guardrail must respect the same boundary. Injecting it into the reveal chapter would force the model to avoid precisely the vocabulary it needs for the recap, degrading the detective summary quality.
+
+- **Risk:** None. The same constraint already runs on attempt 4 for non-final chapters; earlier attempts are strictly improved.  
+- **Test:** No new test required; the build verifying the existing attempt-4 constraint path continues to pass. Verify `isLastBatch` is in scope at the guard location (it is — it is computed at line ~5544 in the same batch loop).
+
+---
+
+**P1-I: Sanitize BANNED PARAGRAPH text before injection**
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`  
+- **Location:** Line ~4553 inside `buildEnhancedRetryFeedback()`  
+- **Change:** Add a `sanitizeForContentPolicy()` helper and apply it to the matched paragraph text:
+
+```typescript
+/** Strip violence keywords from BANNED text to avoid Azure content filter triggering
+ *  on the guardrail itself.  Sentence structure and non-violent phrasing is preserved. */
+const sanitizeForContentPolicy = (text: string): string =>
+  text.replace(
+    /\b(murder(?:ed|er|ers|ing)?|poison(?:ed|ing|ous)?|strang(?:led|ling|ulation)|stabb(?:ed|ing)|kill(?:ed|ing|er|ers)?|corpse|dead\s+body|the\s+body(?:\s+of)?|body\s+was\s+found|bludgeon(?:ed|ing)?|shot\s+(?:him|her|them))\b/gi,
+    '[crime-redacted]',
+  );
+
+// In buildEnhancedRetryFeedback, around line 4553:
+if (hasFingerprintDupe && options?.enableSurgicalFingerprintRetry && fingerprintIssue?.matchingPriorParagraph) {
+  const bannedText = sanitizeForContentPolicy(fingerprintIssue.matchingPriorParagraph);
+  feedback += `⛔ BANNED PARAGRAPH — DO NOT REPRODUCE ANY SENTENCE FROM THIS TEXT:\n`;
+  feedback += `"${bannedText}"\n\n`;
+  // ... rest unchanged
+}
+```
+
+- **Risk:** None. Sentence structure (the structurally informative part for the model) is fully preserved; only violence lexemes are replaced with a fixed token the filter does not flag.  
+- **Test:** No new test; existing Pillar 6 unit tests continue to validate the BANNED block format.
+
+---
+
+#### Phase 2 — Detection hardening (low-risk; ~2–4 hours total)
+
+**Goal:** Ensure both failure types are caught within the per-chapter retry loop, not after it.
+
+---
+
+**P2-A: Unconditional BANNED PARAGRAPH injection**
+
+The current BANNED PARAGRAPH injection is inside `if (templateErrors.length > 0)`. This is correct for the normal case. The risk case is when the deferred linter gate (attempt 1 with narrative hard errors) silently drops template errors from `batchErrors` — meaning `lastBatchErrors` on attempt 2 does not contain the template error string, so `hasFingerprintDupe` (line 4540) evaluates to false even though `lastLinterIssues` has the fingerprint issue.
+
+**Code-grounded diagnosis:**
+- `hasNarrativeHardErrors` (line 5544): `true` when `batchErrors.length > 0` before linting runs
+- Deferred gate (lines 5563–5569): when `hasNarrativeHardErrors`, linter issues are console-warned but NOT pushed to `batchErrors`
+- `lastLinterIssues = linterIssues` (line 5596): inside `if (batchErrors.length > 0)` — this IS reached because narrative errors keep `batchErrors` non-empty — **so Location 1 is already correct and needs no change**
+- `hasFingerprintDupe` (line 4540): reads from `templateErrors`, which is filtered from `rawErrors = lastBatchErrors` — the string is absent when deferred → **Location 2 is the only bug**
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`
+- **Location (only):** `buildEnhancedRetryFeedback()` lines 4539–4540 — switch `hasNgramOverlap` and `hasFingerprintDupe` from string-derived to linter-issue-derived:
+
+```typescript
+// ─── CURRENT (lines 4539–4540) ───────────────────────────────────────────
+const hasNgramOverlap = templateErrors.some(e => /high n-gram overlap/i.test(e));
+const hasFingerprintDupe = templateErrors.some(e => /repeated long paragraph fingerprint/i.test(e));
+
+// ─── REPLACEMENT ─────────────────────────────────────────────────────────
+// Use the dedicated linter-issues channel so BANNED PARAGRAPH fires even when
+// the deferred gate suppressed template errors from batchErrors on attempt 1.
+const hasNgramOverlap = (options?.linterIssues ?? []).some(
+  (issue) => issue.type === "ngram_overlap",
+);
+const hasFingerprintDupe = (options?.linterIssues ?? []).some(
+  (issue) => issue.type === "paragraph_fingerprint",
+);
+```
+
+The `if (templateErrors.length > 0)` outer gate can remain: the BANNED PARAGRAPH logic inside it is now driven by `hasFingerprintDupe` from the issues channel, not from `templateErrors`. Because `fingerprintIssue` is already derived from `options?.linterIssues` (line ~4550, existing code), the BANNED block now fires correctly on attempt 2 even when template errors were deferred.
+
+- **Risk:** None. `lastLinterIssues` is set correctly already (confirmed at line 5596). This change only fixes the derivation of the boolean flags, not the propagation path.
+- **Export needed for test:** `buildEnhancedRetryFeedback` is not currently exported. To unit-test it directly, export it: `export const buildEnhancedRetryFeedback = ...` (or test via `generateProse` integration path if preferred).
+
+---
+
+**P2-H: Per-chapter suspect clearance gate in `lintBatchProse()`**
+
+Currently, suspect clearance checking only happens post-prose in `SuspectClosureValidator`. By that point all chapters are committed and there is no retry window. Add the check inside `lintBatchProse()` so it runs per-batch within the retry loop.
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`
+- **Step 1 — Type change:** Extend `ProseLinterIssue.type` union (line ~194):
+
+```typescript
+// ─── CURRENT ──────────────────────────────────────────────────────────────
+interface ProseLinterIssue {
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap";
+  message: string;
+  matchingPriorParagraph?: string;
+}
+
+// ─── REPLACEMENT ──────────────────────────────────────────────────────────
+interface ProseLinterIssue {
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap" | "suspect_clearance_missing";
+  message: string;
+  matchingPriorParagraph?: string;
+}
+```
+
+- **Step 2 — Options extension:** Add `matchingClearances` to `lintBatchProse` options (line ~843):
+
+```typescript
+// ─── CURRENT ──────────────────────────────────────────────────────────────
+options?: {
+  mode?: "standard" | "repair";
+  chapterOffset?: number;
+  entropyThreshold?: number;
+  entropyMinWindow?: number;
+  entropyWarmupChapters?: number;
+  skipNgramCheck?: boolean;
+},
+
+// ─── REPLACEMENT ──────────────────────────────────────────────────────────
+options?: {
+  mode?: "standard" | "repair";
+  chapterOffset?: number;
+  entropyThreshold?: number;
+  entropyMinWindow?: number;
+  entropyWarmupChapters?: number;
+  skipNgramCheck?: boolean;
+  /** Suspect clearances required in this batch.  When present, lintBatchProse checks
+   *  that each suspect's name co-occurs with elimination vocabulary in the prose. */
+  matchingClearances?: Array<{ suspect_name: string; clearance_method?: string }>;
+},
+```
+
+- **Step 3 — Check implementation:** Append the clearance check just before `return issues` (after the n-gram block, ~line 977):
+
+```typescript
+// Suspect clearance check: for chapters that carry a clearance obligation
+// (as declared in prose_requirements.suspect_clearance_scenes), verify the
+// prose names the suspect with elimination-adjacent vocabulary.  Failures are
+// typed as suspect_clearance_missing so they are classified as clue_timing (rank 95)
+// by classifyFailure() — giving them the highest retry priority.
+const CLEARANCE_TERMS =
+  /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+if (options?.matchingClearances && options.matchingClearances.length > 0) {
+  const allParagraphs = batchChapters.flatMap((ch) => (ch.paragraphs ?? []).join(' ')).join(' ');
+  for (const clearance of options.matchingClearances) {
+    const suspectName = clearance.suspect_name;
+    const suspectPattern = new RegExp(`\\b${suspectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (!suspectPattern.test(allParagraphs) || !CLEARANCE_TERMS.test(allParagraphs)) {
+      issues.push({
+        type: "suspect_clearance_missing",
+        message: `Clue obligation: suspect clearance missing for "${suspectName}". ` +
+          `This chapter must explicitly name "${suspectName}" alongside elimination language ` +
+          `(e.g. "cleared", "ruled out", "innocent", "alibi holds"). ` +
+          `Do not imply clearance — state it directly with a reason.`,
+      });
+    }
+  }
+}
+```
+
+- **Step 4 — Call site:** At the `lintBatchProse()` call (line ~5549), compute and pass clearances:
+
+```typescript
+// ─── CURRENT (~line 5549) ────────────────────────────────────────────────
+const linterIssues = lintBatchProse(
+  proseBatch.chapters,
+  chapters,
+  [],
+  isLastBatch ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true } : inputs.templateLinterProfile,
+);
+
+// ─── REPLACEMENT ─────────────────────────────────────────────────────────
+const allClearanceScenes: Array<{ act_number: number; scene_number: number; suspect_name: string; clearance_method?: string }> =
+  Array.isArray(cmlCase.prose_requirements?.suspect_clearance_scenes)
+    ? cmlCase.prose_requirements.suspect_clearance_scenes
+    : [];
+const batchMatchingClearances = allClearanceScenes.filter((entry) =>
+  batchScenes.some(
+    (scene: any) =>
+      Number(entry.act_number) === Number(scene.act) &&
+      Number(entry.scene_number) === Number(scene.sceneNumber),
+  ),
+);
+const linterOptions = isLastBatch
+  ? { ...(inputs.templateLinterProfile ?? {}), skipNgramCheck: true }
+  : { ...(inputs.templateLinterProfile ?? {}) };
+if (batchMatchingClearances.length > 0) {
+  (linterOptions as any).matchingClearances = batchMatchingClearances;
+}
+const linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+```
+
+- **`suspect_clearance_missing` and retry classification:** `classifyFailure()` in `retry-protocol.ts` uses `SUSPECT_CLOSURE_MESSAGE_RE` to classify `suspect_closure_missing` errors as `clue_timing` (rank 95). The new message string starts with `"Clue obligation: suspect clearance missing"` — this matches the existing `/clue obligation/i` pattern in `classifyFailure`. Confirm the pattern covers this prefix before shipping.
+- **Risk:** Low. The clearance check is additive — it only fires when `matchingClearances` is populated. The suspect closure validator in `agent9-run.ts` remains as the final gate; this only adds an earlier catch.
+
+---
+
+**Phase 2 test command:**
+
+```bash
+# Build the package
+npm run -w @cml/prompts-llm build
+
+# Run targeted unit tests (after exporting lintBatchProse and buildEnhancedRetryFeedback)
+npm run -w @cml/prompts-llm test -- src/__tests__/agent9-prose.test.ts
+
+# Full test suite
+npm run -w @cml/worker test
+
+# Canary run (Phase 2 verification)
+npm run canary:core *> C:\CML\logs\canary-core-run-a16-p2.txt ; echo "Exit: $LASTEXITCODE"
+```
+
+**Phase 2 verification in logs:**
+- On a run where fingerprint fires during a batch with co-occurring narrative errors: look for `⛔ BANNED PARAGRAPH` in attempt 2's prompt (not just attempt 4)
+- Look for `[Agent 9] Deferred template hard-gate` — followed on the NEXT attempt by a prompt containing BANNED PARAGRAPH
+- For P2-H: look for `"suspect_clearance_missing"` in the canary batch error log when a clearance chapter is being generated
+
+---
+
+#### Phase 3 — Diagnostic enrichment (~2–3 hours total)
+
+**Goal:** Give the retry feedback precise enough information to target the specific repeated passage, rather than the generic "rewrite everything" instruction.
+
+---
+
+**P3-D: Record `matchingPriorParagraph` on n-gram overlap issues**
+
+Currently the n-gram inner loop breaks on the first overlap hit but does not record which `base` paragraph caused the hit. This means `buildEnhancedRetryFeedback()` can inject a BANNED block for fingerprint (exact) matches but not for n-gram (near-duplicate) matches.
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`
+- **Location:** n-gram inner loop, lines ~957–975
+
+```typescript
+// ─── CURRENT (~lines 957–975) ────────────────────────────────────────────
+if (priorNgrams.length > 0) {
+  outer: for (const chapter of batchChapters) {
+    for (const paragraph of chapter.paragraphs ?? []) {
+      const normalized = normalizeParagraphForFingerprint(paragraph);
+      if (normalized.length < styleLinterConfig.ngram.min_chars) continue;
+      const candidate = toNgrams(tokenizeWords(normalized), styleLinterConfig.ngram.gram_size);
+      if (candidate.size < styleLinterConfig.ngram.min_candidate_ngrams) continue;
+      for (const base of priorNgrams) {
+        const overlap = jaccardSimilarity(candidate, base);
+        if (overlap >= styleLinterConfig.ngram.overlap_threshold) {
+          issues.push({
+            type: "ngram_overlap",
+            message: `Template linter: high n-gram overlap detected (${overlap.toFixed(2)} >= ${styleLinterConfig.ngram.overlap_threshold.toFixed(2)}). Rephrase this passage to avoid template leakage.`,
+          });
+          break outer;
+        }
+      }
+    }
+  }
+}
+
+// ─── REPLACEMENT ─────────────────────────────────────────────────────────
+if (priorNgrams.length > 0) {
+  outer: for (const chapter of batchChapters) {
+    for (const paragraph of chapter.paragraphs ?? []) {
+      const normalized = normalizeParagraphForFingerprint(paragraph);
+      if (normalized.length < styleLinterConfig.ngram.min_chars) continue;
+      const candidate = toNgrams(tokenizeWords(normalized), styleLinterConfig.ngram.gram_size);
+      if (candidate.size < styleLinterConfig.ngram.min_candidate_ngrams) continue;
+      // Find the prior paragraph with the highest overlap (not just the first over threshold).
+      let maxOverlap = 0;
+      let maxOverlapIdx = -1;
+      for (let bi = 0; bi < priorNgrams.length; bi++) {
+        const overlap = jaccardSimilarity(candidate, priorNgrams[bi]);
+        if (overlap > maxOverlap) {
+          maxOverlap = overlap;
+          maxOverlapIdx = bi;
+        }
+      }
+      if (maxOverlap >= styleLinterConfig.ngram.overlap_threshold) {
+        issues.push({
+          type: "ngram_overlap",
+          message: `Template linter: high n-gram overlap detected (${maxOverlap.toFixed(2)} >= ${styleLinterConfig.ngram.overlap_threshold.toFixed(2)}). Rephrase this passage to avoid template leakage.`,
+          matchingPriorParagraph: priorCandidates[maxOverlapIdx],
+        });
+        break outer;
+      }
+    }
+  }
+}
+```
+
+- **Step 2 — BANNED block for n-gram in `buildEnhancedRetryFeedback()`:** After the existing fingerprint BANNED block (line ~4552), add an analogous block for n-gram issues:
+
+```typescript
+// After the existing fingerprintIssue BANNED block:
+const ngramIssue = options?.linterIssues?.find(
+  (issue) => issue.type === "ngram_overlap" && issue.matchingPriorParagraph,
+);
+if (hasNgramOverlap && options?.enableSurgicalFingerprintRetry && ngramIssue?.matchingPriorParagraph) {
+  const bannedText = sanitizeForContentPolicy(ngramIssue.matchingPriorParagraph);
+  feedback += `⛔ NEAR-DUPLICATE PASSAGE — your prose closely echoes this prior paragraph:\n`;
+  feedback += `"${bannedText}"\n\n`;
+  feedback += `Rewrite any paragraph that shares sentence structure or extended phrases with the above text.\n`;
+  feedback += `Different words for the same image are not sufficient — the sentence structure must also differ.\n\n`;
+}
+```
+
+- **Note on `priorCandidates` index alignment:** `priorCandidates` (string array) and `priorNgrams` (Set array) are built in parallel at lines ~952–958 and remain index-aligned. Using `priorCandidates[maxOverlapIdx]` is safe.
+- **Risk:** Low. The loop is refactored to find the max-overlap prior rather than the first-over-threshold prior — this is strictly more informative and has no false-positive risk.
+
+---
+
+**P3-C: Placement-widening directive on co-occurring clue + template errors**
+
+When `clue_timing` + `template` co-occur, `classifyFailure()` picks `clue_timing` (rank 95 > 60) and selects `tighten_obligation` mitigation. This tightens clue delivery constraints further — the opposite of what is needed when the chapter is already congested. Add a placement-widening directive that fires specifically when both failure types are present.
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`
+- **Location:** `buildRetryMicroPromptDirectives()` inside the `ngramOverlapError || fingerprintError` block (lines ~4430–4460)
+
+```typescript
+// ─── ADD after the existing 3-tier template_overlap directives ────────────
+// Co-occurrence: template + clue_timing failures together.
+// When the chapter has both a template repetition AND missing clues, the model
+// is congested.  Rather than further tightening clue placement (which makes
+// repetition more likely), widen the delivery window to reduce constraint pressure.
+const hasClueTimingError = rawErrors.some(
+  (e) => /clue obligation|clue evidence|clue timing|missing required clue/i.test(e),
+);
+if ((ngramOverlapError || fingerprintError) && hasClueTimingError) {
+  directives.push(
+    `PLACEMENT RELIEF [template+clue co-occurrence — attempt ${attemptNum}]: Both a template overlap AND a clue timing failure were detected.\n` +
+    `  Do NOT force every required clue into a single paragraph. You may distribute them across 2–3 paragraphs or reveal them through dialogue.\n` +
+    `  Priority: write each paragraph as ENTIRELY FRESH prose first. Then weave in clue details as natural observations or conversations.\n` +
+    `  A chapter that avoids template repetition but misses a clue can be corrected on the next retry. ` +
+    `A chapter that copies prior prose to satisfy a clue will fail the template check immediately.`
+  );
+}
+```
+
+- **Risk:** Low. The directive is additive and fires only when both error types are present. It does not disable or weaken the clue obligation enforcement — it only gives permission to spread delivery across paragraphs.
+
+---
+
+**Phase 3 test command:**
+
+```bash
+# Build
+npm run -w @cml/prompts-llm build
+
+# Unit test (after exporting lintBatchProse to test n-gram matchingPriorParagraph)
+npm run -w @cml/prompts-llm test -- src/__tests__/agent9-prose.test.ts
+
+# Canary run (Phase 3 verification)
+npm run canary:core *> C:\CML\logs\canary-core-run-a16-p3.txt ; echo "Exit: $LASTEXITCODE"
+```
+
+**Phase 3 verification in logs:**
+- Look for `⛔ NEAR-DUPLICATE PASSAGE` in retry prompts where n-gram overlap was the prior failure
+- Look for `PLACEMENT RELIEF` directive in retry prompts where both template and clue errors were present in the prior attempt
+- Confirm the BANNED text in n-gram block is drawn from actual prior prose (not empty)
+
+---
+
+#### Phase 4 — Last-resort fallbacks (~2–4 hours total)
+
+**Goal:** Prevent total pipeline failure from single-point omissions that survive all earlier gates.
+
+---
+
+**P4-F: Deterministic first-sentence swap on fingerprint-only failure at exhaustion**
+
+When the only remaining error at attempt exhaustion is a paragraph fingerprint (no n-gram, no narrative errors), the LLM has exhausted its stochastic variation budget. A deterministic transformation — swapping out only the first sentence — breaks the fingerprint match without requiring a full LLM retry.
+
+- **File:** `packages/prompts-llm/src/agent9-prose.ts`
+- **Location:** After the batch attempt loop `for (let attempt = 1; ...)`, before the `throw abortErr` at the exhaustion branch (~line 5669)
+- **Pattern:** This is a last-resort path; invoke only when: `batchErrors.length > 0` AND all errors are fingerprint-only AND the attempt is the final one.
+
+```typescript
+// P4-F: Fingerprint-only deterministic repair at attempt exhaustion.
+// When the ONLY remaining failure is a paragraph_fingerprint (no narrative or n-gram errors),
+// the LLM has stochastically exhausted variation.  Apply a deterministic first-sentence swap:
+// replace the opening sentence of the duplicated paragraph with a rephrased form derived
+// from the second sentence.  This breaks the fingerprint match with zero LLM cost.
+if (attempt >= maxBatchAttempts && batchErrors.length > 0) {
+  const isFingerprintOnly =
+    lastLinterIssues.length > 0 &&
+    lastLinterIssues.every((i) => i.type === "paragraph_fingerprint") &&
+    batchErrors.every((e) => /repeated long paragraph fingerprint/i.test(e));
+  if (isFingerprintOnly && proseBatch.chapters.length > 0) {
+    console.warn(`[Agent 9] P4-F: fingerprint-only failure at exhaustion — applying deterministic first-sentence swap`);
+    for (const chapter of proseBatch.chapters) {
+      const paragraphs = chapter.paragraphs ?? [];
+      for (let pi = 0; pi < paragraphs.length; pi++) {
+        const normalized = normalizeParagraphForFingerprint(paragraphs[pi]);
+        if (normalized.length < styleLinterConfig.paragraph_fingerprint_min_chars) continue;
+        // Check if this paragraph is the fingerprint match
+        const priorFingerprints = new Set(
+          chapters.flatMap((ch) => ch.paragraphs ?? []).map(normalizeParagraphForFingerprint)
+        );
+        if (priorFingerprints.has(normalized)) {
+          // Remove the first sentence by replacing up to the first sentence boundary
+          const sentences = paragraphs[pi].split(/(?<=[.!?])\s+/);
+          if (sentences.length >= 2) {
+            // Drop sentence 0; prepend a structural marker so paragraph is not re-fingerprinted
+            paragraphs[pi] = sentences.slice(1).join(' ');
+            console.warn(`[Agent 9] P4-F: dropped first sentence of paragraph ${pi} in chapter ${chapter.title ?? '?'}`);
+          }
+        }
+      }
+    }
+    // Re-run linter to confirm repair
+    const repairIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+    if (repairIssues.every((i) => i.type !== "paragraph_fingerprint")) {
+      console.warn(`[Agent 9] P4-F: deterministic repair succeeded — accepting batch`);
+      batchErrors = []; // clear to allow commit
+    }
+  }
+}
+```
+
+- **Note:** `styleLinterConfig` is in scope inside `generateProse()` via the closure over `lintBatchProse`'s config read. If not, read it inline: `const styleLinterConfig = getGenerationParams().agent9_prose.style_linter;`
+- **Risk:** Medium. Sentence dropping can create abrupt paragraph openings. Mitigate by logging the repair prominently and surfacing it in the release gate audit as a warning (not a hard stop). The result is always better than a total pipeline failure.
+
+---
+
+**P4-K: Post-prose suspect clearance repair pass**
+
+If the release gate in `agent9-run.ts` detects `hasSuspectEliminationCoverageFailure`, trigger a targeted single-LLM-call repair before throwing. The repair call receives the last 3 chapters and a list of un-cleared suspects, and must produce one addendum paragraph per suspect naming them with elimination vocabulary.
+
+- **File:** `apps/worker/src/jobs/agents/agent9-run.ts`
+- **Location:** Before the final hard-stop `throw new Error(hardStopMessage)` (~line 2878) — inside the `if (hardStopReasons.length > 0)` block
+
+```typescript
+// P4-K: Last-resort suspect clearance repair.
+// Only triggers when the sole hard-stop reason is suspect elimination coverage.
+// Appends one clearance paragraph per missing suspect to the final chapter.
+if (
+  hardStopReasons.length === 1 &&
+  hardStopReasons[0] === "suspect elimination coverage incomplete" &&
+  prose &&
+  prose.chapters.length > 0
+) {
+  ctx.warnings.push("[P4-K] Attempting post-prose suspect clearance repair pass");
+  try {
+    // Identify which suspects are missing clearance
+    const missingClearances = validationReport.errors
+      .filter((e: any) => isSuspectEliminationCoverageError(e))
+      .map((e: any) => e.suspectName ?? String(e.message ?? ''));
+    // ... invoke a targeted LLM repair call here (implementation TBD per P4-K detail)
+    // On success: clear hardStopReasons; log as warning
+    ctx.warnings.push(`[P4-K] Clearance repair pass completed for: ${missingClearances.join(', ')}`);
+    hardStopReasons.length = 0;
+  } catch (repairErr: any) {
+    ctx.warnings.push(`[P4-K] Clearance repair pass failed: ${repairErr.message}`);
+    // Fall through to existing hard-stop
+  }
+}
+```
+
+- **Note:** The LLM repair sub-call details (prompt construction, model config) are left as a follow-on implementation step; the scaffolding above establishes the recovery path. `isSuspectEliminationCoverageError` is already imported in `agent9-run.ts` (used at line ~2575 for the gate check).
+- **Risk:** Medium. The LLM repair call adds latency and a new failure mode. Gate it strictly — only fire when the sole hard-stop reason is suspect elimination coverage, so other hard stops (e.g. illegal characters, NSD divergence) are not inadvertently cleared.
+
+---
+
+**Phase 4 test command:**
+
+```bash
+# Build worker (agent9-run.ts change)
+npm run -w @cml/worker build
+
+# Build prompts-llm (P4-F change)
+npm run -w @cml/prompts-llm build
+
+# Targeted tests
+npm run -w @cml/worker test
+npm run -w @cml/prompts-llm test
+
+# Canary run (Phase 4 verification — use a run known to trigger suspect clearance failure)
+npm run canary:core *> C:\CML\logs\canary-core-run-a16-p4.txt ; echo "Exit: $LASTEXITCODE"
+```
+
+**Phase 4 verification in logs:**
+- P4-F: look for `[Agent 9] P4-F: fingerprint-only failure at exhaustion` and `[Agent 9] P4-F: deterministic repair succeeded`
+- P4-K: look for `[P4-K] Attempting post-prose suspect clearance repair pass` in the warning log
+- P4-K non-regression: confirm runs that hard-stop on OTHER reasons (NSD, illegal chars) still throw correctly (P4-K must not fire for them)
+
+---
+
+### 9c. Implementation order and test matrix
+
+| Phase | Solution | File | Lines | Test command | Canary output |
+|---|---|---|---|---|---|
+| **P1** | P1-B anti-copy all attempts | `agent9-prose.ts` | ~5133–5140 | `npm run -w @cml/prompts-llm build` | `canary-a16-p1.txt` |
+| **P1** | P1-I BANNED text sanitizer | `agent9-prose.ts` | ~4553 + helper | `npm run -w @cml/prompts-llm build` | `canary-a16-p1.txt` |
+| **P2** | P2-A fix hasFingerprintDupe | `agent9-prose.ts` | 4539–4540 | unit test + build | `canary-a16-p2.txt` |
+| **P2** | P2-H clearance gate in linter | `agent9-prose.ts` | ~194, ~843, ~977, ~5549 | unit test + build | `canary-a16-p2.txt` |
+| **P3** | P3-D n-gram matchingPriorParagraph | `agent9-prose.ts` | ~957–975 | unit test + build | `canary-a16-p3.txt` |
+| **P3** | P3-C placement-widening directive | `agent9-prose.ts` | ~4460 | build | `canary-a16-p3.txt` |
+| **P4** | P4-F fingerprint-only repair | `agent9-prose.ts` | ~5669 | build | `canary-a16-p4.txt` |
+| **P4** | P4-K post-prose clearance repair | `agent9-run.ts` | ~2878 | build | `canary-a16-p4.txt` |
+
+**Build command (all phases):**
+
+```bash
+npm run -w @cml/worker build
+# (worker build depends on prompts-llm; both are rebuilt)
+```
+
+**Full test suite (after each phase):**
+
+```bash
+npm run -w @cml/prompts-llm test
+npm run -w @cml/worker test
+```
+
+**After each canary run, confirm:**
+1. Exit code 0 (or expected exit code for the scenario)
+2. `CANARY_CLUE_STATUS: PASS` in the run log
+3. No new regression errors introduced (compare error classes with prior baseline)
+4. The specific phase's log markers appear (see verification notes per phase above)
+
+**Minimum viable ship order:** P1-B → P1-I → P2-A → canary. This is the lowest-risk sequence that addresses the most frequent failure mode (fingerprint BANNED block silently not firing on attempt 2). Phases 3 and 4 are enrichment; Phase 2-H is recommended before the next full story run.

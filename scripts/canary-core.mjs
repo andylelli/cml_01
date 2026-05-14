@@ -1,4 +1,5 @@
 import path from "path";
+import { mkdir, writeFile } from "fs/promises";
 import { config } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
@@ -75,4 +76,44 @@ console.log("CANARY_CLUE_AUDIT", JSON.stringify(_clueAudit));
 console.log("WARNINGS_COUNT", result.warnings.length);
 if (result.warnings.length) {
   console.log("WARNINGS", JSON.stringify(result.warnings.slice(0, 6)));
+}
+
+// ── Save human-readable story to C:\CML\stories ──────────────────────────
+try {
+  const prose = result.prose ?? {};
+  const chapters = Array.isArray(prose.chapters) ? prose.chapters : [];
+
+  if (chapters.length > 0) {
+    const runId = result.metadata.runId;
+    const rawTitle = String(prose.title || prose.note || result.cml?.title || "Mystery Story");
+    const storyTitle = rawTitle.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
+
+    // Slug from title: lowercase, replace non-alnum with underscores, trim
+    const slug = storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48);
+    const now = new Date();
+    const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
+    const storyDir = path.join(root, "stories", `story_${datePart}`);
+    const storyFile = path.join(storyDir, `${slug}.md`);
+
+    const lines = [`# ${storyTitle}`, ``, `*Run ID: ${runId} — Generated ${now.toDateString()}*`, ``, `---`];
+
+    for (let i = 0; i < chapters.length; i++) {
+      const ch = chapters[i];
+      const chTitle = String(ch.title || `Chapter ${i + 1}`).replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
+      lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
+      const paragraphs = Array.isArray(ch.paragraphs) ? ch.paragraphs : (ch.text ? [ch.text] : []);
+      for (const p of paragraphs) {
+        const text = String(p ?? "").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
+        if (text) lines.push(text, ``);
+      }
+      lines.push(`---`);
+    }
+
+    const content = lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+    await mkdir(storyDir, { recursive: true });
+    await writeFile(storyFile, content, "utf-8");
+    console.log("STORY_SAVED", storyFile);
+  }
+} catch (storySaveErr) {
+  console.error("STORY_SAVE_FAILED", String(storySaveErr));
 }
