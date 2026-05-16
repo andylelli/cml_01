@@ -26,7 +26,7 @@ export interface RetryPacket {
 const classifySingle = (error: string): RetryFailureClass => {
   const e = error.toLowerCase();
   if (/mojibake|encoding|utf-8|control char/.test(e)) return "encoding";
-  if (/template linter|opening-style entropy|ngram|paragraph fingerprint|prompt leakage/.test(e)) return "template";
+  if (/template linter|opening-style entropy|ngram|paragraph fingerprint|prompt leakage|scene-template text leaked|internal audit note leaked/.test(e)) return "template";
   if (/chapter\.paragraphs|chapter\.title|\bstructure\b|\bformat\b|has only \d+ paragraph/.test(e)) return "structure";
   if (/clue timing|clue visibility|discriminating test|missing clue|revealed without evidence|evidence anchor/.test(e)) return "clue_timing";
   if (/pronoun|continuity|name mismatch|timeline/.test(e)) return "continuity";

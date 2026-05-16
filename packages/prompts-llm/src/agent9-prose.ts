@@ -196,7 +196,7 @@ interface ProseLinterStats {
 }
 
 interface ProseLinterIssue {
-  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap" | "suspect_clearance_missing";
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "ngram_overlap" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed";
   message: string;
   /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
    *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that
@@ -1032,6 +1032,55 @@ const lintBatchProse = (
     }
   }
 
+  // ANALYSIS_17 Issue I — Template-bleed linter check.
+  // Detects raw scene-template text that the LLM has reproduced verbatim instead of
+  // synthesizing into natural period prose.  Hard-fails the chapter so it retries
+  // with an explicit instruction to rewrite as fiction.
+  const TEMPLATE_BLEED_PATTERNS: RegExp[] = [
+    /\bmet them with\b/i,
+    /\bthreaded through the scene\b/i,
+    /\bclung to coats and curtains\b/i,
+    /\bleft the room feeling\b/i,
+    /\bseemed to signal a\b.{0,40}\bturn in events\b/i,
+    /\bsharpened the\b.{0,40}\btension\b/i,
+    /^by the time they reached\b/im,
+    /\b(felt sharply|carried overcast|met them with overcast)\b/i,
+    /affecting outdoor activities/i,
+    /tense and brooding,? with an underlying sense of unease among the guests/i,
+  ];
+  // ANALYSIS_17 Issue III — Debug-note bleed linter check.
+  // Catches internal annotation metadata that has leaked verbatim into prose output.
+  const DEBUG_NOTE_PATTERNS: RegExp[] = [
+    /the detail is explicit:/i,
+    /this detail added\b.*?\btexture\b/i,
+    /\[locked fact\]/i,
+    /without changing the essential deduction chain/i,
+  ];
+  for (const chapter of batchChapters) {
+    for (const paragraph of chapter.paragraphs ?? []) {
+      for (const pattern of TEMPLATE_BLEED_PATTERNS) {
+        if (pattern.test(paragraph)) {
+          issues.push({
+            type: 'template_bleed',
+            message:
+              'Template linter: scene-template text leaked into prose. Rewrite the chapter opening as natural prose synthesized from the scene context — do not reproduce location metadata, weather descriptions, or scaffold phrases verbatim.',
+          });
+          break;
+        }
+      }
+      for (const pattern of DEBUG_NOTE_PATTERNS) {
+        if (pattern.test(paragraph)) {
+          issues.push({
+            type: 'debug_note_bleed',
+            message:
+              'Internal audit note leaked into prose. Never reproduce instruction metadata in your fiction output. Rewrite the passage as natural narrative.',
+          });
+          break;
+        }
+      }
+    }
+  }
+
   return issues;
 };
 
@@ -1814,7 +1863,7 @@ export function buildChapterObligationBlock(
     if (wordTarget) {
       lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
     }
-    lines.push(`  - Location anchor: ${locationAnchor || 'use the canonical scene location immediately in the opening paragraph'}.`);
+    lines.push(`  - Scene setting: ${locationAnchor || 'the canonical scene location'} — do NOT open with the location name or a location-description phrase. Ground the setting through character action or sensory detail, not a location-first sentence.`);
     lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark. A chapter that omits all of these from its opening paragraph will be rejected.`);    
 
     if (continuityTailExcerpt && idx === 0) {
@@ -1837,8 +1886,8 @@ export function buildChapterObligationBlock(
           const earlyFlag = clue.placement === 'early'
             ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
-          lines.push(`    • ${clue.description.trim()} [${clueId}]${earlyFlag}`);
-          lines.push(`      Points to: ${clue.pointsTo.trim()}`);
+          lines.push(`    • ${String(clue.description ?? '').trim()} [${clueId}]${earlyFlag}`);
+          lines.push(`      Points to: ${String(clue.pointsTo ?? '').trim()}`);
           if (clue.placement === 'early') {
             lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
             lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
@@ -2147,13 +2196,15 @@ function buildPronounAccuracyBlock(cast: any[]): string {
   // Table columns: subject / object / possessive / reflexive.
   // Using four distinct forms prevents ambiguity — 'she/her/her' looked like a typo;
   // 'she/her/herself' gives three distinct tokens the model can act on.
+  // ANALYSIS_17 Issue II: add explicit "NEVER use" anti-form for each character.
   const pronounTable = knownGenderCast.map((c: any) => {
     const gender = c.gender!.toLowerCase();
     const pronouns = gender === 'male' ? 'he/him/his/himself' : 'she/her/her/herself';
-    return `  • ${c.name}: ${pronouns}`;
+    const wrongPronouns = gender === 'male' ? 'she/her/herself' : 'he/him/his/himself';
+    return `  • ${c.name}: ALWAYS ${pronouns} — NEVER ${wrongPronouns}`;
   }).join('\n');
 
-  return `\n\nPRONOUN ACCURACY — MANDATORY CONTINUITY CONTRACT\n\nThe following pronouns are locked facts, on the same level as character names\nand hard-logic device values. Using the wrong pronoun is a continuity error,\nnot a style choice.\n\nCanonical pronoun table (subject / object / possessive / reflexive):\n${pronounTable}\n\nMANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence\nthat contains a pronoun and verify it against the table. If any mismatch is found,\ncorrect it before outputting. This check is not optional.\n\nRules:\n1. Every sentence is subject to this table — no exceptions for dialogue, reflection,\n   narration, or attribution.\n2. When characters of different genders appear in the same sentence and a pronoun\n   could refer to more than one of them, use the character's name instead of a pronoun\n   to eliminate ambiguity entirely.\n3. A pronoun must never migrate from one character to another across a semicolon,\n   comma splice, or consecutive sentence — even when the same pronoun gender applies\n   to multiple characters.\n4. "Her" takes two grammatical functions — both are exclusively female:\n   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"\n   • Possessive determiner (before a noun): "her coat", "her voice"\n   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".\n5. Reflexive pronouns (himself/herself/themselves) must match the table above.\n   "Graham Worsley excused herself" is a pronoun error regardless of sentence position.\n6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must\n   agree with the SPEAKER's gender — not the last character named inside the quoted speech.\n7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun\n   gender must still match the referent character's canonical set in the table.`;
+  return `\n\n⛔ ABSOLUTE PRONOUN LOCK — NO EXCEPTIONS\n\nThe following pronouns are locked facts, on the same level as character names\nand hard-logic device values. Using the wrong pronoun is a continuity error,\nnot a style choice.\n\nCanonical pronoun table (subject / object / possessive / reflexive):\n${pronounTable}\n\nThis rule overrides stylistic choice. If you are unsure which pronoun to use for a character,\nre-read their name above. There is no character in this story with ambiguous gender.\n\nMANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence\nthat contains a pronoun and verify it against the table. If any mismatch is found,\ncorrect it before outputting. This check is not optional.\n\nRules:\n1. Every sentence is subject to this table — no exceptions for dialogue, reflection,\n   narration, or attribution.\n2. When characters of different genders appear in the same sentence and a pronoun\n   could refer to more than one of them, use the character's name instead of a pronoun\n   to eliminate ambiguity entirely.\n3. A pronoun must never migrate from one character to another across a semicolon,\n   comma splice, or consecutive sentence — even when the same pronoun gender applies\n   to multiple characters.\n4. "Her" takes two grammatical functions — both are exclusively female:\n   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"\n   • Possessive determiner (before a noun): "her coat", "her voice"\n   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".\n5. Reflexive pronouns (himself/herself/themselves) must match the table above.\n6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must\n   agree with the SPEAKER's gender — not the last character named inside the quoted speech.\n7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun\n   gender must still match the referent character's canonical set in the table.`;
 }
 
 type PromptBlockPriority = "critical" | "high" | "medium" | "optional";
@@ -2874,6 +2925,10 @@ export const buildProsePrompt = (
       Array.isArray(s.characters) ? (s.characters as string[]) : [],
     ),
   );
+  // BLUE-5: Suppress victim from active character set — victim personality/profile should not
+  // be injected as a living character contract after their death is established.
+  const activeFilterVictimName = resolveVictimName(inputs.cast);
+  if (activeFilterVictimName) activeCharacterNames.delete(activeFilterVictimName);
 
   // §3.1/3.2/3.4: Compute arc position, build asset library, and derive texture pool
   const proseArcPosition = (() => {
@@ -5652,7 +5707,7 @@ export async function generateProse(
               // to a flagged female character and have their pronouns flipped.
               const onlyNames = new Set<string>(flaggedNames);
               const repaired = flaggedNames.length > 0
-                ? repairPronouns(chapterText, castCharacters, { onlyNames })
+                ? repairPronouns(chapterText, castCharacters, { onlyNames, crossParagraphInheritance: true })
                 : { repairCount: 0, text: chapterText };
 
               if (repaired.repairCount > 0) {

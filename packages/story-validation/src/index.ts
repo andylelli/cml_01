@@ -31,7 +31,7 @@ export { ReportRepository, FileReportRepository } from './report-repository.js';
 export type { AggregateStats } from './report-repository.js';
 
 // Pronoun repair
-export { repairChapterPronouns, repairPronouns } from './pronoun-repair.js';
+export { repairChapterPronouns, repairPronouns, normalizeTitles } from './pronoun-repair.js';
 export type { CastEntry, PronounRepairResult } from './pronoun-repair.js';
 
 // Convenience exports

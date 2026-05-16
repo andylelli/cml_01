@@ -219,6 +219,20 @@ export interface PronounRepairOptions {
    * flagged character's gender context and have their pronouns corrupted.
    */
   onlyNames?: Set<string>;
+  /**
+   * When true, carry the lastSingleCharacter context across paragraph (`\n\n`)
+   * boundaries.  Normally the context resets at each paragraph start so that
+   * POV switches between paragraphs don't cause over-repair.  With this option
+   * the inherited context is only applied to a new paragraph when that paragraph
+   * contains NO character of the opposite gender — a strong guard that prevents
+   * false repairs when the new paragraph genuinely belongs to a different character.
+   *
+   * Enabled in the targeted pronoun repair (after validation detects a mismatch)
+   * so that cross-paragraph pronoun errors — where a wrong pronoun for character A
+   * appears in the opening sentence of a new paragraph that follows a paragraph
+   * clearly about character A — are also corrected.
+   */
+  crossParagraphInheritance?: boolean;
 }
 
 export function repairPronouns(text: string, cast: CastEntry[], options?: PronounRepairOptions): PronounRepairResult {
@@ -227,12 +241,16 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
     return { text, repairCount: 0 };
   }
 
-  // Process paragraph by paragraph so that lastSingleCharacter does not bleed
-  // across paragraph boundaries. A subject switch between paragraphs is common
-  // legitimate prose (e.g. female POV chapter referencing a male character in one
-  // paragraph, then returning to the female narrator in the next).
+  // Process paragraph by paragraph. Normally lastSingleCharacter resets at each
+  // paragraph boundary so that legitimate POV switches between paragraphs don't
+  // cause over-repair. When crossParagraphInheritance is enabled the context is
+  // carried forward, but ONLY if the new paragraph contains no character of the
+  // opposite gender — a strong guard against false repairs.
   const paragraphs = text.split(/\n\n/);
   let repairCount = 0;
+  // Tracks the last unambiguous character at the END of the previous paragraph
+  // for cross-paragraph inheritance.
+  let crossParagraphChar: CharacterPronounInfo | null = null;
 
   const repairedParagraphs = paragraphs.map((paragraph) => {
     // Split into sentences, preserving delimiters for reconstruction
@@ -246,8 +264,20 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
       segments.push(paragraph);
     }
 
-    // lastSingleCharacter resets at each paragraph boundary
+    // Determine starting context for this paragraph.
+    // With crossParagraphInheritance, inherit the previous paragraph's final
+    // single-character context — but only when the new paragraph has no character
+    // of the opposite gender anywhere in it (preventing wrong-character repairs).
     let lastSingleCharacter: CharacterPronounInfo | null = null;
+    if (options?.crossParagraphInheritance && crossParagraphChar) {
+      const inherited = crossParagraphChar;
+      const oppositeGenderPresent = characters.some(
+        (c) => c.gender !== inherited.gender && characterMentionedIn(paragraph, c.labels),
+      );
+      if (!oppositeGenderPresent) {
+        lastSingleCharacter = inherited;
+      }
+    }
 
     const repairedSegments = segments.map((segment) => {
       const mentioned = findMentionedCharacters(segment, characters);
@@ -293,6 +323,7 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
       return segment;
     });
 
+    crossParagraphChar = lastSingleCharacter;
     return repairedSegments.join('');
   });
 
@@ -384,6 +415,13 @@ function repairDialogueAttributionPronouns(
 /**
  * Apply pronoun repair to a chapter object (title + paragraphs).
  * Returns the repaired chapter and total repair count.
+ *
+ * Uses cross-paragraph inheritance so that wrong-gender pronouns in the
+ * FIRST sentence of a new paragraph — where the LLM failed to name the
+ * character before using a pronoun — are also corrected when the previous
+ * paragraph unambiguously established that character's context.  The guard
+ * inside repairPronouns prevents false repairs when the new paragraph
+ * contains a character of the opposite gender.
  */
 export function repairChapterPronouns(
   chapter: { title: string; summary?: string; paragraphs: string[] },
@@ -392,17 +430,23 @@ export function repairChapterPronouns(
   let totalRepairs = 0;
   const characters = buildCharacterInfo(cast);
 
-  const repairedParagraphs = chapter.paragraphs.map((paragraph) => {
-    // First pass: sentence-level pronoun repair for unambiguously named characters.
-    const sentenceResult = repairPronouns(paragraph, cast);
-    totalRepairs += sentenceResult.repairCount;
+  // First pass: sentence-level pronoun repair across the FULL chapter text so
+  // that cross-paragraph context (lastSingleCharacter) is preserved.  Calling
+  // repairPronouns per-paragraph would reset context at each boundary and miss
+  // the pattern where the wrong pronoun appears at the START of a new paragraph
+  // after a paragraph that unambiguously established a character's context.
+  // ANALYSIS_17 V-B: also apply title normalization ("the doctor Finch" → "Dr. Finch").
+  const rawText = chapter.paragraphs.join('\n\n');
+  const fullText = normalizeTitles(rawText);
+  if (fullText !== rawText) totalRepairs += 1; // count at least one repair for title norm
+  const sentenceResult = repairPronouns(fullText, cast, { crossParagraphInheritance: true });
+  totalRepairs += sentenceResult.repairCount;
+  const paragraphsAfterSentenceRepair = sentenceResult.text.split('\n\n');
 
-    // Second pass: dialogue-attribution repair for the specific pattern where the
-    // pronoun in 'she said'/'he asked' matches an addressee inside the quotes
-    // rather than the speaker named before the opening quote.
-    const dialogueResult = repairDialogueAttributionPronouns(sentenceResult.text, characters);
+  // Second pass: dialogue-attribution repair per paragraph.
+  const repairedParagraphs = paragraphsAfterSentenceRepair.map((paragraph) => {
+    const dialogueResult = repairDialogueAttributionPronouns(paragraph, characters);
     totalRepairs += dialogueResult.repairCount;
-
     return dialogueResult.text;
   });
 
@@ -413,4 +457,27 @@ export function repairChapterPronouns(
     },
     repairCount: totalRepairs,
   };
+}
+
+/**
+ * ANALYSIS_17 V-B: Normalize incorrect title-noun-surname patterns to canonical
+ * title-plus-surname form (e.g. "the doctor Finch" → "Dr. Finch").
+ * Fully deterministic; applied as part of the pre-validation prose pipeline.
+ */
+const TITLE_NORMALIZATIONS: Array<[RegExp, string]> = [
+  [/\bthe doctor\s+([A-Z][a-z]+)/g, 'Dr. $1'],
+  [/\bthe captain\s+([A-Z][a-z]+)/g, 'Captain $1'],
+  [/\bthe colonel\s+([A-Z][a-z]+)/g, 'Colonel $1'],
+  [/\bthe professor\s+([A-Z][a-z]+)/g, 'Professor $1'],
+  [/\bthe inspector\s+([A-Z][a-z]+)/g, 'Inspector $1'],
+  [/\bthe major\s+([A-Z][a-z]+)/g, 'Major $1'],
+  [/\bthe sergeant\s+([A-Z][a-z]+)/g, 'Sergeant $1'],
+];
+
+export function normalizeTitles(text: string): string {
+  let result = text;
+  for (const [pattern, replacement] of TITLE_NORMALIZATIONS) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
 }

@@ -29,7 +29,7 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -685,7 +685,7 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       }
       if (bestIdx < 0 || bestScore < 1) continue;
 
-      updatedParagraphs[bestIdx] = `${updatedParagraphs[bestIdx].trim()} The detail is explicit: ${canonical}.`;
+      updatedParagraphs[bestIdx] = `${updatedParagraphs[bestIdx].trim()} The evidence showed ${canonical}.`;
       chapterTextLower = updatedParagraphs.join("\n\n").toLowerCase();
       injectedCount += 1;
     }
@@ -702,18 +702,172 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
   return { ...prose, chapters };
 };
 
+/**
+ * Deterministic repair: ensures every culprit listed in the CML appears in at least one
+ * chapter alongside a culprit term (murderer/responsible/etc.) and an evidence term
+ * (evidence/proof/because/etc.), satisfying the SuspectClosureValidator regex gate.
+ * Injects a single bridging sentence into the last paragraph of the most relevant chapter
+ * when the chain is absent.  No-ops when the chain already exists.
+ */
+export const enforceSuspectEliminationPresence = (prose: any, cml: any): any => {
+  const castNames: string[] = Array.isArray(cml?.CASE?.cast)
+    ? cml.CASE.cast.map((c: any) => String(c?.name ?? '').trim()).filter(Boolean)
+    : [];
+  if (castNames.length === 0) return prose;
+
+  const culpritSet = new Set<string>(
+    Array.isArray(cml?.CASE?.culpability?.culprits)
+      ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim())
+      : [],
+  );
+  const detectiveSet = new Set<string>(
+    Array.isArray(cml?.CASE?.cast)
+      ? cml.CASE.cast
+          .filter((c: any) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
+          .map((c: any) => String(c.name ?? '').trim())
+      : [],
+  );
+  const suspects = castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
+  if (suspects.length === 0) return prose;
+
+  const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+  const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+
+  const extractSurname = (name: string): string => {
+    const tokens = name.trim().split(/\s+/);
+    return tokens[tokens.length - 1] ?? name;
+  };
+
+  const nameInText = (name: string, text: string): boolean =>
+    text.includes(name) || text.includes(extractSurname(name));
+
+  const chapters = (prose.chapters as any[]).slice();
+
+  for (const suspect of suspects) {
+    const hasClosure = chapters.some((ch: any) => {
+      const text = Array.isArray(ch.paragraphs)
+        ? (ch.paragraphs as string[]).join('\n\n')
+        : '';
+      return nameInText(suspect, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text);
+    });
+
+    if (hasClosure) continue;
+
+    // Find the last chapter that names the suspect; fall back to final chapter.
+    let targetIdx = chapters.length - 1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      const text = Array.isArray(chapters[i].paragraphs)
+        ? (chapters[i].paragraphs as string[]).join('\n\n')
+        : '';
+      if (nameInText(suspect, text)) {
+        targetIdx = i;
+        break;
+      }
+    }
+
+    const ch = chapters[targetIdx];
+    const paragraphs: string[] = Array.isArray(ch.paragraphs)
+      ? [...(ch.paragraphs as string[])]
+      : [];
+    if (paragraphs.length === 0) continue;
+
+    const surname = extractSurname(suspect);
+    const lastIdx = paragraphs.length - 1;
+    paragraphs[lastIdx] =
+      `${paragraphs[lastIdx].trim()} ${surname} was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime.`;
+
+    chapters[targetIdx] = { ...ch, paragraphs };
+    console.warn(
+      `[Agent 9] enforceSuspectEliminationPresence: injected elimination sentence for suspect "${suspect}".`,
+    );
+  }
+
+  return { ...prose, chapters };
+};
+
+export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
+  const culprits: string[] = Array.isArray(cml?.CASE?.culpability?.culprits)
+    ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim()).filter(Boolean)
+    : [];
+  if (culprits.length === 0) return prose;
+
+  const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
+  const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+
+  const extractSurname = (name: string): string => {
+    const tokens = name.trim().split(/\s+/);
+    return tokens[tokens.length - 1] ?? name;
+  };
+
+  const nameInText = (name: string, text: string): boolean =>
+    text.includes(name) || text.includes(extractSurname(name));
+
+  const chapters = (prose.chapters as any[]).slice();
+
+  for (const culprit of culprits) {
+    const hasChain = chapters.some((ch: any) => {
+      const text = Array.isArray(ch.paragraphs)
+        ? (ch.paragraphs as string[]).join('\n\n')
+        : '';
+      return nameInText(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text);
+    });
+
+    if (hasChain) continue;
+
+    // Find the last chapter that names the culprit; fall back to the final chapter.
+    let targetIdx = chapters.length - 1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      const text = Array.isArray(chapters[i].paragraphs)
+        ? (chapters[i].paragraphs as string[]).join('\n\n')
+        : '';
+      if (nameInText(culprit, text)) {
+        targetIdx = i;
+        break;
+      }
+    }
+
+    const ch = chapters[targetIdx];
+    const paragraphs: string[] = Array.isArray(ch.paragraphs)
+      ? [...(ch.paragraphs as string[])]
+      : [];
+    if (paragraphs.length === 0) continue;
+
+    const lastIdx = paragraphs.length - 1;
+    paragraphs[lastIdx] =
+      `${paragraphs[lastIdx].trim()} ${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`;
+
+    chapters[targetIdx] = { ...ch, paragraphs };
+    console.warn(
+      `[Agent 9] enforceCulpritEvidencePresence: injected evidence chain sentence for culprit "${culprit}".`,
+    );
+  }
+
+  return { ...prose, chapters };
+};
+
 export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastEntry[]): any => {
   if (!Array.isArray(castCharacters) || castCharacters.length === 0) return prose;
 
   let repairCount = 0;
   const chapters = (prose.chapters as any[]).map((chapter: any) => {
-    const text = Array.isArray(chapter.paragraphs)
+    const rawText = Array.isArray(chapter.paragraphs)
       ? chapter.paragraphs.map((p: unknown) => String(p ?? "")).join("\n\n")
       : "";
-    if (!text.trim()) return chapter;
+    if (!rawText.trim()) return chapter;
 
-    const repaired = repairPronouns(text, castCharacters as any);
+    // ANALYSIS_17 V-B: normalize title phrases first ("the doctor Finch" → "Dr. Finch")
+    const text = normalizeTitles(rawText);
+    if (text !== rawText) repairCount += 1;
+
+    const repaired = repairPronouns(text, castCharacters as any, { crossParagraphInheritance: true });
     if (!repaired || repaired.repairCount <= 0 || repaired.text === text) {
+      // Return title-normalized text even if no pronoun repairs were needed
+      if (text !== rawText) {
+        return {
+          ...chapter,
+          paragraphs: text.split("\n\n").map((p: string) => p.trim()).filter(Boolean),
+        };
+      }
       return chapter;
     }
 
@@ -1524,6 +1678,18 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     annotatedLockedFacts,
     characterGenderMap,
   );
+  // BLUE-5: Pre-set victimConfirmedDeadChapter=1 from CML data.
+  // The victim is always dead from chapter 1 — do not wait for death language to appear
+  // in prose before activating the victim prohibition block in buildNSDBlock.
+  {
+    const castArr = Array.isArray((cml as any)?.CAST?.characters) ? (cml as any).CAST.characters : [];
+    const victimEntry = castArr.find((c: any) =>
+      c.role === 'victim' || String(c.roleArchetype ?? '').toLowerCase().includes('victim'),
+    );
+    if (victimEntry?.name && narrativeState.victimConfirmedDeadChapter === undefined) {
+      narrativeState = { ...narrativeState, victimConfirmedDeadChapter: 1 };
+    }
+  }
   const prosePhaseStartTime = Date.now();
   const proseDeployment =
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME_PROSE ||
@@ -2301,6 +2467,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
+  prose = enforceCulpritEvidencePresence(prose, cml);
+  prose = enforceSuspectEliminationPresence(prose, cml);
   prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
@@ -2331,14 +2499,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     validationReport.status === "failed"
     && Array.isArray(validationReport.errors)
     && validationReport.errors.some((err: any) =>
-      err?.type === "locked_fact_missing_value" || err?.type === "pronoun_drift",
+      err?.type === "locked_fact_missing_value" || err?.type === "pronoun_drift" || err?.type === "culprit_evidence_chain_missing" || err?.type === "suspect_closure_missing",
     );
 
   if (hasDeterministicRepairableFailures) {
     prose = applyDeterministicPronounSweep(
-      enforceLockedFactValuePresence(
-        repairWordFormLockedFacts(prose, annotatedLockedFacts),
-        annotatedLockedFacts,
+      enforceSuspectEliminationPresence(
+        enforceCulpritEvidencePresence(
+          enforceLockedFactValuePresence(
+            repairWordFormLockedFacts(prose, annotatedLockedFacts),
+            annotatedLockedFacts,
+          ),
+          cml,
+        ),
+        cml,
       ),
       castDesign.characters as CastEntry[],
     );

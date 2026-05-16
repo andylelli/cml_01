@@ -105,6 +105,14 @@ export class CharacterConsistencyValidator implements Validator {
       const surname = this.extractSurname(char.name);
       if (surname) {
         allowedSurnames.add(surname.toLowerCase());
+        // Also register the surname as an alias so that the competing-gender
+        // guards (maleInContext / femaleInContext) recognise short-form prose
+        // references like "Hale" for "Captain Ivor Hale".  Without this, the
+        // validator's maleLabels only contains the full canonical name and
+        // misses surname-only references, causing false-positive pronoun flags
+        // when the repair correctly preserves a male pronoun that belongs to
+        // the male character but the female character is nearby in the scene.
+        addAlias(surname, char.name);
       }
 
       const aliasField = (char as any).alias;
