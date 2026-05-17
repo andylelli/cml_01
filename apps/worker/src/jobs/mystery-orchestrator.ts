@@ -96,6 +96,13 @@ export interface MysteryGenerationInputs {
   /** suspects + witnesses; detective is always +1 */
   castSize?: number;
   castNames?: string[];
+  /**
+   * Optional gender lock map: character name → 'male' | 'female'.
+   * When provided alongside castNames, Agent 2 is instructed to treat these as
+   * non-negotiable. Prevents per-run gender ambiguity for names the LLM might
+   * misread (e.g. gender-neutral titles or uncommon first names).
+   */
+  castGenders?: Record<string, 'male' | 'female'>;
   detectiveType?: "police" | "private" | "amateur";
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";

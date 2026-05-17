@@ -1,0 +1,60 @@
+{
+  "runId": "mystery-1779038895303",
+  "projectId": "",
+  "folderName": "run_20260517-1728_mystery",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "282806986b8a5d80",
+      "requestTimestamp": "2026-05-17T17:28:15.500Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-05-17T17:28:20.859Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "0a8c9212425789d1",
+      "requestTimestamp": "2026-05-17T17:28:20.892Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-05-17T17:28:29.198Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2e-BackgroundContext",
+      "retryAttempt": 1,
+      "promptHash": "acad6d92e74cd5a3",
+      "requestTimestamp": "2026-05-17T17:28:29.242Z",
+      "requestFile": "03_Agent2e-BackgroundContext_request.md",
+      "responseTimestamp": "2026-05-17T17:28:31.218Z",
+      "responseFile": "03_Agent2e-BackgroundContext_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 1,
+      "promptHash": "fe086f69f8e8d676",
+      "requestTimestamp": "2026-05-17T17:28:31.249Z",
+      "requestFile": "04_Agent3b-HardLogicDeviceGenerator_request.md",
+      "responseTimestamp": "2026-05-17T17:28:43.059Z",
+      "responseFile": "04_Agent3b-HardLogicDeviceGenerator_response.md"
+    },
+    {
+      "sequence": 5,
+      "agent": "Agent3-CMLGenerator",
+      "retryAttempt": 1,
+      "promptHash": "e01e5fbec88b6702",
+      "requestTimestamp": "2026-05-17T17:28:43.238Z",
+      "requestFile": "05_Agent3-CMLGenerator_request.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 0,
+    "missing_response_count": 1,
+    "empty_response_body_count": 0
+  }
+}

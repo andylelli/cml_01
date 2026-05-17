@@ -200,6 +200,22 @@ export class ProseConsistencyValidator implements Validator {
       if (new RegExp(`\\b${digits}\\s*°\\s*${scaleChar}\\b|\\b${digits}\\s+degrees?\\s+${scaleChar}\\b`, 'i').test(text)) return true;
     }
 
+    // 3. Time variant: "X o'clock" → accept common hour-only phrasings the LLM uses:
+    //    "eight PM", "eight p.m.", "eight in the evening", "when the clock struck eight", etc.
+    const oclockMatch = lower.match(/^([a-z-]+)\s+o['\u2019]clock$/);
+    if (oclockMatch) {
+      const hw = oclockMatch[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const hourVariants = new RegExp(
+        `\\b${hw}\\s*(?:p\\.?m\\.?|a\\.?m\\.?)\\b` +
+        `|\\b${hw}\\s+(?:in\\s+the\\s+(?:evening|morning|afternoon|night)|that\\s+(?:evening|night|morning))\\b` +
+        `|when\\s+the\\s+clock\\s+struck\\s+${hw}\\b` +
+        `|\\bthe\\s+hour\\s+of\\s+${hw}\\b` +
+        `|\\b${hw}\\s+on\\s+the\\s+dot\\b`,
+        'i',
+      );
+      if (hourVariants.test(text)) return true;
+    }
+
     return false;
   }
 

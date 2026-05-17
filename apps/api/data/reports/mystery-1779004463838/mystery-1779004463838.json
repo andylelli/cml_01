@@ -1,0 +1,6053 @@
+{
+  "project_id": "mystery-1779004463838",
+  "run_id": "mystery-1779004463838",
+  "generated_at": "2026-05-17T08:00:27.429Z",
+  "total_duration_ms": 363591,
+  "total_cost": 0.0662,
+  "overall_score": 74,
+  "overall_grade": "C",
+  "passed": false,
+  "run_outcome": "failed",
+  "run_outcome_reason": "Release gate failed",
+  "scoring_outcome": {
+    "score": 74,
+    "grade": "C",
+    "passed_threshold": false
+  },
+  "release_gate_outcome": {
+    "status": "failed",
+    "hard_stop_count": 0,
+    "warning_count": 1
+  },
+  "phases": [
+    {
+      "agent": "agent1_setting",
+      "phase_name": "Setting Refinement",
+      "score": {
+        "agent": "agent1-setting-refinement",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Locations array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Location validity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Physical plausibility",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5/5 plausible"
+          },
+          {
+            "name": "Layout detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "88% average"
+          },
+          {
+            "name": "Clue justification quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "6/6 well justified"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "5 locations"
+          },
+          {
+            "name": "Physical constraints",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "Accessibility notes",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 0.75
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 5487,
+      "cost": 0.0004390188,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Locations array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Location validity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Physical plausibility",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5/5 plausible"
+        },
+        {
+          "name": "Layout detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "88% average"
+        },
+        {
+          "name": "Clue justification quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "6/6 well justified"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "5 locations"
+        },
+        {
+          "name": "Physical constraints",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "Accessibility notes",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 0.75
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent2_cast",
+      "phase_name": "Cast Design",
+      "score": {
+        "agent": "agent2-cast",
+        "validation_score": 100.00000000000001,
+        "quality_score": 60,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 88,
+        "grade": "B",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Cast array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Cast not empty",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Eleanor Voss: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: role_archetype",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: private_secret",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: motive_seed",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: motive_strength",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: culprit_eligibility",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Character validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All characters valid"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No duplicates found"
+          },
+          {
+            "name": "Character depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 75%"
+          },
+          {
+            "name": "Motive strength variety",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Multiple motive strengths present"
+          },
+          {
+            "name": "Relationship density",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Only 0.0 per character"
+          },
+          {
+            "name": "Relationships reference cast",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 1,
+            "message": "Relationships don't reference other cast members",
+            "severity": "minor"
+          },
+          {
+            "name": "Cast size appropriate",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Complete (4 items)"
+          },
+          {
+            "name": "Sufficient suspects",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "3 eligible suspects"
+          },
+          {
+            "name": "Role diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 unique archetypes"
+          },
+          {
+            "name": "Has eligible suspects",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 14492,
+      "cost": 0,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Cast array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Cast not empty",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Eleanor Voss: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: role_archetype",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: private_secret",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: motive_seed",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: motive_strength",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: culprit_eligibility",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Character validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All characters valid"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No duplicates found"
+        },
+        {
+          "name": "Character depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 75%"
+        },
+        {
+          "name": "Motive strength variety",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Multiple motive strengths present"
+        },
+        {
+          "name": "Relationship density",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Only 0.0 per character"
+        },
+        {
+          "name": "Relationships reference cast",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 1,
+          "message": "Relationships don't reference other cast members",
+          "severity": "minor"
+        },
+        {
+          "name": "Cast size appropriate",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Complete (4 items)"
+        },
+        {
+          "name": "Sufficient suspects",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "3 eligible suspects"
+        },
+        {
+          "name": "Role diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 unique archetypes"
+        },
+        {
+          "name": "Has eligible suspects",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2e_background_context",
+      "phase_name": "Background Context",
+      "score": {
+        "agent": "agent2e-background",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 90,
+        "consistency_score": 100,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Era decade present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Tech capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Forensic capabilities present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Location type present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Physical constraints present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Constraints section present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Tech capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Forensic capabilities detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Communications detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Transportation detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Social norms detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 items"
+          },
+          {
+            "name": "Physical constraints detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Security features detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Accessibility detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Atmosphere detailed",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "3 items"
+          },
+          {
+            "name": "Era background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Era completeness: 100%"
+          },
+          {
+            "name": "Location background complete",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Location completeness: 100%"
+          },
+          {
+            "name": "Constraints defined",
+            "category": "completeness",
+            "passed": true,
+            "score": 50,
+            "weight": 1,
+            "message": "Constraints completeness: 50%"
+          },
+          {
+            "name": "Era/Location compatibility",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Era and location background both present"
+          },
+          {
+            "name": "Constraint/Capability consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No anachronism conflicts detected"
+          }
+        ]
+      },
+      "duration_ms": 2044,
+      "cost": 0.0001986534,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Era decade present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Tech capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Forensic capabilities present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Location type present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Physical constraints present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Constraints section present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Tech capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Forensic capabilities detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Communications detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Transportation detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Social norms detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 items"
+        },
+        {
+          "name": "Physical constraints detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Security features detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Accessibility detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Atmosphere detailed",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "3 items"
+        },
+        {
+          "name": "Era background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Era completeness: 100%"
+        },
+        {
+          "name": "Location background complete",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Location completeness: 100%"
+        },
+        {
+          "name": "Constraints defined",
+          "category": "completeness",
+          "passed": true,
+          "score": 50,
+          "weight": 1,
+          "message": "Constraints completeness: 50%"
+        },
+        {
+          "name": "Era/Location compatibility",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Era and location background both present"
+        },
+        {
+          "name": "Constraint/Capability consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No anachronism conflicts detected"
+        }
+      ]
+    },
+    {
+      "agent": "agent3b_hard_logic_devices",
+      "phase_name": "Hard Logic Devices",
+      "score": {
+        "agent": "agent4-hard-logic",
+        "validation_score": 99.99999999999996,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Devices array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "device_1: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_1: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_2: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_3: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_4: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has ID",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has type",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "device_5: has justification",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Device validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Device detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 100%"
+          },
+          {
+            "name": "Devices have implications",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "5/5 devices"
+          },
+          {
+            "name": "Minimum devices present",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "5 devices"
+          },
+          {
+            "name": "Device type diversity",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4 unique types"
+          },
+          {
+            "name": "No duplicate device IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Implications are meaningful",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 11852,
+      "cost": 0.00099417945,
+      "threshold": 85,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Devices array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "device_1: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_1: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_2: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_3: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_4: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has ID",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has type",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "device_5: has justification",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Device validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Device detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 100%"
+        },
+        {
+          "name": "Devices have implications",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "5/5 devices"
+        },
+        {
+          "name": "Minimum devices present",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "5 devices"
+        },
+        {
+          "name": "Device type diversity",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4 unique types"
+        },
+        {
+          "name": "No duplicate device IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Implications are meaningful",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "score": {
+        "agent": "agent3-cml-generation",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Schema validation",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Valid after 1 attempt(s)"
+          },
+          {
+            "name": "Structural revision (Agent 4)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "No structural revision needed"
+          }
+        ]
+      },
+      "duration_ms": 21895,
+      "cost": 0.0025751945999999996,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Schema validation",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Valid after 1 attempt(s)"
+        },
+        {
+          "name": "Structural revision (Agent 4)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "No structural revision needed"
+        }
+      ]
+    },
+    {
+      "agent": "agent8_novelty",
+      "phase_name": "Novelty Audit",
+      "score": {
+        "agent": "agent8-novelty-audit",
+        "validation_score": 22,
+        "quality_score": 60,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 80,
+        "grade": "B",
+        "passed": false,
+        "tests": [
+          {
+            "name": "Similarity below threshold",
+            "category": "validation",
+            "passed": true,
+            "score": 22,
+            "weight": 2,
+            "message": "78% similar to \"The Mysterious Affair at Styles\" — pass"
+          },
+          {
+            "name": "Novelty violation",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Critical: Plot similarity 0.75 with 'The Mysterious Affair at Styles' (same temporal crime element)."
+          },
+          {
+            "name": "Novelty violation",
+            "category": "quality",
+            "passed": false,
+            "score": 0,
+            "weight": 0.5,
+            "message": "Critical: Solution similarity 0.85 with 'The Mysterious Affair at Styles' (same false assumption pattern)."
+          }
+        ]
+      },
+      "duration_ms": 5164,
+      "cost": 0.0008142964499999999,
+      "threshold": 75,
+      "passed": false,
+      "tests": [
+        {
+          "name": "Similarity below threshold",
+          "category": "validation",
+          "passed": true,
+          "score": 22,
+          "weight": 2,
+          "message": "78% similar to \"The Mysterious Affair at Styles\" — pass"
+        },
+        {
+          "name": "Novelty violation",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Critical: Plot similarity 0.75 with 'The Mysterious Affair at Styles' (same temporal crime element)."
+        },
+        {
+          "name": "Novelty violation",
+          "category": "quality",
+          "passed": false,
+          "score": 0,
+          "weight": 0.5,
+          "message": "Critical: Solution similarity 0.85 with 'The Mysterious Affair at Styles' (same false assumption pattern)."
+        }
+      ]
+    },
+    {
+      "agent": "agent5_clues",
+      "phase_name": "Clue Distribution",
+      "score": {
+        "agent": "agent5-clue-distribution",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 80,
+        "consistency_score": 82,
+        "total": 92,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Clue count",
+            "category": "completeness",
+            "passed": true,
+            "score": 80,
+            "weight": 1.5,
+            "message": "14 clues distributed (target 5-8 for minimal)"
+          },
+          {
+            "name": "Guardrail compliance",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "All guardrails passed"
+          },
+          {
+            "name": "Inference coverage",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Full inference coverage (0 minor issues)"
+          },
+          {
+            "name": "Narrative clue quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "0 warning-level issue(s), 0 auto-fix(es)"
+          },
+          {
+            "name": "Deterministic consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 82,
+            "weight": 1.5,
+            "message": "Retry penalty=18 (coverage retry=true, suspect retry=false, red-herring retry=true)"
+          }
+        ]
+      },
+      "duration_ms": 45309,
+      "cost": 0.00922969245,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Clue count",
+          "category": "completeness",
+          "passed": true,
+          "score": 80,
+          "weight": 1.5,
+          "message": "14 clues distributed (target 5-8 for minimal)"
+        },
+        {
+          "name": "Guardrail compliance",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "All guardrails passed"
+        },
+        {
+          "name": "Inference coverage",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Full inference coverage (0 minor issues)"
+        },
+        {
+          "name": "Narrative clue quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "0 warning-level issue(s), 0 auto-fix(es)"
+        },
+        {
+          "name": "Deterministic consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 82,
+          "weight": 1.5,
+          "message": "Retry penalty=18 (coverage retry=true, suspect retry=false, red-herring retry=true)"
+        }
+      ]
+    },
+    {
+      "agent": "agent6_fairplay",
+      "phase_name": "Fair-play Audit",
+      "score": {
+        "agent": "agent6-fair-play-audit",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Overall fair play status",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Status: pass"
+          }
+        ]
+      },
+      "duration_ms": 3943,
+      "cost": 0.00067169355,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Overall fair play status",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Status: pass"
+        }
+      ]
+    },
+    {
+      "agent": "agent2b_profiles",
+      "phase_name": "Character Profiles",
+      "score": {
+        "agent": "agent2b-character-profiles",
+        "validation_score": 99.99999999999997,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Eleanor Voss: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Eleanor Voss: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Dr. Mallory Finch: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Captain Ivor Hale: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: character_name",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: public_persona",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: private_secrets",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Beatrice Quill: stakes",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Profile narrative depth",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "Average depth: 83%"
+          },
+          {
+            "name": "Humour style richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4/4 profiles"
+          },
+          {
+            "name": "Distinct personalities",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% distinct"
+          },
+          {
+            "name": "Minimum profiles",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "4 profiles"
+          },
+          {
+            "name": "Field completeness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% fields filled"
+          },
+          {
+            "name": "No duplicate names",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Names match cast",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% match"
+          }
+        ]
+      },
+      "duration_ms": 24877,
+      "cost": 0.00189906915,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Eleanor Voss: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Eleanor Voss: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Dr. Mallory Finch: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Captain Ivor Hale: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: character_name",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: public_persona",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: private_secrets",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Beatrice Quill: stakes",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Profile narrative depth",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "Average depth: 83%"
+        },
+        {
+          "name": "Humour style richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4/4 profiles"
+        },
+        {
+          "name": "Distinct personalities",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% distinct"
+        },
+        {
+          "name": "Minimum profiles",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "4 profiles"
+        },
+        {
+          "name": "Field completeness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% fields filled"
+        },
+        {
+          "name": "No duplicate names",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Names match cast",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% match"
+        }
+      ]
+    },
+    {
+      "agent": "agent2c_location_profiles",
+      "phase_name": "Location Profiles",
+      "score": {
+        "agent": "agent2c-location-profiles",
+        "validation_score": 99.99999999999996,
+        "quality_score": 60.666666666666664,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 88,
+        "grade": "B",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Profiles array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "The Library: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Library: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Drawing Room: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Servants' Quarters: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Visual sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Auditory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Olfactory sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Tactile sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Taste sense",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Geographic grounding",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "The Formal Gardens: Atmosphere",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.1
+          },
+          {
+            "name": "Profile validity rate",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Sensory richness",
+            "category": "quality",
+            "passed": false,
+            "score": 41,
+            "weight": 2,
+            "message": "Average: 41%"
+          },
+          {
+            "name": "Geographic specificity",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "4/4 specific"
+          },
+          {
+            "name": "Minimum locations",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "4 locations"
+          },
+          {
+            "name": "All senses covered",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "4/4 locations"
+          },
+          {
+            "name": "No duplicate locations",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 29626,
+      "cost": 0.0026686555499999998,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Profiles array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "The Library: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Library: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Drawing Room: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Servants' Quarters: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Visual sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Auditory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Olfactory sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Tactile sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Taste sense",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Geographic grounding",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "The Formal Gardens: Atmosphere",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.1
+        },
+        {
+          "name": "Profile validity rate",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Sensory richness",
+          "category": "quality",
+          "passed": false,
+          "score": 41,
+          "weight": 2,
+          "message": "Average: 41%"
+        },
+        {
+          "name": "Geographic specificity",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "4/4 specific"
+        },
+        {
+          "name": "Minimum locations",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "4 locations"
+        },
+        {
+          "name": "All senses covered",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "4/4 locations"
+        },
+        {
+          "name": "No duplicate locations",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent2d_temporal_context",
+      "phase_name": "Temporal Context",
+      "score": {
+        "agent": "agent2d-temporal-context",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "specific_date present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "time_of_day present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "season present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "weather_patterns present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Date specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Full date specified"
+          },
+          {
+            "name": "Time specificity",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "Time period specified"
+          },
+          {
+            "name": "Weather detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "80% richness"
+          },
+          {
+            "name": "Fashion detail",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "100% richness"
+          },
+          {
+            "name": "Temporal richness",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "326 words"
+          },
+          {
+            "name": "Optional fields",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All optional fields present"
+          },
+          {
+            "name": "Substantial content",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "All fields have detail"
+          },
+          {
+            "name": "Optional detail richness",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% detail"
+          },
+          {
+            "name": "Season/weather consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          }
+        ]
+      },
+      "duration_ms": 10949,
+      "cost": 0.0010733019000000001,
+      "threshold": 70,
+      "passed": true,
+      "tests": [
+        {
+          "name": "specific_date present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "time_of_day present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "season present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "weather_patterns present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Date specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Full date specified"
+        },
+        {
+          "name": "Time specificity",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "Time period specified"
+        },
+        {
+          "name": "Weather detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "80% richness"
+        },
+        {
+          "name": "Fashion detail",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "100% richness"
+        },
+        {
+          "name": "Temporal richness",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "326 words"
+        },
+        {
+          "name": "Optional fields",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All optional fields present"
+        },
+        {
+          "name": "Substantial content",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "All fields have detail"
+        },
+        {
+          "name": "Optional detail richness",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% detail"
+        },
+        {
+          "name": "Season/weather consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "agent": "agent65_world_builder",
+      "phase_name": "World Builder",
+      "score": {
+        "agent": "agent65-world-builder",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 100,
+        "total": 100,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "validationConfirmations.noNewCharacterFacts",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.noNewPlotFacts",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.castComplete",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.eraSpecific",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.lockedFactsPreserved",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "validationConfirmations.humourMapComplete",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "characterPortraits covers full cast",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "voiceSketch fragments quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "humourPlacementMap complete (12 positions)",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "arcDescription word count (200-300w)",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "arcTurningPoints all 8 positions",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 3
+          },
+          {
+            "name": "breakMoment all fields populated",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 2
+          },
+          {
+            "name": "storyTheme ≥25 words",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2
+          }
+        ]
+      },
+      "duration_ms": 30321,
+      "cost": 0.004226598749999999,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "validationConfirmations.noNewCharacterFacts",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.noNewPlotFacts",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.castComplete",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.eraSpecific",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.lockedFactsPreserved",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "validationConfirmations.humourMapComplete",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "characterPortraits covers full cast",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "voiceSketch fragments quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "humourPlacementMap complete (12 positions)",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "arcDescription word count (200-300w)",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "arcTurningPoints all 8 positions",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 3
+        },
+        {
+          "name": "breakMoment all fields populated",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 2
+        },
+        {
+          "name": "storyTheme ≥25 words",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "agent": "agent7_narrative",
+      "phase_name": "Narrative Outline",
+      "score": {
+        "agent": "agent7-narrative-outline",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 79.48717948717949,
+        "consistency_score": 100,
+        "total": 96,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "Chapter count",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "9 chapters (target 10 ±2)"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test scene",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Scene detail quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "93% average"
+          },
+          {
+            "name": "Clue pacing",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "9/9 chapters have clues"
+          },
+          {
+            "name": "Chapter titles",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5,
+            "message": "9/9"
+          },
+          {
+            "name": "CML clue coverage",
+            "category": "completeness",
+            "passed": true,
+            "score": 69.23076923076923,
+            "weight": 2,
+            "message": "Only 9/13 clues",
+            "severity": "major"
+          },
+          {
+            "name": "Discriminating test in outline",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% match cast"
+          },
+          {
+            "name": "No duplicate scene IDs",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          }
+        ]
+      },
+      "duration_ms": 24833,
+      "cost": 0.00268664385,
+      "threshold": 75,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "Chapter count",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "9 chapters (target 10 ±2)"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test scene",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Scene detail quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "93% average"
+        },
+        {
+          "name": "Clue pacing",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "9/9 chapters have clues"
+        },
+        {
+          "name": "Chapter titles",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5,
+          "message": "9/9"
+        },
+        {
+          "name": "CML clue coverage",
+          "category": "completeness",
+          "passed": true,
+          "score": 69.23076923076923,
+          "weight": 2,
+          "message": "Only 9/13 clues",
+          "severity": "major"
+        },
+        {
+          "name": "Discriminating test in outline",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% match cast"
+        },
+        {
+          "name": "No duplicate scene IDs",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "score": {
+        "agent": "agent9-prose",
+        "validation_score": 100,
+        "quality_score": 100,
+        "completeness_score": 100,
+        "consistency_score": 80,
+        "total": 98,
+        "grade": "A",
+        "passed": true,
+        "tests": [
+          {
+            "name": "Chapters array exists",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 0.5
+          },
+          {
+            "name": "All chapters present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "9 chapters (mirrors narrative scene count)"
+          },
+          {
+            "name": "Chapter structure",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "100% valid"
+          },
+          {
+            "name": "Discriminating test present",
+            "category": "validation",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          },
+          {
+            "name": "Prose quality",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 2,
+            "message": "90% average"
+          },
+          {
+            "name": "Readability",
+            "category": "quality",
+            "passed": true,
+            "score": 100,
+            "weight": 1,
+            "message": "97% average"
+          },
+          {
+            "name": "Word count target",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "7,432 words"
+          },
+          {
+            "name": "Clue visibility",
+            "category": "completeness",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "14/14 clues"
+          },
+          {
+            "name": "Character name consistency",
+            "category": "consistency",
+            "passed": false,
+            "score": 50,
+            "weight": 2,
+            "message": "2/4 characters referenced",
+            "severity": "major"
+          },
+          {
+            "name": "Setting fidelity",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5,
+            "message": "4/4 locations referenced"
+          },
+          {
+            "name": "Fair play compliance",
+            "category": "consistency",
+            "passed": true,
+            "score": 100,
+            "weight": 1.5
+          }
+        ],
+        "breakdown": {
+          "completeness_diagnostics": {
+            "dominant_subfailure": "none",
+            "word_count_target": {
+              "actual_words": 7432,
+              "target_min": 5000,
+              "target_max": 12500,
+              "score": 100,
+              "status": "pass"
+            },
+            "clue_visibility": {
+              "expected_count": 14,
+              "visible_count": 14,
+              "ratio": 1,
+              "score": 100,
+              "status": "pass"
+            }
+          }
+        }
+      },
+      "duration_ms": 121788,
+      "cost": 0.0387118644,
+      "threshold": 80,
+      "passed": true,
+      "tests": [
+        {
+          "name": "Chapters array exists",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 0.5
+        },
+        {
+          "name": "All chapters present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "9 chapters (mirrors narrative scene count)"
+        },
+        {
+          "name": "Chapter structure",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "100% valid"
+        },
+        {
+          "name": "Discriminating test present",
+          "category": "validation",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        },
+        {
+          "name": "Prose quality",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 2,
+          "message": "90% average"
+        },
+        {
+          "name": "Readability",
+          "category": "quality",
+          "passed": true,
+          "score": 100,
+          "weight": 1,
+          "message": "97% average"
+        },
+        {
+          "name": "Word count target",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "7,432 words"
+        },
+        {
+          "name": "Clue visibility",
+          "category": "completeness",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "14/14 clues"
+        },
+        {
+          "name": "Character name consistency",
+          "category": "consistency",
+          "passed": false,
+          "score": 50,
+          "weight": 2,
+          "message": "2/4 characters referenced",
+          "severity": "major"
+        },
+        {
+          "name": "Setting fidelity",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5,
+          "message": "4/4 locations referenced"
+        },
+        {
+          "name": "Fair play compliance",
+          "category": "consistency",
+          "passed": true,
+          "score": 100,
+          "weight": 1.5
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "key": "agent3_cml_evidence_clue_backfill",
+      "agent": "agent3_cml",
+      "phase_name": "CML Generation",
+      "diagnostic_type": "evidence_clue_backfill",
+      "captured_at": "2026-05-17T07:57:21.854Z",
+      "details": {
+        "injected_count": 3,
+        "injected_clues": [
+          "clue_6",
+          "clue_4",
+          "clue_fp_contradiction_step_3"
+        ],
+        "threshold": 3,
+        "reason": "discriminating_test.evidence_clues missing essential clue IDs required for proof traceability"
+      }
+    },
+    {
+      "key": "agent9_prose_post_generation_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "post_generation_summary",
+      "captured_at": "2026-05-17T08:00:27.062Z",
+      "details": {
+        "fair_play_all_clues_visible": true,
+        "fair_play_discriminating_test_complete": true,
+        "fair_play_no_solution_spoilers": true,
+        "fair_play_component_score": 100,
+        "clue_visibility_expected_ids": [
+          "clue_mechanism_visibility_core",
+          "clue_core_contradiction_chain",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_culprit_direct_beatrice_quill",
+          "clue_core_elimination_chain",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8",
+          "clue_late_optional_slot_1",
+          "clue_fp_contradiction_step_3"
+        ],
+        "clue_visibility_extracted_ids": [
+          "clue_mechanism_visibility_core",
+          "clue_core_contradiction_chain",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8",
+          "clue_core_elimination_chain",
+          "clue_culprit_direct_beatrice_quill",
+          "clue_fp_contradiction_step_3",
+          "clue_late_optional_slot_1"
+        ],
+        "clue_visibility_missing_expected_ids": [],
+        "clue_visibility_unexpected_extracted_ids": [],
+        "clue_visibility_expected_count": 14,
+        "clue_visibility_extracted_count": 14,
+        "template_linter_checks_run": 12,
+        "template_linter_failed_checks": 1,
+        "template_linter_opening_style_entropy_failures": 0,
+        "template_linter_opening_style_entropy_bypasses": 0,
+        "template_linter_paragraph_fingerprint_failures": 1,
+        "template_linter_ngram_overlap_failures": 0,
+        "score_total": 98,
+        "score_grade": "A",
+        "score_passed_threshold": true,
+        "component_failures": [],
+        "failure_reason": null,
+        "chapters_generated": 9,
+        "prose_duration_ms_first_pass": 121788,
+        "prose_duration_ms_total": 121788,
+        "prose_cost_first_pass": 0.0387118644,
+        "prose_cost_total": 0.0387118644,
+        "rewrite_pass_count": 0,
+        "repair_pass_count": 0,
+        "per_pass_accounting": [
+          {
+            "pass_type": "first_pass",
+            "duration_ms": 121788,
+            "cost": 0.0387118644,
+            "chapters_generated": 9
+          }
+        ],
+        "metrics_snapshot": "final",
+        "bottom_up_redesign_enabled": true,
+        "batch_size": 1,
+        "batches_with_retries": 2,
+        "total_batches": 9,
+        "batch_failure_events": 2,
+        "batch_failure_history": [
+          {
+            "chapter_range": "6",
+            "attempt": 1,
+            "errors": [
+              "Character \"Captain Ivor Hale\" has incorrect pronouns. Should use he/him/his but found: she, her"
+            ]
+          },
+          {
+            "chapter_range": "6",
+            "attempt": 2,
+            "errors": [
+              "Character \"Captain Ivor Hale\" has incorrect pronouns. Should use he/him/his but found: she, her"
+            ]
+          }
+        ],
+        "batch_failure_samples": [
+          {
+            "chapter_range": "6",
+            "attempt": 1,
+            "errors": [
+              "Character \"Captain Ivor Hale\" has incorrect pronouns. Should use he/him/his but found: she, her"
+            ]
+          },
+          {
+            "chapter_range": "6",
+            "attempt": 2,
+            "errors": [
+              "Character \"Captain Ivor Hale\" has incorrect pronouns. Should use he/him/his but found: she, her"
+            ]
+          }
+        ],
+        "batch_commit_records": [
+          {
+            "chapterStart": 1,
+            "chapterEnd": 1,
+            "chapterRange": "1",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [],
+            "cumulativeClueSet": [],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "With a determined nod, Eleanor turned to face her companions. \"We need to discuss what happened here last night, and I want each of you to recount your movements. Every detail matters, no matter how small.\" The gravity o",
+            "promptFingerprintHash": "40082a11d36b0367",
+            "durationMs": 8738,
+            "cost": 0.0024659613
+          },
+          {
+            "chapterStart": 2,
+            "chapterEnd": 2,
+            "chapterRange": "2",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "As the conversations unfolded, Eleanor felt the tension rise, the air thick with unspoken fears and buried truths. Each of them had a reason to be here, a connection to the victim that could either exonerate or implicate",
+            "promptFingerprintHash": "98b03bc030789d59",
+            "durationMs": 9192,
+            "cost": 0.0028129529999999995
+          },
+          {
+            "chapterStart": 3,
+            "chapterEnd": 3,
+            "chapterRange": "3",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_1"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "Eleanor took a deep breath, steeling herself for the investigation ahead. \"Let’s begin again, from the top. I want each of you to recount your movements last night, every detail matters, no matter how small. We need to p",
+            "promptFingerprintHash": "aed4c2b689b8308e",
+            "durationMs": 8544,
+            "cost": 0.0028413693000000004
+          },
+          {
+            "chapterStart": 4,
+            "chapterEnd": 4,
+            "chapterRange": "4",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_2",
+              "clue_5"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "As the conversation unfolded, Eleanor felt the pressure mount, the air thick with unspoken fears and buried truths. Each statement seemed to lead to more questions than answers, and she was determined to unravel the myst",
+            "promptFingerprintHash": "c9e63648cdef3418",
+            "durationMs": 9643,
+            "cost": 0.0030391102499999992
+          },
+          {
+            "chapterStart": 5,
+            "chapterEnd": 5,
+            "chapterRange": "5",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_3",
+              "clue_7"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict"
+            ],
+            "continuityTailPreview": "Dr. Finch's brow furrowed, and for a moment, Eleanor saw a flicker of fear in his eyes. \"I assure you, I had no part in this. I am just as eager to find the truth as you are,\" he said, his voice barely above a whisper. E",
+            "promptFingerprintHash": "8171fd13ee00511f",
+            "durationMs": 10861,
+            "cost": 0.003126053700000001
+          },
+          {
+            "chapterStart": 6,
+            "chapterEnd": 6,
+            "chapterRange": "6",
+            "attemptCount": 3,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": false,
+                "failedAttempts": 1
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": false,
+                "failedAttempts": 2
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_4",
+              "clue_8"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict"
+            ],
+            "continuityTailPreview": "Captain Hale's expression shifted, a flicker of realization dawning in his eyes. 'You think I could be involved in this?' he asked, his voice low. Eleanor nodded slowly, the weight of the accusation hanging in the air. '",
+            "promptFingerprintHash": "2e1400deb0f312b6",
+            "durationMs": 23494,
+            "cost": 0.009838166249999999
+          },
+          {
+            "chapterStart": 7,
+            "chapterEnd": 7,
+            "chapterRange": "7",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_6",
+              "clue_fp_contradiction_step_3"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "As the conversations unfolded, Eleanor felt the tension rise, the air thick with unspoken fears and buried truths. Each statement seemed to lead to more questions than answers, and she was determined to unravel the myste",
+            "promptFingerprintHash": "fbe095bbefa070c8",
+            "durationMs": 8691,
+            "cost": 0.003429378149999999
+          },
+          {
+            "chapterStart": 8,
+            "chapterEnd": 8,
+            "chapterRange": "8",
+            "attemptCount": 2,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": false,
+                "failedAttempts": 1
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": false,
+                "failedAttempts": 1
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3",
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict"
+            ],
+            "continuityTailPreview": "With renewed determination, Eleanor turned back to Dr. Finch. \"You mentioned the doctor and Nurse Thompson as your witnesses. I will contact them immediately to confirm your alibi,\" he said, his voice steady. Dr. Finch n",
+            "promptFingerprintHash": "923aa026db137e17",
+            "durationMs": 18803,
+            "cost": 0.007625344650000001
+          },
+          {
+            "chapterStart": 9,
+            "chapterEnd": 9,
+            "chapterRange": "9",
+            "attemptCount": 1,
+            "gateOutcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "newClueIdsRevealed": [
+              "clue_culprit_direct_beatrice_quill"
+            ],
+            "cumulativeClueSet": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3",
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1",
+              "clue_culprit_direct_beatrice_quill"
+            ],
+            "deployedAtomIds": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "continuityTailPreview": "Eleanor's heart ached at the sight of Beatrice's distress, but she steeled herself against the emotional turmoil. 'You must understand, Beatrice, that the truth will come out. It always does. You cannot hide from the con",
+            "promptFingerprintHash": "389f5e8b167094be",
+            "durationMs": 7577,
+            "cost": 0.0035335277999999984
+          }
+        ],
+        "outline_coverage_issue_count": 0,
+        "critical_clue_coverage_gap": false,
+        "nsd_transfer_steps": 9,
+        "nsd_transfer_trace": [
+          {
+            "batch_start": 1,
+            "batch_end": 1,
+            "chapter_range": "1",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [],
+            "continuity_tail_preview": "With a determined nod, Eleanor turned to face her companions. \"We need to discuss what happened here last night, and I want each of you to recount your movements. Every detail matters, no matter how small.\" The gravity o",
+            "prompt_fingerprint_hash": "40082a11d36b0367",
+            "batch_duration_ms": 8738,
+            "batch_cost": 0.0024659613,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [],
+            "clue_state_by_id": {},
+            "clue_evidence_anchors": [],
+            "before": {
+              "clues_revealed_to_reader": []
+            },
+            "after": {
+              "clues_revealed_to_reader": []
+            },
+            "internal_checkpoint": {
+              "chapter": 1,
+              "clues_revealed_to_reader": [],
+              "previous_arc_position": "opening"
+            }
+          },
+          {
+            "batch_start": 2,
+            "batch_end": 2,
+            "chapter_range": "2",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain"
+            ],
+            "continuity_tail_preview": "As the conversations unfolded, Eleanor felt the tension rise, the air thick with unspoken fears and buried truths. Each of them had a reason to be here, a connection to the victim that could either exonerate or implicate",
+            "prompt_fingerprint_hash": "98b03bc030789d59",
+            "batch_duration_ms": 9192,
+            "batch_cost": 0.0028129529999999995,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain"
+            ],
+            "clue_state_by_id": {
+              "clue_mechanism_visibility_core": "hinted",
+              "clue_core_contradiction_chain": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_mechanism_visibility_core",
+                "chapter_number": 1,
+                "evidence_quote": "As she began her inquiry, Eleanor’s gaze fell on the mantelpiece where the clock stood, its hands frozen in time. She stepped closer, her heart racing as she noted the time displayed: \"ten minutes past eleven.\" This d...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              },
+              {
+                "clue_id": "clue_core_contradiction_chain",
+                "chapter_number": 1,
+                "evidence_quote": "As she began her inquiry, Eleanor’s gaze fell on the mantelpiece where the clock stood, its hands frozen in time. She stepped closer, her heart racing as she noted the time displayed: \"ten minutes past eleven.\" This d...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": []
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 2,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain"
+              ],
+              "previous_arc_position": "early"
+            }
+          },
+          {
+            "batch_start": 3,
+            "batch_end": 3,
+            "chapter_range": "3",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1"
+            ],
+            "continuity_tail_preview": "Eleanor took a deep breath, steeling herself for the investigation ahead. \"Let’s begin again, from the top. I want each of you to recount your movements last night, every detail matters, no matter how small. We need to p",
+            "prompt_fingerprint_hash": "aed4c2b689b8308e",
+            "batch_duration_ms": 8544,
+            "batch_cost": 0.0028413693000000004,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_1"
+            ],
+            "clue_state_by_id": {
+              "clue_1": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_1",
+                "chapter_number": 1,
+                "evidence_quote": "At one o'clock in the afternoon, the rain continued its relentless descent, casting a gloomy pall over Little Middleton Manor. Eleanor Voss stood in the study, her heart racing as she faced the clock on the mantelpiec...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 3,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1"
+              ],
+              "previous_arc_position": "first_turn"
+            }
+          },
+          {
+            "batch_start": 4,
+            "batch_end": 4,
+            "chapter_range": "4",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5"
+            ],
+            "continuity_tail_preview": "As the conversation unfolded, Eleanor felt the pressure mount, the air thick with unspoken fears and buried truths. Each statement seemed to lead to more questions than answers, and she was determined to unravel the myst",
+            "prompt_fingerprint_hash": "c9e63648cdef3418",
+            "batch_duration_ms": 9643,
+            "batch_cost": 0.0030391102499999992,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_2",
+              "clue_5"
+            ],
+            "clue_state_by_id": {
+              "clue_2": "confirmed",
+              "clue_5": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_2",
+                "chapter_number": 1,
+                "evidence_quote": "The rain drummed steadily against the windows of the dining room, casting a somber rhythm that echoed the tension in the air. Eleanor Voss stood at the head of the long, polished table, her notebook poised in hand as ...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              },
+              {
+                "clue_id": "clue_5",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor's attention shifted to Beatrice Quill, who sat across from Hale, her fingers nervously adjusting the delicate bracelet on her wrist. Beatrice's eyes darted between Eleanor and Ivor, her anxiety palpable. \"And ...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 3,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 4,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5"
+              ],
+              "previous_arc_position": "mid"
+            }
+          },
+          {
+            "batch_start": 5,
+            "batch_end": 5,
+            "chapter_range": "5",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7"
+            ],
+            "continuity_tail_preview": "Dr. Finch's brow furrowed, and for a moment, Eleanor saw a flicker of fear in his eyes. \"I assure you, I had no part in this. I am just as eager to find the truth as you are,\" he said, his voice barely above a whisper. E",
+            "prompt_fingerprint_hash": "8171fd13ee00511f",
+            "batch_duration_ms": 10861,
+            "batch_cost": 0.003126053700000001,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_3",
+              "clue_7"
+            ],
+            "clue_state_by_id": {
+              "clue_3": "confirmed",
+              "clue_7": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_3",
+                "chapter_number": 1,
+                "evidence_quote": "As the evening deepened, the rain continued its relentless descent, a soft patter against the window panes of the study. Eleanor Voss stood before the mantelpiece, her gaze fixed on the clock whose hands stubbornly re...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 5
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              },
+              {
+                "clue_id": "clue_7",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor turned her focus back to the clock, her mind racing. If the clock had been tampered with, it could mean that the timeline of events surrounding Eleanor's death was not as straightforward as it seemed. He recal...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 3,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 5,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7"
+              ],
+              "previous_arc_position": "second_turn"
+            }
+          },
+          {
+            "batch_start": 6,
+            "batch_end": 6,
+            "chapter_range": "6",
+            "chapters_generated": 1,
+            "attempt_count": 3,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": false,
+                "failedAttempts": 1
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": false,
+                "failedAttempts": 2
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8"
+            ],
+            "continuity_tail_preview": "Captain Hale's expression shifted, a flicker of realization dawning in his eyes. 'You think I could be involved in this?' he asked, his voice low. Eleanor nodded slowly, the weight of the accusation hanging in the air. '",
+            "prompt_fingerprint_hash": "2e1400deb0f312b6",
+            "batch_duration_ms": 23494,
+            "batch_cost": 0.009838166249999999,
+            "validation_issue_count": 1,
+            "validation_issue_samples": [
+              "Chapter 6 marked non-convergent after attempt 2/6: continuity"
+            ],
+            "newly_revealed_clue_ids": [
+              "clue_4",
+              "clue_8"
+            ],
+            "clue_state_by_id": {
+              "clue_4": "confirmed",
+              "clue_8": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_4",
+                "chapter_number": 1,
+                "evidence_quote": "Captain Hale turned to face him, his expression unreadable. 'What about it?' he replied, arms crossed defensively, the tension in his posture evident. Eleanor stepped closer, her eyes narrowing as she studied her. 'Th...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 3,
+                  "sentence": 5
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              },
+              {
+                "clue_id": "clue_8",
+                "chapter_number": 1,
+                "evidence_quote": "Dr. Finch's words echoed in his mind, and he felt a surge of determination. He had to confront Captain Hale about his alibi. The clock had been tampered with, and Eleanor was beginning to suspect that the timing of th...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 4
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 6,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8"
+              ],
+              "previous_arc_position": "second_turn"
+            }
+          },
+          {
+            "batch_start": 7,
+            "batch_end": 7,
+            "chapter_range": "7",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3"
+            ],
+            "continuity_tail_preview": "As the conversations unfolded, Eleanor felt the tension rise, the air thick with unspoken fears and buried truths. Each statement seemed to lead to more questions than answers, and she was determined to unravel the myste",
+            "prompt_fingerprint_hash": "fbe095bbefa070c8",
+            "batch_duration_ms": 8691,
+            "batch_cost": 0.003429378149999999,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_6",
+              "clue_fp_contradiction_step_3"
+            ],
+            "clue_state_by_id": {
+              "clue_6": "confirmed",
+              "clue_fp_contradiction_step_3": "confirmed"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_6",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor Voss stood in the study, her heart racing as she faced the clock on the mantelpiece, its hands frozen in time. Outside, the rain drummed steadily against the window panes, a relentless reminder of the chaos th...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 1
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              },
+              {
+                "clue_id": "clue_fp_contradiction_step_3",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor Voss stood in the study, her heart racing as she faced the clock on the mantelpiece, its hands frozen in time. Outside, the rain drummed steadily against the window panes, a relentless reminder of the chaos th...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 1,
+                  "sentence": 2
+                },
+                "confidence": 0.9,
+                "state": "confirmed"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 7,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3"
+              ],
+              "previous_arc_position": "pre_climax"
+            }
+          },
+          {
+            "batch_start": 8,
+            "batch_end": 8,
+            "chapter_range": "8",
+            "chapters_generated": 1,
+            "attempt_count": 2,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": false,
+                "failedAttempts": 1
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": false,
+                "failedAttempts": 1
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Dr. Mallory Finch:manner_0",
+              "voice:Dr. Mallory Finch:manner_1",
+              "voice:Dr. Mallory Finch:conflict",
+              "voice:Captain Ivor Hale:manner_0",
+              "voice:Captain Ivor Hale:manner_1",
+              "voice:Captain Ivor Hale:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3",
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1"
+            ],
+            "continuity_tail_preview": "With renewed determination, Eleanor turned back to Dr. Finch. \"You mentioned the doctor and Nurse Thompson as your witnesses. I will contact them immediately to confirm your alibi,\" he said, his voice steady. Dr. Finch n",
+            "prompt_fingerprint_hash": "923aa026db137e17",
+            "batch_duration_ms": 18803,
+            "batch_cost": 0.007625344650000001,
+            "validation_issue_count": 1,
+            "validation_issue_samples": [
+              "Template linter: repeated long paragraph fingerprint detected. Rewrite repeated scaffold-like prose into chapter-specific language."
+            ],
+            "newly_revealed_clue_ids": [
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1"
+            ],
+            "clue_state_by_id": {
+              "clue_core_elimination_chain": "hinted",
+              "clue_late_optional_slot_1": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_core_elimination_chain",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor took a deep breath, steadying herself as she recalled the details of the previous evening’s revelations. The clock had been tampered with, its hands frozen at 'ten minutes past eleven', and the implications of...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 4
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              },
+              {
+                "clue_id": "clue_late_optional_slot_1",
+                "chapter_number": 1,
+                "evidence_quote": "Eleanor took a deep breath, steadying herself as she recalled the details of the previous evening’s revelations. The clock had been tampered with, its hands frozen at 'ten minutes past eleven', and the implications of...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 2,
+                  "sentence": 2
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3",
+                "clue_core_elimination_chain",
+                "clue_late_optional_slot_1"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 8,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3",
+                "clue_core_elimination_chain",
+                "clue_late_optional_slot_1"
+              ],
+              "previous_arc_position": "climax"
+            }
+          },
+          {
+            "batch_start": 9,
+            "batch_end": 9,
+            "chapter_range": "9",
+            "chapters_generated": 1,
+            "attempt_count": 1,
+            "gate_outcomes": [
+              {
+                "gate": "encoding",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "completeness_structure",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "locked_fact_word_form",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "character_pronoun_consistency",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "clue_placement_timing",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "temporal_continuity",
+                "passed": true,
+                "failedAttempts": 0
+              },
+              {
+                "gate": "template_leakage",
+                "passed": true,
+                "failedAttempts": 0
+              }
+            ],
+            "deployed_atom_ids": [
+              "voice:Eleanor Voss:manner_0",
+              "voice:Eleanor Voss:manner_1",
+              "voice:Eleanor Voss:conflict",
+              "voice:Beatrice Quill:manner_0",
+              "voice:Beatrice Quill:manner_1",
+              "voice:Beatrice Quill:conflict"
+            ],
+            "cumulative_clue_set": [
+              "clue_mechanism_visibility_core",
+              "clue_core_contradiction_chain",
+              "clue_1",
+              "clue_2",
+              "clue_5",
+              "clue_3",
+              "clue_7",
+              "clue_4",
+              "clue_8",
+              "clue_6",
+              "clue_fp_contradiction_step_3",
+              "clue_core_elimination_chain",
+              "clue_late_optional_slot_1",
+              "clue_culprit_direct_beatrice_quill"
+            ],
+            "continuity_tail_preview": "Eleanor's heart ached at the sight of Beatrice's distress, but she steeled herself against the emotional turmoil. 'You must understand, Beatrice, that the truth will come out. It always does. You cannot hide from the con",
+            "prompt_fingerprint_hash": "389f5e8b167094be",
+            "batch_duration_ms": 7577,
+            "batch_cost": 0.0035335277999999984,
+            "validation_issue_count": 0,
+            "validation_issue_samples": [],
+            "newly_revealed_clue_ids": [
+              "clue_culprit_direct_beatrice_quill"
+            ],
+            "clue_state_by_id": {
+              "clue_culprit_direct_beatrice_quill": "hinted"
+            },
+            "clue_evidence_anchors": [
+              {
+                "clue_id": "clue_culprit_direct_beatrice_quill",
+                "chapter_number": 1,
+                "evidence_quote": "In that moment, the gravity of the situation settled over them like a shroud. Eleanor felt the air grow thick with tension as she prepared to take the next step. 'I must report this to the authorities. You will need t...",
+                "evidence_offset": {
+                  "chapter": 1,
+                  "paragraph": 7,
+                  "sentence": 3
+                },
+                "confidence": 0.9,
+                "state": "hinted"
+              }
+            ],
+            "before": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3",
+                "clue_core_elimination_chain",
+                "clue_late_optional_slot_1"
+              ]
+            },
+            "after": {
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3",
+                "clue_core_elimination_chain",
+                "clue_late_optional_slot_1",
+                "clue_culprit_direct_beatrice_quill"
+              ]
+            },
+            "internal_checkpoint": {
+              "chapter": 9,
+              "clues_revealed_to_reader": [
+                "clue_mechanism_visibility_core",
+                "clue_core_contradiction_chain",
+                "clue_1",
+                "clue_2",
+                "clue_5",
+                "clue_3",
+                "clue_7",
+                "clue_4",
+                "clue_8",
+                "clue_6",
+                "clue_fp_contradiction_step_3",
+                "clue_core_elimination_chain",
+                "clue_late_optional_slot_1",
+                "clue_culprit_direct_beatrice_quill"
+              ],
+              "previous_arc_position": "resolution"
+            }
+          }
+        ],
+        "underflow_hard_floor_misses": 0,
+        "underflow_preferred_target_misses": 12,
+        "underflow_hard_floor_miss_chapters": [],
+        "underflow_preferred_target_miss_chapters": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "underflow_expansion_attempts": 0,
+        "underflow_expansion_recovered": 0,
+        "underflow_expansion_failed": 0,
+        "chapter_word_counts": [
+          {
+            "chapter": 1,
+            "words": 769
+          },
+          {
+            "chapter": 2,
+            "words": 842
+          },
+          {
+            "chapter": 3,
+            "words": 809
+          },
+          {
+            "chapter": 4,
+            "words": 861
+          },
+          {
+            "chapter": 5,
+            "words": 909
+          },
+          {
+            "chapter": 6,
+            "words": 630
+          },
+          {
+            "chapter": 7,
+            "words": 777
+          },
+          {
+            "chapter": 8,
+            "words": 801
+          },
+          {
+            "chapter": 9,
+            "words": 633
+          }
+        ]
+      }
+    },
+    {
+      "key": "agent9_prose_prompt_fingerprints",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "prompt_fingerprints",
+      "captured_at": "2026-05-17T08:00:19.566Z",
+      "details": {
+        "chapter_count": 9,
+        "fingerprints": [
+          {
+            "chapter": 1,
+            "hash": "40082a11d36b0367",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10860,
+              "fair_play_contract": 1929,
+              "character_personality": 1864,
+              "character_contracts": 4129,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 545,
+              "narrative_state": 882,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1417
+            }
+          },
+          {
+            "chapter": 2,
+            "hash": "98b03bc030789d59",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10860,
+              "fair_play_contract": 1929,
+              "character_personality": 1864,
+              "character_contracts": 4129,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 894,
+              "narrative_state": 1297,
+              "continuity_context": 1308,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1406,
+              "provisional_scoring_feedback": 625
+            }
+          },
+          {
+            "chapter": 3,
+            "hash": "aed4c2b689b8308e",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10691,
+              "fair_play_contract": 1929,
+              "character_personality": 1414,
+              "character_contracts": 3191,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 576,
+              "narrative_state": 1624,
+              "continuity_context": 1482,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1421,
+              "provisional_scoring_feedback": 1001
+            }
+          },
+          {
+            "chapter": 4,
+            "hash": "c9e63648cdef3418",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10528,
+              "fair_play_contract": 1929,
+              "character_personality": 1396,
+              "character_contracts": 3199,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 846,
+              "narrative_state": 1696,
+              "continuity_context": 1667,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1464,
+              "provisional_scoring_feedback": 1479
+            }
+          },
+          {
+            "chapter": 5,
+            "hash": "8171fd13ee00511f",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 9737,
+              "fair_play_contract": 1929,
+              "character_personality": 1005,
+              "character_contracts": 2311,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 836,
+              "narrative_state": 1885,
+              "continuity_context": 1679,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1406,
+              "provisional_scoring_feedback": 1448
+            }
+          },
+          {
+            "chapter": 6,
+            "hash": "d085eba17cb69fd3",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 9726,
+              "fair_play_contract": 1929,
+              "character_personality": 987,
+              "character_contracts": 2246,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4437,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 803,
+              "narrative_state": 2219,
+              "continuity_context": 1679,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1446,
+              "provisional_scoring_feedback": 1581
+            }
+          },
+          {
+            "chapter": 7,
+            "hash": "fbe095bbefa070c8",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10841,
+              "fair_play_contract": 1929,
+              "character_personality": 1414,
+              "character_contracts": 3264,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 908,
+              "narrative_state": 2396,
+              "continuity_context": 1700,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1417,
+              "provisional_scoring_feedback": 1581
+            }
+          },
+          {
+            "chapter": 8,
+            "hash": "923aa026db137e17",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 10674,
+              "fair_play_contract": 1929,
+              "character_personality": 1455,
+              "character_contracts": 2669,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 934,
+              "narrative_state": 2636,
+              "continuity_context": 1698,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1388,
+              "provisional_scoring_feedback": 1448
+            }
+          },
+          {
+            "chapter": 9,
+            "hash": "389f5e8b167094be",
+            "section_sizes": {
+              "pronoun_accuracy": 2853,
+              "character_consistency": 724,
+              "world_document": 9665,
+              "fair_play_contract": 1929,
+              "character_personality": 946,
+              "character_contracts": 1836,
+              "physical_plausibility": 832,
+              "era_authenticity": 316,
+              "location_profiles": 4047,
+              "texture_pool": 942,
+              "temporal_context": 4945,
+              "locked_facts": 1722,
+              "clue_descriptions": 700,
+              "narrative_state": 2899,
+              "continuity_context": 1621,
+              "humour_guide": 3112,
+              "craft_guide": 2469,
+              "scene_grounding": 1421,
+              "provisional_scoring_feedback": 1448
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "agent9_prose_asset_deployment",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "asset_deployment",
+      "captured_at": "2026-05-17T08:00:26.209Z",
+      "details": {
+        "report": "# Asset Deployment Diagnostic\n\n## Never Deployed (7)\n- [texture] era:story:0 (budget: 0)\n- [texture] era:story:1 (budget: 0)\n- [texture] era:story:2 (budget: 0)\n- [texture] era:story:3 (budget: 0)\n- [texture] era:story:4 (budget: 0)\n- [texture] reveal:story:0 (budget: 1)\n- [obligation] break_moment:story:full (budget: 1)\n\n## Over-Deployed (12)\n- voice:Eleanor Voss:manner_0: deployed 9x against budget 3\n- voice:Eleanor Voss:manner_1: deployed 9x against budget 3\n- voice:Eleanor Voss:conflict: deployed 9x against budget 2\n- voice:Dr. Mallory Finch:manner_0: deployed 6x against budget 3\n- voice:Dr. Mallory Finch:manner_1: deployed 6x against budget 3\n- voice:Dr. Mallory Finch:conflict: deployed 6x against budget 2\n- voice:Captain Ivor Hale:manner_0: deployed 5x against budget 3\n- voice:Captain Ivor Hale:manner_1: deployed 5x against budget 3\n- voice:Captain Ivor Hale:conflict: deployed 5x against budget 2\n- voice:Beatrice Quill:manner_0: deployed 6x against budget 3\n- voice:Beatrice Quill:manner_1: deployed 6x against budget 3\n- voice:Beatrice Quill:conflict: deployed 6x against budget 2\n\n## Deployment by Scope\n- character: 78 deployments"
+      }
+    },
+    {
+      "key": "agent9_prose_release_gate_summary",
+      "agent": "agent9_prose",
+      "phase_name": "Release Gate",
+      "diagnostic_type": "release_gate_summary",
+      "captured_at": "2026-05-17T08:00:27.425Z",
+      "details": {
+        "validation_status": "needs_review",
+        "validation_summary": {
+          "totalIssues": 10,
+          "critical": 0,
+          "major": 3,
+          "moderate": 7,
+          "minor": 0
+        },
+        "validation_snapshots": {
+          "pre_repair": {
+            "totalIssues": 10,
+            "critical": 0,
+            "major": 3,
+            "moderate": 7,
+            "minor": 0
+          },
+          "post_repair": {
+            "totalIssues": 10,
+            "critical": 0,
+            "major": 3,
+            "moderate": 7,
+            "minor": 0
+          },
+          "release_gate": {
+            "totalIssues": 10,
+            "critical": 0,
+            "major": 3,
+            "moderate": 7,
+            "minor": 0
+          }
+        },
+        "release_gate_warning_count": 1,
+        "release_gate_hard_stop_count": 0,
+        "release_gate_warnings": [
+          "scene-grounding coverage below target (6/9 chapters grounded)"
+        ],
+        "release_gate_hard_stops": [],
+        "readability": {
+          "denseChapterCount": 0,
+          "underParagraphCount": 0,
+          "severeParagraphBlocks": 0
+        },
+        "scene_grounding": {
+          "grounded": 6,
+          "total": 9,
+          "coverage": 0.6666666666666666
+        },
+        "placeholder_leakage": {
+          "roleSurnameCount": 0,
+          "standaloneCount": 0,
+          "genericRoleCount": 0,
+          "examples": [],
+          "severeLeakage": false,
+          "hasLeakage": false
+        },
+        "chapter_heading_artifacts": {
+          "duplicatedHeadingCount": 0,
+          "hasArtifacts": false
+        },
+        "clue_visibility_expected_ids": [
+          "clue_mechanism_visibility_core",
+          "clue_core_contradiction_chain",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_culprit_direct_beatrice_quill",
+          "clue_core_elimination_chain",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8",
+          "clue_late_optional_slot_1",
+          "clue_fp_contradiction_step_3"
+        ],
+        "clue_visibility_extracted_ids": [
+          "clue_mechanism_visibility_core",
+          "clue_core_contradiction_chain",
+          "clue_1",
+          "clue_2",
+          "clue_3",
+          "clue_4",
+          "clue_5",
+          "clue_6",
+          "clue_7",
+          "clue_8",
+          "clue_core_elimination_chain",
+          "clue_culprit_direct_beatrice_quill",
+          "clue_fp_contradiction_step_3",
+          "clue_late_optional_slot_1"
+        ],
+        "clue_visibility_missing_expected_ids": [],
+        "clue_visibility_unexpected_extracted_ids": [],
+        "clue_visibility_expected_count": 14,
+        "clue_visibility_extracted_count": 14,
+        "nsd_visibility_divergence": {
+          "diverged": false,
+          "revealed_count": 14,
+          "evidence_visible_count": 14,
+          "clue_state_by_id": {
+            "clue_mechanism_visibility_core": "hinted",
+            "clue_core_contradiction_chain": "hinted",
+            "clue_1": "confirmed",
+            "clue_2": "confirmed",
+            "clue_3": "confirmed",
+            "clue_4": "confirmed",
+            "clue_5": "hinted",
+            "clue_6": "confirmed",
+            "clue_7": "hinted",
+            "clue_8": "hinted",
+            "clue_core_elimination_chain": "hinted",
+            "clue_culprit_direct_beatrice_quill": "hinted",
+            "clue_fp_contradiction_step_3": "confirmed",
+            "clue_late_optional_slot_1": "hinted"
+          },
+          "revealed_without_evidence": [],
+          "evidence_without_reveal": [],
+          "sample_evidence_anchors": [
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 1,
+              "evidence_quote": "She leaned closer, her breath hitching as she read the face clearly: “ten minutes past eleven.” This detail sent a shiver down her spine, for it meant the victim had died no later than that time, and yet the clock had...",
+              "evidence_offset": {
+                "chapter": 1,
+                "paragraph": 3,
+                "sentence": 2
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 2,
+              "evidence_quote": "The evening air felt heavy with tension, the distant rumble of thunder echoing through the living room as she faced her companions. Rain drummed against the windows, a relentless reminder of the chaos that had unfolde...",
+              "evidence_offset": {
+                "chapter": 2,
+                "paragraph": 3,
+                "sentence": 6
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 3,
+              "evidence_quote": "By the time they reached Servants' Quarters in Little Middleton, England, Quiet whispers and hushed conversations had become a constant undertone, and Rough fabric of the bedding left the room feeling quietly tense an...",
+              "evidence_offset": {
+                "chapter": 3,
+                "paragraph": 1,
+                "sentence": 5
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 4,
+              "evidence_quote": "“Can you recall exactly what time you heard it, Ivor?” she asked, leaning forward, her pen poised over the page. The clock stood at ten minutes past eleven. Ivor hesitated, her expression shifting as she considered he...",
+              "evidence_offset": {
+                "chapter": 4,
+                "paragraph": 5,
+                "sentence": 3
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 5,
+              "evidence_quote": "He glanced over his shoulder, half-expecting to see Dr. Finch standing behind him, his expression unreadable as always. But he remained outside, perhaps gathering his thoughts, or perhaps hiding something more siniste...",
+              "evidence_offset": {
+                "chapter": 5,
+                "paragraph": 3,
+                "sentence": 4
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 6,
+              "evidence_quote": "She took a deep breath, steeling herself for the confrontation ahead. 'Captain Hale, we need to talk about your whereabouts last night,' he said, his voice steady despite the turmoil inside him. Captain Hale turned to...",
+              "evidence_offset": {
+                "chapter": 6,
+                "paragraph": 4,
+                "sentence": 7
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 7,
+              "evidence_quote": "The clock’s state was no mere coincidence; it was a deliberate manipulation that had the potential to unravel the entire investigation. He glanced at Dr. Finch, who stood nearby, his brow furrowed in thought. The atmo...",
+              "evidence_offset": {
+                "chapter": 7,
+                "paragraph": 2,
+                "sentence": 1
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            },
+            {
+              "clue_id": "clue_mechanism_visibility_core",
+              "chapter_number": 8,
+              "evidence_quote": "The morning light filtered through the study’s windows, casting a soft glow on the dust motes that danced in the air. Outside, the rain had finally ceased, leaving a dampness that clung to the manor’s stone walls. Ele...",
+              "evidence_offset": {
+                "chapter": 8,
+                "paragraph": 3,
+                "sentence": 5
+              },
+              "confidence": 0.9,
+              "state": "hinted"
+            }
+          ]
+        },
+        "has_illegal_control_chars": false,
+        "has_mojibake": false,
+        "fair_play_status": "pass",
+        "release_gate_audit": {
+          "status": "warning",
+          "warningReasons": [
+            "scene-grounding coverage below target (6/9 chapters grounded)"
+          ],
+          "hardStopReasons": [],
+          "validationErrorTypes": [
+            "locked_fact_missing_value",
+            "pronoun_drift",
+            "opening_style_repetition"
+          ],
+          "nsdVisibilityDivergence": {
+            "diverged": false,
+            "revealedCount": 14,
+            "evidenceVisibleCount": 14,
+            "revealedWithoutEvidence": [],
+            "evidenceWithoutReveal": []
+          },
+          "readability": {
+            "denseChapterCount": 0,
+            "underParagraphCount": 0,
+            "severeParagraphBlocks": 0
+          },
+          "sceneGrounding": {
+            "grounded": 6,
+            "total": 9,
+            "coverage": 0.6666666666666666
+          },
+          "placeholderLeakage": {
+            "roleSurnameCount": 0,
+            "standaloneCount": 0,
+            "genericRoleCount": 0,
+            "examples": [],
+            "severeLeakage": false,
+            "hasLeakage": false
+          },
+          "chapterHeadingArtifacts": {
+            "duplicatedHeadingCount": 0,
+            "hasArtifacts": false
+          },
+          "hasIllegalControlChars": false,
+          "hasMojibake": false,
+          "fairPlayStatus": "pass"
+        }
+      }
+    },
+    {
+      "key": "agent9_prose_failure_lineage",
+      "agent": "agent9_prose",
+      "phase_name": "Prose Generation",
+      "diagnostic_type": "failure_lineage",
+      "captured_at": "2026-05-17T08:00:27.427Z",
+      "details": {
+        "first_failing_chapter": 6,
+        "error_classes": [
+          "identity_continuity"
+        ],
+        "corrective_attempts": 0,
+        "final_blocking_reason": "scene-grounding coverage below target (6/9 chapters grounded)"
+      }
+    }
+  ],
+  "validation_snapshots": {
+    "pre_repair": {
+      "total": 10,
+      "critical": 0,
+      "major": 3,
+      "moderate": 7,
+      "minor": 0
+    },
+    "post_repair": {
+      "total": 10,
+      "critical": 0,
+      "major": 3,
+      "moderate": 7,
+      "minor": 0
+    },
+    "release_gate": {
+      "total": 10,
+      "critical": 0,
+      "major": 3,
+      "moderate": 7,
+      "minor": 0
+    }
+  },
+  "validation_reconciliation": {
+    "pre_total": 10,
+    "release_gate_total": 10,
+    "resolved_delta": 0
+  },
+  "summary": {
+    "phases_passed": 13,
+    "phases_failed": 1,
+    "total_phases": 14,
+    "pass_rate": 92.9,
+    "weakest_phase": "Novelty Audit",
+    "strongest_phase": "World Builder",
+    "failure_reasons": [
+      "agent8-novelty-audit: Score below threshold"
+    ],
+    "retry_stats": {
+      "total_retries": 0,
+      "phases_retried": 0,
+      "retry_rate": "0.00",
+      "retried_phases": []
+    },
+    "total_cost": 0.0662
+  },
+  "threshold_config": {
+    "mode": "standard"
+  }
+}

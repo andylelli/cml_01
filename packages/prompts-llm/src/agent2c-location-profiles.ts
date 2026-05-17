@@ -207,10 +207,10 @@ object will cause schema validation failure and the entire output will be reject
       "purpose": "Crime scene|Clue discovery|Gathering space",
       "visualDetails": "Physical description",
       "sensoryDetails": {
-        "sights": ["Full 2-sentence visual description of what you see", "Second visual detail with specific period-authentic imagery"],
-        "sounds": ["Full 2-sentence sound description — ambient and specific noises", "A second distinct sound with texture and context"],
-        "smells": ["Full 2-sentence olfactory description — at least 3 specific scents named", "A secondary smell that reinforces the mood"],
-        "tactile": ["Full 2-sentence tactile description — temperature, texture, humidity", "A second tactile detail relevant to the space"]
+        "sights": ["candlelight on dark oak", "rain-streaked window panes"],
+        "sounds": ["crackling fire", "pages turning in the silence"],
+        "smells": ["beeswax and cold ash", "damp stone and old leather"],
+        "tactile": ["worn leather armchair", "chill draft from the casement"]
       },
       "accessControl": "Who can access this location and when",
       "sensoryVariants": [
@@ -253,7 +253,9 @@ Requirements:
 - Key locations: 2-3 paragraphs each (include crime scene + AT LEAST 3 other important locations, 4 minimum total)
 - If the narrative does not suggest specific sub-locations, invent context-appropriate ones for the setting type (rooms, outbuildings, grounds, nearby places). A country house has a library, a study, a drawing room, a servants\'s hall, gardens. An ocean liner has a dining saloon, a promenade deck, a cabin corridor, a cargo hold.
 - Atmosphere: 2-3 paragraphs
-- **CRITICAL — Sensory Richness**: Each sensory detail entry MUST be a full 2-sentence description (minimum 20 words per entry). Arrays of one-word items or short phrases WILL be rejected. Aim for 50+ words total per sense field across the array.
+- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 4–6 entries per sense field to ensure richness.
+  ✓ CORRECT: "crackling fire" / "damp stone underfoot" / "wood smoke and tallow" / "worn leather armrest"
+  ✗ WRONG: "The fire crackles in the hearth, providing warmth." / "A rich scent of beeswax fills the air."
 - All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)
 - Era-authentic markers: ${eraMarkers.join(', ')}
 - Tone: ${tone}
@@ -283,7 +285,7 @@ Micro-exemplars:
 Before finalizing, run a silent checklist:
 - top-level atmosphere object complete
 - keyLocations are objects, not strings
-- each sensoryDetails field has rich sentences
+- each sensoryDetails field has rich noun-phrase atoms (3–8 words each, no sentences)
 - sensoryVariants cover morning-rain, afternoon-grey, evening-clear
 - JSON only, no markdown fences${enhancedFeedback}`;
 

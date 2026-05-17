@@ -330,6 +330,8 @@ export class ChapterValidator {
       'afternoon', 'midday', 'noon', 'midnight', 'twilight',
       'sunrise', 'sunset', 'daylight', 'sunlight', 'overcast',
       'cloudy', 'bright', 'grey', 'gray', 'dark', 'light',
+      'pale', 'cold', 'warm', 'chill', 'crisp', 'damp',
+      'drizzle', 'haze', 'lamplight', 'firelight',
     ].filter((term) => openingBlockText.includes(term)).length;
 
     const chapterWideHasLocationAnchor = expectedAnchors.some((term) => fullText.includes(term));

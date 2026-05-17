@@ -285,11 +285,11 @@ agent9_prose:
       # Supported range: 2 - 12
       gram_size: 6
       # Supported range: 0.0 - 1.0
-      overlap_threshold: 0.80
+      overlap_threshold: 0.65     # was 0.80 — catches paraphrase repeats, not just near-copies [PHASE 4]
       # Supported range: 1 - 200
       min_candidate_ngrams: 10
       # Supported range: 1 - 200
-      prior_paragraph_limit: 25
+      prior_paragraph_limit: 40   # was 25 — covers ~8 chapters worth of content [PHASE 4]
 
   scoring_adapter:
     discriminating:

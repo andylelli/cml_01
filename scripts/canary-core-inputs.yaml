@@ -53,6 +53,14 @@ castNames:
   - "Dr. Mallory Finch"
   - "Captain Ivor Hale"
   - "Beatrice Quill"
+# Gender lock: prevents per-run ambiguity for names the LLM may misread.
+# Captain Ivor Hale is masculine (Ivor = Welsh male name) — lock to male.
+# All other characters are female. This is non-negotiable via Agent2 prompt.
+castGenders:
+  "Eleanor Voss": female
+  "Dr. Mallory Finch": female
+  "Captain Ivor Hale": male
+  "Beatrice Quill": female
 #  - "Sylvia Trent"
 #  - "Hugo Vane"
 #  - "Agnes Pike"

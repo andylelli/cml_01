@@ -19,6 +19,9 @@ export interface CastInputs {
   runId: string;
   projectId: string;
   characterNames?: string[]; // User-provided names (optional)
+  /** Gender lock map: name → 'male' | 'female'. When provided alongside characterNames,
+   * the cast designer is instructed to treat these gender assignments as non-negotiable. */
+  characterGenders?: Record<string, 'male' | 'female'>;
   castSize?: number; // Number of characters to generate (if names not provided)
   setting: string; // Era + location context
   crimeType: string; // Murder, theft, etc.
@@ -320,8 +323,23 @@ Output contract:
   The official police may be dismissive or obstructive. Other characters may refuse to speak to them. Their investigation must be earned through ingenuity and social navigation.`
     : `The police detective/inspector is summoned to the scene in an official capacity following a report of the crime. They have full investigative authority and witnesses are expected to cooperate. Their characterArcPotential should reflect any personal stakes, professional complications, or political pressures that complicate the official investigation.`;
 
+  // Build a gender-lock block when the caller has explicitly assigned genders.
+  // Rendered as an immutable ⛔ constraint block inside the namesSection.
+  const genderLockLines: string[] = [];
+  if (inputs.characterGenders && Object.keys(inputs.characterGenders).length > 0) {
+    for (const [name, gender] of Object.entries(inputs.characterGenders)) {
+      const pronounLabel = gender === 'male'
+        ? 'male (he/him/his — NEVER she/her/hers)'
+        : 'female (she/her/hers — NEVER he/him/his)';
+      genderLockLines.push(`  • ${name}: ${pronounLabel}`);
+    }
+  }
+  const genderLockBlock = genderLockLines.length > 0
+    ? `\n\n⛔ GENDER ASSIGNMENTS — NON-NEGOTIABLE (cannot be changed, inferred, or overridden):\n${genderLockLines.join('\n')}\nYou MUST assign these exact genders. The \`gender\` field in your JSON output for each named character must match exactly.`
+    : '';
+
   const namesSection = inputs.characterNames
-    ? `**Character Names** (pre-selected — use EXACTLY as given, do not alter, abbreviate, or substitute any name): ${inputs.characterNames.join(", ")}
+    ? `**Character Names** (pre-selected — use EXACTLY as given, do not alter, abbreviate, or substitute any name): ${inputs.characterNames.join(", ")}${genderLockBlock}
 
 IMPORTANT: Exactly ONE of these ${count} characters is the investigator/detective. Assign that role to the character whose name and background best fits ${detectiveArchetype}. Their roleArchetype must be "${detectiveRoleLabel}".
 

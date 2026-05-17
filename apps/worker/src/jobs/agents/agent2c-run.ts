@@ -6,7 +6,7 @@
  * and writes ctx.locationProfiles.
  */
 
-import { generateLocationProfiles } from "@cml/prompts-llm";
+import { generateLocationProfiles, compileSensoryAtoms } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import { LocationProfilesScorer } from "@cml/story-validation";
 import {
@@ -56,12 +56,12 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       ctx.warnings,
       ctx.savePartialReport
     );
-    ctx.locationProfiles = result;
+    ctx.locationProfiles = compileSensoryAtoms(result);
     ctx.agentCosts["agent2c_location_profiles"] = cost;
     ctx.agentDurations["agent2c_location_profiles"] = duration;
   } else {
     const locationProfilesStart = Date.now();
-    ctx.locationProfiles = await generateLocationProfiles(ctx.client, {
+    const rawProfiles = await generateLocationProfiles(ctx.client, {
       settingRefinement: ctx.setting!.setting,
       caseData: ctx.cml!,
       narrative: ctx.narrative!,
@@ -70,7 +70,8 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       runId: ctx.runId,
       projectId: ctx.projectId || "",
     });
-    ctx.agentCosts["agent2c_location_profiles"] = ctx.locationProfiles.cost;
+    ctx.locationProfiles = compileSensoryAtoms(rawProfiles);
+    ctx.agentCosts["agent2c_location_profiles"] = rawProfiles.cost;
     ctx.agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
   }
 
@@ -83,7 +84,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
 
   ctx.reportProgress(
     "location-profiles",
-    `Location profiles generated (${ctx.locationProfiles.keyLocations.length} locations)`,
+    `Location profiles generated (${ctx.locationProfiles?.keyLocations.length ?? 0} locations)`,
     89
   );
 }

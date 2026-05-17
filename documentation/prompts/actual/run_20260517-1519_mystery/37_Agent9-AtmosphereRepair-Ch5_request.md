@@ -1,0 +1,32 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1779031192067`
+- Project ID: ``
+- Timestamp: `2026-05-17T15:26:05.856Z`
+- Agent: `Agent9-AtmosphereRepair-Ch5`
+- Operation: `chat_request_full_prompt`
+- Model: `GPT-4o-mini`
+- Temperature: `0.7`
+- Max Tokens: `400`
+- Attempt: `first`
+- Prompt Hash: `ffcd7a1d3da1a6db`
+
+## Message 1 (role=system)
+
+```text
+You are a prose variety assistant for mystery fiction. You will be given a list of overused phrases. For each phrase provide one fresh, scene-specific alternative of similar length and register. Output JSON only — no explanation, no prose outside the JSON.
+```
+
+## Message 2 (role=user)
+
+```text
+Chapter 5 overuses these phrases — provide one fresh alternative for each:
+1. "eleanor felt a knot tighten in her"
+2. "felt a knot tighten in her stomach"
+3. "if witnesses had indeed heard the clock"
+4. "witnesses had indeed heard the clock chime"
+
+Return exactly this schema (one entry per phrase, same order):
+{"replacements":[{"original":"...","replacement":"..."}]}
+Only return the JSON payload.
+```

@@ -10,6 +10,7 @@ const ALLOWED_INPUT_KEYS = new Set([
   "primaryAxis",
   "castSize",
   "castNames",
+  "castGenders",
   "detectiveType",
   "targetLength",
   "narrativeStyle",

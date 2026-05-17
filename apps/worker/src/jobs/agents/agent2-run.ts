@@ -91,6 +91,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
       async (retryFeedback?: string) => {
         const castResult = await designCast(ctx.client, {
           characterNames: effectiveCastNames,
+          characterGenders: ctx.inputs.castGenders,
           castSize: totalCastSize,
           setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
           crimeType: "Murder",
@@ -130,6 +131,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     const castStart = Date.now();
     ctx.cast = await designCast(ctx.client, {
       characterNames: effectiveCastNames,
+      characterGenders: ctx.inputs.castGenders,
       castSize: totalCastSize,
       setting: `${setting.setting.era.decade} - ${setting.setting.location.description}`,
       crimeType: "Murder",

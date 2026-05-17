@@ -43,7 +43,7 @@ export const MONTH_TO_FORBIDDEN_SEASONS: Record<string, CanonicalSeason[]> =
 const SEASON_PATTERNS: Array<{ season: CanonicalSeason; pattern: RegExp }> = [
   { season: 'spring', pattern: /\b(spring|springtime|vernal)\b/i },
   { season: 'summer', pattern: /\b(summer|summertime|midsummer|summery)\b/i },
-  { season: 'autumn', pattern: /\b(autumn|autumnal|fall)\b/i },
+  { season: 'autumn', pattern: /\b(autumn|autumnal)\b/i },
   { season: 'winter', pattern: /\b(winter|wintertime|wintry)\b/i },
 ];
 

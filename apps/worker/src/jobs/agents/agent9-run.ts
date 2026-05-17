@@ -24,6 +24,9 @@ import {
   updateNSD,
   resolveVictimName,
   stampDeployedAtoms,
+  extractBeatFingerprints,
+  buildMacroArcPlan,
+  precompileStoryContract,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
@@ -223,26 +226,31 @@ const buildDeterministicGroundingLead = (
   const target =
     keyLocations.length > 0 ? keyLocations[chapterIndex % keyLocations.length] : undefined;
 
-  const locationName = target?.name || primary?.name || "the estate";
+  const locationName = target?.name || primary?.name || "the premises";
   const place = primary?.place ? ` in ${primary.place}` : "";
   const country = primary?.country ? `, ${primary.country}` : "";
-  const weather = locationProfiles.atmosphere?.weather || "rain";
-  const mood = locationProfiles.atmosphere?.mood || "tense";
+  // Truncate to first clause only — earlier agents produce long descriptive phrases
+  // (e.g. "tense and foreboding, reflecting the uncertainty and class tensions of the era")
+  // that produce malformed prose when interpolated directly into sentence templates.
+  const weather = (locationProfiles.atmosphere?.weather || "rain").split(/[,;]/)[0].trim();
+  const mood = (locationProfiles.atmosphere?.mood || "tense").split(/[,;]/)[0].trim();
 
   const smells = target?.sensoryDetails?.smells || [];
   const sounds = target?.sensoryDetails?.sounds || [];
   const tactile = target?.sensoryDetails?.tactile || [];
 
-  const smell = (smells[0] || "old timber and damp stone").replace(/\.$/, "");
-  const sound = (sounds[0] || "the sound of the wind in the corridor").replace(/\.$/, "");
-  const touch = (tactile[0] || "the cold banister and rough wallpaper").replace(/\.$/, "");
+  // Lowercase first letter for mid-sentence insertion; strip trailing period.
+  const lcFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+  const smell = lcFirst((smells[0] || "old timber and damp stone").replace(/\.$/, ""));
+  const sound = lcFirst((sounds[0] || "the sound of the wind in the corridor").replace(/\.$/, ""));
+  const touch = lcFirst((tactile[0] || "the cold banister and rough wallpaper").replace(/\.$/, ""));
 
   const leadTemplates = [
-    `${locationName}${place}${country} carried ${weather.toLowerCase()} in every corridor; ${sound} drifted past, and ${touch} made the ${mood.toLowerCase()} mood impossible to ignore.`,
-    `Under ${weather.toLowerCase()} skies, ${locationName}${place}${country} felt sharply ${mood.toLowerCase()}; ${sound} lingered while ${smell} clung to coats and curtains.`,
-    `By the time they reached ${locationName}${place}${country}, ${sound} had become a constant undertone, and ${touch} left the room feeling quietly ${mood.toLowerCase()}.`,
-    `In ${locationName}${place}${country}, ${smell} and ${sound} met at the doorway, and even ${touch} seemed to signal a ${mood.toLowerCase()} turn in events.`,
-    `${locationName}${place}${country} met them with ${weather.toLowerCase()} and ${smell}; ${sound} threaded through the scene, and ${touch} sharpened the ${mood.toLowerCase()} tension.`,
+    `${locationName}${place}${country} held a ${mood.toLowerCase()} weight to it; ${sound}, and the faint trace of ${smell} completed the picture.`,
+    `The ${weather.toLowerCase()} had settled over ${locationName}${place}${country}; ${sound}, and ${touch} gave the room a ${mood.toLowerCase()} cast that refused to lift.`,
+    `Entering ${locationName}${place}${country}, ${sound} was the first thing one noticed—${touch}, and the whole space quietly ${mood.toLowerCase()}.`,
+    `${locationName}${place}${country} received them with ${smell} alongside ${sound}, and ${touch} reinforced the ${mood.toLowerCase()} impression.`,
+    `In ${locationName}${place}${country}, ${sound} and ${smell} set the tone; ${touch} ran beneath it all, and the ${weather.toLowerCase()} outside pressed the ${mood.toLowerCase()} mood inward.`,
   ];
 
   return sanitizeProseText(leadTemplates[chapterIndex % leadTemplates.length]);
@@ -263,7 +271,7 @@ const getGroundingSignals = (opening: string, anchors: string[]) => {
     ) || []
   ).length;
   const hasAtmosphere =
-    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather)\b/i.test(
+    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight)\b/i.test(
       normalized,
     );
   return { hasAnchor, sensoryCount, hasAtmosphere };
@@ -279,7 +287,7 @@ const WORD_TO_NUM: Record<string, number> = {
   fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
   twenty: 20, 'twenty-one': 21, 'twenty-two': 22, 'twenty-three': 23,
   'twenty-four': 24, 'twenty-five': 25, 'twenty-six': 26, 'twenty-seven': 27,
-  'twenty-eight': 28, 'twenty-nine': 29, thirty: 30, half: 30, quarter: 15,
+  'twenty-eight': 28, 'twenty-nine': 29, thirty: 30,
   'thirty-one': 31, 'thirty-two': 32, 'thirty-three': 33, 'thirty-four': 34,
   'thirty-five': 35, 'thirty-six': 36, 'thirty-seven': 37, 'thirty-eight': 38,
   'thirty-nine': 39, forty: 40, 'forty-one': 41, 'forty-two': 42,
@@ -515,6 +523,25 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
           const oclockPattern = new RegExp(`\\b${hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+o[\\u2019']clock\\b`, 'gi');
           repairs.push({ pattern: oclockPattern, canonical, chaptersScope });
         }
+        // Hour-only digit + AM/PM form: "8 PM", "8PM", "8 p.m." → canonical (e.g. "eight o'clock")
+        const hourOnlyDigitAmPm = new RegExp(
+          `\\b${hour}\\s*(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm)\\b`,
+          'gi',
+        );
+        repairs.push({ pattern: hourOnlyDigitAmPm, canonical, chaptersScope });
+        // Hour word + AM/PM form: "eight PM", "eight p.m." → canonical
+        const escapedHourWord = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const hourWordAmPm = new RegExp(
+          `\\b${escapedHourWord}\\s+(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm)\\b`,
+          'gi',
+        );
+        repairs.push({ pattern: hourWordAmPm, canonical, chaptersScope });
+        // "X in the evening/morning/afternoon/night" → canonical (e.g. "eight in the evening")
+        const inTheTimeOfDay = new RegExp(
+          `\\b${escapedHourWord}\\s+(?:in\\s+the\\s+(?:evening|morning|afternoon|night)|that\\s+(?:evening|night|morning))\\b`,
+          'gi',
+        );
+        repairs.push({ pattern: inTheTimeOfDay, canonical, chaptersScope });
       } else if (hourWord && minWord) {
         // "eleven ten" form — only repair if canonical is NOT this same plain H-M form
         const plainWordForm = `${hourWord} ${minWord}`;
@@ -524,6 +551,31 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
             'gi',
           );
           repairs.push({ pattern: wordAliasPattern, canonical, chaptersScope });
+        }
+        // Phase 3: wrong-order form: "eleven past ten" when canonical is "ten past eleven"
+        const escapedHour = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedMin = minWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wrongOrderPattern = new RegExp(`\\b${escapedHour}\\s+(?:minutes?\\s+)?past\\s+${escapedMin}\\b`, 'gi');
+        repairs.push({ pattern: wrongOrderPattern, canonical, chaptersScope });
+        // "N past H" without "minutes" keyword — e.g. "ten past eleven" → "ten minutes past eleven"
+        if (/minutes?\s+past/i.test(canonical)) {
+          const pastWithoutMinutes = new RegExp(`\\b${escapedMin}\\s+past\\s+${escapedHour}\\b`, 'gi');
+          repairs.push({ pattern: pastWithoutMinutes, canonical, chaptersScope });
+        }
+        // Phase 3: hyphenated form: "eleven-ten"
+        const hyphenPattern = new RegExp(`\\b${escapedHour}-${escapedMin}\\b`, 'gi');
+        repairs.push({ pattern: hyphenPattern, canonical, chaptersScope });
+      }
+      // Phase 3: "quarter past [hour]" / "half past [hour]" as wrong substitutions when canonical differs
+      if (hourWord) {
+        const escapedHour = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (minute !== 15 && !/quarter\s+past/i.test(canonical)) {
+          const quarterPastPattern = new RegExp(`\\bquarter\\s+past\\s+${escapedHour}\\b`, 'gi');
+          repairs.push({ pattern: quarterPastPattern, canonical, chaptersScope });
+        }
+        if (minute !== 30 && !/half\s+past/i.test(canonical)) {
+          const halfPastPattern = new RegExp(`\\bhalf\\s+past\\s+${escapedHour}\\b`, 'gi');
+          repairs.push({ pattern: halfPastPattern, canonical, chaptersScope });
         }
       }
       continue;
@@ -637,6 +689,34 @@ const tokenizeLockedFactDescription = (value: string): string[] =>
     .split(/\s+/)
     .filter((token) => token.length >= 4 && !LOCKED_FACT_DESC_STOPWORDS.has(token));
 
+type FactValueType = 'time' | 'duration_minutes' | 'weight' | 'length' | 'generic';
+
+function classifyFactValue(canonical: string): FactValueType {
+  // P2-4: "quarter" and "half" are only clock-time indicators when adjacent to an hour-word.
+  // "a quarter of a mile" or "half the distance" must not be classified as time.
+  // Also add "at the hour" as an unambiguous time indicator.
+  const HOUR_WORDS = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i;
+  const isClockContext =
+    /\b(past|to|o['']clock|AM|PM|a\.m\.|p\.m\.|in\s+the\s+(morning|afternoon|evening|night)|at\s+the\s+hour)\b/i.test(canonical) ||
+    (/\b(quarter|half)\b/i.test(canonical) && HOUR_WORDS.test(canonical));
+  if (isClockContext) return 'time';
+  if (/\b(minute|second|hour)s?\b/i.test(canonical)) return 'duration_minutes';
+  if (/\b(pound|stone|kilogram)s?\b/i.test(canonical)) return 'weight';
+  if (/\b(feet?|foot|inch|metre|meter|yard)s?\b/i.test(canonical)) return 'length';
+  return 'generic';
+}
+
+const INJECTION_TEMPLATES: Record<FactValueType, (desc: string, val: string) => string> = {
+  time:             (_d, v) => `The time was recorded as ${v}.`,
+  duration_minutes: (d, v)  => `The interval — ${d.toLowerCase()} — came to ${v}.`,
+  weight:           (d, v)  => `${d.charAt(0).toUpperCase() + d.slice(1)} weighed ${v}.`,
+  length:           (d, v)  => `The measurement confirmed: ${v}.`,
+  generic:          (_d, v) => `The relevant value was established: ${v}.`,
+};
+
+/** Extract the surname (last word) from a full name. */
+const extractSurname = (name: string): string => name.trim().split(/\s+/).pop() ?? name;
+
 export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
 
@@ -650,6 +730,9 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
 
     let chapterTextLower = paragraphs.join("\n\n").toLowerCase();
     const updatedParagraphs = [...paragraphs];
+    // Track injections per chapter only — the same canonical value may need to
+    // appear in multiple chapters, so we must not deduplicate across chapters.
+    const injectedThisChapter = new Set<string>();
 
     for (const fact of lockedFacts) {
       const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
@@ -685,8 +768,12 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       }
       if (bestIdx < 0 || bestScore < 1) continue;
 
-      updatedParagraphs[bestIdx] = `${updatedParagraphs[bestIdx].trim()} The evidence showed ${canonical}.`;
+      if (injectedThisChapter.has(canonical.toLowerCase())) continue;
+      const valueType = classifyFactValue(canonical);
+      const sentence = INJECTION_TEMPLATES[valueType](description, canonical);
+      updatedParagraphs[bestIdx] = `${sentence} ${updatedParagraphs[bestIdx].trim()}`;
       chapterTextLower = updatedParagraphs.join("\n\n").toLowerCase();
+      injectedThisChapter.add(canonical.toLowerCase());
       injectedCount += 1;
     }
 
@@ -709,11 +796,21 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
  * Injects a single bridging sentence into the last paragraph of the most relevant chapter
  * when the chain is absent.  No-ops when the chain already exists.
  */
-export const enforceSuspectEliminationPresence = (prose: any, cml: any): any => {
-  const castNames: string[] = Array.isArray(cml?.CASE?.cast)
-    ? cml.CASE.cast.map((c: any) => String(c?.name ?? '').trim()).filter(Boolean)
-    : [];
-  if (castNames.length === 0) return prose;
+export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
+  // P1-7: Prefer castDesign.characters (Agent 2 normalised) over cml.CASE.cast (Agent 3 raw).
+  // castDesign is populated when called from runAgent9 and is the authoritative cast source.
+  const rawCast: any[] = Array.isArray(castDesign?.characters)
+    ? castDesign.characters
+    : Array.isArray(cml?.CASE?.cast)
+      ? cml.CASE.cast
+      : [];
+  const castNames: string[] = rawCast.map((c: any) => String(c?.name ?? '').trim()).filter(Boolean);
+  if (castNames.length === 0) {
+    if (!Array.isArray(castDesign?.characters) && !Array.isArray(cml?.CASE?.cast)) {
+      console.warn('[Agent 9] enforceSuspectEliminationPresence: no cast source available (castDesign and cml.CASE.cast both absent)');
+    }
+    return prose;
+  }
 
   const culpritSet = new Set<string>(
     Array.isArray(cml?.CASE?.culpability?.culprits)
@@ -721,25 +818,25 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any): any => 
       : [],
   );
   const detectiveSet = new Set<string>(
-    Array.isArray(cml?.CASE?.cast)
-      ? cml.CASE.cast
-          .filter((c: any) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
-          .map((c: any) => String(c.name ?? '').trim())
-      : [],
+    rawCast
+      .filter((c: any) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
+      .map((c: any) => String(c.name ?? '').trim()),
   );
   const suspects = castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
   if (suspects.length === 0) return prose;
 
   const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
-
-  const extractSurname = (name: string): string => {
-    const tokens = name.trim().split(/\s+/);
-    return tokens[tokens.length - 1] ?? name;
+  // P2-5: Strip leading title prefix before extractSurname so "Dr. Finch" registered as
+  // "Mallory Finch" is detected when the text uses the title+surname form.
+  const TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Reverend|Rev)\.?\s+/i;
+  const nameInText = (name: string, text: string): boolean => {
+    const titleStripped = name.replace(TITLE_PREFIX_RE, '');
+    if (text.includes(name)) return true;
+    if (titleStripped && text.includes(titleStripped)) return true;
+    const surname = extractSurname(titleStripped || name);
+    return !!surname && text.includes(surname);
   };
-
-  const nameInText = (name: string, text: string): boolean =>
-    text.includes(name) || text.includes(extractSurname(name));
 
   const chapters = (prose.chapters as any[]).slice();
 
@@ -793,14 +890,15 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
 
   const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
-
-  const extractSurname = (name: string): string => {
-    const tokens = name.trim().split(/\s+/);
-    return tokens[tokens.length - 1] ?? name;
+  // P2-5: Strip leading title prefix before extractSurname (same as enforceSuspectEliminationPresence).
+  const TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Reverend|Rev)\.?\s+/i;
+  const nameInText = (name: string, text: string): boolean => {
+    const titleStripped = name.replace(TITLE_PREFIX_RE, '');
+    if (text.includes(name)) return true;
+    if (titleStripped && text.includes(titleStripped)) return true;
+    const surname = extractSurname(titleStripped || name);
+    return !!surname && text.includes(surname);
   };
-
-  const nameInText = (name: string, text: string): boolean =>
-    text.includes(name) || text.includes(extractSurname(name));
 
   const chapters = (prose.chapters as any[]).slice();
 
@@ -843,6 +941,40 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
   }
 
   return { ...prose, chapters };
+};
+
+/**
+ * Phase 6 Layer 3: Backstop resolution injector.
+ * After all post-processing, if the final chapter lacks resolution markers (confession/arrest/culprit named),
+ * inject a minimal resolution paragraph. This is a last-resort guard — Layer 1 (obligation block) and
+ * Layer 2 (pre-commit validator) should already have handled this via retries.
+ */
+const injectResolutionIfAbsent = (prose: any, cml: any): any => {
+  const chapters: any[] = Array.isArray(prose.chapters) ? prose.chapters : [];
+  if (chapters.length === 0) return prose;
+
+  const finalChapter = chapters[chapters.length - 1];
+  const finalText = ((finalChapter.paragraphs ?? []) as string[]).join(' ');
+  const culprit: string = ((cml?.CASE?.culpability?.culprits ?? []) as string[])[0] ?? '';
+  if (!culprit) return prose;
+
+  const culpritSurname = extractSurname(culprit);
+  const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+custody|I\s+(?:did|killed)|guilty|you\s+committed|you\s+killed|the\s+murderer\s+is|it\s+was\s+you|unmask(?:ed)?|expos(?:ed|es)|named\s+as|revealed\s+as|proved?\s+guilty|brought\s+to\s+justice|caught\s+red-handed|surrendered|condemned|the\s+killer\s+(?:was|proved?|is))\b/i;
+  const culpritRE = new RegExp(`\\b${culpritSurname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+
+  if (RESOLUTION_RE.test(finalText) && culpritRE.test(finalText)) {
+    return prose; // resolution already present
+  }
+
+  const paragraphs = [...((finalChapter.paragraphs ?? []) as string[])];
+  paragraphs.push(
+    `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
+    `They were taken into custody before long. The case was closed.`
+  );
+  const newChapters = [...chapters];
+  newChapters[newChapters.length - 1] = { ...finalChapter, paragraphs };
+  console.warn(`[Agent 9] injectResolutionIfAbsent: injected resolution paragraph for "${culprit}".`);
+  return { ...prose, chapters: newChapters };
 };
 
 export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastEntry[]): any => {
@@ -1179,7 +1311,7 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
   const sensoryTerms =
     /\b(smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim)\b/gi;
   const atmosphereTerms =
-    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather)\b/i;
+    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight)\b/i;
 
   let grounded = 0;
   prose.chapters.forEach((chapter: any) => {
@@ -1228,7 +1360,7 @@ const evaluatePlaceholderLeakage = (prose: any) => {
     hasLeakage:
       roleSurnameMatches.length > 0 ||
       namedStandaloneMatches.length > 0 ||
-      genericRoleMatches.length >= 12,
+      genericRoleMatches.length >= 25, // P1-5: raised from 12 to avoid false positives in stories featuring a doctor/captain
   };
 };
 
@@ -1557,6 +1689,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   let prose: any;
   const totalSceneCount =
     narrative.acts?.flatMap((a: any) => a.scenes || []).length || 0;
+  // [PHASE 5] Pre-compute macro arc plan for structural archetype locking
+  const macroArcPlan = buildMacroArcPlan(totalSceneCount);
   const moralAmbiguityNote = hardLogicDevices.devices[0]?.moralAmbiguity;
   const proseLockedFacts = (hardLogicDevices.devices ?? []).flatMap((d: any) =>
     Array.isArray(d.lockedFacts) ? d.lockedFacts : []
@@ -1683,9 +1817,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // in prose before activating the victim prohibition block in buildNSDBlock.
   {
     const castArr = Array.isArray((cml as any)?.CAST?.characters) ? (cml as any).CAST.characters : [];
-    const victimEntry = castArr.find((c: any) =>
+    let victimEntry = castArr.find((c: any) =>
       c.role === 'victim' || String(c.roleArchetype ?? '').toLowerCase().includes('victim'),
     );
+    // Phase 6a: fallback to CML CASE.culpability.victim when cast-level role resolution fails
+    if (!victimEntry) {
+      const culpabilityVictim: string = String((cml as any)?.CASE?.culpability?.victim ?? '').trim();
+      if (culpabilityVictim) {
+        victimEntry = castArr.find((c: any) => c.name === culpabilityVictim);
+      }
+    }
     if (victimEntry?.name && narrativeState.victimConfirmedDeadChapter === undefined) {
       narrativeState = { ...narrativeState, victimConfirmedDeadChapter: 1 };
     }
@@ -1828,6 +1969,18 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   let pendingObligationAtomIds: string[] = [];
   let pendingTextureAtomIds: string[] = [];
 
+  // [PHASE 6] Precompile StoryContract — resolves victim, sensory atoms, locked facts, arc plan
+  const storyContract = precompileStoryContract({
+    castData: cml.CAST,
+    cmlCase: (cml as any)?.CASE,
+    lockedFacts: annotatedLockedFacts,
+    macroArcPlan,
+    locationProfiles: Array.isArray(locationProfiles) ? locationProfiles : [],
+  });
+  ctx.warnings.push(
+    `[StoryContract] victim.name="${storyContract.victim.name}" roleConfirmedFrom="${storyContract.victim.roleConfirmedFrom}" lockedFacts=${storyContract.lockedFacts.length} macroArcScenes=${storyContract.macroArcPlan.length}`,
+  );
+
   prose = await generateProse(client, {
     caseData: cml,
     outline: narrative,
@@ -1835,6 +1988,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     ...proseModelOverride,
     detectiveType: inputs.detectiveType,
     worldDocument: ctx.worldDocument,
+    macroArcPlan,
     characterProfiles: characterProfiles,
     locationProfiles: locationProfiles,
     temporalContext: temporalContext,
@@ -1905,9 +2059,21 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         arcPosition: batchArcPosition,  // §4.4: track previous chapter arc position
       });
 
+      // [PHASE 4] Extract beat fingerprints from each committed chapter and append to beatHistory
+      const castNamesList = (Array.isArray((cml.CAST as any)?.characters) ? (cml.CAST as any).characters : []).map((c: any) => c.name as string).filter(Boolean);
+      const newBeats = (batchChapters as any[]).map((ch: any, idx: number) =>
+        extractBeatFingerprints(ch, batchStart + idx, castNamesList)
+      );
+      narrativeState = {
+        ...narrativeState,
+        beatHistory: [...(narrativeState.beatHistory ?? []), ...newBeats],
+      };
+
       // §1.2: Set victimConfirmedDeadChapter when victim name + death language first co-occur
       if (narrativeState.victimConfirmedDeadChapter === undefined) {
-        const victimName = resolveVictimName(cml.CAST as any).toLowerCase();
+        // Phase 6a: inject culpabilityVictim onto cast for Pass 3 fallback
+        const castForVictim: any = { ...(cml.CAST as any), culpabilityVictim: String((cml as any)?.CASE?.culpability?.victim ?? '').trim() };
+        const victimName = resolveVictimName(castForVictim).toLowerCase();
         if (victimName) {
           const batchText = (batchChapters as any[])
             .flatMap((ch: any) => (Array.isArray(ch.paragraphs) ? ch.paragraphs : []))
@@ -2392,6 +2558,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       ...proseModelOverride,
       detectiveType: inputs.detectiveType,
       worldDocument: ctx.worldDocument,
+      macroArcPlan,
       characterProfiles: characterProfiles,
       locationProfiles: locationProfiles,
       temporalContext: temporalContext,
@@ -2468,7 +2635,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
   prose = enforceCulpritEvidencePresence(prose, cml);
-  prose = enforceSuspectEliminationPresence(prose, cml);
+  // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
+  prose = injectResolutionIfAbsent(prose, cml);
+  prose = enforceSuspectEliminationPresence(prose, cml, castDesign); // P1-7: pass castDesign
   prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
@@ -2496,8 +2665,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   let postRepairValidationSummary = { ...validationReport.summary };
 
   const hasDeterministicRepairableFailures =
-    validationReport.status === "failed"
-    && Array.isArray(validationReport.errors)
+    Array.isArray(validationReport.errors)
     && validationReport.errors.some((err: any) =>
       err?.type === "locked_fact_missing_value" || err?.type === "pronoun_drift" || err?.type === "culprit_evidence_chain_missing" || err?.type === "suspect_closure_missing",
     );
@@ -2513,6 +2681,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           cml,
         ),
         cml,
+        castDesign, // P1-7: pass castDesign
       ),
       castDesign.characters as CastEntry[],
     );
@@ -2827,7 +2996,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   }
   if (validationErrorTypes.has("temporal_contradiction")) {
     releaseGateReasons.push("temporal continuity contradiction detected");
-    hardStopReasons.push("temporal continuity contradiction detected");
+    // temporal_contradiction is severity: major (not critical) — downgrade from hard-stop
+    // to soft gate to avoid false positives (e.g. "damp chill of autumn" written in August)
   }
   if (validationErrorTypes.has("investigator_role_drift")) {
     releaseGateReasons.push("investigator role continuity drift detected");

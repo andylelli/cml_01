@@ -297,6 +297,26 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
         // Only apply repair if the inherited subject is in the allowed set
         const shouldRepair = !options?.onlyNames || options.onlyNames.has(lastSingleCharacter.canonical);
         if (shouldRepair) {
+          // Safety guard (female→male direction only): if the inherited character is
+          // FEMALE and the segment already contains MALE pronouns, those pronouns
+          // belong to a male cast member — do NOT overwrite them. This prevents the
+          // inheritance bug where a correct male pronoun ("his") gets replaced with
+          // "her" because the prior sentence named a female character (e.g. Eleanor)
+          // and we blindly inherit her gender context.
+          // We do NOT apply this guard in the male→female direction: when the inherited
+          // character is male and the segment has female pronouns, those are typically
+          // LLM errors for the male character that the repair should correct.
+          if (lastSingleCharacter.gender === 'female') {
+            const castHasMale = characters.some(c => c.gender === 'male');
+            if (castHasMale) {
+              const segmentHasMalePronouns = Array.from(segment.matchAll(/\b(\w+)\b/gi))
+                .some(m => MALE_PRONOUNS.has(m[1].toLowerCase()));
+              if (segmentHasMalePronouns) {
+                // Segment has correct male pronouns for a male cast member — skip repair
+                return segment;
+              }
+            }
+          }
           const repaired = repairPronounsInSegment(segment, lastSingleCharacter);
           if (repaired !== segment) repairCount++;
           return repaired;
@@ -308,7 +328,10 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
         const genders = new Set(mentioned.map((c) => c.gender));
         if (genders.size === 1) {
           lastSingleCharacter = mentioned[0]; // always track
-          const shouldRepair = !options?.onlyNames || options.onlyNames.has(mentioned[0].canonical);
+          // In targeted mode (onlyNames set), fire if ANY mentioned character is in the allowed set
+          // — not just the first one. Without this, "Dr. Finch watched Captain Hale, her coat..."
+          // would skip repair for Hale when onlyNames={Hale} because mentioned[0]=Finch.
+          const shouldRepair = !options?.onlyNames || mentioned.some(c => options.onlyNames!.has(c.canonical));
           if (shouldRepair) {
             const repaired = repairPronounsInSegment(segment, mentioned[0]);
             if (repaired !== segment) repairCount++;
@@ -413,6 +436,68 @@ function repairDialogueAttributionPronouns(
 }
 
 /**
+ * Chapter-level majority-vote pronoun repair.
+ *
+ * For each character with a known gender, counts correct-gender pronoun
+ * occurrences versus wrong-gender occurrences across the FULL chapter text.
+ * If the wrong-gender count is both a minority (≤30%) and a small absolute
+ * number (≤3), the wrong-gender pronouns are almost certainly LLM drift on
+ * a character whose gender is otherwise consistent — sweep them to correct.
+ *
+ * This is intentionally conservative: it only fires when the correct-gender
+ * signal is overwhelming.  When a chapter genuinely has POV mixing or two
+ * characters of the same gender block, the counts will be comparable and
+ * no repair fires.
+ *
+ * IMPORTANT: Does not depend on named-character proximity — it operates on the
+ * chapter as a whole, so it catches residual drift that the sentence-level pass
+ * missed because Hale (male) was last named and "she" appeared one sentence later.
+ */
+function repairByMajorityVote(
+  text: string,
+  characters: CharacterPronounInfo[],
+): PronounRepairResult {
+  let result = text;
+  let repairCount = 0;
+
+  for (const character of characters) {
+    const correctPronouns = character.gender === 'male' ? MALE_PRONOUNS : FEMALE_PRONOUNS;
+    const wrongPronouns = character.gender === 'male' ? FEMALE_PRONOUNS : MALE_PRONOUNS;
+
+    // Count correct-gender pronoun occurrences in the full chapter text.
+    // We use simple whole-word matches — not character-proximity checks.
+    let correctCount = 0;
+    let wrongCount = 0;
+    for (const p of correctPronouns) {
+      const matches = result.match(new RegExp(`\\b${p}\\b`, 'gi'));
+      correctCount += matches ? matches.length : 0;
+    }
+    for (const p of wrongPronouns) {
+      const matches = result.match(new RegExp(`\\b${p}\\b`, 'gi'));
+      wrongCount += matches ? matches.length : 0;
+    }
+
+    // Only repair if the character is named in the chapter (they're relevant),
+    // wrong count is small (≤3) AND a minority (≤30% of total gendered pronouns).
+    if (!characterMentionedIn(result, character.labels)) continue;
+    const total = correctCount + wrongCount;
+    if (total === 0) continue;
+    if (wrongCount === 0) continue;
+    if (wrongCount > 3) continue; // too many — may be legitimate mixed POV
+    if (wrongCount / total > 0.30) continue; // not a clear minority
+
+    // Apply a targeted full-chapter sweep for this character's wrong pronouns.
+    const repaired = repairPronounsInSegment(result, character);
+    if (repaired !== result) {
+      repairCount += wrongCount;
+      result = repaired;
+    }
+  }
+
+  return { text: result, repairCount };
+}
+
+/**
  * Apply pronoun repair to a chapter object (title + paragraphs).
  * Returns the repaired chapter and total repair count.
  *
@@ -450,10 +535,24 @@ export function repairChapterPronouns(
     return dialogueResult.text;
   });
 
+  // Third pass: chapter-level majority-vote sweep.
+  // For each character with a known gender, count total correct-gender pronoun
+  // occurrences vs wrong-gender occurrences across the full chapter text.
+  // If wrong-gender pronouns are clearly in the minority (≤30% of combined
+  // total) apply a full-chapter replacement pass.  This catches residual drift
+  // that the sentence-level pass misses — e.g. a character who appears with
+  // correct pronouns 9 times but one inherited-context sentence slipped through.
+  // SAFETY: we only fire this when wrong-pronoun count is at most 3, preventing
+  // false sweeps in chapters where gender really is ambiguous or mixed-POV.
+  const fullChapterText = repairedParagraphs.join('\n\n');
+  const majorityResult = repairByMajorityVote(fullChapterText, characters);
+  totalRepairs += majorityResult.repairCount;
+  const finalParagraphs = majorityResult.text.split('\n\n');
+
   return {
     chapter: {
       ...chapter,
-      paragraphs: repairedParagraphs,
+      paragraphs: finalParagraphs,
     },
     repairCount: totalRepairs,
   };

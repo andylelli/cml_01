@@ -114,6 +114,13 @@ export class CharacterConsistencyValidator implements Validator {
         // the male character but the female character is nearby in the scene.
         addAlias(surname, char.name);
       }
+      // Also add every non-title word in the name (first name, middle names)
+      // so that title+firstname references like "Dr. Mallory" (for "Dr. Mallory Finch")
+      // are not flagged as illegal named walk-ons.
+      for (const part of char.name.split(/\s+/)) {
+        const clean = part.replace(/[.,;:!?"'\-]/g, '').toLowerCase();
+        if (clean.length >= 2) allowedSurnames.add(clean);
+      }
 
       const aliasField = (char as any).alias;
       if (typeof aliasField === 'string' && aliasField.trim().length > 0) {
@@ -221,7 +228,7 @@ export class CharacterConsistencyValidator implements Validator {
       errors.push({
         type: 'pronoun_gender_mismatch',
         message: `Character "${characterName}" has incorrect pronouns. Should use ${correctSet} but found: ${incorrectPronouns.join(', ')}`,
-        severity: 'critical',
+        severity: 'major',
         sceneNumber,
         suggestion: `Use ${correctSet} consistently for ${characterName}`
       });

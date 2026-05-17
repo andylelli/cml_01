@@ -1,0 +1,402 @@
+{
+  "runId": "mystery-1778962544048",
+  "projectId": "",
+  "folderName": "run_20260516-2015_mystery",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "93170cf70e5a6f0f",
+      "requestTimestamp": "2026-05-16T20:15:44.215Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-05-16T20:15:50.108Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "0e7ab71f0c4a3559",
+      "requestTimestamp": "2026-05-16T20:15:50.219Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-05-16T20:15:59.756Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2e-BackgroundContext",
+      "retryAttempt": 1,
+      "promptHash": "20038d052d679b58",
+      "requestTimestamp": "2026-05-16T20:15:59.785Z",
+      "requestFile": "03_Agent2e-BackgroundContext_request.md",
+      "responseTimestamp": "2026-05-16T20:16:02.319Z",
+      "responseFile": "03_Agent2e-BackgroundContext_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent3b-HardLogicDeviceGenerator",
+      "retryAttempt": 1,
+      "promptHash": "e0899b9f34c998b5",
+      "requestTimestamp": "2026-05-16T20:16:02.342Z",
+      "requestFile": "04_Agent3b-HardLogicDeviceGenerator_request.md",
+      "responseTimestamp": "2026-05-16T20:16:12.749Z",
+      "responseFile": "04_Agent3b-HardLogicDeviceGenerator_response.md"
+    },
+    {
+      "sequence": 5,
+      "agent": "Agent3-CMLGenerator",
+      "retryAttempt": 1,
+      "promptHash": "e591a94ec2fafcb7",
+      "requestTimestamp": "2026-05-16T20:16:12.879Z",
+      "requestFile": "05_Agent3-CMLGenerator_request.md",
+      "responseTimestamp": "2026-05-16T20:16:30.808Z",
+      "responseFile": "05_Agent3-CMLGenerator_response.md"
+    },
+    {
+      "sequence": 6,
+      "agent": "Agent8-NoveltyAuditor",
+      "retryAttempt": 1,
+      "promptHash": "09cc9ae27d6d9a51",
+      "requestTimestamp": "2026-05-16T20:16:30.846Z",
+      "requestFile": "06_Agent8-NoveltyAuditor_request.md",
+      "responseTimestamp": "2026-05-16T20:16:36.009Z",
+      "responseFile": "06_Agent8-NoveltyAuditor_response.md"
+    },
+    {
+      "sequence": 7,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 1,
+      "promptHash": "1729d2b14e48f070",
+      "requestTimestamp": "2026-05-16T20:16:36.041Z",
+      "requestFile": "07_Agent5-ClueExtraction_request.md",
+      "responseTimestamp": "2026-05-16T20:16:51.951Z",
+      "responseFile": "07_Agent5-ClueExtraction_response.md"
+    },
+    {
+      "sequence": 8,
+      "agent": "Agent5-ClueExtraction",
+      "retryAttempt": 2,
+      "promptHash": "2a936e6a19437fe6",
+      "requestTimestamp": "2026-05-16T20:16:52.001Z",
+      "requestFile": "08_Agent5-ClueExtraction_retry1_request.md",
+      "responseTimestamp": "2026-05-16T20:17:02.685Z",
+      "responseFile": "08_Agent5-ClueExtraction_retry1_response.md"
+    },
+    {
+      "sequence": 9,
+      "agent": "Agent6-FairPlayAuditor",
+      "retryAttempt": 1,
+      "promptHash": "4b92fd7df9cb09c4",
+      "requestTimestamp": "2026-05-16T20:17:02.753Z",
+      "requestFile": "09_Agent6-FairPlayAuditor_request.md",
+      "responseTimestamp": "2026-05-16T20:17:07.002Z",
+      "responseFile": "09_Agent6-FairPlayAuditor_response.md"
+    },
+    {
+      "sequence": 10,
+      "agent": "Agent6-BlindReader",
+      "retryAttempt": 1,
+      "promptHash": "6516da2d6423ba24",
+      "requestTimestamp": "2026-05-16T20:17:07.018Z",
+      "requestFile": "10_Agent6-BlindReader_request.md",
+      "responseTimestamp": "2026-05-16T20:17:09.489Z",
+      "responseFile": "10_Agent6-BlindReader_response.md"
+    },
+    {
+      "sequence": 11,
+      "agent": "Agent2b-CharacterProfiles",
+      "retryAttempt": 1,
+      "promptHash": "c21ce6f9dc8ea77c",
+      "requestTimestamp": "2026-05-16T20:17:09.511Z",
+      "requestFile": "11_Agent2b-CharacterProfiles_request.md",
+      "responseTimestamp": "2026-05-16T20:17:42.057Z",
+      "responseFile": "11_Agent2b-CharacterProfiles_response.md"
+    },
+    {
+      "sequence": 12,
+      "agent": "Agent2c-LocationProfiles",
+      "retryAttempt": 1,
+      "promptHash": "86b34c71f1b66d0c",
+      "requestTimestamp": "2026-05-16T20:17:42.087Z",
+      "requestFile": "12_Agent2c-LocationProfiles_request.md",
+      "responseTimestamp": "2026-05-16T20:18:14.077Z",
+      "responseFile": "12_Agent2c-LocationProfiles_response.md"
+    },
+    {
+      "sequence": 13,
+      "agent": "Agent2d-TemporalContext",
+      "retryAttempt": 1,
+      "promptHash": "862c29e5260eaf2f",
+      "requestTimestamp": "2026-05-16T20:18:14.109Z",
+      "requestFile": "13_Agent2d-TemporalContext_request.md",
+      "responseTimestamp": "2026-05-16T20:18:27.330Z",
+      "responseFile": "13_Agent2d-TemporalContext_response.md"
+    },
+    {
+      "sequence": 14,
+      "agent": "Agent65-WorldBuilder",
+      "retryAttempt": 1,
+      "promptHash": "92cc0f7b85f25a06",
+      "requestTimestamp": "2026-05-16T20:18:27.363Z",
+      "requestFile": "14_Agent65-WorldBuilder_request.md",
+      "responseTimestamp": "2026-05-16T20:18:53.021Z",
+      "responseFile": "14_Agent65-WorldBuilder_response.md"
+    },
+    {
+      "sequence": 15,
+      "agent": "Agent7-NarrativeFormatter",
+      "retryAttempt": 1,
+      "promptHash": "d1d403ea54292abe",
+      "requestTimestamp": "2026-05-16T20:18:53.078Z",
+      "requestFile": "15_Agent7-NarrativeFormatter_request.md",
+      "responseTimestamp": "2026-05-16T20:19:20.255Z",
+      "responseFile": "15_Agent7-NarrativeFormatter_response.md"
+    },
+    {
+      "sequence": 16,
+      "agent": "Agent9-ProseGenerator-Ch1",
+      "retryAttempt": 1,
+      "promptHash": "d588734570e91770",
+      "requestTimestamp": "2026-05-16T20:19:20.324Z",
+      "requestFile": "16_Agent9-ProseGenerator-Ch1_request.md",
+      "responseTimestamp": "2026-05-16T20:19:28.759Z",
+      "responseFile": "16_Agent9-ProseGenerator-Ch1_response.md"
+    },
+    {
+      "sequence": 17,
+      "agent": "Agent9-ProseGenerator-Ch2",
+      "retryAttempt": 1,
+      "promptHash": "776a9d6432d612d6",
+      "requestTimestamp": "2026-05-16T20:19:28.960Z",
+      "requestFile": "17_Agent9-ProseGenerator-Ch2_request.md",
+      "responseTimestamp": "2026-05-16T20:19:36.471Z",
+      "responseFile": "17_Agent9-ProseGenerator-Ch2_response.md"
+    },
+    {
+      "sequence": 18,
+      "agent": "Agent9-ProseGenerator-Ch3",
+      "retryAttempt": 1,
+      "promptHash": "e263c37bc0841194",
+      "requestTimestamp": "2026-05-16T20:19:36.688Z",
+      "requestFile": "18_Agent9-ProseGenerator-Ch3_request.md",
+      "responseTimestamp": "2026-05-16T20:19:45.655Z",
+      "responseFile": "18_Agent9-ProseGenerator-Ch3_response.md"
+    },
+    {
+      "sequence": 19,
+      "agent": "Agent9-ProseGenerator-Ch4",
+      "retryAttempt": 1,
+      "promptHash": "1d5ee05636a10eba",
+      "requestTimestamp": "2026-05-16T20:19:45.859Z",
+      "requestFile": "19_Agent9-ProseGenerator-Ch4_request.md",
+      "responseTimestamp": "2026-05-16T20:19:55.895Z",
+      "responseFile": "19_Agent9-ProseGenerator-Ch4_response.md"
+    },
+    {
+      "sequence": 20,
+      "agent": "Agent9-ProseGenerator-Ch5",
+      "retryAttempt": 1,
+      "promptHash": "0596a6e1bd9211f6",
+      "requestTimestamp": "2026-05-16T20:19:56.180Z",
+      "requestFile": "20_Agent9-ProseGenerator-Ch5_request.md",
+      "responseTimestamp": "2026-05-16T20:20:05.522Z",
+      "responseFile": "20_Agent9-ProseGenerator-Ch5_response.md"
+    },
+    {
+      "sequence": 21,
+      "agent": "Agent9-ProseGenerator-Ch6",
+      "retryAttempt": 1,
+      "promptHash": "bff6090a80b80f5e",
+      "requestTimestamp": "2026-05-16T20:20:05.787Z",
+      "requestFile": "21_Agent9-ProseGenerator-Ch6_request.md",
+      "responseTimestamp": "2026-05-16T20:20:18.835Z",
+      "responseFile": "21_Agent9-ProseGenerator-Ch6_response.md"
+    },
+    {
+      "sequence": 22,
+      "agent": "Agent9-ProseGenerator-Ch7",
+      "retryAttempt": 1,
+      "promptHash": "cd8d22fae8488c5e",
+      "requestTimestamp": "2026-05-16T20:20:19.186Z",
+      "requestFile": "22_Agent9-ProseGenerator-Ch7_request.md",
+      "responseTimestamp": "2026-05-16T20:20:30.012Z",
+      "responseFile": "22_Agent9-ProseGenerator-Ch7_response.md"
+    },
+    {
+      "sequence": 23,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "431cfacb0261082c",
+      "requestTimestamp": "2026-05-16T20:20:30.472Z",
+      "requestFile": "23_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-16T20:20:42.528Z",
+      "responseFile": "23_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 24,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "c745531e1544e997",
+      "requestTimestamp": "2026-05-16T20:20:42.575Z",
+      "requestFile": "24_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-16T20:20:52.937Z",
+      "responseFile": "24_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 25,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "4f90b78ebffee777",
+      "requestTimestamp": "2026-05-16T20:20:52.971Z",
+      "requestFile": "25_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-16T20:21:02.971Z",
+      "responseFile": "25_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 26,
+      "agent": "Agent9-ProseGenerator-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "b89517b90e9e3f26",
+      "requestTimestamp": "2026-05-16T20:21:03.005Z",
+      "requestFile": "26_Agent9-ProseGenerator-Ch8_request.md",
+      "responseTimestamp": "2026-05-16T20:21:12.717Z",
+      "responseFile": "26_Agent9-ProseGenerator-Ch8_response.md"
+    },
+    {
+      "sequence": 27,
+      "agent": "Agent9-ProseGenerator-Ch9",
+      "retryAttempt": 1,
+      "promptHash": "666305a330b61bb1",
+      "requestTimestamp": "2026-05-16T20:21:13.185Z",
+      "requestFile": "27_Agent9-ProseGenerator-Ch9_request.md",
+      "responseTimestamp": "2026-05-16T20:21:26.930Z",
+      "responseFile": "27_Agent9-ProseGenerator-Ch9_response.md"
+    },
+    {
+      "sequence": 28,
+      "agent": "Agent9-ProseGenerator-Ch9",
+      "retryAttempt": 1,
+      "promptHash": "84b79ed789671164",
+      "requestTimestamp": "2026-05-16T20:21:26.976Z",
+      "requestFile": "28_Agent9-ProseGenerator-Ch9_request.md",
+      "responseTimestamp": "2026-05-16T20:21:40.897Z",
+      "responseFile": "28_Agent9-ProseGenerator-Ch9_response.md"
+    },
+    {
+      "sequence": 29,
+      "agent": "Agent9-ProseGenerator-Ch9",
+      "retryAttempt": 1,
+      "promptHash": "a7e87e3dd534a853",
+      "requestTimestamp": "2026-05-16T20:21:40.936Z",
+      "requestFile": "29_Agent9-ProseGenerator-Ch9_request.md",
+      "responseTimestamp": "2026-05-16T20:21:49.364Z",
+      "responseFile": "29_Agent9-ProseGenerator-Ch9_response.md"
+    },
+    {
+      "sequence": 30,
+      "agent": "Agent9-AtmosphereRepair-Ch1",
+      "retryAttempt": 1,
+      "promptHash": "c43f8ef6e97d3417",
+      "requestTimestamp": "2026-05-16T20:21:49.817Z",
+      "requestFile": "30_Agent9-AtmosphereRepair-Ch1_request.md",
+      "responseTimestamp": "2026-05-16T20:21:50.897Z",
+      "responseFile": "30_Agent9-AtmosphereRepair-Ch1_response.md"
+    },
+    {
+      "sequence": 31,
+      "agent": "Agent9-AtmosphereRepair-Ch2",
+      "retryAttempt": 1,
+      "promptHash": "decc36913423c75d",
+      "requestTimestamp": "2026-05-16T20:21:50.921Z",
+      "requestFile": "31_Agent9-AtmosphereRepair-Ch2_request.md",
+      "responseTimestamp": "2026-05-16T20:21:52.051Z",
+      "responseFile": "31_Agent9-AtmosphereRepair-Ch2_response.md"
+    },
+    {
+      "sequence": 32,
+      "agent": "Agent9-AtmosphereRepair-Ch3",
+      "retryAttempt": 1,
+      "promptHash": "0781b9380a6fee11",
+      "requestTimestamp": "2026-05-16T20:21:52.077Z",
+      "requestFile": "32_Agent9-AtmosphereRepair-Ch3_request.md",
+      "responseTimestamp": "2026-05-16T20:21:53.964Z",
+      "responseFile": "32_Agent9-AtmosphereRepair-Ch3_response.md"
+    },
+    {
+      "sequence": 33,
+      "agent": "Agent9-AtmosphereRepair-Ch4",
+      "retryAttempt": 1,
+      "promptHash": "795eedb5bda48c81",
+      "requestTimestamp": "2026-05-16T20:21:53.987Z",
+      "requestFile": "33_Agent9-AtmosphereRepair-Ch4_request.md",
+      "responseTimestamp": "2026-05-16T20:21:55.193Z",
+      "responseFile": "33_Agent9-AtmosphereRepair-Ch4_response.md"
+    },
+    {
+      "sequence": 34,
+      "agent": "Agent9-AtmosphereRepair-Ch5",
+      "retryAttempt": 1,
+      "promptHash": "82f5c80d830c057e",
+      "requestTimestamp": "2026-05-16T20:21:55.218Z",
+      "requestFile": "34_Agent9-AtmosphereRepair-Ch5_request.md",
+      "responseTimestamp": "2026-05-16T20:21:56.119Z",
+      "responseFile": "34_Agent9-AtmosphereRepair-Ch5_response.md"
+    },
+    {
+      "sequence": 35,
+      "agent": "Agent9-AtmosphereRepair-Ch7",
+      "retryAttempt": 1,
+      "promptHash": "57e8d0afe3e4715c",
+      "requestTimestamp": "2026-05-16T20:21:56.146Z",
+      "requestFile": "35_Agent9-AtmosphereRepair-Ch7_request.md",
+      "responseTimestamp": "2026-05-16T20:21:57.959Z",
+      "responseFile": "35_Agent9-AtmosphereRepair-Ch7_response.md"
+    },
+    {
+      "sequence": 36,
+      "agent": "Agent9-AtmosphereRepair-Ch8",
+      "retryAttempt": 1,
+      "promptHash": "e329c6d67a7ad633",
+      "requestTimestamp": "2026-05-16T20:21:58.054Z",
+      "requestFile": "36_Agent9-AtmosphereRepair-Ch8_request.md",
+      "responseTimestamp": "2026-05-16T20:21:59.355Z",
+      "responseFile": "36_Agent9-AtmosphereRepair-Ch8_response.md"
+    },
+    {
+      "sequence": 37,
+      "agent": "Agent9-Validation",
+      "retryAttempt": 1,
+      "promptHash": "110580d1adc7eb39",
+      "requestTimestamp": "2026-05-16T20:22:03.378Z",
+      "requestFile": "37_Agent9-Validation_request.md",
+      "responseTimestamp": "2026-05-16T20:22:04.730Z",
+      "responseFile": "37_Agent9-Validation_response.md"
+    },
+    {
+      "sequence": 38,
+      "agent": "Agent9-Validation",
+      "retryAttempt": 1,
+      "promptHash": "92f8564b5d19d785",
+      "requestTimestamp": "2026-05-16T20:22:04.789Z",
+      "requestFile": "38_Agent9-Validation_request.md",
+      "responseTimestamp": "2026-05-16T20:22:05.906Z",
+      "responseFile": "38_Agent9-Validation_response.md"
+    },
+    {
+      "sequence": 39,
+      "agent": "Agent9-Validation",
+      "retryAttempt": 1,
+      "promptHash": "1216ca230f9b0d5a",
+      "requestTimestamp": "2026-05-16T20:22:06.004Z",
+      "requestFile": "39_Agent9-Validation_request.md",
+      "responseTimestamp": "2026-05-16T20:22:07.190Z",
+      "responseFile": "39_Agent9-Validation_response.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 2,
+    "missing_response_count": 0,
+    "empty_response_body_count": 0
+  }
+}
