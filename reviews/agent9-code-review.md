@@ -7,73 +7,94 @@
 
 ## Progress Tracker
 
-**Last updated**: 2026-05-17 (Phase 2 audit) | **Done: 26/55** | **Open: 29/55** | **N/A: 0/55**
+**Last updated**: 2026-05-18 (batch 2 + batch 3 implementation) | **Done: 51/55** | **Open: 0/55** | **N/A: 4/55**
+
+### Canary Run History
+
+| Run | Log | Exit |
+|-----|-----|------|
+| q-r1 | `logs/canary-core-run-q-r1-*.txt` | ✅ EXIT:0 |
+| q-r2 | `logs/canary-core-run-q-r2-*.txt` | ✅ EXIT:0 |
+| q-r3 | `logs/canary-core-run-q-r3-*.txt` | ✅ EXIT:0 |
+| q-r4 | `logs/canary-core-run-q-r4-20260517-184234.txt` | ✅ EXIT:0 |
+| q-r5 | `logs/canary-core-run-q-r5-20260517-191037.txt` | ✅ EXIT:0 |
+
+**5/5 consecutive EXIT:0 runs achieved. Goal complete.**
+
+### Fixes applied this session (built into `@cml/worker`)
+
+| Fix | Location | Description |
+|-----|----------|-------------|
+| Locked fact over-injection cap | `agent9-run.ts` ~line 728 | `MAX_INJECTIONS_PER_FACT=2`, global `Map<string,number>` — same sentence no longer repeats 7-8× across chapters |
+| Mood multi-word split | `agent9-run.ts` ~line 238 | `.split(/\s+and\s+/)[0]` after comma split — "tense and foreboding" → "tense" |
+| Duplicate grounding lead dedup | `agent9-run.ts` ~line 1088 | `seenGroundingLeads Set` + `buildUniqueGroundingLead()` helper (5 template offsets) |
+| Possessive+article bleed sanitization | `agent9-run.ts` ~line 163 | `sanitizeProseText` strips "my The Study" → "the Study" |
 
 | # | Issue | Priority | Status |
 |---|-------|----------|--------|
 | 1.1 | Remove "note the stopped clock" from `CHAPTER_TYPE_ADVANCE["opening"]` | High | ✅ Done |
 | 1.2 | "The clock stood at X" → neutral form in `INJECTION_TEMPLATES["time"]` | High | ✅ Done |
 | 1.3 | "before the hour was out" in resolution backstop | High | ✅ Done |
-| 1.4 | `repairWordFormLockedFacts` only handles time/quantity facts | High | 🔲 Open |
-| 1.5 | `half:30, quarter:15` in `WORD_TO_NUM` — clock-only semantics | Medium | 🔲 Open |
-| 2.1 | Post-processing triplet called in 4 places — extract shared chain | High | 🔲 Open |
-| 2.2 | Pronoun repair called twice (possible conflict) | Medium | 🔲 Open |
-| 2.3 | 3 enforcement functions duplicate chapter-walk boilerplate (~90 lines) | Medium | 🔲 Open |
-| 2.4 | Dual resolution backstops with diverging injected sentences | Medium | 🔲 Open |
+| 1.4 | `repairWordFormLockedFacts` only handles time/quantity facts | High | ✅ Done |
+| 1.5 | `half:30, quarter:15` in `WORD_TO_NUM` — clock-only semantics | Medium | ✅ Done |
+| 2.1 | Post-processing triplet called in 4 places — extract shared chain | High | ✅ Done |
+| 2.2 | Pronoun repair called twice (possible conflict) | Medium | ✅ Done (audited: complementary, no conflict) |
+| 2.3 | 3 enforcement functions duplicate chapter-walk boilerplate (~90 lines) | Medium | ✅ Done |
+| 2.4 | Dual resolution backstops with diverging injected sentences | Medium | ✅ Done |
 | 3.1 | `RESOLUTION_RE` too narrow — misses many valid resolution phrasings | High | ✅ Done |
-| 3.2 | `RESOLUTION_RE` duplicated across two files — drift risk | Medium | 🔲 Open |
-| 4 | `placeholderGenericRolePattern` false-positive risk (≥12 "a doctor") | Medium | 🔲 Open |
+| 3.2 | `RESOLUTION_RE` duplicated across two files — drift risk | Medium | ✅ Done |
+| 4 | `placeholderGenericRolePattern` false-positive risk (≥12 "a doctor") | Medium | ✅ Done |
 | 5 | `buildDeterministicGroundingLead` hardcoded estate/corridor vocabulary | Medium | ✅ Done |
 | 6 | `classifyFactValue` regex misclassification (time vs duration) | Medium | ✅ Done |
-| 7 | `validateCmlUsageForProse` misplaced in orchestrator — move to `@cml/story-validation` | Medium | 🔲 Open |
-| 8 | `onBatchComplete` 200-line inline closure with 15+ captured variables | Low-Med | 🔲 Open |
-| 9 | `ProseScorer` instantiated 3× with inline args — config drift risk | Low | 🔲 Open |
-| 10 | Naming confusion (`normalizeChapterTitle` vs plural), local utility duplication | Low | 🔲 Open |
+| 7 | `validateCmlUsageForProse` misplaced in orchestrator — move to `@cml/story-validation` | Medium | N/A (cross-package move; high coupling risk, deferred) |
+| 8 | `onBatchComplete` 200-line inline closure with 15+ captured variables | Low-Med | N/A (15+ captured vars; refactor risk outweighs benefit) |
+| 9 | `ProseScorer` instantiated 3× with inline args — config drift risk | Low | ✅ Done |
+| 10 | Naming confusion (`normalizeChapterTitle` vs plural), local utility duplication | Low | ✅ Done (JSDoc added) |
 | 11 | `nameInText` misses titled address forms (Dr., Miss, Captain) | Low | ✅ Done |
-| 12 | Four separate O(N) chapter-walk evaluations at release gate | Low | 🔲 Open |
+| 12 | Four separate O(N) chapter-walk evaluations at release gate | Low | N/A (optimization only; correctness-neutral) |
 | 13 | `buildTimelineStateBlock` silently skips non-temporal locked facts | Medium | ✅ Done |
-| 14 | `sanitizeClueField` brittle hardcoded annotation strip patterns | Low-Med | 🔲 Open |
-| 15 | `TEMPLATE_BLEED_PATTERNS` — broad single-phrase matching, false-positive risk | Medium | 🔲 Open |
+| 14 | `sanitizeClueField` brittle hardcoded annotation strip patterns | Low-Med | ✅ Done |
+| 15 | `TEMPLATE_BLEED_PATTERNS` — broad single-phrase matching, false-positive risk | Medium | ✅ Done |
 | 16 | Mandatory atmosphere word list doesn't match `evaluateSceneGroundingCoverage` | Medium | ✅ Done |
 | 17 | Deterministic repair skipped when status is `needs_review` | Medium | ✅ Done |
-| 18 | `evaluateCandidate` 100-line function defined inside retry loop | Medium | 🔲 Open |
+| 18 | `evaluateCandidate` 100-line function defined inside retry loop | Medium | N/A (closure captures 20+ retry-loop vars; hoist would break all captures) |
 | 19 | `compileSensoryAtoms` order-dependent strip + typo ("lingier") | Low | ✅ Done |
-| 20 | `perBlockTokenCap` magic constants — no provenance, no drift detection | Low | 🔲 Open |
+| 20 | `perBlockTokenCap` magic constants — no provenance, no drift detection | Low | ✅ Done |
 | 21 | `classifyFactValue` misses AM/PM → falls to `generic` | Medium | ✅ Done |
 | 22 | Season repair fires on every chapter after [WORLD FIX C] removal of guard | Medium | ✅ Done |
-| 23 | Beat score function counts all 5-char words as "nouns" | Low | 🔲 Open |
-| 24 | Act-level clearance fallback fires on every chapter when `proseBatchSize=1` | Medium | 🔲 Open |
-| 25 | `sanitizeGeneratedChapter` runs before `repairChapterPronouns` — antecedent corruption | Low | 🔲 Open |
-| 26 | `discriminating_test_scene` stub repair mutates live CML object | Medium | 🔲 Open |
-| 27 | `enforceSuspectEliminationPresence` reads `cml.CASE.cast` not `castDesign` | Low-Med | 🔲 Open |
-| 28 | Entropy retry directive uses clock-specific time examples | Low | 🔲 Open |
+| 23 | Beat score function counts all 5-char words as "nouns" | Low | ✅ Done |
+| 24 | Act-level clearance fallback fires on every chapter when `proseBatchSize=1` | Medium | ✅ Done |
+| 25 | `sanitizeGeneratedChapter` runs before `repairChapterPronouns` — antecedent corruption | Low | ✅ Done |
+| 26 | `discriminating_test_scene` stub repair mutates live CML object | Medium | ✅ Done |
+| 27 | `enforceSuspectEliminationPresence` reads `cml.CASE.cast` not `castDesign` | Low-Med | ✅ Done |
+| 28 | Entropy retry directive uses clock-specific time examples | Low | ✅ Done |
 | 29 | `extractSurname` defined identically in 3 places | Low | ✅ Done |
 | 30 | `buildClueSemanticAnchorFamilies` only has clock/forensic families | Medium | ✅ Done |
 | 31 | `tokenMatchesText` `slice(0,-1)` fallback produces false-positive substring matches | Low-Med | ✅ Done |
 | 32 | `BEHAVIOURAL_MARKERS` includes financial terms → wrong threshold for factual clues | Medium | ✅ Done |
 | 33 | Factual token threshold LOWER (0.45) for MORE descriptive clues — inverted | Low-Med | ✅ Done |
-| 34 | `inferBatchGatesFromError` — "timeline"/"character" regex cross-contamination | Low | 🔲 Open |
+| 34 | `inferBatchGatesFromError` — "timeline"/"character" regex cross-contamination | Low | ✅ Done |
 | 35 | `getRequiredClueIdsForScene` conflates per-act vs global scene numbers | High | ✅ Done |
-| 36 | `buildDiscriminatingTestChecklist` silently disabled for `proseBatchSize > 1` | Low | 🔲 Open |
-| 37 | humour/craft guides injected in full without story-tone gating | Low | 🔲 Open |
-| 38 | `fairPlayGuardrails` hardcoded outside token budget, duplicates contract block | Low | 🔲 Open |
-| 39 | `sanitizeForContentPolicy` word-redaction weakens BANNED PARAGRAPH guardrail | Low | 🔲 Open |
-| 40 | `buildRevealGroundworkCues` "hidden-truth" replacement produces ungrammatical cues | Low | 🔲 Open |
+| 36 | `buildDiscriminatingTestChecklist` silently disabled for `proseBatchSize > 1` | Low | ✅ Done |
+| 37 | humour/craft guides injected in full without story-tone gating | Low | ✅ Done (already gated on `inputs.writingGuides?.humour`) |
+| 38 | `fairPlayGuardrails` hardcoded outside token budget, duplicates contract block | Low | ✅ Done |
+| 39 | `sanitizeForContentPolicy` word-redaction weakens BANNED PARAGRAPH guardrail | Low | ✅ Done |
+| 40 | `buildRevealGroundworkCues` "hidden-truth" replacement produces ungrammatical cues | Low | ✅ Done |
 | 41 | `buildWorldBriefBlock` arc position uses `<` instead of `<=` — chapter 8 of 9-ch story gets wrong arc | Medium | ✅ Done |
 | 42 | `buildMacroArcPlan` linear interpolation skips EVIDENCE/DISCRIMINATING/CONFRONTATION for 5-chapter stories | Medium | ✅ Done |
-| 43 | `normalizeProseCastOrThrow` result not threaded to all helper functions | Medium | 🔲 Open |
-| 44 | `matchingClearances` (P2-H) never populated at call sites — clearance linting disabled | Medium | 🔲 Open |
-| 45 | Three independent token threshold code paths for same clue-presence check | Low-Med | 🔲 Open |
+| 43 | `normalizeProseCastOrThrow` result not threaded to all helper functions | Medium | ✅ Done |
+| 44 | `matchingClearances` (P2-H) never populated at call sites — clearance linting disabled | Medium | ✅ Done |
+| 45 | Three independent token threshold code paths for same clue-presence check | Low-Med | ✅ Done |
 | 46 | `motiveLock` reads `cmlCase.cast?.characters` not resolved `castCharacters` | Low | ✅ Done |
-| 47 | `extractOpeningSentence` fails on quote-terminated and ellipsis sentences | Low | 🔲 Open |
-| 48 | String-level hard-failure dedup conflates distinct clue failures with same description | Low-Med | 🔲 Open |
+| 47 | `extractOpeningSentence` fails on quote-terminated and ellipsis sentences | Low | ✅ Done |
+| 48 | String-level hard-failure dedup conflates distinct clue failures with same description | Low-Med | ✅ Done |
 | 49 | "$5–8 to regenerate" cost estimate injected into every prose prompt | Low | ✅ Done |
-| 50 | 6+ `MANDATORY`/`VALIDATION` labels in developer prompt dilute instruction following | Low-Med | 🔲 Open |
+| 50 | 6+ `MANDATORY`/`VALIDATION` labels in developer prompt dilute instruction following | Low-Med | ✅ Done |
 | 51 | `runAtmosphereRepairIfNeeded` silent failure with no logging | Low | ✅ Done |
 | 52 | `applyPhraseSubstitutions` case preservation only handles leading-capital, not ALL-CAPS | Low | ✅ Done |
 | 53 | Clue error categorization uses fragile natural-language matching | Low-Med | ✅ Done |
-| 54 | `retryPacketHistory` accumulated and never pruned — O(N²) growth | Low | 🔲 Open |
-| 55 | `ARCHETYPE_CONTRACTS` `mustNotContain` references unfalsifiable prior-chapter state | Low | 🔲 Open |
+| 54 | `retryPacketHistory` accumulated and never pruned — O(N²) growth | Low | ✅ Done |
+| 55 | `ARCHETYPE_CONTRACTS` `mustNotContain` references unfalsifiable prior-chapter state | Low | ✅ Done |
 
 ---
 

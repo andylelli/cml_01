@@ -14,7 +14,7 @@ export { generateLocationProfiles } from "./agent2c-location-profiles.js";
 export { generateTemporalContext } from "./agent2d-temporal-context.js";
 export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";
 export { precompileStoryContract, resolveVictimContract } from "./story-contract.js";
 export type { StoryContract, VictimContract, VictimRoleSource, SensoryAtomSet, LockedFactContract } from "./story-contract.js";

@@ -27,6 +27,8 @@ import {
   extractBeatFingerprints,
   buildMacroArcPlan,
   precompileStoryContract,
+  RESOLUTION_RE,
+  buildResolutionBackstopSentence,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
@@ -168,6 +170,8 @@ export const sanitizeProseText = (value: unknown) => {
   }
   return text
     .replace(/^Generated in scene batches\.?$/gim, "")
+    // Fix possessive+article bleed: "my The Study" → "the Study"; "in my The Library" → "in the Library"
+    .replace(/\b(my|your|his|her|our|their)\s+(The|A|An)\s+/gi, (_, _poss, art) => `${art.toLowerCase()} `)
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(illegalControlCharPattern, "")
     .replace(/\u00A0/g, " ")
@@ -233,7 +237,11 @@ const buildDeterministicGroundingLead = (
   // (e.g. "tense and foreboding, reflecting the uncertainty and class tensions of the era")
   // that produce malformed prose when interpolated directly into sentence templates.
   const weather = (locationProfiles.atmosphere?.weather || "rain").split(/[,;]/)[0].trim();
-  const mood = (locationProfiles.atmosphere?.mood || "tense").split(/[,;]/)[0].trim();
+  // Also split on " and " so compound phrases like "tense and foreboding" reduce to "tense"
+  const mood = (locationProfiles.atmosphere?.mood || "tense")
+    .split(/[,;]/)[0]
+    .split(/\s+and\s+/)[0]
+    .trim();
 
   const smells = target?.sensoryDetails?.smells || [];
   const sounds = target?.sensoryDetails?.sounds || [];
@@ -495,6 +503,9 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
       ? new Set((fact.appearsInChapters as string[]).map(Number).filter((n) => !isNaN(n)))
       : null;
 
+    // Track whether any specific pattern handler matched this canonical.
+    let matchedSpecificHandler = false;
+
     // Try time-of-day pattern first (e.g. "ten minutes past eleven" → catch "11:10 PM").
     const parsedTime = parseWordFormTime(canonical);
     if (parsedTime) {
@@ -578,6 +589,7 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
           repairs.push({ pattern: halfPastPattern, canonical, chaptersScope });
         }
       }
+      matchedSpecificHandler = true;
       continue;
     }
 
@@ -604,6 +616,7 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
         'gi',
       );
       repairs.push({ pattern, canonical, chaptersScope });
+      matchedSpecificHandler = true;
       continue;
     }
 
@@ -633,6 +646,17 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
         );
         repairs.push({ pattern: wordTempPattern, canonical, chaptersScope });
       }
+      matchedSpecificHandler = true;
+    }
+
+    // Generic fallback: for locked facts that don't match time, quantity, or temperature
+    // patterns (e.g. "the green ledger", "the east wing"), build a case-insensitive
+    // verbatim regex so that case variants are normalised to the canonical form.
+    // Only applied to canonicals of ≥6 chars to avoid spurious single-word matches.
+    if (!matchedSpecificHandler && canonical.length >= 6) {
+      const escapedCanonical = canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const verbatimCasePattern = new RegExp(escapedCanonical, 'gi');
+      repairs.push({ pattern: verbatimCasePattern, canonical, chaptersScope });
     }
   }
 
@@ -721,6 +745,12 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
 
   let injectedCount = 0;
+  // Global cap: each locked-fact value may be injected at most 2 times across the whole
+  // story. Without this, the injection fires on every chapter that lacks the value,
+  // producing the same sentence verbatim 7-8 times in an 11-chapter story.
+  const MAX_INJECTIONS_PER_FACT = 2;
+  const globalInjectionCount = new Map<string, number>();
+
   const chapters = (prose.chapters as any[]).map((chapter: any, idx: number) => {
     const chapterNumber = idx + 1;
     const paragraphs = Array.isArray(chapter.paragraphs)
@@ -730,8 +760,6 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
 
     let chapterTextLower = paragraphs.join("\n\n").toLowerCase();
     const updatedParagraphs = [...paragraphs];
-    // Track injections per chapter only — the same canonical value may need to
-    // appear in multiple chapters, so we must not deduplicate across chapters.
     const injectedThisChapter = new Set<string>();
 
     for (const fact of lockedFacts) {
@@ -769,11 +797,14 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       if (bestIdx < 0 || bestScore < 1) continue;
 
       if (injectedThisChapter.has(canonical.toLowerCase())) continue;
+      const globalCount = globalInjectionCount.get(canonical.toLowerCase()) ?? 0;
+      if (globalCount >= MAX_INJECTIONS_PER_FACT) continue;
       const valueType = classifyFactValue(canonical);
       const sentence = INJECTION_TEMPLATES[valueType](description, canonical);
       updatedParagraphs[bestIdx] = `${sentence} ${updatedParagraphs[bestIdx].trim()}`;
       chapterTextLower = updatedParagraphs.join("\n\n").toLowerCase();
       injectedThisChapter.add(canonical.toLowerCase());
+      globalInjectionCount.set(canonical.toLowerCase(), globalCount + 1);
       injectedCount += 1;
     }
 
@@ -796,9 +827,56 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
  * Injects a single bridging sentence into the last paragraph of the most relevant chapter
  * when the chain is absent.  No-ops when the chain already exists.
  */
+/**
+ * #2.3: Shared chapter-injection helper.
+ * For each target name: if none of the prose chapters already contain the required content
+ * (as judged by `hasContent`), find the last chapter that mentions the target and append
+ * the sentence returned by `buildSentence` to its final paragraph.
+ * Eliminates ~90 lines of boilerplate from enforceSuspectEliminationPresence,
+ * enforceCulpritEvidencePresence, and injectResolutionIfAbsent.
+ */
+const TITLE_PREFIX_RE_SHARED = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Reverend|Rev)\.?\s+/i;
+const nameInTextShared = (name: string, text: string): boolean => {
+  const titleStripped = name.replace(TITLE_PREFIX_RE_SHARED, '');
+  if (text.includes(name)) return true;
+  if (titleStripped && text.includes(titleStripped)) return true;
+  const surname = extractSurname(titleStripped || name);
+  return !!surname && text.includes(surname);
+};
+const injectSentenceIfAbsent = (
+  prose: any,
+  targets: string[],
+  hasContent: (name: string, text: string) => boolean,
+  buildSentence: (target: string) => string,
+  logTag: string,
+): any => {
+  const chapters = (prose.chapters as any[]).slice();
+  for (const target of targets) {
+    const alreadyPresent = chapters.some((ch: any) => {
+      const text = Array.isArray(ch.paragraphs) ? (ch.paragraphs as string[]).join('\n\n') : '';
+      return hasContent(target, text);
+    });
+    if (alreadyPresent) continue;
+
+    let targetIdx = chapters.length - 1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      const text = Array.isArray(chapters[i].paragraphs) ? (chapters[i].paragraphs as string[]).join('\n\n') : '';
+      if (nameInTextShared(target, text)) { targetIdx = i; break; }
+    }
+
+    const ch = chapters[targetIdx];
+    const paragraphs: string[] = Array.isArray(ch.paragraphs) ? [...(ch.paragraphs as string[])] : [];
+    if (paragraphs.length === 0) continue;
+    const lastIdx = paragraphs.length - 1;
+    paragraphs[lastIdx] = `${paragraphs[lastIdx].trim()} ${buildSentence(target)}`;
+    chapters[targetIdx] = { ...ch, paragraphs };
+    console.warn(`[Agent 9] ${logTag}: injected sentence for "${target}".`);
+  }
+  return { ...prose, chapters };
+};
+
 export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
   // P1-7: Prefer castDesign.characters (Agent 2 normalised) over cml.CASE.cast (Agent 3 raw).
-  // castDesign is populated when called from runAgent9 and is the authoritative cast source.
   const rawCast: any[] = Array.isArray(castDesign?.characters)
     ? castDesign.characters
     : Array.isArray(cml?.CASE?.cast)
@@ -827,59 +905,14 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
 
   const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
-  // P2-5: Strip leading title prefix before extractSurname so "Dr. Finch" registered as
-  // "Mallory Finch" is detected when the text uses the title+surname form.
-  const TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Reverend|Rev)\.?\s+/i;
-  const nameInText = (name: string, text: string): boolean => {
-    const titleStripped = name.replace(TITLE_PREFIX_RE, '');
-    if (text.includes(name)) return true;
-    if (titleStripped && text.includes(titleStripped)) return true;
-    const surname = extractSurname(titleStripped || name);
-    return !!surname && text.includes(surname);
-  };
 
-  const chapters = (prose.chapters as any[]).slice();
-
-  for (const suspect of suspects) {
-    const hasClosure = chapters.some((ch: any) => {
-      const text = Array.isArray(ch.paragraphs)
-        ? (ch.paragraphs as string[]).join('\n\n')
-        : '';
-      return nameInText(suspect, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text);
-    });
-
-    if (hasClosure) continue;
-
-    // Find the last chapter that names the suspect; fall back to final chapter.
-    let targetIdx = chapters.length - 1;
-    for (let i = chapters.length - 1; i >= 0; i--) {
-      const text = Array.isArray(chapters[i].paragraphs)
-        ? (chapters[i].paragraphs as string[]).join('\n\n')
-        : '';
-      if (nameInText(suspect, text)) {
-        targetIdx = i;
-        break;
-      }
-    }
-
-    const ch = chapters[targetIdx];
-    const paragraphs: string[] = Array.isArray(ch.paragraphs)
-      ? [...(ch.paragraphs as string[])]
-      : [];
-    if (paragraphs.length === 0) continue;
-
-    const surname = extractSurname(suspect);
-    const lastIdx = paragraphs.length - 1;
-    paragraphs[lastIdx] =
-      `${paragraphs[lastIdx].trim()} ${surname} was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime.`;
-
-    chapters[targetIdx] = { ...ch, paragraphs };
-    console.warn(
-      `[Agent 9] enforceSuspectEliminationPresence: injected elimination sentence for suspect "${suspect}".`,
-    );
-  }
-
-  return { ...prose, chapters };
+  return injectSentenceIfAbsent(
+    prose,
+    suspects,
+    (name, text) => nameInTextShared(name, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text),
+    (suspect) => `${extractSurname(suspect)} was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime.`,
+    'enforceSuspectEliminationPresence',
+  );
 };
 
 export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
@@ -890,57 +923,14 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
 
   const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
-  // P2-5: Strip leading title prefix before extractSurname (same as enforceSuspectEliminationPresence).
-  const TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Reverend|Rev)\.?\s+/i;
-  const nameInText = (name: string, text: string): boolean => {
-    const titleStripped = name.replace(TITLE_PREFIX_RE, '');
-    if (text.includes(name)) return true;
-    if (titleStripped && text.includes(titleStripped)) return true;
-    const surname = extractSurname(titleStripped || name);
-    return !!surname && text.includes(surname);
-  };
 
-  const chapters = (prose.chapters as any[]).slice();
-
-  for (const culprit of culprits) {
-    const hasChain = chapters.some((ch: any) => {
-      const text = Array.isArray(ch.paragraphs)
-        ? (ch.paragraphs as string[]).join('\n\n')
-        : '';
-      return nameInText(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text);
-    });
-
-    if (hasChain) continue;
-
-    // Find the last chapter that names the culprit; fall back to the final chapter.
-    let targetIdx = chapters.length - 1;
-    for (let i = chapters.length - 1; i >= 0; i--) {
-      const text = Array.isArray(chapters[i].paragraphs)
-        ? (chapters[i].paragraphs as string[]).join('\n\n')
-        : '';
-      if (nameInText(culprit, text)) {
-        targetIdx = i;
-        break;
-      }
-    }
-
-    const ch = chapters[targetIdx];
-    const paragraphs: string[] = Array.isArray(ch.paragraphs)
-      ? [...(ch.paragraphs as string[])]
-      : [];
-    if (paragraphs.length === 0) continue;
-
-    const lastIdx = paragraphs.length - 1;
-    paragraphs[lastIdx] =
-      `${paragraphs[lastIdx].trim()} ${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`;
-
-    chapters[targetIdx] = { ...ch, paragraphs };
-    console.warn(
-      `[Agent 9] enforceCulpritEvidencePresence: injected evidence chain sentence for culprit "${culprit}".`,
-    );
-  }
-
-  return { ...prose, chapters };
+  return injectSentenceIfAbsent(
+    prose,
+    culprits,
+    (culprit, text) => nameInTextShared(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text),
+    (culprit) => `${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`,
+    'enforceCulpritEvidencePresence',
+  );
 };
 
 /**
@@ -959,7 +949,7 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
   if (!culprit) return prose;
 
   const culpritSurname = extractSurname(culprit);
-  const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+custody|I\s+(?:did|killed)|guilty|you\s+committed|you\s+killed|the\s+murderer\s+is|it\s+was\s+you|unmask(?:ed)?|expos(?:ed|es)|named\s+as|revealed\s+as|proved?\s+guilty|brought\s+to\s+justice|caught\s+red-handed|surrendered|condemned|the\s+killer\s+(?:was|proved?|is))\b/i;
+  // RESOLUTION_RE imported from @cml/prompts-llm — shared with agent9-prose.ts (fix #3.2)
   const culpritRE = new RegExp(`\\b${culpritSurname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
 
   if (RESOLUTION_RE.test(finalText) && culpritRE.test(finalText)) {
@@ -967,10 +957,8 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
   }
 
   const paragraphs = [...((finalChapter.paragraphs ?? []) as string[])];
-  paragraphs.push(
-    `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
-    `They were taken into custody before long. The case was closed.`
-  );
+  // Use shared sentence from buildResolutionBackstopSentence so both backstop sites stay in sync (fix #2.4)
+  paragraphs.push(buildResolutionBackstopSentence(culpritSurname));
   const newChapters = [...chapters];
   newChapters[newChapters.length - 1] = { ...finalChapter, paragraphs };
   console.warn(`[Agent 9] injectResolutionIfAbsent: injected resolution paragraph for "${culprit}".`);
@@ -1038,7 +1026,7 @@ const normalizeChapterTitles = (prose: any): any => {
 
   // Two-pass: compute all formats first, then only normalise when mixed.
   const formats = chapters.map((c: any) => getFormat(c.title ?? ''));
-  if (new Set(formats).size <= 1) return prose; // already consistent
+  if (formats.every(f => f === 'number-plus-title')) return prose; // already canonical
 
   // Normalise all outliers to 'number-plus-title' (the canonical format).
   const normalizedChapters = chapters.map((chapter: any, idx: number) => {
@@ -1073,7 +1061,23 @@ export const applyDeterministicProsePostProcessing = (
   });
 
   const seenLongParagraphs = new Set<string>();
+  // Separately track grounding leads so they can be deduped across chapters even
+  // though they are shorter than the 170-char general dedup threshold.
+  const seenGroundingLeads = new Set<string>();
   let totalPronounRepairs = 0;
+
+  const buildUniqueGroundingLead = (baseIndex: number): string => {
+    for (let offset = 0; offset < 5; offset++) {
+      const candidate = buildDeterministicGroundingLead(baseIndex + offset, locationProfiles);
+      const key = candidate.replace(/\s+/g, ' ').trim().toLowerCase();
+      if (!seenGroundingLeads.has(key)) {
+        seenGroundingLeads.add(key);
+        return candidate;
+      }
+    }
+    // All 5 templates used — fall back to primary location with a unique offset
+    return buildDeterministicGroundingLead(baseIndex + 5, locationProfiles);
+  };
 
   const processedChapters = prose.chapters.map((chapter: any, index: number) => {
     const readableParagraphs = enforceReadableParagraphFlow(chapter.paragraphs || []);
@@ -1083,14 +1087,14 @@ export const applyDeterministicProsePostProcessing = (
     const needsGroundingLead =
       !signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere;
     const groundedParagraphs = needsGroundingLead
-      ? [buildDeterministicGroundingLead(index, locationProfiles), ...readableParagraphs]
+      ? [buildUniqueGroundingLead(index), ...readableParagraphs]
       : readableParagraphs;
 
     const sanitizedParagraphs = groundedParagraphs
       .map((paragraph: string, paragraphIndex: number) => {
         const cleaned = sanitizeProseText(paragraph);
         if (templateLeakageScaffoldPattern.test(cleaned)) {
-          return buildDeterministicGroundingLead(index + paragraphIndex, locationProfiles);
+          return buildUniqueGroundingLead(index + paragraphIndex);
         }
         return cleaned;
       })
@@ -1106,7 +1110,7 @@ export const applyDeterministicProsePostProcessing = (
           seenLongParagraphs.add(normalized);
           return paragraph;
         }
-        return buildDeterministicGroundingLead(index + paragraphIndex + 1, locationProfiles);
+        return buildUniqueGroundingLead(index + paragraphIndex + 1);
       },
     );
 
@@ -1136,6 +1140,16 @@ export const applyDeterministicProsePostProcessing = (
 
 const chapterHeadingPrefixPattern = /^\s*chapter\s+\d+\s*:\s*/i;
 
+/**
+ * #10: Naming note — two similarly-named chapter title functions serve different purposes:
+ * - `normalizeChapterTitle(value)` — sanitises a SINGLE raw chapter title from the LLM
+ *   response: strips outer sanitizeProseText artifacts and removes the leading "Chapter N: "
+ *   prefix so the descriptive portion is returned clean.  Used inside `sanitizeProseResult`.
+ * - `normalizeChapterTitles(prose)` — normalises ALL chapter titles in a prose object so
+ *   all chapters use the same "Chapter N: Title" format.  Runs as a separate post-processing
+ *   step after scoring because it needs the full chapter array to detect mixed formats.
+ * The two are complementary, not alternatives — do not merge them.
+ */
 export const normalizeChapterTitle = (value: unknown) => {
   const sanitized = sanitizeProseText(value);
   let title = sanitized;
@@ -1156,7 +1170,7 @@ export const sanitizeProseResult = (prose: any): any => ({
     ...chapter,
     title: normalizeChapterTitle(chapter.title) || `Chapter ${index + 1}`,
     summary: chapter.summary ? sanitizeProseText(chapter.summary) || undefined : chapter.summary,
-    paragraphs: chapter.paragraphs
+    paragraphs: (chapter.paragraphs || [])
       .map((paragraph: any) => normalizeWrappedParagraphText(sanitizeProseText(paragraph)))
       .filter((p: string) => p.length > 0),
   })),
@@ -1286,15 +1300,17 @@ const evaluateProseReadability = (prose: any): ProseReadabilitySummary => {
 
   prose.chapters.forEach((chapter: any) => {
     const paragraphs = chapter.paragraphs || [];
+    let chapterIsDense = false;
     if (paragraphs.length < 3) {
       underParagraphCount += 1;
-      denseChapterCount += 1;
+      chapterIsDense = true;
     }
     const overlong = paragraphs.filter((paragraph: string) => paragraph.length > 2400).length;
     if (overlong > 0) {
       severeParagraphBlocks += overlong;
-      denseChapterCount += 1;
+      chapterIsDense = true;
     }
+    if (chapterIsDense) denseChapterCount += 1;
   });
 
   return { denseChapterCount, underParagraphCount, severeParagraphBlocks };
@@ -1313,10 +1329,12 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
   const atmosphereTerms =
     /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight)\b/i;
 
+  // Convert to array once — avoids re-allocating Array.from(knownAnchors) per chapter.
+  const anchorList = Array.from(knownAnchors);
   let grounded = 0;
   prose.chapters.forEach((chapter: any) => {
-    const opening = chapter.paragraphs.slice(0, 2).join(" ").toLowerCase();
-    const hasAnchor = Array.from(knownAnchors).some((anchor) => opening.includes(anchor));
+    const opening = (chapter.paragraphs || []).slice(0, 2).join(" ").toLowerCase();
+    const hasAnchor = anchorList.some((anchor) => opening.includes(anchor));
     const sensoryCount = (opening.match(sensoryTerms) || []).length;
     const hasAtmosphere = atmosphereTerms.test(opening);
     if (hasAnchor && sensoryCount >= 2 && hasAtmosphere) {
@@ -1542,7 +1560,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const proseReqsNode = (cml as any)?.CASE?.prose_requirements;
   if (proseReqsNode && typeof proseReqsNode.discriminating_test_scene === "object"
       && proseReqsNode.discriminating_test_scene !== null) {
-    const dts = proseReqsNode.discriminating_test_scene;
+    // Deep-clone the stub before reading fields so mutations don't silently propagate to
+    // any code that already holds a reference to the original object (#26).
+    const dts = JSON.parse(JSON.stringify(proseReqsNode.discriminating_test_scene)) as Record<string, unknown>;
     const hasMandatoryFields =
       dts.act_number != null && dts.scene_number != null
       && Array.isArray(dts.required_elements) && dts.test_type != null;
@@ -1853,6 +1873,19 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     });
   };
 
+  /** #9: Shared ProseScorer args builder — avoids config drift across the 3 scorer call sites. */
+  const buildProseScoreArgs = (extra: Record<string, unknown> = {}) => ({
+    previous_phases: {
+      agent2_cast: castDesign,
+      agent2b_character_profiles: characterProfiles.profiles,
+      agent2c_location_profiles: locationProfiles,
+    },
+    cml,
+    threshold_config: { mode: "standard" as const },
+    targetLength: inputs.targetLength ?? "medium",
+    ...extra,
+  });
+
   const computeProseChapterScoreSeries = async (chaptersToScore: any[]): Promise<any[]> => {
     if (!enableScoring || !scoreAggregator || chaptersToScore.length === 0) return [];
     try {
@@ -1867,30 +1900,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         accumulated.push(...batch);
 
         const adaptedBatch = adaptProseForScoring(batch, (cml as any).CASE, clues);
-        const batchScore = await scorer.score({}, adaptedBatch, {
-          previous_phases: {
-            agent2_cast: castDesign,
-            agent2b_character_profiles: characterProfiles.profiles,
-            agent2c_location_profiles: locationProfiles,
-          },
-          cml,
-          threshold_config: { mode: "standard" },
-          targetLength: inputs.targetLength ?? "medium",
-          partialGeneration: true,
-        });
+        const batchScore = await scorer.score({}, adaptedBatch, buildProseScoreArgs({ partialGeneration: true }));
 
         const adaptedAll = adaptProseForScoring(accumulated, (cml as any).CASE, clues);
-        const cumulativeScore = await scorer.score({}, adaptedAll, {
-          previous_phases: {
-            agent2_cast: castDesign,
-            agent2b_character_profiles: characterProfiles.profiles,
-            agent2c_location_profiles: locationProfiles,
-          },
-          cml,
-          threshold_config: { mode: "standard" },
-          targetLength: inputs.targetLength ?? "medium",
-          partialGeneration: true,
-        });
+        const cumulativeScore = await scorer.score({}, adaptedAll, buildProseScoreArgs({ partialGeneration: true }));
 
         series.push({
           chapter: Math.min(i + batch.length, totalChapters),
@@ -1923,17 +1936,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       }
 
       const reAdaptedProse = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
-      const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, {
-        previous_phases: {
-          agent2_cast: castDesign,
-          agent2b_character_profiles: characterProfiles.profiles,
-          agent2c_location_profiles: locationProfiles,
-        },
-        cml,
-        targetLength: inputs.targetLength ?? "medium",
-        threshold_config: { mode: "standard" },
+      const reScoreProse = await new ProseScorer().score({}, reAdaptedProse, buildProseScoreArgs({
         narrativeSceneCount: totalSceneCount || undefined,
-      });
+      }));
 
       if (ctx.proseChapterScores.length > 0) {
         (reScoreProse as PhaseScore).breakdown = {
@@ -2196,30 +2201,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         try {
           const scorer = new ProseScorer();
           const adaptedBatch = adaptProseForScoring(batchChapters, (cml as any).CASE, clues);
-          const batchScore = await scorer.score({}, adaptedBatch, {
-            previous_phases: {
-              agent2_cast: castDesign,
-              agent2b_character_profiles: characterProfiles.profiles,
-              agent2c_location_profiles: locationProfiles,
-            },
-            cml,
-            threshold_config: { mode: "standard" },
-            targetLength: inputs.targetLength ?? "medium",
-            partialGeneration: true,
-          });
+          const batchScore = await scorer.score({}, adaptedBatch, buildProseScoreArgs({ partialGeneration: true }));
 
           const adaptedAll = adaptProseForScoring(accumulatedChapters, (cml as any).CASE, clues);
-          const partialScore = await scorer.score({}, adaptedAll, {
-            previous_phases: {
-              agent2_cast: castDesign,
-              agent2b_character_profiles: characterProfiles.profiles,
-              agent2c_location_profiles: locationProfiles,
-            },
-            cml,
-            threshold_config: { mode: "standard" },
-            targetLength: inputs.targetLength ?? "medium",
-            partialGeneration: true,
-          });
+          const partialScore = await scorer.score({}, adaptedAll, buildProseScoreArgs({ partialGeneration: true }));
 
           const individualPct = Math.round(batchScore.total ?? 0);
           const pct = Math.round(partialScore.total ?? 0);
@@ -2288,12 +2273,22 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     },
   });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
+  // #2.1: Shared post-processing chain — extracted from 4 inline call sites.
+  // Runs applyDeterministicProsePostProcessing → repairWordFormLockedFacts → normalizeLocationNames
+  // in the correct order.  Accepts the prose-input separately so schema-repair retry can pass
+  // retriedProse as the input without reassigning the outer prose variable prematurely.
+  const applyStandardPostProcessingChain = (input: any): any => {
+    let result = applyDeterministicProsePostProcessing(sanitizeProseResult(input), locationProfiles, castDesign.characters);
+    result = repairWordFormLockedFacts(result, annotatedLockedFacts);
+    result = normalizeLocationNames(result, buildLocationRegistry({ locationProfiles } as any));
+    return result;
+  };
+
+  prose = applyStandardPostProcessingChain(prose);
   // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
   // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
-  prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   // 1d: Normalize location names to canonical capitalised forms before validation.
-  prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
+  // (Both now handled inside applyStandardPostProcessingChain above.)
   const proseFirstPassDurationMs = Date.now() - proseStart;
   const proseFirstPassCost = prose.cost;
   ctx.agentCosts["agent9_prose"] = proseFirstPassCost;
@@ -2405,17 +2400,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   if (enableScoring && scoreAggregator && scoringLogger) {
     const scorer = new ProseScorer();
     const adapted = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
-    const score = await scorer.score({}, adapted, {
-      previous_phases: {
-        agent2_cast: castDesign,
-        agent2b_character_profiles: characterProfiles.profiles,
-        agent2c_location_profiles: locationProfiles,
-      },
-      cml,
-      threshold_config: { mode: "standard" },
-      targetLength: inputs.targetLength ?? "medium",
+    const score = await scorer.score({}, adapted, buildProseScoreArgs({
       narrativeSceneCount: totalSceneCount || undefined,
-    });
+    }));
     ctx.latestProseScore = score;
 
     if (ctx.proseChapterScores.length > 0 && !score.breakdown) {
@@ -2606,13 +2593,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       );
       throw new Error("Prose artifact failed schema validation");
     }
-    prose = applyDeterministicProsePostProcessing(
-      sanitizeProseResult(retriedProse),
-      locationProfiles,
-      castDesign.characters,
-    );
-    prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
-    prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
+    prose = applyStandardPostProcessingChain(retriedProse);
     proseSchemaValidation = retryValidation;
     ctx.warnings.push("Prose schema-repair retry succeeded");
     await rescoreAgent9ProsePhase();
@@ -2847,9 +2828,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     reportProgress("validation", "Applied auto-fixes for encoding issues", 99);
   }
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
-  prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
-  prose = normalizeLocationNames(prose, buildLocationRegistry({ locationProfiles } as any));
+  prose = applyStandardPostProcessingChain(prose);
 
   const assetDeploymentReport = buildAssetDiagnosticReport(
     assetLibrary,

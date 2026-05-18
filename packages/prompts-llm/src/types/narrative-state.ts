@@ -64,7 +64,7 @@ export function classifyOpeningStyle(openingSentence: string): string {
   if (/^(it was|there was|there had been)/.test(s)) return 'expository-setup';
   if (/^(when|after|before|as|by the time)/.test(s)) return 'temporal-subordinate';
   // character-action: a named character (one word) + any motion/state/speech verb
-  if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|turned|moved|stepped|came|went|approached|returned|glanced|gazed|looked|paused|stopped|raised|leaned|rose|drew|shook|nodded|said|asked|replied|stared|peered|bent|reached|seized|grasped|held|placed|set|picked|dropped|threw|carried|hurried|ran|rushed|noticed|watched|examined|surveyed|studied|pressed|pulled|pushed|removed|produced|found|searched|checked|picked|read|wrote|spoke|heard|felt|knew|thought|considered|decided|began|started)/.test(s)) return 'character-action';
+  if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|turned|moved|stepped|came|went|approached|returned|glanced|gazed|looked|paused|stopped|raised|leaned|rose|drew|shook|nodded|said|asked|replied|stared|peered|bent|reached|seized|grasped|held|placed|set|picked|dropped|threw|carried|hurried|ran|rushed|noticed|watched|examined|surveyed|studied|pressed|pulled|pushed|removed|produced|found|searched|checked|read|wrote|spoke|heard|felt|knew|thought|considered|decided|began|started)/.test(s)) return 'character-action';
   // digit-based time anchor (nine o'clock at night, half past nine in figure form, etc.)
   if (/\d{1,2}(\.\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s)) return 'time-anchor';
   // word-based time anchor (At half past nine..., At midnight..., etc.)
@@ -178,10 +178,12 @@ export function updateNSD(
   current: NarrativeState,
   lastChapter: { paragraphs?: string[]; cluesRevealedIds?: string[]; arcPosition?: string },
 ): NarrativeState {
-  const newClues = [...current.cluesRevealedToReader];
+  // Use a Set for O(n+m) deduplication instead of repeated Array.includes() O(n*m).
+  const seen = new Set(current.cluesRevealedToReader);
   for (const id of (lastChapter.cluesRevealedIds ?? [])) {
-    if (!newClues.includes(id)) newClues.push(id);
+    seen.add(id);
   }
+  const newClues = Array.from(seen);
   // Continuity tail: last paragraph of the chapter, used to anchor the next chapter's opening
   const paragraphs = lastChapter.paragraphs ?? [];
   const continuityTail = paragraphs.length > 0 ? (paragraphs[paragraphs.length - 1] ?? '') : '';

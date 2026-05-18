@@ -72,21 +72,24 @@ export interface MacroArcEntry {
   mustNotContain: string;
 }
 
+// P2-24: mustNotContain values use chapter-specific content rules, not cross-chapter state
+// references ("same confrontation as prior chapter") that cannot be verified from the current
+// chapter alone.  Each contract now describes what must NOT appear within THIS chapter only.
 const ARCHETYPE_CONTRACTS: Record<Archetype, { mustContain: string; mustNotContain: string }> = {
   DISCOVERY:     { mustContain: 'body found / victim identified', mustNotContain: 'formal accusation or interrogation' },
   FIRST_CONTACT: { mustContain: 'at least two suspect interviews', mustNotContain: 'physical evidence discovery' },
   EVIDENCE:      { mustContain: 'new physical clue discovered', mustNotContain: 'formal accusation' },
   ALIBI_PROBE:   { mustContain: 'one alibi tested with a stated result', mustNotContain: '' },
   RED_HERRING:   { mustContain: 'wrong lead followed and disproved', mustNotContain: 'final culprit identified' },
-  REVERSAL:      { mustContain: 'prior theory overturned by new evidence', mustNotContain: 'same confrontation as prior chapter' },
+  REVERSAL:      { mustContain: 'prior theory overturned by new evidence', mustNotContain: 'culprit accusation or arrest' },
   ISOLATION:     { mustContain: 'one suspect definitively eliminated', mustNotContain: 'new body or crime' },
-  DISCRIMINATING:{ mustContain: 'discriminating test logic applied to culprit', mustNotContain: 'unsolved crime' },
-  CONFRONTATION: { mustContain: 'culprit directly present and addressed', mustNotContain: 'repeat of prior interview structure' },
+  DISCRIMINATING:{ mustContain: 'discriminating test logic applied to culprit', mustNotContain: 'unresolved crime or no test performed' },
+  CONFRONTATION: { mustContain: 'culprit directly present and addressed', mustNotContain: '' },
   RESOLUTION:    { mustContain: 'confession or arrest, method explained', mustNotContain: 'unresolved loose ends' },
 };
 
 export function buildMacroArcPlan(chapterCount: number): MacroArcEntry[] {
-  const n = Math.max(5, Math.min(15, chapterCount));
+  const n = Math.max(5, chapterCount);
   const archetypes: Archetype[] = [];
   archetypes.push('DISCOVERY');
   const middle = n <= 7
@@ -379,7 +382,7 @@ const inferBatchGatesFromError = (error: string): BatchGateName[] => {
   if (/locked fact|word-form|verbatim|word-phrased/.test(lowered)) {
     gates.add("locked_fact_word_form");
   }
-  if (/pronoun|character|name mismatch|identity|phantom|role drift/.test(lowered)) {
+  if (/\bpronoun\b|\bgender\s+mismatch\b|\bname\s+mismatch\b|\bidentity\s+(?:drift|mismatch)\b|\bphantom\b|\brole\s+drift\b/.test(lowered)) {
     gates.add("character_pronoun_consistency");
   }
   if (/clue|discriminating test|fair-play|suspect elimination|evidence anchor|revealed/.test(lowered)) {
@@ -551,12 +554,22 @@ const buildChapterRequirementLedger = (
   allOutlineScenes?: any[],
 ): ChapterRequirementLedgerEntry[] => {
   const { hardFloorWords, preferredWords } = getChapterWordTargets(targetLength);
+
+  // Build lookup maps once to avoid O(n²) .find() inside the per-scene .map().
+  const distClueMap = new Map<string, Clue>(
+    (clueDistribution?.clues ?? []).map((c) => [c.id, c]),
+  );
+  const mappingEntryMap = new Map<string, any>();
+  for (const entry of ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])) {
+    const id = String(entry?.clue_id ?? '');
+    if (id && !mappingEntryMap.has(id)) mappingEntryMap.set(id, entry);
+  }
+
   return (batchScenes as any[]).map((scene, idx) => {
     const requiredClueIds = getRequiredClueIdsForScene(cmlCase, scene, allOutlineScenes);
     const clueObligationContext: ClueObligationContext[] = requiredClueIds.map((id) => {
-      const distClue = (clueDistribution?.clues ?? []).find((c) => c.id === id);
-      const mappingEntry = ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
-        .find((e: any) => String(e?.clue_id) === id);
+      const distClue = distClueMap.get(id);
+      const mappingEntry = mappingEntryMap.get(id);
       return {
         id,
         description: distClue?.description ?? mappingEntry?.delivery_method ?? undefined,
@@ -761,6 +774,22 @@ const chapterClueAppearsEarly = (
   return false;
 };
 
+/**
+ * Regex matching resolution-confirming phrases in the final chapter.
+ * Exported so the orchestrator (agent9-run.ts) can use the same definition
+ * and the two files cannot silently drift — fixes issue #3.2.
+ */
+export const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+custody|I\s+(?:did|killed)|guilty|you\s+committed|you\s+killed|the\s+murderer\s+is|it\s+was\s+you|unmask(?:ed)?|expos(?:ed|es)|named\s+as|revealed\s+as|proved?\s+guilty|brought\s+to\s+justice|caught\s+red-handed|surrendered|condemned|the\s+killer\s+(?:was|proved?|is))\b/i;
+
+/**
+ * Shared resolution backstop sentence used by both the batch retry loop (agent9-prose.ts)
+ * and the post-generation injection (agent9-run.ts).  Centralised here so the two sites
+ * cannot drift — fixes issue #2.4.
+ */
+export const buildResolutionBackstopSentence = (culpritSurname: string): string =>
+  `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
+  `They were taken into custody before long. The case was closed.`;
+
 export const validateChapterPreCommitObligations = (
   chapter: ProseChapter,
   ledgerEntry: ChapterRequirementLedgerEntry,
@@ -790,6 +819,11 @@ export const validateChapterPreCommitObligations = (
     );
   }
 
+  // Dedup by (clueId, errorType) — not by error string — so distinct clue IDs with the
+  // same description are not conflated (fix #48).  Two clues that happen to share a
+  // description both need to be placed, so both errors must survive to the retry directive.
+  const seenClueFailKeys = new Set<string>();
+
   for (const clueId of ledgerEntry.requiredClueIds) {
     const clue = (clueDistribution?.clues ?? []).find((e) => String(e?.id || '') === clueId);
     const ctx = (ledgerEntry.clueObligationContext ?? []).find((c) => c.id === clueId);
@@ -812,28 +846,33 @@ export const validateChapterPreCommitObligations = (
         if (ctxTokens.length > 0) {
           const lowered = chapterText.toLowerCase();
           const matched = ctxTokens.filter((t) => tokenMatchesText(t, lowered));
-          // Match threshold to clue type: 0.35 for behavioural/emotional, 0.6 for factual
+          // Match threshold to clue type: 0.35 for behavioural/emotional, 0.55 for factual
+          // P2-22: was 0.6 for factual — now aligned with chapterMentionsRequiredClue (factualThreshold=0.55).
           const isBehavioural = ctx?.description ? isBehaviouralClue(ctx.description) : false;
-          const threshold = Math.max(1, Math.ceil(ctxTokens.length * (isBehavioural ? 0.35 : 0.6)));
+          const threshold = Math.max(1, Math.ceil(ctxTokens.length * (isBehavioural ? 0.35 : 0.55)));
           isPresent = matched.length >= threshold;
         }
       }
     }
 
     if (!isPresent) {
-      // Clue content is entirely absent — tell the writer what needs to happen narratively.
-      // Append pointsTo hint when the description is a genre label (e.g. "Direct observation")
-      // so the retry directive contains actionable prose content, not just a delivery-method name.
-      const pointsToHint = clue?.pointsTo?.trim();
-      const extraHint = pointsToHint && pointsToHint !== resolvedDesc
-        ? ` (this clue reveals: ${pointsToHint})`
-        : '';
-      const repair = resolvedPlacement === 'early'
-        ? `Include an on-page observation of ${clueDesc}${extraHint} in the first 2 paragraphs of the chapter, followed immediately by an explicit inference paragraph.`
-        : `Include an on-page observation or reference to ${clueDesc}${extraHint} before the chapter ends.`;
-      hardFailures.push(
-        `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
-      );
+      const absentKey = `${clueId}:absent`;
+      if (!seenClueFailKeys.has(absentKey)) {
+        seenClueFailKeys.add(absentKey);
+        // Clue content is entirely absent — tell the writer what needs to happen narratively.
+        // Append pointsTo hint when the description is a genre label (e.g. "Direct observation")
+        // so the retry directive contains actionable prose content, not just a delivery-method name.
+        const pointsToHint = clue?.pointsTo?.trim();
+        const extraHint = pointsToHint && pointsToHint !== resolvedDesc
+          ? ` (this clue reveals: ${pointsToHint})`
+          : '';
+        const repair = resolvedPlacement === 'early'
+          ? `Include an on-page observation of ${clueDesc}${extraHint} in the first 2 paragraphs of the chapter, followed immediately by an explicit inference paragraph.`
+          : `Include an on-page observation or reference to ${clueDesc}${extraHint} before the chapter ends.`;
+        hardFailures.push(
+          `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
+        );
+      }
     } else if (resolvedPlacement === 'early') {
       // Content is present but must also appear in the first 25% of paragraphs
       let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution, castNames);
@@ -849,27 +888,32 @@ export const validateChapterPreCommitObligations = (
             : rawCtxEarlyTokens;
           if (ctxEarlyTokens.length > 0) {
             const matched = ctxEarlyTokens.filter((t) => tokenMatchesText(t, earlyText));
-            const threshold = ctxEarlyTokens.length <= 4 ? 1 : Math.max(1, Math.ceil(ctxEarlyTokens.length * 0.4));
+            // P2-22: align CTX early-fallback threshold with chapterClueAppearsEarly (0.25),
+            // was 0.4 — the early check is observational, not analytical.
+            const threshold = ctxEarlyTokens.length <= 4 ? 1 : Math.max(1, Math.ceil(ctxEarlyTokens.length * 0.25));
             isEarly = matched.length >= threshold;
           }
         }
       }
       if (!isEarly) {
-        const quarterEndForMsg = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
-        hardFailures.push(
-          `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is present but must appear in paragraphs 1-${quarterEndForMsg} — move the observation beat to paragraph 1 or 2.`
-        );
+        const earlyKey = `${clueId}:early`;
+        if (!seenClueFailKeys.has(earlyKey)) {
+          seenClueFailKeys.add(earlyKey);
+          const quarterEndForMsg = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
+          hardFailures.push(
+            `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is present but must appear in paragraphs 1-${quarterEndForMsg} — move the observation beat to paragraph 1 or 2.`
+          );
+        }
       }
     }
   }
 
-  // Deduplicate: two clue IDs with the same description produce identical error strings.
-  // Keep only the first occurrence so the retry directive is not repeated verbatim.
-  const uniqueHardFailures = Array.from(new Set(hardFailures));
+  // No string-level Set dedup here: clue failures are now deduplicated by (clueId, errorType)
+  // in the loop above (#48).  Resolution check appended directly.
+  const uniqueHardFailures = [...hardFailures];
 
   // Phase 6 Layer 2: Final chapter resolution check
   if (resolutionCheck?.isLastChapter && resolutionCheck.culpritSurname) {
-    const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+custody|I\s+(?:did|killed)|guilty|you\s+committed|you\s+killed|the\s+murderer\s+is|it\s+was\s+you|unmask(?:ed)?|expos(?:ed|es)|named\s+as|revealed\s+as|proved?\s+guilty|brought\s+to\s+justice|caught\s+red-handed|surrendered|condemned|the\s+killer\s+(?:was|proved?|is))\b/i;
     const culpritRE = new RegExp(`\\b${resolutionCheck.culpritSurname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
     if (!RESOLUTION_RE.test(chapterText) || !culpritRE.test(chapterText)) {
       uniqueHardFailures.push(
@@ -1294,6 +1338,9 @@ const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
   winter: [/\b(spring|springtime|vernal|summer|summertime|midsummer|summery|autumn|autumnal)\b/gi],
 };
 
+// Module-level: avoids recreating on every chapter processed by enforceMonthSeasonLockOnChapter.
+const SEASONAL_PRESENCE_RE = /\b(spring|summer|autumn|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december|rain|snow|fog|mist|frost|ice|warm|cold|chill|damp|drizzle|storm|thunder|wind|overcast|cloudy|sunny|humid)\b/i;
+
 const enforceMonthSeasonLockOnChapter = (
   chapter: ProseChapter,
   lock: { month: string; season: CanonicalSeason } | undefined,
@@ -1309,7 +1356,6 @@ const enforceMonthSeasonLockOnChapter = (
   // P1-4: Restore lightweight guard — skip the regex scan entirely when the chapter contains
   // no seasonal or weather vocabulary at all. This prevents non-seasonal uses of season words
   // ("summer residence", "winter of their years") from being silently replaced on every chapter.
-  const SEASONAL_PRESENCE_RE = /\b(spring|summer|autumn|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december|rain|snow|fog|mist|frost|ice|warm|cold|chill|damp|drizzle|storm|thunder|wind|overcast|cloudy|sunny|humid)\b/i;
   if (!SEASONAL_PRESENCE_RE.test(chapterText)) return chapter;
   const expectedSeason = lock.season;
   const patterns = conflictingSeasonPatterns[expectedSeason];
@@ -1353,7 +1399,7 @@ const buildRevealGroundworkCues = (revealImplications: string): string[] => {
 
   const BANNED_RE = new RegExp(
     `\\b(${REVEAL_GROUNDWORK_BANNED_TERMS.join('|')})\\b`,
-    'gi',
+    'i',
   );
 
   const rawSentences = compact
@@ -1947,6 +1993,15 @@ export interface BeatFingerprint {
   beats: string[]; // 3-6 key sentences from the chapter
 }
 
+// Module-level constant — avoids re-creating the Set on every sentence scored
+// inside extractBeatFingerprints.
+const FUNCTION_WORD_EXCLUSIONS = new Set([
+  'which', 'where', 'when', 'that', 'this', 'with', 'from', 'have', 'been', 'will',
+  'would', 'could', 'should', 'while', 'their', 'there', 'these', 'those', 'about',
+  'other', 'after', 'before', 'above', 'below', 'between', 'through', 'across',
+  'against', 'around', 'during', 'under', 'since', 'until', 'still', 'again',
+]);
+
 /**
  * Extract beat fingerprints from a committed chapter.
  * Primary: noun-dense, pronoun-light sentence from each 200-word block.
@@ -1966,8 +2021,12 @@ export function extractBeatFingerprints(
   const scoreSentence = (s: string): number => {
     const words = s.split(/\s+/);
     const pronouns = words.filter(w => /^(he|she|they|it|him|her|his|their|its)$/i.test(w)).length;
-    const nouns = words.filter(w => w.length >= 5 && !/^(which|where|when|that|this|with|from|have|been|will|would|could|should)$/i.test(w)).length;
-    return nouns - pronouns;
+    // P2-20: Exclude common function words (5+ chars) that are not nouns — previous filter
+    // only excluded a handful of conjunctions and auxiliaries, causing false positives.
+    const nouns = words.filter(w => w.length >= 5 && !FUNCTION_WORD_EXCLUSIONS.has(w.toLowerCase())).length;
+    // Bonus for sentences containing a cast name — strong signal of an anchor beat.
+    const castBonus = castNames.filter(n => s.includes(n)).length * 3;
+    return nouns - pronouns + castBonus;
   };
 
   for (const para of paragraphs) {
@@ -2031,7 +2090,9 @@ const sanitizeClueField = (text: string): string =>
     .replace(/The detail is explicit:\s*/gi, '')
     .replace(/This detail added\s+\w+\s+texture[^.]+\./gi, '')
     .replace(/without changing the essential deduction chain[^.]*\./gi, '')
-    .replace(/in the case background[^.]*\./gi, '')
+    // P2-18: Require "in the case background" to start a sentence (preceded only by a period/newline
+    // or at string start) so the pattern doesn't strip legitimate narrative uses of this phrase.
+    .replace(/(^|\.\s{0,2})in the case background[^.]*\./gim, (m, p1) => p1 || '')
     .trim();
 
 export function buildChapterObligationBlock(
@@ -2093,11 +2154,22 @@ export function buildChapterObligationBlock(
     );
     const matchingClearances: typeof exactClearances = exactClearances.length > 0
       ? exactClearances
-      : idx === (scenesForChapter as any[]).length - 1
-        ? clearanceScenes.filter((entry: any) =>
-            Number(entry?.act_number) === sceneAct,
-          )
-        : [];
+      : (() => {
+          // Act-level fallback: only fire on the genuinely last chapter of the act.
+          // With proseBatchSize=1 every batch has 1 scene, so idx===length-1 is always true —
+          // which caused the fallback to fire for every chapter in the act (#24).
+          // Check allOutlineScenes to find whether any scene with the same act number has a
+          // higher sceneNumber than the current one.  If there is a later scene in the same act,
+          // this is not the clearance chapter yet.
+          const isLastInAct = allOutlineScenes
+            ? !allOutlineScenes.some(
+                (s: any) => Number(s?.act) === sceneAct && Number(s?.sceneNumber) > Number(scene?.sceneNumber),
+              )
+            : idx === (scenesForChapter as any[]).length - 1;
+          return isLastInAct
+            ? clearanceScenes.filter((entry: any) => Number(entry?.act_number) === sceneAct)
+            : [];
+        })();
     const isDiscriminatingTestChapter =
       Number(dtScene?.act_number) === sceneAct &&
       Number(dtScene?.scene_number) === perActSceneNum;
@@ -2343,12 +2415,14 @@ function buildClueDescriptionBlock(
     ? new Map<string, Clue>(clueDistribution.clues.map(c => [c.id, c]))
     : new Map<string, Clue>();
   const relevantClues: Clue[] = [];
+  const relevantClueIds = new Set<string>();
   for (const scene of scenesForChapter as any[]) {
     const clueIds: string[] = Array.isArray(scene.cluesRevealed) ? scene.cluesRevealed : [];
     for (const id of clueIds) {
       const clue = clueMap.get(id);
-      if (clue && !relevantClues.some(c => c.id === id)) {
+      if (clue && !relevantClueIds.has(id)) {
         relevantClues.push(clue);
+        relevantClueIds.add(id);
       }
     }
   }
@@ -2364,7 +2438,7 @@ function buildClueDescriptionBlock(
       if (entry?.scene_number !== undefined && entry?.scene_number !== null &&
           Number(entry.scene_number) !== Number((scene as any)?.sceneNumber)) continue;
       if (!entry?.delivery_method) continue;
-      if (relevantClues.some((c) => c.id === id)) continue;
+      if (relevantClueIds.has(id)) continue;
       seenMappingIds.add(id);
       mappingOnlyLines.push(`\n• [${id}] ${entry.delivery_method}`);
       mappingOnlyLines.push(`  Category: structural | Placement: early (Act ${entry.act_number})`);
@@ -2447,7 +2521,10 @@ function buildNSDBlock(
 
   // [PHASE 4] FORBIDDEN REPEATS — beat history from prior committed chapters
   if (Array.isArray(beatHistory) && beatHistory.length > 0) {
-    const allBeats = beatHistory.flatMap(bfp =>
+    // Cap the window to the 8 most recent chapters — older beats are less relevant
+    // and injecting all 250+ beats from a 42-chapter story would exhaust token budget.
+    const recentBeats = beatHistory.slice(-8);
+    const allBeats = recentBeats.flatMap(bfp =>
       bfp.beats.map(beat => `• Ch${bfp.chapterNumber}: "${beat.slice(0, 90)}${beat.length > 90 ? '\u2026' : ''}"`))
     lines.push('\n⛔ FORBIDDEN REPEATS — These narrative beats have already been written.');
     lines.push('Do NOT rewrite them or near-paraphrases. Write something that has NOT happened yet:');
@@ -2661,16 +2738,16 @@ const applyPromptBudgeting = (
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
     pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
-    setting_refinement: 700,
-    background_context: 450,
-    fair_play_contract: 700,
+    setting_refinement: 700,   // ~4 paragraphs of era-level setting guidance; 700 prevents mid-paragraph cut
+    background_context: 450,   // short cast/motive synopsis — typically 300-400 tokens; 450 gives margin
+    fair_play_contract: 1100,  // P2-19: raised from 700 to accommodate fairPlayGuardrails merged in (~4×~100 tokens)
     character_personality: 1400, // raised from 900: physicalMannerisms + privateLonging + motiveSeed add ~150 tokens per character
-    location_profiles: 1000,
-    texture_pool: 600,
-    temporal_context: 850,
-    continuity_context: 500,
-    humour_guide: 850,
-    craft_guide: 850,
+    location_profiles: 1000,   // primary + keyLocations + sensory palette; 1000 fits 3-4 locations with sensory detail
+    texture_pool: 600,          // rotating atmosphere atoms; 600 fits ~8-10 atoms at ~60 tokens each
+    temporal_context: 850,      // season + era + weather + cultural notes; 850 fits a full temporal profile
+    continuity_context: 500,    // chapter-summary + recurring-phrase list; compact by design
+    humour_guide: 850,          // full humour guidelines page; 850 matches craft_guide budget
+    craft_guide: 850,           // emotional-depth guidelines page; 850 tested empirically against full content
   };
 
   const truncatedBlocks: string[] = [];
@@ -2700,8 +2777,8 @@ const applyPromptBudgeting = (
     for (const block of candidates) {
       if (blockTokens <= availableForBlocks) break;
       droppedBlocks.push(block.key);
+      blockTokens -= estimateTokenCount(block.content);
       workingBlocks = workingBlocks.filter((entry) => entry.key !== block.key);
-      blockTokens = computeBlockTokens();
     }
   }
 
@@ -3262,10 +3339,18 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   const inferenceSteps = Array.isArray(cmlCase.inference_path?.steps) ? cmlCase.inference_path.steps : [];
   const discriminatingTest = cmlCase.discriminating_test ?? {};
 
-  const hasAnySignal = Object.keys(fairPlay).length > 0 || inferenceSteps.length > 0 || Object.keys(discriminatingTest).length > 0;
-  if (!hasAnySignal) return '';
+  // P2-19: Baseline guardrails are always included so they go through the token-budget system
+  // (fair_play_contract block, priority critical) rather than being hardcoded outside the budget.
+  // These were previously injected via a separate fairPlayGuardrails array in buildProsePrompt.
+  const lines: string[] = [
+    '\n\nFAIR-PLAY AND INFERENCE CONTRACT:',
+    '- FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.',
+    '- FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.',
+    '- FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.',
+    '- FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters.',
+    '- Never solve by withheld information. Keep reader-information parity with detective reasoning.',
+  ];
 
-  const lines: string[] = ['\n\nFAIR-PLAY AND INFERENCE CONTRACT (from CML logic):'];
   if (falseAssumption.statement) {
     lines.push(`- False assumption in force: ${falseAssumption.statement}`);
     if (falseAssumption.what_it_hides) {
@@ -3293,7 +3378,6 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
     lines.push(`- Fair-play rationale: ${fairPlay.explanation.trim()}`);
   }
 
-  lines.push('- Never solve by withheld information. Keep reader-information parity with detective reasoning.');
   return lines.join('\n');
 };
 
@@ -3600,8 +3684,14 @@ ${victimIdentityRule}`;
     const clearanceScenes = (cmlCase?.prose_requirements?.suspect_clearance_scenes ?? []) as any[];
     const clearedSuspects = clearanceScenes
       .filter((s: any) => {
-        const sceneNum = Number(s.scene_number);
-        return sceneNum < chapterStart;
+        // Convert per-act scene_number to global chapter number using allOutlineScenes.
+        // CML clearance data uses per-act scene_number (e.g. 1 for Act2Sc1) but
+        // chapterStart is a global chapter index — direct comparison was wrong.
+        const priorActScenes = allOutlineScenes.filter(
+          (sc: any) => Number(sc?.act) < Number(s.act_number)
+        ).length;
+        const globalChapterNum = priorActScenes + Number(s.scene_number);
+        return globalChapterNum < chapterStart;
       })
       .map((s: any) => ({ name: String(s.suspect_name ?? ''), method: String(s.clearance_method ?? '') }))
       .filter((s) => s.name);
@@ -3665,18 +3755,15 @@ ${victimIdentityRule}`;
 
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
   
-  // CRITICAL: Fair Play Clue Sequencing Guardrails
-  // Prevent detective from discovering and using clues in the same chapter
-  const fairPlayGuardrails = [
-    "FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.",
-    "FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.",
-    "FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.",
-    "FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters."
-  ];
-  
-  const allGuardrails = [...fairPlayGuardrails, ...qualityGuardrails];
+  // P2-19: Fair-play guardrails are now part of buildFairPlayContractBlock so they go through
+  // the token-budget system (fair_play_contract block, priority critical).  Only external
+  // story-specific guardrails remain here.
+  const allGuardrails = [...qualityGuardrails];
+  // P2-23: Renamed from "QUALITY GUARDRAILS (MUST SATISFY)" — these are external story-specific
+  // guidelines, not hard validation gates. Overusing MANDATORY/MUST SATISFY labels dilutes the
+  // signal for the items that ARE hard-retried (atmosphere, clues, clearances).
   const qualityGuardrailBlock = allGuardrails.length > 0
-    ? `\n\nQUALITY GUARDRAILS (MUST SATISFY):\n${allGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}`
+    ? `\n\nQUALITY GUIDELINES (strongly preferred):\n${allGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}`
     : "";
 
   // Build prose requirements block for this chapter batch
@@ -4013,6 +4100,7 @@ const buildProvisionalChapterScore = (
   ledgerEntry: ChapterRequirementLedgerEntry | undefined,
   contentIssues: Array<{ message: string; severity?: string }>,
   clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
 ): ProvisionalChapterScore => {
   const chapterText = (chapter.paragraphs ?? []).join(' ');
   const wordCount = countWords(chapterText);
@@ -4025,7 +4113,7 @@ const buildProvisionalChapterScore = (
 
   const requiredClues = ledgerEntry?.requiredClueIds ?? [];
   const matchedClues = requiredClues.filter((clueId) => {
-    if (chapterMentionsRequiredClue(chapterText, clueId, clueDistribution)) return true;
+    if (chapterMentionsRequiredClue(chapterText, clueId, clueDistribution, castNames)) return true;
     // Fallback for mapping-only clues: chapterMentionsRequiredClue returns false when there
     // is no distribution entry. Apply the same token-matching fallback as the hard validator.
     const hasDistEntry = (clueDistribution?.clues ?? []).some((e) => String(e?.id || '') === clueId);
@@ -4036,9 +4124,12 @@ const buildProvisionalChapterScore = (
     const tokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
     if (tokens.length === 0) return false;
     const lowered = chapterText.toLowerCase();
-    const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.4));
+    // Mirror the real validator thresholds: behavioural clues at 0.35, factual at 0.55.
+    const isBehavioural = isBehaviouralClue(ctx.description);
+    const threshold = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * (isBehavioural ? 0.35 : 0.55)));
     return tokens.filter((t) => tokenMatchesText(t, lowered)).length >= threshold;
   });
+  const matchedClueSet = new Set(matchedClues);
   const clueScore = requiredClues.length > 0
     ? Math.round((matchedClues.length / requiredClues.length) * 100)
     : 100;
@@ -4076,7 +4167,7 @@ const buildProvisionalChapterScore = (
   }
 
   if (clueScore < 100) {
-    const missing = requiredClues.filter((clueId) => !matchedClues.includes(clueId));
+    const missing = requiredClues.filter((clueId) => !matchedClueSet.has(clueId));
     deficits.push(`required clue surfacing incomplete (${matchedClues.length}/${requiredClues.length})`);
     if (missing.length > 0) {
       // Resolve IDs to prose descriptions so the directive fed to the next chapter batch
@@ -4280,7 +4371,6 @@ function buildStoryToDateBlock(priorChapters: ProseChapter[], currentChapterStar
 }
 
 /**
-/**
  * Opening style rotation used to assign a mandatory first-sentence style to each
  * chapter, ensuring no single style (especially "general-descriptive") accounts
  * for more than a third of chapters.
@@ -4307,7 +4397,7 @@ const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }> = [
   {
     style: 'time-anchor',
     directive:
-      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an explicit time marker — e.g. "At half past nine…" / "At midnight…" / "At a quarter to eleven…" / "At half past nine at night…". Time must be in the first clause.',
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an explicit time marker — e.g. "That morning…" / "By the time dusk fell…" / "It was nearly four o\'clock…" / "On the second day after the discovery…". Time must be in the first clause.',
   },
   {
     style: 'noun-phrase-atmosphere',
@@ -4520,7 +4610,7 @@ export function buildDiscriminatingTestChecklist(
   }
   
   // Extract clue locations from outline
-  const clueLocations = extractClueLocations(caseData, outline);
+  const clueLocations = extractClueLocations(caseData);
   
   let checklist = '\n\n═══════════════════════════════════════════════════════════\n';
   checklist += '🎯 DISCRIMINATING TEST CHECKLIST - CRITICAL REQUIREMENTS\n';
@@ -4608,7 +4698,7 @@ export function buildDiscriminatingTestChecklist(
  * Each mapping entry already carries act_number and scene_number, so no
  * outline search is needed. CASE.clue_registry does not exist in the schema.
  */
-function extractClueLocations(caseData: CaseData, outline: NarrativeOutline): Map<string, string> {
+function extractClueLocations(caseData: CaseData): Map<string, string> {
   const clueLocations = new Map<string, string>();
   const cmlCase = (caseData as any)?.CASE ?? {};
   const mappings = (cmlCase.prose_requirements?.clue_to_scene_mapping ?? []) as any[];
@@ -5862,6 +5952,10 @@ export async function generateProse(
         const prompt = buildProsePrompt(
           {
             ...inputs,
+            // P2-21: Pass normalized cast so buildProsePrompt doesn't re-do its own unsafe
+            // Array.isArray(inputs.cast?.characters) coercion — normalizeProseCastOrThrow
+            // already validated and typed the cast at generateProse() entry.
+            cast,
             narrativeState: liveNarrativeState,
             provisionalScoringFeedback: rollingProvisionalFeedback,
             qualityGuardrails: [
@@ -6308,6 +6402,7 @@ export async function generateProse(
               ledgerEntry,
               evaluation.contentValidation.issues,
               inputs.clueDistribution,
+              castNames,
             ),
           );
 
@@ -6427,10 +6522,8 @@ export async function generateProse(
             const lastIdx = proseBatch.chapters.length - 1;
             const lastChapter = proseBatch.chapters[lastIdx];
             const paragraphs = [...((lastChapter.paragraphs ?? []) as string[])];
-            paragraphs.push(
-              `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
-              `They were taken into custody before long. The case was closed.`
-            );
+            // Use shared sentence from buildResolutionBackstopSentence (fix #2.4)
+            paragraphs.push(buildResolutionBackstopSentence(culpritSurname));
             proseBatch.chapters[lastIdx] = { ...lastChapter, paragraphs };
             console.warn(
               `[Agent 9] Resolution backstop: ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} — ` +
