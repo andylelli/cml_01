@@ -325,10 +325,16 @@ export class ProseConsistencyValidator implements Validator {
     if (/^(the|a|an) [a-z]+ (of|in|at|from|with)/.test(s)) return 'noun-phrase-atmosphere';
     if (/^(it was|there was|there had been)/.test(s)) return 'expository-setup';
     if (/^(when|after|before|as|by the time)/.test(s)) return 'temporal-subordinate';
-    // character-action: [Name] + any action verb (past tense regular or common irregular)
-    // Extended verb list covers all examples in OPENING_STYLE_ROTATION directive plus
-    // common literary action openers the LLM is likely to produce.
-    if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|rose|set|drew|turned|moved|lifted|placed|reached|stepped|paused|leaned|settled|glanced|approached|said|spoke|asked|replied|looked|took|came|went|ran|fell|picked|seized|gripped|pushed|pulled|let|threw|held|bent|knelt|pressed|rang|knocked|read|found|saw|heard|noticed|watched|waited|remained)/.test(s)) return 'character-action';
+    // character-action: a named character (1–3 words) + any action verb.
+    // Supports single first-name, two-part full names, and titled three-part names.
+    // A negative lookahead blocks articles/pronouns/prepositions from being mistaken for names.
+    {
+      const _v = 'had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|rose|set|drew|turned|moved|lifted|placed|reached|stepped|paused|leaned|settled|glanced|approached|said|spoke|asked|replied|looked|took|came|went|ran|fell|picked|seized|gripped|pushed|pulled|let|threw|held|bent|knelt|pressed|rang|knocked|read|found|saw|heard|noticed|watched|waited|remained';
+      const _g = '(?!(?:the|a|an|it|there|when|after|before|as|by|her|his|their|its|she|he|they|we|you|i) )';
+      if (new RegExp(`^${_g}[a-z]+ (${_v})`).test(s)) return 'character-action';                         // "Eleanor walked"
+      if (new RegExp(`^${_g}[a-z]+ [a-z]+ (${_v})`).test(s)) return 'character-action';                  // "Beatrice Quill stepped"
+      if (new RegExp(`^${_g}[a-z]+\\.? [a-z]+ [a-z]+ (${_v})`).test(s)) return 'character-action';      // "Dr. Mallory Finch examined" / "Captain Ivor Hale crossed"
+    }
     // time-anchor: digit-format (9:30 p.m. or 9.30 a.m. or 9 o'clock) OR word-format
     // ("At half past nine", "At midnight", "At a quarter to eleven")
     if (/\d{1,2}([.:]\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s) ||

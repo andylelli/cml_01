@@ -1,1 +1,1 @@
-don't stop until you get 5 successful canary core run. Exit code 0.
+Don't run canary runs without user telling you to

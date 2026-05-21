@@ -34,7 +34,7 @@ describe("story length targets runtime config", () => {
       .replace("chapter_count: 20", "chapter_count: 33")
       .replace("chapter_count: 30", "chapter_count: 45")
       .replace("chapter_target_tolerance: 2", "chapter_target_tolerance: 4")
-      .replace("min_ratio: 0.75", "min_ratio: 0.68")
+      .replace("min_ratio: 0.45", "min_ratio: 0.68")
       .replace("max_ratio: 1.25", "max_ratio: 1.32")
       .replace("chapter_ideal_words: 1000", "chapter_ideal_words: 1200");
 

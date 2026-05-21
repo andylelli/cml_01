@@ -283,6 +283,13 @@ Micro-exemplars (patterns to follow, not content to copy):
   motiveSeed: "Will loses controlling shares if victim survives audit" + alibiWindow: "left drawing room from twenty to nine until five past nine" + accessPlausibility: "easy"
 - Weak coupling to avoid:
   motiveSeed: "seems suspicious" + alibiWindow: "around evening" + accessPlausibility: "possible"
+
+MOTIVE SPECIFICITY (culprit only): The culprit's motiveSeed MUST answer all three:
+  1. What the culprit gains from the victim's death (inheritance, silence, freedom, position, etc.)
+  2. What the victim knew or was about to do that made them a direct threat
+  3. Why killing was preferred over any non-lethal alternative (bribery, flight, legal action)
+A motiveSeed of "the estate was at stake" fails — it answers (1) only.
+A passing motiveSeed: "Stands to inherit the estate once the victim's new will is destroyed; victim had discovered the forged codicil and threatened to expose it to the family solicitor that morning."
 - Good red herring:
   A character with public conflict and staged incriminating behavior, but with a later-verifiable contradiction that removes them as culprit.
 - Detective rule example:

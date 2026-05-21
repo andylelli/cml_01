@@ -175,9 +175,6 @@ const deriveRetryTargetedClueIds = (
   clues?: { clues?: Array<{ id?: string }> },
 ): string[] => {
   const caseBlock = (cml as any)?.CASE ?? cml;
-  const currentClueIds = Array.isArray(clues?.clues)
-    ? clues.clues.map((clue) => String(clue?.id ?? "").trim()).filter(Boolean)
-    : [];
   const normalizedRules = new Set(
     (Array.isArray(fairPlayAudit?.violations) ? fairPlayAudit.violations : [])
       .map((violation) => String(violation?.rule ?? "").trim().toLowerCase())
@@ -210,12 +207,6 @@ const deriveRetryTargetedClueIds = (
 
   if (targetedIds.size === 0 && discriminatingIds.length > 0) {
     discriminatingIds.forEach((id: string) => targetedIds.add(id));
-  }
-
-  for (const clueId of currentClueIds) {
-    if (FIXED_RETRY_TARGET_CLUE_IDS.includes(clueId as typeof FIXED_RETRY_TARGET_CLUE_IDS[number])) {
-      targetedIds.add(clueId);
-    }
   }
 
   return Array.from(targetedIds).slice(0, 18);
@@ -792,9 +783,26 @@ export const runDeterministicStructuralAudit = (
     });
   }
 
+  // ── Check 4: at least one evidence clue explicitly names the culprit in pointsTo (advisory) ───
+  if (evidenceClueIds.length > 0 && culprits.size > 0) {
+    const culpritList = [...culprits];
+    const anyCulpritPointing = evidenceClueIds.some((id) => {
+      const clue = clueById.get(id);
+      if (!clue) return false;
+      const pointsTo = String(clue.pointsTo ?? "").toLowerCase();
+      return culpritList.some((culprit) => pointsTo.includes(culprit));
+    });
+    if (!anyCulpritPointing) {
+      gaps.push({
+        kind: "culprit_exclusivity_missing",
+        description: `No discriminating_test evidence clue has pointsTo text naming the culprit (${culpritList.join(", ")}). At least one evidence clue must explicitly link unique access or physical proof to the culprit.`,
+      });
+    }
+  }
+
   // `passed` reflects only blocking structural gaps (evidence_clue_missing, inference_step_uncovered).
-  // elimination_missing is advisory — the backstop handles it and it does not trigger escalation.
-  const blockingGaps = gaps.filter((g) => g.kind !== "elimination_missing");
+  // elimination_missing and culprit_exclusivity_missing are advisory — they do not trigger escalation.
+  const blockingGaps = gaps.filter((g) => g.kind !== "elimination_missing" && g.kind !== "culprit_exclusivity_missing");
 
   return {
     passed: blockingGaps.length === 0,

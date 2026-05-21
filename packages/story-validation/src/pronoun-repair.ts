@@ -265,17 +265,17 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
     }
 
     // Determine starting context for this paragraph.
-    // With crossParagraphInheritance, inherit the previous paragraph's final
-    // single-character context — but only when the new paragraph has no character
-    // of the opposite gender anywhere in it (preventing wrong-character repairs).
+    // T2-8: With crossParagraphInheritance, only inherit the previous paragraph's
+    // final character when the OPENING SENTENCE of the new paragraph names zero
+    // characters. If the opening sentence names any character (of any gender),
+    // that character anchors the paragraph — inheritance is unnecessary and risks
+    // false repairs on correct pronouns that follow a named anchor.
     let lastSingleCharacter: CharacterPronounInfo | null = null;
     if (options?.crossParagraphInheritance && crossParagraphChar) {
-      const inherited = crossParagraphChar;
-      const oppositeGenderPresent = characters.some(
-        (c) => c.gender !== inherited.gender && characterMentionedIn(paragraph, c.labels),
-      );
-      if (!oppositeGenderPresent) {
-        lastSingleCharacter = inherited;
+      const openingSentence = segments[0] ?? paragraph;
+      const namedInOpening = findMentionedCharacters(openingSentence, characters);
+      if (namedInOpening.length === 0) {
+        lastSingleCharacter = crossParagraphChar;
       }
     }
 
@@ -338,6 +338,46 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
             return repaired;
           }
           return segment;
+        }
+        // T2-7: Actor/object disambiguation for mixed-gender sentences.
+        // When targeted repair (onlyNames) is active and exactly two characters are present
+        // (one flagged, one not), use name-position order as a subject/object heuristic:
+        // the character whose name appears LAST is likely the grammatical object. Repair
+        // wrong-gender pronouns that appear after that character's name — they are strongly
+        // associated with the object, not the subject. This resolves the "Finch watched Hale,
+        // her coat" pattern where `her` should be `his` for the object character Hale.
+        if (options?.onlyNames && mentioned.length === 2) {
+          const flaggedChars = mentioned.filter(c => options.onlyNames!.has(c.canonical));
+          const otherChars = mentioned.filter(c => !options.onlyNames!.has(c.canonical));
+          if (flaggedChars.length === 1 && otherChars.length === 1) {
+            const flagged = flaggedChars[0];
+            const other = otherChars[0];
+            const segLow = segment.toLowerCase();
+            // Find the last position where each character's name appears
+            let flaggedPos = -1;
+            let flaggedLabelLen = 1;
+            for (const label of flagged.labels) {
+              const idx = segLow.lastIndexOf(label);
+              if (idx > flaggedPos) { flaggedPos = idx; flaggedLabelLen = label.length; }
+            }
+            let otherPos = -1;
+            for (const label of other.labels) {
+              const idx = segLow.lastIndexOf(label);
+              if (idx > otherPos) otherPos = idx;
+            }
+            // If the flagged character's name appears after the other character (object position),
+            // repair wrong-gender pronouns in the portion of the sentence after the flagged name.
+            if (flaggedPos >= 0 && flaggedPos > otherPos) {
+              const splitPoint = flaggedPos + flaggedLabelLen;
+              const afterName = segment.slice(splitPoint);
+              const repairedAfter = repairPronounsInSegment(afterName, flagged);
+              if (repairedAfter !== afterName) {
+                repairCount++;
+                lastSingleCharacter = flagged;
+                return segment.slice(0, splitPoint) + repairedAfter;
+              }
+            }
+          }
         }
         // lastSingleCharacter intentionally preserved — follow-up sentences inherit prior subject
         return segment;

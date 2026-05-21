@@ -1,0 +1,18 @@
+﻿/**
+ * agent9-prose/index.ts
+ * Barrel â€” re-exports every public symbol from the agent9-prose module.
+ * External code imports from './agent9-prose.js' (the outer barrel) or
+ * from this file directly; the public API is identical.
+ */
+export * from "./types.js";
+export * from "./clue-validation.js";
+export * from "./lint.js";
+export * from "./sanitization.js";
+export * from "./phrase-analysis.js";
+export * from "./obligation-block.js";
+export * from "./prompt-blocks.js";
+export * from "./prompt-builder.js";
+export * from "./context-management.js";
+export * from "./discriminating.js";
+export * from "./repair.js";
+export * from "./generate.js";

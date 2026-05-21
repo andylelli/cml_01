@@ -164,6 +164,7 @@ Rules:
 - Create mood appropriate to mystery type
 - Balance atmospheric description with functional detail
 - The output JSON MUST include a top-level \`atmosphere\` object with ALL of these required fields: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting this object or any of its required fields will cause schema validation failure and the entire output will be rejected.
+- F5a NOUN-PHRASE RULE: All values in sensoryDetails arrays (sights, sounds, smells, tactile) and sensoryVariants arrays MUST be short noun phrases of 3–8 words. Do NOT write full sentences, gerund clauses, or any phrase containing a conjugated verb. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
 - Output valid JSON only.`;
 
   const developer = `# Location Profiles Output Schema

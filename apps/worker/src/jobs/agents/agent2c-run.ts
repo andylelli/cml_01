@@ -82,6 +82,34 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   }
   validation.warnings.forEach((w) => ctx.warnings.push(`  - Schema warning: ${w}`));
 
+  // F5b: Warn if any sensoryDetails entry contains a conjugated verb — indicates the model
+  // wrote a full sentence instead of a noun phrase, which bleeds into Agent 9 as prose.
+  const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
+  const sensoryBleedWarnings: string[] = [];
+  for (const loc of (ctx.locationProfiles?.keyLocations ?? [])) {
+    const details = (loc as any).sensoryDetails ?? {};
+    for (const field of ['sights', 'sounds', 'smells', 'tactile'] as const) {
+      for (const entry of (details[field] ?? []) as string[]) {
+        if (CONJUGATED_VERB_RE.test(entry)) {
+          sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryDetails.${field}: "${entry}" (contains verb — should be noun phrase)`);
+        }
+      }
+    }
+    for (const variant of (loc as any).sensoryVariants ?? []) {
+      for (const field of ['sights', 'sounds', 'smells'] as const) {
+        for (const entry of (variant[field] ?? []) as string[]) {
+          if (CONJUGATED_VERB_RE.test(entry)) {
+            sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryVariants[${variant.id ?? '?'}].${field}: "${entry}" (contains verb)`);
+          }
+        }
+      }
+    }
+  }
+  if (sensoryBleedWarnings.length > 0) {
+    console.warn('[Agent 2c] F5b: sensoryDetails full-sentence bleed detected — these will be copied verbatim by Agent 9:');
+    sensoryBleedWarnings.forEach((w) => { console.warn(w); ctx.warnings.push(w); });
+  }
+
   ctx.reportProgress(
     "location-profiles",
     `Location profiles generated (${ctx.locationProfiles?.keyLocations.length ?? 0} locations)`,

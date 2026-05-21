@@ -106,6 +106,35 @@ function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints:
   };
 }
 
+/**
+ * F1b: Validate that no culprit in culpability.culprits[] has role="victim" in the cast.
+ * When the CML generator incorrectly assigns the victim as the culprit, Agent 9's
+ * enforceCulpritEvidencePresence will inject an accusation for a dead character — producing
+ * a story where the victim is simultaneously dead in Ch1 and accused in the final chapter.
+ * Returns a list of collision messages (empty = clean).
+ */
+function checkVictimCulpritCollision(cml: any): string[] {
+  const culprits: string[] = Array.isArray(cml?.CASE?.culpability?.culprits)
+    ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim()).filter(Boolean)
+    : [];
+  if (culprits.length === 0) return [];
+
+  const victimNames = new Set<string>(
+    ((cml?.CASE?.cast ?? []) as any[])
+      .filter((c: any) => {
+        // Generated CML uses role_archetype ("victim", "the victim").
+        // Example YAMLs may use the legacy `role` field — check both.
+        const ra = String(c.role_archetype ?? c.role ?? '').toLowerCase();
+        return ra.includes('victim');
+      })
+      .map((c: any) => String(c.name ?? '').trim().toLowerCase())
+  );
+
+  return culprits
+    .filter((name) => victimNames.has(name.toLowerCase()))
+    .map((name) => `CML victim/culprit collision: "${name}" is listed as both a victim (role=victim in cast) and a culprit (culpability.culprits). This will cause an impossible story — accusation injected for a dead character.`);
+}
+
 export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("cml", "Generating mystery structure (CML) grounded in novel devices...", 31);
 
@@ -136,6 +165,14 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   }
 
   ctx.cml = cmlResult.cml as any;
+
+  // F1b: Victim/culprit collision check — fail fast before downstream agents see bad data.
+  const initialCollisions = checkVictimCulpritCollision(ctx.cml);
+  if (initialCollisions.length > 0) {
+    initialCollisions.forEach((msg) => ctx.errors.push(`Agent 3: ${msg}`));
+    throw new Error("CML generation produced a victim/culprit collision — cannot proceed");
+  }
+
   ctx.reportProgress("cml", "Mystery structure generated and validated", 50);
 
   // ── CML quality score ─────────────────────────────────────────────────────
@@ -253,6 +290,14 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       }
 
       ctx.cml = cmlResult.cml as any;
+
+      // F1b: Repeat collision check after novelty retry.
+      const retryCollisions = checkVictimCulpritCollision(ctx.cml);
+      if (retryCollisions.length > 0) {
+        retryCollisions.forEach((msg) => ctx.errors.push(`Agent 3: ${msg}`));
+        throw new Error("CML novelty retry produced a victim/culprit collision — cannot proceed");
+      }
+
       ctx.noveltyAudit = await runNoveltyAudit(ctx.cml);
     }
 

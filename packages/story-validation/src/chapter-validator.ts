@@ -202,7 +202,10 @@ export class ChapterValidator {
 
     // Only report missing if we're in the final 15% of the story (so for 20 chapters: ch 17+).
     // This prevents false positives in mid-story chapters that precede the denouement.
-    if (chapter.chapterNumber >= Math.ceil(totalChapters * 0.85) && foundTerms.length === 0) {
+    // Require at least 2 of the 5 key terms to appear — any-1 threshold is too permissive
+    // because common mystery vocabulary (clock, wound, suspect) appears in every chapter.
+    // Guard: only require 2 if 2+ terms were extracted (avoids false positive on short design strings).
+    if (chapter.chapterNumber >= Math.ceil(totalChapters * 0.85) && foundTerms.length < Math.min(2, keyTerms.length)) {
       issues.push({
         severity: 'major',
         message: `Chapter ${chapter.chapterNumber} may be missing the discriminating test scene`,

@@ -732,10 +732,15 @@ function classifyFactValue(canonical: string): FactValueType {
 
 const INJECTION_TEMPLATES: Record<FactValueType, (desc: string, val: string) => string> = {
   time:             (_d, v) => `The time was recorded as ${v}.`,
-  duration_minutes: (d, v)  => `The interval — ${d.toLowerCase()} — came to ${v}.`,
+  // F2: disabled — sentence is lexically identical to the pattern P2 adds to DEBUG_NOTE_PATTERNS.
+  // The obligation block ensures timing values appear during generation; post-hoc re-injection
+  // restores the very ledger sentence the linter is designed to block.
+  duration_minutes: (_d, _v) => ``,
   weight:           (d, v)  => `${d.charAt(0).toUpperCase() + d.slice(1)} weighed ${v}.`,
   length:           (d, v)  => `The measurement confirmed: ${v}.`,
-  generic:          (_d, v) => `The relevant value was established: ${v}.`,
+  // F3: disabled — produces court-document prose ("The relevant value was established: X").
+  // Generic numeric facts should surface via the obligation block, not post-hoc injection.
+  generic:          (_d, _v) => ``,
 };
 
 /** Extract the surname (last word) from a full name. */
@@ -801,6 +806,8 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       if (globalCount >= MAX_INJECTIONS_PER_FACT) continue;
       const valueType = classifyFactValue(canonical);
       const sentence = INJECTION_TEMPLATES[valueType](description, canonical);
+      // F2/F3: skip injection when the template returns an empty string (disabled templates).
+      if (sentence.trim().length === 0) continue;
       updatedParagraphs[bestIdx] = `${sentence} ${updatedParagraphs[bestIdx].trim()}`;
       chapterTextLower = updatedParagraphs.join("\n\n").toLowerCase();
       injectedThisChapter.add(canonical.toLowerCase());
@@ -921,12 +928,39 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
     : [];
   if (culprits.length === 0) return prose;
 
+  // F1: Guard against victim/culprit identity collision.
+  // When the CML generator incorrectly assigns the discovered-dead character as the culprit,
+  // injecting an accusation sentence for them produces an impossible story (accused in Ch9,
+  // already dead in Ch1). Scan Chapter 1 for each culprit's surname near a death-marker;
+  // skip injection and log a critical error if found.
+  const DEATH_RE = /\b(lifeless|body|dead|found\s+dead|died|killed|corpse|murder\s+victim|slumped|shot|stabbed|strangled|poisoned)\b/i;
+  const ch1Text = ((prose.chapters?.[0]?.paragraphs ?? []) as string[]).join(' ');
+  const liveCulprits = culprits.filter((culprit) => {
+    const surname = extractSurname(culprit);
+    const culpritRE = new RegExp(`\\b${surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    const match = culpritRE.exec(ch1Text);
+    if (!match) return true; // name not in Ch1 — safe to inject
+    const idx = match.index;
+    const window = ch1Text.slice(Math.max(0, idx - 250), idx + 250);
+    if (DEATH_RE.test(window)) {
+      console.error(
+        `[Agent 9] enforceCulpritEvidencePresence: SKIPPED injection for "${culprit}" — ` +
+        `name appears near a death marker in Chapter 1. CML culprit assignment is likely invalid. ` +
+        `Story logic cannot be repaired by injection; manual CML fix required.`
+      );
+      return false;
+    }
+    return true;
+  });
+
+  if (liveCulprits.length === 0) return prose;
+
   const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
 
   return injectSentenceIfAbsent(
     prose,
-    culprits,
+    liveCulprits,
     (culprit, text) => nameInTextShared(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text),
     (culprit) => `${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`,
     'enforceCulpritEvidencePresence',
@@ -1835,8 +1869,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // BLUE-5: Pre-set victimConfirmedDeadChapter=1 from CML data.
   // The victim is always dead from chapter 1 — do not wait for death language to appear
   // in prose before activating the victim prohibition block in buildNSDBlock.
+  // CAST.characters does not exist in the CML schema (only CASE.cast does) — use
+  // castDesign.characters (Agent 2 cast, camelCase roleArchetype) as the correct source.
   {
-    const castArr = Array.isArray((cml as any)?.CAST?.characters) ? (cml as any).CAST.characters : [];
+    const castArr = Array.isArray(castDesign?.characters) ? castDesign.characters : [];
     let victimEntry = castArr.find((c: any) =>
       c.role === 'victim' || String(c.roleArchetype ?? '').toLowerCase().includes('victim'),
     );
@@ -1844,7 +1880,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     if (!victimEntry) {
       const culpabilityVictim: string = String((cml as any)?.CASE?.culpability?.victim ?? '').trim();
       if (culpabilityVictim) {
-        victimEntry = castArr.find((c: any) => c.name === culpabilityVictim);
+        victimEntry = castArr.find((c: any) => String(c.name ?? '') === culpabilityVictim);
       }
     }
     if (victimEntry?.name && narrativeState.victimConfirmedDeadChapter === undefined) {

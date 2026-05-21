@@ -323,6 +323,8 @@ ${buildProseRequirements(caseData)}
 - Scene purposes must be specific and progression-driving, not generic transitions.
 - Clue reveal and clue usage must be temporally separated to preserve fair play.
 - Character presence should reflect motive/access logic from CML constraints.
+- **NO REPEAT INTERROGATIONS**: A named suspect may only be the primary interrogation target of a scene ONCE in Act II unless a new piece of named physical evidence (clue ID) was introduced in the scene immediately before the second interrogation. Two consecutive scenes questioning the same suspect about the same alibi — even with different wording — will produce identical prose. If you need to interrogate a suspect twice, the intervening scene MUST reveal a new clue that changes what the detective knows.
+- **SCENE ACTION UNIQUENESS**: Each scene must have a distinct primary action that no adjacent scene shares. The four action types are: (R)eveal clue, (I)nterrogate suspect, (A)nalyse/deduce, (C)onfront. A sequence of I→I→I with the same suspect is always wrong. Valid progressions: R→I, I→R→I, I→A→C.
 
 ## Micro-exemplars
 - Weak scene purpose: "Investigation continues."
@@ -526,13 +528,13 @@ For EVERY scene you MUST fill these additional fields:
 
 **factEstablished** (required, all scenes): The specific new fact the reader knows or has eliminated by scene end. Name the epistemic change.
   ✗ Bad: "more clues emerge" / "investigation advances"
-  ✓ Good: "Establishes that Dr. Finch was not in the library before 10 PM — his claimed alibi collapses"
+  ✓ Good: "Establishes that the accused was not at their claimed location before the stated time — their alibi collapses"
 
 **permittedBehavioursByAct** (required, all scenes): For each named character present, copy their permitted behaviour for this act from the Character Permitted Behaviours section in your context.
-  Format: [{ "characterName": "Eleanor Voss", "behaviour": "cooperative grief; no guilt-tells in Act I" }]
+  Format: [{ "characterName": "[Character Name]", "behaviour": "[permitted behaviour for this act from Character Permitted Behaviours above]" }]
 
 **redHerringPlacement** (required, Act I and Act II scenes only):
-  - If planting a red herring: { "redHerringId": "rh_1", "placementDetail": "Captain Hale mentions the clock ran at dinner — seeds timing doubt" }
+  - If planting a red herring: { "redHerringId": "rh_1", "placementDetail": "[Character] mentions [misleading detail] — seeds false inference about [topic]" }
   - If Act I or II but no red herring planted this scene: null
   - Act III scenes: omit this field entirely (do NOT include it in Act III scene objects)
 
@@ -612,15 +614,15 @@ Each scene must include:
    - Cannot introduce new clues during revelation - only synthesize existing ones
 
 **VIOLATION EXAMPLES (DO NOT DO THIS):**
-❌ Scene 12: "Detective finds pendulum note" + "Detective confronts suspect with note"
-❌ Scene 15: "Detective discovers clock tampering" + "Detective immediately tests suspect"  
+❌ Scene 12: "Detective finds key evidence" + "Detective immediately confronts suspect with it"
+❌ Scene 15: "Detective discovers incriminating detail" + "Detective immediately tests suspect"  
 ❌ Act III Scene 1: "Detective reveals premeditation knowledge reader never saw"
 
 **CORRECT SEQUENCING:**
-✅ Scene 8: "Detective finds pendulum note" (clue revealed to reader)
+✅ Scene 8: "Detective finds key evidence" (clue revealed to reader)
 ✅ Scene 9-10: Investigation continues, other suspects interviewed
-✅ Scene 11: "Detective studies clock mechanism" (processing/analysis)
-✅ Scene 12: "Detective stages discriminating test using pendulum knowledge" (test using revealed clue)
+✅ Scene 11: "Detective analyses discovered evidence" (processing/analysis)
+✅ Scene 12: "Detective stages discriminating test using earlier evidence" (test using revealed clue)
 ✅ Scene 14: "Detective confronts suspect" (revelation using all prior clues)
 
 **Minimum spacing requirement**: At least 1 full scene must separate clue revelation from detective using that clue in deduction/confrontation.
@@ -635,6 +637,12 @@ Each scene must include:
 - Discriminating test appears in late Act II or early Act III, but ONLY after all test-related clues have been revealed
 - Save essential clues for when inference path requires them
 - The detective must never act on knowledge the reader has not seen — every deduction must cite only clue IDs already listed in prior scenes' cluesRevealed arrays; no unannounced leaps of reasoning
+
+## CRITICAL: Murder Victim Excluded After Discovery Scene
+**${crimeVictim}** is the murder victim — already dead before the story begins. Therefore:
+- **Act I discovery scene ONLY**: include ${crimeVictim} in that scene's \`characters\` array (they are found as a body).
+- **ALL subsequent scenes**: do NOT include ${crimeVictim} in any scene's \`characters\` array. They cannot attend scenes, speak, gesture, or react. They exist only in past-tense references, memories, and physical evidence.
+- Do NOT write microMomentBeats, summary text, or purpose text that depicts ${crimeVictim} doing anything present-tense in any scene after the discovery.
 
 ## CRITICAL: Character Names in Scenes
 In every scene's "characters" array, use the **EXACT character names** from the "Cast of Characters" section above.

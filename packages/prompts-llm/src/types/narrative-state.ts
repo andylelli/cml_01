@@ -63,8 +63,17 @@ export function classifyOpeningStyle(openingSentence: string): string {
   if (/^(the|a|an) [a-z]+ (of|in|at|from|with)/.test(s)) return 'noun-phrase-atmosphere';
   if (/^(it was|there was|there had been)/.test(s)) return 'expository-setup';
   if (/^(when|after|before|as|by the time)/.test(s)) return 'temporal-subordinate';
-  // character-action: a named character (one word) + any motion/state/speech verb
-  if (/^[a-z]+ (had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|turned|moved|stepped|came|went|approached|returned|glanced|gazed|looked|paused|stopped|raised|leaned|rose|drew|shook|nodded|said|asked|replied|stared|peered|bent|reached|seized|grasped|held|placed|set|picked|dropped|threw|carried|hurried|ran|rushed|noticed|watched|examined|surveyed|studied|pressed|pulled|pushed|removed|produced|found|searched|checked|read|wrote|spoke|heard|felt|knew|thought|considered|decided|began|started)/.test(s)) return 'character-action';
+  // character-action: a named character (1–3 words) + any motion/state/speech verb.
+  // Supports single first-name ("Eleanor walked"), two-part full names ("Beatrice Quill stepped"),
+  // and titled three-part names ("Captain Ivor Hale crossed", "Dr. Mallory Finch examined").
+  // A negative lookahead blocks articles, pronouns and prepositions from being mistaken for names.
+  {
+    const _v = 'had|was|were|stood|sat|lay|walked|entered|opened|closed|crossed|turned|moved|stepped|came|went|approached|returned|glanced|gazed|looked|paused|stopped|raised|leaned|rose|drew|shook|nodded|said|asked|replied|stared|peered|bent|reached|seized|grasped|held|placed|set|picked|dropped|threw|carried|hurried|ran|rushed|noticed|watched|examined|surveyed|studied|pressed|pulled|pushed|removed|produced|found|searched|checked|read|wrote|spoke|heard|felt|knew|thought|considered|decided|began|started';
+    const _g = '(?!(?:the|a|an|it|there|when|after|before|as|by|her|his|their|its|she|he|they|we|you|i) )';
+    if (new RegExp(`^${_g}[a-z]+ (${_v})`).test(s)) return 'character-action';                         // "Eleanor walked"
+    if (new RegExp(`^${_g}[a-z]+ [a-z]+ (${_v})`).test(s)) return 'character-action';                  // "Beatrice Quill stepped"
+    if (new RegExp(`^${_g}[a-z]+\\.? [a-z]+ [a-z]+ (${_v})`).test(s)) return 'character-action';      // "Dr. Mallory Finch examined" / "Captain Ivor Hale crossed"
+  }
   // digit-based time anchor (nine o'clock at night, half past nine in figure form, etc.)
   if (/\d{1,2}(\.\d{1,2})?\s*(a\.m\.|p\.m\.|o'clock|am|pm)/i.test(s)) return 'time-anchor';
   // word-based time anchor (At half past nine..., At midnight..., etc.)

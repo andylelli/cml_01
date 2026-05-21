@@ -653,7 +653,7 @@ function evaluateOutlineCoverage(narrative: NarrativeOutline, cml: CaseData): Ou
     ? (cmlCase.culpability.culprits as string[])
     : [];
   const suspects = castRoster
-    .filter((c: any) => c.role === "suspect")
+    .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('suspect'))
     .map((c: any) => (c.name ?? "").trim())
     .filter((name: string) => name.length > 0 && !culprits.includes(name));
 
@@ -885,6 +885,24 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     });
     ctx.agentCosts["agent7_narrative"] = narrative.cost;
     ctx.agentDurations["agent7_narrative"] = Date.now() - narrativeStart;
+  }
+
+  // ── Deterministic act-field repair ────────────────────────────────────────
+  // The LLM intermittently omits the required `purpose` field on one or more acts
+  // (most commonly acts[2], Act III).  Synthesise a default before schema validation
+  // so the repair retry is not wasted on this trivial gap.
+  const ACT_DEFAULT_PURPOSES: Record<number, string> = {
+    1: "Establish the setting, introduce key characters, and present the inciting incident.",
+    2: "Develop the investigation, deepen the mystery, and introduce complications.",
+    3: "Build to the confrontation, reveal the truth, and resolve the mystery.",
+  };
+  if (Array.isArray((narrative as any).acts)) {
+    for (const act of (narrative as any).acts) {
+      if (act && typeof act === "object" && !act.purpose && act.actNumber) {
+        act.purpose = ACT_DEFAULT_PURPOSES[act.actNumber] ?? "Advance the story.";
+        ctx.warnings.push(`act${act.actNumber}.purpose was missing — synthesised default.`);
+      }
+    }
   }
 
   // ── Schema repair ──────────────────────────────────────────────────────────

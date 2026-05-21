@@ -29,7 +29,7 @@ import { jsonrepair } from "jsonrepair";
 // ============================================================================
 
 export interface StructuralGap {
-  kind: "evidence_clue_missing" | "inference_step_uncovered" | "elimination_missing";
+  kind: "evidence_clue_missing" | "inference_step_uncovered" | "elimination_missing" | "culprit_exclusivity_missing";
   description: string;
   clueId?: string;
   stepNumber?: number;
