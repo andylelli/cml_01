@@ -78,16 +78,19 @@ import {
   enforceMinimumParagraphStructure,
   normalizeProseCastOrThrow,
   stripAuditField,
+  parseProseResponse,
 } from "./sanitization.js";
 import {
   extractBeatFingerprints,
   detectRecurringPhrases,
   buildIdentityMap,
   tagCharacter,
+  selectSensoryVariant,
 } from "./phrase-analysis.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { buildChapterObligationBlock } from "./obligation-block.js";
 import { buildProsePrompt, resolveVictimName } from "./prompt-builder.js";
+import { stripLocationParagraphs } from "./prompt-blocks.js";
 import {
   extractChapterSummary,
   buildContinuityContext,
@@ -109,7 +112,6 @@ import type {
   ChapterRequirementLedgerEntry,
   UnderflowTelemetry,
 } from "./types.js";
-import { parseProseResponse } from "./sanitization.js";
 
 export const chunkScenes = (scenes: unknown[], chunkSize: number) => {
   const batches: unknown[][] = [];
@@ -132,16 +134,8 @@ export function extractAndStripUsedAssets(rawResponse: string): {
   return { prose, usedAssetIds };
 }
 
-export const parseProseResponse = (content: string) => {
-  try {
-    return stripAuditField(JSON.parse(content)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
-  } catch (error) {
-    const repaired = jsonrepair(content);
-    return stripAuditField(JSON.parse(repaired)) as Omit<ProseGenerationResult, "cost" | "durationMs">;
-  }
-};
 
-interface ProvisionalChapterScore {
+export interface ProvisionalChapterScore {
   chapter: number;
   score: number;
   deficits: string[];

@@ -43,6 +43,7 @@ import {
   extractBeatFingerprints,
   detectRecurringPhrases,
   formatProvisionalScoringFeedbackBlock,
+  selectSensoryVariant,
 } from "./phrase-analysis.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { buildChapterObligationBlock } from "./obligation-block.js";

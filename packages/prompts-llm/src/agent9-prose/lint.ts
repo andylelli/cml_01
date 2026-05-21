@@ -8,7 +8,7 @@ import { classifyOpeningStyle } from "../types/narrative-state.js";
 import {
   ARC_POSITION_REGISTER,
 } from "../constants/arc-position.js";
-import type { ProseChapter, ProseLinterIssue, MacroArcEntry } from "./types.js";
+import type { ProseChapter, ProseLinterIssue, MacroArcEntry, ProseGenerationInputs } from "./types.js";
 export const normalizeParagraphForFingerprint = (paragraph: string): string =>
   paragraph
     .toLowerCase()

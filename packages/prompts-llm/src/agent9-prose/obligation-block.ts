@@ -19,10 +19,12 @@ import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
+import type { NarrativeState } from "../types/narrative-state.js";
 import type {
   ProseChapter,
   ChapterRequirementLedgerEntry,
   MacroArcEntry,
+  ProseGenerationInputs,
 } from "./types.js";
 export function buildChapterObligationBlock(
   scenesForChapter: unknown[],

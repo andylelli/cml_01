@@ -3,6 +3,7 @@
  * Discriminating-test checklist builder and checklist requirement validator.
  */
 import type { CaseData } from "@cml/cml";
+import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 export function validateChecklistRequirements(caseData: CaseData): string {
