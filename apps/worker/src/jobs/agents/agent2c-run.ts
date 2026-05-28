@@ -16,6 +16,90 @@ import {
 } from "./shared.js";
 import { adaptLocationsForScoring } from "../scoring-adapters/index.js";
 
+const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
+
+const DEFAULT_SENSORY_FALLBACKS: Record<"sights" | "sounds" | "smells" | "tactile", string[]> = {
+  sights: ["dim gaslight pooling on polished wood", "narrow shadows along the corridor"] ,
+  sounds: ["muffled footsteps in the passage", "the faint tick of a mantel clock"],
+  smells: ["coal smoke and furniture polish", "damp wool and old paper"],
+  tactile: ["cold brass on the banister", "draft-cool air near the doorway"],
+};
+
+const normalizeSensoryPhrase = (value: unknown): string => {
+  if (typeof value !== "string") return "";
+  const normalized = value
+    .replace(/\s+/g, " ")
+    .replace(/[.!?]+$/g, "")
+    .trim();
+  if (normalized.length === 0) return "";
+  if (CONJUGATED_VERB_RE.test(normalized) && normalized.split(/\s+/).length > 4) {
+    return "";
+  }
+  return normalized;
+};
+
+const buildLocationFallback = (locationName: string, field: "sights" | "sounds" | "smells" | "tactile"): string => {
+  const lowerName = locationName.trim().toLowerCase() || "the room";
+  switch (field) {
+    case "sights":
+      return `shadowed corners in ${lowerName}`;
+    case "sounds":
+      return `subdued noise carrying through ${lowerName}`;
+    case "smells":
+      return `stale air lingering in ${lowerName}`;
+    case "tactile":
+      return `cold surfaces at ${lowerName}`;
+  }
+};
+
+const enforceLocationSensoryFallbacks = (locationProfiles: any, warnings: string[]): any => {
+  if (!locationProfiles || typeof locationProfiles !== "object") return locationProfiles;
+  const keyLocations = Array.isArray(locationProfiles.keyLocations) ? locationProfiles.keyLocations : [];
+  let fallbackInsertions = 0;
+
+  for (const location of keyLocations) {
+    if (!location || typeof location !== "object") continue;
+    const locationName = String((location as any).name ?? (location as any).id ?? "the room");
+    const sensoryDetails = ((location as any).sensoryDetails ??= {});
+
+    for (const field of ["sights", "sounds", "smells", "tactile"] as const) {
+      const existing = Array.isArray(sensoryDetails[field]) ? sensoryDetails[field] : [];
+      const normalized = Array.from(new Set(existing.map(normalizeSensoryPhrase).filter(Boolean)));
+      while (normalized.length < 2) {
+        const fallbackPool = DEFAULT_SENSORY_FALLBACKS[field];
+        const fallback = fallbackPool[normalized.length] ?? buildLocationFallback(locationName, field);
+        normalized.push(fallback);
+        fallbackInsertions += 1;
+      }
+      sensoryDetails[field] = normalized;
+    }
+
+    const sensoryVariants = Array.isArray((location as any).sensoryVariants)
+      ? (location as any).sensoryVariants
+      : [];
+    for (const variant of sensoryVariants) {
+      if (!variant || typeof variant !== "object") continue;
+      for (const field of ["sights", "sounds", "smells"] as const) {
+        const variantEntries = Array.isArray((variant as any)[field]) ? (variant as any)[field] : [];
+        const normalizedVariant = Array.from(new Set(variantEntries.map(normalizeSensoryPhrase).filter(Boolean)));
+        if (normalizedVariant.length === 0) {
+          normalizedVariant.push((sensoryDetails[field] ?? [])[0] ?? buildLocationFallback(locationName, field));
+          fallbackInsertions += 1;
+        }
+        (variant as any)[field] = normalizedVariant;
+      }
+    }
+  }
+
+  if (fallbackInsertions > 0) {
+    warnings.push(
+      `Agent 2c: inserted ${fallbackInsertions} deterministic sensory fallback phrase(s) for location profile grounding.`,
+    );
+  }
+
+  return locationProfiles;
+};
+
 export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("location-profiles", "Generating location profiles...", 89);
 
@@ -75,6 +159,8 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     ctx.agentDurations["agent2c_location_profiles"] = Date.now() - locationProfilesStart;
   }
 
+  ctx.locationProfiles = enforceLocationSensoryFallbacks(ctx.locationProfiles, ctx.warnings);
+
   const validation = validateArtifact("location_profiles", ctx.locationProfiles);
   if (!validation.valid) {
     ctx.warnings.push("Agent 2c: Location profiles validation warnings:");
@@ -84,7 +170,6 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
 
   // F5b: Warn if any sensoryDetails entry contains a conjugated verb — indicates the model
   // wrote a full sentence instead of a noun phrase, which bleeds into Agent 9 as prose.
-  const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
   const sensoryBleedWarnings: string[] = [];
   for (const loc of (ctx.locationProfiles?.keyLocations ?? [])) {
     const details = (loc as any).sensoryDetails ?? {};

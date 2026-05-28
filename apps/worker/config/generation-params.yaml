@@ -336,5 +336,6 @@ agent9_prose:
         minor_gap_score: 85
 
   validation:
-    # Enable/disable pronoun consistency checking in chapter validation
-    pronoun_checking_enabled: true
+    # Enable/disable deterministic pronoun repair post-processing.
+    # Default false: LLM produces correct pronouns; the deterministic fixer introduces errors.
+    pronoun_checking_enabled: false

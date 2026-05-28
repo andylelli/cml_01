@@ -8,6 +8,7 @@ import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import { STORY_LENGTH_TARGETS, getStoryLengthTarget } from "@cml/story-validation";
+import type { StoryContract } from "../story-contract.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import type { BatchCommitRecord, BatchGateName } from "../contracts/batch-commit-record.js";
@@ -161,6 +162,18 @@ export interface ProseGenerationInputs {
   enableOutlineCompleteness?: boolean;
   /** [PHASE 5] Pre-computed macro arc plan — structural archetype contract per chapter. */
   macroArcPlan?: MacroArcEntry[];
+  /** [G5] Pre-compiled StoryContract oracle (victim, culprit alibi, inference chain, time anchors). */
+  storyContract?: StoryContract;
+  /** Optional persisted checkpoint to resume chapter generation without replaying committed chapters. */
+  resumeCheckpoint?: {
+    chapters: ProseChapter[];
+    narrativeState?: NarrativeState;
+    promptFingerprints?: Array<{
+      chapter: number;
+      hash: string;
+      section_sizes: Record<string, number>;
+    }>;
+  };
 }
 
 export interface ProseGenerationResult {

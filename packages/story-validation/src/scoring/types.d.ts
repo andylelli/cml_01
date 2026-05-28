@@ -97,7 +97,7 @@ export interface GenerationDiagnostic {
     captured_at: string;
     details: Record<string, unknown>;
 }
-export type RunOutcome = 'passed' | 'failed' | 'aborted';
+export type RunOutcome = 'passed' | 'failed' | 'aborted' | 'infra_failure';
 export interface ValidationIssueSnapshotSummary {
     total: number;
     critical: number;

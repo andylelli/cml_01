@@ -436,7 +436,9 @@ export function describeError(error: unknown): string {
 }
 
 export function applyAbortedRunMetadata(report: GenerationReport, reason: string): void {
-  report.run_outcome = "aborted";
+  const infraPattern =
+    /(\[infra[_\-\s]?precheck\]|infra[_\-\s]?failure|enotfound|eai_again|dns\s+resolution\s+failed|azure\s+endpoint\s+dns|etimedout|econnreset|socket\s+hang\s+up)/i;
+  report.run_outcome = infraPattern.test(reason) ? "infra_failure" : "aborted";
   report.run_outcome_reason = reason;
   report.passed = false;
 
@@ -468,6 +470,11 @@ export function appendRetryFeedbackOptional(base: string | undefined, retryFeedb
   return appendRetryFeedback(base, retryFeedback);
 }
 
+export function preAgent9LlmRetriesEnabled(): boolean {
+  const raw = String(process.env.AGENT_PRE9_ENABLE_LLM_RETRIES ?? "").trim().toLowerCase();
+  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+}
+
 export async function executeAgentWithRetry<T>(
   agentId: string,
   phaseName: string,
@@ -485,6 +492,7 @@ export async function executeAgentWithRetry<T>(
   let totalCost = 0;
   const startTime = Date.now();
   let retryFeedback: string | undefined;
+  const retriesEnabled = preAgent9LlmRetriesEnabled();
 
   while (true) {
     const attemptStart = Date.now();
@@ -510,6 +518,14 @@ export async function executeAgentWithRetry<T>(
         if (attempts > 0) {
           warnings.push(`${phaseName}: ✓ Passed after ${attempts} retry(s) - ${score.grade} (${score.total}/100)`);
         }
+        return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
+      }
+
+      if (!retriesEnabled) {
+        warnings.push(
+          `${phaseName}: deterministic mode active - skipping scoring retry (score ${score.total}/100, ${score.grade})`
+        );
+        const totalDuration = Date.now() - startTime;
         return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
       }
 

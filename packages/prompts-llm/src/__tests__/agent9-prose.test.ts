@@ -79,6 +79,7 @@ vi.mock("@cml/story-validation", async () => {
 
 import {
   attemptUnderflowExpansion,
+  buildEnhancedRetryFeedback,
   buildChapterObligationBlock,
   buildDiscriminatingTestChecklist,
   buildProsePrompt,
@@ -86,6 +87,7 @@ import {
   detectRecurringPhrases,
   formatProvisionalScoringFeedbackBlock,
   runAtmosphereRepairIfNeeded,
+  stripInternalAuditPhrasing,
   stripAuditField,
   validateChapterPreCommitObligations,
 } from "../agent9-prose.ts";
@@ -135,6 +137,35 @@ describe("formatProvisionalScoringFeedbackBlock", () => {
     const result = formatProvisionalScoringFeedbackBlock(feedback);
     expect(result).toContain("Chapter 5");
     expect(result).toContain("78");
+  });
+});
+
+describe("stripInternalAuditPhrasing", () => {
+  it("removes internal audit/debug-note phrasing while preserving narrative sentences", () => {
+    const input =
+      "The detail is explicit: the watch was wound back by fourteen minutes. " +
+      "Nora closed the diary and looked toward the stair. " +
+      "Without changing the essential deduction chain, this clue confirms guilt.";
+
+    const cleaned = stripInternalAuditPhrasing(input);
+    expect(cleaned).toBe("Nora closed the diary and looked toward the stair.");
+  });
+});
+
+describe("buildEnhancedRetryFeedback template-overlap escalation", () => {
+  it("switches to structured rewrite mode immediately after the first n-gram overlap failure", () => {
+    const feedback = buildEnhancedRetryFeedback(
+      [
+        "Template linter: high n-gram overlap with prior chapter prose (Jaccard 0.88 >= 0.80)",
+      ],
+      {} as any,
+      "6",
+      2,
+      6,
+    );
+
+    expect(feedback).toContain("STRUCTURED REWRITE MODE");
+    expect(feedback).toContain("Rebuild paragraph-by-paragraph");
   });
 });
 

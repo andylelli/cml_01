@@ -262,20 +262,13 @@ export class ProseConsistencyValidator implements Validator {
           // character of that gender is also named (ambiguous reference, not an error).
           const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
           if (wrongPronounPattern.test(windowLower)) {
-            // Competitor check: search the full paragraph containing this name
-            // occurrence, not just the ±windowSize detection window.  A competing-
-            // gender character anywhere in the same paragraph makes the pronoun
-            // reference ambiguous and should suppress the error, even when they are
-            // mentioned more than windowSize chars from the character name.
-            // Dialogue is stripped so that a competitor's name spoken by another
-            // character does not accidentally suppress a real drift in the narrative.
-            const paraStart = scene.text.lastIndexOf('\n\n', pos);
-            const paraEnd = scene.text.indexOf('\n\n', pos + firstName.length);
-            const nameParagraph = scene.text.slice(
-              paraStart >= 0 ? paraStart + 2 : 0,
-              paraEnd >= 0 ? paraEnd : scene.text.length,
-            );
-            const competitorSearchText = stripDialogueFromWindow(nameParagraph);
+            // Competitor check: use the same ±windowSize detection window (windowStripped)
+            // rather than the full paragraph. A competitor in a different sentence of the
+            // same paragraph is too far away to create genuine pronoun ambiguity and should
+            // not suppress a real drift error. Previously the paragraph-scope check suppressed
+            // valid errors when any opposite-gender character appeared anywhere in the paragraph
+            // (e.g. Eleanor Voss + a male character 3 sentences apart).
+            const competitorSearchText = windowStripped;
             const competitorFound = oppositeFirstNames.some((fn) =>
               new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
             );

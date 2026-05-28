@@ -57,6 +57,7 @@ import {
   buildChapterRequirementLedger,
   chapterMentionsRequiredClue,
   validateChapterPreCommitObligations,
+  validateBatchInferenceChain,
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
 } from "./clue-validation.js";
@@ -75,6 +76,7 @@ import type { CanonicalSeason } from "./lint.js";
 import {
   sanitizeScenesCharacters,
   sanitizeGeneratedChapter,
+  stripInternalAuditPhrasing,
   enforceMinimumParagraphStructure,
   normalizeProseCastOrThrow,
   stripAuditField,
@@ -731,7 +733,16 @@ export const buildEnhancedRetryFeedback = (
     const fingerprintError = rawErrors.find((e) => /repeated long paragraph fingerprint/i.test(e));
     if (ngramOverlapError || fingerprintError) {
       const retriesRemaining = maxAttempts - attemptNum;
-      if (retriesRemaining >= 2) {
+      if (attemptNum <= 2 && retriesRemaining >= 1) {
+        directives.push(
+          `REPAIR [template_overlap — attempt ${attemptNum} — STRUCTURED REWRITE MODE]: Overlap detected; freeform retry mode is disabled for this chapter.\n` +
+          `  Treat the prior draft as DISCARDED. Rebuild paragraph-by-paragraph in this order:\n` +
+          `  Para 1: A named character performs a concrete physical action tied to this chapter's scene objective.\n` +
+          `  Para 2: Introduce one scene-specific clue/observation through dialogue or direct sensory perception.\n` +
+          `  Para 3+: Advance the conflict with chapter-specific consequences; vary sentence openings and clause structures.\n` +
+          `  Do NOT preserve sentence skeletons from prior drafts. Every paragraph must use a distinct syntactic frame.`
+        );
+      } else if (retriesRemaining >= 2) {
         directives.push(
           `REPAIR [template_overlap — attempt ${attemptNum}]: Your prose shares too many repeated phrases with earlier chapters.\n` +
           `  Rewrite EVERY paragraph from scratch — do not preserve or lightly rephrase any sentence that appeared in a prior chapter.\n` +
@@ -1131,16 +1142,39 @@ export async function generateProse(
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
   const sceneCount = scenes.length;
+
+  const resumeCheckpoint = inputs.resumeCheckpoint;
+  const resumedChapters = Array.isArray(resumeCheckpoint?.chapters)
+    ? resumeCheckpoint.chapters
+        .filter((chapter): chapter is ProseChapter =>
+          Boolean(chapter)
+          && typeof chapter.title === 'string'
+          && Array.isArray(chapter.paragraphs)
+          && chapter.paragraphs.every((paragraph) => typeof paragraph === 'string')
+        )
+        .slice(0, sceneCount)
+    : [];
   
-  const chapters: ProseChapter[] = [];
-  const chapterSummaries: ChapterSummary[] = [];
+  const chapters: ProseChapter[] = [...resumedChapters];
+  const chapterSummaries: ChapterSummary[] = resumedChapters.map((chapter, idx) =>
+    extractChapterSummary(chapter, idx + 1, (inputs.cast as any)?.characters?.map((c: any) => c?.name).filter(Boolean) ?? []),
+  );
   const chapterValidationHistory: Array<{ chapterNumber: number; attempt: number; errors: string[] }> = [];
   const requestContractViolations: Array<{ chapterRange: string; errors: string[] }> = [];
   const retryPacketHistory: Array<{ chapterRange: string; packet: RetryPacket }> = [];
   const batchCommitRecords: BatchCommitRecord[] = [];
   const provisionalChapterScores: ProvisionalChapterScore[] = [];
   // E5: Collect prompt fingerprints per chapter for traceability
-  const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> = [];
+  const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> =
+    Array.isArray(resumeCheckpoint?.promptFingerprints)
+      ? resumeCheckpoint.promptFingerprints.filter((entry) =>
+          Boolean(entry)
+          && Number.isFinite(Number(entry.chapter))
+          && typeof entry.hash === 'string'
+          && entry.hash.length > 0
+          && Boolean(entry.section_sizes)
+        )
+      : [];
   const chapterValidator = new ChapterValidator();
   const pronounValidator = new CharacterConsistencyValidator();
   const temporalSeasonLock = deriveTemporalSeasonLock(inputs.temporalContext);
@@ -1166,7 +1200,10 @@ export async function generateProse(
   let underflowExpansionAttempts = 0;
   let underflowExpansionRecovered = 0;
   let underflowExpansionFailed = 0;
-  const chapterWordCounts: Array<{ chapter: number; words: number }> = [];
+  const chapterWordCounts: Array<{ chapter: number; words: number }> = resumedChapters.map((chapter, idx) => ({
+    chapter: idx + 1,
+    words: countWords((chapter.paragraphs ?? []).join(' ')),
+  }));
   // FIX-C2: eagerly track which batch indices required at least one retry so the
   // count survives a throw that exits generateProse() before the post-loop aggregation.
   const retriedBatches = new Set<number>();
@@ -1174,7 +1211,14 @@ export async function generateProse(
   // Deep-copy the caller's NarrativeState so mutations during generation (updateNSD calls)
   // do not bleed back into the orchestrator's copy.  Array/object fields need explicit
   // spreading because the outer spread {...inputs.narrativeState} is only one level deep.
-  let liveNarrativeState: NarrativeState | undefined = inputs.narrativeState
+  let liveNarrativeState: NarrativeState | undefined = resumeCheckpoint?.narrativeState
+    ? {
+        ...resumeCheckpoint.narrativeState,
+        lockedFacts: [...(resumeCheckpoint.narrativeState.lockedFacts ?? [])],
+        characterPronouns: { ...(resumeCheckpoint.narrativeState.characterPronouns ?? {}) },
+        cluesRevealedToReader: [...(resumeCheckpoint.narrativeState.cluesRevealedToReader ?? [])],
+      }
+    : inputs.narrativeState
     ? {
         ...inputs.narrativeState,
         lockedFacts: [...inputs.narrativeState.lockedFacts],
@@ -1187,10 +1231,75 @@ export async function generateProse(
     : [];
   const redesignEnabled = inputs.bottomUpRedesignEnabled !== false;
 
+  const escapeForRegex = (value: string): string =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const validateSceneCastAndLocationCoverage = (
+    chapter: ProseChapter,
+    scene: any,
+    chapterNumber: number,
+  ): string[] => {
+    const errors: string[] = [];
+    const chapterText = (chapter.paragraphs ?? []).join(" ");
+    const chapterTextLower = chapterText.toLowerCase();
+
+    const expectedCharacters = (Array.isArray(scene?.characters) ? scene.characters : [])
+      .map((entry: any) => (typeof entry === 'string' ? entry : String(entry?.name ?? '')))
+      .map((name: string) => name.trim())
+      .filter((name: string) => name.length > 0);
+
+    if (expectedCharacters.length > 0) {
+      const matched = expectedCharacters.filter((name: string) => {
+        const normalized = name.toLowerCase();
+        if (chapterTextLower.includes(normalized)) return true;
+        const surname = normalized.split(/\s+/).pop() ?? "";
+        return surname.length >= 4
+          && new RegExp(`\\b${escapeForRegex(surname)}\\b`, 'i').test(chapterText);
+      });
+
+      if (matched.length === 0) {
+        errors.push(
+          `Chapter ${chapterNumber}: scene cast coverage missing — expected at least one of [${expectedCharacters.join(', ')}] to appear by name in prose.`,
+        );
+      }
+    }
+
+    const sceneLocationRaw = String(scene?.setting?.location ?? scene?.location ?? "").trim();
+    if (sceneLocationRaw.length > 0) {
+      const normalizedLocation = sceneLocationRaw.toLowerCase();
+      const locationTokens = normalizedLocation
+        .split(/[^a-z0-9]+/)
+        .filter((token) => token.length >= 4)
+        .slice(0, 5);
+
+      const hasLocationMention =
+        chapterTextLower.includes(normalizedLocation)
+        || locationTokens.some((token) =>
+          new RegExp(`\\b${escapeForRegex(token)}\\b`, 'i').test(chapterText),
+        );
+
+      if (!hasLocationMention) {
+        errors.push(
+          `Chapter ${chapterNumber}: scene location coverage missing — expected location anchor "${sceneLocationRaw}" was not grounded in prose.`,
+        );
+      }
+    }
+
+    return errors;
+  };
+
+  if (chapters.length > 0 && chapters.length < sceneCount) {
+    progressCallback(
+      'prose',
+      `Resuming prose generation from chapter ${chapters.length + 1}/${sceneCount} using checkpointed chapters.`,
+      91,
+    );
+  }
+
   // Generate and validate scenes in configurable batches.
   // When batchSize=1 (default) this processes one chapter per LLM call;
   // higher values group multiple scenes into a single call for throughput gains.
-  for (let batchStart = 0; batchStart < scenes.length; batchStart += batchSize) {
+  for (let batchStart = chapters.length; batchStart < scenes.length; batchStart += batchSize) {
     const batchScenes = scenes.slice(batchStart, batchStart + batchSize);
     const chapterStart = batchStart + 1;
     const chapterEnd = batchStart + batchScenes.length;
@@ -1622,6 +1731,15 @@ export async function generateProse(
                   })() : undefined
                 )
               : undefined;
+
+            const sceneCoverageErrors = validateSceneCastAndLocationCoverage(
+              candidate,
+              batchScenes[i],
+              chapterNumber,
+            );
+            if (sceneCoverageErrors.length > 0) {
+              hardErrors.push(...sceneCoverageErrors);
+            }
             if (obligations) {
               hardErrors.push(...obligations.hardFailures);
               if (trackUnderflow) {
@@ -1986,26 +2104,12 @@ export async function generateProse(
           );
         if (isLinterOnlyFingerprintOrNoteFailure) {
           // Strip debug-note paragraphs before accepting so they don't appear in the story.
-          const DEBUG_NOTE_STRIP_PATTERNS = [
-            /the detail is explicit:/i,
-            /this detail added\b.*?\btexture\b/i,
-            /\[locked fact\]/i,
-            /without changing the essential deduction chain/i,
-            /\bthe mechanism relies on\b/i,
-            /\bfor the purposes of this (?:scene|chapter|narrative)\b/i,
-            /\bthe (?:time|value|reading|interval) was recorded as\b/i,
-            /\bthe (?:exact|precise) (?:amount|value|time|phrase|interval) .{0,40}(?:wound back|came to|amounts to|equals)\b/i,
-            /\buntil the investigator\b.{0,40}\b(?:arriv|comes?|is here)\b/i,
-            /\bhold on\b.{0,50}\buntil.*investigator\b/i,
-            /\bthis evidence points to\b.{0,80}\b(?:involvement|guilt|culpability)\b/i,
-            /\bdirect evidence ties\b.{0,80}\baccess point\b/i,
-          ];
           let debugNoteStripped = 0;
           for (let ci = 0; ci < proseBatch.chapters.length; ci++) {
             const ch = proseBatch.chapters[ci];
             if (!Array.isArray(ch.paragraphs)) continue;
             const filtered = (ch.paragraphs as string[]).filter(
-              (p: string) => !DEBUG_NOTE_STRIP_PATTERNS.some((re) => re.test(p))
+              (p: string) => stripInternalAuditPhrasing(p).trim().length > 0
             );
             if (filtered.length < ch.paragraphs.length) {
               debugNoteStripped += ch.paragraphs.length - filtered.length;
@@ -2057,6 +2161,30 @@ export async function generateProse(
               overallProgress,
             );
             batchErrors = [];
+          }
+        }
+
+        // [G3] Inference-path chain check (soft / preferred-miss only — does not block commits).
+        // For each chapter in this batch, verify that if a revealed clue is required by a
+        // reader-observable inference step, the step's observation tokens appear in the chapter.
+        if (inputs.storyContract?.inferenceChain && inputs.storyContract.inferenceChain.length > 0) {
+          const g3Misses = validateBatchInferenceChain(
+            proseBatch.chapters,
+            batchScenes as Array<{ cluesRevealed?: string[] }>,
+            inputs.storyContract.inferenceChain,
+            chapterStart,
+          );
+          if (g3Misses.length > 0) {
+            console.warn(
+              `[Agent 9] G3 inference-chain soft misses for ch${batchLabel}:\n` +
+              g3Misses.map(m => `  - ${m}`).join('\n')
+            );
+            // Feed into batchErrors on first attempt only as non-blocking advisory (won't cause a retry
+            // on its own — if batchErrors already has hard failures these are appended; if no hard
+            // failures exist the error block is skipped and the batch is committed normally).
+            if (attempt === 1) {
+              // Log but do NOT add to batchErrors — this is advisory only
+            }
           }
         }
 
@@ -2181,6 +2309,39 @@ export async function generateProse(
         }
 
         provisionalChapterScores.push(...provisionalBatchScores);
+
+        // [G4] DT scene scheduling check — if this batch covers the discriminating-test scene,
+        // verify that at least one of its required evidence clues is freshly scheduled here.
+        // Advisory-only: if the clue is absent from the outline (batchScenes.cluesRevealed),
+        // no prose retry can fix it; log a warning so the issue surfaces in diagnostics.
+        // Note: prose-level enforcement (clue present in chapter text) is handled by the
+        // per-chapter validateChapterPreCommitObligations gate above.
+        (() => {
+          const dtScene = (inputs.caseData as any)?.CASE?.prose_requirements?.discriminating_test_scene;
+          const dTest = (inputs.caseData as any)?.CASE?.discriminating_test;
+          if (!dtScene || !dTest) return;
+          const dtSceneNum = Number(dtScene.scene_number ?? 0);
+          if (!dtSceneNum) return;
+          const batchNums = (batchScenes as any[]).map((_: any, i: number) => chapterStart + i);
+          if (!batchNums.includes(dtSceneNum)) return;
+          const evidenceClues: string[] = Array.isArray(dTest.evidence_clues)
+            ? dTest.evidence_clues.map(String)
+            : [];
+          if (evidenceClues.length === 0) return;
+          const priorRevealed = new Set(liveNarrativeState?.cluesRevealedToReader ?? []);
+          const batchClueIds = (batchScenes as any[])
+            .flatMap((s: any) => Array.isArray(s.cluesRevealed) ? s.cluesRevealed : [])
+            .map(String).filter(Boolean);
+          const freshDTClues = evidenceClues.filter(id => batchClueIds.includes(id) && !priorRevealed.has(id));
+          if (freshDTClues.length === 0) {
+            const needed = evidenceClues.slice(0, 3).join(', ');
+            console.warn(
+              `[Agent 9] G4 DT-scene scheduling gap ch${batchLabel}: discriminating-test scene (${dtSceneNum}) ` +
+              `has no fresh DT evidence clue scheduled in the outline (needed one of: ${needed}). ` +
+              `This is an outline-level gap that prose generation cannot repair.`
+            );
+          }
+        })();
 
         // All chapters in this batch passed validation — commit them
         for (let i = 0; i < proseBatch.chapters.length; i++) {

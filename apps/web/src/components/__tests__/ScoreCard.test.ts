@@ -117,6 +117,19 @@ describe("ScoreCard", () => {
     expect(wrapper.text()).toContain("■ Aborted");
   });
 
+  it("shows infra failure badge when run_outcome is infra_failure", () => {
+    const wrapper = mount(ScoreCard, {
+      props: {
+        report: makeReport({
+          passed: false,
+          run_outcome: "infra_failure",
+          run_outcome_reason: "[INFRA_PRECHECK] Azure endpoint DNS resolution failed",
+        }),
+      },
+    });
+    expect(wrapper.text()).toContain("Infra Failure");
+  });
+
   it("prefers run_outcome over legacy passed flag", () => {
     const wrapper = mount(ScoreCard, {
       props: {

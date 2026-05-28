@@ -291,7 +291,7 @@ export interface GenerationReport {
   overall_score: number;
   overall_grade: string;
   passed: boolean;
-  run_outcome?: "passed" | "failed" | "aborted";
+  run_outcome?: "passed" | "failed" | "aborted" | "infra_failure";
   run_outcome_reason?: string;
   scoring_outcome?: {
     score: number;

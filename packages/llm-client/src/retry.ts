@@ -5,9 +5,9 @@
 import type { RetryConfig } from "./types.js";
 
 export const defaultRetryConfig: RetryConfig = {
-  maxAttempts: 3,
-  initialDelayMs: 1000,
-  maxDelayMs: 10000,
+  maxAttempts: 4,
+  initialDelayMs: 1500,
+  maxDelayMs: 30000,
   backoffMultiplier: 2,
   retryableErrors: [
     "rate_limit_exceeded",
@@ -18,12 +18,42 @@ export const defaultRetryConfig: RetryConfig = {
     "503", // Service Unavailable
     "ECONNRESET",
     "ETIMEDOUT",
+    "EAI_AGAIN", // DNS temporary failure
     "ENOTFOUND", // DNS lookup failure — transient when Azure endpoint is briefly unreachable
   ],
 };
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function addJitter(delayMs: number, jitterRatio = 0.25): number {
+  const minMultiplier = Math.max(0.1, 1 - jitterRatio);
+  const maxMultiplier = 1 + jitterRatio;
+  const multiplier = minMultiplier + Math.random() * (maxMultiplier - minMultiplier);
+  return Math.max(1, Math.floor(delayMs * multiplier));
+}
+
+function isDnsResolutionError(error: Error): boolean {
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("enotfound") ||
+    message.includes("eai_again") ||
+    message.includes("getaddrinfo") ||
+    message.includes("dns")
+  );
+}
+
+function getRetryDelayMs(error: Error, baseDelayMs: number, maxDelayMs: number): number {
+  const boundedBaseDelay = Math.min(baseDelayMs, maxDelayMs);
+
+  // DNS outages often clear after several seconds, so avoid immediate tight retries.
+  if (isDnsResolutionError(error)) {
+    const dnsFloorDelay = Math.min(maxDelayMs, Math.max(3000, boundedBaseDelay * 2));
+    return addJitter(dnsFloorDelay, 0.2);
+  }
+
+  return addJitter(boundedBaseDelay, 0.2);
 }
 
 export function isRetryableError(error: Error, retryableErrors: string[]): boolean {
@@ -58,8 +88,9 @@ export async function withRetry<T>(
         );
       }
 
-      // Wait before retry with exponential backoff
-      await sleep(Math.min(delay, config.maxDelayMs));
+      // Wait before retry with exponential backoff and jitter.
+      const delayMs = getRetryDelayMs(lastError, delay, config.maxDelayMs);
+      await sleep(delayMs);
       delay *= config.backoffMultiplier;
     }
   }

@@ -13,8 +13,8 @@
  * proseRepairPassCount, latestProseScore, nsdTransferTrace
  */
 
-import { join } from "path";
-import { existsSync, readFileSync } from "fs";
+import { dirname, join } from "path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import {
   buildAssetDiagnosticReport,
   buildAssetLibrary,
@@ -34,7 +34,7 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -58,6 +58,46 @@ type ProseReadabilitySummary = {
   denseChapterCount: number;
   underParagraphCount: number;
   severeParagraphBlocks: number;
+};
+
+type Agent9ResumeCheckpoint = {
+  version: 1;
+  runId: string;
+  projectId?: string;
+  savedAt: string;
+  completedChapters: Array<{ title: string; summary?: string; paragraphs: string[] }>;
+  narrativeState: NarrativeState;
+  promptFingerprints?: Array<{
+    chapter: number;
+    hash: string;
+    section_sizes: Record<string, number>;
+  }>;
+};
+
+const loadAgent9ResumeCheckpoint = (
+  checkpointPath: string,
+  expectedRunId: string,
+): Agent9ResumeCheckpoint | null => {
+  if (!existsSync(checkpointPath)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(checkpointPath, "utf8")) as Agent9ResumeCheckpoint;
+    if (!parsed || parsed.version !== 1) return null;
+    if (typeof parsed.runId !== "string" || parsed.runId.length === 0) return null;
+    if (parsed.runId !== expectedRunId) return null;
+    if (!Array.isArray(parsed.completedChapters)) return null;
+    if (!parsed.narrativeState || typeof parsed.narrativeState !== "object") return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const persistAgent9ResumeCheckpoint = (
+  checkpointPath: string,
+  checkpoint: Agent9ResumeCheckpoint,
+): void => {
+  mkdirSync(dirname(checkpointPath), { recursive: true });
+  writeFileSync(checkpointPath, JSON.stringify(checkpoint, null, 2), "utf8");
 };
 
 const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean => {
@@ -509,6 +549,10 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
     // Try time-of-day pattern first (e.g. "ten minutes past eleven" → catch "11:10 PM").
     const parsedTime = parseWordFormTime(canonical);
     if (parsedTime) {
+      // Wave 1 timeline lock: apply time-value normalization globally across prose.
+      // Time contradictions can appear outside the original clue-introduction chapter,
+      // and scoped-only replacement lets drift survive into later chapters.
+      const scopeForTimeRepairs: Set<number> | null = null;
       const { hour, minute } = parsedTime;
       const minutePadded = String(minute).padStart(2, '0');
       // Match "H:MM" or "H.MM" optionally followed by AM/PM variants.
@@ -516,7 +560,7 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
         `\\b${hour}[:\\.]${minutePadded}(?:\\s*(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm))?\\b`,
         'g',
       );
-      repairs.push({ pattern: digitPattern, canonical, chaptersScope });
+      repairs.push({ pattern: digitPattern, canonical, chaptersScope: scopeForTimeRepairs });
 
       // Also catch word-alias forms that parseWordFormTime newly handles —
       // e.g. "eleven ten" for canonical "ten minutes past eleven" (11:10),
@@ -532,27 +576,27 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
         // "eleven o'clock" form — only repair if canonical is NOT already "X o'clock"
         if (!/o[\u2019']clock/i.test(canonical)) {
           const oclockPattern = new RegExp(`\\b${hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+o[\\u2019']clock\\b`, 'gi');
-          repairs.push({ pattern: oclockPattern, canonical, chaptersScope });
+          repairs.push({ pattern: oclockPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
         // Hour-only digit + AM/PM form: "8 PM", "8PM", "8 p.m." → canonical (e.g. "eight o'clock")
         const hourOnlyDigitAmPm = new RegExp(
           `\\b${hour}\\s*(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm)\\b`,
           'gi',
         );
-        repairs.push({ pattern: hourOnlyDigitAmPm, canonical, chaptersScope });
+        repairs.push({ pattern: hourOnlyDigitAmPm, canonical, chaptersScope: scopeForTimeRepairs });
         // Hour word + AM/PM form: "eight PM", "eight p.m." → canonical
         const escapedHourWord = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const hourWordAmPm = new RegExp(
           `\\b${escapedHourWord}\\s+(?:AM|PM|a\\.m\\.|p\\.m\\.|am|pm)\\b`,
           'gi',
         );
-        repairs.push({ pattern: hourWordAmPm, canonical, chaptersScope });
+        repairs.push({ pattern: hourWordAmPm, canonical, chaptersScope: scopeForTimeRepairs });
         // "X in the evening/morning/afternoon/night" → canonical (e.g. "eight in the evening")
         const inTheTimeOfDay = new RegExp(
           `\\b${escapedHourWord}\\s+(?:in\\s+the\\s+(?:evening|morning|afternoon|night)|that\\s+(?:evening|night|morning))\\b`,
           'gi',
         );
-        repairs.push({ pattern: inTheTimeOfDay, canonical, chaptersScope });
+        repairs.push({ pattern: inTheTimeOfDay, canonical, chaptersScope: scopeForTimeRepairs });
       } else if (hourWord && minWord) {
         // "eleven ten" form — only repair if canonical is NOT this same plain H-M form
         const plainWordForm = `${hourWord} ${minWord}`;
@@ -561,32 +605,32 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
             `\\b${hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+${minWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
             'gi',
           );
-          repairs.push({ pattern: wordAliasPattern, canonical, chaptersScope });
+          repairs.push({ pattern: wordAliasPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
         // Phase 3: wrong-order form: "eleven past ten" when canonical is "ten past eleven"
         const escapedHour = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const escapedMin = minWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const wrongOrderPattern = new RegExp(`\\b${escapedHour}\\s+(?:minutes?\\s+)?past\\s+${escapedMin}\\b`, 'gi');
-        repairs.push({ pattern: wrongOrderPattern, canonical, chaptersScope });
+        repairs.push({ pattern: wrongOrderPattern, canonical, chaptersScope: scopeForTimeRepairs });
         // "N past H" without "minutes" keyword — e.g. "ten past eleven" → "ten minutes past eleven"
         if (/minutes?\s+past/i.test(canonical)) {
           const pastWithoutMinutes = new RegExp(`\\b${escapedMin}\\s+past\\s+${escapedHour}\\b`, 'gi');
-          repairs.push({ pattern: pastWithoutMinutes, canonical, chaptersScope });
+          repairs.push({ pattern: pastWithoutMinutes, canonical, chaptersScope: scopeForTimeRepairs });
         }
         // Phase 3: hyphenated form: "eleven-ten"
         const hyphenPattern = new RegExp(`\\b${escapedHour}-${escapedMin}\\b`, 'gi');
-        repairs.push({ pattern: hyphenPattern, canonical, chaptersScope });
+        repairs.push({ pattern: hyphenPattern, canonical, chaptersScope: scopeForTimeRepairs });
       }
       // Phase 3: "quarter past [hour]" / "half past [hour]" as wrong substitutions when canonical differs
       if (hourWord) {
         const escapedHour = hourWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         if (minute !== 15 && !/quarter\s+past/i.test(canonical)) {
           const quarterPastPattern = new RegExp(`\\bquarter\\s+past\\s+${escapedHour}\\b`, 'gi');
-          repairs.push({ pattern: quarterPastPattern, canonical, chaptersScope });
+          repairs.push({ pattern: quarterPastPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
         if (minute !== 30 && !/half\s+past/i.test(canonical)) {
           const halfPastPattern = new RegExp(`\\bhalf\\s+past\\s+${escapedHour}\\b`, 'gi');
-          repairs.push({ pattern: halfPastPattern, canonical, chaptersScope });
+          repairs.push({ pattern: halfPastPattern, canonical, chaptersScope: scopeForTimeRepairs });
         }
       }
       matchedSpecificHandler = true;
@@ -745,6 +789,217 @@ const INJECTION_TEMPLATES: Record<FactValueType, (desc: string, val: string) => 
 
 /** Extract the surname (last word) from a full name. */
 const extractSurname = (name: string): string => name.trim().split(/\s+/).pop() ?? name;
+
+const normalizeNameLower = (value: unknown): string => String(value ?? "").trim().toLowerCase();
+
+const roleTextForIntegrity = (entry: any): string =>
+  String(entry?.role_archetype ?? entry?.role ?? entry?.roleArchetype ?? "").toLowerCase();
+
+/**
+ * Wave 1 culprit-role integrity lock:
+ * - culprit must not be victim/detective/ineligible
+ * - if invalid, deterministically pick first eligible non-victim non-detective cast member
+ * - keep suspect_clearance_scenes free of culprit/victim entries
+ */
+const enforceCmlCulpritRoleIntegrity = (
+  cml: any,
+  castDesign: any,
+  warnings: string[],
+): void => {
+  const cmlCase = (cml as any)?.CASE ?? cml;
+  if (!cmlCase || typeof cmlCase !== "object") return;
+
+  const castFromCml: any[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
+  const castEntries: any[] = castFromCml.length > 0
+    ? castFromCml
+    : (Array.isArray(castDesign?.characters) ? castDesign.characters : []);
+  if (castEntries.length === 0) return;
+
+  const victimSet = new Set<string>(
+    castEntries
+      .filter((entry) => roleTextForIntegrity(entry).includes("victim"))
+      .map((entry) => normalizeNameLower(entry?.name)),
+  );
+  const detectiveSet = new Set<string>(
+    castEntries
+      .filter((entry) => {
+        const role = roleTextForIntegrity(entry);
+        return role.includes("detective") || role.includes("investigator") || role.includes("inspector");
+      })
+      .map((entry) => normalizeNameLower(entry?.name)),
+  );
+
+  const culpability =
+    cmlCase.culpability && typeof cmlCase.culpability === "object"
+      ? cmlCase.culpability
+      : (cmlCase.culpability = {});
+
+  const existingCulprits: string[] = Array.isArray(culpability.culprits)
+    ? culpability.culprits.map((name: any) => String(name ?? "").trim()).filter(Boolean)
+    : [];
+
+  const castByName = new Map(
+    castEntries
+      .map((entry) => [normalizeNameLower(entry?.name), entry] as const)
+      .filter(([name]) => name.length > 0),
+  );
+
+  const isEligible = (nameLower: string): boolean => {
+    const entry = castByName.get(nameLower);
+    if (!entry) return false;
+    const eligibility = String(entry?.culprit_eligibility ?? "eligible").toLowerCase();
+    if (eligibility === "ineligible" || eligibility === "locked") return false;
+    return true;
+  };
+
+  const validCulprits = existingCulprits.filter((name) => {
+    const lowered = normalizeNameLower(name);
+    if (!lowered) return false;
+    if (victimSet.has(lowered) || detectiveSet.has(lowered)) return false;
+    return isEligible(lowered);
+  });
+
+  const fallback = castEntries.find((entry) => {
+    const lowered = normalizeNameLower(entry?.name);
+    if (!lowered) return false;
+    if (victimSet.has(lowered) || detectiveSet.has(lowered)) return false;
+    return isEligible(lowered);
+  });
+
+  const resolvedCulprits: string[] = validCulprits.length > 0
+    ? [validCulprits[0]]
+    : fallback
+      ? [String(fallback.name)]
+      : existingCulprits.slice(0, 1);
+
+  const changed =
+    resolvedCulprits.length !== existingCulprits.length
+    || resolvedCulprits.some((name, idx) => name !== existingCulprits[idx]);
+
+  if (resolvedCulprits.length > 0) {
+    culpability.culprits = resolvedCulprits;
+    culpability.culprit_count = resolvedCulprits.length;
+  }
+
+  const culpritSet = new Set(resolvedCulprits.map((name) => normalizeNameLower(name)));
+  for (const entry of castEntries) {
+    const lowered = normalizeNameLower(entry?.name);
+    if (!lowered) continue;
+    if (victimSet.has(lowered)) {
+      entry.culprit_eligibility = "ineligible";
+      if (entry.culpability === "guilty") entry.culpability = "innocent";
+    }
+    if (culpritSet.has(lowered)) {
+      entry.culprit_eligibility = "eligible";
+      entry.culpability = "guilty";
+    } else if (entry.culpability === "guilty") {
+      entry.culpability = "unknown";
+    }
+  }
+
+  const proseRequirements =
+    cmlCase.prose_requirements && typeof cmlCase.prose_requirements === "object"
+      ? cmlCase.prose_requirements
+      : (cmlCase.prose_requirements = {});
+  if (Array.isArray(proseRequirements.suspect_clearance_scenes)) {
+    proseRequirements.suspect_clearance_scenes = proseRequirements.suspect_clearance_scenes.filter((entry: any) => {
+      const suspect = normalizeNameLower(entry?.suspect_name);
+      if (!suspect) return false;
+      if (victimSet.has(suspect)) return false;
+      if (culpritSet.has(suspect)) return false;
+      return true;
+    });
+  }
+
+  if (changed) {
+    warnings.push(
+      `Culprit-role integrity lock adjusted culprit assignment from [${existingCulprits.join(", ") || "none"}] to [${resolvedCulprits.join(", ") || "none"}].`,
+    );
+  }
+};
+
+const extractPronounTargetNames = (errors: any[], castCharacters: CastEntry[]): Set<string> => {
+  const targets = new Set<string>();
+  if (!Array.isArray(errors) || !Array.isArray(castCharacters) || castCharacters.length === 0) {
+    return targets;
+  }
+
+  const canonicalByLower = new Map<string, string>(
+    castCharacters
+      .map((character) => [normalizeNameLower((character as any)?.name), String((character as any)?.name ?? "").trim()] as const)
+      .filter(([lowered, canonical]) => lowered.length > 0 && canonical.length > 0),
+  );
+
+  for (const error of errors) {
+    const type = String(error?.type ?? "").toLowerCase();
+    if (type !== "pronoun_drift" && type !== "pronoun_gender_mismatch") continue;
+    const message = String(error?.message ?? "");
+
+    const driftMatch = message.match(/Pronoun drift for\s+"([^"]+)"/i);
+    const mismatchMatch = message.match(/Character\s+"([^"]+)"\s+has\s+incorrect\s+pronouns/i);
+    const rawName = (driftMatch?.[1] ?? mismatchMatch?.[1] ?? "").trim();
+    if (!rawName) continue;
+
+    const canonical = canonicalByLower.get(normalizeNameLower(rawName)) ?? rawName;
+    targets.add(canonical);
+  }
+
+  return targets;
+};
+
+const applyTargetedPronounSweep = (
+  prose: any,
+  castCharacters: CastEntry[],
+  targetNames: Set<string>,
+): { prose: any; repairCount: number } => {
+  if (!Array.isArray(castCharacters) || castCharacters.length === 0 || targetNames.size === 0) {
+    return { prose, repairCount: 0 };
+  }
+
+  const onlyNames = new Set(
+    Array.from(targetNames)
+      .map((name) => String(name ?? "").trim())
+      .filter(Boolean),
+  );
+  if (onlyNames.size === 0) return { prose, repairCount: 0 };
+
+  let repairCount = 0;
+  const chapters = (prose.chapters as any[]).map((chapter: any) => {
+    const rawText = Array.isArray(chapter.paragraphs)
+      ? chapter.paragraphs.map((paragraph: unknown) => String(paragraph ?? "")).join("\n\n")
+      : "";
+    if (!rawText.trim()) return chapter;
+
+    const normalized = normalizeTitles(rawText);
+    const repaired = repairPronouns(normalized, castCharacters as any, {
+      onlyNames,
+      crossParagraphInheritance: true,
+    });
+    if (!repaired || repaired.repairCount <= 0 || repaired.text === normalized) {
+      if (normalized !== rawText) {
+        return {
+          ...chapter,
+          paragraphs: normalized
+            .split("\n\n")
+            .map((paragraph: string) => paragraph.trim())
+            .filter(Boolean),
+        };
+      }
+      return chapter;
+    }
+
+    repairCount += repaired.repairCount;
+    return {
+      ...chapter,
+      paragraphs: repaired.text
+        .split("\n\n")
+        .map((paragraph: string) => paragraph.trim())
+        .filter(Boolean),
+    };
+  });
+
+  return { prose: { ...prose, chapters }, repairCount };
+};
 
 export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
@@ -1087,6 +1342,7 @@ export const applyDeterministicProsePostProcessing = (
   prose: any,
   locationProfiles: any,
   castCharacters: CastEntry[] = [],
+  enablePronounRepair: boolean = true,
 ): any => {
   const anchors: string[] = [];
   if (locationProfiles.primary?.name) anchors.push(locationProfiles.primary.name.toLowerCase());
@@ -1149,8 +1405,8 @@ export const applyDeterministicProsePostProcessing = (
     );
 
     // Deterministic pronoun repair: fix wrong-gender pronouns in unambiguous sentences.
-    // Only active when cast characters are provided.
-    if (castCharacters.length > 0) {
+    // Only active when cast characters are provided and enablePronounRepair is true.
+    if (castCharacters.length > 0 && enablePronounRepair) {
       const pronRepaired = repairChapterPronouns(
         { ...chapter, paragraphs: leakageDedupedParagraphs },
         castCharacters,
@@ -1578,6 +1834,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const backgroundContext = ctx.backgroundContext;
   const noveltyAudit = ctx.noveltyAudit;
   const bottomUpRedesignEnabled = parseBooleanEnv(process.env.AGENT9_REDESIGN_V1, true);
+  const pronounRepairEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
+  if (!pronounRepairEnabled) {
+    console.warn("[Agent 9] Deterministic pronoun repair is DISABLED (generation-params.yaml: agent9_prose.validation.pronoun_checking_enabled=false).");
+  }
 
   if (!bottomUpRedesignEnabled) {
     ctx.warnings.push(
@@ -1629,6 +1889,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       );
     }
   }
+
+  // Wave 1 pre-prose integrity lock: keep culprit assignment compatible with role/eligibility.
+  enforceCmlCulpritRoleIntegrity(cml, castDesign, ctx.warnings);
 
   // Full CML/schema preflight before prose generation to fail fast on invalid structures
   // and cross-reference usage errors that prose retries cannot repair.
@@ -1887,6 +2150,34 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       narrativeState = { ...narrativeState, victimConfirmedDeadChapter: 1 };
     }
   }
+
+  const checkpointPath =
+    (typeof inputs.agent9CheckpointPath === "string" && inputs.agent9CheckpointPath.trim().length > 0)
+      ? inputs.agent9CheckpointPath.trim()
+      : join(workspaceRoot, "logs", `agent9-checkpoint-${runId}.json`);
+  const resumeEnabled = inputs.resumeAgent9FromCheckpoint === true;
+  const loadedCheckpoint = resumeEnabled
+    ? loadAgent9ResumeCheckpoint(checkpointPath, runId)
+    : null;
+  if (resumeEnabled && loadedCheckpoint) {
+    narrativeState = {
+      ...loadedCheckpoint.narrativeState,
+      lockedFacts: [...(loadedCheckpoint.narrativeState.lockedFacts ?? [])],
+      characterPronouns: { ...(loadedCheckpoint.narrativeState.characterPronouns ?? {}) },
+      cluesRevealedToReader: [...(loadedCheckpoint.narrativeState.cluesRevealedToReader ?? [])],
+    };
+    ctx.warnings.push(
+      `Agent 9 resume: loaded ${loadedCheckpoint.completedChapters.length} checkpointed chapter(s) from ${checkpointPath}.`,
+    );
+  } else if (resumeEnabled) {
+    ctx.warnings.push(
+      `Agent 9 resume requested but no valid checkpoint found at ${checkpointPath}; starting fresh prose generation.`,
+    );
+  }
+
+  const checkpointedChapters: any[] = loadedCheckpoint
+    ? [...loadedCheckpoint.completedChapters]
+    : [];
   const prosePhaseStartTime = Date.now();
   const proseDeployment =
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME_PROSE ||
@@ -1998,7 +2289,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   const proseStart = Date.now();
   ctx.proseScoringSnapshot.startedAtMs = proseStart;
-  const accumulatedChapters: any[] = [];
+  const accumulatedChapters: any[] = [...checkpointedChapters];
   const assetLibrary = buildAssetLibrary(
     ctx.worldDocument,
     characterProfiles,
@@ -2022,7 +2313,27 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     `[StoryContract] victim.name="${storyContract.victim.name}" roleConfirmedFrom="${storyContract.victim.roleConfirmedFrom}" lockedFacts=${storyContract.lockedFacts.length} macroArcScenes=${storyContract.macroArcPlan.length}`,
   );
 
-  prose = await generateProse(client, {
+  // [G2] Role cross-validation: culprits must not overlap with victimCandidates or detectiveCandidates.
+  // An overlap indicates a conflated character role — the same person cannot be both culprit and victim/detective.
+  {
+    const victimCandidates: string[] = castDesign.crimeDynamics?.victimCandidates ?? [];
+    const detectiveCandidates: string[] = castDesign.crimeDynamics?.detectiveCandidates ?? [];
+    for (const culpritName of storyContract.culpritNames) {
+      if (victimCandidates.some(v => v.toLowerCase() === culpritName.toLowerCase())) {
+        const msg = `[G2] Role conflict: "${culpritName}" appears in both culpability.culprits and crimeDynamics.victimCandidates — a culprit cannot also be a victim candidate.`;
+        ctx.warnings.push(msg);
+        console.warn(`[Agent 9] ${msg}`);
+      }
+      if (detectiveCandidates.some(d => d.toLowerCase() === culpritName.toLowerCase())) {
+        const msg = `[G2] Role conflict: "${culpritName}" appears in both culpability.culprits and crimeDynamics.detectiveCandidates — a culprit cannot also be a detective candidate.`;
+        ctx.warnings.push(msg);
+        console.warn(`[Agent 9] ${msg}`);
+      }
+    }
+  }
+
+  try {
+    prose = await generateProse(client, {
     caseData: cml,
     outline: narrative,
     cast: castDesign,
@@ -2053,6 +2364,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     bottomUpRedesignEnabled,
     enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
     enableOutlineCompleteness: inputs.enableOutlineCompleteness,
+    storyContract,
+    resumeCheckpoint: loadedCheckpoint
+      ? {
+          chapters: loadedCheckpoint.completedChapters,
+          narrativeState,
+          promptFingerprints: loadedCheckpoint.promptFingerprints,
+        }
+      : undefined,
     onProgress: (phase: string, message: string, percentage: number) =>
       reportProgress(phase as any, message, percentage),
     batchSize: inputs.proseBatchSize,
@@ -2073,6 +2392,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       },
       batchCommitRecord?: BatchCommitRecord,
     ) => {
+      checkpointedChapters.push(...(Array.isArray(batchChapters) ? batchChapters : []));
       pendingTextureAtomIds = Array.isArray(usedTextureAtomIds) ? usedTextureAtomIds : [];
       const nsdBefore = {
         clues_revealed_to_reader: [...narrativeState.cluesRevealedToReader],
@@ -2245,6 +2565,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           const individualPct = Math.round(batchScore.total ?? 0);
           const pct = Math.round(partialScore.total ?? 0);
           const elapsedMs = Date.now() - prosePhaseStartTime;
+          ctx.agentDurations["agent9_prose"] = elapsedMs;
 
           ctx.proseChapterScores.push({
             chapter: batchEnd,
@@ -2306,15 +2627,47 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           91 + Math.floor((batchEnd / (totalSceneCount || batchEnd)) * 3),
         );
       }
+
+      try {
+        persistAgent9ResumeCheckpoint(checkpointPath, {
+          version: 1,
+          runId,
+          projectId,
+          savedAt: new Date().toISOString(),
+          completedChapters: checkpointedChapters,
+          narrativeState,
+        });
+      } catch (checkpointError) {
+        ctx.warnings.push(`Agent 9 checkpoint write failed: ${String(checkpointError)}`);
+      }
     },
-  });
+    });
+  } catch (error) {
+    // Preserve canonical elapsed prose time even when generation aborts mid-retry.
+    ctx.agentDurations["agent9_prose"] = Date.now() - proseStart;
+    throw error;
+  }
+
+  try {
+    persistAgent9ResumeCheckpoint(checkpointPath, {
+      version: 1,
+      runId,
+      projectId,
+      savedAt: new Date().toISOString(),
+      completedChapters: checkpointedChapters.length > 0 ? checkpointedChapters : prose.chapters,
+      narrativeState,
+      promptFingerprints: prose.prompt_fingerprints,
+    });
+  } catch (checkpointError) {
+    ctx.warnings.push(`Agent 9 checkpoint finalization failed: ${String(checkpointError)}`);
+  }
 
   // #2.1: Shared post-processing chain — extracted from 4 inline call sites.
   // Runs applyDeterministicProsePostProcessing → repairWordFormLockedFacts → normalizeLocationNames
   // in the correct order.  Accepts the prose-input separately so schema-repair retry can pass
   // retriedProse as the input without reassigning the outer prose variable prematurely.
   const applyStandardPostProcessingChain = (input: any): any => {
-    let result = applyDeterministicProsePostProcessing(sanitizeProseResult(input), locationProfiles, castDesign.characters);
+    let result = applyDeterministicProsePostProcessing(sanitizeProseResult(input), locationProfiles, castDesign.characters, pronounRepairEnabled);
     result = repairWordFormLockedFacts(result, annotatedLockedFacts);
     result = normalizeLocationNames(result, buildLocationRegistry({ locationProfiles } as any));
     return result;
@@ -2599,6 +2952,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       bottomUpRedesignEnabled,
       enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
       enableOutlineCompleteness: inputs.enableOutlineCompleteness,
+      storyContract,
       onProgress: (phase: string, message: string, percentage: number) =>
         reportProgress(phase as any, message, percentage),
       batchSize: inputs.proseBatchSize,
@@ -2648,14 +3002,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const validationStart = Date.now();
   const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
-  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters);
+  prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters, pronounRepairEnabled);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
   prose = enforceCulpritEvidencePresence(prose, cml);
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
   prose = injectResolutionIfAbsent(prose, cml);
   prose = enforceSuspectEliminationPresence(prose, cml, castDesign); // P1-7: pass castDesign
-  prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
+  if (pronounRepairEnabled) {
+    prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
+  }
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —
   // they are stored separately in ctx.locationProfiles. Using cml as the argument
@@ -2688,20 +3044,20 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     );
 
   if (hasDeterministicRepairableFailures) {
-    prose = applyDeterministicPronounSweep(
-      enforceSuspectEliminationPresence(
-        enforceCulpritEvidencePresence(
-          enforceLockedFactValuePresence(
-            repairWordFormLockedFacts(prose, annotatedLockedFacts),
-            annotatedLockedFacts,
-          ),
-          cml,
+    const repairedInner = enforceSuspectEliminationPresence(
+      enforceCulpritEvidencePresence(
+        enforceLockedFactValuePresence(
+          repairWordFormLockedFacts(prose, annotatedLockedFacts),
+          annotatedLockedFacts,
         ),
         cml,
-        castDesign, // P1-7: pass castDesign
       ),
-      castDesign.characters as CastEntry[],
+      cml,
+      castDesign, // P1-7: pass castDesign
     );
+    prose = pronounRepairEnabled
+      ? applyDeterministicPronounSweep(repairedInner, castDesign.characters as CastEntry[])
+      : repairedInner;
 
     const repairedStoryForValidation = {
       id: runId,
@@ -2722,7 +3078,108 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push("Validation deterministic rescue applied for locked-fact/pronoun consistency before release gate.");
   }
 
+  const pronounTargets = extractPronounTargetNames(validationReport.errors ?? [], castDesign.characters as CastEntry[]);
+  if (pronounRepairEnabled && pronounTargets.size > 0) {
+    const targetedPronounRepair = applyTargetedPronounSweep(
+      prose,
+      castDesign.characters as CastEntry[],
+      pronounTargets,
+    );
+    if (targetedPronounRepair.repairCount > 0) {
+      prose = targetedPronounRepair.prose;
+      const pronounRepairStoryForValidation = {
+        id: runId,
+        projectId: projectId || runId,
+        scenes: prose.chapters.map((ch: any, idx: number) => ({
+          number: idx + 1,
+          title: ch.title,
+          text: ch.paragraphs.join("\n\n"),
+        })),
+      };
+      validationReport = await validationPipeline.validate(pronounRepairStoryForValidation, {
+        ...cml,
+        lockedFacts: annotatedLockedFacts,
+        locationProfiles: locationProfiles ?? undefined,
+      } as any);
+      postRepairValidationSummary = { ...validationReport.summary };
+      ctx.warnings.push(
+        `Targeted pronoun rescue applied for ${pronounTargets.size} character(s); deterministic repairs: ${targetedPronounRepair.repairCount}.`,
+      );
+    }
+  }
+
+  const residualPronounIssues = Array.isArray(validationReport.errors)
+    ? validationReport.errors.filter((err: any) =>
+        err?.type === "pronoun_drift" || err?.type === "pronoun_gender_mismatch",
+      ).length
+    : 0;
+  if (residualPronounIssues > 0) {
+    ctx.warnings.push(
+      `Pronoun integrity gate: ${residualPronounIssues} pronoun issue(s) remain after deterministic rescue.`,
+    );
+  }
+
   ctx.agentDurations["validation"] = Date.now() - validationStart;
+
+  // [G6] Read-back comprehension gate — deterministic checks using StoryContract as answer key.
+  // Verifies that a hypothetical reader of the finished prose could answer the four
+  // core mystery questions.  Failures are logged as warnings (non-fatal); they surface
+  // structural omissions that prose-generation validation may have missed.
+  {
+    const g6Issues: string[] = [];
+    const fullText = prose.chapters.map((ch: any) => (ch.paragraphs ?? []).join(' ')).join(' ').toLowerCase();
+    const finalChapterText = (prose.chapters[prose.chapters.length - 1]?.paragraphs ?? []).join(' ').toLowerCase();
+
+    // Q1: Does the story contain any culprit name?
+    for (const culprit of storyContract.culpritNames) {
+      if (culprit && !fullText.includes(culprit.toLowerCase())) {
+        g6Issues.push(`[G6-Q1] Culprit name "${culprit}" never appears in the prose — the reader cannot identify the murderer.`);
+      }
+    }
+
+    // Q2: Does the final chapter name the culprit?
+    for (const culprit of storyContract.culpritNames) {
+      const surname = culprit.trim().split(/\s+/).pop() ?? culprit;
+      if (surname && !finalChapterText.includes(surname.toLowerCase())) {
+        g6Issues.push(`[G6-Q2] Culprit surname "${surname}" absent from final chapter — the resolution scene must name the murderer.`);
+      }
+    }
+
+    // Q3: Does the story mention the murder method tokens?
+    const methodDesc: string = (cml as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+    if (methodDesc) {
+      const methodTokens = methodDesc.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t: string) => t.length > 3);
+      const methodPresent = methodTokens.some((t: string) => fullText.includes(t));
+      if (!methodPresent) {
+        g6Issues.push(`[G6-Q3] Murder method ("${methodDesc}") has no token present in the prose — the murder mechanism must be discoverable.`);
+      }
+    }
+
+    // Q4: Does the story mention at least one observable inference step's observation tokens?
+    const observableSteps = storyContract.inferenceChain.filter(s => s.reader_observable && s.observation.length > 20);
+    if (observableSteps.length > 0) {
+      let anyObservableStepCovered = false;
+      for (const step of observableSteps) {
+        const tokens = step.observation.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t: string) => t.length > 4);
+        if (tokens.length > 0 && tokens.some((t: string) => fullText.includes(t))) {
+          anyObservableStepCovered = true;
+          break;
+        }
+      }
+      if (!anyObservableStepCovered) {
+        g6Issues.push(`[G6-Q4] None of the ${observableSteps.length} reader-observable inference steps have observation tokens in the prose — the reasoning chain is not grounded.`);
+      }
+    }
+
+    if (g6Issues.length > 0) {
+      for (const issue of g6Issues) {
+        ctx.warnings.push(issue);
+        console.warn(`[Agent 9] ${issue}`);
+      }
+    } else {
+      ctx.warnings.push('[G6] Read-back comprehension gate: all 4 checks passed.');
+    }
+  }
 
   if (validationReport.status === "passed") {
     reportProgress("validation", "Full-story validation passed.", 98);

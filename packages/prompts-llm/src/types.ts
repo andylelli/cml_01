@@ -37,6 +37,9 @@ export interface CMLPromptInputs {
   castGenders?: Record<string, string>; // name → 'male' | 'female'
   detectiveType: string;
   victimArchetype: string;
+  // Names that MUST NOT appear in culpability.culprits[] — victims and detectives.
+  // Passed on collision-repair retries to prevent the LLM from re-assigning a victim/detective as culprit.
+  culpritExclusionNames?: string[];
   
   // Complexity
   complexityLevel: "simple" | "moderate" | "complex";

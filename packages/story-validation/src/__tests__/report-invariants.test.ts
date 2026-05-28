@@ -68,7 +68,7 @@ describe('GenerationReport invariants', () => {
     expect(() => assertGenerationReportInvariants(report)).not.toThrow();
   });
 
-  it('flags NSD traces that reveal clues without matching evidence anchors', () => {
+  it('allows failed reports to persist even when NSD traces reveal clues without matching evidence anchors', () => {
     const report = {
       project_id: 'proj-1',
       run_id: 'run-1',
@@ -109,6 +109,55 @@ describe('GenerationReport invariants', () => {
       },
       threshold_config: { mode: 'standard' },
       run_outcome: 'failed',
+    };
+
+    const violations = validateGenerationReportInvariants(report);
+    expect(violations.map(v => v.code)).not.toContain(
+      'nsd_revealed_clues_missing_evidence_anchors'
+    );
+  });
+
+  it('still flags passed reports when NSD traces reveal clues without matching evidence anchors', () => {
+    const report = {
+      project_id: 'proj-1',
+      run_id: 'run-1',
+      generated_at: new Date('2026-03-09T00:00:00Z').toISOString(),
+      total_duration_ms: 1,
+      total_cost: 0,
+      overall_score: 91,
+      overall_grade: 'A',
+      passed: true,
+      phases: [],
+      diagnostics: [
+        {
+          key: 'agent9_prose_post_generation_summary',
+          details: {
+            nsd_transfer_trace: [
+              {
+                newly_revealed_clue_ids: ['clue_1'],
+                clue_evidence_anchors: [],
+              },
+            ],
+          },
+        },
+      ],
+      summary: {
+        phases_passed: 1,
+        phases_failed: 0,
+        total_phases: 1,
+        pass_rate: 100,
+        weakest_phase: 'agent9-prose',
+        strongest_phase: 'agent9-prose',
+        retry_stats: {
+          total_retries: 0,
+          phases_retried: 0,
+          retry_rate: '0.00',
+          retried_phases: [],
+        },
+        total_cost: 0,
+      },
+      threshold_config: { mode: 'standard' },
+      run_outcome: 'passed',
     };
 
     const violations = validateGenerationReportInvariants(report);
@@ -250,6 +299,43 @@ describe('GenerationReport invariants', () => {
     const violations = validateGenerationReportInvariants(report);
     expect(violations.map(v => v.code)).toContain(
       'outcome_failed_requires_passed_false'
+    );
+  });
+
+  it('flags infra_failure outcomes that still claim passed=true', () => {
+    const report = {
+      project_id: 'proj-1',
+      run_id: 'run-1',
+      generated_at: new Date('2026-03-09T00:00:00Z').toISOString(),
+      total_duration_ms: 1,
+      total_cost: 0,
+      overall_score: 88,
+      overall_grade: 'B',
+      passed: true,
+      phases: [],
+      summary: {
+        phases_passed: 0,
+        phases_failed: 0,
+        total_phases: 0,
+        pass_rate: 0,
+        weakest_phase: 'none',
+        strongest_phase: 'none',
+        retry_stats: {
+          total_retries: 0,
+          phases_retried: 0,
+          retry_rate: '0.00',
+          retried_phases: [],
+        },
+        total_cost: 0,
+      },
+      threshold_config: { mode: 'standard' },
+      run_outcome: 'infra_failure',
+      run_outcome_reason: 'DNS resolution failed before narrative stage',
+    };
+
+    const violations = validateGenerationReportInvariants(report);
+    expect(violations.map(v => v.code)).toContain(
+      'infra_failure_run_cannot_pass'
     );
   });
 

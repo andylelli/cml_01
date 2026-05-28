@@ -17,6 +17,7 @@ import {
   type OutlineCoverageIssue,
   buildOutlineRepairGuardrails,
   executeAgentWithRetry,
+  preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
 
@@ -759,6 +760,7 @@ async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOu
 // ============================================================================
 
 export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
+  const retriesEnabled = preAgent9LlmRetriesEnabled();
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
   const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;
   const minClueSceneRatio = narrativePacingConfig.min_clue_scene_ratio;
@@ -908,6 +910,10 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // ── Schema repair ──────────────────────────────────────────────────────────
   let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
   if (!narrativeSchemaValidation.valid) {
+    if (!retriesEnabled) {
+      narrativeSchemaValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
+      throw new Error("Narrative outline artifact failed schema validation (deterministic mode: schema retry disabled)");
+    }
     ctx.warnings.push(
       "Narrative outline failed schema validation on first attempt; retrying outline generation with schema repair guardrails"
     );
@@ -964,6 +970,26 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     ).length;
 
     if (Math.abs(actualSceneCount - expectedScenes) > sceneTolerance) {
+      if (!retriesEnabled) {
+        const deterministicRepair = rebalanceNarrativeSceneCountsDeterministically(
+          narrative,
+          expectedScenes,
+          ctx.clues,
+        );
+        const repairedCount = (narrative.acts ?? []).flatMap((a: any) =>
+          Array.isArray(a.scenes) ? a.scenes : []
+        ).length;
+        if (Math.abs(repairedCount - expectedScenes) <= sceneTolerance) {
+          ctx.warnings.push(
+            `Scene count final gate: deterministic repair applied without retry (${deterministicRepair.summary}); accepted ${repairedCount} scenes for target ${expectedScenes}.`
+          );
+          await rescoreNarrative(ctx, narrative);
+        } else {
+          throw new Error(
+            `Scene count enforcement failed in deterministic mode: narrative has ${repairedCount} scenes but requires ${expectedScenes} ±${sceneTolerance}.`
+          );
+        }
+      } else {
       // Compute exact act targets using the SAME ratios as buildUserRequest() so the
       // retry message is always consistent with what the prompt already asked for.
       const pacing = getGenerationParams().agent7_narrative.params.pacing;
@@ -1035,6 +1061,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           );
         }
       }
+      }
     }
   }
 
@@ -1047,6 +1074,11 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // ── Pre-prose outline quality gate ────────────────────────────────────────
   const outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
   if (outlineCoverageIssues.length > 0) {
+    if (!retriesEnabled) {
+      outlineCoverageIssues.forEach((issue) =>
+        ctx.warnings.push(`Outline coverage gap (deterministic mode, no retry): ${issue.message}`)
+      );
+    } else {
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
     const outlineGuardrails = buildOutlineRepairGuardrails(outlineCoverageIssues, ctx.cml!);
     const countGuardrails = buildNarrativeSceneCountGuardrails(sceneCountLock, "coverage repair");
@@ -1096,6 +1128,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         ctx.warnings.push("Outline retry did not improve; will pass guardrails to prose generation");
       }
     }
+    }
   }
 
   // ── Clue pacing gate ──────────────────────────────────────────────────────
@@ -1109,6 +1142,25 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
 
     if (totalOutlineSceneCount > 0 && clueSceneCount < minClueScenes) {
+      if (!retriesEnabled) {
+        const maxDeterministicGapFill = computeDeterministicGapFillCap(totalOutlineSceneCount);
+        const deterministicOnly = applyDeterministicCluePreAssignment(
+          narrative,
+          ctx.cml!,
+          ctx.clues!,
+          minClueSceneRatio,
+          maxDeterministicGapFill,
+        );
+        if (deterministicOnly.after >= deterministicOnly.minRequired) {
+          ctx.warnings.push(
+            `Outline pacing gate recovered deterministically without retry: ${deterministicOnly.after}/${deterministicOnly.totalScenes} scenes.`
+          );
+        } else {
+          throw new Error(
+            `Outline pacing gate failed in deterministic mode (${deterministicOnly.after}/${deterministicOnly.totalScenes}, need >= ${deterministicOnly.minRequired}).`
+          );
+        }
+      } else {
       ctx.warnings.push(
         `Outline clue pacing below threshold: ${clueSceneCount}/${totalOutlineSceneCount} scenes carry clues (minimum ${minClueScenes}). Trying narrative regeneration before deterministic patching.`
       );
@@ -1190,6 +1242,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           }
         }
       }
+      }
     }
   }
 
@@ -1197,6 +1250,11 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   {
     const preCommitIssues = evaluateOutlinePreCommitCompleteness(narrative);
     if (preCommitIssues.length > 0) {
+      if (!retriesEnabled) {
+        throw new Error(
+          `Outline pre-commit completeness gate failed in deterministic mode (retry disabled): ${preCommitIssues.join(" | ")}`,
+        );
+      }
       const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
       ctx.warnings.push(
         `Outline pre-commit completeness gate found ${preCommitIssues.length} issue(s); running bundled remediation pass.`,

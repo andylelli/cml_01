@@ -42,9 +42,9 @@ retry_limits:
     reason: "Hard logic is critical and expensive to get right"
 
   agent7_narrative:
-    max_retries: 3
+    max_retries: 4
     backoff_strategy: exponential
-    backoff_delay_ms: 1000
+    backoff_delay_ms: 2000
 
   agent65_world_builder:
     max_retries: 1
@@ -59,15 +59,15 @@ retry_limits:
 
   # Prose (expensive, allow retries but limit)
   agent9_prose:
-    max_retries: 2  # Already has internal batch retries
+    max_retries: 3  # Already has internal batch retries; one extra retry improves DNS recovery odds
     backoff_strategy: exponential
-    backoff_delay_ms: 3000
-    reason: "Prose has internal retry logic; limit phase-level retries"
+    backoff_delay_ms: 5000
+    reason: "Prose has internal retry logic; keep bounded retries while improving transient infra recovery"
 
 # Global retry settings
 global:
   # Maximum total retries across all phases in a single generation
-  max_total_retries: 15
+  max_total_retries: 18
   
   # Whether to provide enhanced feedback on retry
   enhanced_feedback: true

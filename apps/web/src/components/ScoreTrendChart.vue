@@ -6,6 +6,10 @@ const props = defineProps<{
   history: GenerationReport[];
 }>();
 
+const qualityHistory = computed(() =>
+  props.history.filter((report) => report.run_outcome !== "infra_failure")
+);
+
 // Chart dimensions
 const W = 560;
 const H = 140;
@@ -14,15 +18,15 @@ const CHART_W = W - PAD.left - PAD.right;
 const CHART_H = H - PAD.top - PAD.bottom;
 
 const points = computed(() => {
-  if (props.history.length < 2) return [];
-  const scores = props.history.map((r) => r.overall_score);
+  if (qualityHistory.value.length < 2) return [];
+  const scores = qualityHistory.value.map((r) => r.overall_score);
   const n = scores.length;
   return scores.map((score, i) => ({
     x: PAD.left + (i / (n - 1)) * CHART_W,
     y: PAD.top + CHART_H - ((Math.min(100, Math.max(0, score)) / 100) * CHART_H),
     score: Math.round(score),
-    label: new Date(props.history[i].generated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    passed: props.history[i].passed,
+    label: new Date(qualityHistory.value[i].generated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    passed: qualityHistory.value[i].passed,
   }));
 });
 
@@ -37,19 +41,23 @@ const yGridLines = [60, 70, 80, 90, 100].map((val) => ({
 }));
 
 const avgScore = computed(() => {
-  if (!props.history.length) return 0;
-  return Math.round(props.history.reduce((sum, r) => sum + r.overall_score, 0) / props.history.length);
+  if (!qualityHistory.value.length) return 0;
+  return Math.round(qualityHistory.value.reduce((sum, r) => sum + r.overall_score, 0) / qualityHistory.value.length);
 });
 
 const trend = computed(() => {
-  if (props.history.length < 2) return "neutral";
-  const first = props.history[0].overall_score;
-  const last = props.history[props.history.length - 1].overall_score;
+  if (qualityHistory.value.length < 2) return "neutral";
+  const first = qualityHistory.value[0].overall_score;
+  const last = qualityHistory.value[qualityHistory.value.length - 1].overall_score;
   const diff = last - first;
   if (diff > 3) return "improving";
   if (diff < -3) return "declining";
   return "stable";
 });
+
+const excludedInfraCount = computed(() =>
+  props.history.length - qualityHistory.value.length
+);
 
 const trendLabel: Record<string, string> = {
   improving: "↑ Improving",
@@ -76,8 +84,11 @@ const trendClass: Record<string, string> = {
       </div>
     </div>
 
-    <div v-if="history.length < 2" class="mt-4 py-6 text-center text-sm text-slate-400">
+    <div v-if="qualityHistory.length < 2" class="mt-4 py-6 text-center text-sm text-slate-400">
       At least 2 generations needed to show trend.
+      <div v-if="excludedInfraCount > 0" class="mt-1 text-xs text-slate-400">
+        {{ excludedInfraCount }} infra-failure run(s) excluded from quality trend.
+      </div>
     </div>
 
     <div v-else class="mt-3 overflow-x-auto">
@@ -208,6 +219,9 @@ const trendClass: Record<string, string> = {
       <div class="flex items-center gap-1">
         <span class="inline-block h-2 w-4 border-b-2 border-dashed border-amber-400"></span>
         Threshold (75)
+      </div>
+      <div v-if="excludedInfraCount > 0" class="text-slate-400">
+        {{ excludedInfraCount }} infra-failure run(s) excluded
       </div>
     </div>
   </div>

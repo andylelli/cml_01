@@ -208,6 +208,23 @@ export class ScoreAggregator {
       );
     });
 
+    const infraSignalPattern =
+      /(\[infra[_\-\s]?precheck\]|infra[_\-\s]?failure|enotfound|eai_again|dns\s+resolution\s+failed|azure\s+endpoint\s+dns|etimedout|econnreset|socket\s+hang\s+up)/i;
+    const inferredInfraFailure = this.phases.some((phase) => {
+      const failureReason = String(phase.score.failure_reason ?? '');
+      const phaseErrors = Array.isArray(phase.errors)
+        ? phase.errors.join(' ')
+        : '';
+      return infraSignalPattern.test(failureReason) || infraSignalPattern.test(phaseErrors);
+    }) || this.diagnostics.some((diagnostic) => {
+      const payload = [
+        diagnostic.key,
+        diagnostic.diagnostic_type,
+        JSON.stringify(diagnostic.details ?? {}),
+      ].join(' ');
+      return infraSignalPattern.test(payload);
+    });
+
     const effectiveReleaseGateHardStopCount = Math.max(
       releaseGateHardStopCount,
       inferredDeterministicHardGateFailure ? 1 : 0,
@@ -231,7 +248,9 @@ export class ScoreAggregator {
               : 'unknown';
 
     const runOutcome: GenerationReport['run_outcome'] =
-      effectiveReleaseGateHardStopCount > 0
+      inferredInfraFailure
+        ? 'infra_failure'
+        : effectiveReleaseGateHardStopCount > 0
         ? 'aborted'
         : releaseGateStatus === 'failed'
           ? 'failed'
@@ -243,7 +262,9 @@ export class ScoreAggregator {
     const passed = runOutcome === 'passed';
 
     const runOutcomeReason =
-      runOutcome === 'aborted'
+      runOutcome === 'infra_failure'
+        ? 'Infrastructure failure (DNS/connectivity)'
+        : runOutcome === 'aborted'
         ? inferredDeterministicHardGateFailure
           ? 'Deterministic hard gate failure'
           : 'Release gate hard-stop'

@@ -38,11 +38,24 @@ export interface LockedFactContract {
   appearsInChapter?: number;
 }
 
+export interface InferenceStep {
+  observation: string;
+  correction?: string;
+  effect?: string;
+  required_evidence: string[];
+  reader_observable: boolean;
+}
+
 export interface StoryContract {
   victim: VictimContract;
   sensoryAtoms: Record<string, SensoryAtomSet>;
   lockedFacts: LockedFactContract[];
   macroArcPlan: MacroArcEntry[];
+  // G5: crime-side ground truth for validation
+  culpritNames: string[];
+  culpritAlibiWindows: Record<string, string>;
+  crimeTimeAnchors: string[];
+  inferenceChain: InferenceStep[];
 }
 
 // ---------------------------------------------------------------------------
@@ -138,5 +151,38 @@ export function precompileStoryContract(params: {
     sensoryAtoms,
     lockedFacts: lockedFactContracts,
     macroArcPlan,
+    // G5: crime-side ground truth
+    culpritNames: (() => {
+      const culprits = (cmlCase as any)?.culpability?.culprits;
+      return Array.isArray(culprits) ? culprits.map((c: any) => String(c ?? '').trim()).filter(Boolean) : [];
+    })(),
+    culpritAlibiWindows: (() => {
+      const chars: any[] = Array.isArray((castData as any)?.characters) ? (castData as any).characters : [];
+      const culpritNames: string[] = Array.isArray((cmlCase as any)?.culpability?.culprits)
+        ? (cmlCase as any).culpability.culprits.map((c: any) => String(c ?? '').trim())
+        : [];
+      const windows: Record<string, string> = {};
+      for (const c of chars) {
+        if (culpritNames.includes(String(c.name ?? ''))) {
+          windows[String(c.name)] = String(c.alibi_window ?? c.alibiWindow ?? '').trim();
+        }
+      }
+      return windows;
+    })(),
+    crimeTimeAnchors: (() => {
+      const anchors = (cmlCase as any)?.constraint_space?.time?.anchors;
+      return Array.isArray(anchors) ? anchors.map((a: any) => String(a ?? '').trim()).filter(Boolean) : [];
+    })(),
+    inferenceChain: (() => {
+      const steps = (cmlCase as any)?.inference_path?.steps;
+      if (!Array.isArray(steps)) return [];
+      return steps.map((s: any): InferenceStep => ({
+        observation: String(s.observation ?? '').trim(),
+        correction: s.correction ? String(s.correction).trim() : undefined,
+        effect: s.effect ? String(s.effect).trim() : undefined,
+        required_evidence: Array.isArray(s.required_evidence) ? s.required_evidence.map(String) : [],
+        reader_observable: Boolean(s.reader_observable),
+      }));
+    })(),
   };
 }

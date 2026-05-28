@@ -37,6 +37,10 @@ export interface MysteryGenerationInputs {
     similarityThreshold?: number;
     /** Chapters per LLM call (1–10, default 1) */
     proseBatchSize?: number;
+    /** Optional filesystem path for Agent 9 checkpoint persistence/resume JSON. */
+    agent9CheckpointPath?: string;
+    /** When true, Agent 9 resumes from the checkpoint file if available. */
+    resumeAgent9FromCheckpoint?: boolean;
     runId?: string;
     projectId?: string;
     /** Pillar 1: accumulate locked facts from Agent 3b and propagate to Agents 5, 7, 9 */

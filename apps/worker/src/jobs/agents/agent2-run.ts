@@ -17,6 +17,7 @@ import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
+  preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 
 /**
@@ -69,9 +70,84 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
       relObj.pairs = [];
     }
   }
+
+  const castNames = characters
+    .map((c) => String(c.name ?? "").trim())
+    .filter((name) => name.length > 0);
+
+  const relationshipContainer =
+    castRaw.relationships !== null && typeof castRaw.relationships === "object"
+      ? (castRaw.relationships as Record<string, unknown>)
+      : ((castRaw.relationships = {}) as Record<string, unknown>);
+
+  const existingPairs = Array.isArray(relationshipContainer.pairs)
+    ? (relationshipContainer.pairs as Array<Record<string, unknown>>)
+    : [];
+
+  const hasCastReferencedRelationship = existingPairs.some((pair) => {
+    const c1 = String(pair.character1 ?? "").trim();
+    const c2 = String(pair.character2 ?? "").trim();
+    return castNames.includes(c1) && castNames.includes(c2) && c1 !== c2;
+  });
+
+  if (castNames.length >= 2 && (!hasCastReferencedRelationship || existingPairs.length === 0)) {
+    const fallbackPairs: Array<{
+      character1: string;
+      character2: string;
+      relationship: string;
+      tension: "none" | "low" | "moderate" | "high";
+      sharedHistory: string;
+    }> = [];
+
+    // Ring topology guarantees each character gets at least two references when cast size >= 3.
+    for (let i = 0; i < castNames.length; i += 1) {
+      const character1 = castNames[i];
+      const character2 = castNames[(i + 1) % castNames.length];
+      if (character1 === character2) continue;
+      fallbackPairs.push({
+        character1,
+        character2,
+        relationship: "social acquaintance",
+        tension: "moderate",
+        sharedHistory: "They have ongoing social friction connected to the case environment.",
+      });
+    }
+
+    // For two-character edge cases, add reverse edge so density is >= 2 per character.
+    if (castNames.length === 2) {
+      fallbackPairs.push({
+        character1: castNames[1],
+        character2: castNames[0],
+        relationship: "social acquaintance",
+        tension: "moderate",
+        sharedHistory: "They have ongoing social friction connected to the case environment.",
+      });
+    }
+
+    relationshipContainer.pairs = fallbackPairs;
+  }
+
+  // --- diversity: coerce string fields to string[] ---
+  // gpt-4.1-mini returns a single string for recommendations/stereotypeCheck when
+  // it has one unified thought. The schema requires string[]; wrap rather than abort.
+  const div = castRaw.diversity;
+  if (div !== null && typeof div === 'object') {
+    const divObj = div as Record<string, unknown>;
+    if (typeof divObj.recommendations === 'string') {
+      divObj.recommendations = divObj.recommendations ? [divObj.recommendations] : [];
+    } else if (!Array.isArray(divObj.recommendations)) {
+      divObj.recommendations = [];
+    }
+    if (typeof divObj.stereotypeCheck === 'string') {
+      divObj.stereotypeCheck = divObj.stereotypeCheck ? [divObj.stereotypeCheck] : [];
+    } else if (!Array.isArray(divObj.stereotypeCheck)) {
+      divObj.stereotypeCheck = [];
+    }
+  }
 }
 
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
+  const retriesEnabled = preAgent9LlmRetriesEnabled();
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 
   const setting = ctx.setting!;
@@ -163,6 +239,11 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   let castSchemaValidation = validateArtifact("cast_design", castValidationPayload);
   if (!castSchemaValidation.valid) {
+    if (!retriesEnabled) {
+      castSchemaValidation.errors.forEach((error) => ctx.errors.push(`Cast schema failure: ${error}`));
+      const errorSummary = castSchemaValidation.errors.slice(0, 3).join("; ");
+      throw new Error(`Cast artifact failed schema validation (deterministic mode: schema retry disabled): ${errorSummary}`);
+    }
     ctx.warnings.push("Cast design failed schema validation on first attempt; retrying cast generation with schema repair guardrails");
     const schemaRepairGuardrails = [
       "Return a valid cast_design artifact that strictly matches required schema fields and types.",

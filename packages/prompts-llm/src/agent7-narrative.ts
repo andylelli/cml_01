@@ -83,6 +83,10 @@ export interface Scene {
   /** Pillar 4 (Unit 4.1): For Act I–II scenes — which red herring is seeded and where;
    *  explicitly null when no red herring is planted; omitted for Act III scenes */
   redHerringPlacement?: { redHerringId: string; placementDetail: string } | null;
+  /** [G1] Crime-mechanism reveal stage: 1=location/opportunity established, 2=method hinted,
+   *  3=evidence of method visible, 4=method confirmed. Must be monotonically non-decreasing
+   *  across scenes. Omit for non-mechanism scenes. */
+  mechanism_stage?: 1 | 2 | 3 | 4;
 }
 
 export interface ActStructure {
@@ -817,6 +821,28 @@ export async function formatNarrative(
     ...outlineData,
     totalScenes: allActScenes.length,
   };
+
+  // [G1] Validate that mechanism_stage is monotonically non-decreasing across all scenes.
+  // A decreasing stage (e.g. 3 → 1) signals a mis-ordered scene or a hallucinated stage value.
+  // Only scenes that have a mechanism_stage set are included in the check.
+  const mechanismStages = allActScenes
+    .map((s: any) => s.mechanism_stage)
+    .filter((v: any): v is number => typeof v === 'number');
+  if (mechanismStages.length > 1) {
+    for (let i = 1; i < mechanismStages.length; i++) {
+      if (mechanismStages[i] < mechanismStages[i - 1]) {
+        console.warn(
+          `[Agent 7] mechanism_stage is non-monotonic: scene ${i} stage=${mechanismStages[i]} < scene ${i - 1} stage=${mechanismStages[i - 1]}. ` +
+          `Crime-mechanism reveal order is out of sequence.`
+        );
+        // Non-fatal: log warning and clear the invalid stages rather than aborting
+        for (const s of allActScenes as any[]) {
+          delete s.mechanism_stage;
+        }
+        break;
+      }
+    }
+  }
 
   return {
     ...outlineData,

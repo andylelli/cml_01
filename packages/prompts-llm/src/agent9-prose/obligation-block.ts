@@ -55,11 +55,26 @@ export function buildChapterObligationBlock(
       .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'))
       .map((c: any) => String(c.name ?? '').trim().toLowerCase())
   );
+  // Culprits must never be included in suspect-clearance obligations.
+  const _culpritNamesForClearance = new Set<string>(
+    ((cmlCase?.culpability?.culprits ?? []) as any[])
+      .map((name: any) => String(name ?? '').trim().toLowerCase())
+      .filter(Boolean)
+  );
   const clearanceScenes = Array.isArray(proseRequirements?.suspect_clearance_scenes)
     ? proseRequirements.suspect_clearance_scenes.filter(
-        (entry: any) => !_victimNamesForClearance.has(String(entry?.suspect_name ?? '').trim().toLowerCase())
+        (entry: any) => {
+          const suspect = String(entry?.suspect_name ?? '').trim().toLowerCase();
+          if (!suspect) return false;
+          if (_victimNamesForClearance.has(suspect)) return false;
+          if (_culpritNamesForClearance.has(suspect)) return false;
+          return true;
+        }
       )
     : [];
+  const victimForIdentity = ((cmlCase?.cast ?? []) as any[])
+    .find((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'));
+  const victimNameForIdentity = String(victimForIdentity?.name ?? '').trim();
 
   const clueMap = new Map<string, Clue>(
     (clueDistribution?.clues ?? []).map((c) => [c.id, c]),
@@ -172,6 +187,9 @@ export function buildChapterObligationBlock(
     }
     if (wordTarget) {
       lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
+    }
+    if (chapterNumber === 1 && victimNameForIdentity) {
+      lines.push(`  - VICTIM IDENTITY LOCK (MANDATORY): name the victim as "${victimNameForIdentity}" in the discovery scene. After first mention, do not use unnamed placeholders such as "the victim" without naming ${victimNameForIdentity} in the same paragraph.`);
     }
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
     lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
@@ -472,6 +490,17 @@ export function buildChapterObligationBlock(
     lines.push(`  If this chapter's primary purpose would duplicate a beat above, shift the focus: introduce new evidence, a new witness angle, or a change in the investigator's theory.`);
   }
 
+  // Fix-3: DT-Fallback reminder — when we are in the final arc window (pre_climax /
+  // climax) and the CML defines a discriminating test, remind the LLM to stage it as a
+  // concrete scene before the story ends. Prevents cml_test_not_realized when the exact
+  // act/scene coordinate match in buildDiscriminatingTestChecklist misses by one scene.
+  if (dtScene && (currentArcPosition === 'pre_climax' || currentArcPosition === 'climax')) {
+    const dtMethod = String(cmlCase?.discriminating_test?.method ?? cmlCase?.discriminating_test?.test_type ?? '').trim();
+    if (dtMethod) {
+      lines.push(`\n⚠ DISCRIMINATING TEST WINDOW: The story's "${dtMethod}" test MUST be staged as a concrete scene before the story ends. If this chapter has not yet performed it, do so now — do not defer to a later chapter. A post-hoc summary is NOT acceptable.`);
+    }
+  }
+
   // Phase 6 Layer 1: Resolution chapter mandatory checklist
   if (currentArcPosition === 'resolution') {
     const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
@@ -484,6 +513,41 @@ export function buildChapterObligationBlock(
     lines.push(`  4. CONSEQUENCE: What happens to ${culpritNames || 'the culprit'} (arrested, fled, taken into custody).`);
     lines.push(`  5. AFTERMATH: At least one other character reacts emotionally to the truth.`);
     lines.push(`  A chapter submitted without all five will be rejected and regenerated.`);
+    // FIX-2: Mandatory per-suspect clearance in final chapter.
+    // gpt-4.1-mini efficiently places clearances in earlier chapters and writes Chapter 10
+    // as pure resolution, causing the final lint gate to fail. Force explicit clearances here.
+    const _resCulpritSet = new Set<string>(
+      ((cmlCase?.culpability?.culprits ?? []) as any[])
+        .map((n: any) => String(n).trim())
+        .filter(Boolean)
+    );
+    const _resVictimSet = new Set<string>(
+      ((cmlCase?.cast ?? []) as any[])
+        .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'))
+        .map((c: any) => String(c.name ?? '').trim())
+        .filter(Boolean)
+    );
+    const finalChapterSuspects: string[] = ((cmlCase?.cast ?? []) as any[])
+      .filter((c: any) => {
+        const name = String(c.name ?? '').trim();
+        if (_resCulpritSet.has(name)) return false;
+        if (_resVictimSet.has(name)) return false;
+        const role = String(c.role_archetype ?? c.role ?? '').toLowerCase();
+        // FIX-2 patch: detectives must also be cleared in the resolution chapter because
+        // the lint gate (matchingClearances from suspect_clearance_scenes) checks ALL
+        // non-culprit, non-victim characters. Without an explicit obligation the LLM uses
+        // first-person speech which omits the detective's own name, failing the name gate.
+        return !role.includes('narrator');
+      })
+      .map((c: any) => String(c.name ?? '').trim())
+      .filter(Boolean);
+    if (finalChapterSuspects.length > 0) {
+      lines.push(`  6. SUSPECT CLEARANCES (MANDATORY — lint-enforced): every non-culprit suspect below MUST be named explicitly and cleared in a dedicated paragraph in THIS chapter:`);
+      for (const suspectName of finalChapterSuspects) {
+        lines.push(`    • "${suspectName}" — include a paragraph that: (a) names "${suspectName}" by name, (b) states a clearance phrase (cleared / ruled out / innocent / alibi holds / alibi confirmed / could not have), (c) includes a reasoning connector (because / therefore / which proves / alibi). Example: "${suspectName} was cleared because [evidence]; [their] alibi confirmed [they] could not have committed the crime." All three elements must be in the SAME paragraph — do not split across paragraphs.`);
+      }
+      lines.push(`  Items 1–6 are ALL mandatory. A chapter missing any item will be rejected and regenerated.`);
+    }
   }
 
   // F6a/F6b: Compact pronoun table reminder — appended to every chapter's obligation block

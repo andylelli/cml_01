@@ -717,6 +717,18 @@ export function buildNSDBlock(
     lines.push(`  - CORRECT: "${vName} had often said..." / "${vName}'s effects were found" / "witnesses recalled ${vName}'s habit of..."`);
   }
 
+  // Fix-2: Identity stability lock — post-reveal zone. Prohibit role alias terms after
+  // the culprit has been arrested or confessed. Fires for the final 20–30% of the story
+  // (pre_climax, climax, resolution arc positions) where the narrative-continuity
+  // validator's ROLE_ALIAS_TERMS regex fires on phrases like "the killer"/"the murderer".
+  if (arcPosition === 'pre_climax' || arcPosition === 'climax' || arcPosition === 'resolution') {
+    lines.push('\n⛔ IDENTITY STABILITY — post-reveal zone:');
+    lines.push('If the culprit has been arrested or confessed in any prior chapter, NEVER use role aliases in narrative prose:');
+    lines.push('  FORBIDDEN (narrator voice): "the killer", "the murderer", "the culprit", "the criminal", "the guilty party"');
+    lines.push('  REQUIRED: use the character\'s actual name (first name or full name) every time.');
+    lines.push('  Exception: a character\'s spoken dialogue may contain these terms — the ban applies to narrator voice only.');
+  }
+
   lines.push('═══════════════════════════════════════════════════════');
   return lines.join('\n');
 }
@@ -1005,6 +1017,7 @@ Rules:
 - DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
 - ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. If a sensory phrase (e.g., "air thick with tension", "smell of polished wood") has appeared in any prior chapter, rephrase it entirely. No atmospheric sentence should appear verbatim or near-verbatim in more than one chapter.
 - TEMPLATE LEAKAGE BAN: Never emit scaffold prose like "At The [Location] ... the smell of ... atmosphere ripe for revelation". Rewrite any scaffold-like sentence into chapter-specific prose tied to character action.
+- TEMPLATE PRECONDITION (STRICT): Before returning JSON, self-check every paragraph for reused scaffold patterns and high-overlap phrasing from prior chapters. If any paragraph resembles template scaffold language, DISCARD that paragraph and rewrite it from a different sentence skeleton before output. Do not return until all paragraphs pass this precondition.
 - TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
 - DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
 ${inputs.moralAmbiguityNote ? `- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "${inputs.moralAmbiguityNote}" — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.` : '- MORAL COMPLEXITY: When writing the denouement, include at least one detail that complicates the moral verdict — a motive the reader can understand, a consequence that feels unjust, or a relationship that can never recover.'}

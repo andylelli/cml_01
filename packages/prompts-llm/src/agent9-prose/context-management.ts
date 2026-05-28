@@ -227,9 +227,9 @@ export const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }>
       'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a temporal subordinate clause — e.g. "When [Name] entered…" / "After the last guest…" / "Before the household had stirred…" / "As the light faded…".',
   },
   {
-    style: 'general-descriptive',
+    style: 'expository-setup',
     directive:
-      'OPENING STYLE: Atmospheric scene-setting is permitted here — but the first sentence MUST differ structurally from both the preceding and following chapters. Do not reuse the same clause structure or sensory vocabulary as adjacent chapters.',
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an expository setup — e.g. "It was not until…" / "There had been no word since…" / "There was a note on the table…". Begin with "It was", "There was", or "There had been" followed immediately by a specific condition, event, or discovery. Do NOT begin with generic atmosphere.',
   },
 ];
 

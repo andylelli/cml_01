@@ -392,7 +392,10 @@ export const lintBatchProse = (
     /\[locked fact\]/i,
     /without changing the essential deduction chain/i,
     // Fix 6: Report-note bleed — planning-output sentences that survived prose transformation
-    /\bthe mechanism relies on\b/i,
+    // Narrowed to two-anchor to avoid false positives in clock/mechanical mysteries where
+    // characters naturally say "the mechanism relies on..." in period dialogue.
+    // Only fire when the phrase accompanies abstract story-planning vocabulary.
+    (p) => /\bthe mechanism relies on\b/i.test(p) && /\b(the (?:killer|culprit|murderer|suspect|deduction|alibi|victim)|for the plan to work|without being discovered|to avoid detection|to create a false)\b/i.test(p),
     /\bfor the purposes of this (?:scene|chapter|narrative)\b/i,
     /\bthe (?:time|value|reading|interval) was recorded as\b/i,
     /\bthe (?:exact|precise) (?:amount|value|time|phrase|interval) .{0,40}(?:wound back|came to|amounts to|equals)\b/i,

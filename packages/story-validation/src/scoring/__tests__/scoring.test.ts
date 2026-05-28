@@ -485,4 +485,30 @@ describe("ScoreAggregator", () => {
     expect(report.run_outcome).toBe("aborted");
     expect(report.run_outcome_reason).toBe("Deterministic hard gate failure");
   });
+
+  it("classifies infrastructure DNS failures as infra_failure", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore(
+      "agent7_narrative",
+      "Narrative Outliner",
+      makeScore({
+        agent: "agent7_narrative",
+        total: 0,
+        passed: false,
+        validation_score: 0,
+        quality_score: 0,
+        completeness_score: 0,
+        consistency_score: 0,
+        failure_reason: "[INFRA_PRECHECK] Azure endpoint DNS resolution failed before narrative",
+      }),
+      250,
+      0,
+      ["ENOTFOUND my-endpoint.openai.azure.com"],
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.run_outcome).toBe("infra_failure");
+    expect(report.run_outcome_reason).toBe("Infrastructure failure (DNS/connectivity)");
+    expect(report.passed).toBe(false);
+  });
 });

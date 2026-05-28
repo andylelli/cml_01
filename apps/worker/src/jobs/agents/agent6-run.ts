@@ -21,6 +21,7 @@ import {
   type OrchestratorContext,
   type InferenceCoverageResult,
   applyClueGuardrails,
+  preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import {
   enforceAgent5DeterministicContracts,
@@ -1300,6 +1301,7 @@ export const __testables = {
 // ============================================================================
 
 export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
+  const retriesEnabled = preAgent9LlmRetriesEnabled();
   type Agent6WarningKind = "transient-progress" | "transient-diagnostic" | "persistent-risk";
 
   const transientProgressWarnings = new Set<string>();
@@ -1337,10 +1339,15 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const minBlindConfidence = normalizeConfidence(
     (fairPlayConfig.blind_reader as any)?.pass_criteria?.min_confidence ?? "likely",
   );
-  const maxBlindRemediationCycles = Math.max(
+  const maxBlindRemediationCycles = retriesEnabled ? Math.max(
     0,
     Number((fairPlayConfig.blind_reader as any)?.pass_criteria?.max_remediation_cycles ?? 1),
-  );
+  ) : 0;
+  const maxFairPlayAttempts = retriesEnabled ? fairPlayConfig.retries.max_fair_play_attempts : 1;
+  const maxTargetedRegenAttempts = retriesEnabled ? fairPlayConfig.retries.max_total_attempts_with_targeted_regen : 1;
+  if (!retriesEnabled) {
+    emitAgent6Warning("Agent 6: deterministic remediation mode active (pre-Agent9 retries disabled by default)", "transient-diagnostic");
+  }
   ctx.reportProgress("fairplay", "Auditing fair play compliance...", 62);
 
   const clueDensity =
@@ -1425,7 +1432,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
-  while (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
+  while (fairPlayAttempt < maxFairPlayAttempts) {
     fairPlayAttempt++;
     fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
     if (firstFairPlayStatus === null) {
@@ -1439,12 +1446,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
     if (fairPlayAudit.overallStatus === "pass") break;
 
-    if (fairPlayAttempt < fairPlayConfig.retries.max_fair_play_attempts) {
+    if (fairPlayAttempt < maxFairPlayAttempts) {
       agent6RetryInvoked = true;
       emitAgent6Warning(
         `Agent 6: Fair play audit ${fairPlayAudit.overallStatus}; regenerating clues to address feedback (attempt ${
           fairPlayAttempt + 1
-        } of ${fairPlayConfig.retries.max_fair_play_attempts})`,
+        } of ${maxFairPlayAttempts})`,
         "transient-progress",
       );
 
@@ -1808,6 +1815,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     }
 
     if (
+      retriesEnabled &&
       canRunStructuralCmlRevision &&
       shouldEscalateCmlRevision &&
       retryBudget.getConsumed() <= MAX_FAIR_PLAY_RETRY_COST
@@ -2004,14 +2012,15 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         await recordFairPlayScore();
       }
     } else if (
+      retriesEnabled &&
       failureClass === "clue_only" &&
       retryBudget.getConsumed() <= MAX_FAIR_PLAY_RETRY_COST &&
-      fairPlayConfig.retries.max_total_attempts_with_targeted_regen >= 3
+      maxTargetedRegenAttempts >= 3
     ) {
       agent6RetryInvoked = true;
       emitAgent6Warning(
         "Fair play failure classified as \"clue_only\" — CML structure is sound; " +
-        `regenerating clues with targeted per-violation feedback (attempt 3 of ${fairPlayConfig.retries.max_total_attempts_with_targeted_regen})`,
+        `regenerating clues with targeted per-violation feedback (attempt 3 of ${maxTargetedRegenAttempts})`,
         "transient-progress",
       );
 
@@ -2047,6 +2056,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     // inject additional case-grounded clues and re-audit once.
     // Note: for clean CMLs (preAuditStructuralResult.passed), backstops already ran pre-LLM.
     if (
+      retriesEnabled &&
       !preAuditStructuralResult?.passed
       && fairPlayAudit!.overallStatus === "fail"
       && hasCriticalFairPlayFailure

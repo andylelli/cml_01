@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockAuditFairPlay = vi.hoisted(() => vi.fn());
 const mockExtractClues = vi.hoisted(() => vi.fn());
@@ -36,6 +36,7 @@ import { runAgent6 } from "../jobs/agents/agent6-run.js";
 
 describe("agent6-run flow", () => {
   beforeEach(() => {
+    process.env.AGENT_PRE9_ENABLE_LLM_RETRIES = "true";
     mockAuditFairPlay.mockReset();
     mockExtractClues.mockReset();
     mockBlindReaderSimulation.mockReset();
@@ -47,6 +48,10 @@ describe("agent6-run flow", () => {
       cost: 0,
       durationMs: 1,
     });
+  });
+
+  afterEach(() => {
+    delete process.env.AGENT_PRE9_ENABLE_LLM_RETRIES;
   });
 
   it("retries once on fail, accumulates costs, and updates fair-play handoff state", async () => {

@@ -16,6 +16,7 @@
 
 import { join } from "path";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { promises as dns } from "dns";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
@@ -81,6 +82,57 @@ import {
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
 
+const shouldRunAzureEndpointPreflight = (): boolean => {
+  const raw = String(process.env.AZURE_ENDPOINT_PREFLIGHT ?? "true").trim().toLowerCase();
+  return !(raw === "0" || raw === "false" || raw === "off" || raw === "no");
+};
+
+const resolveAzureEndpointHost = (): string | null => {
+  const endpointRaw = String(process.env.AZURE_OPENAI_ENDPOINT ?? "").trim();
+  if (!endpointRaw) return null;
+
+  const normalized = /^https?:\/\//i.test(endpointRaw)
+    ? endpointRaw
+    : `https://${endpointRaw}`;
+
+  try {
+    const url = new URL(normalized);
+    return url.hostname || null;
+  } catch {
+    return null;
+  }
+};
+
+const preflightAzureEndpointDns = async (params: {
+  stageLabel: string;
+  reportProgress: (stage: MysteryGenerationProgress["stage"], message: string, percentage: number) => void;
+  warnings: string[];
+}): Promise<void> => {
+  if (!shouldRunAzureEndpointPreflight()) return;
+
+  const host = resolveAzureEndpointHost();
+  if (!host) {
+    params.warnings.push(
+      `Azure endpoint preflight skipped before ${params.stageLabel}: AZURE_OPENAI_ENDPOINT is missing or invalid.`
+    );
+    return;
+  }
+
+  params.reportProgress(
+    params.stageLabel === "prose" ? "prose" : "narrative",
+    `Preflight: resolving Azure endpoint host (${host})`,
+    params.stageLabel === "prose" ? 95 : 70,
+  );
+
+  try {
+    await dns.lookup(host);
+  } catch (error) {
+    throw new Error(
+      `[INFRA_PRECHECK] Azure endpoint DNS resolution failed before ${params.stageLabel}: ${host} (${describeError(error)})`
+    );
+  }
+};
+
 // ============================================================================
 // Public types
 // ============================================================================
@@ -114,6 +166,11 @@ export interface MysteryGenerationInputs {
 
   /** Chapters per LLM call (1–10, default 1) */
   proseBatchSize?: number;
+
+  /** Optional filesystem path for Agent 9 checkpoint persistence/resume JSON. */
+  agent9CheckpointPath?: string;
+  /** When true, Agent 9 resumes from the checkpoint file if available. */
+  resumeAgent9FromCheckpoint?: boolean;
 
   runId?: string;
   projectId?: string;
@@ -869,6 +926,12 @@ export async function generateMystery(
       );
     }
 
+    await preflightAzureEndpointDns({
+      stageLabel: "narrative",
+      reportProgress,
+      warnings,
+    });
+
     await runAgent7(ctx);   // Narrative Outliner
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
@@ -882,6 +945,12 @@ export async function generateMystery(
     }
 
     // ── Prose Generation + Release Gate ─────────────────────────────────────
+    await preflightAzureEndpointDns({
+      stageLabel: "prose",
+      reportProgress,
+      warnings,
+    });
+
     await runAgent9(ctx);
 
     // ── Complete ─────────────────────────────────────────────────────────────
@@ -962,6 +1031,10 @@ export async function generateMystery(
       proseScoringSnapshot.chaptersGenerated > 0 &&
       !proseScoringSnapshot.postGenerationSummaryLogged
     ) {
+      const canonicalProseElapsedMs =
+        typeof agentDurations["agent9_prose"] === "number" && agentDurations["agent9_prose"] > 0
+          ? agentDurations["agent9_prose"]
+          : Date.now() - proseScoringSnapshot.startedAtMs;
       const templateLinterFailedChecks = templateLinterAbortDetected ? 1 : 0;
       const templateLinterEntropyFailures = /opening-style entropy/i.test(errorMessage) ? 1 : 0;
 
@@ -982,8 +1055,8 @@ export async function generateMystery(
         component_failures: ["prose_generation_aborted"],
         failure_reason: errorMessage,
         chapters_generated: proseScoringSnapshot.chaptersGenerated,
-        prose_duration_ms_first_pass: Date.now() - proseScoringSnapshot.startedAtMs,
-        prose_duration_ms_total: Date.now() - proseScoringSnapshot.startedAtMs,
+        prose_duration_ms_first_pass: canonicalProseElapsedMs,
+        prose_duration_ms_total: canonicalProseElapsedMs,
         prose_cost_first_pass: agentCosts["agent9_prose"] ?? 0,
         prose_cost_total: agentCosts["agent9_prose"] ?? 0,
         rewrite_pass_count: 0,
@@ -1030,7 +1103,10 @@ export async function generateMystery(
       proseScoringSnapshot.startedAtMs !== null &&
       proseScoringSnapshot.chaptersGenerated === 0
     ) {
-      const elapsedMs = Date.now() - proseScoringSnapshot.startedAtMs;
+      const elapsedMs =
+        typeof agentDurations["agent9_prose"] === "number" && agentDurations["agent9_prose"] > 0
+          ? agentDurations["agent9_prose"]
+          : Date.now() - proseScoringSnapshot.startedAtMs;
       const zeroedProseScore: PhaseScore = {
         agent: "agent9-prose",
         validation_score: 0,

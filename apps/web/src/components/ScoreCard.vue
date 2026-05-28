@@ -73,8 +73,13 @@ const phaseLabel = (agent: string) => {
   return map[normalized] ?? agent;
 };
 
-const getRunOutcome = (report: GenerationReport): "passed" | "failed" | "aborted" => {
-  if (report.run_outcome === "passed" || report.run_outcome === "failed" || report.run_outcome === "aborted") {
+const getRunOutcome = (report: GenerationReport): "passed" | "failed" | "aborted" | "infra_failure" => {
+  if (
+    report.run_outcome === "passed"
+    || report.run_outcome === "failed"
+    || report.run_outcome === "aborted"
+    || report.run_outcome === "infra_failure"
+  ) {
     return report.run_outcome;
   }
   return report.passed ? "passed" : "failed";
@@ -83,6 +88,7 @@ const getRunOutcome = (report: GenerationReport): "passed" | "failed" | "aborted
 const runOutcomeLabel = (report: GenerationReport) => {
   const outcome = getRunOutcome(report);
   if (outcome === "passed") return "✓ Passed";
+  if (outcome === "infra_failure") return "⚠ Infra Failure";
   if (outcome === "aborted") return "■ Aborted";
   return "✗ Failed";
 };
@@ -90,6 +96,7 @@ const runOutcomeLabel = (report: GenerationReport) => {
 const runOutcomeClass = (report: GenerationReport) => {
   const outcome = getRunOutcome(report);
   if (outcome === "passed") return "bg-emerald-100 text-emerald-700";
+  if (outcome === "infra_failure") return "bg-slate-200 text-slate-700";
   if (outcome === "aborted") return "bg-amber-100 text-amber-700";
   return "bg-rose-100 text-rose-700";
 };

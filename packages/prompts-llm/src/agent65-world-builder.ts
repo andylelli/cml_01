@@ -59,6 +59,44 @@ function paragraphCount(value: unknown): number {
     .filter((p: string) => p.length > 0).length;
 }
 
+function clampToMaxWordsPreservingParagraphs(value: unknown, maxWords: number): string {
+  if (typeof value !== 'string') return '';
+  if (maxWords <= 0) return '';
+
+  const totalWords = countWords(value);
+  if (totalWords <= maxWords) {
+    return value.trim();
+  }
+
+  const paragraphs = value
+    .split(/\n\s*\n/)
+    .map((paragraph: string) => paragraph.trim())
+    .filter((paragraph: string) => paragraph.length > 0);
+
+  let remaining = maxWords;
+  const kept: string[] = [];
+
+  for (const paragraph of paragraphs) {
+    if (remaining <= 0) break;
+    const words = paragraph.split(/\s+/).filter((word: string) => word.length > 0);
+    if (words.length <= remaining) {
+      kept.push(words.join(' '));
+      remaining -= words.length;
+      continue;
+    }
+
+    kept.push(words.slice(0, remaining).join(' '));
+    remaining = 0;
+  }
+
+  let clamped = kept.join('\n\n').trim();
+  if (clamped.length > 0 && !/[.!?]$/.test(clamped)) {
+    clamped = `${clamped}.`;
+  }
+
+  return clamped;
+}
+
 function forceMultiParagraphArcDescription(value: unknown): string {
   if (typeof value !== 'string') return '';
   const compact = value.trim();
@@ -971,10 +1009,11 @@ export async function generateWorldDocument(
       parsed.storyEmotionalArc?.dominantRegister,
     );
     const arcDesc = forceMultiParagraphArcDescription(arcExpanded);
-    if (parsed.storyEmotionalArc && arcDesc) {
-      parsed.storyEmotionalArc.arcDescription = arcDesc;
+    const arcDescCapped = clampToMaxWordsPreservingParagraphs(arcDesc, arcDescPromptTarget);
+    if (parsed.storyEmotionalArc && arcDescCapped) {
+      parsed.storyEmotionalArc.arcDescription = arcDescCapped;
     }
-    const arcDescWordCount = countWords(arcDesc);
+    const arcDescWordCount = countWords(arcDescCapped);
     if (arcDescWordCount < arcDescGate) {
       lastError = new Error(
         `storyEmotionalArc.arcDescription is too short (${arcDescWordCount} words; ` +
@@ -987,7 +1026,7 @@ export async function generateWorldDocument(
       continue;
     }
 
-    const arcParagraphs = paragraphCount(arcDesc);
+    const arcParagraphs = paragraphCount(arcDescCapped);
     if (arcParagraphs < MIN_ARC_PARAGRAPHS) {
       lastError = new Error(
         `storyEmotionalArc.arcDescription must be multi-paragraph (found ${arcParagraphs}; minimum ${MIN_ARC_PARAGRAPHS})`
@@ -1043,6 +1082,7 @@ export async function generateWorldDocument(
 export const __testables = {
   countWords,
   paragraphCount,
+  clampToMaxWordsPreservingParagraphs,
   forceMultiParagraphArcDescription,
   enforceArcDescriptionFloor,
   enforceRevealImplicationsFloor,

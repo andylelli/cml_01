@@ -149,6 +149,15 @@ ${seedPatternsText}
 
 ${noveltyText}
 
+**PLOT STRUCTURE ANTI-TROPES (unconditional — not overridable by theme, novelty constraints, or input seed):**
+The following plot elements are permanently banned because they will trigger a novelty-audit failure (Agent 8 similarity ≥ 0.75 against the seed library):
+- Inheritance dispute as the primary motive (victim recently changed will; culprit stands to lose or gain)
+- Poison concealed in coffee, tea, hot milk, medicine, or food at a domestic table
+- Elderly wealthy female victim who owns a country estate and controls family finances
+- Culprit who is the victim's spouse or domestic partner using household poisoning
+
+If two or more of the above are present, the story will be rejected. Design around different motive structures: blackmail, professional rivalry, silencing a witness, concealing a past crime, jealousy unrelated to inheritance. Use non-domestic murder mechanisms from the hard-logic device list.
+
 **Uniqueness Seed**: ${inputs.runId}-${inputs.projectId}
 Use this seed to ensure the case details and logic differ meaningfully from prior runs.
 
@@ -414,7 +423,8 @@ Fill the "place" and "country" fields in meta.setting with specific location:
 - Use these exact names: ${inputs.castNames.join(", ")}
 ${inputs.castGenders && Object.keys(inputs.castGenders).length > 0 ? `- Gender per character (copy exactly into each cast item's gender field): ${inputs.castNames.filter(n => inputs.castGenders![n]).map(n => `${n}: ${inputs.castGenders![n]}`).join(', ')}` : ''}
 - Detective Type: ${inputs.detectiveType}
-- Victim Archetype: ${inputs.victimArchetype}
+- Victim Archetype: ${inputs.victimArchetype} — MUST appear in cast with role_archetype "Victim". CRITICAL: "${inputs.victimArchetype}" is the victim and MUST NOT appear in culpability.culprits[] under any circumstances.
+${inputs.culpritExclusionNames && inputs.culpritExclusionNames.length > 0 ? `- FORBIDDEN culprits (these names MUST NOT be in culpability.culprits[]): ${inputs.culpritExclusionNames.join(', ')} — they are victim or detective roles.` : ''}
 
 **Mystery Logic**:
 - Primary Axis: ${inputs.primaryAxis}
@@ -593,13 +603,88 @@ export async function generateCML(
         gender: existing.gender || inputs.castGenders?.[name] || undefined,
       };
     });
+
+    const roleIncludes = (role: unknown, tokens: string[]) => {
+      const text = String(role ?? "").toLowerCase();
+      return tokens.some((token) => text.includes(token));
+    };
+
+    // Wave 1 integrity lock: when a victim archetype is supplied, force the matching cast
+    // entry to victim role and make them ineligible as culprit.
+    const victimHint = String(inputs.victimArchetype ?? "").trim().toLowerCase();
+    if (victimHint) {
+      const hintedVictim = normalizedCast.find((member) =>
+        String(member.name ?? "").trim().toLowerCase() === victimHint,
+      );
+      if (hintedVictim) {
+        hintedVictim.role_archetype = "victim";
+        hintedVictim.culprit_eligibility = "ineligible";
+        hintedVictim.culpability = "innocent";
+      }
+    }
+
+    // Any character explicitly marked victim in the cast must remain ineligible and innocent.
+    for (const member of normalizedCast) {
+      if (roleIncludes(member.role_archetype, ["victim"])) {
+        member.culprit_eligibility = "ineligible";
+        member.culpability = "innocent";
+      }
+    }
+
     caseBlock.cast = normalizedCast;
 
     const culpability = ensureObject(caseBlock.culpability);
     caseBlock.culpability = culpability;
-    culpability.culprit_count = typeof culpability.culprit_count === "number" ? culpability.culprit_count : 1;
-    const culpritNames = ensureArray(culpability.culprits);
-    culpability.culprits = culpritNames.length ? culpritNames : [normalizedCast[0]?.name ?? "Unknown"].filter(Boolean);
+    const detectiveNameSet = new Set(
+      normalizedCast
+        .filter((member) => roleIncludes(member.role_archetype, ["detective", "investigator", "inspector"]))
+        .map((member) => String(member.name ?? "").trim().toLowerCase()),
+    );
+    const victimNameSet = new Set(
+      normalizedCast
+        .filter((member) => roleIncludes(member.role_archetype, ["victim"]))
+        .map((member) => String(member.name ?? "").trim().toLowerCase()),
+    );
+
+    const rawCulprits = ensureArray(culpability.culprits)
+      .map((name) => String(name ?? "").trim())
+      .filter(Boolean);
+
+    const validCulprits = rawCulprits.filter((name) => {
+      const lowered = name.toLowerCase();
+      if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
+      const castEntry = normalizedCast.find((member) => String(member.name ?? "").trim().toLowerCase() === lowered);
+      if (!castEntry) return false;
+      return castEntry.culprit_eligibility === "eligible";
+    });
+
+    const fallbackCulprit = normalizedCast.find((member) => {
+      const lowered = String(member.name ?? "").trim().toLowerCase();
+      if (!lowered) return false;
+      if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
+      return member.culprit_eligibility === "eligible";
+    });
+
+    const normalizedCulprits = validCulprits.length > 0
+      ? [validCulprits[0]]
+      : fallbackCulprit
+        ? [String(fallbackCulprit.name)]
+        : [normalizedCast[0]?.name ?? "Unknown"].filter(Boolean);
+
+    culpability.culprits = normalizedCulprits;
+    culpability.culprit_count = normalizedCulprits.length;
+
+    const normalizedCulpritSet = new Set(normalizedCulprits.map((name) => name.toLowerCase()));
+    for (const member of normalizedCast) {
+      const lowered = String(member.name ?? "").trim().toLowerCase();
+      if (!lowered) continue;
+      if (normalizedCulpritSet.has(lowered)) {
+        member.culpability = "guilty";
+        member.culprit_eligibility = "eligible";
+      } else if (member.culpability === "guilty") {
+        member.culpability = "unknown";
+      }
+    }
 
     const surface = ensureObject(caseBlock.surface_model);
     caseBlock.surface_model = surface;

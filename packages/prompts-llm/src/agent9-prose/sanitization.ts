@@ -8,6 +8,33 @@ import { anonymizeUnknownTitledNames } from "@cml/story-validation";
 import type { CastDesign } from "../agent2-cast.js";
 import type { ProseChapter, ProseGenerationResult } from "./types.js";
 
+const INTERNAL_AUDIT_LEAK_PATTERNS: RegExp[] = [
+  /\bthe detail is explicit\b/i,
+  /\bthis detail added\b.*\btexture\b/i,
+  /\bwithout changing the essential deduction chain\b/i,
+  /\bfor the purposes of this (?:scene|chapter|narrative)\b/i,
+  /\bthe (?:time|value|reading|interval) was recorded as\b/i,
+  /\bthe (?:exact|precise) (?:amount|value|time|phrase|interval)\b.{0,40}\b(?:wound back|came to|amounts to|equals)\b/i,
+  /\buntil the investigator\b.{0,40}\b(?:arriv|comes?|is here)\b/i,
+  /\bhold on\b.{0,50}\buntil.*investigator\b/i,
+  /\bthis evidence points to\b.{0,80}\b(?:involvement|guilt|culpability)\b/i,
+  /\bdirect evidence ties\b.{0,80}\baccess point\b/i,
+  /^\s*(setting|mood|atmosphere|continuity note|audit note)\s*:/i,
+];
+
+export function stripInternalAuditPhrasing(text: string): string {
+  const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+
+  const sentenceParts = normalized.match(/[^.!?]+[.!?]*(?:\s+|$)/g) ?? [normalized];
+  const cleaned = sentenceParts
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && !INTERNAL_AUDIT_LEAK_PATTERNS.some((re) => re.test(part)));
+
+  if (cleaned.length === 0) return "";
+  return cleaned.join(" ").replace(/\s+/g, " ").trim();
+}
+
 export const parseProseResponse = (content: string) => {
   const stripAuditLocal = (parsed: any): any => {
     if (!parsed || typeof parsed !== 'object' || !('audit' in parsed)) return parsed;
@@ -62,14 +89,19 @@ export function sanitizeScenesCharacters(scenes: any[], validCastNames: string[]
  * genre-attractor names.
  */
 export function sanitizeGeneratedChapter(chapter: ProseChapter, validCastNames: string[]): ProseChapter {
-  const sanitizeText = (text: string): string => anonymizeUnknownTitledNames(text, validCastNames);
+  const sanitizeText = (text: string): string => {
+    const withAnonymousNames = anonymizeUnknownTitledNames(text, validCastNames);
+    return stripInternalAuditPhrasing(withAnonymousNames);
+  };
 
   return {
     ...chapter,
     title: typeof chapter.title === 'string' ? sanitizeText(chapter.title) : chapter.title,
     summary: typeof chapter.summary === 'string' ? sanitizeText(chapter.summary) : chapter.summary,
     paragraphs: Array.isArray(chapter.paragraphs)
-      ? chapter.paragraphs.map((p) => (typeof p === 'string' ? sanitizeText(p) : p))
+      ? chapter.paragraphs
+          .map((p) => (typeof p === 'string' ? sanitizeText(p) : p))
+          .filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
       : chapter.paragraphs,
   };
 }

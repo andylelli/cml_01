@@ -645,3 +645,65 @@ export const validateChapterPreCommitObligations = (
 
   return { hardFailures: uniqueHardFailures, preferredMisses, wordTarget };
 };
+
+// ---------------------------------------------------------------------------
+// G3: Inference-path chain check
+// ---------------------------------------------------------------------------
+
+/**
+ * For each chapter in the batch, check that if a revealed clue is required
+ * by a reader-observable inference step, the step's observation tokens are
+ * present in the chapter text.  Returns preferred-miss messages (soft check).
+ *
+ * @param chapters     The prose chapters produced for this batch (in order).
+ * @param batchScenes  The outline scenes for this batch — provides cluesRevealed per scene.
+ * @param inferenceChain  From StoryContract.inferenceChain.
+ * @param chapterStart  1-based index of the first chapter in this batch.
+ */
+export const validateBatchInferenceChain = (
+  chapters: ProseChapter[],
+  batchScenes: Array<{ cluesRevealed?: string[] }>,
+  inferenceChain: Array<{ observation: string; required_evidence: string[]; reader_observable: boolean }>,
+  chapterStart: number,
+): string[] => {
+  const preferredMisses: string[] = [];
+
+  const observableSteps = inferenceChain.filter(s => s.reader_observable && s.observation.trim().length > 20);
+  if (observableSteps.length === 0) return preferredMisses;
+
+  for (let i = 0; i < chapters.length && i < batchScenes.length; i++) {
+    const chapterNumber = chapterStart + i;
+    const chapterText = (chapters[i].paragraphs ?? []).join(' ').toLowerCase();
+    const revealedIds: string[] = (batchScenes[i].cluesRevealed ?? []).map(String);
+
+    for (const step of observableSteps) {
+      // Only check if this chapter reveals a clue that this step depends on
+      const hasRequiredClue = step.required_evidence.some(id => revealedIds.includes(String(id)));
+      if (!hasRequiredClue) continue;
+
+      // Tokenise the observation — skip short/common tokens
+      const obsTokens = step.observation
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(t => t.length > 4);
+
+      if (obsTokens.length === 0) continue;
+
+      const matchCount = obsTokens.filter(t => chapterText.includes(t)).length;
+      const matchRatio = matchCount / obsTokens.length;
+
+      if (matchRatio < 0.25) {
+        // At least 25% of observation tokens should appear — otherwise the context is missing
+        const obsPreview = step.observation.slice(0, 80);
+        preferredMisses.push(
+          `Chapter ${chapterNumber}: inference step observation "${obsPreview}..." has low token coverage (${matchCount}/${obsTokens.length} tokens). ` +
+          `Ensure the prose grounds the evidence in observable context so the reader can follow the reasoning chain.`
+        );
+      }
+    }
+  }
+
+  return preferredMisses;
+};
+

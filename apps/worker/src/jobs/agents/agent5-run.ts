@@ -139,6 +139,14 @@ const strictPromptContractsEnabled = (): boolean => {
   return true;
 };
 
+const agent5LlmRetriesEnabled = (): boolean => {
+  // Prevention-first default: keep Agent5 on a deterministic remediation path.
+  // Enable legacy LLM retry loops only when explicitly opted in.
+  const value = String(process.env.AGENT5_ENABLE_LLM_RETRIES ?? "").trim().toLowerCase();
+  if (value === "1" || value === "true" || value === "yes" || value === "on") return true;
+  return false;
+};
+
 const normalizeTokens = (text: string): string[] =>
   text
     .toLowerCase()
@@ -337,6 +345,50 @@ const buildStrictStepCoverageFloors = (cml: CaseData): Array<{ step: number; req
     requireContradiction: true,
     requireMapped: true,
   }));
+};
+
+const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
+  const caseBlock = getCaseBlock(cml);
+  const culpritNames = Array.isArray(caseBlock?.culpability?.culprits)
+    ? caseBlock.culpability.culprits.map((entry: unknown) => String(entry ?? "").trim()).filter(Boolean)
+    : [];
+
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const eligibleNonCulprits = cast
+    .filter((entry: any) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
+    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((name: string) => Boolean(name) && !culpritNames.includes(name));
+
+  const requiredCluePhrases = eligibleNonCulprits
+    .slice(0, 4)
+    .map((name: string) => `Eliminates ${name} because`);
+
+  const canonicalEvidenceIds = getCanonicalEvidenceClueIds(cml).slice(0, 8);
+
+  const correctionTerms = Array.isArray(caseBlock?.inference_path?.steps)
+    ? [...new Set(
+      caseBlock.inference_path.steps
+        .flatMap((step: any) => normalizeTokens(String(step?.correction ?? "")))
+        .filter(isOverlapCandidateToken),
+    )].slice(0, 12)
+    : [];
+
+  const falseAssumptionTerms = normalizeTokens(String(caseBlock?.false_assumption?.statement ?? ""))
+    .filter((token) => token.length > 4)
+    .slice(0, 12);
+
+  return {
+    overallStatus: "needs-revision",
+    recommendations: [
+      "FIRST PASS PRIORITY: satisfy suspect elimination coverage for every eligible non-culprit before optional texture clues.",
+      "FIRST PASS PRIORITY: ensure all discriminating evidence IDs are present as exact clue IDs and placed early/mid as essential.",
+      "FIRST PASS PRIORITY: avoid correction-language terms in red herring description/misdirection from the start.",
+    ],
+    targetedClueIds: canonicalEvidenceIds,
+    requiredCluePhrases,
+    forbiddenTerms: correctionTerms,
+    preferredTerms: falseAssumptionTerms,
+  };
 };
 
 const buildStrictLateClueSlot = (cml: CaseData): { id: string; placement: "late"; criticality: "optional" | "supporting" } | undefined => {
@@ -2261,6 +2313,85 @@ function synthesizeStrictStepCoverageBackstopClues(
   return repairs;
 }
 
+function synthesizeSuspectCoverageBackstopClues(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  suspects: string[],
+): string[] {
+  const targetSuspects = [...new Set(suspects.map((name) => String(name ?? "").trim()).filter(Boolean))];
+  if (targetSuspects.length === 0) return [];
+
+  const caseBlock = getCaseBlock(cml);
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
+  if (clueList.length === 0) return [];
+
+  const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
+  timeline.early = Array.isArray(timeline.early) ? timeline.early : [];
+  timeline.mid = Array.isArray(timeline.mid) ? timeline.mid : [];
+  timeline.late = Array.isArray(timeline.late) ? timeline.late : [];
+  (clues as any).clueTimeline = timeline;
+
+  const existingIds = new Set(
+    clueList
+      .map((clue) => String(clue?.id ?? "").trim())
+      .filter((id) => id.length > 0),
+  );
+
+  const nextId = (prefix: string): string => {
+    let candidate = prefix;
+    let suffix = 2;
+    while (existingIds.has(candidate)) {
+      candidate = `${prefix}_${suffix}`;
+      suffix += 1;
+    }
+    existingIds.add(candidate);
+    return candidate;
+  };
+
+  const template = clueList.find((clue) => String(clue?.criticality ?? "").toLowerCase() === "essential") ?? clueList[0];
+  if (!template) return [];
+
+  const repairs: string[] = [];
+
+  for (const suspectName of targetSuspects) {
+    const suspectIndex = cast.findIndex((entry: any) => String(entry?.name ?? "").trim() === suspectName);
+    const suspect = suspectIndex >= 0 ? cast[suspectIndex] : undefined;
+
+    const sourceCandidates = [
+      suspectIndex >= 0 ? `CASE.cast[${suspectIndex}].alibi_window` : "",
+      suspectIndex >= 0 ? `CASE.cast[${suspectIndex}].access_plausibility` : "",
+      `CASE.constraint_space.access.actors[0]`,
+      `CASE.constraint_space.time.anchors[0]`,
+    ].filter((entry): entry is string => Boolean(entry));
+
+    const sourceInCML = sourceCandidates.find((path) => validateSourcePath(cml, path))
+      || buildStrictSourcePathWhitelist(cml)[0]
+      || "CASE.inference_path.steps[0].observation";
+
+    const suspectAlibi = String(suspect?.alibi_window ?? "").trim();
+    const fallbackDescription = `A corroborated timeline detail places ${suspectName} away from the decisive mechanism window.`;
+    const description = replaceDigitTimesWithEraWords(suspectAlibi || fallbackDescription);
+    const pointsTo = `Eliminates ${suspectName} because independent corroboration places ${suspectName} away from the decisive mechanism window.`;
+
+    const clueId = nextId(`clue_fp_elimination_${toClueIdSlug(suspectName)}`);
+    clueList.push({
+      ...template,
+      id: clueId,
+      sourceInCML,
+      description,
+      pointsTo,
+      placement: "mid",
+      criticality: "essential",
+      evidenceType: "elimination",
+    });
+    timeline.mid.push(clueId);
+    repairs.push(`added ${clueId} as deterministic elimination backstop for ${suspectName}`);
+  }
+
+  return repairs;
+}
+
 export function enforceAgent5DeterministicContracts(
   cml: CaseData,
   clues: ClueDistributionResult,
@@ -2437,6 +2568,10 @@ export function recomputeCoverageSnapshotForAgent6(
 
 export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("clues", "Extracting and organizing clues...", 50);
+  const llmRetriesEnabled = agent5LlmRetriesEnabled();
+  if (!llmRetriesEnabled) {
+    ctx.warnings.push("Agent 5: deterministic remediation mode active (LLM retry loops disabled by default)");
+  }
 
   const evidenceIdNormalization = sanitizeDiscriminatingEvidenceClueIds(ctx.cml!);
   if (evidenceIdNormalization.removed.length > 0) {
@@ -2455,6 +2590,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   const strictPromptFeedbackBase = strictPromptContractsEnabled()
     ? buildStrictPromptFeedback(ctx.cml!)
     : undefined;
+  const proactiveFirstPassFeedback = buildAgent5ProactiveFirstPassFeedback(ctx.cml!);
   const mergeStrictPromptFeedback = (feedback?: any, isRetry = false): any => {
     if (!strictPromptFeedbackBase) return feedback;
 
@@ -2543,17 +2679,19 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   };
 
   let extractionAttempt = 1;
+  let performedSuspectRetry = false;
+  let performedRedHerringRetry = false;
   const extractWithAttempt = (payload: any) =>
     extractClues(ctx.client, {
       ...payload,
       retryAttempt: extractionAttempt++,
     });
-  let clues: Awaited<ReturnType<typeof extractClues>>;
+  let clues!: Awaited<ReturnType<typeof extractClues>>;
   const cluesInputBase = {
     cml: ctx.cml!,
     clueDensity,
     redHerringBudget: 2,
-    fairPlayFeedback: mergeStrictPromptFeedback(),
+    fairPlayFeedback: mergeStrictPromptFeedback(proactiveFirstPassFeedback),
     runId: ctx.runId,
     projectId: ctx.projectId || "",
     // Pillar 1: pass locked facts so clue descriptions honour canonical values
@@ -2568,10 +2706,13 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       err instanceof SyntaxError
       || err instanceof TypeError
       || /json|parse|unexpected token|structured output/i.test(String((err as Error)?.message ?? ""));
-    if (retryableExtractionFailure) {
+    if (retryableExtractionFailure && llmRetriesEnabled) {
       agent5RetryInvoked = true;
       ctx.warnings.push("Agent 5: first extraction attempt failed due to malformed model payload; retrying once");
       clues = await extractWithAttempt(cluesInputBase);
+    } else if (retryableExtractionFailure) {
+      ctx.errors.push("Agent 5 first extraction attempt failed due to malformed model payload (deterministic mode: no LLM retry)");
+      failAgent5("Agent 5 extraction failed on malformed model payload in deterministic mode");
     } else {
       throw err;
     }
@@ -2619,68 +2760,72 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       "CASE.constraint_space.physical.traces[M]",
     ];
 
-    const retryCluesStart = Date.now();
-    agent5RetryInvoked = true;
-    clues = await extractWithAttempt({
-      cml: ctx.cml!,
-      clueDensity,
-      redHerringBudget: 2,
-      fairPlayFeedback: mergeStrictPromptFeedback({
-        overallStatus: "fail",
-        violations: [
-          ...clueGuardrails.issues
-            .filter((i) => i.severity === "critical")
-            .map((i) => ({
+    if (llmRetriesEnabled) {
+      const retryCluesStart = Date.now();
+      agent5RetryInvoked = true;
+      clues = await extractWithAttempt({
+        cml: ctx.cml!,
+        clueDensity,
+        redHerringBudget: 2,
+        fairPlayFeedback: mergeStrictPromptFeedback({
+          overallStatus: "fail",
+          violations: [
+            ...clueGuardrails.issues
+              .filter((i) => i.severity === "critical")
+              .map((i) => ({
+                severity: "critical" as const,
+                rule: "Deterministic Guardrail",
+                description: i.message,
+                suggestion:
+                  "Regenerate clues so all essential clues are visible before the discriminating test and avoid detective-only information",
+              })),
+            ...sourcePathSnapshot.invalidPaths.map((path) => ({
               severity: "critical" as const,
-              rule: "Deterministic Guardrail",
-              description: i.message,
-              suggestion:
-                "Regenerate clues so all essential clues are visible before the discriminating test and avoid detective-only information",
+              rule: "Source Path Legality",
+              description: `Invalid source path: ${path}`,
+              suggestion: `Replace with a legal path template such as ${legalSourceTemplates[0]} or ${legalSourceTemplates[3]}`,
             })),
-          ...sourcePathSnapshot.invalidPaths.map((path) => ({
-            severity: "critical" as const,
-            rule: "Source Path Legality",
-            description: `Invalid source path: ${path}`,
-            suggestion: `Replace with a legal path template such as ${legalSourceTemplates[0]} or ${legalSourceTemplates[3]}`,
-          })),
-        ],
-        warnings: clueGuardrails.issues
-          .filter((i) => i.severity !== "critical")
-          .map((i) => i.message),
-        recommendations: [
-          "Move essential clues to early/mid placement",
-          "Avoid private/detective-only clue phrasing",
-          "Ensure clue IDs are unique and timeline is balanced",
-          ...sourcePathSnapshot.invalidPaths.map(
-            (path) => `Repair path exactly: ${path} -> use one of [${legalSourceTemplates.join(" | ")}]`,
-          ),
-        ],
-      }, true),
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
+          ],
+          warnings: clueGuardrails.issues
+            .filter((i) => i.severity !== "critical")
+            .map((i) => i.message),
+          recommendations: [
+            "Move essential clues to early/mid placement",
+            "Avoid private/detective-only clue phrasing",
+            "Ensure clue IDs are unique and timeline is balanced",
+            ...sourcePathSnapshot.invalidPaths.map(
+              (path) => `Repair path exactly: ${path} -> use one of [${legalSourceTemplates.join(" | ")}]`,
+            ),
+          ],
+        }, true),
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
 
-    ctx.agentCosts["agent5_clues"] =
-      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
-    ctx.agentDurations["agent5_clues"] =
-      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
+      ctx.agentCosts["agent5_clues"] =
+        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentDurations["agent5_clues"] =
+        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
 
-    // Guard: if LLM returned status=fail with empty clues on retry, fail with a clear message
-    // rather than propagating 0-count clues into the guardrail which produces misleading errors.
-    if (clues.clues.length === 0) {
-      ctx.errors.push("Agent 5 retry returned zero clues (LLM self-reported failure on source-path retry)");
-      failAgent5("Clue generation failed: LLM returned empty clues on source-path retry");
+      // Guard: if LLM returned status=fail with empty clues on retry, fail with a clear message
+      // rather than propagating 0-count clues into the guardrail which produces misleading errors.
+      if (clues.clues.length === 0) {
+        ctx.errors.push("Agent 5 retry returned zero clues (LLM self-reported failure on source-path retry)");
+        failAgent5("Clue generation failed: LLM returned empty clues on source-path retry");
+      }
+
+      const secondGuardrailPass = applyClueGuardrails(ctx.cml!, clues);
+      secondGuardrailPass.fixes.forEach((fix) => ctx.warnings.push(`Agent 5: Guardrail auto-fix - ${fix}`));
+      if (secondGuardrailPass.hasCriticalIssues) {
+        secondGuardrailPass.issues.forEach((i) =>
+          ctx.errors.push(`Agent 5 guardrail failure: ${i.message}`)
+        );
+        failAgent5("Clue generation failed deterministic fair-play guardrails");
+      }
+      clueGuardrails = secondGuardrailPass;
+    } else {
+      ctx.warnings.push("Agent 5: skipping LLM regeneration for guardrail/source-path issues; continuing with deterministic backstops");
     }
-
-    const secondGuardrailPass = applyClueGuardrails(ctx.cml!, clues);
-    secondGuardrailPass.fixes.forEach((fix) => ctx.warnings.push(`Agent 5: Guardrail auto-fix - ${fix}`));
-    if (secondGuardrailPass.hasCriticalIssues) {
-      secondGuardrailPass.issues.forEach((i) =>
-        ctx.errors.push(`Agent 5 guardrail failure: ${i.message}`)
-      );
-      failAgent5("Clue generation failed deterministic fair-play guardrails");
-    }
-    clueGuardrails = secondGuardrailPass;
   }
 
   // ── WP4: Inference Path Coverage Gate ─────────────────────────────────────
@@ -2723,10 +2868,11 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     falseAssumptionIssues.some((i) => i.severity === "critical") ||
     discrimTestIssues.some((i) => i.severity === "critical")
   ) {
-    performedCoverageRetry = true;
-    ctx.warnings.push(
-      "Inference coverage gate: critical gaps found; regenerating clues with coverage feedback"
-    );
+    if (llmRetriesEnabled) {
+      performedCoverageRetry = true;
+      ctx.warnings.push(
+        "Inference coverage gate: critical gaps found; regenerating clues with coverage feedback"
+      );
 
     const coverageFeedback = {
       overallStatus: "fail" as const,
@@ -2748,27 +2894,30 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       ],
     };
 
-    ctx.reportProgress("clues", "Regenerating clues to address coverage gaps...", 58);
-    const coverageRetryStart = Date.now();
-    agent5RetryInvoked = true;
-    clues = await extractWithAttempt({
-      cml: ctx.cml!,
-      clueDensity,
-      redHerringBudget: 2,
-      fairPlayFeedback: mergeStrictPromptFeedback(coverageFeedback),
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
+      ctx.reportProgress("clues", "Regenerating clues to address coverage gaps...", 58);
+      const coverageRetryStart = Date.now();
+      agent5RetryInvoked = true;
+      clues = await extractWithAttempt({
+        cml: ctx.cml!,
+        clueDensity,
+        redHerringBudget: 2,
+        fairPlayFeedback: mergeStrictPromptFeedback(coverageFeedback),
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
 
-    ctx.agentCosts["agent5_clues"] =
-      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
-    ctx.agentDurations["agent5_clues"] =
-      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - coverageRetryStart);
+      ctx.agentCosts["agent5_clues"] =
+        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentDurations["agent5_clues"] =
+        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - coverageRetryStart);
 
-    const postCoverageGuardrails = applyClueGuardrails(ctx.cml!, clues);
-    postCoverageGuardrails.fixes.forEach((fix) =>
-      ctx.warnings.push(`Post-coverage guardrail auto-fix: ${fix}`)
-    );
+      const postCoverageGuardrails = applyClueGuardrails(ctx.cml!, clues);
+      postCoverageGuardrails.fixes.forEach((fix) =>
+        ctx.warnings.push(`Post-coverage guardrail auto-fix: ${fix}`)
+      );
+    } else {
+      ctx.warnings.push("Inference coverage gate: critical gaps detected; skipping LLM retry and relying on deterministic step/evidence backstops");
+    }
   }
 
   // ── FIX-J: Per-suspect clue coverage gate ─────────────────────────────────
@@ -2821,68 +2970,76 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       };
     });
 
-    const suspectRetryStart = Date.now();
-    agent5RetryInvoked = true;
-    const suspectCoverageFeedback = {
-      overallStatus: "fail" as const,
-      violations: suspectViolations,
-      warnings: [],
-      recommendations: [
-        "Every eligible non-culprit suspect must appear in at least one clue",
-        "Every eligible non-culprit suspect should include elimination/alibi support, not only name mentions",
-        "Clues can reference a suspect via their alibi, observed behaviour, or elimination evidence",
-        "Adding elimination clues for uncovered suspects does not require extra inference steps",
-      ],
-    };
-    ctx.reportProgress("clues", "Regenerating clues to address suspect coverage gaps...", 60);
-    clues = await extractWithAttempt({
-      cml: ctx.cml!,
-      clueDensity,
-      redHerringBudget: 2,
-      fairPlayFeedback: mergeStrictPromptFeedback(suspectCoverageFeedback),
-      runId: ctx.runId,
-      projectId: ctx.projectId || "",
-    });
-    ctx.agentCosts["agent5_clues"] =
-      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
-    ctx.agentDurations["agent5_clues"] =
-      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - suspectRetryStart);
+    if (llmRetriesEnabled) {
+      performedSuspectRetry = true;
+      const suspectRetryStart = Date.now();
+      agent5RetryInvoked = true;
+      const suspectCoverageFeedback = {
+        overallStatus: "fail" as const,
+        violations: suspectViolations,
+        warnings: [],
+        recommendations: [
+          "Every eligible non-culprit suspect must appear in at least one clue",
+          "Every eligible non-culprit suspect should include elimination/alibi support, not only name mentions",
+          "Clues can reference a suspect via their alibi, observed behaviour, or elimination evidence",
+          "Adding elimination clues for uncovered suspects does not require extra inference steps",
+        ],
+      };
+      ctx.reportProgress("clues", "Regenerating clues to address suspect coverage gaps...", 60);
+      clues = await extractWithAttempt({
+        cml: ctx.cml!,
+        clueDensity,
+        redHerringBudget: 2,
+        fairPlayFeedback: mergeStrictPromptFeedback(suspectCoverageFeedback),
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      ctx.agentCosts["agent5_clues"] =
+        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentDurations["agent5_clues"] =
+        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - suspectRetryStart);
 
-    const postSuspectGuardrails = applyClueGuardrails(ctx.cml!, clues);
-    postSuspectGuardrails.fixes.forEach((fix) =>
-      ctx.warnings.push(`Post-suspect-coverage guardrail auto-fix: ${fix}`)
-    );
-
-    // Re-check; if suspects are still uncovered after retry, log a warning only
-    // (do not hard-fail — the story can still be generated, just with a gap).
-    const postRetryCoverage = analyzeSuspectCoverage(ctx.cml!, clues);
-    const stillUncovered = postRetryCoverage.uncovered;
-    const stillWeak = postRetryCoverage.weakElimination;
-    if (stillUncovered.length > 0 || stillWeak.length > 0) {
-      const summaryParts: string[] = [];
-      if (stillUncovered.length > 0) {
-        summaryParts.push(`Uncovered suspects: ${stillUncovered.join(", ")}`);
-      }
-      if (stillWeak.length > 0) {
-        summaryParts.push(`Weak elimination/alibi evidence: ${stillWeak.join(", ")}`);
-      }
-      ctx.warnings.push(
-        `Agent 5 suspect-coverage gate still has gaps after retry (continuing): ${summaryParts.join("; ")}`,
+      const postSuspectGuardrails = applyClueGuardrails(ctx.cml!, clues);
+      postSuspectGuardrails.fixes.forEach((fix) =>
+        ctx.warnings.push(`Post-suspect-coverage guardrail auto-fix: ${fix}`)
       );
 
-      // Preserve per-suspect diagnostics so downstream auditing can still act on gaps.
-      postRetryCoverage.records
-        .filter(
-          (r) => stillUncovered.includes(r.suspect) || stillWeak.includes(r.suspect),
-        )
-        .forEach((r) => {
-          const refs = r.referencedClueIds.length > 0 ? r.referencedClueIds.join(", ") : "(none)";
-          const elim = r.eliminationClueIds.length > 0 ? r.eliminationClueIds.join(", ") : "(none)";
-          const alibi = r.alibiClueIds.length > 0 ? r.alibiClueIds.join(", ") : "(none)";
-          ctx.warnings.push(
-            `  - ${r.suspect}: referenced clues=${refs}; elimination clues=${elim}; alibi clues=${alibi}`,
-          );
-        });
+      // Re-check; if suspects are still uncovered after retry, log a warning only
+      // (do not hard-fail — the story can still be generated, just with a gap).
+      const postRetryCoverage = analyzeSuspectCoverage(ctx.cml!, clues);
+      const stillUncovered = postRetryCoverage.uncovered;
+      const stillWeak = postRetryCoverage.weakElimination;
+      if (stillUncovered.length > 0 || stillWeak.length > 0) {
+        const summaryParts: string[] = [];
+        if (stillUncovered.length > 0) {
+          summaryParts.push(`Uncovered suspects: ${stillUncovered.join(", ")}`);
+        }
+        if (stillWeak.length > 0) {
+          summaryParts.push(`Weak elimination/alibi evidence: ${stillWeak.join(", ")}`);
+        }
+        ctx.warnings.push(
+          `Agent 5 suspect-coverage gate still has gaps after retry (continuing): ${summaryParts.join("; ")}`,
+        );
+
+        // Preserve per-suspect diagnostics so downstream auditing can still act on gaps.
+        postRetryCoverage.records
+          .filter(
+            (r) => stillUncovered.includes(r.suspect) || stillWeak.includes(r.suspect),
+          )
+          .forEach((r) => {
+            const refs = r.referencedClueIds.length > 0 ? r.referencedClueIds.join(", ") : "(none)";
+            const elim = r.eliminationClueIds.length > 0 ? r.eliminationClueIds.join(", ") : "(none)";
+            const alibi = r.alibiClueIds.length > 0 ? r.alibiClueIds.join(", ") : "(none)";
+            ctx.warnings.push(
+              `  - ${r.suspect}: referenced clues=${refs}; elimination clues=${elim}; alibi clues=${alibi}`,
+            );
+          });
+      }
+    } else {
+      const suspectBackstopRepairs = synthesizeSuspectCoverageBackstopClues(ctx.cml!, clues, suspectsNeedingCoverage);
+      suspectBackstopRepairs.forEach((repair) =>
+        ctx.warnings.push(`Agent 5 suspect-coverage deterministic synthesis: ${repair}`),
+      );
     }
   }
 
@@ -2913,8 +3070,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       }
     }
 
-    const redHerringRetryStart = Date.now();
-    agent5RetryInvoked = true;
+    if (llmRetriesEnabled) {
+      performedRedHerringRetry = true;
+      const redHerringRetryStart = Date.now();
+      agent5RetryInvoked = true;
     const overlapTerms = [...new Set(initialRedHerringOverlapDetails.flatMap((d) => d.matchedCorrectionWords || []))]
       .map((t) => String(t).trim().toLowerCase())
       .filter(Boolean);
@@ -2927,7 +3086,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       return `${term} -> ${replacement}`;
     });
 
-    clues = await extractWithAttempt({
+      clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
       redHerringBudget: 2,
@@ -2966,18 +3125,18 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       projectId: ctx.projectId || "",
     });
 
-    ctx.agentCosts["agent5_clues"] =
-      (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
-    ctx.agentDurations["agent5_clues"] =
-      (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringRetryStart);
+      ctx.agentCosts["agent5_clues"] =
+        (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentDurations["agent5_clues"] =
+        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringRetryStart);
 
-    const postRedHerringGuardrails = applyClueGuardrails(ctx.cml!, clues);
-    postRedHerringGuardrails.fixes.forEach((fix) =>
-      ctx.warnings.push(`Post-red-herring guardrail auto-fix: ${fix}`),
-    );
+      const postRedHerringGuardrails = applyClueGuardrails(ctx.cml!, clues);
+      postRedHerringGuardrails.fixes.forEach((fix) =>
+        ctx.warnings.push(`Post-red-herring guardrail auto-fix: ${fix}`),
+      );
 
-    const postRetryRedHerringOverlapDetails = findRedHerringOverlapDetails(ctx.cml!, clues);
-    if (postRetryRedHerringOverlapDetails.length > 0) {
+      const postRetryRedHerringOverlapDetails = findRedHerringOverlapDetails(ctx.cml!, clues);
+      if (postRetryRedHerringOverlapDetails.length > 0) {
       const severeOverlap = postRetryRedHerringOverlapDetails.filter((d) => d.overlapScore >= 4);
       if (severeOverlap.length > 0) {
         const overlapRepairs = sanitizeRedHerringOverlap(ctx.cml!, clues, severeOverlap, temporalCollision.allowedTerms);
@@ -3003,9 +3162,45 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
           }
         }
       }
-      ctx.warnings.push(
-        `Agent 5: minor red-herring overlap remains after retry (${postRetryRedHerringOverlapDetails.map((d) => d.redHerringId).join(", ")}); continuing with warning`,
+        ctx.warnings.push(
+          `Agent 5: minor red-herring overlap remains after retry (${postRetryRedHerringOverlapDetails.map((d) => d.redHerringId).join(", ")}); continuing with warning`,
+        );
+      }
+    } else {
+      const overlapRepairs = sanitizeRedHerringOverlap(
+        ctx.cml!,
+        clues,
+        initialRedHerringOverlapDetails,
+        temporalCollision.allowedTerms,
       );
+      overlapRepairs.forEach((repair) =>
+        ctx.warnings.push(`Agent 5 red-herring deterministic sanitizer: ${repair}`),
+      );
+
+      const severePostSanitize = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
+      if (severePostSanitize.length > 0) {
+        const overlapIds = severePostSanitize.map((d) => d.redHerringId);
+        const pruned = pruneOverlappingRedHerrings(clues, overlapIds);
+        if (pruned.length > 0) {
+          ctx.warnings.push(
+            `Agent 5 red-herring overlap hardening: pruned persistently overlapping red herring(s) (${pruned.join(", ")})`,
+          );
+        }
+
+        const remainingSevere = findRedHerringOverlapDetails(ctx.cml!, clues).filter((d) => d.overlapScore >= 4);
+        if (remainingSevere.length > 0) {
+          failAgent5(
+            `Agent 5 red-herring overlap gate failed after deterministic sanitization. Overlapping red herring(s): ${remainingSevere.map((d) => d.redHerringId).join(", ")}`,
+          );
+        }
+      }
+
+      const remainingMinor = findRedHerringOverlapDetails(ctx.cml!, clues);
+      if (remainingMinor.length > 0) {
+        ctx.warnings.push(
+          `Agent 5: minor red-herring overlap remains after deterministic sanitization (${remainingMinor.map((d) => d.redHerringId).join(", ")}); continuing with warning`,
+        );
+      }
     }
   }
 
@@ -3104,7 +3299,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   // Final targeted remediation: if discriminating-test evidence_clues IDs are still
   // missing, run one bounded retry with exact ID contract feedback before hard-fail.
   const missingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
-  if (missingEvidenceIds.length > 0) {
+  if (missingEvidenceIds.length > 0 && llmRetriesEnabled) {
     ctx.warnings.push(
       `Agent 5: ${missingEvidenceIds.length} discriminating-test evidence clue ID(s) still missing after retries; running targeted ID-contract retry`,
     );
@@ -3231,8 +3426,8 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     const clueValidation = Math.round((guardrailScore + coverageScore) / 2);
     const warningCount = finalCoverage.allCoverageIssues.filter((i) => i.severity === "warning").length;
     const retryPenalty = (performedCoverageRetry ? 10 : 0)
-      + (suspectsNeedingCoverage.length > 0 ? 8 : 0)
-      + (initialRedHerringOverlapDetails.length > 0 ? 8 : 0);
+      + (performedSuspectRetry ? 8 : 0)
+      + (performedRedHerringRetry ? 8 : 0);
     const qualityScore = Math.max(70, 100 - (warningCount * 6) - (clueGuardrails.fixes.length * 4));
     const consistencyScore = Math.max(70, 100 - retryPenalty);
     const clueTotal = Math.round(
@@ -3296,7 +3491,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
             passed: consistencyScore >= 80,
             score: consistencyScore,
             weight: 1.5,
-            message: `Retry penalty=${retryPenalty} (coverage retry=${performedCoverageRetry}, suspect retry=${suspectsNeedingCoverage.length > 0}, red-herring retry=${initialRedHerringOverlapDetails.length > 0})`,
+            message: `Retry penalty=${retryPenalty} (coverage retry=${performedCoverageRetry}, suspect retry=${performedSuspectRetry}, red-herring retry=${performedRedHerringRetry})`,
           },
         ],
       },

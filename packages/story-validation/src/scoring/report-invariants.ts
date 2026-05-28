@@ -13,7 +13,7 @@ function toNumber(value: unknown): number {
 
 function getCanonicalOutcome(report: Record<string, unknown>): RunOutcome | undefined {
   const explicit = report.run_outcome;
-  if (explicit === 'passed' || explicit === 'failed' || explicit === 'aborted') {
+  if (explicit === 'passed' || explicit === 'failed' || explicit === 'aborted' || explicit === 'infra_failure') {
     return explicit;
   }
 
@@ -184,10 +184,24 @@ export function validateGenerationReportInvariants(
     });
   }
 
+  if (outcome === 'infra_failure' && passed === true) {
+    violations.push({
+      code: 'infra_failure_run_cannot_pass',
+      message: 'Infrastructure-failure runs cannot have passed=true.',
+    });
+  }
+
   if (outcome === 'aborted' && abortReason.length === 0) {
     violations.push({
       code: 'aborted_run_requires_reason',
       message: 'Aborted runs must include run_outcome_reason (or legacy abort_reason).',
+    });
+  }
+
+  if (outcome === 'infra_failure' && abortReason.length === 0) {
+    violations.push({
+      code: 'infra_failure_run_requires_reason',
+      message: 'run_outcome=infra_failure requires run_outcome_reason (or legacy abort_reason).',
     });
   }
 
@@ -202,7 +216,7 @@ export function validateGenerationReportInvariants(
     }
   }
 
-  if (hasMissingNsdEvidenceAnchors(candidate)) {
+  if (outcome === 'passed' && hasMissingNsdEvidenceAnchors(candidate)) {
     violations.push({
       code: 'nsd_revealed_clues_missing_evidence_anchors',
       message:

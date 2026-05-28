@@ -123,9 +123,9 @@ export class RetryManager {
           backoff_delay_ms: 2000,
         },
         'agent7_narrative': {
-          max_retries: 3,
+          max_retries: 4,
           backoff_strategy: 'exponential',
-          backoff_delay_ms: 1000,
+          backoff_delay_ms: 2000,
         },
         'agent65_world_builder': {
           max_retries: 1,
@@ -138,13 +138,13 @@ export class RetryManager {
           backoff_delay_ms: 500,
         },
         'agent9_prose': {
-          max_retries: 2,
+          max_retries: 3,
           backoff_strategy: 'exponential',
-          backoff_delay_ms: 3000,
+          backoff_delay_ms: 5000,
         },
       },
       global: {
-        max_total_retries: 15,
+        max_total_retries: 18,
         enhanced_feedback: true,
         log_retries: true,
         abort_on_max_retries: true,
