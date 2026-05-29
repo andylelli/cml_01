@@ -259,6 +259,13 @@ export interface MysteryGenerationResult {
 
 export type ProgressCallback = (progress: MysteryGenerationProgress) => void;
 
+/**
+ * Called immediately after each pipeline agent completes with a persisted-ready
+ * artifact. Allows the API to write incremental artifacts to the DB during the
+ * run so the UI can display them via polling before the pipeline finishes.
+ */
+export type ArtifactCallback = (type: string, payload: unknown) => Promise<void>;
+
 type FairPlayViolationLike = {
   severity?: string;
   rule?: string;
@@ -502,7 +509,8 @@ function assembleCharacterBundle(
 export async function generateMystery(
   client: AzureOpenAIClient,
   inputs: MysteryGenerationInputs,
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  onArtifact?: ArtifactCallback
 ): Promise<MysteryGenerationResult> {
   // ── Outer-scope vars (accessible by catch block) ─────────────────────────
   const startTime = Date.now();
@@ -652,10 +660,15 @@ export async function generateMystery(
 
     // ── Pipeline ────────────────────────────────────────────────────────────
     await runAgent1(ctx);   // Era & Setting Refiner
+    if (onArtifact && ctx.setting) await onArtifact("setting", ctx.setting).catch(() => {});
     await runAgent2(ctx);   // Cast & Motive Designer
+    if (onArtifact && ctx.cast) await onArtifact("cast", ctx.cast).catch(() => {});
     await runAgent2e(ctx);  // Background Context
+    if (onArtifact && ctx.backgroundContext) await onArtifact("background_context", ctx.backgroundContext).catch(() => {});
     await runAgent3b(ctx);  // Hard-Logic Device Ideation
+    if (onArtifact && ctx.hardLogicDevices) await onArtifact("hard_logic_devices", ctx.hardLogicDevices).catch(() => {});
     await runAgent3(ctx);   // CML Generator (+ Agent 4 auto-revision)
+    if (onArtifact && ctx.cml) await onArtifact("cml", ctx.cml).catch(() => {});
 
     // ── Pillar 3 (Unit 3.2): Novelty binding gate ───────────────────────────
     if (inputs.enableBindingGates && ctx.noveltyAudit?.blocking) {
@@ -675,7 +688,9 @@ export async function generateMystery(
     }
 
     await runAgent5(ctx);   // Clue Distributor
+    if (onArtifact && ctx.clues) await onArtifact("clues", ctx.clues).catch(() => {});
     await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
+    if (onArtifact && ctx.fairPlayAudit) await onArtifact("fair_play_report", ctx.fairPlayAudit).catch(() => {});
 
     // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
     if (inputs.enableBindingGates && ctx.fairPlayAudit?.blocking) {
@@ -711,8 +726,11 @@ export async function generateMystery(
     }
 
     await runAgent2b(ctx);  // Character Profiles
+    if (onArtifact && ctx.characterProfiles) await onArtifact("character_profiles", ctx.characterProfiles).catch(() => {});
     await runAgent2c(ctx);  // Location Profiles
+    if (onArtifact && ctx.locationProfiles) await onArtifact("location_profiles", ctx.locationProfiles).catch(() => {});
     await runAgent2d(ctx);  // Temporal Context
+    if (onArtifact && ctx.temporalContext) await onArtifact("temporal_context", ctx.temporalContext).catch(() => {});
 
     // ── CML Validation Gate ─────────────────────────────────────────────────
     // Prevents spending prose-generation cost on broken mystery structure.
@@ -905,6 +923,7 @@ export async function generateMystery(
 
     // ── World Builder + Narrative Outline ───────────────────────────────────
     await runAgent65(ctx);  // World Document synthesis
+    if (onArtifact && ctx.worldDocument) await onArtifact("world_document", ctx.worldDocument).catch(() => {});
 
     // ── Pillar 2 (Unit 2.1): Assemble Character Context Bundle ────────────────
     if (inputs.enableCharacterBundle && ctx.characterProfiles && ctx.worldDocument) {
@@ -933,6 +952,7 @@ export async function generateMystery(
     });
 
     await runAgent7(ctx);   // Narrative Outliner
+    if (onArtifact && ctx.narrative) await onArtifact("outline", ctx.narrative).catch(() => {});
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
     if (inputs.enableLockedFactGate && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0 && ctx.narrative) {
@@ -952,6 +972,7 @@ export async function generateMystery(
     });
 
     await runAgent9(ctx);
+    if (onArtifact && ctx.prose) await onArtifact("prose", ctx.prose).catch(() => {});
 
     // ── Complete ─────────────────────────────────────────────────────────────
     const totalDurationMs = Date.now() - startTime;

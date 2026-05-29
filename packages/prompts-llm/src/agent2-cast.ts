@@ -260,6 +260,10 @@ Character schema (all fields required):
 
 Relationship schema:
 - pairs[] with character1, character2, relationship, tension (none|low|moderate|high), sharedHistory
+- F30-4: The "relationship" and "sharedHistory" fields MUST name the two characters by their actual names
+  (e.g. "Quincy and Brabazon served together in the navy — Brabazon knows Quincy's wartime secret").
+  Generic descriptors without names ("they have a complicated past", "long-standing rivalry") will fail
+  the relationship density quality check. Every pair entry must be a named, specific factual connection.
 
 Diversity schema:
 - stereotypeCheck (must end as [])
@@ -277,6 +281,9 @@ Quality bar:
 - Red herrings are plausible but not arbitrary.
 - Relationship tensions should explain at least part of motive distribution.
 - roleArchetype labels should be specific and diverse, not generic repeats.
+- F30-4: Every relationship pair's "relationship" description must mention at least one of the two
+  characters by name, and "sharedHistory" must mention both characters by name. A scoring check
+  verifies that relationships reference cast member names — generic descriptions score 0.
 
 Micro-exemplars (patterns to follow, not content to copy):
 - Good motive/opportunity coupling:

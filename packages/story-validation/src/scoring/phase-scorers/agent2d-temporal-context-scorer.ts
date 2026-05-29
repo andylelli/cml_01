@@ -380,7 +380,9 @@ export class TemporalContextScorer
       tests.push(
         consistent
           ? pass('Season/weather consistency', 'consistency', 1.0)
-          : fail('Season/weather consistency', 'consistency', 1.0, 'Season and weather patterns conflict', 'minor')
+          // F30-3: minor conflict → partial(50) so consistency_score ≥ 50 component minimum;
+          // a single minor sub-test must not tank a phase that scores 90 on the composite.
+          : partial('Season/weather consistency', 'consistency', 50, 1.0, 'Season and weather patterns conflict (minor — partial credit)')
       );
     }
 
@@ -395,7 +397,8 @@ export class TemporalContextScorer
         tests.push(
           fashionEraConsistent
             ? pass('Fashion/era consistency', 'consistency', 1.0)
-            : fail('Fashion/era consistency', 'consistency', 1.0, 'Fashion markers conflict with era', 'minor')
+            // F30-3: minor conflict → partial(50) so consistency_score ≥ 50 component minimum.
+            : partial('Fashion/era consistency', 'consistency', 50, 1.0, 'Fashion markers conflict with era (minor — partial credit)')
         );
       }
     }

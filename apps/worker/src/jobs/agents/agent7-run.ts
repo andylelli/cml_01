@@ -1250,11 +1250,8 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   {
     const preCommitIssues = evaluateOutlinePreCommitCompleteness(narrative);
     if (preCommitIssues.length > 0) {
-      if (!retriesEnabled) {
-        throw new Error(
-          `Outline pre-commit completeness gate failed in deterministic mode (retry disabled): ${preCommitIssues.join(" | ")}`,
-        );
-      }
+      // Pre-commit completeness remediation is a structural repair (generate the missing content),
+      // not a speculative quality retry. Run unconditionally regardless of retriesEnabled.
       const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
       ctx.warnings.push(
         `Outline pre-commit completeness gate found ${preCommitIssues.length} issue(s); running bundled remediation pass.`,

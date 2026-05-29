@@ -237,8 +237,20 @@ export class ProseConsistencyValidator implements Validator {
       const wrong = oppositePronouns(gender);
       if (!canonical || !wrong) continue;
 
-      const firstName = castMember.name.split(' ')[0];
+      const nameParts = castMember.name.trim().split(/\s+/);
+      const firstName = nameParts[0] ?? '';
+      // F30-2: Also search by surname so "Quincy" references near wrong pronouns are caught
+      // even when the first name "Robert" doesn't appear in that local context.
+      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1]! : '';
+      // Deduplicate: if first name === last name (single-word name), search once only.
+      const searchNames = (lastName && lastName !== firstName) ? [firstName, lastName] : [firstName];
+
       const windowSize = 200; // characters around name mention to check
+      // F30-2: Narrower competitor window (100 chars) prevents a far-away opposite-gender
+      // character from suppressing a genuine pronoun error near the subject character's name.
+      // Previously the full ±200 window was used, causing false-negative suppression in
+      // multi-character scenes where a female character was 3+ sentences from the wrong pronoun.
+      const competitorWindowSize = 100;
 
       // Competing-entity guard: collect all name parts (first + last + middle) of
       // characters whose gender matches the "wrong" pronoun set.
@@ -249,42 +261,54 @@ export class ProseConsistencyValidator implements Validator {
         .filter((c) => c.gender === oppositeGender)
         .flatMap((c) => c.name.split(/\s+/).filter((part) => part.length >= 3));
 
-      for (const scene of story.scenes) {
-        const positions = this.findNamePositions(scene.text, firstName);
-        for (const pos of positions) {
-          const window = scene.text.slice(Math.max(0, pos - windowSize), pos + firstName.length + windowSize);
-          // Strip balanced dialogue once and reuse for both the pronoun test and the
-          // competitor guard — avoids calling the strip function twice per position.
-          const windowStripped = stripDialogueFromWindow(window);
-          const windowLower = windowStripped.toLowerCase();
+      // Track scenes already flagged for this character (one error per character per scene).
+      const flaggedScenes = new Set<number>();
 
-          // If a wrong-gender pronoun appears in this window, flag it — unless a
-          // character of that gender is also named (ambiguous reference, not an error).
-          const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
-          if (wrongPronounPattern.test(windowLower)) {
-            // Competitor check: use the same ±windowSize detection window (windowStripped)
-            // rather than the full paragraph. A competitor in a different sentence of the
-            // same paragraph is too far away to create genuine pronoun ambiguity and should
-            // not suppress a real drift error. Previously the paragraph-scope check suppressed
-            // valid errors when any opposite-gender character appeared anywhere in the paragraph
-            // (e.g. Eleanor Voss + a male character 3 sentences apart).
-            const competitorSearchText = windowStripped;
-            const competitorFound = oppositeFirstNames.some((fn) =>
-              new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
-            );
-            // Use `continue` (not `break`) so that subsequent occurrences of the
-            // character's name in the same scene are still checked — the competitor
-            // suppression at position A should not silence a genuine drift at position B.
-            if (competitorFound) continue;
-            errors.push({
-              type: 'pronoun_drift',
-              message: `Pronoun drift for "${castMember.name}" in chapter ${scene.number}: expected ${canonical.subject}/${canonical.object}/${canonical.possessive} (${gender}) but found a ${gender === 'male' ? 'female' : 'male'} pronoun nearby.`,
-              severity: 'moderate',
-              sceneNumber: scene.number,
-              suggestion: `Use "${canonical.subject}/${canonical.object}/${canonical.possessive}" exclusively for ${castMember.name}.`,
-              cmlReference: `cast[${castMember.name}].gender`,
-            });
-            break; // one error per character per scene is enough
+      for (const scene of story.scenes) {
+        if (flaggedScenes.has(scene.number)) continue;
+
+        // F30-2: Check positions for each search name (first name + surname).
+        for (const searchName of searchNames) {
+          if (flaggedScenes.has(scene.number)) break;
+          const positions = this.findNamePositions(scene.text, searchName);
+          for (const pos of positions) {
+            if (flaggedScenes.has(scene.number)) break;
+            const window = scene.text.slice(Math.max(0, pos - windowSize), pos + searchName.length + windowSize);
+            // Strip balanced dialogue once and reuse for both the pronoun test and the
+            // competitor guard — avoids calling the strip function twice per position.
+            const windowStripped = stripDialogueFromWindow(window);
+            const windowLower = windowStripped.toLowerCase();
+
+            // If a wrong-gender pronoun appears in this window, flag it — unless a
+            // character of that gender is also named (ambiguous reference, not an error).
+            const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
+            if (wrongPronounPattern.test(windowLower)) {
+              // F30-2: Competitor check uses a narrower ±competitorWindowSize window (100 chars)
+              // rather than the full ±200 detection window. A competitor mentioned 150+ chars
+              // away from the wrong pronoun is too far to create genuine pronoun ambiguity.
+              // Previously the full window was used, suppressing valid errors in scenes where
+              // an opposite-gender character appeared anywhere in the 400-char span.
+              const nameOffset = pos - Math.max(0, pos - windowSize); // offset of name within window
+              const competitorStart = Math.max(0, nameOffset - competitorWindowSize);
+              const competitorEnd = Math.min(windowStripped.length, nameOffset + searchName.length + competitorWindowSize);
+              const competitorSearchText = windowStripped.slice(competitorStart, competitorEnd);
+              const competitorFound = oppositeFirstNames.some((fn) =>
+                new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
+              );
+              // Use flaggedScenes set so that checking additional search names for the same
+              // character in the same scene doesn't produce duplicate errors.
+              if (competitorFound) continue;
+              flaggedScenes.add(scene.number);
+              errors.push({
+                type: 'pronoun_drift',
+                message: `Pronoun drift for "${castMember.name}" in chapter ${scene.number}: expected ${canonical.subject}/${canonical.object}/${canonical.possessive} (${gender}) but found a ${gender === 'male' ? 'female' : 'male'} pronoun nearby.`,
+                severity: 'moderate',
+                sceneNumber: scene.number,
+                suggestion: `Use "${canonical.subject}/${canonical.object}/${canonical.possessive}" exclusively for ${castMember.name}.`,
+                cmlReference: `cast[${castMember.name}].gender`,
+              });
+              break; // stop checking further positions for this search name
+            }
           }
         }
       }

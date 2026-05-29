@@ -417,7 +417,17 @@ export class CharacterConsistencyValidator implements Validator {
       }
     }
 
-    if (foundDetectives.size > 1) {
+    // F30-1: Normalize found forms by surname before checking inconsistency.
+    // "Janet Warenne" and "Detective Warenne" share the same surname and are
+    // equivalent address forms for the same character — not an inconsistency.
+    // Only flag when two distinct surnames appear (genuinely different names).
+    const foundSurnames = new Set<string>();
+    for (const name of foundDetectives) {
+      const parts = name.trim().split(/\s+/);
+      foundSurnames.add(parts[parts.length - 1]!.toLowerCase());
+    }
+
+    if (foundSurnames.size > 1) {
       errors.push({
         type: 'detective_name_inconsistency',
         message: `Detective name switches between: ${Array.from(foundDetectives).join(', ')}. Use ONE consistent name.`,

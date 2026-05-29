@@ -39,6 +39,7 @@ import {
   fetchProseVersions,
   fetchSampleContent,
   fetchSamples,
+  fetchLatestRun,
   fetchScoringReport,
   fetchScoringHistory,
   logActivity,
@@ -859,6 +860,9 @@ const maybeRefreshLlmLogs = async () => {
 const loadRunEventsForProject = async () => {
   if (!projectId.value) return;
   await projectStore.loadRunEvents(projectId.value);
+  // Refresh artifacts on the same polling cycle so review tabs populate as
+  // each pipeline stage completes — no tab switch needed.
+  void projectStore.loadArtifacts(projectId.value, { includeCml: isAdvanced.value });
   // Refresh quality report on the same cycle as run events so the Quality tab
   // stays reactive without requiring a tab switch. During the run this will
   // 404 silently; once the report is written, the next cycle picks it up.
@@ -967,7 +971,7 @@ watch(activeAdvancedTab, (newTab) => {
       void loadScoringHistory();
     }
   }
-});
+}, { immediate: true });
 
 watch([activeMainTab, activeAdvancedTab, projectId], async ([mainTab, advancedTab, currentProject]) => {
   if (mainTab === "advanced" && advancedTab === "logs") {
@@ -1200,14 +1204,20 @@ const loadArtifacts = async () => {
 };
 
 const loadScoringReport = async () => {
-  if (!projectId.value || !latestRunId.value) return;
+  if (!projectId.value) return;
   isScoringReportLoading.value = true;
   try {
-    const report = await fetchScoringReport(projectId.value, latestRunId.value);
-    scoringReport.value = report as GenerationReport;
+    // Resolve the run ID — prefer the store value, fall back to API lookup.
+    const runId = latestRunId.value ?? (await fetchLatestRun(projectId.value).catch(() => null))?.id ?? null;
+    if (runId) {
+      const report = await fetchScoringReport(projectId.value, runId);
+      if (report) {
+        scoringReport.value = report as GenerationReport;
+        return;
+      }
+    }
   } catch {
-    // Do not clear existing data on failure — keep showing the last known report
-    // so the quality tab stays populated if the new run's report isn't ready yet.
+    // Do not clear existing data on failure — keep showing the last known report.
     if (!scoringReport.value) {
       scoringReport.value = null;
     }
@@ -1644,6 +1654,7 @@ onMounted(async () => {
   window.addEventListener("keydown", handleGlobalKeydown);
   await loadProjects();
   loadSamples();
+  void loadScoringReport();
 });
 
 onBeforeUnmount(() => {
@@ -2880,32 +2891,22 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="activeAdvancedTab === 'quality'" class="space-y-4">
-              <!-- Run in progress state -->
-              <template v-if="isRunning || isStartingRun">
-                <div class="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
-                  <font-awesome-icon icon="spinner" spin class="flex-shrink-0" />
-                  <div>
-                    <span class="font-semibold">Run in progress</span>
-                    <span class="ml-1">— quality report will appear here when generation completes.</span>
-                  </div>
+              <!-- Run in progress banner -->
+              <div v-if="isRunning || isStartingRun" class="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                <font-awesome-icon icon="spinner" spin class="flex-shrink-0" />
+                <div>
+                  <span class="font-semibold">Run in progress</span>
+                  <span class="ml-1 text-blue-600">— {{ runProgressLabel }}</span>
                 </div>
-                <template v-if="scoringReport">
-                  <div class="px-1 text-xs font-medium text-slate-400">Previous run results</div>
-                  <ScoreCard :report="scoringReport" :loading="false" />
-                  <PhaseBreakdownTable :phases="scoringReport.phases" />
-                  <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
-                </template>
-              </template>
-              <!-- Idle state -->
+              </div>
+              <!-- Quality report (always visible) -->
+              <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                Loading quality report...
+              </div>
               <template v-else>
-                <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-                  Loading quality report...
-                </div>
-                <template v-else>
-                  <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
-                  <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
-                  <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
-                </template>
+                <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
+                <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
+                <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
               </template>
             </div>
               </div>

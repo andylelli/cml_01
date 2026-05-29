@@ -413,15 +413,15 @@ const buildLlmLogger = () =>
     logLevel: process.env.LOG_LEVEL as LogLevel | undefined,
     logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
     logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
-    logFilePath: process.env.LOG_FILE_PATH || path.resolve(process.cwd(), "logs", "llm.jsonl"),
+    logFilePath: process.env.LOG_FILE_PATH || path.resolve(__dirname, "../../..", "logs", "llm.jsonl"),
     logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
     fullPromptLogFilePath:
       process.env.FULL_PROMPT_LOG_FILE_PATH ||
-      path.resolve(process.cwd(), "logs", "llm-prompts-full.jsonl"),
+      path.resolve(__dirname, "../../..", "logs", "llm-prompts-full.jsonl"),
     logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
     actualPromptDocsDir:
       process.env.ACTUAL_PROMPT_DOCS_DIR ||
-      path.resolve(process.cwd(), "..", "..", "documentation", "prompts", "actual"),
+      path.resolve(__dirname, "../../..", "documentation", "prompts", "actual"),
   });
 
 const describeError = (error: unknown) => {
@@ -599,19 +599,51 @@ const buildReadableStoryText = (prose: Record<string, unknown>, fallbackTitle?: 
   return `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`;
 };
 
-const saveReadableStoryText = async (projectId: string, prose: Record<string, unknown>, fallbackTitle?: string) => {
-  const storyText = buildReadableStoryText(prose, fallbackTitle);
-  // Convert smart quotes to straight quotes for better compatibility with text editors
-  const compatibleText = storyText
-    .replace(/[\u2018\u2019]/g, "'")  // smart single quotes → straight apostrophe
-    .replace(/[\u201C\u201D]/g, '"')  // smart double quotes → straight quotes
-    .replace(/\u2026/g, '...')        // ellipsis → three dots
-    .replace(/[\u2013\u2014]/g, '-'); // en/em dash → hyphen
-  const filename = `project_${toStoryFileToken(projectId)}.txt`;
-  const filePath = path.join(storiesDir, filename);
-  await fs.mkdir(storiesDir, { recursive: true });
-  await fs.writeFile(filePath, compatibleText, "utf-8");
-  return filename;
+const saveReadableStoryText = async (projectId: string, prose: Record<string, unknown>, runId: string, fallbackTitle?: string) => {
+  const rawTitle = String(prose.title || prose.note || fallbackTitle || "Mystery Story");
+  const storyTitle = rawTitle
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u2026/g, '...')
+    .replace(/[\u2013\u2014]/g, '-')
+    .trim();
+
+  const slug = storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 48);
+  const now = new Date();
+  const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+  const storyDir = path.join(storiesDir, `story_${datePart}`);
+  const filename = `${slug}.md`;
+  const filePath = path.join(storyDir, filename);
+
+  const chapters = Array.isArray(prose.chapters) ? (prose.chapters as Array<Record<string, unknown>>) : [];
+  const lines: string[] = [`# ${storyTitle}`, ``, `*Run ID: ${runId} \u2014 Generated ${now.toDateString()}*`, ``, `---`];
+
+  for (let i = 0; i < chapters.length; i++) {
+    const ch = chapters[i];
+    const chTitle = String(ch.title || `Chapter ${i + 1}`)
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/\u2026/g, '...')
+      .replace(/[\u2013\u2014]/g, '-')
+      .trim();
+    lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
+    const paragraphs = Array.isArray(ch.paragraphs) ? ch.paragraphs : (ch.text ? [ch.text] : []);
+    for (const p of paragraphs) {
+      const text = String(p ?? '')
+        .replace(/[\u2018\u2019]/g, "'")
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/\u2026/g, '...')
+        .replace(/[\u2013\u2014]/g, '-')
+        .trim();
+      if (text) lines.push(text, ``);
+    }
+    lines.push(`---`);
+  }
+
+  const content = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+  await fs.mkdir(storyDir, { recursive: true });
+  await fs.writeFile(filePath, content, 'utf-8');
+  return path.join(`story_${datePart}`, filename);
 };
 
 
@@ -714,8 +746,15 @@ const runPipeline = async (
       await repo.addRunEvent(runId, progress.stage, progress.message);
     };
 
+    // Artifact callback — persists each artifact to the DB immediately after the
+    // agent that generated it completes. This allows the UI to display data via
+    // polling during the run rather than waiting for the full pipeline to finish.
+    const onArtifact = async (type: string, payload: unknown) => {
+      await repo.createArtifact(projectId, type, payload, null);
+    };
+
     // Call real LLM pipeline
-    const result = await generateMystery(client, inputs, onProgress);
+    const result = await generateMystery(client, inputs, onProgress, onArtifact);
 
     // Save all artifacts
     await repo.createArtifact(projectId, "setting", result.setting, null);
@@ -845,7 +884,7 @@ const runPipeline = async (
     await repo.createArtifact(projectId, `prose_${inputs.targetLength}`, sanitizedProse, null);
     await repo.addRunEvent(runId, "prose_done", `Prose generated (${inputs.targetLength} format)`);
     try {
-      const storyFilename = await saveReadableStoryText(projectId, sanitizedProse, synopsis.title as string | undefined);
+      const storyFilename = await saveReadableStoryText(projectId, sanitizedProse, runId, synopsis.title as string | undefined);
       await repo.addRunEvent(runId, "story_text_done", `Story text saved (${storyFilename})`);
     } catch (storySaveError) {
       await repo.addRunEvent(runId, "story_text_warning", `Story text save skipped: ${describeError(storySaveError)}`);

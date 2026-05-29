@@ -164,7 +164,9 @@ Rules:
 - Create mood appropriate to mystery type
 - Balance atmospheric description with functional detail
 - The output JSON MUST include a top-level \`atmosphere\` object with ALL of these required fields: era, weather, timeFlow, mood, eraMarkers, sensoryPalette, paragraphs. Omitting this object or any of its required fields will cause schema validation failure and the entire output will be rejected.
+- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no gerund clauses, no subject-verb constructions. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
 - F5a NOUN-PHRASE RULE: All values in sensoryDetails arrays (sights, sounds, smells, tactile) and sensoryVariants arrays MUST be short noun phrases of 3–8 words. Do NOT write full sentences, gerund clauses, or any phrase containing a conjugated verb. WRONG: "The fire crackled in the hearth." WRONG: "Rain was drumming on the roof." RIGHT: "crackling hearth-fire", "rain-drummed roof slates", "cold beeswax and ash". This applies to every keyLocation's sensoryDetails and every sensoryVariants entry.
+- F30-5 SENSORY MINIMUM: Each keyLocation's sensoryDetails MUST have at least 4 entries in EACH of sights, sounds, smells, and tactile. Fewer than 4 entries per sense field will fail the quality gate. Aim for 5–6 entries per sense for richness. Sensory richness scoring requires ≥4 noun-phrase entries per field — do not generate placeholder or thin lists.
 - Output valid JSON only.`;
 
   const developer = `# Location Profiles Output Schema
@@ -254,10 +256,11 @@ Requirements:
 - Key locations: 2-3 paragraphs each (include crime scene + AT LEAST 3 other important locations, 4 minimum total)
 - If the narrative does not suggest specific sub-locations, invent context-appropriate ones for the setting type (rooms, outbuildings, grounds, nearby places). A country house has a library, a study, a drawing room, a servants\'s hall, gardens. An ocean liner has a dining saloon, a promenade deck, a cabin corridor, a cargo hold.
 - Atmosphere: 2-3 paragraphs
-- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 4–6 entries per sense field to ensure richness.
+- **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 5–6 entries per sense field to ensure richness.
   ✓ CORRECT: "crackling fire" / "damp stone underfoot" / "wood smoke and tallow" / "worn leather armrest"
   ✗ WRONG: "The fire crackles in the hearth, providing warmth." / "A rich scent of beeswax fills the air."
 - All 5 senses must be present for every key location (sights, sounds, smells, tactile — taste is synthesised from smells)
+- **F30-5 SENSORY MINIMUM**: MINIMUM 4 noun-phrase entries per sense field (sights, sounds, smells, tactile). The quality scorer counts entries — locations with fewer than 4 entries in any sense field score 0 on sensory richness and will fail quality validation. Target 5–6 entries per field.
 - Era-authentic markers: ${eraMarkers.join(', ')}
 - Tone: ${tone}
 - No anachronisms

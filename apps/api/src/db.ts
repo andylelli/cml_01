@@ -133,8 +133,8 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
 
   const persistState = async (state: FileState): Promise<void> => {
     // Chain onto the existing promise so writes are strictly serialised.
-    // Using .then() means a failed previous write doesn't block the next one.
-    const current = (savePromise ?? Promise.resolve()).then(async () => {
+    // .catch(() => {}) absorbs any prior rejection so the next write always runs.
+    const current = (savePromise ?? Promise.resolve()).catch(() => {}).then(async () => {
       await fs.mkdir(storeDir, { recursive: true });
       const payload = JSON.stringify(state, null, 2);
       try {
