@@ -24,6 +24,104 @@ import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
 import { getSceneTarget, STORY_LENGTH_TARGETS } from "@cml/story-validation";
 
+const DEFAULT_TEMPORAL_ANCHOR = "quarter past three";
+
+const TEMPORAL_VARIANT_PATTERNS: RegExp[] = [
+  /\bquarter\s+past\s+three\b/gi,
+  /\bthree\s+fifteen\b/gi,
+  /\bthree-fifteen\b/gi,
+  /\b3\s*[:.]\s*15\b/gi,
+  /\b15\s+minutes\s+past\s+three\b/gi,
+];
+
+const HARD_BANNED_SCAFFOLD_REPLACERS: Array<{ pattern: RegExp; replacement: (anchor: string) => string }> = [
+  {
+    pattern: /\bclock\s+tower\s+at\s+quarter\s+past\s+three\b/gi,
+    replacement: (anchor) => `tower clock reading ${anchor}`,
+  },
+  {
+    pattern: /\bnear\s+the\s+clock\s+tower\s+at\s+quarter\s+past\b[^,.;]*/gi,
+    replacement: (anchor) => `near the tower clock at ${anchor}`,
+  },
+  {
+    pattern: /\bshowed\s+quarter\s+past\s+three\s+when\s+the\s+body\b/gi,
+    replacement: (anchor) => `showed ${anchor} when the body`,
+  },
+  {
+    pattern: /\bin\s+the\s+formal\s+gardens\s+during\s+the\s+murder\b/gi,
+    replacement: () => "in the formal gardens around the time of death",
+  },
+];
+
+const inferCanonicalTemporalAnchor = (
+  lockedFacts: Array<{ id: string; value: string; description: string }> | undefined,
+): string => {
+  const candidate = (lockedFacts ?? [])
+    .map((fact) => String(fact?.value ?? "").trim())
+    .find((value) =>
+      /\b(quarter\s+past\s+three|three\s+fifteen|three-fifteen|3\s*[:.]\s*15|minutes?\s+past|minutes?\s+to|half\s+past|o['\u2019]clock)\b/i.test(value),
+    );
+  return candidate && candidate.length > 0 ? candidate : DEFAULT_TEMPORAL_ANCHOR;
+};
+
+const normalizeTemporalAnchorText = (value: unknown, canonicalAnchor: string): string => {
+  let text = String(value ?? "");
+  if (!text) return text;
+
+  for (const pattern of TEMPORAL_VARIANT_PATTERNS) {
+    text = text.replace(pattern, canonicalAnchor);
+  }
+
+  for (const { pattern, replacement } of HARD_BANNED_SCAFFOLD_REPLACERS) {
+    text = text.replace(pattern, replacement(canonicalAnchor));
+  }
+
+  return text.replace(/\s{2,}/g, " ").trim();
+};
+
+const normalizeOutlineTemporalAnchors = (
+  outlineData: Omit<NarrativeOutline, "cost" | "durationMs">,
+  lockedFacts: Array<{ id: string; value: string; description: string }> | undefined,
+): Omit<NarrativeOutline, "cost" | "durationMs"> => {
+  const canonicalAnchor = inferCanonicalTemporalAnchor(lockedFacts);
+
+  const normalizedActs = (outlineData.acts ?? []).map((act: any) => ({
+    ...act,
+    scenes: (act?.scenes ?? []).map((scene: any) => {
+      const dramaticElements = scene?.dramaticElements && typeof scene.dramaticElements === "object"
+        ? Object.fromEntries(
+            Object.entries(scene.dramaticElements).map(([key, value]) => {
+              if (Array.isArray(value)) {
+                return [key, value.map((entry) => normalizeTemporalAnchorText(entry, canonicalAnchor))];
+              }
+              if (typeof value === "string") {
+                return [key, normalizeTemporalAnchorText(value, canonicalAnchor)];
+              }
+              return [key, value];
+            }),
+          )
+        : scene?.dramaticElements;
+
+      return {
+        ...scene,
+        title: normalizeTemporalAnchorText(scene?.title, canonicalAnchor),
+        purpose: normalizeTemporalAnchorText(scene?.purpose, canonicalAnchor),
+        summary: normalizeTemporalAnchorText(scene?.summary, canonicalAnchor),
+        setting: {
+          ...(scene?.setting ?? {}),
+          timeOfDay: normalizeTemporalAnchorText(scene?.setting?.timeOfDay, canonicalAnchor),
+        },
+        dramaticElements,
+      };
+    }),
+  }));
+
+  return {
+    ...outlineData,
+    acts: normalizedActs,
+  };
+};
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -134,7 +232,7 @@ You work from the CML's logical structure (inference path, constraint space) and
 Your output is a JSON scene outline that prose generators can use to write the full story.`;
 
   // Developer: Provide CML and clue context
-  const developer = buildDeveloperContext(caseData, clues);
+  const developer = buildDeveloperContext(caseData, clues, inputs.lockedFacts);
 
   // Pillar 1: append canonical locked facts block to developer context
   const lockedFactsSection =
@@ -162,7 +260,11 @@ Your output is a JSON scene outline that prose generators can use to write the f
   return { system, developer: developer + lockedFactsSection + completenessSection, user };
 }
 
-function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult): string {
+function buildDeveloperContext(
+  caseData: CaseData,
+  clues: ClueDistributionResult,
+  lockedFacts?: Array<{ id: string; value: string; description: string }>,
+): string {
   const legacy = caseData as any;
   const cmlCase = (legacy?.CASE ?? {}) as any;
   const meta = cmlCase.meta ?? legacy.meta ?? {};
@@ -231,14 +333,20 @@ function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult
   const midClues = clues.clues.filter((c) => c.placement === "mid");
   const lateClues = clues.clues.filter((c) => c.placement === "late");
 
+  const canonicalAnchor = inferCanonicalTemporalAnchor(lockedFacts);
+
   const clueList = (clueSet: typeof clues.clues, label: string) => {
     if (clueSet.length === 0) return `### ${label}\nNone`;
-    return `### ${label}\n${clueSet.map((c) => `- [${c.id}] ${c.category}: ${c.description}`).join("\n")}`;
+    return `### ${label}\n${clueSet
+      .map((c) => `- [${c.id}] ${c.category}: ${normalizeTemporalAnchorText(c.description, canonicalAnchor)}`)
+      .join("\n")}`;
   };
 
   // Red herrings
   const redHerringList = clues.redHerrings.length
-    ? clues.redHerrings.map((rh) => `- [${rh.id}] ${rh.description}`).join("\n")
+    ? clues.redHerrings
+      .map((rh) => `- [${rh.id}] ${normalizeTemporalAnchorText(rh.description, canonicalAnchor)}`)
+      .join("\n")
     : "None";
 
   // Key constraints
@@ -789,6 +897,8 @@ export async function formatNarrative(
       }
     }
   }
+
+  outlineData = normalizeOutlineTemporalAnchors(outlineData, inputs.lockedFacts);
 
   // Validate required fields
   if (!outlineData.acts || !Array.isArray(outlineData.acts) || outlineData.acts.length === 0) {

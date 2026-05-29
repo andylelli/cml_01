@@ -26,9 +26,11 @@ export interface RetryPacket {
 const classifySingle = (error: string): RetryFailureClass => {
   const e = error.toLowerCase();
   if (/mojibake|encoding|utf-8|control char/.test(e)) return "encoding";
+  if (/boundary integrity|unbalanced quotation|malformed apostrophe|dangling quote|punctuation boundary/.test(e)) return "structure";
   if (/template linter|opening-style entropy|ngram|paragraph fingerprint|sentence within a chapter|prompt leakage|scene-template text leaked|internal audit note leaked/.test(e)) return "template";
   if (/chapter\.paragraphs|chapter\.title|\bstructure\b|\bformat\b|has only \d+ paragraph/.test(e)) return "structure";
   if (/clue timing|clue visibility|discriminating test|missing clue|revealed without evidence|evidence anchor/.test(e)) return "clue_timing";
+  if (/entity fidelity|alias|identity role alias|culprit surname/.test(e)) return "continuity";
   if (/pronoun|continuity|name mismatch|timeline/.test(e)) return "continuity";
   if (/word count|underflow|completeness|minimum words|hard floor/.test(e)) return "completeness";
   if (/tone|pacing|register/.test(e)) return "tone_pacing";

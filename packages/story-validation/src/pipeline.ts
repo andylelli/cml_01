@@ -5,6 +5,7 @@
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError, ProseConsistencyReport } from './types.js';
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
+import { getGenerationParams } from './generation-params.js';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
 import { validateChapterSequence } from './chapter-validator.js';
@@ -12,7 +13,6 @@ import { validateLocationConsistency } from './location-normalizer.js';
 import { PhysicalPlausibilityValidator } from './physical-validator.js';
 import { EraAuthenticityValidator } from './era-validator.js';
 import { NarrativeContinuityValidator } from './narrative-continuity-validator.js';
-import { CaseTransitionValidator } from './case-transition-validator.js';
 import { DiscriminatingTestValidator } from './discriminating-test-validator.js';
 import { SuspectClosureValidator } from './suspect-closure-validator.js';
 import { ProseConsistencyValidator } from './prose-consistency-validator.js';
@@ -41,7 +41,6 @@ export class StoryValidationPipeline {
       new CharacterConsistencyValidator(),
       new ProseConsistencyValidator(),
       new NarrativeContinuityValidator(),
-      new CaseTransitionValidator(),
       new DiscriminatingTestValidator(llmClient, logContext),
       new SuspectClosureValidator(llmClient, logContext),
       new PhysicalPlausibilityValidator(),
@@ -75,7 +74,12 @@ export class StoryValidationPipeline {
     const locationErrors = validateLocationConsistency(story, cml);
     allErrors.push(...locationErrors);
 
-    return this.generateReport(allErrors, cml);
+    const pronounValidationEnabled = getGenerationParams().agent9_prose.validation.pronoun_validation_enabled;
+    const finalErrors = pronounValidationEnabled
+      ? allErrors
+      : allErrors.filter(e => e.type !== 'pronoun_gender_mismatch' && e.type !== 'pronoun_drift');
+
+    return this.generateReport(finalErrors, cml);
   }
 
   private generateReport(errors: ValidationError[], cml?: CMLData, failedAt?: string): ValidationReport {

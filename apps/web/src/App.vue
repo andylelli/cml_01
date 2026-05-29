@@ -482,6 +482,10 @@ const cluesReady = computed(() => Boolean(cluesData.value?.items?.length));
 const proseReady = computed(() => Boolean(proseData.value?.chapters?.length));
 const isRunning = computed(() => lastProjectStatus.value === "running");
 const isStartingRun = ref(false);
+
+const advancedTabStatuses = computed<Record<string, TabStatus>>(() => ({
+  quality: isRunning.value || isStartingRun.value ? "in-progress" : "available",
+}));
 const skipNextProjectArtifactLoad = ref(false);
 const isDownloadingStoryPdf = ref(false);
 const isDownloadingGamePackPdf = ref(false);
@@ -1808,6 +1812,7 @@ onBeforeUnmount(() => {
           v-if="activeMainTab === 'advanced' && isAdvanced"
           :tabs="advancedTabs"
           :active-tab="activeAdvancedTab"
+          :tab-statuses="advancedTabStatuses"
           @update:activeTab="handleAdvancedTabChange"
           class="bg-slate-50"
         />
@@ -2875,13 +2880,32 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="activeAdvancedTab === 'quality'" class="space-y-4">
-              <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-                Loading quality report...
-              </div>
+              <!-- Run in progress state -->
+              <template v-if="isRunning || isStartingRun">
+                <div class="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                  <font-awesome-icon icon="spinner" spin class="flex-shrink-0" />
+                  <div>
+                    <span class="font-semibold">Run in progress</span>
+                    <span class="ml-1">— quality report will appear here when generation completes.</span>
+                  </div>
+                </div>
+                <template v-if="scoringReport">
+                  <div class="px-1 text-xs font-medium text-slate-400">Previous run results</div>
+                  <ScoreCard :report="scoringReport" :loading="false" />
+                  <PhaseBreakdownTable :phases="scoringReport.phases" />
+                  <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+                </template>
+              </template>
+              <!-- Idle state -->
               <template v-else>
-                <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
-                <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
-                <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+                <div v-if="isScoringReportLoading && !scoringReport" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                  Loading quality report...
+                </div>
+                <template v-else>
+                  <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
+                  <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
+                  <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+                </template>
               </template>
             </div>
               </div>

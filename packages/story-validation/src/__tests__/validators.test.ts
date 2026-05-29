@@ -428,6 +428,22 @@ describe("SuspectClosureValidator", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("accepts title-surname alias references for culprit evidence and suspect clearance", async () => {
+    const story = makeStory([
+      makeScene({
+        number: 1,
+        text: "Doctor Harlow was cleared because the timeline evidence proved he remained in the lounge.",
+      }),
+      makeScene({
+        number: 2,
+        text: "Dr. Blake was responsible, because the evidence established his fingerprints on the vial.",
+      }),
+    ]);
+    const cml = makeCML(["Dr. Julian Blake"], ["Dr. Miriam Harlow"]);
+    const result = await validator.validate(story, cml);
+    expect(result.valid).toBe(true);
+  });
+
   it("skips culprits from suspect elimination check", async () => {
     // The culprit must not appear in the suspect-cleared list
     const story = makeStory([

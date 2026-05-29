@@ -244,8 +244,7 @@ export const runAtmosphereRepairIfNeeded = async (
       chapter,
       text: (chapter.paragraphs ?? []).join(' '),
     }))
-    .filter(({ text }) => bannedPhrases.some((phrase) => text.toLowerCase().includes(phrase.toLowerCase())))
-    .slice(0, 8);
+    .filter(({ text }) => bannedPhrases.some((phrase) => text.toLowerCase().includes(phrase.toLowerCase())));
 
   for (const target of repairTargets) {
     // Only send the phrases actually present in this chapter.

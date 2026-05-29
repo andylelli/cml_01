@@ -9,6 +9,7 @@ export * from "./clue-validation.js";
 export * from "./lint.js";
 export * from "./sanitization.js";
 export * from "./phrase-analysis.js";
+export * from "./banned-phrases.js";
 export * from "./obligation-block.js";
 export * from "./prompt-blocks.js";
 export * from "./prompt-builder.js";

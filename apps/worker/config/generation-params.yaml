@@ -244,6 +244,36 @@ agent9_prose:
     # Supported range: 1 - 20
     max_batch_size: 10
 
+  rollout_flags:
+    # Enables configured phrase-family detection in pre-commit and post-batch telemetry.
+    phrase_family_detection_enabled: true
+    # Keeps phrase-repair targets uncapped (legacy behaviour capped to top-N candidates).
+    uncapped_repair_targets_enabled: true
+    # When true, banned-phrase linter hits are blocking pre-commit failures.
+    precommit_phrase_gate_enabled: true
+    # Injects STYLE HARD-BAN/SOFT-BAN/WATCHLIST lines into chapter obligation contracts.
+    tiered_phrase_contract_enabled: true
+    # Enables phrase-specific linter checks during batch validation.
+    phrase_specific_linter_enabled: true
+    # Optional creative-mode nudges for prose prompts; keep false for conservative runs.
+    blue_sky_mode_enabled: false
+    # Context-aware season rewrite: only rewrite conflicting season tokens in seasonal/weather context.
+    season_lock_context_aware_enabled: true
+    # Protect mechanical collocations (e.g. suspension spring, mainspring) from season substitutions.
+    season_lock_protected_collocations_enabled: true
+    # Hard-fail malformed quote/apostrophe boundary corruption before commit.
+    boundary_integrity_gate_enabled: true
+    # Revert deterministic rewrites when semantic diff indicates mechanical-term corruption.
+    semantic_rewrite_diff_guard_enabled: true
+    # Enable stricter entity-fidelity handling in retry packet/directive construction.
+    entity_fidelity_gate_enabled: true
+    # Enable alias-aware culprit/suspect naming checks in read-back gates.
+    culprit_alias_gate_enabled: true
+    # Emit integrity-focused retry directives when structural integrity errors are detected.
+    integrity_retry_packet_enabled: true
+    # Optional experimental integrity nudges; keep false for stable runs.
+    integrity_blue_sky_mode_enabled: false
+
   style_linter:
     entropy:
       standard:
@@ -339,3 +369,6 @@ agent9_prose:
     # Enable/disable deterministic pronoun repair post-processing.
     # Default false: LLM produces correct pronouns; the deterministic fixer introduces errors.
     pronoun_checking_enabled: false
+    # Enable/disable pronoun validation checks in the story validator.
+    # Set to false to suppress pronoun_gender_mismatch and pronoun_drift errors from the final gate.
+    pronoun_validation_enabled: false

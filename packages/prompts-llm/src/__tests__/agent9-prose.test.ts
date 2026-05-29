@@ -84,8 +84,11 @@ import {
   buildDiscriminatingTestChecklist,
   buildProsePrompt,
   buildTimelineStateBlock,
+  detectConfiguredBannedPhrases,
   detectRecurringPhrases,
+  enforceMonthSeasonLockOnChapterWithTelemetry,
   formatProvisionalScoringFeedbackBlock,
+  lintBatchProse,
   runAtmosphereRepairIfNeeded,
   stripInternalAuditPhrasing,
   stripAuditField,
@@ -166,6 +169,21 @@ describe("buildEnhancedRetryFeedback template-overlap escalation", () => {
 
     expect(feedback).toContain("STRUCTURED REWRITE MODE");
     expect(feedback).toContain("Rebuild paragraph-by-paragraph");
+  });
+
+  it("emits entity-fidelity micro-directive for identity consistency failures", () => {
+    const feedback = buildEnhancedRetryFeedback(
+      [
+        "Entity fidelity: illegal_named_walk_on in chapter 2: unknown titled name 'Inspector Crowe'",
+      ],
+      {} as any,
+      "2",
+      2,
+      6,
+    );
+
+    expect(feedback).toContain("REPAIR [entity_fidelity");
+    expect(feedback).toContain("cast-canonical names");
   });
 });
 
@@ -471,7 +489,9 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(block).toContain("Chapter 7:");
     expect(block).toContain("Drawing Room");
     expect(block).toContain("clue_clock");
-    expect(block).toContain("Edgar Vale via timeline contradiction");
+    expect(block).toContain("\"Edgar Vale\"");
+    expect(block).toContain("clearance method (\"timeline contradiction\")");
+    expect(block).toContain("STYLE HARD-BAN");
     expect(block).toContain("Seasonal vocabulary allow-list: autumn, autumnal, fall.");
   });
 
@@ -506,7 +526,7 @@ describe("Agent 9 prompt hardening fixes", () => {
       baseCaseData.CASE,
     );
 
-    expect(block).toContain("FROZEN TIMELINE STATE");
+    expect(block).toContain("FROZEN FACT STATE (DO NOT ALTER)");
     expect(block).toContain("November (autumn)");
     expect(block).toContain("The mantel clock stopped at thirteen minutes to midnight.");
     expect(block).toContain("thirteen minutes to midnight");
@@ -545,6 +565,76 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(phrases[0]).toContain("air hung cold and still");
   });
 
+  it("Stage 9 detects configured phrase-family variants via normalization", () => {
+    const hits = detectConfiguredBannedPhrases(
+      [
+        { title: "1", paragraphs: ["By the clock tower at three-fifteen, Clara slowed her pace."] },
+        { title: "2", paragraphs: ["Another paragraph without the phrase family."] },
+      ] as any,
+      ["clock tower at quarter past three"],
+    );
+
+    expect(hits).toContain("clock tower at quarter past three");
+  });
+
+  it("Stage 9 emits banned_phrase linter issues for hard-ban matches", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: ["Near the clock tower at quarter past, Clara paused beside the gate."],
+        },
+      ] as any,
+      [],
+      [],
+      {
+        bannedPhrases: ["near the clock tower at quarter past"],
+      },
+    );
+
+    expect(issues.some((issue) => issue.type === "banned_phrase")).toBe(true);
+    expect(issues.some((issue) => /banned phrase detected/i.test(issue.message))).toBe(true);
+  });
+
+  it("Section 10 protects mechanical spring collocations during season lock rewrites", () => {
+    const result = enforceMonthSeasonLockOnChapterWithTelemetry(
+      {
+        title: "1",
+        paragraphs: [
+          "The suspension spring rested beside the mainspring while autumn rain struck the pane.",
+        ],
+      } as any,
+      { month: "january", season: "winter" },
+      {
+        contextAware: true,
+        protectedCollocations: true,
+        semanticDiffGuard: true,
+      },
+    );
+
+    const rewritten = result.chapter.paragraphs[0] ?? "";
+    expect(rewritten).toContain("suspension spring");
+    expect(rewritten).toContain("mainspring");
+    expect(rewritten).toContain("winter rain");
+    expect(result.telemetry.protectedCollisionsBlocked).toBeGreaterThan(0);
+  });
+
+  it("Section 10 boundary linter flags malformed apostrophes and unbalanced quotes", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: ["The clock'paused as she whispered, \"Not now."],
+        },
+      ] as any,
+      [],
+      [],
+      { boundaryIntegrityGateEnabled: true },
+    );
+
+    expect(issues.some((issue) => issue.type === "boundary_integrity")).toBe(true);
+  });
+
   it("Fix 7 runs targeted atmosphere repair only for chapters containing banned phrases", async () => {
     const bannedPhrase = "the air hung cold and still beneath the rafters while the lamps shivered";
     const chat = vi.fn().mockResolvedValue({
@@ -576,6 +666,38 @@ describe("Agent 9 prompt hardening fixes", () => {
     // applyPhraseSubstitutions capitalises replacement when original match was sentence-case
     expect(result[0].paragraphs[0]).toContain("Fresh rain rattled the casement");
     expect(result[1].paragraphs[0]).toBe("A different sentence entirely.");
+  });
+
+  it("Stage 9 removes fixed repair cap and processes all matching chapters", async () => {
+    const bannedPhrase = "the air hung cold and still beneath the rafters while the lamps shivered";
+    const chat = vi.fn().mockResolvedValue({
+      content: JSON.stringify({
+        replacements: [
+          {
+            original: bannedPhrase,
+            replacement: "fresh rain rattled the casement while Clara watched the corridor",
+          },
+        ],
+      }),
+    });
+    const client: any = { chat };
+
+    const chapters = Array.from({ length: 9 }, (_, i) => ({
+      title: `${i + 1}`,
+      paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered."],
+    }));
+
+    const result = await runAtmosphereRepairIfNeeded(
+      client,
+      chapters as any,
+      [bannedPhrase],
+      "test-model",
+      "run-1",
+      "proj-1",
+    );
+
+    expect(chat).toHaveBeenCalledTimes(9);
+    expect(result.every((ch) => ch.paragraphs[0].includes("Fresh rain rattled the casement"))).toBe(true);
   });
 
   it("Fix 8 tells underflow expansion to overshoot and avoid filler recap", async () => {

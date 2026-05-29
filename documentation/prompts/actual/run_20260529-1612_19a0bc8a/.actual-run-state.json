@@ -1,0 +1,36 @@
+{
+  "runId": "run_19a0bc8a-d6c5-46e8-bfca-54b3e948d445",
+  "projectId": "proj_6040573f-3d38-4ea9-aed0-4cde828086eb",
+  "folderName": "run_20260529-1612_19a0bc8a",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "6ed205a7299aaeaa",
+      "requestTimestamp": "2026-05-29T16:12:08.458Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 2,
+      "promptHash": "6ed205a7299aaeaa",
+      "requestTimestamp": "2026-05-29T16:14:27.661Z",
+      "requestFile": "02_Agent1-SettingRefiner_retry1_request.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 3,
+      "promptHash": "6ed205a7299aaeaa",
+      "requestTimestamp": "2026-05-29T16:16:53.251Z",
+      "requestFile": "03_Agent1-SettingRefiner_retry2_request.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 0,
+    "missing_response_count": 3,
+    "empty_response_body_count": 0
+  }
+}

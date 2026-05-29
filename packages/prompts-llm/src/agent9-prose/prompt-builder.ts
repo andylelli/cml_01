@@ -1246,11 +1246,20 @@ ${victimIdentityRule}`;
   }
 
   const qualityGuardrails = Array.isArray(inputs.qualityGuardrails) ? inputs.qualityGuardrails : [];
+  const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
+  const rolloutFlags = {
+    blue_sky_mode_enabled: rolloutFlagsRaw?.blue_sky_mode_enabled === true,
+  };
   
   // P2-19: Fair-play guardrails are now part of buildFairPlayContractBlock so they go through
   // the token-budget system (fair_play_contract block, priority critical).  Only external
   // story-specific guardrails remain here.
   const allGuardrails = [...qualityGuardrails];
+  if (rolloutFlags.blue_sky_mode_enabled) {
+    allGuardrails.push(
+      "BLUE-SKY MODE: prefer high-specificity scene invention over boilerplate transitions; each chapter must introduce one concrete, era-authentic detail that has not appeared in prior chapters.",
+    );
+  }
   // P2-23: Renamed from "QUALITY GUARDRAILS (MUST SATISFY)" — these are external story-specific
   // guidelines, not hard validation gates. Overusing MANDATORY/MUST SATISFY labels dilutes the
   // signal for the items that ARE hard-retried (atmosphere, clues, clearances).

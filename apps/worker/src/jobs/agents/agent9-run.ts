@@ -2689,6 +2689,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     prose.chapters.length,
   );
 
+  let entityPronounDriftCount = 0;
+  let culpritGateAliasMatchesCount = 0;
+  let culpritGateFalsePositiveCount = 0;
+
   // Closure — captures prose, ctx, and first-pass timing locals
   const buildPostGenerationSummaryDetails = (score: PhaseScore | null, finalized: boolean) => ({
     ...((): Record<string, unknown> => {
@@ -2723,6 +2727,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     })(),
     ...((): Record<string, unknown> => {
       const linter = (prose.validationDetails as any)?.linter;
+      const phraseTelemetry = (prose.validationDetails as any)?.phraseTelemetry;
+      const integrityTelemetry = (prose.validationDetails as any)?.integrityTelemetry;
+      const phraseRolloutFlags = phraseTelemetry?.rolloutFlags ?? {};
       return {
         template_linter_checks_run: linter?.checksRun ?? 0,
         template_linter_failed_checks: linter?.failedChecks ?? 0,
@@ -2733,6 +2740,63 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         template_linter_paragraph_fingerprint_failures:
           linter?.paragraphFingerprintFailures ?? 0,
         template_linter_ngram_overlap_failures: linter?.ngramOverlapFailures ?? 0,
+        template_linter_boundary_integrity_failures: linter?.boundaryIntegrityFailures ?? 0,
+        season_lock_replacements_total: integrityTelemetry?.seasonLockReplacements ?? 0,
+        season_lock_protected_collisions_blocked:
+          integrityTelemetry?.seasonLockProtectedCollisionsBlocked ?? 0,
+        mechanical_term_collision_count:
+          integrityTelemetry?.mechanicalSeasonCollisionCount ?? 0,
+        boundary_integrity_failures_count: linter?.boundaryIntegrityFailures ?? 0,
+        semantic_rewrite_diff_blocks_count:
+          integrityTelemetry?.semanticRewriteDiffBlocks ?? 0,
+        entity_pronoun_drift_count: entityPronounDriftCount,
+        culprit_gate_alias_matches_count: culpritGateAliasMatchesCount,
+        culprit_gate_false_positive_count: culpritGateFalsePositiveCount,
+        phrase_telemetry_recurring_phrase_count: phraseTelemetry?.recurringPhraseCount ?? 0,
+        phrase_telemetry_configured_detected_phrase_count:
+          phraseTelemetry?.configuredDetectedPhraseCount ?? 0,
+        phrase_telemetry_configured_repair_phrase_count:
+          phraseTelemetry?.configuredRepairPhraseCount ?? 0,
+        phrase_telemetry_repair_phrase_candidate_count:
+          phraseTelemetry?.repairPhraseCandidateCount ?? 0,
+        phrase_telemetry_hard_ban_linter_failures:
+          phraseTelemetry?.hardBanLinterFailures ?? 0,
+        phrase_rollout_phrase_family_detection_enabled:
+          phraseRolloutFlags.phraseFamilyDetectionEnabled ?? null,
+        phrase_rollout_uncapped_repair_targets_enabled:
+          phraseRolloutFlags.uncappedRepairTargetsEnabled ?? null,
+        phrase_rollout_precommit_phrase_gate_enabled:
+          phraseRolloutFlags.precommitPhraseGateEnabled ?? null,
+        phrase_rollout_tiered_phrase_contract_enabled:
+          phraseRolloutFlags.tieredPhraseContractEnabled ?? null,
+        phrase_rollout_phrase_specific_linter_enabled:
+          phraseRolloutFlags.phraseSpecificLinterEnabled ?? null,
+        phrase_rollout_blue_sky_mode_enabled:
+          phraseRolloutFlags.blueSkyModeEnabled ?? null,
+        integrity_rollout_season_lock_context_aware_enabled:
+          phraseRolloutFlags.seasonLockContextAwareEnabled ?? null,
+        integrity_rollout_season_lock_protected_collocations_enabled:
+          phraseRolloutFlags.seasonLockProtectedCollocationsEnabled ?? null,
+        integrity_rollout_boundary_integrity_gate_enabled:
+          phraseRolloutFlags.boundaryIntegrityGateEnabled ?? null,
+        integrity_rollout_semantic_rewrite_diff_guard_enabled:
+          phraseRolloutFlags.semanticRewriteDiffGuardEnabled ?? null,
+        integrity_rollout_entity_fidelity_gate_enabled:
+          phraseRolloutFlags.entityFidelityGateEnabled ?? null,
+        integrity_rollout_culprit_alias_gate_enabled:
+          phraseRolloutFlags.culpritAliasGateEnabled ?? null,
+        integrity_rollout_integrity_retry_packet_enabled:
+          phraseRolloutFlags.integrityRetryPacketEnabled ?? null,
+        integrity_rollout_integrity_blue_sky_mode_enabled:
+          phraseRolloutFlags.integrityBlueSkyModeEnabled ?? null,
+        integrity_telemetry_season_lock_replacements:
+          integrityTelemetry?.seasonLockReplacements ?? 0,
+        integrity_telemetry_protected_collisions_blocked:
+          integrityTelemetry?.seasonLockProtectedCollisionsBlocked ?? 0,
+        integrity_telemetry_semantic_rewrite_diff_blocks:
+          integrityTelemetry?.semanticRewriteDiffBlocks ?? 0,
+        integrity_telemetry_mechanical_season_collision_count:
+          integrityTelemetry?.mechanicalSeasonCollisionCount ?? 0,
       };
     })(),
     score_total: score?.total ?? null,
@@ -3113,6 +3177,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         err?.type === "pronoun_drift" || err?.type === "pronoun_gender_mismatch",
       ).length
     : 0;
+  entityPronounDriftCount = residualPronounIssues;
   if (residualPronounIssues > 0) {
     ctx.warnings.push(
       `Pronoun integrity gate: ${residualPronounIssues} pronoun issue(s) remain after deterministic rescue.`,
@@ -3127,12 +3192,71 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // structural omissions that prose-generation validation may have missed.
   {
     const g6Issues: string[] = [];
-    const fullText = prose.chapters.map((ch: any) => (ch.paragraphs ?? []).join(' ')).join(' ').toLowerCase();
-    const finalChapterText = (prose.chapters[prose.chapters.length - 1]?.paragraphs ?? []).join(' ').toLowerCase();
+    const culpritAliasGateEnabled =
+      (getGenerationParams().agent9_prose as any)?.rollout_flags?.culprit_alias_gate_enabled !== false;
+    const fullTextRaw = prose.chapters.map((ch: any) => (ch.paragraphs ?? []).join(' ')).join(' ');
+    const finalChapterTextRaw = (prose.chapters[prose.chapters.length - 1]?.paragraphs ?? []).join(' ');
+    const normalizeAliasText = (value: string): string =>
+      value
+        .toLowerCase()
+        .replace(/\b(mr|mrs|ms|dr)\./g, '$1')
+        .replace(/[^a-z0-9\s'-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const fullText = normalizeAliasText(fullTextRaw);
+    const finalChapterText = normalizeAliasText(finalChapterTextRaw);
+
+    const titleExpansions: Record<string, string[]> = {
+      dr: ['dr', 'doctor'],
+      mr: ['mr', 'mister'],
+      mrs: ['mrs'],
+      miss: ['miss'],
+      ms: ['ms'],
+      inspector: ['inspector'],
+      detective: ['detective'],
+      captain: ['captain'],
+      colonel: ['colonel'],
+      sir: ['sir'],
+      lady: ['lady'],
+    };
+    const buildCulpritAliases = (name: string): string[] => {
+      const tokens = name.trim().split(/\s+/).filter(Boolean);
+      if (tokens.length === 0) return [];
+      const surname = tokens[tokens.length - 1] ?? '';
+      const title = tokens[0]?.toLowerCase().replace(/\.$/, '') ?? '';
+      const hasTitle = Object.prototype.hasOwnProperty.call(titleExpansions, title);
+      const firstNonTitle = hasTitle ? tokens[1] : tokens[0];
+      const aliases = new Set<string>();
+      aliases.add(name);
+      if (surname) aliases.add(surname);
+      if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
+        aliases.add(`${firstNonTitle} ${surname}`);
+      }
+      if (hasTitle && surname) {
+        for (const expanded of titleExpansions[title]) aliases.add(`${expanded} ${surname}`);
+      }
+      return Array.from(aliases);
+    };
+    const textContainsAnyAlias = (text: string, aliases: string[]): boolean =>
+      aliases.some((alias) => {
+        const normalizedAlias = normalizeAliasText(alias);
+        if (!normalizedAlias) return false;
+        return new RegExp(`\\b${escapeRegex(normalizedAlias)}\\b`, 'i').test(text);
+      });
 
     // Q1: Does the story contain any culprit name?
     for (const culprit of storyContract.culpritNames) {
-      if (culprit && !fullText.includes(culprit.toLowerCase())) {
+      const aliases = culpritAliasGateEnabled ? buildCulpritAliases(culprit) : [culprit];
+      const hasAliasMatch = culprit ? textContainsAnyAlias(fullText, aliases) : false;
+      const hasCanonicalMatch = culprit ? textContainsAnyAlias(fullText, [culprit]) : false;
+      if (hasAliasMatch && !hasCanonicalMatch) {
+        culpritGateAliasMatchesCount += 1;
+      }
+      if (culprit && !hasAliasMatch) {
+        if (hasCanonicalMatch) {
+          culpritGateFalsePositiveCount += 1;
+        }
         g6Issues.push(`[G6-Q1] Culprit name "${culprit}" never appears in the prose — the reader cannot identify the murderer.`);
       }
     }
@@ -3140,7 +3264,16 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     // Q2: Does the final chapter name the culprit?
     for (const culprit of storyContract.culpritNames) {
       const surname = culprit.trim().split(/\s+/).pop() ?? culprit;
-      if (surname && !finalChapterText.includes(surname.toLowerCase())) {
+      const aliases = culpritAliasGateEnabled ? buildCulpritAliases(culprit) : [surname];
+      const hasAliasMatch = surname ? textContainsAnyAlias(finalChapterText, aliases) : false;
+      const hasCanonicalSurname = surname ? textContainsAnyAlias(finalChapterText, [surname]) : false;
+      if (hasAliasMatch && !hasCanonicalSurname) {
+        culpritGateAliasMatchesCount += 1;
+      }
+      if (surname && !hasAliasMatch) {
+        if (hasCanonicalSurname) {
+          culpritGateFalsePositiveCount += 1;
+        }
         g6Issues.push(`[G6-Q2] Culprit surname "${surname}" absent from final chapter — the resolution scene must name the murderer.`);
       }
     }
@@ -3593,6 +3726,21 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       has_illegal_control_chars: proseContainsIllegalControlChars,
       has_mojibake: proseContainsMojibake,
       fair_play_status: fairPlayAudit?.overallStatus ?? null,
+      phrase_telemetry: (prose.validationDetails as any)?.phraseTelemetry ?? null,
+      integrity_telemetry: (prose.validationDetails as any)?.integrityTelemetry ?? null,
+      season_lock_replacements_total:
+        (prose.validationDetails as any)?.integrityTelemetry?.seasonLockReplacements ?? 0,
+      season_lock_protected_collisions_blocked:
+        (prose.validationDetails as any)?.integrityTelemetry?.seasonLockProtectedCollisionsBlocked ?? 0,
+      mechanical_term_collision_count:
+        (prose.validationDetails as any)?.integrityTelemetry?.mechanicalSeasonCollisionCount ?? 0,
+      boundary_integrity_failures_count:
+        (prose.validationDetails as any)?.linter?.boundaryIntegrityFailures ?? 0,
+      semantic_rewrite_diff_blocks_count:
+        (prose.validationDetails as any)?.integrityTelemetry?.semanticRewriteDiffBlocks ?? 0,
+      entity_pronoun_drift_count: entityPronounDriftCount,
+      culprit_gate_alias_matches_count: culpritGateAliasMatchesCount,
+      culprit_gate_false_positive_count: culpritGateFalsePositiveCount,
       release_gate_audit: releaseGateAudit,
     };
 

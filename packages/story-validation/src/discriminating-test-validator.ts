@@ -8,10 +8,10 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError } fro
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { semanticValidateDiscriminatingTest } from './semantic-validator.js';
 
-const TEST_TERMS = /\b(test|experiment|re-?enactment|trap|constraint proof|demonstration|verification)\b/i;
-const EXCLUSION_TERMS = /\b(excluded?|eliminated?|ruled\s+out|could\s+not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could)\b/i;
-const EVIDENCE_TERMS = /\b(because|therefore|proof|evidence|measured|timed|observed)\b/i;
-const OUTCOME_TERMS = /\b(culprit|killer|murderer|did\s+it|was\s+guilty|is\s+guilty|must\s+be)\b/i;
+const TEST_TERMS = /\b(test|experiment|re-?enactment|trap|constraint\s+proof|demonstration|verification|proved?|demonstrate(?:d|s)?|confirm(?:ed|s)?|show(?:s|ed|n)?|establish(?:ed|es)?|reveal(?:ed|s)?|expose(?:d|s)?|confront(?:ed|s)?|recreate(?:d|s)?)\b/i;
+const EXCLUSION_TERMS = /\b(excluded?|eliminated?|ruled\s+out|could\s+not\s+have|cannot\s+be\s+the\s+culprit|only\s+one\s+person\s+could|innocent|cleared|alibi|impossible\s+for|no\s+(?:way|opportunity|access|means))\b/i;
+const EVIDENCE_TERMS = /\b(because|therefore|proof|evidence|measured|timed|observed|which\s+proves?|this\s+(?:proves?|shows?|confirms?)|the\s+evidence)\b/i;
+const OUTCOME_TERMS = /\b(culprit|killer|murderer|did\s+it|was\s+guilty|is\s+guilty|must\s+be|responsible|confessed?|committed\s+the|found\s+guilty|placed\s+(?:him|her|them)\s+at)\b/i;
 
 type ComponentName = 'setup' | 'evidence' | 'elimination' | 'outcome';
 

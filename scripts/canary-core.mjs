@@ -78,6 +78,57 @@ if (result.warnings.length) {
   console.log("WARNINGS", JSON.stringify(result.warnings.slice(0, 6)));
 }
 
+const diagnostics = Array.isArray(result.scoringReport?.diagnostics)
+  ? result.scoringReport.diagnostics
+  : [];
+const postGenerationDiagnostic = diagnostics.find((entry) =>
+  entry?.key === "agent9_prose_post_generation_summary"
+  || entry?.diagnostic_type === "post_generation_summary"
+);
+const metricDetails = postGenerationDiagnostic?.details ?? {};
+const toNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+const integrityMetrics = {
+  season_lock_replacements_total: toNumber(metricDetails.season_lock_replacements_total),
+  season_lock_protected_collisions_blocked: toNumber(metricDetails.season_lock_protected_collisions_blocked),
+  mechanical_term_collision_count: toNumber(metricDetails.mechanical_term_collision_count),
+  boundary_integrity_failures_count: toNumber(metricDetails.boundary_integrity_failures_count),
+  semantic_rewrite_diff_blocks_count: toNumber(metricDetails.semantic_rewrite_diff_blocks_count),
+  entity_pronoun_drift_count: toNumber(metricDetails.entity_pronoun_drift_count),
+  culprit_gate_alias_matches_count: toNumber(metricDetails.culprit_gate_alias_matches_count),
+  culprit_gate_false_positive_count: toNumber(metricDetails.culprit_gate_false_positive_count),
+};
+console.log("CANARY_INTEGRITY_METRICS", JSON.stringify(integrityMetrics));
+console.log("CANARY_MECHANICAL_TERM_COLLISION_COUNT", integrityMetrics.mechanical_term_collision_count);
+console.log("CANARY_BOUNDARY_INTEGRITY_FAILURES_COUNT", integrityMetrics.boundary_integrity_failures_count);
+console.log("CANARY_ENTITY_PRONOUN_DRIFT_COUNT", integrityMetrics.entity_pronoun_drift_count);
+console.log("CANARY_CULPRIT_GATE_ALIAS_MATCHES_COUNT", integrityMetrics.culprit_gate_alias_matches_count);
+console.log("CANARY_CULPRIT_GATE_FALSE_POSITIVE_COUNT", integrityMetrics.culprit_gate_false_positive_count);
+
+const integrityAssertionFailures = [];
+if (integrityMetrics.mechanical_term_collision_count > 0) {
+  integrityAssertionFailures.push(
+    `mechanical_term_collision_count == ${integrityMetrics.mechanical_term_collision_count} (expected 0)`
+  );
+}
+if (integrityMetrics.culprit_gate_false_positive_count > 0) {
+  integrityAssertionFailures.push(
+    `culprit_gate_false_positive_count == ${integrityMetrics.culprit_gate_false_positive_count} (expected 0)`
+  );
+}
+if (integrityAssertionFailures.length > 0) {
+  console.log("CANARY_INTEGRITY_ASSERTIONS", JSON.stringify({
+    status: "fail",
+    failures: integrityAssertionFailures,
+  }));
+} else {
+  console.log("CANARY_INTEGRITY_ASSERTIONS", JSON.stringify({
+    status: "pass",
+  }));
+}
+
 // ── Save human-readable story to C:\CML\stories ──────────────────────────
 try {
   const prose = result.prose ?? {};
@@ -120,4 +171,5 @@ try {
 
 // Exit 0 for success or warning (pipeline completed, only soft issues remain).
 // Exit 1 for hard failure (prose generation aborted, etc.).
-process.exit(result.status === "failure" ? 1 : 0);
+const integrityFailed = integrityAssertionFailures.length > 0;
+process.exit(result.status === "failure" || integrityFailed ? 1 : 0);

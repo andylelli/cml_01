@@ -14,7 +14,10 @@ export const defaultRetryConfig: RetryConfig = {
     "timeout",
     "service_unavailable",
     "connection_error",
+    "server had an error", // OpenAI 500 — transient server-side failure
+    "the server had an error", // OpenAI 500 variant
     "429", // Too Many Requests
+    "500", // Internal Server Error
     "503", // Service Unavailable
     "ECONNRESET",
     "ETIMEDOUT",

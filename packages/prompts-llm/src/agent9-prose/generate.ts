@@ -66,11 +66,11 @@ import {
   toNgrams,
   jaccardSimilarity,
   lintBatchProse,
-  capitalizeWord,
   MONTH_TO_SEASON,
   deriveTemporalSeasonLock,
   getSeasonAllowList,
-  enforceMonthSeasonLockOnChapter,
+  enforceMonthSeasonLockOnChapterWithTelemetry,
+  countMechanicalSeasonCollisions,
 } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import {
@@ -89,6 +89,13 @@ import {
   tagCharacter,
   selectSensoryVariant,
 } from "./phrase-analysis.js";
+import {
+  detectConfiguredBannedPhrases,
+  getRepairBannedPhrases,
+  getTieredBannedPhrasePolicy,
+  getWarningBannedPhrases,
+  mergeUniquePhrases,
+} from "./banned-phrases.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { buildChapterObligationBlock } from "./obligation-block.js";
 import { buildProsePrompt, resolveVictimName } from "./prompt-builder.js";
@@ -394,16 +401,27 @@ export const buildEnhancedRetryFeedback = (
     e.toLowerCase().includes('pronoun drift') || // BUG-5 FIX: systematic-drift errors were falling into otherErrors
     /incorrect pronoun|wrong pronoun|should use he|should use she|should use they/i.test(e)
   ));
+  const entityFidelityErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) &&
+    !pronounErrors.includes(e) &&
+    (
+      e.toLowerCase().includes('illegal_named_walk_on') ||
+      e.toLowerCase().includes('detective_name_inconsistency') ||
+      e.toLowerCase().includes('entity fidelity') ||
+      e.toLowerCase().includes('name inconsistency')
+    )
+  );
   const characterErrors = errors.filter(e =>
     !clueValidationErrors.includes(e) &&
     !pronounErrors.includes(e) &&
+    !entityFidelityErrors.includes(e) &&
     (e.toLowerCase().includes('character') || e.toLowerCase().includes('name'))
   );
   // Use specific patterns for setting-drift messages rather than broad includes('setting'),
   // because "metadata key-value leakage (e.g. \"Setting:\", \"Mood:\")" also contains the
   // word "setting" in its example text, which would mis-bucket it here instead of templateErrors.
   const settingErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !entityFidelityErrors.includes(e) && !characterErrors.includes(e) &&
     (/setting drift|setting markers/i.test(e) || e.toLowerCase().includes('location'))
   );
   const testErrors = errors.filter(e => !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && e.toLowerCase().includes('discriminating test'));
@@ -411,7 +429,7 @@ export const buildEnhancedRetryFeedback = (
   // misleading "vary paragraph lengths" guidance. Extract them first; the MICRO-PROMPT [word_count]
   // directive in buildRetryMicroPromptDirectives already gives the correct repair instruction.
   const wordCountErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !entityFidelityErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) &&
     /word count below/i.test(e)
   );
   // Template-linter errors (n-gram overlap, paragraph fingerprint, opening-style entropy, and
@@ -421,6 +439,7 @@ export const buildEnhancedRetryFeedback = (
   const templateErrors = errors.filter(e =>
     !clueValidationErrors.includes(e) &&
     !pronounErrors.includes(e) &&
+    !entityFidelityErrors.includes(e) &&
     !characterErrors.includes(e) &&
     !settingErrors.includes(e) &&
     !testErrors.includes(e) &&
@@ -429,7 +448,7 @@ export const buildEnhancedRetryFeedback = (
       /templated scaffold prose|metadata key-value leakage|meta-language about storytelling/i.test(e))
   );
   const qualityErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) && !templateErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !entityFidelityErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) && !templateErrors.includes(e) &&
     !/^VICTIM ALIVE:/i.test(e) &&
     !/weak sensory grounding/i.test(e) &&  // handled by REPAIR [sensory_grounding] micro-prompt
     (e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'))
@@ -438,6 +457,7 @@ export const buildEnhancedRetryFeedback = (
   const otherErrors = errors.filter(e =>
     !clueValidationErrors.includes(e) &&
     !pronounErrors.includes(e) && // [PHASE 2]
+    !entityFidelityErrors.includes(e) &&
     !characterErrors.includes(e) &&
     !settingErrors.includes(e) &&
     !testErrors.includes(e) &&
@@ -617,6 +637,32 @@ export const buildEnhancedRetryFeedback = (
         `  You MUST remove every reference to ${wrongSeasons} from the prose — this includes the words themselves and their adjectival forms (e.g. "autumnal", "summery", "wintry", "springtime").\n` +
         `  Replace with ${correctSeason}-appropriate language only. Use words like: ${getSeasonAllowList(correctSeason as CanonicalSeason)}.\n` +
         `  Check every atmospheric sentence, weather description, and sensory detail for forbidden season vocabulary before finalising.`
+      );
+    }
+
+    const boundaryIntegrityError = rawErrors.find((e) =>
+      /boundary integrity|unbalanced quotation marks|malformed apostrophe/i.test(e)
+    );
+    if (boundaryIntegrityError) {
+      directives.push(
+        `REPAIR [boundary_integrity — attempt ${attemptNum}]: The chapter has punctuation-boundary corruption (unbalanced quotes or malformed apostrophes).\n` +
+        `  Before returning JSON, run this exact checklist:\n` +
+        `  1) Every opening quote has a closing quote in the same paragraph.\n` +
+        `  2) Apostrophes only appear in valid contractions/possessives (don't, can't, detective's), never fused tokens like word'paused.\n` +
+        `  3) If a sentence is edited, rewrite the whole sentence so punctuation and spacing remain intact.\n` +
+        `  Return only clean prose with balanced punctuation.`
+      );
+    }
+
+    const entityFidelityError = rawErrors.find((e) =>
+      /entity fidelity|illegal_named_walk_on|detective_name_inconsistency/i.test(e)
+    );
+    if (entityFidelityError) {
+      directives.push(
+        `REPAIR [entity_fidelity — attempt ${attemptNum}]: Character identity consistency failed.\n` +
+        `  Use cast-canonical names only and keep detective naming stable in this chapter.\n` +
+        `  Do not introduce titled walk-on names unless that exact person exists in cast.\n` +
+        `  If a title+surname form is chosen for a character, keep it consistent across all paragraphs.`
       );
     }
 
@@ -890,6 +936,14 @@ export const buildEnhancedRetryFeedback = (
     feedback += `✓ Never use rank compounds as names (e.g., "Detective Inspector"). If needed, use anonymous role phrases only: "the detective", "an inspector".\n\n`;
   }
   
+
+  if (entityFidelityErrors.length > 0) {
+    feedback += `═══ ENTITY FIDELITY ERRORS (${entityFidelityErrors.length}) ═══\n`;
+    entityFidelityErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\n✓ SOLUTION: Use canonical cast identities and keep detective naming stable across the chapter.\n`;
+    feedback += `✓ If a title/surname form is used (for example, "Inspector Hale"), keep that form consistent instead of switching variants mid-scene.\n`;
+    feedback += `✓ Do NOT introduce new titled walk-on names; use anonymous roles ("a constable", "the footman") unless the person exists in cast.\n\n`;
+  }
   if (settingErrors.length > 0) {
     feedback += `═══ SETTING DRIFT ERRORS (${settingErrors.length}) ═══\n`;
     settingErrors.forEach(e => feedback += `• ${e}\n`);
@@ -1182,6 +1236,37 @@ export async function generateProse(
   const cast = normalizeProseCastOrThrow(inputs.cast);
   const castCharacters = cast.characters;
   const castNames = castCharacters.map(c => c.name);
+  const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
+  const rolloutFlags = {
+    phrase_family_detection_enabled: rolloutFlagsRaw?.phrase_family_detection_enabled !== false,
+    uncapped_repair_targets_enabled: rolloutFlagsRaw?.uncapped_repair_targets_enabled !== false,
+    precommit_phrase_gate_enabled: rolloutFlagsRaw?.precommit_phrase_gate_enabled !== false,
+    tiered_phrase_contract_enabled: rolloutFlagsRaw?.tiered_phrase_contract_enabled !== false,
+    phrase_specific_linter_enabled: rolloutFlagsRaw?.phrase_specific_linter_enabled !== false,
+    blue_sky_mode_enabled: rolloutFlagsRaw?.blue_sky_mode_enabled === true,
+    season_lock_context_aware_enabled: rolloutFlagsRaw?.season_lock_context_aware_enabled !== false,
+    season_lock_protected_collocations_enabled:
+      rolloutFlagsRaw?.season_lock_protected_collocations_enabled !== false,
+    boundary_integrity_gate_enabled: rolloutFlagsRaw?.boundary_integrity_gate_enabled !== false,
+    semantic_rewrite_diff_guard_enabled: rolloutFlagsRaw?.semantic_rewrite_diff_guard_enabled !== false,
+    entity_fidelity_gate_enabled: rolloutFlagsRaw?.entity_fidelity_gate_enabled !== false,
+    culprit_alias_gate_enabled: rolloutFlagsRaw?.culprit_alias_gate_enabled !== false,
+    integrity_retry_packet_enabled: rolloutFlagsRaw?.integrity_retry_packet_enabled !== false,
+    integrity_blue_sky_mode_enabled: rolloutFlagsRaw?.integrity_blue_sky_mode_enabled === true,
+  };
+  const phrasePolicyRequired =
+    rolloutFlags.tiered_phrase_contract_enabled
+    || rolloutFlags.phrase_specific_linter_enabled
+    || rolloutFlags.phrase_family_detection_enabled;
+  const bannedPhrasePolicy = phrasePolicyRequired
+    ? getTieredBannedPhrasePolicy(inputs.caseData)
+    : { hard: [], soft: [], watch: [] };
+  const configuredRepairPhrases = rolloutFlags.phrase_family_detection_enabled
+    ? getRepairBannedPhrases(bannedPhrasePolicy)
+    : [];
+  const configuredWarningPhrases = rolloutFlags.phrase_family_detection_enabled
+    ? getWarningBannedPhrases(bannedPhrasePolicy)
+    : [];
   const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
   const pronounCheckingEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
@@ -1192,6 +1277,13 @@ export async function generateProse(
     openingStyleEntropyBypasses: 0,
     paragraphFingerprintFailures: 0,
     ngramOverlapFailures: 0,
+    bannedPhraseFailures: 0,
+    boundaryIntegrityFailures: 0,
+  };
+  const integrityTelemetry = {
+    seasonLockReplacements: 0,
+    seasonLockProtectedCollisionsBlocked: 0,
+    semanticRewriteDiffBlocks: 0,
   };
   const hardFloorMissChapters = new Set<number>();
   const preferredTargetMissChapters = new Set<number>();
@@ -1563,10 +1655,20 @@ export async function generateProse(
         for (let i = 0; i < proseBatch.chapters.length; i++) {
           // P2-10: Run season lock before pronoun repair; sanitize (anonymizeUnknownTitledNames)
           // runs AFTER pronoun repair so it doesn't weaken antecedents that pronoun repair needs.
-          let chapter = enforceMonthSeasonLockOnChapter(
+          const initialSeasonLockResult = enforceMonthSeasonLockOnChapterWithTelemetry(
             proseBatch.chapters[i],
             temporalSeasonLock,
+            {
+              contextAware: rolloutFlags.season_lock_context_aware_enabled,
+              protectedCollocations: rolloutFlags.season_lock_protected_collocations_enabled,
+              semanticDiffGuard: rolloutFlags.semantic_rewrite_diff_guard_enabled,
+            },
           );
+          integrityTelemetry.seasonLockReplacements += initialSeasonLockResult.telemetry.replacements;
+          integrityTelemetry.seasonLockProtectedCollisionsBlocked +=
+            initialSeasonLockResult.telemetry.protectedCollisionsBlocked;
+          integrityTelemetry.semanticRewriteDiffBlocks += initialSeasonLockResult.telemetry.semanticDiffBlocks;
+          let chapter = initialSeasonLockResult.chapter;
           let structureRepairApplied: { before: number; after: number } | null = null;
           // Deterministic safety net: if the model collapsed the entire chapter into a single
           // overlong paragraph block (a known directive-overload behaviour on final attempts),
@@ -1821,10 +1923,20 @@ export async function generateProse(
                   temporalSeasonLock, // [WORLD FIX B]
                   castCharacters, // [ANALYSIS_16 PHASE D]
                 );
-                chapter = enforceMonthSeasonLockOnChapter(
+                const expandedSeasonLockResult = enforceMonthSeasonLockOnChapterWithTelemetry(
                   expanded,
                   temporalSeasonLock,
+                  {
+                    contextAware: rolloutFlags.season_lock_context_aware_enabled,
+                    protectedCollocations: rolloutFlags.season_lock_protected_collocations_enabled,
+                    semanticDiffGuard: rolloutFlags.semantic_rewrite_diff_guard_enabled,
+                  },
                 );
+                integrityTelemetry.seasonLockReplacements += expandedSeasonLockResult.telemetry.replacements;
+                integrityTelemetry.seasonLockProtectedCollisionsBlocked +=
+                  expandedSeasonLockResult.telemetry.protectedCollisionsBlocked;
+                integrityTelemetry.semanticRewriteDiffBlocks += expandedSeasonLockResult.telemetry.semanticDiffBlocks;
+                chapter = expandedSeasonLockResult.chapter;
                 proseBatch.chapters[i] = chapter;
                 // Repeat pronoun repair after expansion — expansion is a full LLM rewrite.
                 // P2-10: Sanitize after pronoun repair so antecedents are intact during repair.
@@ -1879,9 +1991,19 @@ export async function generateProse(
             const chapterText = chapter.paragraphs.join('\n\n');
             const pronounStory = { id: 'pronoun-check', projectId: 'pronoun-check',
               scenes: [{ number: chapterNumber, title: chapter.title, text: chapterText }] };
-            const pronounIssues = pronounValidator.validate(pronounStory, inputs.caseData as any).errors
+            const validatorErrors = pronounValidator.validate(pronounStory, inputs.caseData as any).errors;
+            const pronounIssues = validatorErrors
               .filter((e) => e.type === 'pronoun_gender_mismatch')
               .map((e) => e.message);
+            const entityFidelityIssues = rolloutFlags.entity_fidelity_gate_enabled
+              ? validatorErrors
+                  .filter((e) => e.type === 'illegal_named_walk_on' || e.type === 'detective_name_inconsistency')
+                  .map((e) => `Entity fidelity: ${e.message}`)
+              : [];
+
+            if (entityFidelityIssues.length > 0) {
+              chapterErrors.push(...entityFidelityIssues);
+            }
 
             if (pronounIssues.length > 0) {
               const flaggedNames = pronounIssues
@@ -1903,9 +2025,18 @@ export async function generateProse(
                 proseBatch.chapters[i] = chapter;
                 const residualStory = { ...pronounStory,
                   scenes: [{ ...pronounStory.scenes[0], text: repaired.text }] };
-                const residualPronounIssues = pronounValidator.validate(residualStory, inputs.caseData as any).errors
+                const residualValidatorErrors = pronounValidator.validate(residualStory, inputs.caseData as any).errors;
+                const residualPronounIssues = residualValidatorErrors
                   .filter((e) => e.type === 'pronoun_gender_mismatch')
                   .map((e) => e.message);
+                const residualEntityIssues = rolloutFlags.entity_fidelity_gate_enabled
+                  ? residualValidatorErrors
+                      .filter((e) => e.type === 'illegal_named_walk_on' || e.type === 'detective_name_inconsistency')
+                      .map((e) => `Entity fidelity: ${e.message}`)
+                  : [];
+                if (residualEntityIssues.length > 0) {
+                  chapterErrors.push(...residualEntityIssues);
+                }
                 if (residualPronounIssues.length > 0) {
                   if (attempt >= 3) {
                     // After two LLM passes with explicit pronoun feedback and targeted repair,
@@ -2026,12 +2157,19 @@ export async function generateProse(
         if (batchMatchingClearances.length > 0) {
           linterOptions.matchingClearances = batchMatchingClearances;
         }
+        if (rolloutFlags.phrase_specific_linter_enabled) {
+          linterOptions.bannedPhrases = bannedPhrasePolicy.hard;
+        }
+        linterOptions.boundaryIntegrityGateEnabled = rolloutFlags.boundary_integrity_gate_enabled;
         // [PHASE 5] Pass macro arc plan and batch start for archetype validation
         if (inputs.macroArcPlan && inputs.macroArcPlan.length > 0) {
           linterOptions.macroArcPlan = inputs.macroArcPlan;
           linterOptions.batchChapterStart = batchStart + 1;
         }
         const linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+        const precommitLinterIssues = rolloutFlags.precommit_phrase_gate_enabled
+          ? linterIssues
+          : linterIssues.filter((issue) => issue.type !== "banned_phrase");
         if (linterIssues.length > 0) {
           proseLinterStats.failedChecks += 1;
           if (linterIssues.some((issue) => issue.type === "opening_style_entropy")) {
@@ -2043,6 +2181,12 @@ export async function generateProse(
           if (linterIssues.some((issue) => issue.type === "ngram_overlap")) {
             proseLinterStats.ngramOverlapFailures += 1;
           }
+          if (linterIssues.some((issue) => issue.type === "banned_phrase")) {
+            proseLinterStats.bannedPhraseFailures += 1;
+          }
+          if (linterIssues.some((issue) => issue.type === "boundary_integrity")) {
+            proseLinterStats.boundaryIntegrityFailures += 1;
+          }
           if (hasNarrativeHardErrors) {
             // F4: Split deferred gate by issue type.
             // opening_style_entropy depends on multi-chapter context and may resolve naturally
@@ -2051,27 +2195,27 @@ export async function generateProse(
             // phrase or paragraph is wrong regardless of whether a narrative error also exists.
             // These are never deferred so they cannot accumulate across chapters while the
             // narrative-error retry loop is running.
-            const nonDeferrableIssues = linterIssues.filter(
+            const nonDeferrableIssues = precommitLinterIssues.filter(
               (issue) => issue.type !== 'opening_style_entropy'
             );
             if (nonDeferrableIssues.length > 0) {
               batchErrors.push(...nonDeferrableIssues.map((issue) => issue.message));
             }
-            const deferredCount = linterIssues.length - nonDeferrableIssues.length;
+            const deferredCount = precommitLinterIssues.length - nonDeferrableIssues.length;
             if (deferredCount > 0) {
               console.warn(
                 `[Agent 9] Deferred opening-style entropy for ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} while narrative hard errors remain.`,
               );
             }
           } else {
-            batchErrors.push(...linterIssues.map((issue) => issue.message));
+            batchErrors.push(...precommitLinterIssues.map((issue) => issue.message));
           }
         }
 
         const isEntropyOnlyFailure =
           batchErrors.length > 0 &&
-          linterIssues.length > 0 &&
-          linterIssues.every((issue) => issue.type === "opening_style_entropy") &&
+          precommitLinterIssues.length > 0 &&
+          precommitLinterIssues.every((issue) => issue.type === "opening_style_entropy") &&
           batchErrors.every((error) => error.startsWith("Template linter: opening-style entropy too low"));
 
         if (isEntropyOnlyFailure && attempt >= maxBatchAttempts) {
@@ -2098,8 +2242,8 @@ export async function generateProse(
           attempt >= maxBatchAttempts &&
           !hasNarrativeHardErrors &&
           batchErrors.length > 0 &&
-          linterIssues.length > 0 &&
-          linterIssues.every((issue) =>
+          precommitLinterIssues.length > 0 &&
+          precommitLinterIssues.every((issue) =>
             issue.type === "paragraph_fingerprint" || issue.type === "debug_note_bleed"
           );
         if (isLinterOnlyFingerprintOrNoteFailure) {
@@ -2420,7 +2564,12 @@ export async function generateProse(
 
           // §5.4: Pending warning pattern — each commit recalculates recurring phrase
           // warnings and forwards them only to the next batch.
-          const recurringPhraseWarnings = detectRecurringPhrases(chapters).slice(0, 10);
+          const recurringPhraseWarnings = mergeUniquePhrases(
+            detectRecurringPhrases(chapters),
+            rolloutFlags.phrase_family_detection_enabled
+              ? detectConfiguredBannedPhrases(chapters, configuredWarningPhrases)
+              : [],
+          ).slice(0, 10);
           liveNarrativeState = { ...liveNarrativeState, recurringPhraseWarnings };
 
           // Break-moment one-time deployment stamping. The full break-moment instruction
@@ -2543,12 +2692,19 @@ export async function generateProse(
   }
 
   const recurringPhrases = detectRecurringPhrases(chapters);
-  if (recurringPhrases.length > 0) {
+  const configuredDetectedPhrases = rolloutFlags.phrase_family_detection_enabled
+    ? detectConfiguredBannedPhrases(chapters, configuredRepairPhrases)
+    : [];
+  const repairPhraseCandidatesBase = mergeUniquePhrases(recurringPhrases, configuredDetectedPhrases);
+  const repairPhraseCandidates = rolloutFlags.uncapped_repair_targets_enabled
+    ? repairPhraseCandidatesBase
+    : repairPhraseCandidatesBase.slice(0, 8);
+  if (repairPhraseCandidates.length > 0) {
     try {
       const repairedChapters = await runAtmosphereRepairIfNeeded(
         client,
         chapters,
-        recurringPhrases,
+        repairPhraseCandidates,
         inputs.model,
         inputs.runId,
         inputs.projectId,
@@ -2620,6 +2776,44 @@ export async function generateProse(
     shouldEscalate: packet.shouldEscalate,
   }));
 
+  const phraseTelemetry = {
+    recurringPhraseCount: recurringPhrases.length,
+    configuredDetectedPhraseCount: configuredDetectedPhrases.length,
+    configuredRepairPhraseCount: configuredRepairPhrases.length,
+    repairPhraseCandidateCount: repairPhraseCandidates.length,
+    hardBanLinterFailures: proseLinterStats.bannedPhraseFailures,
+    rolloutFlags: {
+      phraseFamilyDetectionEnabled: rolloutFlags.phrase_family_detection_enabled,
+      uncappedRepairTargetsEnabled: rolloutFlags.uncapped_repair_targets_enabled,
+      precommitPhraseGateEnabled: rolloutFlags.precommit_phrase_gate_enabled,
+      tieredPhraseContractEnabled: rolloutFlags.tiered_phrase_contract_enabled,
+      phraseSpecificLinterEnabled: rolloutFlags.phrase_specific_linter_enabled,
+      blueSkyModeEnabled: rolloutFlags.blue_sky_mode_enabled,
+      seasonLockContextAwareEnabled: rolloutFlags.season_lock_context_aware_enabled,
+      seasonLockProtectedCollocationsEnabled: rolloutFlags.season_lock_protected_collocations_enabled,
+      boundaryIntegrityGateEnabled: rolloutFlags.boundary_integrity_gate_enabled,
+      semanticRewriteDiffGuardEnabled: rolloutFlags.semantic_rewrite_diff_guard_enabled,
+      entityFidelityGateEnabled: rolloutFlags.entity_fidelity_gate_enabled,
+      culpritAliasGateEnabled: rolloutFlags.culprit_alias_gate_enabled,
+      integrityRetryPacketEnabled: rolloutFlags.integrity_retry_packet_enabled,
+      integrityBlueSkyModeEnabled: rolloutFlags.integrity_blue_sky_mode_enabled,
+    },
+  };
+
+  const mechanicalSeasonCollisionCount = temporalSeasonLock
+    ? chapters.reduce(
+        (sum, chapter) => sum + countMechanicalSeasonCollisions(chapter, temporalSeasonLock.season),
+        0,
+      )
+    : 0;
+
+  const integrityTelemetrySummary = {
+    seasonLockReplacements: integrityTelemetry.seasonLockReplacements,
+    seasonLockProtectedCollisionsBlocked: integrityTelemetry.seasonLockProtectedCollisionsBlocked,
+    semanticRewriteDiffBlocks: integrityTelemetry.semanticRewriteDiffBlocks,
+    mechanicalSeasonCollisionCount,
+  };
+
   const validationDetails = chapterValidationHistory.length > 0 ? {
     totalBatches,
     batchesWithRetries,
@@ -2630,6 +2824,8 @@ export async function generateProse(
       errors: h.errors,
     })),
     linter: proseLinterStats,
+    phraseTelemetry,
+    integrityTelemetry: integrityTelemetrySummary,
     underflow,
     provisionalChapterScores,
     requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,
@@ -2640,6 +2836,8 @@ export async function generateProse(
     batchesWithRetries,
     failureHistory: [],
     linter: proseLinterStats,
+    phraseTelemetry,
+    integrityTelemetry: integrityTelemetrySummary,
     underflow,
     provisionalChapterScores,
     requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,

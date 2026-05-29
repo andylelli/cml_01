@@ -237,6 +237,24 @@ export interface Agent65WorldBuilderConfig extends AgentStatusConfig {
 
 export interface Agent9ValidationConfig {
   pronoun_checking_enabled: boolean;
+  pronoun_validation_enabled: boolean;
+}
+
+export interface Agent9RolloutFlagsConfig {
+  phrase_family_detection_enabled: boolean;
+  uncapped_repair_targets_enabled: boolean;
+  precommit_phrase_gate_enabled: boolean;
+  tiered_phrase_contract_enabled: boolean;
+  phrase_specific_linter_enabled: boolean;
+  blue_sky_mode_enabled: boolean;
+  season_lock_context_aware_enabled: boolean;
+  season_lock_protected_collocations_enabled: boolean;
+  boundary_integrity_gate_enabled: boolean;
+  semantic_rewrite_diff_guard_enabled: boolean;
+  entity_fidelity_gate_enabled: boolean;
+  culprit_alias_gate_enabled: boolean;
+  integrity_retry_packet_enabled: boolean;
+  integrity_blue_sky_mode_enabled: boolean;
 }
 
 export interface StoryLengthWordTargetConfig {
@@ -279,6 +297,7 @@ export interface GenerationParamsConfig {
     underflow_expansion: Agent9UnderflowExpansionConfig;
     generation: Agent9GenerationConfig;
     prose_model: Agent9ProseModelConfig;
+    rollout_flags: Agent9RolloutFlagsConfig;
     style_linter: Agent9StyleLinterConfig;
     scoring_adapter: Agent9ScoringAdapterConfig;
     scorer: Agent9ScorerConfig;
@@ -472,6 +491,22 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       temperature: 0.45,
       max_batch_size: 10,
     },
+    rollout_flags: {
+      phrase_family_detection_enabled: true,
+      uncapped_repair_targets_enabled: true,
+      precommit_phrase_gate_enabled: true,
+      tiered_phrase_contract_enabled: true,
+      phrase_specific_linter_enabled: true,
+      blue_sky_mode_enabled: false,
+      season_lock_context_aware_enabled: true,
+      season_lock_protected_collocations_enabled: true,
+      boundary_integrity_gate_enabled: true,
+      semantic_rewrite_diff_guard_enabled: true,
+      entity_fidelity_gate_enabled: true,
+      culprit_alias_gate_enabled: true,
+      integrity_retry_packet_enabled: true,
+      integrity_blue_sky_mode_enabled: false,
+    },
     style_linter: {
       entropy: {
         standard: {
@@ -530,6 +565,7 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
     },
     validation: {
       pronoun_checking_enabled: true,
+      pronoun_validation_enabled: true,
     },
   },
 };
@@ -947,6 +983,64 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           ),
         ),
       },
+      rollout_flags: {
+        phrase_family_detection_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.phrase_family_detection_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.phrase_family_detection_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.phrase_family_detection_enabled,
+        uncapped_repair_targets_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.uncapped_repair_targets_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.uncapped_repair_targets_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.uncapped_repair_targets_enabled,
+        precommit_phrase_gate_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.precommit_phrase_gate_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.precommit_phrase_gate_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.precommit_phrase_gate_enabled,
+        tiered_phrase_contract_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.tiered_phrase_contract_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.tiered_phrase_contract_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.tiered_phrase_contract_enabled,
+        phrase_specific_linter_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.phrase_specific_linter_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.phrase_specific_linter_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.phrase_specific_linter_enabled,
+        blue_sky_mode_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.blue_sky_mode_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.blue_sky_mode_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.blue_sky_mode_enabled,
+        season_lock_context_aware_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.season_lock_context_aware_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.season_lock_context_aware_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.season_lock_context_aware_enabled,
+        season_lock_protected_collocations_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.season_lock_protected_collocations_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.season_lock_protected_collocations_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.season_lock_protected_collocations_enabled,
+        boundary_integrity_gate_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.boundary_integrity_gate_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.boundary_integrity_gate_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.boundary_integrity_gate_enabled,
+        semantic_rewrite_diff_guard_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.semantic_rewrite_diff_guard_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.semantic_rewrite_diff_guard_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.semantic_rewrite_diff_guard_enabled,
+        entity_fidelity_gate_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.entity_fidelity_gate_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.entity_fidelity_gate_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.entity_fidelity_gate_enabled,
+        culprit_alias_gate_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.culprit_alias_gate_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.culprit_alias_gate_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.culprit_alias_gate_enabled,
+        integrity_retry_packet_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.integrity_retry_packet_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.integrity_retry_packet_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.integrity_retry_packet_enabled,
+        integrity_blue_sky_mode_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.integrity_blue_sky_mode_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.integrity_blue_sky_mode_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.integrity_blue_sky_mode_enabled,
+      },
       style_linter: {
         entropy: {
           standard: {
@@ -1203,6 +1297,9 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         pronoun_checking_enabled: typeof partial.agent9_prose?.validation?.pronoun_checking_enabled === 'boolean'
           ? partial.agent9_prose.validation.pronoun_checking_enabled
           : DEFAULT_CONFIG.agent9_prose.validation.pronoun_checking_enabled,
+        pronoun_validation_enabled: typeof partial.agent9_prose?.validation?.pronoun_validation_enabled === 'boolean'
+          ? partial.agent9_prose.validation.pronoun_validation_enabled
+          : DEFAULT_CONFIG.agent9_prose.validation.pronoun_validation_enabled,
       },
     },
   };

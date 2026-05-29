@@ -8,6 +8,7 @@ import { classifyOpeningStyle } from "../types/narrative-state.js";
 import {
   ARC_POSITION_REGISTER,
 } from "../constants/arc-position.js";
+import { detectConfiguredBannedPhrases } from "./banned-phrases.js";
 import type { ProseChapter, ProseLinterIssue, MacroArcEntry, ProseGenerationInputs } from "./types.js";
 export const normalizeParagraphForFingerprint = (paragraph: string): string =>
   paragraph
@@ -88,10 +89,14 @@ export const lintBatchProse = (
     macroArcPlan?: MacroArcEntry[];
     /** [PHASE 5] Chapter number of the first chapter in this batch (1-based). */
     batchChapterStart?: number;
+    /** Stage 9: hard-banned phrase families that should fail pre-commit linting. */
+    bannedPhrases?: string[];
     /** FIX-C2: Full names of victim characters. When provided, any sentence mentioning a
      *  victim name alongside alibi-reasoning language is flagged as victim_alibi_error.
      *  Victims have no alibi — such sentences are a logic error. */
     victimNames?: string[];
+    /** Section 10: when enabled, hard-fail malformed quote/apostrophe boundary corruption. */
+    boundaryIntegrityGateEnabled?: boolean;
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
@@ -110,6 +115,7 @@ export const lintBatchProse = (
       (mode === "repair" ? entropyConfig.warmup_chapters_repair : entropyConfig.warmup_chapters_standard),
   );
   const generatedChapterCount = chapterOffset + priorChapters.length + batchChapters.length;
+  const boundaryIntegrityGateEnabled = options?.boundaryIntegrityGateEnabled !== false;
   const adaptiveStandardEntropyThreshold = (() => {
     // Short stories have fewer chapters to establish variety, so the threshold starts lower
     // and tightens as the run grows.  Three tiers:
@@ -299,6 +305,18 @@ export const lintBatchProse = (
   }
   } // end !skipNgramCheck
 
+  // Stage 9 hard-ban phrase linter: catches known banned phrase families before commit.
+  if (options?.bannedPhrases && options.bannedPhrases.length > 0) {
+    const bannedPhraseHits = detectConfiguredBannedPhrases(batchChapters, options.bannedPhrases, 1);
+    for (const phrase of bannedPhraseHits.slice(0, 8)) {
+      issues.push({
+        type: "banned_phrase",
+        message: `Template linter: banned phrase detected in generated prose: "${phrase}"`,
+        matchingPriorParagraph: phrase,
+      });
+    }
+  }
+
   // P2-H: Suspect clearance check — for any chapter carrying a clearance obligation
   // (from prose_requirements.suspect_clearance_scenes), verify the prose names the suspect
   // with elimination-adjacent vocabulary.  Failures are typed suspect_clearance_missing so
@@ -386,7 +404,7 @@ export const lintBatchProse = (
   ];
   // ANALYSIS_17 Issue III — Debug-note bleed linter check.
   // Catches internal annotation metadata that has leaked verbatim into prose output.
-  const DEBUG_NOTE_PATTERNS: RegExp[] = [
+  const DEBUG_NOTE_PATTERNS: Array<RegExp | ((p: string) => boolean)> = [
     /the detail is explicit:/i,
     /this detail added\b.*?\btexture\b/i,
     /\[locked fact\]/i,
@@ -478,7 +496,11 @@ export const lintBatchProse = (
         }
       }
       for (const pattern of DEBUG_NOTE_PATTERNS) {
-        if (pattern.test(paragraph)) {
+        const matched =
+          pattern instanceof RegExp
+            ? pattern.test(paragraph)
+            : pattern(paragraph);
+        if (matched) {
           issues.push({
             type: 'debug_note_bleed',
             message:
@@ -550,6 +572,50 @@ export const lintBatchProse = (
 
   // [PHASE 5] Structural archetype validator — mustNotContain check disabled (false positives
   // from common mystery words). Archetype contracts are enforced via prompt injection only.
+
+  if (boundaryIntegrityGateEnabled) {
+    const ALLOWED_APOSTROPHE_SUFFIXES = new Set(['s', 'd', 'll', 're', 've', 'm', 't', 'em']);
+    const MALFORMED_APOSTROPHE_RE = /\b([A-Za-z]{3,})'([A-Za-z]{2,})\b/g;
+
+    for (let chapterIndex = 0; chapterIndex < batchChapters.length; chapterIndex += 1) {
+      const chapter = batchChapters[chapterIndex];
+      const chapterText = (chapter.paragraphs ?? []).join('\n');
+      if (!chapterText) continue;
+
+      const chapterNumber = chapterOffset + priorChapters.length + chapterIndex + 1;
+      const findings: string[] = [];
+
+      const quoteCount = (chapterText.match(/["\u201c\u201d]/g) ?? []).length;
+      if (quoteCount % 2 !== 0) {
+        findings.push('unbalanced quotation marks');
+      }
+
+      let malformedToken: string | undefined;
+      let malformedMatch: RegExpExecArray | null;
+      while ((malformedMatch = MALFORMED_APOSTROPHE_RE.exec(chapterText)) !== null) {
+        const left = malformedMatch[1] ?? '';
+        const right = malformedMatch[2] ?? '';
+        const rightLower = right.toLowerCase();
+        if (ALLOWED_APOSTROPHE_SUFFIXES.has(rightLower)) continue;
+        if (/^[A-Z]/.test(left) || /^[A-Z]/.test(right)) continue;
+        malformedToken = malformedMatch[0];
+        break;
+      }
+
+      if (malformedToken) {
+        findings.push(`malformed apostrophe token "${malformedToken}"`);
+      }
+
+      if (findings.length > 0) {
+        issues.push({
+          type: 'boundary_integrity',
+          message:
+            `Boundary integrity failure in chapter ${chapterNumber}: ${findings.join('; ')}. ` +
+            'Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).',
+        });
+      }
+    }
+  }
 
   return issues;
 };
@@ -624,6 +690,29 @@ export const getSeasonAllowList = (season: CanonicalSeason | string): string => 
   return allowLists[season as CanonicalSeason] ?? season;
 };
 
+export interface SeasonLockRewriteOptions {
+  contextAware?: boolean;
+  protectedCollocations?: boolean;
+  semanticDiffGuard?: boolean;
+}
+
+export interface SeasonLockTelemetry {
+  replacements: number;
+  protectedCollisionsBlocked: number;
+  semanticDiffBlocks: number;
+}
+
+const SEASON_MONTH_CONTEXT_RE = /\b(january|february|march|april|may|june|july|august|september|october|november|december|weather|season|morning|afternoon|evening|night|dawn|dusk|midnight|rain|wind|fog|mist|storm|thunder|overcast|cloudy|sunlight|daylight|frost|snow|chill|cold|warm|humid|drizzle)\b/i;
+const MECHANICAL_CONTEXT_RE = /\b(clock|pendulum|escapement|gear|gears|watch|mechanism|mainspring|main\s+spring|coil|torsion|barrel|winding|wound|spring|springs|chime|ratchet|lever)\b/i;
+const SPRING_MECHANICAL_COLLOCATION_RE = /\b(main\s*spring|mainspring|suspension\s+spring|coil\s+spring|leaf\s+spring|clock\s+spring|watch\s+spring|spring\s+tension|spring\s+housing|spring\s+barrel|spring\s+mechanism|spring\s+steel|spring-loaded)\b/i;
+
+const conflictingSeasonTerms: Record<CanonicalSeason, string[]> = {
+  spring: ['summer', 'summertime', 'midsummer', 'summery', 'autumn', 'autumnal', 'winter', 'wintertime', 'wintry'],
+  summer: ['spring', 'springtime', 'vernal', 'autumn', 'autumnal', 'winter', 'wintertime', 'wintry'],
+  autumn: ['spring', 'springtime', 'vernal', 'summer', 'summertime', 'midsummer', 'summery', 'winter', 'wintertime', 'wintry'],
+  winter: ['spring', 'springtime', 'vernal', 'summer', 'summertime', 'midsummer', 'summery', 'autumn', 'autumnal'],
+};
+
 // These patterns MUST cover every token that temporal-consistency.ts SEASON_PATTERNS can detect
 // as a wrong-season match — otherwise enforceMonthSeasonLockOnChapter silently lets the word
 // through and the chapter validator flags it as a contradiction on every attempt.
@@ -643,43 +732,108 @@ export const conflictingSeasonPatterns: Record<CanonicalSeason, RegExp[]> = {
 // Module-level: avoids recreating on every chapter processed by enforceMonthSeasonLockOnChapter.
 export const SEASONAL_PRESENCE_RE = /\b(spring|summer|autumn|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december|rain|snow|fog|mist|frost|ice|warm|cold|chill|damp|drizzle|storm|thunder|wind|overcast|cloudy|sunny|humid)\b/i;
 
-export const enforceMonthSeasonLockOnChapter = (
+const isProtectedSpringContext = (windowText: string): boolean => {
+  if (!/\bspring(?:time)?\b/i.test(windowText) && !/\bvernal\b/i.test(windowText)) return false;
+  return SPRING_MECHANICAL_COLLOCATION_RE.test(windowText)
+    || (MECHANICAL_CONTEXT_RE.test(windowText) && !SEASON_MONTH_CONTEXT_RE.test(windowText));
+};
+
+export const countMechanicalSeasonCollisions = (chapter: ProseChapter, season: CanonicalSeason): number => {
+  if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length === 0) return 0;
+  const text = chapter.paragraphs.join(' ');
+  if (!text) return 0;
+  const escapedSeason = escapeRegExp(season);
+  const collisionRe = new RegExp(
+    `\\b(?:main\\s*spring|mainspring|suspension|coil|leaf|clock|watch|torsion|balance|pendulum|escapement)\\s+${escapedSeason}\\b` +
+      `|\\b${escapedSeason}\\s+(?:tension|housing|barrel|steel|mechanism)\\b`,
+    'gi',
+  );
+  return (text.match(collisionRe) ?? []).length;
+};
+
+export const enforceMonthSeasonLockOnChapterWithTelemetry = (
   chapter: ProseChapter,
   lock: { month: string; season: CanonicalSeason } | undefined,
-): ProseChapter => {
-  if (!lock) return chapter;
-  if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length === 0) return chapter;
+  options?: SeasonLockRewriteOptions,
+): { chapter: ProseChapter; telemetry: SeasonLockTelemetry } => {
+  const telemetry: SeasonLockTelemetry = {
+    replacements: 0,
+    protectedCollisionsBlocked: 0,
+    semanticDiffBlocks: 0,
+  };
 
-  // [WORLD FIX C] Apply repair unconditionally — do not gate on the month word being present.
-  // The most common failure mode is seasonal-language drift in chapters that never mention the
-  // month explicitly. The repair is safe to run always: if no conflicting season words appear,
-  // `changed` stays false and the original chapter is returned unchanged.
+  if (!lock) return { chapter, telemetry };
+  if (!Array.isArray(chapter.paragraphs) || chapter.paragraphs.length === 0) return { chapter, telemetry };
+
   const chapterText = chapter.paragraphs.join(' ');
-  // P1-4: Restore lightweight guard — skip the regex scan entirely when the chapter contains
-  // no seasonal or weather vocabulary at all. This prevents non-seasonal uses of season words
-  // ("summer residence", "winter of their years") from being silently replaced on every chapter.
-  if (!SEASONAL_PRESENCE_RE.test(chapterText)) return chapter;
+  if (!SEASONAL_PRESENCE_RE.test(chapterText)) return { chapter, telemetry };
+
   const expectedSeason = lock.season;
-  const patterns = conflictingSeasonPatterns[expectedSeason];
+  const conflictTerms = conflictingSeasonTerms[expectedSeason] ?? [];
+  const contextAware = options?.contextAware === true;
+  const protectedCollocations = options?.protectedCollocations === true;
+  const semanticDiffGuard = options?.semanticDiffGuard === true;
   let changed = false;
 
   const rewritten = chapter.paragraphs.map((paragraph) => {
     let next = paragraph;
-    for (const pattern of patterns) {
-      next = next.replace(pattern, (matched) => {
-        changed = true;
+    let replacementsInParagraph = 0;
+
+    for (const term of conflictTerms) {
+      const pattern = new RegExp(`\\b${escapeRegExp(term)}\\b`, 'gi');
+      next = next.replace(pattern, (matched: string, offset: number, fullText: string) => {
+        const windowStart = Math.max(0, offset - 80);
+        const windowEnd = Math.min(fullText.length, offset + matched.length + 80);
+        const contextWindow = fullText.slice(windowStart, windowEnd);
+
+        if (contextAware && !SEASON_MONTH_CONTEXT_RE.test(contextWindow)) {
+          return matched;
+        }
+
+        const isSpringToken = /^(spring|springtime|vernal)$/i.test(matched);
+        if (protectedCollocations && isSpringToken && isProtectedSpringContext(contextWindow)) {
+          telemetry.protectedCollisionsBlocked += 1;
+          return matched;
+        }
+
+        replacementsInParagraph += 1;
         return matched.charAt(0) === matched.charAt(0).toUpperCase()
           ? capitalizeWord(expectedSeason)
           : expectedSeason;
       });
     }
+
+    if (replacementsInParagraph <= 0) return paragraph;
+
+    if (semanticDiffGuard) {
+      const beforeHadSpringLike = /\b(spring|springtime|vernal)\b/i.test(paragraph);
+      const introducedCollisions = countMechanicalSeasonCollisions({ title: chapter.title, paragraphs: [next] }, expectedSeason) > 0;
+      if (beforeHadSpringLike && introducedCollisions) {
+        telemetry.semanticDiffBlocks += 1;
+        return paragraph;
+      }
+    }
+
+    telemetry.replacements += replacementsInParagraph;
+    changed = true;
     return next;
   });
 
-  if (!changed) return chapter;
+  if (!changed) return { chapter, telemetry };
 
   return {
-    ...chapter,
-    paragraphs: rewritten,
+    chapter: {
+      ...chapter,
+      paragraphs: rewritten,
+    },
+    telemetry,
   };
+};
+
+export const enforceMonthSeasonLockOnChapter = (
+  chapter: ProseChapter,
+  lock: { month: string; season: CanonicalSeason } | undefined,
+  options?: SeasonLockRewriteOptions,
+): ProseChapter => {
+  return enforceMonthSeasonLockOnChapterWithTelemetry(chapter, lock, options).chapter;
 };

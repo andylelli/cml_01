@@ -1142,7 +1142,11 @@ export const createServer = () => {
           const specPayload = (latestSpec?.spec as Record<string, unknown>) ?? undefined;
 
           setTimeout(() => {
-            runPipeline(repoPromise, project.id, run.id, specPayload)
+            const PIPELINE_TIMEOUT_MS = parseInt(process.env.PIPELINE_TIMEOUT_MS || "7200000", 10); // default 2 hours
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("Pipeline exceeded maximum allowed duration")), PIPELINE_TIMEOUT_MS)
+            );
+            Promise.race([runPipeline(repoPromise, project.id, run.id, specPayload), timeoutPromise])
               .then(async () => {
                 await repo.updateRunStatus(run.id, "idle");
                 await repo.setProjectStatus(project.id, "idle");

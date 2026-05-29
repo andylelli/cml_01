@@ -206,6 +206,37 @@ export interface ProseGenerationResult {
       openingStyleEntropyBypasses: number;
       paragraphFingerprintFailures: number;
       ngramOverlapFailures: number;
+      bannedPhraseFailures?: number;
+      boundaryIntegrityFailures?: number;
+    };
+    phraseTelemetry?: {
+      recurringPhraseCount: number;
+      configuredDetectedPhraseCount: number;
+      configuredRepairPhraseCount: number;
+      repairPhraseCandidateCount: number;
+      hardBanLinterFailures: number;
+      rolloutFlags?: {
+        phraseFamilyDetectionEnabled: boolean;
+        uncappedRepairTargetsEnabled: boolean;
+        precommitPhraseGateEnabled: boolean;
+        tieredPhraseContractEnabled: boolean;
+        phraseSpecificLinterEnabled: boolean;
+        blueSkyModeEnabled: boolean;
+        seasonLockContextAwareEnabled?: boolean;
+        seasonLockProtectedCollocationsEnabled?: boolean;
+        boundaryIntegrityGateEnabled?: boolean;
+        semanticRewriteDiffGuardEnabled?: boolean;
+        entityFidelityGateEnabled?: boolean;
+        culpritAliasGateEnabled?: boolean;
+        integrityRetryPacketEnabled?: boolean;
+        integrityBlueSkyModeEnabled?: boolean;
+      };
+    };
+    integrityTelemetry?: {
+      seasonLockReplacements: number;
+      seasonLockProtectedCollisionsBlocked: number;
+      semanticRewriteDiffBlocks: number;
+      mechanicalSeasonCollisionCount: number;
     };
     underflow?: UnderflowTelemetry;
     provisionalChapterScores?: Array<{
@@ -235,10 +266,12 @@ export interface ProseLinterStats {
   openingStyleEntropyBypasses: number;
   paragraphFingerprintFailures: number;
   ngramOverlapFailures: number;
+  bannedPhraseFailures: number;
+  boundaryIntegrityFailures: number;
 }
 
 export interface ProseLinterIssue {
-  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "ngram_overlap" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "archetype_violation" | "victim_alibi_error";
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "ngram_overlap" | "banned_phrase" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "archetype_violation" | "victim_alibi_error" | "boundary_integrity";
   message: string;
   /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
    *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that

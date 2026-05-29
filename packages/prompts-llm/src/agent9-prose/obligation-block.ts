@@ -4,6 +4,7 @@
  * injected into every prose prompt.
  */
 import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
+import { getGenerationParams } from "@cml/story-validation";
 import {
   ARC_POS_TO_SCENE_TYPE,
   HIGH_TENSION_POSITIONS,
@@ -18,6 +19,7 @@ import {
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
+import { getTieredBannedPhrasePolicy } from "./banned-phrases.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import type { NarrativeState } from "../types/narrative-state.js";
 import type {
@@ -131,6 +133,53 @@ export function buildChapterObligationBlock(
     : STAGE3_ARC.has(currentArcPosition) ? 3 : 4;
 
   const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
+
+  // Era authenticity preamble — injected once per batch so the LLM never introduces
+  // anachronistic terms regardless of how far the pronoun/clue blocks push the system
+  // message down in the context window.
+  const eraDecode: string = String(cmlCase?.meta?.era?.decade ?? '').trim();
+  const ERA_FORBIDDEN: Record<string, string[]> = {
+    '1860s': ['telephone','automobile','airplane','radio','television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital'],
+    '1870s': ['telephone','automobile','airplane','radio','television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital'],
+    '1880s': ['automobile','airplane','radio','television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital'],
+    '1890s': ['airplane','radio','television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital'],
+    '1900s': ['television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital','plastic'],
+    '1910s': ['television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital','plastic'],
+    '1920s': ['television','computer','internet','email','cell phone','mobile','smartphone','GPS','laptop','digital'],
+    '1930s': ['computer','internet','email','cell phone','mobile phone','smartphone','GPS','laptop','digital camera','text message','app','wifi','bluetooth','jet plane'],
+    '1940s': ['internet','email','cell phone','mobile phone','smartphone','GPS','laptop','digital camera','text message','app','wifi','bluetooth'],
+    '1950s': ['internet','email','cell phone','mobile phone','smartphone','GPS','laptop','digital camera','text message','app','wifi','bluetooth'],
+  };
+  const eraForbidden = ERA_FORBIDDEN[eraDecode];
+  if (eraForbidden && eraForbidden.length > 0) {
+    lines.push(`- ERA RULE (${eraDecode}): NEVER use these anachronistic terms: ${eraForbidden.map(t => `"${t}"`).join(', ')}. Any occurrence will cause the chapter to be rejected.`);
+  }
+
+  // Stage 9: tiered banned-phrase controls (hard/soft/watch) shared with runtime repair.
+  const rolloutFlagsRaw = (getGenerationParams().agent9_prose as any)?.rollout_flags;
+  const rolloutFlags = {
+    tiered_phrase_contract_enabled:
+      rolloutFlagsRaw?.tiered_phrase_contract_enabled !== false,
+  };
+  if (rolloutFlags.tiered_phrase_contract_enabled) {
+    const phrasePolicy = getTieredBannedPhrasePolicy(cmlCase);
+    if (phrasePolicy.hard.length > 0) {
+      lines.push(
+        `- STYLE HARD-BAN: NEVER use these phrase families: ${phrasePolicy.hard.map((p) => `"${p}"`).join(', ')}. Any occurrence triggers rejection/retry.`,
+      );
+    }
+    if (phrasePolicy.soft.length > 0) {
+      lines.push(
+        `- STYLE SOFT-BAN: avoid these stock phrases and rewrite them if they appear in draft text: ${phrasePolicy.soft.map((p) => `"${p}"`).join(', ')}.`,
+      );
+    }
+    if (phrasePolicy.watch.length > 0) {
+      lines.push(
+        `- STYLE WATCHLIST: keep these patterns varied and scene-specific: ${phrasePolicy.watch.map((p) => `"${p}"`).join(', ')}.`,
+      );
+    }
+  }
+
   const continuityTail = typeof narrativeState?.continuityTail === 'string'
     ? narrativeState.continuityTail.replace(/\s+/g, ' ').trim()
     : '';
@@ -175,6 +224,16 @@ export function buildChapterObligationBlock(
       Number(dtScene?.act_number) === sceneAct &&
       Number(dtScene?.scene_number) === perActSceneNum;
 
+    // Post-reveal naming constraint — fires for chapters that come after the revelation
+    // scene so the LLM doesn't replace the culprit's name with role aliases.
+    const revelationSceneRef = proseRequirements.culprit_revelation_scene ?? null;
+    const isPostRevealChapter = !isDiscriminatingTestChapter &&
+      revelationSceneRef != null && (
+        Number(scene?.act) > Number(revelationSceneRef.act_number) ||
+        (Number(scene?.act) === Number(revelationSceneRef.act_number) &&
+          perActSceneNum > Number(revelationSceneRef.scene_number))
+      );
+
     lines.push(`- Chapter ${chapterNumber}:`);
     // [PHASE 5] Inject structural archetype contract
     if (macroArcPlan) {
@@ -188,6 +247,14 @@ export function buildChapterObligationBlock(
     if (wordTarget) {
       lines.push(`  - Word count: Target ${wordTarget.targetWords} words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.`);
     }
+    if (isPostRevealChapter) {
+      const postRevealCulpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as any[])
+        .filter((n: any) => typeof n === 'string' && n).join(' and ');
+      if (postRevealCulpritNames) {
+        lines.push(`  - POST-REVEAL NAMING: the culprit has been unmasked. Refer to ${postRevealCulpritNames} by name. Do NOT use "the killer", "the murderer", "the culprit", "the criminal", or any similar role label as a substitute for ${postRevealCulpritNames}'s name.`);
+      }
+    }
+
     if (chapterNumber === 1 && victimNameForIdentity) {
       lines.push(`  - VICTIM IDENTITY LOCK (MANDATORY): name the victim as "${victimNameForIdentity}" in the discovery scene. After first mention, do not use unnamed placeholders such as "the victim" without naming ${victimNameForIdentity} in the same paragraph.`);
     }

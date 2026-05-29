@@ -8,23 +8,76 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError } fro
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';
 
-const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
-const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
-const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have|cannot\s+have|no\s+opportunity|no\s+access|impossible\s+for|accounted\s+for|vouched\s+for|beyond\s+suspicion)\b/i;
+const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it|committed|confessed?|guilty|accused)\b/i;
+const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves?|proof|alibi|timeline|constraint|observation|demonstrated|confirmed|established)\b/i;
 
 const normalizeName = (name: string) => name.replace(/\s+/g, ' ').trim();
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const normalizeAliasText = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/\b(mr|mrs|ms|dr)\./g, '$1')
+    .replace(/[^a-z0-9\s'-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const TITLE_EXPANSIONS: Record<string, string[]> = {
+  dr: ['dr', 'doctor'],
+  mr: ['mr', 'mister'],
+  mrs: ['mrs'],
+  miss: ['miss'],
+  ms: ['ms'],
+  inspector: ['inspector'],
+  detective: ['detective'],
+  captain: ['captain'],
+  colonel: ['colonel'],
+  sir: ['sir'],
+  lady: ['lady'],
+};
 
 // Extract the surname (last word) from a full name, stripping honorifics.
 // Used to match prose that refers to suspects by surname only (e.g. "Dr. Finch"
 // when the full name is "Dr. Mallory Finch").
 const extractSurname = (fullName: string): string => {
   const tokens = fullName.trim().split(/\s+/);
-  return tokens[tokens.length - 1];
+  return tokens[tokens.length - 1] ?? '';
 };
 
-// Returns true if the text contains the full name OR the surname alone.
+const buildNameAliases = (fullName: string): string[] => {
+  const normalized = normalizeName(fullName);
+  const tokens = normalized.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return [];
+
+  const rawTitle = tokens[0].toLowerCase().replace(/\.$/, '');
+  const hasTitle = Object.prototype.hasOwnProperty.call(TITLE_EXPANSIONS, rawTitle);
+  const surname = extractSurname(normalized);
+  const firstNonTitle = hasTitle ? tokens[1] : tokens[0];
+  const aliases = new Set<string>();
+
+  aliases.add(normalized);
+  if (surname) aliases.add(surname);
+  if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
+    aliases.add(`${firstNonTitle} ${surname}`);
+  }
+  if (hasTitle && surname) {
+    for (const expanded of TITLE_EXPANSIONS[rawTitle]) {
+      aliases.add(`${expanded} ${surname}`);
+    }
+  }
+
+  return Array.from(aliases);
+};
+
+const aliasAppearsInText = (alias: string, text: string): boolean => {
+  const normAlias = normalizeAliasText(alias);
+  const normText = normalizeAliasText(text);
+  if (!normAlias || !normText) return false;
+  return new RegExp(`\\b${escapeRegex(normAlias)}\\b`, 'i').test(normText);
+};
+
 const nameAppearsInText = (fullName: string, text: string): boolean =>
-  text.includes(fullName) || text.includes(extractSurname(fullName));
+  buildNameAliases(fullName).some((alias) => aliasAppearsInText(alias, text));
 
 export class SuspectClosureValidator implements Validator {
   name = 'SuspectClosureValidator';
