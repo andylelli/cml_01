@@ -1,5 +1,10 @@
 import type { ClueDistributionResult } from "@cml/prompts-llm";
-import { getGenerationParams } from "@cml/story-validation";
+import {
+  detectControlPlaneLeakage,
+  getGenerationParams,
+  validateCharacterLifecycle,
+} from "@cml/story-validation";
+import type { ProseTrustSignal } from "@cml/story-validation";
 import type { ClueEvidenceAnchor, ClueEvidenceState, ClueEvidenceExtractionResult } from "./shared.js";
 
 // ============================================================================
@@ -38,6 +43,11 @@ export interface ProseOutput {
     clue_visibility_ratio?: number;
     missing_clue_ids?: string[];
   };
+  trust_signals?: ProseTrustSignal[];
+}
+
+export interface ProseScoringAdapterOptions {
+  fallbackTelemetry?: Array<{ chapterNumber?: number; committed?: boolean; reason?: string }>;
 }
 
 const DISCRIMINATING_REASONING_RE =
@@ -327,6 +337,7 @@ export function collectClueEvidenceFromProse(
             },
             confidence: 1,
             state: "explicit",
+            quality: "explicit",
           };
           break;
         }
@@ -355,6 +366,7 @@ export function collectClueEvidenceFromProse(
           },
           confidence,
           state: "hinted",
+          quality: "hinted",
         };
 
         if (!bestAnchor || candidate.confidence > bestAnchor.confidence) {
@@ -428,6 +440,7 @@ export function adaptProseForScoring(
   proseChapters: any[],
   cmlCase?: any,          // pass (cml as any).CASE for clue extraction
   clueDistribution?: ClueDistributionResult,
+  options?: ProseScoringAdapterOptions,
 ): ProseOutput {
   const fairPlayConfig = getAdapterConfig().fair_play;
   const evidence = collectClueEvidenceFromProse(proseChapters, cmlCase, clueDistribution);
@@ -454,6 +467,70 @@ export function adaptProseForScoring(
       discriminating_test_present: discriminating_test_present || undefined,
     };
   });
+
+  const storyForLifecycle = {
+    id: 'agent9-prose',
+    projectId: 'agent9-prose',
+    metadata: {
+      cast: ((cmlCase?.cast ?? []) as any[]).map((c: any) => String(c?.name ?? '')).filter(Boolean),
+    },
+    scenes: proseChapters.map((ch: any, idx: number) => ({
+      number: idx + 1,
+      title: String(ch?.title ?? `Chapter ${idx + 1}`),
+      text: Array.isArray(ch?.paragraphs) ? ch.paragraphs.join('\n\n') : String(ch?.prose ?? ''),
+    })),
+  };
+  const lifecycleErrors = validateCharacterLifecycle(
+    storyForLifecycle,
+    cmlCase ? { CASE: cmlCase } as any : undefined,
+  );
+  const leakageCount = chapters.reduce(
+    (count, chapter) => count + detectControlPlaneLeakage(chapter.prose).filter((f) => f.confidence === 'hard').length,
+    0,
+  );
+  const fallbackShortCount = chapters.filter((chapter) => {
+    const words = chapter.prose.trim().split(/\s+/).filter(Boolean).length;
+    return words > 0 && words < 850 && /fallback|chapter advances|scene objective|required evidence/i.test(chapter.prose);
+  }).length;
+  const committedFallbackCount = (options?.fallbackTelemetry ?? [])
+    .filter((entry) => entry?.committed !== false)
+    .length;
+  const trustSignals: ProseTrustSignal[] = [
+    ...lifecycleErrors
+      .filter((error) => error.severity === 'critical')
+      .map((error) => ({
+        code: error.type === 'victim_culprit_conflict'
+          ? 'identity_continuity_collapse'
+          : error.type,
+        severity: 'critical' as const,
+        cap: 60,
+        source: 'validation' as const,
+      })),
+    ...(leakageCount > 0
+      ? [{
+          code: 'control_plane_leakage',
+          severity: 'major' as const,
+          cap: 75,
+          source: 'validation' as const,
+        }]
+      : []),
+    ...(fallbackShortCount > 1
+      ? [{
+          code: 'multiple_fallback_short_chapters',
+          severity: 'major' as const,
+          cap: 80,
+          source: 'fallback' as const,
+        }]
+      : []),
+    ...(committedFallbackCount > 0
+      ? [{
+          code: committedFallbackCount > 1 ? 'multiple_committed_fallback_chapters' : 'committed_fallback_chapter',
+          severity: 'major' as const,
+          cap: committedFallbackCount > 1 ? 80 : 88,
+          source: 'fallback' as const,
+        }]
+      : []),
+  ];
 
   // Populate fair_play_validation so the scorer's consistency check runs (P-1 fix)
   const dtComplete = chapters.some(c => c.discriminating_test_present);
@@ -526,5 +603,6 @@ export function adaptProseForScoring(
       clue_visibility_ratio: clueVisibilityRatio,
       missing_clue_ids: missingClueIds.length > 0 ? missingClueIds : undefined,
     },
+    trust_signals: trustSignals.length > 0 ? trustSignals : undefined,
   };
 }

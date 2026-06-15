@@ -14,10 +14,12 @@ import {
   executeAgentWithRetry,
   appendRetryFeedbackOptional,
   preAgent9LlmRetriesEnabled,
+  preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
+  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("setting", "Refining era and setting...", 0);
 
   if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
@@ -83,9 +85,9 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
 
   let settingSchemaValidation = validateArtifact("setting_refinement", ctx.setting.setting);
   if (!settingSchemaValidation.valid) {
-    if (!retriesEnabled) {
+    if (!contractRecoveryEnabled) {
       settingSchemaValidation.errors.forEach((error) => ctx.errors.push(`Setting schema failure: ${error}`));
-      throw new Error("Setting artifact failed schema validation (deterministic mode: schema retry disabled)");
+      throw new Error("Setting artifact failed schema validation (contract recovery disabled)");
     }
     ctx.warnings.push("Setting refinement failed schema validation on first attempt; retrying setting generation with schema repair guardrails");
     const settingSchemaRetryStart = Date.now();

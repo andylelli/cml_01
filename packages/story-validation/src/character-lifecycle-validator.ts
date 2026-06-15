@@ -1,0 +1,262 @@
+import type { CMLData, Story, ValidationError, ValidationResult, Validator } from './types.js';
+
+export type CharacterLifecycleStatus =
+  | 'alive'
+  | 'deceased'
+  | 'victim'
+  | 'active_dialogue'
+  | 'active_suspect'
+  | 'cleared'
+  | 'culprit'
+  | 'confesses';
+
+export type LifecycleEvidenceStrength = 'hard' | 'medium' | 'heuristic';
+
+export interface CharacterLifecycleEvent {
+  characterName: string;
+  status: CharacterLifecycleStatus;
+  chapterNumber: number;
+  evidence: string;
+  source: 'cml' | 'outline' | 'prose';
+  strength: LifecycleEvidenceStrength;
+}
+
+export interface CharacterLifecycleLedger {
+  byCharacter: Record<string, CharacterLifecycleEvent[]>;
+}
+
+const DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
+const CONFESSION_RE = /\b(?:confessed|confession|admitted\s+(?:it|the\s+(?:murder|killing))|i\s+(?:killed|murdered|poisoned|struck|shot|stabbed))\b/i;
+const ACTIVE_VERB_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
+const CLEARED_RE = /\b(?:cleared|ruled\s+out|eliminated|innocent|alibi\s+(?:holds|held|confirmed)|could\s+not\s+have)\b/i;
+
+const normalizeName = (value: string): string => value.toLowerCase().replace(/\s+/g, ' ').trim();
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const sentenceSplit = (text: string): string[] =>
+  String(text ?? '')
+    .match(/[^.!?\n]+[.!?]*/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) ?? [];
+
+const getRole = (entry: any): string =>
+  String(entry?.role_archetype ?? entry?.roleArchetype ?? entry?.role ?? '').toLowerCase();
+
+const getVictimNames = (cml?: CMLData): string[] =>
+  ((cml as any)?.CASE?.cast ?? [])
+    .filter((entry: any) => getRole(entry).includes('victim'))
+    .map((entry: any) => String(entry?.name ?? '').trim())
+    .filter(Boolean);
+
+const getCulpritNames = (cml?: CMLData): string[] =>
+  ((cml as any)?.CASE?.culpability?.culprits ?? [])
+    .map((name: unknown) => String(name ?? '').trim())
+    .filter(Boolean);
+
+const getCastNames = (story: Story, cml?: CMLData): string[] => {
+  const names = new Set<string>();
+  ((cml as any)?.CASE?.cast ?? []).forEach((entry: any) => {
+    const name = String(entry?.name ?? '').trim();
+    if (name) names.add(name);
+  });
+  (story.metadata?.cast ?? []).forEach((name) => {
+    const trimmed = String(name ?? '').trim();
+    if (trimmed) names.add(trimmed);
+  });
+  return Array.from(names);
+};
+
+const nameInSentence = (sentence: string, name: string): boolean =>
+  new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(sentence);
+
+const isPossessiveObjectOnly = (sentence: string, name: string): boolean => {
+  const escaped = escapeRegExp(name);
+  const possessiveOnly = new RegExp(`\\b${escaped}(?:'s|\\u2019s)\\b`, 'i').test(sentence);
+  const directName = new RegExp(`\\b${escaped}\\b(?!['\\u2019]s)`, 'i').test(sentence);
+  return possessiveOnly && !directName;
+};
+
+const hasActiveUse = (sentence: string, name: string): boolean => {
+  if (!nameInSentence(sentence, name)) return false;
+  if (isPossessiveObjectOnly(sentence, name)) return false;
+  const escaped = escapeRegExp(name);
+  const subjectPattern = new RegExp(`\\b${escaped}\\b[^.!?]{0,80}${ACTIVE_VERB_RE.source}`, 'i');
+  const dialoguePattern = new RegExp(`[\\u201c"]?[^\\u201d"]{0,160}[\\u201d"]?\\s*,?\\s*\\b${escapeRegExp(name.split(/\s+/).slice(-1)[0])}\\b\\s+(?:said|asked|replied|answered|confessed|admitted)\\b`, 'i');
+  return subjectPattern.test(sentence) || dialoguePattern.test(sentence);
+};
+
+const addEvent = (
+  ledger: CharacterLifecycleLedger,
+  event: CharacterLifecycleEvent,
+): void => {
+  const key = normalizeName(event.characterName);
+  ledger.byCharacter[key] = [...(ledger.byCharacter[key] ?? []), event];
+};
+
+export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): CharacterLifecycleLedger {
+  const ledger: CharacterLifecycleLedger = { byCharacter: {} };
+  const castNames = getCastNames(story, cml);
+  const victimNames = getVictimNames(cml);
+  const culpritNames = getCulpritNames(cml);
+
+  for (const victimName of victimNames) {
+    addEvent(ledger, {
+      characterName: victimName,
+      status: 'victim',
+      chapterNumber: 0,
+      evidence: 'CML cast role marks character as victim',
+      source: 'cml',
+      strength: 'hard',
+    });
+  }
+
+  for (const culpritName of culpritNames) {
+    addEvent(ledger, {
+      characterName: culpritName,
+      status: 'culprit',
+      chapterNumber: 0,
+      evidence: 'CML culpability marks character as culprit',
+      source: 'cml',
+      strength: 'hard',
+    });
+  }
+
+  for (const scene of story.scenes ?? []) {
+    const text = scene.text ?? '';
+    for (const sentence of sentenceSplit(text)) {
+      for (const name of castNames) {
+        if (!nameInSentence(sentence, name)) continue;
+
+        if (DEATH_RE.test(sentence)) {
+          addEvent(ledger, {
+            characterName: name,
+            status: 'deceased',
+            chapterNumber: scene.number,
+            evidence: sentence,
+            source: 'prose',
+            strength: 'heuristic',
+          });
+        }
+
+        if (hasActiveUse(sentence, name)) {
+          addEvent(ledger, {
+            characterName: name,
+            status: 'active_dialogue',
+            chapterNumber: scene.number,
+            evidence: sentence,
+            source: 'prose',
+            strength: 'heuristic',
+          });
+        }
+
+        if (CONFESSION_RE.test(sentence)) {
+          addEvent(ledger, {
+            characterName: name,
+            status: 'confesses',
+            chapterNumber: scene.number,
+            evidence: sentence,
+            source: 'prose',
+            strength: 'heuristic',
+          });
+        }
+
+        if (CLEARED_RE.test(sentence)) {
+          addEvent(ledger, {
+            characterName: name,
+            status: 'cleared',
+            chapterNumber: scene.number,
+            evidence: sentence,
+            source: 'prose',
+            strength: 'heuristic',
+          });
+        }
+      }
+    }
+  }
+
+  return ledger;
+}
+
+const earliestChapter = (events: CharacterLifecycleEvent[], statuses: CharacterLifecycleStatus[]): number | undefined => {
+  const chapters = events
+    .filter((event) => statuses.includes(event.status))
+    .map((event) => event.chapterNumber)
+    .filter((chapter) => chapter > 0);
+  return chapters.length > 0 ? Math.min(...chapters) : undefined;
+};
+
+export function validateCharacterLifecycle(story: Story, cml?: CMLData): ValidationError[] {
+  const ledger = buildCharacterLifecycleLedger(story, cml);
+  const errors: ValidationError[] = [];
+
+  for (const [key, events] of Object.entries(ledger.byCharacter)) {
+    const displayName = events[0]?.characterName ?? key;
+    const isVictim = events.some((event) => event.status === 'victim');
+    const isCulprit = events.some((event) => event.status === 'culprit');
+    const deathChapter = earliestChapter(events, ['deceased']);
+    const effectiveDeathChapter = deathChapter ?? (isVictim ? 1 : undefined);
+
+    if (isVictim && isCulprit) {
+      errors.push({
+        type: 'victim_culprit_conflict',
+        message: `${displayName} is marked as both victim and culprit`,
+        severity: 'critical',
+        suggestion: 'Victim and culprit assignments must be mutually exclusive unless the schema explicitly supports a false death.'
+      });
+    }
+
+    if (effectiveDeathChapter != null) {
+      const activeAfterDeath = events.find(
+        (event) => event.status === 'active_dialogue' && event.chapterNumber > effectiveDeathChapter,
+      );
+      if (activeAfterDeath) {
+        errors.push({
+          type: 'victim_reappears_alive',
+          message: `${displayName} is dead/victim by chapter ${effectiveDeathChapter} but appears active in chapter ${activeAfterDeath.chapterNumber}`,
+          severity: 'critical',
+          sceneNumber: activeAfterDeath.chapterNumber,
+          suggestion: 'Do not give active dialogue/action to a confirmed dead victim; correct the victim or culprit identity.'
+        });
+      }
+
+      const confessionAfterDeath = events.find(
+        (event) => event.status === 'confesses' && event.chapterNumber >= effectiveDeathChapter,
+      );
+      if (confessionAfterDeath) {
+        errors.push({
+          type: 'deceased_character_confesses',
+          message: `${displayName} is dead/victim but has confession language in chapter ${confessionAfterDeath.chapterNumber}`,
+          severity: 'critical',
+          sceneNumber: confessionAfterDeath.chapterNumber,
+          suggestion: 'Assign confession language only to a living culprit.'
+        });
+      }
+    }
+
+    const clearedChapter = earliestChapter(events, ['cleared']);
+    if (clearedChapter != null && isCulprit) {
+      errors.push({
+        type: 'cleared_culprit_conflict',
+        message: `${displayName} is cleared in chapter ${clearedChapter} but also marked as culprit`,
+        severity: 'major',
+        sceneNumber: clearedChapter,
+        suggestion: 'If this is a false clearance, mark it explicitly in the outline; otherwise do not clear the culprit.'
+      });
+    }
+  }
+
+  return errors;
+}
+
+export class CharacterLifecycleValidator implements Validator {
+  name = 'CharacterLifecycleValidator';
+
+  validate(story: Story, cml?: CMLData): ValidationResult {
+    const errors = validateCharacterLifecycle(story, cml);
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+}

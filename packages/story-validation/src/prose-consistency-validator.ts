@@ -246,11 +246,6 @@ export class ProseConsistencyValidator implements Validator {
       const searchNames = (lastName && lastName !== firstName) ? [firstName, lastName] : [firstName];
 
       const windowSize = 200; // characters around name mention to check
-      // F30-2: Narrower competitor window (100 chars) prevents a far-away opposite-gender
-      // character from suppressing a genuine pronoun error near the subject character's name.
-      // Previously the full ±200 window was used, causing false-negative suppression in
-      // multi-character scenes where a female character was 3+ sentences from the wrong pronoun.
-      const competitorWindowSize = 100;
 
       // Competing-entity guard: collect all name parts (first + last + middle) of
       // characters whose gender matches the "wrong" pronoun set.
@@ -283,15 +278,14 @@ export class ProseConsistencyValidator implements Validator {
             // character of that gender is also named (ambiguous reference, not an error).
             const wrongPronounPattern = new RegExp(`\\b(${wrong.subject}|${wrong.object}|${wrong.possessive})\\b`, 'i');
             if (wrongPronounPattern.test(windowLower)) {
-              // F30-2: Competitor check uses a narrower ±competitorWindowSize window (100 chars)
-              // rather than the full ±200 detection window. A competitor mentioned 150+ chars
-              // away from the wrong pronoun is too far to create genuine pronoun ambiguity.
-              // Previously the full window was used, suppressing valid errors in scenes where
-              // an opposite-gender character appeared anywhere in the 400-char span.
-              const nameOffset = pos - Math.max(0, pos - windowSize); // offset of name within window
-              const competitorStart = Math.max(0, nameOffset - competitorWindowSize);
-              const competitorEnd = Math.min(windowStripped.length, nameOffset + searchName.length + competitorWindowSize);
-              const competitorSearchText = windowStripped.slice(competitorStart, competitorEnd);
+              // Suppress only when an opposite-gender competitor appears in the same
+              // paragraph as the subject name within the full scene text.
+              const paragraphStartToken = scene.text.lastIndexOf("\n\n", pos);
+              const paragraphEndToken = scene.text.indexOf("\n\n", pos);
+              const paragraphStart = paragraphStartToken === -1 ? 0 : paragraphStartToken + 2;
+              const paragraphEnd = paragraphEndToken === -1 ? scene.text.length : paragraphEndToken;
+              const paragraphText = scene.text.slice(paragraphStart, paragraphEnd);
+              const competitorSearchText = stripDialogueFromWindow(paragraphText);
               const competitorFound = oppositeFirstNames.some((fn) =>
                 new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
               );

@@ -101,3 +101,10 @@ export interface ProseConsistencyReport {
   contextLeakageViolations: number;
   overallStatus: 'pass' | 'needs_review' | 'fail';
 }
+
+export interface ProseTrustSignal {
+  code: string;
+  severity: 'critical' | 'major' | 'moderate';
+  cap?: number;
+  source: 'validation' | 'release_gate' | 'fallback';
+}

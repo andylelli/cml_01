@@ -1,0 +1,968 @@
+# Actual Prompt Record
+
+- Run ID: `run_0030e979-d9c1-4099-89d6-1d4b0926b5d6`
+- Project ID: `proj_626a86ab-c1a7-4c72-9596-886cc946b02b`
+- Timestamp: `2026-06-14T13:45:14.216Z`
+- Agent: `Agent9-ProseGenerator-Ch7`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4o-mini`
+- Temperature: `0.42`
+- Max Tokens: `4500`
+- Attempt: `first`
+- Prompt Hash: `4e117d7b7d7303c9`
+
+## Message 1 (role=system)
+
+```text
+You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
+
+⛔ ABSOLUTE RULE — CHARACTER NAMES:
+The ONLY characters who exist in this story are: Brian Scanlon (man), Carol Molloy (woman), Colin Enright (man), Jane O'Connor (woman), Sean Murphy (man).
+Do NOT invent, borrow, or introduce ANY character not on that list — no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
+Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
+⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: Brian Scanlon, Carol Molloy, Colin Enright, Jane O'Connor, Sean Murphy?" If not, remove them.
+Any invented named character will fail validation and abort the entire generation.
+⚠️ BEFORE YOU WRITE each chapter, also ask yourself: "Am I using the correct pronouns for every character — she/her for women, he/him for men?" If not, correct it before writing a single word.
+⛔ GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times — a woman is always she/her, a man is always he/him. Never swap, default, or guess.
+
+Rules:
+- Do not introduce new facts beyond the CML and outline.
+- Preserve all clues, alibis, and the core mystery logic.
+- Maintain strict setting fidelity to the specified location and era.
+- Write immersive, sensory-rich prose that transports readers to the setting
+- Include scene-setting passages that establish atmosphere, time, and place
+- Use varied sentence structure and sophisticated vocabulary
+- Show character emotions through actions and dialogue, not just telling
+- Create distinct character voices and personalities based on their profiles
+- Avoid stereotypes and reduce bias.
+- Keep language original; do not copy copyrighted text.
+- Output valid JSON only.
+- DISAPPEARANCE-TO-MURDER BRIDGE: If the story opens with a disappearance, you MUST include an explicit bridge scene that transitions it to a confirmed murder (body discovered, death confirmed, investigation reclassified). Never jump from missing person to murder investigation without this bridge.
+- ANTI-REPETITION: Do not repeat the same atmospheric or descriptive phrases across adjacent chapters. Vary imagery, metaphors, and sentence openings. If a sensory phrase (e.g., "air thick with tension", "smell of polished wood") has appeared in any prior chapter, rephrase it entirely. No atmospheric sentence should appear verbatim or near-verbatim in more than one chapter.
+- TEMPLATE LEAKAGE BAN: Never emit scaffold prose like "At The [Location] ... the smell of ... atmosphere ripe for revelation". Rewrite any scaffold-like sentence into chapter-specific prose tied to character action.
+- TEMPLATE PRECONDITION (STRICT): Before returning JSON, self-check every paragraph for reused scaffold patterns and high-overlap phrasing from prior chapters. If any paragraph resembles template scaffold language, DISCARD that paragraph and rewrite it from a different sentence skeleton before output. Do not return until all paragraphs pass this precondition.
+- TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
+- DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
+- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "The murderer acted out of desperation to protect a family secret, leading to a conflicted sense of justice." — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.
+
+
+⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.
+
+
+CRITICAL CHARACTER CONSISTENCY RULES:
+
+1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.
+   COMPLETE CAST (no other named characters exist): Brian Scanlon, Carol Molloy, Colin Enright, Jane O'Connor, Sean Murphy
+   - "Mr. Jennings entered the room" → ILLEGAL. Jennings is not in the cast.
+   - "Constable Reed took notes" → ILLEGAL. Reed is not in the cast.
+   - "A constable took notes" → LEGAL (no name given).
+
+2. Character roles are fixed:
+   - Brian Scanlon: Ambitious Tycoon
+   - Carol Molloy: Entitled Heiress
+   - Colin Enright: Cunning Advisor
+   - Jane O'Connor: Curious Observer / Amateur Sleuth / Civilian Investigator
+   - Sean Murphy: Loyal Servant
+   - Never place characters in locations inconsistent with their role
+
+## POST-CHAPTER-1 CHARACTER PRESSURE CONTRACT (MANDATORY)
+After Chapter 1, character content must not read as biography or static profile recap.
+Character beats must carry pressure and case movement.
+Apply this contract to every chapter in this batch.
+
+For each chapter after Chapter 1, reveal at least one NEW character truth about one of:
+- fear
+- motive
+- lie/deception
+- loyalty conflict
+- relationship to the victim
+
+That character development must do at least one of the following:
+- make someone more suspicious
+- make someone less suspicious
+- explain why someone lied
+- reveal motive
+- deepen the emotional cost of the crime
+- change the investigator's understanding of the case
+
+Hard constraints:
+- No character paragraph that only restates occupation/role/persona without investigative consequence.
+- No static biography dumps after Chapter 1.
+- The investigator must register the pressure shift in-scene (through observation, questioning, or revised theory).
+
+WORLD DOCUMENT (use this as your primary creative context):
+
+## Era: 1932-07
+In July 1932, the air in England is thick with the weight of the Great Depression, as the economy falters and social divisions deepen. The overcast skies reflect the mood of the time, where families, once secure in their wealth, now grapple with the specter of financial ruin. In the countryside, the genteel facade of manor life crumbles under the strain of unemployment, with whispers of discontent echoing among the staff. The social rituals that once defined their lives become tinged with anxiety, as each gathering becomes a reminder of lost opulence. With radio broadcasts sharing news of political unrest and rising tensions across Europe, the atmosphere pulses with uncertainty, leaving the inhabitants of Little Middleton Manor to navigate their fragile social standings amidst hidden resentments and unspoken fears.
+Emotional register: A collective sense of anxiety and uncertainty permeates society as people navigate the complexities of class and economic hardship.
+Physical constraints: Limited transportation options due to economic hardships | Frequent power outages affect daily life and communication | Communication relies heavily on the postal system and typewriters | Public gatherings are scrutinized for propriety and decorum
+Current tensions (weave into background texture): The U.S. economy struggles amidst the Great Depression | Political unrest in Europe with the rise of fascism | Class tensions rising as the wealthy and the poor grow more divided
+Wartime context — Not applicable as this period is peacetime.: The absence of wartime service creates a focus on class and economic struggles rather than nationalistic pride. Absence effect: Without the unifying threat of war, social divisions become more pronounced, leading to increased tensions among the classes.
+
+## Story Theme
+The quest for social status can lead to deceit and moral ambiguity, exposing the fragility of human relationships amid the backdrop of economic despair, and reveals that evidence carries ethical weight, forcing characters to choose accountability over social performance when appearances and facts collide.
+
+## Story Emotional Register
+Dominant: A tense and somber atmosphere envelops the tale.
+
+Arc:
+The story opens in the grand yet oppressive atmosphere of Little Middleton Manor, where the shocking murder of Brian Scanlon sends ripples through the lives of its residents. As Detective Jane O'Connor investigates, the rising tension reveals a web of deceit and hidden motives among the guests, each harboring their own secrets. The initial clues, such as the peculiar clock and witness testimonies, lead to a maze of false leads that amplify the emotional cost for everyone involved. Midway through the investigation, a revelation about the tampered clock shifts Jane's focus, forcing her to reconsider the timeline of events and the true nature of the relationships at play. As pressure mounts, characters confront their own motives, and the stakes rise, culminating in a dramatic climax where the truth about Colin Enright’s involvement is revealed. In the resolution, the emotional toll of the investigation weighs heavily on each character, leaving them to reckon with their choices and the fragile nature of their social standings in a world forever changed by the shadow of financial ruin.
+
+The story opens: The atmosphere is thick with tension and uncertainty following the murder. As the investigation takes shape: Initial investigations reveal deep-seated secrets among the guests. A first key turn arrives: A startling clue about the clock shifts focus in the investigation. At the mid-point of the story: Revelations about the tampering change assumptions about the timeline.
+
+A second pivot reshapes the course: Pressure mounts as characters confront their intertwined fates. As tension reaches its height: The final pieces of the puzzle come together, leading to the confrontation. The climax brings the central question to a head: The truth about Colin's guilt emerges, shattering the facade of trust. In the final resolution: Each character is left to grapple with the emotional aftermath of the crime.
+
+## Emotional register at this point in the story
+Pressure mounts as characters confront their intertwined fates.
+
+## Character Portraits (appearance & era)
+
+### Colin Enright
+Colin Enright's respectable lawyer facade belies a complicated history with the Scanlon family. As the pressures of economic turmoil weigh heavily on him, his past connections to the victim create a moral dilemma that complicates his motives and actions in the investigation.
+Era intersection: Colin's position as a family lawyer places him at the intersection of class and personal loyalties, reflecting the tensions of a society grappling with economic despair.
+
+### Jane O'Connor
+Jane O'Connor represents the ambitious journalist eager to uncover the truth, her career aspirations colliding with the ethical dilemmas posed by the investigation. As she navigates the scandal surrounding the Scanlon estate, her determination reflects the era's shift towards a more inquisitive media landscape.
+Era intersection: Jane's pursuit of truth in a time of societal upheaval highlights the growing importance of media in shaping public perception during the 1930s.
+
+## Character Voices
+
+### Colin Enright (he/him/his)
+Colin speaks with a calm and deliberate rhythm, often incorporating legal jargon into his conversations.
+[stressed] This isn't just about the law; it's... complicated.
+[comfortable] The law is a delicate dance, where one misstep can lead to a fall.
+[evasive] I was in the office, reviewing documents. Nothing unusual.
+Humour: His dry wit often catches others off guard, providing levity amidst serious discussions.
+
+### Jane O'Connor (she/her/her)
+Jane's quick, animated speech is often laced with sarcasm, reflecting her journalist's edge.
+[stressed] This could make or break my career; I can't afford to mess it up!
+[comfortable] If only the walls could talk; they’d probably have quite the scandal to share.
+[evasive] Oh, I just happened to be passing by, not snooping at all!
+Humour: Her sardonic wit serves as a shield against the seriousness of her work.
+
+## Location Registers (scene framing guides)
+
+The Library: The library feels like a crypt of secrets, where the dust of neglect combines with the weight of untold stories, creating a palpable tension that suffocates the air.. Camera angle: As a writer enters this space, they should feel the oppressive weight of history and the silence of unspoken truths.. Era: The library’s decor reflects the grandeur of its time, but its current state highlights the financial strain of the era.
+
+The Drawing Room: The drawing room, once alive with laughter, now feels stifled and tense, a battleground of unspoken worries and fading grandeur.. Camera angle: The writer should approach this room with a sense of foreboding, as if each glance at the furnishings uncovers more hidden anxieties.. Era: The lavish decor stands in stark contrast to the economic struggles outside, emphasizing the dissonance of the upper class.
+
+The Overgrown Garden: The garden, with its wildflowers and tangled hedges, serves as a reflection of disarray and abandonment, a sanctuary turned into a maze of secrets.. Camera angle: Entering this space should evoke feelings of isolation and introspection, as if the garden itself holds the key to the characters' inner turmoil.. Era: Once a vibrant center of leisure, the garden now echoes the neglect experienced by its inhabitants during hard times.
+
+## Humour guidance for this story position (second_turn)
+Permission: permitted
+Characters who may be funny: Jane O'Connor
+Permitted forms: sardonic
+Rationale: Jane’s sharp observations can provide insight while maintaining tension.
+
+## Reveal Groundwork (texture — do not explain, only plant)
+- Plant one subtle observable beat related to: "Taken together, these implications should be treated as cumulative pressure that reshapes how each suspect interprets risk, loyalty, and consequence over the final act". Do not explain significance yet.
+- Plant one subtle observable beat related to: "Plant one subtle anomaly that can be re-read after the resolution.". Do not explain significance yet.
+- Plant one subtle observable beat related to: "Plant one subtle anomaly that can be re-read after the resolution.". Do not explain significance yet.
+
+FAIR-PLAY AND INFERENCE CONTRACT:
+- FAIR PLAY CLUE TIMING: Never combine clue discovery and detective deduction in the same chapter. If a clue is first revealed to the reader in chapter N, the detective may only analyze, deduce from, or act on that clue in chapter N+1 or later.
+- FAIR PLAY INFORMATION PARITY: The reader must see all clues BEFORE the detective uses them in reasoning. If the detective performs a test or makes a deduction, every piece of evidence supporting that conclusion must have been shown to the reader in earlier chapters.
+- FAIR PLAY REVELATION SPACING: In the discriminating test scene, the detective can ONLY use clues that were revealed to the reader at least 1 full chapter earlier. Never introduce new clues or withheld information during the test.
+- FAIR PLAY CONFRONTATION: During the final confrontation/revelation, the detective cannot surprise the reader with facts. Every piece of evidence cited must have been visible to the reader in prior chapters.
+- Never solve by withheld information. Keep reader-information parity with detective reasoning.
+- False assumption in force: Brian Scanlon must have died after the last guest left.
+- Hidden truth to progressively expose: The actual time of death was much earlier, obscured by tampering with the clock.
+- Inference path checkpoints to dramatize clearly (observation -> correction -> effect):
+  - Step 1: obs: The clock in the study shows ten minutes past eleven. | corr: This suggests Brian Scanlon died after the last guest left. | effect: Eliminates the possibility of an early death.
+  - Step 2: obs: Witnesses report hearing a loud thud at half past ten. | corr: This indicates that the death may have occurred before the clock showed its current time. | effect: Narrows the time of death to before eleven o'clock.
+  - Step 3: obs: Fingerprints on the clock show signs of tampering. | corr: The clock was likely manipulated to mislead the investigation. | effect: Narrows the suspect pool to those who had access to the study.
+- Discriminating test method: trap
+- Discriminating test design constraint: The discriminating test compares suspect, clock, and study against the claimed timeline.
+- Test must rely on already-shown clue IDs: clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_3, clue_1, clue_2, clue_4
+- Fair-play rationale: Step 1: The clock showing ten minutes past eleven and the witness testimony about the thud let the reader conclude that the death was earlier. Step 2: The tampering evidence provides the connection that the clock does not reflect true time, leading to suspect Colin Enright.
+
+## Character Reference
+
+### Colin Enright (he/him — NEVER she/her)
+Colin speaks with a calm and deliberate rhythm, choosing his words carefully
+He often incorporates legal jargon into casual conversation, but his wit emerges unexpectedly, often catching others off guard with its subtlety.
+Colin is caught in a web of nostalgia and regret, torn between his professional obligations and the lingering feelings for the victim. The conflict between duty and desire weighs heavily on him, creating a moral dilemma he cannot escape.
+
+### Jane O'Connor (she/her — NEVER he/him)
+Jane speaks with a quick, animated rhythm, often punctuating her sentences with wry observations
+She has a penchant for sarcasm, using humor as a shield against the seriousness of her work.
+Jane struggles with the ethics of her investigation, torn between her ambition and the potential consequences of exposing the family's secrets. The desire for a sensational story battles with her sense of integrity.
+
+
+
+PHYSICAL PLAUSIBILITY REQUIREMENTS:
+
+All physical evidence must obey real-world physics:
+
+1. VIABLE Evidence by Location:
+   Interior: fingerprints, torn fabric, overturned furniture, blood spatter, documents
+   Exterior (calm): secured items, structural damage, witness observations
+   Exterior (storm): NO trace evidence survives - use only structural damage or interior evidence
+
+2. IMPLAUSIBLE Evidence (DO NOT USE):
+   ❌ Footprints on wooden deck (treated wood doesn't retain prints)
+   ❌ Footprints in rain/storm (washed away immediately)
+   ❌ Metal embedded in hardwood (requires bullet velocity, not human force)
+   ❌ Light objects in storm (blown away)
+
+3. For struggle evidence use:
+   ✓ Overturned furniture, torn clothing, scattered items, defensive wounds
+   ❌ Objects embedded in hard surfaces, shattered steel/iron
+ERA AUTHENTICITY (1930s):
+
+1. FORBIDDEN terms (did not exist):
+   ❌ Modern technology
+
+2. REQUIRED period markers (include 2+ per scene):
+   ✓ Formal address: Mr./Mrs./Miss/Dr./Sir/Lady
+   ✓ Period technology: period-appropriate items
+   ✓ Fashion: period clothing
+
+3. Use period-authentic language and social norms
+
+LOCATION PROFILES:
+
+You have rich location profiles to draw from. Use them to create vivid, atmospheric scenes.
+
+Primary Location: Little Middleton Manor (Little Middleton, England)
+A sprawling estate that mirrors the grandeur of its era, now shrouded in mystery and tension.
+
+Key Locations Available:
+- The Library (interior): Crime scene
+- The Drawing Room (interior): Gathering space
+- The Overgrown Garden (exterior): Isolation and reflection space
+
+Atmosphere (tonal cue only — do NOT reproduce this phrase verbatim in prose; translate into scene-specific, character-observed sensory language): Tension in the air due to recent financial struggles of the household
+Weather: overcast with a chance of rain, typical for the English countryside
+
+Era markers: Domestic wiring with frequent outages | Typewriters in use for correspondence | Petrol touring cars on county roads
+
+USAGE GUIDELINES:
+1. First mention of location: Ground the scene using sensory details drawn from the profiles — paraphrase these into what the POV character directly observes and experiences, not a summary of the room's general qualities
+2. Geographic grounding: Reference the specific place (Little Middleton, England) naturally in dialogue or narrative
+3. Action scenes: Integrate physical layout details (access, sightlines, constraints)
+4. Atmospheric scenes: Reference weather, lighting, sounds from sensory palette
+5. Era details: Weave in period markers naturally
+6. Consistency: Keep all location descriptions aligned with profiles
+7. Each chapter opening must anchor to a named location from this list
+8. Include at least 2 sensory cues + 1 atmosphere marker in each chapter opening
+9. Do NOT use generic repeated manor/storm filler without profile-specific details
+
+SENSORY PALETTE (use 2-3 senses per scene):
+The Library (interior):
+  - Visual: dusty tomes lining dark shelves, flickering candlelight on oak desk, cold ashes in the fireplace
+  - Sounds: the ticking of a mantel clock, rustle of pages turning, silent footsteps on the wooden floor
+  - Scents: old leather and parchment, cold stone and damp wood, beeswax from candlelight
+  - Touch: rough texture of old books, smoothness of polished wood
+
+The Drawing Room (interior):
+  - Visual: opulent fabrics draping over furniture, grand piano resting silently in the corner, gilded mirrors reflecting candlelight
+  - Sounds: soft murmurs of conversation, the creak of an old chair, the distant sound of laughter
+  - Scents: heavy perfume lingering in the air, the scent of polished wood, faint whiff of burnt candles
+  - Touch: smooth silk of drapery, rough texture of upholstered chairs
+
+The Overgrown Garden (exterior):
+  - Visual: vibrant wildflowers swaying in the breeze, tangled hedges creating secluded spaces, overgrown paths winding through greenery
+  - Sounds: chirping of distant birds, the rustle of leaves in the wind, the soft buzz of insects
+  - Scents: fresh scent of damp earth, the sweetness of blooming flowers, the sharpness of cut grass
+  - Touch: rough texture of stone paths, soft petals brushing against skin
+
+⛔ REFERENCE DATA — DO NOT TRANSCRIBE VERBATIM: The above profiles are structural guides only. Generate original prose that evokes these qualities; do not reproduce the exact phrasing or sentence structure of the profile paragraphs.
+
+SCENE OPENING RULE: When opening a scene in a new location, write what the POV character directly observes and physically senses at that moment — not a general description of the room's qualities. The reader must feel present, not briefed. Sensory details must be observed by the character, not stated as fact about the place.
+
+SENSORY WRITING TECHNIQUES:
+- Opening paragraphs: Lead with 2-3 sensory details to ground the scene
+- Movement between locations: Note sensory changes (quiet study → noisy dining room)
+- Emotional scenes: Use sensory details to reinforce mood (cold rain during argument)
+- Period authenticity: Use period-specific sensory details from
+[truncated for prompt budget]
+
+## Texture Pool
+Draw on these as opportunities arise — you are not required to use them.
+
+- In July 1932, the air in England is thick with the weight of the Great Depression, as the economy falters and social divisions deepen
+- The overcast skies reflect the mood of the time, where families, once secure in their wealth, now grapple with the specter of financial ruin
+- In the countryside, the genteel facade of manor life crumbles under the strain of unemployment, with whispers of discontent echoing among the staff
+- The social rituals that once defined their lives become tinged with anxiety, as each gathering becomes a reminder of lost opulence
+- With radio broadcasts sharing news of political unrest and rising tensions across Europe, the atmosphere pulses with uncertainty, leaving the inhabitants of Little Middleton Manor to navigate their fragile social standings amidst hidden resentments and unspoken fears.
+
+TEMPORAL CONTEXT:
+
+This story takes place in July 1932 during summer.
+
+Seasonal Atmosphere:
+- Weather patterns: overcast with intermittent rain, cool breezes sweeping across the countryside, occasional bursts of sunlight
+- Daylight: Long summer days, with twilight lingering until nearly ten o'clock in the evening, giving way to a damp chill as the night falls.
+- Seasonal activities: Country picnics in the meadows, Gardening and tending to the estate's flower beds, Hosting outdoor teas and games on the lawn
+- Seasonal occasions: No major holidays, but many would celebrate Bastille Day on July 14th with small gatherings and local festivities.
+- Season: summer
+
+Period Fashion (describe naturally):
+- Men formal: tweed three-piece suit with a waistcoat, straw boater hat, polished leather brogues
+- Men casual: linen trousers with a light cotton shirt, suspenders, flat cap
+- Men accessories: silk tie, pocket watch, cufflinks
+- Women formal: tea-length floral dress with a fitted waist, lightweight cardigan, cloche hat adorned with ribbons
+- Women casual: sleeveless cotton frock, broad-brimmed sun hat, canvas espadrilles
+- Women accessories: beaded clutch purse, string of pearls, matching gloves
+
+Cultural Context (reference naturally):
+- Music/entertainment: George Gershwin's 'Rhapsody in Blue', Jimmie Lunceford's big band tunes, Bing Crosby's crooning hits; Films: 'Scarface' directed by Howard Hawks, 'The Most Dangerous Game'; Theatre: 'Of Mice and Men' by John Steinbeck, 'The Royal Family' by George S. Kaufman; Radio: The BBC broadcasts news and entertainment programs, Popular music shows featuring live bands
+- Typical prices: Loaf of bread: four pence, A dozen eggs: one shilling, A taxi across town: two shillings
+- Current events: The U.S. economy struggles amidst the Great Depression; Political unrest in Europe with the rise of fascism
+- Literature: 'Brave New World' by Aldous Huxley | 'Murder in the Cathedral' by T.S. Eliot | 'The Maltese Falcon' by Dashiell Hammett | [Mystery fiction] | [Social commentary novels] | [Dystopian literature]
+- Technology: The electric refrigerator becomes more common in households | Advancements in radio technology enhance broadcast quality | The first commercial production of the electric washing machine | Typewriters for correspondence | Radios in homes for entertainment | Automobiles for personal transport
+- Daily life: Visiting local markets for fresh produce, Engaging in amateur dramatics at the village hall, Playing croquet or lawn tennis at the manor
+- Social rituals: Formal afternoon tea with neighbors, Weekly church services attended by the community
+
+Atmospheric Details:
+The scent of damp earth and blooming flowers hangs in the air, a reminder of the recent rain. The distant sound of a clock striking the hour echoes through the manor, a reminder of time passing amidst rising tensions. Faint whispers of gossip circulate among the household staff, thickening the atmosphere with unspoken secrets.
+
+FASHION INTEGRATION TECHNIQUES:
+- First appearance: Describe outfit to establish class/personality
+- Accessories: Gloves, hats, pocket watches, jewelry reveal status
+- Time-specific: Different outfits for different times of day
+- Character traits: Fastidious dresser vs rumpled appearance
+- Action integration: "She tugged at her glove" or "He adjusted his tie"
+- Weather appropriate: Over
+[truncated for prompt budget]
+
+NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):
+The following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.
+
+FAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.
+
+CRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.
+
+Locked facts:
+  - The exact time shown on the stopped clock face: "ten minutes past eleven"
+    ⛔ FORBIDDEN alternatives: "11:10", "11.10", "eleven ten", "eleven-ten", "eleven past ten", "quarter past eleven", "half past eleven" — the ONLY acceptable form is "ten minutes past eleven"
+  - The exact amount the clock was wound back: "forty minutes"
+
+If a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.
+
+⛔ CLUES TO SURFACE IN THESE CHAPTERS — mandatory:
+The following evidence MUST be clearly observable to an attentive reader. Do not bury it in atmosphere or passing dialogue. Each clue must be concrete, specific, and noticeable:
+
+• [clue_2] The clock was likely manipulated to mislead the investigation.
+  Category: temporal | Criticality: essential | Supports inference step 3
+  Points to: This suggests a deliberate act to confuse the timeline.
+
+For each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.
+
+═══ NARRATIVE STATE (read-only — do not contradict) ═══
+
+LOCKED FACTS — use verbatim whenever this evidence is described:
+  • The exact time shown on the stopped clock face: "ten minutes past eleven"
+  • The exact amount the clock was wound back: "forty minutes"
+
+CHARACTER PRONOUNS — never deviate from these:
+  • Brian Scanlon: he/him/his
+  • Carol Molloy: she/her/her
+  • Colin Enright: he/him/his
+  • Jane O'Connor: she/her/her
+  • Sean Murphy: he/him/his
+
+CLUES ALREADY REVEALED TO READER: clue_7, clue_culprit_direct_colin_enright, clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_1, clue_3, clue_4, clue_5, clue_6, clue_8, clue_9, clue_10, clue_11, clue_12 — do not reveal these as new information.
+
+INVESTIGATION LOG — WHAT IS ESTABLISHED (do not re-establish, do not repeat):
+• Evidence in reader's hands: The clock was tampered with to show a later time, misleading the investigation regarding the time of death. | Direct evidence ties Colin Enright to the mechanism access point before the discriminating test. | The clock in the study shows ten minutes past eleven. | This suggests Brian Scanlon died after the last guest left. | This indicates that the death may have occurred before the clock showed its current time. | Witnesses report hearing a loud thud at half past ten. | This indicates that the death may have occurred before the clock showed its current time. | Fingerprints on the clock show signs of tampering. | The clock was likely manipulated to mislead the investigation. | Colin Enright was seen near the clock shortly before the murder. | Colin Enright had financial motives to eliminate Brian Scanlon. | Eliminates Carol Molloy because she was seen leaving the study at ten o'clock. | Eliminates Sean Murphy because he was at the bar during the time of the murder. | Eliminates Carol Molloy because witnesses confirm she was with them until ten fifteen.
+• Suspects still unresolved: Carol Molloy[SHE], Sean Murphy[HE]
+⚠ The story must move FORWARD from this log. Any beat already listed above is forbidden from repeating.
+
+⚠ THIS CHAPTER'S REQUIRED ADVANCE (second_turn): New evidence overturns the leading theory — introduce a reversal
+
+CONTINUITY HANDOFF — previous chapter closing beat:
+  • "As she turned to exit, Carol called after her, her tone shifting to one of concern. "You must be careful, Jane. There are things in this house that are better left undisturbed. Secrets can be dangerous, especially in times like these. " Jane paused, the weight..."
+  • The next chapter must open as a continuation of this beat, not as a disconnected reset.
+═══════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════
+📚 CONTINUITY CONTEXT - CHARACTER & SETTING CONSISTENCY
+═══════════════════════════════════════════════════════════
+
+**CRITICAL: You are writing chapters 7+. Maintain consistency with earlier chapters.**
+
+**Character Names Used in Chapters 1-6:**
+Brian Scanlon, Carol Molloy, Colin Enright, Jane O'Connor, Sean Murphy
+
+✓ RULE: Use EXACTLY these names. Do NOT vary spelling, add titles, or introduce new forms.
+✓ Example: if earlier chapters used "Clara Whitfield", keep using "Clara Whitfield" — never "Mrs. Whitfield" unless that is the character's canonical name in the list above.
+
+**Setting Vocabulary Established in Earlier Chapters:**
+study, garden, estate, bar, drawing room
+
+✓ RULE: Continue using this location vocabulary. Maintain consistency with established setting type.
+✓ Do NOT introduce new location types that contradict earlier chapters.
+
+**Recent Chapter Summary (for narrative continuity):**
+Chapter 4: Chapter 4: Interrogating Colin
+  Events: The afternoon light filtered through the heavy curtains of the study, casting a dim glow across the room.
+Chapter 5: Chapter 5: Witness Statement
+  Events: Sean entered the pub, shaking off the remnants of the rain as he approached Jane with a cautious smile.
+Chapter 6: Chapter 6: Alibi Check
+  Events: Carol entered the room, her usual poise slightly faltering.
+
+⚠️ **VALIDATION:** Character name mismatches and setting drift are common failure modes.
+Double-check every character name against the list above before using it.
+
+**⏱ LOCKED TIME ANCHOR — use verbatim, do not paraphrase:**
+Clock time established in earlier chapters: **"ten minutes past eleven"**
+✓ RULE: Every reference to the clock MUST use exactly this phrase. No variation permitted.
+═══════════════════════════════════════════════════════════
+
+
+HUMOUR & WIT GUIDELINES (Golden Age Mystery Style):
+
+Humour is STRUCTURAL, not decorative. Every humorous moment must serve at least one purpose: hide information, reveal character, control pacing, provide tonal contrast, expose social truth, or sharpen the final reveal.
+
+TONE: Balance classical structure with modern-clean, restrained, irony-aware voice. Aim for crisp prose, controlled formality, mildly sharpened dryness. Think: polite language, ruthless implication.
+
+APPROVED HUMOUR STYLES (use all of these naturally throughout):
+1. UNDERSTATEMENT (primary tool) - Increase seriousness by pretending not to. Example: "The evening deteriorated somewhat after the stabbing."
+2. DRY OBSERVATIONAL WIT - Draw humour from human behaviour. Example: "Everyone preferred harmony. This required extensive dishonesty."
+3. POLITE SAVAGERY - Maintain civility while delivering verbal incision. Example: "He was devoted to principle," said the solicitor. "His own," said the detective.
+4. CHARACTER-DRIVEN CONTRAST - Humour from personality friction (literal vs dramatic, pragmatic vs romantic, rigid vs modern). Never farce, always friction.
+5. PRECISION CRUELTY (sparingly) - Short, exact, devastating. Example: "He had the moral backbone of warm custard." Use rarely for maximum impact.
+
+ADVANCED TECHNIQUE - PUZZLE CAMOUFLAGE: Readers lower their analytical guard when amused. Hide key habits in jokes, plant timeline clues in sarcasm, mask technical details with mild mockery. The joke makes the fact feel harmless.
+
+SOCIAL X-RAY: Use humour to expose class blindness, moral hypocrisy, gender expectations, inheritance absurdity, respectability theatre. Let irony reveal, not preach.
+
+DETECTIVE VOICE: The detective should rarely laugh, occasionally observe, almost never banter. Deliver one devastatingly mild remark per major scene. Example: "I do not accuse you. I merely observe that facts appear less cooperative in your presence."
+
+RHYTHM: Tension -> Dry remark -> Silence -> Investigation resumes. Never stack jokes. Never let humour dominate a scene. Small, controlled, regular infusions.
+
+BALANCE: For every 3 pages of investigation, insert 1 understated observation. If readers would laugh loudly, it is too much. Aim for the quiet exhale through the nose.
+
+RUNNING GAGS AS STRUCTURE: Introduce a recurring minor joke casually, repeat it, then make it central to the solution. Reader reaction: Amusement -> Recognition -> Admiration.
+
+EMOTIONAL HUMOUR: Humour can mask vulnerability. Example: "He disliked arguments. They implied things might change." Modern emotional subtlety inside classical tone.
+
+FORBIDDEN: Humour at the moment of corpse discovery, in physical description of the dead, during genuine grief, in the core logical explanation. No broad parody, no farce, no anachronistic sarcasm, no characters existing only for comic relief, no humour that weakens intellectual tension.
+
+GUIDING PRINCIPLE: Do not try to be funny. Try to be exact. Exactness produces dryness. Dryness produces intelligence. Intelligence produces quiet amusement. Quiet amusement is the perfect companion to murder.
+
+WHODUNNIT CRAFT GUIDELINES (Emotional Depth & Soul):
+
+These principles ensure the mystery has emotional resonance, not just logical mechanics.
+
+1. THE MURDER MUST MEAN SOMETHING: The death should destabilize emotional ecosystems. Show who loved the victim, who depended on them, who is secretly relieved. Use telling details ("Her coffee was still warm") rather than clinical statements ("The body was found at half past seven").
+
+2. GIVE EVERY SUSPECT A WOUND: People kill because of shame, fear, love, desperation, pride, protection, or revenge. Beyond motive, give each suspect a private longing, a contradiction, a vulnerability unrelated to the crime. Readers should think: "I do not want it to be them."
+
+3. THE DETECTIVE NEEDS A PERSONAL STAKE: The external mystery should echo an internal one. Perhaps they see themselves in the victim, the case mirrors a past failure, or they are avoiding something in their own life.
+
+4. ADD MOMENTS THAT DO NOT ADVANCE THE PLOT: Include micro-moments that create texture: a suspect making tea too slowly, a trembling hand lighting a cigarette, someone staring too long at a family photo. These pauses make the story feel alive.
+
+5. LET EMOTION LEAK INTO DIALOGUE: Avoid clinical information exchange. Write subtext-rich dialogue where characters do not always say what they mean. Example: "You think I would lie about that?" "I think people lie when they are scared." "I am not scared." "Your hands say otherwise."
+
+6. RAISE MORAL COMPLEXITY: The most soulful mysteries make readers uncomfortable. What if the victim was not entirely good? What if the killer had a reason that almost makes sense? If the reader finishes thinking "I do not know how I feel about that," you have succeeded.
+
+7. SENSORY ATMOSPHERE AS SOUL: Use recurring sensory anchors (the smell of lilies from the funeral, rain tapping like nervous fingers) to build mood. Atmosphere is not decoration; it is the story breathing.
+
+8. LET SOMEONE BREAK: At least once, someone should crack: cry unexpectedly, laugh hysterically, confess something unrelated, admit they are tired. Emotion destabilizes the procedural rhythm and makes the story human.
+
+9. MAKE THE REVEAL HURT: The best reveals do not just surprise; they wound. The reveal should recontextualize earlier tenderness, expose a betrayal, or force the detective to confront something personal. If the reveal only satisfies logic, it feels clinical. If it rearranges relationships, it feels human.
+
+SCENE GROUNDING CHECKLIST (MUST FOLLOW):
+Known location profile anchors: Little Middleton Manor, The Library, The Drawing Room, The Overgrown Garden, the study of the Enright residence
+LOCATION NAME CAPITALISATION (HARD REQUIREMENT — validated):
+All named locations in your prose MUST use the EXACT capitalisation from the CML profiles.
+Canonical forms: "Little Middleton Manor", "The Library", "The Drawing Room", "The Overgrown Garden", "the study of the Enright residence"
+Writing a location in lowercase (e.g. "drawing room" instead of "Drawing Room") is a validated error. Every time you mention a named location, copy its capitalisation from the list above.
+- Chapter 7: OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with a named character performing a physical action or motion — e.g. "[Name] crossed the threshold…" / "[Name] set down the glass…" / "[Name] rose from the chair…". Anchor opening in "the study of the Enright residence". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark. These are validated requirements, not style suggestions; missing them triggers a retry.
+
+[⚠ INTERNAL QUALITY DIAGNOSTICS — DO NOT REPRODUCE ANY PART OF THIS SECTION IN YOUR STORY OUTPUT. These are private generator observations for your consideration only. Your narrative must read as if this section does not exist. Never include phrases from this block in character dialogue, narration, or description.]
+
+PRIOR CHAPTER QUALITY OBSERVATIONS:
+- Chapter 5 (score 89/100):
+  Quality gaps noted: word density below preferred target (766/1000); scene grounding weakness
+  Address in upcoming chapters: Increase chapter density with concrete investigation action and sensory-grounded beats; avoid recap-only padding. | Open next chapter with a named location anchor plus at least two sensory cues and one atmosphere marker.
+- Chapter 6 (score 89/100):
+  Quality gaps noted: word density below preferred target (733/1000); scene grounding weakness
+  Address in upcoming chapters: Increase chapter density with concrete investigation action and sensory-grounded beats; avoid recap-only padding. | Open next chapter with a named location anchor plus at least two sensory cues and one atmosphere marker.
+- Phrases to avoid (already overused in earlier chapters): "clock had not only marked the hour", "not only marked the hour of brian", "only marked the hour of brian s", "marked the hour of brian s death", "the hour of brian s death it", "hour of brian s death it had", "the stage for a mystery that demanded", "stage for a mystery that demanded resolution", "felt the weight of responsibility pressing upon", "the weight of responsibility pressing upon her".
+[END INTERNAL DIAGNOSTICS]
+
+⛔ ABSOLUTE PRONOUN LOCK — NO EXCEPTIONS
+
+The following pronouns are locked facts, on the same level as character names
+and hard-logic device values. Using the wrong pronoun is a continuity error,
+not a style choice.
+
+Canonical pronoun table (subject / object / possessive / reflexive):
+  • Brian Scanlon: ALWAYS he/him/his/himself — NEVER she/her/herself
+  • Carol Molloy: ALWAYS she/her/her/herself — NEVER he/him/his/himself
+  • Colin Enright: ALWAYS he/him/his/himself — NEVER she/her/herself
+  • Jane O'Connor: ALWAYS she/her/her/herself — NEVER he/him/his/himself
+  • Sean Murphy: ALWAYS he/him/his/himself — NEVER she/her/herself
+
+This rule overrides stylistic choice. If you are unsure which pronoun to use for a character,
+re-read their name above. There is no character in this story with ambiguous gender.
+
+MANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence
+that contains a pronoun and verify it against the table. If any mismatch is found,
+correct it before outputting. This check is not optional.
+
+Rules:
+1. Every sentence is subject to this table — no exceptions for dialogue, reflection,
+   narration, or attribution.
+2. When characters of different genders appear in the same sentence and a pronoun
+   could refer to more than one of them, use the character's name instead of a pronoun
+   to eliminate ambiguity entirely.
+3. A pronoun must never migrate from one character to another across a semicolon,
+   comma splice, or consecutive sentence — even when the same pronoun gender applies
+   to multiple characters.
+4. "Her" takes two grammatical functions — both are exclusively female:
+   • Indirect object (before the/a/an/another): "he told her the truth", "gave her a letter"
+   • Possessive determiner (before a noun): "her coat", "her voice"
+   For a MALE character: use "him" (indirect object) or "his" (possessive). Never "her".
+5. Reflexive pronouns (himself/herself/themselves) must match the table above.
+6. In dialogue attribution ("he said", "she replied"), the attribution pronoun must
+   agree with the SPEAKER's gender — not the last character named inside the quoted speech.
+7. In nested or cleft clauses ("It was she who had…", "It was he that…"), pronoun
+   gender must still match the referent character's canonical set in the table.
+8. When multiple characters of different genders appear in the same sentence, use the character's
+   name instead of a pronoun to eliminate ambiguity:
+   WRONG: "Carol watched Scanlon; she crossed the room and he frowned." (ambiguous antecedent)
+   RIGHT: "Carol watched Scanlon; Scanlon crossed the room and Carol frowned." (explicit)
+9. In dialogue attribution, the pronoun refers to the SPEAKER — not the last character
+   named inside the quoted speech:
+   WRONG: \"I have
+[truncated for prompt budget]
+
+PROMPT BUDGET SUMMARY: budget=32000 tokens; fixed=12521; context=10399; dropped=[none]; truncated=[location_profiles, temporal_context, pronoun_accuracy]
+
+# Prose Output Schema
+Return JSON with this structure:
+
+{
+  "status": "draft",
+  "tone": "classic|modern|atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter title",
+      "summary": "1-2 sentence summary",
+      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"]
+    }
+  ],
+  "cast": ["Name 1", "Name 2"],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph N | absent",
+    "season_words_used": "list seasonal words used in this batch | none",
+    "discriminating_test_present": "yes: chapter N paragraph M | no",
+    "required_clues_present": "clue_id or description: chapter N paragraph M | absent",
+    "early_observation_present": "description: chapter N paragraph M (first 25%) | absent",
+    "early_inference_present": "yes: paragraph immediately following observation | no"
+  }
+}
+
+The audit field is a self-check only. Fill it honestly. It will be stripped before storage.
+
+Requirements:
+- Write exactly one chapter per outline scene (1 total).
+- Chapter numbering starts at 7 and increments by 1 per scene.
+- Each chapter has 4-8 substantial paragraphs (each 120–180 words) — TARGET ≥ 1250 words — do not stop early.
+- Use classic tone and short length guidance.
+- Reflect the outline summary in each chapter.
+- Keep all logic consistent with CML (no new facts).
+- Chapter title format: EVERY chapter title MUST follow exactly "Chapter N: [Descriptive title]" (e.g. "Chapter 1: The Frozen Clock"). Do NOT use number-only ("Chapter 1") or title-only ("The Frozen Clock") formats — mixed formats are a validation error.
+
+WORD COUNT CONTRACT (NON-NEGOTIABLE):
+- Target: 1250 words per chapter. Do not stop before reaching this threshold.
+- Overshoot rather than undershoot. When in doubt, write one more paragraph.
+- Expand with concrete action beats, clue-linked dialogue, and sensory detail.
+- Never pad with recap, repeated atmosphere, or generic filler.
+
+NOVEL-QUALITY PROSE REQUIREMENTS:
+
+1. SCENE-SETTING: Every chapter MUST open with the following in the FIRST TWO PARAGRAPHS — this is a VALIDATION REQUIREMENT and chapters that omit it are retried:
+   (a) 2+ sensory words from: smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim
+   (b) 1+ atmosphere/time word from: rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark
+   (c) A named location anchor from the setting profiles
+
+   Then establish time of day, weather, and lighting; describe the location using sensory details; set mood and atmosphere before advancing plot beats.
+   Example structure: "The <MONTH> <TIME> brought <WEATHER> to <LOCATION>. In the <ROOM>, <LIGHTING> while <SENSORY_DETAIL>. <CHARACTER>'s <OBJECT> <ACTION>."
+
+   Generate new descriptions using actual location and character names from the provided profiles.
+
+2. SHOW, DON'T TELL: Use concrete details and actions
+   ❌ "She was nervous."
+   ✓ "Her fingers twisted the hem of her glove, the silk threatening to tear. A bead of perspiration traced down her temple despite the cool morning air."
+   - Body language reveals emotion
+   - Actions reveal character
+   - Environment reflects internal state
+
+3. VARIED SENTENCE STRUCTURE:
+   - Mix short, punchy sentences with longer, flowing ones
+   - Use sentence rhythm to control pacing
+   - Short sentences for tension, longer for description
+   - Paragraph variety: Some 2 lines, some 8 lines
+
+4. DIALOGUE THAT REVEALS CHARACTER:
+   - Each character has distinct speech patterns (see character profiles)
+   - Use dialogue tags sparingly (action beats instead)
+   - Subtext: characters don't always say what they mean
+   - Class/background affects vocabulary and formality
+   - Tension through what's NOT said
+   Example structure: "<DIALOGUE>," <CHARACTER> said, <ACTION_BEAT>.
+
+   Use only character names from the provided cast list.
+
+5. SENSORY IMMERSION:
+   - Include multiple senses per scene (2-3 minimum)
+   - Period-specific sensory details from location/temporal profiles
+   - Tactile details create immediacy
+   - Use sensory palette provided in location profiles
+   - Vary sensory focus: visual → auditory → olfactory → tactile
+
+6. PARAGRAPH STRUCTURE:
+   - Opening: Hook with action, dialogue, or atmospheric detail
+   - Middle: Develop scene, reveal information, build tension
+   - Closing: End with revelation, question, or transition
+   - Each paragraph should advance story or deepen character
+
+7. PACING VARIATION:
+   - Action scenes: Short paragraphs (2-4 lines), quick succession
+   - Investigation scenes: Moderate length (4-6 lines), methodical rhythm
+   - Atmospheric scenes: Longer paragraphs (6-8 lines), detailed description
+   - Revelation scenes: Build slowly with long paragraphs, climax with short punch
+
+8. EMOTIONAL SUBTEXT & TENSION:
+   - Characters have hidden secrets/stakes (see character profiles)
+   - Every interaction carries subtext based on relationships
+   - Build tension through: pauses, interrupted speech, avoided topics, body language
+   - Mystery atmosphere: Suspicion, unease, watchfulness
+   - Use weather/atmosphere to mirror emotional tension
+
+QUALITY GUIDELINES (strongly preferred):
+1. Use only canonical cast names from CML. Do not invent titled placeholders like 'Detective Surname', 'Inspector Surname', 'a woman Surname', or 'a man Surname'.
+2. Before the final reveal closes, include explicit suspect-elimination coverage: each non-culprit suspect is ruled out with concrete on-page evidence or confirmed alibi.
+3. In the reveal sequence, include a complete culprit evidence chain using explicit reasoning connectors (because/therefore/proves).
+4. Integrate at least two concrete era-grounded details per chapter from setting refinement signals: domestic wiring with frequent outages | petrol touring cars on county roads | typewriters in use for correspondence | party-line telephone exchange | telegrams for urgent messages | airmail for long-distance correspondence.
+5. Respect setting movement/access constraints in scene action and alibis: multiple access points restricted by family and staff permissions | narrow corridors causing limited movement during gatherings | large gardens creating isolation from outside help | restricted areas such as private offices and the library | daily schedules for staff affecting movement.
+6. Sustain social coherence with this backdrop pressure: A looming inheritance dispute amidst the backdrop of the Great Depression forces the manor's inhabitants to confront their fragile social standings and hidden resentments.
+7. Maintain continuity around these socially central cast anchors where relevant: Brian Scanlon, Carol Molloy, Colin Enright, Jane O'Connor, Sean Murphy.
+8. STORY TO DATE ANTI-COPY RULE: The STORY TO DATE section below is provided for chronological and factual reference ONLY. You MUST NOT copy, lightly rephrase, or structurally echo any sentence or paragraph from prior chapters. Every sentence in this chapter must be original prose unique to this scene. Reusing even a clause from prior chapter text will cause this attempt to fail immediately.
+
+CRITICAL PROSE REQUIREMENTS:
+
+The CML specifies exact requirements for certain validation-critical scenes. You MUST include these elements at the specified positions.
+
+**Discriminating Test Scene (Act 3, Scene 4):**
+Required elements: Execute the discriminating test, Observe the suspect's reaction or result, Draw conclusion about guilt
+
+**Suspect Clearance Scenes:**
+- Carol Molloy (Act 3, Scene 5): Alibi corroborated by another guest
+  Clues: clue_1, clue_2
+- Sean Murphy (Act 3, Scene 5): Witness confirms he was outside during the incident
+  Clues: clue_1, clue_2
+
+**Culprit Revelation Scene (Act 3, Scene 6):**
+Method: Confrontation with evidence
+
+**VALIDATION CONSEQUENCE:** If these requirements are not met exactly, story validation will fail and the entire generation will be rejected. Follow these specifications precisely.
+
+
+## ACTIVE CHAPTER MODE CONTRACT (MANDATORY)
+Active chapter mode: Suspect Pressure.
+Mode required outcomes:
+- Reveal fear, motive, lie, loyalty conflict, or secret.
+- Suspicion state changes by chapter end.
+Forbidden at this stage:
+- No full murder confession unless outline-required.
+Mode-specific narrative balance targets:
+- Setting: 5-10%
+- Character Pressure: 45-55%
+- Evidence Or Alibi Testing: 35-45%
+
+## CHAPTER OUTCOME CONTRACT (MANDATORY)
+Batch chapters: 7-7.
+Investigation state at start: 14 clue(s) revealed to reader; approximately 2 unresolved suspect(s).
+Must change by end: Increase or complicate suspicion through new pressure revelation.
+Suspect pressure target(s): Colin Enright
+Required new information: At least one fear/motive/lie/loyalty reveal with investigative consequence.
+Forbidden reveals at this stage: No full murder confession unless outline-required.
+
+## CHAPTER COMPOSITION TARGETS (MANDATORY NARRATIVE BALANCE)
+Treat percentages as narrative attention share (sentence/paragraph focus), not exact token math.
+Active phase for this batch: Middle Chapters (mode: Suspect Pressure).
+Apply this target mix in this batch:
+- Setting: 10%
+- Character Conflict: 30-35%
+- Alibi Testing Clue Reinterpretation: 50-60%
+Reference profile across chapter phases:
+- Chapter1: Setting 20% | Character Introductions 40% | Discovery Reactions 30% | First Clue 10%
+- Early Investigation: Setting 10-15% | Character Pressure 35-40% | Clue Development 45-50%
+- Middle Chapters: Setting 10% | Character Conflict 30-35% | Alibi Testing Clue Reinterpretation 50-60%
+- False Suspect Chapters: Setting 10% | Character Focus 45% | Evidence Contradiction 45%
+- Discriminating Test Chapter: Setting 10% | Character Reaction 20-25% | Test Proof Reversal 65-70%
+- Final Reveal: Setting 10% | Motive Character Consequence 30% | Evidence Chain 40% | Confession Aftermath 20%
+If obligations conflict, preserve hard clue/evidence/logic contracts first, then satisfy the composition mix.
+
+## Asset Self-Report (required)
+At the very END of your response, after all prose, add a single line:
+<used_assets>era:story:0,era:story:1,era:story:2,era:story:3,era:story:4</used_assets>
+Replace the list with only the IDs of texture assets you actually used. If you used none, output <used_assets></used_assets>.
+```
+
+## Message 2 (role=user)
+
+```text
+Write the full prose following the outline scenes.
+
+
+
+CHAPTER OBLIGATION CONTRACT (MUST SATISFY):
+- ERA RULE (1930s): NEVER use these anachronistic terms: "computer", "internet", "email", "cell phone", "mobile phone", "smartphone", "GPS", "laptop", "digital camera", "text message", "app", "wifi", "bluetooth", "jet plane". Any occurrence will cause the chapter to be rejected.
+- STYLE HARD-BAN: NEVER use these phrase families: "clock tower at quarter past three", "near the clock tower at quarter past", "showed quarter past three when the body", "in the formal gardens during the murder". Any occurrence triggers rejection/retry.
+- STYLE SOFT-BAN: avoid these stock phrases and rewrite them if they appear in draft text: "lips pressed into a thin line", "the household runs smoothly when every cog", "the pressures upon this household are many", "the doctor [Surname] (use Dr. Surname or 'the doctor', never role + bare surname)", "the captain [Surname] (use Captain Surname or 'the captain', never role + bare surname)", "the inspector [Surname] (use Inspector Surname or 'the inspector', never role + bare surname)", "the sergeant [Surname] (use Sergeant Surname or 'the sergeant', never role + bare surname)", "the constable [Surname] (use Constable Surname or 'the constable', never role + bare surname)", "the gentleman [Surname] (use Mr. Surname or 'the gentleman', never role + bare surname)".
+- STYLE WATCHLIST: keep these patterns varied and scene-specific: "quarter past three", "three fifteen", "the old bell striking three fifteen", "the chimes echoed just after three-fifteen".
+- Chapter 7:
+  - STRUCTURAL ARCHETYPE — Chapter 7 must be: REVERSAL
+      ✓ MUST contain: prior theory overturned by new evidence
+      ✗ MUST NOT contain: culprit accusation or arrest
+  - Word count: Target 1250 words. Achieve this through plot events, dialogue exchanges, and physical investigation — not through atmospheric repetition or extended internal reflection. Each 200-word segment should contain at minimum one concrete story event (a discovery, a conversation exchange, a physical action or movement). Padding with atmosphere alone is not acceptable.
+  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.
+  - Scene is set in: the study of the Enright residence — reference it naturally within the paragraph, never as your opening phrase.
+  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark / grey / pale / cold / warm / chill / crisp / damp / drizzle / haze / lamplight / firelight. A chapter that omits all of these from its opening paragraph will be rejected.
+  - PARAGRAPH OPENER DIVERSITY (MANDATORY — validator enforced): No more than 2 paragraphs in this chapter may begin with "Jane" or "Jane's" as the first word. You must vary paragraph openings throughout: use sensory observations, another character's name or action, dialogue, object or sound details, or temporal markers. Opening 3 or more paragraphs with "Jane" will cause automated rejection.
+  - Continuity bridge: in the first 120 words, visibly connect from the previous chapter's final beat. Carry forward one unresolved element (object, accusation, emotional pressure, or immediate physical action) from: "As she turned to exit, Carol called after her, her tone shifting to one of concern. "You must be careful, Jane. There are things in this house that are better left undisturbed. Secrets can be dangerous, especially in tim...".
+  - CLUE OBLIGATIONS — mandatory prose elements (do NOT omit or bury):
+    • The clock was likely manipulated to mislead the investigation. [clue_2]
+      Points to: This suggests a deliberate act to confuse the timeline.
+  - Tonal contrast: include at least one beat of relief or ironic counterpoint. Do not sustain maximum tension for every paragraph.
+  - SUSPECT-PRESSURE MODE: do NOT resolve the case in this chapter. No confession, arrest, final accusation, definitive culprit declaration, or case-closed language. End with unresolved pressure: a contradiction, narrowed suspicion, motive pressure, or a new question.
+  - ALIBI LOCK: Colin Enright's established alibi is "10:00 PM - 11:30 PM". Do NOT place Colin Enright at any other location or in any other activity during the crime window. Any contradiction is a continuity error that triggers a retry.
+  - TESTIMONY CONTINUITY: Colin Enright has already made statements in earlier chapters. Any time, location, or claim attributed to Colin Enright in THIS chapter must be consistent with those earlier statements. Do NOT introduce a new or different alibi claim — any contradiction is a continuity error.
+
+- Tonal contrast required: the previous chapter was high-tension. Jane O'Connor may use sardonic to provide a brief moment of relief before tension resumes.
+- Locked fact phrase obligations:
+  - If this batch mentions The exact time shown on the stopped clock face, write exactly: "ten minutes past eleven".
+  - If this batch mentions The exact amount the clock was wound back, write exactly: "forty minutes".
+- Seasonal vocabulary allow-list: summer, summery, midsummer.
+- Forbidden seasonal words: spring, autumn, winter.
+
+⛔ PRONOUN TABLE — re-check after EVERY paragraph before writing the next:
+    Brian Scanlon: he/him/his
+    Carol Molloy: she/her/her
+    Colin Enright: he/him/his
+    Jane O'Connor: she/her/her
+    Sean Murphy: he/him/his
+  Any sentence containing a pronoun must agree with this table. Correct mismatches before moving on.
+
+## CHAPTER OUTCOME CONTRACT (MANDATORY)
+Batch chapters: 7-7.
+Investigation state at start: 14 clue(s) revealed to reader; approximately 2 unresolved suspect(s).
+Must change by end: Increase or complicate suspicion through new pressure revelation.
+Suspect pressure target(s): Colin Enright
+Required new information: At least one fear/motive/lie/loyalty reveal with investigative consequence.
+Forbidden reveals at this stage: No full murder confession unless outline-required.
+
+FROZEN FACT STATE (DO NOT ALTER):
+- Timeline anchor: July (summer).
+- Month, season, weather, and time-of-year language in this batch must stay compatible with summer.
+- If referenced, use exact phrase: "ten minutes past eleven" (The exact time shown on the stopped clock face).
+- If referenced, use exact phrase: "forty minutes" (The exact amount the clock was wound back).
+
+STORY TO DATE (REFERENCE ONLY — DO NOT COPY VERBATIM):
+- Full prior chapter text is provided below for continuity, factual consistency, and reference accuracy.
+- Use this to keep character voice, chronology, clue state, and location continuity aligned with earlier chapters.
+- Do not quote, copy, or paraphrase these paragraphs too closely; write fresh prose that remains consistent with them.
+
+--- BEGIN PRIOR CHAPTER 1 ---
+Title: Chapter 1: The Grim Discovery
+The evening air was thick with tension as the last remnants of sunlight faded, casting long shadows across the study of the Enright residence. Jane O'Connor stepped inside, her heart racing, drawn by the murmurs of the gathered guests. The scent of damp wood mingled with the faint aroma of old books, creating an atmosphere that felt almost suffocating. As she crossed the threshold, her eyes fell upon a sight that sent a chill down her spine: Brian Scanlon lay sprawled across the floor, lifeless and still. His once vibrant presence now reduced to a haunting stillness, a stark contrast to the lively party that had just unfolded.
+
+Jane's breath caught in her throat as she knelt beside Brian, her fingers brushing against the cool fabric of his suit. The clock on the wall, its hands frozen in time, showed ten minutes past eleven. A wave of disbelief washed over her, quickly followed by a surge of determination. This was not merely a tragic accident; something sinister had occurred. She glanced around the room, her gaze landing on Colin Enright, who stood pale and wide-eyed, staring blankly at the floor as if trying to comprehend the horror before him. The tension in the room was palpable, each guest seemingly grappling with their own shock and fear, their eyes darting nervously from one to another.
+
+The clock was tampered with to show a later time, misleading the investigation regarding the time of death. Jane's mind raced as she processed the implications of the clock's frozen hands. If the time was indeed accurate, it suggested that Brian had died after the last guests had departed, a notion that felt increasingly implausible. She needed to gather her thoughts and piece together the events of the evening. The guests were anxious and suspicious of each other, and Jane had a sinking feeling that the answers lay hidden in the shadows of their interactions. Colin's nervous fidgeting caught her attention; he was twisting a handkerchief in his hands, the fabric crumpling under the pressure of his grip.
+
+Carol Molloy, standing nearby, had a look of disbelief etched across her features. Her usual air of confidence was replaced by a palpable tension. Jane noted how Carol avoided eye contact, her gaze flitting around the room as if searching for an escape. There was something unsettling about her demeanor, a hint of guilt that Jane couldn’t ignore. As the reality of the situation settled in, Jane felt the weight of responsibility pressing upon her. She was the one who had to uncover the truth, to navigate the murky waters of deception that now surrounded them. The stakes were high, and she could sense the urgency in the air.
+
+The study, once a place of warmth and laughter, now felt like a crypt of secrets. Jane's eyes darted back to Colin, who seemed to be lost in thought. His connection to Brian was undeniable, and yet, he appeared utterly bewildered. What had transpired in the moments before Brian's death? The clock's hands, frozen at ten minutes past eleven, raised immediate questions about the timeline of events. Jane's instincts told her that the truth was buried beneath layers of lies and half-truths, waiting to be unearthed. She needed to act quickly, to gather the guests and begin her investigation before the shadows of suspicion grew too deep.
+
+As she rose to her feet, Jane took a deep breath, steeling herself for the task ahead. The clock had not only marked the hour of Brian's death; it had also set the stage for a mystery that demanded resolution. With determination in her heart, she turned to the gathered guests, ready to confront the tangled web of relationships and motives that had led to this tragic moment. Each of them had a role to play in the unfolding drama, and Jane was determined to uncover the truth, no matter where it led her.
+--- END PRIOR CHAPTER 1 ---
+
+--- BEGIN PRIOR CHAPTER 2 ---
+Title: Chapter 2: Initial Reactions
+"We heard a loud thud at half past ten," Colin Enright insisted, his voice rising above the chaotic murmurs that filled the study of the Enright residence. The evening was damp, the air thick with tension as the rain tapped insistently against the windowpanes. Jane O'Connor stood at the center of the room, her heart racing, grappling with the implications of Colin's words. The clock on the wall, its hands frozen in time, showed ten minutes past eleven. The stark contrast between the two claims sent a shiver down her spine. She had to make sense of this mess, and quickly.
+
+Colin's gaze darted around the room, searching for support, but Jane could see the flicker of doubt in his eyes. The clock in the study shows ten minutes past eleven. This was a critical detail. If Brian Scanlon had indeed died after the last guest left, as Colin claimed, it raised troubling questions about the timeline of events. Could the clock be wrong? Or was someone trying to manipulate the narrative? The weight of suspicion hung heavy in the air, and Jane felt the urgency to uncover the truth before it slipped away.
+
+Carol Molloy stood nearby, her expression a mixture of disbelief and anxiety. She nervously bit her lip, glancing at Colin for support. "But we were all here, weren't we? How could anyone have left without us noticing?" Her voice trembled slightly, revealing a crack in her composed facade. Jane noted the way Carol's eyes flickered towards Colin, as if seeking reassurance. Was she genuinely confused, or was there something more beneath the surface? The tension in the room amplified as the guests began to argue over the timeline of events, each trying to deflect suspicion onto the others.
+
+"I was in the garden tending to the flowers when I heard the thud," Sean Murphy interjected, his voice steady but laced with an undercurrent of frustration. "I know what I heard, and it was before ten-thirty. You all can’t just ignore that!" His loyalty to the estate was evident, but Jane couldn't help but wonder if his alibi was as solid as he claimed. The garden was a secluded area, and it was easy to imagine someone slipping away unnoticed amidst the overgrown hedges.
+
+As the arguments escalated, Jane felt the weight of responsibility pressing upon her. She needed to gather the facts, to sift through the chaos and find clarity. The clock had not only marked the hour of Brian's death; it had also set the stage for a mystery that demanded resolution. With determination in her heart, she interrupted the bickering, her voice cutting through the din. "Everyone, please! We need to focus on what we know. The clock shows ten minutes past eleven, but Colin claims he heard a thud at half past ten. These two accounts do not align. We need to figure out why."
+
+The room fell silent, the tension palpable as Jane's words hung in the air. She could see the gears turning in their minds, each suspect grappling with the implications of her statement. Colin's brow furrowed, and Carol's eyes widened. Sean crossed his arms, his posture defensive. The atmosphere was charged, and Jane sensed that they were all aware of the stakes. Each of them had something to lose, and the truth was buried beneath layers of deception. She needed to dig deeper, to uncover the secrets that lay hidden in their interactions.
+
+As the silence stretched, Jane took a moment to observe the faces around her. Colin, with his carefully crafted lawyerly demeanor, seemed to be struggling with the weight of the moment. Carol's usual air of confidence had been replaced by a palpable tension, her eyes darting nervously. Sean, the loyal groundskeeper, stood with his arms crossed, a mix of frustration and concern etched on his features. Each of them was hiding something, and Jane was determined to uncover the truth, no matter the cost.
+
+In that moment, Jane realized that the investigation was not just about finding the murderer; it was about understanding the complex web of relationships that had led to this tragedy. The clock's frozen hands were a reminder that time was slipping away, and she needed to act swiftly. With each passing moment, the stakes grew higher, and the shadows of suspicion deepened. She would not rest until she had unraveled the truth, no matter how tangled the threads might be.
+--- END PRIOR CHAPTER 2 ---
+
+--- BEGIN PRIOR CHAPTER 3 ---
+Title: Chapter 3: The Investigation Begins
+The clock on the wall ticked ominously, its hands frozen at ten minutes past eleven, casting a shadow over the room's atmosphere. Jane O'Connor stood in the study of the Enright residence, her notebook open, ready to capture every detail. The damp air clung to her skin, thick with tension and unspoken fears. She glanced around, taking in the disarray of the room; a broken vase lay scattered on the floor, petals strewn like forgotten secrets. It was clear that the evening had unraveled, and she needed to piece together the fragments of truth before it slipped away completely.
+
+As Jane moved closer to the clock, her eyes fell upon the desk nearby. The papers were in disarray, but one document caught her attention. A faint smudge of ink led to the edge of the desk, where a small brass key lay partially hidden. It was a small clue, but it hinted at the possibility that Colin had tampered with the clock to alter the timeline of Brian's death.
+
+This direct evidence shows Colin Enright had means and opportunity, narrowing the solution uniquely toward the culprit. The implications were staggering; if Colin had access to the clock, then his alibi was in jeopardy. Jane felt a surge of determination. She needed to confront him about this evidence and find out what he truly knew about the night’s events.
+
+"We heard a loud thud at half past ten," Colin Enright interjected, his voice breaking the silence that had enveloped the room. Jane turned to him, noting the tension in his posture. "But if the clock shows ten minutes past eleven, it contradicts your claim," she replied, her tone firm yet measured. Colin's eyes darted away, a flicker of uncertainty crossing his face. "I was in the office, reviewing documents. Nothing unusual. I swear it," he insisted, his voice rising slightly. The doubt in his eyes told a different story, and Jane couldn't help but wonder what he was hiding.
+
+Carol Molloy stood nearby, her expression a mask of uncertainty. "But how could anyone leave without us noticing?" she asked, her voice trembling slightly. Jane caught the way Carol's gaze flickered nervously between Colin and Sean, as if searching for a lifeline. The tension in the room was palpable, and Jane felt the weight of their collective fear. Each person's alibi seemed to contradict the others, and she needed to dig deeper to uncover the truth. "We need to focus on our whereabouts during the time of death. It’s crucial to establish a timeline," Jane urged, her determination unwavering.
+
+Sean Murphy, the loyal servant, shifted uncomfortably, his hands clenched at his sides. "I was outside in the garden when I heard the thud," he stated, his voice steady but tinged with frustration. "I know what I heard, and it was before ten-thirty. You all can’t just ignore that!" Jane regarded him thoughtfully, her mind racing. His alibi could either strengthen or weaken the case against him. The garden's solitude made it easy for someone to slip away unnoticed. She needed more clarity from him, and she intended to get it.
+
+The atmosphere in the study thickened as Jane continued her questioning. Each suspect seemed to carry the weight of their secrets, and she was determined to unearth them. Colin's nervous fidgeting, Carol's evasive glances, and Sean's defensiveness all pointed to a deeper layer of tension. "What if the will favors someone else?" Carol blurted out suddenly, her voice rising in pitch. The suggestion hung in the air, laden with implications. Jane felt a spark of realization; the stakes were higher than she had initially thought. Everyone in this room had something to lose, and it was clear that fear was driving their actions.
+
+As the tension escalated, Jane's resolve only strengthened. She needed to gather the facts, sift through the chaos, and find clarity amidst the conflicting accounts. The clock had not only marked the hour of Brian's death; it had also set the stage for a mystery that demanded resolution. She felt the weight of responsibility pressing upon her, and she couldn't afford to falter. Each moment was crucial, and she would not rest until she had uncovered the truth.
+
+The study, once a place of warmth and laughter, now felt like a crypt of secrets. Jane's determination surged within her as she prepared to confront the tangled web of relationships that had led to this tragedy. She would delve into the depths of their fears and motives, uncovering the truth hidden beneath layers of deception. With a final glance at the clock, she steeled herself for the task ahead, knowing that time was slipping away.
+--- END PRIOR CHAPTER 3 ---
+
+--- BEGIN PRIOR CHAPTER 4 ---
+Title: Chapter 4: Interrogating Colin
+The afternoon light filtered through the heavy curtains of the study, casting a dim glow across the room. Jane O'Connor sat across from Colin Enright, her notebook poised and ready. The air was thick with tension, a palpable reminder of the events that had transpired the previous night. Outside, the rain had finally ceased, leaving a dampness that clung to the walls, intensifying the atmosphere of unease. Jane took a deep breath, her resolve hardening as she prepared to confront the man who had become the focal point of her investigation.
+
+Colin's fingers drummed nervously against the polished surface of the desk, betraying his calm facade. "I assure you, I was in the garden tending to the flowers when I heard the thud," he insisted, his voice steady yet lacking conviction. Jane leaned forward, studying his expression for any hint of deception. The clock on the wall loomed large in her mind, its hands frozen at ten minutes past eleven, a stark reminder of the timeline that now seemed increasingly suspect.
+
+As Jane's gaze shifted to the clock, she felt a surge of determination. The evidence was mounting against Colin, and she needed to dig deeper. "You mentioned hearing a thud at half past ten, but the clock shows ten minutes past eleven. That doesn’t align with your account," she pointed out, her tone firm but measured. Colin's eyes flickered, a shadow of doubt crossing his features. "I was busy with my work, perhaps I misremembered the exact time," he replied, but Jane could see the tension in his jaw.
+
+She stood and approached the clock, examining it closely. The dust around its base suggested it had not been disturbed in some time, yet there were faint fingerprints on the glass, indicating someone had recently tampered with it. "These marks... they suggest the clock was altered. Someone wanted to mislead the investigation," Jane stated, her voice low but resolute. Colin's expression shifted, and Jane noted the way he clenched his fists, as if bracing himself against the weight of her words.
+
+Colin's demeanor shifted further as Jane continued her inquiry. "Why would you want to manipulate the time, Colin? What were you trying to cover up?" she pressed, her eyes locked onto his. He hesitated, the silence stretching between them like a taut wire. Finally, he spoke, his voice barely above a whisper. "I had my reasons, but they are not what you think. I was only trying to protect myself... and others."
+
+The implications of his words hung heavily in the air. Jane felt a rush of adrenaline; she was getting closer to the truth. "Protecting others? Or protecting yourself from the consequences of your actions?" she countered, her heart racing. Colin's gaze dropped to the floor, and for a moment, Jane saw a flicker of vulnerability in his eyes. The clock's frozen hands seemed to mock them both, a reminder that time was slipping away, and the answers were still elusive.
+
+As the tension in the room mounted, Jane decided to shift her approach. "Colin, I need you to be honest with me. If you have any information that could help, now is the time to share it. The truth has a way of coming out, no matter how hard one tries to hide it," she urged, her voice softening slightly. Colin looked up, his expression a mix of fear and resolve. "I can’t tell you everything, Jane. Some things are better left unsaid," he replied, his tone defensive.
+
+The atmosphere in the study felt charged, as if the very walls were listening to their exchange. Jane realized that Colin was caught in a web of his own making, and the stakes were higher than she had anticipated. With each passing moment, the mystery deepened, and she knew she had to tread carefully. The clock had not only marked the hour of Brian's death; it had also set the stage for a confrontation that would reveal the tangled motives and fears of those involved. Jane was determined to uncover the truth, no matter where it led.
+--- END PRIOR CHAPTER 4 ---
+
+--- BEGIN PRIOR CHAPTER 5 ---
+Title: Chapter 5: Witness Statement
+As the late afternoon light dimmed, Jane O'Connor sat at a corner table in the bar of a local pub, the air thick with the scent of damp wood and the distant echo of laughter. Outside, a light drizzle pattered against the window, casting a grey hue over the bustling scene. The atmosphere was casual yet tense, a stark contrast to the weighty matters that had brought her here. She tapped her fingers on the table, her mind racing with the implications of her last conversation with Colin Enright. The clock had not only marked the hour of Brian's death; it had also set the stage for a mystery that demanded resolution. She needed to gather more information, especially from Sean Murphy, whose alibi was still shrouded in uncertainty.
+
+Sean entered the pub, shaking off the remnants of the rain as he approached Jane with a cautious smile. "I didn’t expect to see you here, Miss O'Connor," he said, his voice steady but his eyes betraying a flicker of apprehension. Jane gestured for him to sit, her expression serious. "We need to talk about your whereabouts last night, Sean. It’s crucial to establish a timeline for the investigation." She watched as his demeanor shifted, the casual air evaporating as he settled into the chair across from her.
+
+"I was at the bar, like I said," Sean replied, crossing his arms defensively. "I heard the thud, but I didn’t leave until after that. You can ask anyone here." Jane leaned forward, her gaze piercing. "But witnesses claim they saw you outside shortly before the murder. That contradicts your statement." Sean's jaw tightened, and Jane could see the tension building in his posture. It was clear he felt the pressure of suspicion weighing heavily upon him.
+
+The bar was lively, yet Jane felt a bubble of tension forming between them. She needed to probe deeper. "What were you doing outside, Sean? Were you alone?" He hesitated, glancing around as if searching for an escape. "I was just... checking on the garden. The flowers needed tending, and I thought I heard something out there." Jane raised an eyebrow, unconvinced. "You heard a thud, yet you were in the garden? That doesn’t add up. You could have easily slipped away unnoticed."
+
+Sean shifted in his seat, his hands fidgeting with the edge of the table. "I didn’t leave the pub until after I heard the noise. I swear it!" His voice rose slightly, a hint of desperation creeping in. Jane noted the cracks in his façade, the way his eyes darted to the door as if contemplating a hasty exit. "Sean, I need you to be honest with me. If there’s something you’re hiding, it’s better to come clean now. The truth has a way of surfacing, no matter how hard one tries to bury it."
+
+He sighed, running a hand through his hair, frustration evident on his face. "I don’t want to get involved in this mess, Jane. You have to understand, I’ve worked for the Scanlons for years. I can’t afford to lose my job over this. If it looks like I’m involved, it could ruin me." Jane softened her tone slightly, recognizing the fear behind his words. "I understand, but you need to realize that the truth will protect you more than lies ever will. You have to trust me. I’m trying to help you."
+
+The tension in the air thickened as Sean's defenses crumbled slightly. "I was outside because I didn’t want to be seen talking to Colin. He’s been acting strange lately, and I didn’t want to get caught up in whatever he’s involved in. I thought if I stayed out of sight, I could avoid trouble." Jane's heart raced as she processed this new information. Sean’s loyalty conflict was evident, and it painted a more complex picture of the relationships at play. Colin's connection to the clock and his proximity to the murder added layers of suspicion that Jane needed to explore further.
+
+As the conversation continued, Jane felt the weight of the investigation pressing down on her. The pieces were starting to fit together, but the picture remained murky. Sean's admission about avoiding Colin only deepened the mystery. What was Colin hiding? And how far would Sean go to protect himself? The clock was ticking, and Jane knew she had to act quickly. With each revelation, the stakes grew higher, and the truth seemed to slip further from her grasp. She needed to confront Colin again, armed with this new information, but first, she had to ensure Sean’s loyalty didn’t waver under pressure.
+--- END PRIOR CHAPTER 5 ---
+
+--- BEGIN PRIOR CHAPTER 6 ---
+Title: Chapter 6: Alibi Check
+The evening air was thick with tension as Jane O'Connor paced the drawing room of the Enright residence, her mind racing with the implications of the investigation. The soft patter of rain against the window added a rhythmic backdrop to her thoughts, a reminder of the urgency of the situation. She had gathered the guests to clarify their whereabouts during the critical moments surrounding Brian Scanlon's death, and now it was time to confront Carol Molloy. Jane's heart raced as she prepared to question the elegant socialite, whose demeanor had shifted from carefree to anxious in the wake of tragedy.
+
+Carol entered the room, her usual poise slightly faltering. The dampness in the air seemed to cling to her, and Jane noted the way she smoothed down her tea-length floral dress, a nervous habit that betrayed her composure. "I hope you’re not going to ask me anything too dreadful, Jane," Carol said, her voice light yet laced with an edge of apprehension. Jane offered a reassuring smile, though she felt the weight of the moment pressing down on them both. It was crucial to establish a timeline, and Carol's alibi was a key piece of the puzzle.
+
+“You were seen leaving the study at ten o'clock, and witnesses confirm you were with them until ten fifteen,” Jane began, her tone steady. Carol's eyes widened, and she shook her head vigorously. "I assure you, I was with the others. We were discussing the upcoming gala, and I didn't leave until I was sure everyone was accounted for. You know how it is, darling—keeping up appearances, especially now!" The hint of sarcasm in her voice was a mask for the tension beneath. Jane could sense Carol's fear of being implicated, and it only fueled her determination to uncover the truth.
+
+Jane leaned forward, her notebook poised. "But if you were with the others, that means you have corroboration? Can anyone confirm your whereabouts during that time?" Carol hesitated, her gaze flickering to the door as if seeking an escape. "Of course, there were several of us in the drawing room. I can’t recall every detail, but I know I was there until at least ten fifteen. You must believe me!" The desperation in her voice was palpable, and Jane felt a twinge of sympathy for the heiress caught in a web of suspicion.
+
+“I do believe you, Carol, but we need to be thorough. Can you provide me with the names of those who were with you?” Jane pressed, her pen poised to take notes. Carol hesitated again, her brow furrowing as she searched her memory. "There was Colin, of course, and I think Jane Harrison was there as well. We were all rather caught up in the excitement of the evening, you see. It’s all a bit of a blur now, but I assure you, I was not alone!"
+
+The tension in the room shifted as Jane processed Carol's words. If Carol's alibi could be confirmed, it would narrow the focus of the investigation. "And Sean Murphy? Where was he during this time?" Jane asked, her curiosity piqued. Carol's expression darkened slightly. "Sean was always in the background, tending to the garden or the bar. He tends to keep to himself, but I can’t say for certain where he was at that moment. I suppose you’ll have to ask him yourself."
+
+Jane nodded, her mind racing with the implications of Carol's statements. If both Carol and Sean had corroborated alibis, it would leave Colin Enright as the primary suspect. The clock's discrepancies and Colin's behavior continued to cast a shadow over the investigation, and Jane knew she needed to confront him again. "Thank you, Carol. I appreciate your cooperation. I’ll verify your alibi with the others," she said, her voice steady as she prepared to leave the drawing room.
+
+As she turned to exit, Carol called after her, her tone shifting to one of concern. "You must be careful, Jane. There are things in this house that are better left undisturbed. Secrets can be dangerous, especially in times like these." Jane paused, the weight of Carol's words sinking in. The stakes were higher than she had anticipated, and the shadows of suspicion loomed larger than ever. She needed to tread carefully, for the truth was buried beneath layers of lies and half-truths, and she was determined to unearth it before it was too late.
+--- END PRIOR CHAPTER 6 ---
+
+# Case Overview
+Title: The Clock Strikes Deceit
+Era: 1930s
+Setting: Little Middleton, Yorkshire
+Crime: murder (premeditated)
+Culprit: Colin Enright
+False assumption: Brian Scanlon must have died after the last guest left.
+Cast: Brian Scanlon (he/him), Carol Molloy (she/her), Colin Enright (he/him), Jane O'Connor (she/her), Sean Murphy (he/him)
+
+Setting Lock: Keep all scenes and descriptions consistent with the stated setting (Little Middleton, Yorkshire). Do not introduce a different location type. Do not invent an alternative estate name. The only permitted name for this property is "Little Middleton, Yorkshire" — any other estate name (e.g., "Caldwell Manor", "Ashwood Hall", or any invented proper name) is a continuity error that will be caught and rejected.
+
+⛔ PRONOUN LOCK (verify every sentence before writing):
+• Brian Scanlon — he/him/his (NEVER she/her)
+• Carol Molloy — she/her/her (NEVER he/him)
+• Colin Enright — he/him/his (NEVER she/her)
+• Jane O'Connor — she/her/her (NEVER he/him)
+• Sean Murphy — he/him/his (NEVER she/her)
+
+Outline scenes:
+[
+  {
+    "sceneNumber": 7,
+    "act": 2,
+    "title": "The Discriminating Test",
+    "setting": {
+      "location": "the study of the Enright residence",
+      "timeOfDay": "Late evening",
+      "atmosphere": "Charged with tension"
+    },
+    "characters": [
+      "Jane O'Connor",
+      "Colin Enright"
+    ],
+    "purpose": "Execute the discriminating test and observe reactions",
+    "cluesRevealed": [
+      "clue_2"
+    ],
+    "dramaticElements": {
+      "conflict": "Colin is confronted with mounting evidence",
+      "tension": "The atmosphere is thick with anticipation"
+    },
+    "summary": "Jane sets a trap for Colin by recreating the timeline of events. She manipulates the clock to show the time of the supposed murder and watches Colin's reaction. As he stumbles over his words and his nervousness becomes palpable, Jane realizes he is hiding something crucial about the time of death.",
+    "estimatedWordCount": 1500,
+    "emotionalRegister": "Pressure mounts as characters confront their intertwined fates.",
+    "dominantCharacterNote": {
+      "name": "Colin Enright",
+      "voiceRegister": "Colin speaks with a calm and deliberate rhythm, often incorporating legal jargon into his conversations."
+    },
+    "humourGuidance": {
+      "permission": "forbidden"
+    },
+    "eraTextureNote": "Limited transportation options due to economic hardships; Frequent power outages affect daily life and communication; Communication relies heavily on the postal system and typewriters; Public gatherings are scrutinized for propriety and decorum; Social mobility is severely limited by established class structures",
+    "locationRegisterNote": ""
+  }
+]
+```
+
+## Message 3 (role=user)
+
+```text
+BEFORE SUBMITTING YOUR JSON — verify this checklist:
+□ Each chapter reaches the hard floor of 450 words and aims for 1250 words or more.
+□ If you mention locked evidence, you used the exact locked phrase verbatim.
+□ Allowed seasonal words only: summer, summery, midsummer.
+□ Forbidden seasonal words: spring, autumn, winter.
+□ First chapter in this batch opens by continuing the previous chapter closing beat (same unresolved object, question, movement, or emotional pressure).
+□ For every chapter after Chapter 1, include at least one NEW character pressure reveal (fear, motive, lie, loyalty conflict, or victim relationship).
+□ Each post-Chapter-1 character reveal changes investigation state (more/less suspicious, lie explained, motive exposed, emotional cost deepened, or investigator understanding updated).
+□ No post-Chapter-1 chapter contains static biography-only character paragraphs.
+□ Mode check (Suspect Pressure): chapter contains a NEW pressure reveal (fear, motive, lie, loyalty conflict, or secret).
+□ Mode check (Suspect Pressure): no full culprit confession in this mode unless outline-required.
+□ PRONOUN AUDIT — for every character you named in your chapters, list the pronouns you actually used, then verify against the canonical table. Correct any mismatch before outputting. Do NOT include this audit in your JSON output.
+  Character            | Canonical     | Used in draft | Match?
+  ---------------------|---------------|---------------|-------
+  Brian Scanlon        | he/him/his/himself        | [fill in]     | [yes/no]
+  Carol Molloy         | she/her/her/herself       | [fill in]     | [yes/no]
+  Colin Enright        | he/him/his/himself        | [fill in]     | [yes/no]
+  Jane O'Connor        | she/her/her/herself       | [fill in]     | [yes/no]
+  Sean Murphy          | he/him/his/himself        | [fill in]     | [yes/no]
+□ Return valid JSON only.
+```

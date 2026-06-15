@@ -178,6 +178,60 @@ describe("LLMLogger", () => {
     }
   });
 
+  it("preserves retry numbers above four in archived prompt filenames", async () => {
+    const docsDir = mkdtempSync(join(tmpdir(), "cml-logger-"));
+    try {
+      const testLogger = new LLMLogger({
+        logToConsole: false,
+        logToFile: false,
+        logActualPromptDocsToFile: true,
+        actualPromptDocsDir: docsDir,
+      });
+
+      await testLogger.logFullPrompt({
+        runId: "run_test_retry_archive_numbering",
+        projectId: "proj_test",
+        agent: "Agent9-ProseGenerator-Ch9",
+        operation: "chat_request_full_prompt",
+        model: "gpt-4o-mini",
+        temperature: 0.4,
+        maxTokens: 100,
+        promptHash: "hash_req_retry5",
+        retryAttempt: 6,
+        messages: [{ role: "user", content: "hello" }],
+      });
+
+      await testLogger.logResponse({
+        runId: "run_test_retry_archive_numbering",
+        projectId: "proj_test",
+        agent: "Agent9-ProseGenerator-Ch9",
+        operation: "chat_response",
+        model: "gpt-4o-mini",
+        promptHash: "hash_req_retry5",
+        responseHash: "hash_resp_retry5",
+        response: "ok",
+        success: true,
+        retryAttempt: 6,
+        timestamp: new Date().toISOString(),
+        metadata: {},
+      });
+
+      const runFolder = readdirSync(docsDir, { withFileTypes: true }).find((e) => e.isDirectory())?.name;
+      expect(runFolder).toBeTruthy();
+      const runDir = join(docsDir, String(runFolder));
+      const fileNames = readdirSync(runDir);
+      expect(fileNames.some((name) => name.includes("_retry5_request.md"))).toBe(true);
+      expect(fileNames.some((name) => name.includes("_retry5_response.md"))).toBe(true);
+
+      const statePath = join(runDir, ".actual-run-state.json");
+      const state = JSON.parse(readFileSync(statePath, "utf8"));
+      expect(state.records).toHaveLength(1);
+      expect(state.records[0].retryAttempt).toBe(6);
+    } finally {
+      rmSync(docsDir, { recursive: true, force: true });
+    }
+  });
+
   it("rejects response-only completion and increments missing_request_count", async () => {
     const docsDir = mkdtempSync(join(tmpdir(), "cml-logger-"));
     try {

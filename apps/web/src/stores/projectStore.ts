@@ -476,7 +476,9 @@ export const useProjectStore = defineStore("project", () => {
     llmLogs.value = await fetchLlmLogs(projectId, limit);
   };
 
-  const clearAll = () => {
+  // Clears artifact data for the current project (e.g. when a new run starts)
+  // without touching latestRunId, runEventsData, or llmLogs.
+  const clearArtifactsOnly = () => {
     artifactsStatus.value = "idle";
     cmlArtifact.value = null;
     cluesArtifact.value = null;
@@ -504,10 +506,14 @@ export const useProjectStore = defineStore("project", () => {
     hardLogicDevicesData.value = null;
     noveltyAuditData.value = null;
     gamePackData.value = null;
+    resetValidation();
+  };
+
+  const clearAll = () => {
+    clearArtifactsOnly();
     runEventsData.value = [];
     latestRunId.value = null;
     llmLogs.value = [];
-    resetValidation();
   };
 
   return {
@@ -546,6 +552,7 @@ export const useProjectStore = defineStore("project", () => {
     loadRunEvents,
     loadLlmLogs,
     resetValidation,
+    clearArtifactsOnly,
     clearAll,
   };
 });

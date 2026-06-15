@@ -4,6 +4,7 @@
  * season/month lock utilities, and opening-sentence helpers.
  */
 import { getGenerationParams } from "@cml/story-validation";
+import { detectControlPlaneLeakage } from "@cml/story-validation";
 import { classifyOpeningStyle } from "../types/narrative-state.js";
 import {
   ARC_POSITION_REGISTER,
@@ -23,6 +24,39 @@ export const tokenizeWords = (text: string): string[] =>
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter((token) => token.length > 0);
+
+const OPENER_FUNCTION_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "as",
+  "at",
+  "but",
+  "for",
+  "from",
+  "he",
+  "her",
+  "his",
+  "i",
+  "in",
+  "it",
+  "my",
+  "of",
+  "our",
+  "she",
+  "that",
+  "the",
+  "their",
+  "they",
+  "this",
+  "to",
+  "we",
+  "with",
+  "you",
+]);
+
+const isMeaningfulOpenerToken = (token: string): boolean =>
+  token.length > 2 && !OPENER_FUNCTION_WORDS.has(token);
 
 export const toNgrams = (tokens: string[], n: number): Set<string> => {
   const grams = new Set<string>();
@@ -218,6 +252,39 @@ export const lintBatchProse = (
     }
   }
 
+  // Deterministic paragraph-opener uniqueness gate.
+  // Within each chapter, content openers should stay diverse while avoiding
+  // false positives from pronouns/articles and common function words.
+  openerUniquenessLoop: for (const chapter of batchChapters) {
+    const firstWordCounts = new Map<string, number>();
+    const firstTwoWordsSeen = new Set<string>();
+    for (const paragraph of chapter.paragraphs ?? []) {
+      const tokens = tokenizeWords(paragraph);
+      if (tokens.length === 0) continue;
+      const firstWord = tokens[0];
+      const firstTwoWords = tokens.length >= 2 ? `${tokens[0]} ${tokens[1]}` : tokens[0];
+      const firstWordMeaningful = isMeaningfulOpenerToken(firstWord);
+      const firstTwoWordsMeaningful =
+        tokens.length >= 2 && isMeaningfulOpenerToken(tokens[0]) && isMeaningfulOpenerToken(tokens[1]);
+      const currentFirstWordCount = firstWordMeaningful ? (firstWordCounts.get(firstWord) ?? 0) + 1 : 0;
+
+      if ((firstTwoWordsMeaningful && firstTwoWordsSeen.has(firstTwoWords)) || currentFirstWordCount >= 3) {
+        issues.push({
+          type: "template_bleed",
+          message: `Template linter: repeated content opener detected ("${firstTwoWords}"). Avoid reusing the same meaningful opener phrase, and avoid starting 3+ paragraphs with the same meaningful first word.`,
+          matchingPriorParagraph: firstTwoWords,
+        });
+        break openerUniquenessLoop;
+      }
+      if (firstWordMeaningful) {
+        firstWordCounts.set(firstWord, currentFirstWordCount);
+      }
+      if (firstTwoWordsMeaningful) {
+        firstTwoWordsSeen.add(firstTwoWords);
+      }
+    }
+  }
+
   // Intra-chapter sentence dedup: catches sentence-level repetition within a single chapter
   // that falls below the paragraph_fingerprint_min_chars threshold (short ~60–80 char sentences).
   // Each chapter gets its own Set — cross-chapter repeats are covered by paragraph_fingerprint.
@@ -313,6 +380,19 @@ export const lintBatchProse = (
         type: "banned_phrase",
         message: `Template linter: banned phrase detected in generated prose: "${phrase}"`,
         matchingPriorParagraph: phrase,
+      });
+    }
+  }
+
+  for (const chapter of batchChapters) {
+    const chapterText = (chapter.paragraphs ?? []).join('\n\n');
+    const leakageFindings = detectControlPlaneLeakage(chapterText)
+      .filter((finding) => finding.confidence === 'hard');
+    for (const finding of leakageFindings.slice(0, 6)) {
+      issues.push({
+        type: 'control_plane_leakage',
+        message: `Control-plane leakage (${finding.code}): "${finding.excerpt}". Remove prompt, validation, retry, fallback, or scaffold language from prose.`,
+        matchingPriorParagraph: finding.excerpt,
       });
     }
   }
@@ -613,6 +693,29 @@ export const lintBatchProse = (
             `Boundary integrity failure in chapter ${chapterNumber}: ${findings.join('; ')}. ` +
             'Repair punctuation boundaries before commit (balanced quotes, valid contractions/possessives only).',
         });
+      }
+    }
+  }
+
+  // C1: Sentence-fragment truncation check.
+  // Detects paragraphs where the last content before a closing quote mark is whitespace, or
+  // a bare article/preposition — both are hallmarks of LLM token-limit truncation mid-sentence.
+  // Pattern: space-before-close-quote OR (the|a|an|its|their|our|to|for|of|with|in|by|at)+close-quote
+  const TRUNCATED_BEFORE_CLOSE_QUOTE_RE =
+    /(?:\s[""\u201d]|(?:^|\s)(?:the|a|an|its|their|our|my|your|his|her|to|for|of|with|in|by|at)\s*[""\u201d])\s*$/i;
+  for (let chIdx = 0; chIdx < batchChapters.length; chIdx += 1) {
+    const chapter = batchChapters[chIdx];
+    const chapterNumber = chapterOffset + priorChapters.length + chIdx + 1;
+    for (const paragraph of chapter.paragraphs ?? []) {
+      const trimmed = paragraph.trimEnd();
+      if (TRUNCATED_BEFORE_CLOSE_QUOTE_RE.test(trimmed)) {
+        issues.push({
+          type: 'sentence_fragment_truncation',
+          message:
+            `Chapter ${chapterNumber}: a paragraph ends with an incomplete sentence before a closing quotation mark. ` +
+            'Complete every sentence inside dialogue — do not leave quoted speech or narration cut off mid-clause.',
+        });
+        break; // one issue per chapter is enough
       }
     }
   }

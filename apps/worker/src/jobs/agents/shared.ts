@@ -475,6 +475,16 @@ export function preAgent9LlmRetriesEnabled(): boolean {
   return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
 }
 
+export function preAgent9ContractRecoveryEnabled(): boolean {
+  // Contract recovery is enabled by default so schema/structural near-misses
+  // are repaired consistently across all story parameter combinations.
+  const raw = String(process.env.AGENT_PRE9_ENABLE_CONTRACT_RECOVERY ?? "").trim().toLowerCase();
+  if (!raw) return true;
+  if (raw === "0" || raw === "false" || raw === "no" || raw === "off") return false;
+  if (raw === "1" || raw === "true" || raw === "yes" || raw === "on") return true;
+  return true;
+}
+
 export async function executeAgentWithRetry<T>(
   agentId: string,
   phaseName: string,

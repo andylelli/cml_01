@@ -35,6 +35,11 @@ import {
   getRequiredClueIdsForScene,
   CLUE_TOKEN_STOPWORDS,
   tokenizeForClueObligation,
+  resolveStageModeKey,
+  mapStageModeToCompositionPhase,
+  formatStageModeLabel,
+  resolveCmlSceneRefChapterNumber,
+  sceneMatchesCmlSceneRef,
 } from "./clue-validation.js";
 import {
   buildIdentityMap,
@@ -63,6 +68,7 @@ import {
   buildStoryToDateBlock,
   buildSceneGroundingChecklist,
 } from "./context-management.js";
+import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { buildDiscriminatingTestChecklist } from "./discriminating.js";
 import { sanitizeScenesCharacters } from "./sanitization.js";
 import type { CastDesign } from "../agent2-cast.js";
@@ -412,11 +418,530 @@ export const resolveVictimName = (cast: CastDesign): string => {
   return (victim as any)?.name ?? '';
 };
 
+const normalizePromptValue = (value: unknown): string =>
+  String(value ?? "").replace(/\s+/g, " ").trim();
+
+const buildFirstAppearanceContractsBlock = (
+  caseData: CaseData,
+  cast: CastDesign,
+  scenes: unknown[],
+  chapterSummaries: ChapterSummary[],
+  priorChapters: ProseChapter[],
+): string => {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const caseCast = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
+  const designCast = Array.isArray((cast as any)?.characters) ? (cast as any).characters : [];
+  const victimName = resolveVictimName(cast) || normalizePromptValue(cmlCase?.culpability?.victim);
+  const victimLower = victimName.toLowerCase();
+
+  const canonicalNameByLower = new Map<string, string>();
+  for (const entry of [...designCast, ...caseCast]) {
+    const name = normalizePromptValue((entry as any)?.name);
+    if (!name) continue;
+    const lower = name.toLowerCase();
+    if (!canonicalNameByLower.has(lower)) canonicalNameByLower.set(lower, name);
+  }
+  if (canonicalNameByLower.size === 0) return "";
+
+  const seenLower = new Set<string>();
+  for (const summary of chapterSummaries) {
+    for (const name of summary.charactersPresent ?? []) {
+      const lower = normalizePromptValue(name).toLowerCase();
+      if (canonicalNameByLower.has(lower)) seenLower.add(lower);
+    }
+  }
+
+  const castNameRegex = new Map<string, RegExp>();
+  for (const [lower, name] of canonicalNameByLower.entries()) {
+    castNameRegex.set(lower, new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}\\b`, "i"));
+  }
+  for (const chapter of priorChapters) {
+    const chapterText = Array.isArray(chapter?.paragraphs) ? chapter.paragraphs.join("\n") : "";
+    if (!chapterText) continue;
+    for (const [lower, rx] of castNameRegex.entries()) {
+      if (rx.test(chapterText)) seenLower.add(lower);
+    }
+  }
+
+  const orderedFirstAppearances: string[] = [];
+  const emitted = new Set<string>();
+  for (const scene of scenes as any[]) {
+    const sceneCharacters = Array.isArray(scene?.characters) ? scene.characters : [];
+    for (const rawName of sceneCharacters) {
+      const lower = normalizePromptValue(rawName).toLowerCase();
+      const canonical = canonicalNameByLower.get(lower);
+      if (!canonical) continue;
+      if (lower === victimLower) continue;
+      if (seenLower.has(lower) || emitted.has(lower)) continue;
+      emitted.add(lower);
+      orderedFirstAppearances.push(canonical);
+    }
+  }
+  if (orderedFirstAppearances.length === 0) return "";
+
+  const relationshipPairs = Array.isArray((cast as any)?.relationships?.pairs)
+    ? (cast as any).relationships.pairs
+    : [];
+
+  const lines: string[] = [
+    "\n\n## FIRST-APPEARANCE SUSPECT INTRO CONTRACT (MANDATORY)",
+    "When a character below appears for the first time in this batch, their first beat must establish all of the following in natural prose:",
+    "1. Public identity (who they are in this household/social world)",
+    "2. Connection to the victim",
+    "3. Why they matter to the investigation now",
+    "4. Surface behaviour plus one subtle suspicious/emotional tell",
+    "5. The investigator's immediate read of that behaviour (provisional, not a verdict)",
+    "Bad (too thin): \"Captain Hale stood nearby.\"",
+    "Good pattern: \"Captain Hale, the household steward and the victim's trusted adviser, stood nearest the body. His posture was disciplined, but his hand tightened around his watch chain.\"",
+    "Use subtle pressure cues only. Do not write confessions or explicit guilt declarations in first appearances.",
+  ];
+
+  for (const name of orderedFirstAppearances) {
+    const lower = name.toLowerCase();
+    const caseEntry = caseCast.find((entry: any) => normalizePromptValue(entry?.name).toLowerCase() === lower) ?? {};
+    const designEntry = designCast.find((entry: any) => normalizePromptValue(entry?.name).toLowerCase() === lower) ?? {};
+
+    const occupation = normalizePromptValue((designEntry as any)?.occupation ?? (caseEntry as any)?.occupation);
+    const role = normalizePromptValue(
+      (caseEntry as any)?.role
+      ?? (designEntry as any)?.role
+      ?? (caseEntry as any)?.role_archetype
+      ?? (designEntry as any)?.roleArchetype,
+    ).replace(/_/g, " ");
+    const publicPersona = normalizePromptValue((caseEntry as any)?.public_persona ?? (designEntry as any)?.publicPersona);
+    const access = normalizePromptValue((caseEntry as any)?.access_plausibility ?? (designEntry as any)?.accessPlausibility);
+    const alibiWindow = normalizePromptValue((caseEntry as any)?.alibi_window ?? (designEntry as any)?.alibiWindow);
+    const opportunityChannels = Array.isArray((caseEntry as any)?.opportunity_channels)
+      ? (caseEntry as any).opportunity_channels.map((v: unknown) => normalizePromptValue(v)).filter(Boolean)
+      : [];
+    const behaviouralTells = Array.isArray((caseEntry as any)?.behavioral_tells)
+      ? (caseEntry as any).behavioral_tells.map((v: unknown) => normalizePromptValue(v)).filter(Boolean)
+      : [];
+    const stakes = normalizePromptValue((caseEntry as any)?.stakes ?? (designEntry as any)?.stakes);
+    const motiveSeed = normalizePromptValue((caseEntry as any)?.motive_seed ?? (designEntry as any)?.motiveSeed);
+
+    const relationshipHints: string[] = [];
+    const perCharacterRelationships = Array.isArray((caseEntry as any)?.relationships)
+      ? (caseEntry as any).relationships
+      : [];
+    for (const rel of perCharacterRelationships) {
+      const relText = normalizePromptValue(rel);
+      if (!relText) continue;
+      if (victimName && relText.toLowerCase().includes(victimLower)) {
+        relationshipHints.push(relText);
+      }
+    }
+    for (const pair of relationshipPairs) {
+      const c1 = normalizePromptValue((pair as any)?.character1);
+      const c2 = normalizePromptValue((pair as any)?.character2);
+      if (!victimName || !c1 || !c2) continue;
+      const pairMatchesVictim =
+        (c1.toLowerCase() === lower && c2.toLowerCase() === victimLower)
+        || (c2.toLowerCase() === lower && c1.toLowerCase() === victimLower);
+      if (!pairMatchesVictim) continue;
+      const relationship = normalizePromptValue((pair as any)?.relationship);
+      const sharedHistory = normalizePromptValue((pair as any)?.sharedHistory);
+      const combined = [relationship, sharedHistory].filter(Boolean).join("; ");
+      if (combined) relationshipHints.push(combined);
+    }
+
+    const publicIdentity = [occupation, role].filter(Boolean).join("; ");
+    const victimConnection = relationshipHints[0]
+      || (victimName ? `directly affected by ${victimName}'s death and its fallout` : "directly tied to the victim's social circle");
+
+    const roleLower = role.toLowerCase();
+    const investigationRelevance = roleLower.includes("detective")
+      ? "is actively driving interviews and credibility checks in this scene"
+      : [
+          access ? `access plausibility: ${access}` : "",
+          alibiWindow ? `alibi window: ${alibiWindow}` : "",
+          opportunityChannels.length > 0 ? `opportunity channel: ${opportunityChannels[0]}` : "",
+        ].filter(Boolean).join(" | ") || "holds testimony or access that can move the case forward";
+
+    const pressureCue = behaviouralTells[0]
+      || stakes
+      || motiveSeed
+      || publicPersona
+      || "show a subtle hesitation, fixation, or defensive shift";
+
+    lines.push(`\n- ${name}`);
+    lines.push(`  Public identity anchor: ${publicIdentity || `${name} is a central household figure`} `);
+    lines.push(`  Connection to victim: ${victimConnection}.`);
+    lines.push(`  Investigation relevance: ${investigationRelevance}.`);
+    lines.push(`  Suspicion/pressure cue seed: ${pressureCue}.`);
+    lines.push("  Investigator read: include one immediate observational inference (gesture, gaze target, pause, object grip), but do not state guilt as fact.");
+  }
+
+  return lines.join("\n");
+};
+
+const formatCompositionLabel = (value: string): string =>
+  value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+
+const defaultStageModeProfiles = {
+  discovery_opening: {
+    required_outcomes: [
+      "Name the victim explicitly.",
+      "Introduce investigator and major suspects with role relevance and latent tension.",
+      "Plant the first clue without full mechanism explanation.",
+    ],
+    forbidden_reveals: [
+      "No culprit reveal.",
+      "No full murder mechanism explanation.",
+    ],
+  },
+  early_investigation: {
+    required_outcomes: [
+      "Develop one or two clues through questioning, contradiction, or alibi pressure.",
+      "Change the investigator's working theory by chapter end.",
+    ],
+    forbidden_reveals: [
+      "No final culprit resolution.",
+    ],
+  },
+  suspect_pressure: {
+    required_outcomes: [
+      "Reveal at least one new character pressure truth (fear, motive, lie, loyalty conflict, or secret).",
+      "End with changed suspicion state (more suspicious, less suspicious, or more complex).",
+    ],
+    forbidden_reveals: [
+      "No full murder confession unless the outline explicitly requires it.",
+    ],
+  },
+  false_suspect_clearing: {
+    required_outcomes: [
+      "Show why the suspect looked guilty.",
+      "Prove innocence using concrete evidence/alibi/logic.",
+      "Shift suspicion to the next investigable target.",
+    ],
+    forbidden_reveals: [
+      "Do not clear by assertion or convenience.",
+    ],
+  },
+  clue_reinterpretation: {
+    required_outcomes: [
+      "State what an earlier clue seemed to mean.",
+      "State what it now means and how the theory changes.",
+    ],
+    forbidden_reveals: [
+      "No decisive new evidence from nowhere.",
+    ],
+  },
+  discriminating_test: {
+    required_outcomes: [
+      "State competing theory/hypothesis paths.",
+      "Run or reveal a concrete test with observable result.",
+      "Explicitly state what the result proves and what it rules out.",
+    ],
+    forbidden_reveals: [
+      "Do not merely restate existing evidence.",
+    ],
+  },
+  final_reveal: {
+    required_outcomes: [
+      "Deliver motive, method of death, opportunity, and evidence chain.",
+      "Distinguish murder method from concealment mechanism.",
+      "State culprit mistake/trace and consequences.",
+    ],
+    forbidden_reveals: [
+      "Do not end with mechanism-only confession.",
+    ],
+  },
+  aftermath_consequence: {
+    required_outcomes: [
+      "Show emotional and social consequences after truth lands.",
+      "Show changed order among surviving characters.",
+    ],
+    forbidden_reveals: [
+      "Do not introduce decisive new mystery evidence.",
+    ],
+  },
+} as const;
+
+const getStageModeProfile = (mode: string): {
+  required_outcomes: string[];
+  forbidden_reveals: string[];
+  balance_targets?: Record<string, { min_pct: number; max_pct: number }>;
+} => {
+  const cfg = (getGenerationParams().agent9_prose as any)?.stage_modes?.[mode];
+  const fallback = (defaultStageModeProfiles as any)?.[mode] ?? defaultStageModeProfiles.early_investigation;
+  return {
+    required_outcomes: Array.isArray(cfg?.required_outcomes) && cfg.required_outcomes.length > 0
+      ? cfg.required_outcomes.map((v: unknown) => String(v))
+      : [...fallback.required_outcomes],
+    forbidden_reveals: Array.isArray(cfg?.forbidden_reveals) && cfg.forbidden_reveals.length > 0
+      ? cfg.forbidden_reveals.map((v: unknown) => String(v))
+      : [...fallback.forbidden_reveals],
+    balance_targets: cfg?.balance_targets && typeof cfg.balance_targets === "object"
+      ? cfg.balance_targets
+      : undefined,
+  };
+};
+
+const buildStageModeContractBlock = (
+  activeMode: string,
+): string => {
+  const profile = getStageModeProfile(activeMode);
+  const balanceLines = profile.balance_targets
+    ? Object.entries(profile.balance_targets)
+        .map(([name, range]: [string, any]) => {
+          const minPct = Number(range?.min_pct);
+          const maxPct = Number(range?.max_pct);
+          if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
+          const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
+          return `- ${formatCompositionLabel(name)}: ${pct}`;
+        })
+        .filter(Boolean)
+        .join("\n")
+    : "";
+
+  const lines = [
+    "\n\n## ACTIVE CHAPTER MODE CONTRACT (MANDATORY)",
+    `Active chapter mode: ${formatStageModeLabel(activeMode as any)}.`,
+    "Mode required outcomes:",
+    ...profile.required_outcomes.map((item) => `- ${item}`),
+    "Forbidden at this stage:",
+    ...profile.forbidden_reveals.map((item) => `- ${item}`),
+  ];
+  if (balanceLines) {
+    lines.push("Mode-specific narrative balance targets:");
+    lines.push(balanceLines);
+  }
+  return lines.join("\n");
+};
+
+const buildChapterOutcomeBlock = (
+  activeMode: string,
+  chapterStart: number,
+  chapterEnd: number,
+  cmlCase: any,
+  narrativeState: NarrativeState | undefined,
+  investigationLog: { unresolvedSuspects: string[] } | undefined,
+  batchScenes: any[],
+): string => {
+  const suspects = ((cmlCase?.cast ?? []) as any[])
+    .filter((entry: any) => {
+      const role = String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
+      return !role.includes("detective") && !role.includes("victim");
+    })
+    .map((entry: any) => String(entry?.name ?? ""))
+    .filter(Boolean);
+  const pressureTargets = new Set<string>();
+  for (const scene of batchScenes) {
+    const names = Array.isArray(scene?.characters) ? scene.characters : [];
+    for (const name of names) {
+      if (suspects.includes(String(name))) pressureTargets.add(String(name));
+    }
+  }
+
+  const revealedClues = narrativeState?.cluesRevealedToReader?.length ?? 0;
+  const unresolvedCount = Array.isArray(investigationLog?.unresolvedSuspects)
+    ? investigationLog.unresolvedSuspects.filter(Boolean).length
+    : suspects.length;
+
+  const modeOutcomeByMode: Record<string, string> = {
+    discovery_opening: "Introduce cast relevance and plant first clue while keeping culprit unresolved.",
+    early_investigation: "Advance contradiction/alibi pressure and change working theory.",
+    suspect_pressure: "Increase or complicate suspicion through new pressure revelation.",
+    false_suspect_clearing: "Prove innocence with evidence and re-target suspicion.",
+    clue_reinterpretation: "Reframe prior clue meaning and update suspect implications.",
+    discriminating_test: "Execute discriminating test and state prove-vs-rule-out outcome.",
+    final_reveal: "Deliver full accusation chain: motive, death method, concealment mechanism, and consequence.",
+    aftermath_consequence: "Show emotional/social consequences without introducing decisive new evidence.",
+  };
+
+  const requiredInfoByMode: Record<string, string> = {
+    discovery_opening: "First clue observation tied to suspect landscape.",
+    early_investigation: "At least one contradiction, alibi stress, or credibility fracture.",
+    suspect_pressure: "At least one fear/motive/lie/loyalty reveal with investigative consequence.",
+    false_suspect_clearing: "Evidence that clears one suspect and redirects inquiry.",
+    clue_reinterpretation: "Earlier clue gets revised meaning with explicit theory update.",
+    discriminating_test: "Observable test result separating theory A from theory B.",
+    final_reveal: "Direct linkage between culprit and victim death, not mechanism-only tampering.",
+    aftermath_consequence: "Consequence on relationships/order after truth.",
+  };
+
+  const profile = getStageModeProfile(activeMode);
+
+  return [
+    "\n\n## CHAPTER OUTCOME CONTRACT (MANDATORY)",
+    `Batch chapters: ${chapterStart}-${chapterEnd}.`,
+    `Investigation state at start: ${revealedClues} clue(s) revealed to reader; approximately ${unresolvedCount} unresolved suspect(s).`,
+    `Must change by end: ${modeOutcomeByMode[activeMode] ?? modeOutcomeByMode.early_investigation}`,
+    `Suspect pressure target(s): ${Array.from(pressureTargets).join(", ") || "Use the most implicated active suspect in this batch."}`,
+    `Required new information: ${requiredInfoByMode[activeMode] ?? requiredInfoByMode.early_investigation}`,
+    `Forbidden reveals at this stage: ${profile.forbidden_reveals.join(" | ")}`,
+  ].join("\n");
+};
+
+const buildModeSpecificChecklistItems = (activeMode: string): string[] => {
+  switch (activeMode) {
+    case "discovery_opening":
+      return [
+        "□ Mode check (Discovery/Opening): victim is explicitly named and major suspects are introduced before deep mechanism explanation.",
+        "□ Mode check (Discovery/Opening): no culprit reveal and no full murder mechanism explanation.",
+      ];
+    case "suspect_pressure":
+      return [
+        "□ Mode check (Suspect Pressure): chapter contains a NEW pressure reveal (fear, motive, lie, loyalty conflict, or secret).",
+        "□ Mode check (Suspect Pressure): no full culprit confession in this mode unless outline-required.",
+      ];
+    case "false_suspect_clearing":
+      return [
+        "□ Mode check (False Suspect Clearing): suspect innocence is evidenced (not asserted) and suspicion shifts after clearing.",
+      ];
+    case "clue_reinterpretation":
+      return [
+        "□ Mode check (Clue Reinterpretation): chapter states prior clue meaning and revised meaning with explicit theory change.",
+      ];
+    case "discriminating_test":
+      return [
+        "□ Mode check (Discriminating Test): chapter states competing theories, test result, what is proved, and what is ruled out.",
+      ];
+    case "final_reveal":
+      return [
+        "□ Mode check (Final Reveal): chapter includes motive, death method, concealment mechanism, opportunity, evidence chain, and consequence.",
+        "□ Mode check (Final Reveal): culprit is explicitly responsible for the victim's death, not only mechanism tampering.",
+      ];
+    case "aftermath_consequence":
+      return [
+        "□ Mode check (Aftermath/Consequence): chapter focuses on emotional/social fallout without introducing decisive new mystery evidence.",
+      ];
+    case "early_investigation":
+    default:
+      return [
+        "□ Mode check (Early Investigation): chapter includes contradiction/alibi pressure and changes the investigator's working theory.",
+      ];
+  }
+};
+
+const buildChapterCompositionTargetsBlock = (
+  chapterStart: number,
+  chapterEnd: number,
+  totalScenes: number,
+  isDiscriminatingTestBatch: boolean,
+  cmlCase: any,
+  allOutlineScenes: any[],
+  batchScenes: any[],
+): string => {
+  const targets = (getGenerationParams().agent9_prose as any)?.chapter_composition_targets;
+  if (!targets || typeof targets !== "object") return "";
+
+  const activeMode = resolveStageModeKey(
+    chapterStart,
+    chapterEnd,
+    totalScenes,
+    isDiscriminatingTestBatch,
+    cmlCase,
+    allOutlineScenes,
+    batchScenes,
+  );
+  const phaseKey = mapStageModeToCompositionPhase(activeMode);
+  const phaseTargets = targets?.[phaseKey];
+  if (!phaseTargets || typeof phaseTargets !== "object") return "";
+
+  const formatPhaseTargets = (phase: Record<string, any>): string =>
+    Object.entries(phase)
+      .map(([component, range]: [string, any]) => {
+        const minPct = Number(range?.min_pct);
+        const maxPct = Number(range?.max_pct);
+        if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
+        const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
+        return `- ${formatCompositionLabel(component)}: ${pct}`;
+      })
+      .filter(Boolean)
+      .join("\n");
+
+  const currentPhaseLines = formatPhaseTargets(phaseTargets as Record<string, any>);
+  if (!currentPhaseLines) return "";
+
+  const phaseOrder = [
+    "chapter1",
+    "early_investigation",
+    "middle_chapters",
+    "false_suspect_chapters",
+    "discriminating_test_chapter",
+    "final_reveal",
+  ];
+
+  const referenceLines = phaseOrder
+    .map((key) => {
+      const keyTargets = targets?.[key];
+      if (!keyTargets || typeof keyTargets !== "object") return "";
+      const compact = Object.entries(keyTargets as Record<string, any>)
+        .map(([component, range]: [string, any]) => {
+          const minPct = Number(range?.min_pct);
+          const maxPct = Number(range?.max_pct);
+          if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
+          const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
+          return `${formatCompositionLabel(component)} ${pct}`;
+        })
+        .filter(Boolean)
+        .join(" | ");
+      return compact ? `- ${formatCompositionLabel(key)}: ${compact}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  return [
+    "\n\n## CHAPTER COMPOSITION TARGETS (MANDATORY NARRATIVE BALANCE)",
+    "Treat percentages as narrative attention share (sentence/paragraph focus), not exact token math.",
+    `Active phase for this batch: ${formatCompositionLabel(phaseKey)} (mode: ${formatStageModeLabel(activeMode)}).`,
+    "Apply this target mix in this batch:",
+    currentPhaseLines,
+    "Reference profile across chapter phases:",
+    referenceLines,
+    "If obligations conflict, preserve hard clue/evidence/logic contracts first, then satisfy the composition mix.",
+  ].join("\n");
+};
+
+const buildPostChapterOneCharacterPressureBlock = (
+  chapterStart: number,
+  chapterEnd: number,
+): string => {
+  if (chapterEnd <= 1) return "";
+
+  return [
+    "\n\n## POST-CHAPTER-1 CHARACTER PRESSURE CONTRACT (MANDATORY)",
+    "After Chapter 1, character content must not read as biography or static profile recap.",
+    "Character beats must carry pressure and case movement.",
+    chapterStart <= 1
+      ? "For chapters 2+ in this batch, apply this contract strictly."
+      : "Apply this contract to every chapter in this batch.",
+    "",
+    "For each chapter after Chapter 1, reveal at least one NEW character truth about one of:",
+    "- fear",
+    "- motive",
+    "- lie/deception",
+    "- loyalty conflict",
+    "- relationship to the victim",
+    "",
+    "That character development must do at least one of the following:",
+    "- make someone more suspicious",
+    "- make someone less suspicious",
+    "- explain why someone lied",
+    "- reveal motive",
+    "- deepen the emotional cost of the crime",
+    "- change the investigator's understanding of the case",
+    "",
+    "Hard constraints:",
+    "- No character paragraph that only restates occupation/role/persona without investigative consequence.",
+    "- No static biography dumps after Chapter 1.",
+    "- The investigator must register the pressure shift in-scene (through observation, questioning, or revised theory).",
+  ].join("\n");
+};
+
 /**
  * Extract prose requirements from CML for validation
  * Returns formatted string describing mandatory prose elements
  */
-export const buildProseRequirements = (caseData: CaseData, scenesForChapter?: unknown[]): string => {
+export const buildProseRequirements = (
+  caseData: CaseData,
+  scenesForChapter?: unknown[],
+  allOutlineScenes?: any[],
+): string => {
   const cmlCase = (caseData as any)?.CASE ?? {};
   const proseReqs = cmlCase.prose_requirements ?? {};
   
@@ -487,9 +1012,8 @@ export const buildProseRequirements = (caseData: CaseData, scenesForChapter?: un
   // Clue to scene mapping for this chapter
   if (proseReqs.clue_to_scene_mapping && scenesForChapter) {
     const relevantClues = proseReqs.clue_to_scene_mapping.filter((mapping: any) => {
-      // Use Number() coercion: act_number/scene_number may arrive as strings from JSON
-      return scenesForChapter.some((scene: any) => 
-        Number(scene.act) === Number(mapping.act_number) && Number(scene.sceneNumber) === Number(mapping.scene_number)
+      return scenesForChapter.some((scene: any) =>
+        sceneMatchesCmlSceneRef(scene, mapping, allOutlineScenes ?? scenesForChapter as any[])
       );
     });
     
@@ -590,9 +1114,7 @@ export function buildClueDescriptionBlock(
     for (const entry of ((cmlCase?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])) {
       const id = String(entry?.clue_id ?? '');
       if (!id || seenMappingIds.has(id)) continue;
-      if (Number(entry?.act_number) !== Number((scene as any)?.act)) continue;
-      if (entry?.scene_number !== undefined && entry?.scene_number !== null &&
-          Number(entry.scene_number) !== Number((scene as any)?.sceneNumber)) continue;
+      if (!sceneMatchesCmlSceneRef(scene, entry, scenesForChapter as any[])) continue;
       if (!entry?.delivery_method) continue;
       if (relevantClueIds.has(id)) continue;
       seenMappingIds.add(id);
@@ -695,7 +1217,7 @@ export function buildNSDBlock(
   }
 
   if (typeof state.continuityTail === 'string' && state.continuityTail.trim().length > 0) {
-    const continuityTail = state.continuityTail.replace(/\s+/g, ' ').trim();
+    const continuityTail = sanitizeContinuityTailForPrompt(state.continuityTail);
     const excerpt = continuityTail.length > 260
       ? `${continuityTail.slice(0, 260).trimEnd()}...`
       : continuityTail;
@@ -758,6 +1280,8 @@ export function buildNSDBlock(
 export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
   const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
     { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
+    { key: 'first_appearance_contracts', content: sections.firstAppearanceContractsBlock, priority: 'critical' },
+    { key: 'character_pressure_contract', content: sections.characterPressureContractBlock, priority: 'critical' },
     { key: 'setting_refinement', content: sections.settingRefinementBlock, priority: 'high' },
     { key: 'background_context', content: sections.backgroundContextBlock, priority: 'medium' },
     { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
@@ -811,6 +1335,8 @@ export const applyPromptBudgeting = (
 
   const perBlockTokenCap: Partial<Record<string, number>> = {
     pronoun_accuracy: 700, // [PHASE 1] — raised from 400: 8 rules + table for ~12-char cast ≈ 560 tokens; 400 truncated rules 5-9
+    first_appearance_contracts: 650, // First-appearance suspect intro obligations for newly introduced cast members
+    character_pressure_contract: 520, // Post-Ch1 character-pressure obligations and pass/fail criteria
     setting_refinement: 700,   // ~4 paragraphs of era-level setting guidance; 700 prevents mid-paragraph cut
     background_context: 450,   // short cast/motive synopsis — typically 300-400 tokens; 450 gives margin
     fair_play_contract: 1100,  // P2-19: raised from 700 to accommodate fairPlayGuardrails merged in (~4×~100 tokens)
@@ -985,6 +1511,13 @@ export const buildProsePrompt = (
 
   // Derive victim name for guardrail injection
   const proseVictimName = resolveVictimName(inputs.cast);
+  const firstAppearanceContractsBlock = buildFirstAppearanceContractsBlock(
+    inputs.caseData,
+    inputs.cast,
+    scenes as any[],
+    chapterSummaries,
+    priorChapters,
+  );
   const victimIdentityRule = proseVictimName
     ? proseArcPosition === 'opening'
       ? `- VICTIM IDENTITY: The murder victim is ${proseVictimName}. Introduce them by full name in this chapter. They are found dead — they do not speak, react, or gesture. This is their only physical appearance in the story.`
@@ -1091,9 +1624,12 @@ ${victimIdentityRule}`;
   const dtSceneCheck = cmlCase.prose_requirements?.discriminating_test_scene;
   const isDiscriminatingTestBatch = dtSceneCheck
     ? (scenes as any[]).some(
-        (s) =>
-          Number(s.act) === Number(dtSceneCheck.act_number) &&
-          Number(s.sceneNumber) === Number(dtSceneCheck.scene_number),
+        (s) => sceneMatchesCmlSceneRef(
+          s,
+          dtSceneCheck,
+          allOutlineScenes,
+          /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+        ),
       )
     : chapterEnd >= Math.ceil(totalScenes * 0.70); // fallback: old threshold behaviour
   if (isDiscriminatingTestBatch) {
@@ -1176,13 +1712,12 @@ ${victimIdentityRule}`;
     const clearanceScenes = (cmlCase?.prose_requirements?.suspect_clearance_scenes ?? []) as any[];
     const clearedSuspects = clearanceScenes
       .filter((s: any) => {
-        // Convert per-act scene_number to global chapter number using allOutlineScenes.
-        // CML clearance data uses per-act scene_number (e.g. 1 for Act2Sc1) but
-        // chapterStart is a global chapter index — direct comparison was wrong.
-        const priorActScenes = allOutlineScenes.filter(
-          (sc: any) => Number(sc?.act) < Number(s.act_number)
-        ).length;
-        const globalChapterNum = priorActScenes + Number(s.scene_number);
+        const globalChapterNum = resolveCmlSceneRefChapterNumber(
+          s,
+          allOutlineScenes,
+          0,
+          /\b(clear|cleared|clearance|alibi|ruled out|eliminat)/i,
+        );
         return globalChapterNum < chapterStart;
       })
       .map((s: any) => ({ name: String(s.suspect_name ?? ''), method: String(s.clearance_method ?? '') }))
@@ -1268,7 +1803,7 @@ ${victimIdentityRule}`;
     : "";
 
   // Build prose requirements block for this chapter batch
-  const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes);
+  const proseRequirementsBlock = buildProseRequirements(inputs.caseData, scenes, allOutlineScenes);
   const sceneGroundingChecklist = buildSceneGroundingChecklist(scenes, inputs.locationProfiles, chapterStart);
 
   const worldDocumentBlock = buildWorldBriefBlock(
@@ -1305,6 +1840,15 @@ ${victimIdentityRule}`;
   const chapterPromptPreferredWords = getPromptPreferredWords(targetLength);
   const chapterTargetWords = chapterPromptPreferredWords;
   const temporalLock = deriveTemporalSeasonLock(inputs.temporalContext);
+  const activeStageMode = resolveStageModeKey(
+    chapterStart,
+    chapterEnd,
+    totalScenes,
+    isDiscriminatingTestBatch,
+    cmlCase,
+    allOutlineScenes,
+    scenes as any[],
+  );
   const wordCountContract = [
     'WORD COUNT CONTRACT (NON-NEGOTIABLE):',
     `- Target: ${chapterTargetWords} words per chapter. Do not stop before reaching this threshold.`,
@@ -1328,6 +1872,7 @@ ${victimIdentityRule}`;
     inputs.worldDocument,
     inputs.macroArcPlan,
     allOutlineScenes,
+    activeStageMode,
   );
   const timelineStateBlock = buildTimelineStateBlock(
     temporalLock,
@@ -1351,10 +1896,31 @@ ${victimIdentityRule}`;
     ? `\n\n⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.`
     : '';
 
+  const chapterCompositionTargetsBlock = buildChapterCompositionTargetsBlock(
+    chapterStart,
+    chapterEnd,
+    totalScenes,
+    isDiscriminatingTestBatch,
+    cmlCase,
+    allOutlineScenes,
+    scenes as any[],
+  );
+  const stageModeContractBlock = buildStageModeContractBlock(activeStageMode);
+  const chapterOutcomeBlock = buildChapterOutcomeBlock(
+    activeStageMode,
+    chapterStart,
+    chapterEnd,
+    cmlCase,
+    inputs.narrativeState,
+    nsdInvestigationLog,
+    scenes as any[],
+  );
+  const characterPressureContractBlock = buildPostChapterOneCharacterPressureBlock(chapterStart, chapterEnd);
+
   const developerWithContracts = developerWithAudit.replace(
     '\n\nNOVEL-QUALITY PROSE REQUIREMENTS:',
     `\n\n${wordCountContract}\n\nNOVEL-QUALITY PROSE REQUIREMENTS:`,
-  );
+  ) + stageModeContractBlock + chapterOutcomeBlock + chapterCompositionTargetsBlock;
 
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
     (scenes as any[]).map((scene) => ({
@@ -1427,11 +1993,13 @@ ${victimIdentityRule}`;
     ? `⛔ PRONOUN LOCK (verify every sentence before writing):\n${compactPronounLines.join('\n')}\n\n`
     : '';
 
-  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
+  const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${chapterOutcomeBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
 
   const promptContextBlocks = buildPromptContextBlocks({
     pronounAccuracyBlock, // [PHASE 1]
     characterConsistencyRules,
+    firstAppearanceContractsBlock,
+    characterPressureContractBlock,
     settingRefinementBlock,
     backgroundContextBlock,
     fairPlayContractBlock,
@@ -1546,6 +2114,14 @@ ${victimIdentityRule}`;
           '□ Each chapter opening after the first clearly hands off from the previous chapter ending; no hard resets between consecutive chapters.',
         ]
       : []),
+    ...(chapterEnd > 1
+      ? [
+          '□ For every chapter after Chapter 1, include at least one NEW character pressure reveal (fear, motive, lie, loyalty conflict, or victim relationship).',
+          '□ Each post-Chapter-1 character reveal changes investigation state (more/less suspicious, lie explained, motive exposed, emotional cost deepened, or investigator understanding updated).',
+          '□ No post-Chapter-1 chapter contains static biography-only character paragraphs.',
+        ]
+      : []),
+    ...buildModeSpecificChecklistItems(activeStageMode),
     ...pronounAuditLines,
     '□ Return valid JSON only.',
   ];

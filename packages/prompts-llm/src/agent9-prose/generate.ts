@@ -56,6 +56,10 @@ import {
   getRequiredClueIdsForScene,
   buildChapterRequirementLedger,
   chapterMentionsRequiredClue,
+  resolveClueObligationState,
+  resolveDiscriminatingTestValidityState,
+  resolveStageModeKey,
+  sceneMatchesCmlSceneRef,
   validateChapterPreCommitObligations,
   validateBatchInferenceChain,
   RESOLUTION_RE,
@@ -120,6 +124,7 @@ import type {
   ProseLinterIssue,
   ChapterRequirementLedgerEntry,
   UnderflowTelemetry,
+  FallbackChapterTelemetry,
 } from "./types.js";
 
 export const chunkScenes = (scenes: unknown[], chunkSize: number) => {
@@ -150,6 +155,21 @@ export interface ProvisionalChapterScore {
   deficits: string[];
   directives: string[];
 }
+
+type MatchingClearance = {
+  suspect_name: string;
+  clearance_method?: string;
+  supporting_clues?: string[];
+};
+
+type RequiredClueMaterialization = {
+  clueId: string;
+  description: string;
+  placement?: string;
+  pointsTo?: string;
+  requiresEarlyPlacement: boolean;
+  isMissing: boolean;
+};
 
 export const buildProvisionalChapterScore = (
   chapter: ProseChapter,
@@ -286,25 +306,658 @@ export const sanitizeForContentPolicy = (text: string): string => {
   return `${head} ... ${tail}`;
 };
 
+const summarizeClueForFallback = (
+  clueId: string,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution?: ClueDistributionResult,
+): string => {
+  const fromLedger = (ledgerEntry?.clueObligationContext ?? []).find((entry) => entry.id === clueId)?.description;
+  if (fromLedger && fromLedger.trim().length > 0) {
+    return fromLedger.trim().replace(/\s+/g, ' ');
+  }
+  const fromDistribution = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? '') === clueId)?.description;
+  if (fromDistribution && fromDistribution.trim().length > 0) {
+    return fromDistribution.trim().replace(/\s+/g, ' ');
+  }
+  return clueId;
+};
+
+const RAW_CLUE_ID_RE = /\bclue_[a-z0-9_]+\b/i;
+
+const summarizeClueForProse = (
+  clueId: string,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution?: ClueDistributionResult,
+): string | undefined => {
+  const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? "") === clueId);
+  const fromDistribution = String(clue?.description ?? "").trim();
+  if (fromDistribution && !isDeliveryMethodLabel(fromDistribution)) {
+    return fromDistribution.replace(/\s+/g, " ");
+  }
+  const pointsTo = String(clue?.pointsTo ?? "").trim();
+  if (pointsTo) {
+    return pointsTo.replace(/\s+/g, " ");
+  }
+  const fromLedger = String(
+    (ledgerEntry?.clueObligationContext ?? []).find((entry) => entry.id === clueId)?.description ?? "",
+  ).trim();
+  if (fromLedger && !isDeliveryMethodLabel(fromLedger)) {
+    return fromLedger.replace(/\s+/g, " ");
+  }
+  return undefined;
+};
+
+const normalizeOptionalClueSummary = (value: string | undefined): string | undefined => {
+  const normalized = normalizeClueStatement(String(value ?? "").trim());
+  if (!normalized || RAW_CLUE_ID_RE.test(normalized)) {
+    return undefined;
+  }
+  return normalized;
+};
+
+const extractDiscriminatingTestEvidenceClueIds = (caseData: CaseData): string[] => {
+  const discriminatingTest = (caseData as any)?.CASE?.discriminating_test ?? {};
+  if (!Array.isArray(discriminatingTest?.evidence_clues)) {
+    return [];
+  }
+  const seen = new Set<string>();
+  const clueIds: string[] = [];
+  for (const entry of discriminatingTest.evidence_clues) {
+    const clueId = typeof entry === "string"
+      ? entry.trim()
+      : String(entry?.clue_id ?? entry?.id ?? "").trim();
+    if (!clueId || seen.has(clueId)) continue;
+    seen.add(clueId);
+    clueIds.push(clueId);
+  }
+  return clueIds;
+};
+
+const buildDiscriminatingTestEvidenceSummary = (
+  caseData: CaseData,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution: ClueDistributionResult | undefined,
+  clueText?: string,
+): string => {
+  const evidenceSummaries = extractDiscriminatingTestEvidenceClueIds(caseData)
+    .map((clueId) => normalizeOptionalClueSummary(summarizeClueForProse(clueId, ledgerEntry, clueDistribution)))
+    .filter((value): value is string => Boolean(value));
+  if (evidenceSummaries.length > 0) {
+    return evidenceSummaries.join("; ");
+  }
+  return normalizeOptionalClueSummary(clueText) || "the key evidence already on the table";
+};
+
+const normalizeSceneCharacterName = (value: unknown): string => {
+  if (typeof value === 'string') return value.trim();
+  if (value && typeof value === 'object') {
+    const entry = value as { name?: unknown; characterName?: unknown; id?: unknown };
+    const name = entry.name ?? entry.characterName ?? entry.id;
+    return typeof name === 'string' ? name.trim() : '';
+  }
+  return '';
+};
+
+const resolveFallbackInvestigatorName = (cmlCase: any, characters: string[]): string => {
+  const cast = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
+  const detectiveEntry = cast.find((entry: any) => {
+    const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
+    return role.includes('detective') || role.includes('investigator');
+  });
+  const detectiveName = String(detectiveEntry?.name ?? '').trim();
+  if (detectiveName) return detectiveName;
+
+  const firstNamedCharacter = characters.find((name) => name.trim().length > 0);
+  return firstNamedCharacter || 'the investigator';
+};
+
+const CLEARANCE_TERMS_RE = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
+const CLEARANCE_EVIDENCE_RE = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+
+const dedupeMatchingClearances = (clearances: MatchingClearance[]): MatchingClearance[] => {
+  const seen = new Set<string>();
+  const deduped: MatchingClearance[] = [];
+  for (const clearance of clearances) {
+    const name = String(clearance?.suspect_name ?? '').trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push({
+      suspect_name: name,
+      clearance_method: typeof clearance.clearance_method === "string" ? clearance.clearance_method.trim() : undefined,
+      supporting_clues: Array.isArray(clearance.supporting_clues)
+        ? clearance.supporting_clues.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        : undefined,
+    });
+  }
+  return deduped;
+};
+
+const chapterHasCoLocatedClearance = (paragraphs: string[], suspectName: string): boolean => {
+  const escapedName = escapeRegExp(suspectName.trim());
+  const suspectPattern = new RegExp(`\\b${escapedName}\\b`, "i");
+  const surname = suspectName.trim().split(/\s+/).pop() ?? suspectName.trim();
+  const surnamePattern = new RegExp(`\\b${escapeRegExp(surname)}\\b`, "i");
+  return paragraphs.some(
+    (paragraph) =>
+      (suspectPattern.test(paragraph) || surnamePattern.test(paragraph)) &&
+      CLEARANCE_TERMS_RE.test(paragraph) &&
+      CLEARANCE_EVIDENCE_RE.test(paragraph),
+  );
+};
+
+const buildDeterministicClearanceParagraph = (
+  clearance: MatchingClearance,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution: ClueDistributionResult | undefined,
+): string => {
+  const suspectName = clearance.suspect_name.trim();
+  const supportHints = (clearance.supporting_clues ?? [])
+    .slice(0, 2)
+    .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, clueDistribution))
+    .filter(Boolean);
+  const supportClause = supportHints.length > 0
+    ? `the evidence around ${supportHints.join(" and ")}`
+    : clearance.clearance_method
+      ? `the ${clearance.clearance_method} established by the evidence and the timeline`
+      : "the evidence and the timeline";
+  return `${suspectName} was cleared because ${supportClause} placed ${suspectName} outside the fatal sequence of events. ${suspectName}'s alibi was confirmed, which proved ${suspectName} could not have been the culprit the room first feared.`;
+};
+
+const normalizeClueStatement = (value: string): string =>
+  value.trim().replace(/\s+/g, " ").replace(/[.?!]+$/g, "");
+
+const buildRequiredClueMaterializations = (
+  chapter: ProseChapter,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution: ClueDistributionResult | undefined,
+  castNames?: string[],
+): RequiredClueMaterialization[] => {
+  if (!ledgerEntry || !Array.isArray(chapter?.paragraphs) || chapter.paragraphs.length === 0) {
+    return [];
+  }
+  return ledgerEntry.requiredClueIds.map((clueId) => {
+    const clueState = resolveClueObligationState(
+      chapter,
+      ledgerEntry,
+      clueId,
+      clueDistribution,
+      castNames,
+    );
+    const description = normalizeOptionalClueSummary(
+      clueState.proseFacingDescription
+      || summarizeClueForProse(clueId, ledgerEntry, clueDistribution),
+    );
+    const pointsTo = normalizeOptionalClueSummary(clueState.pointsTo ?? undefined);
+    const isMissing = !clueState.isPresent;
+    const requiresEarlyPlacement = clueState.placement === "early" && !clueState.isEarlyEnough;
+    return {
+      clueId,
+      description: description ?? "",
+      placement: clueState.placement ?? undefined,
+      pointsTo,
+      requiresEarlyPlacement,
+      isMissing,
+    };
+  }).filter((entry) => entry.description.length > 0);
+};
+
+const buildDeterministicClueParagraphs = (
+  materials: RequiredClueMaterialization[],
+  investigatorName: string,
+  isEarly: boolean,
+): string[] => {
+  if (materials.length === 0) return [];
+  const clueList = materials.map((entry) => entry.description).join("; ");
+  const lead = isEarly
+    ? `Early in the scene, ${investigatorName} forced the room to confront the physical details it could not dodge`
+    : `${investigatorName} brought the next concrete detail into the open before the scene could close`;
+  const observationParagraph =
+    `${lead}: ${clueList}. Nothing about those facts was left as rumor or implication; they were treated as evidence that could be seen, handled, timed, or compared on the spot.`;
+  const inferenceSentences = materials.map((entry) => {
+    if (entry.pointsTo) {
+      return `From ${entry.description}, ${investigatorName} inferred ${entry.pointsTo}.`;
+    }
+    return `From ${entry.description}, ${investigatorName} inferred that the standing explanation in the room had weakened and needed to be tested against harder evidence.`;
+  });
+  const inferenceParagraph =
+    `${materials.length > 1 ? "Those observations" : "That observation"} changed the reasoning immediately. ${inferenceSentences.join(" ")}`;
+  return [observationParagraph, inferenceParagraph];
+};
+
+export const applyDeterministicCluePatch = (
+  chapter: ProseChapter,
+  scene: any,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution: ClueDistributionResult | undefined,
+  caseData: CaseData,
+  castNames?: string[],
+): { chapter: ProseChapter; insertedClueIds: string[]; insertedEarlyClueIds: string[] } => {
+  if (!Array.isArray(chapter?.paragraphs) || chapter.paragraphs.length === 0 || !ledgerEntry) {
+    return { chapter, insertedClueIds: [], insertedEarlyClueIds: [] };
+  }
+  const materials = buildRequiredClueMaterializations(chapter, ledgerEntry, clueDistribution, castNames)
+    .filter((entry) => entry.isMissing || entry.requiresEarlyPlacement);
+  if (materials.length === 0) {
+    return { chapter, insertedClueIds: [], insertedEarlyClueIds: [] };
+  }
+
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const characters = (Array.isArray(scene?.characters) ? scene.characters : [])
+    .map(normalizeSceneCharacterName)
+    .filter(Boolean);
+  const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
+  const paragraphs = [...chapter.paragraphs];
+  const earlyMaterials = materials.filter((entry) => entry.requiresEarlyPlacement);
+  const lateMaterials = materials.filter((entry) => !entry.requiresEarlyPlacement && entry.isMissing);
+
+  if (earlyMaterials.length > 0) {
+    paragraphs.splice(0, 0, ...buildDeterministicClueParagraphs(earlyMaterials, investigatorName, true));
+  }
+  if (lateMaterials.length > 0) {
+    const insertionIndex = Math.max(1, paragraphs.length - 1);
+    paragraphs.splice(insertionIndex, 0, ...buildDeterministicClueParagraphs(lateMaterials, investigatorName, false));
+  }
+
+  return {
+    chapter: {
+      ...chapter,
+      paragraphs,
+    },
+    insertedClueIds: materials.map((entry) => entry.clueId),
+    insertedEarlyClueIds: earlyMaterials.map((entry) => entry.clueId),
+  };
+};
+
+const DT_THEORY_MARKER_RE = /\b(theory|hypothesis|either|whether|one explanation|the other explanation|competing explanations)\b/i;
+const DT_PROOF_MARKER_RE = /\b(result|observation|proved|proves|ruled out|rules out|demonstrated|therefore|comparison)\b/i;
+
+const buildDeterministicDiscriminatingTestParagraphs = (args: {
+  caseData: CaseData;
+  investigatorName: string;
+  clueText?: string;
+  focusName?: string;
+}): string[] => {
+  const cmlCase = (args.caseData as any)?.CASE ?? {};
+  const discriminatingTest = cmlCase?.discriminating_test ?? {};
+  const falseAssumption = cmlCase?.false_assumption ?? {};
+  const design = normalizeClueStatement(String(discriminatingTest?.design ?? "").trim());
+  const knowledgeRevealed = normalizeClueStatement(String(discriminatingTest?.knowledge_revealed ?? "").trim());
+  const passCondition = normalizeClueStatement(String(discriminatingTest?.pass_condition ?? "").trim());
+  const evidenceClueIds = Array.isArray(discriminatingTest?.evidence_clues)
+    ? discriminatingTest.evidence_clues.map((value: unknown) => String(value ?? "")).filter(Boolean)
+    : [];
+  const eliminatedSuspects = Array.isArray(discriminatingTest?.eliminated_suspects)
+    ? discriminatingTest.eliminated_suspects
+        .map((entry: any) => typeof entry === "string" ? entry.trim() : String(entry?.name ?? "").trim())
+        .filter(Boolean)
+    : [];
+  const theoryA = normalizeClueStatement(
+    String(falseAssumption?.statement ?? "the accepted explanation still held together").trim(),
+  );
+  const theoryB = knowledgeRevealed
+    || passCondition
+    || normalizeClueStatement(String(falseAssumption?.what_it_hides ?? "").trim())
+    || "the evidence pointed to a different and deliberate sequence of events";
+  const evidenceSummary = evidenceClueIds.length > 0
+    ? evidenceClueIds.join(", ")
+    : (args.clueText?.trim() || "the evidence already on the table");
+  const culpritName = args.focusName?.trim();
+
+  const theoryParagraph =
+    `${args.investigatorName} named the competing theories aloud so the room had to hear the split clearly. Either ${theoryA}, or ${theoryB}. Once those two explanations were stated side by side, vague suspicion stopped being useful and only observable proof mattered.`;
+  const testParagraph =
+    `${args.investigatorName} then performed the discriminating test in full view of everyone: ${design || "the crucial comparison demanded by the evidence"}. The evidence used in that comparison was ${evidenceSummary}, and the observable result was plain enough for every witness to follow: ${passCondition || knowledgeRevealed || theoryB}.`;
+  const eliminationLead = eliminatedSuspects.length > 0
+    ? `${eliminatedSuspects.join(", ")} ${eliminatedSuspects.length > 1 ? "were" : "was"} ruled out because the same result contradicted ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"} once the evidence was compared under the same conditions.`
+    : `One path was ruled out because the evidence failed it under direct comparison, while the surviving path matched every observable result in the room.`;
+  const conclusionTail = culpritName
+    ? ` That left ${culpritName} as the only suspect whose version still depended on the false explanation.`
+    : "";
+  const conclusionParagraph =
+    `${eliminationLead} The result proved one theory and ruled out the other because the evidence behaved in only one way when tested directly.${conclusionTail}`;
+
+  return [theoryParagraph, testParagraph, conclusionParagraph];
+};
+
+export const applyDeterministicDiscriminatingTestPatch = (
+  chapter: ProseChapter,
+  caseData: CaseData,
+  investigatorName: string,
+  clueText?: string,
+  focusName?: string,
+): { chapter: ProseChapter; inserted: boolean } => {
+  if (!Array.isArray(chapter?.paragraphs) || chapter.paragraphs.length === 0) {
+    return { chapter, inserted: false };
+  }
+  const chapterText = chapter.paragraphs.join(" ");
+  if (DT_THEORY_MARKER_RE.test(chapterText) && DT_PROOF_MARKER_RE.test(chapterText)) {
+    return { chapter, inserted: false };
+  }
+  const paragraphs = [...chapter.paragraphs];
+  const insertionIndex = Math.max(1, paragraphs.length - 1);
+  paragraphs.splice(
+    insertionIndex,
+    0,
+    ...buildDeterministicDiscriminatingTestParagraphs({
+      caseData,
+      investigatorName,
+      clueText,
+      focusName,
+    }),
+  );
+  return {
+    chapter: {
+      ...chapter,
+      paragraphs,
+    },
+    inserted: true,
+  };
+};
+
+export const applyDeterministicClearancePatch = (
+  chapter: ProseChapter,
+  clearances: MatchingClearance[],
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution?: ClueDistributionResult,
+): { chapter: ProseChapter; insertedSuspects: string[] } => {
+  if (!Array.isArray(chapter?.paragraphs) || clearances.length === 0) {
+    return { chapter, insertedSuspects: [] };
+  }
+  const uniqueClearances = dedupeMatchingClearances(clearances);
+  const paragraphs = [...chapter.paragraphs];
+  const insertedSuspects: string[] = [];
+  const insertionIndex = Math.min(Math.max(1, paragraphs.length - 1), 2);
+  const additions: string[] = [];
+  for (const clearance of uniqueClearances) {
+    if (chapterHasCoLocatedClearance(paragraphs, clearance.suspect_name)) continue;
+    additions.push(buildDeterministicClearanceParagraph(clearance, ledgerEntry, clueDistribution));
+    insertedSuspects.push(clearance.suspect_name);
+  }
+  if (additions.length === 0) {
+    return { chapter, insertedSuspects: [] };
+  }
+  paragraphs.splice(insertionIndex, 0, ...additions);
+  return {
+    chapter: {
+      ...chapter,
+      paragraphs,
+    },
+    insertedSuspects,
+  };
+};
+
+const buildStageAwareFallbackParagraphs = (args: {
+  stageMode?: string;
+  investigatorName: string;
+  focusName?: string;
+  clueText?: string;
+  caseData?: CaseData;
+}): string[] => {
+  const stageMode = String(args.stageMode ?? "").trim();
+  const investigatorName = args.investigatorName.trim() || "the investigator";
+  const focusName = args.focusName?.trim();
+  const clueText = args.clueText?.trim();
+  const evidenceAnchor = clueText && clueText.length > 0
+    ? clueText.split(";")[0]?.trim() || clueText
+    : "the last visible contradiction in the room";
+
+  if (stageMode === "suspect_pressure") {
+    const target = focusName || "the most exposed suspect";
+    return [
+      `${investigatorName} did not accuse ${target} outright, but the pressure around ${target} deepened when ${evidenceAnchor} exposed a fresh fear and a small lie. The hesitation sharpened suspicion because it tied motive to something the room could actually verify, while leaving the final answer unresolved.`,
+      `No confession followed, and no one declared the case closed. What changed was the balance of pressure: a secret had been forced nearer the surface, loyalty looked thinner than before, and the next scene now had a narrower, more dangerous question to answer.`,
+    ];
+  }
+
+  if (stageMode === "discriminating_test") {
+    return buildDeterministicDiscriminatingTestParagraphs({
+      caseData: args.caseData ?? ({ CASE: {} } as CaseData),
+      investigatorName,
+      clueText: evidenceAnchor,
+      focusName,
+    });
+  }
+
+  return [];
+};
+
+const resolveFallbackStageMode = (args: {
+  scene: any;
+  chapterNumber: number;
+  sceneCount: number;
+  cmlCase: any;
+  allScenes: any[];
+  dtSceneCheck: any;
+}): string => {
+  const { scene, chapterNumber, sceneCount, cmlCase, allScenes, dtSceneCheck } = args;
+  const isDiscriminatingTestChapter = dtSceneCheck
+    ? sceneMatchesCmlSceneRef(
+        scene,
+        dtSceneCheck,
+        allScenes,
+        /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+      )
+    : chapterNumber >= Math.ceil(sceneCount * 0.70);
+  return resolveStageModeKey(
+    chapterNumber,
+    chapterNumber,
+    sceneCount,
+    isDiscriminatingTestChapter,
+    cmlCase,
+    allScenes,
+    [scene],
+  );
+};
+
+const resolveBatchMatchingClearances = (args: {
+  batchScenes: any[];
+  batchStart: number;
+  cmlCase: any;
+  scenes: any[];
+}): {
+  chapterMatchingClearances: MatchingClearance[][];
+  batchMatchingClearances: MatchingClearance[];
+} => {
+  const { batchScenes, batchStart, cmlCase, scenes } = args;
+  const victimNames = new Set<string>(
+    ((cmlCase?.cast ?? []) as any[])
+      .filter((entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase().includes("victim"))
+      .map((entry: any) => String(entry?.name ?? "").trim().toLowerCase()),
+  );
+  const allClearanceScenes: MatchingClearance[] = Array.isArray(cmlCase?.prose_requirements?.suspect_clearance_scenes)
+    ? cmlCase.prose_requirements.suspect_clearance_scenes.filter(
+        (entry: any) => !victimNames.has(String(entry?.suspect_name ?? "").trim().toLowerCase()),
+      )
+    : [];
+
+  const chapterMatchingClearances = batchScenes.map((scene: any, sceneIdx: number) => {
+    let sceneClearances = allClearanceScenes.filter((entry) =>
+      sceneMatchesCmlSceneRef(
+        scene,
+        entry,
+        scenes,
+        /\b(clear|cleared|clearance|alibi|ruled out|eliminat)/i,
+      ),
+    );
+    if (sceneClearances.length === 0) {
+      const nextScene = scenes[batchStart + sceneIdx + 1] as any;
+      const sceneAct = Number(scene?.act);
+      const isLastSceneInAct = !nextScene || Number(nextScene?.act) !== sceneAct;
+      if (isLastSceneInAct) {
+        sceneClearances = allClearanceScenes.filter((entry) => Number((entry as any).act_number) === sceneAct);
+      }
+    }
+    return dedupeMatchingClearances(sceneClearances);
+  });
+
+  let batchMatchingClearances = dedupeMatchingClearances(chapterMatchingClearances.flat());
+  if (batchMatchingClearances.length === 0 && allClearanceScenes.length > 0) {
+    const nextScene = scenes[batchStart + batchScenes.length] as any;
+    const batchActNumbers = new Set((batchScenes as any[]).map((scene: any) => Number(scene?.act)));
+    const isLastBatchInAct = !nextScene || !batchActNumbers.has(Number(nextScene?.act));
+    if (isLastBatchInAct) {
+      batchMatchingClearances = dedupeMatchingClearances(
+        allClearanceScenes.filter((entry) => batchActNumbers.has(Number((entry as any).act_number))),
+      );
+    }
+  }
+
+  return {
+    chapterMatchingClearances,
+    batchMatchingClearances,
+  };
+};
+
+export const buildCompletionFallbackChapter = (
+  existing: ProseChapter | undefined,
+  scene: any,
+  chapterNumber: number,
+  ledgerEntry: ChapterRequirementLedgerEntry | undefined,
+  clueDistribution: ClueDistributionResult | undefined,
+  caseData: CaseData,
+  options?: {
+    stageMode?: string;
+    matchingClearances?: MatchingClearance[];
+    focusName?: string;
+  },
+): ProseChapter => {
+  const cmlCase = (caseData as any)?.CASE ?? {};
+  const location = String(scene?.setting?.location ?? cmlCase?.meta?.setting?.location ?? 'the estate').trim();
+  const timeOfDay = String(scene?.setting?.timeOfDay ?? scene?.setting?.time ?? 'later that day').trim();
+  const atmosphere = String(scene?.setting?.atmosphere ?? cmlCase?.meta?.setting?.atmosphere ?? 'an unsettled quiet').trim();
+  const characters = (Array.isArray(scene?.characters) ? scene.characters : [])
+    .map(normalizeSceneCharacterName)
+    .filter(Boolean)
+    .slice(0, 3);
+  const sceneObjective = String(scene?.objective ?? scene?.purpose ?? scene?.summary ?? '').trim();
+  const requiredClues = ledgerEntry?.requiredClueIds ?? [];
+  const floorWords = Math.max(850, ledgerEntry?.hardFloorWords ?? 0);
+  const clueText = requiredClues
+    .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, clueDistribution))
+    .filter(Boolean)
+    .join('; ');
+  const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
+  const investigatorSentenceName = investigatorName.replace(/^\w/, (char) => char.toUpperCase());
+  const stageAwareParagraphs = buildStageAwareFallbackParagraphs({
+    stageMode: options?.stageMode,
+    investigatorName: investigatorSentenceName,
+    focusName: options?.focusName,
+    clueText,
+    caseData,
+  });
+
+  const namedCharacters = characters.length > 0 ? characters.join(', ') : 'the investigators';
+  const objectiveText = sceneObjective.length > 0
+    ? sceneObjective
+    : 'the pressure around the evidence and the suspects changed shape';
+  const clueSentence = clueText.length > 0
+    ? `The most important observable details were ${clueText}, and they were handled as things seen, touched, compared, or challenged in the room.`
+    : `The important evidence stayed physical and visible: time, place, testimony, and object all had to agree before anyone could trust an inference.`;
+
+  const fallbackParagraphs: string[] = [
+    `${location} held the inquiry in ${timeOfDay}, with ${atmosphere} pressing at the windows and along the furniture. ${namedCharacters} did not begin with certainty. They began with the nearest thing that could still be checked: who had stood where, what had been touched, and which statement had changed since the last question.`,
+    characters.length > 0
+      ? `${characters.join(', ')} remained close enough to be seen and heard. One answer came too quickly; another arrived after a pause long enough to matter. The exchange did not solve the case, but it gave the investigation a firmer edge because each person had to attach their words to a concrete time, object, or movement.`
+      : `The investigators worked methodically, pressing each contradiction until the scene yielded usable evidence. No one was allowed to drift into generalities; every claim had to return to a witnessed action or a physical mark.`,
+    clueText.length > 0
+      ? `${clueSentence} The detail was not treated as a conclusion by itself. It was set beside the testimony, then tested against the order of events until the weak part of one account showed through.`
+      : `${clueSentence} That discipline kept the scene from becoming accusation by instinct; the facts had to do the work before suspicion could safely narrow.`,
+    sceneObjective.length > 0
+      ? `The immediate pressure concerned ${sceneObjective}. ${investigatorSentenceName} kept the discussion in the present moment, returning each witness to the same few anchors until evasion became more noticeable than speech. A small correction, a glance toward the wrong object, or a delayed denial gave the chapter its turn.`
+      : `The final pressure stayed unresolved. ${investigatorSentenceName} had less need of a dramatic declaration than of a next test, and the room supplied one: a statement that could be checked against a physical fact before anyone was named with certainty.`,
+  ];
+
+  const preserved: string[] = [];
+  const expansionBeats = [
+    `${investigatorSentenceName} let the silence do part of the work. When the central discrepancy was repeated, it was done plainly, without ornament, so that the room had to hear how little of the story still fitted. The answer that followed was useful less for what it admitted than for what it avoided.`,
+    `A physical check followed the talk. Someone crossed to the relevant object, another witness corrected the angle or the time, and the contradiction became less abstract. It was now something the people in the room could look at together, which made denial more difficult and panic easier to read.`,
+    `The witness pressure did not become a verdict. It became a narrower corridor. One possibility lost strength because it required two impossible movements; another survived because it matched the object on the table and the time already sworn to by someone else.`,
+    `By the end, the room had changed. No confession had been forced, and no arrest had been made, but the balance among the suspects had shifted. ${investigatorSentenceName} left the last question hanging where everyone could feel it, attached to evidence that would have to be answered in the next scene.`,
+  ];
+  const mergedParagraphs = [...preserved, ...fallbackParagraphs, ...stageAwareParagraphs];
+  let guard = 0;
+  while (countWords(mergedParagraphs.join(' ')) < floorWords && guard < 8) {
+    mergedParagraphs.push(expansionBeats[guard % expansionBeats.length]);
+    guard += 1;
+  }
+
+  const fallbackChapter: ProseChapter = {
+    title: (existing?.title && existing.title.trim().length > 0)
+      ? existing.title.trim()
+      : `Chapter ${chapterNumber}`,
+    paragraphs: mergedParagraphs,
+  };
+  const cluePatchedChapter = applyDeterministicCluePatch(
+    fallbackChapter,
+    scene,
+    ledgerEntry,
+    clueDistribution,
+    caseData,
+  ).chapter;
+  let stagePatchedChapter = cluePatchedChapter;
+  if (options?.stageMode === "discriminating_test") {
+    stagePatchedChapter = applyDeterministicDiscriminatingTestPatch(
+      cluePatchedChapter,
+      caseData,
+      investigatorSentenceName,
+      clueText,
+      options?.focusName,
+    ).chapter;
+  }
+  if (options?.matchingClearances?.length) {
+    return applyDeterministicClearancePatch(
+      stagePatchedChapter,
+      options.matchingClearances,
+      ledgerEntry,
+      clueDistribution,
+    ).chapter;
+  }
+  return stagePatchedChapter;
+};
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
- * Scans generated paragraphs for the victim's name co-occurring with a present-tense
- * active verb — a deterministic signal that the victim was written as alive.
+ * Scans generated paragraphs for the victim's name acting as the subject of a
+ * current-scene living action. Historical testimony and corpse/body references
+ * are ignored so legitimate backstory does not trip the resurrection gate.
  * Only used for chapters 2+ (caller must guard chapterNumber > 1).
  */
 export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName: string): string[] => {
   if (!victimName || !chapter?.paragraphs) return [];
-  const nameLower = victimName.toLowerCase();
-  // Fix 1: Expanded to include simple-past tense forms (said, stood, walked, spoke, etc.)
-  // and additional present-tense verbs (summons, gestures, examines, moves, appears, etc.)
-  // that the original pattern missed.  Also catches "is/was [verb]-ing" progressive forms.
-  const presentVerbPattern = /\b(says?|said|asks?|asked|enters?|entered|sits?|sat|stands?|stood|nods?|nodded|walks?|walked|cross(?:es)?|crossed|confirms?|confirmed|turns?|turned|looks?|looked|speaks?|spoke|reacts?|reacted|replies?|replied|responds?|responded|moves?|moved|appears?|appeared|summons?|summoned|gestures?|gestured|examines?|examined|glances?|glanced|watches?|watched|smiles?|smiled|rises?|rose|steps?|stepped|laughs?|laughed|leans?|leaned|reads?|read|writes?|wrote|listens?|listened|points?|pointed|opens?|opened|closes?|closed|hands?|handed|pushes?|pushed|pulls?|pulled|is\s+(?:\w+ing)|was\s+(?:\w+ing))\b/i;
+  const escapedName = escapeRegExp(victimName.trim());
+  const victimSubjectPattern = new RegExp(
+    `\\b${escapedName}\\b(?:\\s*,[^.!?]{0,40},)?\\s+` +
+    `(?:says?|asks?|enters?|sits?|stands?|nods?|walks?|cross(?:es)?|confirms?|turns?|looks?|speaks?|reacts?|replies?|responds?|moves?|appears?|summons?|gestures?|examines?|glances?|watches?|smiles?|rises?|steps?|laughs?|leans?|reads?|writes?|listens?|points?|opens?|closes?|hands?|pushes?|pulls?|is\\s+(?:\\w+ing))\\b`,
+    'i',
+  );
+  const victimBodyActionPattern = new RegExp(
+    `\\b${escapedName}\\b(?:'s|\\u2019s)\\s+` +
+    `(?:eyes?|lips?|hands?|fingers?|face|gaze|head|shoulders?|voice|breath|posture)\\s+` +
+    `(?:pressed|tightened|shifted|moved|turned|rose|fell|flicked|darted|narrowed|softened|hardened|trembled|caught|broke|lifted|lowered)\\b`,
+    'i',
+  );
+  const victimActivePresencePattern = new RegExp(
+    `\\b(?:gathered|assembled|stood|sat|waited|entered|joined|addressed|watched|listened)\\b[^.!?]{0,120}\\b${escapedName}\\b|` +
+    `\\b${escapedName}\\b[^.!?]{0,120}\\b(?:gathered|assembled|stood|sat|waited|entered|joined|watched|listened)\\b`,
+    'i',
+  );
+  const historicalOrReportedContext =
+    /\b(?:before|prior to|earlier|once|formerly|in life|while alive|when alive|had\s+\w+|used to|remembered|recalled|reported|testified|wrote|letter|diary|journal|statement|said that|claimed that)\b/i;
+  const deadBodyContext =
+    /\b(?:body|corpse|dead|death|murdered|killed|lifeless|remains|coffin|mortuary|wound|blood|autopsy|post-mortem)\b/i;
   const offendingParagraphs: string[] = [];
   for (const para of chapter.paragraphs) {
-    // Split to sentences so the victim's name and present-tense verb must co-occur in the
-    // SAME sentence — avoids false positives where the name is possessive/past-tense in one
-    // sentence and a living character's verb appears elsewhere in the same paragraph.
     const sentences = para.match(/[^.!?]+[.!?]*/g) ?? [para];
-    const hit = sentences.some(s => s.toLowerCase().includes(nameLower) && presentVerbPattern.test(s));
+    const hit = sentences.some((sentence) =>
+      (victimSubjectPattern.test(sentence) ||
+        victimBodyActionPattern.test(sentence) ||
+        victimActivePresencePattern.test(sentence)) &&
+      !historicalOrReportedContext.test(sentence) &&
+      !deadBodyContext.test(sentence)
+    );
     if (hit) offendingParagraphs.push(para);
   }
   return offendingParagraphs;
@@ -338,6 +991,474 @@ export function extractPronounOffendingSentences(texts: string[], characterName:
   }
   return Array.from(new Set(offending));
 }
+
+export type RetryPromptMode = "surgical_patch" | "targeted_rebuild" | "full_rebuild";
+
+export interface RetryPromptStrategy {
+  mode: RetryPromptMode;
+  includePriorDraft: boolean;
+  issueFamilies: string[];
+  rationale: string[];
+}
+
+const detectRetryIssueFamilies = (errors: string[]): string[] => {
+  const families = new Set<string>();
+  for (const error of errors) {
+    const lowered = error.toLowerCase();
+    if (/clue evidence|clue obligation|clue visibility|missing required clue|discriminating test/.test(lowered)) {
+      families.add("clue");
+    }
+    if (/stage-mode outcome|final reveal completeness|fair-play|no withholding|spoiler/.test(lowered)) {
+      families.add("stage");
+    }
+    if (/setting drift|scene location coverage missing|location anchor|setting fidelity|location coverage/.test(lowered)) {
+      families.add("setting");
+    }
+    if (/template linter|opening-style entropy|paragraph fingerprint|n-gram overlap|metadata leakage|meta-language|repeated content opener|template leakage/.test(lowered)) {
+      families.add("template");
+    }
+    if (/word count|hard floor|preferred target|minimum words|underflow/.test(lowered)) {
+      families.add("word_count");
+    }
+    if (/weak sensory grounding|weak atmosphere\/time grounding/.test(lowered)) {
+      families.add("grounding");
+    }
+    if (/pronoun|entity fidelity|illegal_named_walk_on|detective_name_inconsistency|timeline|continuity|victim alive|identity/.test(lowered)) {
+      families.add("continuity");
+    }
+    if (/boundary integrity|unbalanced quotation|malformed apostrophe|chapter\.paragraphs|structure|format|incomplete sentence/.test(lowered)) {
+      families.add("structure");
+    }
+  }
+  return Array.from(families);
+};
+
+export function chooseRetryPromptStrategy(
+  errors: string[],
+  attempt: number,
+  maxAttempts: number,
+  packet?: RetryPacket,
+): RetryPromptStrategy {
+  const issueFamilies = detectRetryIssueFamilies(errors);
+  const familyCount = issueFamilies.length;
+  const rationale: string[] = [];
+
+  if (attempt >= maxAttempts || packet?.deterministicMitigation?.type === "split_chapter" || packet?.deterministicMitigation?.type === "structural_pivot") {
+    rationale.push("final-attempt or hard mitigation triggered");
+    return {
+      mode: "full_rebuild",
+      includePriorDraft: false,
+      issueFamilies,
+      rationale,
+    };
+  }
+
+  if (issueFamilies.includes("template")) {
+    rationale.push("template failure detected; prior wording is likely harmful anchor");
+  }
+
+  if (
+    familyCount >= 3
+    || errors.length >= 4
+    || (packet?.shouldEscalate === true && packet.failureClass !== "template")
+    || (issueFamilies.includes("clue") && issueFamilies.includes("stage"))
+    || (issueFamilies.includes("clue") && issueFamilies.includes("template"))
+    || (issueFamilies.includes("continuity") && issueFamilies.includes("template"))
+  ) {
+    rationale.push("multi-family failure requires coordinated rewrite");
+    return {
+      mode: "targeted_rebuild",
+      includePriorDraft: false,
+      issueFamilies,
+      rationale,
+    };
+  }
+
+  if (issueFamilies.includes("template")) {
+    return {
+      mode: "targeted_rebuild",
+      includePriorDraft: false,
+      issueFamilies,
+      rationale,
+    };
+  }
+
+  rationale.push("single-family fix can preserve stable draft sections");
+  return {
+    mode: "surgical_patch",
+    includePriorDraft: true,
+    issueFamilies,
+    rationale,
+  };
+}
+
+const extractQuotedValues = (errors: string[]): string[] =>
+  Array.from(new Set(
+    errors.flatMap((error) =>
+      Array.from(error.matchAll(/"([^"]{1,220})"/g))
+        .map((match) => String(match[1] || "").trim())
+        .filter(Boolean)
+    )
+  ));
+
+const extractMissingClueDescriptions = (errors: string[]): string[] =>
+  Array.from(new Set(
+    errors
+      .map((error) => error.match(/clue evidence "([^"]+)"/i)?.[1]?.trim())
+      .filter((value): value is string => Boolean(value))
+  ));
+
+const buildRetryPrimaryFailures = (errors: string[], packet?: RetryPacket): string[] => {
+  const combined = [
+    ...(packet?.mustFix ?? []).slice(1),
+    ...errors,
+  ];
+  const seen = new Set<string>();
+  const failures: string[] = [];
+  for (const item of combined) {
+    const trimmed = item.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    failures.push(trimmed);
+    if (failures.length >= 6) break;
+  }
+  return failures;
+};
+
+const buildRetryRewriteActions = (
+  errors: string[],
+  strategy: RetryPromptStrategy,
+  packet: RetryPacket | undefined,
+): string[] => {
+  const actions: string[] = [];
+  const quotedValues = extractQuotedValues(errors);
+  const missingClues = extractMissingClueDescriptions(errors);
+  const locationAnchor = errors
+    .map((error) => error.match(/expected location anchor "([^"]+)"/i)?.[1]?.trim())
+    .find(Boolean);
+  const openerPhrase = errors
+    .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
+    .find(Boolean);
+
+  if (strategy.mode !== "surgical_patch") {
+    actions.push("Treat the scene instructions, cast lock, clue obligations, and locked facts as the source of truth; do not preserve failing wording from the previous draft.");
+    actions.push("Rewrite any paragraph touched by a failing issue as a fresh paragraph rather than patching a single sentence.");
+  } else {
+    actions.push("Preserve paragraphs that are already valid, but fully rewrite every paragraph touched by a failing issue.");
+  }
+
+  if (missingClues.length > 0) {
+    actions.push(
+      `Insert or move a dedicated observation-plus-inference block for each missing clue: ${missingClues.map((value) => `"${value}"`).join("; ")}. The observation and inference must be separate full paragraphs.`
+    );
+  }
+
+  if (locationAnchor) {
+    actions.push(`Ground the chapter explicitly in "${locationAnchor}" on-page; make the anchor visible in scene prose, not only implied by atmosphere.`);
+  }
+
+  if (errors.some((error) => /stage-mode outcome|final reveal completeness/i.test(error))) {
+    actions.push("Rewrite the chapter outcome so it matches the required story stage: if pressure mode is active, end with unresolved pressure; if reveal mode is active, include the full proof chain rather than accusation only.");
+  }
+
+  if (openerPhrase) {
+    actions.push(`Replace the repeated opener pattern "${openerPhrase}" with distinct paragraph openings from different angles: sensory detail, object, movement, thought, or another speaker.`);
+  }
+
+  if (errors.some((error) => /weak sensory grounding|weak atmosphere\/time grounding/i.test(error))) {
+    actions.push("Rewrite the first two paragraphs so the opening contains the exact sensory and atmosphere words counted by the validator, not loose synonyms.");
+  }
+
+  if (errors.some((error) => /discriminating test/i.test(error))) {
+    actions.push("Write the discriminating test as an explicit scene beat with setup, execution, and conclusion, not as a compressed summary line.");
+  }
+
+  if (errors.some((error) => /word count|hard floor|preferred target/i.test(error))) {
+    actions.push("Hit the full word target by adding concrete action, dialogue, and inference beats; do not use recap-only padding.");
+  }
+
+  if (errors.some((error) => /pronoun|entity fidelity|continuity|timeline|victim alive|identity/i.test(error))) {
+    actions.push("Keep cast-canonical names, roles, and pronouns stable in every paragraph. If a sentence drifts, rewrite the whole sentence cleanly.");
+  }
+
+  if (errors.some((error) => /boundary integrity|unbalanced quotation|malformed apostrophe|chapter\.paragraphs|structure|format|incomplete sentence/i.test(error))) {
+    actions.push("Before returning JSON, verify paragraph boundaries and punctuation integrity so the chapter does not fail on structure after content is fixed.");
+  }
+
+  if (packet?.failureClass === "fair_play" && packet.failureSubcode === "stage_mode_outcome") {
+    actions.push("Do not accidentally resolve the case while fixing clue or setting issues; preserve unresolved pressure unless this chapter is explicitly the final reveal.");
+  }
+
+  if (actions.length === 0 && quotedValues.length > 0) {
+    actions.push(`Address the validator's exact flagged text or phrases: ${quotedValues.map((value) => `"${value}"`).join("; ")}.`);
+  }
+
+  return actions.slice(0, 7);
+};
+
+const buildRetrySuccessChecklist = (
+  errors: string[],
+  strategy: RetryPromptStrategy,
+  packet?: RetryPacket,
+): string[] => {
+  const checklist: string[] = [];
+  const missingClues = extractMissingClueDescriptions(errors);
+  const locationAnchor = errors
+    .map((error) => error.match(/expected location anchor "([^"]+)"/i)?.[1]?.trim())
+    .find(Boolean);
+  const openerPhrase = errors
+    .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
+    .find(Boolean);
+
+  checklist.push("Every listed issue below is resolved in this single attempt before you answer.");
+
+  if (missingClues.length > 0) {
+    checklist.push(`Each missing clue appears on-page as observable evidence, followed immediately by a separate inference paragraph: ${missingClues.map((value) => `"${value}"`).join("; ")}.`);
+  }
+  if (locationAnchor) {
+    checklist.push(`The chapter explicitly grounds the scene in "${locationAnchor}".`);
+  }
+  if (errors.some((error) => /stage-mode outcome/i.test(error))) {
+    checklist.push("The chapter outcome now matches the required story stage and does not drift into the wrong resolution mode.");
+  }
+  if (errors.some((error) => /final reveal completeness/i.test(error))) {
+    checklist.push("If this is a reveal chapter, the proof chain includes motive, opportunity/access, and explicit evidence linkage.");
+  }
+  if (openerPhrase) {
+    checklist.push(`No more than two paragraphs begin with the repeated opener pattern related to "${openerPhrase}".`);
+  }
+  if (errors.some((error) => /weak sensory grounding/i.test(error))) {
+    checklist.push("The first two paragraphs contain at least two exact sensory markers counted by the validator.");
+  }
+  if (errors.some((error) => /weak atmosphere\/time grounding/i.test(error))) {
+    checklist.push("The first two paragraphs contain at least one exact atmosphere/time marker counted by the validator.");
+  }
+  if (errors.some((error) => /word count|hard floor|preferred target/i.test(error))) {
+    checklist.push("The chapter reaches the required length target without filler recap.");
+  }
+  if (errors.some((error) => /pronoun|entity fidelity|continuity|timeline|victim alive|identity/i.test(error))) {
+    checklist.push("Character names, roles, and pronouns are consistent in every sentence.");
+  }
+  if (errors.some((error) => /boundary integrity|unbalanced quotation|malformed apostrophe|chapter\.paragraphs|structure|format|incomplete sentence/i.test(error))) {
+    checklist.push("The JSON contains multiple paragraph strings with balanced punctuation and no structural corruption.");
+  }
+  if (packet?.failureClass) {
+    checklist.push(`Primary failure class cleared: ${packet.failureClass}${packet.failureSubcode ? ` / ${packet.failureSubcode}` : ""}.`);
+  }
+  if (strategy.mode !== "surgical_patch") {
+    checklist.push("The revised chapter reads as a clean rewrite of the failing parts, not a lightly patched copy of the rejected draft.");
+  }
+
+  return checklist.slice(0, 8);
+};
+
+export function buildSinglePassRetryPrompt(args: {
+  errors: string[];
+  chapterRange: string;
+  attempt: number;
+  maxAttempts: number;
+  packet?: RetryPacket;
+}): { prompt: string; strategy: RetryPromptStrategy } {
+  const { errors, chapterRange, attempt, maxAttempts, packet } = args;
+  const strategy = chooseRetryPromptStrategy(errors, attempt, maxAttempts, packet);
+  const primaryFailures = buildRetryPrimaryFailures(errors, packet);
+  const rewriteActions = buildRetryRewriteActions(errors, strategy, packet);
+  const checklist = buildRetrySuccessChecklist(errors, strategy, packet);
+
+  const lines: string[] = [];
+  lines.push("SINGLE-PASS RETRY CONTRACT");
+  lines.push(`Goal: resolve every listed issue for chapter(s) ${chapterRange} in this one retry.`);
+  lines.push(`Retry mode: ${strategy.mode.toUpperCase()}.`);
+  lines.push(`Attempt context: ${attempt}/${maxAttempts}${packet?.failureClass ? ` | primary class: ${packet.failureClass}` : ""}${packet?.failureSubcode ? ` | subcode: ${packet.failureSubcode}` : ""}.`);
+  if (strategy.rationale.length > 0) {
+    lines.push(`Why this mode: ${strategy.rationale.join("; ")}.`);
+  }
+  lines.push("");
+  lines.push("SOURCE OF TRUTH");
+  if (strategy.includePriorDraft) {
+    lines.push("- Use the existing draft as reference only for paragraphs that already satisfy the rules.");
+  } else {
+    lines.push("- Do not preserve sentence structure from the failed draft; use the scene instructions and hard constraints as the source of truth.");
+  }
+  lines.push("- Hard constraints outrank the previous draft: cast/pronoun lock, locked facts, clue obligations, stage-mode rules, and chapter JSON shape.");
+  lines.push("");
+  lines.push("PRIMARY FAILURES");
+  primaryFailures.forEach((failure) => lines.push(`- ${failure}`));
+  lines.push("");
+  lines.push("REWRITE PLAN");
+  rewriteActions.forEach((action) => lines.push(`- ${action}`));
+  lines.push("");
+  lines.push("SUCCESS CHECKLIST");
+  checklist.forEach((item) => lines.push(`- ${item}`));
+  lines.push("");
+  lines.push("OUTPUT RULES");
+  lines.push(`- Return complete corrected JSON for chapter(s) ${chapterRange} only.`);
+  lines.push("- Do not explain what you changed.");
+  lines.push("- Do not leave one issue unresolved while fixing another.");
+  lines.push("- If two instructions conflict, prefer the one that clears the validator and preserves story logic.");
+
+  return {
+    prompt: lines.join("\n"),
+    strategy,
+  };
+}
+
+export function buildTerminalRetryExecutionBlock(args: {
+  errors: string[];
+  chapterRange: string;
+  attempt: number;
+  maxAttempts: number;
+  packet?: RetryPacket;
+}): string {
+  const { errors, chapterRange, attempt, maxAttempts, packet } = args;
+  const uniqueErrors = Array.from(new Set(errors.map((e) => e.trim()).filter(Boolean))).slice(0, 8);
+  const hasDiscriminatingTestError = uniqueErrors.some((e) => /discriminating test/i.test(e));
+  const hasClueError = uniqueErrors.some((e) => /clue evidence|clue obligation|clue visibility|missing required clue/i.test(e));
+  const hasTemplateError = uniqueErrors.some((e) => /template linter|high n-gram overlap|fingerprint|repeated sentence|repeated content opener|template leakage/i.test(e));
+  const hasGroundingError = uniqueErrors.some((e) => /weak sensory grounding|weak atmosphere\/time grounding|location anchoring|setting fidelity/i.test(e));
+  const hasContinuityError = uniqueErrors.some((e) => /pronoun|entity fidelity|timeline|continuity|victim alive|identity/i.test(e));
+
+  const lines: string[] = [];
+  lines.push("TERMINAL RETRY EXECUTION MODE");
+  lines.push(`Scope: chapter(s) ${chapterRange}`);
+  lines.push(`Attempt: ${attempt}/${maxAttempts}${packet?.failureClass ? ` | class: ${packet.failureClass}` : ""}${packet?.failureSubcode ? ` | subcode: ${packet.failureSubcode}` : ""}`);
+  lines.push("Objective: resolve every active validator error in a single pass.");
+  lines.push("Use failed draft as negative example only. Do not preserve its sentence structures.");
+  lines.push("");
+  lines.push("ACTIVE ERRORS TO CLEAR");
+  uniqueErrors.forEach((e) => lines.push(`- ${e}`));
+  if (packet?.mustFix?.length) {
+    const packetFixes = packet.mustFix.map((m) => m.trim()).filter(Boolean).slice(0, 5);
+    if (packetFixes.length > 0) {
+      lines.push("");
+      lines.push("PACKET MUST-FIX ITEMS");
+      packetFixes.forEach((m) => lines.push(`- ${m}`));
+    }
+  }
+  lines.push("");
+  lines.push("EXECUTION RULES");
+  lines.push("- Solve all listed errors together; do not optimize one and regress another.");
+  lines.push("- Keep cast/pronoun lock, locked facts, clue obligations, and stage-mode outcome consistent.");
+  lines.push("- Return complete corrected JSON for the target chapter batch only.");
+  lines.push("- No commentary or explanation outside JSON.");
+
+  if (hasDiscriminatingTestError) {
+    lines.push("");
+    lines.push("DISCRIMINATING TEST FIX CONTRACT (MANDATORY)");
+    lines.push("- Include explicit competing hypotheses (Theory A vs Theory B) in-scene.");
+    lines.push("- Execute one concrete, observable test action and report the direct result.");
+    lines.push("- Show prove-vs-rule-out logic explicitly using because/therefore/which proves.");
+    lines.push("- Name each ruled-out suspect and the culprit explicitly from cast-canonical names.");
+    lines.push("- The test must be a visible scene sequence, not retrospective summary.");
+  }
+
+  if (hasClueError) {
+    lines.push("");
+    lines.push("CLUE DELIVERY FIX CONTRACT");
+    lines.push("- Surface each required clue as an observable on-page detail before deduction.");
+    lines.push("- Follow each key observation with explicit inference in a separate paragraph.");
+  }
+
+  if (hasTemplateError) {
+    lines.push("");
+    lines.push("TEMPLATE RESET CONTRACT");
+    lines.push("- Rewrite all failing paragraphs from new sentence skeletons.");
+    lines.push("- Avoid repeated paragraph openers and high-overlap phrasing from prior chapters.");
+  }
+
+  if (hasGroundingError) {
+    lines.push("");
+    lines.push("GROUNDING FIX CONTRACT");
+    lines.push("- Ensure first two paragraphs include required sensory and atmosphere/time anchors counted by validator.");
+  }
+
+  if (hasContinuityError) {
+    lines.push("");
+    lines.push("CONTINUITY FIX CONTRACT");
+    lines.push("- Re-check every pronoun/name reference against cast-canonical identity before output.");
+  }
+
+  lines.push("");
+  lines.push("FINAL PRE-SUBMIT CHECK");
+  lines.push("- Verify every item in ACTIVE ERRORS TO CLEAR is resolved in the returned JSON.");
+  lines.push("- If any listed error remains unresolved, revise before returning.");
+
+  return lines.join("\n");
+}
+
+// ─── TWO-PHASE RETRY (ANALYSIS_38) ────────────────────────────────────────────
+// Phase 1 (logic): discriminating test, clue obligations, stage outcome,
+//   continuity/pronoun, character identity, hard word-floor, structure.
+// Phase 2 (quality): template linter (n-gram, fingerprint, repeated sentence/opener),
+//   sensory/atmosphere grounding, preferred word count, opening-style entropy.
+// Routing: when both phases are active, feedback focuses on Phase 1 only and
+//   defers Phase 2 to the next attempt. This prevents instruction overload and
+//   stops quality churn from masking unresolved logic failures.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type RetryPhase = "logic" | "quality" | "mixed";
+
+/**
+ * Splits a set of validation errors into logic (Phase 1) and quality (Phase 2) buckets.
+ * Logic errors must be resolved before quality errors receive dedicated feedback.
+ */
+export function classifyRetryPhase(errors: string[]): {
+  phase: RetryPhase;
+  logicErrors: string[];
+  qualityErrors: string[];
+} {
+  const logicErrors = errors.filter((e) => {
+    return (
+      /discriminating test/i.test(e) ||
+      /clue evidence|clue obligation|clue visibility|missing required clue|\bclue_[a-z_]+\b/i.test(e) ||
+      /stage-mode outcome failed/i.test(e) ||
+      /^VICTIM ALIVE:/i.test(e) ||
+      /pronoun|entity fidelity|illegal_named_walk_on|detective_name_inconsistency|timeline|continuity|victim alive|victim alibi|identity/i.test(e) ||
+      /character.*name.*not found|name.*not in.*cast/i.test(e) ||
+      /boundary integrity|unbalanced quotation|malformed apostrophe|chapter\.paragraphs|incomplete sentence/i.test(e) ||
+      /word count below hard floor/i.test(e)
+    );
+  });
+  const qualityErrors = errors.filter((e) => !logicErrors.includes(e));
+  const phase: RetryPhase =
+    logicErrors.length > 0 && qualityErrors.length > 0 ? "mixed"
+    : logicErrors.length > 0 ? "logic"
+    : "quality";
+  return { phase, logicErrors, qualityErrors };
+}
+
+/**
+ * Header prepended when the retry is locked to Phase 1 (logic only).
+ * Tells the model exactly why quality issues are omitted from this attempt.
+ */
+export function buildLogicPhaseHeader(deferredQualityErrors: string[]): string {
+  const lines: string[] = [];
+  lines.push("RETRY PHASE: 1 of 2 — LOGIC CONTRACTS ONLY");
+  lines.push("This attempt resolves logic/contract failures only. Style and quality issues are held until logic is clean.");
+  lines.push("Focus exclusively on the errors listed above. Do not attempt to restyle, restructure, or reopen settled passages.");
+  if (deferredQualityErrors.length > 0) {
+    lines.push("");
+    lines.push(`DEFERRED TO PHASE 2 (${deferredQualityErrors.length} quality issue(s) — address ONLY after this attempt passes logic gates):`);
+    deferredQualityErrors.slice(0, 5).forEach((e) => lines.push(`  (deferred) ${e}`));
+    if (deferredQualityErrors.length > 5) lines.push(`  ... and ${deferredQualityErrors.length - 5} more.`);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Header prepended when the retry is locked to Phase 2 (quality/polish only).
+ * Tells the model logic is locked and must not regress.
+ */
+export function buildQualityPhaseHeader(): string {
+  const lines: string[] = [];
+  lines.push("RETRY PHASE: 2 of 2 — QUALITY POLISH ONLY");
+  lines.push("Logic and contract requirements are already satisfied. This attempt fixes style/quality issues only.");
+  lines.push("REGRESSION GUARD: You must not introduce any new logic failures while fixing quality issues.");
+  lines.push("Specifically, do not alter: discriminating test logic, clue evidence sentences, character names or pronouns, alibi claims, or stage-mode outcomes.");
+  lines.push("If fixing a quality issue would require touching logic-sensitive text, rephrase the surrounding prose instead.");
+  return lines.join("\n");
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const buildEnhancedRetryFeedback = (
   errors: string[],
@@ -447,8 +1568,19 @@ export const buildEnhancedRetryFeedback = (
     (/template linter/i.test(e) ||
       /templated scaffold prose|metadata key-value leakage|meta-language about storytelling/i.test(e))
   );
+  const stageModeErrors = errors.filter(e =>
+    !clueValidationErrors.includes(e) &&
+    !pronounErrors.includes(e) &&
+    !entityFidelityErrors.includes(e) &&
+    !characterErrors.includes(e) &&
+    !settingErrors.includes(e) &&
+    !testErrors.includes(e) &&
+    !wordCountErrors.includes(e) &&
+    !templateErrors.includes(e) &&
+    /stage-mode outcome failed/i.test(e)
+  );
   const qualityErrors = errors.filter(e =>
-    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !entityFidelityErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) && !templateErrors.includes(e) &&
+    !clueValidationErrors.includes(e) && !pronounErrors.includes(e) /* [PHASE 2] */ && !entityFidelityErrors.includes(e) && !characterErrors.includes(e) && !settingErrors.includes(e) && !testErrors.includes(e) && !wordCountErrors.includes(e) && !templateErrors.includes(e) && !stageModeErrors.includes(e) &&
     !/^VICTIM ALIVE:/i.test(e) &&
     !/weak sensory grounding/i.test(e) &&  // handled by REPAIR [sensory_grounding] micro-prompt
     (e.toLowerCase().includes('paragraph') || e.toLowerCase().includes('chapter'))
@@ -463,6 +1595,7 @@ export const buildEnhancedRetryFeedback = (
     !testErrors.includes(e) &&
     !wordCountErrors.includes(e) &&
     !templateErrors.includes(e) &&
+    !stageModeErrors.includes(e) &&
     !qualityErrors.includes(e) &&
     !victimAliveErrors.includes(e)
   );
@@ -487,6 +1620,7 @@ export const buildEnhancedRetryFeedback = (
       !clueLatePlacedErrors.includes(e)
     );
     const clueErrors = clueAbsentErrors.length > 0 || clueLatePlacedErrors.length > 0 || otherClueErrors.length > 0;
+    const stageModeRawErrors = rawErrors.filter((e) => /stage-mode outcome failed/i.test(e));
 
     // Extract quoted strings (“description”) from a set of error messages.
     const extractQuoted = (errs: string[]) =>
@@ -579,6 +1713,24 @@ export const buildEnhancedRetryFeedback = (
       }
     }
 
+    if (stageModeRawErrors.some((e) => /suspect_pressure/i.test(e) && /no full culprit resolution/i.test(e))) {
+      directives.push(
+        `REPAIR [suspect_pressure_no_resolution — attempt ${attemptNum}]: remove all final-verdict language.\n` +
+        `  Do NOT write confession, arrest, case solved, culprit named as murderer, guilt proved, or final accusation.\n` +
+        `  Keep the chapter ending as unresolved pressure: one contradiction, one narrowed suspicion, or one new question.\n` +
+        `  Allowed: "this makes Roy harder to dismiss" / "the timeline no longer protects him".\n` +
+        `  Forbidden: "this proves Roy did it" / "Roy was the murderer" / "the case was solved".`
+      );
+    }
+
+    if (stageModeRawErrors.some((e) => /discovery_opening/i.test(e) && /confession|arrest|solution/i.test(e))) {
+      directives.push(
+        `REPAIR [opening_no_solution_language — attempt ${attemptNum}]: Chapter 1 must stop at discovery and first suspicion.\n` +
+        `  Remove words such as confession, arrest, solution, solved, culprit, guilty, murderer, proves, and final accusation unless they refer only to the fact of a murder.\n` +
+        `  End with an open investigative question or a physical clue, not a deduction that explains the crime.`
+      );
+    }
+
     const wordCountError = rawErrors.find((error) => /word count below (hard floor|preferred target|minimum)/i.test(error));
     if (wordCountError) {
       const match = wordCountError.match(/\((\d+)\/(\d+)\)/);
@@ -651,6 +1803,19 @@ export const buildEnhancedRetryFeedback = (
         `  2) Apostrophes only appear in valid contractions/possessives (don't, can't, detective's), never fused tokens like word'paused.\n` +
         `  3) If a sentence is edited, rewrite the whole sentence so punctuation and spacing remain intact.\n` +
         `  Return only clean prose with balanced punctuation.`
+      );
+    }
+
+    const fragmentTruncationError = rawErrors.find((e) =>
+      /incomplete sentence before a closing quotation mark/i.test(e)
+    );
+    if (fragmentTruncationError) {
+      directives.push(
+        `REPAIR [sentence_fragment_truncation — attempt ${attemptNum}]: One or more paragraphs end with a truncated sentence immediately before a closing quotation mark.\n` +
+        `  Before returning, scan every paragraph that contains a closing quote mark and verify:\n` +
+        `  1) The sentence immediately before the closing quote is grammatically complete (ends with a full stop, question mark, or exclamation mark).\n` +
+        `  2) There is NO trailing whitespace or bare article/preposition (the, a, an, to, for, in, by, of) immediately before a closing quote.\n` +
+        `  Rewrite any truncated sentence to its natural conclusion. Do not shorten the chapter to avoid the issue — extend the sentence instead.`
       );
     }
 
@@ -1077,7 +2242,8 @@ export const buildEnhancedRetryFeedback = (
           const firstSentence = para.match(/^[^.!?]+[.!?]/)?.[0] ?? para.slice(0, 120);
           feedback += `  • "${sanitizeForContentPolicy(firstSentence.trim())}"\n`;
         }
-        feedback += `\nWrite as if you cannot see the prior chapters. Compose every paragraph fresh from the scene instructions alone.\n\n`;
+        feedback += `\nPreserve continuity with the established story facts, but rebuild the phrasing from new sentence structures.\n`;
+        feedback += `Keep the clue state, cast facts, and chapter obligations intact while making the prose read like a genuinely new draft.\n\n`;
       }
     }
     if (hasEntropyLow) {
@@ -1096,17 +2262,39 @@ export const buildEnhancedRetryFeedback = (
       feedback += `⛔ META-LANGUAGE — your prose contains craft terminology (e.g. "sensory detail", "narrative beat", "plot point").\n`;
       feedback += `  These terms are FORBIDDEN in prose. Remove them and rewrite as pure narrative showing the story.\n\n`;
     }
-    // R3: Location-boilerplate opening feedback — fires when a template_bleed linter issue
-    // was detected. Provides concrete WRONG/RIGHT examples so the LLM corrects the specific
-    // failure mode (room-inventory opener or "The [Room] in [Place] [verb]" opener).
-    const hasLocationBleed = (options?.linterIssues ?? []).some(i => i.type === 'template_bleed');
-    if (hasLocationBleed) {
-      feedback += `⛔ LOCATION BOILERPLATE OPENING — your chapter opens with a room name or location set-piece.\n`;
-      feedback += `  WRONG: "The Library in Little Middleton held a tense weight..."\n`;
-      feedback += `  WRONG: "Entering The Study in [Location], she noticed..."\n`;
-      feedback += `  WRONG: First paragraph names three or more rooms (Hall, Library, Study...) as an orientation list.\n`;
-      feedback += `  RIGHT: Open with a character action, sensory reaction, or dialogue specific to this scene moment.\n`;
-      feedback += `  The first word must NOT be "The" followed by a room name, nor "Entering The".\n\n`;
+    // R3: template_bleed opening feedback — fires when the opener-uniqueness or location-boilerplate
+    // linter fires. Two distinct sub-cases:
+    //   (a) character-name / word-dominance opener: the same first word (e.g. a protagonist's name)
+    //       starts 3+ paragraphs, or the same two-word opener appears twice.
+    //   (b) location-boilerplate opener: the chapter opens with a room-inventory phrase.
+    // matchingPriorParagraph carries the offending first-two-word token (lowercased), so we
+    // read its first token to discriminate. "the" / "entering" → location bleed; anything else
+    // (a proper name, a verb, etc.) → character/word dominance.
+    const bleedIssues = (options?.linterIssues ?? []).filter(i => i.type === 'template_bleed');
+    if (bleedIssues.length > 0) {
+      const firstBleedOpener = (bleedIssues[0].matchingPriorParagraph ?? '').toLowerCase().trim();
+      const firstBleedToken = firstBleedOpener.split(/\s+/)[0] ?? '';
+      const isLocationBleed = firstBleedToken === 'the' || firstBleedToken === 'entering';
+      if (isLocationBleed) {
+        feedback += `⛔ LOCATION BOILERPLATE OPENING — your chapter opens with a room name or location set-piece.\n`;
+        feedback += `  WRONG: "The Library in Little Middleton held a tense weight..."\n`;
+        feedback += `  WRONG: "Entering The Study in [Location], she noticed..."\n`;
+        feedback += `  WRONG: First paragraph names three or more rooms (Hall, Library, Study...) as an orientation list.\n`;
+        feedback += `  RIGHT: Open with a character action, sensory reaction, or dialogue specific to this scene moment.\n`;
+        feedback += `  The first word must NOT be "The" followed by a room name, nor "Entering The".\n\n`;
+      } else if (firstBleedToken) {
+        const capitalised = firstBleedToken.charAt(0).toUpperCase() + firstBleedToken.slice(1);
+        feedback += `⛔ REPEATED PARAGRAPH OPENER — too many paragraphs in this chapter begin with "${capitalised}".\n`;
+        feedback += `  The automated validator rejected this chapter because "${capitalised}" appears as the opening word of 3 or more paragraphs, or the same two-word opener (e.g. "${firstBleedOpener}") appears more than once.\n`;
+        feedback += `  You MUST rewrite the chapter so that no more than 2 paragraphs begin with "${capitalised}".\n`;
+        feedback += `  Vary your paragraph openings by using:\n`;
+        feedback += `    - a sensory detail (sound, smell, temperature, quality of light)\n`;
+        feedback += `    - another character's name, action, or spoken words\n`;
+        feedback += `    - an object, physical element, or environmental detail\n`;
+        feedback += `    - a temporal or spatial marker ("A moment later...", "In the far corner...", "By the time...")\n`;
+        feedback += `    - an interior thought or realisation that does NOT lead with ${capitalised}'s name\n`;
+        feedback += `  Each paragraph must open from a genuinely different angle. "${capitalised}" must not begin more than 2 paragraphs in the entire chapter.\n\n`;
+      }
     }
   }
 
@@ -1114,6 +2302,13 @@ export const buildEnhancedRetryFeedback = (
     feedback += `═══ WORD COUNT FAILURES (${wordCountErrors.length}) ═══\n`;
     wordCountErrors.forEach(e => feedback += `• ${e}\n`);
     feedback += `\nSee RETRY MICRO-PROMPTS below for the specific word target and expansion strategy.\n\n`;
+  }
+
+  if (stageModeErrors.length > 0) {
+    feedback += `═══ STAGE-MODE OUTCOME FAILURES (${stageModeErrors.length}) ═══\n`;
+    stageModeErrors.forEach(e => feedback += `• ${e}\n`);
+    feedback += `\nThe chapter is violating the required story-stage behavior. Do not merely change wording; change the chapter outcome.\n`;
+    feedback += `Use the RETRY MICRO-PROMPTS below to decide whether this chapter should stop at pressure, perform a test, or deliver final revelation.\n\n`;
   }
   
   if (otherErrors.length > 0) {
@@ -1192,6 +2387,8 @@ export async function generateProse(
 ): Promise<ProseGenerationResult> {
   const configuredMaxAttempts = getGenerationParams().agent9_prose.generation.default_max_attempts;
   const resolvedMaxAttempts = maxAttempts ?? configuredMaxAttempts;
+  const enableSurgicalFingerprintRetry = inputs.enableSurgicalFingerprintRetry !== false;
+  const preferCompletionOnFailure = inputs.preferCompletionOnFailure !== false;
   const start = Date.now();
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
@@ -1217,6 +2414,7 @@ export async function generateProse(
   const requestContractViolations: Array<{ chapterRange: string; errors: string[] }> = [];
   const retryPacketHistory: Array<{ chapterRange: string; packet: RetryPacket }> = [];
   const batchCommitRecords: BatchCommitRecord[] = [];
+  const fallbackTelemetry: FallbackChapterTelemetry[] = [];
   const provisionalChapterScores: ProvisionalChapterScore[] = [];
   // E5: Collect prompt fingerprints per chapter for traceability
   const promptFingerprints: Array<{ chapter: number; hash: string; section_sizes: Record<string, number> }> =
@@ -1325,6 +2523,12 @@ export async function generateProse(
 
   const escapeForRegex = (value: string): string =>
     value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const victimNamesForActiveCoverage = new Set<string>(
+    ((inputs.caseData as any)?.CASE?.cast ?? [])
+      .filter((entry: any) => String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase().includes('victim'))
+      .map((entry: any) => String(entry?.name ?? '').trim().toLowerCase())
+      .filter(Boolean),
+  );
 
   const validateSceneCastAndLocationCoverage = (
     chapter: ProseChapter,
@@ -1338,7 +2542,10 @@ export async function generateProse(
     const expectedCharacters = (Array.isArray(scene?.characters) ? scene.characters : [])
       .map((entry: any) => (typeof entry === 'string' ? entry : String(entry?.name ?? '')))
       .map((name: string) => name.trim())
-      .filter((name: string) => name.length > 0);
+      .filter((name: string) =>
+        name.length > 0 &&
+        (chapterNumber <= 1 || !victimNamesForActiveCoverage.has(name.toLowerCase()))
+      );
 
     if (expectedCharacters.length > 0) {
       const matched = expectedCharacters.filter((name: string) => {
@@ -1404,6 +2611,7 @@ export async function generateProse(
     let batchPromptHash = "";
     let batchSelectedObligationAtomIds: string[] = [];
     const cmlCase = (inputs.caseData as any)?.CASE ?? {};
+    const dtSceneCheck = cmlCase?.prose_requirements?.discriminating_test_scene;
     // §4.4: Arc position for this batch — used to populate previousChapterArcPosition in NSD
     const totalScenesCount = (inputs.outline as any)?.totalScenes ?? scenes.length;
     const arcAnchorChapter = chapterEnd;
@@ -1573,24 +2781,85 @@ export async function generateProse(
         // makes targeted edits. Final attempt: skip the assistant turn so the model rebuilds
         // cleanly (consistent with the "REBUILD from scratch" directive at attempt 4+).
         if (attempt > 1 && lastBatchErrors.length > 0) {
-          let feedback = buildEnhancedRetryFeedback(
-            lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
-            {
-              linterIssues: lastLinterIssues,
-              enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
-              // Pass all committed chapter paragraphs so the feedback can inject a comprehensive
-              // prior-chapter duplication lock when fingerprint/ngram issues have been detected.
-              priorChapterParagraphs: chapters.flatMap(ch => ch.paragraphs),
-              lastBatchChapterTexts, // TYPE 2: expose pronoun offending sentences
-              // Pass LLM-facing preferred word count so n-gram/fingerprint retry directives keep
-              // the model writing at the aspirational target and prevent progressive shrinkage.
-              promptTargetWords: getPromptPreferredWords(inputs.targetLength ?? "medium"),
-            },
-          );
+          const singlePassRetry = buildSinglePassRetryPrompt({
+            errors: lastBatchErrors,
+            chapterRange: batchLabel,
+            attempt,
+            maxAttempts: maxBatchAttempts,
+            packet: currentRetryPacket,
+          });
+          const useTerminalRetryMode = attempt >= Math.max(3, maxBatchAttempts - 1);
+          // Two-phase retry routing (ANALYSIS_38): classify active errors into logic vs quality
+          // buckets, then supply only the focused feedback for whichever phase is active.
+          // Terminal mode (late attempts) takes priority and overrides phase routing.
+          const retryPhaseInfo = classifyRetryPhase(lastBatchErrors);
+          const enhancedFeedbackOptions = {
+            linterIssues: lastLinterIssues,
+            enableSurgicalFingerprintRetry,
+            priorChapterParagraphs: chapters.flatMap(ch => ch.paragraphs),
+            lastBatchChapterTexts, // TYPE 2: expose pronoun offending sentences
+            promptTargetWords: getPromptPreferredWords(inputs.targetLength ?? "medium"),
+          };
+          let feedback: string;
+          if (useTerminalRetryMode) {
+            // Terminal mode: compact, high-salience execution block regardless of phase.
+            feedback = `${singlePassRetry.prompt}\n\n${buildTerminalRetryExecutionBlock({
+                errors: lastBatchErrors,
+                chapterRange: batchLabel,
+                attempt,
+                maxAttempts: maxBatchAttempts,
+                packet: currentRetryPacket,
+              })}`;
+          } else if (retryPhaseInfo.phase === "mixed") {
+            // Phase 1 of 2: logic errors present — focus on logic, defer quality.
+            // Build a logic-scoped single-pass prompt so PRIMARY FAILURES only lists logic
+            // failures — avoids contradicting the phase header which defers quality errors.
+            const logicSinglePass = buildSinglePassRetryPrompt({
+              errors: retryPhaseInfo.logicErrors,
+              chapterRange: batchLabel,
+              attempt,
+              maxAttempts: maxBatchAttempts,
+              packet: currentRetryPacket,
+            });
+            // Strip quality-phase linter issue types from options so the P2-A deferred-gate
+            // and bleedIssues blocks inside buildEnhancedRetryFeedback do not inject
+            // BANNED PARAGRAPH / template-bleed blocks into Phase 1 feedback.
+            // Those linter issues are correctly handled in Phase 2 (quality phase).
+            const QUALITY_LINTER_TYPES = new Set(['paragraph_fingerprint', 'ngram_overlap', 'template_bleed', 'opening_style_entropy']);
+            const logicPhaseOptions = {
+              ...enhancedFeedbackOptions,
+              linterIssues: (enhancedFeedbackOptions.linterIssues ?? []).filter((i) => !QUALITY_LINTER_TYPES.has(i.type)),
+            };
+            feedback = `${logicSinglePass.prompt}\n\n${buildLogicPhaseHeader(retryPhaseInfo.qualityErrors)}\n\n${buildEnhancedRetryFeedback(
+                retryPhaseInfo.logicErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
+                logicPhaseOptions,
+              )}`;
+          } else if (retryPhaseInfo.phase === "quality") {
+            // Phase 2 of 2: no logic errors — focus on quality with regression guard.
+            // Build a quality-scoped single-pass prompt so PRIMARY FAILURES only lists quality
+            // failures — avoids the model treating already-cleared logic checks as still open.
+            const qualitySinglePass = buildSinglePassRetryPrompt({
+              errors: retryPhaseInfo.qualityErrors,
+              chapterRange: batchLabel,
+              attempt,
+              maxAttempts: maxBatchAttempts,
+              packet: currentRetryPacket,
+            });
+            feedback = `${qualitySinglePass.prompt}\n\n${buildQualityPhaseHeader()}\n\n${buildEnhancedRetryFeedback(
+                retryPhaseInfo.qualityErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
+                enhancedFeedbackOptions,
+              )}`;
+          } else {
+            // Phase 1 only (all errors are logic): full logic feedback, no quality split needed.
+            feedback = `${singlePassRetry.prompt}\n\n${buildEnhancedRetryFeedback(
+                lastBatchErrors, inputs.caseData, batchLabel, attempt, maxBatchAttempts,
+                enhancedFeedbackOptions,
+              )}`;
+          }
           if (redesignEnabled && currentRetryPacket) {
             feedback = `${feedback}\n\n${buildRetryFeedback(currentRetryPacket)}`;
           }
-          if (lastBatchRawResponse && attempt < maxBatchAttempts) {
+          if (lastBatchRawResponse && attempt < maxBatchAttempts && singlePassRetry.strategy.includePriorDraft) {
             prompt.messages.push({ role: "assistant" as const, content: lastBatchRawResponse });
           }
           prompt.messages.push({ role: "user" as const, content: feedback });
@@ -1622,6 +2891,7 @@ export async function generateProse(
             runId: inputs.runId ?? "",
             projectId: inputs.projectId ?? "",
             agent: `Agent9-ProseGenerator-Ch${batchLabel}`,
+            retryAttempt: attempt,
           },
         });
 
@@ -1726,6 +2996,40 @@ export async function generateProse(
             );
           }
           const ledgerEntry = chapterRequirementLedger[i];
+          const sceneForChapter = batchScenes[i] as any;
+          const isDiscriminatingTestChapter = dtSceneCheck
+            ? sceneMatchesCmlSceneRef(
+                sceneForChapter,
+                dtSceneCheck,
+                scenes,
+                /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+              )
+            : chapterNumber >= Math.ceil(sceneCount * 0.70);
+          const chapterMode = resolveStageModeKey(
+            chapterNumber,
+            chapterNumber,
+            sceneCount,
+            isDiscriminatingTestChapter,
+            cmlCase,
+            scenes,
+            [sceneForChapter],
+          );
+          const suspectNames = ((cmlCase?.cast ?? []) as any[])
+            .filter((entry: any) => {
+              const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
+              return !role.includes('detective') && !role.includes('victim');
+            })
+            .map((entry: any) => String(entry?.name ?? ''))
+            .filter(Boolean);
+          const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
+          const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+          const stageContractCheck = {
+            mode: chapterMode,
+            victimName: resolveVictimName(inputs.cast).trim() || undefined,
+            suspectNames,
+            culpritName: culpritName || undefined,
+            murderMethod: murderMethod || undefined,
+          };
 
           // Deterministic pronoun repair before validation — catches unambiguous mismatches cheaply.
           // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
@@ -1744,6 +3048,33 @@ export async function generateProse(
           // P2-10: Sanitize (anonymize unknown titled names) after pronoun repair so that
           // weakened antecedents don't cause pronoun misresolution.
           chapter = sanitizeGeneratedChapter(chapter, castNames);
+          chapter = applyDeterministicCluePatch(
+            chapter,
+            sceneForChapter,
+            ledgerEntry,
+            inputs.clueDistribution,
+            inputs.caseData,
+            castNames,
+          ).chapter;
+          if (chapterMode === "discriminating_test") {
+            const clueText = (ledgerEntry?.requiredClueIds ?? [])
+              .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, inputs.clueDistribution))
+              .filter(Boolean)
+              .join("; ");
+            const investigatorName = resolveFallbackInvestigatorName(
+              cmlCase,
+              (Array.isArray(sceneForChapter?.characters) ? sceneForChapter.characters : [])
+                .map(normalizeSceneCharacterName)
+                .filter(Boolean),
+            );
+            chapter = applyDeterministicDiscriminatingTestPatch(
+              chapter,
+              inputs.caseData,
+              investigatorName,
+              clueText,
+              culpritName || undefined,
+            ).chapter;
+          }
           proseBatch.chapters[i] = chapter;
 
           const evaluateCandidate = (candidate: ProseChapter, trackUnderflow = true) => {
@@ -1826,11 +3157,10 @@ export async function generateProse(
                   inputs.clueDistribution,
                   castNames,
                   isLastBatch ? (() => {
-                    const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
                     const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
-                    const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
                     return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
-                  })() : undefined
+                  })() : undefined,
+                  stageContractCheck
                 )
               : undefined;
 
@@ -1951,6 +3281,33 @@ export async function generateProse(
                   }
                 }
                 chapter = sanitizeGeneratedChapter(chapter, castNames);
+                chapter = applyDeterministicCluePatch(
+                  chapter,
+                  sceneForChapter,
+                  ledgerEntry,
+                  inputs.clueDistribution,
+                  inputs.caseData,
+                  castNames,
+                ).chapter;
+                if (chapterMode === "discriminating_test") {
+                  const clueText = (ledgerEntry?.requiredClueIds ?? [])
+                    .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, inputs.clueDistribution))
+                    .filter(Boolean)
+                    .join("; ");
+                  const investigatorName = resolveFallbackInvestigatorName(
+                    cmlCase,
+                    (Array.isArray(sceneForChapter?.characters) ? sceneForChapter.characters : [])
+                      .map(normalizeSceneCharacterName)
+                      .filter(Boolean),
+                  );
+                  chapter = applyDeterministicDiscriminatingTestPatch(
+                    chapter,
+                    inputs.caseData,
+                    investigatorName,
+                    clueText,
+                    culpritName || undefined,
+                  ).chapter;
+                }
                 proseBatch.chapters[i] = chapter;
                 evaluation = evaluateCandidate(chapter, false);
 
@@ -2107,40 +3464,16 @@ export async function generateProse(
         // isLastBatch is hoisted before the attempt loop to avoid forward-reference error.
         // P2-H: compute which clearance obligations apply to this batch's scenes.
         // Exclude victim characters — they cannot appear as suspects needing clearance.
-        const _batchVictimNames = new Set<string>(
-          ((cmlCase?.cast ?? []) as any[])
-            .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'))
-            .map((c: any) => String(c.name ?? '').trim().toLowerCase())
-        );
-        const allClearanceScenes: Array<{ act_number: number; scene_number: number; suspect_name: string; clearance_method?: string }> =
-          Array.isArray(cmlCase.prose_requirements?.suspect_clearance_scenes)
-            ? cmlCase.prose_requirements.suspect_clearance_scenes.filter(
-                (entry: any) => !_batchVictimNames.has(String(entry?.suspect_name ?? '').trim().toLowerCase())
-              )
-            : [];
         // P2-H scene matching: try exact (act + scene) first; fall back to act-only for
-        // the last batch in each act when no exact match is found.  The CML agent outputs
-        // scene_number values (e.g. 4-6 for act 3) that do not align with the outline's
-        // global sceneNumber (e.g. 8-9 for act 3 in a 9-scene story), causing exact matching
-        // to silently produce zero results.  The fallback fires the clearance gate on the
-        // last chapter of each act, which is the natural position for clearance prose.
-        let batchMatchingClearances = allClearanceScenes.filter((entry) =>
-          batchScenes.some(
-            (scene: any) =>
-              Number(entry.act_number) === Number(scene.act) &&
-              Number(entry.scene_number) === Number(scene.sceneNumber),
-          ),
-        );
-        if (batchMatchingClearances.length === 0 && allClearanceScenes.length > 0) {
-          const nextScene = scenes[batchStart + batchScenes.length] as any;
-          const batchActNumbers = new Set((batchScenes as any[]).map((s: any) => Number(s.act)));
-          const isLastBatchInAct = !nextScene || !batchActNumbers.has(Number(nextScene?.act));
-          if (isLastBatchInAct) {
-            batchMatchingClearances = allClearanceScenes.filter((entry) =>
-              batchActNumbers.has(Number(entry.act_number)),
-            );
-          }
-        }
+        // the last batch in each act when no exact match is found. The helper is reused by
+        // both validation-exhaustion fallback and generation-exception fallback so clearance
+        // obligations stay consistent no matter how the batch exits.
+        const { chapterMatchingClearances, batchMatchingClearances } = resolveBatchMatchingClearances({
+          batchScenes,
+          batchStart,
+          cmlCase,
+          scenes,
+        });
         // Skip the n-gram overlap check for the final three arc positions (pre_climax,
         // climax, resolution — typically chapters 8-10 in a 10-chapter story).
         // These late chapters must reference the same forensic evidence that earlier
@@ -2166,7 +3499,26 @@ export async function generateProse(
           linterOptions.macroArcPlan = inputs.macroArcPlan;
           linterOptions.batchChapterStart = batchStart + 1;
         }
-        const linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+        let linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+        if (batchMatchingClearances.length > 0 && linterIssues.some((issue) => issue.type === "suspect_clearance_missing")) {
+          let insertedClearances = 0;
+          proseBatch.chapters = proseBatch.chapters.map((chapter, idx) => {
+            const patch = applyDeterministicClearancePatch(
+              chapter,
+              chapterMatchingClearances[idx] ?? batchMatchingClearances,
+              chapterRequirementLedger[idx],
+              inputs.clueDistribution,
+            );
+            insertedClearances += patch.insertedSuspects.length;
+            return patch.chapter;
+          });
+          if (insertedClearances > 0) {
+            linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
+            console.warn(
+              `[Agent 9] Deterministic clearance patch applied for ch${batchLabel}: inserted ${insertedClearances} suspect-clearance paragraph(s) before retry escalation.`,
+            );
+          }
+        }
         const precommitLinterIssues = rolloutFlags.precommit_phrase_gate_enabled
           ? linterIssues
           : linterIssues.filter((issue) => issue.type !== "banned_phrase");
@@ -2333,6 +3685,7 @@ export async function generateProse(
         }
 
         if (batchErrors.length > 0) {
+          let forceTerminalFallback = false;
           retriedBatches.add(Math.floor(batchStart / batchSize));
           lastBatchErrors = batchErrors;
           // TYPE 2: Save chapter text so retry feedback can quote specific offending sentences.
@@ -2393,11 +3746,17 @@ export async function generateProse(
             const priorPackets = priorBatchRetryPackets.slice(0, -1);
             const canContinue = shouldContinueRetry(packet, priorPackets);
             if (!canContinue && attempt < maxBatchAttempts) {
-              const abortErr = new Error(
-                `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} marked non-convergent after attempt ${attempt}/${maxBatchAttempts}: ${packet.failureClass}`,
+              if (!preferCompletionOnFailure) {
+                const abortErr = new Error(
+                  `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} marked non-convergent after attempt ${attempt}/${maxBatchAttempts}: ${packet.failureClass}`,
+                );
+                (abortErr as any).retriedBatches = retriedBatches.size;
+                throw abortErr;
+              }
+              console.warn(
+                `[Agent 9] Completion-first mode: ch${batchLabel} marked non-convergent at attempt ${attempt}/${maxBatchAttempts}; routing directly to deterministic fallback instead of spending more LLM retries.`,
               );
-              (abortErr as any).retriedBatches = retriedBatches.size;
-              throw abortErr;
+              forceTerminalFallback = true;
             }
           }
 
@@ -2428,28 +3787,194 @@ export async function generateProse(
             overallProgress
           );
 
-          if (attempt >= maxBatchAttempts) {
+          const attemptsExhausted = attempt >= maxBatchAttempts || forceTerminalFallback;
+          if (attemptsExhausted) {
             const errorSummary = batchErrors.slice(0, 5).join('; ');
-            const abortErr = new Error(
-              `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation after ${maxBatchAttempts} attempts. Issues: ${errorSummary}` +
-              `${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
-            );
-            (abortErr as any).retriedBatches = retriedBatches.size;
-            // Tag the abort specifically when prompt leakage is the reason, so the
-            // orchestrator abort log clearly identifies this distinct failure mode.
-            const hasPromptLeakage = batchErrors.some(
-              (e) => e.toLowerCase().includes('prompt leakage') || e.toLowerCase().includes('instruction-shaped')
-            );
-            if (hasPromptLeakage) {
-              console.error(
-                `[Agent 9] PROMPT-LEAKAGE ABORT: Ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} — ` +
-                `instruction-shaped prose detected at retry exhaustion. Aborting to prevent leakage from persisting in output.`
+            if (!preferCompletionOnFailure) {
+              const abortErr = new Error(
+                `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation after ${maxBatchAttempts} attempts. Issues: ${errorSummary}` +
+                `${batchErrors.length > 5 ? ` (and ${batchErrors.length - 5} more)` : ''}`
               );
-              (abortErr as any).promptLeakagePersisted = true;
+              (abortErr as any).retriedBatches = retriedBatches.size;
+              // Tag the abort specifically when prompt leakage is the reason, so the
+              // orchestrator abort log clearly identifies this distinct failure mode.
+              const hasPromptLeakage = batchErrors.some(
+                (e) => e.toLowerCase().includes('prompt leakage') || e.toLowerCase().includes('instruction-shaped')
+              );
+              if (hasPromptLeakage) {
+                console.error(
+                  `[Agent 9] PROMPT-LEAKAGE ABORT: Ch${batchLabel} attempt ${attempt}/${maxBatchAttempts} — ` +
+                  `instruction-shaped prose detected at retry exhaustion. Aborting to prevent leakage from persisting in output.`
+                );
+                (abortErr as any).promptLeakagePersisted = true;
+              }
+              throw abortErr;
             }
-            throw abortErr;
+
+            const exhaustionIssues = [...batchErrors];
+            const fallbackInitialWords = proseBatch.chapters.map((chapter) =>
+              countWords((chapter.paragraphs ?? []).join(' ')),
+            );
+            proseBatch.chapters = proseBatch.chapters.map((chapter, idx) =>
+              buildCompletionFallbackChapter(
+                chapter,
+                batchScenes[idx],
+                chapterStart + idx,
+                chapterRequirementLedger[idx],
+                inputs.clueDistribution,
+                inputs.caseData,
+                {
+                  stageMode: resolveFallbackStageMode({
+                    scene: batchScenes[idx],
+                    chapterNumber: chapterStart + idx,
+                    sceneCount,
+                    cmlCase,
+                    allScenes: scenes,
+                    dtSceneCheck,
+                  }),
+                  matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
+                  focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
+                },
+              ),
+            );
+            const fallbackValidationErrors: string[] = [];
+            proseBatch.chapters.forEach((fallbackChapter, idx) => {
+              const fallbackChapterNumber = chapterStart + idx;
+              if (!fallbackChapter.title || typeof fallbackChapter.title !== 'string') {
+                fallbackValidationErrors.push(`Chapter ${fallbackChapterNumber}: fallback title is missing.`);
+              }
+              if (!Array.isArray(fallbackChapter.paragraphs) || fallbackChapter.paragraphs.length === 0) {
+                fallbackValidationErrors.push(`Chapter ${fallbackChapterNumber}: fallback paragraphs are missing.`);
+              }
+
+              const fallbackContentValidation = chapterValidator.validateChapter({
+                title: fallbackChapter.title,
+                paragraphs: fallbackChapter.paragraphs,
+                chapterNumber: fallbackChapterNumber,
+                totalChapters: sceneCount,
+                temporalMonth: temporalSeasonLock?.month,
+                temporalSeason: temporalSeasonLock?.season,
+              }, inputs.caseData);
+              fallbackContentValidation.issues
+                .filter((issue) => issue.severity === 'critical' || issue.severity === 'major')
+                .forEach((issue) => {
+                  fallbackValidationErrors.push(
+                    `Chapter ${fallbackChapterNumber}: fallback validation failed: ${issue.message}` +
+                    `${issue.suggestion ? ` (${issue.suggestion})` : ''}`,
+                  );
+                });
+
+              const fallbackLedgerEntry = chapterRequirementLedger[idx];
+              if (fallbackLedgerEntry) {
+                const sceneForChapter = batchScenes[idx] as any;
+                const isDiscriminatingTestChapter = dtSceneCheck
+                  ? sceneMatchesCmlSceneRef(
+                      sceneForChapter,
+                      dtSceneCheck,
+                      scenes,
+                      /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+                    )
+                  : fallbackChapterNumber >= Math.ceil(sceneCount * 0.70);
+                const chapterMode = resolveStageModeKey(
+                  fallbackChapterNumber,
+                  fallbackChapterNumber,
+                  sceneCount,
+                  isDiscriminatingTestChapter,
+                  cmlCase,
+                  scenes,
+                  [sceneForChapter],
+                );
+                const suspectNames = ((cmlCase?.cast ?? []) as any[])
+                  .filter((entry: any) => {
+                    const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
+                    return !role.includes('detective') && !role.includes('victim');
+                  })
+                  .map((entry: any) => String(entry?.name ?? ''))
+                  .filter(Boolean);
+                const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
+                const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+                const fallbackObligations = validateChapterPreCommitObligations(
+                  fallbackChapter,
+                  fallbackLedgerEntry,
+                  inputs.clueDistribution,
+                  castNames,
+                  isLastBatch ? (() => {
+                    const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
+                    return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
+                  })() : undefined,
+                  {
+                    mode: chapterMode,
+                    victimName: resolveVictimName(inputs.cast).trim() || undefined,
+                    suspectNames,
+                    culpritName: culpritName || undefined,
+                    murderMethod: murderMethod || undefined,
+                  },
+                );
+                fallbackValidationErrors.push(...fallbackObligations.hardFailures);
+              }
+
+              fallbackValidationErrors.push(
+                ...validateSceneCastAndLocationCoverage(fallbackChapter, batchScenes[idx], fallbackChapterNumber),
+              );
+
+              const retryVictimName = resolveVictimName(inputs.cast).trim();
+              if (fallbackChapterNumber > 1 && retryVictimName) {
+                const victimAliveSentences = detectVictimAlive(fallbackChapter, retryVictimName);
+                if (victimAliveSentences.length > 0) {
+                  fallbackValidationErrors.push(
+                    `Chapter ${fallbackChapterNumber}: fallback wrote the deceased victim "${retryVictimName}" as actively alive.`,
+                  );
+                }
+              }
+            });
+            if (fallbackValidationErrors.length > 0) {
+              const fallbackErr = new Error(
+                `Completion fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
+                fallbackValidationErrors.slice(0, 5).join('; ') +
+                `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+              );
+              (fallbackErr as any).retriedBatches = retriedBatches.size;
+              (fallbackErr as any).fallbackValidationFailed = true;
+              throw fallbackErr;
+            }
+            const fallbackScores = proseBatch.chapters.map((chapter, idx) =>
+              buildProvisionalChapterScore(
+                chapter,
+                chapterStart + idx,
+                chapterRequirementLedger[idx],
+                [],
+                inputs.clueDistribution,
+                castNames,
+              ),
+            );
+            provisionalBatchScores.splice(0, provisionalBatchScores.length, ...fallbackScores);
+            proseBatch.chapters.forEach((chapter, idx) => {
+              fallbackTelemetry.push({
+                chapterNumber: chapterStart + idx,
+                reason: 'retry_exhaustion',
+                sourceFailureClass: priorBatchRetryPackets[priorBatchRetryPackets.length - 1]?.failureSubcode
+                  ?? priorBatchRetryPackets[priorBatchRetryPackets.length - 1]?.failureClass,
+                initialWords: fallbackInitialWords[idx] ?? 0,
+                finalWords: countWords((chapter.paragraphs ?? []).join(' ')),
+                expansionAttempts: 0,
+                committed: true,
+              });
+            });
+            console.warn(
+              `[Agent 9] Completion-first fallback accepted for ch${batchLabel} after ${maxBatchAttempts} attempts. ` +
+              `Top issues: ${errorSummary}`,
+            );
+            progressCallback(
+              'prose',
+              `⚠ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} forced to completion fallback after retry exhaustion`,
+              overallProgress,
+            );
+            batchErrors = [];
+            lastBatchErrors = exhaustionIssues;
           }
-          continue;
+          if (batchErrors.length > 0) {
+            continue;
+          }
         }
 
         provisionalChapterScores.push(...provisionalBatchScores);
@@ -2464,10 +3989,15 @@ export async function generateProse(
           const dtScene = (inputs.caseData as any)?.CASE?.prose_requirements?.discriminating_test_scene;
           const dTest = (inputs.caseData as any)?.CASE?.discriminating_test;
           if (!dtScene || !dTest) return;
-          const dtSceneNum = Number(dtScene.scene_number ?? 0);
-          if (!dtSceneNum) return;
-          const batchNums = (batchScenes as any[]).map((_: any, i: number) => chapterStart + i);
-          if (!batchNums.includes(dtSceneNum)) return;
+          const coversDiscriminatingScene = (batchScenes as any[]).some((scene: any) =>
+            sceneMatchesCmlSceneRef(
+              scene,
+              dtScene,
+              scenes,
+              /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+            ),
+          );
+          if (!coversDiscriminatingScene) return;
           const evidenceClues: string[] = Array.isArray(dTest.evidence_clues)
             ? dTest.evidence_clues.map(String)
             : [];
@@ -2480,7 +4010,7 @@ export async function generateProse(
           if (freshDTClues.length === 0) {
             const needed = evidenceClues.slice(0, 3).join(', ');
             console.warn(
-              `[Agent 9] G4 DT-scene scheduling gap ch${batchLabel}: discriminating-test scene (${dtSceneNum}) ` +
+              `[Agent 9] G4 DT-scene scheduling gap ch${batchLabel}: discriminating-test scene ` +
               `has no fresh DT evidence clue scheduled in the outline (needed one of: ${needed}). ` +
               `This is an outline-level gap that prose generation cannot repair.`
             );
@@ -2677,6 +4207,176 @@ export async function generateProse(
         lastBatchRawResponse = null;
 
         if (attempt >= maxBatchAttempts) {
+          if (preferCompletionOnFailure) {
+            const { chapterMatchingClearances, batchMatchingClearances } = resolveBatchMatchingClearances({
+              batchScenes,
+              batchStart,
+              cmlCase,
+              scenes,
+            });
+            const fallbackChapters = batchScenes.map((scene, idx) =>
+              buildCompletionFallbackChapter(
+                undefined,
+                scene,
+                chapterStart + idx,
+                chapterRequirementLedger[idx],
+                inputs.clueDistribution,
+                inputs.caseData,
+                {
+                  stageMode: resolveFallbackStageMode({
+                    scene,
+                    chapterNumber: chapterStart + idx,
+                    sceneCount,
+                    cmlCase,
+                    allScenes: scenes,
+                    dtSceneCheck,
+                  }),
+                  matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
+                  focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
+                },
+              ),
+            );
+            const fallbackValidationErrors: string[] = [];
+            fallbackChapters.forEach((fallbackChapter, idx) => {
+              const fallbackChapterNumber = chapterStart + idx;
+              const fallbackLedgerEntry = chapterRequirementLedger[idx];
+              fallbackValidationErrors.push(
+                ...validateSceneCastAndLocationCoverage(fallbackChapter, batchScenes[idx], fallbackChapterNumber),
+              );
+              if (fallbackLedgerEntry) {
+                const sceneForChapter = batchScenes[idx] as any;
+                const isDiscriminatingTestChapter = dtSceneCheck
+                  ? sceneMatchesCmlSceneRef(
+                      sceneForChapter,
+                      dtSceneCheck,
+                      scenes,
+                      /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+                    )
+                  : fallbackChapterNumber >= Math.ceil(sceneCount * 0.70);
+                const chapterMode = resolveStageModeKey(
+                  fallbackChapterNumber,
+                  fallbackChapterNumber,
+                  sceneCount,
+                  isDiscriminatingTestChapter,
+                  cmlCase,
+                  scenes,
+                  [sceneForChapter],
+                );
+                const suspectNames = ((cmlCase?.cast ?? []) as any[])
+                  .filter((entry: any) => {
+                    const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
+                    return !role.includes('detective') && !role.includes('victim');
+                  })
+                  .map((entry: any) => String(entry?.name ?? ''))
+                  .filter(Boolean);
+                const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
+                const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+                const fallbackObligations = validateChapterPreCommitObligations(
+                  fallbackChapter,
+                  fallbackLedgerEntry,
+                  inputs.clueDistribution,
+                  castNames,
+                  isLastBatch ? (() => {
+                    const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
+                    return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
+                  })() : undefined,
+                  {
+                    mode: chapterMode,
+                    victimName: resolveVictimName(inputs.cast).trim() || undefined,
+                    suspectNames,
+                    culpritName: culpritName || undefined,
+                    murderMethod: murderMethod || undefined,
+                  },
+                );
+                fallbackValidationErrors.push(...fallbackObligations.hardFailures);
+              }
+            });
+            if (fallbackValidationErrors.length > 0) {
+              const fallbackErr = new Error(
+                `Generation-exception fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
+                fallbackValidationErrors.slice(0, 5).join('; ') +
+                `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+              );
+              (fallbackErr as any).retriedBatches = retriedBatches.size;
+              (fallbackErr as any).fallbackValidationFailed = true;
+              throw fallbackErr;
+            }
+            fallbackChapters.forEach((chapter, idx) => {
+              fallbackTelemetry.push({
+                chapterNumber: chapterStart + idx,
+                reason: 'generation_exception',
+                sourceFailureClass: 'generation_exception',
+                initialWords: 0,
+                finalWords: countWords((chapter.paragraphs ?? []).join(' ')),
+                expansionAttempts: 0,
+                committed: true,
+              });
+            });
+            const batchRevealedIds = batchScenes
+              .flatMap((s: any) => (Array.isArray(s?.cluesRevealed) ? s.cluesRevealed : []))
+              .map((id: unknown) => String(id))
+              .filter(Boolean);
+
+            for (let i = 0; i < fallbackChapters.length; i++) {
+              const chapter = fallbackChapters[i];
+              const chapterNumber = chapterStart + i;
+              chapters.push(chapter);
+              chapterWordCounts.push({ chapter: chapterNumber, words: countWords((chapter.paragraphs ?? []).join(' ')) });
+              chapterSummaries.push(
+                extractChapterSummary(chapter, chapterNumber, castNames),
+              );
+              provisionalChapterScores.push(
+                buildProvisionalChapterScore(
+                  chapter,
+                  chapterNumber,
+                  chapterRequirementLedger[i],
+                  [],
+                  inputs.clueDistribution,
+                  castNames,
+                ),
+              );
+            }
+
+            if (liveNarrativeState && fallbackChapters.length > 0) {
+              const lastFallbackChapter = fallbackChapters[fallbackChapters.length - 1];
+              liveNarrativeState = updateNSD(liveNarrativeState, {
+                paragraphs: lastFallbackChapter?.paragraphs,
+                cluesRevealedIds: batchRevealedIds,
+                arcPosition: currentBatchArcPosition,
+              });
+            }
+
+            if (inputs.onBatchComplete) {
+              const nsdCheckpoint = liveNarrativeState
+                ? {
+                    cluesRevealedToReader: [...liveNarrativeState.cluesRevealedToReader],
+                    previousChapterArcPosition: liveNarrativeState.previousChapterArcPosition,
+                    continuityTail: liveNarrativeState.continuityTail,
+                    chapter: chapterEnd,
+                  }
+                : undefined;
+              await inputs.onBatchComplete(
+                fallbackChapters,
+                chapterStart,
+                chapterEnd,
+                [errorMsg],
+                [],
+                nsdCheckpoint,
+              );
+            }
+
+            retriedBatches.add(Math.floor(batchStart / batchSize));
+            batchSuccess = true;
+            progressCallback(
+              'prose',
+              `⚠ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} forced to deterministic fallback after generation exception`,
+              overallProgress,
+            );
+            console.warn(
+              `[Agent 9] Completion-first fallback (exception path): ch${batchLabel} after ${maxBatchAttempts} attempts. Last error: ${errorMsg}`,
+            );
+            break;
+          }
           const abortErr = new Error(
             `Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} generation failed after ${maxBatchAttempts} attempts: ${errorMsg}`
           );
@@ -2773,6 +4473,7 @@ export async function generateProse(
     chapterRange,
     attempt: packet.attempt,
     failureClass: packet.failureClass,
+    failureSubcode: packet.failureSubcode,
     shouldEscalate: packet.shouldEscalate,
   }));
 
@@ -2827,6 +4528,7 @@ export async function generateProse(
     phraseTelemetry,
     integrityTelemetry: integrityTelemetrySummary,
     underflow,
+    fallbackTelemetry,
     provisionalChapterScores,
     requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,
     retryPackets: retryPacketsForTelemetry.length > 0 ? retryPacketsForTelemetry : undefined,
@@ -2839,6 +4541,7 @@ export async function generateProse(
     phraseTelemetry,
     integrityTelemetry: integrityTelemetrySummary,
     underflow,
+    fallbackTelemetry,
     provisionalChapterScores,
     requestContractViolations: requestContractViolations.length > 0 ? requestContractViolations : undefined,
     retryPackets: retryPacketsForTelemetry.length > 0 ? retryPacketsForTelemetry : undefined,

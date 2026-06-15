@@ -14,6 +14,221 @@ import type {
   ChapterObligationResult,
   ClueObligationContext,
 } from "./types.js";
+
+export type StageModeKey =
+  | "discovery_opening"
+  | "early_investigation"
+  | "suspect_pressure"
+  | "false_suspect_clearing"
+  | "clue_reinterpretation"
+  | "discriminating_test"
+  | "final_reveal"
+  | "aftermath_consequence";
+
+export type CompositionPhaseKey =
+  | "chapter1"
+  | "early_investigation"
+  | "middle_chapters"
+  | "false_suspect_chapters"
+  | "discriminating_test_chapter"
+  | "final_reveal";
+
+export type ClueObligationState = {
+  clueId: string;
+  clue?: Clue;
+  context?: ClueObligationContext;
+  description: string | null;
+  proseFacingDescription: string | null;
+  placement: string | null;
+  pointsTo: string | null;
+  hasDistributionEntry: boolean;
+  isMetadataOnly: boolean;
+  isPresent: boolean;
+  isEarlyEnough: boolean;
+};
+
+export type DiscriminatingTestValidityState = {
+  hasTheoryMarker: boolean;
+  hasProofMarker: boolean;
+  isValid: boolean;
+};
+
+export const formatStageModeLabel = (value: StageModeKey): string =>
+  value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+
+export const mapStageModeToCompositionPhase = (mode: StageModeKey): CompositionPhaseKey => {
+  switch (mode) {
+    case "discovery_opening":
+      return "chapter1";
+    case "early_investigation":
+      return "early_investigation";
+    case "false_suspect_clearing":
+      return "false_suspect_chapters";
+    case "discriminating_test":
+      return "discriminating_test_chapter";
+    case "final_reveal":
+    case "aftermath_consequence":
+      return "final_reveal";
+    case "suspect_pressure":
+    case "clue_reinterpretation":
+    default:
+      return "middle_chapters";
+  }
+};
+
+const normalizeSceneSignalText = (scene: any): string => {
+  const purpose = String(scene?.purpose ?? "");
+  const summary = String(scene?.summary ?? "");
+  const title = String(scene?.title ?? "");
+  const dramatic = [
+    scene?.dramaticElements?.revelation,
+    scene?.dramaticElements?.conflict,
+    scene?.dramaticElements?.tension,
+  ].map((value) => String(value ?? "")).join(" ");
+  return `${purpose} ${summary} ${title} ${dramatic}`.toLowerCase();
+};
+
+export const getPerActSceneNumber = (scene: any, allOutlineScenes?: any[]): number => {
+  const sceneAct = Number(scene?.act);
+  const globalSceneNumber = Number(scene?.sceneNumber);
+  if (!Number.isFinite(globalSceneNumber)) return 0;
+  if (!Array.isArray(allOutlineScenes) || !Number.isFinite(sceneAct)) return globalSceneNumber;
+  return globalSceneNumber - allOutlineScenes.filter((s: any) => Number(s?.act) < sceneAct).length;
+};
+
+export const sceneMatchesCmlSceneRef = (
+  scene: any,
+  ref: any,
+  allOutlineScenes?: any[],
+  signalPattern?: RegExp,
+): boolean => {
+  if (!scene || !ref) return false;
+  const sceneAct = Number(scene?.act);
+  const refAct = Number(ref?.act_number);
+  if (Number.isFinite(refAct) && Number.isFinite(sceneAct) && sceneAct !== refAct) return false;
+
+  const refSceneNumber = Number(ref?.scene_number);
+  const globalSceneNumber = Number(scene?.sceneNumber);
+  const perActSceneNumber = getPerActSceneNumber(scene, allOutlineScenes);
+  if (
+    Number.isFinite(refSceneNumber) &&
+    refSceneNumber > 0 &&
+    (refSceneNumber === globalSceneNumber || refSceneNumber === perActSceneNumber)
+  ) {
+    return true;
+  }
+
+  return Boolean(signalPattern && signalPattern.test(normalizeSceneSignalText(scene)));
+};
+
+export const resolveCmlSceneRefChapterNumber = (
+  ref: any,
+  allOutlineScenes: any[],
+  fallback: number,
+  signalPattern?: RegExp,
+): number => {
+  if (!ref || !Array.isArray(allOutlineScenes) || allOutlineScenes.length === 0) return fallback;
+  const exact = allOutlineScenes.find((scene: any) => sceneMatchesCmlSceneRef(scene, ref, allOutlineScenes));
+  if (exact) {
+    const chapterNumber = Number(exact?.sceneNumber);
+    return Number.isFinite(chapterNumber) && chapterNumber > 0 ? chapterNumber : fallback;
+  }
+  if (signalPattern) {
+    const signalled = allOutlineScenes.find((scene: any) =>
+      sceneMatchesCmlSceneRef(scene, ref, allOutlineScenes, signalPattern),
+    );
+    if (signalled) {
+      const chapterNumber = Number(signalled?.sceneNumber);
+      return Number.isFinite(chapterNumber) && chapterNumber > 0 ? chapterNumber : fallback;
+    }
+  }
+  return fallback;
+};
+
+const hasClearanceInChapterRange = (
+  cmlCase: any,
+  allOutlineScenes: any[],
+  chapterStart: number,
+  chapterEnd: number,
+): boolean => {
+  const suspectClearanceScenes = Array.isArray(cmlCase?.prose_requirements?.suspect_clearance_scenes)
+    ? cmlCase.prose_requirements.suspect_clearance_scenes
+    : [];
+  return suspectClearanceScenes.some((entry: any) => {
+    const chapterNumber = resolveCmlSceneRefChapterNumber(
+      entry,
+      allOutlineScenes,
+      0,
+      /\b(clear|cleared|clearance|alibi|ruled out|eliminat)/i,
+    );
+    return chapterNumber >= chapterStart && chapterNumber <= chapterEnd;
+  });
+};
+
+const getCulpritRevealChapter = (cmlCase: any, allOutlineScenes: any[], fallback: number): number => {
+  const reveal = cmlCase?.prose_requirements?.culprit_revelation_scene;
+  if (!reveal) return fallback;
+  return resolveCmlSceneRefChapterNumber(
+    reveal,
+    allOutlineScenes,
+    fallback,
+    /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
+  );
+};
+
+export const resolveStageModeKey = (
+  chapterStart: number,
+  chapterEnd: number,
+  totalScenes: number,
+  isDiscriminatingTestBatch: boolean,
+  cmlCase: any,
+  allOutlineScenes: any[],
+  batchScenes: any[] = [],
+): StageModeKey => {
+  if (chapterStart <= 1) return "discovery_opening";
+
+  const culpritRevealChapter = getCulpritRevealChapter(cmlCase, allOutlineScenes, totalScenes);
+  const signalText = batchScenes.map(normalizeSceneSignalText).join(" ");
+  const hasAftermathSignal = /(aftermath|consequence|epilogue|denouement|fallout|reckoning|post[-\s]?reveal)/.test(signalText);
+  const includesConfiguredReveal = chapterStart <= culpritRevealChapter && chapterEnd >= culpritRevealChapter;
+  if (includesConfiguredReveal) return "final_reveal";
+  if (chapterStart > culpritRevealChapter || (chapterStart >= totalScenes && hasAftermathSignal)) {
+    return "aftermath_consequence";
+  }
+  if (chapterEnd >= totalScenes) return "final_reveal";
+
+  if (isDiscriminatingTestBatch) return "discriminating_test";
+  if (hasClearanceInChapterRange(cmlCase, allOutlineScenes, chapterStart, chapterEnd)) {
+    return "false_suspect_clearing";
+  }
+
+  if (/(reinterpret|re-interpret|recontext|reframe|new meaning|reassess|reconsider|contradiction)/.test(signalText)) {
+    return "clue_reinterpretation";
+  }
+
+  const suspectNames = ((cmlCase?.cast ?? []) as any[])
+    .filter((c: any) => {
+      const role = String(c?.role_archetype ?? c?.role ?? "").toLowerCase();
+      return !role.includes("detective") && !role.includes("victim");
+    })
+    .map((c: any) => String(c?.name ?? ""))
+    .filter(Boolean);
+  const suspectsInBatch = new Set<string>();
+  for (const scene of batchScenes) {
+    const names = Array.isArray(scene?.characters) ? scene.characters : [];
+    for (const name of names) {
+      if (suspectNames.includes(String(name))) suspectsInBatch.add(String(name));
+    }
+  }
+  const hasPressureSignal = /(interview|question|cross[-\s]?exam|interrogat|alibi|pressure|confront|credibility|motive)/.test(signalText);
+  if (hasPressureSignal || suspectsInBatch.size <= 2) return "suspect_pressure";
+
+  const progression = chapterStart / Math.max(1, totalScenes);
+  if (progression <= 0.35) return "early_investigation";
+  return "suspect_pressure";
+};
 export const countWords = (value: string): number => {
   const trimmed = value.trim();
   if (trimmed.length === 0) return 0;
@@ -54,6 +269,9 @@ export const ALL_BATCH_GATES: BatchGateName[] = [
   "locked_fact_word_form",
   "character_pronoun_consistency",
   "clue_placement_timing",
+  "stage_mode_outcome",
+  "discriminating_test_validity",
+  "final_reveal_completeness",
   "temporal_continuity",
   "template_leakage",
 ];
@@ -64,6 +282,9 @@ export const initBatchGateFailureCounts = (): Record<BatchGateName, number> => (
   locked_fact_word_form: 0,
   character_pronoun_consistency: 0,
   clue_placement_timing: 0,
+  stage_mode_outcome: 0,
+  discriminating_test_validity: 0,
+  final_reveal_completeness: 0,
   temporal_continuity: 0,
   template_leakage: 0,
 });
@@ -90,6 +311,15 @@ export const inferBatchGatesFromError = (error: string): BatchGateName[] => {
   }
   if (/clue|discriminating test|fair-play|suspect elimination|evidence anchor|revealed/.test(lowered)) {
     gates.add("clue_placement_timing");
+  }
+  if (/stage[-\s]?mode outcome|mode contract|mode outcome/.test(lowered)) {
+    gates.add("stage_mode_outcome");
+  }
+  if (/discriminating test validity/.test(lowered)) {
+    gates.add("discriminating_test_validity");
+  }
+  if (/final reveal completeness/.test(lowered)) {
+    gates.add("final_reveal_completeness");
   }
   if (/\btimeline\s+test\b|\btemporal\s+continuity\b|\btime(?:line)?\s+constraint\b/.test(lowered)) {
     gates.add("temporal_continuity");
@@ -477,6 +707,106 @@ export const chapterClueAppearsEarly = (
   return false;
 };
 
+const resolveContextOnlyCluePresence = (
+  chapterText: string,
+  context: ClueObligationContext | undefined,
+  castNames?: string[],
+): boolean => {
+  if (!context?.description) return false;
+  if (isDeliveryMethodLabel(context.description)) return true;
+  const rawTokens = Array.from(new Set(tokenizeForClueObligation(context.description))).slice(0, 10);
+  const tokens = castNames?.length
+    ? filterNonCastProperNameTokens(rawTokens, context.description, castNames)
+    : rawTokens;
+  if (tokens.length === 0) return false;
+  const lowered = chapterText.toLowerCase();
+  const matched = tokens.filter((token) => tokenMatchesText(token, lowered));
+  const requiredMatches = Math.max(
+    1,
+    Math.ceil(tokens.length * (isBehaviouralClue(context.description) ? 0.35 : 0.55)),
+  );
+  return matched.length >= requiredMatches;
+};
+
+const resolveContextOnlyClueEarlyPresence = (
+  paragraphs: string[],
+  context: ClueObligationContext | undefined,
+  castNames?: string[],
+): boolean => {
+  if (!context?.description) return false;
+  if (isDeliveryMethodLabel(context.description)) return true;
+  const quarterEnd = Math.max(1, Math.ceil(paragraphs.length * 0.25));
+  const earlyText = paragraphs.slice(0, quarterEnd).join(" ").toLowerCase();
+  const rawTokens = Array.from(new Set(tokenizeForClueObligation(context.description))).slice(0, 10);
+  const tokens = castNames?.length
+    ? filterNonCastProperNameTokens(rawTokens, context.description, castNames)
+    : rawTokens;
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((token) => tokenMatchesText(token, earlyText));
+  const requiredMatches = tokens.length <= 4 ? 1 : Math.max(1, Math.ceil(tokens.length * 0.25));
+  return matched.length >= requiredMatches;
+};
+
+export const resolveClueObligationState = (
+  chapter: ProseChapter,
+  ledgerEntry: ChapterRequirementLedgerEntry,
+  clueId: string,
+  clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
+): ClueObligationState => {
+  const chapterText = (chapter.paragraphs ?? []).join(" ");
+  const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || "") === clueId);
+  const context = (ledgerEntry.clueObligationContext ?? []).find((entry) => entry.id === clueId);
+  const description = clue?.description?.trim() ?? context?.description?.trim() ?? null;
+  const pointsTo = clue?.pointsTo?.trim() || null;
+  const placement = clue?.placement ?? context?.placement ?? null;
+  const proseFacingDescription = description && !isDeliveryMethodLabel(description)
+    ? description
+    : pointsTo;
+  let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution, castNames);
+  if (!isPresent && !clue) {
+    isPresent = resolveContextOnlyCluePresence(chapterText, context, castNames);
+  }
+
+  let isEarlyEnough = placement !== "early";
+  if (placement === "early") {
+    isEarlyEnough = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution, castNames);
+    if (!isEarlyEnough && !clue) {
+      isEarlyEnough = resolveContextOnlyClueEarlyPresence(chapter.paragraphs ?? [], context, castNames);
+    }
+  }
+
+  return {
+    clueId,
+    clue,
+    context,
+    description,
+    proseFacingDescription,
+    placement,
+    pointsTo,
+    hasDistributionEntry: Boolean(clue),
+    isMetadataOnly: !clue && Boolean(context?.description) && isDeliveryMethodLabel(context.description),
+    isPresent,
+    isEarlyEnough,
+  };
+};
+
+const DISCRIMINATING_TEST_THEORY_RE = /\b(theory|hypothesis)\b/i;
+const DISCRIMINATING_TEST_PROOF_RE = /\b(if\b.*\bthen|would indicate|would prove|result|observation|rules? out|proves?)\b/i;
+
+export const resolveDiscriminatingTestValidityState = (
+  chapter: ProseChapter,
+): DiscriminatingTestValidityState => {
+  const chapterText = (chapter.paragraphs ?? []).join(" ");
+  const hasTheoryMarker = DISCRIMINATING_TEST_THEORY_RE.test(chapterText);
+  const hasProofMarker = DISCRIMINATING_TEST_PROOF_RE.test(chapterText);
+  return {
+    hasTheoryMarker,
+    hasProofMarker,
+    isValid: hasTheoryMarker && hasProofMarker,
+  };
+};
+
 /**
  * Regex matching resolution-confirming phrases in the final chapter.
  * Exported so the orchestrator (agent9-run.ts) can use the same definition
@@ -493,16 +823,41 @@ export const buildResolutionBackstopSentence = (culpritSurname: string): string 
   `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
   `They were taken into custody before long. The case was closed.`;
 
+export interface StageContractCheck {
+  mode: StageModeKey;
+  victimName?: string;
+  suspectNames?: string[];
+  culpritName?: string;
+  murderMethod?: string;
+}
+
+const AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE =
+  /\b(?:confess(?:ed|es|ion)|arrest(?:ed)?|under arrest|case closed|guilty beyond doubt|the culprit (?:is|was)|the murderer (?:is|was)|the killer (?:is|was)|i accuse|i name)\b/i;
+
+const NEGATED_RESOLUTION_RE =
+  /\b(?:no|not|never|without|still no|not yet|had not|did not|could not|would not)\b[^.!?]{0,40}\b(?:confess(?:ed|es|ion)|arrest(?:ed)?|accusation|culprit|murderer|killer|guilty)\b/i;
+
+export const hasAffirmativePrematureResolution = (text: string): boolean => {
+  if (!AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE.test(text)) return false;
+  const sentences = text.match(/[^.!?]+[.!?]*/g) ?? [text];
+  return sentences.some((sentence) =>
+    AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE.test(sentence) &&
+    !NEGATED_RESOLUTION_RE.test(sentence)
+  );
+};
+
 export const validateChapterPreCommitObligations = (
   chapter: ProseChapter,
   ledgerEntry: ChapterRequirementLedgerEntry,
   clueDistribution?: ClueDistributionResult,
   castNames?: string[],
   resolutionCheck?: { isLastChapter: boolean; culpritName: string; culpritSurname: string; murderMethod?: string },
+  stageContractCheck?: StageContractCheck,
 ): ChapterObligationResult => {
   const hardFailures: string[] = [];
   const preferredMisses: string[] = [];
   const chapterText = (chapter.paragraphs ?? []).join(" ");
+  const chapterLower = chapterText.toLowerCase();
   const wordCount = countWords(chapterText);
   const wordTarget: ChapterWordTargetResult = {
     wordCount,
@@ -528,77 +883,30 @@ export const validateChapterPreCommitObligations = (
   const seenClueFailKeys = new Set<string>();
 
   for (const clueId of ledgerEntry.requiredClueIds) {
-    const clue = (clueDistribution?.clues ?? []).find((e) => String(e?.id || '') === clueId);
-    const ctx = (ledgerEntry.clueObligationContext ?? []).find((c) => c.id === clueId);
-    const resolvedDesc = clue?.description?.trim() ?? ctx?.description?.trim() ?? null;
-    const clueDesc = resolvedDesc ? `"${resolvedDesc}"` : `"${clueId}"`;
-    const resolvedPlacement = clue?.placement ?? ctx?.placement ?? null;
+    const clueState = resolveClueObligationState(chapter, ledgerEntry, clueId, clueDistribution, castNames);
+    const clueDesc = clueState.description ? `"${clueState.description}"` : `"${clueId}"`;
 
-    // Primary check via distribution; for unresolved IDs, also check ctx.description tokens
-    let isPresent = chapterMentionsRequiredClue(chapterText, clueId, clueDistribution, castNames);
-    if (!isPresent && !clue && ctx?.description) {
-      // If ctx.description is a genre label, skip token matching — it can never match prose
-      if (isDeliveryMethodLabel(ctx.description)) {
-        isPresent = true;
-      } else {
-        const rawCtxTokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-        // Apply the same non-cast proper-name filter to the fallback path.
-        const ctxTokens = castNames?.length
-          ? filterNonCastProperNameTokens(rawCtxTokens, ctx.description, castNames)
-          : rawCtxTokens;
-        if (ctxTokens.length > 0) {
-          const lowered = chapterText.toLowerCase();
-          const matched = ctxTokens.filter((t) => tokenMatchesText(t, lowered));
-          // Match threshold to clue type: 0.35 for behavioural/emotional, 0.55 for factual
-          // P2-22: was 0.6 for factual — now aligned with chapterMentionsRequiredClue (factualThreshold=0.55).
-          const isBehavioural = ctx?.description ? isBehaviouralClue(ctx.description) : false;
-          const threshold = Math.max(1, Math.ceil(ctxTokens.length * (isBehavioural ? 0.35 : 0.55)));
-          isPresent = matched.length >= threshold;
-        }
-      }
-    }
-
-    if (!isPresent) {
+    if (!clueState.isPresent) {
       const absentKey = `${clueId}:absent`;
       if (!seenClueFailKeys.has(absentKey)) {
         seenClueFailKeys.add(absentKey);
         // Clue content is entirely absent — tell the writer what needs to happen narratively.
         // Append pointsTo hint when the description is a genre label (e.g. "Direct observation")
         // so the retry directive contains actionable prose content, not just a delivery-method name.
-        const pointsToHint = clue?.pointsTo?.trim();
-        const extraHint = pointsToHint && pointsToHint !== resolvedDesc
+        const pointsToHint = clueState.pointsTo?.trim();
+        const extraHint = pointsToHint && pointsToHint !== clueState.description
           ? ` (this clue reveals: ${pointsToHint})`
           : '';
-        const repair = resolvedPlacement === 'early'
+        const repair = clueState.placement === 'early'
           ? `Include an on-page observation of ${clueDesc}${extraHint} in the first 2 paragraphs of the chapter, followed immediately by an explicit inference paragraph.`
           : `Include an on-page observation or reference to ${clueDesc}${extraHint} before the chapter ends.`;
         hardFailures.push(
           `Chapter ${ledgerEntry.chapterNumber}: clue evidence ${clueDesc} is absent. ${repair}`
         );
       }
-    } else if (resolvedPlacement === 'early') {
-      // Content is present but must also appear in the first 25% of paragraphs
-      let isEarly = chapterClueAppearsEarly(chapter.paragraphs ?? [], clueId, clueDistribution, castNames);
-      if (!isEarly && !clue && ctx?.description) {
-        if (isDeliveryMethodLabel(ctx.description)) {
-          isEarly = true;
-        } else {
-          const quarterEnd = Math.max(1, Math.ceil((chapter.paragraphs ?? []).length * 0.25));
-          const earlyText = (chapter.paragraphs ?? []).slice(0, quarterEnd).join(' ').toLowerCase();
-          const rawCtxEarlyTokens = Array.from(new Set(tokenizeForClueObligation(ctx.description))).slice(0, 10);
-          const ctxEarlyTokens = castNames?.length
-            ? filterNonCastProperNameTokens(rawCtxEarlyTokens, ctx.description, castNames)
-            : rawCtxEarlyTokens;
-          if (ctxEarlyTokens.length > 0) {
-            const matched = ctxEarlyTokens.filter((t) => tokenMatchesText(t, earlyText));
-            // P2-22: align CTX early-fallback threshold with chapterClueAppearsEarly (0.25),
-            // was 0.4 — the early check is observational, not analytical.
-            const threshold = ctxEarlyTokens.length <= 4 ? 1 : Math.max(1, Math.ceil(ctxEarlyTokens.length * 0.25));
-            isEarly = matched.length >= threshold;
-          }
-        }
-      }
-      if (!isEarly) {
+    } else if (clueState.placement === 'early' && !clueState.isEarlyEnough) {
+      // Content is present but must also appear in the first 25% of paragraphs.
+      if (!clueState.isEarlyEnough) {
         const earlyKey = `${clueId}:early`;
         if (!seenClueFailKeys.has(earlyKey)) {
           seenClueFailKeys.add(earlyKey);
@@ -614,6 +922,115 @@ export const validateChapterPreCommitObligations = (
   // No string-level Set dedup here: clue failures are now deduplicated by (clueId, errorType)
   // in the loop above (#48).  Resolution check appended directly.
   const uniqueHardFailures = [...hardFailures];
+
+  if (stageContractCheck) {
+    const pressureMarker = /\b(fear|afraid|anxious|motive|secret|lied|lying|deception|hesitat|defensiv|loyalty|shame|regret|tension|suspicion)\b/i;
+    const contradictionMarker = /\b(contradiction|inconsisten|uncertain|doubt|questioned|alibi|reconsider|discrepancy|mismatch)\b/i;
+    const reinterpretMarker = /\b(previously|at first|seemed|now|actually|reinterpret|recontext|different meaning|reassess|reframed)\b/i;
+    const clearingMarker = /\b(cleared|ruled out|eliminated|innocent|exonerat|alibi (?:holds|corroborated|confirmed))\b/i;
+    const motiveMarker = /\b(motive|fear|resentment|jealous|debt|inheritance|shame|protect)\b/i;
+    const opportunityMarker = /\b(opportunity|access|alibi|time window|whereabouts|means)\b/i;
+
+    switch (stageContractCheck.mode) {
+      case "discovery_opening": {
+        if (stageContractCheck.victimName && !chapterLower.includes(stageContractCheck.victimName.toLowerCase())) {
+          uniqueHardFailures.push(
+            `Stage-mode outcome failed (discovery_opening): victim must be named explicitly as "${stageContractCheck.victimName}" in Chapter 1.`
+          );
+        }
+        if (RESOLUTION_RE.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (discovery_opening): chapter must not contain confession/arrest/solution language."
+          );
+        }
+        if (Array.isArray(stageContractCheck.suspectNames) && stageContractCheck.suspectNames.length > 0) {
+          const mentioned = stageContractCheck.suspectNames.some((name) => chapterLower.includes(name.toLowerCase()));
+          if (!mentioned) {
+            uniqueHardFailures.push(
+              "Stage-mode outcome failed (discovery_opening): introduce at least one major suspect with role relevance and tension."
+            );
+          }
+        }
+        break;
+      }
+      case "early_investigation": {
+        if (!contradictionMarker.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (early_investigation): chapter must include contradiction/uncertainty/alibi pressure that changes investigative direction."
+          );
+        }
+        break;
+      }
+      case "suspect_pressure": {
+        if (!pressureMarker.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (suspect_pressure): chapter must include at least one new pressure reveal (fear, motive, lie, loyalty conflict, or secret)."
+          );
+        }
+        if (hasAffirmativePrematureResolution(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (suspect_pressure): no full culprit resolution is allowed in suspect-pressure mode."
+          );
+        }
+        break;
+      }
+      case "false_suspect_clearing": {
+        if (!clearingMarker.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (false_suspect_clearing): chapter must show evidence-based innocence (cleared/ruled out/exonerated/alibi corroborated)."
+          );
+        }
+        break;
+      }
+      case "clue_reinterpretation": {
+        if (!reinterpretMarker.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (clue_reinterpretation): chapter must reinterpret an earlier clue and state how meaning changed."
+          );
+        }
+        break;
+      }
+      case "discriminating_test": {
+        if (!resolveDiscriminatingTestValidityState(chapter).isValid) {
+          uniqueHardFailures.push(
+            "Discriminating test validity failed: chapter must state competing theory/hypothesis and an observable result that proves one path and rules out another."
+          );
+        }
+        break;
+      }
+      case "final_reveal": {
+        if (!motiveMarker.test(chapterText) || !opportunityMarker.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Final reveal completeness failed: reveal must include motive/emotional truth and opportunity/access linkage, not only accusation."
+          );
+        }
+        if (stageContractCheck.murderMethod) {
+          const methodTokens = stageContractCheck.murderMethod
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, " ")
+            .split(/\s+/)
+            .filter((token) => token.length > 3);
+          const methodMentioned = methodTokens.some((token) => chapterLower.includes(token));
+          if (!methodMentioned) {
+            uniqueHardFailures.push(
+              `Final reveal completeness failed: reveal must explicitly connect culprit to death method ("${stageContractCheck.murderMethod}").`
+            );
+          }
+        }
+        break;
+      }
+      case "aftermath_consequence": {
+        if (/\b(new clue|new evidence|for the first time|newly discovered)\b/i.test(chapterText)) {
+          uniqueHardFailures.push(
+            "Stage-mode outcome failed (aftermath_consequence): aftermath chapter must focus on consequence, not introduce decisive new mystery evidence."
+          );
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
 
   // Phase 6 Layer 2: Final chapter resolution check
   if (resolutionCheck?.isLastChapter && resolutionCheck.culpritSurname) {
@@ -706,4 +1123,3 @@ export const validateBatchInferenceChain = (
 
   return preferredMisses;
 };
-

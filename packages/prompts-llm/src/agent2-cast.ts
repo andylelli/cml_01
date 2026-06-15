@@ -44,10 +44,8 @@ export interface CharacterProfile {
   accessPlausibility: "impossible" | "unlikely" | "possible" | "easy";
   stakes: string;
   characterArcPotential: string;
-  // Era constraint: CML stories are set in the 1930s–1950s Golden Age of detective
-  // fiction. The concept of non-binary gender identity did not exist as a recognised
-  // social category in this period. Only 'male' and 'female' are valid values.
-  gender?: 'male' | 'female';
+  // Schema allows male, female, and non-binary values.
+  gender?: 'male' | 'female' | 'non-binary';
 }
 
 export interface RelationshipWeb {
@@ -513,6 +511,17 @@ export async function designCast(
         continue;
       }
 
+      // Retry on over-count (before the final attempt) — same policy as under-count.
+      // Silently truncating an over-count produces a valid cast but may drop the
+      // LLM's intended characters; a retry gives the model a chance to return exactly
+      // the right number.
+      if (normalizedCharacters.length > expectedCount && attempt < resolvedMaxAttempts) {
+        console.warn(
+          `Attempt ${attempt}: Got ${normalizedCharacters.length} characters, expected ${expectedCount}. Retrying.`,
+        );
+        continue;
+      }
+
       if (normalizedCharacters.length !== expectedCount) {
         console.warn(
           `Attempt ${attempt}: Final attempt — expected ${expectedCount} characters, got ${normalizedCharacters.length}. Padding with placeholders.`,
@@ -540,21 +549,79 @@ export async function designCast(
       }
       cast.characters = normalizedCharacters;
 
-      // Coerce any out-of-enum accessPlausibility values before required-field checks.
-      // The LLM occasionally returns "likely" or other near-misses; map them to the
-      // nearest valid value rather than consuming a retry on a purely cosmetic mismatch.
+      // Coerce out-of-enum fields before required-field checks.
+      // The LLM occasionally returns near-misses; map them to the nearest valid value
+      // rather than consuming a retry on a cosmetic mismatch.
       const VALID_ACCESS = new Set(["impossible", "unlikely", "possible", "easy"]);
-      cast.characters = cast.characters.map((char: any) => {
-        if (char.accessPlausibility && !VALID_ACCESS.has(char.accessPlausibility)) {
-          const v = String(char.accessPlausibility).toLowerCase();
-          let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
-          if (/certain|definite|guarant|easy|high|sure/.test(v))          coerced = "easy";
-          else if (/like|probable|often|common|frequent/.test(v))          coerced = "possible";
-          else if (/unlike|improbab|rare|seldom|difficult|hard/.test(v))  coerced = "unlikely";
-          else if (/impossible|never|no.access|barred/.test(v))           coerced = "impossible";
-          console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
-          return { ...char, accessPlausibility: coerced };
+      const VALID_MOTIVE = new Set(["weak", "moderate", "strong", "compelling"]);
+      const VALID_GENDER = new Set(["male", "female", "non-binary"]);
+      const normalizeGender = (value: unknown): "male" | "female" | "non-binary" | undefined => {
+        const raw = String(value ?? "").trim().toLowerCase();
+        if (!raw) return undefined;
+        if (VALID_GENDER.has(raw)) return raw as "male" | "female" | "non-binary";
+        if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
+        if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
+        if (/non[-\s]?binary|\benby\b|^nb$/.test(raw)) return "non-binary";
+        return undefined;
+      };
+      const normalizeRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
+        const raw = String(value ?? "").trim().toLowerCase();
+        if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
+          return raw;
         }
+        if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
+        if (/low|mild|minor|slight/.test(raw)) return "low";
+        if (/moderate|medium|mixed/.test(raw)) return "moderate";
+        if (/high|severe|intense|strong/.test(raw)) return "high";
+        return "moderate";
+      };
+      cast.characters = cast.characters.map((char: any) => {
+        let nextChar = char;
+
+        if (char.accessPlausibility) {
+          const accessRaw = String(char.accessPlausibility).trim();
+          const accessLower = accessRaw.toLowerCase();
+          if (!VALID_ACCESS.has(accessLower)) {
+            let coerced: "impossible" | "unlikely" | "possible" | "easy" = "possible";
+            if (/certain|definite|guarant|easy|high|sure/.test(accessLower))          coerced = "easy";
+            else if (/like|probable|often|common|frequent/.test(accessLower))          coerced = "possible";
+            else if (/unlike|improbab|rare|seldom|difficult|hard/.test(accessLower))  coerced = "unlikely";
+            else if (/impossible|never|no.access|barred/.test(accessLower))           coerced = "impossible";
+            console.warn(`[Agent 2] normalised accessPlausibility "${char.accessPlausibility}" → "${coerced}"`);
+            nextChar = { ...nextChar, accessPlausibility: coerced };
+          } else if (accessRaw !== accessLower) {
+            nextChar = { ...nextChar, accessPlausibility: accessLower };
+          }
+        }
+
+        if (char.motiveStrength) {
+          const motiveRaw = String(char.motiveStrength).trim();
+          const motiveLower = motiveRaw.toLowerCase();
+          if (!VALID_MOTIVE.has(motiveLower)) {
+            let coerced: "weak" | "moderate" | "strong" | "compelling" = "moderate";
+            if (/compell|overwhelm|extreme|decisive|certain/.test(motiveLower))         coerced = "compelling";
+            else if (/strong|high|powerful|major|serious/.test(motiveLower))            coerced = "strong";
+            else if (/moderate|medium|mixed|balanced/.test(motiveLower))                coerced = "moderate";
+            else if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(motiveLower)) coerced = "weak";
+            console.warn(`[Agent 2] normalised motiveStrength "${char.motiveStrength}" → "${coerced}"`);
+            nextChar = { ...nextChar, motiveStrength: coerced };
+          } else if (motiveRaw !== motiveLower) {
+            nextChar = { ...nextChar, motiveStrength: motiveLower };
+          }
+        }
+
+        const normalizedGender = normalizeGender(char.gender);
+        if (normalizedGender !== char.gender) {
+          if (normalizedGender) {
+            console.warn(`[Agent 2] normalised gender "${char.gender}" → "${normalizedGender}"`);
+          }
+          nextChar = { ...nextChar, gender: normalizedGender };
+        }
+
+        if (nextChar !== char) {
+          return nextChar;
+        }
+
         return char;
       });
 
@@ -601,7 +668,7 @@ export async function designCast(
           accessPlausibility: char.accessPlausibility || "possible",
           stakes: char.stakes || "reputation",
           characterArcPotential: char.characterArcPotential || "discovers hidden resolve",
-          gender: (() => { const g = String(char.gender ?? '').toLowerCase().trim(); return ['male', 'female'].includes(g) ? g as 'male' | 'female' : undefined; })(),
+          gender: normalizeGender(char.gender),
           relationships: Array.isArray(char.relationships) ? char.relationships : [],
         }));
       }
@@ -660,12 +727,17 @@ export async function designCast(
         }
       }
 
-      // Normalise gender declarations — keep only recognised values
+      // Normalise enum-style relationship and gender declarations before returning.
+      if (cast.relationships && Array.isArray(cast.relationships.pairs)) {
+        cast.relationships.pairs = cast.relationships.pairs.map((pair: any) => ({
+          ...pair,
+          tension: normalizeRelationshipTension(pair?.tension),
+        }));
+      }
+
       cast.characters = cast.characters.map((char: any) => ({
         ...char,
-        gender: (['male', 'female'].includes(String(char.gender ?? '').toLowerCase().trim())
-          ? String(char.gender).toLowerCase().trim() as 'male' | 'female'
-          : undefined),
+        gender: normalizeGender(char.gender),
       }));
 
       // Success!

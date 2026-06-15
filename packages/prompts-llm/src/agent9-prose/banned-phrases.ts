@@ -19,6 +19,15 @@ const DEFAULT_TIERED_BANNED_PHRASE_POLICY: TieredBannedPhrasePolicy = {
     "lips pressed into a thin line",
     "the household runs smoothly when every cog",
     "the pressures upon this household are many",
+    // Role-plus-surname constructions: use "Dr. Surname" or "the doctor" — never "the doctor Surname".
+    // These are listed as family patterns for LLM guidance; validation is handled by the
+    // placeholderRoleSurnamePattern check which now also catches "the [role] [Surname]" forms.
+    "the doctor [Surname] (use Dr. Surname or 'the doctor', never role + bare surname)",
+    "the captain [Surname] (use Captain Surname or 'the captain', never role + bare surname)",
+    "the inspector [Surname] (use Inspector Surname or 'the inspector', never role + bare surname)",
+    "the sergeant [Surname] (use Sergeant Surname or 'the sergeant', never role + bare surname)",
+    "the constable [Surname] (use Constable Surname or 'the constable', never role + bare surname)",
+    "the gentleman [Surname] (use Mr. Surname or 'the gentleman', never role + bare surname)",
   ],
   // Watchlist terms are tracked for telemetry/early warning.
   watch: [

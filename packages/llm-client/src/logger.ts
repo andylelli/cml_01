@@ -694,7 +694,7 @@ export class LLMLogger {
     if (!Number.isFinite(rawRetryAttempt) || rawRetryAttempt <= 1) {
       return 0;
     }
-    return Math.min(Math.max(rawRetryAttempt - 1, 1), 4);
+    return Math.max(Math.floor(rawRetryAttempt) - 1, 1);
   }
 
   private normalizeStoredRetryAttempt(rawRetryAttempt: number): number {

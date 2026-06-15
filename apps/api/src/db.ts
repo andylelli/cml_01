@@ -34,7 +34,7 @@ export type ProjectRepository = {
   getLatestSpec: (projectId: string) => Promise<Spec | null>;
   setProjectStatus: (projectId: string, status: string) => Promise<void>;
   getProjectStatus: (projectId: string) => Promise<string>;
-  createRun: (projectId: string, status: string) => Promise<{ id: string; projectId: string; status: string }>;
+  createRun: (projectId: string, status: string) => Promise<{ id: string; projectId: string; status: string; createdAt: string }>;
   updateRunStatus: (runId: string, status: string) => Promise<void>;
   addRunEvent: (runId: string, step: string, message: string) => Promise<void>;
   getLatestRun: (projectId: string) => Promise<{ id: string; projectId: string; status: string } | null>;
@@ -57,7 +57,7 @@ type FileState = {
   projects: Record<string, Project>;
   specs: Record<string, Spec>;
   specOrder: Array<{ id: string; projectId: string }>;
-  runs: Record<string, { id: string; projectId: string; status: string }>;
+  runs: Record<string, { id: string; projectId: string; status: string; createdAt?: string }>;
   runOrder: Array<{ id: string; projectId: string }>;
   runEvents: Array<{ runId: string; step: string; message: string }>;
   artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }>;
@@ -161,7 +161,7 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
   const projects = new Map<string, Project>();
   const specs = new Map<string, Spec>();
   const specOrder: Array<{ id: string; projectId: string }> = [];
-  const runs = new Map<string, { id: string; projectId: string; status: string }>();
+  const runs = new Map<string, { id: string; projectId: string; status: string; createdAt?: string }>();
   const runOrder: Array<{ id: string; projectId: string }> = [];
   const runEvents: Array<{ runId: string; step: string; message: string }> = [];
   const artifacts: Array<{ id: string; projectId: string; type: string; payload: unknown }> = [];
@@ -254,10 +254,11 @@ const createMemoryRepository = async (filePath?: string): Promise<ProjectReposit
     },
     async createRun(projectId: string, status: string) {
       const id = `run_${randomUUID()}`;
-      runs.set(id, { id, projectId, status });
+      const createdAt = new Date().toISOString();
+      runs.set(id, { id, projectId, status, createdAt });
       runOrder.push({ id, projectId });
       await persist();
-      return { id, projectId, status };
+      return { id, projectId, status, createdAt };
     },
     async updateRunStatus(runId: string, status: string) {
       const run = runs.get(runId);
@@ -433,8 +434,9 @@ const createPostgresRepository = async (connectionString: string): Promise<Proje
     },
     async createRun(projectId: string, status: string) {
       const id = `run_${randomUUID()}`;
+      const createdAt = new Date().toISOString();
       await pool.query("INSERT INTO runs (id, project_id, status) VALUES ($1, $2, $3)", [id, projectId, status]);
-      return { id, projectId, status };
+      return { id, projectId, status, createdAt };
     },
     async updateRunStatus(runId: string, status: string) {
       await pool.query(

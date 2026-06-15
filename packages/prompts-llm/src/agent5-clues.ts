@@ -832,6 +832,17 @@ ${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n")
   const userClueCountDirective = densityOverflow
     ? `at least ${requiredClues.length}`
     : densityCountText[effectiveDensity];
+  const isFirstAttemptPrompt = !inputs.fairPlayFeedback;
+  const firstAttemptContracts = isFirstAttemptPrompt
+    ? [
+        "- CULPRIT-UNIQUE CLUE: include at least one essential early/mid clue that directly narrows to the culprit via unique evidence linkage.",
+        redHerringBudget > 0
+          ? "- FIRST-ATTEMPT RED HERRING CONTRACT: pre-empt lexical overlap with correction terms and keep red-herring language semantically separate from true-solution mechanism wording."
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "";
 
   let user = `Extract and organize clues from this mystery CML.
 
@@ -842,6 +853,7 @@ Rules:
 - Essential clues: "early" or "mid" placement ONLY — never "late". A "late" essential clue means the reader cannot solve the mystery before the detective.
 - OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each - clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain.
 - MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description.
+${firstAttemptContracts}
 - CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption.
 - ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution.
 - DISCRIMINATING TEST ID CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear as a clue id.

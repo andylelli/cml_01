@@ -6,6 +6,8 @@
 export * from './types.js';
 export * from './encoding-validator.js';
 export * from './character-validator.js';
+export * from './character-lifecycle-validator.js';
+export * from './control-plane-leakage.js';
 export * from './prose-consistency-validator.js';
 export * from './narrative-continuity-validator.js';
 export * from './case-transition-validator.js';
@@ -38,6 +40,7 @@ export type { CastEntry, PronounRepairResult } from './pronoun-repair.js';
 export { StoryValidationPipeline } from './pipeline.js';
 export { EncodingValidator } from './encoding-validator.js';
 export { CharacterConsistencyValidator } from './character-validator.js';
+export { CharacterLifecycleValidator } from './character-lifecycle-validator.js';
 export { NarrativeContinuityValidator } from './narrative-continuity-validator.js';
 export { CaseTransitionValidator } from './case-transition-validator.js';
 export { DiscriminatingTestValidator } from './discriminating-test-validator.js';

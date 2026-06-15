@@ -13,6 +13,10 @@ export const defaultCostConfig: CostConfig = {
   gpt4oMiniPromptCostPer1k: 0.00013035,
   gpt4oMiniCompletionCostPer1k: 0.0005214,
 
+  // GPT-4.1-mini pricing ($0.40/$1.60 per million tokens, converted to GBP at 0.79)
+  gpt41MiniPromptCostPer1k: 0.000316,
+  gpt41MiniCompletionCostPer1k: 0.001264,
+
   // GPT-3.5-turbo pricing (converted to GBP)
   gpt35PromptCostPer1k: 0.000395,
   gpt35CompletionCostPer1k: 0.001185,
@@ -27,20 +31,27 @@ export class CostTracker {
 
   calculateCost(model: string, usage: TokenUsage): number {
     const modelName = model.toLowerCase();
-    const isGpt4oMini = modelName.includes("gpt-4o-mini") || modelName.includes("4o-mini");
-    const isGpt4o = !isGpt4oMini && (modelName.includes("gpt-4o") || modelName.includes("4o"));
+    // Detect gpt-4.1-mini first — it does not contain "4o" so without an explicit
+    // check it falls through to the GPT-3.5 fallback and produces understated costs.
+    const isGpt41Mini = modelName.includes("gpt-4.1-mini") || modelName.includes("4.1-mini");
+    const isGpt4oMini = !isGpt41Mini && (modelName.includes("gpt-4o-mini") || modelName.includes("4o-mini"));
+    const isGpt4o = !isGpt41Mini && !isGpt4oMini && (modelName.includes("gpt-4o") || modelName.includes("4o"));
 
-    const promptCostPer1k = isGpt4oMini
-      ? this.config.gpt4oMiniPromptCostPer1k
-      : isGpt4o
-        ? this.config.gpt4oPromptCostPer1k
-        : this.config.gpt35PromptCostPer1k;
+    const promptCostPer1k = isGpt41Mini
+      ? this.config.gpt41MiniPromptCostPer1k
+      : isGpt4oMini
+        ? this.config.gpt4oMiniPromptCostPer1k
+        : isGpt4o
+          ? this.config.gpt4oPromptCostPer1k
+          : this.config.gpt35PromptCostPer1k;
 
-    const completionCostPer1k = isGpt4oMini
-      ? this.config.gpt4oMiniCompletionCostPer1k
-      : isGpt4o
-        ? this.config.gpt4oCompletionCostPer1k
-        : this.config.gpt35CompletionCostPer1k;
+    const completionCostPer1k = isGpt41Mini
+      ? this.config.gpt41MiniCompletionCostPer1k
+      : isGpt4oMini
+        ? this.config.gpt4oMiniCompletionCostPer1k
+        : isGpt4o
+          ? this.config.gpt4oCompletionCostPer1k
+          : this.config.gpt35CompletionCostPer1k;
 
     const promptCost = (usage.promptTokens / 1000) * promptCostPer1k;
     const completionCost = (usage.completionTokens / 1000) * completionCostPer1k;

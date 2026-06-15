@@ -154,7 +154,8 @@ export interface ProseGenerationInputs {
   bottomUpRedesignEnabled?: boolean;
   /** Pillar 6: When true, inject a BANNED PARAGRAPH block into retry prompts when a
    *  paragraph_fingerprint match fires, and activate structural-pivot mode on repeated
-   *  fingerprint failures (attempt ≥ 2). Default false — no behaviour change when absent. */
+    *  fingerprint failures (attempt ≥ 2). Default true — disable explicitly only for
+    *  controlled experiments. */
   enableSurgicalFingerprintRetry?: boolean;
   /** Pillar 4: When true, each scene's pivotElement, factEstablished, and (for Act I–II)
    *  redHerringPlacement are injected into the per-chapter obligation block as MANDATORY
@@ -174,6 +175,12 @@ export interface ProseGenerationInputs {
       section_sizes: Record<string, number>;
     }>;
   };
+  /**
+   * Completion-first mode.
+   * When true (default), exhausted prose retries will degrade to deterministic fallback
+   * chapter text instead of aborting the entire run.
+   */
+  preferCompletionOnFailure?: boolean;
 }
 
 export interface ProseGenerationResult {
@@ -239,6 +246,7 @@ export interface ProseGenerationResult {
       mechanicalSeasonCollisionCount: number;
     };
     underflow?: UnderflowTelemetry;
+    fallbackTelemetry?: FallbackChapterTelemetry[];
     provisionalChapterScores?: Array<{
       chapter: number;
       score: number;
@@ -253,10 +261,21 @@ export interface ProseGenerationResult {
       chapterRange: string;
       attempt: number;
       failureClass: string;
+      failureSubcode?: string;
       shouldEscalate: boolean;
     }>;
     batchCommitRecords?: BatchCommitRecord[];
   };
+}
+
+export interface FallbackChapterTelemetry {
+  chapterNumber: number;
+  reason: "retry_exhaustion" | "generation_exception";
+  sourceFailureClass?: string;
+  initialWords: number;
+  finalWords: number;
+  expansionAttempts: number;
+  committed: boolean;
 }
 
 export interface ProseLinterStats {
@@ -271,7 +290,7 @@ export interface ProseLinterStats {
 }
 
 export interface ProseLinterIssue {
-  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "ngram_overlap" | "banned_phrase" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "archetype_violation" | "victim_alibi_error" | "boundary_integrity";
+  type: "opening_style_entropy" | "paragraph_fingerprint" | "intra_chapter_sentence_duplicate" | "ngram_overlap" | "banned_phrase" | "suspect_clearance_missing" | "template_bleed" | "debug_note_bleed" | "control_plane_leakage" | "archetype_violation" | "victim_alibi_error" | "boundary_integrity" | "sentence_fragment_truncation";
   message: string;
   /** Pillar 6 (Unit 6.1): The normalized prior paragraph text that triggered a
    *  paragraph_fingerprint match.  Populated when a fingerprint dupe fires so that

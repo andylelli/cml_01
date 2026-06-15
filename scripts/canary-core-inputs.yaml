@@ -43,8 +43,8 @@
 # - projectId: string (optional)
 
 theme: "Golden Age country-house murder driven by a mechanical clock-tampering method. Enforce strict fair-play: reveal all mechanism-critical clues to reader by mid-story, place the discriminating test no later than early Act III, include at least 3 explicit evidence clues tied to final deduction, and ensure every red herring is inference-isolated from the true solution chain."
-eraPreference: "1930s"
-locationPreset: CountryHouse
+eraPreference: "1940s"
+locationPreset: SeasideHotel
 tone: "Classic"
 primaryAxis: temporal
 castSize: 4
@@ -66,7 +66,7 @@ castGenders:
 #  - "Agnes Pike"
 detectiveType: amateur
 targetLength: short
-narrativeStyle: classic
+narrativeStyle: dark
 skipNoveltyCheck: false
 similarityThreshold: 0.9
 proseBatchSize: 1

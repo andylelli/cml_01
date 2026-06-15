@@ -12,6 +12,9 @@ export type RetryFailureClass =
 export interface RetryPacket {
   attempt: number;
   failureClass: RetryFailureClass;
+  failureSubcode?: string;
+  offendingText?: string;
+  templateSignalPresent?: boolean;
   failedGates: string[];
   mustFix: string[];
   warningsToClear: string[];
@@ -27,7 +30,10 @@ const classifySingle = (error: string): RetryFailureClass => {
   const e = error.toLowerCase();
   if (/mojibake|encoding|utf-8|control char/.test(e)) return "encoding";
   if (/boundary integrity|unbalanced quotation|malformed apostrophe|dangling quote|punctuation boundary/.test(e)) return "structure";
-  if (/template linter|opening-style entropy|ngram|paragraph fingerprint|sentence within a chapter|prompt leakage|scene-template text leaked|internal audit note leaked/.test(e)) return "template";
+  if (/stage[-\s]?mode outcome/.test(e)) return "fair_play";
+  if (/discriminating test validity/.test(e)) return "clue_timing";
+  if (/final reveal completeness/.test(e)) return "fair_play";
+  if (/control-plane leakage|template linter|opening-style entropy|ngram|paragraph fingerprint|sentence within a chapter|prompt leakage|scene-template text leaked|internal audit note leaked/.test(e)) return "template";
   if (/chapter\.paragraphs|chapter\.title|\bstructure\b|\bformat\b|has only \d+ paragraph/.test(e)) return "structure";
   if (/clue timing|clue visibility|discriminating test|missing clue|revealed without evidence|evidence anchor/.test(e)) return "clue_timing";
   if (/entity fidelity|alias|identity role alias|culprit surname/.test(e)) return "continuity";
@@ -36,6 +42,27 @@ const classifySingle = (error: string): RetryFailureClass => {
   if (/tone|pacing|register/.test(e)) return "tone_pacing";
   if (/fair-play|discriminating|no withholding|spoiler/.test(e)) return "fair_play";
   return "unknown";
+};
+
+const classifySubcode = (errors: string[]): string | undefined => {
+  const joined = errors.join("\n").toLowerCase();
+  if (/stage[-\s]?mode outcome/.test(joined)) return "stage_mode_outcome";
+  if (/opening-style entropy|repeated content opener|opener/.test(joined)) return "template_bleed_openers";
+  if (/boundary integrity|unbalanced quotation|malformed apostrophe/.test(joined)) return "boundary_integrity";
+  if (/victim_reappears_alive|victim.*appears active|identity continuity|deceased/.test(joined)) return "identity_continuity";
+  if (/word count|underflow|hard floor|minimum words/.test(joined)) return "word_count_underflow";
+  if (/control-plane leakage|prompt leakage|internal audit note/.test(joined)) return "control_plane_leakage";
+  return undefined;
+};
+
+const extractOffendingText = (errors: string[]): string | undefined => {
+  for (const error of errors) {
+    const quoted = error.match(/"([^"]{1,220})"/);
+    if (quoted?.[1]) return quoted[1];
+    const colon = error.indexOf(':');
+    if (colon >= 0 && error.length - colon <= 260) return error.slice(colon + 1).trim();
+  }
+  return undefined;
 };
 
 const rank: Record<RetryFailureClass, number> = {
@@ -65,6 +92,8 @@ export function classifyFailure(args: {
   // escalate to structural_pivot on the second consecutive fingerprint failure.
   const hasFingerprintSignals = validationErrors.some((e) => /paragraph fingerprint/i.test(e));
   const failureClass = candidates.sort((a, b) => rank[b] - rank[a])[0] ?? "unknown";
+  const failureSubcode = classifySubcode(validationErrors);
+  const offendingText = extractOffendingText(validationErrors);
 
   const repeatedClass =
     priorPackets.length > 0 && priorPackets[priorPackets.length - 1].failureClass === failureClass;
@@ -115,6 +144,9 @@ export function classifyFailure(args: {
   return {
     attempt,
     failureClass,
+    failureSubcode,
+    offendingText,
+    templateSignalPresent: hasTemplateSignals,
     failedGates: validationErrors.slice(0, 8),
     mustFix,
     warningsToClear: validationErrors.slice(4, 8),
@@ -127,10 +159,20 @@ export function classifyFailure(args: {
 export function buildRetryFeedback(packet: RetryPacket): string {
   const lines: string[] = [];
   lines.push(`RETRY CLASS: ${packet.failureClass}`);
+  if (packet.failureSubcode) {
+    lines.push(`RETRY SUBCODE: ${packet.failureSubcode}`);
+  }
   lines.push(`ATTEMPT: ${packet.attempt}/${packet.maxRetries}`);
+  if (packet.offendingText) {
+    lines.push(`OFFENDING TEXT: ${packet.offendingText}`);
+  }
   lines.push("MANDATORY FIXES:");
   for (const item of packet.mustFix) {
     lines.push(`- ${item}`);
+  }
+  if (packet.failureSubcode === "stage_mode_outcome") {
+    lines.push("- Do not resolve the culprit in this chapter. No confession, arrest, final accusation, definitive culprit declaration, or case-closed language.");
+    lines.push("- End with unresolved pressure: a contradiction, narrowed suspicion, motive pressure, or a new question.");
   }
   if (packet.warningsToClear.length > 0) {
     lines.push("SECONDARY FIXES:");
@@ -146,10 +188,13 @@ export function buildRetryFeedback(packet: RetryPacket): string {
 
 export function shouldContinueRetry(packet: RetryPacket, priorPackets: RetryPacket[]): boolean {
   if (packet.attempt >= packet.maxRetries) return false;
-  if (packet.shouldEscalate) return false;
+  const hasTemplateConvergenceSignal = packet.failureClass === "template" || packet.templateSignalPresent === true;
+  // Template failures should continue retrying through the full budget.
+  // They often require multiple structural pivots before converging.
+  if (!hasTemplateConvergenceSignal && packet.shouldEscalate) return false;
   if (priorPackets.length < 1) return true;
   const previous = priorPackets[priorPackets.length - 1];
-  if (previous.failureClass === packet.failureClass && packet.attempt >= 2) {
+  if (!hasTemplateConvergenceSignal && previous.failureClass === packet.failureClass && packet.attempt >= 2) {
     return false;
   }
   return true;

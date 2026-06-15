@@ -78,12 +78,18 @@ vi.mock("@cml/story-validation", async () => {
 });
 
 import {
+  applyDeterministicCluePatch,
+  applyDeterministicClearancePatch,
+  applyDeterministicDiscriminatingTestPatch,
   attemptUnderflowExpansion,
+  buildSinglePassRetryPrompt,
+  buildCompletionFallbackChapter,
   buildEnhancedRetryFeedback,
   buildChapterObligationBlock,
   buildDiscriminatingTestChecklist,
   buildProsePrompt,
   buildTimelineStateBlock,
+  chooseRetryPromptStrategy,
   detectConfiguredBannedPhrases,
   detectRecurringPhrases,
   enforceMonthSeasonLockOnChapterWithTelemetry,
@@ -184,6 +190,99 @@ describe("buildEnhancedRetryFeedback template-overlap escalation", () => {
 
     expect(feedback).toContain("REPAIR [entity_fidelity");
     expect(feedback).toContain("cast-canonical names");
+  });
+
+  it("preserves continuity instructions when duplication lock is active", () => {
+    const priorParagraph =
+      "Clara kept her hand on the mantel while the witness retraced each movement in the drawing room, " +
+      "and every pause in the account made the rewound clock look less like accident than design beneath the lamplight.";
+    const feedback = buildEnhancedRetryFeedback(
+      [
+        "Template linter: high n-gram overlap with prior chapter prose (Jaccard 0.88 >= 0.80)",
+      ],
+      {} as any,
+      "6",
+      3,
+      6,
+      {
+        enableSurgicalFingerprintRetry: true,
+        linterIssues: [
+          {
+            type: "ngram_overlap",
+            message: "high n-gram overlap with prior chapter prose",
+            matchingPriorParagraph: priorParagraph,
+          },
+        ] as any,
+        priorChapterParagraphs: [priorParagraph],
+      },
+    );
+
+    expect(feedback).toContain("Preserve continuity with the established story facts");
+    expect(feedback).toContain("Keep the clue state, cast facts, and chapter obligations intact");
+    expect(feedback).not.toContain("Write as if you cannot see the prior chapters");
+  });
+});
+
+describe("single-pass retry prompt strategy", () => {
+  it("uses surgical patch mode for narrow single-family fixes", () => {
+    const strategy = chooseRetryPromptStrategy(
+      ['Chapter 5: scene location coverage missing — expected location anchor "the local café" was not grounded in prose.'],
+      2,
+      6,
+    );
+
+    expect(strategy.mode).toBe("surgical_patch");
+    expect(strategy.includePriorDraft).toBe(true);
+  });
+
+  it("switches to targeted rebuild for multi-family retries and suppresses prior-draft anchoring", () => {
+    const strategy = chooseRetryPromptStrategy(
+      [
+        'Chapter 5: clue evidence "A faint scratch is found on the clock face." is absent.',
+        'Stage-mode outcome failed (clue_reinterpretation): chapter must reinterpret an earlier clue and state how meaning changed.',
+        'Template linter: repeated content opener detected ("gaston leaned").',
+      ],
+      2,
+      6,
+    );
+
+    expect(strategy.mode).toBe("targeted_rebuild");
+    expect(strategy.includePriorDraft).toBe(false);
+  });
+});
+
+describe("buildSinglePassRetryPrompt", () => {
+  it("builds a one-pass repair brief with rewrite plan and checklist", () => {
+    const result = buildSinglePassRetryPrompt({
+      errors: [
+        'Chapter 5: clue evidence "A faint scratch is found on the clock face." is absent. Include an on-page observation or reference to "A faint scratch is found on the clock face." (this clue reveals: This indicates potential tampering with the clock.) before the chapter ends.',
+        'Chapter 5: scene location coverage missing — expected location anchor "the local café" was not grounded in prose.',
+        'Stage-mode outcome failed (clue_reinterpretation): chapter must reinterpret an earlier clue and state how meaning changed.',
+      ],
+      chapterRange: "5",
+      attempt: 2,
+      maxAttempts: 6,
+      packet: {
+        attempt: 2,
+        failureClass: "fair_play",
+        failureSubcode: "stage_mode_outcome",
+        failedGates: [],
+        mustFix: ["Resolve fair_play issues before accepting this batch."],
+        warningsToClear: [],
+        maxRetries: 6,
+        shouldEscalate: false,
+        deterministicMitigation: { type: "none" },
+      },
+    });
+
+    expect(result.prompt).toContain("SINGLE-PASS RETRY CONTRACT");
+    expect(result.prompt).toContain("Retry mode: TARGETED_REBUILD.");
+    expect(result.prompt).toContain("PRIMARY FAILURES");
+    expect(result.prompt).toContain("REWRITE PLAN");
+    expect(result.prompt).toContain("SUCCESS CHECKLIST");
+    expect(result.prompt).toContain('"A faint scratch is found on the clock face."');
+    expect(result.prompt).toContain('"the local café"');
+    expect(result.strategy.includePriorDraft).toBe(false);
   });
 });
 
@@ -355,6 +454,226 @@ describe("validateChapterPreCommitObligations", () => {
     expect(result.hardFailures.length).toBe(0);
     expect(result.preferredMisses.length).toBe(0);
     expect(result.wordTarget.isBelowPreferred).toBe(false);
+  });
+
+  it("passes suspect-pressure fallback chapters without premature resolution", () => {
+    const ledger = {
+      chapterNumber: 5,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+    };
+    const chapter = buildCompletionFallbackChapter(
+      undefined,
+      baseScene,
+      5,
+      ledger as any,
+      baseInputs.clueDistribution,
+      baseCaseData,
+      {
+        stageMode: "suspect_pressure",
+        focusName: "Edgar Vale",
+      },
+    );
+
+    const result = validateChapterPreCommitObligations(
+      chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      {
+        mode: "suspect_pressure",
+        suspectNames: ["Edgar Vale"],
+      } as any,
+    );
+
+    expect(result.hardFailures.some((msg) => msg.includes("suspect_pressure"))).toBe(false);
+  });
+
+  it("passes discriminating-test fallback chapters with explicit competing theories and result", () => {
+    const ledger = {
+      chapterNumber: 8,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+    };
+    const chapter = buildCompletionFallbackChapter(
+      undefined,
+      baseScene,
+      8,
+      ledger as any,
+      baseInputs.clueDistribution,
+      baseCaseData,
+      {
+        stageMode: "discriminating_test",
+        focusName: "Edgar Vale",
+      },
+    );
+
+    const result = validateChapterPreCommitObligations(
+      chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      {
+        mode: "discriminating_test",
+      } as any,
+    );
+
+    expect(result.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
+  });
+});
+
+describe("deterministic suspect-clearance patch", () => {
+  it("inserts an evidence-based clearance paragraph that satisfies the linter", () => {
+    const clearances = [
+      {
+        suspect_name: "Edgar Vale",
+        clearance_method: "timeline contradiction",
+        supporting_clues: ["clue_clock"],
+      },
+    ];
+    const ledger = {
+      chapterNumber: 6,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+    };
+    const chapter = {
+      title: "Chapter 6",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and returned everyone to the stopped clock on the mantel.",
+        "Each answer had to match the visible marks on the case, the timing of the supper tray, and the witness accounts already given.",
+        "By the end of the exchange the room understood that one version of the evening was collapsing under its own strain.",
+      ],
+    };
+
+    const before = lintBatchProse([chapter] as any, [], [], {
+      matchingClearances: clearances as any,
+    });
+    const patched = applyDeterministicClearancePatch(
+      chapter as any,
+      clearances as any,
+      ledger as any,
+      baseInputs.clueDistribution,
+    );
+    const after = lintBatchProse([patched.chapter] as any, [], [], {
+      matchingClearances: clearances as any,
+    });
+
+    expect(before.some((issue) => issue.type === "suspect_clearance_missing")).toBe(true);
+    expect(patched.insertedSuspects).toEqual(["Edgar Vale"]);
+    expect(after.some((issue) => issue.type === "suspect_clearance_missing")).toBe(false);
+  });
+});
+
+describe("deterministic clue and discriminating-test patches", () => {
+  it("materializes missing early clues into an observation-plus-inference structure", () => {
+    const clueDistribution = {
+      clues: [
+        {
+          id: "clue_clock",
+          description: "The mantel clock has been rewound.",
+          category: "physical",
+          criticality: "essential",
+          placement: "early",
+          pointsTo: "the time of death was staged",
+        },
+      ],
+    };
+    const ledger = {
+      chapterNumber: 2,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+      clueObligationContext: [
+        {
+          id: "clue_clock",
+          description: "The mantel clock has been rewound.",
+          placement: "early",
+        },
+      ],
+    };
+    const chapter = {
+      title: "Chapter 2",
+      paragraphs: [
+        "Clara entered the drawing room to find everyone already braced for another round of questions.",
+        "Edgar kept his eyes on the hearth while the servants avoided one another.",
+        "No one yet understood which detail would break the room open.",
+      ],
+    };
+
+    const before = validateChapterPreCommitObligations(
+      chapter as any,
+      ledger as any,
+      clueDistribution as any,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+    const patched = applyDeterministicCluePatch(
+      chapter as any,
+      baseScene,
+      ledger as any,
+      clueDistribution as any,
+      baseCaseData,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+    const after = validateChapterPreCommitObligations(
+      patched.chapter,
+      ledger as any,
+      clueDistribution as any,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+
+    expect(before.hardFailures.some((msg) => msg.includes('clue evidence "The mantel clock has been rewound." is absent'))).toBe(true);
+    expect(patched.insertedClueIds).toEqual(["clue_clock"]);
+    expect(patched.insertedEarlyClueIds).toEqual(["clue_clock"]);
+    expect(after.hardFailures.some((msg) => msg.includes("clue evidence"))).toBe(false);
+  });
+
+  it("adds a discriminating-test scaffold when the chapter lacks one", () => {
+    const ledger = {
+      chapterNumber: 8,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+    };
+    const chapter = {
+      title: "Chapter 8",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and let the silence settle into something almost ceremonial.",
+        "Every face in the room showed strain, but none of them yet knew how she meant to separate fear from fact.",
+        "The next move had to come from the evidence itself rather than from another round of accusation.",
+      ],
+    };
+
+    const before = validateChapterPreCommitObligations(
+      chapter as any,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      { mode: "discriminating_test" } as any,
+    );
+    const patched = applyDeterministicDiscriminatingTestPatch(
+      chapter as any,
+      baseCaseData,
+      "Clara Whitfield",
+      "The mantel clock has been rewound.",
+    );
+    const after = validateChapterPreCommitObligations(
+      patched.chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      { mode: "discriminating_test" } as any,
+    );
+
+    expect(before.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(true);
+    expect(patched.inserted).toBe(true);
+    expect(after.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
   });
 });
 
@@ -554,6 +873,14 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(checklist).toContain("real-time dramatic scene");
   });
 
+  it("uses computed unresolved suspect count from investigation state in chapter outcome contract", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 2, []);
+    const joined = prompt.messages.map((m) => m.content).join("\n\n");
+
+    // Edgar is cleared in chapter 1, so chapter 2 should not report one unresolved suspect.
+    expect(joined).toContain("approximately 0 unresolved suspect(s)");
+  });
+
   it("Fix 6 detects recurring cross-chapter phrases", () => {
     const phrases = detectRecurringPhrases([
       { title: "1", paragraphs: ["The air hung cold and still beneath the rafters while the lamps shivered." ] },
@@ -633,6 +960,47 @@ describe("Agent 9 prompt hardening fixes", () => {
     );
 
     expect(issues.some((issue) => issue.type === "boundary_integrity")).toBe(true);
+  });
+
+  it("Section 10 flags repeated paragraph openers within a chapter", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: [
+            "Clara checked the hallway before she spoke.",
+            "Clara crossed to the mantel and lifted the envelope.",
+            "Clara studied the torn page under the lamp.",
+            "Nora watched without interrupting.",
+          ],
+        },
+      ] as any,
+      [],
+      [],
+      {},
+    );
+
+    expect(issues.some((issue) => issue.type === "template_bleed" && /repeated content opener/i.test(issue.message))).toBe(true);
+  });
+
+  it("Section 10 ignores repeated function-word openers in isolation", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: [
+            "The clock clicked once as she leaned closer.",
+            "The window rattled as rain intensified.",
+            "He moved aside when Clara entered.",
+          ],
+        },
+      ] as any,
+      [],
+      [],
+      {},
+    );
+
+    expect(issues.some((issue) => issue.type === "template_bleed" && /repeated content opener/i.test(issue.message))).toBe(false);
   });
 
   it("Fix 7 runs targeted atmosphere repair only for chapters containing banned phrases", async () => {
@@ -824,6 +1192,59 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(system).toContain("CONTINUITY HANDOFF");
     expect(system).toContain("She left the ledger open at the line naming Edgar's payment.");
     expect(system).toContain("must open as a continuation");
+  });
+
+  it("sanitizes banned atmosphere phrase families from continuity handoff excerpts", () => {
+    const prompt = buildProsePrompt(
+      {
+        ...baseInputs,
+        narrativeState: {
+          lockedFacts: [],
+          characterPronouns: {},
+          cluesRevealedToReader: [],
+          continuityTail:
+            "Salt air gathered in the stairwell as she paused. She left the ledger open at the line naming Edgar's payment.",
+          deployedAssets: {},
+          lastUsedSensoryVariant: {},
+          recurringPhraseWarnings: [],
+        },
+      } as any,
+      [baseScene],
+      4,
+      [],
+    );
+
+    const system = prompt.messages[0].content;
+    expect(system).toContain("CONTINUITY HANDOFF");
+    expect(system).toContain("She left the ledger open at the line naming Edgar's payment.");
+    expect(system.toLowerCase()).not.toContain("salt air");
+  });
+
+  it("sanitizes continuity-tail text in chapter obligation continuity bridge", () => {
+    const block = buildChapterObligationBlock(
+      [baseScene],
+      4,
+      baseCaseData.CASE,
+      baseInputs.lockedFacts,
+      { month: "november", season: "autumn" } as any,
+      undefined,
+      undefined,
+      undefined,
+      {
+        lockedFacts: [],
+        characterPronouns: {},
+        cluesRevealedToReader: [],
+        continuityTail:
+          "Salt air gathered in the stairwell as she paused. She left the ledger open at the line naming Edgar's payment.",
+        deployedAssets: {},
+        lastUsedSensoryVariant: {},
+        recurringPhraseWarnings: [],
+      } as any,
+    );
+
+    expect(block).toContain("Carry forward one unresolved element");
+    expect(block).toContain("She left the ledger open at the line naming Edgar's payment.");
+    expect(block.toLowerCase()).not.toContain("salt air");
   });
 
   it("adds continuity checks to the pre-submit checklist when continuity is available", () => {

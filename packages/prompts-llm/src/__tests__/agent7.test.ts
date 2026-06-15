@@ -322,8 +322,9 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     });
 
     expect(prompt.user).toContain("short");
-    expect(prompt.user).toContain("20 scenes");
-    expect(prompt.user).toContain("novella");
+    expect(prompt.user).toContain("10 scenes");
+    expect(prompt.user).toContain("short story");
+    expect(prompt.user).toContain("4,500–12,500 words");
   });
 
   it("supports medium length target (default)", () => {
@@ -334,8 +335,8 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     });
 
     expect(prompt.user).toContain("medium");
-    expect(prompt.user).toContain("30 scenes");
-    expect(prompt.user).toContain("40,000–60,000 words");
+    expect(prompt.user).toContain("20 scenes");
+    expect(prompt.user).toContain("13,500–37,500 words");
   });
 
   it("supports long length target", () => {
@@ -346,8 +347,8 @@ describe("Agent 7: Narrative Formatter - Prompt Building", () => {
     });
 
     expect(prompt.user).toContain("long");
-    expect(prompt.user).toContain("42 scenes");
-    expect(prompt.user).toContain("70,000–100,000 words");
+    expect(prompt.user).toContain("30 scenes");
+    expect(prompt.user).toContain("27,000–75,000 words");
   });
 
   it("supports classic narrative style (default)", () => {

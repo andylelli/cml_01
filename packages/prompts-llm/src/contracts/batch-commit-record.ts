@@ -4,6 +4,9 @@ export type BatchGateName =
   | "locked_fact_word_form"
   | "character_pronoun_consistency"
   | "clue_placement_timing"
+  | "stage_mode_outcome"
+  | "discriminating_test_validity"
+  | "final_reveal_completeness"
   | "temporal_continuity"
   | "template_leakage";
 

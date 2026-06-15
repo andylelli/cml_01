@@ -550,6 +550,24 @@ For each check, answer YES or NO and cite specific evidence from the Clue Distri
 
 4. **Clue Trail Fairness**: Does the trail feel fair — evidence before deduction, no arbitrary withholding — or does it feel like a trick? Flag any clue whose timing feels like a cheat.
 
+## Hard fairness contracts (must be enforced)
+- Ensure at least one mechanism-visibility clue appears before the discriminating test.
+- Reader reasoning must follow observation -> correction -> elimination, without hidden jumps.
+- For timing fairness, the test must confirm evidence, not introduce it.
+- Treat semantically equivalent clues as valid support when wording differs but mechanism and inference role are identical.
+
+## Quality Bar
+- Be thorough and specific.
+- Explain exactly what's wrong and how to fix it.
+
+## Micro-exemplars
+- Weak detail: "The test works somehow."
+- Strong detail: "The trace-comparison test confirms residue already established in early clues."
+
+## Silent Pre-Output Checklist
+- Before finalizing, confirm each check cites concrete clue IDs or CML fields.
+- Ensure every recommendation is minimal, actionable, and tied to a cited defect.
+
 ## Output format
 
 \`\`\`json
@@ -575,7 +593,20 @@ JSON only, no markdown fences.`;
 
 Use the Clue ID Manifest above as your ground truth. Only report violations for clue IDs that are explicitly absent from the manifest — do not invent clue requirements from CML authoring notes.
 
+Be thorough and specific. For every failure, say exactly what's wrong and how to fix it.
+
 ## Structured Checklist
+
+## 9-point Fair Play Checklist
+1. **Clue Visibility**
+2. **Information Parity**
+3. **Special Knowledge**
+4. **Logical Deducibility**
+5. **Discriminating Test Timing**
+6. **No Withholding**
+7. **Constraint Consistency**
+8. **False Assumption Support**
+9. **Solution Uniqueness**
 
 Answer each check YES or NO, then cite the specific clue IDs or CML fields that support your answer:
 
@@ -595,14 +626,31 @@ Answer each check YES or NO, then cite the specific clue IDs or CML fields that 
 
 8. **Solution Uniqueness**: Do the clues point unambiguously to the culprit? Is there ≥1 essential clue that eliminates each non-culprit?
 
+## Hard fairness contracts
+- mechanism-visibility clue: verify that at least one essential early/mid clue exposes the true-solution mechanism before reveal.
+- inference chain form: require observation -> correction -> elimination coverage before Act III.
+- discriminating-test timing: the test must confirm evidence, not introduce it.
+- semantic matching: treat semantically equivalent clues as valid when language differs but inferential role is unchanged.
+
 ## Quality Bar
 - Cite specific clue IDs, not descriptions
 - Do NOT report a violation for any item listed in "CML authoring notes" in the Inference Path
 - Distinguish critical fairness breaks from moderate craft issues
 - Recommendations must be actionable and minimally invasive
+- For each violation include location: Where in the CML/clues the issue appears.
 - JSON only, no markdown fences
 
+## Micro-exemplars
+- Weak: "Timing seems off."
+- Strong: "Discriminating test references clue_12 first introduced in late Act III, violating no-late-information fairness."
+
+## Silent Pre-Output Checklist
+- Before finalizing, ensure each failed check has a concrete clue ID or CML field citation.
+- Confirm recommendations state exactly what's wrong and how to fix it.
+
 ## Output Format
+
+Return one JSON object with the following fields.
 
 \`\`\`json
 {

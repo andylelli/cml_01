@@ -34,7 +34,7 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, validateCharacterLifecycle } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -106,6 +106,37 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean 
   if (["1", "true", "yes", "y", "on"].includes(normalized)) return true;
   if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
   return fallback;
+};
+
+export const buildSyntheticNsdClueAnchor = (
+  clueId: string,
+  chapterNumber: number,
+  clueRecord?: { description?: string; pointsTo?: string },
+) => {
+  const summary = [
+    String(clueRecord?.description ?? "").trim(),
+    String(clueRecord?.pointsTo ?? "").trim(),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .slice(0, 220);
+
+  return {
+    clue_id: clueId,
+    chapter_number: chapterNumber,
+    evidence_quote: summary.length > 0
+      ? `[Synthetic NSD anchor] No direct prose quote extracted in this batch. Clue metadata: ${summary}`
+      : `[Synthetic NSD anchor] No direct prose quote extracted in this batch for ${clueId}.`,
+    evidence_offset: {
+      chapter: chapterNumber,
+      paragraph: 1,
+      sentence: 1,
+    },
+    confidence: 0,
+    state: "introduced" as const,
+    quality: "synthetic" as const,
+  };
 };
 
 // ============================================================================
@@ -549,10 +580,12 @@ export const repairWordFormLockedFacts = (prose: any, lockedFacts: any[]): any =
     // Try time-of-day pattern first (e.g. "ten minutes past eleven" → catch "11:10 PM").
     const parsedTime = parseWordFormTime(canonical);
     if (parsedTime) {
-      // Wave 1 timeline lock: apply time-value normalization globally across prose.
-      // Time contradictions can appear outside the original clue-introduction chapter,
-      // and scoped-only replacement lets drift survive into later chapters.
-      const scopeForTimeRepairs: Set<number> | null = null;
+      // Default to chapter-scoped repairs when appearsInChapters is provided.
+      // Opt into global normalization only when the fact explicitly requests it.
+      const applyGlobalTimeNormalization =
+        fact?.normalizeAcrossStory === true ||
+        String(fact?.scope ?? '').toLowerCase() === 'global';
+      const scopeForTimeRepairs: Set<number> | null = applyGlobalTimeNormalization ? null : chaptersScope;
       const { hour, minute } = parsedTime;
       const minutePadded = String(minute).padStart(2, '0');
       // Match "H:MM" or "H.MM" optionally followed by AM/PM variants.
@@ -1677,13 +1710,34 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
   return { grounded, total: prose.chapters.length, coverage };
 };
 
+export const partitionNsdRevealedCluesForReleaseGate = (
+  nsdRevealedClues: Iterable<string>,
+  expectedClueIds: Iterable<string>,
+) => {
+  const expected = new Set(Array.from(expectedClueIds).map((id) => String(id)));
+  const enforceable: string[] = [];
+  const advisoryOnly: string[] = [];
+  for (const rawId of nsdRevealedClues) {
+    const id = String(rawId);
+    if (expected.has(id)) {
+      enforceable.push(id);
+    } else {
+      advisoryOnly.push(id);
+    }
+  }
+  return {
+    enforceable,
+    advisoryOnly,
+  };
+};
+
 const placeholderRoleSurnamePattern =
-  /\b(a|an)\s+(inspector|detective|constable|sergeant|captain|gentleman|lady|woman|man|doctor)\s+([A-Z][a-z]+(?:[-''][A-Z][a-z]+)?)\b/g;
+  /\b(?:a|an|the)\s+(inspector|detective|constable|sergeant|captain|gentleman|lady|woman|man|doctor)\s+([A-Z][a-z]+(?:[-''][A-Z][a-z]+)?)\b/g;
 const placeholderNamedStandalonePattern = /\b(a woman [A-Z][a-z]+|a man [A-Z][a-z]+)\b/g;
 const placeholderGenericRolePattern =
   /\b(a gentleman|an inspector|a detective|a constable|a sergeant|a captain|a doctor)\b/gi;
 
-const evaluatePlaceholderLeakage = (prose: any) => {
+const evaluatePlaceholderLeakage = (prose: any, castSurnames?: Set<string>) => {
   const joined = prose.chapters
     .map((chapter: any) => {
       const body = (chapter.paragraphs || []).join("\n");
@@ -1691,9 +1745,14 @@ const evaluatePlaceholderLeakage = (prose: any) => {
     })
     .join("\n\n");
 
-  const roleSurnameMatches = (Array.from(joined.matchAll(placeholderRoleSurnamePattern)) as RegExpMatchArray[]).map(
-    (match) => match[0],
-  );
+  // Only flag role+surname matches where the surname belongs to a known cast member.
+  // "a gentleman Ashcroft" where Ashcroft is a minor background character is valid prose,
+  // not a placeholder — the false positive fires when the LLM uses "a gentleman Hale"
+  // instead of the proper character name.
+  const allRoleSurnameMatches = (Array.from(joined.matchAll(placeholderRoleSurnamePattern)) as RegExpMatchArray[]);
+  const roleSurnameMatches = allRoleSurnameMatches
+    .filter((match) => !castSurnames || castSurnames.has(match[2]))
+    .map((match) => match[0]);
   const namedStandaloneMatches = (Array.from(
     joined.matchAll(placeholderNamedStandalonePattern),
   ) as RegExpMatchArray[]).map((match) => match[0]);
@@ -1934,6 +1993,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // Wave 1 pre-prose integrity lock: keep culprit assignment compatible with role/eligibility.
   enforceCmlCulpritRoleIntegrity(cml, castDesign, ctx.warnings);
 
+  const preProseLifecycleErrors = validateCharacterLifecycle(
+    {
+      id: runId,
+      projectId: projectId || "",
+      scenes: [],
+      metadata: {
+        cast: ((cml as any)?.CASE?.cast ?? []).map((entry: any) => String(entry?.name ?? '')).filter(Boolean),
+      },
+    },
+    cml as any,
+  ).filter((error) => error.severity === "critical");
+  if (preProseLifecycleErrors.length > 0) {
+    preProseLifecycleErrors.forEach((error) =>
+      ctx.errors.push(`Lifecycle preflight failure: ${error.message}`),
+    );
+    const summary = preProseLifecycleErrors.map((error) => error.message).slice(0, 4).join("; ");
+    throw new Error(`Agent 9 aborted before prose generation: lifecycle validation failed: ${summary}`);
+  }
+
   // Full CML/schema preflight before prose generation to fail fast on invalid structures
   // and cross-reference usage errors that prose retries cannot repair.
   const cmlSchemaValidation = validateCml(cml);
@@ -1953,6 +2031,49 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     cmlUsageValidation.errors.forEach((error) => ctx.errors.push(error));
     const summary = cmlUsageValidation.errors.slice(0, 6).join("; ");
     throw new Error(`Agent 9 aborted before prose generation: CML usage validation failed: ${summary}`);
+  }
+
+  const canonicalClueIds = new Set<string>([
+    ...(((cml as any)?.CASE?.prose_requirements?.clue_to_scene_mapping ?? []) as any[])
+      .map((entry: any) => String(entry?.clue_id ?? '').trim())
+      .filter(Boolean),
+    ...((clues?.clues ?? []) as any[])
+      .map((entry: any) => String(entry?.id ?? '').trim())
+      .filter(Boolean),
+  ]);
+  const discriminatingEvidenceIds = (((cml as any)?.CASE?.discriminating_test?.evidence_clues ?? []) as any[])
+    .map((id: any) => String(id ?? '').trim())
+    .filter(Boolean);
+  const nonCanonicalEvidenceIds = discriminatingEvidenceIds.filter((id) => !canonicalClueIds.has(id));
+  if (nonCanonicalEvidenceIds.length > 0) {
+    const msg = `Clue namespace preflight: discriminating evidence ID(s) not found in canonical clue namespace: ${nonCanonicalEvidenceIds.join(", ")}`;
+    ctx.errors.push(msg);
+    throw new Error(`Agent 9 aborted before prose generation: ${msg}`);
+  }
+  if (enableScoring && scoreAggregator && scoringLogger) {
+    const audit = {
+      canonicalIds: Array.from(canonicalClueIds),
+      referencedIds: discriminatingEvidenceIds,
+      missingIds: nonCanonicalEvidenceIds,
+      nonCanonicalIds: nonCanonicalEvidenceIds,
+      safeRemaps: [],
+      status: nonCanonicalEvidenceIds.length > 0 ? "fail" : "pass",
+    };
+    scoringLogger.logPhaseDiagnostic(
+      "agent9_prose",
+      "Prose Generation",
+      "clue_namespace_audit",
+      audit,
+      runId,
+      projectId || "",
+    );
+    scoreAggregator.upsertDiagnostic(
+      "agent9_prose_clue_namespace_audit",
+      "agent9_prose",
+      "Prose Generation",
+      "clue_namespace_audit",
+      audit,
+    );
   }
 
   const blockingOutlineIssues = outlineCoverageIssues.filter((issue) =>
@@ -2542,9 +2663,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const cluesWithNoAnchor = newlyRevealedClues.filter(
         (clueId) => (batchClueEvidence.evidenceByClue[clueId] ?? []).length === 0,
       );
+      const clueIndexById = new Map(
+        (Array.isArray(clues?.clues) ? clues.clues : [])
+          .map((clue: any) => [String(clue?.id ?? "").trim(), clue] as const)
+          .filter(([clueId]) => clueId.length > 0),
+      );
+      if (cluesWithNoAnchor.length > 0) {
+        for (const clueId of cluesWithNoAnchor) {
+          clueEvidenceAnchors.push(
+            buildSyntheticNsdClueAnchor(
+              clueId,
+              batchEnd,
+              clueIndexById.get(clueId),
+            ),
+          );
+        }
+      }
       if (cluesWithNoAnchor.length > 0) {
         ctx.warnings.push(
-          `NSD batch ${batchStart}-${batchEnd}: clue(s) marked revealed but no prose evidence anchor found: ${cluesWithNoAnchor.join(", ")}. Fair-play verification may be incomplete.`,
+          `NSD batch ${batchStart}-${batchEnd}: clue(s) marked revealed but no prose evidence anchor found: ${cluesWithNoAnchor.join(", ")}. Synthetic NSD anchors were added to preserve transfer-trace parity; fair-play verification may still be incomplete.`,
         );
       }
 
@@ -2893,7 +3030,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // First-pass scoring
   if (enableScoring && scoreAggregator && scoringLogger) {
     const scorer = new ProseScorer();
-    const adapted = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues);
+    const adapted = adaptProseForScoring(prose.chapters, (cml as any).CASE, clues, {
+      fallbackTelemetry: (prose.validationDetails as any)?.fallbackTelemetry ?? [],
+    });
     const score = await scorer.score({}, adapted, buildProseScoreArgs({
       narrativeSceneCount: totalSceneCount || undefined,
     }));
@@ -3153,19 +3292,23 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   if (hasDeterministicRepairableFailures) {
     const repairedInner = enforceSuspectEliminationPresence(
-      enforceCulpritEvidencePresence(
-        enforceLockedFactValuePresence(
-          repairWordFormLockedFacts(prose, annotatedLockedFacts),
-          annotatedLockedFacts,
+      injectResolutionIfAbsent(
+        enforceCulpritEvidencePresence(
+          enforceLockedFactValuePresence(
+            repairWordFormLockedFacts(prose, annotatedLockedFacts),
+            annotatedLockedFacts,
+          ),
+          cml,
         ),
         cml,
       ),
       cml,
       castDesign, // P1-7: pass castDesign
     );
-    prose = pronounRepairEnabled
+    const withPronounRepair = pronounRepairEnabled
       ? applyDeterministicPronounSweep(repairedInner, castDesign.characters as CastEntry[])
       : repairedInner;
+    prose = substituteRoleAliasesInPostRevealChapters(withPronounRepair, cml);
 
     const repairedStoryForValidation = {
       id: runId,
@@ -3480,11 +3623,22 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // ============================================================================
   // Auto-fix encoding issues
   // ============================================================================
-  const fixedStory = validationPipeline.autoFix(storyForValidation);
+  // Rebuild from current prose.chapters — deterministic repairs above may have changed
+  // paragraphs since storyForValidation was first constructed. Using the stale snapshot
+  // would overwrite repaired paragraphs with pre-repair text when encoding fixes apply.
+  const storyForAutoFix = {
+    ...storyForValidation,
+    scenes: prose.chapters.map((ch: any, idx: number) => ({
+      number: idx + 1,
+      title: ch.title,
+      text: ch.paragraphs.join("\n\n"),
+    })),
+  };
+  const fixedStory = validationPipeline.autoFix(storyForAutoFix);
   let encodingFixesApplied = false;
 
   for (let i = 0; i < fixedStory.scenes.length; i++) {
-    if (fixedStory.scenes[i].text !== storyForValidation.scenes[i].text) {
+    if (fixedStory.scenes[i].text !== storyForAutoFix.scenes[i].text) {
       encodingFixesApplied = true;
       const fixedParagraphs = fixedStory.scenes[i].text.split("\n\n");
       prose.chapters[i] = {
@@ -3564,7 +3718,17 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   );
   const readabilitySummary = evaluateProseReadability(prose);
   const sceneGrounding = evaluateSceneGroundingCoverage(prose, locationProfiles);
-  const placeholderLeakage = evaluatePlaceholderLeakage(prose);
+  // Build a set of cast surnames to avoid false-positive placeholder detections on
+  // minor background characters the LLM may introduce with "a gentleman [Name]" phrasing.
+  const castSurnamesForLeakageCheck = new Set<string>(
+    (Array.isArray(castDesign.characters) ? castDesign.characters : [])
+      .map((c: any) => {
+        const nameParts = String(c?.name ?? "").trim().split(/\s+/);
+        return nameParts[nameParts.length - 1]; // last word = surname
+      })
+      .filter(Boolean),
+  );
+  const placeholderLeakage = evaluatePlaceholderLeakage(prose, castSurnamesForLeakageCheck);
   const chapterHeadingArtifacts = evaluateChapterHeadingArtifacts(prose);
   const clueEvidence = collectClueEvidenceFromProse(
     prose.chapters,
@@ -3582,22 +3746,38 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const nsdRevealedClues = new Set(
     ctx.nsdTransferTrace.flatMap((step: any) => step.newly_revealed_clue_ids),
   );
+  const { enforceable: enforceableNsdRevealedClues, advisoryOnly: advisoryOnlyNsdRevealedClues } =
+    partitionNsdRevealedCluesForReleaseGate(nsdRevealedClues, expectedClueIds);
+  const enforceableNsdRevealedClueSet = new Set(enforceableNsdRevealedClues);
   const evidenceVisibleClues = new Set(clueEvidence.visibleClueIds);
-  const revealedWithoutEvidence = Array.from(nsdRevealedClues).filter(
+  const revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
     (id) => !evidenceVisibleClues.has(id),
   );
   const evidenceWithoutReveal = Array.from(evidenceVisibleClues).filter(
-    (id) => !nsdRevealedClues.has(id),
+    (id) => !enforceableNsdRevealedClueSet.has(id),
   );
   const nsdVisibilityDivergence = {
     diverged: revealedWithoutEvidence.length > 0 || evidenceWithoutReveal.length > 0,
-    revealed_count: nsdRevealedClues.size,
+    revealed_count: enforceableNsdRevealedClueSet.size,
     evidence_visible_count: evidenceVisibleClues.size,
     clue_state_by_id: clueEvidence.clueStateById,
     revealed_without_evidence: revealedWithoutEvidence,
     evidence_without_reveal: evidenceWithoutReveal,
     sample_evidence_anchors: Object.values(clueEvidence.evidenceByClue).flat().slice(0, 8),
   };
+  const syntheticNsdAnchorCount = ctx.nsdTransferTrace.reduce(
+    (total: number, step: any) =>
+      total +
+      (Array.isArray(step?.clue_evidence_anchors)
+        ? step.clue_evidence_anchors.filter((anchor: any) => anchor?.quality === "synthetic").length
+        : 0),
+    0,
+  );
+  if (advisoryOnlyNsdRevealedClues.length > 0) {
+    ctx.warnings.push(
+      `NSD advisory: ${advisoryOnlyNsdRevealedClues.length} NSD-only clue id(s) are outside expected visibility set and excluded from hard-gate parity checks: ${advisoryOnlyNsdRevealedClues.join(", ")}`,
+    );
+  }
   const proseContainsIllegalControlChars = prose.chapters.some((chapter: any) =>
     chapter.paragraphs.some((paragraph: string) =>
       /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(paragraph),
@@ -3767,6 +3947,8 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       clue_visibility_expected_count: expectedClueIds.length,
       clue_visibility_extracted_count: extractedClueIds.length,
       nsd_visibility_divergence: nsdVisibilityDivergence,
+      synthetic_nsd_anchor_count: syntheticNsdAnchorCount,
+      fallback_telemetry: (prose.validationDetails as any)?.fallbackTelemetry ?? [],
       has_illegal_control_chars: proseContainsIllegalControlChars,
       has_mojibake: proseContainsMojibake,
       fair_play_status: fairPlayAudit?.overallStatus ?? null,

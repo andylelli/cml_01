@@ -7,6 +7,7 @@
 import type { CMLData, Story, ValidationError } from './types.js';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency } from './temporal-consistency.js';
+import { detectControlPlaneLeakage } from './control-plane-leakage.js';
 
 export interface ChapterValidationIssue {
   severity: 'critical' | 'major' | 'moderate';
@@ -471,6 +472,15 @@ export class ChapterValidator {
   private checkTemplateLeakage(chapter: ChapterContent): ChapterValidationIssue[] {
     const issues: ChapterValidationIssue[] = [];
     const joined = chapter.paragraphs.join('\n\n');
+
+    const leakageFindings = detectControlPlaneLeakage(joined);
+    for (const finding of leakageFindings.slice(0, 4)) {
+      issues.push({
+        severity: finding.severity,
+        message: `Chapter ${chapter.chapterNumber} contains control-plane leakage (${finding.code}): "${finding.excerpt}"`,
+        suggestion: 'Remove prompt, validation, retry, or scaffold terminology from reader-facing prose'
+      });
+    }
 
     // --- Original scaffold pattern ---
     const leakedScaffoldPattern = /At\s+The\s+[A-Z][^\n]{0,120}the\s+smell\s+of\s+[\s\S]{30,240}?atmosphere\s+ripe\s+for\s+revelation\.?/gi;

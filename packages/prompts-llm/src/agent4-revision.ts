@@ -389,6 +389,16 @@ export async function reviseCml(
       return match ?? fallback;
     };
 
+    const normalizeGenderEnum = (value: unknown): "male" | "female" | "non-binary" => {
+      const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+      if (normalized === "male" || normalized === "m") return "male";
+      if (normalized === "female" || normalized === "f") return "female";
+      if (normalized === "non-binary" || normalized === "nonbinary" || normalized === "nb" || normalized === "enby") {
+        return "non-binary";
+      }
+      return "non-binary";
+    };
+
     const cml = ensureObject(raw);
     cml.CML_VERSION = 2.0;
 
@@ -435,7 +445,7 @@ export async function reviseCml(
             : normalizeEnum(existing.role, ["detective", "victim", "culprit", "suspect", "witness", "bystander"], "suspect");
           const normalizedGender = existing.gender === undefined
             ? undefined
-            : normalizeEnum(existing.gender, ["male", "female"], "male");
+            : normalizeGenderEnum(existing.gender);
           const normalizedMember: Record<string, unknown> = {
             ...existing,
             name: ensureString(existing.name, `Suspect ${index + 1}`),

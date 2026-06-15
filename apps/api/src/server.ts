@@ -44,8 +44,9 @@ const requireCmlAccess = (req: ModeRequest, res: ModeResponse, next: ModeNext) =
 };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const examplesDir = path.resolve(__dirname, "../../..", "examples");
-const storiesDir = path.resolve(__dirname, "../../..", "stories");
+const workspaceRoot = path.resolve(__dirname, "../../..");
+const examplesDir = path.resolve(workspaceRoot, "examples");
+const storiesDir = path.resolve(workspaceRoot, "stories");
 
 const listSampleFiles = async () => {
   const files = await fs.readdir(examplesDir);
@@ -924,8 +925,8 @@ const runPipeline = async (
 };
 
 const appendActivityLog = async (entry: Record<string, unknown>) => {
-  const logDir = path.resolve(process.cwd(), "logs");
-  const logPath = path.join(logDir, "activity.jsonl");
+  const logPath = process.env.CML_ACTIVITY_LOG_FILE_PATH || path.resolve(workspaceRoot, "logs", "activity.jsonl");
+  const logDir = path.dirname(logPath);
   await fs.mkdir(logDir, { recursive: true });
   await fs.appendFile(logPath, `${JSON.stringify(entry)}\n`, "utf-8");
 };
@@ -933,8 +934,27 @@ const appendActivityLog = async (entry: Record<string, unknown>) => {
 export const createServer = () => {
   const app = express();
   const repoPromise = createRepository();
+  let httpLogSettled: Promise<void> = Promise.resolve();
 
-  const getReportRepository = async () => {
+  // On startup, any run still marked "running" was orphaned by a previous server
+  // process (e.g. server restart mid-pipeline). Reset them to "idle" so the
+  // scoring-report endpoint stops treating them as active and returns the report.
+  repoPromise
+    .then(async (repo) => {
+      const projects = await repo.listProjects().catch(() => []);
+      for (const project of projects) {
+        const latestRun = await repo.getLatestRun(project.id).catch(() => null);
+        if (latestRun && latestRun.status === "running") {
+          await repo.updateRunStatus(latestRun.id, "idle").catch(() => {});
+          await repo.setProjectStatus(project.id, "idle").catch(() => {});
+          await repo.addRunEvent(latestRun.id, "run_orphaned", "Run marked idle: server restarted while pipeline was running").catch(() => {});
+        }
+      }
+    })
+    .catch(() => { /* startup cleanup is best-effort */ });
+
+  const getReportDirectories = () => {
+    const includeDefaultRuntimePaths = process.env.CML_CLEAR_DEFAULT_RUNTIME_PATHS !== "false";
     // __dirname is anchored to the compiled server.js location (apps/api/dist),
     // so this path is reliable regardless of process.cwd().
     const primaryDir = path.resolve(__dirname, "..", "data", "reports");
@@ -942,12 +962,23 @@ export const createServer = () => {
     // Legacy fallback paths for reports written by older worker versions.
     const cwd = process.cwd();
     const candidateDirs = [
-      primaryDir,
-      path.resolve(cwd, "apps", "api", "data", "reports"),
-      path.resolve(cwd, "data", "reports"),
-      // Doubled legacy path: worker was previously launched with cwd=apps/api.
-      path.resolve(cwd, "apps", "api", "apps", "api", "data", "reports"),
-    ];
+      process.env.CML_REPORTS_DIR,
+      ...(includeDefaultRuntimePaths
+        ? [
+            primaryDir,
+            path.resolve(cwd, "apps", "api", "data", "reports"),
+            path.resolve(cwd, "data", "reports"),
+            // Doubled legacy path: worker was previously launched with cwd=apps/api.
+            path.resolve(cwd, "apps", "api", "apps", "api", "data", "reports"),
+          ]
+        : []),
+    ].filter((dir): dir is string => Boolean(dir));
+
+    return [...new Set(candidateDirs)];
+  };
+
+  const getReportRepository = async () => {
+    const candidateDirs = getReportDirectories();
 
     for (const dir of candidateDirs) {
       try {
@@ -959,7 +990,79 @@ export const createServer = () => {
     }
 
     // Default to the __dirname-anchored path
-    return new FileReportRepository(primaryDir);
+    return new FileReportRepository(candidateDirs[0]);
+  };
+
+  const clearDirectoryContents = async (dir: string, recreate = false) => {
+    try {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      await Promise.all(
+        entries.map((entry) =>
+          fs.rm(path.join(dir, entry.name), { recursive: true, force: true }),
+        ),
+      );
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException;
+      if (err.code !== "ENOENT") {
+        throw error;
+      }
+    }
+
+    if (recreate) {
+      await fs.mkdir(dir, { recursive: true });
+    }
+  };
+
+  const clearSidecarPersistence = async (): Promise<string[]> => {
+    const reportDirs = getReportDirectories();
+    await Promise.all(
+      reportDirs.map((dir) => fs.rm(dir, { recursive: true, force: true })),
+    );
+
+    const activityLogPath = process.env.CML_ACTIVITY_LOG_FILE_PATH || path.resolve(workspaceRoot, "logs", "activity.jsonl");
+    const logFiles = [
+      process.env.LOG_FILE_PATH,
+      process.env.FULL_PROMPT_LOG_FILE_PATH,
+      activityLogPath,
+    ].filter((file): file is string => Boolean(file));
+
+    const includeDefaultRuntimePaths = process.env.CML_CLEAR_DEFAULT_RUNTIME_PATHS !== "false";
+    const logDirs = [
+      process.env.CML_WORKER_LOGS_DIR,
+      ...(includeDefaultRuntimePaths
+        ? [
+            path.resolve(workspaceRoot, "logs"),
+            path.resolve(process.cwd(), "logs"),
+            path.resolve(workspaceRoot, "apps", "api", "logs"),
+            path.resolve(workspaceRoot, "apps", "worker", "logs"),
+          ]
+        : []),
+    ].filter((dir): dir is string => Boolean(dir));
+
+    const actualPromptDocsDirs = [
+      process.env.ACTUAL_PROMPT_DOCS_DIR,
+      ...(includeDefaultRuntimePaths
+        ? [
+            path.resolve(workspaceRoot, "documentation", "prompts", "actual"),
+            path.resolve(process.cwd(), "documentation", "prompts", "actual"),
+          ]
+        : []),
+    ].filter((dir): dir is string => Boolean(dir));
+
+    await Promise.all([
+      ...[...new Set(logDirs)].map((dir) => clearDirectoryContents(dir, true)),
+      ...[...new Set(actualPromptDocsDirs)].map((dir) => clearDirectoryContents(dir, true)),
+      ...[...new Set(logFiles)].map((file) => fs.rm(file, { force: true })),
+    ]);
+
+    return [
+      "reports",
+      "activity_log",
+      "llm_logs",
+      "agent_checkpoints",
+      "worker_logs",
+      "actual_prompt_docs",
+    ];
   };
 
   app.use(cors());
@@ -969,7 +1072,10 @@ export const createServer = () => {
   app.use((req, res, next) => {
     const start = Date.now();
     res.on("finish", () => {
-      repoPromise
+      if (req.path === "/api/admin/clear-store") {
+        return;
+      }
+      const logWrite = repoPromise
         .then((repo) => {
           const match = req.path.match(/\/api\/projects\/([^/]+)/);
           const projectId = match?.[1] ?? null;
@@ -1001,6 +1107,7 @@ export const createServer = () => {
           return httpLog;
         })
         .catch(() => undefined);
+      httpLogSettled = httpLogSettled.catch(() => undefined).then(() => logWrite).then(() => undefined);
     });
     next();
   });
@@ -1011,9 +1118,11 @@ export const createServer = () => {
 
   app.post("/api/admin/clear-store", async (_req, res) => {
     try {
+      await httpLogSettled.catch(() => undefined);
       const repo = await repoPromise;
       await repo.clearAllData();
-      res.status(200).json({ status: "ok" });
+      const sidecars = await clearSidecarPersistence();
+      res.status(200).json({ status: "ok", cleared: ["repository", ...sidecars] });
     } catch {
       res.status(500).json({ error: "Failed to clear persistence store" });
     }
@@ -1240,14 +1349,6 @@ export const createServer = () => {
    * Requires ENABLE_SCORING=true on the worker. Returns 404 if scoring was disabled or run not found.
    */
   app.get("/api/projects/:projectId/runs/:runId/report", async (req, res) => {
-    const isKnownActiveRun = async (): Promise<boolean> => {
-      const latestRun = await repoPromise
-        .then((repo) => repo.getLatestRun(req.params.projectId))
-        .catch(() => null);
-      if (!latestRun) return false;
-      return latestRun.id === req.params.runId && latestRun.status !== "idle";
-    };
-
     const sendLatestValidFallback = async (staleReason: string): Promise<boolean> => {
       try {
         const reportRepo = await getReportRepository();
@@ -1311,8 +1412,11 @@ export const createServer = () => {
     try {
       const reportRepo = await getReportRepository();
       const report = await reportRepo.get(req.params.projectId, req.params.runId);
+
       if (!report) {
-        if (await isKnownActiveRun()) {
+        const repo = await repoPromise;
+        const latestRun = await repo.getLatestRun(req.params.projectId);
+        if (latestRun?.id === req.params.runId && latestRun.status === "running") {
           res.status(202).json({
             status: "in_progress",
             projectId: req.params.projectId,
@@ -1320,47 +1424,27 @@ export const createServer = () => {
           });
           return;
         }
+        if (await sendLatestValidFallback("no_report_for_run")) return;
         res.status(404).json({ error: "Scoring report not found" });
         return;
       }
 
-      if ((report as unknown as Record<string, unknown>).in_progress === true) {
-        if (await isKnownActiveRun()) {
-          res.status(202).json({
-            status: "in_progress",
-            projectId: req.params.projectId,
-            runId: req.params.runId,
-          });
+      // Partial / in-progress snapshots are returned directly so clients can
+      // display live scoring data as each pipeline stage completes.
+      // The `in_progress: true` field tells the client it is a partial snapshot.
+      if ((report as { in_progress?: boolean }).in_progress === true) {
+        const repo = await repoPromise;
+        const latestRun = await repo.getLatestRun(req.params.projectId);
+        if (latestRun?.id === req.params.runId && latestRun.status === "running") {
+          res.status(202).json(report);
           return;
         }
-
-        if (await sendLatestValidFallback("incomplete_report")) {
-          return;
-        }
-
-        res.status(409).json({
-          error: "Run is complete but only an in-progress report snapshot is available",
-          projectId: req.params.projectId,
-          runId: req.params.runId,
-        });
-        return;
+        if (await sendLatestValidFallback("incomplete_report")) return;
       }
 
       res.json(report);
     } catch {
-      if (await isKnownActiveRun()) {
-        res.status(202).json({
-          status: "in_progress",
-          projectId: req.params.projectId,
-          runId: req.params.runId,
-        });
-        return;
-      }
-
-      if (await sendLatestValidFallback("report_read_error")) {
-        return;
-      }
-
+      if (await sendLatestValidFallback("report_read_error")) return;
       res.status(500).json({ error: "Failed to fetch scoring report" });
     }
   });

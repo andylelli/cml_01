@@ -14,6 +14,7 @@ import {
   type StoryLength,
 } from '../../story-length-targets.js';
 import { getGenerationParams } from '../../generation-params.js';
+import type { ProseTrustSignal } from '../../types.js';
 
 /**
  * Chapter prose from Agent 9
@@ -54,6 +55,7 @@ export interface ProseOutput {
     clue_visibility_ratio?: number;
     missing_clue_ids?: string[];
   };
+  trust_signals?: ProseTrustSignal[];
 }
 
 interface CompletenessDiagnostics {
@@ -123,11 +125,13 @@ export class ProseScorer
 
     // Total = weighted sum.  Weights reflect what matters most for a publishable mystery:
     // structural validity (40%) > prose craft (30%) > word-count completeness (20%) > consistency (10%).
-    const total =
+    const uncappedTotal =
       validation_score * 0.4 +
       quality_score * 0.3 +
       completeness_score * 0.2 +
       consistency_score * 0.1;
+    const readerTrust = this.applyReaderTrustCaps(uncappedTotal, output.trust_signals ?? []);
+    const total = readerTrust.capped_total;
 
     const criticalFailures = getCriticalFailures(tests);
     const passed = criticalFailures.length === 0 && total >= 60;
@@ -146,6 +150,7 @@ export class ProseScorer
         ? { chapter_scores: [...(output as any).breakdown.chapter_scores] }
         : {}),
       completeness_diagnostics: completeness.diagnostics,
+      reader_trust: readerTrust,
     };
 
     return {
@@ -164,6 +169,49 @@ export class ProseScorer
         ? this.buildFailureReason(criticalFailures, component_failures)
         : undefined,
     };
+  }
+
+  private applyReaderTrustCaps(
+    uncappedTotal: number,
+    trustSignals: ProseTrustSignal[],
+  ): {
+    uncapped_total: number;
+    capped_total: number;
+    applied_caps: Array<{ code: string; cap: number; reason: string }>;
+  } {
+    const appliedCaps = trustSignals
+      .map((signal) => {
+        const cap = signal.cap ?? this.defaultTrustCap(signal.code);
+        if (cap >= 100) return null;
+        return {
+          code: signal.code,
+          cap,
+          reason: this.trustCapReason(signal.code),
+        };
+      })
+      .filter((entry): entry is { code: string; cap: number; reason: string } => Boolean(entry));
+    const cap = appliedCaps.length > 0 ? Math.min(...appliedCaps.map((entry) => entry.cap)) : 100;
+    return {
+      uncapped_total: Math.round(uncappedTotal),
+      capped_total: Math.min(Math.round(uncappedTotal), cap),
+      applied_caps: appliedCaps,
+    };
+  }
+
+  private defaultTrustCap(code: string): number {
+    if (/identity|victim|deceased/i.test(code)) return 60;
+    if (/leakage/i.test(code)) return 75;
+    if (/fallback/i.test(code)) return 80;
+    if (/discriminating_test/i.test(code)) return 85;
+    return 100;
+  }
+
+  private trustCapReason(code: string): string {
+    if (/identity|victim|deceased/i.test(code)) return 'A deceased/victim character appears alive or culpable later.';
+    if (/leakage/i.test(code)) return 'Control-plane language appears in reader-facing prose.';
+    if (/fallback/i.test(code)) return 'Multiple fallback chapters are below functional length.';
+    if (/discriminating_test/i.test(code)) return 'The intended discriminating test is missing or not executed on-page.';
+    return 'Reader-trust signal reduced the publishable score.';
   }
 
   private validateStructure(output: ProseOutput, context: ScoringContext): TestResult[] {

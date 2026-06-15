@@ -18,6 +18,7 @@ import {
   executeAgentWithRetry,
   appendRetryFeedback,
   preAgent9LlmRetriesEnabled,
+  preAgent9ContractRecoveryEnabled,
 } from "./shared.js";
 
 /**
@@ -38,6 +39,74 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
   const characters = Array.isArray(castRaw.characters)
     ? (castRaw.characters as Array<Record<string, unknown>>)
     : [];
+
+  // --- characters: coerce enum-like fields to valid schema values ---
+  // Prevent deterministic-mode schema aborts for near-miss enum values.
+  const normaliseMotiveStrength = (value: unknown): "weak" | "moderate" | "strong" | "compelling" => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "weak" || raw === "moderate" || raw === "strong" || raw === "compelling") {
+      return raw;
+    }
+    if (/compell|overwhelm|extreme|decisive|certain/.test(raw)) return "compelling";
+    if (/strong|high|powerful|major|serious/.test(raw)) return "strong";
+    if (/moderate|medium|mixed|balanced/.test(raw)) return "moderate";
+    if (/weak|low|minor|slight|none|n\/a|na|unknown|unclear/.test(raw)) return "weak";
+    return "moderate";
+  };
+
+  const normaliseAccessPlausibility = (value: unknown): "impossible" | "unlikely" | "possible" | "easy" => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "impossible" || raw === "unlikely" || raw === "possible" || raw === "easy") {
+      return raw;
+    }
+    if (/certain|definite|guarant|easy|high|sure/.test(raw)) return "easy";
+    if (/like|probable|often|common|frequent/.test(raw)) return "possible";
+    if (/unlike|improbab|rare|seldom|difficult|hard/.test(raw)) return "unlikely";
+    if (/impossible|never|no.access|barred/.test(raw)) return "impossible";
+    return "possible";
+  };
+
+  const normaliseGender = (value: unknown): "male" | "female" | "non-binary" | undefined => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (!raw) return undefined;
+    if (raw === "male" || raw === "female" || raw === "non-binary") return raw;
+    if (/^m(ale)?$|^man$|^boy$/.test(raw)) return "male";
+    if (/^f(emale)?$|^woman$|^girl$/.test(raw)) return "female";
+    if (/non[-\s]?binary|\benby\b|^nb$/.test(raw)) return "non-binary";
+    return undefined;
+  };
+
+  const normaliseRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
+      return raw;
+    }
+    if (/none|no\s*tension|neutral|calm/.test(raw)) return "none";
+    if (/low|mild|minor|slight/.test(raw)) return "low";
+    if (/moderate|medium|mixed/.test(raw)) return "moderate";
+    if (/high|severe|intense|strong/.test(raw)) return "high";
+    return "moderate";
+  };
+
+  for (const character of characters) {
+    if (character.motiveStrength === undefined && character.motive_strength !== undefined) {
+      character.motiveStrength = character.motive_strength;
+    }
+    if (character.accessPlausibility === undefined && character.access_plausibility !== undefined) {
+      character.accessPlausibility = character.access_plausibility;
+    }
+    character.motiveStrength = normaliseMotiveStrength(character.motiveStrength);
+    character.accessPlausibility = normaliseAccessPlausibility(character.accessPlausibility);
+    if (character.gender !== undefined) {
+      const normalisedGender = normaliseGender(character.gender);
+      if (normalisedGender) {
+        character.gender = normalisedGender;
+      } else {
+        delete character.gender;
+      }
+    }
+  }
+
   const nonDetectiveNames = characters
     .filter((c) => String(c.roleArchetype ?? "").toLowerCase() !== "detective" && c.name)
     .map((c) => String(c.name));
@@ -83,6 +152,12 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
   const existingPairs = Array.isArray(relationshipContainer.pairs)
     ? (relationshipContainer.pairs as Array<Record<string, unknown>>)
     : [];
+
+  for (const pair of existingPairs) {
+    if (pair && typeof pair === "object") {
+      pair.tension = normaliseRelationshipTension(pair.tension);
+    }
+  }
 
   const hasCastReferencedRelationship = existingPairs.some((pair) => {
     const c1 = String(pair.character1 ?? "").trim();
@@ -148,6 +223,7 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
 
 export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
+  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("cast", "Designing cast and motives...", 12);
 
   const setting = ctx.setting!;
@@ -239,10 +315,10 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
   };
   let castSchemaValidation = validateArtifact("cast_design", castValidationPayload);
   if (!castSchemaValidation.valid) {
-    if (!retriesEnabled) {
+    if (!contractRecoveryEnabled) {
       castSchemaValidation.errors.forEach((error) => ctx.errors.push(`Cast schema failure: ${error}`));
       const errorSummary = castSchemaValidation.errors.slice(0, 3).join("; ");
-      throw new Error(`Cast artifact failed schema validation (deterministic mode: schema retry disabled): ${errorSummary}`);
+      throw new Error(`Cast artifact failed schema validation (contract recovery disabled): ${errorSummary}`);
     }
     ctx.warnings.push("Cast design failed schema validation on first attempt; retrying cast generation with schema repair guardrails");
     const schemaRepairGuardrails = [

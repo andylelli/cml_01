@@ -342,6 +342,28 @@ export class ScoreAggregator {
     // Calculate total cost
     const totalCost = this.phases.reduce((sum, p) => sum + p.cost, 0);
 
+    const normalizedDisplayStatus =
+      runOutcome === 'aborted' || runOutcome === 'infra_failure'
+        ? runOutcome
+        : effectiveReleaseGateHardStopCount > 0 || releaseGateStatus === 'failed' && releaseGateWarningCount === 0
+          ? 'failed'
+          : releaseGateWarningCount > 0
+            ? 'warning'
+            : runOutcome;
+    const normalizedStatusDiagnostic: GenerationDiagnostic = {
+      key: 'normalized_run_status',
+      agent: 'scoring',
+      phase_name: 'Report',
+      diagnostic_type: 'normalized_run_status',
+      captured_at: completedAt.toISOString(),
+      details: {
+        display_status: normalizedDisplayStatus,
+        discrepancies: [],
+        warning_count: releaseGateWarningCount,
+        hard_stop_count: effectiveReleaseGateHardStopCount,
+      },
+    };
+
     // Build failure reasons (for phases that failed)
     const failureReasons: string[] = this.phases
       .filter((p) => !p.passed)
@@ -372,7 +394,7 @@ export class ScoreAggregator {
         warning_count: releaseGateWarningCount,
       },
       phases: this.phases,
-      diagnostics: this.diagnostics.length > 0 ? [...this.diagnostics] : undefined,
+      diagnostics: [...this.diagnostics, normalizedStatusDiagnostic],
       validation_snapshots:
         preRepairSnapshot || postRepairSnapshot || releaseGateSnapshot
           ? {

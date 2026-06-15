@@ -65,6 +65,8 @@ Pass criteria in runner:
 - Internal batch retries occur inside `generateProse(...)` for chapter-generation validation failures.
 - Batch-level failures are recorded in `validationDetails.failureHistory` and surfaced in runner warnings/logs.
 - Retry classification now groups failures into canonical classes (`encoding`, `structure`, `completeness`, `continuity`, `clue_timing`, `template`, `tone_pacing`, `fair_play`) and can stop early on non-convergent repeat classes.
+- Retries now begin with a concise single-pass repair contract before the detailed validator dump. The contract states retry mode (`surgical_patch`, `targeted_rebuild`, or `full_rebuild`), primary failures, rewrite plan, success checklist, and output rules so the model is asked to clear all issues in one pass rather than iterating through them piecemeal.
+- Prior failed draft text is no longer always replayed back to the model. Narrow single-family fixes can still use the prior draft as reference, but multi-family or rebuild-style retries suppress prior-draft anchoring so the model rewrites against the scene constraints instead of copying failed wording forward.
 - Deterministic mitigation hooks are applied on repeated classes: `split_chapter`, `freshen_atoms`, and `tighten_obligation`; mixed clue+template failures can trigger combined mitigation parameters in a single retry packet.
 - Template-linter failures are deferred as hard blockers while narrative hard errors remain in the same attempt, then re-applied once narrative obligations clear.
 - Clue-obligation validation supports semantic anchor fallback (derived from clue description + pointsTo) to reduce false-negative phrase matching while preserving timing/order constraints.

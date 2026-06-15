@@ -3,6 +3,7 @@
  */
 
 export type ClueEvidenceState = "introduced" | "hinted" | "explicit" | "confirmed";
+export type ClueEvidenceAnchorQuality = "explicit" | "hinted" | "synthetic";
 
 export interface ClueEvidenceAnchor {
   clue_id: string;
@@ -15,6 +16,7 @@ export interface ClueEvidenceAnchor {
   };
   confidence: number;
   state: ClueEvidenceState;
+  quality?: ClueEvidenceAnchorQuality;
 }
 
 export interface ClueEvidenceExtractionResult {

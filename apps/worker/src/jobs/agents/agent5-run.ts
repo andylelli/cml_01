@@ -223,6 +223,200 @@ const sanitizeDiscriminatingEvidenceClueIds = (cml: CaseData): { removed: string
   return { removed, kept };
 };
 
+const getCanonicalMappingClueIds = (cml: CaseData): string[] => {
+  const caseBlock = getCaseBlock(cml);
+  const mappingIds: string[] = Array.isArray(caseBlock?.prose_requirements?.clue_to_scene_mapping)
+    ? caseBlock.prose_requirements.clue_to_scene_mapping
+        .map((entry: any) => String(entry?.clue_id ?? "").trim())
+        .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id))
+    : [];
+  return [...new Set<string>(mappingIds)];
+};
+
+const alignDiscriminatingEvidenceIdsWithSceneMapping = (
+  cml: CaseData,
+): { replaced: Array<{ from: string; to: string }>; finalIds: string[] } => {
+  const caseBlock = getCaseBlock(cml);
+  const discrimTest = caseBlock?.discriminating_test;
+  if (!discrimTest || !Array.isArray(discrimTest.evidence_clues)) {
+    return { replaced: [], finalIds: [] };
+  }
+
+  const mappingIds = getCanonicalMappingClueIds(cml);
+  if (mappingIds.length === 0) {
+    return { replaced: [], finalIds: getCanonicalEvidenceClueIds(cml) };
+  }
+
+  const rawEvidence: string[] = discrimTest.evidence_clues
+    .map((id: unknown) => String(id ?? "").trim())
+    .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id));
+  if (rawEvidence.length === 0) {
+    return { replaced: [], finalIds: [] };
+  }
+
+  const replaced: Array<{ from: string; to: string }> = [];
+  const mappingSet = new Set<string>(mappingIds);
+  const usedIds = new Set<string>(rawEvidence.filter((id: string) => mappingSet.has(id)));
+  const nextEvidence: string[] = [...rawEvidence];
+
+  for (let idx = 0; idx < nextEvidence.length; idx += 1) {
+    const current = nextEvidence[idx];
+    if (!current || mappingSet.has(current)) continue;
+
+    const replacement = mappingIds.find((candidateId) => !usedIds.has(candidateId));
+    if (!replacement) continue;
+
+    nextEvidence[idx] = replacement;
+    usedIds.add(replacement);
+    replaced.push({ from: current, to: replacement });
+  }
+
+  if (replaced.length > 0) {
+    const deduped = [...new Set<string>(nextEvidence)];
+    discrimTest.evidence_clues = deduped;
+    return { replaced, finalIds: deduped };
+  }
+
+  return { replaced, finalIds: rawEvidence };
+};
+
+const DISCRIMINATING_ID_TOKEN_STOP_WORDS = new Set([
+  "clue",
+  "core",
+  "chain",
+  "step",
+  "fp",
+  "direct",
+  "optional",
+  "late",
+  "slot",
+  "contradiction",
+  "evidence",
+]);
+
+const tokenizeDiscriminatingId = (value: string): string[] =>
+  String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 3 && !DISCRIMINATING_ID_TOKEN_STOP_WORDS.has(token));
+
+const remapMissingDiscriminatingEvidenceIdsToExistingClues = (
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  missingEvidenceIds: string[],
+): { remapped: Array<{ missingId: string; mappedId: string; sourceId: string }>; unresolved: string[] } => {
+  if (missingEvidenceIds.length === 0) return { remapped: [], unresolved: [] };
+
+  const caseBlock = getCaseBlock(cml);
+  const discrimTest = caseBlock?.discriminating_test;
+  if (!discrimTest || !Array.isArray(discrimTest.evidence_clues)) {
+    return { remapped: [], unresolved: [...missingEvidenceIds] };
+  }
+
+  const clueList = Array.isArray(clues?.clues) ? clues.clues : [];
+  const existingClueIds = new Set<string>(
+    clueList
+      .map((clue: any) => String(clue?.id ?? "").trim())
+      .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id)),
+  );
+  if (existingClueIds.size === 0) {
+    return { remapped: [], unresolved: [...missingEvidenceIds] };
+  }
+
+  const canonicalEvidence: string[] = discrimTest.evidence_clues
+    .map((id: unknown) => String(id ?? "").trim())
+    .filter((id: string) => Boolean(id) && CANONICAL_CLUE_ID_RE.test(id));
+  const usedIds = new Set<string>(canonicalEvidence.filter((id: string) => existingClueIds.has(id)));
+
+  const remapped: Array<{ missingId: string; mappedId: string; sourceId: string }> = [];
+  const unresolved: string[] = [];
+
+  for (const missingId of missingEvidenceIds) {
+    if (!missingId || existingClueIds.has(missingId)) continue;
+    const missingTokens = tokenizeDiscriminatingId(missingId);
+
+    let best:
+      | {
+          id: string;
+          sourceId: string;
+          score: number;
+          tokenMatches: number;
+          structuralScore: number;
+        }
+      | undefined;
+
+    for (const clue of clueList as any[]) {
+      const candidateId = String(clue?.id ?? "").trim();
+      if (!candidateId || !CANONICAL_CLUE_ID_RE.test(candidateId) || usedIds.has(candidateId)) continue;
+
+      const candidateText = [
+        String(clue?.id ?? ""),
+        String(clue?.description ?? ""),
+        String(clue?.pointsTo ?? ""),
+        String(clue?.sourceInCML ?? ""),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      let tokenMatches = 0;
+      for (const token of missingTokens) {
+        if (candidateText.includes(token)) tokenMatches += 1;
+      }
+
+      const structuralScore =
+        (String(clue?.criticality ?? "").toLowerCase() === "essential" ? 4 : 0)
+        + ((String(clue?.placement ?? "").toLowerCase() === "early" || String(clue?.placement ?? "").toLowerCase() === "mid") ? 3 : 0)
+        + ((String(clue?.evidenceType ?? "").toLowerCase() === "observation" || String(clue?.evidenceType ?? "").toLowerCase() === "contradiction") ? 2 : 0)
+        + (String(clue?.sourceInCML ?? "").includes("CASE.discriminating_test.evidence_clues") ? 1 : 0);
+
+      const score = structuralScore + (tokenMatches * 3);
+      if (!best || score > best.score) {
+        best = {
+          id: candidateId,
+          sourceId: String(clue?.id ?? ""),
+          score,
+          tokenMatches,
+          structuralScore,
+        };
+      }
+    }
+
+    const canAcceptBest =
+      Boolean(best)
+      && (best!.tokenMatches > 0 || best!.structuralScore >= 8)
+      && best!.score >= 7;
+
+    if (!canAcceptBest || !best) {
+      unresolved.push(missingId);
+      continue;
+    }
+
+    let replaced = false;
+    for (let i = 0; i < canonicalEvidence.length; i += 1) {
+      if (canonicalEvidence[i] !== missingId) continue;
+      canonicalEvidence[i] = best.id;
+      replaced = true;
+      break;
+    }
+
+    if (!replaced) {
+      unresolved.push(missingId);
+      continue;
+    }
+
+    usedIds.add(best.id);
+    remapped.push({ missingId, mappedId: best.id, sourceId: best.sourceId });
+  }
+
+  if (remapped.length > 0) {
+    discrimTest.evidence_clues = [...new Set(canonicalEvidence)];
+  }
+
+  const remainingMissing = getMissingDiscriminatingEvidenceIds(cml, clues);
+  return { remapped, unresolved: remainingMissing.filter((id) => unresolved.includes(id) || missingEvidenceIds.includes(id)) };
+};
+
 const getByPath = (root: any, path: string): { ok: boolean; value?: any } => {
   const tokens = path.match(/[A-Za-z_][A-Za-z0-9_]*|\[(\d+)\]/g);
   if (!tokens) return { ok: false };
@@ -2581,6 +2775,16 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       51,
     );
   }
+  const mappingAlignedEvidenceIds = alignDiscriminatingEvidenceIdsWithSceneMapping(ctx.cml!);
+  if (mappingAlignedEvidenceIds.replaced.length > 0) {
+    const sample = mappingAlignedEvidenceIds.replaced
+      .slice(0, 4)
+      .map((entry) => `${entry.from} -> ${entry.to}`)
+      .join(", ");
+    ctx.warnings.push(
+      `Agent 5: aligned discriminating_test.evidence_clues IDs to clue_to_scene_mapping namespace (${mappingAlignedEvidenceIds.replaced.length} replacement(s): ${sample}${mappingAlignedEvidenceIds.replaced.length > 4 ? ", ..." : ""})`,
+    );
+  }
 
   const clueDensity: "minimal" | "moderate" | "dense" =
     ctx.inputs.targetLength === "short" ? "minimal"
@@ -3358,7 +3562,24 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     );
   }
 
-  const remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
+  let remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
+  if (remainingMissingEvidenceIds.length > 0) {
+    const remapResult = remapMissingDiscriminatingEvidenceIdsToExistingClues(
+      ctx.cml!,
+      clues,
+      remainingMissingEvidenceIds,
+    );
+    if (remapResult.remapped.length > 0) {
+      remapResult.remapped.forEach((repair) =>
+        ctx.warnings.push(
+          `Agent 5 evidence-id deterministic remap: ${repair.missingId} => ${repair.mappedId} (matched existing ${repair.sourceId})`,
+        ),
+      );
+      finalCoverage = buildCoverageSnapshot(clues);
+      remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
+    }
+  }
+
   if (remainingMissingEvidenceIds.length > 0) {
     const synthRepairs = synthesizeMissingDiscriminatingEvidenceClues(
       ctx.cml!,
@@ -3370,6 +3591,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
         ctx.warnings.push(`Agent 5 evidence-id deterministic synthesis: ${repair}`),
       );
       finalCoverage = buildCoverageSnapshot(clues);
+      remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
     }
   }
 
@@ -3515,6 +3737,8 @@ export const __testables = {
   checkDiscriminatingTestReachability,
   checkMechanismVisibility,
   sanitizeDiscriminatingEvidenceClueIds,
+  alignDiscriminatingEvidenceIdsWithSceneMapping,
+  remapMissingDiscriminatingEvidenceIdsToExistingClues,
   synthesizeMissingDiscriminatingEvidenceClues,
   selectDiscriminatingEvidenceCandidateIds,
   sanitizeEraTimeStyleInClues,

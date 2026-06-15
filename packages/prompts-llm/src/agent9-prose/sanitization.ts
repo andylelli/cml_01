@@ -26,7 +26,7 @@ export function stripInternalAuditPhrasing(text: string): string {
   const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
   if (!normalized) return "";
 
-  const sentenceParts = normalized.match(/[^.!?]+[.!?]*(?:\s+|$)/g) ?? [normalized];
+  const sentenceParts = normalized.match(/[^.!?]+[.!?]+['""\u2019\u201d]?(?:\s+|$)/g) ?? [normalized];
   const cleaned = sentenceParts
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && !INTERNAL_AUDIT_LEAK_PATTERNS.some((re) => re.test(part)));

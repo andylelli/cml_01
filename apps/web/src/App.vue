@@ -900,8 +900,12 @@ const stopRunEventsPolling = () => {
 // appears, or the user switches to the quality tab.)
 
 // Refresh report + history whenever a new run is identified.
+// Clear any stale report immediately so the Quality tab doesn't show old data
+// while the new run is in progress.
 watch(latestRunId, async (newRunId) => {
   if (!newRunId || !projectId.value) return;
+  scoringReport.value = null;
+  projectStore.clearArtifactsOnly(); // clear stale review-tab artifacts for the new run
   await loadScoringReport();
   await loadScoringHistory();
 });
@@ -972,6 +976,24 @@ watch(activeAdvancedTab, (newTab) => {
     }
   }
 }, { immediate: true });
+
+// While a run is active and the quality tab is open, poll for partial reports.
+// savePartialReport() is called after each agent, so data appears incrementally.
+let qualityPollInterval: ReturnType<typeof setInterval> | null = null;
+
+watch(isRunning, (running) => {
+  if (qualityPollInterval) {
+    clearInterval(qualityPollInterval);
+    qualityPollInterval = null;
+  }
+  if (running) {
+    qualityPollInterval = setInterval(() => {
+      if (activeMainTab.value === "advanced" && activeAdvancedTab.value === "quality") {
+        void loadScoringReport();
+      }
+    }, 8000);
+  }
+});
 
 watch([activeMainTab, activeAdvancedTab, projectId], async ([mainTab, advancedTab, currentProject]) => {
   if (mainTab === "advanced" && advancedTab === "logs") {
@@ -1129,13 +1151,13 @@ const handleSaveSpec = async () => {
 };
 
 const handleClearStore = async () => {
-  if (!confirm("This will delete all saved projects and results. Continue?")) {
+  if (!confirm("This will delete all saved projects, generated results, reports, logs, and prompt history. Continue?")) {
     return;
   }
   clearErrors("project");
   clearErrors("artifacts");
   try {
-    await clearPersistenceStore();
+    const result = await clearPersistenceStore();
     projectStore.clearAll();
     projectId.value = null;
     latestSpecId.value = null;
@@ -1146,8 +1168,9 @@ const handleClearStore = async () => {
     missingProjectNotified.value = false;
     showAdvancedValidation.value = false;
     persistState();
-    addError("info", "project", "All saved work was cleared.");
-    logActivity({ projectId: null, scope: "ui", message: "clear_store" });
+    const clearedCount = result.cleared?.length;
+    const suffix = clearedCount ? ` (${clearedCount} stores cleared)` : "";
+    addError("info", "project", `All saved work, reports, logs, and prompt history were cleared.${suffix}`);
   } catch (error) {
     addError("error", "project", "Failed to clear persistence", error instanceof Error ? error.message : String(error));
   }
@@ -1207,15 +1230,36 @@ const loadScoringReport = async () => {
   if (!projectId.value) return;
   isScoringReportLoading.value = true;
   try {
-    // Resolve the run ID — prefer the store value, fall back to API lookup.
+    // Guard 1: a new run was just started (pendingRunId set) but latestRunId
+    // hasn't caught up yet. Requesting the old run's real report would succeed
+    // and display stale data. Bail early so the Quality tab shows "in progress".
+    if ((isRunning.value || isStartingRun.value) && pendingRunId.value && latestRunId.value !== pendingRunId.value) {
+      scoringReport.value = null;
+      return;
+    }
     const runId = latestRunId.value ?? (await fetchLatestRun(projectId.value).catch(() => null))?.id ?? null;
     if (runId) {
-      const report = await fetchScoringReport(projectId.value, runId);
+      const report = await fetchScoringReport(projectId.value, runId) as (Record<string, unknown> & GenerationReport) | null;
       if (report) {
+        // Guard 2: the server may return a stale fallback (from a prior run) when
+        // no report exists for the requested run yet. During an active run, discard
+        // stale reports so the Quality tab shows "in progress" instead of old data.
+        if ((isRunning.value || isStartingRun.value) && report.stale === true) {
+          scoringReport.value = null;
+          return;
+        }
         scoringReport.value = report as GenerationReport;
         return;
       }
     }
+    // During an active run no report exists yet — clear stale data and wait.
+    if (isRunning.value || isStartingRun.value) {
+      scoringReport.value = null;
+      return;
+    }
+    // Fallback: history endpoint reads directly from disk with no run-status gating
+    const history = await fetchScoringHistory(projectId.value, 1);
+    if (history.length > 0) scoringReport.value = history[0] as GenerationReport;
   } catch {
     // Do not clear existing data on failure — keep showing the last known report.
     if (!scoringReport.value) {
@@ -1252,7 +1296,11 @@ const pollScoringReport = async (attempts = 10, delayMs = 1500) => {
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     }
   }
-  // All attempts exhausted — fall back silently; keep any existing stale report
+  // All attempts exhausted — fall back to history (direct disk read, no run-status gating)
+  try {
+    const history = await fetchScoringHistory(projectId.value, 1);
+    if (history.length > 0) scoringReport.value = history[0] as GenerationReport;
+  } catch { /* best-effort */ }
   isScoringReportLoading.value = false;
 };
 
@@ -1296,6 +1344,7 @@ const handleRunPipeline = async () => {
   clearErrors("pipeline");
   try {
     isStartingRun.value = true;
+    projectStore.clearArtifactsOnly(); // clear stale artifacts immediately so Review tabs don't show old data
     runStatus.value = "Saving your settings...";
     const saved = await saveSpec(projectId.value, spec.value);
     latestSpecId.value = saved.id;
@@ -1939,13 +1988,13 @@ onBeforeUnmount(() => {
               </div>
               <div class="mt-4 flex items-center justify-between rounded-md border border-rose-200 bg-rose-50 px-4 py-3">
                 <div class="text-xs text-rose-700">
-                  Clears the JSON persistence store and resets the UI state.
+                  Clears saved projects, artifacts, run history, scoring reports, LLM logs, and prompt history.
                 </div>
                 <button
                   class="rounded-md border border-rose-300 bg-white px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100"
                   @click="handleClearStore"
                 >
-                  Clear persistence
+                  Clear all persistence
                 </button>
               </div>
               <div class="mt-3 text-xs text-slate-500">
@@ -2223,6 +2272,15 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
+            <!-- Run in progress banner -->
+            <div v-if="isRunning || isStartingRun" class="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <font-awesome-icon icon="spinner" spin class="flex-shrink-0" />
+              <div>
+                <span class="font-semibold">Run in progress</span>
+                <span class="ml-1 text-blue-600">— {{ runProgressLabel }}</span>
+              </div>
+            </div>
+
             <div v-if="activeReviewTab === 'cast'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div>
                 <div class="flex items-center justify-between">
@@ -2298,7 +2356,8 @@ onBeforeUnmount(() => {
                 </div>
               </div>
 
-              <div v-if="locationProfilesData" class="mt-4 space-y-6">
+              <ContentSkeleton v-if="!locationProfilesData && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="5" />
+              <div v-else-if="locationProfilesData" class="mt-4 space-y-6">
                 <!-- Primary Location -->
                 <div v-if="locationProfilesData.primary" class="rounded-md border border-slate-200 bg-slate-50 p-4">
                   <div class="flex items-center justify-between">
@@ -2383,6 +2442,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">Location profiles will appear after generation.</div>
+
             </div>
 
             <div v-if="activeReviewTab === 'background'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -2391,7 +2451,8 @@ onBeforeUnmount(() => {
                 <div class="text-xs text-slate-500">Background context</div>
               </div>
 
-              <div v-if="backgroundContextData || settingData || locationProfilesData || temporalContextData" class="mt-4 space-y-4">
+              <ContentSkeleton v-if="!(backgroundContextData || settingData || locationProfilesData || temporalContextData) && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="4" />
+              <div v-else-if="backgroundContextData || settingData || locationProfilesData || temporalContextData" class="mt-4 space-y-4">
                 <div v-if="backgroundContextData?.backdropSummary" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
                   {{ backgroundContextData.backdropSummary }}
                 </div>
@@ -2444,6 +2505,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">Background context will appear after generation.</div>
+
             </div>
 
             <div v-if="activeReviewTab === 'hardLogic'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -2452,7 +2514,8 @@ onBeforeUnmount(() => {
                 <div class="text-xs text-slate-500">{{ hardLogicDevicesData?.devices?.length || 0 }} devices</div>
               </div>
 
-              <div v-if="hardLogicDevicesData" class="mt-4 space-y-4">
+              <ContentSkeleton v-if="!hardLogicDevicesData && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="5" />
+              <div v-else-if="hardLogicDevicesData" class="mt-4 space-y-4">
                 <div v-if="hardLogicDevicesData.overview" class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
                   {{ hardLogicDevicesData.overview }}
                 </div>
@@ -2489,6 +2552,7 @@ onBeforeUnmount(() => {
                 </details>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">Hard-logic devices will appear after generation.</div>
+
             </div>
 
             <div v-if="activeReviewTab === 'temporal'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -2499,7 +2563,8 @@ onBeforeUnmount(() => {
                 </div>
               </div>
 
-              <div v-if="temporalContextData" class="mt-4 space-y-6">
+              <ContentSkeleton v-if="!temporalContextData && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="5" />
+              <div v-else-if="temporalContextData" class="mt-4 space-y-6">
                 <!-- Specific Date -->
                 <div class="rounded-md border border-slate-200 bg-blue-50 p-4">
                   <div class="text-sm font-semibold text-slate-700">Specific Date</div>
@@ -2634,6 +2699,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">Temporal context will appear after generation.</div>
+
             </div>
 
             <div v-if="activeReviewTab === 'clues'" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -2686,7 +2752,8 @@ onBeforeUnmount(() => {
                 <div class="text-sm font-semibold text-slate-700">Story Outline</div>
                 <div class="text-xs text-slate-500">{{ outlineData?.chapters?.length || 0 }} chapters</div>
               </div>
-              <div v-if="outlineData && outlineData.chapters && outlineData.chapters.length" class="mt-4 space-y-4">
+              <ContentSkeleton v-if="!(outlineData?.chapters?.length) && (isRunning || isStartingRun || artifactsStatus === 'loading')" class="mt-4" :rows="5" />
+              <div v-else-if="outlineData && outlineData.chapters && outlineData.chapters.length" class="mt-4 space-y-4">
                 <div v-for="(chapter, idx) in outlineData.chapters" :key="idx" class="border-l-2 border-slate-300 pl-4">
                   <div class="text-sm font-semibold text-slate-700">Chapter {{ idx + 1 }}: {{ chapter.title || 'Untitled' }}</div>
                   <div class="mt-1 text-sm text-slate-600">{{ chapter.summary || chapter.description || 'No summary available' }}</div>
@@ -2696,6 +2763,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div v-else class="mt-4 text-sm text-slate-500">No outline yet. Generate to create it.</div>
+
             </div>
 
             <div v-if="activeReviewTab === 'prose'">
@@ -2904,9 +2972,20 @@ onBeforeUnmount(() => {
                 Loading quality report...
               </div>
               <template v-else>
-                <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
-                <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
-                <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+                <div v-if="!scoringReport && (isRunning || isStartingRun)" class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                  Generating — scores for each stage will appear here as they complete.
+                </div>
+                <template v-else>
+                  <!-- Partial / in-progress snapshot banner -->
+                  <div v-if="scoringReport && (scoringReport as unknown as Record<string, unknown>).in_progress === true && (isRunning || isStartingRun)"
+                       class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+                    <font-awesome-icon icon="spinner" spin class="flex-shrink-0" />
+                    <span>Partial scores — updating as each stage completes</span>
+                  </div>
+                  <ScoreCard :report="scoringReport" :loading="isScoringReportLoading" />
+                  <PhaseBreakdownTable v-if="scoringReport" :phases="scoringReport.phases" />
+                  <ScoreTrendChart v-if="scoringHistory.length >= 2" :history="scoringHistory" />
+                </template>
               </template>
             </div>
               </div>

@@ -409,14 +409,14 @@ export const fetchProjectStatus = async (projectId: string): Promise<ProjectStat
   return response.json() as Promise<ProjectStatus>;
 };
 
-export const clearPersistenceStore = async (): Promise<{ status: string }> => {
+export const clearPersistenceStore = async (): Promise<{ status: string; cleared?: string[] }> => {
   const response = await fetch(`${apiBase}/api/admin/clear-store`, {
     method: "POST",
   });
   if (!response.ok) {
     throw new Error(`Clear store failed (${response.status})`);
   }
-  return response.json() as Promise<{ status: string }>;
+  return response.json() as Promise<{ status: string; cleared?: string[] }>;
 };
 
 export const fetchScoringReport = async (projectId: string, runId: string): Promise<unknown> => {

@@ -297,26 +297,6 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
         // Only apply repair if the inherited subject is in the allowed set
         const shouldRepair = !options?.onlyNames || options.onlyNames.has(lastSingleCharacter.canonical);
         if (shouldRepair) {
-          // Safety guard (female→male direction only): if the inherited character is
-          // FEMALE and the segment already contains MALE pronouns, those pronouns
-          // belong to a male cast member — do NOT overwrite them. This prevents the
-          // inheritance bug where a correct male pronoun ("his") gets replaced with
-          // "her" because the prior sentence named a female character (e.g. Eleanor)
-          // and we blindly inherit her gender context.
-          // We do NOT apply this guard in the male→female direction: when the inherited
-          // character is male and the segment has female pronouns, those are typically
-          // LLM errors for the male character that the repair should correct.
-          if (lastSingleCharacter.gender === 'female') {
-            const castHasMale = characters.some(c => c.gender === 'male');
-            if (castHasMale) {
-              const segmentHasMalePronouns = Array.from(segment.matchAll(/\b(\w+)\b/gi))
-                .some(m => MALE_PRONOUNS.has(m[1].toLowerCase()));
-              if (segmentHasMalePronouns) {
-                // Segment has correct male pronouns for a male cast member — skip repair
-                return segment;
-              }
-            }
-          }
           const repaired = repairPronounsInSegment(segment, lastSingleCharacter);
           if (repaired !== segment) repairCount++;
           return repaired;

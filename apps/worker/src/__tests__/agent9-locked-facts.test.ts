@@ -9,7 +9,12 @@
  *  - Per-chapter warning threshold (>3 replacements per chapter)
  */
 import { describe, expect, it, vi } from "vitest";
-import { repairWordFormLockedFacts, getExpectedClueIdsForVisibility } from "../jobs/agents/agent9-run.js";
+import {
+  repairWordFormLockedFacts,
+  getExpectedClueIdsForVisibility,
+  partitionNsdRevealedCluesForReleaseGate,
+  buildSyntheticNsdClueAnchor,
+} from "../jobs/agents/agent9-run.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -348,5 +353,54 @@ describe("getExpectedClueIdsForVisibility — clue reconciliation", () => {
     const clueDistribution = { clues: [{ id: "clue_1" }] };
     const result = getExpectedClueIdsForVisibility(cmlCase, clueDistribution);
     expect(result.filter((id) => id === "clue_1")).toHaveLength(1); // deduplicated
+  });
+});
+
+describe("partitionNsdRevealedCluesForReleaseGate", () => {
+  it("treats only expected clue IDs as enforceable and keeps red-herring IDs advisory", () => {
+    const result = partitionNsdRevealedCluesForReleaseGate(
+      ["clue_1", "rh_1", "rh_2", "clue_2"],
+      ["clue_1", "clue_2", "clue_3"],
+    );
+
+    expect(result.enforceable).toEqual(["clue_1", "clue_2"]);
+    expect(result.advisoryOnly).toEqual(["rh_1", "rh_2"]);
+  });
+
+  it("marks all IDs enforceable when all are expected", () => {
+    const result = partitionNsdRevealedCluesForReleaseGate(
+      ["clue_a", "clue_b"],
+      ["clue_a", "clue_b", "clue_c"],
+    );
+
+    expect(result.enforceable).toEqual(["clue_a", "clue_b"]);
+    expect(result.advisoryOnly).toEqual([]);
+  });
+});
+
+describe("buildSyntheticNsdClueAnchor", () => {
+  it("creates a parity-safe fallback anchor with clue metadata", () => {
+    const anchor = buildSyntheticNsdClueAnchor("clue_foo", 4, {
+      description: "Clock key was found reversed on the mantelpiece.",
+      pointsTo: "Timeline manipulation.",
+    });
+
+    expect(anchor.clue_id).toBe("clue_foo");
+    expect(anchor.chapter_number).toBe(4);
+    expect(anchor.confidence).toBe(0);
+    expect(anchor.state).toBe("introduced");
+    expect(anchor.evidence_offset).toEqual({ chapter: 4, paragraph: 1, sentence: 1 });
+    expect(anchor.evidence_quote).toContain("Synthetic NSD anchor");
+    expect(anchor.evidence_quote).toContain("Clock key");
+  });
+
+  it("remains valid when clue metadata is absent", () => {
+    const anchor = buildSyntheticNsdClueAnchor("clue_bar", 2);
+
+    expect(anchor.clue_id).toBe("clue_bar");
+    expect(anchor.chapter_number).toBe(2);
+    expect(anchor.confidence).toBe(0);
+    expect(anchor.state).toBe("introduced");
+    expect(anchor.evidence_quote).toContain("No direct prose quote extracted");
   });
 });

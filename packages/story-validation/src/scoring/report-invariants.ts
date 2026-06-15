@@ -216,7 +216,9 @@ export function validateGenerationReportInvariants(
     }
   }
 
-  if (outcome === 'passed' && hasMissingNsdEvidenceAnchors(candidate)) {
+  const explicitOutcome = candidate.run_outcome;
+  const hasExplicitFailedOutcome = explicitOutcome === 'failed';
+  if (hasMissingNsdEvidenceAnchors(candidate) && (outcome === 'passed' || (outcome === 'failed' && !hasExplicitFailedOutcome))) {
     violations.push({
       code: 'nsd_revealed_clues_missing_evidence_anchors',
       message:

@@ -39,6 +39,33 @@ describe("retry-protocol failure class mapping", () => {
 
     expect(packet.failureClass).toBe("tone_pacing");
   });
+
+  it("maps new stage and reveal contract failures to expected classes", () => {
+    const stagePacket = classifyFailure({
+      validationErrors: ["Stage-mode outcome failed (early_investigation): chapter must include contradiction pressure."],
+      attempt: 1,
+      maxRetries: 3,
+      priorPackets: [],
+    });
+    expect(stagePacket.failureClass).toBe("fair_play");
+    expect(stagePacket.failureSubcode).toBe("stage_mode_outcome");
+
+    const dtPacket = classifyFailure({
+      validationErrors: ["Discriminating test validity failed: must state competing theory and observable result."],
+      attempt: 1,
+      maxRetries: 3,
+      priorPackets: [],
+    });
+    expect(dtPacket.failureClass).toBe("clue_timing");
+
+    const revealPacket = classifyFailure({
+      validationErrors: ["Final reveal completeness failed: reveal must include motive and opportunity."],
+      attempt: 1,
+      maxRetries: 3,
+      priorPackets: [],
+    });
+    expect(revealPacket.failureClass).toBe("fair_play");
+  });
 });
 
 describe("retry-protocol deterministic mitigation", () => {
@@ -88,15 +115,56 @@ describe("retry-protocol deterministic mitigation", () => {
     expect(packet.deterministicMitigation?.type).toBe("tighten_obligation");
   });
 
-  it("stops retry continuation when escalated", () => {
+  it("continues template retries when escalated before max budget", () => {
     const packet = classifyFailure({
       validationErrors: ["Template linter: opening-style entropy too low"],
       attempt: 2,
-      maxRetries: 2,
+      maxRetries: 4,
       priorPackets: [],
     });
 
-    expect(shouldContinueRetry(packet, [])).toBe(false);
+    expect(shouldContinueRetry(packet, [])).toBe(true);
+  });
+
+  it("still stops non-template retries on repeated failure class", () => {
+    const packet = classifyFailure({
+      validationErrors: ["chapter.paragraphs must contain at least 4 paragraphs"],
+      attempt: 2,
+      maxRetries: 4,
+      priorPackets: [],
+    });
+    const prior = classifyFailure({
+      validationErrors: ["chapter.paragraphs must contain at least 4 paragraphs"],
+      attempt: 1,
+      maxRetries: 4,
+      priorPackets: [],
+    });
+
+    expect(packet.failureClass).toBe("structure");
+    expect(shouldContinueRetry(packet, [prior])).toBe(false);
+  });
+
+  it("continues retries when template signals co-occur with a higher-priority class", () => {
+    const prior = classifyFailure({
+      validationErrors: ["missing clue visibility evidence"],
+      attempt: 1,
+      maxRetries: 4,
+      priorPackets: [],
+    });
+    const packet = classifyFailure({
+      validationErrors: [
+        "missing clue visibility evidence",
+        "Template linter: repeated long paragraph fingerprint detected",
+      ],
+      attempt: 2,
+      maxRetries: 4,
+      priorPackets: [prior],
+    });
+
+    expect(packet.failureClass).toBe("clue_timing");
+    expect(packet.templateSignalPresent).toBe(true);
+    expect(packet.shouldEscalate).toBe(true);
+    expect(shouldContinueRetry(packet, [prior])).toBe(true);
   });
 
   it("adds freshenAtoms and diversifyStructure when clue_timing and template fail together", () => {

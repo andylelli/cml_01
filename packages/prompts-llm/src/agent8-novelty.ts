@@ -69,10 +69,15 @@ export interface NoveltyAuditResult {
 export function buildNoveltyPrompt(inputs: NoveltyAuditInputs): PromptComponents {
   const config = getGenerationParams().agent8_novelty.params;
   const { generatedCML, seedCMLs } = inputs;
-  const similarityThreshold =
+  const configuredThreshold =
     typeof inputs.similarityThreshold === "number"
       ? inputs.similarityThreshold
       : config.thresholds.similarity_threshold_default;
+  // Prevent invalid/out-of-range config from collapsing thresholds to 100%.
+  const similarityThreshold =
+    Number.isFinite(configuredThreshold) && configuredThreshold > 0 && configuredThreshold < 1
+      ? configuredThreshold
+      : 0.9;
 
   // System: Define the novelty auditor role
   const system = `You are an expert plagiarism and similarity detection specialist for mystery fiction. Your role is to compare a newly generated mystery (CML) against a set of seed examples to ensure sufficient novelty.

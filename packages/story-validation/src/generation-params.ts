@@ -240,6 +240,41 @@ export interface Agent9ValidationConfig {
   pronoun_validation_enabled: boolean;
 }
 
+export interface Agent9ChapterCompositionRangeConfig {
+  min_pct: number;
+  max_pct: number;
+}
+
+export interface Agent9ChapterCompositionPhaseConfig {
+  [component: string]: Agent9ChapterCompositionRangeConfig;
+}
+
+export interface Agent9ChapterCompositionTargetsConfig {
+  chapter1: Agent9ChapterCompositionPhaseConfig;
+  early_investigation: Agent9ChapterCompositionPhaseConfig;
+  middle_chapters: Agent9ChapterCompositionPhaseConfig;
+  false_suspect_chapters: Agent9ChapterCompositionPhaseConfig;
+  discriminating_test_chapter: Agent9ChapterCompositionPhaseConfig;
+  final_reveal: Agent9ChapterCompositionPhaseConfig;
+}
+
+export interface Agent9StageModeProfileConfig {
+  balance_targets: Agent9ChapterCompositionPhaseConfig;
+  required_outcomes: string[];
+  forbidden_reveals: string[];
+}
+
+export interface Agent9StageModesConfig {
+  discovery_opening: Agent9StageModeProfileConfig;
+  early_investigation: Agent9StageModeProfileConfig;
+  suspect_pressure: Agent9StageModeProfileConfig;
+  false_suspect_clearing: Agent9StageModeProfileConfig;
+  clue_reinterpretation: Agent9StageModeProfileConfig;
+  discriminating_test: Agent9StageModeProfileConfig;
+  final_reveal: Agent9StageModeProfileConfig;
+  aftermath_consequence: Agent9StageModeProfileConfig;
+}
+
 export interface Agent9RolloutFlagsConfig {
   phrase_family_detection_enabled: boolean;
   uncapped_repair_targets_enabled: boolean;
@@ -294,6 +329,8 @@ export interface GenerationParamsConfig {
   agent8_novelty: Agent8NoveltyConfig;
   agent9_prose: {
     story_length_policy: StoryLengthPolicyConfig;
+    chapter_composition_targets: Agent9ChapterCompositionTargetsConfig;
+    stage_modes: Agent9StageModesConfig;
     underflow_expansion: Agent9UnderflowExpansionConfig;
     generation: Agent9GenerationConfig;
     prose_model: Agent9ProseModelConfig;
@@ -471,6 +508,147 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       total_word_budget_ratio: {
         min_ratio: 0.75,
         max_ratio: 1.25,
+      },
+    },
+    chapter_composition_targets: {
+      chapter1: {
+        setting: { min_pct: 20, max_pct: 20 },
+        character_introductions: { min_pct: 40, max_pct: 40 },
+        discovery_reactions: { min_pct: 30, max_pct: 30 },
+        first_clue: { min_pct: 10, max_pct: 10 },
+      },
+      early_investigation: {
+        setting: { min_pct: 10, max_pct: 15 },
+        character_pressure: { min_pct: 35, max_pct: 40 },
+        clue_development: { min_pct: 45, max_pct: 50 },
+      },
+      middle_chapters: {
+        setting: { min_pct: 10, max_pct: 10 },
+        character_conflict: { min_pct: 30, max_pct: 35 },
+        alibi_testing_clue_reinterpretation: { min_pct: 50, max_pct: 60 },
+      },
+      false_suspect_chapters: {
+        setting: { min_pct: 10, max_pct: 10 },
+        character_focus: { min_pct: 45, max_pct: 45 },
+        evidence_contradiction: { min_pct: 45, max_pct: 45 },
+      },
+      discriminating_test_chapter: {
+        setting: { min_pct: 10, max_pct: 10 },
+        character_reaction: { min_pct: 20, max_pct: 25 },
+        test_proof_reversal: { min_pct: 65, max_pct: 70 },
+      },
+      final_reveal: {
+        setting: { min_pct: 10, max_pct: 10 },
+        motive_character_consequence: { min_pct: 30, max_pct: 30 },
+        evidence_chain: { min_pct: 40, max_pct: 40 },
+        confession_aftermath: { min_pct: 20, max_pct: 20 },
+      },
+    },
+    stage_modes: {
+      discovery_opening: {
+        balance_targets: {
+          setting: { min_pct: 15, max_pct: 20 },
+          character_introductions: { min_pct: 35, max_pct: 40 },
+          discovery_reactions: { min_pct: 25, max_pct: 30 },
+          first_clue: { min_pct: 10, max_pct: 15 },
+        },
+        required_outcomes: [
+          "Victim is named explicitly.",
+          "Major suspects are introduced with relevance and tension.",
+          "First clue is planted without full mechanism explanation.",
+        ],
+        forbidden_reveals: [
+          "No culprit reveal.",
+          "No full murder mechanism explanation.",
+        ],
+      },
+      early_investigation: {
+        balance_targets: {
+          setting: { min_pct: 10, max_pct: 15 },
+          character_pressure: { min_pct: 35, max_pct: 40 },
+          clue_development: { min_pct: 45, max_pct: 50 },
+        },
+        required_outcomes: [
+          "Develop clues through contradiction, questioning, or alibi pressure.",
+          "End with changed investigative theory.",
+        ],
+        forbidden_reveals: ["No final culprit resolution."],
+      },
+      suspect_pressure: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          character_pressure: { min_pct: 45, max_pct: 55 },
+          evidence_or_alibi_testing: { min_pct: 35, max_pct: 45 },
+        },
+        required_outcomes: [
+          "Reveal fear, motive, lie, loyalty conflict, or secret.",
+          "Suspicion state changes by chapter end.",
+        ],
+        forbidden_reveals: ["No full murder confession unless outline-required."],
+      },
+      false_suspect_clearing: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          character_consequence: { min_pct: 30, max_pct: 40 },
+          evidence_proving_innocence: { min_pct: 50, max_pct: 60 },
+        },
+        required_outcomes: [
+          "Show why suspect looked guilty.",
+          "Prove innocence with evidence, corroborated alibi, or timing logic.",
+          "Shift suspicion afterward.",
+        ],
+        forbidden_reveals: ["Do not clear by convenience or assertion."],
+      },
+      clue_reinterpretation: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          character_reaction: { min_pct: 25, max_pct: 35 },
+          clue_reinterpretation: { min_pct: 55, max_pct: 65 },
+        },
+        required_outcomes: [
+          "State original clue meaning and revised meaning.",
+          "Show suspect implications and theory update.",
+        ],
+        forbidden_reveals: ["Do not introduce decisive new evidence from nowhere."],
+      },
+      discriminating_test: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          character_reaction: { min_pct: 20, max_pct: 25 },
+          test_proof_reversal: { min_pct: 65, max_pct: 70 },
+        },
+        required_outcomes: [
+          "State competing theories.",
+          "Run/reveal concrete test with observable result.",
+          "State what result proves and rules out.",
+        ],
+        forbidden_reveals: ["Do not merely restate known evidence."],
+      },
+      final_reveal: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          motive_emotional_truth: { min_pct: 30, max_pct: 35 },
+          evidence_chain: { min_pct: 35, max_pct: 45 },
+          confession_consequence: { min_pct: 20, max_pct: 25 },
+        },
+        required_outcomes: [
+          "Provide motive, death method, opportunity, and evidence chain.",
+          "Distinguish death method from concealment mechanism.",
+          "State culprit trace/mistake and consequences.",
+        ],
+        forbidden_reveals: ["No mechanism-only confession without death responsibility."],
+      },
+      aftermath_consequence: {
+        balance_targets: {
+          setting: { min_pct: 5, max_pct: 10 },
+          emotional_fallout: { min_pct: 45, max_pct: 55 },
+          social_reordering: { min_pct: 35, max_pct: 45 },
+        },
+        required_outcomes: [
+          "Show emotional fallout and changed order.",
+          "Close consequence arcs for surviving characters.",
+        ],
+        forbidden_reveals: ["Do not introduce decisive new mystery evidence."],
       },
     },
     underflow_expansion: {
@@ -664,6 +842,63 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
       long: mergeWordTargetDerived(lengthSource?.word_targets?.long, DEFAULT_CONFIG.story_length_policy.word_targets.long),
     },
     total_word_budget_ratio: totalWordBudgetRatio,
+  };
+
+  const mergeCompositionPhase = (
+    srcPhase: any,
+    defaultPhase: Agent9ChapterCompositionPhaseConfig,
+  ): Agent9ChapterCompositionPhaseConfig => {
+    const mergedPhase: Agent9ChapterCompositionPhaseConfig = {};
+    for (const [component, defaultRange] of Object.entries(defaultPhase)) {
+      const minCandidate = clampNumber(srcPhase?.[component]?.min_pct, defaultRange.min_pct, 0, 100);
+      const maxCandidate = clampNumber(srcPhase?.[component]?.max_pct, defaultRange.max_pct, 0, 100);
+      mergedPhase[component] = {
+        min_pct: Math.min(minCandidate, maxCandidate),
+        max_pct: Math.max(minCandidate, maxCandidate),
+      };
+    }
+    return mergedPhase;
+  };
+
+  const defaultComposition = DEFAULT_CONFIG.agent9_prose.chapter_composition_targets;
+  const sourceComposition = partial.agent9_prose?.chapter_composition_targets;
+  const resolvedChapterCompositionTargets: Agent9ChapterCompositionTargetsConfig = {
+    chapter1: mergeCompositionPhase(sourceComposition?.chapter1, defaultComposition.chapter1),
+    early_investigation: mergeCompositionPhase(sourceComposition?.early_investigation, defaultComposition.early_investigation),
+    middle_chapters: mergeCompositionPhase(sourceComposition?.middle_chapters, defaultComposition.middle_chapters),
+    false_suspect_chapters: mergeCompositionPhase(sourceComposition?.false_suspect_chapters, defaultComposition.false_suspect_chapters),
+    discriminating_test_chapter: mergeCompositionPhase(sourceComposition?.discriminating_test_chapter, defaultComposition.discriminating_test_chapter),
+    final_reveal: mergeCompositionPhase(sourceComposition?.final_reveal, defaultComposition.final_reveal),
+  };
+
+  const mergeStringList = (candidate: unknown, fallback: string[]): string[] => {
+    if (!Array.isArray(candidate)) return [...fallback];
+    const normalized = candidate
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean);
+    return normalized.length > 0 ? normalized : [...fallback];
+  };
+
+  const defaultStageModes = DEFAULT_CONFIG.agent9_prose.stage_modes;
+  const sourceStageModes = partial.agent9_prose?.stage_modes as any;
+  const mergeStageModeProfile = (
+    sourceProfile: any,
+    defaultProfile: Agent9StageModeProfileConfig,
+  ): Agent9StageModeProfileConfig => ({
+    balance_targets: mergeCompositionPhase(sourceProfile?.balance_targets, defaultProfile.balance_targets),
+    required_outcomes: mergeStringList(sourceProfile?.required_outcomes, defaultProfile.required_outcomes),
+    forbidden_reveals: mergeStringList(sourceProfile?.forbidden_reveals, defaultProfile.forbidden_reveals),
+  });
+
+  const resolvedStageModes: Agent9StageModesConfig = {
+    discovery_opening: mergeStageModeProfile(sourceStageModes?.discovery_opening, defaultStageModes.discovery_opening),
+    early_investigation: mergeStageModeProfile(sourceStageModes?.early_investigation, defaultStageModes.early_investigation),
+    suspect_pressure: mergeStageModeProfile(sourceStageModes?.suspect_pressure, defaultStageModes.suspect_pressure),
+    false_suspect_clearing: mergeStageModeProfile(sourceStageModes?.false_suspect_clearing, defaultStageModes.false_suspect_clearing),
+    clue_reinterpretation: mergeStageModeProfile(sourceStageModes?.clue_reinterpretation, defaultStageModes.clue_reinterpretation),
+    discriminating_test: mergeStageModeProfile(sourceStageModes?.discriminating_test, defaultStageModes.discriminating_test),
+    final_reveal: mergeStageModeProfile(sourceStageModes?.final_reveal, defaultStageModes.final_reveal),
+    aftermath_consequence: mergeStageModeProfile(sourceStageModes?.aftermath_consequence, defaultStageModes.aftermath_consequence),
   };
 
   const merged: GenerationParamsConfig = {
@@ -915,6 +1150,24 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           long: { ...resolvedStoryLengthPolicy.word_targets.long },
         },
         total_word_budget_ratio: { ...resolvedStoryLengthPolicy.total_word_budget_ratio },
+      },
+      chapter_composition_targets: {
+        chapter1: { ...resolvedChapterCompositionTargets.chapter1 },
+        early_investigation: { ...resolvedChapterCompositionTargets.early_investigation },
+        middle_chapters: { ...resolvedChapterCompositionTargets.middle_chapters },
+        false_suspect_chapters: { ...resolvedChapterCompositionTargets.false_suspect_chapters },
+        discriminating_test_chapter: { ...resolvedChapterCompositionTargets.discriminating_test_chapter },
+        final_reveal: { ...resolvedChapterCompositionTargets.final_reveal },
+      },
+      stage_modes: {
+        discovery_opening: { ...resolvedStageModes.discovery_opening, balance_targets: { ...resolvedStageModes.discovery_opening.balance_targets } },
+        early_investigation: { ...resolvedStageModes.early_investigation, balance_targets: { ...resolvedStageModes.early_investigation.balance_targets } },
+        suspect_pressure: { ...resolvedStageModes.suspect_pressure, balance_targets: { ...resolvedStageModes.suspect_pressure.balance_targets } },
+        false_suspect_clearing: { ...resolvedStageModes.false_suspect_clearing, balance_targets: { ...resolvedStageModes.false_suspect_clearing.balance_targets } },
+        clue_reinterpretation: { ...resolvedStageModes.clue_reinterpretation, balance_targets: { ...resolvedStageModes.clue_reinterpretation.balance_targets } },
+        discriminating_test: { ...resolvedStageModes.discriminating_test, balance_targets: { ...resolvedStageModes.discriminating_test.balance_targets } },
+        final_reveal: { ...resolvedStageModes.final_reveal, balance_targets: { ...resolvedStageModes.final_reveal.balance_targets } },
+        aftermath_consequence: { ...resolvedStageModes.aftermath_consequence, balance_targets: { ...resolvedStageModes.aftermath_consequence.balance_targets } },
       },
       underflow_expansion: {
         expansion_size_ratio: {

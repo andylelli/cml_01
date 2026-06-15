@@ -13,9 +13,11 @@ import {
   getRequiredClueIdsForScene,
   isBehaviouralClue,
   isDeliveryMethodLabel,
+  sceneMatchesCmlSceneRef,
   tokenMatchesText,
   tokenizeForClueObligation,
 } from "./clue-validation.js";
+import { sanitizeContinuityTailForPrompt } from "./continuity-tail.js";
 import { getSeasonAllowList, capitalizeWord } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeClueField, tagCharacter, buildIdentityMap } from "./phrase-analysis.js";
@@ -42,6 +44,7 @@ export function buildChapterObligationBlock(
   worldDoc?: any,
   macroArcPlan?: MacroArcEntry[],
   allOutlineScenes?: any[],
+  currentStageMode?: string,
 ): string {
   if (!Array.isArray(scenesForChapter) || scenesForChapter.length === 0) {
     return '';
@@ -77,6 +80,13 @@ export function buildChapterObligationBlock(
   const victimForIdentity = ((cmlCase?.cast ?? []) as any[])
     .find((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'));
   const victimNameForIdentity = String(victimForIdentity?.name ?? '').trim();
+
+  // Extract detective first name for the paragraph-opener diversity constraint (all chapters).
+  const detectiveCastEntry = ((cmlCase?.cast ?? []) as any[]).find((c: any) =>
+    String(c.role ?? '').toLowerCase() === 'detective' ||
+    String((c as any).role_archetype ?? '').toLowerCase().includes('detective')
+  );
+  const detectiveFirstName: string = String(detectiveCastEntry?.name ?? '').trim().split(/\s+/)[0] ?? '';
 
   const clueMap = new Map<string, Clue>(
     (clueDistribution?.clues ?? []).map((c) => [c.id, c]),
@@ -180,9 +190,10 @@ export function buildChapterObligationBlock(
     }
   }
 
-  const continuityTail = typeof narrativeState?.continuityTail === 'string'
-    ? narrativeState.continuityTail.replace(/\s+/g, ' ').trim()
+  const continuityTailRaw = typeof narrativeState?.continuityTail === 'string'
+    ? narrativeState.continuityTail
     : '';
+  const continuityTail = sanitizeContinuityTailForPrompt(continuityTailRaw);
   const continuityTailExcerpt = continuityTail.length > 220
     ? `${continuityTail.slice(0, 220).trimEnd()}...`
     : continuityTail;
@@ -199,8 +210,12 @@ export function buildChapterObligationBlock(
     const locationAnchor = String(scene?.setting?.location || scene?.location || '').trim();
     // Exact match uses per-act scene number so CML clue_to_scene_mapping aligns with outline.
     const exactClearances = clearanceScenes.filter((entry: any) =>
-      Number(entry?.act_number) === sceneAct &&
-      Number(entry?.scene_number) === perActSceneNum,
+      sceneMatchesCmlSceneRef(
+        scene,
+        entry,
+        allOutlineScenes,
+        /\b(clear|cleared|clearance|alibi|ruled out|eliminat)/i,
+      ),
     );
     const matchingClearances: typeof exactClearances = exactClearances.length > 0
       ? exactClearances
@@ -221,8 +236,12 @@ export function buildChapterObligationBlock(
             : [];
         })();
     const isDiscriminatingTestChapter =
-      Number(dtScene?.act_number) === sceneAct &&
-      Number(dtScene?.scene_number) === perActSceneNum;
+      sceneMatchesCmlSceneRef(
+        scene,
+        dtScene,
+        allOutlineScenes,
+        /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
+      );
 
     // Post-reveal naming constraint — fires for chapters that come after the revelation
     // scene so the LLM doesn't replace the culprit's name with role aliases.
@@ -231,6 +250,7 @@ export function buildChapterObligationBlock(
       revelationSceneRef != null && (
         Number(scene?.act) > Number(revelationSceneRef.act_number) ||
         (Number(scene?.act) === Number(revelationSceneRef.act_number) &&
+          Number(scene?.sceneNumber) > Number(revelationSceneRef.scene_number) &&
           perActSceneNum > Number(revelationSceneRef.scene_number))
       );
 
@@ -261,6 +281,16 @@ export function buildChapterObligationBlock(
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
     lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
     lines.push(`  - Opening atmosphere (MANDATORY — validator enforced): the first paragraph MUST contain at least one of: rain / wind / fog / storm / mist / thunder / evening / morning / night / dawn / dusk / season / afternoon / midday / noon / midnight / twilight / sunrise / sunset / daylight / sunlight / overcast / cloudy / bright / dark / grey / pale / cold / warm / chill / crisp / damp / drizzle / haze / lamplight / firelight. A chapter that omits all of these from its opening paragraph will be rejected.`);
+    // OPENER DIVERSITY: Validator-enforced constraint preventing protagonist-name dominance
+    // across paragraph openers. Fires for all chapters since the protagonist's name is the
+    // most common repeated-opener trigger across runs.
+    if (detectiveFirstName) {
+      lines.push(
+        `  - PARAGRAPH OPENER DIVERSITY (MANDATORY — validator enforced): No more than 2 paragraphs in this chapter may begin with "${detectiveFirstName}" or "${detectiveFirstName}'s" as the first word. ` +
+        `You must vary paragraph openings throughout: use sensory observations, another character's name or action, dialogue, object or sound details, or temporal markers. ` +
+        `Opening 3 or more paragraphs with "${detectiveFirstName}" will cause automated rejection.`
+      );
+    }
     // FIX-P2: First chapter — investigator-role establishment requirement.
     // Prevents the LLM from deferring authority to an off-screen "real detective" who never arrives.
     if (chapterNumber === 1) {
@@ -272,6 +302,25 @@ export function buildChapterObligationBlock(
         lines.push(`  - INVESTIGATOR ESTABLISHMENT REQUIRED: ${detectiveName} must claim or be recognised as the investigator in this chapter. Establish ${detectiveName} as the detective-in-charge within the first two paragraphs — ${detectiveName} IS the investigator. Do NOT have any character suggest a "real" detective is still coming, or imply that authority has not yet been delegated. ${detectiveName} begins the investigation in this chapter.`);
       }
     };
+
+    // B2: Ch1 body-first — victim body must appear in the first two paragraphs.
+    if (chapterNumber === 1) {
+      lines.push(
+        `  - ⛔ BODY DISCOVERY ORDER (MANDATORY — Chapter 1 only): the victim's body must be physically encountered or described within the first TWO paragraphs. ` +
+        `Do NOT spend the opening paragraphs solely on clock examination, atmospheric setup, or character introductions before the body is found. ` +
+        `Required Chapter 1 structure: atmosphere (one sentence max) → body/discovery → investigator reaction → suspects → first time-source contradiction.`
+      );
+    }
+
+    // B1: Mechanism spoiler ban for Chapters 1 and 2.
+    if (chapterNumber <= 2) {
+      lines.push(
+        `  - ⛔ MECHANISM SPOILER BAN (Chapters 1–2): Do NOT state how the crime device was manipulated — not the direction, not the magnitude, not who performed it. ` +
+        `Characters may only observe that two sources of evidence disagree. The specific method, tamper amount, and perpetrator's action are ALL FORBIDDEN until Chapter 3. ` +
+        `WRONG: "The culprit had altered the device by forty minutes to create a false alibi." ` +
+        `RIGHT: "Two independent pieces of evidence gave contradictory readings — a discrepancy neither could yet explain."`
+      );
+    }
 
     if (continuityTailExcerpt && idx === 0) {
       lines.push(
@@ -395,6 +444,9 @@ export function buildChapterObligationBlock(
       lines.push(`    WRONG: dialogue or narration that directly explains how the crime was committed before Stage 4.`);
       lines.push(`    RIGHT: observation, physical reaction, and logical inference that leaves the mechanism just off-screen.`);
     }
+    if (currentStageMode === 'suspect_pressure' || currentArcPosition === 'suspect_pressure') {
+      lines.push(`  - SUSPECT-PRESSURE MODE: do NOT resolve the case in this chapter. No confession, arrest, final accusation, definitive culprit declaration, or case-closed language. End with unresolved pressure: a contradiction, narrowed suspicion, motive pressure, or a new question.`);
+    }
 
     if (matchingClearances.length > 0) {
       lines.push(`  - ⚠ SUSPECT CLEARANCE REQUIRED (MANDATORY): each suspect below MUST be named explicitly and cleared with on-page evidence and a reasoning connector (because / therefore / which proves):`);
@@ -470,8 +522,12 @@ export function buildChapterObligationBlock(
     const isRevealChapter =
       !isDiscriminatingTestChapter &&
       revelationScene != null &&
-      Number(revelationScene.act_number) === Number(scene?.act) &&
-      Number(revelationScene.scene_number) === perActSceneNum;
+      sceneMatchesCmlSceneRef(
+        scene,
+        revelationScene,
+        allOutlineScenes,
+        /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
+      );
     if (isRevealChapter) {
       const culpritNames: string = (cmlCase.culpability?.culprits ?? []).filter((n: any) => typeof n === 'string' && n).join(', ');
       const revealMethod: string = revelationScene.revelation_method ?? 'confrontation with evidence';

@@ -8,6 +8,7 @@ import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
 import { getGenerationParams } from './generation-params.js';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
+import { CharacterLifecycleValidator } from './character-lifecycle-validator.js';
 import { validateChapterSequence } from './chapter-validator.js';
 import { validateLocationConsistency } from './location-normalizer.js';
 import { PhysicalPlausibilityValidator } from './physical-validator.js';
@@ -39,6 +40,7 @@ export class StoryValidationPipeline {
     this.validators = [
       new EncodingValidator(),
       new CharacterConsistencyValidator(),
+      new CharacterLifecycleValidator(),
       new ProseConsistencyValidator(),
       new NarrativeContinuityValidator(),
       new DiscriminatingTestValidator(llmClient, logContext),
@@ -58,7 +60,8 @@ export class StoryValidationPipeline {
 
         // Stop on critical errors from character/encoding validators
         if (result.errors.some(e => e.severity === 'critical') && 
-            (validator.name === 'CharacterConsistencyValidator')) {
+            (validator.name === 'CharacterConsistencyValidator' ||
+              validator.name === 'CharacterLifecycleValidator')) {
           return this.generateReport(allErrors, cml, validator.name);
         }
       } catch (error) {
@@ -201,6 +204,14 @@ export class StoryValidationPipeline {
 
     if (errorTypes.has('identity_role_alias_break')) {
       recommendations.push('Keep culprit identity references stable after confession/arrest; avoid role-only renaming');
+    }
+
+    if (
+      errorTypes.has('victim_reappears_alive') ||
+      errorTypes.has('victim_culprit_conflict') ||
+      errorTypes.has('deceased_character_confesses')
+    ) {
+      recommendations.push('CRITICAL: Fix character lifecycle continuity; a victim/deceased character cannot later appear alive or culpable');
     }
 
     if (errorTypes.has('investigator_role_drift')) {

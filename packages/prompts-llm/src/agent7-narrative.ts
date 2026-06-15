@@ -22,7 +22,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
-import { getSceneTarget, STORY_LENGTH_TARGETS } from "@cml/story-validation";
+import { getSceneTarget, STORY_LENGTH_TARGETS, getStoryLengthTarget } from "@cml/story-validation";
 
 const DEFAULT_TEMPORAL_ANCHOR = "quarter past three";
 
@@ -561,17 +561,31 @@ function buildUserRequest(
 ): string {
   const config = getGenerationParams().agent7_narrative.params;
   const legacy = caseData as any;
-  const crimeVictim: string = typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim";
+  // A3: Resolve victim full name from the cast list (which may have "Julian Ashcroft")
+  // before falling back to legacy.setup.crime.victim (which may only have "Ashcroft").
+  // Use the same resolution order as castRoster below: direct array → nested .characters → empty.
+  const castCharactersForVictim: any[] =
+    Array.isArray(legacy.cast?.characters) ? legacy.cast.characters :
+    Array.isArray(legacy.cast) ? legacy.cast : [];
+  const victimFromCast: string | undefined = castCharactersForVictim.find((c: any) => {
+    if (c.role === 'victim') return true;
+    const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
+    return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
+  })?.name;
+  const crimeVictim: string = victimFromCast ?? (typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim");
   const rawLocationValue = legacy.setup?.crime?.location;
   const rawLocation: string = typeof rawLocationValue === 'string' ? rawLocationValue : typeof rawLocationValue === 'object' && rawLocationValue !== null ? (rawLocationValue.name || rawLocationValue.id || 'the scene') : 'the scene';
   const locationWord = rawLocation.replace(/^(locked|the|a|an)\s+/i, "").toLowerCase();
   const exampleLocation = crimeVictim !== "the victim"
     ? `${crimeVictim}'s ${locationWord}`
     : rawLocation;
+  const _shortTarget  = getStoryLengthTarget('short');
+  const _mediumTarget = getStoryLengthTarget('medium');
+  const _longTarget   = getStoryLengthTarget('long');
   const lengthGuidance = {
-    short: `${STORY_LENGTH_TARGETS.short.scenes} scenes, targeting a novella of ~${STORY_LENGTH_TARGETS.short.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.short.maxWords.toLocaleString()} words`,
-    medium: `${STORY_LENGTH_TARGETS.medium.scenes} scenes, targeting a full novel of ~${STORY_LENGTH_TARGETS.medium.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.medium.maxWords.toLocaleString()} words`,
-    long: `${STORY_LENGTH_TARGETS.long.scenes} scenes, targeting an extended novel of ~${STORY_LENGTH_TARGETS.long.minWords.toLocaleString()}–${STORY_LENGTH_TARGETS.long.maxWords.toLocaleString()} words`,
+    short: `${_shortTarget.scenes} scenes, targeting a short story of ~${_shortTarget.minWords.toLocaleString()}–${_shortTarget.maxWords.toLocaleString()} words`,
+    medium: `${_mediumTarget.scenes} scenes, targeting a novella of ~${_mediumTarget.minWords.toLocaleString()}–${_mediumTarget.maxWords.toLocaleString()} words`,
+    long: `${_longTarget.scenes} scenes, targeting a full novel of ~${_longTarget.minWords.toLocaleString()}–${_longTarget.maxWords.toLocaleString()} words`,
   };
 
   // Source of truth: STORY_LENGTH_TARGETS in packages/story-validation/src/story-length-targets.ts
@@ -673,6 +687,8 @@ ${proseRequirementsBlock}
 - **Plant early clues**: Subtle hints, initial observations
 - **Support false assumption**: Lead reader toward wrong conclusion
 - **End with**: Detective commits to investigation, stakes established
+- **CRITICAL — Scene 1 (discovery) internal order**: The scene summary and prose must follow this sequence: (1) ONE sentence of arrival/atmosphere, (2) physical discovery of the body — no later than the second paragraph of the resulting chapter, (3) investigator reaction, (4) suspects named, (5) first contradictory observation. Do NOT open Scene 1 with extended clock examination, atmospheric landscape, or suspect introductions before the body is found. The body comes first.
+- **MECHANISM SPOILER BAN (Scene 1 and 2)**: Scenes 1 and 2 must NOT explain why any device was tampered with, by how much it was altered, or name the person responsible. Show only that two evidence sources disagree. Write the scene 1 summary and purpose text accordingly — if it reads "the clock was wound back by X minutes", rewrite it to "two clocks show contradictory times". The full mechanism belongs in Act II.
 
 ${detectiveEntryRule}
 
@@ -684,6 +700,7 @@ ${detectiveEntryRule}
 - **Discriminating test**: The crucial scene that shifts everything
 - **Rising tension**: Complications, dead ends, breakthroughs
 - **End with**: Detective has all pieces but hasn't assembled them
+- **PENULTIMATE SCENE RULE**: The scene immediately before Act III must NOT be a standalone suspect-clearance scene if clearances have already been established in earlier Act II scenes. A scene whose sole purpose is "X, Y, and Z are cleared" is redundant and weakens pacing. If eliminations are already distributed earlier, the Act II final scene should instead serve a distinct function: a second-act reversal (detective realises they were wrong about something), a proactive culprit move (antagonist takes action to deflect suspicion), or a late-breaking complication that forces the investigator toward the confrontation.
 
 ### Act III: Resolution (exactly ${actIIIScenes} scenes)
 - **Revelation**: Detective assembles the solution

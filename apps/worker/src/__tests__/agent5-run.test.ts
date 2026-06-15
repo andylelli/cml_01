@@ -317,6 +317,92 @@ describe("agent5-run testables", () => {
     expect(clues.clues.some((c: any) => c.id === "clue_witness_time")).toBe(true);
   });
 
+  it("aligns canonical discriminating evidence IDs to clue_to_scene_mapping namespace when drifted", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          evidence_clues: ["clue_clock_winding_key_backward", "clue_scratch_marks_on_arbor"],
+        },
+        prose_requirements: {
+          clue_to_scene_mapping: [
+            { clue_id: "clue_3" },
+            { clue_id: "clue_9" },
+          ],
+        },
+      },
+    } as any;
+
+    const result = __testables.alignDiscriminatingEvidenceIdsWithSceneMapping(cml);
+    expect(result.replaced).toEqual([
+      { from: "clue_clock_winding_key_backward", to: "clue_3" },
+      { from: "clue_scratch_marks_on_arbor", to: "clue_9" },
+    ]);
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual(["clue_3", "clue_9"]);
+  });
+
+  it("remaps missing discriminating evidence IDs to existing canonical clues before synthesis", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          evidence_clues: ["clue_clock_winding_key_backward", "clue_scratch_marks_on_arbor"],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [
+        {
+          id: "clue_core_contradiction_chain",
+          description: "Clock winding key has backward twist with contradiction evidence.",
+          pointsTo: "Clock manipulation invalidates timeline assumptions.",
+          sourceInCML: "CASE.discriminating_test.evidence_clues[0]",
+          criticality: "essential",
+          placement: "mid",
+          evidenceType: "contradiction",
+        },
+        {
+          id: "clue_3",
+          description: "Fine scratch marks on winding arbor indicate deliberate tampering.",
+          pointsTo: "Mechanical interference with the clock mechanism.",
+          sourceInCML: "CASE.inference_path.steps[0].required_evidence[0]",
+          criticality: "essential",
+          placement: "early",
+          evidenceType: "observation",
+        },
+      ],
+      redHerrings: [],
+    } as any;
+
+    const missingBefore = ["clue_clock_winding_key_backward", "clue_scratch_marks_on_arbor"];
+    const result = __testables.remapMissingDiscriminatingEvidenceIdsToExistingClues(
+      cml,
+      clues,
+      missingBefore,
+    );
+
+    expect(result.remapped.length).toBeGreaterThanOrEqual(1);
+    expect(cml.CASE.discriminating_test.evidence_clues.every((id: string) =>
+      ["clue_core_contradiction_chain", "clue_3"].includes(id)
+    )).toBe(true);
+    expect(result.unresolved).toEqual([]);
+  });
+
+  it("keeps deterministic ID handling safe with sparse CML inputs", () => {
+    const cml = { CASE: { discriminating_test: { evidence_clues: ["clue_alpha"] } } } as any;
+    const clues = { clues: [], redHerrings: [] } as any;
+
+    const alignResult = __testables.alignDiscriminatingEvidenceIdsWithSceneMapping(cml);
+    expect(alignResult.replaced).toEqual([]);
+
+    const remapResult = __testables.remapMissingDiscriminatingEvidenceIdsToExistingClues(
+      cml,
+      clues,
+      ["clue_alpha"],
+    );
+    expect(remapResult.remapped).toEqual([]);
+    expect(remapResult.unresolved).toEqual(["clue_alpha"]);
+  });
+
   it("sanitizes digit-based clue times into era-worded phrasing", () => {
     const clues = {
       clues: [

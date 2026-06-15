@@ -11,12 +11,13 @@ import { formatNarrative } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
   buildOutlineRepairGuardrails,
   executeAgentWithRetry,
+  preAgent9ContractRecoveryEnabled,
   preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
@@ -761,6 +762,7 @@ async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOu
 
 export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
+  const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
   ctx.reportProgress("narrative", "Formatting narrative structure...", 75);
   const narrativePacingConfig = getGenerationParams().agent7_narrative.params.pacing;
   const minClueSceneRatio = narrativePacingConfig.min_clue_scene_ratio;
@@ -910,9 +912,9 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // ── Schema repair ──────────────────────────────────────────────────────────
   let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
   if (!narrativeSchemaValidation.valid) {
-    if (!retriesEnabled) {
+    if (!contractRecoveryEnabled) {
       narrativeSchemaValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
-      throw new Error("Narrative outline artifact failed schema validation (deterministic mode: schema retry disabled)");
+      throw new Error("Narrative outline artifact failed schema validation (contract recovery disabled)");
     }
     ctx.warnings.push(
       "Narrative outline failed schema validation on first attempt; retrying outline generation with schema repair guardrails"
@@ -970,7 +972,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     ).length;
 
     if (Math.abs(actualSceneCount - expectedScenes) > sceneTolerance) {
-      if (!retriesEnabled) {
+      if (!contractRecoveryEnabled) {
         const deterministicRepair = rebalanceNarrativeSceneCountsDeterministically(
           narrative,
           expectedScenes,
@@ -986,7 +988,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           await rescoreNarrative(ctx, narrative);
         } else {
           throw new Error(
-            `Scene count enforcement failed in deterministic mode: narrative has ${repairedCount} scenes but requires ${expectedScenes} ±${sceneTolerance}.`
+            `Scene count enforcement failed with contract recovery disabled: narrative has ${repairedCount} scenes but requires ${expectedScenes} ±${sceneTolerance}.`
           );
         }
       } else {
@@ -1067,16 +1069,16 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
   ctx.reportProgress(
     "narrative",
-    `${narrative.totalScenes} scenes structured (${narrative.estimatedTotalWords} words)`,
+    `${narrative.totalScenes} scenes structured (~${(getStoryLengthTarget(ctx.inputs.targetLength).chapters * getStoryLengthTarget(ctx.inputs.targetLength).chapterIdealWords).toLocaleString()} words target)`,
     87
   );
 
   // ── Pre-prose outline quality gate ────────────────────────────────────────
   const outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
   if (outlineCoverageIssues.length > 0) {
-    if (!retriesEnabled) {
+    if (!contractRecoveryEnabled) {
       outlineCoverageIssues.forEach((issue) =>
-        ctx.warnings.push(`Outline coverage gap (deterministic mode, no retry): ${issue.message}`)
+        ctx.warnings.push(`Outline coverage gap (contract recovery disabled): ${issue.message}`)
       );
     } else {
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
@@ -1142,7 +1144,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     const sceneCountLock = captureNarrativeSceneCountSnapshot(narrative);
 
     if (totalOutlineSceneCount > 0 && clueSceneCount < minClueScenes) {
-      if (!retriesEnabled) {
+      if (!contractRecoveryEnabled) {
         const maxDeterministicGapFill = computeDeterministicGapFillCap(totalOutlineSceneCount);
         const deterministicOnly = applyDeterministicCluePreAssignment(
           narrative,
@@ -1157,7 +1159,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           );
         } else {
           throw new Error(
-            `Outline pacing gate failed in deterministic mode (${deterministicOnly.after}/${deterministicOnly.totalScenes}, need >= ${deterministicOnly.minRequired}).`
+            `Outline pacing gate failed with contract recovery disabled (${deterministicOnly.after}/${deterministicOnly.totalScenes}, need >= ${deterministicOnly.minRequired}).`
           );
         }
       } else {
@@ -1286,8 +1288,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       const remainingIssues = evaluateOutlinePreCommitCompleteness(remediatedNarrative);
 
       if (!countCheck.ok) {
-        throw new Error(
-          `Outline pre-commit remediation failed scene-count lock: ${countCheck.message}.`,
+        // Completeness remediation is allowed to add scenes — treat a changed scene
+        // count as a warning rather than a hard abort. The lock was set before
+        // remediation; if the model needs an extra scene to satisfy a completeness
+        // requirement, that is the correct behaviour.
+        ctx.warnings.push(
+          `Outline pre-commit remediation changed scene count: ${countCheck.message}. Accepted — completeness remediation may legitimately add scenes.`,
         );
       }
       if (remainingIssues.length > 0) {

@@ -186,7 +186,8 @@ export interface MysteryGenerationInputs {
   /** Pillar 3: override a blocking gate — log audit warning instead of throwing */
   forceWarnings?: boolean;
   /** Pillar 6: inject BANNED PARAGRAPH blocks and structural-pivot mode into Agent 9 retry prompts
-   *  when a paragraph fingerprint failure recurs across attempts */
+    *  when a paragraph fingerprint failure recurs across attempts. Default is enabled;
+    *  set false only for explicit control experiments. */
   enableSurgicalFingerprintRetry?: boolean;
   /** Pillar 4: require pivotElement, factEstablished, permittedBehavioursByAct, and
    *  redHerringPlacement per outline scene; post-Agent-7 validator halts on null/generic values;

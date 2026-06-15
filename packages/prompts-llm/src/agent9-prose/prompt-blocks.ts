@@ -72,6 +72,8 @@ export interface PromptContextBlock {
 export interface PromptSectionInputs {
   pronounAccuracyBlock: string; // [PHASE 1] dedicated pronoun block
   characterConsistencyRules: string;
+  firstAppearanceContractsBlock: string;
+  characterPressureContractBlock: string;
   settingRefinementBlock: string;
   backgroundContextBlock: string;
   fairPlayContractBlock: string;

@@ -18,9 +18,7 @@ import request from "supertest";
 import { describe, expect, it, vi, afterEach, beforeAll, afterAll } from "vitest";
 import { createServer } from "../server.js";
 import { promises as fs } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
-import { FileReportRepository } from "@cml/story-validation";
+import { dirname, join } from "path";
 
 const app = createServer();
 
@@ -131,6 +129,60 @@ describe("API server (phase 1)", () => {
     expect(list.body.logs.length).toBeGreaterThan(0);
   });
 
+  it("clears repository data, reports, logs, worker logs, and prompt history", async () => {
+    const created = await request(app).post("/api/projects").send({ name: "Clear Project" });
+    await request(app).post(`/api/projects/${created.body.id}/specs`).send({ decade: "1930s" });
+    await request(app)
+      .post("/api/logs")
+      .send({ projectId: created.body.id, scope: "ui", message: "before_clear" });
+
+    const reportDir = join(process.env.CML_REPORTS_DIR!, "clear-proj");
+    const reportFile = join(reportDir, "run-clear.json");
+    await fs.mkdir(reportDir, { recursive: true });
+    await fs.writeFile(reportFile, JSON.stringify({ stale: true }), "utf-8");
+
+    const activityLog = process.env.CML_ACTIVITY_LOG_FILE_PATH!;
+    const llmLog = process.env.LOG_FILE_PATH!;
+    const fullPromptLog = process.env.FULL_PROMPT_LOG_FILE_PATH!;
+    const workerLog = join(process.env.CML_WORKER_LOGS_DIR!, "run-clear.json");
+    const actualPromptDoc = join(process.env.ACTUAL_PROMPT_DOCS_DIR!, "run_clear", "INDEX.md");
+    await fs.mkdir(join(process.env.ACTUAL_PROMPT_DOCS_DIR!, "run_clear"), { recursive: true });
+    await fs.mkdir(process.env.CML_WORKER_LOGS_DIR!, { recursive: true });
+    await fs.mkdir(dirname(activityLog), { recursive: true });
+    await fs.writeFile(activityLog, "{\"message\":\"stale\"}\n", "utf-8");
+    await fs.writeFile(llmLog, "{\"message\":\"llm\"}\n", "utf-8");
+    await fs.writeFile(fullPromptLog, "{\"message\":\"full\"}\n", "utf-8");
+    await fs.writeFile(workerLog, "{\"message\":\"worker\"}\n", "utf-8");
+    await fs.writeFile(actualPromptDoc, "# stale\n", "utf-8");
+
+    const cleared = await request(app).post("/api/admin/clear-store");
+    expect(cleared.status).toBe(200);
+    expect(cleared.body.cleared).toEqual([
+      "repository",
+      "reports",
+      "activity_log",
+      "llm_logs",
+      "agent_checkpoints",
+      "worker_logs",
+      "actual_prompt_docs",
+    ]);
+
+    await expect(fs.access(reportFile)).rejects.toThrow();
+    await expect(fs.access(activityLog)).rejects.toThrow();
+    await expect(fs.access(llmLog)).rejects.toThrow();
+    await expect(fs.access(fullPromptLog)).rejects.toThrow();
+    await expect(fs.access(workerLog)).rejects.toThrow();
+    await expect(fs.access(actualPromptDoc)).rejects.toThrow();
+
+    const logs = await request(app).get("/api/logs");
+    expect(logs.status).toBe(200);
+    expect(logs.body.logs).toEqual([]);
+
+    const projects = await request(app).get("/api/projects");
+    expect(projects.status).toBe(200);
+    expect(projects.body.projects).toEqual([]);
+  });
+
   it("blocks CML endpoint in user mode", async () => {
     const created = await request(app).post("/api/projects").send({ name: "Mode Project" });
     const response = await request(app).get(`/api/projects/${created.body.id}/cml/latest`);
@@ -210,7 +262,7 @@ describe("Scoring API", () => {
     // make join(process.cwd(),"apps","api","data","reports") a doubled path.
     // __dirname here = apps/api/src/__tests__, so ../../data/reports = apps/api/data/reports,
     // which matches the server's primary candidate path.resolve(__dirname,"..","data","reports").
-    reportsDir = join(__dirname, "..", "..", "data", "reports");
+    reportsDir = process.env.CML_REPORTS_DIR!;
     await fs.mkdir(reportsDir, { recursive: true });
   });
 

@@ -200,6 +200,145 @@ agent9_prose:
       # Supported range: 0.2 - 3.0
       max_ratio: 1.25
 
+  # Chapter composition targets by narrative phase.
+  # These percentages represent narrative attention (sentence/paragraph focus),
+  # not exact token accounting. Agent9 prompt assembly injects these directly.
+  chapter_composition_targets:
+    chapter1:
+      setting: { min_pct: 20, max_pct: 20 }
+      character_introductions: { min_pct: 40, max_pct: 40 }
+      discovery_reactions: { min_pct: 30, max_pct: 30 }
+      first_clue: { min_pct: 10, max_pct: 10 }
+
+    early_investigation:
+      setting: { min_pct: 10, max_pct: 15 }
+      character_pressure: { min_pct: 35, max_pct: 40 }
+      clue_development: { min_pct: 45, max_pct: 50 }
+
+    middle_chapters:
+      setting: { min_pct: 10, max_pct: 10 }
+      character_conflict: { min_pct: 30, max_pct: 35 }
+      alibi_testing_clue_reinterpretation: { min_pct: 50, max_pct: 60 }
+
+    false_suspect_chapters:
+      setting: { min_pct: 10, max_pct: 10 }
+      character_focus: { min_pct: 45, max_pct: 45 }
+      evidence_contradiction: { min_pct: 45, max_pct: 45 }
+
+    discriminating_test_chapter:
+      setting: { min_pct: 10, max_pct: 10 }
+      character_reaction: { min_pct: 20, max_pct: 25 }
+      test_proof_reversal: { min_pct: 65, max_pct: 70 }
+
+    final_reveal:
+      setting: { min_pct: 10, max_pct: 10 }
+      motive_character_consequence: { min_pct: 30, max_pct: 30 }
+      evidence_chain: { min_pct: 40, max_pct: 40 }
+      confession_aftermath: { min_pct: 20, max_pct: 20 }
+
+  # Explicit stage-mode profiles for chapter-level contracts.
+  # These values drive active mode instructions, chapter outcomes, and mode checklists.
+  stage_modes:
+    discovery_opening:
+      balance_targets:
+        setting: { min_pct: 15, max_pct: 20 }
+        character_introductions: { min_pct: 35, max_pct: 40 }
+        discovery_reactions: { min_pct: 25, max_pct: 30 }
+        first_clue: { min_pct: 10, max_pct: 15 }
+      required_outcomes:
+        - Victim is named explicitly and the body is encountered within the first two paragraphs.
+        - Major suspects are introduced with relevance and tension.
+        - First clue is planted without full mechanism explanation.
+      forbidden_reveals:
+        - No culprit reveal.
+        - No full murder mechanism explanation.
+        - Do not state the direction, magnitude, or agent of any clock or device tampering. Characters may only observe that two time sources disagree. "The clock was wound back by forty minutes" must not appear before Chapter 3.
+
+    early_investigation:
+      balance_targets:
+        setting: { min_pct: 10, max_pct: 15 }
+        character_pressure: { min_pct: 35, max_pct: 40 }
+        clue_development: { min_pct: 45, max_pct: 50 }
+      required_outcomes:
+        - Develop clues through contradiction, questioning, or alibi pressure.
+        - End with changed investigative theory.
+      forbidden_reveals:
+        - No final culprit resolution.
+        - Do not explain the crime mechanism or state how any device was manipulated. Characters may notice contradictions but must not deduce the full method.
+
+    suspect_pressure:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        character_pressure: { min_pct: 45, max_pct: 55 }
+        evidence_or_alibi_testing: { min_pct: 35, max_pct: 45 }
+      required_outcomes:
+        - Reveal fear, motive, lie, loyalty conflict, or secret.
+        - Suspicion state changes by chapter end.
+      forbidden_reveals:
+        - No full murder confession unless outline-required.
+
+    false_suspect_clearing:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        character_consequence: { min_pct: 30, max_pct: 40 }
+        evidence_proving_innocence: { min_pct: 50, max_pct: 60 }
+      required_outcomes:
+        - Show why suspect looked guilty.
+        - Prove innocence with evidence, corroborated alibi, or timing logic.
+        - Shift suspicion afterward.
+      forbidden_reveals:
+        - Do not clear by convenience or assertion.
+
+    clue_reinterpretation:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        character_reaction: { min_pct: 25, max_pct: 35 }
+        clue_reinterpretation: { min_pct: 55, max_pct: 65 }
+      required_outcomes:
+        - State original clue meaning and revised meaning.
+        - Show suspect implications and theory update.
+      forbidden_reveals:
+        - Do not introduce decisive new evidence from nowhere.
+
+    discriminating_test:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        character_reaction: { min_pct: 20, max_pct: 25 }
+        test_proof_reversal: { min_pct: 65, max_pct: 70 }
+      required_outcomes:
+        - State competing theories.
+        - Run/reveal concrete test with observable result.
+        - State what result proves and rules out.
+      forbidden_reveals:
+        - Do not merely restate known evidence.
+
+    final_reveal:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        motive_emotional_truth: { min_pct: 30, max_pct: 35 }
+        evidence_chain: { min_pct: 35, max_pct: 45 }
+        confession_consequence: { min_pct: 20, max_pct: 25 }
+      required_outcomes:
+        - Provide motive, death method, opportunity, and evidence chain.
+        - Distinguish death method from concealment mechanism.
+        - State culprit trace or mistake and consequences.
+        - "The culprit's confession MUST include a specific physical killing action with a concrete verb and object (e.g. 'I struck him with the doorstop', 'I pushed him and he hit the bedframe'). A confession that describes only the concealment or motive without naming the act of killing is incomplete and will be rejected."
+        - Deliver all suspect clearances as dramatised in-scene moments (named witness corroboration, physical record, or witnessed observation). Do NOT write clearance summaries as narrator-voice report paragraphs starting with the suspect's name followed by 'was cleared because'.
+      forbidden_reveals:
+        - No mechanism-only confession without death responsibility.
+        - Do not summarise clearances as report language (e.g. 'Dr. X was cleared because...', 'As for myself, Y was present...'). Clearances must be voiced through dialogue or physical evidence shown on the page.
+
+    aftermath_consequence:
+      balance_targets:
+        setting: { min_pct: 5, max_pct: 10 }
+        emotional_fallout: { min_pct: 45, max_pct: 55 }
+        social_reordering: { min_pct: 35, max_pct: 45 }
+      required_outcomes:
+        - Show emotional fallout and changed order.
+        - Close consequence arcs for surviving characters.
+      forbidden_reveals:
+        - Do not introduce decisive new mystery evidence.
+
   underflow_expansion:
     # Master switch — set to false to skip the expansion LLM call entirely.
     # When disabled, under-target chapters go straight to retry.

@@ -14,9 +14,11 @@ export class RateLimiter {
     const now = Date.now();
     const oneMinuteAgo = now - 60000;
 
-    // Remove timestamps older than 1 minute
-    this.requestTimestamps = this.requestTimestamps.filter((ts) => ts > oneMinuteAgo);
-    this.tokenCounts = this.tokenCounts.filter((_, i) => this.requestTimestamps[i] !== undefined);
+    // Remove timestamps older than 1 minute — build keep mask before mutating either
+    // array to avoid index skew between the two parallel arrays.
+    const keep = this.requestTimestamps.map((ts) => ts > oneMinuteAgo);
+    this.requestTimestamps = this.requestTimestamps.filter((_, i) => keep[i]);
+    this.tokenCounts = this.tokenCounts.filter((_, i) => keep[i]);
 
     // Check request rate limit
     if (this.requestTimestamps.length >= this.config.requestsPerMinute) {
