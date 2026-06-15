@@ -13,6 +13,9 @@ const mockedGenerationParams = {
     total_word_budget_ratio: { min_ratio: 0.75, max_ratio: 1.25 },
   },
   agent9_prose: {
+    generation: {
+      default_max_attempts: 4,
+    },
     story_length_policy: {
       targets: { short: 10, medium: 20, long: 30 },
       chapter_target_tolerance: 2,
@@ -34,6 +37,48 @@ const mockedGenerationParams = {
       temperature: 0.2,
       max_tokens_ratio: 1.7,
       preferred_miss_expansion_ratio: 0.85,
+    },
+    stage_modes: {
+      discovery_opening: {
+        balance_targets: { investigation: { min_pct: 35, max_pct: 45 }, atmosphere: { min_pct: 20, max_pct: 30 } },
+        required_outcomes: ["Name the victim explicitly."],
+        forbidden_reveals: ["No culprit reveal."],
+      },
+      early_investigation: {
+        balance_targets: { investigation: { min_pct: 45, max_pct: 55 }, atmosphere: { min_pct: 15, max_pct: 25 } },
+        required_outcomes: ["Advance the working theory."],
+        forbidden_reveals: ["No final culprit resolution."],
+      },
+      suspect_pressure: {
+        balance_targets: { suspicion: { min_pct: 45, max_pct: 55 }, inference: { min_pct: 20, max_pct: 30 } },
+        required_outcomes: ["Increase suspect pressure."],
+        forbidden_reveals: ["No full murder confession unless required."],
+      },
+      false_suspect_clearing: {
+        balance_targets: { exoneration: { min_pct: 40, max_pct: 50 }, redirection: { min_pct: 20, max_pct: 30 } },
+        required_outcomes: ["Clear one suspect with evidence."],
+        forbidden_reveals: ["Do not clear by convenience."],
+      },
+      clue_reinterpretation: {
+        balance_targets: { reinterpretation: { min_pct: 35, max_pct: 45 }, inference: { min_pct: 25, max_pct: 35 } },
+        required_outcomes: ["Reframe an earlier clue."],
+        forbidden_reveals: ["No decisive new evidence from nowhere."],
+      },
+      discriminating_test: {
+        balance_targets: { test_execution: { min_pct: 40, max_pct: 50 }, proof_chain: { min_pct: 25, max_pct: 35 } },
+        required_outcomes: ["Run a concrete discriminating test."],
+        forbidden_reveals: ["Do not merely restate existing evidence."],
+      },
+      final_reveal: {
+        balance_targets: { proof_chain: { min_pct: 45, max_pct: 55 }, consequence: { min_pct: 15, max_pct: 25 } },
+        required_outcomes: ["Deliver the full proof chain."],
+        forbidden_reveals: ["Do not end with mechanism-only confession."],
+      },
+      aftermath_consequence: {
+        balance_targets: { consequence: { min_pct: 45, max_pct: 55 }, reflection: { min_pct: 20, max_pct: 30 } },
+        required_outcomes: ["Show emotional and social consequences after truth lands."],
+        forbidden_reveals: ["Do not introduce decisive new mystery evidence."],
+      },
     },
     style_linter: {
       entropy: {
@@ -82,11 +127,16 @@ import {
   applyDeterministicClearancePatch,
   applyDeterministicDiscriminatingTestPatch,
   attemptUnderflowExpansion,
+  assessNarrativeBalanceSignals,
+  buildCanonicalRetryBrief,
+  buildChapterRepairContext,
   buildSinglePassRetryPrompt,
   buildCompletionFallbackChapter,
   buildEnhancedRetryFeedback,
+  buildPostPassPolishPrompt,
   buildChapterObligationBlock,
   buildDiscriminatingTestChecklist,
+  buildNarrativeBalanceBlock,
   buildProsePrompt,
   buildTimelineStateBlock,
   chooseRetryPromptStrategy,
@@ -94,11 +144,16 @@ import {
   detectRecurringPhrases,
   enforceMonthSeasonLockOnChapterWithTelemetry,
   formatProvisionalScoringFeedbackBlock,
+  hasPolishRegression,
   lintBatchProse,
+  repairChapterDeterministically,
+  resolveClueObligationState,
+  resolveDiscriminatingTestValidityState,
   runAtmosphereRepairIfNeeded,
   stripInternalAuditPhrasing,
   stripAuditField,
   validateChapterPreCommitObligations,
+  polishPassingChapter,
 } from "../agent9-prose.ts";
 import type { ProseGenerationResult } from "../agent9-prose.ts";
 
@@ -248,6 +303,25 @@ describe("single-pass retry prompt strategy", () => {
 
     expect(strategy.mode).toBe("targeted_rebuild");
     expect(strategy.includePriorDraft).toBe(false);
+  });
+});
+
+describe("canonical retry brief", () => {
+  it("builds one top-level retry brief for mixed logic and quality failures", () => {
+    const result = buildCanonicalRetryBrief({
+      errors: [
+        'Chapter 5: clue evidence "A faint scratch is found on the clock face." is absent.',
+        'Template linter: repeated content opener detected ("gaston leaned").',
+      ],
+      caseData: baseCaseData,
+      chapterRange: "5",
+      attempt: 2,
+      maxAttempts: 6,
+    });
+
+    expect(result.feedback.match(/SINGLE-PASS RETRY CONTRACT/g)?.length ?? 0).toBe(1);
+    expect(result.feedback.match(/SUCCESS CHECKLIST/g)?.length ?? 0).toBe(1);
+    expect(result.feedback).toContain("RETRY PHASE: 1 of 2");
   });
 });
 
@@ -526,6 +600,138 @@ describe("validateChapterPreCommitObligations", () => {
   });
 });
 
+describe("validator-aligned deterministic repair helpers", () => {
+  it("treats delivery-method-only clue metadata as satisfied without adding filler prose", () => {
+    const ledger = {
+      chapterNumber: 2,
+      hardFloorWords: 1,
+      preferredWords: 1,
+      requiredClueIds: ["clue_glance"],
+      clueObligationContext: [
+        {
+          id: "clue_glance",
+          description: "Direct observation",
+          placement: "early",
+        },
+      ],
+    };
+    const chapter = {
+      title: "Chapter 2",
+      paragraphs: [
+        "Clara crossed the room before anyone could stop her and made the household wait in silence.",
+        "The first exchange was careful, restrained, and pointed enough to keep every suspect watching one another.",
+      ],
+    };
+
+    const clueState = resolveClueObligationState(
+      chapter as any,
+      ledger as any,
+      "clue_glance",
+      undefined,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+    const patched = applyDeterministicCluePatch(
+      chapter as any,
+      baseScene,
+      ledger as any,
+      undefined,
+      baseCaseData,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+    const result = validateChapterPreCommitObligations(
+      chapter as any,
+      ledger as any,
+      undefined,
+      ["Clara Whitfield", "Edgar Vale"],
+    );
+
+    expect(clueState.isMetadataOnly).toBe(true);
+    expect(clueState.isPresent).toBe(true);
+    expect(clueState.isEarlyEnough).toBe(true);
+    expect(patched.insertedClueIds).toEqual([]);
+    expect(result.hardFailures.some((msg) => msg.includes("clue evidence"))).toBe(false);
+  });
+
+  it("uses validator DT state so incidental marker words no longer cause a false skip", () => {
+    const ledger = {
+      chapterNumber: 8,
+      hardFloorWords: 1,
+      preferredWords: 1,
+      requiredClueIds: ["clue_clock"],
+    };
+    const chapter = {
+      title: "Chapter 8",
+      paragraphs: [
+        "Clara said either story might sound plausible until the room was forced to slow down and listen properly.",
+        "The result of her latest observation was only a heavier silence, not yet the kind of proof that settled anything.",
+        "Everyone understood the comparison had to come from the evidence itself before a clear explanation could survive.",
+      ],
+    };
+
+    const validityBefore = resolveDiscriminatingTestValidityState(chapter as any);
+    const patched = applyDeterministicDiscriminatingTestPatch(
+      chapter as any,
+      baseCaseData,
+      "Clara Whitfield",
+      undefined,
+      "Edgar Vale",
+      ledger as any,
+      baseInputs.clueDistribution,
+    );
+    const after = validateChapterPreCommitObligations(
+      patched.chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      { mode: "discriminating_test" } as any,
+    );
+
+    expect(validityBefore.isValid).toBe(false);
+    expect(patched.inserted).toBe(true);
+    expect(after.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
+  });
+
+  it("renders prose-facing DT evidence text instead of raw clue ids", () => {
+    const ledger = {
+      chapterNumber: 8,
+      hardFloorWords: 1,
+      preferredWords: 1,
+      requiredClueIds: ["clue_clock"],
+      clueObligationContext: [
+        {
+          id: "clue_clock",
+          description: "Direct observation",
+          placement: "early",
+        },
+      ],
+    };
+    const chapter = {
+      title: "Chapter 8",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and let the silence settle into something ceremonial.",
+        "No one yet knew which comparison she meant to force on them.",
+      ],
+    };
+
+    const patched = applyDeterministicDiscriminatingTestPatch(
+      chapter as any,
+      baseCaseData,
+      "Clara Whitfield",
+      undefined,
+      "Edgar Vale",
+      ledger as any,
+      baseInputs.clueDistribution,
+    );
+    const patchedText = patched.chapter.paragraphs.join(" ");
+
+    expect(patched.inserted).toBe(true);
+    expect(patchedText).toContain("The mantel clock has been rewound");
+    expect(patchedText).not.toMatch(/\bclue_clock\b/i);
+    expect(patchedText).not.toContain("[object Object]");
+  });
+});
+
 describe("deterministic suspect-clearance patch", () => {
   it("inserts an evidence-based clearance paragraph that satisfies the linter", () => {
     const clearances = [
@@ -674,6 +880,64 @@ describe("deterministic clue and discriminating-test patches", () => {
     expect(before.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(true);
     expect(patched.inserted).toBe(true);
     expect(after.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
+  });
+
+  it("applies validator-aligned deterministic repairs through one shared helper", () => {
+    const ledger = {
+      chapterNumber: 8,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+      clueObligationContext: [
+        {
+          id: "clue_clock",
+          description: "The mantel clock has been rewound.",
+          placement: "early",
+        },
+      ],
+    };
+    const chapter = {
+      title: "Chapter 8",
+      paragraphs: [
+        "Clara gathered the household and made them repeat their timelines without interruption.",
+        "The room was tense, but she had not yet stated the competing explanations in full.",
+      ],
+    };
+    const repairContext = buildChapterRepairContext({
+      chapterNumber: 8,
+      scene: baseScene,
+      sceneCount: 10,
+      caseData: baseCaseData,
+      cmlCase: baseCaseData.CASE,
+      scenes: [baseScene],
+      dtSceneCheck: { act_number: 3, scene_number: 1 },
+      ledgerEntry: ledger as any,
+      clueDistribution: baseInputs.clueDistribution,
+      matchingClearances: [],
+    });
+
+    const repaired = repairChapterDeterministically({
+      chapter: chapter as any,
+      repairContext,
+      ledgerEntry: ledger as any,
+      clueDistribution: baseInputs.clueDistribution,
+      caseData: baseCaseData,
+      castNames: ["Clara Whitfield", "Edgar Vale"],
+      applyClearancePatch: false,
+    });
+    const obligations = validateChapterPreCommitObligations(
+      repaired.chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      { mode: "discriminating_test" } as any,
+    );
+
+    expect(repaired.appliedRepairs).toContain("clue_materialization");
+    expect(repaired.appliedRepairs).toContain("discriminating_test_scaffold");
+    expect(repaired.insertedDiscriminatingTest).toBe(true);
+    expect(obligations.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
   });
 });
 
@@ -879,6 +1143,32 @@ describe("Agent 9 prompt hardening fixes", () => {
 
     // Edgar is cleared in chapter 1, so chapter 2 should not report one unresolved suspect.
     expect(joined).toContain("approximately 0 unresolved suspect(s)");
+  });
+
+  it("emits one active narrative-balance block instead of layered percentage tables", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 2, []);
+    const joined = prompt.messages.map((m) => m.content).join("\n\n");
+
+    expect(buildNarrativeBalanceBlock("discriminating_test")).toContain("Mode-specific narrative balance targets:");
+    expect(joined).toContain("Mode-specific narrative balance targets:");
+    expect(joined).not.toContain("CHAPTER COMPOSITION TARGETS (MANDATORY NARRATIVE BALANCE)");
+    expect(joined).not.toContain("Reference profile across chapter phases:");
+  });
+
+  it("provides advisory soft narrative-balance hints without creating hard failures", () => {
+    const assessment = assessNarrativeBalanceSignals(
+      {
+        title: "Chapter 8",
+        paragraphs: [
+          "Fog settled against the windows while silence stretched between every breath in the drawing room.",
+          "Cold lamplight and shadow did most of the talking before anyone dared move.",
+        ],
+      } as any,
+      "discriminating_test",
+    );
+
+    expect(assessment.hints.length).toBeGreaterThan(0);
+    expect(assessment.hints.join(" ")).toContain("Add one concise beat emphasizing");
   });
 
   it("Fix 6 detects recurring cross-chapter phrases", () => {
@@ -1336,5 +1626,186 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(system).toContain("SETTING REFINEMENT CONSTRAINTS");
     expect(system).toContain("BACKGROUND CONTEXT (social coherence anchor)");
     expect(system).toContain("FAIR-PLAY AND INFERENCE CONTRACT");
+  });
+});
+
+describe("post-pass polish", () => {
+  it("rolls back the polished candidate when validation regresses", async () => {
+    const chapter = {
+      title: "Chapter 8: The Trap",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and set the rewound clock where everyone could see it.",
+        "She spoke carefully, making the comparison plain without yet naming the killer.",
+      ],
+    };
+    const repairContext = buildChapterRepairContext({
+      chapterNumber: 8,
+      scene: baseScene,
+      sceneCount: 10,
+      caseData: baseCaseData,
+      cmlCase: baseCaseData.CASE,
+      scenes: [baseScene],
+      dtSceneCheck: { act_number: 3, scene_number: 1 },
+      ledgerEntry: {
+        chapterNumber: 8,
+        hardFloorWords: 1,
+        preferredWords: 1,
+        requiredClueIds: ["clue_clock"],
+        clueObligationContext: [
+          {
+            id: "clue_clock",
+            description: "The mantel clock has been rewound.",
+            placement: "early",
+          },
+        ],
+      } as any,
+      clueDistribution: baseInputs.clueDistribution,
+      matchingClearances: [{ suspect_name: "Edgar Vale" }],
+    });
+    const client = {
+      chat: vi.fn().mockResolvedValue({
+        content: JSON.stringify({
+          status: "draft",
+          chapters: [
+            {
+              title: "Chapter 8: The Trap",
+              paragraphs: [
+                "Clara gathered the household in the drawing room.",
+                "She spoke carefully, but the decisive object was no longer named.",
+              ],
+            },
+          ],
+        }),
+      }),
+    } as any;
+
+    const prompt = buildPostPassPolishPrompt({ chapter, repairContext });
+    const result = await polishPassingChapter({
+      chapter,
+      client,
+      repairContext,
+      validateCandidate: (candidate) => ({
+        chapter: candidate,
+        hardErrors: candidate.paragraphs.join(" ").includes("rewound clock") ? [] : ["missing clue"],
+      }),
+    });
+
+    expect(prompt).toContain("QUALITY-ONLY POLISH PASS");
+    expect(prompt).toContain("Edgar Vale");
+    expect(result.keptPolishedVersion).toBe(false);
+    expect(result.rollbackReason).toBe("validation_regression");
+    expect(result.chapter).toEqual(chapter);
+  });
+
+  it("rolls back polished output when obligation-bearing clues are removed", async () => {
+    const chapter = {
+      title: "Chapter 8: The Trap",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and set the rewound clock where everyone could see it.",
+        "She compared the clock marks against the witness timings before anyone could dodge the conclusion.",
+      ],
+    };
+    const repairContext = buildChapterRepairContext({
+      chapterNumber: 8,
+      scene: baseScene,
+      sceneCount: 10,
+      caseData: baseCaseData,
+      cmlCase: baseCaseData.CASE,
+      scenes: [baseScene],
+      dtSceneCheck: { act_number: 3, scene_number: 1 },
+      ledgerEntry: {
+        chapterNumber: 8,
+        hardFloorWords: 1,
+        preferredWords: 1,
+        requiredClueIds: ["clue_clock"],
+      } as any,
+      clueDistribution: baseInputs.clueDistribution,
+      matchingClearances: [{ suspect_name: "Edgar Vale" }],
+    });
+    const client = {
+      chat: vi.fn().mockResolvedValue({
+        content: JSON.stringify({
+          status: "draft",
+          chapters: [
+            {
+              title: "Chapter 8: The Trap",
+              paragraphs: [
+                "Clara gathered the household in the drawing room and spoke with deliberate calm.",
+                "She moved from one statement to the next without naming the physical evidence.",
+              ],
+            },
+          ],
+        }),
+      }),
+    } as any;
+
+    expect(hasPolishRegression({
+      original: chapter as any,
+      polished: chapter as any,
+      repairContext,
+    })).toBe(false);
+
+    const result = await polishPassingChapter({
+      chapter: chapter as any,
+      client,
+      repairContext,
+      // Simulate a validator pass so the obligation guard is the deciding protection.
+      validateCandidate: (candidate) => ({
+        chapter: candidate,
+        hardErrors: [],
+      }),
+    });
+
+    expect(result.keptPolishedVersion).toBe(false);
+    expect(result.rollbackReason).toBe("obligation_regression");
+    expect(result.chapter).toEqual(chapter);
+  });
+
+  it("does not flag metadata-only clue obligations that were never explicit in original prose", () => {
+    const repairContext = buildChapterRepairContext({
+      chapterNumber: 2,
+      scene: baseScene,
+      sceneCount: 10,
+      caseData: baseCaseData,
+      cmlCase: baseCaseData.CASE,
+      scenes: [baseScene],
+      dtSceneCheck: { act_number: 3, scene_number: 1 },
+      ledgerEntry: {
+        chapterNumber: 2,
+        hardFloorWords: 1,
+        preferredWords: 1,
+        requiredClueIds: ["clue_meta"],
+        clueObligationContext: [
+          {
+            id: "clue_meta",
+            description: "Direct observation",
+            placement: "early",
+          },
+        ],
+      } as any,
+      clueDistribution: undefined,
+      matchingClearances: [],
+    });
+
+    const original = {
+      title: "Chapter 2",
+      paragraphs: [
+        "Clara held the room in silence and watched every witness choose their words with care.",
+        "No one volunteered certainty, but the timeline had begun to tighten around one contradiction.",
+      ],
+    };
+    const polished = {
+      title: "Chapter 2",
+      paragraphs: [
+        "Clara held the room in patient silence, watching each witness choose their words with care.",
+        "No one offered certainty, yet the timeline tightened around one stubborn contradiction.",
+      ],
+    };
+
+    expect(hasPolishRegression({
+      original: original as any,
+      polished: polished as any,
+      repairContext,
+    })).toBe(false);
   });
 });

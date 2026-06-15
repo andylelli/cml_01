@@ -6,15 +6,15 @@ Date: 2026-06-14
 
 | Item | Category | Severity | Likelihood | Status | Planned Touchpoints |
 | --- | --- | --- | --- | --- | --- |
-| Make discriminating-test repair validator-driven instead of marker-driven | Deterministic repair correctness | High | 94% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts`, `packages/prompts-llm/src/agent9-prose/clue-validation.ts` |
-| Replace raw clue IDs with prose-facing clue descriptions in deterministic DT prose | Output quality / scoring | Medium | 96% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts` |
-| Align deterministic clue materializer with validator handling of mapping-only / delivery-method clues | Deterministic repair correctness | Medium | 91% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts`, `packages/prompts-llm/src/agent9-prose/clue-validation.ts` |
-| Reduce retry prompt stacking into one canonical retry brief per mode | Prompt clarity / generation quality | Medium | 82% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts`, retry prompt helpers |
-| Consolidate duplicate chapter-composition percentages into one canonical narrative-balance system | Prompt clarity / guidance reliability | Medium | 90% | TODO | `packages/prompts-llm/src/agent9-prose/prompt-builder.ts`, `packages/story-validation/src/generation-params.ts`, tests |
-| Add a validator-guarded post-pass polish step for already-passing chapters | Prose quality / scoring | Medium | 79% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts`, polish prompt helpers, tests |
-| Extract deterministic repair helpers out of `generate.ts` into a dedicated module | Maintainability / bug prevention | Medium | 88% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts`, new `deterministic-repair.ts`, tests |
-| Consolidate repeated chapter stage-contract derivation into shared helpers | Maintainability / consistency | Low | 86% | TODO | `packages/prompts-llm/src/agent9-prose/generate.ts` |
-| Add validator-aligned regression tests for false-positive DT skip and mapping-only clues | Test coverage | High | 97% | TODO | `packages/prompts-llm/src/__tests__/agent9-prose.test.ts` |
+| Make discriminating-test repair validator-driven instead of marker-driven | Deterministic repair correctness | High | 94% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, `packages/prompts-llm/src/agent9-prose/clue-validation.ts` |
+| Replace raw clue IDs with prose-facing clue descriptions in deterministic DT prose | Output quality / scoring | Medium | 96% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts` |
+| Align deterministic clue materializer with validator handling of mapping-only / delivery-method clues | Deterministic repair correctness | Medium | 91% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, `packages/prompts-llm/src/agent9-prose/clue-validation.ts` |
+| Reduce retry prompt stacking into one canonical retry brief per mode | Prompt clarity / generation quality | Medium | 82% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, retry prompt helpers |
+| Consolidate duplicate chapter-composition percentages into one canonical narrative-balance system | Prompt clarity / guidance reliability | Medium | 90% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/prompt-builder.ts`, new `packages/prompts-llm/src/agent9-prose/narrative-balance.ts`, tests |
+| Add a validator-guarded post-pass polish step for already-passing chapters | Prose quality / scoring | Medium | 79% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, new `packages/prompts-llm/src/agent9-prose/post-pass-polish.ts`, tests |
+| Extract deterministic repair helpers out of `generate.ts` into a dedicated module | Maintainability / bug prevention | Medium | 88% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, new `packages/prompts-llm/src/agent9-prose/deterministic-repair.ts`, tests |
+| Consolidate repeated chapter stage-contract derivation into shared helpers | Maintainability / consistency | Low | 86% | DONE (2026-06-15) | `packages/prompts-llm/src/agent9-prose/generate.ts`, new `packages/prompts-llm/src/agent9-prose/deterministic-repair.ts` |
+| Add validator-aligned regression tests for false-positive DT skip and mapping-only clues | Test coverage | High | 97% | DONE (2026-06-15) | `packages/prompts-llm/src/__tests__/agent9-prose.test.ts` |
 
 ## 1. Scope
 
@@ -135,16 +135,16 @@ Use this tracker during implementation.
 
 | Workstream | Status | Owner | Notes |
 | --- | --- | --- | --- |
-| Shared validator-state helpers | Not started | TBD | `resolveClueObligationState(...)`, `resolveDiscriminatingTestValidityState(...)` |
-| DT repair validator alignment | Not started | TBD | Replace regex-only skip |
-| DT prose-facing evidence rendering | Not started | TBD | Remove raw `clue_*` leakage |
-| Clue materializer validator alignment | Not started | TBD | Handle metadata-only / earlyness through shared state |
-| Narrative-balance canonicalization | Not started | TBD | Collapse duplicate percentage systems into one runtime source |
-| Retry-brief canonicalization | Not started | TBD | Remove layered retry assembly |
-| Deterministic-repair extraction | Not started | TBD | Create `deterministic-repair.ts` |
-| Shared chapter repair context | Not started | TBD | Remove repeated stage/suspect derivation |
-| Post-pass polish | Not started | TBD | Guarded keep-or-rollback flow |
-| Regression and prompt-shape tests | Not started | TBD | Add direct helper + prompt rendering coverage |
+| Shared validator-state helpers | Done | Codex | Landed in `clue-validation.ts`; validator and repair code now share clue-state and DT-validity resolution |
+| DT repair validator alignment | Done | Codex | `applyDeterministicDiscriminatingTestPatch(...)` now skips only when shared DT validity already passes |
+| DT prose-facing evidence rendering | Done | Codex | Structured `evidence_clues` are resolved to prose-facing descriptions; raw `clue_*` output blocked |
+| Clue materializer validator alignment | Done | Codex | Deterministic clue patch now uses shared clue obligation state and skips metadata-only filler |
+| Narrative-balance canonicalization | Done | Codex | Runtime prompt now emits one active mode-specific balance block from shared `narrative-balance.ts`; duplicate chapter-phase percentage block removed |
+| Retry-brief canonicalization | Done | Codex | `buildCanonicalRetryBrief(...)` now owns phase-aware retry-brief assembly and removes layered prompt concatenation at the call site |
+| Deterministic-repair extraction | Done | Codex | Legacy deterministic helper bodies were removed from `generate.ts`; canonical repair exports now live in `deterministic-repair.ts` |
+| Shared chapter repair context | Done | Codex | `buildChapterRepairContext(...)` is now the shared mainline repair/polish context entrypoint and the remaining duplicated fallback derivation was folded into deterministic helpers |
+| Post-pass polish | Done | Codex | `post-pass-polish.ts` adds quality-only polish with validator rollback protection |
+| Regression and prompt-shape tests | Done | Codex | Wave 2 tests now cover canonical retry brief shape, narrative-balance prompt rendering, and post-pass polish rollback |
 
 Status legend:
 
@@ -152,6 +152,58 @@ Status legend:
 - `In progress` = active implementation branch / patch in progress
 - `Blocked` = awaiting decision or prerequisite
 - `Done` = implemented and validated
+
+### Phase 1 Validation Update - 2026-06-15
+
+Implemented and validated in this pass:
+
+- shared `resolveClueObligationState(...)` and `resolveDiscriminatingTestValidityState(...)` helpers
+- validator-driven DT deterministic patch gating
+- prose-facing DT evidence rendering from structured `evidence_clues`
+- deterministic clue patch alignment for metadata-only / delivery-method clue mappings
+- focused regressions covering DT false-skip, raw clue ID leakage, metadata-only clue acceptance, and structured DT design rendering
+
+Validation executed:
+
+- `npm.cmd run -w @cml/prompts-llm test -- agent9-prose`
+- `npm.cmd run -w @cml/prompts-llm type-check`
+- `npm.cmd run -w @cml/prompts-llm build`
+
+### Phase 2 Validation Update - 2026-06-15
+
+Implemented and validated in this pass:
+
+- one canonical retry-brief assembly path via `buildCanonicalRetryBrief(...)`
+- shared `narrative-balance.ts` with one active runtime balance block and duplicate chapter-phase block removal
+- guarded `post-pass-polish.ts` flow for already-passing chapters with rollback on regression
+- shared `buildChapterRepairContext(...)` adoption in the main validation/polish path
+- initial `deterministic-repair.ts` extraction for shared repair/fallback context helpers
+- Wave 2 regressions covering canonical retry-brief shape, narrative-balance prompt output, and polish rollback
+
+Validation executed:
+
+- `npm.cmd run -w @cml/prompts-llm test -- agent9-prose`
+- `npm.cmd run -w @cml/prompts-llm type-check`
+- `npm.cmd run -w @cml/prompts-llm build`
+
+### Phase 3 and Phase 4 Validation Update - 2026-06-15
+
+Implemented and validated in this pass:
+
+- added a shared `repairChapterDeterministically(...)` orchestrator in `deterministic-repair.ts`
+- replaced duplicated clue/DT deterministic patch call sites in `generate.ts` (main validation path and post-expansion path) with the shared repair orchestrator
+- added optional soft narrative-balance assessment via `assessNarrativeBalanceSignals(...)` in `narrative-balance.ts`
+- wired soft, advisory narrative-balance hints into `buildPostPassPolishPrompt(...)`
+- added `hasPolishRegression(...)` guard in `post-pass-polish.ts` for obligation preservation and over-compression rollback
+- extended polish rollback reasons with `obligation_regression`
+- added regressions for shared deterministic repair orchestration, soft balance hints, and polish obligation rollback
+
+Validation executed:
+
+- `npm.cmd run -w @cml/story-validation build`
+- `npm.cmd run -w @cml/prompts-llm test -- agent9-prose`
+- `npm.cmd run -w @cml/prompts-llm type-check`
+- `npm.cmd run -w @cml/prompts-llm build`
 
 ## 3. Findings
 

@@ -785,7 +785,7 @@ export const resolveClueObligationState = (
     placement,
     pointsTo,
     hasDistributionEntry: Boolean(clue),
-    isMetadataOnly: !clue && Boolean(context?.description) && isDeliveryMethodLabel(context.description),
+    isMetadataOnly: !clue && Boolean(context?.description) && isDeliveryMethodLabel(context?.description ?? ""),
     isPresent,
     isEarlyEnough,
   };

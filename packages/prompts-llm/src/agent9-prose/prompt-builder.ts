@@ -36,11 +36,15 @@ import {
   CLUE_TOKEN_STOPWORDS,
   tokenizeForClueObligation,
   resolveStageModeKey,
-  mapStageModeToCompositionPhase,
   formatStageModeLabel,
   resolveCmlSceneRefChapterNumber,
   sceneMatchesCmlSceneRef,
 } from "./clue-validation.js";
+import {
+  buildStageModeContractBlock,
+  formatCompositionLabel,
+  getStageModeProfile,
+} from "./narrative-balance.js";
 import {
   buildIdentityMap,
   tagCharacter,
@@ -575,143 +579,6 @@ const buildFirstAppearanceContractsBlock = (
   return lines.join("\n");
 };
 
-const formatCompositionLabel = (value: string): string =>
-  value
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (ch) => ch.toUpperCase());
-
-const defaultStageModeProfiles = {
-  discovery_opening: {
-    required_outcomes: [
-      "Name the victim explicitly.",
-      "Introduce investigator and major suspects with role relevance and latent tension.",
-      "Plant the first clue without full mechanism explanation.",
-    ],
-    forbidden_reveals: [
-      "No culprit reveal.",
-      "No full murder mechanism explanation.",
-    ],
-  },
-  early_investigation: {
-    required_outcomes: [
-      "Develop one or two clues through questioning, contradiction, or alibi pressure.",
-      "Change the investigator's working theory by chapter end.",
-    ],
-    forbidden_reveals: [
-      "No final culprit resolution.",
-    ],
-  },
-  suspect_pressure: {
-    required_outcomes: [
-      "Reveal at least one new character pressure truth (fear, motive, lie, loyalty conflict, or secret).",
-      "End with changed suspicion state (more suspicious, less suspicious, or more complex).",
-    ],
-    forbidden_reveals: [
-      "No full murder confession unless the outline explicitly requires it.",
-    ],
-  },
-  false_suspect_clearing: {
-    required_outcomes: [
-      "Show why the suspect looked guilty.",
-      "Prove innocence using concrete evidence/alibi/logic.",
-      "Shift suspicion to the next investigable target.",
-    ],
-    forbidden_reveals: [
-      "Do not clear by assertion or convenience.",
-    ],
-  },
-  clue_reinterpretation: {
-    required_outcomes: [
-      "State what an earlier clue seemed to mean.",
-      "State what it now means and how the theory changes.",
-    ],
-    forbidden_reveals: [
-      "No decisive new evidence from nowhere.",
-    ],
-  },
-  discriminating_test: {
-    required_outcomes: [
-      "State competing theory/hypothesis paths.",
-      "Run or reveal a concrete test with observable result.",
-      "Explicitly state what the result proves and what it rules out.",
-    ],
-    forbidden_reveals: [
-      "Do not merely restate existing evidence.",
-    ],
-  },
-  final_reveal: {
-    required_outcomes: [
-      "Deliver motive, method of death, opportunity, and evidence chain.",
-      "Distinguish murder method from concealment mechanism.",
-      "State culprit mistake/trace and consequences.",
-    ],
-    forbidden_reveals: [
-      "Do not end with mechanism-only confession.",
-    ],
-  },
-  aftermath_consequence: {
-    required_outcomes: [
-      "Show emotional and social consequences after truth lands.",
-      "Show changed order among surviving characters.",
-    ],
-    forbidden_reveals: [
-      "Do not introduce decisive new mystery evidence.",
-    ],
-  },
-} as const;
-
-const getStageModeProfile = (mode: string): {
-  required_outcomes: string[];
-  forbidden_reveals: string[];
-  balance_targets?: Record<string, { min_pct: number; max_pct: number }>;
-} => {
-  const cfg = (getGenerationParams().agent9_prose as any)?.stage_modes?.[mode];
-  const fallback = (defaultStageModeProfiles as any)?.[mode] ?? defaultStageModeProfiles.early_investigation;
-  return {
-    required_outcomes: Array.isArray(cfg?.required_outcomes) && cfg.required_outcomes.length > 0
-      ? cfg.required_outcomes.map((v: unknown) => String(v))
-      : [...fallback.required_outcomes],
-    forbidden_reveals: Array.isArray(cfg?.forbidden_reveals) && cfg.forbidden_reveals.length > 0
-      ? cfg.forbidden_reveals.map((v: unknown) => String(v))
-      : [...fallback.forbidden_reveals],
-    balance_targets: cfg?.balance_targets && typeof cfg.balance_targets === "object"
-      ? cfg.balance_targets
-      : undefined,
-  };
-};
-
-const buildStageModeContractBlock = (
-  activeMode: string,
-): string => {
-  const profile = getStageModeProfile(activeMode);
-  const balanceLines = profile.balance_targets
-    ? Object.entries(profile.balance_targets)
-        .map(([name, range]: [string, any]) => {
-          const minPct = Number(range?.min_pct);
-          const maxPct = Number(range?.max_pct);
-          if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
-          const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
-          return `- ${formatCompositionLabel(name)}: ${pct}`;
-        })
-        .filter(Boolean)
-        .join("\n")
-    : "";
-
-  const lines = [
-    "\n\n## ACTIVE CHAPTER MODE CONTRACT (MANDATORY)",
-    `Active chapter mode: ${formatStageModeLabel(activeMode as any)}.`,
-    "Mode required outcomes:",
-    ...profile.required_outcomes.map((item) => `- ${item}`),
-    "Forbidden at this stage:",
-    ...profile.forbidden_reveals.map((item) => `- ${item}`),
-  ];
-  if (balanceLines) {
-    lines.push("Mode-specific narrative balance targets:");
-    lines.push(balanceLines);
-  }
-  return lines.join("\n");
-};
-
 const buildChapterOutcomeBlock = (
   activeMode: string,
   chapterStart: number,
@@ -763,7 +630,7 @@ const buildChapterOutcomeBlock = (
     aftermath_consequence: "Consequence on relationships/order after truth.",
   };
 
-  const profile = getStageModeProfile(activeMode);
+  const profile = getStageModeProfile(activeMode as any);
 
   return [
     "\n\n## CHAPTER OUTCOME CONTRACT (MANDATORY)",
@@ -815,86 +682,6 @@ const buildModeSpecificChecklistItems = (activeMode: string): string[] => {
         "□ Mode check (Early Investigation): chapter includes contradiction/alibi pressure and changes the investigator's working theory.",
       ];
   }
-};
-
-const buildChapterCompositionTargetsBlock = (
-  chapterStart: number,
-  chapterEnd: number,
-  totalScenes: number,
-  isDiscriminatingTestBatch: boolean,
-  cmlCase: any,
-  allOutlineScenes: any[],
-  batchScenes: any[],
-): string => {
-  const targets = (getGenerationParams().agent9_prose as any)?.chapter_composition_targets;
-  if (!targets || typeof targets !== "object") return "";
-
-  const activeMode = resolveStageModeKey(
-    chapterStart,
-    chapterEnd,
-    totalScenes,
-    isDiscriminatingTestBatch,
-    cmlCase,
-    allOutlineScenes,
-    batchScenes,
-  );
-  const phaseKey = mapStageModeToCompositionPhase(activeMode);
-  const phaseTargets = targets?.[phaseKey];
-  if (!phaseTargets || typeof phaseTargets !== "object") return "";
-
-  const formatPhaseTargets = (phase: Record<string, any>): string =>
-    Object.entries(phase)
-      .map(([component, range]: [string, any]) => {
-        const minPct = Number(range?.min_pct);
-        const maxPct = Number(range?.max_pct);
-        if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
-        const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
-        return `- ${formatCompositionLabel(component)}: ${pct}`;
-      })
-      .filter(Boolean)
-      .join("\n");
-
-  const currentPhaseLines = formatPhaseTargets(phaseTargets as Record<string, any>);
-  if (!currentPhaseLines) return "";
-
-  const phaseOrder = [
-    "chapter1",
-    "early_investigation",
-    "middle_chapters",
-    "false_suspect_chapters",
-    "discriminating_test_chapter",
-    "final_reveal",
-  ];
-
-  const referenceLines = phaseOrder
-    .map((key) => {
-      const keyTargets = targets?.[key];
-      if (!keyTargets || typeof keyTargets !== "object") return "";
-      const compact = Object.entries(keyTargets as Record<string, any>)
-        .map(([component, range]: [string, any]) => {
-          const minPct = Number(range?.min_pct);
-          const maxPct = Number(range?.max_pct);
-          if (!Number.isFinite(minPct) || !Number.isFinite(maxPct)) return "";
-          const pct = minPct === maxPct ? `${minPct}%` : `${minPct}-${maxPct}%`;
-          return `${formatCompositionLabel(component)} ${pct}`;
-        })
-        .filter(Boolean)
-        .join(" | ");
-      return compact ? `- ${formatCompositionLabel(key)}: ${compact}` : "";
-    })
-    .filter(Boolean)
-    .join("\n");
-
-  return [
-    "\n\n## CHAPTER COMPOSITION TARGETS (MANDATORY NARRATIVE BALANCE)",
-    "Treat percentages as narrative attention share (sentence/paragraph focus), not exact token math.",
-    `Active phase for this batch: ${formatCompositionLabel(phaseKey)} (mode: ${formatStageModeLabel(activeMode)}).`,
-    "Apply this target mix in this batch:",
-    currentPhaseLines,
-    "Reference profile across chapter phases:",
-    referenceLines,
-    "If obligations conflict, preserve hard clue/evidence/logic contracts first, then satisfy the composition mix.",
-  ].join("\n");
 };
 
 const buildPostChapterOneCharacterPressureBlock = (
@@ -1896,15 +1683,6 @@ ${victimIdentityRule}`;
     ? `\n\n⚠️ AMATEUR DETECTIVE STORY: The investigator is a civilian with no official standing. The official police (if they appear) are unnamed background figures only — "a constable", "the sergeant", "an officer from the village". Do NOT give any police official a name or title+surname combination. There is no Inspector [Surname], no Constable [Surname], no Sergeant [Surname] in this story.`
     : '';
 
-  const chapterCompositionTargetsBlock = buildChapterCompositionTargetsBlock(
-    chapterStart,
-    chapterEnd,
-    totalScenes,
-    isDiscriminatingTestBatch,
-    cmlCase,
-    allOutlineScenes,
-    scenes as any[],
-  );
   const stageModeContractBlock = buildStageModeContractBlock(activeStageMode);
   const chapterOutcomeBlock = buildChapterOutcomeBlock(
     activeStageMode,
@@ -1920,7 +1698,7 @@ ${victimIdentityRule}`;
   const developerWithContracts = developerWithAudit.replace(
     '\n\nNOVEL-QUALITY PROSE REQUIREMENTS:',
     `\n\n${wordCountContract}\n\nNOVEL-QUALITY PROSE REQUIREMENTS:`,
-  ) + stageModeContractBlock + chapterOutcomeBlock + chapterCompositionTargetsBlock;
+  ) + stageModeContractBlock + chapterOutcomeBlock;
 
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
     (scenes as any[]).map((scene) => ({

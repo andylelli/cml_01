@@ -13,7 +13,26 @@ export * from "./banned-phrases.js";
 export * from "./obligation-block.js";
 export * from "./prompt-blocks.js";
 export * from "./prompt-builder.js";
+export * from "./narrative-balance.js";
 export * from "./context-management.js";
 export * from "./discriminating.js";
 export * from "./repair.js";
+export {
+  applyDeterministicClearancePatch,
+  applyDeterministicCluePatch,
+  applyDeterministicDiscriminatingTestPatch,
+  buildCompletionFallbackChapter,
+  buildChapterRepairContext,
+  repairChapterDeterministically,
+  resolveBatchMatchingClearances,
+  resolveFallbackStageMode,
+  resolveFallbackInvestigatorName,
+  summarizeClueForFallback,
+} from "./deterministic-repair.js";
+export type {
+  ChapterRepairContext,
+  DeterministicRepairResult,
+  MatchingClearance,
+} from "./deterministic-repair.js";
+export * from "./post-pass-polish.js";
 export * from "./generate.js";
