@@ -1,0 +1,67 @@
+# Style Contract — the canonical voice artifact for one book (Agent 6.5 redesign §4.1).
+# Tone is a CONTRACT signed once at spec/grounding time and threaded into every generative agent,
+# not a 6,000-token "World Document" authored at step 90 and gated on hitting 200 words. This is the
+# single source of truth for register, narrative distance, humour, and prose constraints.
+#
+# JSON Schema draft-07 in YAML, ajv-compiled. `additionalProperties: false` keeps it canonical.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Style Contract"
+type: object
+additionalProperties: false
+required:
+  - register
+  - comparables
+  - narrativeDistance
+  - humourTolerance
+  - proseConstraints
+  - exemplars
+properties:
+  # The dominant voice of the book — the thing a reader feels in the first paragraph.
+  register:
+    type: string
+    enum: [wry-comic, cozy, noir, hardboiled, psychological, gothic, classical-fair-play]
+  # Voice anchors (e.g. ["Sayers", "Marsh"]) — influences, NOT plagiarism targets.
+  comparables:
+    type: array
+    items: { type: string }
+  narrativeDistance:
+    type: string
+    enum: [close-third, omniscient, first-person]
+  # Global humour ceiling (0 = none, 3 = farce). The per-scene map derives from this + per-character.
+  humourTolerance:
+    type: integer
+    minimum: 0
+    maximum: 3
+  # HARD, checkable prose constraints — the things the conformance judge protects.
+  proseConstraints:
+    type: object
+    additionalProperties: false
+    required: [sentenceRhythm, forbiddenDevices, diction]
+    properties:
+      sentenceRhythm:
+        type: string
+        enum: [varied, clipped, periodic]
+      forbiddenDevices:
+        type: array
+        items: { type: string }
+      diction:
+        type: string
+        enum: [period-formal, plain, ornate]
+  # 0–4 short gold passages the prose model is conditioned on — the highest-leverage voice control.
+  # Empty after the deterministic signing pass (exemplar generation is the gated live phase, §4.2).
+  exemplars:
+    type: array
+    maxItems: 4
+    items:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        speaker: { type: string }
+        text: { type: string, minLength: 1 }
+        note: { type: string }
+  # Provenance: which fields were auto-derived from the premise vs. set by the user. Lets the live
+  # signing pass know what remains to fill, and keeps "the user chose this" honest.
+  derivedDefaults:
+    type: array
+    items: { type: string }

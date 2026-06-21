@@ -1,0 +1,28 @@
+{
+  "name": "@cml/style-contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Style Contract — canonical voice artifact signed once at grounding + deterministic usability signal (Agent 6.5 redesign, documentation/12_system_redesign/12_agent_65_world_builder.md). Pure, no LLM, NOT wired into the pipeline.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}
