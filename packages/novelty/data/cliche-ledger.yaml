@@ -1,0 +1,78 @@
+# The genre-cliche ledger (Agent 8 redesign §4.4) — tired fair-play tropes that are NOT in any seed
+# but the model will reach for anyway. A seed-only check is BLIND to every one of these; this corpus
+# is the fix. Same Fingerprint shape as a seed, so the skeleton check runs against it identically.
+# Hand-authored v1 (§9.6); curation owner + growth policy is an open question.
+
+- id: butler_did_it
+  corpus: cliche
+  axis: identity
+  mechanism_family: hidden_accomplice
+  false_assumption_pattern: "the_servant_is_beneath_suspicion"
+  discriminating_test_shape: behavioral_tell
+  inference_shape: "the_overlooked_servant_did_it"
+  premise: "The least-suspected servant is the culprit."
+
+- id: evil_twin
+  corpus: cliche
+  axis: identity
+  mechanism_family: impersonation
+  false_assumption_pattern: "one_person_cannot_be_in_two_places"
+  discriminating_test_shape: identity_disambiguation
+  inference_shape: "expose_false_identity"
+  premise: "A secret twin / double provides the impossible alibi."
+
+- id: secret_will_heir
+  corpus: cliche
+  axis: authority
+  mechanism_family: secret_will_inheritance
+  false_assumption_pattern: "no_motive_visible"
+  discriminating_test_shape: reconstruction
+  inference_shape: "expose_hidden_inheritance_motive"
+  premise: "A surprise will / hidden heir is the buried motive."
+
+- id: the_detective_did_it
+  corpus: cliche
+  axis: epistemic
+  mechanism_family: staged_scene
+  false_assumption_pattern: "the_investigator_is_neutral"
+  discriminating_test_shape: reconstruction
+  inference_shape: "the_narrator_or_investigator_did_it"
+  premise: "The investigating figure is the killer."
+
+- id: it_was_all_staged
+  corpus: cliche
+  axis: epistemic
+  mechanism_family: staged_scene
+  false_assumption_pattern: "the_obvious_reconstruction_is_correct"
+  discriminating_test_shape: reconstruction
+  inference_shape: "overturn_obvious_reconstruction"
+  premise: "The whole crime scene was arranged to mislead."
+
+- id: seance_fakery
+  corpus: cliche
+  axis: epistemic
+  mechanism_family: disguised_natural_agent
+  false_assumption_pattern: "supernatural_cause"
+  discriminating_test_shape: physical_trace
+  inference_shape: "debunk_supernatural"
+  premise: "A 'supernatural' death is faked stagecraft."
+
+- id: spare_key_relock
+  corpus: cliche
+  axis: spatial
+  mechanism_family: locked_room_key
+  false_assumption_pattern: "locked_room=>no_entry"
+  discriminating_test_shape: physical_trace
+  inference_shape: "reframe_access_via_duplicate_key"
+  premise: "The locked room is undone by an unsuspected duplicate key."
+
+# A cliche whose mechanism (alibi_fabrication) appears in NO seed — the clean demonstration that a
+# seed-only check is blind to it: the grieving relative with the rehearsed, fabricated alibi.
+- id: rehearsed_alibi
+  corpus: cliche
+  axis: behavioral
+  mechanism_family: alibi_fabrication
+  false_assumption_pattern: "the_grieving_relative_is_above_suspicion"
+  discriminating_test_shape: behavioral_tell
+  inference_shape: "expose_rehearsed_alibi"
+  premise: "The bereaved family member's airtight alibi is a careful fabrication."

@@ -1,0 +1,73 @@
+# Novelty Fingerprint — the abstract structural fingerprint of a mystery (Agent 8 redesign §4.1).
+# "The schema the whole redesign is built on." Novelty is a property of the *idea* — axis, mechanism,
+# false-assumption shape, discriminating-test shape, inference shape — NOT of surface text (names,
+# eras). A fingerprint is a few hundred tokens; it can be compared against the seeds, a genre-cliche
+# ledger, and a cross-run store cheaply, before any 8000-token CML is elaborated.
+#
+# JSON Schema draft-07 in YAML, ajv-compiled. `additionalProperties: false` keeps the ledger honest.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Novelty Fingerprint"
+type: object
+additionalProperties: false
+required:
+  - id
+  - corpus
+  - axis
+  - mechanism_family
+  - false_assumption_pattern
+  - discriminating_test_shape
+  - inference_shape
+properties:
+  id:
+    type: string
+    pattern: "^[a-z][a-z0-9_]*$"
+  # Which corpus this fingerprint belongs to — the three things a new idea must diverge from (§4.4).
+  corpus:
+    type: string
+    enum: [seed, cliche, prior_run]
+  # The primary axis the mystery turns on.
+  axis:
+    type: string
+    enum: [temporal, spatial, identity, epistemic, behavioral, authority]
+  # The mechanism family — the trick's structural kind (shared vocabulary with the §4.4 device library).
+  mechanism_family:
+    type: string
+    enum:
+      - locked_room_key
+      - locked_room_timing
+      - alibi_fabrication
+      - impersonation
+      - substituted_body
+      - poison_delayed
+      - poison_substitution
+      - staged_scene
+      - unconscious_act
+      - disguised_natural_agent
+      - hidden_accomplice
+      - information_leak
+      - recorded_presence
+      - secret_will_inheritance
+  # The reader's load-bearing wrong belief (a short canonical phrase, e.g. "locked_room=>suicide").
+  false_assumption_pattern:
+    type: string
+    minLength: 1
+  # How the truth is finally forced.
+  discriminating_test_shape:
+    type: string
+    enum:
+      - physical_trace
+      - timetable_contradiction
+      - behavioral_tell
+      - identity_disambiguation
+      - reconstruction
+      - chemical_timing
+  # The skeleton of the deduction, abstracted from props (a short canonical phrase).
+  inference_shape:
+    type: string
+    minLength: 1
+  # One-line premise (display only; never compared).
+  premise:
+    type: string
+  # Provenance.
+  source:
+    type: string
