@@ -42,6 +42,13 @@ export { checkUniqueness } from "./engines/uniqueness.js";
 export { certify, CHECKER_VERSION } from "./certify.js";
 export { checkDeviceBinding, boundDeviceFromPattern } from "./engines/device-binding.js";
 export type { BoundDevice, GroundingMap, DeviceBindingResult } from "./engines/device-binding.js";
+export { proveSolvability, summarizeDifficulty } from "./solvability.js";
+export type {
+  SolvabilityProof,
+  Difficulty,
+  PanelGuess,
+  DifficultyReport,
+} from "./solvability.js";
 export { runCertifyLoop, applyAction } from "./repair-loop.js";
 export type {
   RepairAction,
