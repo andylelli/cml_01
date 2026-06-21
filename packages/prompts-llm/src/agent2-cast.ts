@@ -10,6 +10,7 @@
 
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
+import { checkCast } from "./agent2-cast-checker.js";
 
 // ============================================================================
 // Types
@@ -459,10 +460,24 @@ export async function designCast(
     Math.ceil(expectedCount * config.quality.role_archetype.min_unique_ratio),
   );
 
+  // Phase 2 "stop the bleeding" (documentation/12_system_redesign/02_agent_2_cast.md §7 step 1):
+  // when AGENT2_CONSTRAINED_CAST is enabled, a count miss or a missing-field gap is fixed by a
+  // structured-feedback retry (and a loud failure on exhaustion) rather than injecting
+  // `Placeholder N` / canned-default characters that then poison 13 downstream agents. Default OFF
+  // preserves the legacy padding/default-fill behavior exactly.
+  const constrainedMode = (process.env.AGENT2_CONSTRAINED_CAST ?? "").trim().toLowerCase();
+  const noPlaceholderPadding =
+    constrainedMode === "on" || constrainedMode === "true" || constrainedMode === "1";
+  const dynamicGuardrails: string[] = [];
+
   for (let attempt = 1; attempt <= resolvedMaxAttempts; attempt++) {
     try {
-      // 1. Build prompt
-      const prompt = buildCastPrompt(inputs);
+      // 1. Build prompt (with any structured feedback accumulated from prior attempts)
+      const attemptInputs =
+        dynamicGuardrails.length > 0
+          ? { ...inputs, qualityGuardrails: [...(inputs.qualityGuardrails ?? []), ...dynamicGuardrails] }
+          : inputs;
+      const prompt = buildCastPrompt(attemptInputs);
 
       // 2. Call LLM
       const response = await client.chat({
@@ -500,29 +515,32 @@ export async function designCast(
       // 4. Validate and normalize structure
       const normalizedCharacters = Array.isArray(cast.characters) ? [...cast.characters] : [];
 
-      // Retry on any character shortfall (before the final attempt).
-      // Placeholder characters score zero on depth metrics so we want real LLM
-      // content for every slot; only pad with placeholders as a last resort on
-      // the final attempt.
-      if (normalizedCharacters.length < expectedCount && attempt < resolvedMaxAttempts) {
+      // Count handling. Before the final attempt: retry (with structured feedback when the
+      // constrained path is on). Placeholder characters score zero on depth metrics, so we want
+      // real LLM content for every slot.
+      const countMismatch = normalizedCharacters.length !== expectedCount;
+      if (countMismatch && attempt < resolvedMaxAttempts) {
         console.warn(
-          `Attempt ${attempt}: Only ${normalizedCharacters.length} of ${expectedCount} characters returned. Retrying.`,
+          `Attempt ${attempt}: expected ${expectedCount} characters, got ${normalizedCharacters.length}. Retrying.`,
         );
+        if (noPlaceholderPadding) {
+          dynamicGuardrails.push(
+            `Return EXACTLY ${expectedCount} characters in the "characters" array — your previous attempt returned ${normalizedCharacters.length}. Do not pad, repeat, or omit characters.`,
+          );
+        }
         continue;
       }
 
-      // Retry on over-count (before the final attempt) — same policy as under-count.
-      // Silently truncating an over-count produces a valid cast but may drop the
-      // LLM's intended characters; a retry gives the model a chance to return exactly
-      // the right number.
-      if (normalizedCharacters.length > expectedCount && attempt < resolvedMaxAttempts) {
-        console.warn(
-          `Attempt ${attempt}: Got ${normalizedCharacters.length} characters, expected ${expectedCount}. Retrying.`,
+      if (countMismatch && noPlaceholderPadding) {
+        // Stop the bleeding: a count miss after every attempt is a real generation failure, not
+        // something to paper over with `Placeholder N` characters that flow into prose.
+        throw new Error(
+          `Cast count mismatch after ${resolvedMaxAttempts} attempts: expected ${expectedCount}, got ${normalizedCharacters.length} ` +
+            `(AGENT2_CONSTRAINED_CAST enabled — placeholder padding disabled).`,
         );
-        continue;
       }
 
-      if (normalizedCharacters.length !== expectedCount) {
+      if (countMismatch) {
         console.warn(
           `Attempt ${attempt}: Final attempt — expected ${expectedCount} characters, got ${normalizedCharacters.length}. Padding with placeholders.`,
         );
@@ -652,7 +670,20 @@ export async function designCast(
 
       if (missingFields.length > 0) {
         if (attempt < resolvedMaxAttempts) {
+          if (noPlaceholderPadding) {
+            dynamicGuardrails.push(
+              `Every character must include ALL required fields. Previous gaps: ${missingFields.slice(0, 6).join("; ")}.`,
+            );
+          }
           continue; // Retry on missing fields
+        }
+        if (noPlaceholderPadding) {
+          // Stop the bleeding: don't default-fill missing fields with canned values / placeholder
+          // names; fail loudly so the gap is fixed rather than shipped.
+          throw new Error(
+            `Cast characters missing required fields after ${resolvedMaxAttempts} attempts: ` +
+              `${missingFields.join("; ")} (AGENT2_CONSTRAINED_CAST enabled — default-fill disabled).`,
+          );
         }
         // Fill missing fields with defaults to avoid hard failure
         cast.characters = cast.characters.map((char: any, idx: number) => ({
@@ -709,21 +740,45 @@ export async function designCast(
           console.warn(
             `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Retrying.`,
           );
+          if (noPlaceholderPadding) {
+            // Constrained path: feed the model the *specific* duplicates to re-cast (from the
+            // deterministic checker) instead of resending the prompt blind.
+            const diag = checkCast(cast, {
+              expectedCount,
+              minArchetypeUniqueRatio: config.quality.role_archetype.min_unique_ratio,
+            });
+            for (const issue of diag.issues) {
+              if (issue.code === "duplicate_archetype" || issue.code === "low_archetype_diversity") {
+                dynamicGuardrails.push(issue.feedback);
+              }
+            }
+          }
           continue;
         }
-        // Final attempt — apply deterministic fallback as last resort.
-        console.warn(
-          `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
-        );
-        cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
 
-        const uniqueAfterFallback = new Set(
-          cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
-        );
-        if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
-          throw new Error(
-            `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
+        if (noPlaceholderPadding) {
+          // Constrained path: do NOT relabel duplicates with canned archetypes (the old
+          // `diversifyRoleArchetypes` rubber-stamp). A low-diversity cast is a warn-level quality
+          // miss, not a run-killer — accept it and let the scoring loop reflect it.
+          console.warn(
+            `Attempt ${attempt}: Final attempt — ${uniqueArchetypesBefore.size}/${requiredUniqueArchetypes} unique archetypes. ` +
+              `Accepting without deterministic relabel (AGENT2_CONSTRAINED_CAST enabled).`,
           );
+        } else {
+          // Legacy: apply deterministic fallback as last resort, then throw if even that fails.
+          console.warn(
+            `Attempt ${attempt}: Only ${uniqueArchetypesBefore.size} unique role archetypes, need ${requiredUniqueArchetypes}. Applying deterministic diversification.`,
+          );
+          cast.characters = diversifyRoleArchetypes(cast.characters as CharacterProfile[], requiredUniqueArchetypes);
+
+          const uniqueAfterFallback = new Set(
+            cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
+          );
+          if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
+            throw new Error(
+              `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
+            );
+          }
         }
       }
 

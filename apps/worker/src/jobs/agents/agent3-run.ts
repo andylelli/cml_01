@@ -154,8 +154,20 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   ctx.agentDurations["agent3_cml"] = Date.now() - cmlStart;
 
   if (!cmlResult.validation.valid) {
-    ctx.errors.push("Agent 3: Generated invalid CML after all attempts");
-    throw new Error("CML generation failed validation");
+    if (cmlResult.degraded) {
+      // Phase 0 graceful-degrade (AGENT4_GRACEFUL_DEGRADE): revision ran out of budget but returned
+      // a best-so-far CML. Carry the unresolved warnings and PROCEED rather than killing the run.
+      const unresolved = cmlResult.unresolvedLogicWarnings ?? cmlResult.validation.errors;
+      ctx.warnings.push(
+        `Agent 4: CML degraded — proceeding with ${unresolved.length} unresolved validation warning(s) (ran out of revision budget).`,
+        ...unresolved.slice(0, 10).map((e) => `Agent 4 unresolved: ${e}`),
+      );
+      ctx.revisedByAgent4 = true;
+      ctx.revisionAttempts = cmlResult.revisionDetails?.attempts;
+    } else {
+      ctx.errors.push("Agent 3: Generated invalid CML after all attempts");
+      throw new Error("CML generation failed validation");
+    }
   }
 
   if (cmlResult.revisedByAgent4) {
@@ -207,8 +219,19 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   // ── CML quality score ─────────────────────────────────────────────────────
   if (ctx.enableScoring && ctx.scoreAggregator) {
     const cmlRevisedByAgent4 = cmlResult.revisedByAgent4 ?? false;
+    const cmlDegraded = cmlResult.degraded ?? false;
     const cmlAttemptCount = cmlResult.attempt ?? 1;
-    const cmlQualityScore = cmlRevisedByAgent4 ? 60 : 100;
+    const cmlRepairCount = cmlResult.revisionDetails?.attempts ?? (cmlRevisedByAgent4 ? 1 : 0);
+    // GRADED quality (redesign §6/§9.2): replace the binary 60-vs-100 penalty with a score derived
+    // from how much repair was actually needed — each targeted patch/revision costs points (floored),
+    // and a degraded CML (shipped with unresolved validation warnings) takes an honest deeper cut.
+    let cmlQualityScore = 100;
+    if (cmlRevisedByAgent4) {
+      cmlQualityScore = Math.max(55, 100 - Math.min(40, Math.max(1, cmlRepairCount) * 12));
+    }
+    if (cmlDegraded) {
+      cmlQualityScore = Math.min(cmlQualityScore, 45);
+    }
     const cmlTotal = Math.round(100 * 0.5 + cmlQualityScore * 0.3 + 100 * 0.2);
     ctx.scoreAggregator.upsertPhaseScore(
       "agent3_cml",
@@ -234,11 +257,13 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
           {
             name: "Structural revision (Agent 4)",
             category: "quality" as const,
-            passed: !cmlRevisedByAgent4,
+            passed: !cmlRevisedByAgent4 && !cmlDegraded,
             score: cmlQualityScore,
             weight: 1,
-            message: cmlRevisedByAgent4
-              ? `Required structural revision (${cmlResult.revisionDetails?.attempts ?? 1} revision(s))`
+            message: cmlDegraded
+              ? `Shipped with ${cmlResult.unresolvedLogicWarnings?.length ?? 0} unresolved validation warning(s) after ${cmlRepairCount} repair(s)`
+              : cmlRevisedByAgent4
+              ? `Required ${cmlRepairCount} targeted repair(s)/revision(s)`
               : "No structural revision needed",
           },
         ],

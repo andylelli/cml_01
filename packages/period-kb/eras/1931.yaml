@@ -1,0 +1,89 @@
+# Period KB — era anchor for 1931 (Golden Age of detective fiction).
+# This is REFERENCE DATA, not creative work: "what forensics existed in 1931" has a
+# correct answer that does not change between runs. Fix a fact here and every future
+# mystery inherits the correction — no prompt engineering.
+year: 1931
+label: "Early 1930s"
+
+forensics:
+  fingerprinting:
+    status: routine
+    caveat: "Manual Henry-system classification; a match takes days of hand search; no automated database."
+  toxicology:
+    status: basic
+    detectable: [arsenic, strychnine, cyanide, morphine, antimony]
+    blind_to: [most_synthetic_compounds, trace_organics, undetectable_alkaloids]
+    caveat: "Marsh/Reinsch tests for metallic poisons; many plant alkaloids still hard to confirm."
+  ballistics:
+    status: emerging
+    caveat: "Comparison microscope (Goddard, ~1925) new; regional police labs scarce."
+  blood:
+    status: typing_only
+    note: "ABO groups (Landsteiner) allow exclusion only — no individuation, no match-to-person."
+  dna:
+    status: nonexistent
+    note: "DNA's role in heredity not established until the 1940s-50s; profiling is 1980s."
+  document_examination:
+    status: established
+    note: "Handwriting and typewriter-typeface comparison routinely used in court."
+
+communication:
+  telephone:
+    availability: "town exchanges; many country houses on party lines"
+    caveat: "Operator-connected, party lines, trunk calls booked ahead; NO itemised call records."
+  telegram:
+    latency_hours: 2
+  post:
+    latency_days: 1
+    note: "Multiple daily deliveries in towns; a posted letter can arrive same day locally."
+  radio:
+    status: "broadcast only"
+    note: "Wireless receivers common in homes; no two-way domestic radio."
+
+policing:
+  forensic_labs: scarce
+  amateur_detective_plausible: true
+  formal_rights_caution: false
+  national_database: none
+  note: "Scotland Yard CID professional, but rural forces small; the gifted amateur is genre-plausible."
+
+transport:
+  air_commercial: nascent
+  rail: peak
+  motorcar: common_but_unreliable
+  road_help: "limited — breakdowns mean a walk to the nearest house or telephone"
+
+lighting:
+  domestic: [gaslight, early_electric_incandescent, candle, oil_lamp, paraffin_lamp]
+  absent: [fluorescent, halogen, led, neon_domestic, electric_torch_uncommon]
+
+technology:
+  present: [wireless_radio, typewriter, gramophone, motorcar, telephone_exchange, film_photography, flashbulb, pocket_watch, wristwatch]
+  absent: [television, computer, photocopier, antibiotics_clinical, common_plastics, ballpoint_pen]
+
+# The anachronism floor: named means/technologies that must NOT appear as available
+# in 1931. The linter and isAvailable() treat these as hard-absent regardless of phrasing.
+not_yet_invented:
+  - fluorescent_lighting
+  - dna_profiling
+  - antibiotics_penicillin_clinical
+  - ballpoint_pen
+  - television_broadcast_domestic
+  - photocopier
+  - mobile_telephone
+  - cctv
+  - tape_recorder_portable
+  - jet_airliner
+
+social_norms:
+  - "Rigid class hierarchy with a sharp 'upstairs/downstairs' division between family and servants."
+  - "Great Depression pressure on incomes, estates, and inheritances."
+  - "Formal dress and address; calling cards, the dressing gong, and strict etiquette."
+  - "Constrained roles for women; reputation and respectability are highly consequential."
+  - "Deference to rank and to the family solicitor/doctor as trusted authorities."
+
+sources:
+  - "Locard / Goddard forensic histories — comparison microscope c.1925."
+  - "Landsteiner ABO blood-group typing (Nobel 1930): grouping enables exclusion, not identification."
+  - "GPO telephone service history — party lines and operator-connected trunk calls, no itemised records in this era."
+  - "General Golden Age conventions (Knox's Decalogue / Detection Club) for the plausibility of the amateur detective."

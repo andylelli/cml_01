@@ -12,6 +12,7 @@ import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
 import type { SettingRefinement } from "./agent1-setting.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
+import { simpleHash, generateSpecificDate } from "./shared/temporal-anchor.js";
 
 export interface SeasonalContext {
   season: "spring" | "summer" | "fall" | "winter";
@@ -101,37 +102,9 @@ export interface TemporalContextInputs {
   qualityGuardrails?: string[];
 }
 
-// Simple hash function to convert string to number
-const simpleHash = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash);
-};
-
-// Generate specific year and month from runId to ensure variation
-const generateSpecificDate = (decade: string, runId: string): { year: number; month: string } => {
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-  
-  // Parse decade (e.g., "1950s" -> 1950)
-  const decadeStart = parseInt(decade.replace(/s$/, ''), 10) || 1950;
-  
-  // Use hash to deterministically select year and month
-  const hash = simpleHash(runId || Math.random().toString());
-  const yearOffset = hash % 10; // 0-9
-  const monthIndex = (hash >> 4) % 12; // Use different bits for month
-  
-  return {
-    year: decadeStart + yearOffset,
-    month: monthNames[monthIndex]
-  };
-};
+// simpleHash / generateSpecificDate now live in the shared single source of truth
+// (./shared/temporal-anchor.ts). Re-exported here so existing importers/tests keep resolving.
+export { simpleHash, generateSpecificDate };
 
 const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};

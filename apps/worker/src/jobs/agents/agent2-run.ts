@@ -8,6 +8,8 @@
 import {
   designCast,
   generateCastNames,
+  checkCast,
+  summarizeCastCheck,
   type NameGeneratorContext,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
@@ -76,6 +78,31 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
     return undefined;
   };
 
+  // FIX 4: name-based gender inference, used only as a fallback when the LLM omits
+  // gender. Conservative: a small high-confidence list + classic suffix heuristics for
+  // the Golden Age (1920s–1950s) name space this generator targets. Returns undefined
+  // when uncertain so the caller can fall back to deterministic alternation.
+  const inferGenderFromName = (name: string): "male" | "female" | undefined => {
+    const first = name.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, "") ?? "";
+    if (!first) return undefined;
+    const female = new Set([
+      "mary", "margaret", "clara", "vivienne", "geraldine", "evelyn", "agnes", "edith",
+      "florence", "dorothy", "alice", "beatrice", "constance", "eleanor", "harriet",
+      "ada", "cecilia", "rose", "violet", "lillian", "grace", "ruth", "helen", "jane",
+      "elizabeth", "catherine", "anne", "anna", "emma", "charlotte", "louisa", "ethel",
+    ]);
+    const male = new Set([
+      "harold", "james", "thomas", "edward", "arthur", "richard", "william", "henry",
+      "charles", "george", "frederick", "albert", "walter", "ernest", "herbert", "alfred",
+      "john", "robert", "samuel", "francis", "hugh", "reginald", "percy", "cecil", "rupert",
+    ]);
+    if (female.has(first)) return "female";
+    if (male.has(first)) return "male";
+    // Classic feminine suffixes (-a / -ine / -ette) are reliable enough for a fallback.
+    if (/(?:a|ine|ette|elle|een|ina)$/.test(first)) return "female";
+    return undefined;
+  };
+
   const normaliseRelationshipTension = (value: unknown): "none" | "low" | "moderate" | "high" => {
     const raw = String(value ?? "").trim().toLowerCase();
     if (raw === "none" || raw === "low" || raw === "moderate" || raw === "high") {
@@ -97,15 +124,22 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
     }
     character.motiveStrength = normaliseMotiveStrength(character.motiveStrength);
     character.accessPlausibility = normaliseAccessPlausibility(character.accessPlausibility);
-    if (character.gender !== undefined) {
-      const normalisedGender = normaliseGender(character.gender);
-      if (normalisedGender) {
-        character.gender = normalisedGender;
-      } else {
-        delete character.gender;
-      }
-    }
   }
+
+  // FIX 4: Guarantee every character has a gender. The Agent 9 prose pronoun-lock builds
+  // its table from `characters.filter(c => c.gender)`, so any character missing gender was
+  // silently excluded and the model defaulted to "he" — the root cause of women being
+  // narrated with male pronouns. Resolve in order: declared → inferred-from-name →
+  // deterministic alternation, so the field is never empty when it reaches prose.
+  characters.forEach((character, idx) => {
+    const declared = normaliseGender(character.gender);
+    if (declared) {
+      character.gender = declared;
+      return;
+    }
+    character.gender =
+      inferGenderFromName(String(character.name ?? "")) ?? (idx % 2 === 0 ? "female" : "male");
+  });
 
   const nonDetectiveNames = characters
     .filter((c) => String(c.roleArchetype ?? "").toLowerCase() !== "detective" && c.name)
@@ -140,6 +174,74 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
     }
   }
 
+  const extractedCharacterPairs: Array<Record<string, unknown>> = [];
+  const pushExtractedPair = (character1: string, rawPair: Record<string, unknown>): void => {
+    const source = character1.trim();
+    const character2 = String(
+      rawPair.character2
+      ?? rawPair.with
+      ?? rawPair.target
+      ?? rawPair.character
+      ?? rawPair.name
+      ?? "",
+    ).trim();
+    if (!source || !character2 || source === character2) {
+      return;
+    }
+    extractedCharacterPairs.push({
+      character1: source,
+      character2,
+      relationship: String(rawPair.relationship ?? rawPair.relation ?? rawPair.type ?? "social acquaintance").trim() || "social acquaintance",
+      tension: normaliseRelationshipTension(rawPair.tension),
+      sharedHistory: String(
+        rawPair.sharedHistory
+        ?? rawPair.shared_history
+        ?? rawPair.history
+        ?? `${source} and ${character2} have unresolved social friction tied to the case.`,
+      ).trim() || `${source} and ${character2} have unresolved social friction tied to the case.`,
+    });
+  };
+
+  // Some LLM outputs nest `relationships` under each character, which is not part of the
+  // schema contract. Lift these links into top-level relationships.pairs and strip the
+  // nested field so schema validation and scoring read a single canonical relationship map.
+  for (const character of characters) {
+    const characterName = String(character.name ?? "").trim();
+    const nestedRelationships = (character as Record<string, unknown>).relationships;
+    if (Array.isArray(nestedRelationships)) {
+      for (const entry of nestedRelationships) {
+        if (entry && typeof entry === "object") {
+          pushExtractedPair(characterName, entry as Record<string, unknown>);
+        }
+      }
+    } else if (nestedRelationships && typeof nestedRelationships === "object") {
+      const nested = nestedRelationships as Record<string, unknown>;
+      if (Array.isArray(nested.pairs)) {
+        for (const entry of nested.pairs) {
+          if (entry && typeof entry === "object") {
+            pushExtractedPair(characterName, entry as Record<string, unknown>);
+          }
+        }
+      } else {
+        for (const [target, relationValue] of Object.entries(nested)) {
+          if (relationValue && typeof relationValue === "object") {
+            const relationObj = relationValue as Record<string, unknown>;
+            pushExtractedPair(characterName, {
+              ...relationObj,
+              character2: relationObj.character2 ?? target,
+            });
+          } else if (typeof relationValue === "string") {
+            pushExtractedPair(characterName, {
+              character2: target,
+              relationship: relationValue,
+            });
+          }
+        }
+      }
+    }
+    delete (character as Record<string, unknown>).relationships;
+  }
+
   const castNames = characters
     .map((c) => String(c.name ?? "").trim())
     .filter((name) => name.length > 0);
@@ -149,15 +251,35 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
       ? (castRaw.relationships as Record<string, unknown>)
       : ((castRaw.relationships = {}) as Record<string, unknown>);
 
-  const existingPairs = Array.isArray(relationshipContainer.pairs)
+  const existingPairsRaw = Array.isArray(relationshipContainer.pairs)
     ? (relationshipContainer.pairs as Array<Record<string, unknown>>)
     : [];
+  const mergedPairCandidates = [...existingPairsRaw, ...extractedCharacterPairs]
+    .filter((pair): pair is Record<string, unknown> => Boolean(pair) && typeof pair === "object")
+    .map((pair) => {
+      const character1 = String(pair.character1 ?? "").trim();
+      const character2 = String(pair.character2 ?? "").trim();
+      return {
+        ...pair,
+        character1,
+        character2,
+        relationship: String(pair.relationship ?? "social acquaintance").trim() || "social acquaintance",
+        tension: normaliseRelationshipTension(pair.tension),
+        sharedHistory: String(pair.sharedHistory ?? "").trim()
+          || `${character1} and ${character2} have unresolved social friction tied to the case.`,
+      };
+    })
+    .filter((pair) => pair.character1.length > 0 && pair.character2.length > 0 && pair.character1 !== pair.character2);
 
-  for (const pair of existingPairs) {
-    if (pair && typeof pair === "object") {
-      pair.tension = normaliseRelationshipTension(pair.tension);
-    }
+  const seenPairKeys = new Set<string>();
+  const existingPairs: Array<Record<string, unknown>> = [];
+  for (const pair of mergedPairCandidates) {
+    const key = `${String(pair.character1).toLowerCase()}::${String(pair.character2).toLowerCase()}::${String(pair.relationship).toLowerCase()}`;
+    if (seenPairKeys.has(key)) continue;
+    seenPairKeys.add(key);
+    existingPairs.push(pair);
   }
+  relationshipContainer.pairs = existingPairs;
 
   const hasCastReferencedRelationship = existingPairs.some((pair) => {
     const c1 = String(pair.character1 ?? "").trim();
@@ -357,6 +479,24 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     ctx.warnings.push("Cast design schema-repair retry succeeded");
   }
   castSchemaValidation.warnings.forEach((warning) => ctx.warnings.push(`Cast schema warning: ${warning}`));
+
+  // Phase-0 shadow: run the deterministic cast checker for telemetry only. Default OFF; when
+  // AGENT2_CAST_CHECK is set (shadow/on) it LOGS findings (placeholder/gender/enum/archetype/
+  // graph health) into warnings WITHOUT changing behavior — the deterministic foundation for the
+  // Agent 2 redesign (documentation/12_system_redesign/02_agent_2_cast.md §9.2). The enforcement
+  // path (deleting the normalize/pad/coerce gauntlet) waits on the constrained-decoding platform.
+  const castCheckMode = (process.env.AGENT2_CAST_CHECK ?? "").trim().toLowerCase();
+  if (castCheckMode && castCheckMode !== "off" && castCheckMode !== "false" && castCheckMode !== "0") {
+    try {
+      const check = checkCast(ctx.cast!.cast, { expectedCount: totalCastSize });
+      ctx.warnings.push(`[agent2-cast-check][shadow] ${summarizeCastCheck(check)}`);
+      for (const issue of check.issues) {
+        ctx.warnings.push(`[agent2-cast-check][shadow] ${issue.severity}: ${issue.message}`);
+      }
+    } catch (err) {
+      ctx.warnings.push(`[agent2-cast-check][shadow] checker error: ${(err as Error).message}`);
+    }
+  }
 
   ctx.reportProgress("cast", `Cast designed (${ctx.cast!.cast.characters.length} characters)`, 25);
 }

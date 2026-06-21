@@ -11,6 +11,7 @@ import {
 } from "../constants/arc-position.js";
 import { detectConfiguredBannedPhrases } from "./banned-phrases.js";
 import type { ProseChapter, ProseLinterIssue, MacroArcEntry, ProseGenerationInputs } from "./types.js";
+import { MONTH_TO_SEASON, normalizeMonthToken, type CanonicalSeason } from "../shared/temporal-anchor.js";
 export const normalizeParagraphForFingerprint = (paragraph: string): string =>
   paragraph
     .toLowerCase()
@@ -255,9 +256,16 @@ export const lintBatchProse = (
   // Deterministic paragraph-opener uniqueness gate.
   // Within each chapter, content openers should stay diverse while avoiding
   // false positives from pronouns/articles and common function words.
-  openerUniquenessLoop: for (const chapter of batchChapters) {
+  // R1 (ANALYSIS_44): report EVERY distinct repeated opener in a single pass rather than
+  // breaking at the first. The old break-at-first behaviour fed the retry only one offending
+  // opener; the model fixed that one and the next pre-existing duplicate surfaced on the
+  // following attempt (the "whack-a-mole" that burned the per-chapter retry budget). Each
+  // distinct opener is emitted as its own issue so the singular message + the feedback regex
+  // (`repeated content opener detected ("X")`) are preserved while every opener reaches the retry.
+  for (const chapter of batchChapters) {
     const firstWordCounts = new Map<string, number>();
     const firstTwoWordsSeen = new Set<string>();
+    const reportedOpeners = new Set<string>();
     for (const paragraph of chapter.paragraphs ?? []) {
       const tokens = tokenizeWords(paragraph);
       if (tokens.length === 0) continue;
@@ -268,13 +276,20 @@ export const lintBatchProse = (
         tokens.length >= 2 && isMeaningfulOpenerToken(tokens[0]) && isMeaningfulOpenerToken(tokens[1]);
       const currentFirstWordCount = firstWordMeaningful ? (firstWordCounts.get(firstWord) ?? 0) + 1 : 0;
 
-      if ((firstTwoWordsMeaningful && firstTwoWordsSeen.has(firstTwoWords)) || currentFirstWordCount >= 3) {
+      let offendingOpener: string | null = null;
+      if (firstTwoWordsMeaningful && firstTwoWordsSeen.has(firstTwoWords)) {
+        offendingOpener = firstTwoWords;
+      } else if (currentFirstWordCount >= 3) {
+        offendingOpener = firstWord;
+      }
+
+      if (offendingOpener && !reportedOpeners.has(offendingOpener)) {
+        reportedOpeners.add(offendingOpener);
         issues.push({
           type: "template_bleed",
-          message: `Template linter: repeated content opener detected ("${firstTwoWords}"). Avoid reusing the same meaningful opener phrase, and avoid starting 3+ paragraphs with the same meaningful first word.`,
-          matchingPriorParagraph: firstTwoWords,
+          message: `Template linter: repeated content opener detected ("${offendingOpener}"). Avoid reusing the same meaningful opener phrase, and avoid starting 3+ paragraphs with the same meaningful first word.`,
+          matchingPriorParagraph: offendingOpener,
         });
-        break openerUniquenessLoop;
       }
       if (firstWordMeaningful) {
         firstWordCounts.set(firstWord, currentFirstWordCount);
@@ -723,22 +738,11 @@ export const lintBatchProse = (
   return issues;
 };
 
-export type CanonicalSeason = 'spring' | 'summer' | 'autumn' | 'winter';
-
-export const MONTH_TO_SEASON: Record<string, CanonicalSeason> = {
-  january: 'winter',
-  february: 'winter',
-  march: 'spring',
-  april: 'spring',
-  may: 'spring',
-  june: 'summer',
-  july: 'summer',
-  august: 'summer',
-  september: 'autumn',
-  october: 'autumn',
-  november: 'autumn',
-  december: 'winter',
-};
+// CanonicalSeason / MONTH_TO_SEASON / normalizeMonthToken now live in the shared single
+// source of truth (../shared/temporal-anchor.ts). Re-exported here so the agent9-prose
+// modules that `import type { CanonicalSeason } from "./lint.js"` keep resolving.
+export { MONTH_TO_SEASON, normalizeMonthToken };
+export type { CanonicalSeason };
 
 export const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -759,12 +763,6 @@ export const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}(
 //          return chapter;
 //        }
 // ─────────────────────────────────────────────────────────────────────────
-export const normalizeMonthToken = (value: unknown): string | undefined => {
-  if (typeof value !== 'string') return undefined;
-  const normal = value.trim().toLowerCase();
-  return normal.length > 0 ? normal : undefined;
-};
-
 export const capitalizeWord = (value: string): string => {
   if (!value) return value;
   return value.charAt(0).toUpperCase() + value.slice(1);

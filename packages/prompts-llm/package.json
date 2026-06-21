@@ -14,6 +14,7 @@
   "dependencies": {
     "@cml/cml": "*",
     "@cml/llm-client": "*",
+    "@cml/period-kb": "*",
     "dotenv": "^17.2.4",
     "jsonrepair": "^3.13.2",
     "yaml": "^2.3.4"

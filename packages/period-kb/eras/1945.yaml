@@ -1,0 +1,74 @@
+# Period KB — era anchor for 1945 (the 1940s; WWII / immediate post-war).
+year: 1945
+label: "Mid 1940s"
+
+forensics:
+  fingerprinting:
+    status: routine
+    caveat: "Standard police technique; matching still manual."
+  toxicology:
+    status: established
+    detectable: [arsenic, strychnine, cyanide, morphine, barbiturates]
+    blind_to: [many_trace_organics]
+  ballistics:
+    status: established
+    caveat: "Comparison microscopy in routine forensic use."
+  blood:
+    status: typing_only
+    note: "ABO/Rh grouping standard, but still exclusion only — no individuation."
+  dna:
+    status: nonexistent
+  document_examination:
+    status: established
+
+communication:
+  telephone:
+    availability: "common in towns; long-distance possible"
+    caveat: "Operator/trunk calls; wartime restrictions; still no itemised records."
+  telegram:
+    latency_hours: 1
+  post:
+    latency_days: 1
+  radio:
+    status: "ubiquitous broadcast"
+    note: "Wireless in most homes; two-way radio used militarily."
+
+policing:
+  forensic_labs: developing
+  amateur_detective_plausible: true
+  formal_rights_caution: false
+  national_database: none
+
+transport:
+  air_commercial: limited_wartime
+  rail: heavy
+  motorcar: common_but_fuel_rationed
+
+lighting:
+  domestic: [electric_incandescent, gaslight_declining, candle]
+  absent: [halogen, led, neon_domestic]
+
+technology:
+  present: [wireless_radio, telephone, typewriter, motorcar, film_photography, flashbulb, radar, fluorescent_lighting, antibiotics_penicillin_clinical, dictaphone]
+  absent: [television_broadcast_domestic, computer, transistor_radio, common_plastics]
+
+not_yet_invented:
+  - dna_profiling
+  - television_broadcast_domestic
+  - mobile_telephone
+  - cctv
+  - jet_airliner
+  - photocopier
+  - transistor_radio
+  - home_computer
+
+social_norms:
+  - "Wartime austerity, rationing, blackouts, and absent men at the front."
+  - "Women drawn into the workforce in large numbers."
+  - "Deference to authority high; the beginnings of the Cold War."
+  - "Class structures loosening under shared wartime hardship."
+
+sources:
+  - "Penicillin in clinical/military use by 1943-45."
+  - "Commercial fluorescent lighting available from the late 1930s."
+  - "ABO/Rh blood grouping standard but non-individuating in this period."

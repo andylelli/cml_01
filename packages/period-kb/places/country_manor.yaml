@@ -1,0 +1,59 @@
+# Period KB — place affordances for the "country manor house" archetype.
+# This replaces the old buildLocationConstraints() template paragraph (which carried no
+# real location facts) with structured affordances that gate the MECHANISM and the ALIBIS:
+# who can enter/leave, what is observable from where, how isolated it is.
+archetype: country_manor
+display_name: "Country Manor House"
+
+isolation:
+  profile: high
+  summary: >-
+    Set in private grounds, often miles from the nearest village; outside help is hours
+    away by motorcar or by a booked telephone trunk call, so the house is effectively a
+    closed circle once night falls.
+  outside_help_latency_hours: 3
+
+# Physical ways in and out, and who controls each — the raw material for opportunity.
+access_points:
+  - { id: main_entrance, kind: door, control: "Butler/footman admits callers; bolted at night." }
+  - { id: service_entrance, kind: door, control: "Servants and tradesmen by day; latched from inside." }
+  - { id: french_windows, kind: window_door, control: "Open onto the terrace/garden; a frequent unlocked weak point." }
+  - { id: ground_floor_sashes, kind: window, control: "Sash windows, latchable; some left open in warm weather." }
+  - { id: conservatory_door, kind: door, control: "Garden access; often unlocked during the day." }
+
+# What can be seen from where — the raw material for alibis and witnessing.
+observability:
+  - { from: main_hall, sees: [main_staircase, front_door, drawing_room_door, library_door] }
+  - { from: servants_quarters, sees: [service_corridor, kitchen, back_stairs] }
+  - { from: grounds, sees: [terrace, french_windows, the_drive] }
+  - { from: landing, sees: [bedroom_doors, main_staircase_head] }
+
+key_areas:
+  - library
+  - drawing_room
+  - dining_room
+  - study
+  - conservatory
+  - servants_quarters
+  - bedroom_wing
+  - the_grounds
+
+movement_constraints:
+  - "Two separate stair systems (main and servants') keep family and staff movement apart."
+  - "The bedroom wing is reached only via the main landing, which is overlooked from the hall at night."
+  - "The grounds are gated; the drive is the only vehicle approach, so arrivals are noticed."
+  - "Servants' areas and family areas are socially sealed off from each other."
+
+social_rules:
+  - "Servants keep a fixed daily routine (dressing gong, meals, retiring), giving strong time anchors."
+  - "Guests do not enter servants' quarters; staff do not enter bedrooms unless summoned."
+  - "The household assembles for meals, so absences from the table are conspicuous."
+
+typical_summary: >-
+  An isolated country house with a fixed domestic routine, several weak entry points
+  (french windows, ground-floor sashes), and a sharp upstairs/downstairs division that
+  tightly constrains who can be where, and when.
+
+sources:
+  - "Genre conventions of the English country-house mystery (Christie, Sayers, Allingham)."
+  - "Edwardian/inter-war country-house domestic organisation: dual stair systems and fixed servant routines."

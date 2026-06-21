@@ -1,0 +1,68 @@
+# Period KB — era anchor for 1965 (the 1960s; jet age / social upheaval).
+year: 1965
+label: "Mid 1960s"
+
+forensics:
+  fingerprinting:
+    status: routine
+  toxicology:
+    status: established
+    detectable: [arsenic, barbiturates, morphine, many_alkaloids, many_synthetics]
+    blind_to: [some_novel_compounds]
+  ballistics:
+    status: established
+  blood:
+    status: typing_only
+    note: "Grouping standard; still exclusion only — no individuation (DNA is two decades away)."
+  dna:
+    status: nonexistent
+  document_examination:
+    status: established
+
+communication:
+  telephone:
+    availability: "direct dialling common"
+    caveat: "International calls expensive and operator-assisted; no mobile telephony."
+  telegram:
+    latency_hours: 1
+  post:
+    latency_days: 1
+  radio:
+    status: "FM and transistor radio common"
+
+policing:
+  forensic_labs: professional
+  amateur_detective_plausible: true
+  formal_rights_caution: false
+  national_database: developing
+  note: "Miranda warning only arrives in 1966 — in 1965 there is still no formal caution requirement (US)."
+
+transport:
+  air_commercial: jet_age
+  rail: declining
+  motorcar: ubiquitous
+
+lighting:
+  domestic: [electric_incandescent, fluorescent_common, neon]
+  absent: [led]
+
+technology:
+  present: [television_broadcast_domestic, computer, fluorescent_lighting, transistor_radio, jet_airliner, gas_chromatography, telephone, antibiotics_penicillin_clinical, tape_recorder]
+  absent: [home_computer, internet]
+
+not_yet_invented:
+  - dna_profiling
+  - mobile_telephone
+  - internet
+  - personal_computer
+
+social_norms:
+  - "Social upheaval, civil-rights movements, and questioning of authority."
+  - "Counterculture and rapid shifts in dress, music, and manners."
+  - "Affluence and mass consumer culture firmly established."
+  - "Old class deference eroding faster than in previous decades."
+
+sources:
+  - "Commercial jet airliners in widespread service from the late 1950s."
+  - "Mainframe computers in institutional use; no personal computers."
+  - "Miranda v. Arizona (1966) postdates this anchor — no formal caution in 1965."

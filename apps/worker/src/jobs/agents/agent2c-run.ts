@@ -6,7 +6,7 @@
  * and writes ctx.locationProfiles.
  */
 
-import { generateLocationProfiles, compileSensoryAtoms } from "@cml/prompts-llm";
+import { generateLocationProfiles, compileSensoryAtoms, extractLocationSpine, checkLocationSpine } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import { LocationProfilesScorer } from "@cml/story-validation";
 import {
@@ -193,6 +193,28 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
   if (sensoryBleedWarnings.length > 0) {
     console.warn('[Agent 2c] F5b: sensoryDetails full-sentence bleed detected — these will be copied verbatim by Agent 9:');
     sensoryBleedWarnings.forEach((w) => { console.warn(w); ctx.warnings.push(w); });
+  }
+
+  // Phase-1 shadow: project the eager location "spine" and run its deterministic sanity check
+  // for telemetry only. Default OFF; when AGENT2C_SPINE_CHECK is set (shadow/on) it LOGS findings
+  // (missing purpose/accessControl, empty baseline palette, duplicate ids) into warnings WITHOUT
+  // changing behavior — the deterministic foundation for the Agent 2c redesign
+  // (documentation/12_system_redesign/04_agent_2c_location_profiles.md §4, §9). The enforcement
+  // path (carrying the spine eagerly + lazy per-scene texture) waits on later phases.
+  const spineCheckMode = (process.env.AGENT2C_SPINE_CHECK ?? "").trim().toLowerCase();
+  if (spineCheckMode && spineCheckMode !== "off" && spineCheckMode !== "false" && spineCheckMode !== "0") {
+    try {
+      const spine = extractLocationSpine(ctx.locationProfiles!);
+      const check = checkLocationSpine(spine);
+      ctx.warnings.push(
+        `[agent2c-spine-check][shadow] ${spine.places.length} place(s), ${check.issues.length} issue(s), ok=${check.ok}`,
+      );
+      for (const issue of check.issues) {
+        ctx.warnings.push(`[agent2c-spine-check][shadow] ${issue}`);
+      }
+    } catch (err) {
+      ctx.warnings.push(`[agent2c-spine-check][shadow] checker error: ${(err as Error).message}`);
+    }
   }
 
   ctx.reportProgress(

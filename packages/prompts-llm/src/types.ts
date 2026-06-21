@@ -106,6 +106,10 @@ export interface CMLGenerationResult {
     attempts: number; // Number of Agent 4 revision attempts
     revisionsApplied: string[]; // List of revisions made
   };
+  /** True when revision exhausted its budget and we returned best-so-far instead of throwing. */
+  degraded?: boolean;
+  /** Unresolved validation/logic errors carried forward when degraded (for downstream/review). */
+  unresolvedLogicWarnings?: string[];
 }
 
 export interface SeedPattern {

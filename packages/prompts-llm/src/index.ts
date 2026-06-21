@@ -4,17 +4,64 @@
 
 export { refineSetting } from "./agent1-setting.js";
 export { designCast } from "./agent2-cast.js";
+export { checkCast, summarizeCastCheck } from "./agent2-cast-checker.js";
 export { buildCMLPrompt, generateCML } from "./agent3-cml.js";
 export { buildRevisionPrompt, reviseCml } from "./agent4-revision.js";
+export {
+  patchCmlNode,
+  validateContract,
+  applyPatchInCode,
+  parseErrorPath,
+  pathToString,
+  getAtPath,
+  setAtPath,
+  makeLlmPatchProposer,
+} from "./agent4-patch.js";
+export type {
+  PathSegment,
+  CmlDoc,
+  Validator,
+  PatchRequest,
+  PatchProposer,
+  PatchRunResult,
+  PatchRunOptions,
+  AppliedPatch,
+  RejectedPatch,
+  ContractResult,
+} from "./agent4-patch.js";
 export { buildCluePrompt, extractClues } from "./agent5-clues.js";
 export { buildFairPlayPrompt, auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
-export { buildNarrativePrompt, formatNarrative } from "./agent7-narrative.js";
+export { buildNarrativePrompt, formatNarrative, GOLDEN_AGE_BEATS, GOLDEN_AGE_BEAT_GUIDE } from "./agent7-narrative.js";
 export { generateCharacterProfiles } from "./agent2b-character-profiles.js";
+export { extractVoiceCapsule, checkVoiceCapsules } from "./agent2b-voice-capsule.js";
+export type {
+  VoiceCapsule,
+  VoiceRegister,
+  HumourFrequency,
+  VoiceCapsuleIssue,
+  VoiceCapsuleSeverity,
+  VoiceCapsuleMetrics,
+  VoiceCapsuleCheckResult,
+  VoiceCapsuleCheckOptions,
+} from "./agent2b-voice-capsule.js";
 export { generateLocationProfiles } from "./agent2c-location-profiles.js";
+export { extractLocationSpine, checkLocationSpine } from "./agent2c-location-spine.js";
+export type {
+  LocationSpine,
+  LocationSpinePlace,
+  LocationSpineType,
+  LocationBaselinePalette,
+  LocationSpineCheckResult,
+} from "./agent2c-location-spine.js";
 export { generateTemporalContext } from "./agent2d-temporal-context.js";
 export { generateBackgroundContext } from "./agent2e-background-context.js";
+export { deriveBackgroundContext, rankAnchors, MAX_CAST_ANCHORS, BACKDROP_SUMMARY_STUB } from "./agent2e-background-derive.js";
+export type { DeriveBackgroundContextInputs } from "./agent2e-background-derive.js";
+export { assembleProseBrief, checkProseBrief } from "./prose-brief.js";
+export type { ProseBrief, ProseBriefHealth, AssembleProseBriefInputs } from "./prose-brief.js";
 export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled } from "./agent9-prose.js";
+export type { ProseBlindReadResult } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";
 export { precompileStoryContract, resolveVictimContract } from "./story-contract.js";
 export type { StoryContract, VictimContract, VictimRoleSource, SensoryAtomSet, LockedFactContract } from "./story-contract.js";
@@ -36,6 +83,14 @@ export type { SettingInputs, SettingRefinement, SettingRefinementResult } from "
 
 // Agent 2 types
 export type { CastInputs, CharacterProfile, RelationshipWeb, CastDesign, CastDesignResult } from "./agent2-cast.js";
+export type {
+  CastCheckResult,
+  CastCheckIssue,
+  CastCheckMetrics,
+  CastGraphMetrics,
+  CastCheckOptions,
+  CastCheckSeverity,
+} from "./agent2-cast-checker.js";
 
 // Agent 4 types
 export type { RevisionInputs, RevisionResult } from "./agent4-revision.js";
@@ -117,3 +172,9 @@ export {
 
 export { generateCastNames } from "./utils/name-generator.js";
 export type { NameGeneratorContext } from "./utils/name-generator.js";
+
+export {
+  resolveDesignModel,
+  resolveProseModel,
+  resolveBaseModel,
+} from "./utils/model-tiers.js";

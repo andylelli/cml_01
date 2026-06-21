@@ -6,8 +6,10 @@
 import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import { validateCml } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
+import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { jsonrepair } from "jsonrepair";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
@@ -249,10 +251,19 @@ Micro-exemplars:
 - Weak discriminating test design: "A reenactment is staged, putting guests under scrutiny."
 - Strong discriminating test design: "Comparing the porter log with the forged timetable and reset clock proves Hartwell's claimed arrival is impossible."
 
+GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play mystery, not a bare logic puzzle):
+- false_solution: a CONVINCING but WRONG solution accusing an INNOCENT suspect, with a chain of supporting_points, and exactly one flaw (the_one_flaw) the detective later notices. The accused_suspect MUST NOT be the real culprit.
+- red_herrings: at least TWO misleading details. Each MUST have an innocent_explanation that resolves it — never leave a suspicious detail unexplained. Red herrings should be plausible and meaningful, not random.
+- closed_circle.suspects: the sealed pool of suspects. The real culprit (culpability.culprits) MUST be a member. No outsider may be the culprit.
+- The reader must be able to reach the true solution from clues shown before the reveal; the detective must not rely on a confession or secret knowledge.
+
 Before finalizing, run a silent checklist:
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
 - discriminating_test uses only previously exposed evidence
+- false_solution accuses an innocent suspect and has exactly one flaw
+- at least two red_herrings, each with an innocent_explanation
+- closed_circle.suspects includes the real culprit and excludes outsiders
 - fair_play booleans true with specific explanation
 - required_evidence entries are concrete and non-abstract in every step
 - prose_requirements populated and clue IDs traceable
@@ -317,6 +328,28 @@ CASE:
     type: ""
     why_it_seems_reasonable: ""
     what_it_hides: ""
+  false_solution:
+    accused_suspect: "Name of an INNOCENT suspect the evidence seems to point to"
+    supporting_points:
+      - "Evidence/motive that makes this wrong solution look convincing"
+      - "A second supporting point"
+    the_one_flaw: "The single fact this false solution cannot explain — what the detective notices"
+    refuted_in_chapter: 6
+  red_herrings:
+    - id: "red_herring_1"
+      description: "A genuinely suspicious circumstance"
+      points_at_suspect: "Name it misleads suspicion toward"
+      innocent_explanation: "The benign truth behind it, revealed before the solution"
+      resolved_in_chapter: 7
+    - id: "red_herring_2"
+      description: "A second misleading detail"
+      points_at_suspect: "Name"
+      innocent_explanation: "Its innocent explanation"
+      resolved_in_chapter: 7
+  closed_circle:
+    suspects:
+      - "Every suspect name forming the sealed pool (culprit MUST be one of these)"
+    rationale: "Why no outsider could be responsible"
   constraint_space:
     time:
       anchors: []
@@ -711,6 +744,85 @@ export async function generateCML(
     falseAssumption.why_it_seems_reasonable = ensureString(falseAssumption.why_it_seems_reasonable, "Symptoms mimic illness.");
     falseAssumption.what_it_hides = ensureString(falseAssumption.what_it_hides, "Poisoning timeline.");
 
+    // SWEEP A — normalise the Golden Age genre structures so they are always present and
+    // schema-valid. Defaults are derived from existing CASE data; the LLM is asked to author
+    // richer versions (see prompt). The genre validator enforces quality (≥2 herrings with
+    // innocent explanations, a false solution with a flaw, culprit inside the closed circle).
+    const castEntries: any[] = Array.isArray(caseBlock.cast) ? (caseBlock.cast as any[]) : [];
+    const culpritNamesForGenre: string[] = Array.isArray((caseBlock.culpability as any)?.culprits)
+      ? ((caseBlock.culpability as any).culprits as any[]).map((n) => String(n).trim()).filter(Boolean)
+      : [];
+    const roleOf = (entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
+    const suspectNamesForGenre: string[] = castEntries
+      .filter((e) => !roleOf(e).includes("detective") && !roleOf(e).includes("victim"))
+      .map((e) => String(e?.name ?? "").trim())
+      .filter(Boolean);
+    const innocentSuspect = suspectNamesForGenre.find((n) => !culpritNamesForGenre.includes(n));
+
+    // Chapter-pointer fields are optional numbers; the LLM often emits strings ("Chapter 6", "6").
+    // Coerce to an integer chapter number, or undefined when no number is present (validator skips
+    // undefined optional fields). Prevents "must be number" validation failures.
+    const coerceChapter = (value: unknown): number | undefined => {
+      if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
+      if (typeof value === "string") {
+        const match = value.match(/\d+/);
+        if (match) return parseInt(match[0], 10);
+      }
+      return undefined;
+    };
+
+    // closed_circle
+    const closedCircle = ensureObject(caseBlock.closed_circle);
+    caseBlock.closed_circle = closedCircle;
+    const declaredCircle = ensureArray(closedCircle.suspects).map((n) => String(n).trim()).filter(Boolean);
+    closedCircle.suspects = declaredCircle.length > 0
+      ? Array.from(new Set(declaredCircle))
+      : Array.from(new Set(suspectNamesForGenre));
+    closedCircle.rationale = ensureString(
+      closedCircle.rationale,
+      "The suspects are bound together by the central situation and none could have come from outside it.",
+    );
+
+    // false_solution
+    const falseSolution = ensureObject(caseBlock.false_solution);
+    caseBlock.false_solution = falseSolution;
+    falseSolution.accused_suspect = ensureString(
+      falseSolution.accused_suspect,
+      innocentSuspect || suspectNamesForGenre[0] || "an innocent member of the circle",
+    );
+    falseSolution.supporting_points = ensureArray(falseSolution.supporting_points);
+    if ((falseSolution.supporting_points as any[]).length === 0) {
+      falseSolution.supporting_points = [
+        ensureString(falseAssumption.why_it_seems_reasonable, "Their motive and opportunity look strongest on the surface."),
+      ];
+    }
+    falseSolution.the_one_flaw = ensureString(
+      falseSolution.the_one_flaw,
+      ensureString(falseAssumption.what_it_hides, "It cannot account for the one physical fact the detective fixes on."),
+    );
+    const refutedChapter = coerceChapter(falseSolution.refuted_in_chapter);
+    if (refutedChapter === undefined) {
+      delete falseSolution.refuted_in_chapter;
+    } else {
+      falseSolution.refuted_in_chapter = refutedChapter;
+    }
+
+    // red_herrings — coerce to a well-formed array; guarantee an innocent_explanation per entry.
+    const rawHerrings = ensureArray(caseBlock.red_herrings) as any[];
+    caseBlock.red_herrings = rawHerrings.map((h, idx) => {
+      const obj = (h && typeof h === "object") ? h as Record<string, unknown> : {};
+      return {
+        id: ensureString(obj.id, `red_herring_${idx + 1}`),
+        description: ensureString(obj.description, "A suspicious circumstance that draws the eye."),
+        points_at_suspect: typeof obj.points_at_suspect === "string" ? obj.points_at_suspect : undefined,
+        innocent_explanation: ensureString(
+          obj.innocent_explanation,
+          "It has an innocent explanation unrelated to the crime, revealed before the solution.",
+        ),
+        resolved_in_chapter: coerceChapter(obj.resolved_in_chapter),
+      };
+    });
+
     const constraintSpace = ensureObject(caseBlock.constraint_space);
     caseBlock.constraint_space = constraintSpace;
     const constraintTime = ensureObject(constraintSpace.time);
@@ -941,8 +1053,7 @@ export async function generateCML(
 
       const response = await client.chatWithRetry({
         messages,
-        model:
-          process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
+        model: resolveDesignModel()!,
         temperature: config.model.temperature,
         maxTokens: config.model.max_tokens,
         jsonMode: true, // JSON output
@@ -1143,8 +1254,65 @@ export async function generateCML(
         });
 
         try {
+          // CML_REPAIR_MODE = rewrite | shadow | patch (default rewrite = legacy whole-CML revision).
+          //  - patch:  try node-scoped targeted patches first (redesign §4.2/§9.2); on full resolution
+          //            return immediately, else fall through to the legacy rewrite.
+          //  - shadow: run patching for telemetry only and ALWAYS use the legacy rewrite result.
+          const repairMode = (process.env.CML_REPAIR_MODE ?? "rewrite").trim().toLowerCase();
+          if (repairMode === "patch" || repairMode === "shadow") {
+            try {
+              const patchResult = await patchCmlNode({
+                cml: cml as Record<string, unknown>,
+                propose: makeLlmPatchProposer(client, { runId: inputs.runId, projectId: inputs.projectId }),
+                maxPatches: 16,
+              });
+              await logger.logResponse({
+                runId: inputs.runId,
+                projectId: inputs.projectId,
+                agent: "Agent3-CMLGenerator",
+                operation: "cml_targeted_patch",
+                model: modelName,
+                success: patchResult.validation.valid,
+                validationStatus: patchResult.validation.valid ? "pass" : "fail",
+                retryAttempt: attempt,
+                latencyMs: Date.now() - startTime,
+                metadata: {
+                  mode: repairMode,
+                  errorsBefore: validation.errors.length,
+                  errorsAfter: patchResult.validation.errors.length,
+                  patchesApplied: patchResult.applied.length,
+                  contractRejections: patchResult.rejected.length,
+                },
+              });
+              if (repairMode === "patch" && patchResult.validation.valid) {
+                return {
+                  cml: patchResult.cml,
+                  validation: patchResult.validation,
+                  attempt: resolvedMaxAttempts + 1,
+                  latencyMs: Date.now() - startTime,
+                  cost: client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0,
+                  revisedByAgent4: true,
+                  revisionDetails: {
+                    attempts: patchResult.applied.length,
+                    revisionsApplied: patchResult.applied.map((a) => `patched ${a.path} (${a.nodeBytes}b)`),
+                  },
+                };
+              }
+              // shadow mode, or patch mode that didn't fully resolve → fall through to legacy rewrite.
+            } catch (patchErr) {
+              await logger.logError({
+                runId: inputs.runId,
+                projectId: inputs.projectId,
+                agent: "Agent3-CMLGenerator",
+                operation: "cml_targeted_patch_error",
+                errorMessage: (patchErr as Error).message,
+              });
+              // fall through to legacy rewrite on any patch-path error
+            }
+          }
+
           const revisionResult = await reviseCml(client, {
-            originalPrompt: { 
+            originalPrompt: {
               system: prompt.system, 
               developer: prompt.developer || "", 
               user: prompt.user 
@@ -1183,6 +1351,23 @@ export async function generateCML(
             },
           });
 
+          if (revisionResult.degraded) {
+            // Graceful degrade: revision ran out of budget but returned best-so-far. Carry the
+            // unresolved warnings forward and PROCEED rather than killing the run.
+            await logger.logResponse({
+              runId: inputs.runId,
+              projectId: inputs.projectId,
+              agent: "Agent3-CMLGenerator",
+              operation: "generate_cml_degraded",
+              model: modelName,
+              success: false,
+              validationStatus: "fail",
+              retryAttempt: attempt,
+              latencyMs: totalLatency,
+              metadata: { unresolvedWarnings: revisionResult.unresolvedLogicWarnings?.length ?? 0 },
+            });
+          }
+
           return {
             cml: revisionResult.cml,
             validation: revisionResult.validation,
@@ -1194,6 +1379,8 @@ export async function generateCML(
               attempts: revisionResult.attempt,
               revisionsApplied: revisionResult.revisionsApplied,
             },
+            degraded: revisionResult.degraded,
+            unresolvedLogicWarnings: revisionResult.unresolvedLogicWarnings,
           };
         } catch (revisionError) {
           // Agent 4 also failed - throw with context

@@ -1,0 +1,113 @@
+# Strict schema for a Period KB era entry (packages/period-kb/eras/<year>.yaml).
+# JSON Schema draft-07, authored in YAML, compiled by ajv at load time.
+# `additionalProperties: false` everywhere keeps the data honest: a typo'd key
+# fails the load instead of silently producing a missing fact downstream.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PeriodKB Era Entry"
+type: object
+additionalProperties: false
+required:
+  - year
+  - label
+  - forensics
+  - communication
+  - policing
+  - transport
+  - lighting
+  - technology
+  - not_yet_invented
+  - social_norms
+  - sources
+properties:
+  year:
+    type: integer
+    minimum: 1800
+    maximum: 2100
+  label:
+    type: string
+    minLength: 1
+  forensics:
+    type: object
+    minProperties: 1
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [routine, established, basic, emerging, typing_only, nonexistent]
+        caveat: { type: string }
+        note: { type: string }
+        detectable:
+          type: array
+          items: { type: string }
+        blind_to:
+          type: array
+          items: { type: string }
+  communication:
+    type: object
+    minProperties: 1
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        status: { type: string }
+        availability: { type: string }
+        caveat: { type: string }
+        note: { type: string }
+        latency_hours: { type: number }
+        latency_days: { type: number }
+  policing:
+    type: object
+    additionalProperties: false
+    required: [forensic_labs, amateur_detective_plausible, formal_rights_caution, national_database]
+    properties:
+      forensic_labs: { type: string }
+      amateur_detective_plausible: { type: boolean }
+      formal_rights_caution: { type: boolean }
+      national_database: { type: string }
+      note: { type: string }
+  transport:
+    type: object
+    minProperties: 1
+    additionalProperties:
+      type: string
+  lighting:
+    type: object
+    additionalProperties: false
+    required: [domestic, absent]
+    properties:
+      domestic:
+        type: array
+        minItems: 1
+        items: { type: string }
+      absent:
+        type: array
+        items: { type: string }
+  technology:
+    type: object
+    additionalProperties: false
+    required: [present, absent]
+    properties:
+      present:
+        type: array
+        minItems: 1
+        items: { type: string }
+      absent:
+        type: array
+        items: { type: string }
+  # The "anachronism floor": named means/technologies that must NOT appear as
+  # available in this year. The linter and isAvailable() treat these as hard-absent.
+  not_yet_invented:
+    type: array
+    minItems: 1
+    items: { type: string }
+  social_norms:
+    type: array
+    minItems: 1
+    items: { type: string }
+  sources:
+    type: array
+    minItems: 1
+    items: { type: string }

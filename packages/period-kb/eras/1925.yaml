@@ -1,0 +1,78 @@
+# Period KB — era anchor for 1925 (the 1920s; Jazz Age / post-WWI).
+year: 1925
+label: "Mid 1920s"
+
+forensics:
+  fingerprinting:
+    status: established
+    caveat: "Henry classification in police use since the 1900s; matching is slow manual search."
+  toxicology:
+    status: basic
+    detectable: [arsenic, strychnine, cyanide, morphine]
+    blind_to: [most_synthetic_compounds, trace_organics]
+  ballistics:
+    status: emerging
+    caveat: "Comparison microscope only just appearing (Goddard, ~1925); not yet in routine use."
+  blood:
+    status: typing_only
+    note: "ABO groups (Landsteiner, 1901) allow exclusion only — no individuation."
+  dna:
+    status: nonexistent
+  document_examination:
+    status: established
+    note: "Handwriting and typewriter comparison practiced in court."
+
+communication:
+  telephone:
+    availability: "rare and expensive; party lines via town exchanges"
+    caveat: "Operator-connected, no call records; many rural homes have none."
+  telegram:
+    latency_hours: 2
+  post:
+    latency_days: 1
+  radio:
+    status: "early broadcast"
+    note: "Public broadcasting only a few years old; receivers spreading."
+
+policing:
+  forensic_labs: none
+  amateur_detective_plausible: true
+  formal_rights_caution: false
+  national_database: none
+
+transport:
+  air_commercial: none
+  rail: peak
+  motorcar: early_and_unreliable
+  ocean_liner: common
+
+lighting:
+  domestic: [gaslight, early_electric_incandescent, candle, oil_lamp, paraffin_lamp]
+  absent: [fluorescent, halogen, led, neon_domestic]
+
+technology:
+  present: [telegraph, typewriter, gramophone, motorcar, telephone_exchange, film_photography, wireless_radio]
+  absent: [television, computer, photocopier, transistor_radio, common_plastics, ballpoint_pen]
+
+not_yet_invented:
+  - fluorescent_lighting
+  - dna_profiling
+  - antibiotics_penicillin_clinical
+  - ballpoint_pen
+  - television_broadcast_domestic
+  - photocopier
+  - mobile_telephone
+  - cctv
+  - jet_airliner
+  - computer
+
+social_norms:
+  - "Rigid class hierarchy with a sharp upstairs/downstairs division."
+  - "Post-WWI social dislocation; a thinned generation of young men."
+  - "Prohibition (in the US); the loosening manners of the Jazz Age."
+  - "Women's suffrage newly won; reputation still highly consequential."
+
+sources:
+  - "Henry fingerprint classification in police use from the 1900s."
+  - "Landsteiner ABO blood groups (1901) — exclusion only."
+  - "Goddard comparison microscope c.1925 — ballistics only just emerging."

@@ -6,7 +6,11 @@
  * and writes ctx.characterProfiles.
  */
 
-import { generateCharacterProfiles } from "@cml/prompts-llm";
+import {
+  generateCharacterProfiles,
+  extractVoiceCapsule,
+  checkVoiceCapsules,
+} from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import { CharacterProfilesScorer } from "@cml/story-validation";
 import {
@@ -75,6 +79,31 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
     validation.errors.forEach((e) => ctx.warnings.push(`  - ${e}`));
   }
   validation.warnings.forEach((w) => ctx.warnings.push(`  - Schema warning: ${w}`));
+
+  // Phase-0 shadow: project each finalized profile into a typed Voice Capsule and run the
+  // deterministic distinctiveness/groundedness/deployability checker for telemetry only. Default
+  // OFF; when AGENT2B_VOICE_CHECK is set (shadow/on) it LOGS findings into warnings WITHOUT
+  // changing behavior — the deterministic foundation for the Agent 2b redesign
+  // (documentation/12_system_redesign/03_agent_2b_character_profiles.md §4, §9). Mirrors the
+  // Agent 2 cast-checker shadow hook (AGENT2_CAST_CHECK).
+  const voiceCheckMode = (process.env.AGENT2B_VOICE_CHECK ?? "").trim().toLowerCase();
+  if (voiceCheckMode && voiceCheckMode !== "off" && voiceCheckMode !== "false" && voiceCheckMode !== "0") {
+    try {
+      const capsules = ctx.characterProfiles.profiles.map((profile) => extractVoiceCapsule(profile));
+      const check = checkVoiceCapsules(capsules);
+      ctx.warnings.push(
+        `[agent2b-voice-check][shadow] ok=${check.ok} count=${check.metrics.count} ` +
+          `deployable=${check.metrics.deployableCount} grounded=${check.metrics.groundedRegisterCount} ` +
+          `uniqueRegisters=${check.metrics.uniqueRegisters} duplicatePairs=${check.metrics.duplicatePairs} ` +
+          `issues=${check.issues.length}`
+      );
+      for (const issue of check.issues) {
+        ctx.warnings.push(`[agent2b-voice-check][shadow] ${issue.severity}: ${issue.message}`);
+      }
+    } catch (err) {
+      ctx.warnings.push(`[agent2b-voice-check][shadow] checker error: ${(err as Error).message}`);
+    }
+  }
 
   ctx.reportProgress(
     "profiles",

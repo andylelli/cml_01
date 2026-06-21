@@ -1,0 +1,68 @@
+# Period KB — era anchor for 1955 (the 1950s; early Cold War / suburban boom).
+year: 1955
+label: "Mid 1950s"
+
+forensics:
+  fingerprinting:
+    status: routine
+  toxicology:
+    status: established
+    detectable: [arsenic, barbiturates, morphine, cyanide, many_alkaloids]
+    blind_to: [some_novel_synthetics]
+  ballistics:
+    status: established
+  blood:
+    status: typing_only
+    note: "ABO/Rh grouping standard; serology improving but still exclusion only."
+  dna:
+    status: nonexistent
+  document_examination:
+    status: established
+
+communication:
+  telephone:
+    availability: "common; direct dialling spreading"
+    caveat: "Some party lines remain; no mobile telephony."
+  telegram:
+    latency_hours: 1
+  post:
+    latency_days: 1
+  radio:
+    status: "ubiquitous; transistor radios emerging"
+
+policing:
+  forensic_labs: expanding
+  amateur_detective_plausible: true
+  formal_rights_caution: false
+  national_database: emerging
+
+transport:
+  air_commercial: growing
+  rail: declining
+  motorcar: common
+  early_jet: nascent
+
+lighting:
+  domestic: [electric_incandescent, fluorescent_common, neon]
+  absent: [led]
+
+technology:
+  present: [television_broadcast_domestic, computer, fluorescent_lighting, transistor_radio, telephone, motorcar, antibiotics_penicillin_clinical, film_photography, tape_recorder, gas_chromatography]
+  absent: [home_computer, integrated_circuit]
+
+not_yet_invented:
+  - dna_profiling
+  - mobile_telephone
+  - internet
+  - communications_satellite
+
+social_norms:
+  - "Conformity, suburbanisation, and rising consumer affluence."
+  - "Cold War tension and nuclear anxiety in the background."
+  - "Television entering the home and reshaping family evenings."
+  - "Traditional gender roles reasserted after wartime upheaval."
+
+sources:
+  - "Domestic television broadcasting widespread by the mid-1950s."
+  - "Commercial fluorescent lighting standard by the 1950s."
+  - "Room-sized digital computers in institutional use; no personal computers."

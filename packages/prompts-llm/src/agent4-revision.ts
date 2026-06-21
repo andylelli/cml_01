@@ -35,6 +35,10 @@ export interface RevisionResult {
   attempt: number;                   // Final attempt number
   latencyMs: number;                 // Time taken for revision
   cost: number;                      // Estimated cost
+  /** True when the budget was exhausted and we returned best-so-far instead of throwing. */
+  degraded?: boolean;
+  /** The unresolved validation errors when degraded (carried forward as warnings). */
+  unresolvedLogicWarnings?: string[];
 }
 
 function hasRequiredEvidenceMissingSignal(error: string): boolean {
@@ -744,6 +748,70 @@ export async function reviseCml(
   let attempt = inputs.attempt || 1;
   let revisionsApplied: string[] = [];
 
+  // Phase 0 (graceful degrade — documentation/12_system_redesign/09_agent_4_cml_revision.md §9.2):
+  // when AGENT4_GRACEFUL_DEGRADE is on, budget exhaustion returns the best CML we have plus
+  // structured warnings instead of throwing — a CML that merely "ran out of revisions" no longer
+  // kills the whole run. Default OFF preserves today's throw-on-exhaustion behavior exactly.
+  const gracefulDegrade = ["1", "true", "on", "enabled"].includes(
+    (process.env.AGENT4_GRACEFUL_DEGRADE ?? "").trim().toLowerCase(),
+  );
+
+  let bestNormalized: Record<string, unknown> | undefined;
+  let bestValidation: { valid: boolean; errors: string[] } = { valid: false, errors: [...inputs.validationErrors] };
+  const recordCandidate = (candidate: Record<string, unknown>, validation: { valid: boolean; errors: string[] }) => {
+    if (!bestNormalized || validation.errors.length < bestValidation.errors.length) {
+      bestNormalized = candidate;
+      bestValidation = validation;
+    }
+  };
+  if (gracefulDegrade) {
+    // seed the baseline from the original invalid CML, normalized, so degrade always has something
+    try {
+      const original = yaml.load(inputs.invalidCml) as Record<string, unknown> | undefined;
+      if (original && typeof original === "object") {
+        recordCandidate(normalizeCml(original), validateCml(normalizeCml(original)));
+      }
+    } catch {
+      // ignore — bestNormalized may stay undefined; degrade falls back to the raw parse
+    }
+  }
+
+  const degrade = async (reason: string): Promise<RevisionResult> => {
+    const latencyMs = Date.now() - startTime;
+    const cost = client.getCostTracker().getSummary().byAgent["Agent4-Revision"] || 0;
+    const fallbackCml = bestNormalized ?? ensureObject(yaml.load(inputs.invalidCml));
+    // If the best-so-far is actually valid (e.g. the aggressive normalizer recovered it), return it
+    // as a clean success; only mark `degraded` when validation genuinely remains unresolved.
+    const stillInvalid = !bestValidation.valid;
+    revisionsApplied.push(
+      stillInvalid
+        ? `Degraded after exhaustion (${reason}) — returning best-so-far with ${bestValidation.errors.length} unresolved warning(s).`
+        : `Recovered a valid CML on the best-so-far candidate after exhaustion (${reason}).`,
+    );
+    await logger.logResponse({
+      runId,
+      projectId,
+      agent: "Agent4-Revision",
+      operation: "revise_cml_degraded",
+      model: "n/a",
+      success: !stillInvalid,
+      validationStatus: stillInvalid ? "fail" : "pass",
+      retryAttempt: attempt,
+      latencyMs,
+      metadata: { reason, unresolvedErrorCount: bestValidation.errors.length },
+    });
+    return {
+      cml: fallbackCml,
+      validation: bestValidation,
+      revisionsApplied,
+      attempt,
+      latencyMs,
+      cost,
+      degraded: stillInvalid,
+      unresolvedLogicWarnings: stillInvalid ? bestValidation.errors : undefined,
+    };
+  };
+
   // Log initial revision request
   await logger.logRequest({
     runId,
@@ -934,6 +1002,8 @@ export async function reviseCml(
           revisionsApplied.push(`Attempt ${attempt}: Output parse failed, retrying`);
           attempt++;
           continue;
+        } else if (gracefulDegrade) {
+          return await degrade(`output parse failed: ${jsonMessage}`);
         } else {
           throw new Error(`Output parsing failed after ${resolvedMaxAttempts} attempts: ${jsonMessage}`);
         }
@@ -943,6 +1013,7 @@ export async function reviseCml(
 
       // Validate revised CML
       const validation = validateCml(normalized);
+      recordCandidate(normalized, validation);
 
       if (validation.valid) {
         // Success!
@@ -1007,6 +1078,9 @@ export async function reviseCml(
         currentErrors = validation.errors;
         attempt++;
         continue;
+      } else if (gracefulDegrade) {
+        // Degrade, don't die: return best-so-far with the unresolved errors as warnings.
+        return await degrade("max revision attempts reached");
       } else {
         // Max attempts reached
         throw new Error(
@@ -1036,6 +1110,9 @@ export async function reviseCml(
         continue;
       }
 
+      if (gracefulDegrade) {
+        return await degrade(`runtime error: ${message}`);
+      }
       throw error;
     }
   }

@@ -1,0 +1,28 @@
+{
+  "name": "@cml/period-kb",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Curated, versioned, year-keyed Period Knowledge Base + binder (EraOracle) and deterministic anachronism linter. Phase 0 of the Agent 1 redesign (documentation/12_system_redesign/01_agent_1_era_setting.md). NOT yet wired into the pipeline.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}
