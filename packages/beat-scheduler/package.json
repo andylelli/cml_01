@@ -1,0 +1,21 @@
+{
+  "name": "@cml/beat-scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Beat Scheduler — deterministic scene-grid layout for Agent 7 (documentation/12_system_redesign/13_agent_7_narrative_outliner.md). Lays the CML's obligatory beats into a complete, correctly-ordered, well-paced grid with no LLM. Pure, NOT wired into the pipeline.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}
