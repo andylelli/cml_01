@@ -40,6 +40,8 @@ export { checkTimeline } from "./engines/timeline.js";
 export { checkDeducibility } from "./engines/deducibility.js";
 export { checkUniqueness } from "./engines/uniqueness.js";
 export { certify, CHECKER_VERSION } from "./certify.js";
+export { checkDeviceBinding, boundDeviceFromPattern } from "./engines/device-binding.js";
+export type { BoundDevice, GroundingMap, DeviceBindingResult } from "./engines/device-binding.js";
 export { runCertifyLoop, applyAction } from "./repair-loop.js";
 export type {
   RepairAction,
