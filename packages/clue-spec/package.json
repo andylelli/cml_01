@@ -1,0 +1,23 @@
+{
+  "name": "@cml/clue-spec",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic clue-spec deriver for Agent 5 — computes the complete required clue + red-herring slot set from a frozen CML (Stage A of the Agent 5 redesign, documentation/12_system_redesign/10_agent_5_clues_red_herrings.md). Pure, no LLM, NOT wired into the pipeline.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}
