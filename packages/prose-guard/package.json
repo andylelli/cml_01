@@ -1,0 +1,17 @@
+{
+  "name": "@cml/prose-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent 9 prose-safety laws: validation-gated mutation + universal best-draft backstop + the chapter-as-contract fidelity checker (documentation/12_system_redesign/15_agent_9_prose_generator.md). Pure, NOT wired into the pipeline.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": { "@types/node": "^20.11.0", "typescript": "^5.5.4", "vitest": "^1.2.0" }
+}
