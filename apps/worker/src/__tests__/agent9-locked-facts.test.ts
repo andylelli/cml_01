@@ -12,9 +12,15 @@ import { describe, expect, it, vi } from "vitest";
 import {
   repairWordFormLockedFacts,
   getExpectedClueIdsForVisibility,
+  reconcileDiscriminatingEvidenceIdsToCanonicalNamespace,
   partitionNsdRevealedCluesForReleaseGate,
   buildSyntheticNsdClueAnchor,
+  detectCrossArtifactTemporalConflicts,
+  applyLifecycleContinuityGuard,
+  applyVictimReappearanceRescue,
+  applyCanonicalVictimRescue,
 } from "../jobs/agents/agent9-run.js";
+import { validateCharacterLifecycle } from "@cml/story-validation";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -356,6 +362,56 @@ describe("getExpectedClueIdsForVisibility — clue reconciliation", () => {
   });
 });
 
+describe("reconcileDiscriminatingEvidenceIdsToCanonicalNamespace", () => {
+  it("removes non-canonical discriminating evidence values and seeds canonical IDs from mapping", () => {
+    const cmlCase = {
+      prose_requirements: {
+        clue_to_scene_mapping: [{ clue_id: "clue_clock" }, { clue_id: "clue_journal" }],
+      },
+      discriminating_test: {
+        evidence_clues: [
+          "clock shows ten minutes past eleven",
+          "victim journal timeline note",
+        ],
+      },
+    };
+
+    const result = reconcileDiscriminatingEvidenceIdsToCanonicalNamespace(
+      cmlCase,
+      ["clue_clock", "clue_journal", "clue_dust"],
+    );
+
+    expect(result.repaired).toBe(true);
+    expect(result.removedNonCanonical).toEqual([
+      "clock shows ten minutes past eleven",
+      "victim journal timeline note",
+    ]);
+    expect(result.seededFromMapping).toEqual(["clue_clock", "clue_journal"]);
+    expect(result.nonCanonicalIds).toEqual([]);
+    expect(cmlCase.discriminating_test.evidence_clues).toEqual(["clue_clock", "clue_journal"]);
+  });
+
+  it("keeps canonical IDs unchanged when already valid", () => {
+    const cmlCase = {
+      prose_requirements: {
+        clue_to_scene_mapping: [{ clue_id: "clue_clock" }, { clue_id: "clue_journal" }],
+      },
+      discriminating_test: {
+        evidence_clues: ["clue_clock", "clue_journal"],
+      },
+    };
+
+    const result = reconcileDiscriminatingEvidenceIdsToCanonicalNamespace(
+      cmlCase,
+      ["clue_clock", "clue_journal", "clue_dust"],
+    );
+
+    expect(result.repaired).toBe(false);
+    expect(result.nonCanonicalIds).toEqual([]);
+    expect(cmlCase.discriminating_test.evidence_clues).toEqual(["clue_clock", "clue_journal"]);
+  });
+});
+
 describe("partitionNsdRevealedCluesForReleaseGate", () => {
   it("treats only expected clue IDs as enforceable and keeps red-herring IDs advisory", () => {
     const result = partitionNsdRevealedCluesForReleaseGate(
@@ -402,5 +458,300 @@ describe("buildSyntheticNsdClueAnchor", () => {
     expect(anchor.confidence).toBe(0);
     expect(anchor.state).toBe("introduced");
     expect(anchor.evidence_quote).toContain("No direct prose quote extracted");
+  });
+});
+
+describe("detectCrossArtifactTemporalConflicts", () => {
+  it("detects contradictory time anchors across Agent 3 CML and Agent 7 narrative", () => {
+    const conflicts = detectCrossArtifactTemporalConflicts({
+      lockedFacts: [
+        {
+          description: "exact time shown on stopped clock face",
+          value: "ten minutes past eleven",
+        },
+      ],
+      cmlCase: {
+        false_assumption: {
+          statement: "Everyone believed the clock showed quarter to nine when the body was found.",
+        },
+        discriminating_test: {
+          design: {
+            description: "The investigator compares the stopped clock reading against witness recollection.",
+          },
+        },
+      },
+      narrative: {
+        acts: [
+          {
+            actNumber: 1,
+            scenes: [
+              {
+                sceneNumber: 1,
+                summary: "In the drawing room, they repeat that the clock was heard at quarter past eight.",
+                purpose: "Interrogate witness timeline around the stopped clock.",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(conflicts.length).toBeGreaterThan(0);
+    expect(conflicts.some((entry) => entry.sourceTag === "agent3_cml")).toBe(true);
+    expect(conflicts.some((entry) => entry.sourceTag === "agent7_narrative")).toBe(true);
+  });
+
+  it("does not flag matching 12-hour anchor when only meridiem explicitness differs", () => {
+    const conflicts = detectCrossArtifactTemporalConflicts({
+      lockedFacts: [
+        {
+          description: "exact time shown on stopped clock face",
+          value: "eleven o'clock",
+        },
+      ],
+      cmlCase: {
+        false_assumption: {
+          statement: "The witness repeated that the clock read 11 PM in the same room.",
+        },
+      },
+      narrative: { acts: [] },
+    });
+
+    expect(conflicts).toHaveLength(0);
+  });
+
+  it("ignores unrelated time strings when fact-description overlap is missing", () => {
+    const conflicts = detectCrossArtifactTemporalConflicts({
+      lockedFacts: [
+        {
+          description: "kitchen scales weight confirmation",
+          value: "forty pounds",
+        },
+      ],
+      cmlCase: {
+        false_assumption: {
+          statement: "The clock struck quarter to nine in the hall.",
+        },
+      },
+      narrative: {
+        acts: [
+          {
+            actNumber: 1,
+            scenes: [
+              {
+                sceneNumber: 1,
+                summary: "At quarter past eight the constable noted the foyer lamp.",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(conflicts).toHaveLength(0);
+  });
+});
+
+describe("applyLifecycleContinuityGuard", () => {
+  const castCharacters = [
+    { name: "Charles Hargrove", gender: "male" },
+    { name: "Margaret Hargrove", gender: "female" },
+    { name: "Inspector Harold Finch", gender: "male" },
+  ];
+
+  it("demotes full-name death attributions when the same non-victim is active in chapter", () => {
+    const prose = makeProse([
+      {
+        paragraphs: [
+          "Margaret Hargrove froze at the lifeless body of Charles Hargrove in the study.",
+          "Charles Hargrove entered moments later and demanded answers.",
+        ],
+      },
+    ]);
+
+    const result = applyLifecycleContinuityGuard(prose, castCharacters as any, { CASE: {} });
+    const repairedDeathParagraph = result.prose.chapters[0].paragraphs[0];
+
+    expect(result.replacementCount).toBeGreaterThan(0);
+    expect(repairedDeathParagraph).toContain("Charles");
+    expect(repairedDeathParagraph).not.toContain("Charles Hargrove");
+    expect(result.prose.chapters[0].paragraphs[1]).toContain("Charles Hargrove entered");
+  });
+
+  it("never rewrites canonical victim names", () => {
+    const prose = makeProse([
+      {
+        paragraphs: [
+          "Charles Hargrove was found lifeless in the study.",
+          "Charles Hargrove said nothing as Finch asked his first question.",
+        ],
+      },
+    ]);
+
+    const cml = {
+      CASE: {
+        culpability: {
+          victim: "Charles Hargrove",
+        },
+      },
+    };
+
+    const result = applyLifecycleContinuityGuard(prose, castCharacters as any, cml as any);
+    expect(result.replacementCount).toBe(0);
+    expect(result.prose.chapters[0].paragraphs[0]).toContain("Charles Hargrove");
+  });
+});
+
+describe("applyVictimReappearanceRescue", () => {
+  const castCharacters = [
+    { name: "Charles Hargrove", gender: "male" },
+    { name: "Margaret Hargrove", gender: "female" },
+  ];
+
+  it("rewrites non-victim death-attribution full names from flagged lifecycle errors", () => {
+    const prose = makeProse([
+      {
+        paragraphs: [
+          "The lifeless body of Charles Hargrove lay beside the desk.",
+        ],
+      },
+      {
+        paragraphs: [
+          "Charles Hargrove entered and challenged Finch's conclusions.",
+        ],
+      },
+    ]);
+
+    const issues = [
+      {
+        characterName: "Charles Hargrove",
+        deadByChapter: 1,
+        reappearsChapter: 2,
+      },
+    ];
+
+    const rescued = applyVictimReappearanceRescue(
+      prose,
+      castCharacters as any,
+      { CASE: {} },
+      issues as any,
+    );
+
+    expect(rescued.repairCount).toBeGreaterThan(0);
+    expect(rescued.prose.chapters[0].paragraphs[0]).toContain("Charles");
+    expect(rescued.prose.chapters[0].paragraphs[0]).not.toContain("Charles Hargrove");
+    expect(rescued.skippedVictimNames).toHaveLength(0);
+  });
+
+  it("skips canonical victim names from deterministic rescue", () => {
+    const prose = makeProse([
+      {
+        paragraphs: [
+          "The lifeless body of Charles Hargrove lay beside the desk.",
+        ],
+      },
+      {
+        paragraphs: [
+          "Charles Hargrove entered and challenged Finch's conclusions.",
+        ],
+      },
+    ]);
+
+    const issues = [
+      {
+        characterName: "Charles Hargrove",
+        deadByChapter: 1,
+        reappearsChapter: 2,
+      },
+    ];
+
+    const cml = {
+      CASE: {
+        culpability: {
+          victim: "Charles Hargrove",
+        },
+      },
+    };
+
+    const rescued = applyVictimReappearanceRescue(
+      prose,
+      castCharacters as any,
+      cml as any,
+      issues as any,
+    );
+
+    expect(rescued.repairCount).toBe(0);
+    expect(rescued.skippedVictimNames).toEqual(["Charles Hargrove"]);
+  });
+});
+
+// ANALYSIS_43 Phase 2 (G) — canonical-victim rescue + validator recollection exclusion.
+describe("applyCanonicalVictimRescue (canonical victim_reappears_alive)", () => {
+  const castCharacters = [
+    { name: "Charles Hargrove", gender: "male" },
+    { name: "Margaret Hargrove", gender: "female" },
+  ];
+  const cml = {
+    CASE: {
+      cast: [
+        { name: "Charles Hargrove", role: "victim", role_archetype: "victim", gender: "male" },
+        { name: "Margaret Hargrove", role: "suspect", role_archetype: "suspect", gender: "female" },
+      ],
+      culpability: { victim: "Charles Hargrove" },
+    },
+  };
+  const issues = [{ characterName: "Charles Hargrove", deadByChapter: 1, reappearsChapter: 2 }];
+
+  const makeStory = (prose: any) => ({
+    id: "s",
+    projectId: "p",
+    scenes: prose.chapters.map((c: any, i: number) => ({ number: i + 1, title: c.title ?? `Chapter ${i + 1}`, text: c.paragraphs.join("\n\n") })),
+  });
+
+  it("reframes the CANONICAL victim's active sentence as recollection (where the non-victim rescue skips it)", () => {
+    const prose = makeProse([
+      { paragraphs: ["The lifeless body of Charles Hargrove lay beside the desk."] },
+      { paragraphs: ["Charles Hargrove entered and challenged the inspector's conclusions."] },
+    ]);
+    const rescued = applyCanonicalVictimRescue(prose, castCharacters as any, cml as any, issues as any);
+    expect(rescued.repairCount).toBeGreaterThan(0);
+    expect(rescued.reframedVictimNames).toContain("Charles Hargrove");
+    expect(rescued.prose.chapters[1].paragraphs[0]).toMatch(/^In a remembered moment, Charles Hargrove entered/);
+    // Chapter 1 (the death sentence) is untouched.
+    expect(rescued.prose.chapters[0].paragraphs[0]).toBe("The lifeless body of Charles Hargrove lay beside the desk.");
+  });
+
+  it("the reframed prose no longer trips the lifecycle validator (end-to-end)", () => {
+    const before = makeProse([
+      { paragraphs: ["The lifeless body of Charles Hargrove lay beside the desk."] },
+      { paragraphs: ["Charles Hargrove entered and challenged the inspector's conclusions."] },
+    ]);
+    // Baseline: the un-reframed prose IS flagged.
+    const baselineErrors = validateCharacterLifecycle(makeStory(before) as any, cml as any);
+    expect(baselineErrors.some((e: any) => e.type === "victim_reappears_alive")).toBe(true);
+
+    // After the rescue, the recollection frame clears it.
+    const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
+    const afterErrors = validateCharacterLifecycle(makeStory(rescued.prose) as any, cml as any);
+    expect(afterErrors.some((e: any) => e.type === "victim_reappears_alive")).toBe(false);
+  });
+
+  it("ANALYSIS_44: reframing a canonical victim's confession clears deceased_character_confesses (end-to-end)", () => {
+    const before = makeProse([
+      { paragraphs: ["The lifeless body of Charles Hargrove lay beside the desk."] },
+      { paragraphs: ["Charles Hargrove confessed to the murder before the assembled household."] },
+    ]);
+    // Baseline: an un-reframed confession by the dead victim IS flagged critical.
+    const baseline = validateCharacterLifecycle(makeStory(before) as any, cml as any);
+    expect(baseline.some((e: any) => e.type === "deceased_character_confesses")).toBe(true);
+
+    // The rescue reframes the confession sentence (confessed ∈ LIFECYCLE_ACTIVE_RE) …
+    const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
+    expect(rescued.prose.chapters[1].paragraphs[0]).toMatch(/^In a remembered moment, Charles Hargrove confessed/);
+
+    // … and the validator (with the recollection exclusion) no longer flags the confession.
+    const after = validateCharacterLifecycle(makeStory(rescued.prose) as any, cml as any);
+    expect(after.some((e: any) => e.type === "deceased_character_confesses")).toBe(false);
+    expect(after.some((e: any) => e.type === "victim_reappears_alive")).toBe(false);
   });
 });

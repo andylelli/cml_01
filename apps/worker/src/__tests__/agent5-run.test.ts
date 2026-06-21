@@ -920,8 +920,54 @@ describe("agent5-run testables", () => {
     expect(generated).toBeTruthy();
     expect(String(generated.description)).toContain("Eleanor Voss");
     expect(String(generated.pointsTo).toLowerCase()).toContain("direct evidence");
+    expect(String(generated.pointsTo).toLowerCase()).toContain("no other eligible suspect");
     expect(generated.criticality).toBe("essential");
     expect(clues.clueTimeline.mid).toContain(generated.id);
+  });
+
+  it("keeps cast-name tokens intact when sanitizing overlapping red herrings", () => {
+    const cml = {
+      CASE: {
+        cast: [
+          { name: "Gerald Wexley" },
+          { name: "Clara Wexley" },
+        ],
+        false_assumption: {
+          statement: "The clock timeline is accurate.",
+        },
+        inference_path: {
+          steps: [
+            { correction: "Gerald timeline details conflict with the clock." },
+          ],
+        },
+      },
+    } as any;
+
+    const clues = {
+      clues: [],
+      redHerrings: [
+        {
+          id: "rh_name_guard",
+          description: "Witnesses said Gerald appeared alive near the study door.",
+          misdirection: "Gerald seemed calm when questioned.",
+        },
+      ],
+    } as any;
+
+    __testables.sanitizeRedHerringOverlap(
+      cml,
+      clues,
+      [{
+        redHerringId: "rh_name_guard",
+        matchedCorrectionWords: ["gerald", "clock"],
+        matchedStepIndexes: [1],
+        overlapScore: 6,
+      }],
+      ["timing"],
+    );
+
+    const text = `${clues.redHerrings[0].description} ${clues.redHerrings[0].misdirection}`;
+    expect(text.toLowerCase()).toContain("gerald");
   });
 
   it("fails deterministic contracts on invalid source paths", () => {
@@ -998,6 +1044,14 @@ describe("agent5-run testables", () => {
       CASE: {
         cast: [{ name: "Iwan Hale", culprit_eligibility: "eligible", alibi_window: "after supper" }],
         culpability: { culprits: ["Iwan Hale"] },
+        inference_path: {
+          steps: [
+            {
+              observation: "Fresh grease near the clock key shows someone reached the clock before supper.",
+              correction: "The key access pattern uniquely narrows to Iwan Hale.",
+            },
+          ],
+        },
         discriminating_test: {
           design: "Use clock-smudge and alibi mismatch to isolate culprit",
           knowledge_revealed: "Only the culprit could have reached the clock before supper",
@@ -1010,9 +1064,9 @@ describe("agent5-run testables", () => {
       clues: [
         {
           id: "clue_seed",
-          sourceInCML: "CASE.cast[0].alibi_window",
+          sourceInCML: "CASE.inference_path.steps[0].observation",
           description: "Fresh grease near the clock key shows someone reached the clock before supper.",
-          pointsTo: "Supports the claim that Iwan Hale reached the clock before supper.",
+          pointsTo: "Supports the claim that Iwan Hale reached the clock before supper. No other eligible suspect matches this mechanism-specific evidence.",
           placement: "mid",
           criticality: "essential",
           evidenceType: "observation",

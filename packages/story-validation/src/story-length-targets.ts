@@ -27,11 +27,14 @@ export const STORY_LENGTH_KEYS = ["short", "medium", "long"] as const;
  * This object is kept for backward-compat and compile-time checks only.
  */
 export const STORY_LENGTH_TARGETS = {
+  // SWEEP B: the Golden Age product is the 10-chapter / ~10,000-word format (one ~1,000-word
+  // chapter per spec beat). Aligned with story_length_policy in generation-params.yaml (short=10);
+  // the previous static fallback of 20 contradicted YAML and the spec.
   short: {
-    scenes: 20,
-    chapters: 20,
-    minWords: 15_000,
-    maxWords: 25_000,
+    scenes: 10,
+    chapters: 10,
+    minWords: 8_000,
+    maxWords: 13_000,
     chapterMinWords: 800,
     chapterIdealWords: 1_000,
   },

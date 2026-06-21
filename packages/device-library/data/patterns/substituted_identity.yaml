@@ -1,0 +1,18 @@
+pattern_id: substituted_identity
+title: The Mistaken Person
+family: identity
+axes: [identity]
+principle: A disguise, a twin, or a deliberate impersonation makes one person appear to be two — or two appear to be one.
+principleType: cognitive_bias
+surface_illusion_template: The figure seen or heard could not be the culprit — wrong build, wrong voice, demonstrably elsewhere.
+underlying_reality_template: A costume, an accomplice double, or an assumed identity created a false sighting, so the alibi belongs to the wrong person.
+feasibility:
+  eras: [1700, 1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980]
+  requires: [physical_disguise]
+  forbids: [automated_fingerprint_search]
+clue_archetypes:
+  - costume_or_makeup_trace
+  - double_sighting_contradiction
+  - missing_distinguishing_mark
+sources:
+  - "Impersonation / substitution convention (twin, disguise, assumed identity)."

@@ -19,6 +19,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { jsonrepair } from "jsonrepair";
 import { getGenerationParams } from "@cml/story-validation";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
@@ -151,6 +152,36 @@ export interface NarrativeFormattingInputs {
   };
 }
 
+/** SWEEP B: the canonical Golden Age 10-chapter arc, in order (see documentation/Golden Age Crime.txt §7). */
+export const GOLDEN_AGE_BEATS = [
+  "gathering",
+  "crime",
+  "first_enquiries",
+  "motives",
+  "alibis",
+  "false_solution",
+  "secrets",
+  "pattern",
+  "final_trap",
+  "revelation",
+] as const;
+
+export type GoldenAgeBeat = (typeof GOLDEN_AGE_BEATS)[number];
+
+/** Human-readable beat guidance injected into the outline prompt for the 10-chapter format. */
+export const GOLDEN_AGE_BEAT_GUIDE: Record<GoldenAgeBeat, string> = {
+  gathering: "The Gathering — introduce era, setting, detective, victim, suspects, tensions; end on an unsettling incident.",
+  crime: "The Crime — the central crime occurs/is discovered; crime scene, first clues, obvious suspect; end on a contradiction the detective notices.",
+  first_enquiries: "First Enquiries — interviews, timeline, suspicious behaviour, a hidden clue; end proving someone lied.",
+  motives: "Motives — reveal ≥3 plausible motives and one misleading clue; end with a discovery that shifts suspicion.",
+  alibis: "Alibis & Contradictions — timing, movements, a false/incomplete alibi, a small inconsistency; end with a second dramatic incident.",
+  false_solution: "The False Solution — a convincing wrong solution accusing an innocent suspect; the detective spots its one flaw; end with the case seeming solved to everyone but the detective.",
+  secrets: "Secrets Beneath Secrets — unrelated lies surface and explain earlier red herrings; separate moral guilt from criminal guilt; end on a clue that reinterprets an earlier scene.",
+  pattern: "The Pattern Emerges — reconstruct timeline/scene via logic, language, etiquette, placement; end preparing a final test or trap.",
+  final_trap: "The Final Trap — staged confrontation/decisive proof; the culprit exposes themselves through knowledge or reaction; end ready to explain.",
+  revelation: "The Revelation — deduction-led solution (who/why/how/when, alibi trick, which clues mattered, why the false solution was wrong); NOT a confession; end on the emotional/social aftermath.",
+};
+
 export interface Scene {
   sceneNumber: number;
   act: 1 | 2 | 3;
@@ -172,6 +203,11 @@ export interface Scene {
   };
   summary: string; // 2-3 sentence scene description
   estimatedWordCount: number;
+  /** SWEEP B: Golden Age structural beat this chapter fulfils, for the 10-chapter format.
+   *  One of: gathering, crime, first_enquiries, motives, alibis, false_solution, secrets,
+   *  pattern, final_trap, revelation. Assigned in order, one beat per chapter. Optional so
+   *  medium/long formats and legacy outlines remain valid. */
+  beat?: GoldenAgeBeat;
   /** Pillar 4 (Unit 4.1): The concrete physical element (object, observation, detail) this scene turns on */
   pivotElement?: string;
   /** Pillar 4 (Unit 4.1): The specific fact this scene establishes or eliminates for the reader */
@@ -630,6 +666,17 @@ The police detective/inspector is summoned in an official capacity following a f
     ? `\n## Quality Guardrails (Must Satisfy)\n${qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join("\n")}\n`
     : "";
 
+  // SWEEP B: for the 10-chapter Golden Age format, map each chapter to a named structural beat,
+  // in order, and require the model to set scene.beat. This makes the spec's arc a property of
+  // the outline rather than something inferred later at prose time.
+  const beatArcBlock = totalSceneCount === GOLDEN_AGE_BEATS.length
+    ? `\n## Golden Age 10-Chapter Beat Arc (MANDATORY for this length)\n` +
+      `Produce exactly ${GOLDEN_AGE_BEATS.length} scenes (one per chapter), each fulfilling the beat below IN THIS ORDER. ` +
+      `Set the "beat" field on each scene to the given key.\n` +
+      GOLDEN_AGE_BEATS.map((b, i) => `${i + 1}. beat: "${b}" — ${GOLDEN_AGE_BEAT_GUIDE[b]}`).join("\n") +
+      `\nThe culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect, and "revelation" must be deduction-led (no confession as the proof).\n`
+    : "";
+
   const proseRequirementsBlock = buildProseRequirements(caseData);
 
   // Pillar 4: pre-compute completeness contract strings for template interpolation
@@ -792,6 +839,7 @@ This story has a **${detectiveType === 'amateur' ? 'civilian amateur' : 'private
 - Scene descriptions must mention the required elements and clues indicated
 - These requirements are mandatory for story validation - missing them will cause generation failure
 ${guardrailBlock}
+${beatArcBlock}
 
 ## Output Format
 
@@ -823,6 +871,7 @@ Return a JSON object:
             "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
           },
           "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
+          "beat": "gathering",
           "estimatedWordCount": 1800${completenessExampleFields}
         }
       ],
@@ -860,6 +909,7 @@ export async function formatNarrative(
   // 16 000 tokens matches Agent 9 prose ceiling; 4 000 was too low for 16-scene outlines,
   // causing JSON truncation → jsonrepair → missing required fields → schema validation failure.
   const response = await client.chat({
+    model: resolveDesignModel(),
     messages: [
       { role: "system", content: prompt.system },
       { role: "developer", content: prompt.developer },

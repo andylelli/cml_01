@@ -7,7 +7,7 @@
 import type { CMLData, Story, ValidationError } from './types.js';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency } from './temporal-consistency.js';
-import { detectControlPlaneLeakage } from './control-plane-leakage.js';
+import { detectControlPlaneLeakage, detectVerbatimFieldEcho } from './control-plane-leakage.js';
 
 export interface ChapterValidationIssue {
   severity: 'critical' | 'major' | 'moderate';
@@ -84,6 +84,15 @@ export class ChapterValidator {
     // 8. Check for template/scaffold leakage (ALL CHAPTERS)
     const leakageIssues = this.checkTemplateLeakage(chapter);
     issues.push(...leakageIssues);
+
+    // 8b. Check for verbatim transcription of the discriminating_test.design field
+    // (ALL CHAPTERS). Runs here — inside the validator — so it is enforced on both
+    // the normal per-chapter gate AND the best-effort exhaustion fallback, which
+    // both call validateChapter. Clue descriptions are not on the CASE schema, so
+    // the broader clue-echo gate lives in the generator where clueDistribution is
+    // in scope; this covers the worst offender (the test-design sentence).
+    const fieldEchoIssues = this.checkDiscriminatingTestEcho(chapter, cmlCase);
+    issues.push(...fieldEchoIssues);
 
     // 9. Check victim identity in chapter 1 (discovery chapter)
     if (chapter.chapterNumber === 1) {
@@ -214,6 +223,35 @@ export class ChapterValidator {
       });
     }
 
+    return issues;
+  }
+
+  /**
+   * Flag verbatim transcription of the discriminating_test.design field into prose.
+   * The design field is authored as an analytical sentence ("A controlled reenactment
+   * demonstrates the grandfather clock's spring tension and hand positions under normal
+   * winding versus tampered conditions…"); Agent9 must dramatize it, never copy it.
+   * A run of >= 12 consecutive words shared verbatim is effectively never produced by
+   * legitimate paraphrase, so it is a reliable, name-agnostic leak signal.
+   */
+  private checkDiscriminatingTestEcho(chapter: ChapterContent, cmlCase: any): ChapterValidationIssue[] {
+    const issues: ChapterValidationIssue[] = [];
+    const dt = cmlCase?.discriminating_test || {};
+    const fed = [dt.design, dt.test_description, dt.expected_result].filter(
+      (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0,
+    );
+    if (fed.length === 0) return issues;
+    const chapterText = chapter.paragraphs.join('\n\n');
+    for (const echo of detectVerbatimFieldEcho(chapterText, fed).slice(0, 2)) {
+      issues.push({
+        severity: 'major',
+        message:
+          `Chapter ${chapter.chapterNumber} copies the discriminating-test design verbatim ` +
+          `(${echo.wordCount} consecutive words): "${echo.span.slice(0, 80)}…"`,
+        suggestion:
+          'Render the test as live action/dialogue in your own words — do not transcribe the design sentence.',
+      });
+    }
     return issues;
   }
 

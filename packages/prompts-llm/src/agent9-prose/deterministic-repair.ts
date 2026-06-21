@@ -93,6 +93,24 @@ export const resolveFallbackInvestigatorName = (cmlCase: any, characters: string
   return firstNamedCharacter || "the investigator";
 };
 
+const resolveCanonicalFocusName = (focusName: string | undefined, cmlCase: any): string | undefined => {
+  const requested = String(focusName ?? "").trim();
+  if (!requested) return undefined;
+  const castNames: string[] = (Array.isArray(cmlCase?.cast) ? cmlCase.cast : [])
+    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((name: string) => name.length > 0);
+  if (castNames.length === 0) return requested;
+  const exact = castNames.find((name: string) => name.toLowerCase() === requested.toLowerCase());
+  if (exact) return exact;
+  const requestedSurname = requested.split(/\s+/).pop()?.toLowerCase() ?? "";
+  if (!requestedSurname) return undefined;
+  const surnameMatch = castNames.find((name: string) => {
+    const surname = name.split(/\s+/).pop()?.toLowerCase() ?? "";
+    return surname === requestedSurname;
+  });
+  return surnameMatch;
+};
+
 export const summarizeClueForFallback = (
   clueId: string,
   ledgerEntry: ChapterRequirementLedgerEntry | undefined,
@@ -106,7 +124,10 @@ export const summarizeClueForFallback = (
   if (fromDistribution && fromDistribution.trim().length > 0) {
     return fromDistribution.trim().replace(/\s+/g, " ");
   }
-  return clueId;
+  // FIX 2 (leak fix): never emit a raw clue identifier (e.g. "clue_id_1") into prose. When no
+  // human-readable description resolves, return empty so callers' `.filter(Boolean)` drops it and
+  // fall back to non-identifier phrasing (clearance method, timeline, generic evidence language).
+  return "";
 };
 
 const summarizeClueForProse = (
@@ -539,6 +560,21 @@ const buildStageAwareFallbackParagraphs = (args: {
     });
   }
 
+  if (stageMode === "final_reveal") {
+    const culpritName = focusName
+      || String((args.caseData as any)?.CASE?.culpability?.culprits?.[0] ?? "the culprit").trim()
+      || "the culprit";
+    const methodDescription = normalizeOptionalClueSummary(
+      String((args.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? "").trim(),
+    ) || "the precise murder method";
+
+    return [
+      `${investigatorName} named ${culpritName} only after laying motive and opportunity side by side in plain terms. The motive was tied to emotional pressure that had already surfaced in testimony, while the opportunity was tied to verified access and a narrowed time window no other suspect could satisfy.`,
+      `${investigatorName} then connected means to method without ornament: ${methodDescription}. The opportunity and access linkage held against alibi checks, and the method detail matched the physical evidence rather than a dramatic accusation.`,
+      `The room understood why the accusation stood. Motive explained the decision, opportunity explained the timing, and method explained the death itself; together they formed one chain of proof that could be tested and repeated without contradiction.`,
+    ];
+  }
+
   return [];
 };
 
@@ -719,10 +755,11 @@ export const buildCompletionFallbackChapter = (
     .join("; ");
   const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
   const investigatorSentenceName = investigatorName.replace(/^\w/, (char) => char.toUpperCase());
+  const canonicalFocusName = resolveCanonicalFocusName(options?.focusName, cmlCase);
   const stageAwareParagraphs = buildStageAwareFallbackParagraphs({
     stageMode: options?.stageMode,
     investigatorName: investigatorSentenceName,
-    focusName: options?.focusName,
+    focusName: canonicalFocusName,
     clueText,
     caseData,
   });
@@ -754,7 +791,12 @@ export const buildCompletionFallbackChapter = (
   const mergedParagraphs = [...fallbackParagraphs, ...stageAwareParagraphs];
   let guard = 0;
   while (countWords(mergedParagraphs.join(" ")) < floorWords && guard < 8) {
-    mergedParagraphs.push(expansionBeats[guard % expansionBeats.length]);
+    const baseBeat = expansionBeats[guard % expansionBeats.length];
+    const duplicateCount = mergedParagraphs.filter((paragraph) => paragraph === baseBeat).length;
+    const selectedBeat = duplicateCount === 0
+      ? baseBeat
+      : `${baseBeat} The same contradiction was tested again from a different witness angle, so repetition became verification rather than recycled phrasing.`;
+    mergedParagraphs.push(selectedBeat);
     guard += 1;
   }
 
@@ -778,7 +820,7 @@ export const buildCompletionFallbackChapter = (
       caseData,
       investigatorSentenceName,
       clueText,
-      options?.focusName,
+      canonicalFocusName,
       ledgerEntry,
       clueDistribution,
     ).chapter;

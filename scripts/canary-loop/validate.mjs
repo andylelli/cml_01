@@ -26,7 +26,7 @@ export function resolveValidationPlan({ request, normalizedAgent, artifactBundle
 		}
 	}
 
-	if (/node\s+scripts\/canary-agent(?:3|-boundary)?\.mjs/i.test(String(canaryCommand ?? ""))) {
+	if (/node\s+scripts\/(?:canary-agent(?:3|-boundary)?|canary-agent9)\.mjs/i.test(String(canaryCommand ?? ""))) {
 		canaryCommand = appendNamedArg(canaryCommand, "runId", request.runId);
 	}
 
@@ -82,7 +82,7 @@ export async function runValidationPlan({
 	const tests = [];
 	for (const command of plan.testCommands) {
 		onEvent?.({ kind: "test_start", command });
-		const result = await runCommand(command, workspaceRoot, {
+		let result = await runCommand(command, workspaceRoot, {
 			onTick: ({ elapsedSeconds }) => {
 				onEvent?.({ kind: "test_tick", command, elapsedSeconds });
 			},
@@ -90,11 +90,30 @@ export async function runValidationPlan({
 				onEvent?.({ kind: "test_progress", command, message });
 			},
 		});
+		let retriedForTransientFsError = false;
+		if (result.exitCode !== 0 && isVitestResultsCacheWriteError(result)) {
+			retriedForTransientFsError = true;
+			onEvent?.({
+				kind: "test_progress",
+				command,
+				message: "Detected transient Vitest cache write error; retrying test command once.",
+			});
+			result = await runCommand(command, workspaceRoot, {
+				onTick: ({ elapsedSeconds }) => {
+					onEvent?.({ kind: "test_tick", command, elapsedSeconds });
+				},
+				onNarrative: ({ message }) => {
+					onEvent?.({ kind: "test_progress", command, message });
+				},
+			});
+		}
 		onEvent?.({ kind: "test_end", command, passed: result.exitCode === 0 });
 		tests.push({
 			command,
 			passed: result.exitCode === 0,
-			summary: summarizeOutput(result),
+			summary: retriedForTransientFsError
+				? `${summarizeOutput(result)} (after transient-cache retry)`
+				: summarizeOutput(result),
 			exitCode: result.exitCode,
 			stdout: result.stdout,
 			stderr: result.stderr,
@@ -389,6 +408,12 @@ function tail(text, maxLength) {
 		return text;
 	}
 	return text.slice(text.length - maxLength);
+}
+
+function isVitestResultsCacheWriteError(result) {
+	const combined = `${result?.stdout ?? ""}\n${result?.stderr ?? ""}`;
+	return /node_modules[\\/]\.vite[\\/]vitest[\\/]results\.json/i.test(combined)
+		&& /\bUNKNOWN\b[\s\S]*\bopen\b/i.test(combined);
 }
 
 function runCommand(command, cwd, options = {}) {

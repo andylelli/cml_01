@@ -487,6 +487,25 @@ const isStartingRun = ref(false);
 const advancedTabStatuses = computed<Record<string, TabStatus>>(() => ({
   quality: isRunning.value || isStartingRun.value ? "in-progress" : "available",
 }));
+
+// Per-stage status for the Review sub-tabs so each agent's output visibly "lights up" as it is
+// generated: complete once its artifact has arrived (polled every 3s during the run), in-progress
+// while the run is active and it hasn't arrived yet, otherwise available.
+const reviewTabStatuses = computed<Record<string, TabStatus>>(() => {
+  const running = isRunning.value || isStartingRun.value;
+  const statusFor = (present: boolean): TabStatus =>
+    present ? "complete" : running ? "in-progress" : "available";
+  return {
+    cast: statusFor(!!castData.value),
+    background: statusFor(!!backgroundContextData.value),
+    hardLogic: statusFor(!!hardLogicDevicesData.value),
+    locations: statusFor(!!locationProfilesData.value),
+    temporal: statusFor(!!temporalContextData.value),
+    clues: statusFor(!!cluesData.value),
+    outline: statusFor(!!outlineData.value),
+    prose: statusFor(!!proseData.value),
+  };
+});
 const skipNextProjectArtifactLoad = ref(false);
 const isDownloadingStoryPdf = ref(false);
 const isDownloadingGamePackPdf = ref(false);
@@ -1863,6 +1882,7 @@ onBeforeUnmount(() => {
           v-if="activeMainTab === 'review'"
           :tabs="reviewTabs"
           :active-tab="activeReviewTab"
+          :tab-statuses="reviewTabStatuses"
           @update:activeTab="handleReviewTabChange"
           class="bg-slate-50"
         />

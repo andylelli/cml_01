@@ -236,9 +236,18 @@ export interface Agent65WorldBuilderConfig extends AgentStatusConfig {
 }
 
 export interface Agent9ValidationConfig {
+  pronoun_policy?: PronounPolicy;
   pronoun_checking_enabled: boolean;
   pronoun_validation_enabled: boolean;
 }
+
+export type PronounPolicy = "strict" | "relaxed" | "off";
+
+export type PronounPolicySettings = {
+  policy: PronounPolicy;
+  checkingEnabled: boolean;
+  validationEnabled: boolean;
+};
 
 export interface Agent9ChapterCompositionRangeConfig {
   min_pct: number;
@@ -290,6 +299,21 @@ export interface Agent9RolloutFlagsConfig {
   culprit_alias_gate_enabled: boolean;
   integrity_retry_packet_enabled: boolean;
   integrity_blue_sky_mode_enabled: boolean;
+  // ANALYSIS_43 Phase 0 — repairable-residual rollout flags.
+  // pronoun_gate_parity_enabled: run the final pronoun validator at the per-chapter
+  //   commit point and re-repair after victim/alias mutations (Phase 1 / H).
+  // victim_alive_repair_enabled: deterministically neutralize a CANONICAL victim given
+  //   active dialogue/action after death (Phase 2 / G).
+  // repairable_abort_softening_enabled: when the only residual critical/major issues are
+  //   in the deterministically-repairable allowlist, run one more repair cycle and
+  //   downgrade to needs_review instead of a hard abort (Phase 3 / I).
+  pronoun_gate_parity_enabled: boolean;
+  victim_alive_repair_enabled: boolean;
+  repairable_abort_softening_enabled: boolean;
+  // ANALYSIS_44 R3: when a chapter exhausts its retry budget and the ONLY residual failure is
+  // a repeated-paragraph-opener (template_bleed) issue, accept the chapter with a warning
+  // instead of letting it hard-abort the run. Set false to restore strict opener enforcement.
+  opener_exhaustion_bypass_enabled: boolean;
 }
 
 export interface StoryLengthWordTargetConfig {
@@ -684,6 +708,10 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       culprit_alias_gate_enabled: true,
       integrity_retry_packet_enabled: true,
       integrity_blue_sky_mode_enabled: false,
+      pronoun_gate_parity_enabled: true,
+      victim_alive_repair_enabled: true,
+      repairable_abort_softening_enabled: true,
+      opener_exhaustion_bypass_enabled: true,
     },
     style_linter: {
       entropy: {
@@ -742,6 +770,7 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
       },
     },
     validation: {
+      pronoun_policy: "strict",
       pronoun_checking_enabled: true,
       pronoun_validation_enabled: true,
     },
@@ -1293,6 +1322,22 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
           typeof partial.agent9_prose?.rollout_flags?.integrity_blue_sky_mode_enabled === "boolean"
             ? partial.agent9_prose.rollout_flags.integrity_blue_sky_mode_enabled
             : DEFAULT_CONFIG.agent9_prose.rollout_flags.integrity_blue_sky_mode_enabled,
+        pronoun_gate_parity_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.pronoun_gate_parity_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.pronoun_gate_parity_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.pronoun_gate_parity_enabled,
+        victim_alive_repair_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.victim_alive_repair_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.victim_alive_repair_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.victim_alive_repair_enabled,
+        repairable_abort_softening_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.repairable_abort_softening_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.repairable_abort_softening_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.repairable_abort_softening_enabled,
+        opener_exhaustion_bypass_enabled:
+          typeof partial.agent9_prose?.rollout_flags?.opener_exhaustion_bypass_enabled === "boolean"
+            ? partial.agent9_prose.rollout_flags.opener_exhaustion_bypass_enabled
+            : DEFAULT_CONFIG.agent9_prose.rollout_flags.opener_exhaustion_bypass_enabled,
       },
       style_linter: {
         entropy: {
@@ -1547,6 +1592,13 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
         },
       },
       validation: {
+        pronoun_policy: (() => {
+          const raw = String(partial.agent9_prose?.validation?.pronoun_policy ?? "").trim().toLowerCase();
+          if (raw === "strict" || raw === "relaxed" || raw === "off") {
+            return raw as PronounPolicy;
+          }
+          return DEFAULT_CONFIG.agent9_prose.validation.pronoun_policy;
+        })(),
         pronoun_checking_enabled: typeof partial.agent9_prose?.validation?.pronoun_checking_enabled === 'boolean'
           ? partial.agent9_prose.validation.pronoun_checking_enabled
           : DEFAULT_CONFIG.agent9_prose.validation.pronoun_checking_enabled,
@@ -1600,6 +1652,41 @@ export const getGenerationParams = (): GenerationParamsConfig => {
     return cachedConfig;
   }
 };
+
+const derivePronounPolicyFromLegacyFlags = (
+  checkingEnabled: boolean,
+  validationEnabled: boolean,
+): PronounPolicy => {
+  if (!checkingEnabled && !validationEnabled) return "off";
+  if (checkingEnabled && validationEnabled) return "strict";
+  return "relaxed";
+};
+
+export const getPronounPolicySettings = (
+  config: GenerationParamsConfig = getGenerationParams(),
+): PronounPolicySettings => {
+  const validationConfig = config.agent9_prose.validation;
+  const configuredPolicy = validationConfig.pronoun_policy;
+  const policy = configuredPolicy
+    ?? derivePronounPolicyFromLegacyFlags(
+      validationConfig.pronoun_checking_enabled,
+      validationConfig.pronoun_validation_enabled,
+    );
+
+  if (policy === "off") {
+    return { policy, checkingEnabled: false, validationEnabled: false };
+  }
+
+  if (policy === "relaxed") {
+    return { policy, checkingEnabled: true, validationEnabled: false };
+  }
+
+  return { policy: "strict", checkingEnabled: true, validationEnabled: true };
+};
+
+export const getPronounPolicy = (
+  config: GenerationParamsConfig = getGenerationParams(),
+): PronounPolicy => getPronounPolicySettings(config).policy;
 
 export const resetGenerationParamsCacheForTests = (): void => {
   cachedConfig = null;

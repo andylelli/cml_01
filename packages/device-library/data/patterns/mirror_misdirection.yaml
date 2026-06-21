@@ -1,0 +1,18 @@
+pattern_id: mirror_misdirection
+title: The Reflected Alibi
+family: spatial_routing
+axes: [spatial, behavioral]
+principle: A mirror or window reflection can place a figure where they are not, fabricating a false sighting.
+principleType: cognitive_bias
+surface_illusion_template: A witness clearly saw the victim or culprit in a room or window that gives an alibi.
+underlying_reality_template: A reflection in a mirror or dark glass misplaced the figure; the real position was elsewhere, reversing the apparent geography.
+feasibility:
+  eras: [1700, 1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980]
+  requires: [mirror_or_glass]
+  forbids: []
+clue_archetypes:
+  - reflective_surface_position
+  - sightline_geometry_flaw
+  - reversed_detail_in_the_account
+sources:
+  - "Reflection/misdirection convention."

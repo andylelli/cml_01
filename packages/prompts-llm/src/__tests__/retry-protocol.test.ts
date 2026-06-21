@@ -167,6 +167,25 @@ describe("retry-protocol deterministic mitigation", () => {
     expect(shouldContinueRetry(packet, [prior])).toBe(true);
   });
 
+  it("continues repeated fair-play retries through the full budget", () => {
+    const prior = classifyFailure({
+      validationErrors: ["Final reveal completeness failed: reveal must include motive and opportunity."],
+      attempt: 1,
+      maxRetries: 4,
+      priorPackets: [],
+    });
+    const packet = classifyFailure({
+      validationErrors: ["Final reveal completeness failed: reveal must include motive and opportunity."],
+      attempt: 2,
+      maxRetries: 4,
+      priorPackets: [prior],
+    });
+
+    expect(packet.failureClass).toBe("fair_play");
+    expect(packet.shouldEscalate).toBe(true);
+    expect(shouldContinueRetry(packet, [prior])).toBe(true);
+  });
+
   it("adds freshenAtoms and diversifyStructure when clue_timing and template fail together", () => {
     const packet = classifyFailure({
       validationErrors: [

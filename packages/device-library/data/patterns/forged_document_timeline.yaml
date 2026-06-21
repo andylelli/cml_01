@@ -1,0 +1,18 @@
+pattern_id: forged_document_timeline
+title: The Backdated Hand
+family: authority
+axes: [authority, temporal]
+principle: A forged or backdated document fixes a fact or timeline that authority accepts, because period examination cannot date ink reliably.
+principleType: social_logic
+surface_illusion_template: A dated letter, will, or logbook proves the timeline or motive the detective takes as given.
+underlying_reality_template: The document was forged or backdated; the handwriting passes a casual eye, and no period test can prove when the ink was laid.
+feasibility:
+  eras: [1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950]
+  requires: [pen_and_ink]
+  forbids: [forensic_document_dating]
+clue_archetypes:
+  - ink_or_paper_anomaly
+  - handwriting_pressure_tell
+  - anachronistic_detail_in_document
+sources:
+  - "Forged-document convention; period document-examination limits."

@@ -1,0 +1,18 @@
+pattern_id: recorded_presence
+title: The Recorded Voice
+family: timing
+axes: [temporal, behavioral]
+principle: A sound played from a recording is trusted as a living presence, so the time a person is "heard" need not be when they were alive.
+principleType: cognitive_bias
+surface_illusion_template: The victim is heard alive — calling out, or music playing in a locked room — at a time that clears the culprit.
+underlying_reality_template: A wax-cylinder or gramophone recording produced the sound on a timer or by a confederate; the victim was already dead.
+feasibility:
+  eras: [1900, 1910, 1920, 1930, 1940, 1950, 1960]
+  requires: [sound_recording_playback]
+  forbids: [voice_authentication]
+clue_archetypes:
+  - recording_medium_trace
+  - gramophone_access_record
+  - acoustic_inconsistency
+sources:
+  - "Inter-war recorded-sound alibi convention (Sayers/Christie-era gramophone tricks)."

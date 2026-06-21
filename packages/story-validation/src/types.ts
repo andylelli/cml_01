@@ -10,6 +10,7 @@ export interface ValidationError {
   lineNumber?: number;
   suggestion?: string;
   cmlReference?: string;
+  details?: Record<string, unknown>;
 }
 
 export interface ValidationResult {

@@ -1,0 +1,18 @@
+pattern_id: delayed_poison
+title: The Slow Dose
+family: timing
+axes: [temporal, behavioral]
+principle: A slow-onset poison separates the moment of administration from the moment of death, so the apparent opportunity window is wrong.
+principleType: physical_law
+surface_illusion_template: The fatal dose must have been given at the meal where death followed — when the culprit had already left the house.
+underlying_reality_template: A slow-acting poison was administered hours earlier in a different vessel; death merely surfaced at dinner, breaking the timing alibi.
+feasibility:
+  eras: [1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950]
+  requires: [period_poison]
+  forbids: [modern_toxicology_screen]
+clue_archetypes:
+  - symptom_onset_timing
+  - residue_in_an_earlier_vessel
+  - pharmacist_or_apothecary_record
+sources:
+  - "Classic poisoning convention; period toxicology limits (Marsh/Reinsch era)."

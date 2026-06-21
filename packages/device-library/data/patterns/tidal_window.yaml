@@ -1,0 +1,19 @@
+pattern_id: tidal_window
+title: The Tide Window
+family: timing
+axes: [temporal, spatial]
+principle: A tide or causeway timetable opens and closes a crossing in a window people routinely misjudge.
+principleType: physical_law
+surface_illusion_template: The suspect could not have reached the scene at the claimed hour — the causeway was under water / the boat had gone.
+underlying_reality_template: The tide table actually left a crossing window open (or shut) that contradicts the assumed access, fixing or breaking the alibi.
+feasibility:
+  eras: [1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980]
+  places: [coastal, island, causeway, estuary]
+  requires: [tide_tables]
+  forbids: []
+clue_archetypes:
+  - tide_table_record
+  - wet_footwear_or_silt_trace
+  - crossing_window_contradiction
+sources:
+  - "Coastal Golden-Age setting convention (tide/causeway access timing)."

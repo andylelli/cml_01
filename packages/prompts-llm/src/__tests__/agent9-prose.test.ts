@@ -136,6 +136,7 @@ import {
   buildPostPassPolishPrompt,
   buildChapterObligationBlock,
   buildDiscriminatingTestChecklist,
+  describeDtMechanismForPrompt,
   buildNarrativeBalanceBlock,
   buildProsePrompt,
   buildTimelineStateBlock,
@@ -357,6 +358,25 @@ describe("buildSinglePassRetryPrompt", () => {
     expect(result.prompt).toContain('"A faint scratch is found on the clock face."');
     expect(result.prompt).toContain('"the local café"');
     expect(result.strategy.includePriorDraft).toBe(false);
+  });
+
+  it("R1/R2 (ANALYSIS_44): lists ALL repeated openers and drops the contradictory 'no more than two' wording", () => {
+    const result = buildSinglePassRetryPrompt({
+      errors: [
+        'Template linter: repeated content opener detected ("lady beatrice"). Avoid reusing the same meaningful opener phrase, and avoid starting 3+ paragraphs with the same meaningful first word.',
+        'Template linter: repeated content opener detected ("george langley"). Avoid reusing the same meaningful opener phrase, and avoid starting 3+ paragraphs with the same meaningful first word.',
+      ],
+      chapterRange: "4",
+      attempt: 2,
+      maxAttempts: 3,
+    });
+
+    // R1: both openers must reach the retry, not just the first.
+    expect(result.prompt).toContain('"lady beatrice"');
+    expect(result.prompt).toContain('"george langley"');
+    // R2: the old wording described a passing state that actually fails the 2nd-occurrence gate.
+    expect(result.prompt).not.toContain("No more than two paragraphs");
+    expect(result.prompt).toContain("No two paragraphs begin with the same name or meaningful word");
   });
 });
 
@@ -597,6 +617,56 @@ describe("validateChapterPreCommitObligations", () => {
     );
 
     expect(result.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
+  });
+
+  it("passes final-reveal fallback chapters with motive, opportunity, and method linkage", () => {
+    const ledger = {
+      chapterNumber: 9,
+      hardFloorWords: 700,
+      preferredWords: 900,
+      requiredClueIds: ["clue_clock"],
+    };
+    const finalRevealCaseData = {
+      ...baseCaseData,
+      CASE: {
+        ...baseCaseData.CASE,
+        culpability: {
+          culprits: ["Edgar Vale"],
+        },
+        hidden_model: {
+          mechanism: {
+            description: "poisoned the evening brandy after rewinding the mantel clock",
+          },
+        },
+      },
+    };
+    const chapter = buildCompletionFallbackChapter(
+      undefined,
+      baseScene,
+      9,
+      ledger as any,
+      baseInputs.clueDistribution,
+      finalRevealCaseData,
+      {
+        stageMode: "final_reveal",
+        focusName: "Edgar Vale",
+      },
+    );
+
+    const result = validateChapterPreCommitObligations(
+      chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      {
+        mode: "final_reveal",
+        culpritName: "Edgar Vale",
+        murderMethod: "poisoned the evening brandy after rewinding the mantel clock",
+      } as any,
+    );
+
+    expect(result.hardFailures.some((msg) => msg.includes("Final reveal completeness failed"))).toBe(false);
   });
 });
 
@@ -1078,6 +1148,134 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(block).toContain("Seasonal vocabulary allow-list: autumn, autumnal, fall.");
   });
 
+  // -------------------------------------------------------------------------
+  // Layer A — anti-leakage prompt reframing (run_1d55f7c7)
+  // -------------------------------------------------------------------------
+  it("A1: describeDtMechanismForPrompt frames the design as paraphrase-only, never copy", () => {
+    const design =
+      "A controlled reenactment demonstrates the grandfather clock's spring tension and hand positions.";
+    const framed = describeDtMechanismForPrompt(design);
+    expect(framed).toContain("in your own words");
+    expect(framed).toMatch(/do NOT copy/i);
+    expect(framed).toMatch(/FAIL validation/i);
+    expect(framed).toContain(design);
+    // Empty design yields no injected text.
+    expect(describeDtMechanismForPrompt("")).toBe("");
+  });
+
+  it("A2: clue-obligation header tells the model to dramatize in its own words, not transcribe", () => {
+    const block = buildChapterObligationBlock(
+      [baseScene],
+      7,
+      baseCaseData.CASE,
+      baseInputs.lockedFacts,
+      { month: "november", season: "autumn" } as any,
+      baseInputs.clueDistribution,
+    );
+    expect(block).toContain("YOUR OWN WORDS");
+    expect(block).toMatch(/Copying a clue's[\s\S]*FAILS validation/);
+  });
+
+  // -------------------------------------------------------------------------
+  // Layer B — disclosure embargo + reveal-clue deferral
+  // -------------------------------------------------------------------------
+  it("B1/B3: the clue-disclosure embargo and spoiler ban fire for the suspect_pressure stage", () => {
+    const scene: any = { act: 1, sceneNumber: 1, title: "Pressure", setting: { location: "Study" }, characters: [] };
+    const block = buildChapterObligationBlock(
+      [scene],
+      2,
+      baseCaseData.CASE,
+      [],
+      { month: "november", season: "autumn" } as any,
+      baseInputs.clueDistribution,
+      undefined,
+      undefined,
+      undefined,
+      "mid",
+      undefined,
+      undefined,
+      [scene],
+      "suspect_pressure",
+    );
+    expect(block).toContain("CLUE DISCLOSURE RULE (Stage 2");
+    expect(block).toContain("MECHANISM SPOILER BAN");
+  });
+
+  it("B1/B3: the embargo and spoiler ban are absent in the final_reveal stage", () => {
+    const scene: any = { act: 1, sceneNumber: 1, title: "Reveal", setting: { location: "Study" }, characters: [] };
+    const block = buildChapterObligationBlock(
+      [scene],
+      9,
+      baseCaseData.CASE,
+      [],
+      { month: "november", season: "autumn" } as any,
+      baseInputs.clueDistribution,
+      undefined,
+      undefined,
+      undefined,
+      "resolution",
+      undefined,
+      undefined,
+      [scene],
+      "final_reveal",
+    );
+    expect(block).not.toContain("CLUE DISCLOSURE RULE");
+    expect(block).not.toContain("MECHANISM SPOILER BAN");
+  });
+
+  it("B2: a reveal-class early clue in a pre-reveal chapter is embargoed (observation kept, spoiler reasoning dropped)", () => {
+    const caseB2: any = {
+      meta: { setting: { location: "Wynthorpe Manor" } },
+      cast: [
+        { name: "Inspector Fox", role: "detective", gender: "male" },
+        { name: "Lady Beatrice", role_archetype: "suspect", gender: "female" },
+        { name: "Sir Lionel", role_archetype: "victim", gender: "male" },
+      ],
+      culpability: { culprits: ["Lady Beatrice"] },
+      prose_requirements: {
+        discriminating_test_scene: { act_number: 2, scene_number: 1 },
+        culprit_revelation_scene: { act_number: 2, scene_number: 2 },
+        clue_to_scene_mapping: [
+          { act_number: 1, scene_number: 1, clue_id: "clue_mechanism_core", delivery_method: "observation" },
+        ],
+      },
+    };
+    const sceneB2: any = { act: 1, sceneNumber: 1, title: "Discovery", setting: { location: "Study" }, characters: [] };
+    const clueDistB2: any = {
+      clues: [
+        {
+          id: "clue_mechanism_core",
+          placement: "early",
+          description: "Lady Beatrice wound back the clock by forty minutes to mask the time of death.",
+          pointsTo: "the culprit Lady Beatrice",
+        },
+      ],
+    };
+    const block = buildChapterObligationBlock(
+      [sceneB2],
+      1,
+      caseB2,
+      [],
+      undefined,
+      clueDistB2,
+      undefined,
+      undefined,
+      undefined,
+      "opening",
+      undefined,
+      undefined,
+      [sceneB2],
+      "discovery_opening",
+    );
+    // The clue is still surfaced (so the validator's presence/early checks hold)...
+    expect(block).toContain("[clue_mechanism_core]");
+    // ...but the spoiler-driving reasoning block and "Points to" line are suppressed.
+    expect(block).toContain("SPOILER EMBARGO (pre-reveal chapter)");
+    expect(block).not.toContain("MANDATORY TWO-PARAGRAPH STRUCTURE");
+    expect(block).not.toContain("explicitly reasons");
+    expect(block).not.toContain("Points to: the culprit Lady Beatrice");
+  });
+
   it("Fix 2 uses positive locked-fact phrasing in the prose prompt", () => {
     const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
     expect(prompt.messages[0].content).toContain("NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES");
@@ -1291,6 +1489,58 @@ describe("Agent 9 prompt hardening fixes", () => {
     );
 
     expect(issues.some((issue) => issue.type === "template_bleed" && /repeated content opener/i.test(issue.message))).toBe(false);
+  });
+
+  it("R1 (ANALYSIS_44): reports EVERY distinct repeated opener in one pass, not just the first", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: [
+            "Lady Beatrice paused at the threshold.",
+            "Lady Beatrice studied the broken latch.",
+            "George Langley wiped his hands on his apron.",
+            "George Langley avoided the inspector's eyes.",
+          ],
+        },
+      ] as any,
+      [],
+      [],
+      {},
+    );
+
+    const openerIssues = issues.filter(
+      (issue) => issue.type === "template_bleed" && /repeated content opener/i.test(issue.message),
+    );
+    // Old break-at-first behaviour emitted only one issue; R1 must surface both openers.
+    expect(openerIssues.length).toBe(2);
+    expect(openerIssues.some((issue) => /lady beatrice/i.test(issue.message))).toBe(true);
+    expect(openerIssues.some((issue) => /george langley/i.test(issue.message))).toBe(true);
+  });
+
+  it("R1 (ANALYSIS_44): does not emit duplicate issues when one opener repeats 3+ times", () => {
+    const issues = lintBatchProse(
+      [
+        {
+          title: "1",
+          paragraphs: [
+            "Lady Beatrice paused at the threshold.",
+            "Lady Beatrice studied the broken latch.",
+            "Lady Beatrice turned to the inspector.",
+            "Nora watched in silence.",
+          ],
+        },
+      ] as any,
+      [],
+      [],
+      {},
+    );
+
+    const openerIssues = issues.filter(
+      (issue) => issue.type === "template_bleed" && /repeated content opener/i.test(issue.message),
+    );
+    expect(openerIssues.length).toBe(1);
+    expect(/lady beatrice/i.test(openerIssues[0].message)).toBe(true);
   });
 
   it("Fix 7 runs targeted atmosphere repair only for chapters containing banned phrases", async () => {

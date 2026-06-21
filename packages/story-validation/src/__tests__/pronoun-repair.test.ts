@@ -151,6 +151,87 @@ describe('repairChapterPronouns', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Referent-safety guards (regression for run_1d55f7c7 female→male corruption)
+// Each case is one the OLD single-named-character logic would have corrupted.
+// ---------------------------------------------------------------------------
+
+describe('repairPronouns — referent-safety guards', () => {
+  it('C2: detects a cast name with a trailing space (store.json hygiene) and anchors it', () => {
+    // "Margaret " (trailing space) previously left only the label "margaret " which
+    // failed the word-boundary match, so she was never detected and her follow-up
+    // sentence inherited the wrong gender. After trimming she is detected and anchors.
+    const cast: CastEntry[] = [{ name: 'Margaret ', gender: 'female' }];
+    const text = 'Margaret stood by the window. He turned away.';
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe('Margaret stood by the window. She turned away.');
+  });
+
+  it('B: does NOT flip a leading subject pronoun when the named character is the OBJECT', () => {
+    // "He" is Fox (the unnamed subject); "Lady Beatrice" is the object of "turned to".
+    // The old logic saw one named character (female) and flipped He→She.
+    const cast: CastEntry[] = [
+      { name: 'Gerald Fox', gender: 'male' },
+      { name: 'Lady Beatrice', gender: 'female' },
+    ];
+    const text = 'He turned to Lady Beatrice. The room fell silent.';
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe(text);
+  });
+
+  it('dialogue: does NOT flip pronouns inside quoted speech via inheritance', () => {
+    const cast: CastEntry[] = [
+      { name: 'Lady Beatrice', gender: 'female' },
+      { name: 'Sir Lionel', gender: 'male' },
+    ];
+    // The male pronouns inside the quote refer to Sir Lionel, not the female speaker.
+    const text = "Lady Beatrice inclined her head. 'I brought him his tea. He wished to work undisturbed.'";
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe(text);
+  });
+
+  it('D: does NOT flip the perceived object’s pronouns ("Fox saw her fingers")', () => {
+    const cast: CastEntry[] = [
+      { name: 'Gerald Fox', gender: 'male' },
+      { name: 'Margaret', gender: 'female' },
+    ];
+    const text = 'Fox saw her fingers twist the edge of her apron.';
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe(text);
+  });
+
+  it('E: does NOT flip an opposite-gender pronoun when the named char’s correct gender is also present', () => {
+    const cast: CastEntry[] = [
+      { name: 'Gerald Fox', gender: 'male' },
+      { name: 'Margaret', gender: 'female' },
+    ];
+    // "he" is Fox; "her/her" are Margaret's. Margaret is the only NAMED character.
+    const text = 'When he asked her to recount her movements, Margaret nodded.';
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe(text);
+  });
+
+  it('C: does NOT flip a self-consistent opposite-gender run inherited across a paragraph split', () => {
+    const cast: CastEntry[] = [
+      { name: 'Charles Wynthorpe', gender: 'male' },
+      { name: 'Margaret', gender: 'female' },
+    ];
+    // Paragraph 2 is an orphaned Margaret run (>=2 female pronouns); cross-paragraph
+    // inheritance from the male paragraph 1 must NOT rewrite it to male.
+    const text = 'Charles stood by the hearth.\n\nHer uniform was immaculate, but her eyes glistened.';
+    const result = repairPronouns(text, cast, { crossParagraphInheritance: true });
+    expect(result.text).toBe(text);
+  });
+
+  it('still repairs a genuine single wrong-gender pronoun inherited from a male subject', () => {
+    // Guard C only suppresses >=2 opposite pronouns; a lone inherited error still repairs.
+    const cast: CastEntry[] = [{ name: 'Archibald Compton', gender: 'male' }];
+    const text = 'Archibald Compton opened the letter. She gasped.';
+    const result = repairPronouns(text, cast);
+    expect(result.text).toBe('Archibald Compton opened the letter. He gasped.');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // ProseConsistencyValidator — pronoun_drift + dialogue-strip fix (2a)
 // ---------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { PromptComponents } from "./types.js";
 
 export interface ClueExtractionInputs {
@@ -1090,6 +1091,7 @@ export async function extractClues(
     });
 
     const response = await client.chat({
+      model: resolveDesignModel(),
       messages: [
         { role: "system", content: prompt.system },
         { role: "developer", content: prompt.developer },

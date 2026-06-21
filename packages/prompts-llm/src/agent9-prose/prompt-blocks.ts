@@ -583,7 +583,7 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   }
   if (Object.keys(discriminatingTest).length > 0) {
     if (discriminatingTest.method) lines.push(`- Discriminating test method: ${discriminatingTest.method}`);
-    if (discriminatingTest.design) lines.push(`- Discriminating test design constraint: ${discriminatingTest.design}`);
+    if (discriminatingTest.design) lines.push(`- Discriminating test mechanism to dramatize (paraphrase only — do NOT copy this sentence verbatim into prose): ${discriminatingTest.design}`);
     if (Array.isArray(discriminatingTest.evidence_clues) && discriminatingTest.evidence_clues.length > 0) {
       lines.push(`- Test must rely on already-shown clue IDs: ${discriminatingTest.evidence_clues.join(', ')}`);
     }

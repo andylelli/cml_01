@@ -96,7 +96,9 @@ agent4_cml_validator:
       temperature: 0.5
       max_tokens: 8000
     generation:
-      default_max_attempts: 5
+      # Token-efficiency: lowered 5→3. A capable design model (gpt-4.1-mini/4.1) resolves CML
+      # validation in far fewer revisions; the CML revision loop was a major call-count churner.
+      default_max_attempts: 3
     inference_requirements:
       default_max_steps: 5
 
@@ -231,10 +233,14 @@ agent9_prose:
       test_proof_reversal: { min_pct: 65, max_pct: 70 }
 
     final_reveal:
+      # SWEEP C: Golden Age reveals are deduction-led, not confession-led. The detective's
+      # evidence chain (the discriminating test + inference path) is the proof; a confession,
+      # if present at all, is brief aftermath — never the mechanism of proof. confession_aftermath
+      # min lowered to 0 so it is optional, and evidence_chain raised to dominate the chapter.
       setting: { min_pct: 10, max_pct: 10 }
       motive_character_consequence: { min_pct: 30, max_pct: 30 }
-      evidence_chain: { min_pct: 40, max_pct: 40 }
-      confession_aftermath: { min_pct: 20, max_pct: 20 }
+      evidence_chain: { min_pct: 50, max_pct: 60 }
+      confession_aftermath: { min_pct: 0, max_pct: 10 }
 
   # Explicit stage-mode profiles for chapter-level contracts.
   # These values drive active mode instructions, chapter outcomes, and mode checklists.
@@ -313,18 +319,24 @@ agent9_prose:
         - Do not merely restate known evidence.
 
     final_reveal:
+      # SWEEP C: deduction-led reveal. The detective's reconstruction (evidence chain +
+      # discriminating test) PROVES the culprit, motive, and killing action. A confession is
+      # optional aftermath that follows the proof — it must never be the mechanism of proof, and
+      # the chapter must read as solvable from the clues already shown.
       balance_targets:
         setting: { min_pct: 5, max_pct: 10 }
         motive_emotional_truth: { min_pct: 30, max_pct: 35 }
-        evidence_chain: { min_pct: 35, max_pct: 45 }
-        confession_consequence: { min_pct: 20, max_pct: 25 }
+        evidence_chain: { min_pct: 50, max_pct: 60 }
+        confession_consequence: { min_pct: 0, max_pct: 10 }
       required_outcomes:
         - Provide motive, death method, opportunity, and evidence chain.
         - Distinguish death method from concealment mechanism.
         - State culprit trace or mistake and consequences.
-        - "The culprit's confession MUST include a specific physical killing action with a concrete verb and object (e.g. 'I struck him with the doorstop', 'I pushed him and he hit the bedframe'). A confession that describes only the concealment or motive without naming the act of killing is incomplete and will be rejected."
+        - "The detective's reconstruction MUST name the specific physical killing action with a concrete verb and object (e.g. 'struck him with the doorstop', 'pushed him so he hit the bedframe'), established by deduction from the evidence. Guilt must be proven by the evidence chain, NOT by a confession. A confession, if present, is brief aftermath only and may never be the sole basis for the solution."
+        - Explicitly refute the false solution: show the one flaw that rules out the wrongly-accused suspect.
         - Deliver all suspect clearances as dramatised in-scene moments (named witness corroboration, physical record, or witnessed observation). Do NOT write clearance summaries as narrator-voice report paragraphs starting with the suspect's name followed by 'was cleared because'.
       forbidden_reveals:
+        - No confession-led reveal — the culprit must be proven by deduction before any admission, and "X confessed" must not stand in for the evidence chain.
         - No mechanism-only confession without death responsibility.
         - Do not summarise clearances as report language (e.g. 'Dr. X was cleared because...', 'As for myself, Y was present...'). Clearances must be voiced through dialogue or physical evidence shown on the page.
 
@@ -373,7 +385,10 @@ agent9_prose:
   generation:
     # Default batch retry cap (can still be overridden by call-site argument)
     # Supported range: 1 - 8
-    default_max_attempts: 6  # raised from 4: fingerprint/ngram retry needs headroom to converge
+    # Token-efficiency: lowered 6→3. Prose retries were ~96% of token spend (227 calls on the
+    # baseline run). A capable prose model (gpt-4.1) passes validation in far fewer attempts, and
+    # FIX 2 best-attempt retention means we keep the best draft on exhaustion rather than aborting.
+    default_max_attempts: 3
 
   prose_model:
     # Main chapter-generation call tuning
@@ -412,6 +427,20 @@ agent9_prose:
     integrity_retry_packet_enabled: true
     # Optional experimental integrity nudges; keep false for stable runs.
     integrity_blue_sky_mode_enabled: false
+    # ANALYSIS_43 Phase 1 (H): run the final pronoun validator at the per-chapter commit
+    # point and re-repair pronouns after victim/alias mutations. Set false to disable.
+    pronoun_gate_parity_enabled: true
+    # ANALYSIS_43 Phase 2 (G): deterministically neutralize a CANONICAL victim wrongly given
+    # active dialogue/action after death. Set false to disable (issue then routes to abort).
+    victim_alive_repair_enabled: true
+    # ANALYSIS_43 Phase 3 (I): when the only residual critical/major issues are deterministically
+    # repairable, run one more repair cycle and downgrade to needs_review instead of aborting.
+    # Set false to restore the strict hard-abort behaviour.
+    repairable_abort_softening_enabled: true
+    # ANALYSIS_44 R3: when a chapter exhausts its retry budget and the ONLY residual is a repeated
+    # paragraph-opener (template_bleed), accept it with a warning instead of hard-aborting the run.
+    # Set false to restore strict opener enforcement.
+    opener_exhaustion_bypass_enabled: true
 
   style_linter:
     entropy:
@@ -505,6 +534,11 @@ agent9_prose:
         minor_gap_score: 85
 
   validation:
+    # Unified pronoun policy: strict | relaxed | off.
+    # strict => deterministic checks+repairs ON, validator pronoun errors ON.
+    # relaxed => checks+repairs ON, validator pronoun errors OFF.
+    # off => both OFF.
+    pronoun_policy: off
     # Enable/disable deterministic pronoun repair post-processing.
     # Default false: LLM produces correct pronouns; the deterministic fixer introduces errors.
     pronoun_checking_enabled: false

@@ -5,7 +5,7 @@
 
 import type { Validator, Story, CMLData, ValidationResult, ValidationError, ProseConsistencyReport } from './types.js';
 import type { AzureOpenAIClient, LogContext } from '@cml/llm-client';
-import { getGenerationParams } from './generation-params.js';
+import { getPronounPolicySettings } from './generation-params.js';
 import { EncodingValidator } from './encoding-validator.js';
 import { CharacterConsistencyValidator } from './character-validator.js';
 import { CharacterLifecycleValidator } from './character-lifecycle-validator.js';
@@ -77,7 +77,7 @@ export class StoryValidationPipeline {
     const locationErrors = validateLocationConsistency(story, cml);
     allErrors.push(...locationErrors);
 
-    const pronounValidationEnabled = getGenerationParams().agent9_prose.validation.pronoun_validation_enabled;
+    const pronounValidationEnabled = getPronounPolicySettings().validationEnabled;
     const finalErrors = pronounValidationEnabled
       ? allErrors
       : allErrors.filter(e => e.type !== 'pronoun_gender_mismatch' && e.type !== 'pronoun_drift');

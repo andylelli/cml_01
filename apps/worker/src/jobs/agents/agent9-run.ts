@@ -20,6 +20,8 @@ import {
   buildAssetLibrary,
   checkNSDParity,
   generateProse,
+  blindReadProse,
+  isProseBlindReaderEnabled,
   initNarrativeState,
   updateNSD,
   resolveVictimName,
@@ -34,7 +36,7 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, validateCharacterLifecycle } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -52,6 +54,7 @@ import {
 type ValidationErrorSignal = {
   type?: string;
   message?: string;
+  details?: Record<string, unknown>;
 };
 
 type ProseReadabilitySummary = {
@@ -292,6 +295,57 @@ const enforceReadableParagraphFlow = (paragraphs: string[]): string[] => {
   return normalized;
 };
 
+// A field value is "phrase-like" (multi-clause or verb-bearing) and unsafe to
+// interpolate directly into a sentence template. Earlier agents occasionally emit
+// malformed mood/weather values — e.g. "quiet tension underlies the cozy setting"
+// or "overcast with intermittent drizzle typical of english countryside" — that
+// produce broken prose ("...gave the room a quiet tension underlies the cozy setting
+// cast that refused to lift") when spliced into the leadTemplates below. This was
+// the source of the Chapter-2 setting-metadata leak in run_1d55f7c7.
+const GROUNDING_FIELD_VERB_RE =
+  /\b(underlies?|reflect(?:s|ing|ed)?|suggest(?:s|ing|ed)?|evok\w*|convey(?:s|ing|ed)?|creat\w*|gives?|giving|set(?:s|ting)?|pervad\w*|linger\w*|hang\w*|cast\w*|impl(?:y|ies|ied)|typical\s+of|reminiscent\s+of)\b/i;
+
+// Sanitise an atmosphere field (mood/weather) into a single short adjective phrase
+// that is safe to interpolate. Returns the fallback when the value is multi-clause,
+// verb-bearing, or too long to be a clean adjective.
+const cleanAtmosphereField = (raw: unknown, fallback: string, maxWords: number): string => {
+  let v = String(raw ?? "")
+    .split(/[,;]/)[0]
+    .split(/\s+and\s+/)[0]
+    .replace(/[.]+$/, "")
+    .trim();
+  const words = v.split(/\s+/).filter(Boolean);
+  if (!v || words.length === 0 || words.length > maxWords || GROUNDING_FIELD_VERB_RE.test(v)) {
+    return fallback;
+  }
+  return v;
+};
+
+// Sanitise a location name: strip embedded " - Sub-location" dumps (e.g.
+// "Wynthorpe Manor - Library" → "Wynthorpe Manor") and cap length so the
+// geographic chain ("Name in Place, Region, Country") can never be reproduced.
+const cleanLocationName = (raw: unknown, fallback: string): string => {
+  let v = String(raw ?? "").replace(/\s*[-–—]\s*.*$/, "").replace(/[.,;]+$/, "").trim();
+  const words = v.split(/\s+/).filter(Boolean);
+  if (!v || words.length > 6) return fallback;
+  return v;
+};
+
+// Minimal, field-free grounding leads used when the profile-derived lead would be
+// malformed. They carry the sensory + atmosphere + location-anchor signals that
+// getGroundingSignals requires, but interpolate ONLY the sanitised location name.
+const buildSafeGroundingLead = (chapterIndex: number, locationName: string): string => {
+  const L = locationName || "the room";
+  const safeTemplates = [
+    `A grey light filled ${L}, and the cold air carried the faint creak of old timber.`,
+    `${L} lay in shadow, its damp stillness broken only by the distant patter of rain.`,
+    `A chill hung over ${L}; the dim light caught the dust along the silent shelves.`,
+    `Pale daylight pressed at the windows of ${L}, where the cold room smelled of old wood and stone.`,
+    `The morning was overcast and still over ${L}, the room hushed but for the wind against the glass.`,
+  ];
+  return sanitizeProseText(safeTemplates[chapterIndex % safeTemplates.length]);
+};
+
 const buildDeterministicGroundingLead = (
   chapterIndex: number,
   locationProfiles: any,
@@ -301,18 +355,13 @@ const buildDeterministicGroundingLead = (
   const target =
     keyLocations.length > 0 ? keyLocations[chapterIndex % keyLocations.length] : undefined;
 
-  const locationName = target?.name || primary?.name || "the premises";
-  const place = primary?.place ? ` in ${primary.place}` : "";
-  const country = primary?.country ? `, ${primary.country}` : "";
-  // Truncate to first clause only — earlier agents produce long descriptive phrases
-  // (e.g. "tense and foreboding, reflecting the uncertainty and class tensions of the era")
-  // that produce malformed prose when interpolated directly into sentence templates.
-  const weather = (locationProfiles.atmosphere?.weather || "rain").split(/[,;]/)[0].trim();
-  // Also split on " and " so compound phrases like "tense and foreboding" reduce to "tense"
-  const mood = (locationProfiles.atmosphere?.mood || "tense")
-    .split(/[,;]/)[0]
-    .split(/\s+and\s+/)[0]
-    .trim();
+  const locationName = cleanLocationName(target?.name || primary?.name, "the premises");
+  // Cap geography to a single short place token and DROP the country — never emit the
+  // full "Name in Place, Region, Country" chain that leaked in run_1d55f7c7.
+  const placeRaw = cleanLocationName(primary?.place, "");
+  const place = placeRaw && placeRaw.toLowerCase() !== locationName.toLowerCase() ? ` in ${placeRaw}` : "";
+  const weather = cleanAtmosphereField(locationProfiles.atmosphere?.weather, "rain", 3);
+  const mood = cleanAtmosphereField(locationProfiles.atmosphere?.mood, "tense", 3);
 
   const smells = target?.sensoryDetails?.smells || [];
   const sounds = target?.sensoryDetails?.sounds || [];
@@ -325,14 +374,27 @@ const buildDeterministicGroundingLead = (
   const touch = lcFirst((tactile[0] || "the cold banister and rough wallpaper").replace(/\.$/, ""));
 
   const leadTemplates = [
-    `${locationName}${place}${country} held a ${mood.toLowerCase()} weight to it; ${sound}, and the faint trace of ${smell} completed the picture.`,
-    `The ${weather.toLowerCase()} had settled over ${locationName}${place}${country}; ${sound}, and ${touch} gave the room a ${mood.toLowerCase()} cast that refused to lift.`,
-    `Entering ${locationName}${place}${country}, ${sound} was the first thing one noticed—${touch}, and the whole space quietly ${mood.toLowerCase()}.`,
-    `${locationName}${place}${country} received them with ${smell} alongside ${sound}, and ${touch} reinforced the ${mood.toLowerCase()} impression.`,
-    `In ${locationName}${place}${country}, ${sound} and ${smell} set the tone; ${touch} ran beneath it all, and the ${weather.toLowerCase()} outside pressed the ${mood.toLowerCase()} mood inward.`,
+    `${locationName}${place} held a ${mood.toLowerCase()} weight to it; ${sound}, and the faint trace of ${smell} completed the picture.`,
+    `The ${weather.toLowerCase()} had settled over ${locationName}${place}; ${sound}, and ${touch} gave the room a ${mood.toLowerCase()} cast that refused to lift.`,
+    `Entering ${locationName}${place}, ${sound} was the first thing one noticed—${touch}, and the whole space felt quietly ${mood.toLowerCase()}.`,
+    `${locationName}${place} received them with ${smell} alongside ${sound}, and ${touch} reinforced the ${mood.toLowerCase()} impression.`,
+    `In ${locationName}${place}, ${sound} and ${smell} set the tone; ${touch} ran beneath it all, and the ${weather.toLowerCase()} outside pressed the ${mood.toLowerCase()} mood inward.`,
   ];
 
-  return sanitizeProseText(leadTemplates[chapterIndex % leadTemplates.length]);
+  const lead = sanitizeProseText(leadTemplates[chapterIndex % leadTemplates.length]);
+
+  // Final safety net: if the assembled lead still looks malformed (a residual
+  // " - " location dump, a verb-bearing field that slipped through, or an
+  // over-long run-on), fall back to a field-free safe lead. This guarantees the
+  // deterministic injector can never reintroduce a setting-metadata field dump.
+  const looksMalformed =
+    /\s[-–—]\s/.test(lead) ||
+    GROUNDING_FIELD_VERB_RE.test(`${weather} ${mood}`) ||
+    lead.split(/\s+/).length > 45;
+  if (looksMalformed) {
+    return buildSafeGroundingLead(chapterIndex, locationName);
+  }
+  return lead;
 };
 
 const templateLeakageScaffoldPattern =
@@ -380,7 +442,23 @@ const WORD_TO_NUM: Record<string, number> = {
  * into a { hour, minute } pair. Returns null if not a recognised pattern.
  */
 const parseWordFormTime = (value: string): { hour: number; minute: number } | null => {
-  const lower = value.toLowerCase().trim();
+  const lower = value
+    .toLowerCase()
+    .trim()
+    .replace(/^[\s]*(?:the|an?)\s+/, "");
+
+  const resolveHourToken = (tokenRaw: string, mode: "past" | "to" | "plain"): number | null => {
+    const token = tokenRaw.trim().toLowerCase();
+    if (!token) return null;
+    if (token === "midnight") {
+      // For "to midnight" we want the previous hour boundary (23:xx).
+      return mode === "to" ? 24 : 0;
+    }
+    if (token === "noon") {
+      return 12;
+    }
+    return WORD_TO_NUM[token] ?? null;
+  };
 
   // "half past [hour]"
   const halfPast = lower.match(/^half\s+past\s+(\w+)$/);
@@ -390,32 +468,32 @@ const parseWordFormTime = (value: string): { hour: number; minute: number } | nu
   }
 
   // "quarter past [hour]"
-  const quarterPast = lower.match(/^quarter\s+past\s+(\w+)$/);
+  const quarterPast = lower.match(/^(?:a\s+)?quarter\s+past\s+([\w-]+)$/);
   if (quarterPast) {
-    const h = WORD_TO_NUM[quarterPast[1]];
+    const h = resolveHourToken(quarterPast[1], "past");
     if (h != null) return { hour: h, minute: 15 };
   }
 
   // "quarter to [hour]"
-  const quarterTo = lower.match(/^quarter\s+to\s+(\w+)$/);
+  const quarterTo = lower.match(/^(?:a\s+)?quarter\s+to\s+([\w-]+)$/);
   if (quarterTo) {
-    const h = WORD_TO_NUM[quarterTo[1]];
+    const h = resolveHourToken(quarterTo[1], "to");
     if (h != null) return { hour: h === 1 ? 12 : h - 1, minute: 45 };
   }
 
   // "[N word] [minutes] past [hour]" — e.g. "ten minutes past eleven", "five past six"
-  const minutesPast = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+(\w+)$/);
+  const minutesPast = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?past\s+([\w-]+)$/);
   if (minutesPast) {
     const m = WORD_TO_NUM[minutesPast[1].trim()];
-    const h = WORD_TO_NUM[minutesPast[2].trim()];
+    const h = resolveHourToken(minutesPast[2], "past");
     if (m != null && h != null) return { hour: h, minute: m };
   }
 
   // "[N word] [minutes] to [hour]" — e.g. "ten minutes to twelve", "five to three"
-  const minutesTo = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+(\w+)$/);
+  const minutesTo = lower.match(/^([\w-]+)\s+(?:minutes?\s+)?to\s+([\w-]+)$/);
   if (minutesTo) {
     const m = WORD_TO_NUM[minutesTo[1].trim()];
-    const h = WORD_TO_NUM[minutesTo[2].trim()];
+    const h = resolveHourToken(minutesTo[2], "to");
     if (m != null && h != null) {
       return { hour: h === 1 ? 12 : h - 1, minute: 60 - m };
     }
@@ -424,9 +502,9 @@ const parseWordFormTime = (value: string): { hour: number; minute: number } | nu
   // "[hour word] o'clock" — e.g. "eleven o'clock" (= 11:00)
   // Accept both straight (') and curly (\u2019) apostrophes so CML values
   // authored in smart-quote editors are handled correctly.
-  const oclock = lower.match(/^(\w+)\s+o[\u2019']clock$/);
+  const oclock = lower.match(/^([\w-]+)\s+o[\u2019']clock$/);
   if (oclock) {
-    const h = WORD_TO_NUM[oclock[1].trim()];
+    const h = resolveHourToken(oclock[1], "plain");
     if (h != null) return { hour: h, minute: 0 };
   }
 
@@ -543,6 +621,253 @@ const detectLockedFactClueTimeMismatch = (
     };
   }
   return null;
+};
+
+type CrossArtifactTemporalConflict = {
+  sourceTag: "agent3_cml" | "agent7_narrative";
+  sourcePath: string;
+  sourceTime: string;
+  violationType: "ambiguity" | "mismatch";
+  lockedFactDescription: string;
+  lockedFactValue: string;
+};
+
+type TemporalAnchorSignal = {
+  hour: number;
+  minute: number;
+  explicitMeridiem: boolean;
+  raw: string;
+};
+
+type TemporalTextCandidate = {
+  sourceTag: "agent3_cml" | "agent7_narrative";
+  path: string;
+  text: string;
+};
+
+const TIME_LIKE_TEXT_RE =
+  /\b(?:\d{1,2}(?::\d{2})?\s*(?:a\.m\.|p\.m\.|am|pm)|(?:a\s+)?quarter\s+(?:past|to)\s+[a-z-]+|half\s+past\s+[a-z-]+|[a-z-]+\s+(?:minutes?\s+)?(?:past|to)\s+[a-z-]+|[a-z-]+\s+o['’]clock|midnight|noon)\b/i;
+
+const DIGIT_FORM_TIME_GLOBAL_RE = /\b(\d{1,2})(?::(\d{2}))?\s*(a\.m\.|p\.m\.|am|pm)\b/gi;
+
+const WORD_FORM_TIME_PATTERNS: RegExp[] = [
+  /\b(?:a\s+)?quarter\s+past\s+[a-z-]+\b/gi,
+  /\b(?:a\s+)?quarter\s+to\s+[a-z-]+\b/gi,
+  /\bhalf\s+past\s+[a-z-]+\b/gi,
+  /\b[a-z-]+\s+(?:minutes?\s+)?past\s+[a-z-]+\b/gi,
+  /\b[a-z-]+\s+(?:minutes?\s+)?to\s+[a-z-]+\b/gi,
+  /\b[a-z-]+\s+o['’]clock\b/gi,
+];
+
+const circularMinuteDiff = (left: number, right: number, cycle: number): number => {
+  const raw = Math.abs(left - right);
+  return Math.min(raw, cycle - raw);
+};
+
+const toComparableTemporalMinutes = (signal: TemporalAnchorSignal): { absolute: number; twelveHour: number } => ({
+  absolute: signal.hour * 60 + signal.minute,
+  twelveHour: (signal.hour % 12) * 60 + signal.minute,
+});
+
+const classifyTemporalDifference = (
+  canonical: TemporalAnchorSignal,
+  candidate: TemporalAnchorSignal,
+): { type: "ambiguity" | "mismatch" } | null => {
+  const canonicalMinutes = toComparableTemporalMinutes(canonical);
+  const candidateMinutes = toComparableTemporalMinutes(candidate);
+  const mixedMeridiem = canonical.explicitMeridiem !== candidate.explicitMeridiem;
+  const diff = mixedMeridiem
+    ? circularMinuteDiff(canonicalMinutes.twelveHour, candidateMinutes.twelveHour, 720)
+    : canonical.explicitMeridiem
+      ? circularMinuteDiff(canonicalMinutes.absolute, candidateMinutes.absolute, 1440)
+      : circularMinuteDiff(canonicalMinutes.twelveHour, candidateMinutes.twelveHour, 720);
+
+  if (diff < 60) return null;
+  return { type: mixedMeridiem ? "ambiguity" : "mismatch" };
+};
+
+const extractTemporalAnchorSignals = (text: string): TemporalAnchorSignal[] => {
+  const signals: TemporalAnchorSignal[] = [];
+  const seen = new Set<string>();
+
+  for (const match of text.matchAll(DIGIT_FORM_TIME_GLOBAL_RE)) {
+    const hourRaw = Number.parseInt(String(match[1] ?? ""), 10);
+    const minuteRaw = Number.parseInt(String(match[2] ?? "0"), 10);
+    const meridiem = String(match[3] ?? "").toLowerCase();
+    if (!Number.isFinite(hourRaw) || !Number.isFinite(minuteRaw)) continue;
+
+    let hour = hourRaw;
+    if (meridiem.startsWith("p") && hour < 12) hour += 12;
+    if (meridiem.startsWith("a") && hour === 12) hour = 0;
+    const signal: TemporalAnchorSignal = {
+      hour,
+      minute: minuteRaw,
+      explicitMeridiem: true,
+      raw: String(match[0] ?? "").trim(),
+    };
+    const key = `${signal.hour}:${signal.minute}:${signal.explicitMeridiem}:${signal.raw.toLowerCase()}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      signals.push(signal);
+    }
+  }
+
+  for (const pattern of WORD_FORM_TIME_PATTERNS) {
+    for (const match of text.matchAll(pattern)) {
+      const raw = String(match[0] ?? "").trim();
+      if (!raw) continue;
+      const parsed = parseWordFormTime(raw);
+      if (!parsed) continue;
+      const signal: TemporalAnchorSignal = {
+        hour: parsed.hour,
+        minute: parsed.minute,
+        explicitMeridiem: false,
+        raw,
+      };
+      const key = `${signal.hour}:${signal.minute}:${signal.explicitMeridiem}:${signal.raw.toLowerCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        signals.push(signal);
+      }
+    }
+  }
+
+  return signals;
+};
+
+const collectTemporalTextCandidates = (
+  node: unknown,
+  path: string,
+  sourceTag: "agent3_cml" | "agent7_narrative",
+  results: TemporalTextCandidate[],
+  depth = 0,
+): void => {
+  if (depth > 7 || results.length >= 400 || node == null) return;
+
+  if (typeof node === "string") {
+    const text = node.trim();
+    if (text.length === 0) return;
+    if (!TIME_LIKE_TEXT_RE.test(text)) return;
+    results.push({ sourceTag, path, text });
+    return;
+  }
+
+  if (Array.isArray(node)) {
+    for (let i = 0; i < node.length; i += 1) {
+      collectTemporalTextCandidates(node[i], `${path}[${i}]`, sourceTag, results, depth + 1);
+      if (results.length >= 400) return;
+    }
+    return;
+  }
+
+  if (typeof node === "object") {
+    const entries = Object.entries(node as Record<string, unknown>);
+    for (const [key, value] of entries) {
+      collectTemporalTextCandidates(value, `${path}.${key}`, sourceTag, results, depth + 1);
+      if (results.length >= 400) return;
+    }
+  }
+};
+
+export const detectCrossArtifactTemporalConflicts = (args: {
+  lockedFacts: Array<{ description?: string; value?: string }>;
+  cmlCase: any;
+  narrative: any;
+}): CrossArtifactTemporalConflict[] => {
+  const { lockedFacts, cmlCase, narrative } = args;
+  if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return [];
+
+  const candidates: TemporalTextCandidate[] = [];
+
+  if (cmlCase && typeof cmlCase === "object") {
+    collectTemporalTextCandidates(cmlCase.false_assumption, "CASE.false_assumption", "agent3_cml", candidates);
+    collectTemporalTextCandidates(cmlCase.constraint_space?.time, "CASE.constraint_space.time", "agent3_cml", candidates);
+    collectTemporalTextCandidates(cmlCase.discriminating_test, "CASE.discriminating_test", "agent3_cml", candidates);
+    collectTemporalTextCandidates(cmlCase.prose_requirements, "CASE.prose_requirements", "agent3_cml", candidates);
+    collectTemporalTextCandidates(cmlCase.narrative_outline, "CASE.narrative_outline", "agent3_cml", candidates);
+  }
+
+  if (narrative && typeof narrative === "object") {
+    collectTemporalTextCandidates(narrative.acts, "narrative.acts", "agent7_narrative", candidates);
+  }
+
+  if (candidates.length === 0) return [];
+
+  const conflicts: CrossArtifactTemporalConflict[] = [];
+  const seenConflicts = new Set<string>();
+
+  for (const fact of lockedFacts) {
+    const lockedFactDescription = String(fact?.description ?? "").trim();
+    const lockedFactValue = String(fact?.value ?? "").trim();
+    if (!lockedFactDescription || !lockedFactValue) continue;
+
+    const parsedWordForm = parseWordFormTime(lockedFactValue);
+    const parsedDigitForm = extractDigitFormHour(lockedFactValue);
+    const canonicalSignal: TemporalAnchorSignal | null = parsedWordForm
+      ? {
+          hour: parsedWordForm.hour,
+          minute: parsedWordForm.minute,
+          explicitMeridiem: false,
+          raw: lockedFactValue,
+        }
+      : parsedDigitForm
+        ? {
+            hour: parsedDigitForm.hour,
+            minute: parsedDigitForm.minute,
+            explicitMeridiem: parsedDigitForm.explicitMeridiem,
+            raw: parsedDigitForm.raw,
+          }
+        : null;
+    if (!canonicalSignal) continue;
+
+    const factKeywords = tokenizeLockedFactDescription(lockedFactDescription);
+    const factHasClockLikeAnchor = factKeywords.some((keyword) => /(clock|watch|time|hour|minute)/.test(keyword));
+    const keywordMatchesCandidate = (keyword: string, candidateLower: string): boolean => {
+      if (candidateLower.includes(keyword)) return true;
+      const stemmed = keyword
+        .replace(/(?:ing|ed|es|s)$/i, "")
+        .trim();
+      return stemmed.length >= 4 && candidateLower.includes(stemmed);
+    };
+
+    for (const candidate of candidates) {
+      const candidateLower = candidate.text.toLowerCase();
+      const overlap = factKeywords.filter((keyword) => keywordMatchesCandidate(keyword, candidateLower)).length;
+      const clockContextCandidate = /(clock|watch|time|hour|minute)/.test(candidateLower);
+      const associated = overlap >= 2 || (overlap >= 1 && factHasClockLikeAnchor && clockContextCandidate);
+      if (!associated) continue;
+
+      const temporalSignals = extractTemporalAnchorSignals(candidate.text);
+      if (temporalSignals.length === 0) continue;
+
+      for (const signal of temporalSignals) {
+        const mismatch = classifyTemporalDifference(canonicalSignal, signal);
+        if (!mismatch) continue;
+
+        const key = [
+          lockedFactDescription.toLowerCase(),
+          lockedFactValue.toLowerCase(),
+          candidate.sourceTag,
+          candidate.path,
+          signal.raw.toLowerCase(),
+          mismatch.type,
+        ].join("::");
+        if (seenConflicts.has(key)) continue;
+        seenConflicts.add(key);
+
+        conflicts.push({
+          sourceTag: candidate.sourceTag,
+          sourcePath: candidate.path,
+          sourceTime: signal.raw,
+          violationType: mismatch.type,
+          lockedFactDescription,
+          lockedFactValue,
+        });
+      }
+    }
+  }
+
+  return conflicts;
 };
 
 /**
@@ -825,6 +1150,54 @@ const extractSurname = (name: string): string => name.trim().split(/\s+/).pop() 
 
 const normalizeNameLower = (value: unknown): string => String(value ?? "").trim().toLowerCase();
 
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const splitLifecycleSentences = (text: string): string[] =>
+  String(text ?? "")
+    .match(/[^.!?\n]+[.!?]*/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) ?? [];
+
+const LIFECYCLE_DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
+const LIFECYCLE_ACTIVE_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
+const LIFECYCLE_TITLE_PREFIX_RE = /^(?:Dr|Miss|Mrs|Mr|Captain|Col|Colonel|Major|Sir|Lady|Lord|Prof|Professor|Reverend|Rev|Inspector|Detective|Sergeant)\.?\s+/i;
+
+const toLifecycleShortName = (fullName: string): string => {
+  const cleaned = String(fullName ?? "").trim().replace(LIFECYCLE_TITLE_PREFIX_RE, "");
+  const tokens = cleaned.split(/\s+/).filter(Boolean);
+  if (tokens.length <= 1) return cleaned;
+  return tokens[0] ?? cleaned;
+};
+
+const getVictimNameSet = (cml: any, castCharacters: CastEntry[]): Set<string> => {
+  const victims = new Set<string>();
+  const cmlCase = (cml as any)?.CASE ?? cml;
+  const cmlCast = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
+
+  for (const entry of cmlCast) {
+    const role = String(entry?.role_archetype ?? entry?.roleArchetype ?? entry?.role ?? "").toLowerCase();
+    const name = String(entry?.name ?? "").trim();
+    if (name && role.includes("victim")) {
+      victims.add(normalizeNameLower(name));
+    }
+  }
+
+  for (const entry of castCharacters) {
+    const role = String((entry as any)?.role_archetype ?? (entry as any)?.roleArchetype ?? (entry as any)?.role ?? "").toLowerCase();
+    const name = String((entry as any)?.name ?? "").trim();
+    if (name && role.includes("victim")) {
+      victims.add(normalizeNameLower(name));
+    }
+  }
+
+  const culpabilityVictim = String(cmlCase?.culpability?.victim ?? "").trim();
+  if (culpabilityVictim) {
+    victims.add(normalizeNameLower(culpabilityVictim));
+  }
+
+  return victims;
+};
+
 const roleTextForIntegrity = (entry: any): string =>
   String(entry?.role_archetype ?? entry?.role ?? entry?.roleArchetype ?? "").toLowerCase();
 
@@ -1008,23 +1381,40 @@ const applyTargetedPronounSweep = (
       onlyNames,
       crossParagraphInheritance: true,
     });
-    if (!repaired || repaired.repairCount <= 0 || repaired.text === normalized) {
-      if (normalized !== rawText) {
-        return {
-          ...chapter,
-          paragraphs: normalized
+    const repairedText = repaired?.text && repaired.text.length > 0 ? repaired.text : normalized;
+    repairCount += repaired?.repairCount ?? 0;
+
+    const mentionsTargetName = Array.from(onlyNames).some((targetName) => {
+      const pattern = new RegExp(`\\b${escapeRegex(targetName)}\\b`, "i");
+      return pattern.test(repairedText);
+    });
+
+    let finalText = repairedText;
+    if (mentionsTargetName) {
+      const chapterRepair = repairChapterPronouns(
+        {
+          title: String(chapter?.title ?? ""),
+          summary: typeof chapter?.summary === "string" ? chapter.summary : undefined,
+          paragraphs: repairedText
             .split("\n\n")
             .map((paragraph: string) => paragraph.trim())
             .filter(Boolean),
-        };
+        },
+        castCharacters as any,
+      );
+      if (chapterRepair?.repairCount && chapterRepair.repairCount > 0) {
+        repairCount += chapterRepair.repairCount;
+        finalText = (chapterRepair.chapter.paragraphs ?? []).join("\n\n");
       }
+    }
+
+    if (finalText === rawText) {
       return chapter;
     }
 
-    repairCount += repaired.repairCount;
     return {
       ...chapter,
-      paragraphs: repaired.text
+      paragraphs: finalText
         .split("\n\n")
         .map((paragraph: string) => paragraph.trim())
         .filter(Boolean),
@@ -1032,6 +1422,324 @@ const applyTargetedPronounSweep = (
   });
 
   return { prose: { ...prose, chapters }, repairCount };
+};
+
+type VictimReappearanceIssue = {
+  characterName: string;
+  deadByChapter: number;
+  reappearsChapter: number;
+};
+
+const extractVictimReappearanceIssues = (errors: any[]): VictimReappearanceIssue[] => {
+  if (!Array.isArray(errors)) return [];
+  const issues: VictimReappearanceIssue[] = [];
+
+  for (const err of errors) {
+    if (String(err?.type ?? "") !== "victim_reappears_alive") continue;
+
+    const details = err?.details && typeof err.details === "object"
+      ? err.details as Record<string, unknown>
+      : null;
+    const detailedCharacterName = String(details?.characterName ?? "").trim();
+    const detailedDeadByChapter = Number(details?.deadByChapter);
+    const detailedReappearsChapter = Number(details?.reappearsChapter);
+    if (
+      detailedCharacterName
+      && Number.isFinite(detailedDeadByChapter)
+      && Number.isFinite(detailedReappearsChapter)
+    ) {
+      issues.push({
+        characterName: detailedCharacterName,
+        deadByChapter: detailedDeadByChapter,
+        reappearsChapter: detailedReappearsChapter,
+      });
+      continue;
+    }
+
+    const message = String(err?.message ?? "");
+    const match = message.match(/^(.+?)\s+is\s+dead\/victim\s+by\s+chapter\s+(\d+)\s+but\s+appears\s+active\s+in\s+chapter\s+(\d+)/i);
+    if (!match) continue;
+
+    const characterName = String(match[1] ?? "").trim();
+    const deadByChapter = Number(match[2]);
+    const reappearsChapter = Number(match[3]);
+    if (!characterName || !Number.isFinite(deadByChapter) || !Number.isFinite(reappearsChapter)) {
+      continue;
+    }
+
+    issues.push({ characterName, deadByChapter, reappearsChapter });
+  }
+
+  return issues;
+};
+
+// ANALYSIS_44 follow-up: a dead/victim character given confession language
+// (`deceased_character_confesses`) is the same class of defect as `victim_reappears_alive`
+// and is repaired the same way (reframe the active sentence as recollection). Surface these
+// issues too so a confession-only victim (no separate reappearance flag) is still rescued.
+const extractDeceasedConfessionIssues = (errors: any[]): VictimReappearanceIssue[] => {
+  if (!Array.isArray(errors)) return [];
+  const issues: VictimReappearanceIssue[] = [];
+  for (const err of errors) {
+    if (String(err?.type ?? "") !== "deceased_character_confesses") continue;
+    const details = err?.details && typeof err.details === "object"
+      ? err.details as Record<string, unknown>
+      : null;
+    const characterName = String(details?.characterName ?? "").trim();
+    const deadByChapter = Number(details?.deadByChapter);
+    const confessesChapter = Number(details?.confessesChapter);
+    if (!characterName || !Number.isFinite(deadByChapter)) continue;
+    issues.push({
+      characterName,
+      deadByChapter,
+      reappearsChapter: Number.isFinite(confessesChapter) ? confessesChapter : deadByChapter + 1,
+    });
+  }
+  return issues;
+};
+
+export const applyLifecycleContinuityGuard = (
+  prose: any,
+  castCharacters: CastEntry[],
+  cml: any,
+): { prose: any; replacementCount: number } => {
+  if (!Array.isArray(prose?.chapters) || !Array.isArray(castCharacters) || castCharacters.length === 0) {
+    return { prose, replacementCount: 0 };
+  }
+
+  const victimNames = getVictimNameSet(cml, castCharacters);
+  const castNames = castCharacters
+    .map((entry) => String((entry as any)?.name ?? "").trim())
+    .filter(Boolean);
+
+  let replacementCount = 0;
+  const chapters = (prose.chapters as any[]).map((chapter: any) => {
+    const paragraphs = Array.isArray(chapter?.paragraphs)
+      ? chapter.paragraphs.map((paragraph: unknown) => String(paragraph ?? ""))
+      : [];
+    if (paragraphs.length === 0) return chapter;
+
+    const sentenceGrid = paragraphs.map((paragraph: string) => splitLifecycleSentences(paragraph));
+    const updatedGrid = sentenceGrid.map((sentences: string[]) => [...sentences]);
+
+    for (const fullName of castNames) {
+      if (victimNames.has(normalizeNameLower(fullName))) continue;
+
+      const shortName = toLifecycleShortName(fullName);
+      if (!shortName || shortName === fullName) continue;
+
+      const namePattern = new RegExp(`\\b${escapeRegex(fullName)}\\b`, "i");
+      const replacementPattern = new RegExp(`\\b${escapeRegex(fullName)}\\b`, "g");
+      const deathSentenceRefs: Array<{ paragraphIdx: number; sentenceIdx: number }> = [];
+      let hasActiveUsage = false;
+
+      for (let paragraphIdx = 0; paragraphIdx < updatedGrid.length; paragraphIdx += 1) {
+        const sentences = updatedGrid[paragraphIdx];
+        for (let sentenceIdx = 0; sentenceIdx < sentences.length; sentenceIdx += 1) {
+          const sentence = sentences[sentenceIdx];
+          if (!namePattern.test(sentence)) continue;
+          if (LIFECYCLE_DEATH_RE.test(sentence)) {
+            deathSentenceRefs.push({ paragraphIdx, sentenceIdx });
+          }
+          if (LIFECYCLE_ACTIVE_RE.test(sentence)) {
+            hasActiveUsage = true;
+          }
+        }
+      }
+
+      if (!hasActiveUsage || deathSentenceRefs.length === 0) continue;
+
+      for (const ref of deathSentenceRefs) {
+        const source = updatedGrid[ref.paragraphIdx][ref.sentenceIdx];
+        const replaced = source.replace(replacementPattern, shortName);
+        if (replaced !== source) {
+          updatedGrid[ref.paragraphIdx][ref.sentenceIdx] = replaced;
+          replacementCount += 1;
+        }
+      }
+    }
+
+    const updatedParagraphs = updatedGrid.map((sentences: string[], paragraphIdx: number) => {
+      if (sentences.length === 0) return paragraphs[paragraphIdx];
+      const rebuilt = sanitizeProseText(sentences.join(" "));
+      return rebuilt.length > 0 ? rebuilt : paragraphs[paragraphIdx];
+    });
+
+    return { ...chapter, paragraphs: updatedParagraphs };
+  });
+
+  if (replacementCount > 0) {
+    console.warn(
+      `[Agent 9] applyLifecycleContinuityGuard: rewrote ${replacementCount} ambiguous death attribution sentence(s) for active non-victim continuity.`,
+    );
+  }
+
+  return { prose: { ...prose, chapters }, replacementCount };
+};
+
+export const applyVictimReappearanceRescue = (
+  prose: any,
+  castCharacters: CastEntry[],
+  cml: any,
+  issues: VictimReappearanceIssue[],
+): { prose: any; repairCount: number; skippedVictimNames: string[] } => {
+  if (!Array.isArray(prose?.chapters) || !Array.isArray(issues) || issues.length === 0) {
+    return { prose, repairCount: 0, skippedVictimNames: [] };
+  }
+
+  const victimNames = getVictimNameSet(cml, castCharacters);
+  const skippedVictimNames: string[] = [];
+  const issueByName = new Map<string, VictimReappearanceIssue>();
+  for (const issue of issues) {
+    const normalized = normalizeNameLower(issue.characterName);
+    if (!normalized) continue;
+    if (victimNames.has(normalized)) {
+      skippedVictimNames.push(issue.characterName);
+      continue;
+    }
+    const existing = issueByName.get(normalized);
+    if (!existing || issue.reappearsChapter > existing.reappearsChapter) {
+      issueByName.set(normalized, issue);
+    }
+  }
+
+  if (issueByName.size === 0) {
+    return { prose, repairCount: 0, skippedVictimNames };
+  }
+
+  let repairCount = 0;
+  const chapters = (prose.chapters as any[]).map((chapter: any, chapterIdx: number) => {
+    const chapterNumber = chapterIdx + 1;
+    const paragraphs = Array.isArray(chapter?.paragraphs)
+      ? chapter.paragraphs.map((paragraph: unknown) => String(paragraph ?? ""))
+      : [];
+    if (paragraphs.length === 0) return chapter;
+
+    const updatedParagraphs = paragraphs.map((paragraph: string) => {
+      const sentences = splitLifecycleSentences(paragraph);
+      if (sentences.length === 0) return paragraph;
+      let paragraphChanged = false;
+
+      for (let sentenceIdx = 0; sentenceIdx < sentences.length; sentenceIdx += 1) {
+        let sentence = sentences[sentenceIdx];
+        if (!LIFECYCLE_DEATH_RE.test(sentence)) continue;
+
+        for (const issue of issueByName.values()) {
+          if (chapterNumber > issue.reappearsChapter) continue;
+          const namePattern = new RegExp(`\\b${escapeRegex(issue.characterName)}\\b`, "i");
+          if (!namePattern.test(sentence)) continue;
+
+          const shortName = toLifecycleShortName(issue.characterName);
+          if (!shortName || shortName === issue.characterName) continue;
+
+          const replacePattern = new RegExp(`\\b${escapeRegex(issue.characterName)}\\b`, "g");
+          const updated = sentence.replace(replacePattern, shortName);
+          if (updated !== sentence) {
+            sentence = updated;
+            repairCount += 1;
+            paragraphChanged = true;
+          }
+        }
+
+        sentences[sentenceIdx] = sentence;
+      }
+
+      return paragraphChanged ? sanitizeProseText(sentences.join(" ")) : paragraph;
+    });
+
+    return { ...chapter, paragraphs: updatedParagraphs };
+  });
+
+  if (repairCount > 0) {
+    console.warn(
+      `[Agent 9] applyVictimReappearanceRescue: repaired ${repairCount} death-attribution sentence(s) for non-victim characters flagged by validation.`,
+    );
+  }
+
+  return { prose: { ...prose, chapters }, repairCount, skippedVictimNames };
+};
+
+// ANALYSIS_43 Phase 2 (G): canonical-victim rescue. `applyVictimReappearanceRescue` (above)
+// deliberately SKIPS canonical victim names, so a `victim_reappears_alive` on the CANONICAL
+// victim (a dead victim given active dialogue/action) is never repaired and aborts the run.
+// This repair handles exactly that case: for the canonical victim's active sentences in
+// post-death chapters, it prepends an explicit recollection frame ("In a remembered moment,
+// ...") — minimal, grammatical, reversible — which the lifecycle validator now treats as a
+// flashback rather than a live appearance (RECOLLECTION_FRAME_RE), clearing the false reappearance.
+const VICTIM_RECOLLECTION_PREFIX = "In a remembered moment, ";
+const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
+
+export const applyCanonicalVictimRescue = (
+  prose: any,
+  castCharacters: CastEntry[],
+  cml: any,
+  issues: VictimReappearanceIssue[],
+): { prose: any; repairCount: number; reframedVictimNames: string[] } => {
+  if (!Array.isArray(prose?.chapters) || !Array.isArray(issues) || issues.length === 0) {
+    return { prose, repairCount: 0, reframedVictimNames: [] };
+  }
+
+  const victimNames = getVictimNameSet(cml, castCharacters);
+  // Only CANONICAL victims here — dedupe by name, keep the earliest deadByChapter.
+  const issueByName = new Map<string, VictimReappearanceIssue>();
+  for (const issue of issues) {
+    const normalized = normalizeNameLower(issue.characterName);
+    if (!normalized || !victimNames.has(normalized)) continue;
+    const existing = issueByName.get(normalized);
+    if (!existing || issue.deadByChapter < existing.deadByChapter) {
+      issueByName.set(normalized, issue);
+    }
+  }
+  if (issueByName.size === 0) {
+    return { prose, repairCount: 0, reframedVictimNames: [] };
+  }
+
+  let repairCount = 0;
+  const reframed = new Set<string>();
+  const chapters = (prose.chapters as any[]).map((chapter: any, chapterIdx: number) => {
+    const chapterNumber = chapterIdx + 1;
+    const paragraphs = Array.isArray(chapter?.paragraphs)
+      ? chapter.paragraphs.map((paragraph: unknown) => String(paragraph ?? ""))
+      : [];
+    if (paragraphs.length === 0) return chapter;
+
+    const updatedParagraphs = paragraphs.map((paragraph: string) => {
+      const sentences = splitLifecycleSentences(paragraph);
+      if (sentences.length === 0) return paragraph;
+      let changed = false;
+
+      for (let i = 0; i < sentences.length; i += 1) {
+        let sentence = sentences[i];
+        if (VICTIM_RECOLLECTION_FRAME_RE.test(sentence)) continue; // already a recollection
+        if (LIFECYCLE_DEATH_RE.test(sentence)) continue;           // death/discovery sentence — leave
+        if (!LIFECYCLE_ACTIVE_RE.test(sentence)) continue;         // no active verb — not flagged
+
+        for (const issue of issueByName.values()) {
+          if (chapterNumber <= issue.deadByChapter) continue;      // only chapters after death
+          const namePattern = new RegExp(`\\b${escapeRegex(issue.characterName)}\\b`, "i");
+          if (!namePattern.test(sentence)) continue;
+          sentence = VICTIM_RECOLLECTION_PREFIX + sentence.replace(/^\s+/, "");
+          changed = true;
+          repairCount += 1;
+          reframed.add(issue.characterName);
+          break;
+        }
+        sentences[i] = sentence;
+      }
+
+      return changed ? sanitizeProseText(sentences.join(" ")) : paragraph;
+    });
+
+    return { ...chapter, paragraphs: updatedParagraphs };
+  });
+
+  if (repairCount > 0) {
+    console.warn(
+      `[Agent 9] applyCanonicalVictimRescue: reframed ${repairCount} active-victim sentence(s) as recollection for ${reframed.size} canonical victim(s): ${Array.from(reframed).join(", ")}.`,
+    );
+  }
+
+  return { prose: { ...prose, chapters }, repairCount, reframedVictimNames: Array.from(reframed) };
 };
 
 export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
@@ -1287,10 +1995,45 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
   return { ...prose, chapters: newChapters };
 };
 
+// Conservative gender-mismatch counter used to keep the deterministic pronoun
+// sweep MONOTONIC: it counts wrong-gender pronouns only in sentences that name
+// exactly one gender of known-gender character (no opposite-gender competitor),
+// excluding quoted speech. This mirrors the repair's own view of the text, so a
+// before/after comparison reliably detects whether the sweep made gendering worse.
+const countChapterPronounMismatches = (text: string, castCharacters: CastEntry[]): number => {
+  const chars = (castCharacters as any[])
+    .filter((c) => typeof c?.gender === "string" && /^(male|female)$/i.test(c.gender))
+    .map((c) => ({ name: String(c.name ?? "").trim().toLowerCase(), gender: String(c.gender).toLowerCase() }))
+    .filter((c) => c.name.length > 0);
+  if (chars.length === 0) return 0;
+
+  // Strip quoted speech so dialogue (which refers to third parties) is not counted.
+  const narrative = text.replace(/[“"][^“”"]*[”"]/g, " ").replace(/[‘'][^‘’']*[’']/g, " ");
+  const sentences = narrative.split(/(?<=[.!?])\s+/);
+  let mismatches = 0;
+  for (const sentence of sentences) {
+    const lower = sentence.toLowerCase();
+    const present = chars.filter((c) =>
+      new RegExp(`\\b${c.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(lower),
+    );
+    if (present.length === 0) continue;
+    const genders = new Set(present.map((c) => c.gender));
+    if (genders.size !== 1) continue; // ambiguous — a competitor of the other gender is present
+    const g = [...genders][0];
+    const wrong =
+      g === "male"
+        ? (sentence.match(/\b(she|her|hers|herself)\b/gi) || []).length
+        : (sentence.match(/\b(he|him|his|himself)\b/gi) || []).length;
+    mismatches += wrong;
+  }
+  return mismatches;
+};
+
 export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastEntry[]): any => {
   if (!Array.isArray(castCharacters) || castCharacters.length === 0) return prose;
 
   let repairCount = 0;
+  let revertedChapters = 0;
   const chapters = (prose.chapters as any[]).map((chapter: any) => {
     const rawText = Array.isArray(chapter.paragraphs)
       ? chapter.paragraphs.map((p: unknown) => String(p ?? "")).join("\n\n")
@@ -1299,21 +2042,41 @@ export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastE
 
     // ANALYSIS_17 V-B: normalize title phrases first ("the doctor Finch" → "Dr. Finch")
     const text = normalizeTitles(rawText);
-    if (text !== rawText) repairCount += 1;
+    const titleChanged = text !== rawText;
+    const titleNormalizedChapter = () => ({
+      ...chapter,
+      paragraphs: text.split("\n\n").map((p: string) => p.trim()).filter(Boolean),
+    });
 
     const repaired = repairPronouns(text, castCharacters as any, { crossParagraphInheritance: true });
     if (!repaired || repaired.repairCount <= 0 || repaired.text === text) {
       // Return title-normalized text even if no pronoun repairs were needed
-      if (text !== rawText) {
-        return {
-          ...chapter,
-          paragraphs: text.split("\n\n").map((p: string) => p.trim()).filter(Boolean),
-        };
+      if (titleChanged) {
+        repairCount += 1;
+        return titleNormalizedChapter();
       }
       return chapter;
     }
 
-    repairCount += repaired.repairCount;
+    // Monotonic guard: the full-cast sweep must never INCREASE wrong-gender pronouns.
+    // After run_1d55f7c7, cross-paragraph inheritance flipped a correct female run to
+    // male; if that ever recurs, discard the swept text (keeping title normalization).
+    const before = countChapterPronounMismatches(text, castCharacters);
+    const after = countChapterPronounMismatches(repaired.text, castCharacters);
+    if (after > before) {
+      revertedChapters += 1;
+      console.warn(
+        `[Agent 9] applyDeterministicPronounSweep: reverted "${chapter.title}" — sweep increased pronoun ` +
+        `mismatches (${before} → ${after}); keeping the model's pronouns.`,
+      );
+      if (titleChanged) {
+        repairCount += 1;
+        return titleNormalizedChapter();
+      }
+      return chapter;
+    }
+
+    repairCount += repaired.repairCount + (titleChanged ? 1 : 0);
     return {
       ...chapter,
       paragraphs: repaired.text
@@ -1323,8 +2086,11 @@ export const applyDeterministicPronounSweep = (prose: any, castCharacters: CastE
     };
   });
 
-  if (repairCount > 0) {
-    console.warn(`[Agent 9] applyDeterministicPronounSweep: applied ${repairCount} repair(s).`);
+  if (repairCount > 0 || revertedChapters > 0) {
+    console.warn(
+      `[Agent 9] applyDeterministicPronounSweep: applied ${repairCount} repair(s)` +
+      `${revertedChapters > 0 ? `, reverted ${revertedChapters} chapter(s)` : ""}.`,
+    );
   }
 
   return { ...prose, chapters };
@@ -1594,6 +2360,88 @@ export const getExpectedClueIdsForVisibility = (
   return Array.from(
     new Set([...distributionIds, ...discriminatingIds]),
   );
+};
+
+export const reconcileDiscriminatingEvidenceIdsToCanonicalNamespace = (
+  cmlCase: any,
+  canonicalClueIdsInput: Iterable<string>,
+): {
+  referencedIds: string[];
+  finalIds: string[];
+  nonCanonicalIds: string[];
+  removedNonCanonical: string[];
+  seededFromMapping: string[];
+  repaired: boolean;
+} => {
+  const discrimTest = cmlCase?.discriminating_test;
+  if (!discrimTest || !Array.isArray(discrimTest.evidence_clues)) {
+    return {
+      referencedIds: [],
+      finalIds: [],
+      nonCanonicalIds: [],
+      removedNonCanonical: [],
+      seededFromMapping: [],
+      repaired: false,
+    };
+  }
+
+  const canonicalClueIds = new Set(
+    Array.from(canonicalClueIdsInput)
+      .map((id) => String(id ?? "").trim())
+      .filter(Boolean),
+  );
+  const referencedIds: string[] = discrimTest.evidence_clues
+    .map((id: unknown) => String(id ?? "").trim())
+    .filter(Boolean);
+  const canonicalEvidenceIds = referencedIds.filter((id) => canonicalClueIds.has(id));
+  const nonCanonicalIds = referencedIds.filter((id) => !canonicalClueIds.has(id));
+  const finalIds = [...new Set(canonicalEvidenceIds)];
+  const seededFromMapping: string[] = [];
+
+  const mappingIds: string[] = Array.isArray(cmlCase?.prose_requirements?.clue_to_scene_mapping)
+    ? cmlCase.prose_requirements.clue_to_scene_mapping
+      .map((entry: any) => String(entry?.clue_id ?? "").trim())
+      .filter((id: string) => Boolean(id) && canonicalClueIds.has(id))
+    : [];
+
+  if (finalIds.length < 2) {
+    for (const mappingId of mappingIds) {
+      if (!finalIds.includes(mappingId)) {
+        finalIds.push(mappingId);
+        seededFromMapping.push(mappingId);
+      }
+      if (finalIds.length >= 3) break;
+    }
+  }
+
+  if (finalIds.length < 2) {
+    for (const fallbackId of canonicalClueIds) {
+      if (!finalIds.includes(fallbackId)) {
+        finalIds.push(fallbackId);
+      }
+      if (finalIds.length >= 2) break;
+    }
+  }
+
+  const repaired =
+    nonCanonicalIds.length > 0
+    || finalIds.length !== referencedIds.length
+    || finalIds.some((id, index) => id !== referencedIds[index]);
+
+  if (repaired) {
+    discrimTest.evidence_clues = finalIds;
+  }
+
+  const remainingNonCanonical = finalIds.filter((id) => !canonicalClueIds.has(id));
+
+  return {
+    referencedIds,
+    finalIds,
+    nonCanonicalIds: remainingNonCanonical,
+    removedNonCanonical: nonCanonicalIds,
+    seededFromMapping,
+    repaired,
+  };
 };
 
 // ============================================================================
@@ -1934,9 +2782,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const backgroundContext = ctx.backgroundContext;
   const noveltyAudit = ctx.noveltyAudit;
   const bottomUpRedesignEnabled = parseBooleanEnv(process.env.AGENT9_REDESIGN_V1, true);
-  const pronounRepairEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
+  const pronounRepairEnabled = getPronounPolicySettings().checkingEnabled;
   if (!pronounRepairEnabled) {
-    console.warn("[Agent 9] Deterministic pronoun repair is DISABLED (generation-params.yaml: agent9_prose.validation.pronoun_checking_enabled=false).");
+    console.warn("[Agent 9] Deterministic pronoun repair is DISABLED (generation-params.yaml: agent9_prose.validation.pronoun_policy=off).");
   }
 
   if (!bottomUpRedesignEnabled) {
@@ -2041,10 +2889,30 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       .map((entry: any) => String(entry?.id ?? '').trim())
       .filter(Boolean),
   ]);
-  const discriminatingEvidenceIds = (((cml as any)?.CASE?.discriminating_test?.evidence_clues ?? []) as any[])
-    .map((id: any) => String(id ?? '').trim())
-    .filter(Boolean);
-  const nonCanonicalEvidenceIds = discriminatingEvidenceIds.filter((id) => !canonicalClueIds.has(id));
+  const cmlCase = (cml as any)?.CASE ?? {};
+  const clueNamespaceRepair = reconcileDiscriminatingEvidenceIdsToCanonicalNamespace(cmlCase, canonicalClueIds);
+  if (clueNamespaceRepair.repaired) {
+    const removedSample = clueNamespaceRepair.removedNonCanonical.slice(0, 3).join(", ");
+    const seededSample = clueNamespaceRepair.seededFromMapping.slice(0, 3).join(", ");
+    const removedSuffix = clueNamespaceRepair.removedNonCanonical.length > 3 ? ", ..." : "";
+    const seededSuffix = clueNamespaceRepair.seededFromMapping.length > 3 ? ", ..." : "";
+    const notes: string[] = [];
+    if (clueNamespaceRepair.removedNonCanonical.length > 0) {
+      notes.push(
+        `removed non-canonical entries (${clueNamespaceRepair.removedNonCanonical.length}: ${removedSample}${removedSuffix})`,
+      );
+    }
+    if (clueNamespaceRepair.seededFromMapping.length > 0) {
+      notes.push(
+        `seeded canonical IDs from clue_to_scene_mapping (${clueNamespaceRepair.seededFromMapping.length}: ${seededSample}${seededSuffix})`,
+      );
+    }
+    if (notes.length > 0) {
+      ctx.warnings.push(`Agent 9 clue namespace preflight: ${notes.join("; ")}.`);
+    }
+  }
+  const discriminatingEvidenceIds = clueNamespaceRepair.finalIds;
+  const nonCanonicalEvidenceIds = clueNamespaceRepair.nonCanonicalIds;
   if (nonCanonicalEvidenceIds.length > 0) {
     const msg = `Clue namespace preflight: discriminating evidence ID(s) not found in canonical clue namespace: ${nonCanonicalEvidenceIds.join(", ")}`;
     ctx.errors.push(msg);
@@ -2056,7 +2924,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       referencedIds: discriminatingEvidenceIds,
       missingIds: nonCanonicalEvidenceIds,
       nonCanonicalIds: nonCanonicalEvidenceIds,
-      safeRemaps: [],
+      safeRemaps: clueNamespaceRepair.seededFromMapping,
       status: nonCanonicalEvidenceIds.length > 0 ? "fail" : "pass",
     };
     scoringLogger.logPhaseDiagnostic(
@@ -2276,6 +3144,39 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  const crossArtifactTemporalConflicts = detectCrossArtifactTemporalConflicts({
+    lockedFacts: annotatedLockedFacts,
+    cmlCase: (cml as any)?.CASE,
+    narrative,
+  });
+  // Cross-artifact temporal conflicts are WARNINGS, not a hard abort. They scan free-prose CML
+  // fields (e.g. false_assumption.why_it_seems_reasonable) where a *different* time is often
+  // intentional misdirection in a fair-play mystery — and even when it is genuine drift, the prose
+  // stage enforces the canonical locked time per chapter. Aborting a fully-designed run on this
+  // signal is the wrong severity; only the direct clue-time mismatch above (which dooms prose
+  // validation) remains a hard stop.
+  for (const conflict of crossArtifactTemporalConflicts) {
+    const factPath = `hardLogicDevices.devices[*].lockedFacts[description=${JSON.stringify(conflict.lockedFactDescription)}].value`;
+    const sourceLabel = conflict.sourceTag === "agent3_cml" ? "Agent3-CML" : "Agent7-Narrative";
+    const message =
+      `[CML integrity warning] Locked fact "${conflict.lockedFactDescription}" (canonical: "${conflict.lockedFactValue}") ` +
+      `differs from ${sourceLabel} time anchor "${conflict.sourceTime}" [${conflict.violationType}] ` +
+      `at ${conflict.sourcePath}. Prose will use the locked value; verify this is intended misdirection.`;
+    ctx.warnings.push(message);
+    ctx.errors.push(
+      `[CML integrity details] ${JSON.stringify({
+        severity: "warning",
+        source_tag: conflict.sourceTag,
+        source_path: conflict.sourcePath,
+        source_time: conflict.sourceTime,
+        violation_type: conflict.violationType,
+        locked_fact_description: conflict.lockedFactDescription,
+        canonical_value: conflict.lockedFactValue,
+        cml_field_path: factPath,
+      })}`,
+    );
+  }
+
   if (cmlIntegrityViolations.length > 0) {
     cmlIntegrityViolations.forEach((message) => ctx.errors.push(message));
     const actionablePaths = cmlIntegrityViolations.slice(0, 6).join(" | ");
@@ -2284,8 +3185,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     );
   }
 
+  // FIX 4: Build a pronoun-lock map for EVERY named character. Previously this filtered
+  // to `c.gender`, silently excluding any character whose gender was unset — the model then
+  // defaulted to "he" (women narrated as male). Gender is now guaranteed upstream (Agent 2),
+  // but keep a deterministic fallback here so the lock can never be silently empty, and warn
+  // if a fallback ever fires so the upstream gap is visible.
+  const normalizeGenderValue = (value: unknown): string | undefined => {
+    const raw = String(value ?? "").trim().toLowerCase();
+    if (raw === "male" || raw === "female" || raw === "non-binary") return raw;
+    return undefined;
+  };
   const characterGenderMap: Record<string, string> = Object.fromEntries(
-    castDesign.characters.filter((c: any) => c.gender).map((c: any) => [c.name, c.gender]),
+    (Array.isArray(castDesign?.characters) ? castDesign.characters : [])
+      .filter((c: any) => c?.name)
+      .map((c: any, idx: number) => {
+        const resolved = normalizeGenderValue(c.gender);
+        if (!resolved) {
+          ctx.warnings.push(
+            `Agent 9: character "${c.name}" reached prose without a gender; applied deterministic fallback. Check Agent 2 gender population.`,
+          );
+        }
+        return [c.name, resolved ?? (idx % 2 === 0 ? "female" : "male")];
+      }),
   );
   let narrativeState: NarrativeState = initNarrativeState(
     annotatedLockedFacts,
@@ -2847,6 +3768,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const applyStandardPostProcessingChain = (input: any): any => {
     let result = applyDeterministicProsePostProcessing(sanitizeProseResult(input), locationProfiles, castDesign.characters, pronounRepairEnabled);
     result = repairWordFormLockedFacts(result, annotatedLockedFacts);
+    result = applyLifecycleContinuityGuard(result, castDesign.characters as CastEntry[], cml).prose;
     result = normalizeLocationNames(result, buildLocationRegistry({ locationProfiles } as any));
     return result;
   };
@@ -2915,6 +3837,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           linter?.openingStyleEntropyFailures ?? 0,
         template_linter_opening_style_entropy_bypasses:
           linter?.openingStyleEntropyBypasses ?? 0,
+        template_linter_opener_bypasses: linter?.openerBypasses ?? 0,
         template_linter_paragraph_fingerprint_failures:
           linter?.paragraphFingerprintFailures ?? 0,
         template_linter_ngram_overlap_failures: linter?.ngramOverlapFailures ?? 0,
@@ -3253,6 +4176,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
   prose = injectResolutionIfAbsent(prose, cml);
   prose = enforceSuspectEliminationPresence(prose, cml, castDesign); // P1-7: pass castDesign
+  prose = applyLifecycleContinuityGuard(prose, castDesign.characters as CastEntry[], cml).prose;
   if (pronounRepairEnabled) {
     prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
   }
@@ -3266,28 +4190,35 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // culprit's canonical name in post-reveal chapters, preventing identity_role_alias_break.
   prose = substituteRoleAliasesInPostRevealChapters(prose, cml);
 
-  const storyForValidation = {
+  const buildStoryForValidation = (currentProse: any) => ({
     id: runId,
     projectId: projectId || runId,
-    scenes: prose.chapters.map((ch: any, idx: number) => ({
+    scenes: currentProse.chapters.map((ch: any, idx: number) => ({
       number: idx + 1,
       title: ch.title,
       text: ch.paragraphs.join("\n\n"),
     })),
-  };
+  });
 
-  let validationReport: any = await validationPipeline.validate(storyForValidation, {
-    ...cml,
-    lockedFacts: annotatedLockedFacts,
-    locationProfiles: locationProfiles ?? undefined,
-  } as any);
+  const validateCurrentProse = async (currentProse: any): Promise<any> =>
+    validationPipeline.validate(buildStoryForValidation(currentProse), {
+      ...cml,
+      lockedFacts: annotatedLockedFacts,
+      locationProfiles: locationProfiles ?? undefined,
+    } as any);
+
+  let validationReport: any = await validateCurrentProse(prose);
   const preRepairValidationSummary = { ...validationReport.summary };
   let postRepairValidationSummary = { ...validationReport.summary };
 
   const hasDeterministicRepairableFailures =
     Array.isArray(validationReport.errors)
     && validationReport.errors.some((err: any) =>
-      err?.type === "locked_fact_missing_value" || err?.type === "pronoun_drift" || err?.type === "culprit_evidence_chain_missing" || err?.type === "suspect_closure_missing",
+      err?.type === "locked_fact_missing_value"
+      || err?.type === "pronoun_drift"
+      || err?.type === "culprit_evidence_chain_missing"
+      || err?.type === "suspect_closure_missing"
+      || err?.type === "victim_reappears_alive",
     );
 
   if (hasDeterministicRepairableFailures) {
@@ -3305,28 +4236,19 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       cml,
       castDesign, // P1-7: pass castDesign
     );
+    const withLifecycleGuard = applyLifecycleContinuityGuard(
+      repairedInner,
+      castDesign.characters as CastEntry[],
+      cml,
+    );
     const withPronounRepair = pronounRepairEnabled
-      ? applyDeterministicPronounSweep(repairedInner, castDesign.characters as CastEntry[])
-      : repairedInner;
+      ? applyDeterministicPronounSweep(withLifecycleGuard.prose, castDesign.characters as CastEntry[])
+      : withLifecycleGuard.prose;
     prose = substituteRoleAliasesInPostRevealChapters(withPronounRepair, cml);
 
-    const repairedStoryForValidation = {
-      id: runId,
-      projectId: projectId || runId,
-      scenes: prose.chapters.map((ch: any, idx: number) => ({
-        number: idx + 1,
-        title: ch.title,
-        text: ch.paragraphs.join("\n\n"),
-      })),
-    };
-
-    validationReport = await validationPipeline.validate(repairedStoryForValidation, {
-      ...cml,
-      lockedFacts: annotatedLockedFacts,
-      locationProfiles: locationProfiles ?? undefined,
-    } as any);
+    validationReport = await validateCurrentProse(prose);
     postRepairValidationSummary = { ...validationReport.summary };
-    ctx.warnings.push("Validation deterministic rescue applied for locked-fact/pronoun consistency before release gate.");
+    ctx.warnings.push("Validation deterministic rescue applied for locked-fact/pronoun/lifecycle consistency before release gate.");
   }
 
   const pronounTargets = extractPronounTargetNames(validationReport.errors ?? [], castDesign.characters as CastEntry[]);
@@ -3338,24 +4260,90 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     );
     if (targetedPronounRepair.repairCount > 0) {
       prose = targetedPronounRepair.prose;
-      const pronounRepairStoryForValidation = {
-        id: runId,
-        projectId: projectId || runId,
-        scenes: prose.chapters.map((ch: any, idx: number) => ({
-          number: idx + 1,
-          title: ch.title,
-          text: ch.paragraphs.join("\n\n"),
-        })),
-      };
-      validationReport = await validationPipeline.validate(pronounRepairStoryForValidation, {
-        ...cml,
-        lockedFacts: annotatedLockedFacts,
-        locationProfiles: locationProfiles ?? undefined,
-      } as any);
+      validationReport = await validateCurrentProse(prose);
       postRepairValidationSummary = { ...validationReport.summary };
       ctx.warnings.push(
         `Targeted pronoun rescue applied for ${pronounTargets.size} character(s); deterministic repairs: ${targetedPronounRepair.repairCount}.`,
       );
+    }
+  }
+
+  const victimReappearanceIssues = extractVictimReappearanceIssues(validationReport.errors ?? []);
+  if (victimReappearanceIssues.length > 0) {
+    const victimRescue = applyVictimReappearanceRescue(
+      prose,
+      castDesign.characters as CastEntry[],
+      cml,
+      victimReappearanceIssues,
+    );
+    if (victimRescue.repairCount > 0) {
+      prose = victimRescue.prose;
+      validationReport = await validateCurrentProse(prose);
+      postRepairValidationSummary = { ...validationReport.summary };
+      ctx.warnings.push(
+        `Victim continuity rescue applied for ${victimReappearanceIssues.length} lifecycle issue(s); deterministic repairs: ${victimRescue.repairCount}.`,
+      );
+    }
+    if (victimRescue.skippedVictimNames.length > 0) {
+      ctx.warnings.push(
+        `Victim continuity rescue skipped canonical victim names: ${victimRescue.skippedVictimNames.join(", ")}.`,
+      );
+    }
+  }
+
+  // ANALYSIS_43 Phase 2 (G): canonical-victim rescue — handles the `victim_reappears_alive`
+  // cases the rescue above SKIPS (the canonical victim). Behind victim_alive_repair_enabled.
+  const victimAliveRepairEnabled =
+    (getGenerationParams().agent9_prose as any)?.rollout_flags?.victim_alive_repair_enabled !== false;
+  if (victimAliveRepairEnabled) {
+    // Reframe both reappearance AND confession defects on canonical victims (a dead victim with
+    // confession language is repaired identically — the validator now clears a recollection-framed
+    // confession). Merge by name, keeping the earliest deadByChapter.
+    const canonicalVictimIssues = [
+      ...extractVictimReappearanceIssues(validationReport.errors ?? []),
+      ...extractDeceasedConfessionIssues(validationReport.errors ?? []),
+    ];
+    if (canonicalVictimIssues.length > 0) {
+      const canonicalRescue = applyCanonicalVictimRescue(
+        prose,
+        castDesign.characters as CastEntry[],
+        cml,
+        canonicalVictimIssues,
+      );
+      if (canonicalRescue.repairCount > 0) {
+        prose = canonicalRescue.prose;
+        validationReport = await validateCurrentProse(prose);
+        postRepairValidationSummary = { ...validationReport.summary };
+        ctx.warnings.push(
+          `Canonical-victim rescue reframed ${canonicalRescue.repairCount} active-victim sentence(s) as recollection for: ${canonicalRescue.reframedVictimNames.join(", ")}.`,
+        );
+      }
+    }
+  }
+
+  // ANALYSIS_43 Phase 1b (H): final pronoun re-validate + targeted re-repair AFTER the
+  // victim-rescue and role-alias mutations above — those mutate prose and can leave a
+  // residual mismatch the earlier sweep (which ran before them) never re-checked. Behind
+  // pronoun_gate_parity_enabled.
+  // ANALYSIS_44 follow-up: this targeted parity repair is INTENTIONALLY independent of the broad
+  // `pronoun_policy` (which gates the aggressive cross-paragraph sweep). The parity pass only
+  // touches characters the final validator flagged with a clear gender mismatch (e.g. a male
+  // detective written she/her), so it must still fire when the broad sweep is off — otherwise a
+  // validator-confirmed mismatch survives straight to a terminal abort (the observed run 6aea3501).
+  const pronounGateParityEnabled =
+    (getGenerationParams().agent9_prose as any)?.rollout_flags?.pronoun_gate_parity_enabled !== false;
+  if (pronounGateParityEnabled) {
+    const lateTargets = extractPronounTargetNames(validationReport.errors ?? [], castDesign.characters as CastEntry[]);
+    if (lateTargets.size > 0) {
+      const lateRepair = applyTargetedPronounSweep(prose, castDesign.characters as CastEntry[], lateTargets);
+      if (lateRepair.repairCount > 0) {
+        prose = lateRepair.prose;
+        validationReport = await validateCurrentProse(prose);
+        postRepairValidationSummary = { ...validationReport.summary };
+        ctx.warnings.push(
+          `Late pronoun re-repair (post victim/alias mutation) applied for ${lateTargets.size} character(s); repairs: ${lateRepair.repairCount}.`,
+        );
+      }
     }
   }
 
@@ -3501,6 +4489,69 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // ANALYSIS_43 Phase 3 (I): repairable-abort softening. When a run would otherwise hard-abort
+  // ("failed") but EVERY residual critical/major issue is in the deterministically-repairable
+  // allowlist, run one more bounded repair cycle; if a repairable residual still remains,
+  // downgrade to needs_review (output saved) instead of throwing. Genuinely non-repairable
+  // criticals (CML integrity, encoding corruption, structural completeness) still abort.
+  const REPAIRABLE_ISSUE_TYPES = new Set<string>([
+    "victim_reappears_alive",
+    "deceased_character_confesses",
+    "pronoun_drift",
+    "pronoun_gender_mismatch",
+    "locked_fact_missing_value",
+    "suspect_closure_missing",
+    "culprit_evidence_chain_missing",
+  ]);
+  const repairableAbortSofteningEnabled =
+    (getGenerationParams().agent9_prose as any)?.rollout_flags?.repairable_abort_softening_enabled !== false;
+  const blockingIssuesAreRepairable = (report: any): boolean => {
+    const blocking = Array.isArray(report?.errors)
+      ? report.errors.filter((e: any) => e?.severity === "critical" || e?.severity === "major")
+      : [];
+    return blocking.length > 0 && blocking.every((e: any) => REPAIRABLE_ISSUE_TYPES.has(String(e?.type ?? "")));
+  };
+  let softenedFromFailed = false;
+  if (
+    repairableAbortSofteningEnabled &&
+    validationReport.status !== "passed" &&
+    validationReport.status !== "needs_review" &&
+    blockingIssuesAreRepairable(validationReport)
+  ) {
+    // One more bounded deterministic repair cycle over the repairable residuals.
+    let cycleProse = applyLifecycleContinuityGuard(prose, castDesign.characters as CastEntry[], cml).prose;
+    const cycleVictimIssues = [
+      ...extractVictimReappearanceIssues(validationReport.errors ?? []),
+      ...extractDeceasedConfessionIssues(validationReport.errors ?? []),
+    ];
+    if (cycleVictimIssues.length > 0) {
+      if (victimAliveRepairEnabled) {
+        cycleProse = applyCanonicalVictimRescue(cycleProse, castDesign.characters as CastEntry[], cml, cycleVictimIssues).prose;
+      }
+      cycleProse = applyVictimReappearanceRescue(cycleProse, castDesign.characters as CastEntry[], cml, cycleVictimIssues).prose;
+    }
+    // ANALYSIS_44 follow-up: targeted pronoun repair in the softening cycle runs whenever broad
+    // pronoun repair OR the parity gate is enabled (parity is independent of pronoun_policy).
+    if (pronounRepairEnabled || pronounGateParityEnabled) {
+      const cycleTargets = extractPronounTargetNames(validationReport.errors ?? [], castDesign.characters as CastEntry[]);
+      if (cycleTargets.size > 0) {
+        cycleProse = applyTargetedPronounSweep(cycleProse, castDesign.characters as CastEntry[], cycleTargets).prose;
+      }
+      cycleProse = applyDeterministicPronounSweep(cycleProse, castDesign.characters as CastEntry[]);
+    }
+    prose = cycleProse;
+    validationReport = await validateCurrentProse(prose);
+    postRepairValidationSummary = { ...validationReport.summary };
+
+    if (
+      validationReport.status !== "passed" &&
+      validationReport.status !== "needs_review" &&
+      blockingIssuesAreRepairable(validationReport)
+    ) {
+      softenedFromFailed = true;
+    }
+  }
+
   if (validationReport.status === "passed") {
     reportProgress("validation", "Full-story validation passed.", 98);
   } else if (validationReport.status === "needs_review") {
@@ -3510,6 +4561,35 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     reportProgress(
       "validation",
       `Full-story validation needs review (${validationReport.summary.major} major issues)`,
+      98,
+    );
+  } else if (softenedFromFailed) {
+    const residualTypes = (validationReport.errors ?? [])
+      .filter((e: any) => e?.severity === "critical" || e?.severity === "major")
+      .map((e: any) => `${e.severity}:${e.type}`);
+    ctx.warnings.push(
+      `Story validation softened: failed → needs_review after a final repair cycle. ` +
+      `${residualTypes.length} repairable residual(s): ${residualTypes.join(", ")}. Output saved.`,
+    );
+    if (ctx.scoreAggregator) {
+      ctx.scoreAggregator.upsertDiagnostic(
+        "story_validation_softened",
+        "ValidationPipeline",
+        "Story Validation",
+        "validation_softened",
+        {
+          status: validationReport.status,
+          summary: validationReport.summary,
+          residualTypes,
+          errors: (validationReport.errors ?? []).map((e: any) => ({
+            type: e.type, severity: e.severity, message: e.message, sceneNumber: e.sceneNumber,
+          })),
+        },
+      );
+    }
+    reportProgress(
+      "validation",
+      `Full-story validation softened to needs_review (${residualTypes.length} repairable residual(s)); output saved.`,
       98,
     );
   } else {
@@ -3626,14 +4706,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // Rebuild from current prose.chapters — deterministic repairs above may have changed
   // paragraphs since storyForValidation was first constructed. Using the stale snapshot
   // would overwrite repaired paragraphs with pre-repair text when encoding fixes apply.
-  const storyForAutoFix = {
-    ...storyForValidation,
-    scenes: prose.chapters.map((ch: any, idx: number) => ({
-      number: idx + 1,
-      title: ch.title,
-      text: ch.paragraphs.join("\n\n"),
-    })),
-  };
+  const storyForAutoFix = buildStoryForValidation(prose);
   const fixedStory = validationPipeline.autoFix(storyForAutoFix);
   let encodingFixesApplied = false;
 
@@ -3653,6 +4726,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   }
 
   prose = applyStandardPostProcessingChain(prose);
+
+  // Release-gate parity invariant: any prose mutation after validation must be followed
+  // by a fresh validation pass so release decisions reflect the final prose bytes.
+  validationReport = await validateCurrentProse(prose);
+  postRepairValidationSummary = { ...validationReport.summary };
 
   const assetDeploymentReport = buildAssetDiagnosticReport(
     assetLibrary,
@@ -3718,6 +4796,47 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   );
   const readabilitySummary = evaluateProseReadability(prose);
   const sceneGrounding = evaluateSceneGroundingCoverage(prose, locationProfiles);
+
+  // SWEEP D: prose-level blind-reader fairness check. Feeds every chapter except the reveal to
+  // the model and asks it to name the culprit from the suspect list — the genre's real fairness
+  // test (can the reader solve it from what's on the page?). Gated by ENABLE_PROSE_BLIND_READER
+  // so it adds no cost unless enabled; warning-only and never throws.
+  if (isProseBlindReaderEnabled()) {
+    const blindSuspects = (Array.isArray(castDesign.characters) ? castDesign.characters : [])
+      .filter((c: any) => {
+        const role = String(c?.role ?? c?.roleArchetype ?? "").toLowerCase();
+        return !role.includes("detective") && !role.includes("victim");
+      })
+      .map((c: any) => String(c?.name ?? "").trim())
+      .filter(Boolean);
+    const blindCulprit = String(((cml as any)?.CASE?.culpability?.culprits ?? [])[0] ?? "").trim();
+    const blindResult = await blindReadProse({
+      client,
+      chapters: prose.chapters,
+      suspects: blindSuspects,
+      culprit: blindCulprit,
+    });
+    if (blindResult.ran) {
+      if (!blindResult.correct) {
+        releaseGateReasons.push(
+          `Prose blind reader could not identify the culprit before the reveal ` +
+          `(guessed "${blindResult.guessedCulprit || "—"}", actual "${blindCulprit}", ` +
+          `confidence ${blindResult.confidence.toFixed(2)}): the story may not be fairly solvable from the prose.`,
+        );
+      } else if (blindResult.confidence < 0.5) {
+        ctx.warnings.push(
+          `Prose blind reader identified the culprit but with low confidence ` +
+          `(${blindResult.confidence.toFixed(2)}); fair-play clueing in the prose may be thin.`,
+        );
+      } else {
+        ctx.warnings.push(
+          `Prose blind reader solved the case correctly before the reveal (confidence ${blindResult.confidence.toFixed(2)}).`,
+        );
+      }
+    } else if (blindResult.error) {
+      ctx.warnings.push(`Prose blind reader skipped (${blindResult.error}).`);
+    }
+  }
   // Build a set of cast surnames to avoid false-positive placeholder detections on
   // minor background characters the LLM may introduce with "a gentleman [Name]" phrasing.
   const castSurnamesForLeakageCheck = new Set<string>(

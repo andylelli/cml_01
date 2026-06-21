@@ -9,6 +9,7 @@
 import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { HardLogicDeviceIdea } from "./types.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 
@@ -250,8 +251,7 @@ export async function generateHardLogicDevices(
 
       const response = await client.chatWithRetry({
         messages: prompt.messages,
-        model:
-          process.env.AZURE_OPENAI_DEPLOYMENT_NAME!,
+        model: resolveDesignModel()!,
         temperature: config.model.temperature,
         maxTokens: config.model.max_tokens,
         jsonMode: true,

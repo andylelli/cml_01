@@ -45,6 +45,8 @@ export { NarrativeContinuityValidator } from './narrative-continuity-validator.j
 export { CaseTransitionValidator } from './case-transition-validator.js';
 export { DiscriminatingTestValidator } from './discriminating-test-validator.js';
 export { SuspectClosureValidator } from './suspect-closure-validator.js';
+export { validateGenreStructure } from './genre-validator.js';
+export type { GenreValidationResult } from './genre-validator.js';
 export { PhysicalPlausibilityValidator } from './physical-validator.js';
 export { EraAuthenticityValidator } from './era-validator.js';
 export { ChapterValidator } from './chapter-validator.js';

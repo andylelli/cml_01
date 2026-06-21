@@ -211,6 +211,7 @@ export interface ProseGenerationResult {
       failedChecks: number;
       openingStyleEntropyFailures: number;
       openingStyleEntropyBypasses: number;
+      openerBypasses?: number;
       paragraphFingerprintFailures: number;
       ngramOverlapFailures: number;
       bannedPhraseFailures?: number;
@@ -283,6 +284,9 @@ export interface ProseLinterStats {
   failedChecks: number;
   openingStyleEntropyFailures: number;
   openingStyleEntropyBypasses: number;
+  // ANALYSIS_44 R3: count of chapters accepted at retry exhaustion because the only residual
+  // was a repeated-paragraph-opener (template_bleed) issue.
+  openerBypasses: number;
   paragraphFingerprintFailures: number;
   ngramOverlapFailures: number;
   bannedPhraseFailures: number;

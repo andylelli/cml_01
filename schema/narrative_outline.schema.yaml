@@ -89,6 +89,12 @@ acts:
             estimatedWordCount:
               type: number
               required: true
+            # SWEEP B — Golden Age structural beat for the 10-chapter format (optional).
+            beat:
+              type: string
+              required: false
+              allowed: [gathering, crime, first_enquiries, motives, alibis, false_solution, secrets, pattern, final_trap, revelation]
+              description: "Named Golden Age beat this chapter fulfils; assigned in order for 10-chapter stories."
 
             # ── World-First enrichment fields (populated when WORLD_DOCUMENT is present) ──
             emotionalRegister:

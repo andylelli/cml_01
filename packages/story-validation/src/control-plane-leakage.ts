@@ -29,6 +29,23 @@ export const CONTROL_PLANE_LEAKAGE_PATTERNS: LeakagePattern[] = [
   { code: 'obligation_term', pattern: /\bobligation\b/i, confidence: 'contextual', severity: 'major' },
   { code: 'contract_term', pattern: /\bcontract\b/i, confidence: 'contextual', severity: 'major' },
   { code: 'instruction_shape', pattern: /\b(?:must include|required to|ensure that)\b/i, confidence: 'contextual', severity: 'major' },
+  // Schema / outline-reasoning leakage: clue.description and points_to fields are
+  // authored as analytical conclusions ("Eliminates X because… narrowing the
+  // solution toward Y", "Direct evidence links… to the mechanism access point …
+  // excludes competing suspect timelines"). When the model transcribes these
+  // verbatim they read like a solver's worksheet, not prose. These are kept at
+  // 'contextual'/'major' so a hit forces a regeneration via the major→hardErrors
+  // path rather than hard-aborting mid-generation. Deliberately NOT including a
+  // bare /discriminating test/ pattern — that phrase legitimately appears in
+  // denouement dialogue and would false-positive.
+  { code: 'reasoning_leak_eliminates', pattern: /^\s*Eliminates\b/im, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_narrowing', pattern: /\bnarrowing the solution\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_competing_timelines', pattern: /\b(?:excludes|exclude|excluding)\s+competing\s+(?:suspect\s+)?timelines\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_competing_timelines_noun', pattern: /\bcompeting\s+suspect\s+timelines\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_access_point', pattern: /\bmechanism\s+access\s+point\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_mechanism_specific', pattern: /\bmechanism-specific\s+evidence\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_direct_evidence', pattern: /\bdirect\s+evidence\s+(?:links|ties)\b/i, confidence: 'contextual', severity: 'major' },
+  { code: 'reasoning_leak_false_assumption', pattern: /\boverturning the false assumption\b/i, confidence: 'contextual', severity: 'major' },
 ];
 
 const sentenceAround = (text: string, index: number): string => {
@@ -73,4 +90,82 @@ export function detectControlPlaneLeakage(text: string): LeakageFinding[] {
 
 export function hasHardControlPlaneLeakage(text: string): boolean {
   return detectControlPlaneLeakage(text).some((finding) => finding.confidence === 'hard');
+}
+
+// ---------------------------------------------------------------------------
+// Verbatim field-echo detector
+//
+// Agent9 is fed schema fields (clue.description, clue.pointsTo,
+// discriminating_test.design) as "mandatory prose to surface". The model
+// frequently transcribes these analytical sentences VERBATIM into the prose
+// (e.g. "A controlled reenactment demonstrates the grandfather clock's spring
+// tension and hand positions under normal winding versus tampered winding
+// conditions, using the found winding key and clock mechanism"). The existing
+// pattern-based leakage detector cannot catch these because the wording varies
+// per story. This detector is name-agnostic and data-driven: it flags any
+// chapter that reproduces a long CONTIGUOUS span of a fed field verbatim.
+//
+// A run of >= minRun consecutive words shared with a fed field is effectively
+// never produced by legitimate paraphrase, while short locked facts ("ten
+// minutes past eleven", "forty minutes") fall under the threshold and are not
+// flagged — so the gate does not fight the locked-fact / clue-presence rules.
+// ---------------------------------------------------------------------------
+
+export interface FieldEchoFinding {
+  /** A short label for the fed field that was echoed. */
+  source: string;
+  /** The verbatim span (in normalized words) found in the prose. */
+  span: string;
+  /** Number of consecutive words in the matched span. */
+  wordCount: number;
+}
+
+const echoTokens = (value: unknown): string[] =>
+  String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+export function detectVerbatimFieldEcho(
+  prose: string,
+  fedStrings: Array<string | null | undefined>,
+  minRun = 12,
+): FieldEchoFinding[] {
+  const proseJoined = ` ${echoTokens(prose).join(' ')} `;
+  if (proseJoined.trim().length === 0) return [];
+
+  const findings: FieldEchoFinding[] = [];
+  const seenSpans = new Set<string>();
+
+  for (const raw of fedStrings) {
+    const fieldTokens = echoTokens(raw);
+    if (fieldTokens.length < minRun) continue;
+
+    for (let i = 0; i + minRun <= fieldTokens.length; i++) {
+      const window = fieldTokens.slice(i, i + minRun).join(' ');
+      if (proseJoined.includes(` ${window} `)) {
+        // Extend the matched run as far as it stays verbatim, to report the full span.
+        let j = i + minRun;
+        while (
+          j < fieldTokens.length &&
+          proseJoined.includes(` ${fieldTokens.slice(i, j + 1).join(' ')} `)
+        ) {
+          j++;
+        }
+        const span = fieldTokens.slice(i, j).join(' ');
+        if (!seenSpans.has(span)) {
+          seenSpans.add(span);
+          findings.push({
+            source: String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, 70),
+            span,
+            wordCount: j - i,
+          });
+        }
+        break; // one finding per fed string is enough to force a rewrite
+      }
+    }
+  }
+
+  return findings;
 }

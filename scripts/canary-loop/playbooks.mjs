@@ -97,6 +97,7 @@ const PROMPT_PLAYBOOK_BY_CLASS = {
   "agent6.fairplay_structural_critical": "pb.prompt.retry-packet-contract-harden",
   "agent6.runtime_null_guard": "pb.prompt.retry-packet-contract-harden",
   "cml.required_evidence_missing": "pb.prompt.retry-packet-contract-harden",
+  "cml.integrity_contradiction": "pb.prompt.retry-packet-contract-harden",
   "cml.schema_required_field_missing": "pb.prompt.retry-packet-contract-harden",
 };
 
@@ -106,6 +107,7 @@ const CODE_PLAYBOOK_BY_CLASS = {
   "agent6.fairplay_structural_critical": "pb.code.agent6.structural-escalation-and-null-guard",
   "agent6.runtime_null_guard": "pb.code.agent6.structural-escalation-and-null-guard",
   "cml.required_evidence_missing": "pb.code.cml.required-evidence-repair",
+  "cml.integrity_contradiction": "pb.code.cml.required-evidence-repair",
   "cml.schema_required_field_missing": "pb.code.cml.schema-required-field-repair",
 };
 

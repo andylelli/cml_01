@@ -110,7 +110,7 @@ function classifyMessage(agent, candidate) {
     }) ??
     matchRule(
       lowered,
-      /discriminating[-\s]test\s+evidence\s+clue\s+id|discriminating\s+evidence\s+id\s+contract|missing\s+clue\s+id\(s\)|evidence_clues\s+id\s+must\s+exist|discriminating[-\s]id\s+gate\s+failed/,
+      /discriminating[-\s]test\s+evidence\s+clue\s+id|discriminating\s+evidence\s+id\s+contract|missing\s+clue\s+id\(s\)|evidence_clues\s+id\s+must\s+exist|discriminating[-\s]id\s+gate\s+failed|clue\s+namespace\s+preflight|canonical\s+clue\s+namespace/,
       {
       className: "agent5.discriminating_id_coverage",
       severity: "critical",
@@ -176,6 +176,18 @@ function classifyMessage(agent, candidate) {
       stage: "cml-revision",
       validator: candidate.source,
     }) ??
+    matchRule(
+      lowered,
+      /cml integrity contradiction|locked fact .* conflicts|time anchor .*mismatch|aborted before prose generation due to \d+ cml integrity contradiction/,
+      {
+      className: "cml.integrity_contradiction",
+      severity: "critical",
+      kind: "error",
+      confidence: 0.9,
+      stage: "cml-revision",
+      validator: candidate.source,
+      }
+    ) ??
     matchRule(lowered, /schema.*required|required field|validation failed/, {
       className: "cml.schema_required_field_missing",
       severity: "critical",

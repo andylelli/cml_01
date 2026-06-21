@@ -297,3 +297,38 @@ test("signature classifier maps Agent5 evidence-clue warning markers to known wa
   assert.equal(signature.severity, "warning");
   assert.equal(signature.confidence >= 0.6, true);
 });
+
+test("signature classifier maps clue namespace preflight discriminating-ID failures to known class", () => {
+  const text = [
+    "CANARY_STATUS failure",
+    "Agent 9 aborted before prose generation: Clue namespace preflight: discriminating evidence ID(s) not found in canonical clue namespace: clock shows ten minutes past eleven, dust patterns indicate the clock has not been touched in days",
+  ].join("\n");
+
+  const signature = classifyFailureText({
+    agent: "Agent9-Prose",
+    text,
+    source: "validation_executor",
+  });
+
+  assert.equal(signature.class, "agent5.discriminating_id_coverage");
+  assert.equal(signature.severity, "critical");
+  assert.equal(signature.confidence >= 0.8, true);
+});
+
+test("signature classifier maps Agent9 CML integrity contradiction markers to known cml class", () => {
+  const text = [
+    "CANARY_STATUS failure",
+    "Agent 9 aborted before prose generation due to 3 CML integrity contradiction(s).",
+    "[CML integrity] Locked fact \"The exact time shown on the stopped clock face\" conflicts with Agent7-Narrative time anchor \"ten o'clock\" [mismatch].",
+  ].join("\n");
+
+  const signature = classifyFailureText({
+    agent: "Agent9-Prose",
+    text,
+    source: "validation_executor",
+  });
+
+  assert.equal(signature.class, "cml.integrity_contradiction");
+  assert.equal(signature.severity, "critical");
+  assert.equal(signature.confidence >= 0.85, true);
+});

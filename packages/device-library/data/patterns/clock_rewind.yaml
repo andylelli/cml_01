@@ -1,0 +1,18 @@
+pattern_id: clock_rewind
+title: The Reset Clock
+family: timing
+axes: [temporal]
+principle: A mechanical clock can be silently wound back or forward, decoupling the time everyone reads from the real time.
+principleType: physical_law
+surface_illusion_template: A chime or a stopped clock fixes the time of death (or an alibi) that the household accepts without question.
+underlying_reality_template: The clock was tampered by a known interval, so the real death occurred earlier or later — making one suspect's airtight alibi the lie.
+feasibility:
+  eras: [1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960]
+  requires: [mechanical_clock, second_timepiece]
+  forbids: [electronic_timekeeping]
+clue_archetypes:
+  - clock_mechanism_wear
+  - witness_timing_contradiction
+  - second_timepiece_disagreement
+sources:
+  - "Golden-Age timing convention (clock manipulation); §4.6 fen-school worked example."

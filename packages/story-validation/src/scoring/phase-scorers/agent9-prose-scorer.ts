@@ -418,6 +418,10 @@ export class ProseScorer
     else if (sentences.length >= 10) score += 20;
     else if (sentences.length >= 5) score += 10;
 
+    if (sentences.length === 0) {
+      return 0;
+    }
+
     // Sentence length variety (check for mix of short and long sentences)
     const sentenceLengths = sentences.map(s => s.split(/\s+/).length);
     const avgLength = sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length;

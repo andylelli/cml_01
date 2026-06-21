@@ -85,9 +85,17 @@ function buildCharacterInfo(cast: CastEntry[]): CharacterPronounInfo[] {
     .filter((c) => c.gender && (c.gender.toLowerCase() === 'male' || c.gender.toLowerCase() === 'female'))
     .map((c) => {
       const gender = c.gender!.toLowerCase();
-      const labels = [c.name.toLowerCase()];
+      // Trim the name before building labels/canonical. Upstream data (store.json)
+      // can carry a trailing space (e.g. "Margaret ") which otherwise leaves the
+      // only label as "margaret " — the trailing space defeats the word-boundary
+      // match in characterMentionedIn, so the character is never detected and her
+      // sentences inherit the previous (often opposite-gender) subject. Trimming
+      // here keeps already-clean names unchanged and makes the canonical match the
+      // trimmed names used by the targeted-repair onlyNames set.
+      const cleanName = c.name.trim();
+      const labels = [cleanName.toLowerCase()];
       // Add surname as label
-      const parts = c.name.trim().split(/\s+/);
+      const parts = cleanName.split(/\s+/);
       if (parts.length > 1) {
         labels.push(parts[parts.length - 1].toLowerCase());
       }
@@ -97,12 +105,12 @@ function buildCharacterInfo(cast: CastEntry[]): CharacterPronounInfo[] {
       }
       if (Array.isArray(c.aliases)) {
         for (const alias of c.aliases) {
-          if (alias) labels.push(alias.toLowerCase());
+          if (alias) labels.push(alias.trim().toLowerCase());
         }
       }
       return {
-        canonical: c.name,
-        labels: Array.from(new Set(labels)),
+        canonical: cleanName,
+        labels: Array.from(new Set(labels.filter(Boolean))),
         gender,
         pronouns: PRONOUN_MAP[gender],
       };
@@ -235,6 +243,105 @@ export interface PronounRepairOptions {
   crossParagraphInheritance?: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Referent-safety guards
+//
+// The single-named-character assumption ("exactly one character named ⇒ every
+// pronoun in the sentence is theirs") is unsafe for several common constructions
+// and, after a paragraph split, the cross-paragraph inheritance could flip an
+// already-correct run of pronouns to the wrong gender (this shipped in
+// run_1d55f7c7, where Margaret's correct "her/she" was rewritten to "his/he").
+// These guards detect those constructions so the repair LEAVES the model's text
+// rather than flipping a correct pronoun that refers to a different character.
+// ---------------------------------------------------------------------------
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const DIRECTIONAL_OBJECT_VERBS =
+  'turned?\\s+to(?:ward)?s?|looked?\\s+(?:at|to(?:ward)?s?)|gaz(?:ed|ing)\\s+at|stared?\\s+at|faced|spoke\\s+to|addressed|greeted|nodded\\s+(?:to|at)|gestured\\s+(?:to|at)|glanced?\\s+at|smiled\\s+at';
+
+const PERCEPTION_VERBS =
+  'saw|sees|seeing|watch(?:ed|es|ing)?|notic(?:ed|es|ing)?|not(?:ed|es|ing)|observ(?:ed|es|ing)?|regard(?:ed|s|ing)?|stud(?:ied|ies|ying)|glimps(?:ed|es|ing)?|spot(?:ted|s|ting)?|eyed|eyeing|perceiv(?:ed|es|ing)?|mark(?:ed|ing)?|discern(?:ed|s|ing)?|sens(?:ed|es|ing)?|caught';
+
+function countGenderedPronouns(segment: string): { male: number; female: number } {
+  const male = (segment.match(/\b(he|him|his|himself)\b/gi) || []).length;
+  const female = (segment.match(/\b(she|her|hers|herself)\b/gi) || []).length;
+  return { male, female };
+}
+
+/**
+ * Decide whether to SKIP repairing a single-named-character segment because one
+ * or more wrong-gender pronouns probably refer to a DIFFERENT (unnamed) character.
+ *   'object-referent'     — leading subject pronoun + directional verb + named
+ *                           OBJECT (e.g. "He turned to Lady Beatrice"); the leading
+ *                           pronoun is a different character. Caller clears context.
+ *   'mixed-or-perception' — named char is the perceiver ("Fox saw her fingers") OR
+ *                           the segment already uses the named char's correct gender
+ *                           alongside the opposite gender ("…he asked her… Margaret's
+ *                           reply"). Opposite pronouns belong elsewhere; keep anchor.
+ *   null                  — safe to repair normally.
+ */
+function classifySingleMentionSkip(
+  segment: string,
+  char: CharacterPronounInfo,
+): 'object-referent' | 'mixed-or-perception' | null {
+  const labelAlt = char.labels.map(escapeRegExp).join('|');
+  if (!labelAlt) return null;
+
+  // Guard B: leading subject pronoun whose clause directs a verb at the NAMED object.
+  const objectReferent = new RegExp(
+    `^\\s*["'“”‘’]?\\s*(?:he|she|they)\\b[\\s\\S]{0,30}?\\b(?:${DIRECTIONAL_OBJECT_VERBS})\\s+(?:the\\s+|lady\\s+|lord\\s+|mr\\.?\\s+|mrs\\.?\\s+|miss\\s+|dr\\.?\\s+)?(?:${labelAlt})\\b`,
+    'i',
+  );
+  if (objectReferent.test(segment)) return 'object-referent';
+
+  // Guard D: named char is the perceiver — pronouns after a perception verb are the object's.
+  const perceiver = new RegExp(`\\b(?:${labelAlt})\\s+(?:${PERCEPTION_VERBS})\\b`, 'i');
+  if (perceiver.test(segment)) return 'mixed-or-perception';
+
+  // Guard E: the segment already uses the named char's CORRECT gender alongside the
+  // opposite gender — the opposite-gender pronouns therefore refer to someone else.
+  const { male, female } = countGenderedPronouns(segment);
+  const correct = char.gender === 'male' ? male : female;
+  const wrong = char.gender === 'male' ? female : male;
+  if (correct > 0 && wrong > 0) return 'mixed-or-perception';
+
+  return null;
+}
+
+/**
+ * Track dialogue (quoted-speech) state across a sentence segment. Pronouns inside
+ * quoted speech refer to whoever the speaker is talking about, not the narrative
+ * subject, so the inheritance/single-mention repair must not touch them. Handles
+ * straight and curly double quotes, and single/curly-single quotes using
+ * word-boundary rules so apostrophes ("Fox's", "don't") are not treated as quotes.
+ */
+function scanDialogue(segment: string, startInside: boolean): { isDialogue: boolean; endInside: boolean } {
+  let inside = startInside;
+  let touched = startInside;
+  for (let i = 0; i < segment.length; i++) {
+    const c = segment[i];
+    if (c === '"') { inside = !inside; touched = true; continue; }
+    if (c === '“') { inside = true; touched = true; continue; }
+    if (c === '”') { inside = false; touched = true; continue; }
+    if (c === '‘' || c === '’' || c === "'") {
+      const prev = segment[i - 1];
+      const next = segment[i + 1];
+      const prevWord = !!prev && /[A-Za-z0-9]/.test(prev);
+      const nextWord = !!next && /[A-Za-z0-9]/.test(next);
+      if (prevWord && nextWord) continue; // apostrophe inside a word
+      if (c === '‘') { inside = true; touched = true; continue; }
+      if (c === '’') { if (!nextWord) { inside = false; touched = true; } continue; }
+      if (!prevWord && nextWord) { inside = true; touched = true; continue; } // opening straight
+      if (prevWord && !nextWord) { inside = false; touched = true; continue; } // closing straight
+      if (!prevWord && !nextWord) { inside = !inside; touched = true; continue; } // isolated → toggle
+    }
+  }
+  return { isDialogue: touched || inside, endInside: inside };
+}
+
 export function repairPronouns(text: string, cast: CastEntry[], options?: PronounRepairOptions): PronounRepairResult {
   const characters = buildCharacterInfo(cast);
   if (characters.length === 0) {
@@ -279,11 +386,37 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
       }
     }
 
+    // Dialogue state, tracked across segments within the paragraph. Pronouns inside
+    // quoted speech are never repaired by the inheritance/single-mention passes.
+    let dialogueInside = false;
+
     const repairedSegments = segments.map((segment) => {
+      const dlg = scanDialogue(segment, dialogueInside);
+      const inDialogue = dlg.isDialogue;
+      dialogueInside = dlg.endInside;
+
       const mentioned = findMentionedCharacters(segment, characters);
 
+      // Quoted speech: leave the model's pronouns untouched and do not let dialogue
+      // change the narrative inheritance anchor. (Dialogue "he said" attribution tags
+      // are handled separately by repairDialogueAttributionPronouns.)
+      if (inDialogue) {
+        return segment;
+      }
+
       if (mentioned.length === 1) {
-        lastSingleCharacter = mentioned[0]; // always track for context continuity
+        const skip = classifySingleMentionSkip(segment, mentioned[0]);
+        if (skip === 'object-referent') {
+          // The leading subject pronoun is a different, unresolved character; clear the
+          // inheritance anchor so following sentences are not repaired against the object.
+          lastSingleCharacter = null;
+          return segment;
+        }
+        lastSingleCharacter = mentioned[0]; // track for context continuity
+        if (skip === 'mixed-or-perception') {
+          // Wrong-gender pronouns here belong to another character — do not flip them.
+          return segment;
+        }
         const shouldRepair = !options?.onlyNames || options.onlyNames.has(mentioned[0].canonical);
         if (shouldRepair) {
           const repaired = repairPronounsInSegment(segment, mentioned[0]);
@@ -294,6 +427,16 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
       }
 
       if (mentioned.length === 0 && lastSingleCharacter) {
+        // Guard C: if the segment carries >= 2 pronouns of the gender OPPOSITE to the
+        // inherited subject, it almost certainly belongs to a different character
+        // (e.g. an orphaned paragraph after a split) — do not flip a self-consistent
+        // opposite-gender run. A single opposite pronoun (e.g. "She gasped." after a
+        // male subject) is still repaired, preserving existing inheritance behaviour.
+        const counts = countGenderedPronouns(segment);
+        const oppositeCount = lastSingleCharacter.gender === 'male' ? counts.female : counts.male;
+        if (oppositeCount >= 2) {
+          return segment;
+        }
         // Only apply repair if the inherited subject is in the allowed set
         const shouldRepair = !options?.onlyNames || options.onlyNames.has(lastSingleCharacter.canonical);
         if (shouldRepair) {

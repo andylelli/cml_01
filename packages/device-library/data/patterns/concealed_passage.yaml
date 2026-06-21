@@ -1,0 +1,19 @@
+pattern_id: concealed_passage
+title: The Concealed Route
+family: spatial_routing
+axes: [spatial]
+principle: A concealed passage or unused servants' route lets one person be in two places, defeating an apparent geography of access.
+principleType: physical_law
+surface_illusion_template: The culprit was demonstrably in another room or wing throughout the crime — the layout makes their presence impossible.
+underlying_reality_template: A hidden passage or forgotten back-stair let them reach the scene and return unseen, so the "impossible" access was always available.
+feasibility:
+  eras: [1700, 1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970]
+  places: [manor, country_house, old_building, abbey, school]
+  requires: [old_building_structure]
+  forbids: [cctv]
+clue_archetypes:
+  - dust_disturbance_in_passage
+  - architectural_anomaly
+  - unaccounted_draught_or_sound
+sources:
+  - "Country-house concealed-passage convention."

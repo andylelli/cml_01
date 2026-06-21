@@ -268,7 +268,7 @@ describe("Scoring API", () => {
 
   afterAll(async () => {
     // Remove only the test project directories we created
-    for (const proj of ["score-proj-1", "score-proj-2", "score-proj-agg", "score-proj-export", "score-proj-trace", "score-proj-stale"]) {
+    for (const proj of ["score-proj-1", "score-proj-2", "score-proj-agg", "score-proj-export", "score-proj-trace", "score-proj-stale", "score-proj-dead"]) {
       await fs.rm(join(reportsDir, proj), { recursive: true, force: true });
     }
   });
@@ -392,6 +392,36 @@ describe("Scoring API", () => {
     expect(res.body.stale_reason).toBe("incomplete_report");
     expect(res.body.requested_run_id).toBe("run-inprogress");
     expect(res.body.run_id).toBe("run-final");
+  });
+
+  it("R5a (ANALYSIS_44): serves a terminal aborted view for an in_progress report when the run is dead and no completed report exists", async () => {
+    const projectDir = join(reportsDir, "score-proj-dead");
+    await fs.mkdir(projectDir, { recursive: true });
+
+    // Only a pre-prose-style in_progress snapshot exists (high green upstream score), no completed report.
+    await fs.writeFile(
+      join(projectDir, "run-dead.json"),
+      JSON.stringify({
+        ...makeReport("score-proj-dead", "run-dead", 98, true),
+        in_progress: true,
+        run_outcome: "passed",
+        scoring_outcome: { score: 98, grade: "A", passed_threshold: true },
+      }),
+      "utf-8"
+    );
+
+    const res = await request(app).get(
+      "/api/projects/score-proj-dead/runs/run-dead/report"
+    );
+
+    expect(res.status).toBe(200);
+    // A dead run must NOT read as a passing green result.
+    expect(res.body.passed).toBe(false);
+    expect(res.body.in_progress).toBe(false);
+    expect(res.body.run_outcome).toBe("aborted");
+    expect(res.body.incomplete).toBe(true);
+    expect(res.body.scoring_outcome.passed_threshold).toBe(false);
+    expect(res.body.requested_run_id).toBe("run-dead");
   });
 
   // ── GET /api/projects/:projectId/reports/history ─────────────────────────

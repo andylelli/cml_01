@@ -77,6 +77,13 @@ const rank: Record<RetryFailureClass, number> = {
   unknown: 0,
 };
 
+const FULL_BUDGET_RETRY_CLASSES = new Set<RetryFailureClass>([
+  "template",
+  "fair_play",
+  "clue_timing",
+  "continuity",
+]);
+
 export function classifyFailure(args: {
   validationErrors: string[];
   attempt: number;
@@ -188,13 +195,13 @@ export function buildRetryFeedback(packet: RetryPacket): string {
 
 export function shouldContinueRetry(packet: RetryPacket, priorPackets: RetryPacket[]): boolean {
   if (packet.attempt >= packet.maxRetries) return false;
-  const hasTemplateConvergenceSignal = packet.failureClass === "template" || packet.templateSignalPresent === true;
-  // Template failures should continue retrying through the full budget.
-  // They often require multiple structural pivots before converging.
-  if (!hasTemplateConvergenceSignal && packet.shouldEscalate) return false;
+  const hasConvergenceSignal =
+    packet.templateSignalPresent === true || FULL_BUDGET_RETRY_CLASSES.has(packet.failureClass);
+  // Convergence-sensitive classes should consume the full retry budget.
+  if (!hasConvergenceSignal && packet.shouldEscalate) return false;
   if (priorPackets.length < 1) return true;
   const previous = priorPackets[priorPackets.length - 1];
-  if (!hasTemplateConvergenceSignal && previous.failureClass === packet.failureClass && packet.attempt >= 2) {
+  if (!hasConvergenceSignal && previous.failureClass === packet.failureClass && packet.attempt >= 2) {
     return false;
   }
   return true;

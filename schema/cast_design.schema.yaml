@@ -48,9 +48,9 @@ characters:
         required: true
       gender:
         type: string
-        required: false
+        required: true
         allowed: [male, female, non-binary]
-        description: "Character's gender — propagated verbatim into CML and prose agent"
+        description: "Character's gender — required; backfilled deterministically in normaliseCastOutput before validation. Propagated verbatim into CML and the prose pronoun-lock."
 
 relationships:
   type: object

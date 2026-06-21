@@ -1,0 +1,18 @@
+pattern_id: trusted_authority_lie
+title: The Unimpeachable Witness
+family: authority
+axes: [authority, behavioral]
+principle: A fact stated by a deferred-to authority (doctor, butler, magistrate) is accepted without test, so that authority can author a false fact unchallenged.
+principleType: social_logic
+surface_illusion_template: The time of death, cause, or a key alibi is fixed solely by the word of an unimpeachable figure everyone trusts.
+underlying_reality_template: That authority is the culprit or shields them; the "established fact" the whole investigation rests on is their fabrication.
+feasibility:
+  eras: [1700, 1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960]
+  requires: [social_deference]
+  forbids: []
+clue_archetypes:
+  - authority_is_sole_source_of_fact
+  - physical_trace_contradicting_the_authority
+  - concealed_motive_for_the_authority
+sources:
+  - "Golden-Age 'the expert lies' convention (deference to rank/profession)."

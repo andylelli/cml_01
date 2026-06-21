@@ -137,6 +137,10 @@ async function main() {
     ctx,
     forceFreshUpstream,
   });
+  await ensureBoundaryContextCompleteness({
+    agentCode,
+    ctx,
+  });
 
   if (startChapter) {
     console.log("FROM_CHAPTER", startChapter);
@@ -453,6 +457,60 @@ async function synthesizeMissingRequiredContext({ agentCode, missingRequiredCode
   }
 }
 
+async function ensureBoundaryContextCompleteness({ agentCode, ctx }) {
+  if (agentCode !== "9") {
+    return;
+  }
+
+  if (ctx.cml) {
+    const cmlValidation = validateCml(ctx.cml);
+    if (!cmlValidation.valid) {
+      ctx.warnings.push(
+        `Agent9 boundary: hydrated CML failed validation with ${cmlValidation.errors.length} error(s); invoking Agent4 boundary repair.`
+      );
+      await runAgent4BoundaryCheck(ctx);
+    }
+  }
+
+  const missingCoverageResult = !ctx.coverageResult;
+  if (missingCoverageResult) {
+    const coveragePlan = buildSynthesisPlan(["6"]);
+    for (const code of coveragePlan) {
+      if (hasContextForCode(ctx, code)) {
+        continue;
+      }
+      console.log("SYNTHESIZING_CODE", code);
+      await runAgentBoundary(code, ctx);
+    }
+  }
+
+  const missingNarrativeCoverage = !ctx.narrative || !Array.isArray(ctx.outlineCoverageIssues);
+
+  if (!missingNarrativeCoverage) {
+    if (!ctx.coverageResult) {
+      throw new Error(
+        "Unable to synthesize Agent6 coverage context required for Agent9 boundary execution."
+      );
+    }
+    return;
+  }
+
+  const narrativePlan = buildSynthesisPlan(["7"]);
+  for (const code of narrativePlan) {
+    if (hasContextForCode(ctx, code)) {
+      continue;
+    }
+    console.log("SYNTHESIZING_CODE", code);
+    await runAgentBoundary(code, ctx);
+  }
+
+  if (!ctx.narrative || !ctx.coverageResult || !Array.isArray(ctx.outlineCoverageIssues)) {
+    throw new Error(
+      "Unable to synthesize Agent6/Agent7 context required for Agent9 boundary execution."
+    );
+  }
+}
+
 function buildSynthesisPlan(requiredCodes) {
   const requiredSet = new Set(requiredCodes);
   const closure = new Set();
@@ -490,7 +548,7 @@ function hasContextForCode(ctx, code) {
     case "5":
       return Boolean(ctx.clues);
     case "6":
-      return Boolean(ctx.fairPlayAudit);
+      return Boolean(ctx.fairPlayAudit && ctx.coverageResult);
     case "2b":
       return Boolean(ctx.characterProfiles);
     case "2c":

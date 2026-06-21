@@ -5,7 +5,18 @@
  * validation stay in lockstep.
  */
 
-const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.?|Mrs\.?|Miss|Dr\.?)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)/g;
+const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.?|Mrs\.?|Miss|Dr\.?)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?(?:\s+[A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)*)/g;
+const TITLE_TOKENS = new Set([
+  'inspector',
+  'constable',
+  'sergeant',
+  'captain',
+  'detective',
+  'mr',
+  'mrs',
+  'miss',
+  'dr',
+]);
 
 const ANON_MAP: Record<string, string> = {
   Inspector: 'an inspector',
@@ -26,10 +37,28 @@ function normalizeSurnameToken(s: string): string {
   return s.replace(/[.,;:!?"'”’)]$/g, '');
 }
 
+function isTitleToken(token: string): boolean {
+  return TITLE_TOKENS.has(token.toLowerCase().replace(/\.$/, ''));
+}
+
+function extractSurnameFromNameSegment(nameSegment: string): string {
+  const tokens = nameSegment
+    .split(/\s+/)
+    .map((token) => normalizeSurnameToken(token))
+    .filter(Boolean);
+  for (let i = tokens.length - 1; i >= 0; i -= 1) {
+    if (!isTitleToken(tokens[i])) {
+      return tokens[i];
+    }
+  }
+  return '';
+}
+
 export function buildValidSurnames(validCastNames: string[]): Set<string> {
   return new Set(
     validCastNames
       .map((name) => normalizeSurnameToken(name.split(' ').pop() ?? name))
+      .map((surname) => surname.toLowerCase())
       .filter(Boolean)
   );
 }
@@ -43,7 +72,8 @@ export function findUnknownTitledNameMentions(text: string, validCastNames: stri
 
   for (const match of text.matchAll(TITLED_NAME_PATTERN)) {
     const full = match[0];
-    const surname = normalizeSurnameToken(match[2] ?? '');
+    const surname = extractSurnameFromNameSegment(match[2] ?? '').toLowerCase();
+    if (!surname) continue;
     if (!validSurnames.has(surname)) {
       unknown.push(full);
     }
@@ -58,8 +88,11 @@ export function findUnknownTitledNameMentions(text: string, validCastNames: stri
 export function anonymizeUnknownTitledNames(text: string, validCastNames: string[]): string {
   const validSurnames = buildValidSurnames(validCastNames);
 
-  return text.replace(TITLED_NAME_PATTERN, (match, title, surname) => {
-    const cleanSurname = normalizeSurnameToken(surname ?? '');
+  return text.replace(TITLED_NAME_PATTERN, (match, title, nameSegment) => {
+    const cleanSurname = extractSurnameFromNameSegment(nameSegment ?? '').toLowerCase();
+    if (!cleanSurname) {
+      return match;
+    }
     if (validSurnames.has(cleanSurname)) {
       return match;
     }

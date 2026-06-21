@@ -16,6 +16,7 @@
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
+import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
 import { jsonrepair } from "jsonrepair";
@@ -684,6 +685,7 @@ export async function auditFairPlay(
 
   // Call LLM with JSON mode
   const response = await client.chat({
+    model: resolveDesignModel(),
     messages: [
       { role: "system", content: prompt.system },
       { role: "developer", content: prompt.developer },
@@ -771,6 +773,7 @@ export async function blindReaderSimulation(
     '"missingInformation": ["what you would need to know"] }';
 
   const response = await client.chat({
+    model: resolveDesignModel(),
     messages: [
       { role: "system", content: system },
       { role: "user", content: user },

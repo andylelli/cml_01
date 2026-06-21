@@ -1,0 +1,89 @@
+# Device Library Pattern — the data contract for a curated, era-annotated hard-logic
+# mechanism pattern (Agent 3b redesign §4.1 / §9.2).
+# JSON Schema draft-07 authored in YAML, compiled by ajv at load time.
+# `additionalProperties: false` everywhere keeps the corpus honest.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Device Library Pattern"
+type: object
+additionalProperties: false
+required:
+  - pattern_id
+  - title
+  - family
+  - axes
+  - principle
+  - principleType
+  - surface_illusion_template
+  - underlying_reality_template
+  - feasibility
+  - clue_archetypes
+  - sources
+properties:
+  pattern_id:
+    type: string
+    pattern: "^[a-z][a-z0-9_]*$"
+  title:
+    type: string
+    minLength: 1
+  # Mechanism family (the §4.1 retrieval key).
+  family:
+    type: string
+    enum: [timing, spatial_routing, identity, behavioral, authority]
+  # Which primary CML axes this pattern can ground.
+  axes:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      enum: [temporal, spatial, identity, behavioral, authority]
+  principle:
+    type: string
+    minLength: 1
+  principleType:
+    type: string
+    enum: [physical_law, math, cognitive_bias, social_logic]
+  surface_illusion_template:
+    type: string
+    minLength: 1
+  underlying_reality_template:
+    type: string
+    minLength: 1
+  # Feasibility annotation — the heart of §4.3. `requires` must all be available in the
+  # era; if the era makes a `forbids` capability available, the trick is defeated.
+  feasibility:
+    type: object
+    additionalProperties: false
+    required: [eras, requires, forbids]
+    properties:
+      eras:
+        type: array
+        minItems: 1
+        items: { type: integer, minimum: 1500, maximum: 2100 }
+      places:
+        type: array
+        items: { type: string }
+      requires:
+        type: array
+        items: { type: string }
+      forbids:
+        type: array
+        items: { type: string }
+  # The kinds of observable trace the device leaves (Agent 5's clue contract).
+  clue_archetypes:
+    type: array
+    minItems: 1
+    items: { type: string }
+  sources:
+    type: array
+    minItems: 1
+    items: { type: string }
+  # Novelty signal: which past runs used this pattern, and how it was varied.
+  usage_log:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [run_id]
+      properties:
+        run_id: { type: string }
+        novelty_variation: { type: string }

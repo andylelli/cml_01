@@ -488,6 +488,20 @@ function shouldBypassLowConfidenceStops({ request, signature, artifactBundle }) 
   if (request?.mode !== "apply") {
     return false;
   }
+
+  const signatureContext = [
+    String(signature?.message ?? ""),
+    ...(Array.isArray(signature?.rawMarkers) ? signature.rawMarkers.map((entry) => String(entry ?? "")) : []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  // Boundary probe runs can legitimately start from a previously passed report,
+  // so allow one guarded execution pass to collect runtime canary evidence.
+  if (signatureContext.includes("run_outcome=passed")) {
+    return true;
+  }
+
   if (!hasStrongDownstreamMarkers(signature)) {
     return false;
   }

@@ -31,4 +31,17 @@ describe("name-sanitizer", () => {
     expect(sanitized).toContain("Dr Smith-Jones sighed");
     expect(sanitized).toContain("an inspector waited");
   });
+
+  it("does not flag compound titled full cast names as unknown", () => {
+    const castWithTitle = ["Detective Inspector Eleanor Graves", ...cast];
+    const text = "Detective Inspector Eleanor Graves questioned Inspector Harlow in the hall.";
+
+    const unknown = findUnknownTitledNameMentions(text, castWithTitle);
+    const sanitized = anonymizeUnknownTitledNames(text, castWithTitle);
+
+    expect(unknown).not.toContain("Detective Inspector Eleanor Graves");
+    expect(unknown).toContain("Inspector Harlow");
+    expect(sanitized).toContain("Detective Inspector Eleanor Graves questioned");
+    expect(sanitized).toContain("an inspector in the hall");
+  });
 });

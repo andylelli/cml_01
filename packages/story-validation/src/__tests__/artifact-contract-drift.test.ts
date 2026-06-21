@@ -9,6 +9,7 @@ describe("cast_design contract drift guardrails", () => {
         ageRange: "35-45",
         occupation: "Solicitor",
         roleArchetype: "gatekeeper",
+        gender: "female",
         publicPersona: "Measured and formal in public settings.",
         privateSecret: "Embezzled funds from a dormant trust account.",
         motiveSeed: "Victim threatened to expose the theft.",

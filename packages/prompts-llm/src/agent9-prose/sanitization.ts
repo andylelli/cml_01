@@ -181,7 +181,15 @@ export const normalizeProseCastOrThrow = (inputCast: unknown): CastDesign => {
       "Agent 9 input validation failed: cast.characters is required and must be an array before prose generation.",
     );
   }
-  return inputCast as CastDesign;
+  // Defensive ingestion hygiene: trim whitespace on character names so a stray
+  // trailing space persisted upstream (e.g. "Margaret " in store.json) cannot
+  // defeat name-matching in pronoun repair / character-consistency validation.
+  const characters = (maybeCast.characters as any[]).map((c) =>
+    c && typeof c === "object" && typeof (c as any).name === "string"
+      ? { ...c, name: (c as any).name.trim() }
+      : c,
+  );
+  return { ...(maybeCast as any), characters } as CastDesign;
 };
 
 export const stripAuditField = (parsed: any): any => {

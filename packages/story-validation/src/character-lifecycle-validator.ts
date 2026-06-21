@@ -29,6 +29,12 @@ const DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)
 const CONFESSION_RE = /\b(?:confessed|confession|admitted\s+(?:it|the\s+(?:murder|killing))|i\s+(?:killed|murdered|poisoned|struck|shot|stabbed))\b/i;
 const ACTIVE_VERB_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
 const CLEARED_RE = /\b(?:cleared|ruled\s+out|eliminated|innocent|alibi\s+(?:holds|held|confirmed)|could\s+not\s+have)\b/i;
+// ANALYSIS_43 Phase 2 (G): a sentence that OPENS with an explicit recollection/flashback
+// frame is a remembered moment, not a live appearance — so it must not count as
+// `active_dialogue` for a deceased victim. Anchored to the sentence start so it cannot be
+// tripped by an incidental mid-sentence "remembered"; the deterministic victim rescue
+// emits exactly this frame ("In a remembered moment, ...") to clear a false reappearance.
+const RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b|[A-Z][a-z]+ (?:remembered|recalled) (?:how|that|the)\b)/i;
 
 const normalizeName = (value: string): string => value.toLowerCase().replace(/\s+/g, ' ').trim();
 
@@ -80,6 +86,8 @@ const isPossessiveObjectOnly = (sentence: string, name: string): boolean => {
 const hasActiveUse = (sentence: string, name: string): boolean => {
   if (!nameInSentence(sentence, name)) return false;
   if (isPossessiveObjectOnly(sentence, name)) return false;
+  // A sentence explicitly framed as recollection/flashback is not a live appearance.
+  if (RECOLLECTION_FRAME_RE.test(sentence)) return false;
   const escaped = escapeRegExp(name);
   const subjectPattern = new RegExp(`\\b${escaped}\\b[^.!?]{0,80}${ACTIVE_VERB_RE.source}`, 'i');
   const dialoguePattern = new RegExp(`[\\u201c"]?[^\\u201d"]{0,160}[\\u201d"]?\\s*,?\\s*\\b${escapeRegExp(name.split(/\s+/).slice(-1)[0])}\\b\\s+(?:said|asked|replied|answered|confessed|admitted)\\b`, 'i');
@@ -150,7 +158,10 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
           });
         }
 
-        if (CONFESSION_RE.test(sentence)) {
+        // A confession explicitly framed as recollection/flashback is not a LIVE confession
+        // by the (dead) character — mirror the hasActiveUse() recollection exclusion so the
+        // canonical-victim rescue's "In a remembered moment, …" reframe clears this event.
+        if (CONFESSION_RE.test(sentence) && !RECOLLECTION_FRAME_RE.test(sentence)) {
           addEvent(ledger, {
             characterName: name,
             status: 'confesses',
@@ -216,7 +227,12 @@ export function validateCharacterLifecycle(story: Story, cml?: CMLData): Validat
           message: `${displayName} is dead/victim by chapter ${effectiveDeathChapter} but appears active in chapter ${activeAfterDeath.chapterNumber}`,
           severity: 'critical',
           sceneNumber: activeAfterDeath.chapterNumber,
-          suggestion: 'Do not give active dialogue/action to a confirmed dead victim; correct the victim or culprit identity.'
+          suggestion: 'Do not give active dialogue/action to a confirmed dead victim; correct the victim or culprit identity.',
+          details: {
+            characterName: displayName,
+            deadByChapter: effectiveDeathChapter,
+            reappearsChapter: activeAfterDeath.chapterNumber,
+          },
         });
       }
 
@@ -229,7 +245,12 @@ export function validateCharacterLifecycle(story: Story, cml?: CMLData): Validat
           message: `${displayName} is dead/victim but has confession language in chapter ${confessionAfterDeath.chapterNumber}`,
           severity: 'critical',
           sceneNumber: confessionAfterDeath.chapterNumber,
-          suggestion: 'Assign confession language only to a living culprit.'
+          suggestion: 'Assign confession language only to a living culprit.',
+          details: {
+            characterName: displayName,
+            deadByChapter: effectiveDeathChapter,
+            confessesChapter: confessionAfterDeath.chapterNumber,
+          },
         });
       }
     }

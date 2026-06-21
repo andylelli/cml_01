@@ -1091,6 +1091,23 @@ export const createServer = () => {
             ...httpEntry,
             createdAt: new Date().toISOString(),
           }).catch(() => undefined);
+          const isExpectedLatest404 =
+            req.method === "GET"
+            && res.statusCode === 404
+            && /^\/api\/projects\/[^/]+\/.+\/latest$/.test(req.path);
+          if (isExpectedLatest404) {
+            const expectedEntry = {
+              projectId,
+              scope: "http_expected",
+              message: `${req.method} ${req.path} ${res.statusCode}`,
+              payload: { durationMs, reason: "latest_not_ready" },
+            };
+            appendActivityLog({
+              ...expectedEntry,
+              createdAt: new Date().toISOString(),
+            }).catch(() => undefined);
+            return Promise.all([httpLog, repo.createLog(expectedEntry)]).then(() => undefined);
+          }
           if (res.statusCode >= 400) {
             const errorEntry = {
               projectId,
@@ -1349,6 +1366,30 @@ export const createServer = () => {
    * Requires ENABLE_SCORING=true on the worker. Returns 404 if scoring was disabled or run not found.
    */
   app.get("/api/projects/:projectId/runs/:runId/report", async (req, res) => {
+    // R5a (ANALYSIS_44): turn a stale partial snapshot into an explicit terminal "aborted"
+    // view. A pre-prose in_progress snapshot carries a green upstream-only overall_score; if the
+    // run died before finalization it must NOT be served as a passing result. We flip the success
+    // signals and annotate why, without rewriting the upstream phase data.
+    const finalizeStaleInProgressReport = (
+      partial: Record<string, unknown>,
+      requestedRunId: string,
+    ): Record<string, unknown> => ({
+      ...partial,
+      in_progress: false,
+      stale: true,
+      stale_reason: "run_inactive_incomplete",
+      incomplete: true,
+      incomplete_reason:
+        "Run ended before the report was finalized (stale in_progress snapshot — likely a prose crash/abort). Scores below cover only the phases that completed.",
+      passed: false,
+      run_outcome: "aborted",
+      scoring_outcome: {
+        ...((partial.scoring_outcome as Record<string, unknown>) ?? {}),
+        passed_threshold: false,
+      },
+      requested_run_id: requestedRunId,
+    });
+
     const sendLatestValidFallback = async (staleReason: string): Promise<boolean> => {
       try {
         const reportRepo = await getReportRepository();
@@ -1390,12 +1431,18 @@ export const createServer = () => {
 
         // Prefer a completed report; fall back to the latest partial/in-progress snapshot
         // so the quality tab shows data even when the final save was interrupted.
-        const reportToServe = latestValidReports.length > 0 ? latestValidReports[0] : latestPartialReports[0];
+        const servingPartial = latestValidReports.length === 0;
+        const reportToServe = servingPartial ? latestPartialReports[0] : latestValidReports[0];
 
         if (reportToServe) {
+          // R5a (ANALYSIS_44): a completed report is served as-is; a last-resort PARTIAL snapshot
+          // represents an unfinished run and must be downgraded to a terminal aborted view so it
+          // cannot read as a passing green score.
+          const base = servingPartial
+            ? finalizeStaleInProgressReport(reportToServe, req.params.runId)
+            : { ...reportToServe, in_progress: false };
           res.status(200).json({
-            ...reportToServe,
-            in_progress: false,
+            ...base,
             stale: true,
             stale_reason: staleReason,
             requested_run_id: req.params.runId,
@@ -1439,7 +1486,12 @@ export const createServer = () => {
           res.status(202).json(report);
           return;
         }
+        // R5a (ANALYSIS_44): in_progress snapshot but the run is no longer active → it died before
+        // finalization. Prefer a completed report; otherwise serve an explicit terminal aborted view
+        // so a dead run cannot read as a passing green score.
         if (await sendLatestValidFallback("incomplete_report")) return;
+        res.json(finalizeStaleInProgressReport(report as unknown as Record<string, unknown>, req.params.runId));
+        return;
       }
 
       res.json(report);

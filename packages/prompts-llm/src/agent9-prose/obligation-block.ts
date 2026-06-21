@@ -133,14 +133,46 @@ export function buildChapterObligationBlock(
     .map((c: any) => ({ name: String(c.name), alibiWindow: String(c.alibi_window ?? '').trim() }))
     .filter((c) => c.alibiWindow.length > 0);
 
-  // FIX-M3 + FIX-D1: Clue-stage embargo — controls what the LLM may state per arc position.
-  const STAGE1_ARC = new Set(['opening', 'discovery', 'first_clue', 'first_evidence', 'introduction']);
-  const STAGE2_ARC = new Set(['investigation', 'access', 'evidence', 'alibi_probe', 'red_herring', 'complication']);
-  const STAGE3_ARC = new Set(['testing', 'confrontation', 'discriminating', 'reversal', 'isolation', 'climax']);
-  const clueStageForRun = !currentArcPosition ? 4
-    : STAGE1_ARC.has(currentArcPosition) ? 1
-    : STAGE2_ARC.has(currentArcPosition) ? 2
-    : STAGE3_ARC.has(currentArcPosition) ? 3 : 4;
+  // B2: a "reveal-class" clue names the culprit or explains the tamper mechanism — the kind
+  // Agent5 sometimes tags placement:'early', which previously forced the full solution into
+  // an early chapter. Identified by clue id, by spoiler phrasing, or by containing a culprit
+  // name. Used to suppress the early "who it implicates" reasoning in pre-reveal chapters.
+  const culpritNamesLower = Array.from(culpritNameSet)
+    .map((n) => String(n).trim().toLowerCase())
+    .filter(Boolean);
+  const isRevealClue = (clue: Clue | undefined): boolean => {
+    if (!clue) return false;
+    const id = String(clue.id ?? '').toLowerCase();
+    if (/mechanism|culprit|visibility_core/.test(id)) return true;
+    const text = `${clue.description ?? ''} ${clue.pointsTo ?? ''}`.toLowerCase();
+    if (/\bbefore the discriminating test\b|\bcore mechanism\b|\bmechanism access point\b/.test(text)) return true;
+    return culpritNamesLower.some((n) => text.includes(n));
+  };
+
+  // FIX-M3 + FIX-D1: Clue-stage embargo — controls what the LLM may state per stage.
+  // Keyed off the controlled currentStageMode vocabulary (StageModeKey), NOT the
+  // geometry-derived currentArcPosition. The old code keyed off currentArcPosition,
+  // whose values ({opening, early, mid, pre_climax, resolution, ...}) NEVER intersected
+  // the STAGE*_ARC sets ({investigation, suspect_pressure, testing, ...}), so the embargo
+  // silently evaluated to tier 4 (no embargo) for EVERY chapter — which is how
+  // run_1d55f7c7 forced the full culprit+mechanism reveal into Chapter 3.
+  const STAGE_MODE_EMBARGO_TIER: Record<string, number> = {
+    discovery_opening: 1,
+    early_investigation: 1,
+    suspect_pressure: 2,
+    false_suspect_clearing: 2,
+    clue_reinterpretation: 3,
+    discriminating_test: 4,
+    final_reveal: 4,
+    aftermath_consequence: 4,
+  };
+  // Unknown/absent stage modes default to the RESTRICTIVE tier 2 (fail safe). The
+  // legitimate reveal modes are explicitly mapped to tier 4 above, so they are never
+  // over-restricted by this default.
+  const clueStageForRun =
+    currentStageMode && STAGE_MODE_EMBARGO_TIER[currentStageMode] !== undefined
+      ? STAGE_MODE_EMBARGO_TIER[currentStageMode]
+      : 2;
 
   const lines: string[] = ['CHAPTER OBLIGATION CONTRACT (MUST SATISFY):'];
 
@@ -254,6 +286,24 @@ export function buildChapterObligationBlock(
           perActSceneNum > Number(revelationSceneRef.scene_number))
       );
 
+    // Hoisted above the clue loop so reveal-class clue deferral (B2) can use it. Detects
+    // the chapter that contains the culprit-revelation scene.
+    const revelationScene = proseRequirements.culprit_revelation_scene ?? null;
+    const isRevealChapter =
+      !isDiscriminatingTestChapter &&
+      revelationScene != null &&
+      sceneMatchesCmlSceneRef(
+        scene,
+        revelationScene,
+        allOutlineScenes,
+        /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
+      );
+    // A pre-reveal chapter is any investigation chapter strictly before the
+    // discriminating-test / revelation / aftermath chapters. Reveal-class clues (those
+    // that name the culprit or explain the tamper mechanism) must NOT have their
+    // "who it implicates" reasoning forced into these chapters.
+    const isPreRevealChapter = !isDiscriminatingTestChapter && !isRevealChapter && !isPostRevealChapter;
+
     lines.push(`- Chapter ${chapterNumber}:`);
     // [PHASE 5] Inject structural archetype contract
     if (macroArcPlan) {
@@ -312,11 +362,14 @@ export function buildChapterObligationBlock(
       );
     }
 
-    // B1: Mechanism spoiler ban for Chapters 1 and 2.
-    if (chapterNumber <= 2) {
+    // Mechanism spoiler ban — fires for the early/mid investigation stages (embargo tier
+    // 1–2: discovery, early_investigation, suspect_pressure, false_suspect_clearing).
+    // Previously hardcoded to chapterNumber <= 2, which left every later pre-reveal chapter
+    // (e.g. the suspect-pressure chapter that leaked in run_1d55f7c7) unprotected.
+    if (clueStageForRun <= 2) {
       lines.push(
-        `  - ⛔ MECHANISM SPOILER BAN (Chapters 1–2): Do NOT state how the crime device was manipulated — not the direction, not the magnitude, not who performed it. ` +
-        `Characters may only observe that two sources of evidence disagree. The specific method, tamper amount, and perpetrator's action are ALL FORBIDDEN until Chapter 3. ` +
+        `  - ⛔ MECHANISM SPOILER BAN: Do NOT state how the crime device was manipulated — not the direction, not the magnitude, not who performed it. ` +
+        `Characters may only observe that two sources of evidence disagree. The specific method, tamper amount, and perpetrator's action are ALL FORBIDDEN until the reveal. ` +
         `WRONG: "The culprit had altered the device by forty minutes to create a false alibi." ` +
         `RIGHT: "Two independent pieces of evidence gave contradictory readings — a discrepancy neither could yet explain."`
       );
@@ -335,22 +388,39 @@ export function buildChapterObligationBlock(
     }
 
     if (requiredClueIds.length > 0) {
-      lines.push(`  - CLUE OBLIGATIONS — mandatory prose elements (do NOT omit or bury):`);
+      lines.push(`  - CLUE OBLIGATIONS — each clue below MUST be dramatized, but in YOUR OWN WORDS:`);
+      lines.push(`    Render each as something a character SEES, DOES, or SAYS on the page. The bracketed text is a`);
+      lines.push(`    DESCRIPTION of the evidence for you — do NOT transcribe it as narration. Copying a clue's`);
+      lines.push(`    description sentence verbatim into the prose FAILS validation.`);
       for (const clueId of requiredClueIds) {
         const clue = clueMap.get(clueId);
         if (clue) {
+          const isDeferredReveal = isPreRevealChapter && isRevealClue(clue);
           const earlyFlag = clue.placement === 'early'
             ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
           lines.push(`    • ${sanitizeClueField(String(clue.description ?? ''))} [${clueId}]${earlyFlag}`);
-          lines.push(`      Points to: ${sanitizeClueField(String(clue.pointsTo ?? ''))}`);  
-          if (clue.placement === 'early') {
-            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
-            lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
-            lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
-            lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
-            lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
-            lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
+          if (isDeferredReveal) {
+            // Reveal-class clue in a pre-reveal chapter: surface the OBSERVABLE anomaly but
+            // withhold the solution. The "Points to" (who it implicates) line and the
+            // reasoning paragraph are SUPPRESSED here — they are what forced the
+            // culprit + mechanism into early chapters in run_1d55f7c7.
+            lines.push(`      ⛔ SPOILER EMBARGO (pre-reveal chapter): surface ONLY the surface anomaly a character can see/hear/find.`);
+            lines.push(`         Do NOT name who it implicates, state the tamper direction or magnitude, or explain the mechanism in this chapter.`);
+            lines.push(`         Present it as an unexplained discrepancy; the culprit and method are revealed later.`);
+            if (clue.placement === 'early') {
+              lines.push(`         Place this OBSERVATION in paragraph 1 or 2 (observation only — no inference about the culprit).`);
+            }
+          } else {
+            lines.push(`      Points to: ${sanitizeClueField(String(clue.pointsTo ?? ''))}`);
+            if (clue.placement === 'early') {
+              lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
+              lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
+              lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
+              lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
+              lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
+              lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
+            }
           }
         } else {
           // Fallback: no distribution data — use delivery_method from clue_to_scene_mapping if available
@@ -496,7 +566,7 @@ export function buildChapterObligationBlock(
         .filter(Boolean);
       lines.push(`  - ⚠ DISCRIMINATING TEST (${dtMethod}) — MANDATORY real-time scene with dialogue and confrontation. DO NOT summarize it after the fact.`);
       if (culpritNames) lines.push(`    ⚠ CULPRIT-UNIQUENESS REQUIRED: the decisive evidence must expose a fact or physical characteristic that ONLY ${culpritNames} could satisfy. Announcing that the crime method occurred does NOT qualify. The test must reveal access, knowledge, or physical proof that eliminates all non-culprits before naming ${culpritNames}.`);
-      if (dtDesign) lines.push(`    Mechanism: ${dtDesign}`);
+      if (dtDesign) lines.push(`    Mechanism to dramatize in your own words (do NOT copy this sentence verbatim — copying FAILS validation): ${dtDesign}`);
       if (dtEvidenceClues.length > 0) lines.push(`    Cite these already-revealed clue IDs during the test: ${dtEvidenceClues.join(', ')}`);
       if (nonCulpritSuspects.length > 0) lines.push(`    Eliminate on-page with explicit evidence: ${nonCulpritSuspects.map((n) => `"${n}"`).join(', ')} — state EXACTLY why each is ruled out (because / therefore / which proves).`);
       if (culpritNames) lines.push(`    Convict: name "${culpritNames}" explicitly as the murderer. Connect every clue to them using "because / therefore / which proves".`);
@@ -514,20 +584,7 @@ export function buildChapterObligationBlock(
     }
     // Culprit revelation scene obligation — when this chapter contains the revelation scene
     // and it is not already the discriminating test chapter (which handles conviction above).
-    const revelationScene = proseRequirements.culprit_revelation_scene ?? null;
-    // BUG FIX: use perActSceneNum (same normalisation as isDiscriminatingTestChapter) so
-    // CML per-act scene_number values match correctly.  Using the global sceneNumber caused
-    // the reveal chapter to never be detected in multi-act stories, silently suppressing
-    // the culprit revelation requirement and the TYPE 6-A motive injection.
-    const isRevealChapter =
-      !isDiscriminatingTestChapter &&
-      revelationScene != null &&
-      sceneMatchesCmlSceneRef(
-        scene,
-        revelationScene,
-        allOutlineScenes,
-        /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
-      );
+    // `revelationScene` / `isRevealChapter` are computed above the clue loop (hoisted for B2).
     if (isRevealChapter) {
       const culpritNames: string = (cmlCase.culpability?.culprits ?? []).filter((n: any) => typeof n === 'string' && n).join(', ');
       const revealMethod: string = revelationScene.revelation_method ?? 'confrontation with evidence';

@@ -7,7 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { formatNarrative } from "@cml/prompts-llm";
+import { formatNarrative, GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -1498,6 +1498,28 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           ` scene ${candidate.sceneNumber} (act ${candidate.act}).`,
         );
       }
+    }
+  }
+
+  // SWEEP B: for the 10-chapter Golden Age format, verify the named beat arc appears in order.
+  // Non-blocking (warnings) so legacy/medium/long outlines are unaffected; surfaces drift for triage.
+  {
+    const flatScenes = (narrative.acts ?? []).flatMap((act: any) =>
+      Array.isArray(act.scenes) ? act.scenes : [],
+    );
+    if (flatScenes.length === GOLDEN_AGE_BEATS.length) {
+      const actualBeats = flatScenes.map((s: any) => String(s?.beat ?? "").trim());
+      const missing = actualBeats.filter((b: string) => !b).length;
+      if (missing > 0) {
+        ctx.warnings.push(`Beat arc: ${missing} of ${GOLDEN_AGE_BEATS.length} chapters have no "beat" assigned.`);
+      }
+      GOLDEN_AGE_BEATS.forEach((expected, i) => {
+        if (actualBeats[i] && actualBeats[i] !== expected) {
+          ctx.warnings.push(
+            `Beat arc: chapter ${i + 1} beat is "${actualBeats[i]}", expected "${expected}" (Golden Age order).`,
+          );
+        }
+      });
     }
   }
 

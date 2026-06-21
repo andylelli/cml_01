@@ -613,9 +613,9 @@ const buildStrictDirectCulpritClue = (
 
   if (castIndex >= 0) {
     const castPaths = [
-      `CASE.cast[${castIndex}].access_plausibility`,
-      `CASE.cast[${castIndex}].alibi_window`,
       `CASE.cast[${castIndex}].evidence_sensitivity[0]`,
+      `CASE.cast[${castIndex}].alibi_window`,
+      `CASE.cast[${castIndex}].access_plausibility`,
     ];
     castPaths.forEach((path) => {
       if (strictSourcePaths.includes(path)) allowedSourcePaths.push(path);
@@ -636,7 +636,7 @@ const buildStrictDirectCulpritClue = (
     id: `clue_culprit_direct_${toClueIdSlug(culpritName)}`,
     culpritName,
     allowedSourcePaths: [...new Set(allowedSourcePaths)].slice(0, 8),
-    requiredPhrases: [culpritName, "direct evidence", "means and opportunity"],
+    requiredPhrases: [culpritName, "direct evidence", "means and opportunity", "no other eligible suspect"],
   };
 };
 
@@ -797,6 +797,12 @@ const ensureStrictDirectCulpritClue = (
 
   const repairs: string[] = [];
   const culpritName = requiredDirectCulpritClue.culpritName;
+  const caseBlock = getCaseBlock(cml);
+  const eligibleNonCulprits = getEligibleNonCulpritNames(caseBlock, culpritName);
+  const nonCulpritSample = eligibleNonCulprits.slice(0, 2);
+  const nonCulpritClause = nonCulpritSample.length > 0
+    ? `No other eligible suspect, including ${nonCulpritSample.join(" and ")}, matches this mechanism-specific evidence.`
+    : "No other eligible suspect matches this mechanism-specific evidence.";
   let clue = clues.clues.find((entry: any) => String(entry?.id ?? "").trim() === requiredDirectCulpritClue.id) as any;
 
   if (!clue) {
@@ -816,9 +822,9 @@ const ensureStrictDirectCulpritClue = (
     clue = {
       id: requiredDirectCulpritClue.id,
       category: inferClueCategoryFromSourcePath(sourceInCML),
-      description: `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test.`,
+      description: `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test and excludes competing suspect timelines.`,
       sourceInCML,
-      pointsTo: `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit.`,
+      pointsTo: `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit. ${nonCulpritClause}`,
       placement: "mid",
       criticality: "essential",
       supportsInferenceStep: inferSupportsInferenceStepFromSourcePath(sourceInCML, findPreferredCulpritStep(cml, culpritName)),
@@ -864,8 +870,8 @@ const ensureStrictDirectCulpritClue = (
   const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
   const missingPhrases = requiredDirectCulpritClue.requiredPhrases.filter((phrase) => !clueText.toLowerCase().includes(String(phrase).toLowerCase()));
   if (!nameAppearsInText(culpritName, clueText) || missingPhrases.length > 0) {
-    clue.description = `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test.`;
-    clue.pointsTo = `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit.`;
+    clue.description = `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating test and excludes competing suspect timelines.`;
+    clue.pointsTo = `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution uniquely toward the culprit. ${nonCulpritClause}`;
     repairs.push(`strict direct culprit phrasing repair: ${requiredDirectCulpritClue.id}`);
   }
 
@@ -1584,6 +1590,22 @@ function analyzeSuspectCoverage(
   return { records, uncovered, weakElimination };
 }
 
+function getEligibleNonCulpritNames(caseBlock: any, culpritName: string): string[] {
+  const cast = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  return cast
+    .filter((entry: any) => String(entry?.culprit_eligibility ?? "").toLowerCase() === "eligible")
+    .map((entry: any) => String(entry?.name ?? "").trim())
+    .filter((name: string) => name.length > 0 && name.toLowerCase() !== culpritName.toLowerCase());
+}
+
+function hasExclusivityLanguage(text: string): boolean {
+  return /\b(only|no\s+other\s+(eligible\s+)?suspect|uniquely|exclusive|excludes?|eliminates?)\b/i.test(text);
+}
+
+function usesWeakOpportunityOnlySourcePath(sourceInCML: string): boolean {
+  return /CASE\.cast\[\d+\]\.(access_plausibility|alibi_window)$/.test(sourceInCML);
+}
+
 function findCulpritDiscriminatingGaps(cml: CaseData, clues: ClueDistributionResult): string[] {
   const caseBlock = (cml as any)?.CASE ?? cml;
   const culprits = Array.isArray(caseBlock?.culpability?.culprits)
@@ -1595,10 +1617,21 @@ function findCulpritDiscriminatingGaps(cml: CaseData, clues: ClueDistributionRes
   const gaps: string[] = [];
 
   for (const culprit of culprits) {
+    const eligibleNonCulprits = getEligibleNonCulpritNames(caseBlock, culprit);
     const hasDiscriminating = clues.clues.some((clue: any) => {
       const text = `${String(clue.description ?? "")} ${String(clue.pointsTo ?? "")}`;
       if (!nameAppearsInText(culprit, text)) return false;
-      return incriminatingPattern.test(text) || clue.criticality === "essential";
+      if (!incriminatingPattern.test(text)) return false;
+
+      const sourceInCML = String(clue?.sourceInCML ?? "").trim();
+      if (!validateSourcePath(cml, sourceInCML)) return false;
+
+      const mentionsNonCulprit = eligibleNonCulprits.some((name) => nameAppearsInText(name, text));
+      const hasExclusivity = hasExclusivityLanguage(text) || mentionsNonCulprit;
+      if (!hasExclusivity) return false;
+
+      if (usesWeakOpportunityOnlySourcePath(sourceInCML) && !mentionsNonCulprit) return false;
+      return true;
     });
     if (!hasDiscriminating) gaps.push(culprit);
   }
@@ -1642,6 +1675,11 @@ function synthesizeMissingCulpritDiscriminatingClues(
   culpritNames.forEach((culprit, idx) => {
     const normalizedCulprit = String(culprit ?? "").trim();
     if (!normalizedCulprit) return;
+    const eligibleNonCulprits = getEligibleNonCulpritNames(caseBlock, normalizedCulprit);
+    const nonCulpritSample = eligibleNonCulprits.slice(0, 2);
+    const nonCulpritClause = nonCulpritSample.length > 0
+      ? `No other eligible suspect, including ${nonCulpritSample.join(" and ")}, matches this mechanism-specific evidence.`
+      : "No other eligible suspect matches this mechanism-specific evidence.";
 
     // Default to the last inference step's correction — always a legal ALLOWED_SOURCE_PATTERNS path.
     // Prefer a step whose correction/observation text names the culprit.
@@ -1681,8 +1719,8 @@ function synthesizeMissingCulpritDiscriminatingClues(
       ...template,
       id: clueId,
       sourceInCML,
-      description: `Direct evidence links ${normalizedCulprit} to the mechanism access point before the discriminating test.`,
-      pointsTo: `Physical trace and opportunity evidence indicate ${normalizedCulprit} had means and opportunity, making this a direct evidence clue for culprit identification.`,
+      description: `Direct evidence links ${normalizedCulprit} to the mechanism access point before the discriminating test and excludes competing suspect timelines.`,
+      pointsTo: `Physical trace and opportunity evidence indicate ${normalizedCulprit} had means and opportunity, making this a direct evidence clue for culprit identification. ${nonCulpritClause}`,
       placement: "mid",
       criticality: "essential",
       evidenceType: "observation",
@@ -2074,6 +2112,13 @@ function sanitizeRedHerringOverlap(
   if (!Array.isArray(clues.redHerrings) || overlapDetails.length === 0) return repairs;
 
   const caseBlock = getCaseBlock(cml);
+  const protectedNameTokens = new Set<string>();
+  const castEntries = Array.isArray(caseBlock?.cast) ? caseBlock.cast : [];
+  castEntries.forEach((entry: any) => {
+    normalizeTokens(String(entry?.name ?? ""))
+      .filter((token) => token.length > 2)
+      .forEach((token) => protectedNameTokens.add(token));
+  });
   // Build correction token set so we never introduce a replacement that is itself
   // an inference-correction word (e.g. "witness", "timing" from "witness accounts").
   const correctionTokensForSanitizer = new Set<string>();
@@ -2121,6 +2166,7 @@ function sanitizeRedHerringOverlap(
     for (const term of detail.matchedCorrectionWords) {
       const safeTerm = String(term ?? "").trim().toLowerCase();
       if (!safeTerm) continue;
+      if (protectedNameTokens.has(safeTerm)) continue;
       const replacement = replacementPool[replacementIndex % replacementPool.length] || "timing";
       replacementIndex += 1;
       const re = new RegExp(`\\b${escapeRegex(safeTerm)}\\b`, "gi");

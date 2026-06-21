@@ -973,7 +973,7 @@ export function buildNSDBlock(
   if (investigationLog) {
     lines.push('\nINVESTIGATION LOG — WHAT IS ESTABLISHED (do not re-establish, do not repeat):');
     if (investigationLog.revealedClueDescs.length > 0) {
-      lines.push(`• Evidence in reader's hands: ${investigationLog.revealedClueDescs.join(' | ')}`);
+      lines.push(`• Evidence already established (reference only — do NOT restate or quote these; advance beyond them): ${investigationLog.revealedClueDescs.join(' | ')}`);
     }
     if (investigationLog.clearedSuspects.length > 0) {
       investigationLog.clearedSuspects.forEach(s => lines.push(`• Suspect cleared: ${identityMap ? tagCharacter(s.name, identityMap) : s.name} — ${s.method}`));
@@ -1494,7 +1494,15 @@ ${victimIdentityRule}`;
     if (revealedIds.length === 0 && !inputs.narrativeState) return undefined;
     const allClues = inputs.clueDistribution?.clues ?? [];
     const revealedClueDescs = revealedIds
-      .map(id => allClues.find((c: any) => c.id === id)?.description ?? id)
+      .map((id) => {
+        const c = allClues.find((x: any) => x.id === id);
+        if (!c) return id;
+        // Reference label only — a short topic, never the full conclusory description.
+        // Feeding the raw description here let the model lift an already-established clue's
+        // analytical sentence back into later chapters (run_1d55f7c7 shipped these verbatim).
+        const src = String((c as any).pointsTo ?? c.description ?? id);
+        return src.replace(/[,.;:].*$/, '').split(/\s+/).slice(0, 8).join(' ').trim() || id;
+      })
       .filter(Boolean);
     const clearanceScenes = (cmlCase?.prose_requirements?.suspect_clearance_scenes ?? []) as any[];
     const clearedSuspects = clearanceScenes
@@ -1801,12 +1809,21 @@ ${victimIdentityRule}`;
   });
 
   const baseSystem = `${system}${amateurPoliceWarning}`;
+  // FIX 3: prose-prompt token ceiling. Lowering this engages the designed priority-based block
+  // dropping (optional → medium → high; critical never dropped), trimming the heaviest prompts —
+  // which both reduces retry-inducing over-constraint and cost. Tunable via env so it can be
+  // dialled in empirically once the prose model tier is chosen (see model-tiers.ts). Default
+  // lowered from 32000 to 24000.
+  const prosePromptTokenCeiling = (() => {
+    const raw = Number(process.env.AGENT9_PROMPT_TOKEN_CEILING);
+    return Number.isFinite(raw) && raw >= 8000 ? raw : 24000;
+  })();
   const { composedSystem } = applyPromptBudgeting(
     baseSystem,
     developerWithContracts,
     user,
     promptContextBlocks,
-    32000,
+    prosePromptTokenCeiling,
   );
   let composedSystemWithAssetSelfReport = composedSystem;
   if (textureAtomIds.length > 0) {

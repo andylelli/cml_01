@@ -3,6 +3,11 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
+- `ANALYSIS_44/ANALYSIS_44.md`
+- `ANALYSIS_43/ANALYSIS_43.md`
+- `ANALYSIS_42/ANALYSIS_42.md`
+- `ANALYSIS_41/ANALYSIS_41.md`
+- `ANALYSIS_40/ANALYSIS_40.md`
 - `ANALYSIS_28/ANALYSIS_28.md`
 - `ANALYSIS_27/ANALYSIS_27.md`
 - `ANALYSIS_26/ANALYSIS_26.md`
@@ -17,6 +22,10 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 
 | Date       | Analysis | Run ID (short) | Status | Primary failure class |
 |------------|----------|----------------|--------|-----------------------|
+| 2026-06-19 | `ANALYSIS_44` | `70ac132d` | incomplete (died at Ch4/10) | Validation run for ANALYSIS_43 G/H/I. A–D content fixes confirmed holding (0 leakage/setting/reveal/pronoun in committed Ch1–3; D2 gate caught+cleared a Ch3 `mechanism access point` leak). G/H/I **never exercised** — they run at final validation, but the run died in per-chapter prose generation. New run-killer = template linter `template_bleed` (repeated paragraph openers) firing every chapter, no exhaustion backstop → no story produced; report frozen green 97.85/A `in_progress`. |
+| 2026-06-18 | `ANALYSIS_43` | `1d55f7c7` → `5411ba7f` | aborted (fixes landed) | Baseline 1d55f7c7: verbatim schema/test leakage + post-LLM pronoun corruption & setting dump + dead disclosure embargo (premature reveal) — Layers A–D landed. Follow-up 5411ba7f (74/C, aborted): those killers did NOT recur; new blockers = victim-alive/identity slip (Ch3) + male→female pronoun miss (Ch5), both deterministically repairable but routed to terminal abort (recs G/H/I). |
+| 2026-06-16 | `ANALYSIS_42` | `bdaf4d70` | warning | False-green passed run: upstream timeline contradiction + locked-fact injection + deterministic fallback prose regression |
+| 2026-06-15 | `ANALYSIS_41` | `88ed23b2` | failed | Agent9 prose abort at chapter 9 after retry/fallback exhaustion; final reveal completeness gate not satisfied |
 | 2026-05-28 | `ANALYSIS_28` | `17799935` | warning | Deep-dive errors: template_leakage Ch5/7; completeness_structure Ch7/10; clue_timing Ch10; 4 major post-gen validators |
 | 2026-05-28 | `ANALYSIS_27` | `17799935` | warning | G6-Q1 culprit full-name gate false positive; 4 major issues; ChatGPT prose 72/100 |
 | 2026-05-28 | `ANALYSIS_26` | `17799884` | failed | Cast Design abort (score 85 < threshold); locked fact value omission; pronoun false positives |
@@ -30,6 +39,11 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 | 2026-04-13 | `ANALYSIS_51` | n/a | strategy doc | Pre-prose enrichment strategy review |
 
 ## Analysis Reports
+- `ANALYSIS_44/ANALYSIS_44.md`
+- `ANALYSIS_43/ANALYSIS_43.md`
+- `ANALYSIS_42/ANALYSIS_42.md`
+- `ANALYSIS_41/ANALYSIS_41.md`
+- `ANALYSIS_40/ANALYSIS_40.md`
 - `ANALYSIS_07/ANALYSIS_07.md`
 - `ANALYSIS_57_agent4_required_evidence_checklist_status.md`
 - `ANALYSIS_56_run_20f9ca27_prompt_review.md`

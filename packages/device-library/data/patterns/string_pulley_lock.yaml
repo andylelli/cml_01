@@ -1,0 +1,18 @@
+pattern_id: string_pulley_lock
+title: The Outside Bolt
+family: spatial_routing
+axes: [spatial]
+principle: A simple string-and-pulley (or melting-ice) rig can throw an interior bolt from outside the room.
+principleType: physical_law
+surface_illusion_template: The room was locked from the inside with the only key within, so the death must be suicide or impossible.
+underlying_reality_template: A thread, pin, and pulley (or a block of ice melting under the bolt) shot the bolt home after the culprit withdrew, faking the sealed room.
+feasibility:
+  eras: [1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970]
+  requires: [mechanical_ingenuity]
+  forbids: []
+clue_archetypes:
+  - thread_fibre_at_keyhole_or_bolt
+  - fresh_scratch_on_bolt
+  - residual_moisture_or_drip_mark
+sources:
+  - "Canonical locked-room mechanical rig convention."

@@ -421,16 +421,26 @@ export const clearPersistenceStore = async (): Promise<{ status: string; cleared
 
 export const fetchScoringReport = async (projectId: string, runId: string): Promise<unknown> => {
   const response = await fetch(`${apiBase}/api/projects/${projectId}/runs/${runId}/report`);
+  // HTTP 202 = run in progress. The body is the live partial snapshot (phase scores so far).
+  // Surface it (tagged in_progress) so the Quality tab can render live updates per agent, rather
+  // than discarding it and showing nothing until the run completes.
   if (response.status === 202) {
-    // Run is still in progress — report not yet finalized
+    try {
+      const partial = (await response.json()) as Record<string, unknown>;
+      if (partial && typeof partial === "object") {
+        return { ...partial, in_progress: true };
+      }
+    } catch {
+      // No parseable body (e.g. {status:"running"} only) — nothing live to show yet.
+    }
     return null;
   }
   if (!response.ok) {
     throw new Error(`Fetch scoring report failed (${response.status})`);
   }
   const data = (await response.json()) as Record<string, unknown>;
-  // Guard against an in_progress partial snapshot slipping through as a completed report
-  if (data.status === "in_progress") return null;
+  // A 200 with in_progress:true is a partial snapshot served while the run is live — keep it and
+  // let the caller render it with a live indicator (do not discard).
   return data;
 };
 

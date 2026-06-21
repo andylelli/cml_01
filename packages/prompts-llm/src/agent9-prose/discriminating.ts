@@ -6,6 +6,25 @@ import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
+
+/**
+ * Canonical framing for any place that injects `discriminating_test.design` into a
+ * prose prompt. The design field is an analytical sentence that Agent9 used to copy
+ * verbatim into the climactic scene (run_1d55f7c7 shipped it word-for-word). All
+ * injection sites route the design through this helper so the "paraphrase, never
+ * copy" instruction lives in one place and the model is consistently told that a
+ * verbatim copy fails validation (now enforced by the verbatim field-echo gate).
+ */
+export const describeDtMechanismForPrompt = (design: unknown): string => {
+  const d = String(design ?? "").trim();
+  if (!d) return "";
+  return (
+    "Render this test MECHANISM as live, in-scene action and dialogue, in your own words. " +
+    "Do NOT copy the following sentence into the prose — verbatim transcription will FAIL validation:\n" +
+    d
+  );
+};
+
 export function validateChecklistRequirements(caseData: CaseData): string {
   const cmlCase = (caseData as any)?.CASE ?? {};
   const discriminatingTest = cmlCase.discriminating_test;
@@ -132,7 +151,7 @@ export function buildDiscriminatingTestChecklist(
   checklist += '🎯 DISCRIMINATING TEST CHECKLIST - CRITICAL REQUIREMENTS\n';
   checklist += '═══════════════════════════════════════════════════════════\n\n';
   checklist += `This is a **${testType}** test. The detective must:\n\n`;
-  checklist += `**Test Description:**\n${testDescription}\n\n`;
+  checklist += `**Test mechanism (paraphrase — do NOT copy verbatim):**\n${describeDtMechanismForPrompt(testDescription)}\n\n`;
   checklist += `**MANDATORY CHECKLIST - Every box must be checked:**\n\n`;
   
   // Evidence clue requirements with locations

@@ -1,0 +1,18 @@
+pattern_id: hearth_release
+title: The Heat-Sprung Latch
+family: timing
+axes: [temporal, spatial]
+principle: Predictable thermal expansion can move a metal mechanism at a calculable time, releasing a latch after the culprit has gone.
+principleType: physical_law
+surface_illusion_template: The door was bolted from the inside long after everyone agrees the culprit had left the wing.
+underlying_reality_template: Heat from the rekindled hearth expanded a rigged metal linkage that dropped the bolt at a predictable later time — a delayed-action lock.
+feasibility:
+  eras: [1800, 1850, 1900, 1910, 1920, 1930, 1940, 1950, 1960]
+  requires: [predictable_heat_source, mechanical_ingenuity]
+  forbids: []
+clue_archetypes:
+  - scorch_or_heat_trace
+  - metal_fatigue_on_latch
+  - fire_timing_record
+sources:
+  - "Locked-room thermal/mechanical delayed-action convention."

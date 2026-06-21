@@ -16,7 +16,7 @@ import {
 } from "@cml/prompts-llm";
 import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
-import { getGenerationParams, type PhaseScore, type TestResult } from "@cml/story-validation";
+import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type InferenceCoverageResult,
@@ -1671,7 +1671,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
         latestBlind = await blindReaderSimulation(
           ctx.client,
-          ctx.clues,
+          ctx.clues as any,
           falseAssumptionStatement,
           castNamesForBlind,
           { runId: ctx.runId, projectId: ctx.projectId || "" }
@@ -1692,6 +1692,39 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
         if (latestReaderPass) {
           ctx.reportProgress("fairplay", "Blind reader simulation: PASS after remediation", 74);
+        }
+      }
+
+      if (!latestReaderPass && maxBlindRemediationCycles === 0) {
+        agent6RetryInvoked = true;
+        ctx.warnings.push(
+          "Agent 6 blind-reader deterministic rescue: retries disabled; applying deterministic clue-contract hardening before final blind-reader check.",
+        );
+
+        applyAgent5ContractsToRegeneratedClues(ctx, "blind-reader deterministic rescue");
+
+        latestBlind = await blindReaderSimulation(
+          ctx.client,
+          ctx.clues as any,
+          falseAssumptionStatement,
+          castNamesForBlind,
+          { runId: ctx.runId, projectId: ctx.projectId || "" }
+        );
+        ctx.agentCosts["agent6_blind_reader"] =
+          (ctx.agentCosts["agent6_blind_reader"] || 0) + latestBlind.cost;
+        ctx.agentDurations["agent6_blind_reader"] =
+          (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
+
+        const latestGotItRight =
+          latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
+          actualCulpritName.toLowerCase().includes(latestBlind.suspectedCulprit.toLowerCase());
+        latestReaderPass =
+          latestGotItRight &&
+          (CONFIDENCE_RANK[normalizeConfidence(latestBlind.confidenceLevel)] ?? -1) >=
+            (CONFIDENCE_RANK[minBlindConfidence] ?? CONFIDENCE_RANK.likely);
+
+        if (latestReaderPass) {
+          ctx.reportProgress("fairplay", "Blind reader simulation: PASS after deterministic rescue", 74);
         }
       }
 
@@ -2126,6 +2159,16 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     : agent6FailureClass === "none"
       ? "unclassified"
       : agent6FailureClass;
+
+  // SWEEP A: Golden Age genre-structure check (false solution, ≥2 resolved red herrings,
+  // closed circle contains the culprit). Emitted as warnings so it surfaces in the report
+  // without hard-aborting legacy runs; promote to a binding gate once generations reliably
+  // populate these fields on the premium model tier.
+  if (ctx.cml) {
+    const genre = validateGenreStructure(ctx.cml);
+    genre.errors.forEach((e) => emitAgent6Warning(`Genre structure: ${e}`, "persistent-risk"));
+    genre.warnings.forEach((w) => emitAgent6Warning(`Genre structure: ${w}`, "transient-diagnostic"));
+  }
 
   ctx.fairPlayAudit = fairPlayAudit!;
   ctx.hasCriticalFairPlayFailure = hasCriticalFairPlayFailure;

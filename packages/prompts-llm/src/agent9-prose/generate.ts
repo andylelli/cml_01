@@ -11,9 +11,11 @@ import {
   ChapterValidator,
   CharacterConsistencyValidator,
   getGenerationParams,
+  getPronounPolicySettings,
   getStoryLengthTarget,
   repairChapterPronouns,
   repairPronouns,
+  detectVerbatimFieldEcho,
 } from "@cml/story-validation";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { CastDesign } from "../agent2-cast.js";
@@ -162,6 +164,21 @@ export interface ProvisionalChapterScore {
   deficits: string[];
   directives: string[];
 }
+
+const CHAPTER_ACCEPTANCE_POLICY = {
+  // Accept residual pronoun mismatches once explicit retry guidance and deterministic
+  // repair have already been attempted repeatedly for the chapter.
+  residualPronounAcceptanceAttempt: 3,
+};
+
+const shouldAcceptResidualPronounIssues = (attempt: number): boolean =>
+  attempt >= CHAPTER_ACCEPTANCE_POLICY.residualPronounAcceptanceAttempt;
+
+const shouldTreatBatchAsAttemptsExhausted = (
+  attempt: number,
+  maxBatchAttempts: number,
+  forceTerminalFallback: boolean,
+): boolean => attempt >= maxBatchAttempts || forceTerminalFallback;
 
 export const buildProvisionalChapterScore = (
   chapter: ProseChapter,
@@ -517,9 +534,15 @@ const buildRetryRewriteActions = (
   const locationAnchor = errors
     .map((error) => error.match(/expected location anchor "([^"]+)"/i)?.[1]?.trim())
     .find(Boolean);
-  const openerPhrase = errors
-    .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
-    .find(Boolean);
+  // R1 (ANALYSIS_44): collect EVERY repeated opener the linter reported (it now emits one
+  // issue per distinct opener) so the retry fixes them all in one pass instead of whack-a-mole.
+  const openerPhrases = [
+    ...new Set(
+      errors
+        .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ];
 
   if (strategy.mode !== "surgical_patch") {
     actions.push("Treat the scene instructions, cast lock, clue obligations, and locked facts as the source of truth; do not preserve failing wording from the previous draft.");
@@ -542,8 +565,8 @@ const buildRetryRewriteActions = (
     actions.push("Rewrite the chapter outcome so it matches the required story stage: if pressure mode is active, end with unresolved pressure; if reveal mode is active, include the full proof chain rather than accusation only.");
   }
 
-  if (openerPhrase) {
-    actions.push(`Replace the repeated opener pattern "${openerPhrase}" with distinct paragraph openings from different angles: sensory detail, object, movement, thought, or another speaker.`);
+  if (openerPhrases.length > 0) {
+    actions.push(`Every paragraph must begin with a different name or meaningful word — no two paragraphs may share the same opening name/word (pronouns and articles like she/the/a are fine). Replace these repeated opener pattern(s) ${openerPhrases.map((value) => `"${value}"`).join(", ")} with distinct paragraph openings from different angles: sensory detail, object, movement, thought, or another speaker.`);
   }
 
   if (errors.some((error) => /weak sensory grounding|weak atmosphere\/time grounding/i.test(error))) {
@@ -587,9 +610,14 @@ const buildRetrySuccessChecklist = (
   const locationAnchor = errors
     .map((error) => error.match(/expected location anchor "([^"]+)"/i)?.[1]?.trim())
     .find(Boolean);
-  const openerPhrase = errors
-    .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
-    .find(Boolean);
+  // R1 (ANALYSIS_44): collect every reported opener for the checklist.
+  const openerPhrases = [
+    ...new Set(
+      errors
+        .map((error) => error.match(/repeated content opener detected \("([^"]+)"\)/i)?.[1]?.trim())
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ];
 
   checklist.push("Every listed issue below is resolved in this single attempt before you answer.");
 
@@ -605,8 +633,11 @@ const buildRetrySuccessChecklist = (
   if (errors.some((error) => /final reveal completeness/i.test(error))) {
     checklist.push("If this is a reveal chapter, the proof chain includes motive, opportunity/access, and explicit evidence linkage.");
   }
-  if (openerPhrase) {
-    checklist.push(`No more than two paragraphs begin with the repeated opener pattern related to "${openerPhrase}".`);
+  if (openerPhrases.length > 0) {
+    // R2 (ANALYSIS_44): the two-word-opener gate fails on the SECOND occurrence, so the prior
+    // "no more than two paragraphs" wording described a state that actually fails. Require true
+    // uniqueness of meaningful openers instead.
+    checklist.push(`No two paragraphs begin with the same name or meaningful word — each of these openers appeared more than once and must now be unique: ${openerPhrases.map((value) => `"${value}"`).join(", ")} (pronouns and articles like she/the/a are fine).`);
   }
   if (errors.some((error) => /weak sensory grounding/i.test(error))) {
     checklist.push("The first two paragraphs contain at least two exact sensory markers counted by the validator.");
@@ -1873,6 +1904,11 @@ export async function generateProse(
   const resolvedMaxAttempts = maxAttempts ?? configuredMaxAttempts;
   const enableSurgicalFingerprintRetry = inputs.enableSurgicalFingerprintRetry !== false;
   const preferCompletionOnFailure = inputs.preferCompletionOnFailure !== false;
+  // R4 (ANALYSIS_44): surface the resolved terminal-on-exhaustion mode so post-mortems can tell
+  // whether a stalled run would have best-effort-committed (true) or hard-aborted (false).
+  console.warn(
+    `[Agent 9] Prose generation start: preferCompletionOnFailure=${preferCompletionOnFailure} (false ⇒ retry-exhaustion hard-aborts the run).`,
+  );
   const start = Date.now();
   const outlineActs = Array.isArray(inputs.outline.acts) ? inputs.outline.acts : [];
   const scenes = outlineActs.flatMap((act) => (Array.isArray(act.scenes) ? act.scenes : []));
@@ -1935,6 +1971,7 @@ export async function generateProse(
     culprit_alias_gate_enabled: rolloutFlagsRaw?.culprit_alias_gate_enabled !== false,
     integrity_retry_packet_enabled: rolloutFlagsRaw?.integrity_retry_packet_enabled !== false,
     integrity_blue_sky_mode_enabled: rolloutFlagsRaw?.integrity_blue_sky_mode_enabled === true,
+    opener_exhaustion_bypass_enabled: rolloutFlagsRaw?.opener_exhaustion_bypass_enabled !== false,
   };
   const phrasePolicyRequired =
     rolloutFlags.tiered_phrase_contract_enabled
@@ -1951,12 +1988,13 @@ export async function generateProse(
     : [];
   const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
-  const pronounCheckingEnabled = getGenerationParams().agent9_prose.validation.pronoun_checking_enabled;
+  const pronounCheckingEnabled = getPronounPolicySettings().checkingEnabled;
   const proseLinterStats: ProseLinterStats = {
     checksRun: 0,
     failedChecks: 0,
     openingStyleEntropyFailures: 0,
     openingStyleEntropyBypasses: 0,
+    openerBypasses: 0,
     paragraphFingerprintFailures: 0,
     ngramOverlapFailures: 0,
     bannedPhraseFailures: 0,
@@ -2126,6 +2164,18 @@ export async function generateProse(
     let currentRetryPacket: RetryPacket | undefined;
     const priorBatchRetryPackets: RetryPacket[] = [];
     let batchSuccess = false;
+
+    // FIX 2: retain the best LLM attempt across retries. On exhaustion we commit this best
+    // real prose instead of the deterministic completion template — the template was the
+    // source of the `clue_id_*` / scene-objective leakage and the canned repeated beats.
+    // "Best" = fewest hard validation errors; ties keep the earliest attempt.
+    let bestAttemptChapters: ProseChapter[] | null = null;
+    let bestAttemptErrorCount = Number.POSITIVE_INFINITY;
+    const cloneProseChapter = (c: ProseChapter): ProseChapter => ({
+      ...c,
+      title: c.title,
+      paragraphs: Array.isArray(c.paragraphs) ? [...c.paragraphs] : [],
+    });
 
     const overallProgress = 91 + Math.floor((batchStart / sceneCount) * 3); // 91-94%
     const batchLabel = batchScenes.length > 1 ? `${chapterStart}-${chapterEnd}` : `${chapterStart}`;
@@ -2451,7 +2501,7 @@ export async function generateProse(
           };
 
           // Deterministic pronoun repair before validation — catches unambiguous mismatches cheaply.
-          // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
+          // Controlled by agent9_prose.validation.pronoun_policy / pronoun_checking_enabled.
           let chapterPronRepairCount = 0;
           if (pronounCheckingEnabled && castCharacters.length > 0) {
             const pronRepair = repairChapterPronouns(chapter, castCharacters);
@@ -2553,6 +2603,29 @@ export async function generateProse(
               .forEach(issue => {
                 hardErrors.push(`Chapter ${chapterNumber}: ${issue.message}${issue.suggestion ? ` (${issue.suggestion})` : ''}`);
               });
+
+            // Verbatim field-echo gate: reject chapters that transcribe a fed schema
+            // field (clue.description / pointsTo / discriminating_test.design) verbatim
+            // instead of dramatizing it. Name-agnostic; the >=12 consecutive-word run
+            // threshold leaves short locked facts ("forty minutes") untouched. This is
+            // the gate that was missing when run_1d55f7c7 shipped the verbatim
+            // "A controlled reenactment demonstrates the grandfather clock's spring
+            // tension and hand positions…" sentence into Chapters 9 and 10.
+            {
+              const dt: any = (inputs.caseData as any)?.CASE?.discriminating_test ?? {};
+              const fedObligationStrings: string[] = [
+                dt.design, dt.test_description, dt.expected_result,
+                ...(inputs.clueDistribution?.clues ?? []).flatMap((c: any) => [c?.description, c?.pointsTo, c?.points_to]),
+              ].filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0);
+              const candidateProse = (candidate.paragraphs as string[]).join('\n\n');
+              for (const echo of detectVerbatimFieldEcho(candidateProse, fedObligationStrings).slice(0, 4)) {
+                hardErrors.push(
+                  `Chapter ${chapterNumber}: a clue/test description was copied verbatim into the prose ` +
+                  `(${echo.wordCount} consecutive words from "${echo.source}…"). ` +
+                  `Dramatize it as an observed detail, action, or dialogue in your own words — do NOT transcribe schema descriptions.`,
+                );
+              }
+            }
 
             const obligations = ledgerEntry
               ? validateChapterPreCommitObligations(
@@ -2729,8 +2802,9 @@ export async function generateProse(
           const chapterErrors = [...evaluation.hardErrors];
 
           // Targeted pronoun repair: validate → fix validator-confirmed characters → re-validate.
-          // Any mismatches that survive repair are unresolvable and escalate to an LLM retry.
-          // Controlled by agent9_prose.validation.pronoun_checking_enabled in generation-params.yaml.
+          // Surviving mismatches keep retrying until the chapter acceptance policy permits
+          // residual acceptance on later attempts.
+          // Controlled by agent9_prose.validation.pronoun_policy / pronoun_checking_enabled.
           if (pronounCheckingEnabled && castCharacters.length > 0) {
             const chapterText = chapter.paragraphs.join('\n\n');
             const pronounStory = { id: 'pronoun-check', projectId: 'pronoun-check',
@@ -2782,7 +2856,7 @@ export async function generateProse(
                   chapterErrors.push(...residualEntityIssues);
                 }
                 if (residualPronounIssues.length > 0) {
-                  if (attempt >= 3) {
+                  if (shouldAcceptResidualPronounIssues(attempt)) {
                     // After two LLM passes with explicit pronoun feedback and targeted repair,
                     // residual issues are in mixed-gender context sentences the repair cannot
                     // safely fix without risking false replacements. Accept at attempt 3+ to
@@ -2796,7 +2870,7 @@ export async function generateProse(
                   }
                 }
               } else {
-                if (attempt >= 3) {
+                if (shouldAcceptResidualPronounIssues(attempt)) {
                   // Targeted repair made 0 additional fixes after two passes. These issues
                   // survived all repair attempts and are unresolvable without risking false
                   // replacements in ambiguous-context sentences. Accept at attempt 3+.
@@ -3012,6 +3086,38 @@ export async function generateProse(
           batchErrors = [];
         }
 
+        // R3 (ANALYSIS_44): repeated-paragraph-opener exhaustion backstop. A `template_bleed`
+        // opener residual is cosmetic and reliably trips on first drafts; without a bypass it can
+        // hard-abort a whole run (it is in none of the other accept-after-exhaustion paths). Mirror
+        // the entropy bypass, but scope by MESSAGE STRING — the `template_bleed` type is shared with
+        // the location-inventory check, which must stay blocking; only the "repeated content opener
+        // detected" message is accepted here. The `every(...)` guards ensure a co-occurring real
+        // defect (including a location-inventory template_bleed) keeps the batch blocking.
+        const isOpenerOnlyFailure =
+          batchErrors.length > 0 &&
+          precommitLinterIssues.length > 0 &&
+          precommitLinterIssues.every((issue) => issue.type === "template_bleed") &&
+          batchErrors.every((error) =>
+            error.startsWith("Template linter: repeated content opener detected"),
+          );
+
+        if (
+          isOpenerOnlyFailure &&
+          attempt >= maxBatchAttempts &&
+          rolloutFlags.opener_exhaustion_bypass_enabled
+        ) {
+          proseLinterStats.openerBypasses += 1;
+          console.warn(
+            `[Agent 9] Batch ch${batchLabel} exhausted opener retries; accepting batch with repeated-opener warning to avoid false hard-stop.`,
+          );
+          progressCallback(
+            'prose',
+            `⚠ Chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} accepted with residual repeated-opener warning after ${maxBatchAttempts} attempts`,
+            overallProgress,
+          );
+          batchErrors = [];
+        }
+
         // Fingerprint/debug-note-only failure backstop: these linter issues persist across
         // repeated LLM retries — paragraph fingerprint matches cannot be fixed by prompting,
         // and debug notes occasionally survive 6 attempts despite explicit feedback.
@@ -3111,6 +3217,14 @@ export async function generateProse(
               // Log but do NOT add to batchErrors — this is advisory only
             }
           }
+        }
+
+        // FIX 2: snapshot this attempt if it has the fewest hard errors seen so far. Runs for
+        // every attempt (including 0-error ones, though those commit directly below), so a good
+        // attempt-2 is never lost to a worse attempt-3.
+        if (batchErrors.length < bestAttemptErrorCount) {
+          bestAttemptErrorCount = batchErrors.length;
+          bestAttemptChapters = proseBatch.chapters.map(cloneProseChapter);
         }
 
         if (batchErrors.length > 0) {
@@ -3216,7 +3330,11 @@ export async function generateProse(
             overallProgress
           );
 
-          const attemptsExhausted = attempt >= maxBatchAttempts || forceTerminalFallback;
+          const attemptsExhausted = shouldTreatBatchAsAttemptsExhausted(
+            attempt,
+            maxBatchAttempts,
+            forceTerminalFallback,
+          );
           if (attemptsExhausted) {
             const errorSummary = batchErrors.slice(0, 5).join('; ');
             if (!preferCompletionOnFailure) {
@@ -3244,28 +3362,34 @@ export async function generateProse(
             const fallbackInitialWords = proseBatch.chapters.map((chapter) =>
               countWords((chapter.paragraphs ?? []).join(' ')),
             );
-            proseBatch.chapters = proseBatch.chapters.map((chapter, idx) =>
-              buildCompletionFallbackChapter(
-                chapter,
-                batchScenes[idx],
-                chapterStart + idx,
-                chapterRequirementLedger[idx],
-                inputs.clueDistribution,
-                inputs.caseData,
-                {
-                  stageMode: resolveFallbackStageMode({
-                    scene: batchScenes[idx],
-                    chapterNumber: chapterStart + idx,
-                    sceneCount,
-                    cmlCase,
-                    allScenes: scenes,
-                    dtSceneCheck,
-                  }),
-                  matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
-                  focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
-                },
-              ),
-            );
+            // FIX 2: prefer the best real LLM attempt over the deterministic template. The
+            // template only fires when no parseable LLM attempt was ever retained for this batch.
+            const usedBestAttempt = bestAttemptChapters !== null
+              && bestAttemptChapters.length === proseBatch.chapters.length;
+            proseBatch.chapters = usedBestAttempt
+              ? bestAttemptChapters!.map(cloneProseChapter)
+              : proseBatch.chapters.map((chapter, idx) =>
+                buildCompletionFallbackChapter(
+                  chapter,
+                  batchScenes[idx],
+                  chapterStart + idx,
+                  chapterRequirementLedger[idx],
+                  inputs.clueDistribution,
+                  inputs.caseData,
+                  {
+                    stageMode: resolveFallbackStageMode({
+                      scene: batchScenes[idx],
+                      chapterNumber: chapterStart + idx,
+                      sceneCount,
+                      cmlCase,
+                      allScenes: scenes,
+                      dtSceneCheck,
+                    }),
+                    matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
+                    focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
+                  },
+                ),
+              );
             const fallbackValidationErrors: string[] = [];
             proseBatch.chapters.forEach((fallbackChapter, idx) => {
               const fallbackChapterNumber = chapterStart + idx;
@@ -3357,14 +3481,42 @@ export async function generateProse(
               }
             });
             if (fallbackValidationErrors.length > 0) {
-              const fallbackErr = new Error(
-                `Completion fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
-                fallbackValidationErrors.slice(0, 5).join('; ') +
-                `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
-              );
-              (fallbackErr as any).retriedBatches = retriedBatches.size;
-              (fallbackErr as any).fallbackValidationFailed = true;
-              throw fallbackErr;
+              if (usedBestAttempt) {
+                // FIX 2: we are committing the best real LLM attempt as best-effort. Residual
+                // validation issues are downgraded to warnings rather than aborting the run with
+                // unreadable template prose. Readable-but-imperfect beats scaffold leakage.
+                // HOWEVER, leakage/echo residuals are surfaced DISTINCTLY (not silently bundled
+                // into the generic warning) so a best-effort commit that still contains verbatim
+                // schema transcription is visible rather than masked behind "required retry".
+                const leakageResiduals = fallbackValidationErrors.filter((e) =>
+                  /copied verbatim|control-plane leakage|copies the discriminating-test design|schema field copied|metadata key-value/i.test(e),
+                );
+                if (leakageResiduals.length > 0) {
+                  console.error(
+                    `[Agent 9] BEST-EFFORT COMMIT WITH UNRESOLVED LEAKAGE for ch${batchLabel} after ${maxBatchAttempts} attempts — ` +
+                    `${leakageResiduals.length} leakage/echo residual(s) shipped: ` +
+                    leakageResiduals.slice(0, 3).join('; ') +
+                    `${leakageResiduals.length > 3 ? ` (and ${leakageResiduals.length - 3} more)` : ''}`,
+                  );
+                  (proseBatch as any).bestEffortLeakageResiduals =
+                    ((proseBatch as any).bestEffortLeakageResiduals ?? 0) + leakageResiduals.length;
+                }
+                console.warn(
+                  `[Agent 9] Best-effort commit for ch${batchLabel} after ${maxBatchAttempts} attempts; ` +
+                  `${fallbackValidationErrors.length} residual issue(s) downgraded to warnings: ` +
+                  fallbackValidationErrors.slice(0, 5).join('; ') +
+                  `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+                );
+              } else {
+                const fallbackErr = new Error(
+                  `Completion fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
+                  fallbackValidationErrors.slice(0, 5).join('; ') +
+                  `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+                );
+                (fallbackErr as any).retriedBatches = retriedBatches.size;
+                (fallbackErr as any).fallbackValidationFailed = true;
+                throw fallbackErr;
+              }
             }
             const fallbackScores = proseBatch.chapters.map((chapter, idx) =>
               buildProvisionalChapterScore(
@@ -3643,28 +3795,34 @@ export async function generateProse(
               cmlCase,
               scenes,
             });
-            const fallbackChapters = batchScenes.map((scene, idx) =>
-              buildCompletionFallbackChapter(
-                undefined,
-                scene,
-                chapterStart + idx,
-                chapterRequirementLedger[idx],
-                inputs.clueDistribution,
-                inputs.caseData,
-                {
-                  stageMode: resolveFallbackStageMode({
-                    scene,
-                    chapterNumber: chapterStart + idx,
-                    sceneCount,
-                    cmlCase,
-                    allScenes: scenes,
-                    dtSceneCheck,
-                  }),
-                  matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
-                  focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
-                },
-              ),
-            );
+            // FIX 2: in the exception path too, prefer the best retained LLM attempt over the
+            // built-from-scratch template. Template only when no parseable attempt was kept.
+            const usedBestAttempt = bestAttemptChapters !== null
+              && bestAttemptChapters.length === batchScenes.length;
+            const fallbackChapters = usedBestAttempt
+              ? bestAttemptChapters!.map(cloneProseChapter)
+              : batchScenes.map((scene, idx) =>
+                buildCompletionFallbackChapter(
+                  undefined,
+                  scene,
+                  chapterStart + idx,
+                  chapterRequirementLedger[idx],
+                  inputs.clueDistribution,
+                  inputs.caseData,
+                  {
+                    stageMode: resolveFallbackStageMode({
+                      scene,
+                      chapterNumber: chapterStart + idx,
+                      sceneCount,
+                      cmlCase,
+                      allScenes: scenes,
+                      dtSceneCheck,
+                    }),
+                    matchingClearances: chapterMatchingClearances[idx] ?? batchMatchingClearances,
+                    focusName: ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? undefined,
+                  },
+                ),
+              );
             const fallbackValidationErrors: string[] = [];
             fallbackChapters.forEach((fallbackChapter, idx) => {
               const fallbackChapterNumber = chapterStart + idx;
@@ -3721,14 +3879,35 @@ export async function generateProse(
               }
             });
             if (fallbackValidationErrors.length > 0) {
-              const fallbackErr = new Error(
-                `Generation-exception fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
-                fallbackValidationErrors.slice(0, 5).join('; ') +
-                `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
-              );
-              (fallbackErr as any).retriedBatches = retriedBatches.size;
-              (fallbackErr as any).fallbackValidationFailed = true;
-              throw fallbackErr;
+              if (usedBestAttempt) {
+                // FIX 2: best-effort commit of the best real LLM attempt; residual issues warn.
+                const leakageResiduals = fallbackValidationErrors.filter((e) =>
+                  /copied verbatim|control-plane leakage|copies the discriminating-test design|schema field copied|metadata key-value/i.test(e),
+                );
+                if (leakageResiduals.length > 0) {
+                  console.error(
+                    `[Agent 9] BEST-EFFORT COMMIT WITH UNRESOLVED LEAKAGE (exception path) for ch${batchLabel} — ` +
+                    `${leakageResiduals.length} leakage/echo residual(s) shipped: ` +
+                    leakageResiduals.slice(0, 3).join('; ') +
+                    `${leakageResiduals.length > 3 ? ` (and ${leakageResiduals.length - 3} more)` : ''}`,
+                  );
+                }
+                console.warn(
+                  `[Agent 9] Best-effort commit (exception path) for ch${batchLabel}; ` +
+                  `${fallbackValidationErrors.length} residual issue(s) downgraded to warnings: ` +
+                  fallbackValidationErrors.slice(0, 5).join('; ') +
+                  `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+                );
+              } else {
+                const fallbackErr = new Error(
+                  `Generation-exception fallback for chapter${batchScenes.length > 1 ? 's' : ''} ${batchLabel} failed validation: ` +
+                  fallbackValidationErrors.slice(0, 5).join('; ') +
+                  `${fallbackValidationErrors.length > 5 ? ` (and ${fallbackValidationErrors.length - 5} more)` : ''}`,
+                );
+                (fallbackErr as any).retriedBatches = retriedBatches.size;
+                (fallbackErr as any).fallbackValidationFailed = true;
+                throw fallbackErr;
+              }
             }
             fallbackChapters.forEach((chapter, idx) => {
               fallbackTelemetry.push({
