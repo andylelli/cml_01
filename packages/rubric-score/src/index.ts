@@ -34,3 +34,5 @@ export { buildRubricSystemPrompt, buildRubricUserMessage } from "./prompt.js";
 export { RUBRIC_SCHEMA } from "./schema.js";
 export { scoreStory } from "./score.js";
 export type { JudgeRequest, JudgeResult, RubricJudge, ScoreStoryInput, ScoreStoryResult } from "./score.js";
+export { createLLMRubricJudge, parseJudgeResult } from "./llm-judge.js";
+export type { ChatFn, ChatArgs, ChatMessage, LLMJudgeOptions } from "./llm-judge.js";

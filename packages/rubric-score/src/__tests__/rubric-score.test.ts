@@ -3,6 +3,7 @@ import { applyHardCaps } from "../hard-caps.js";
 import { bandFor } from "../bands.js";
 import { extractStoryFacts } from "../facts.js";
 import { scoreStory, type RubricJudge } from "../score.js";
+import { createLLMRubricJudge, parseJudgeResult, type ChatFn } from "../llm-judge.js";
 import { CATEGORIES, type Category, type RubricScore, type StoryFacts } from "../types.js";
 
 /** A clean rubric score: every category 8/10 → raw total 80. */
@@ -174,5 +175,65 @@ describe("scoreStory — orchestration with an injectable stub judge", () => {
     const judge: RubricJudge = async () => ({ rubric: rubric(), flags: { deadVictimAppearsAlive: true } });
     const r = await scoreStory({ prose: cleanProse, cml: caseData, judge });
     expect(r.final).toBeLessThanOrEqual(60);
+  });
+});
+
+describe("createLLMRubricJudge — wraps a ChatFn, tolerant of fences/missing fields", () => {
+  const payload = {
+    categories: CATEGORIES.map((c) => ({ category: c, mark: 7, reason: "ok" })),
+    total: 70,
+    overall_view: "decent",
+    what_works: ["clear victim"],
+    main_problems: ["thin clues"],
+    chapter_issues: [{ chapter: 1, issues: ["slow open"] }],
+    fastest_fixes: ["plant clue earlier"],
+    flags: { weakMurderMethod: true },
+  };
+
+  it("parses a code-fenced JSON judge response into { rubric, flags }", async () => {
+    const chat: ChatFn = async () => ({ content: "```json\n" + JSON.stringify(payload) + "\n```" });
+    const judge = createLLMRubricJudge(chat, { temperature: 0.2 });
+    const { rubric: r, flags } = await judge({ systemPrompt: "s", userMessage: "u", schema: {} as never });
+    expect(r.categories).toHaveLength(10);
+    expect(r.total).toBe(70);
+    expect(flags?.weakMurderMethod).toBe(true);
+  });
+
+  it("parseJudgeResult backfills total from category marks when absent", () => {
+    const { rubric: r } = parseJudgeResult(JSON.stringify({ categories: CATEGORIES.map((c) => ({ category: c, mark: 6, reason: "x" })) }));
+    expect(r.total).toBe(60);
+  });
+
+  it("normalizes alt category keys/labels so the caps can bind (the live gpt-4o-mini shape)", () => {
+    // model returned `name`/`score` and prose-ish labels — must map to canonical categories
+    const { rubric: r } = parseJudgeResult(
+      JSON.stringify({
+        categories: [
+          { name: "Premise / Concept", score: 8, notes: "x" },
+          { name: "Opening Hook", score: 7 },
+          { name: "Plot Structure", score: 6 },
+          { name: "Character Clarity", score: 5 },
+          { name: "Dialogue", score: 7 },
+          { name: "Atmosphere / Setting", score: 6 },
+          { name: "Mystery Clues / Evidence Logic", score: 5 },
+          { name: "Pacing", score: 7 },
+          { name: "Ending / Reveal", score: 6 },
+          { name: "Prose / Polish", score: 7 },
+        ],
+      }),
+    );
+    expect(r.categories.map((c) => c.category)).toEqual(CATEGORIES);
+    expect(r.categories.find((c) => c.category === "character_clarity")!.mark).toBe(5);
+  });
+
+  it("the wrapped judge composes with scoreStory + caps end to end (stub chat)", async () => {
+    const leaky = "The chapter moves forward through vivid detail. Lord Ashby is dead.";
+    const chat: ChatFn = async () => ({ content: JSON.stringify({ ...payload, categories: CATEGORIES.map((c) => ({ category: c, mark: 9, reason: "x" })) }) });
+    const r = await scoreStory({
+      prose: leaky,
+      cml: { cast: [{ name: "Lord Ashby", role: "victim" }], culpability: { culprits: ["X"] } },
+      judge: createLLMRubricJudge(chat),
+    });
+    expect(r.categories.find((c) => c.category === "prose")!.mark).toBe(4); // extractor's leakage fact caps it
   });
 });
