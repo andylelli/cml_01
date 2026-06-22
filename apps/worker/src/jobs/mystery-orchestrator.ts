@@ -21,6 +21,8 @@ import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 // Final-story rubric scoring (aligning-the-scoring-system.md): LLM critic + deterministic cap engine.
 import { scoreStory, createLLMRubricJudge } from "@cml/rubric-score";
+// Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
+import { deriveClueSpec } from "@cml/clue-spec";
 import type { CaseData } from "@cml/cml";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import type {
@@ -571,6 +573,43 @@ async function runRubricScoring(args: {
 }
 
 // ============================================================================
+// Agent 5 clue-spec shadow (10_agent_5_clues_red_herrings.md §4.1 / §9.1)
+// ============================================================================
+// deriveClueSpec computes the AUTHORITATIVE required-clue set from the frozen CML (the redesign's
+// "coverage is constructed, not audited"). In shadow it logs how many of Agent 5's shipped clues map
+// to a derived slot — the §9.1 coverage signal — without changing the live clue set. Never throws.
+// Set AGENT5_DERIVE_SHADOW=0 to silence.
+
+function runClueSpecShadow(args: { cml: unknown; clues: unknown; warnings: string[] }): void {
+  if (/^(0|false|no|off)$/i.test(process.env.AGENT5_DERIVE_SHADOW ?? "")) return; // default on
+  try {
+    const caseData = (args.cml as any)?.CASE ?? args.cml;
+    const spec = deriveClueSpec(caseData);
+    const shipped = ((args.clues as any)?.clues ?? []) as any[];
+    const stripCase = (s: unknown): string => String(s ?? "").replace(/^CASE\./i, "").trim();
+    const derivedIds = new Set(spec.clueSlots.map((s) => s.id));
+    const derivedSources = new Set(spec.clueSlots.map((s) => stripCase(s.sourceInCML)));
+    const derivedStepEv = new Set(
+      spec.clueSlots.filter((s) => s.supportsInferenceStep != null).map((s) => `${s.supportsInferenceStep}:${s.evidenceType}`),
+    );
+    let covered = 0;
+    for (const c of shipped) {
+      const src = stripCase(c?.sourceInCML);
+      const stepEv = c?.supportsInferenceStep != null && c?.evidenceType ? `${c.supportsInferenceStep}:${c.evidenceType}` : "";
+      if (derivedIds.has(c?.id) || (src && derivedSources.has(src)) || (stepEv && derivedStepEv.has(stepEv))) covered++;
+    }
+    const pct = shipped.length ? Math.round((100 * covered) / shipped.length) : 0;
+    console.info(
+      `[Agent 5 clue-spec shadow] deriveClueSpec: ${spec.clueSlots.length} required slots + ${spec.redHerringSlots.length} red-herring slots; ` +
+        `${shipped.length} shipped clues, ${covered}/${shipped.length} (${pct}%) map to a derived slot.`,
+    );
+    args.warnings.push(`Clue-spec (shadow): ${spec.clueSlots.length} required slots; ${pct}% of shipped clues map to one.`);
+  } catch (e) {
+    args.warnings.push(`Clue-spec shadow skipped: ${describeError(e)}`);
+  }
+}
+
+// ============================================================================
 // Main Orchestrator
 // ============================================================================
 
@@ -757,6 +796,7 @@ export async function generateMystery(
 
     await runAgent5(ctx);   // Clue Distributor
     if (onArtifact && ctx.clues) await onArtifact("clues", ctx.clues).catch(() => {});
+    runClueSpecShadow({ cml: ctx.cml, clues: ctx.clues, warnings }); // shadow: log derived-vs-shipped coverage
     await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
     if (onArtifact && ctx.fairPlayAudit) await onArtifact("fair_play_report", ctx.fairPlayAudit).catch(() => {});
 

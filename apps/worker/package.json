@@ -29,7 +29,8 @@
     "@cml/story-validation": "file:../../packages/story-validation",
     "@cml/prose-guard": "file:../../packages/prose-guard",
     "@cml/beat-scheduler": "file:../../packages/beat-scheduler",
-    "@cml/rubric-score": "file:../../packages/rubric-score"
+    "@cml/rubric-score": "file:../../packages/rubric-score",
+    "@cml/clue-spec": "file:../../packages/clue-spec"
   },
   "devDependencies": {
     "vitest": "^2.1.5"
