@@ -45,6 +45,8 @@ export {
   revealsCulprit,
   detectLocationMetadataDump,
   noMetadataDumpValidator,
+  detectTemplateLeakage,
+  noTemplateLeakageValidator,
   countMisgenderedPronouns,
   pronounConsistencyValidator,
 } from "./fidelity.js";

@@ -7,6 +7,7 @@ import {
   noMetadataDumpValidator,
   pronounConsistencyValidator,
   detectLocationMetadataDump,
+  detectTemplateLeakage,
   countMisgenderedPronouns,
   revealsCulprit,
 } from "../fidelity.js";
@@ -33,6 +34,14 @@ describe("§3.2 golden — validation-gated mutation REVERTS the grounding-lead 
   it("the dump is what the detector actually catches (and a clean opening is not)", () => {
     expect(detectLocationMetadataDump(buggyGroundingLead(cleanChapter))).toBe(true);
     expect(detectLocationMetadataDump(cleanChapter)).toBe(false);
+  });
+
+  it("detectTemplateLeakage catches the rubric's exact validation-text artifacts, not clean prose", () => {
+    expect(detectTemplateLeakage("The chapter moves forward through vivid detail instead than recap.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("The elapsed time was confirmed as forty minutes.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("At Study, Early afternoon settled over the investigation.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("Gray questioned the doctor Finch about the will.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("Gray crossed to the window and watched the rain.")).toEqual([]);
   });
 
   it("a genuinely lossless mutation (it doesn't regress) IS allowed to ship", () => {

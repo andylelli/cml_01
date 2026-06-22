@@ -106,6 +106,40 @@ export const noMetadataDumpValidator: Validator<string> = (prose) => {
   return { ok: !dump, score: dump ? 0 : 100, violations: dump ? ["location_metadata_dump_in_opening"] : [] };
 };
 
+// Prompt / template / validation-text leakage (the rubric's "Prompt / Template Leakage" + Prose
+// penalties). These are generated-text artifacts — raw planning/validation sentences and outline-
+// expansion phrasing that leak into the prose. High-precision by construction.
+const TEMPLATE_LEAKAGE = [
+  /\bthe chapter moves forward through\b/i,
+  /\brequired evidence was kept explicit\b/i,
+  /\bthe elapsed time was confirmed\b/i,
+  /\bthe time was recorded as\b/i,
+  /\binstead than\b/i, // "...vivid detail instead than recap"
+  /^\s*at \w+,\s+(early|late|mid)[- ]?(morning|afternoon|evening|night)?\b/im, // "At Study, Early afternoon settled…"
+  /\bthe (?:doctor|captain|inspector|professor|colonel|major|sergeant|constable|lady|lord|sir) [A-Z]\w+/, // "the doctor Finch"
+  /\b(\w{3,})\s+\1\b/i, // doubled words (3+ letters)
+];
+
+/**
+ * Detect prompt/template/validation-text leakage anywhere in the prose (the rubric's most
+ * reputation-damaging penalty — Prose ≤4, overall ≤65). Returns the matched fragments so the cap
+ * engine can report exactly what leaked. Net-new detector for the scoring-alignment rubric.
+ */
+export function detectTemplateLeakage(prose: string): string[] {
+  const hits: string[] = [];
+  for (const re of TEMPLATE_LEAKAGE) {
+    const m = re.exec(prose);
+    if (m) hits.push(m[0].trim());
+  }
+  return hits;
+}
+
+/** Validator gating against template/validation-text leakage anywhere in the prose. */
+export const noTemplateLeakageValidator: Validator<string> = (prose) => {
+  const hits = detectTemplateLeakage(prose);
+  return { ok: hits.length === 0, score: hits.length === 0 ? 100 : 0, violations: hits.map((h) => `template_leakage:${h}`) };
+};
+
 const PRONOUNS = {
   female: /\b(she|her|hers|herself)\b/gi,
   male: /\b(he|him|his|himself)\b/gi,
