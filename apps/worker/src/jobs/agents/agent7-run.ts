@@ -33,8 +33,9 @@ import {
   SchedulerInfeasibleError,
 } from "@cml/beat-scheduler";
 
-/** Shadow-only: when on, log the deterministic scene grid next to the live outline (no behaviour change). */
-const AGENT7_SCHEDULER_SHADOW = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
+/** Shadow-only: log the deterministic scene grid next to the live outline. Default ON (logs only,
+ * acts on nothing); set `AGENT7_SCHEDULER_SHADOW=0` to silence. */
+const AGENT7_SCHEDULER_SHADOW = !/^(0|false|no|off)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
 
 /** Build + invariant-check the deterministic grid for the produced outline, logging the comparison. */
 function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline): void {

@@ -118,10 +118,11 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean 
  * Agent 9 redesign Phase A (§4.2): validation-gated mutation. When ON, every deterministic prose
  * mutation that has a machine-checkable validator (today: the grounding-lead injector vs the §3.2
  * location-metadata-dump leak) is wrapped in `mutateThenValidate` and reverted if it regresses the
- * property. Default OFF → the legacy path is byte-identical; flip `AGENT9_MUTATION_REVALIDATION=1`
- * (or `agent9_prose.rollout_flags.mutation_revalidation_enabled`) to enable.
+ * property. Default ON (the safety law is active); set `AGENT9_MUTATION_REVALIDATION=0` to disable.
+ * When on but no regression occurs, behaviour is identical to legacy (the lead ships unchanged); it
+ * only ever REVERTS a lead that would have introduced a metadata-dump opening (a strict improvement).
  */
-const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, false);
+const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, true);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,

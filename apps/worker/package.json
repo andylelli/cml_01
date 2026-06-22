@@ -28,7 +28,8 @@
     "@cml/prompts-llm": "file:../../packages/prompts-llm",
     "@cml/story-validation": "file:../../packages/story-validation",
     "@cml/prose-guard": "file:../../packages/prose-guard",
-    "@cml/beat-scheduler": "file:../../packages/beat-scheduler"
+    "@cml/beat-scheduler": "file:../../packages/beat-scheduler",
+    "@cml/rubric-score": "file:../../packages/rubric-score"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

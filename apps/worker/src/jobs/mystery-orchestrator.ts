@@ -19,6 +19,8 @@ import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { promises as dns } from "dns";
 import { resolveWorkerRuntimePaths } from "./runtime-paths.js";
 import type { AzureOpenAIClient } from "@cml/llm-client";
+// Final-story rubric scoring (aligning-the-scoring-system.md): LLM critic + deterministic cap engine.
+import { scoreStory, createLLMRubricJudge } from "@cml/rubric-score";
 import type { CaseData } from "@cml/cml";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import type {
@@ -504,6 +506,71 @@ function assembleCharacterBundle(
 }
 
 // ============================================================================
+// Final-story rubric scoring (aligning-the-scoring-system.md)
+// ============================================================================
+// An LLM critic scores the finished prose across the 10-category /100 rubric; a deterministic cap
+// engine then enforces the rubric's hard caps. Runs in SHADOW: the score is logged and attached to
+// the report as a diagnostic, but does NOT (yet) replace the headline overall_score. Wrapped so it
+// can NEVER break a run. Set RUBRIC_SCORING_MODE=off to skip.
+
+function assembleFullProse(prose: any): string {
+  const chapters = Array.isArray(prose?.chapters) ? prose.chapters : [];
+  return chapters
+    .map((c: any) => {
+      const body = Array.isArray(c?.paragraphs) ? c.paragraphs.join("\n\n") : String(c?.content ?? c?.text ?? "");
+      const title = c?.title ? `${c.title}\n\n` : "";
+      return `${title}${body}`.trim();
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+async function runRubricScoring(args: {
+  prose: unknown;
+  cml: unknown;
+  client: AzureOpenAIClient;
+  aggregator?: ScoreAggregator;
+  warnings: string[];
+  runId: string;
+  projectId?: string;
+}): Promise<void> {
+  const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
+  if (mode === "off") return;
+  try {
+    const proseText = assembleFullProse(args.prose);
+    if (proseText.length < 200) return; // nothing meaningful to score
+    const model = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+    const judge = createLLMRubricJudge(
+      (chatArgs) =>
+        args.client.chat({
+          ...chatArgs,
+          model: chatArgs.model ?? model,
+          logContext: { agent: "RubricScorer", runId: args.runId, projectId: args.projectId ?? "unknown" },
+        } as any),
+      { model, temperature: 0.2, maxTokens: 4000 },
+    );
+    const r = await scoreStory({ prose: proseText, cml: args.cml, judge });
+    console.info(
+      `[Rubric] ${r.final}/100 (${r.band}); raw ${r.rawTotal}` +
+        (r.capsApplied.length ? `; caps: ${r.capsApplied.join("; ")}` : ""),
+    );
+    args.warnings.push(`Final-story rubric (shadow): ${r.final}/100 — ${r.band}`);
+    args.aggregator?.upsertDiagnostic("rubric_score", "scoring", "Final-Story Rubric", "rubric_score", {
+      final: r.final,
+      band: r.band,
+      raw_total: r.rawTotal,
+      categories: r.categories,
+      caps_applied: r.capsApplied,
+      overall_view: r.rubric.overall_view,
+      main_problems: r.rubric.main_problems,
+      fastest_fixes: r.rubric.fastest_fixes,
+    });
+  } catch (e) {
+    args.warnings.push(`Rubric scoring skipped: ${describeError(e)}`);
+  }
+}
+
+// ============================================================================
 // Main Orchestrator
 // ============================================================================
 
@@ -974,6 +1041,18 @@ export async function generateMystery(
 
     await runAgent9(ctx);
     if (onArtifact && ctx.prose) await onArtifact("prose", ctx.prose).catch(() => {});
+
+    // Final-story rubric (shadow): score the finished prose with the LLM critic + cap engine, log it,
+    // and attach it to the report as a diagnostic. Never throws into the run.
+    await runRubricScoring({
+      prose: ctx.prose,
+      cml: ctx.cml,
+      client,
+      aggregator: scoreAggregator,
+      warnings,
+      runId,
+      projectId,
+    });
 
     // ── Complete ─────────────────────────────────────────────────────────────
     const totalDurationMs = Date.now() - startTime;
