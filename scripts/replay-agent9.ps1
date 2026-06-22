@@ -12,7 +12,8 @@
   Project whose artifacts to replay. Defaults to the ANALYSIS_46 run inside the .bat.
 
 .PARAMETER Label
-  Optional run label; becomes the output folder stories\replay_<label>\.
+  Optional run label (runId / log + prompt-doc names). The story is written to the
+  normal stories\story_<YYYYMMDD-HHMM>\ folder, same as a real run.
 
 .PARAMETER SkipBuild
   Skip the worker rebuild and use the last compiled dist.

@@ -9,8 +9,9 @@ REM
 REM  Args:
 REM    projectId  (optional) project whose artifacts to replay.
 REM               Default: proj_8e6d7185-cf4a-4741-ae73-8e6e987fe3cc (ANALYSIS_46 run)
-REM    label      (optional) run label; becomes the output folder name
-REM               stories\replay_<label>\ . Default: replay-<timestamp>.
+REM    label      (optional) run label (used as the runId / log + prompt-doc names).
+REM               Default: replay-<timestamp>. The story is written to the normal
+REM               stories\story_<YYYYMMDD-HHMM>\ folder, same as a real run.
 REM
 REM  Env:
 REM    REPLAY_SKIP_BUILD=1   skip the worker rebuild (use last compiled dist)
