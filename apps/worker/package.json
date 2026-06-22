@@ -26,7 +26,8 @@
     "@cml/cml": "file:../../packages/cml",
     "@cml/llm-client": "file:../../packages/llm-client",
     "@cml/prompts-llm": "file:../../packages/prompts-llm",
-    "@cml/story-validation": "file:../../packages/story-validation"
+    "@cml/story-validation": "file:../../packages/story-validation",
+    "@cml/prose-guard": "file:../../packages/prose-guard"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

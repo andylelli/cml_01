@@ -36,6 +36,9 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { validateArtifact, validateCml } from "@cml/cml";
+// Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
+// pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
+import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
 import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
@@ -110,6 +113,15 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean 
   if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
   return fallback;
 };
+
+/**
+ * Agent 9 redesign Phase A (§4.2): validation-gated mutation. When ON, every deterministic prose
+ * mutation that has a machine-checkable validator (today: the grounding-lead injector vs the §3.2
+ * location-metadata-dump leak) is wrapped in `mutateThenValidate` and reverted if it regresses the
+ * property. Default OFF → the legacy path is byte-identical; flip `AGENT9_MUTATION_REVALIDATION=1`
+ * (or `agent9_prose.rollout_flags.mutation_revalidation_enabled`) to enable.
+ */
+const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -2195,6 +2207,7 @@ export const applyDeterministicProsePostProcessing = (
   // though they are shorter than the 170-char general dedup threshold.
   const seenGroundingLeads = new Set<string>();
   let totalPronounRepairs = 0;
+  let groundingLeadReverts = 0; // §4.2 validation-gated-mutation telemetry (0 unless the flag is on)
 
   const buildUniqueGroundingLead = (baseIndex: number): string => {
     for (let offset = 0; offset < 5; offset++) {
@@ -2216,9 +2229,30 @@ export const applyDeterministicProsePostProcessing = (
 
     const needsGroundingLead =
       !signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere;
-    const groundedParagraphs = needsGroundingLead
-      ? [buildUniqueGroundingLead(index), ...readableParagraphs]
-      : readableParagraphs;
+    let groundedParagraphs: string[];
+    if (AGENT9_MUTATION_REVALIDATION && needsGroundingLead) {
+      // Validation-gated mutation (§4.2): prepend the grounding lead, but revert to the model's clean
+      // opening if doing so introduces a location-metadata-dump (the run_1d55f7c7 §3.2 leak). The
+      // mutation ships only if it broke nothing — the universal law, applied here via the shared
+      // @cml/prose-guard primitive instead of the bespoke looksMalformed guard.
+      const outcome = mutateThenValidate(
+        readableParagraphs,
+        (paras: string[]) => [buildUniqueGroundingLead(index), ...paras],
+        (paras: string[]) => noMetadataDumpValidator(paras.join(" ")),
+      );
+      groundedParagraphs = outcome.value;
+      if (outcome.reverted) {
+        groundingLeadReverts += 1;
+        console.warn(
+          `[Agent 9] mutation-revalidation: reverted grounding lead on chapter ${index + 1} — ` +
+            `it would have introduced a location-metadata dump (${outcome.reason}); kept the model's opening.`,
+        );
+      }
+    } else {
+      groundedParagraphs = needsGroundingLead
+        ? [buildUniqueGroundingLead(index), ...readableParagraphs]
+        : readableParagraphs;
+    }
 
     const sanitizedParagraphs = groundedParagraphs
       .map((paragraph: string, paragraphIndex: number) => {
@@ -2265,6 +2299,7 @@ export const applyDeterministicProsePostProcessing = (
     ...prose,
     chapters: processedChapters,
     pronounRepairsApplied: totalPronounRepairs,
+    groundingLeadReverts,
   };
 };
 
