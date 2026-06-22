@@ -132,3 +132,179 @@ The rubric (`scoring-approach.md` § Prompt/Template Leakage) says *"Overall sco
 | Agent 9 mutation-revalidation | active | no reverts needed | correctly inert; no regression |
 
 Nothing in the four new hooks caused a defect; every defect this run is a **pre-existing pipeline behaviour** that the redesign packages are designed to remove. The instrumentation's value is that it now *measures* that, per run, on live traffic.
+
+---
+
+## 8. Strategic remediation plan — fix the defect *classes*, never the run
+
+> **The rule for everything below.** A fix is only allowed if it would improve **any** scenario the
+> pipeline can produce — a poisoning in a 1920s liner, a locked-room in a lighthouse, a fraud in a
+> bank — *without ever referencing this run's names, clue IDs, chapter numbers, times, or phrases*. If
+> a proposed change would need to know that the culprit is "Lady Constance" or the clue is "the
+> winding key," it is **tactical and rejected**. We are fixing the grammar, not the sentence.
+
+### 8.0 The single diagnosis under all five defects
+
+D1–D5 look like five problems; they are one. **Every one is a load-bearing, reader-facing *fact* that
+the logic layer left implicit, so the prose layer then mishandled it** in one of three ways:
+
+| Failure mode | Defects | What the prose did with the un-pinned fact |
+|---|---|---|
+| **Omits** it | D1 (death method), D5 (true/false time) | the fact was never required, so the model never wrote it |
+| **Transcribes** it | D3 (verbatim clue/schema copy) | the model was handed the *spec sentence* and pasted it |
+| **Smears** it | D2 (Ch9≈Ch10) | the fact (the discriminating test) had no fixed home, so it bled across slots |
+
+And the **completion-first fallback** — correct as a *liveness* guarantee (ANALYSIS_44) — currently
+converts "the model couldn't pin the fact in 3 tries" into "ship the un-pinned version." So the
+strategic program is two moves, applied to a *class* of facts, not a list of phrases:
+
+1. **Make every load-bearing reader-facing fact an explicit, typed, validated CML field**, and
+   **propagate it as a per-chapter obligation the prose must satisfy in its own words.** (Constrain at
+   the source.)
+2. **Redefine "acceptable to ship" so a HARD obligation violation is never shippable** — only *soft*
+   (cosmetic) issues may be downgraded to warnings; a missing/leaked fact triggers a *scoped* rewrite,
+   and if still unmet, surfaces a *precise upstream defect* instead of shipping the defect. (Dramatize
+   at the sink, but never ship below the contract floor.)
+
+This is the program's existing thesis — *constrain at the source, verify with a checker, dramatize
+with the model* — applied uniformly. It is general by construction: it never names a fact, only the
+*category* "load-bearing reader-facing fact."
+
+### 8.1 Six cross-cutting reframes (each general; each kills a class)
+
+1. **Facts are axioms, not flourishes.** How the victim died, the true vs apparent time and *which
+   alibi the gap breaks*, the victim's identity — these are not optional prose colour. They are
+   theorems the CML must *state* and the prose must *surface*. (Fixes D1, D5, R1-upstream for any
+   mystery.)
+2. **Separate the three questions of every murder** (the rubric's own Important Distinction, true for
+   all whodunits): *how the victim died* (death method) ≠ *how the culprit concealed it* (mechanism) ≠
+   *how the detective proves it* (discriminating test). The CML currently collapses death into
+   concealment; split them as distinct required fields. (Fixes D1 generally.)
+3. **The model must never be handed prose it can copy.** Where the model is given a clue today, it
+   gets the polished schema *description* and pastes it. Hand it the clue's **function + key terms**
+   and an explicit "render in your own words; the spec is not prose" — the obligation, not the
+   sentence. (Fixes D3 at the source for any clue, not via phrase blacklists.)
+4. **Scheduling is a solved constraint problem; the LLM dramatizes a fixed grid.** Placement of the
+   discriminating test (after its evidence, before the reveal, in its own slot) is deterministic for
+   *any* obligation set; the LLM should never free-schedule it. (Fixes D2 generally.)
+5. **The accept decision must split HARD from SOFT.** Hard = fairness/fact integrity (a clue leaked
+   early, a required fact absent, the culprit revealed before the reveal, the death method unstated).
+   Soft = cosmetic (repeated openers, n-gram overlap). The fallback may ship with *soft* warnings; it
+   must **never** ship a *hard* violation — that gets a located, scoped rewrite, then an upstream
+   defect signal. "Ship something" must mean "ship the best *contract-clean* draft." (Fixes the
+   mechanism that let D1–D4 reach the page, for any story.)
+6. **The score must be calibrated and severity-aware**, so it is a trustworthy driver of the loop and
+   of human triage — not a blunt instrument that mis-fires (R1) or over-penalises minor issues (R2).
+
+### 8.2 The plan by layer (source → sink), each fix stated as a class fix
+
+The defects are not co-equal; they live at different layers, and **fixing a lower layer dissolves work
+at a higher one.** Order matters: a death-method *field* (logic) makes the death-method *obligation*
+(render) trivial; the chapter-as-contract (render) makes the verbatim-copy *gate* (sink) dead code.
+
+**Layer 1 — Logic (Agent 3 / CML schema): pin the facts that don't exist yet.**
+- **L1 (D1, general): add a required `death_method` to the CML, distinct from the concealment
+  mechanism**, with a validator asserting the two are different propositions, and an obligation that
+  the reveal must surface the death method. *Generality test:* every murder CML must answer "how did
+  the victim die," independent of trick. The rubric's `weakMurderMethod` then checks the *death
+  method* is on the page, not the mechanism.
+- **L2 (D5, general): promote the temporal contradiction to required locked facts** — apparent time,
+  true time, **and the eliminating consequence** ("the gap breaks suspect X's alibi"), carried
+  verbatim as locked facts so they *must* be surfaced. *Generality test:* applies to every
+  temporal-axis mystery; for non-temporal axes the field is empty and inert.
+- **L3 (R1-upstream, general): canonicalise the victim.** The schema already designates `role:victim`
+  as "the canonical signal used by prose agents to identify the murder victim" — but this run's CML
+  set no such member. Validate that exactly one canonical victim identity exists (cast role *or* a
+  dedicated field) and that Agent 2/3 always sets it. *This is the upstream half of R1.*
+
+**Layer 2 — Schedule (Agent 7): make placement a property.**
+- **S1 (D2, general): promote `@cml/beat-scheduler` from shadow → authoritative for scene/clue
+  placement.** The shadow already proved (this run and the offline corpus) that the grid is complete,
+  ordered, and ≥60% covered for real cases. Authoritative placement puts the discriminating test in
+  its own slot, *after* its supporting clues, *before* the reveal — eliminating the "DT-scene
+  scheduling gap … prose cannot repair" for *any* story, and giving Ch-N-vs-Ch-N+1 a clean seam. The
+  band-aids (`applyDeterministicCluePreAssignment`, the count lock, the DT-vocabulary splice) become
+  dead code.
+
+**Layer 3 — Render (Agent 9): hand obligations, not specs; rewrite scoped, ship clean.**
+- **R-A (D3, general): wire the chapter-as-contract render path** (`@cml/prose-guard`
+  `deriveChapterContracts` + `checkContractFidelity`). The model receives `must_surface` (clue
+  function + key terms) and `must_not_reveal`, never the copy-able schema sentence. Fidelity is
+  *checked*, not regex-policed. This removes the *source* of the verbatim copy and the reasoning-leak
+  for every clue in every story.
+- **R-B (D4, general): pronoun consistency as a gender-aware critique-and-rewrite**, gated by
+  `countMisgenderedPronouns` over `CASE.cast.gender` per character — the model fixes the located slip
+  in context. Replaces the disabled deterministic per-chapter repair and the lossy final sweep;
+  correct for any cast composition.
+- **R-C (cross-cutting, general): implement reframe #5 — the HARD/SOFT accept floor.** Completion-first
+  may downgrade *soft* gate failures to warnings (keeps the ANALYSIS_44 liveness win) but must escalate
+  a *hard* failure to a scoped rewrite of the offending passage, and—if unmet—emit the precise upstream
+  defect (e.g. "outline DT gap") rather than shipping it. This is the load-bearing change that stops
+  D1–D4 reaching the page even on a hard day, for any run. It depends on R-A (so a contract-clean draft
+  is *reachable*).
+
+**Layer 4 — Score (rubric): calibrate so the signal is trustworthy.**
+- **C1 (R1, general): robust victim resolution** — resolve the victim name from cast `role:victim`,
+  `meta`, or the crime spec; flag `victimUnnamed` *only* when a name is positively resolved and absent
+  from prose; never infer "unnamed" from "no role:victim member." (With L3, this rarely fires.)
+- **C2 (R2, general): severity-scale the leakage cap** — `Prose ≤ 4` on any hit, but the overall
+  `≤ 65` ceiling only when leakage is material (≥2 distinct fragments or ≥2 chapters), per the rubric's
+  own "unless leakage is very minor." Brings the cap engine into line with the human on minor leakage.
+
+### 8.3 Sequencing — independently shippable, each shadow → canary → promote
+
+The order maximises *dissolved* work and minimises blast radius:
+
+| Phase | Fixes | Why first / dependency | Risk |
+|---|---|---|---|
+| **0** | C1, C2 (rubric calibration) | makes the *signal* trustworthy before we steer by it; pure, offline, no pipeline change | trivial |
+| **1** | S1 (scheduler authoritative) | deterministic, already shadow-proven on live + corpus; fixes the "prose-cannot-repair" class outright | low |
+| **2** | L1, L2, L3 (CML facts: death / time / victim) | source fixes that make the render obligations *exist*; schema + Agent 3/2 + validators | medium (schema/gen) |
+| **3** | R-A, R-B, R-C (contract render + pronoun critique + HARD/SOFT floor) | needs L1–L3 (the facts to render) and benefits from S1 (clean placement); highest blast radius, do last | high — canary hard |
+
+Each phase is reversible behind a flag and **proven against a corpus, not this run** (§8.4). No phase
+"makes story_20260622-2122 pass"; each makes a *class* of stories better, measured by the calibrated
+rubric distribution + the deterministic checkers across the canary set.
+
+### 8.4 Generality guardrails — how we *prove* a fix is strategic, not tactical
+
+For every change above:
+1. **No story-specific identifiers** anywhere in the diff (no names, clue IDs, times, phrases). A diff
+   that greps for "winding key" or "Lady Constance" is rejected on sight.
+2. **Validated on a corpus / property test, not a run.** A schema/field fix ships with a property test
+   over generated + historical CMLs (as the foundations already do); a render fix ships with the
+   chapter-as-contract fidelity test; a scheduler change ships with the invariant suite — *not* with
+   "the last run now completes."
+3. **The calibrated rubric is the cross-run yardstick.** Success = the *distribution* of rubric scores
+   (and the deterministic cap-fire rates: leakage, weak-murder, victim-unnamed) improves across the
+   canary corpus, with no single-run cherry-picking.
+4. **A fix that can't be stated without the storyline is the wrong fix** — escalate it one layer down
+   until it can. (E.g. "this reveal lacks a death sentence" → *tactical*; "every CML must carry a
+   `death_method` field, validated distinct from the mechanism, surfaced as a reveal obligation" →
+   *strategic*.)
+
+### 8.5 Explicit anti-patterns (what we will **not** do)
+
+- ❌ Add regex for the exact leaked phrases ("elapsed time was confirmed", "Inspector Bramley was
+  cleared") — that is whack-a-mole against an infinite phrase space; fix the *source* (R-A) so the
+  model never produces schema-shaped prose.
+- ❌ Merge/renumber Ch9–Ch10 for this story — fix *placement* (S1) so test and reveal get distinct
+  slots for any chapter count.
+- ❌ Inject a death-method sentence into the reveal — add the *field + obligation* (L1) so every story
+  states one.
+- ❌ Hand-fix the three pronoun slips — gender-aware critique (R-B) for any cast.
+- ❌ Tune a threshold so this run clears 70 — calibrate the cap against the *rubric's own rule* and the
+  corpus (C1/C2), then let the score fall where it falls.
+
+### 8.6 The one-paragraph strategy
+
+Every defect this run is a load-bearing fact the logic left implicit and the prose then omitted,
+copied, or smeared — and a fallback that shipped the result. So the strategy is not five patches but
+one principle applied at four layers: **pin every reader-facing fact as a typed, validated CML field
+(death method, true/false time + the alibi it breaks, canonical victim); schedule its placement
+deterministically; hand the model the obligation and its key terms — never the spec sentence — and
+check fidelity instead of policing phrases; and never let "ship something" mean "ship a hard
+violation."** Calibrate the rubric first so we can see the class-level effect, promote the
+shadow-proven scheduler, enrich the CML at the source, then land the chapter-as-contract render with a
+HARD/SOFT accept floor — each step proven on a corpus, none of it knowing or caring that the victim was
+Sir Lionel or the trick was a clock.
