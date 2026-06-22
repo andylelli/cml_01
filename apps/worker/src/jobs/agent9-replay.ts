@@ -135,7 +135,83 @@ function buildClient(): AzureOpenAIClient {
   } as any);
 }
 
+/**
+ * Score an existing Agent-9 resume checkpoint (e.g. a run that generated all chapters but died before
+ * writing output). Recovers the prose from `completedChapters`, scores it with the same shadow rubric,
+ * and writes the salvaged story + report. Activated via REPLAY_SCORE_CHECKPOINT=<path>.
+ */
+async function scoreCheckpoint(checkpointPath: string, workspaceRoot: string): Promise<void> {
+  if (!existsSync(checkpointPath)) throw new Error(`Checkpoint not found: ${checkpointPath}`);
+  loadEnvFiles(workspaceRoot);
+  const cp = JSON.parse(readFileSync(checkpointPath, "utf8"));
+  const chapters: any[] = Array.isArray(cp.completedChapters) ? cp.completedChapters : [];
+  const proseText = chapters
+    .map((c) => `${c?.title ? `${c.title}\n\n` : ""}${(c?.paragraphs ?? []).join("\n\n")}`.trim())
+    .filter(Boolean)
+    .join("\n\n");
+  const projectId: string = cp.projectId;
+  const runId: string = cp.runId ?? "checkpoint";
+  console.log(`[score-checkpoint] checkpoint : ${checkpointPath}`);
+  console.log(`[score-checkpoint] runId      : ${runId}`);
+  console.log(`[score-checkpoint] chapters   : ${chapters.length} | prose ${proseText.length} chars`);
+  if (proseText.length < 200) throw new Error("Checkpoint prose too short to score.");
+
+  const store = loadStore(workspaceRoot);
+  const cml = latestArtifact(store, projectId, "cml");
+  if (cml === undefined) throw new Error(`No 'cml' artifact for project ${projectId} (needed for hard-cap facts).`);
+  const client = buildClient();
+  const model = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+  const judge = createLLMRubricJudge(
+    (chatArgs: any) =>
+      client.chat({
+        ...chatArgs,
+        model: chatArgs.model ?? model,
+        logContext: { agent: "RubricScorer", runId, projectId },
+      } as any),
+    { model, temperature: 0.2, maxTokens: 4000 },
+  );
+  const rubric: any = await scoreStory({ prose: proseText, cml, judge });
+  console.info(
+    `[Rubric] ${rubric.final}/100 (${rubric.band}); raw ${rubric.rawTotal}` +
+      (rubric.capsApplied.length ? `; caps: ${rubric.capsApplied.join("; ")}` : ""),
+  );
+
+  const outDir = join(workspaceRoot, "stories", `replay_${runId}`);
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(join(outDir, "agent9-replay.md"), proseText, "utf8");
+  writeFileSync(
+    join(outDir, "agent9-replay.report.json"),
+    JSON.stringify(
+      {
+        runId,
+        projectId,
+        source: "recovered-from-checkpoint",
+        generatedAt: new Date().toISOString(),
+        proseChars: proseText.length,
+        chapters: chapters.length,
+        rubric: {
+          final: rubric.final,
+          band: rubric.band,
+          raw_total: rubric.rawTotal,
+          caps_applied: rubric.capsApplied,
+          categories: rubric.categories,
+        },
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  console.log(`[score-checkpoint] salvaged story + report written to ${outDir}`);
+}
+
 async function main(): Promise<void> {
+  const scoreCheckpointPath = process.env.REPLAY_SCORE_CHECKPOINT;
+  if (scoreCheckpointPath) {
+    await scoreCheckpoint(scoreCheckpointPath, process.env.CML_WORKSPACE_ROOT || process.cwd());
+    return;
+  }
+
   const projectId = process.argv[2];
   const label = (process.argv[3] || "").trim();
   if (!projectId) {
