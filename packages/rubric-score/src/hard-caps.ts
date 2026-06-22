@@ -27,7 +27,7 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
     capsApplied.push(`${reason} → overall ≤ ${max}`);
   };
 
-  const leakage = (facts.templateLeakageHits ?? []).length > 0;
+  const leakHits = (facts.templateLeakageHits ?? []).length;
 
   // ── Character Clarity caps (§ Category 4 + § Major Penalty Rules) ────────────
   if (facts.deadVictimAppearsAlive) {
@@ -63,9 +63,11 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
   if (facts.endingContradictsEarlier) capCat("ending", 4, "ending contradicts earlier chapters");
 
   // ── Prose / structural penalties (§ Major Penalty Rules) ─────────────────────
-  if (leakage) {
+  if (leakHits > 0) {
     capCat("prose", 4, "prompt / template / validation-text leakage");
-    ceil(65, "prompt / template / validation-text leakage");
+    // Per the rubric ("...unless leakage is very minor"), the OVERALL ceiling applies only to MATERIAL
+    // leakage (≥2 distinct fragments). A single note-like line is a Prose penalty, not a global cap.
+    if (leakHits >= 2) ceil(65, "significant prompt / template / validation-text leakage");
   }
   if (facts.victimUnnamed) ceil(72, "victim unnamed");
   if (facts.weakMurderMethod) {

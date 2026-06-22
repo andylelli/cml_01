@@ -49,16 +49,28 @@ export function extractStoryFacts(cml: unknown, prose: string): StoryFacts {
   const roleBlob = (c: CastMember): string => `${c.role ?? ""} ${c.role_archetype ?? ""}`;
   const victim = cast.find((c) => VICTIM_RE.test(roleBlob(c)));
   const detective = cast.find((c) => DETECTIVE_RE.test(roleBlob(c)));
-  const victimName = victim?.name;
+
+  // Resolve the victim's name from the canonical `role:victim` cast member, else a dedicated victim
+  // field on the CASE. ONLY flag `victimUnnamed` when we positively resolved a name AND it is absent
+  // from the prose — never infer "unnamed" from "no role:victim member" (that conflates a CML tagging
+  // gap with a prose defect; the LLM critic still judges victim-naming when we cannot resolve it).
+  const asString = (v: unknown): string | undefined => (typeof v === "string" && v.trim() ? v : undefined);
+  const caseAny = caseData as Record<string, any>;
+  const victimName =
+    victim?.name ||
+    asString(caseAny.victim) ||
+    asString(caseAny.victim?.name) ||
+    asString(caseAny.meta?.victim) ||
+    asString(caseAny.meta?.victim?.name) ||
+    undefined;
 
   const facts: StoryFacts = {};
   if (victimName) {
     facts.culpritIsVictim = culprits.includes(norm(victimName)); // accidental culprit==victim collision
     if (detective?.name) facts.victimIsInvestigator = norm(detective.name) === norm(victimName);
     facts.victimUnnamed = !includesCI(prose, victimName);
-  } else {
-    facts.victimUnnamed = true; // no named victim in the CASE at all
   }
+  // else: victim name unresolved → leave victimUnnamed undefined (do NOT flag); the judge decides.
 
   // mechanism present but no death outcome described → weak-murder-method signal (deterministic-ish)
   const hasMechanism = Boolean(caseData.hidden_model?.mechanism?.description);

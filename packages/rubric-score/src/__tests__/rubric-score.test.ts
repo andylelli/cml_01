@@ -80,8 +80,14 @@ describe("applyHardCaps — each rubric hard cap fires correctly", () => {
     expect(r.final).toBeLessThanOrEqual(69);
   });
 
-  it("template leakage → prose ≤4, overall ≤65", () => {
+  it("MINOR leakage (1 fragment) → prose ≤4 ONLY, no overall cap (rubric: 'unless leakage is very minor')", () => {
     const r = applyHardCaps(rubric(), { templateLeakageHits: ["the elapsed time was confirmed"] });
+    expect(markOf(r, "prose")).toBe(4);
+    expect(r.final).toBeGreaterThan(65); // a single note-like line is a Prose penalty, not a global cap
+  });
+
+  it("MATERIAL leakage (≥2 fragments) → prose ≤4 AND overall ≤65", () => {
+    const r = applyHardCaps(rubric(), { templateLeakageHits: ["the elapsed time was confirmed", "the chapter moves forward through"] });
     expect(markOf(r, "prose")).toBe(4);
     expect(r.final).toBeLessThanOrEqual(65);
   });
@@ -103,10 +109,10 @@ describe("applyHardCaps — each rubric hard cap fires correctly", () => {
   });
 
   it("takes the MINIMUM cap when several fire on the same category", () => {
-    // pronoun (prose≤5) + leakage (prose≤4) → prose ≤4
-    const r = applyHardCaps(rubric(), { pronounsUnstable: true, templateLeakageHits: ["x x"] });
+    // pronoun (prose≤5) + material leakage (prose≤4) → prose ≤4
+    const r = applyHardCaps(rubric(), { pronounsUnstable: true, templateLeakageHits: ["x x", "y y"] });
     expect(markOf(r, "prose")).toBe(4);
-    expect(r.final).toBeLessThanOrEqual(65); // tightest ceiling
+    expect(r.final).toBeLessThanOrEqual(65); // tightest ceiling (leakage 65 < pronoun 69)
   });
 
   it("a high raw score with a continuity defect lands in the right band (§ How to Score Overall)", () => {
@@ -145,6 +151,23 @@ describe("extractStoryFacts — the exact facts from the CASE + prose", () => {
     expect(f.victimUnnamed).toBe(true); // "Lord Ashby" never appears
     expect(f.templateLeakageHits!.length).toBeGreaterThan(0);
   });
+
+  it("ANALYSIS_45 §5.1 fix: does NOT flag victimUnnamed when the CASE has no role:victim member", () => {
+    // the live Fairweather CML tagged no cast member as victim, yet the victim WAS named in prose
+    const noVictimRole = {
+      cast: [{ name: "Inspector Gray", role: "detective" }, { name: "Marlowe", role: "suspect" }],
+      culpability: { culprits: ["Marlowe"] },
+    };
+    const f = extractStoryFacts(noVictimRole, "Sir Lionel lay dead in the study; Gray questioned Marlowe.");
+    expect(f.victimUnnamed).toBeUndefined(); // unresolved victim name → defer to the judge, do not cap
+    expect(f.culpritIsVictim).toBeUndefined();
+  });
+
+  it("resolves the victim from a dedicated CASE.victim field when cast isn't tagged", () => {
+    const withField = { victim: "Sir Lionel", cast: [{ name: "Gray", role: "detective" }], culpability: { culprits: ["X"] } };
+    expect(extractStoryFacts(withField, "Gray paced the hall.").victimUnnamed).toBe(true); // resolved + absent
+    expect(extractStoryFacts(withField, "Sir Lionel lay dead; Gray paced.").victimUnnamed).toBe(false);
+  });
 });
 
 describe("scoreStory — orchestration with an injectable stub judge", () => {
@@ -162,12 +185,12 @@ describe("scoreStory — orchestration with an injectable stub judge", () => {
     expect(r.capsApplied).toEqual([]);
   });
 
-  it("the deterministic extractor OVERRIDES a generous judge: leakage in prose caps Prose ≤4 even if the judge gave 10", async () => {
-    const leaky = "The chapter moves forward through vivid detail. Lord Ashby is dead.";
+  it("the deterministic extractor OVERRIDES a generous judge: material leakage caps Prose ≤4 + overall ≤65 even if the judge gave 10", async () => {
+    const leaky = "The chapter moves forward through vivid detail. The elapsed time was confirmed as forty minutes. Lord Ashby is dead.";
     const judge: RubricJudge = async () => ({ rubric: rubric({ prose: 10 }) }); // judge missed the leak
     const r = await scoreStory({ prose: leaky, cml: caseData, judge });
     expect(r.categories.find((c) => c.category === "prose")!.mark).toBe(4); // capped by the extractor's fact
-    expect(r.final).toBeLessThanOrEqual(65);
+    expect(r.final).toBeLessThanOrEqual(65); // two distinct leakage fragments → material → overall cap
     expect(r.capsApplied.some((c) => /leakage/.test(c))).toBe(true);
   });
 
