@@ -21,6 +21,57 @@ import {
   preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
+// Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
+// build the deterministic Beat Scheduler grid ALONGSIDE the LLM outline and log the comparison.
+// Acts on nothing; default-off flag → zero behaviour change. Gathers the divergence data §7.1 wants.
+import {
+  buildSceneGrid,
+  collectObligations,
+  checkComplete,
+  checkOrdered,
+  checkCoverage,
+  SchedulerInfeasibleError,
+} from "@cml/beat-scheduler";
+
+/** Shadow-only: when on, log the deterministic scene grid next to the live outline (no behaviour change). */
+const AGENT7_SCHEDULER_SHADOW = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
+
+/** Build + invariant-check the deterministic grid for the produced outline, logging the comparison. */
+function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!AGENT7_SCHEDULER_SHADOW) return;
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const liveScenes =
+      (narrative as any).totalScenes ??
+      (narrative.acts ?? []).reduce((n: number, a: any) => n + (Array.isArray(a.scenes) ? a.scenes.length : 0), 0);
+    const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+      id: c.id,
+      placement: c.placement,
+      criticality: c.criticality,
+      supportsInferenceStep: c.supportsInferenceStep,
+    }));
+    const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
+    const sceneCount = liveScenes && liveScenes >= 4 ? liveScenes : 10;
+
+    const grid = buildSceneGrid({ cml: caseData, clues, redHerrings }, sceneCount);
+    const obligations = collectObligations(caseData, clues, redHerrings).obligations;
+    const complete = checkComplete(grid, obligations);
+    const ordered = checkOrdered(grid);
+    const coverage = checkCoverage(grid);
+    console.info(
+      `[Agent 7 scheduler shadow] grid @${grid.sceneCount} (${grid.actCounts.act1}/${grid.actCounts.act2}/${grid.actCounts.act3}) ` +
+        `from ${obligations.length} obligations: complete=${complete.ok} ordered=${ordered.ok} ` +
+        `coverage=${Math.round(coverage.ratio * 100)}% (ratioOk=${coverage.ratioOk}) | live outline scenes=${liveScenes}`,
+    );
+    if (!ordered.ok) console.info(`[Agent 7 scheduler shadow] ordering note: ${ordered.violations[0]}`);
+  } catch (e) {
+    if (e instanceof SchedulerInfeasibleError) {
+      console.info(`[Agent 7 scheduler shadow] INFEASIBLE: ${e.unmet} — a real upstream signal (the LLM outline may be padded vs the clue density).`);
+    } else {
+      console.warn(`[Agent 7 scheduler shadow] error: ${(e as Error).message}`);
+    }
+  }
+}
 
 // ============================================================================
 // Local types (agent-7 only)
@@ -1525,4 +1576,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
   ctx.narrative = narrative;
   ctx.outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
+
+  // Shadow only (default off): log the deterministic Beat Scheduler grid next to this outline.
+  runAgent7SchedulerShadow(ctx, narrative);
 }
