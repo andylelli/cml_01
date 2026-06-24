@@ -47,6 +47,24 @@ const SEASON_PATTERNS: Array<{ season: CanonicalSeason; pattern: RegExp }> = [
   { season: 'winter', pattern: /\b(winter|wintertime|wintry)\b/i },
 ];
 
+// "spring" collides with a clock's mainspring / "spring tension" — the load-bearing object in a
+// time-tampering mystery, mentioned in nearly every chapter. The bare-word season test above would
+// then false-fire a "month/season contradiction" on the clock component every single chapter, and it
+// can never be repaired because the Agent 9 season-lock rewriter (correctly) PROTECTS mechanical
+// springs. Strip these mechanical-spring collocations before testing the SEASONAL sense so the two
+// agree. ("springtime"/"vernal" are unambiguous and are never stripped.)
+const SPRING_MECHANICAL_RE = new RegExp(
+  [
+    // <mechanism word>('s) spring(s): clock spring, clock's spring, mainspring, watch spring, balance spring
+    String.raw`\b(?:main|coil|leaf|suspension|torsion|hair|clock|watch|pendulum|escapement|balance|mantel|grandfather)(?:'?s)?\s*-?\s*springs?\b`,
+    // spring(s) <mechanism qualifier>: spring tension, spring housing, spring barrel, spring steel...
+    String.raw`\bsprings?\s+(?:tension|housing|barrel|mechanism|steel|coil|loaded|driven|assembly|recoil)\b`,
+    // <action> spring(s): wound spring, winding spring, coiled spring, tensioned spring, over-wound spring
+    String.raw`\b(?:wound|winding|coiled|tension(?:ed)?|over-?wound|recoiled)\s+springs?\b`,
+  ].join('|'),
+  'gi',
+);
+
 // Months that are also common English words (modal verb / motion verb).
 // Require Title Case so lowercase "may" and "march" don't trigger false positives.
 const AMBIGUOUS_MONTHS = new Set(['may', 'march']);
@@ -107,9 +125,13 @@ export function analyzeTemporalConsistency(
     };
   }
 
+  // For "spring", test a copy with mechanical-spring collocations removed so a clock's mainspring is
+  // not mistaken for the season (the dominant false positive in time-tampering mysteries).
+  const seasonalText = lowered.replace(SPRING_MECHANICAL_RE, ' ');
   const conflicting = new Set<CanonicalSeason>();
   for (const { season, pattern } of SEASON_PATTERNS) {
-    if (pattern.test(lowered) && !expectedSeasonsSet.has(season)) {
+    const target = season === 'spring' ? seasonalText : lowered;
+    if (pattern.test(target) && !expectedSeasonsSet.has(season)) {
       conflicting.add(season);
     }
   }
