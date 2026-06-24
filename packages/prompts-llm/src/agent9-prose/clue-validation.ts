@@ -851,6 +851,27 @@ export interface StageContractCheck {
   murderMethod?: string;
 }
 
+// L1 (ROADMAP_TO_80 M0): match a resolved manner-of-death phrase in prose the SAME way the rubric
+// grader (rubric-score facts.ts) does, so the reveal GATE forces exactly what the GRADER checks — else
+// the "weak murder method" cap can never clear. Two rules mirror the grader:
+//   1. Drop the "wound"/"wind" collision: a clock-tampering mystery says "the clock was WOUND back",
+//      which must NOT satisfy "the victim was stabbed" (the grader deliberately excludes "wound" too).
+//   2. Match each remaining stem at a WORD START so "stab" matches stabbed/stabbing (not "con-stab-le").
+// If the phrase reduces to no enforceable token, return true (unenforceable → never false-fail). When
+// `method` is a mechanism fallback (no death method resolved), this degrades to the prior token check.
+const DEATH_METHOD_COLLISION_TOKENS = new Set(["wound", "wounds", "wounded"]);
+export const proseSurfacesDeathMethod = (proseLower: string, method: string): boolean => {
+  const tokens = method
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 3 && !DEATH_METHOD_COLLISION_TOKENS.has(token));
+  if (tokens.length === 0) return true;
+  return tokens.some((token) =>
+    new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(proseLower),
+  );
+};
+
 const AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE =
   /\b(?:confess(?:ed|es|ion)|arrest(?:ed)?|under arrest|case closed|guilty beyond doubt|the culprit (?:is|was)|the murderer (?:is|was)|the killer (?:is|was)|i accuse|i name)\b/i;
 
@@ -1025,13 +1046,7 @@ export const validateChapterPreCommitObligations = (
           );
         }
         if (stageContractCheck.murderMethod) {
-          const methodTokens = stageContractCheck.murderMethod
-            .toLowerCase()
-            .replace(/[^a-z0-9\s]/g, " ")
-            .split(/\s+/)
-            .filter((token) => token.length > 3);
-          const methodMentioned = methodTokens.some((token) => chapterLower.includes(token));
-          if (!methodMentioned) {
+          if (!proseSurfacesDeathMethod(chapterLower, stageContractCheck.murderMethod)) {
             uniqueHardFailures.push(
               `Final reveal completeness failed: reveal must explicitly connect culprit to death method ("${stageContractCheck.murderMethod}").`
             );
@@ -1062,16 +1077,9 @@ export const validateChapterPreCommitObligations = (
       );
     } else if (resolutionCheck.murderMethod) {
       // A3: Causal-bridge check — resolution must mention the murder method, not just name the culprit.
-      // Tokenise the method string (e.g. "clock tampering" → ["clock", "tamper"]) and require
-      // at least one token to appear in the final chapter so the confession is substantive.
-      const methodTokens = resolutionCheck.murderMethod
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, ' ')
-        .split(/\s+/)
-        .filter(t => t.length > 3);
-      const chapterLower = chapterText.toLowerCase();
-      const methodPresent = methodTokens.some(t => chapterLower.includes(t));
-      if (!methodPresent) {
+      // Match the manner of death the same way the rubric grader does (drop the "wound"/"wind"
+      // collision, word-start stem match) so the GATE forces what the GRADER checks (L1 / M0).
+      if (!proseSurfacesDeathMethod(chapterLower, resolutionCheck.murderMethod)) {
         uniqueHardFailures.push(
           `Final chapter: resolution does not mention the murder method ("${resolutionCheck.murderMethod}"). ` +
           `The confession or accusation must explicitly reference how the murder was committed, not just name the culprit.`

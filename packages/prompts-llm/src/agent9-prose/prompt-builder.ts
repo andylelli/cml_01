@@ -669,7 +669,7 @@ const buildChapterOutcomeBlock = (
 
   const profile = getStageModeProfile(activeMode as any);
 
-  return [
+  const lines = [
     "\n\n## CHAPTER OUTCOME CONTRACT (MANDATORY)",
     `Batch chapters: ${chapterStart}-${chapterEnd}.`,
     `Investigation state at start: ${revealedClues} clue(s) revealed to reader; approximately ${unresolvedCount} unresolved suspect(s).`,
@@ -677,7 +677,25 @@ const buildChapterOutcomeBlock = (
     `Suspect pressure target(s): ${Array.from(pressureTargets).join(", ") || "Use the most implicated active suspect in this batch."}`,
     `Required new information: ${requiredInfoByMode[activeMode] ?? requiredInfoByMode.early_investigation}`,
     `Forbidden reveals at this stage: ${profile.forbidden_reveals.join(" | ")}`,
-  ].join("\n");
+  ];
+
+  // L1 (ROADMAP_TO_80 M0): surface the resolved MANNER OF DEATH into the reveal contract. The
+  // "weak murder method (concealment explained, death not)" cap fires when the reveal explains how the
+  // timeline/clock was faked but never how the victim DIED. resolveDeathMethod was previously only used
+  // to *validate* the reveal — the model was never *told* the manner of death, so it could only comply
+  // by luck. Inject it as an explicit obligation so the killing is named in plain words.
+  if (activeMode === "final_reveal") {
+    const deathMethod = resolveDeathMethod(cmlCase);
+    if (deathMethod) {
+      lines.push(
+        `Manner of death (MUST be named in the reveal): the victim was killed by ${deathMethod}. ` +
+          `State plainly HOW the victim died (e.g. "${deathMethod}") — not only how the clock/timeline was ` +
+          `manipulated. A reveal that explains the concealment but never the killing fails the fair-play contract.`,
+      );
+    }
+  }
+
+  return lines.join("\n");
 };
 
 const buildModeSpecificChecklistItems = (activeMode: string): string[] => {

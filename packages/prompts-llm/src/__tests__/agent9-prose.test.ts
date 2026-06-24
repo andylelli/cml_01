@@ -154,6 +154,7 @@ import {
   stripInternalAuditPhrasing,
   stripAuditField,
   validateChapterPreCommitObligations,
+  proseSurfacesDeathMethod,
   polishPassingChapter,
 } from "../agent9-prose.ts";
 import type { ProseGenerationResult } from "../agent9-prose.ts";
@@ -667,6 +668,32 @@ describe("validateChapterPreCommitObligations", () => {
     );
 
     expect(result.hardFailures.some((msg) => msg.includes("Final reveal completeness failed"))).toBe(false);
+  });
+});
+
+describe("proseSurfacesDeathMethod — L1 reveal gate aligned to the rubric grader", () => {
+  it("does NOT accept the 'wound'/'wind' collision (clock 'wound back') as the manner of death", () => {
+    // The bug this fixes: includes('wound') matched 'the clock was wound back', so the reveal gate
+    // passed without the prose ever stating the killing — yet the grader (which excludes 'wound')
+    // still fired the cap. The gate must reject this so it forces the actual death word.
+    expect(proseSurfacesDeathMethod("the clock had been wound back to eleven", "stab wound")).toBe(false);
+  });
+
+  it("accepts the manner of death when the prose actually states it (stem-matched)", () => {
+    expect(proseSurfacesDeathMethod("lord ashby had been stabbed in the study", "stab wound")).toBe(true);
+    expect(proseSurfacesDeathMethod("a single stab to the heart", "stab wound")).toBe(true);
+  });
+
+  it("does not match an embedded substring (constable / establish are not 'stab')", () => {
+    expect(proseSurfacesDeathMethod("the constable established the timeline", "stab wound")).toBe(false);
+  });
+
+  it("treats an unenforceable phrase (only collision tokens) as satisfied rather than false-failing", () => {
+    expect(proseSurfacesDeathMethod("any prose at all", "wound")).toBe(true);
+  });
+
+  it("still passes through a mechanism-fallback method string via its other tokens", () => {
+    expect(proseSurfacesDeathMethod("the mantel clock was reset to mislead them", "clock tampering")).toBe(true);
   });
 });
 
