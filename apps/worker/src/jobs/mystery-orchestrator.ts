@@ -82,6 +82,13 @@ import {
   type CharacterBundle,
   type CharacterBundleEntry,
 } from "./agents/index.js";
+import {
+  isCrossRunNoveltyEnabled,
+  loadNoveltyLedger,
+  appendNoveltyLedger,
+  mergePriorRunsIntoConstraints,
+  extractPriorRunRecord,
+} from "./novelty-ledger.js";
 
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
@@ -718,9 +725,22 @@ export async function generateMystery(
     );
     const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis);
     const seedEntries = await loadSeedCMLFiles(EXAMPLES_ROOT);
-    const noveltyConstraints = buildNoveltyConstraints(
+    let noveltyConstraints = buildNoveltyConstraints(
       seedEntries as Array<{ filename: string; cml: CaseData }>
     );
+    // Cross-run novelty (ANALYSIS_49 T1.7, opt-in via NOVELTY_CROSS_RUN): fold the most recent shipped
+    // runs into the avoidance constraints so Agent 3 diverges from recent runs, not just static seeds.
+    if (isCrossRunNoveltyEnabled()) {
+      try {
+        const priorRuns = await loadNoveltyLedger();
+        noveltyConstraints = mergePriorRunsIntoConstraints(noveltyConstraints, priorRuns);
+        if (priorRuns.length > 0) {
+          warnings.push(`Cross-run novelty: diverging from ${Math.min(priorRuns.length, 20)} recent run(s)`);
+        }
+      } catch (err) {
+        warnings.push(`Cross-run novelty load skipped: ${describeError(err)}`);
+      }
+    }
 
     // ── Build shared context ────────────────────────────────────────────────
     ctx = {
@@ -1124,6 +1144,16 @@ export async function generateMystery(
 
     const status =
       errors.length > 0 ? "failure" : warnings.length > 0 ? "warning" : "success";
+
+    // Cross-run novelty (ANALYSIS_49 T1.7): record this shipped run's fingerprint so future runs
+    // diverge from it. Best-effort — never affects the run outcome.
+    if (isCrossRunNoveltyEnabled() && status !== "failure" && ctx.cml) {
+      try {
+        await appendNoveltyLedger(extractPriorRunRecord(ctx.cml, runId));
+      } catch {
+        // best-effort persistence; ignore
+      }
+    }
 
     return {
       cml: ctx.cml!,
