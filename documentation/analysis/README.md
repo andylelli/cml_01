@@ -3,6 +3,8 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
+- `ANALYSIS_48/ANALYSIS_48.md` — agents 1–8 to 90% prose-fitness (vanity-scorer + shadow-machinery thesis) so Agent 9 can reach 80
+- `ANALYSIS_47/ANALYSIS_47.md` — upstream-vs-prose ablation + ROADMAP_TO_80/90
 - `ANALYSIS_44/ANALYSIS_44.md`
 - `ANALYSIS_43/ANALYSIS_43.md`
 - `ANALYSIS_42/ANALYSIS_42.md`

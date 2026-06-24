@@ -77,6 +77,21 @@ export function buildAssetLibrary(
         content: profile.internalConflict,
       });
     }
+
+    // Humour: a deployable voice atom, ONLY when the character is meaningfully comic, so dialogue gets
+    // tonal contrast instead of uniform formality (the frozen dialogue=6). Agent 2b authors
+    // humourStyle/humourLevel but today they never reach the per-character voice atoms (ANALYSIS_48 T1.5).
+    const humourStyle: string = String(profile.humourStyle ?? '').trim();
+    const humourLevel: number = typeof profile.humourLevel === 'number' ? profile.humourLevel : 0;
+    if (humourStyle && humourStyle !== 'none' && humourLevel >= 0.4) {
+      add({
+        id: `voice:${name}:humour`,
+        source: 'characterProfiles.humourStyle',
+        scope: 'character', scopeKey: name,
+        tier: 'obligation', budget: 2, priority: 'medium',
+        content: `Voice colour: ${name} uses ${humourStyle.replace(/_/g, ' ')} humour — let it surface in their dialogue where natural, not in every line.`,
+      });
+    }
   }
 
   // -- Era / historical atoms --

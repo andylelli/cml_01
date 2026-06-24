@@ -36,6 +36,29 @@ import {
 } from "./utils/seed-loader.js";
 import { join } from "path";
 
+// L1 (ANALYSIS_48 T1.1): map a crime classification to a physical manner of death, used as the
+// fallback when the model didn't author CASE.death_method. Mirrors DEATH_METHOD_CANON in
+// agent9-prose/prompt-builder and DEATH_METHOD_TOKENS in rubric-score/facts (kept local to avoid a
+// cross-package coupling from Agent 3 into the prose layer; the three are unified in ANALYSIS_48 T3).
+const DEATH_METHOD_FROM_CRIME_CLASS: Array<[RegExp, string]> = [
+  [/stab|knif|blade|dagger/i, "stabbing"],
+  [/shoot|shot|gun|firearm|pistol|revolver/i, "gunshot"],
+  [/strangl|garrot|throttl/i, "strangulation"],
+  [/poison|arsenic|cyanide|toxin/i, "poisoning"],
+  [/bludgeon|blunt|cudgel|struck|\bblow\b/i, "a blunt-force blow"],
+  [/drown/i, "drowning"],
+  [/smother|suffocat|asphyxiat/i, "suffocation"],
+  [/electrocut/i, "electrocution"],
+  [/burn|arson/i, "burning"],
+];
+
+/** Returns a physical manner-of-death phrase from the crime subtype/category, or "" if none matches. */
+export const deriveDeathMethodFromCrimeClass = (subtype: string, category: string): string => {
+  const haystack = `${subtype} ${category}`;
+  for (const [re, method] of DEATH_METHOD_FROM_CRIME_CLASS) if (re.test(haystack)) return method;
+  return "";
+};
+
 /**
  * Build the complete prompt for CML generation
  */
@@ -252,12 +275,14 @@ Micro-exemplars:
 - Strong discriminating test design: "Comparing the porter log with the forged timetable and reset clock proves Hartwell's claimed arrival is impossible."
 
 GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play mystery, not a bare logic puzzle):
+- death_method: the PHYSICAL manner of death — HOW the victim was killed (e.g. "stabbed with a letter opener", "poisoned with arsenic", "struck with a fire iron", "strangled", "shot"). This MUST be a bodily killing action and MUST be DISTINCT from the concealment mechanism: the clock/timeline/alibi trick goes in hidden_model.mechanism, NEVER here. The reveal has to state how the victim DIED, not only how the crime was hidden — a case that explains only the concealment fails the fair-play contract and is rejected by the rubric's weak-murder-method gate.
 - false_solution: a CONVINCING but WRONG solution accusing an INNOCENT suspect, with a chain of supporting_points, and exactly one flaw (the_one_flaw) the detective later notices. The accused_suspect MUST NOT be the real culprit.
 - red_herrings: at least TWO misleading details. Each MUST have an innocent_explanation that resolves it — never leave a suspicious detail unexplained. Red herrings should be plausible and meaningful, not random.
 - closed_circle.suspects: the sealed pool of suspects. The real culprit (culpability.culprits) MUST be a member. No outsider may be the culprit.
 - The reader must be able to reach the true solution from clues shown before the reveal; the detective must not rely on a confession or secret knowledge.
 
 Before finalizing, run a silent checklist:
+- death_method names a PHYSICAL manner of death (stabbed/poisoned/struck/strangled/shot), distinct from the concealment mechanism
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
 - discriminating_test uses only previously exposed evidence
@@ -292,6 +317,7 @@ CASE:
     crime_class:
       category: "murder"
       subtype: ""
+  death_method: ""  # REQUIRED — physical manner of death (stabbed/poisoned/struck/strangled/shot): HOW the victim died, NOT the concealment trick
   cast:
     - name: ""
       age_range: ""
@@ -736,6 +762,19 @@ export async function generateCML(
     const hiddenOutcome = ensureObject(hidden.outcome);
     hidden.outcome = hiddenOutcome;
     hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");
+
+    // L1 (ANALYSIS_48 T1.1): guarantee a PHYSICAL manner of death so the prose resolveDeathMethod chain
+    // and the rubric weak-murder-method grader always have a token to enforce. Prefer the model's
+    // authored value; else derive from the crime classification; else a neutral physical default. Kept
+    // separate from hidden_model.mechanism (the concealment trick) — the reveal must name the killing.
+    const authoredDeathMethod = ensureString(caseBlock.death_method, "").trim();
+    caseBlock.death_method =
+      authoredDeathMethod ||
+      deriveDeathMethodFromCrimeClass(
+        ensureString(crimeClass.subtype, ""),
+        ensureString(crimeClass.category, ""),
+      ) ||
+      "poisoning";
 
     const falseAssumption = ensureObject(caseBlock.false_assumption);
     caseBlock.false_assumption = falseAssumption;

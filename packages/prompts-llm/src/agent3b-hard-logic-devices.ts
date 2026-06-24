@@ -152,9 +152,13 @@ Output JSON only, with this exact structure:
       "modeTags": string[],
       "moralAmbiguity": string,
       "lockedFacts": [
-        { "id": "clock_reading", "value": "ten minutes past eleven", "description": "The exact time shown on the stopped clock face" },
-        { "id": "tamper_amount", "value": "forty minutes", "description": "The exact amount the clock was wound back" }
+        { "id": "<short_snake_case_id>", "value": "<the locked value, in word form — see NOTES below>", "description": "<the exact physical fact this pins down for THIS device>" },
+        { "id": "<another_fact_id>", "value": "<word-form value>", "description": "<what it pins down>" }
       ]
+      // lockedFacts MUST be specific to the device you invented above — do NOT copy the placeholder ids/values.
+      // Invent the device fresh from the assigned mechanism family; a stopped/rewound clock is ONE possible
+      // family among many (poison timing, sound/acoustics, optics/mirrors, tide/temperature, ledger forgery,
+      // impersonation, mechanical traps) — do not default to the clock unless the family genuinely calls for it.
 
 NOTE — TIME VALUES IN lockedFacts: All clock times MUST be written in old-style English word form. 
 CORRECT: "ten minutes past eleven", "a quarter to three", "twenty past midnight"
