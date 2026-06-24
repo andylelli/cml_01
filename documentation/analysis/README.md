@@ -3,6 +3,7 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
+- `ANALYSIS_49/ANALYSIS_49.md` — implementation plans for the four deferred A_48 items (novelty store, clue restructure, Agent 7 scheduler+budget, voice gate)
 - `ANALYSIS_48/ANALYSIS_48.md` — agents 1–8 to 90% prose-fitness (vanity-scorer + shadow-machinery thesis) so Agent 9 can reach 80
 - `ANALYSIS_47/ANALYSIS_47.md` — upstream-vs-prose ablation + ROADMAP_TO_80/90
 - `ANALYSIS_44/ANALYSIS_44.md`
