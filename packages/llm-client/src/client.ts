@@ -9,6 +9,21 @@ import { RateLimiter } from "./ratelimit.js";
 import { CostTracker } from "./cost-tracker.js";
 import { LLMLogger } from "./logger.js";
 
+// Retry salt (ANALYSIS_49 follow-up): escalate the sampling temperature on each *retry* so a call that
+// reproduces the same failing response gets pushed out of its sampling basin. Most valuable for the
+// low-temperature loops (e.g. the temp-0.2 prose polish and structural validators), where identical
+// input reliably yields identical output. `retryAttempt` is 1-based (attempt 1 = first try, so a real
+// retry is attempt >= 2); the bump is modest and capped so it doesn't wreck structure adherence.
+// Opt out with LLM_RETRY_TEMP_ESCALATION=off.
+const RETRY_TEMP_STEP = 0.12;
+const RETRY_TEMP_CAP = 0.9;
+export const escalateRetryTemperature = (base: number, retryAttempt: number): number => {
+  const retriesSoFar = (retryAttempt ?? 0) - 1; // 1-based: attempt 1 = first try → no escalation
+  if (retriesSoFar <= 0) return base;
+  if (/^(0|off|false|no)$/i.test(process.env.LLM_RETRY_TEMP_ESCALATION ?? "")) return base;
+  return Math.min(RETRY_TEMP_CAP, Math.max(base, base + RETRY_TEMP_STEP * retriesSoFar));
+};
+
 export class AzureOpenAIClient {
   private client: OpenAIClient;
   private circuitBreaker: CircuitBreaker;
@@ -53,7 +68,9 @@ export class AzureOpenAIClient {
 
   async chat(options: ChatOptions): Promise<ChatResponse> {
     const model = options.model || this.defaultModel;
-    const temperature = options.temperature ?? 0.7;
+    const baseTemperature = options.temperature ?? 0.7;
+    // Salt repeated retries by escalating temperature (logged value reflects the escalated temp).
+    const temperature = escalateRetryTemperature(baseTemperature, options.logContext?.retryAttempt ?? 0);
     const maxTokens = options.maxTokens ?? 4000;
 
     // Wait for rate limit capacity
