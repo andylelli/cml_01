@@ -254,6 +254,7 @@ object will cause schema validation failure and the entire output will be reject
 Requirements:
 - Primary location: 3-5 narrative paragraphs (~${targetWordCount} words total)
 - Key locations: 2-3 paragraphs each (include crime scene + AT LEAST 3 other important locations, 4 minimum total)
+- CROSS-LOCATION DISTINCTNESS (critical): every location must have a DIFFERENT dominant sensory signature and mood. Do NOT reuse the same scents/sounds (e.g. "tick of the clock", "damp stone", "beeswax", "long shadows") across multiple locations — a reader should tell the rooms apart by palette alone. The crime scene in particular must have its own unmistakable sensory identity. Each location's sensoryVariants must also differ from the top-level atmosphere block, so chapters set in different rooms don't all open the same way.
 - If the narrative does not suggest specific sub-locations, invent context-appropriate ones for the setting type (rooms, outbuildings, grounds, nearby places). A country house has a library, a study, a drawing room, a servants\'s hall, gardens. An ocean liner has a dining saloon, a promenade deck, a cabin corridor, a cargo hold.
 - Atmosphere: 2-3 paragraphs
 - **CRITICAL — Sensory Format**: Each sensory detail entry MUST be a short noun phrase or gerund (3–8 words). No complete sentences, no verbs, no subject-verb constructions. Full sentences WILL be rejected. Aim for 5–6 entries per sense field to ensure richness.

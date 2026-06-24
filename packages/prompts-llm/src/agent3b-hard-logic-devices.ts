@@ -186,6 +186,11 @@ Do not include markdown fences or extra commentary.
 
 Quality bar:
 - Devices must be mechanically explainable, not merely theatrical.
+- PLAUSIBILITY (critical): the underlyingReality must obey real period physics — a knowledgeable
+  1930s reader could believe it genuinely works. Do NOT invent effects that violate basic mechanics:
+  a pendulum/grandfather clock does NOT run backward when wound, wind does NOT "rewind" a clock by
+  tens of minutes, springs do not store time. If a mechanism only works by hand-waving, replace it.
+- Prefer the SIMPLEST mechanism that creates the contradiction; do not add steps for their own sake.
 - Each device must produce clueable traces the reader could reasonably notice.
 - Variation across devices should include different principle types and social contexts.
 
@@ -196,6 +201,9 @@ Micro-exemplars:
 - Strong fairPlayClues: ["Soot line on latch plate", "Mantel thermometer reading inconsistent with claimed fire schedule"]
 
 Before finalizing, run a silent checklist:
+- every device passes a basic physics plausibility check — the underlyingReality is genuinely possible
+  with period technology (no clock running backward, no wind rewinding a mechanism), not just asserted
+- the primary device is the simplest one that still creates a fair, clueable contradiction
 - exactly 5 devices unless explicit impossibility
 - principleType enums valid
 - lockedFacts values use words, not digits

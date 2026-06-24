@@ -106,8 +106,18 @@ CHARACTER HUMOUR REQUIREMENTS:
 - NOT every character should be funny. A mystery needs contrast: some characters are earnest, tense, or humourless. This makes the witty ones land harder.
 - The detective should typically have dry_wit or observational style at 0.4-0.6 (restrained, precise, never a comedian).
 
+VOICE DISTINCTNESS (critical — the dialogue must not all sound the same):
+- Give each speaking character a DISTINCT speech register. Do NOT make everyone "measured / precise /
+  formal / restrained" — that is the #1 dialogue failure. Deliberately spread them across contrasting
+  registers, e.g. one terse and clipped, one florid and digressive, one warm and plain-spoken, one
+  cold and exact, one nervous and hedging. No two characters should share the same register.
+- Give each character ONE concrete, quotable verbal tic (a recurring phrase, a habit of answering
+  questions with questions, a regional idiom, dropping into jargon) that is theirs alone — something
+  Agent 9 can literally put in their mouth, not an abstract description.
+
 Quality bar:
 - Every profile must create a usable prose voice (speechMannerisms + internalConflict + personalStakeInCase all concrete, not placeholders).
+- The cast's speechMannerisms, taken together, must show CONTRAST — at least three clearly different registers across the speaking characters, and at least two distinct humourStyles.
 - Paragraphs must reveal character through action/choice, not just static biography summary.
 - Keep motive/alibi/access fields coherent with cast input and avoid contradictions.
 
