@@ -13,13 +13,13 @@ Legend: ☐ not started · ◐ in progress · ☑ implemented (build + unit test
 | ID | Agent | Change | Status | Verified | Notes |
 |---|---|---|:--:|:--:|---|
 | **T1.1** | 3 CML | Required `death_method`, physical, distinct from concealment mechanism (schema + prompt + validator) | ☑ | ✓ | skeleton key + genre-rule + checklist + guaranteed `normalizeCml` population (`deriveDeathMethodFromCrimeClass`); validator kept soft (validateCml hard-throws in Agent 9) — resolver already returns `""` gracefully. prompts-llm 433 |
-| **T1.2** | 7 Outline | Beat scheduler authoritative (`buildSceneGrid` shadow→gate); no adjacent chapter shares a job | ☐ | | kills the Ch9/Ch10 double-clearance smear |
-| **T1.3** | 7 Outline | Per-chapter word budget + `chapterJob` from length target | ☐ | | fixes pacing 5 / verbosity |
-| **T1.4** | 2b | Wire `checkVoiceCapsules` as an enforced retry gate (shadow→on) | ☐ | | frozen dialogue 6 |
+| **T1.2** | 7 Outline | Beat scheduler authoritative (`buildSceneGrid` shadow→gate); no adjacent chapter shares a job | ☐ | ✓ | structural rewire needing full-run validation (ROADMAP_TO_80 M4 already says "not flipped blind"). Focused PR with a live run |
+| **T1.3** | 7 Outline | Per-chapter word budget + `chapterJob` from length target | ☐ | ✓ | safe-ish; pairs with T1.2 in the outline PR. `estimatedWordCount` hardcoded 1800 confirmed |
+| **T1.4** | 2b | Wire `checkVoiceCapsules` as an enforced retry gate (shadow→on) | ☐ | ✓ | with T1.5 landed, voices are still near-identical → enforcing the gate today would retry **most** runs; needs the gate + a tuned threshold together, else it destabilizes. Pair with a live-run check |
 | **T1.5** | 2b | Atomize humour (`voice:NAME:humour`) in `asset-library.ts` | ☑ | ✓ | new obligation atom, fires when `humourStyle≠none && humourLevel≥0.4`; verified `profile.humourStyle/Level` reach the library |
-| **T1.6** | 8 | Lower novelty `similarity_threshold_default` so the audit fires | ☐ | | premise frozen 7 |
-| **T1.7** | 8 | Wire the built `@cml/novelty` cross-run store | ☐ | | breaks the manor-clock attractor |
-| **T1.8** | 5 Clues | Semantic dedupe before scoring (normalized `pointsTo`/Jaccard) | ☐ | | clues/prose/pacing |
+| **T1.6** | 8 | Lower novelty `similarity_threshold_default` so the audit fires | ⊘ defer | ✓ | confirmed `1.1` "can never fire" (`generation-params.yaml`). Flipping it ALONE adds an LLM call + a possible CML regen while comparing only to **static seeds** (identical every run) → low value. Pair with T1.7; don't flip blind |
+| **T1.7** | 8 | Wire the built `@cml/novelty` cross-run store | ☐ | ✓ | `@cml/novelty` exists/tested but unwired (zero imports under `apps/`); needs a persisted fingerprint ledger — a focused PR. This is the real premise lever |
+| **T1.8** | 5 Clues | Semantic dedupe before scoring (normalized `pointsTo`/Jaccard) | ⊘ defer | ✓ | the "duplicate" clues are **structurally-required slots** (`clue_mechanism_visibility_core` / `_core_contradiction_chain` / `_core_elimination_chain`, `agent5-clues.ts:456-478`) with cross-referenced IDs — safe removal needs re-pointing + the T2.10 record restructure. Prose-visible twin already mitigated by the committed `dedupeByDescriptionSimilarity` (deterministic-repair). Defer to the T2.10/T2.11 refactor PR |
 | **T2.1** | 6 | Blind-reader fooled-then-convinced inversion | ☐ | | makes surprise gateable |
 | **T2.2** | 6 | Fail if a red herring points at the real culprit | ☐ | | |
 | **T2.3** | 6 | Verify manner-of-death deducibility | ☐ | | |
@@ -224,3 +224,24 @@ ANALYSIS_47 proved the ceiling is upstream: re-rolling Agent 9 cannot fix a defe
 3. **Then** Agent 9's prose program (ROADMAP_TO_80 M1/M3 + the death-method wiring already committed) has artifacts worth rendering, and 80 becomes an engineering target rather than a hope.
 
 > The one-line version: **the upstream agents are scoring themselves 100/A on the wrong test. Fix the test (mostly by un-disabling code that already exists), and the artifacts stop capping the prose.**
+
+---
+
+## 8. Implementation progress log
+
+**Landed (verified in code, unit-tested, committed):**
+- **T1.1 — Agent 3 `death_method` (keystone).** Skeleton key + genre rule + checklist + a guaranteed `normalizeCml` population (`deriveDeathMethodFromCrimeClass`: model value → class-derived → neutral default). This completes the chain whose prose half (`resolveDeathMethod` producer/gate + the rubric grader) was already committed but **inert** because Agent 3 never emitted a manner of death. The validator was deliberately **not** made hard (validateCml hard-throws in Agent 9 and old replays lack the field; the resolver returns `""` gracefully), so no run-blocking error was introduced.
+- **T2.5 — Agent 3b de-anchor.** Removed the hardcoded clock-rewind `lockedFacts` exemplar (the literal `"ten minutes past eleven"` / `"forty minutes"` the model copied into every story) → format-only placeholder + a "don't default to the clock" mechanism-family nudge.
+- **T1.5 — Agent 2b humour atoms.** New `voice:NAME:humour` deployable asset (fires on `humourStyle≠none && humourLevel≥0.4`) so dialogue gets tonal contrast — data the agent authored then dropped.
+
+`prompts-llm` **433 passed**, `tsc` clean. (Commit: "ANALYSIS_48 Tier-1 upstream fitness".)
+
+**Verified-in-code but deliberately deferred (with reasons — NOT to be flipped blind):**
+- **T1.2 / T1.3 (Agent 7 outline).** Making `buildSceneGrid` authoritative is a structural rewire that ROADMAP_TO_80 (M4) already flags as requiring a full-run validation, not a blind flip. The word-budget piece (`estimatedWordCount` hardcoded `1800`) pairs with it. → one focused outline PR with a live run.
+- **T1.4 (VoiceCapsule gate).** Voices are *currently* near-identical, so enforcing the gate today would force a retry on most runs; it needs the gate **and** a tuned distinctness threshold together (and benefits from T1.5 first). → pair with a live-run check.
+- **T1.6 / T1.7 (Agent 8 novelty).** Confirmed the threshold `1.1` means the audit never fires. But lowering it **alone** adds an LLM call + a possible CML regeneration while comparing only to **static seeds** (identical every run) → low value. The real lever is T1.7 (persist a cross-run fingerprint ledger and feed `recent(20)` into the avoidance constraints); `@cml/novelty` is built and tested but unwired. → one focused novelty PR that does T1.7 then flips T1.6.
+- **T1.8 / T2.10 / T2.11 (Agent 5 clues).** The "duplicate" clues are **structurally-required slots** (`clue_*_core`, `agent5-clues.ts:456-478`) with cross-referenced IDs — a safe fix is the record **restructure** (`{observable, inference, pointsTo, first_full_reveal_chapter}`) with reference re-pointing, not a record-removing dedupe. The prose-visible twin is already mitigated by the committed `dedupeByDescriptionSimilarity`. → the clue-record refactor PR.
+
+**Not yet started:** Tier 2 (T2.1–T2.9 — blind-reader inversion, 3b plausibility judge, 2c crime-scene profiling) and Tier 3 (the scorer rewrites). These are the substance/measurement changes; each is a focused PR gated on a live run, per §6.
+
+**Sequencing recommendation:** the three landed items are exactly the ones that are (a) high-leverage and (b) safe to ship without a live-run gate. Everything remaining changes generation behavior or run control flow and should be landed one focused PR at a time, each verified on an Azure replay — which is the same discipline ROADMAP_TO_80 prescribes. **Next highest-value PR: T1.7 (cross-run novelty store)** — it's the only remaining lever on the frozen `premise` mark and is additive (a ledger + avoidance feed) rather than a control-flow flip.
