@@ -1909,8 +1909,9 @@ ${victimIdentityRule}`;
     for (const clueId of requiredClueIds) {
       const clue = clueMap.get(clueId);
       if (clue?.placement === 'early') {
+        // R-A leakage cure: surface key terms, never the full clue SENTENCE (the LLM copies it verbatim).
         earlyClueCheckItems.push(
-          `□ Chapter ${chapterNumber}: "${clue.description.trim()}" is placed in the first 25% of the chapter, followed by an explicit inference or suspicion paragraph.`,
+          `□ Chapter ${chapterNumber}: the clue [${clue.id}] (${surfaceSpecKeyTerms(String(clue.description ?? ''))}) is placed in the first 25% of the chapter, dramatized in your own words, followed by an explicit inference or suspicion paragraph.`,
         );
       } else if (!clue) {
         // Unresolved clue ID — check delivery_method from clue_to_scene_mapping for early placement

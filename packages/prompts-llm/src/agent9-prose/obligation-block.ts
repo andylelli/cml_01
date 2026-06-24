@@ -696,7 +696,7 @@ export function buildChapterObligationBlock(
     lines.push(`  2. CULPRIT RESPONSE: ${culpritNames || 'The culprit'} confesses with detail, or reacts in a way that confirms guilt.`);
     // L1 (ROADMAP_TO_80 M0): the reveal must state HOW THE VICTIM DIED (manner of death), not only
     // how the timeline/scene was faked — otherwise the "concealment explained, death not" cap fires.
-    lines.push(`  3. METHOD: State BOTH how the victim was killed (name the manner of death — e.g. the stab wound, the poison, the blow) AND how the scene/timeline was manipulated ("${murderMethod}"). Naming only the concealment is a failure.`);
+    lines.push(`  3. METHOD: State BOTH how the victim was killed (name the manner of death — e.g. the stab wound, the poison, the blow) AND how the scene/timeline was manipulated (compose in your own words from these elements, do NOT quote them verbatim: ${surfaceSpecKeyTerms(murderMethod)}). Naming only the concealment is a failure.`);
     lines.push(`  4. CONSEQUENCE: What happens to ${culpritNames || 'the culprit'} (arrested, fled, taken into custody).`);
     lines.push(`  5. AFTERMATH: At least one other character reacts emotionally to the truth.`);
     lines.push(`  A chapter submitted without all five will be rejected and regenerated.`);

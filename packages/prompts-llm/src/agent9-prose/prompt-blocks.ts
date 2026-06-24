@@ -575,11 +575,13 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
     }
   }
   if (inferenceSteps.length > 0) {
-    lines.push('- Inference path checkpoints to dramatize clearly (observation -> correction -> effect):');
+    lines.push('- Inference path checkpoints to dramatize clearly — compose ENTIRELY in your own sentences from these key terms (reproducing any briefing phrase verbatim FAILS validation):');
     inferenceSteps.slice(0, 4).forEach((step: any, idx: number) => {
-      const obs = String(step?.observation ?? '').trim();
-      const corr = String(step?.correction ?? '').trim();
-      const effect = String(step?.effect ?? '').trim();
+      // R-A leakage cure: never hand the LLM the full observation/correction/effect SENTENCE — it copies
+      // it verbatim (the door-bolt/thermal leaks). Surface only the deduped key TERMS so it must compose.
+      const obs = surfaceSpecKeyTerms(String(step?.observation ?? ''));
+      const corr = surfaceSpecKeyTerms(String(step?.correction ?? ''));
+      const effect = surfaceSpecKeyTerms(String(step?.effect ?? ''));
       const snippet = [obs && `obs: ${obs}`, corr && `corr: ${corr}`, effect && `effect: ${effect}`].filter(Boolean).join(' | ');
       if (snippet) lines.push(`  - Step ${idx + 1}: ${snippet}`);
     });
