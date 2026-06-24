@@ -97,6 +97,10 @@ export const buildPostPassPolishPrompt = (args: {
   lines.push("You are editing a chapter that already passes hard logic and validation gates.");
   lines.push("Make only local prose improvements: rhythm, clarity, transitions, sentence variety, and naturalness.");
   lines.push("Do not reorder events, add new facts, remove evidence, or change who is implicated or cleared.");
+  // ROADMAP_TO_80 M3: dialogue subtext + de-redundancy targets. These are LOCAL rewrites that must
+  // preserve every named fact/clue/alibi/clearance in meaning (the pass re-validates and rolls back).
+  lines.push("- DIALOGUE SUBTEXT: rewrite any line that reads as a flat exposition dump — an alibi, time, or clearance stated as a plain report (\"I was in the kitchen at eleven, the cook will confirm\") — into a line with subtext: the speaker deflects, hedges, qualifies, or implies, and the investigator infers the rest. Preserve every named fact, clue, alibi, and clearance verbatim in meaning; invent nothing.");
+  lines.push("- DE-REDUNDANCY: cut repeated atmospheric/setting phrasing and vary sentence openings across the chapter; never repeat a sensory sentence near-verbatim.");
   lines.push("");
   lines.push("LOCKED STORY CONTRACT");
   lines.push(`- Stage mode remains ${formatStageModeLabel(args.repairContext.stageMode)}.`);

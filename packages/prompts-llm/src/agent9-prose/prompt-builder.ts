@@ -34,6 +34,7 @@ import {
   getPromptPreferredWords,
   getRequiredClueIdsForScene,
   CLUE_TOKEN_STOPWORDS,
+  surfaceSpecKeyTerms,
   tokenizeForClueObligation,
   resolveStageModeKey,
   formatStageModeLabel,
@@ -420,6 +421,42 @@ export const resolveVictimName = (cast: CastDesign): string => {
     victim = chars.find((c: any) => c.name === (cast as any).culpabilityVictim);
   }
   return (victim as any)?.name ?? '';
+};
+
+// ROADMAP_TO_80 M0 / L1: the DEATH method (how the victim was killed) is distinct from the
+// concealment mechanism (hidden_model.mechanism.description). The reveal-completeness gate and the
+// resolution obligation must surface the killing — not only how the timeline was faked — or the
+// rubric's "weak murder method (concealment explained, death not)" cap fires. We DERIVE it
+// deterministically (no new LLM-schema field needed): an explicit CASE.death_method wins, else we
+// read meta.crime_class.subtype/category and normalise to a canonical injury phrase whose tokens are
+// robust substrings (so a "stab wound" target matches prose saying "stabbed"/"stabbing").
+const DEATH_METHOD_CANON: Array<[RegExp, string]> = [
+  [/stab|knif|blade/i, "stab wound"],
+  [/shoot|shot|gun|firearm|pistol|revolver/i, "gunshot wound"],
+  [/strangl|garrot|throttl/i, "strangulation"],
+  [/poison|arsenic|cyanide|toxin/i, "poisoning"],
+  [/bludgeon|blunt[- ]?force|cudgel|struck/i, "blunt-force blow"],
+  [/drown/i, "drowning"],
+  [/smother|suffocat|asphyxiat/i, "suffocation"],
+  [/electrocut/i, "electrocution"],
+  [/burn|arson/i, "burns"],
+];
+
+/**
+ * Resolves the victim's manner of death as a short phrase with robust tokens, or '' if unknowable.
+ * Source order: explicit CASE.death_method → meta.crime_class.subtype → meta.crime_class.category.
+ */
+export const resolveDeathMethod = (cml: any): string => {
+  const c = cml && typeof cml === "object" && cml.CASE && typeof cml.CASE === "object" ? cml.CASE : (cml ?? {});
+  const explicit = typeof c?.death_method === "string" ? c.death_method.trim() : "";
+  if (explicit) return explicit;
+  const subtype = typeof c?.meta?.crime_class?.subtype === "string" ? c.meta.crime_class.subtype : "";
+  const category = typeof c?.meta?.crime_class?.category === "string" ? c.meta.crime_class.category : "";
+  const haystack = `${subtype} ${category}`;
+  for (const [re, canon] of DEATH_METHOD_CANON) {
+    if (re.test(haystack)) return canon;
+  }
+  return "";
 };
 
 const normalizePromptValue = (value: unknown): string =>
@@ -918,9 +955,10 @@ export function buildClueDescriptionBlock(
     'The following evidence MUST be clearly observable to an attentive reader. Do not bury it in atmosphere or passing dialogue. Each clue must be concrete, specific, and noticeable:',
   ];
   for (const clue of relevantClues) {
-    lines.push(`\n• [${clue.id}] ${clue.description}`);
+    // R-A (M0): surface key terms, never the full description/pointsTo sentence (LLM copies it).
+    lines.push(`\n• [${clue.id}] ${surfaceSpecKeyTerms(String(clue.description ?? ''))}`);
     lines.push(`  Category: ${clue.category} | Criticality: ${clue.criticality}${clue.supportsInferenceStep ? ` | Supports inference step ${clue.supportsInferenceStep}` : ''}`);
-    lines.push(`  Points to: ${clue.pointsTo}`);
+    lines.push(`  Points to: ${surfaceSpecKeyTerms(String(clue.pointsTo ?? ''))}`);
   }
   lines.push(...mappingOnlyLines);
   lines.push('\nFor each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.');
@@ -1307,7 +1345,7 @@ export const buildProsePrompt = (
   );
   const victimIdentityRule = proseVictimName
     ? proseArcPosition === 'opening'
-      ? `- VICTIM IDENTITY: The murder victim is ${proseVictimName}. Introduce them by full name in this chapter. They are found dead — they do not speak, react, or gesture. This is their only physical appearance in the story.`
+      ? `- VICTIM IDENTITY & OPENING HOOK (ROADMAP_TO_80 M2): The murder victim is ${proseVictimName}. Name them — ${proseVictimName} — in the FIRST PARAGRAPH; never open with "the victim" or "the body". Open IN MEDIAS RES: the first one or two sentences must land the discovery and the single unsettling CONTRADICTION (the impossible detail that starts the case), seen through the investigator's eyes. Weave sensory and atmosphere detail AROUND that hook — do NOT precede the stakes with a standalone scene-setting/weather preamble. They are found dead — they do not speak, react, or gesture. This is their only physical appearance in the story.`
       : `- VICTIM IDENTITY: ${proseVictimName} is the murder victim, already dead before this chapter. Refer to them ONLY in past tense (memory, testimony, physical evidence). They do not speak, enter rooms, react, or gesture. Never write them as present or alive in any scene.`
     : '';
 
@@ -1331,6 +1369,7 @@ Rules:
 - Use varied sentence structure and sophisticated vocabulary
 - Show character emotions through actions and dialogue, not just telling
 - Create distinct character voices and personalities based on their profiles
+- ⛔ ANTI-EXPOSITORY DIALOGUE (ROADMAP_TO_80 M3 — HIGH PRIORITY): No character may state evidence, an alibi, a timeline, or a clearance as a flat report. Dialogue must carry SUBTEXT — characters deflect, evade, hedge, imply, or push back; the investigator INFERS what is not said. A line that exists only to relay a fact the reader needs is forbidden: route that fact to narration or have a character resist/qualify it. Each speaking character must sound distinct (diction, rhythm, what they avoid) — a reader should attribute a line without its tag. Replace "I was in the kitchen at eleven, the cook will confirm" with evasion under pressure that the inspector must read.
 - Avoid stereotypes and reduce bias.
 - Keep language original; do not copy copyrighted text.
 - Output valid JSON only.
@@ -1500,8 +1539,9 @@ ${victimIdentityRule}`;
         // Reference label only — a short topic, never the full conclusory description.
         // Feeding the raw description here let the model lift an already-established clue's
         // analytical sentence back into later chapters (run_1d55f7c7 shipped these verbatim).
+        // R-A (M0): disjoint key terms, not a consecutive phrase from the source.
         const src = String((c as any).pointsTo ?? c.description ?? id);
-        return src.replace(/[,.;:].*$/, '').split(/\s+/).slice(0, 8).join(' ').trim() || id;
+        return surfaceSpecKeyTerms(src, 6) || id;
       })
       .filter(Boolean);
     const clearanceScenes = (cmlCase?.prose_requirements?.suspect_clearance_scenes ?? []) as any[];

@@ -64,6 +64,7 @@ import {
   validateBatchInferenceChain,
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
+  surfaceSpecKeyTerms,
 } from "./clue-validation.js";
 import {
   tokenizeWords,
@@ -102,7 +103,7 @@ import {
 } from "./banned-phrases.js";
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { buildChapterObligationBlock } from "./obligation-block.js";
-import { buildProsePrompt, resolveVictimName } from "./prompt-builder.js";
+import { buildProsePrompt, resolveVictimName, resolveDeathMethod } from "./prompt-builder.js";
 import { stripLocationParagraphs } from "./prompt-blocks.js";
 import {
   extractChapterSummary,
@@ -260,7 +261,10 @@ export const buildProvisionalChapterScore = (
       // references observable text the model can write, not opaque internal identifiers.
       const missingDescs = missing.map((id) => {
         const ctx = (ledgerEntry?.clueObligationContext ?? []).find((c) => c.id === id);
-        return ctx?.description ? `"${ctx.description.trim()}" [${id}]` : id;
+        // R-A (M0): surface key terms, never quote the full description back — quoting it re-seeds the
+        // very verbatim leak the retry is meant to cure.
+        const terms = ctx?.description ? surfaceSpecKeyTerms(ctx.description) : '';
+        return terms ? `${terms} [${id}]` : id;
       });
       directives.push(`Surface missing clue evidence on-page with observable detail: ${missingDescs.join('; ')}.`);
     } else {
@@ -2491,7 +2495,9 @@ export async function generateProse(
           const chapterMode = repairContext.stageMode;
           const suspectNames = repairContext.suspectNames;
           const culpritName = repairContext.culpritName ?? "";
-          const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+          // L1 (ROADMAP_TO_80 M0): surface the DEATH method (stabbing/etc.) in the reveal, not the
+          // concealment mechanism. Falls back to the mechanism description when no death method is derivable.
+          const murderMethod: string = resolveDeathMethod(inputs.caseData) || ((inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '');
           const stageContractCheck = {
             mode: chapterMode,
             victimName: resolveVictimName(inputs.cast).trim() || undefined,
@@ -3098,7 +3104,14 @@ export async function generateProse(
           precommitLinterIssues.length > 0 &&
           precommitLinterIssues.every((issue) => issue.type === "template_bleed") &&
           batchErrors.every((error) =>
-            error.startsWith("Template linter: repeated content opener detected"),
+            // Cosmetic opener/duplicate template_bleed messages — accept-after-exhaustion rather than
+            // hard-abort. The M1 (ROADMAP_TO_80) adjacent-duplicate and cross-chapter repeated-opener
+            // checks emit their own messages and carry no `matchingPriorParagraph`, so they generate no
+            // actionable retry feedback; without these prefixes they would hard-stop a run that a
+            // deterministic fallback chapter can legitimately trip. (See template-bleed-no-backstop memory.)
+            error.startsWith("Template linter: repeated content opener detected") ||
+            error.startsWith("Template linter: a sentence is repeated verbatim back-to-back") ||
+            error.startsWith("Template linter: this chapter opens with the same sentence as a prior chapter"),
           );
 
         if (
@@ -3445,7 +3458,9 @@ export async function generateProse(
                   .map((entry: any) => String(entry?.name ?? ''))
                   .filter(Boolean);
                 const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
-                const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+                // L1 (ROADMAP_TO_80 M0): surface the DEATH method (stabbing/etc.) in the reveal, not the
+          // concealment mechanism. Falls back to the mechanism description when no death method is derivable.
+          const murderMethod: string = resolveDeathMethod(inputs.caseData) || ((inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '');
                 const fallbackObligations = validateChapterPreCommitObligations(
                   fallbackChapter,
                   fallbackLedgerEntry,
@@ -3857,7 +3872,9 @@ export async function generateProse(
                   .map((entry: any) => String(entry?.name ?? ''))
                   .filter(Boolean);
                 const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
-                const murderMethod: string = (inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '';
+                // L1 (ROADMAP_TO_80 M0): surface the DEATH method (stabbing/etc.) in the reveal, not the
+          // concealment mechanism. Falls back to the mechanism description when no death method is derivable.
+          const murderMethod: string = resolveDeathMethod(inputs.caseData) || ((inputs.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? '');
                 const fallbackObligations = validateChapterPreCommitObligations(
                   fallbackChapter,
                   fallbackLedgerEntry,

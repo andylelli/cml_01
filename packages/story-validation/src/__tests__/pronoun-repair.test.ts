@@ -38,6 +38,22 @@ describe('repairPronouns', () => {
     expect(result.text).toBe('Graham Worsley adjusted his collar.');
   });
 
+  it('R-B (M0b): fixes a mis-gendered title appositive even in a mixed-gender sentence (Guard C override)', () => {
+    // "mistress" is unambiguously female; the male-pronoun run must flip even though "the inspector"
+    // (a male referent) appears in the same sentence — the verified Eleanor Ch1 slip.
+    const text = "The estate's mistress, he wore his grief with brittle dignity, but his eyes darted to the inspector.";
+    const result = repairPronouns(text, CAST);
+    expect(result.text).toContain('she wore her grief');
+    expect(result.text).not.toMatch(/\bhis grief\b/);
+    expect(result.repairCount).toBeGreaterThan(0);
+  });
+
+  it('R-B (M0b): does NOT fire on a gendered noun used as an object (requires the appositive comma)', () => {
+    const text = 'The mistress he served had vanished.'; // "he" = the servant, correct — must be left alone
+    const result = repairPronouns(text, CAST);
+    expect(result.text).toBe('The mistress he served had vanished.');
+  });
+
   it('fixes object him→her for female character', () => {
     const text = 'The detective confronted Clara Voss. The evidence pointed to him.';
     const result = repairPronouns(text, CAST);

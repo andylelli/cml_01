@@ -14,6 +14,7 @@ import { tagCharacter, selectSensoryVariant, compileSensoryAtoms } from "./phras
 import type { BeatFingerprint } from "./phrase-analysis.js";
 import { getSeasonAllowList, deriveTemporalSeasonLock } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
+import { surfaceSpecKeyTerms } from "./clue-validation.js";
 import type { CastDesign } from "../agent2-cast.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import type { ProseChapter, MacroArcEntry, ProseGenerationInputs } from "./types.js";
@@ -566,9 +567,11 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   ];
 
   if (falseAssumption.statement) {
+    // Surface assumption is the reader-facing premise — keep it readable. The HIDDEN truth is schema
+    // scaffold the LLM copies → surface key terms only (R-A, M0).
     lines.push(`- False assumption in force: ${falseAssumption.statement}`);
     if (falseAssumption.what_it_hides) {
-      lines.push(`- Hidden truth to progressively expose: ${falseAssumption.what_it_hides}`);
+      lines.push(`- Hidden truth to progressively expose (compose in your own words from these elements): ${surfaceSpecKeyTerms(String(falseAssumption.what_it_hides))}`);
     }
   }
   if (inferenceSteps.length > 0) {
@@ -583,7 +586,7 @@ export const buildFairPlayContractBlock = (caseData: CaseData): string => {
   }
   if (Object.keys(discriminatingTest).length > 0) {
     if (discriminatingTest.method) lines.push(`- Discriminating test method: ${discriminatingTest.method}`);
-    if (discriminatingTest.design) lines.push(`- Discriminating test mechanism to dramatize (paraphrase only — do NOT copy this sentence verbatim into prose): ${discriminatingTest.design}`);
+    if (discriminatingTest.design) lines.push(`- Discriminating test elements to dramatize (compose ENTIRELY in your own sentences from these — do NOT reproduce any briefing phrase verbatim): ${surfaceSpecKeyTerms(String(discriminatingTest.design))}`);
     if (Array.isArray(discriminatingTest.evidence_clues) && discriminatingTest.evidence_clues.length > 0) {
       lines.push(`- Test must rely on already-shown clue IDs: ${discriminatingTest.evidence_clues.join(', ')}`);
     }

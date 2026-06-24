@@ -6,22 +6,22 @@ import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
+import { surfaceSpecKeyTerms } from "./clue-validation.js";
 
 /**
  * Canonical framing for any place that injects `discriminating_test.design` into a
- * prose prompt. The design field is an analytical sentence that Agent9 used to copy
- * verbatim into the climactic scene (run_1d55f7c7 shipped it word-for-word). All
- * injection sites route the design through this helper so the "paraphrase, never
- * copy" instruction lives in one place and the model is consistently told that a
- * verbatim copy fails validation (now enforced by the verbatim field-echo gate).
+ * prose prompt. R-A (ROADMAP_TO_80 M0): the design is an analytical sentence Agent9 copied
+ * verbatim however firmly we forbade it (run_1d55f7c7 + the recent replay shipped it word-for-word).
+ * The cure is to NOT hand the sentence at all — surface only the KEY TERMS so the model must compose
+ * its own prose; a key-term list cannot form a 12-word verbatim run from the source.
  */
 export const describeDtMechanismForPrompt = (design: unknown): string => {
-  const d = String(design ?? "").trim();
-  if (!d) return "";
+  const terms = surfaceSpecKeyTerms(String(design ?? "").trim());
+  if (!terms) return "";
   return (
-    "Render this test MECHANISM as live, in-scene action and dialogue, in your own words. " +
-    "Do NOT copy the following sentence into the prose — verbatim transcription will FAIL validation:\n" +
-    d
+    "Render this test MECHANISM as live, in-scene action and dialogue, composing ENTIRELY in your own " +
+    "words from these elements (reproducing any briefing phrase verbatim FAILS validation): " +
+    terms
   );
 };
 

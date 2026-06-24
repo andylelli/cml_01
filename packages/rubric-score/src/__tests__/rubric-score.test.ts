@@ -168,6 +168,24 @@ describe("extractStoryFacts — the exact facts from the CASE + prose", () => {
     expect(extractStoryFacts(withField, "Gray paced the hall.").victimUnnamed).toBe(true); // resolved + absent
     expect(extractStoryFacts(withField, "Sir Lionel lay dead; Gray paced.").victimUnnamed).toBe(false);
   });
+
+  it("L1 (ROADMAP_TO_80 M0): weakMurderMethod checks the manner of death, derived from crime_class.subtype", () => {
+    const withMechanism = {
+      ...caseData,
+      meta: { crime_class: { category: "murder", subtype: "premeditated stabbing with temporal alibi manipulation" } },
+      hidden_model: { mechanism: { description: "the clock was wound back by a gust of wind" }, outcome: { result: "the false timeline misled everyone" } },
+    };
+    // concealment described, but the killing never stated → cap fires
+    expect(extractStoryFacts(withMechanism, "Gray explained how the clock was wound back by the wind.").weakMurderMethod).toBe(true);
+    // the manner of death IS stated → cap clears, even though the outcome sentence never appears verbatim
+    expect(extractStoryFacts(withMechanism, "Gray explained the clock trick, then revealed Lord Ashby had been stabbed.").weakMurderMethod).toBe(false);
+  });
+
+  it("L1: an explicit CASE.death_method overrides for the manner-of-death check", () => {
+    const c = { ...caseData, death_method: "stab wound", hidden_model: { mechanism: { description: "the clock was tampered with" } } };
+    expect(extractStoryFacts(c, "He described the tampered clock at length.").weakMurderMethod).toBe(true);
+    expect(extractStoryFacts(c, "The stab wound to the chest told the true story.").weakMurderMethod).toBe(false);
+  });
 });
 
 describe("scoreStory — orchestration with an injectable stub judge", () => {

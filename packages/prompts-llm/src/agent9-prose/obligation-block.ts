@@ -14,6 +14,7 @@ import {
   isBehaviouralClue,
   isDeliveryMethodLabel,
   sceneMatchesCmlSceneRef,
+  surfaceSpecKeyTerms,
   tokenMatchesText,
   tokenizeForClueObligation,
 } from "./clue-validation.js";
@@ -399,7 +400,7 @@ export function buildChapterObligationBlock(
           const earlyFlag = clue.placement === 'early'
             ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
-          lines.push(`    • ${sanitizeClueField(String(clue.description ?? ''))} [${clueId}]${earlyFlag}`);
+          lines.push(`    • ${surfaceSpecKeyTerms(String(clue.description ?? ''))} [${clueId}]${earlyFlag}`);
           if (isDeferredReveal) {
             // Reveal-class clue in a pre-reveal chapter: surface the OBSERVABLE anomaly but
             // withhold the solution. The "Points to" (who it implicates) line and the
@@ -412,7 +413,7 @@ export function buildChapterObligationBlock(
               lines.push(`         Place this OBSERVATION in paragraph 1 or 2 (observation only — no inference about the culprit).`);
             }
           } else {
-            lines.push(`      Points to: ${sanitizeClueField(String(clue.pointsTo ?? ''))}`);
+            lines.push(`      Points to: ${surfaceSpecKeyTerms(String(clue.pointsTo ?? ''))}`);
             if (clue.placement === 'early') {
               lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
               lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
@@ -566,7 +567,11 @@ export function buildChapterObligationBlock(
         .filter(Boolean);
       lines.push(`  - ⚠ DISCRIMINATING TEST (${dtMethod}) — MANDATORY real-time scene with dialogue and confrontation. DO NOT summarize it after the fact.`);
       if (culpritNames) lines.push(`    ⚠ CULPRIT-UNIQUENESS REQUIRED: the decisive evidence must expose a fact or physical characteristic that ONLY ${culpritNames} could satisfy. Announcing that the crime method occurred does NOT qualify. The test must reveal access, knowledge, or physical proof that eliminates all non-culprits before naming ${culpritNames}.`);
-      if (dtDesign) lines.push(`    Mechanism to dramatize in your own words (do NOT copy this sentence verbatim — copying FAILS validation): ${dtDesign}`);
+      if (dtDesign) {
+        // R-A (ROADMAP_TO_80 M0): never hand the LLM the full design SENTENCE — it copies it verbatim
+        // however firmly we forbid it. Give only the key TERMS (shared chokepoint) so the model composes.
+        lines.push(`    Elements the test must dramatize (compose the scene ENTIRELY in your own sentences from these — reproducing any briefing phrase verbatim FAILS validation): ${surfaceSpecKeyTerms(dtDesign)}`);
+      }
       if (dtEvidenceClues.length > 0) lines.push(`    Cite these already-revealed clue IDs during the test: ${dtEvidenceClues.join(', ')}`);
       if (nonCulpritSuspects.length > 0) lines.push(`    Eliminate on-page with explicit evidence: ${nonCulpritSuspects.map((n) => `"${n}"`).join(', ')} — state EXACTLY why each is ruled out (because / therefore / which proves).`);
       if (culpritNames) lines.push(`    Convict: name "${culpritNames}" explicitly as the murderer. Connect every clue to them using "because / therefore / which proves".`);
@@ -689,7 +694,9 @@ export function buildChapterObligationBlock(
     lines.push(`  Five events MUST appear as on-page prose (not offstage summary):`);
     lines.push(`  1. ACCUSATION: The detective names ${culpritNames || 'the culprit'} and states the charge.`);
     lines.push(`  2. CULPRIT RESPONSE: ${culpritNames || 'The culprit'} confesses with detail, or reacts in a way that confirms guilt.`);
-    lines.push(`  3. METHOD: State exactly how "${murderMethod}" was used — specific, not vague.`);
+    // L1 (ROADMAP_TO_80 M0): the reveal must state HOW THE VICTIM DIED (manner of death), not only
+    // how the timeline/scene was faked — otherwise the "concealment explained, death not" cap fires.
+    lines.push(`  3. METHOD: State BOTH how the victim was killed (name the manner of death — e.g. the stab wound, the poison, the blow) AND how the scene/timeline was manipulated ("${murderMethod}"). Naming only the concealment is a failure.`);
     lines.push(`  4. CONSEQUENCE: What happens to ${culpritNames || 'the culprit'} (arrested, fled, taken into custody).`);
     lines.push(`  5. AFTERMATH: At least one other character reacts emotionally to the truth.`);
     lines.push(`  A chapter submitted without all five will be rejected and regenerated.`);

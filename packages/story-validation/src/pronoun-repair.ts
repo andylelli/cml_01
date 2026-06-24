@@ -50,6 +50,45 @@ function genderOfPronoun(pronoun: string): string | null {
   return null;
 }
 
+// R-B (ROADMAP_TO_80 M0b): unambiguously gendered role/title nouns. Used ONLY for the tight
+// appositive pattern "<gendered noun>, <pronoun>" (e.g. "The estate's mistress, he wore his grief"),
+// where the pronoun directly renames the noun — so its gender is authoritative even inside a
+// mixed-gender paragraph where Guard C would otherwise protect a self-consistent wrong-gender run.
+const FEMALE_TITLE_ANCHORS = [
+  'mistress', 'lady', 'ladyship', 'widow', 'dowager', 'countess', 'duchess', 'baroness',
+  'marchioness', 'viscountess', 'governess', 'spinster', 'matron', 'heiress', 'madam', 'madame',
+  'wife', 'mother', 'daughter', 'sister', 'niece', 'aunt', 'grandmother', 'queen', 'princess',
+  'nun', 'actress', 'seamstress', 'maid',
+];
+const MALE_TITLE_ANCHORS = [
+  'master', 'lord', 'lordship', 'widower', 'duke', 'baron', 'marquess', 'viscount', 'earl', 'heir',
+  'husband', 'father', 'son', 'brother', 'nephew', 'uncle', 'grandfather', 'king', 'prince', 'monk',
+  'actor', 'butler', 'footman', 'valet', 'gentleman', 'groom', 'bachelor', 'squire',
+];
+const TITLE_ANCHOR_GENDER = new Map<string, string>([
+  ...FEMALE_TITLE_ANCHORS.map((n) => [n, 'female'] as const),
+  ...MALE_TITLE_ANCHORS.map((n) => [n, 'male'] as const),
+]);
+const ANCHOR_APPOSITIVE_RE = new RegExp(
+  `\\b(${[...FEMALE_TITLE_ANCHORS, ...MALE_TITLE_ANCHORS].join('|')})\\b\\s*,\\s+(he|him|his|himself|she|her|hers|herself)\\b`,
+  'i',
+);
+
+/**
+ * Returns the authoritative subject gender when a segment contains the tight appositive pattern
+ * "<gendered title>, <pronoun>" whose pronoun DISAGREES with the title's gender (i.e. a mis-gendering
+ * to repair), else null. Deliberately narrow: requires the comma so "the mistress he served" (object)
+ * never matches, only "the mistress, he ...".
+ */
+function leadingGenderedAppositive(segment: string): string | null {
+  const m = ANCHOR_APPOSITIVE_RE.exec(segment);
+  if (!m) return null;
+  const anchorGender = TITLE_ANCHOR_GENDER.get(m[1].toLowerCase());
+  const pronGender = genderOfPronoun(m[2]);
+  if (!anchorGender || !pronGender) return null;
+  return anchorGender !== pronGender ? anchorGender : null;
+}
+
 /**
  * Map a wrong-gender pronoun to the correct form for the target character,
  * preserving original casing style.
@@ -424,6 +463,22 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
           return repaired;
         }
         return segment;
+      }
+
+      if (mentioned.length === 0) {
+        // R-B (M0b): the gendered-title appositive ("The estate's mistress, he ...") is authoritative
+        // and overrides Guard C — the title is explicit gender evidence for the clause subject.
+        const anchorGender = leadingGenderedAppositive(segment);
+        if (anchorGender) {
+          const target: CharacterPronounInfo = {
+            canonical: '__title_anchor__', labels: [], gender: anchorGender, pronouns: PRONOUN_MAP[anchorGender],
+          };
+          const repaired = repairPronounsInSegment(segment, target);
+          if (repaired !== segment) {
+            repairCount++;
+            return repaired;
+          }
+        }
       }
 
       if (mentioned.length === 0 && lastSingleCharacter) {

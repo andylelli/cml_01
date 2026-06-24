@@ -796,7 +796,11 @@ describe("validator-aligned deterministic repair helpers", () => {
     const patchedText = patched.chapter.paragraphs.join(" ");
 
     expect(patched.inserted).toBe(true);
-    expect(patchedText).toContain("The mantel clock has been rewound");
+    // R-A (M0): the DT evidence is surfaced as KEY TERMS, not the verbatim clue sentence — so the
+    // discriminating terms appear, but never the full "The mantel clock has been rewound." sentence.
+    expect(patchedText).toMatch(/clock/i);
+    expect(patchedText).toMatch(/rewound/i);
+    expect(patchedText).not.toContain("The mantel clock has been rewound");
     expect(patchedText).not.toMatch(/\bclue_clock\b/i);
     expect(patchedText).not.toContain("[object Object]");
   });
@@ -1151,14 +1155,15 @@ describe("Agent 9 prompt hardening fixes", () => {
   // -------------------------------------------------------------------------
   // Layer A — anti-leakage prompt reframing (run_1d55f7c7)
   // -------------------------------------------------------------------------
-  it("A1: describeDtMechanismForPrompt frames the design as paraphrase-only, never copy", () => {
+  it("A1: describeDtMechanismForPrompt surfaces key terms, never the design sentence (R-A, M0)", () => {
     const design =
       "A controlled reenactment demonstrates the grandfather clock's spring tension and hand positions.";
     const framed = describeDtMechanismForPrompt(design);
     expect(framed).toContain("in your own words");
-    expect(framed).toMatch(/do NOT copy/i);
-    expect(framed).toMatch(/FAIL validation/i);
-    expect(framed).toContain(design);
+    expect(framed).toMatch(/FAILS validation/i);
+    // R-A: the full design sentence is NEVER handed to the model — only key terms.
+    expect(framed).not.toContain(design);
+    expect(framed).toMatch(/reenactment|grandfather|clock|spring|tension/i);
     // Empty design yields no injected text.
     expect(describeDtMechanismForPrompt("")).toBe("");
   });

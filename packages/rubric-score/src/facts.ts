@@ -22,6 +22,37 @@ export interface ScoringCaseInput {
   cast?: CastMember[];
   culpability?: { culprits?: string[] };
   hidden_model?: { mechanism?: { description?: string }; outcome?: { result?: string } };
+  death_method?: string;
+  meta?: { crime_class?: { category?: string; subtype?: string } };
+}
+
+// ROADMAP_TO_80 M0 / L1: the "weak murder method (concealment explained, death not)" cap means the
+// prose describes how the timeline was faked but never how the victim DIED. The honest test is
+// "is the manner of death mentioned?" — so resolve robust death-method stems from the typed
+// death_method (or meta.crime_class) and check those against the prose, rather than an exact
+// substring of the outcome sentence (which almost never appears verbatim in free prose).
+const DEATH_METHOD_TOKENS: Array<[RegExp, string[]]> = [
+  // NB: "wound" is deliberately excluded — it collides with "wound" (past tense of wind), common in
+  // clock-tampering mysteries ("the clock was wound back"). "stab" stems stab/stabbed/stabbing.
+  [/stab|knif|blade/i, ["stab", "blade", "knife", "dagger"]],
+  [/shoot|shot|gun|firearm|pistol|revolver/i, ["shot", "gunshot", "bullet", "firearm", "pistol"]],
+  [/strangl|garrot|throttl/i, ["strangl", "throttl", "garrot"]],
+  [/poison|arsenic|cyanide|toxin/i, ["poison", "arsenic", "cyanide", "toxin"]],
+  [/bludgeon|blunt|cudgel/i, ["bludgeon", "blunt", "blow"]],
+  [/drown/i, ["drown"]],
+  [/smother|suffocat|asphyxiat/i, ["smother", "suffocat", "asphyxiat"]],
+  [/electrocut/i, ["electrocut"]],
+  [/burn|arson/i, ["burn"]],
+];
+
+function resolveDeathMethodTokens(c: ScoringCaseInput): string[] {
+  const explicit = typeof c.death_method === "string" ? c.death_method : "";
+  const haystack = `${explicit} ${c.meta?.crime_class?.subtype ?? ""} ${c.meta?.crime_class?.category ?? ""}`;
+  for (const [re, tokens] of DEATH_METHOD_TOKENS) if (re.test(haystack)) return tokens;
+  if (explicit.trim()) {
+    return explicit.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((t) => t.length > 3);
+  }
+  return [];
 }
 
 const VICTIM_RE = /victim/i;
@@ -72,11 +103,23 @@ export function extractStoryFacts(cml: unknown, prose: string): StoryFacts {
   }
   // else: victim name unresolved → leave victimUnnamed undefined (do NOT flag); the judge decides.
 
-  // mechanism present but no death outcome described → weak-murder-method signal (deterministic-ish)
+  // mechanism present but no death method described → weak-murder-method signal (deterministic-ish).
+  // Prefer the typed death-method tokens (manner of death); fall back to the old outcome-sentence
+  // heuristic only when no death method is resolvable.
   const hasMechanism = Boolean(caseData.hidden_model?.mechanism?.description);
-  const outcome = caseData.hidden_model?.outcome?.result;
-  if (hasMechanism && outcome) {
-    facts.weakMurderMethod = !includesCI(prose, String(outcome).split(/[.,;]/)[0]?.slice(0, 30) ?? "");
+  const deathTokens = resolveDeathMethodTokens(caseData);
+  if (hasMechanism && deathTokens.length > 0) {
+    const lower = prose.toLowerCase();
+    // Match each token at a WORD START (\b<stem>) so stems can still match inflections
+    // ("stab"→stabbed/stabbing) without colliding on embedded substrings — e.g. an unanchored
+    // includes("stab") matches "con-stab-le" / "e-stab-lish", which would silently CLEAR this cap
+    // in any story with a constable. Tokens are alphabetic stems, so they are regex-safe to interpolate.
+    facts.weakMurderMethod = !deathTokens.some((t) => new RegExp(`\\b${t}`).test(lower));
+  } else {
+    const outcome = caseData.hidden_model?.outcome?.result;
+    if (hasMechanism && outcome) {
+      facts.weakMurderMethod = !includesCI(prose, String(outcome).split(/[.,;]/)[0]?.slice(0, 30) ?? "");
+    }
   }
 
   facts.templateLeakageHits = detectTemplateLeakage(prose);

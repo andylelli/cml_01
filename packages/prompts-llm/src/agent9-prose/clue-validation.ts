@@ -366,6 +366,10 @@ export const CLUE_TOKEN_STOPWORDS = new Set<string>([
   "other", "over", "same", "some", "such", "than", "that", "them", "then", "their", "there",
   "these", "they", "this", "those", "through", "under", "upon", "very", "were", "when", "where",
   "which", "while", "will", "with", "would", "without", "afterward", "during",
+  // Discriminating-test scaffold words (folded in from the former local DT_STOP) so the one shared
+  // term surface serves the design path too — these carry no discriminating signal as prose.
+  "controlled", "arranged", "arrange", "demonstrating", "comparing", "confirms", "established",
+  "evidence", "test", "tested", "testing",
 ]);
 
 export const tokenizeForClueObligation = (value: string): string[] =>
@@ -374,6 +378,22 @@ export const tokenizeForClueObligation = (value: string): string[] =>
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
     .filter((token) => token.length >= 4 && !CLUE_TOKEN_STOPWORDS.has(token));
+
+/**
+ * R-A chokepoint (ROADMAP_TO_80 M0). The verbatim-leakage gate (detectVerbatimFieldEcho) flags any run
+ * of ≥12 CONSECUTIVE tokens shared between the prose and a fed spec sentence. NEVER hand the model — or
+ * paste — a full spec SENTENCE: surface only deduped, stopword-filtered KEY TERMS (comma-joined), which
+ * by construction cannot form a 12-word verbatim run from the source. Because this uses the SAME
+ * tokenizer the clue-PRESENCE check (chapterMentionsRequiredClue) uses, the surfaced terms are exactly
+ * the tokens the presence check seeks — so composing prose around them satisfies presence without a leak.
+ */
+export const surfaceSpecKeyTerms = (value: string, max = 12): string =>
+  Array.from(new Set(tokenizeForClueObligation(String(value ?? "")))).slice(0, max).join(", ");
+
+/** Phrase form for deterministic-prose composition (shorter). Returns '' when no usable terms remain
+ *  (caller must fall through to generic obligation language — never paste the raw sentence). */
+export const composeKeyTermPhrase = (value: string, max = 6): string =>
+  Array.from(new Set(tokenizeForClueObligation(String(value ?? "")))).slice(0, max).join(", ");
 
 /**
  * Remove tokens that are proper-name words from non-cast characters.

@@ -579,6 +579,38 @@ export const lintBatchProse = (
         });
       }
     }
+    // M1 (ROADMAP_TO_80): adjacent verbatim-duplicate sentence — the Ch6 doubled-opener bug.
+    // Exact match on a substantial sentence → zero false positives.
+    {
+      const sentences = (chapter.paragraphs ?? []).join(' ').match(/[^.!?]+[.!?]+/g) ?? [];
+      for (let i = 1; i < sentences.length; i += 1) {
+        const a = sentences[i - 1].trim().toLowerCase();
+        const b = sentences[i].trim().toLowerCase();
+        if (a.length > 40 && a === b) {
+          issues.push({
+            type: 'template_bleed',
+            message: 'Template linter: a sentence is repeated verbatim back-to-back. Remove the duplicate.',
+          });
+          break;
+        }
+      }
+    }
+    // M1: cross-chapter repeated OPENING sentence — the templated-opener signature. Flag when this
+    // chapter's first sentence is identical to a prior chapter's first sentence.
+    {
+      const firstSentence = (firstPara.match(/^[^.!?]+[.!?]/)?.[0] ?? '').trim().toLowerCase();
+      if (firstSentence.length > 40) {
+        const priorOpeners = priorChapters.map(
+          (pc) => ((pc.paragraphs ?? [])[0] ?? '').match(/^[^.!?]+[.!?]/)?.[0]?.trim().toLowerCase() ?? '',
+        );
+        if (priorOpeners.some((o) => o.length > 40 && o === firstSentence)) {
+          issues.push({
+            type: 'template_bleed',
+            message: 'Template linter: this chapter opens with the same sentence as a prior chapter. Rewrite the opening uniquely from the scene.',
+          });
+        }
+      }
+    }
     for (const paragraph of chapter.paragraphs ?? []) {
       for (const check of TEMPLATE_BLEED_CHECKS) {
         if (check(paragraph)) {

@@ -6,6 +6,7 @@
 import type { CaseData } from "@cml/cml";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import {
+  composeKeyTermPhrase,
   countWords,
   isDeliveryMethodLabel,
   resolveClueObligationState,
@@ -116,6 +117,10 @@ export const summarizeClueForFallback = (
   ledgerEntry: ChapterRequirementLedgerEntry | undefined,
   clueDistribution?: ClueDistributionResult,
 ): string => {
+  // NB: this returns the RICH description (full sentence) on purpose — it feeds the polish obligation
+  // guard's token-overlap presence check (post-pass-polish.ts), which needs the full token set. The
+  // R-A key-term reduction is applied at the PASTE consumption sites instead (clearance / clueText /
+  // completion fallback), never here.
   const fromLedger = (ledgerEntry?.clueObligationContext ?? []).find((entry) => entry.id === clueId)?.description;
   if (fromLedger && fromLedger.trim().length > 0) {
     return fromLedger.trim().replace(/\s+/g, " ");
@@ -135,20 +140,25 @@ const summarizeClueForProse = (
   ledgerEntry: ChapterRequirementLedgerEntry | undefined,
   clueDistribution?: ClueDistributionResult,
 ): string | undefined => {
+  // R-A (M0): every return is KEY TERMS (composeKeyTermPhrase), never the raw description/pointsTo
+  // sentence — so the deterministic pastes downstream can never reproduce a 12-word verbatim run.
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? "") === clueId);
   const fromDistribution = String(clue?.description ?? "").trim();
   if (fromDistribution && !isDeliveryMethodLabel(fromDistribution)) {
-    return fromDistribution.replace(/\s+/g, " ");
+    const terms = composeKeyTermPhrase(fromDistribution);
+    if (terms) return terms;
   }
   const pointsTo = String(clue?.pointsTo ?? "").trim();
   if (pointsTo) {
-    return pointsTo.replace(/\s+/g, " ");
+    const terms = composeKeyTermPhrase(pointsTo);
+    if (terms) return terms;
   }
   const fromLedger = String(
     (ledgerEntry?.clueObligationContext ?? []).find((entry) => entry.id === clueId)?.description ?? "",
   ).trim();
   if (fromLedger && !isDeliveryMethodLabel(fromLedger)) {
-    return fromLedger.replace(/\s+/g, " ");
+    const terms = composeKeyTermPhrase(fromLedger);
+    if (terms) return terms;
   }
   return undefined;
 };
@@ -195,7 +205,7 @@ const buildRequiredClueMaterializations = (
   if (!ledgerEntry || !Array.isArray(chapter?.paragraphs) || chapter.paragraphs.length === 0) {
     return [];
   }
-  return ledgerEntry.requiredClueIds.map((clueId) => {
+  const materializations = ledgerEntry.requiredClueIds.map((clueId) => {
     const clueState = resolveClueObligationState(
       chapter,
       ledgerEntry,
@@ -203,11 +213,15 @@ const buildRequiredClueMaterializations = (
       clueDistribution,
       castNames,
     );
-    const description = normalizeOptionalClueSummary(
-      clueState.proseFacingDescription
-      || summarizeClueForProse(clueId, ledgerEntry, clueDistribution),
+    // R-A (M0): force both operands to KEY TERMS regardless of source (proseFacingDescription may be a
+    // full sentence even when summarizeClueForProse is already term-reduced).
+    const description = composeKeyTermPhrase(
+      normalizeOptionalClueSummary(
+        clueState.proseFacingDescription
+        || summarizeClueForProse(clueId, ledgerEntry, clueDistribution),
+      ) ?? "",
     );
-    const pointsTo = normalizeOptionalClueSummary(clueState.pointsTo ?? undefined);
+    const pointsTo = composeKeyTermPhrase(normalizeOptionalClueSummary(clueState.pointsTo ?? undefined) ?? "");
     const isMissing = !clueState.isPresent;
     const requiresEarlyPlacement = clueState.placement === "early" && !clueState.isEarlyEnough;
     return {
@@ -219,6 +233,39 @@ const buildRequiredClueMaterializations = (
       isMissing,
     };
   }).filter((entry) => entry.description.length > 0);
+
+  // R-A (ROADMAP_TO_80 M0): collapse near-duplicate clue records before injection. Agent 5 can emit
+  // two clues whose prose-facing descriptions differ only by a verb ("Direct evidence LINKS / TIES
+  // Lady Eleanor to the mechanism access point…"), which the patch then pastes back-to-back verbatim
+  // (the verified Ch8 twin). Dedupe by significant-token Jaccard ≥ 0.7 — high enough that genuinely
+  // distinct clues are kept, low enough that near-identical twins collapse to one.
+  return dedupeByDescriptionSimilarity(materializations);
+};
+
+const significantTokens = (s: string): Set<string> =>
+  new Set(
+    s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((t) => t.length > 3),
+  );
+
+const tokenJaccard = (a: Set<string>, b: Set<string>): number => {
+  if (a.size === 0 || b.size === 0) return 0;
+  let inter = 0;
+  for (const t of a) if (b.has(t)) inter += 1;
+  return inter / (a.size + b.size - inter);
+};
+
+const dedupeByDescriptionSimilarity = (
+  entries: RequiredClueMaterialization[],
+): RequiredClueMaterialization[] => {
+  const kept: RequiredClueMaterialization[] = [];
+  const keptTokens: Set<string>[] = [];
+  for (const entry of entries) {
+    const toks = significantTokens(entry.description);
+    if (keptTokens.some((k) => tokenJaccard(k, toks) >= 0.7)) continue;
+    kept.push(entry);
+    keptTokens.push(toks);
+  }
+  return kept;
 };
 
 const buildDeterministicClueParagraphs = (
@@ -233,11 +280,13 @@ const buildDeterministicClueParagraphs = (
     : `${investigatorName} surfaced the next hard detail before the scene could drift into speculation`;
   const observationParagraph =
     `${lead}: ${clueList}. The chapter treated those facts as observable evidence, not rumor, and tied them to what could be seen, timed, and compared in real time.`;
+  // R-A (M0): operands are now key-term lists (≤6 tokens each), composed into a sentence — never a
+  // pasted spec sentence, so no 12-word verbatim run can survive.
   const inferenceSentences = materials.map((entry) => {
     if (entry.pointsTo) {
-      return `From ${entry.description}, ${investigatorName} inferred ${entry.pointsTo}.`;
+      return `Weighing ${entry.description}, ${investigatorName} saw the evidence narrow toward ${entry.pointsTo}.`;
     }
-    return `From ${entry.description}, ${investigatorName} inferred that the standing explanation had weakened and now needed a stricter evidence test.`;
+    return `Weighing ${entry.description}, ${investigatorName} judged the standing explanation weakened and in need of a stricter test.`;
   });
   const inferenceParagraph =
     `${materials.length > 1 ? "Those observations" : "That observation"} redirected the reasoning at once. ${inferenceSentences.join(" ")}`;
@@ -297,12 +346,6 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
   const cmlCase = (args.caseData as any)?.CASE ?? {};
   const discriminatingTest = cmlCase?.discriminating_test ?? {};
   const falseAssumption = cmlCase?.false_assumption ?? {};
-  const designSource = typeof discriminatingTest?.design === "string"
-    ? discriminatingTest.design
-    : discriminatingTest?.design?.description;
-  const design = normalizeClueStatement(String(designSource ?? "").trim());
-  const knowledgeRevealed = normalizeClueStatement(String(discriminatingTest?.knowledge_revealed ?? "").trim());
-  const passCondition = normalizeClueStatement(String(discriminatingTest?.pass_condition ?? "").trim());
   const eliminatedSuspects = Array.isArray(discriminatingTest?.eliminated_suspects)
     ? discriminatingTest.eliminated_suspects
         .map((entry: any) => typeof entry === "string" ? entry.trim() : String(entry?.name ?? "").trim())
@@ -311,16 +354,15 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
   const theoryA = normalizeClueStatement(
     String(falseAssumption?.statement ?? "the accepted explanation still held together").trim(),
   );
-  const theoryB = knowledgeRevealed
-    || passCondition
-    || normalizeClueStatement(String(falseAssumption?.what_it_hides ?? "").trim())
-    || "the evidence pointed to a different and deliberate sequence of events";
   const culpritName = args.focusName?.trim();
 
+  // R-A (ROADMAP_TO_80 M0): describe the test's SHAPE — never paste the design / pass_condition /
+  // knowledge_revealed schema sentences (the Ch9 78-word verbatim leak). theoryA is the surface
+  // assumption (reader-meaningful); everything else is composed prose, not transcribed schema.
   const theoryParagraph =
-    `${args.investigatorName} set out two competing theories so everyone could hear the split clearly. Either ${theoryA}, or ${theoryB}. Once those alternatives were stated side by side, vague suspicion stopped being useful and only observable proof mattered.`;
+    `${args.investigatorName} set out the two competing readings so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
   const testParagraph =
-    `${args.investigatorName} then ran the discriminating test in full view: ${design || "the crucial comparison demanded by the evidence"}. The comparison used ${args.evidenceSummary}, and the observable result was plain enough for every witness to track: ${passCondition || knowledgeRevealed || theoryB}.`;
+    `${args.investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. The comparison turned on ${args.evidenceSummary}, and the result was plain enough for every witness to read for themselves.`;
   const eliminationLead = eliminatedSuspects.length > 0
     ? `${eliminatedSuspects.join(", ")} ${eliminatedSuspects.length > 1 ? "were" : "was"} ruled out because the same result contradicted ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"} once the evidence was compared under identical conditions.`
     : "One path was ruled out because the evidence failed it under direct comparison, while the surviving path matched each observable result.";
@@ -417,7 +459,8 @@ const buildDeterministicClearanceParagraph = (
   const suspectName = clearance.suspect_name.trim();
   const supportHints = (clearance.supporting_clues ?? [])
     .slice(0, 2)
-    .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, clueDistribution))
+    // R-A (M0): key-terms at the paste site — the rich summary feeds the guard, not the prose.
+    .map((clueId) => composeKeyTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
     .filter(Boolean);
   const supportClause = supportHints.length > 0
     ? `the evidence around ${supportHints.join(" and ")}`
@@ -486,7 +529,11 @@ export const repairChapterDeterministically = (args: {
 
   let insertedDiscriminatingTest = false;
   if (args.repairContext.stageMode === "discriminating_test") {
-    const clueText = args.repairContext.requiredClueSummaries.join("; ");
+    // R-A (M0): key-terms at the paste site; requiredClueSummaries stays rich for the guard.
+    const clueText = args.repairContext.requiredClueSummaries
+      .map((s) => composeKeyTermPhrase(s))
+      .filter(Boolean)
+      .join("; ");
     const dtPatch = applyDeterministicDiscriminatingTestPatch(
       chapter,
       args.caseData,
@@ -564,7 +611,9 @@ const buildStageAwareFallbackParagraphs = (args: {
     const culpritName = focusName
       || String((args.caseData as any)?.CASE?.culpability?.culprits?.[0] ?? "the culprit").trim()
       || "the culprit";
-    const methodDescription = normalizeOptionalClueSummary(
+    // R-A (M0): the mechanism description is long analytical text — prime 12-word-run material. Surface
+    // key terms only (the run flagged "A precisely timed gust of wind entered through the garden window…").
+    const methodDescription = composeKeyTermPhrase(
       String((args.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? "").trim(),
     ) || "the precise murder method";
 
@@ -747,10 +796,12 @@ export const buildCompletionFallbackChapter = (
     .map(normalizeSceneCharacterName)
     .filter(Boolean)
     .slice(0, 3);
-  const sceneObjective = String(scene?.objective ?? scene?.purpose ?? scene?.summary ?? "").trim();
+  // R-A (M0): scene objective/summary can be a full spec sentence — surface key terms only.
+  const sceneObjective = composeKeyTermPhrase(String(scene?.objective ?? scene?.purpose ?? scene?.summary ?? "").trim());
   const floorWords = Math.max(850, ledgerEntry?.hardFloorWords ?? 0);
+  // R-A (M0): key-terms at the paste site (completion fallback ships directly to the reader).
   const clueText = (ledgerEntry?.requiredClueIds ?? [])
-    .map((clueId) => summarizeClueForFallback(clueId, ledgerEntry, clueDistribution))
+    .map((clueId) => composeKeyTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
     .filter(Boolean)
     .join("; ");
   const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
