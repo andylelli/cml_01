@@ -4,6 +4,27 @@ Status: **planning doc — four code-grounded implementation plans (one architec
 
 ---
 
+## ▸ Implementation status (live)
+
+**Landed (committed, unit-tested, build-clean):**
+- **Season lock** (run issue #2 — the biggest churn driver): fixed the validator false-positive where a clock's mainspring / "spring tension" read as the *season* spring and fired an unfixable `month/season contradiction` in all 10 chapters. `temporal-consistency.ts` now strips mechanical-spring collocations before the seasonal test (mirrors the Agent 9 rewriter). +5 tests.
+- **T2.4/T2.6** Agent 3b: period-physics plausibility + simplicity in the prompt quality bar/checklist.
+- **T2.9** Agent 3: red herrings must misdirect *away* from the culprit; motive must avoid the bare financial-desperation cliché.
+- **T1.4 (prompt half)** Agent 2b: voice-distinctness section (distinct register + quotable tic per speaker; ≥3 registers, ≥2 humour styles).
+- **T2.8 (prompt half)** Agent 2c: cross-location sensory distinctness (stop every room sharing the clock-tick/damp-stone/beeswax palette).
+- *(earlier this session)* T1.1 death_method, T2.5 3b de-anchor, T1.5 humour atoms, T1.7 novelty store, retry salt.
+
+**Remaining — structural rewires that the plans below gate on a LIVE RUN (not safe to ship blind):**
+- **T1.2/T1.3** authoritative beat scheduler + word budget — changes outline control flow.
+- **T1.4 (enforced gate)** the `checkVoiceCapsules` retry gate — needs threshold tuning on a real run.
+- **T1.8** full clue-record restructure read-site flip — ~12-consumer blast radius.
+- **T2.1/2.2/2.3** Agent 6 blind-reader surprise inversion — reverses the gate's pass condition.
+- **T3.x** scorer fitness rewrites — would make agents *fail their phase* until artifacts are perfect; destabilizing without a run.
+
+These four/five each need a corrected-build run to verify, and **no clean corrected-build run has happened yet** (both completed runs used stale `dist`). Recommendation: build all packages and do one clean run now — the season fix alone should collapse the 10-chapter churn — then implement the structural items one at a time, each validated.
+
+---
+
 ## 0. TL;DR
 
 1. **All four are real levers on the frozen rubric marks**, and all four are mostly *wiring existing-but-disabled machinery* — effort **M** each, not L.
