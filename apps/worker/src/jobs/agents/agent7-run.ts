@@ -11,7 +11,7 @@ import { formatNarrative, GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
-import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
+import { NarrativeScorer, getSceneTarget, getChapterTargetTolerance, getGenerationParams, getStoryLengthTarget, distributeChapterWordBudget, applyGridClueJobs, scoreRealNarrative, resolveDiscriminatingSceneIndex, stampMechanismRevealGate } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   type OutlineCoverageIssue,
@@ -19,6 +19,7 @@ import {
   executeAgentWithRetry,
   preAgent9ContractRecoveryEnabled,
   preAgent9LlmRetriesEnabled,
+  applyHonestScorer,
 } from "./shared.js";
 import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/index.js";
 // Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
@@ -36,6 +37,14 @@ import {
 /** Shadow-only: log the deterministic scene grid next to the live outline. Default ON (logs only,
  * acts on nothing); set `AGENT7_SCHEDULER_SHADOW=0` to silence. */
 const AGENT7_SCHEDULER_SHADOW = !/^(0|false|no|off)$/i.test(process.env.AGENT7_SCHEDULER_SHADOW ?? "");
+
+/** P1.3: promote the deterministic scheduler from shadow-only to authoritative. When ON: (1) the
+ * per-scene word budget is derived from the story-length pacing curve (leaner setup, fuller climax)
+ * instead of a uniform floor, so chapter lengths vary (T1.3); and (2) each scene's revealed-clue
+ * job is taken from the grid, which places every reveal in exactly one slot, so a clue is dramatized
+ * once instead of being re-revealed across adjacent chapters (T1.2 — the dominant pacing smear).
+ * Default OFF; never enable in the same run as another retry-gated lever. */
+const AGENT7_SCHEDULER_AUTHORITATIVE = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
 
 /** Build + invariant-check the deterministic grid for the produced outline, logging the comparison. */
 function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
@@ -71,6 +80,91 @@ function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: Narrative
     } else {
       console.warn(`[Agent 7 scheduler shadow] error: ${(e as Error).message}`);
     }
+  }
+}
+
+/** P1.3: when the scheduler is authoritative, stamp a pacing-shaped per-scene word budget onto the
+ * outline so Agent 9 produces varied chapter lengths (climax fuller, setup leaner). No-op by default. */
+function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!AGENT7_SCHEDULER_AUTHORITATIVE) return;
+  const sceneRefs = flattenNarrativeScenes(narrative);
+  if (sceneRefs.length === 0) return;
+
+  const budgets = distributeChapterWordBudget(sceneRefs.length, ctx.inputs.targetLength);
+  sceneRefs.forEach((ref, i) => {
+    const budget = budgets[i];
+    if (typeof budget === "number" && Number.isFinite(budget)) {
+      ref.scene.estimatedWordCount = budget;
+    }
+  });
+
+  // Keep act-level totals consistent with the new per-scene budgets.
+  (narrative.acts ?? []).forEach((actBlock: any) => {
+    const scenes = Array.isArray(actBlock?.scenes) ? actBlock.scenes : [];
+    actBlock.estimatedWordCount = scenes.reduce(
+      (sum: number, s: any) => sum + (typeof s.estimatedWordCount === "number" ? s.estimatedWordCount : 0),
+      0,
+    );
+  });
+
+  console.info(
+    `[Agent 7 scheduler authority] stamped pacing-shaped budgets on ${sceneRefs.length} scenes ` +
+      `(${budgets[0]}…${budgets[budgets.length - 1]} words).`,
+  );
+
+  // Job authority (T1.2): promote the deterministic grid from shadow to gate for per-scene clue
+  // jobs. The grid assigns every reveal obligation to exactly one slot, so a clue is dramatized in a
+  // single chapter instead of being re-revealed across adjacent ones (the dominant pacing smear).
+  // Guarded: an infeasible grid keeps the existing LLM distribution untouched.
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+      id: c.id,
+      placement: c.placement,
+      criticality: c.criticality,
+      supportsInferenceStep: c.supportsInferenceStep,
+    }));
+    const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
+    const grid = buildSceneGrid({ cml: caseData, clues, redHerrings }, sceneRefs.length);
+    const { stamped, dedupRemoved } = applyGridClueJobs(
+      sceneRefs.map((r) => r.scene),
+      grid.slots,
+    );
+    console.info(
+      `[Agent 7 scheduler authority] stamped grid clue jobs on ${stamped} scenes ` +
+        `(one reveal per clue; ${dedupRemoved} duplicate re-reveals removed).`,
+    );
+  } catch (e) {
+    if (e instanceof SchedulerInfeasibleError) {
+      console.info(
+        `[Agent 7 scheduler authority] grid INFEASIBLE — keeping the LLM clue distribution: ${e.unmet}`,
+      );
+    } else {
+      console.warn(`[Agent 7 scheduler authority] clue-job stamp skipped: ${(e as Error).message}`);
+    }
+  }
+
+  // Mechanism-reveal gate (A_50 §9.3 #3): withhold the full concealment-mechanism explanation until
+  // the discriminating-test scene, so it isn't telegraphed in Act 1 (judge: "explained too early").
+  // The clue-job grid places reveals but not the mechanism *explanation* beat — this fills that gap.
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const testScene = caseData?.prose_requirements?.discriminating_test_scene;
+    const thresholdIndex = resolveDiscriminatingSceneIndex(
+      sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
+      testScene,
+    );
+    const gate = stampMechanismRevealGate(sceneRefs.map((r) => r.scene), thresholdIndex);
+    if (gate.thresholdIndex >= 0) {
+      console.info(
+        `[Agent 7 scheduler authority] mechanism-reveal gate: full mechanism withheld in ${gate.withheld} pre-test scene(s); ` +
+          `reveal allowed from scene #${gate.thresholdIndex + 1} (the discriminating test).`,
+      );
+    } else {
+      console.info(`[Agent 7 scheduler authority] mechanism-reveal gate: discriminating-test scene not locatable — no gate applied.`);
+    }
+  } catch (e) {
+    console.warn(`[Agent 7 scheduler authority] mechanism-reveal gate skipped: ${(e as Error).message}`);
   }
 }
 
@@ -912,7 +1006,15 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
           };
         }
 
-        return { adapted, score };
+        return {
+          adapted,
+          score: applyHonestScorer(
+            score,
+            () => scoreRealNarrative(narrativeResult, ctx.inputs.targetLength ?? "medium"),
+            ctx.warnings,
+            "agent7-narrative",
+          ),
+        };
       },
       ctx.retryManager,
       ctx.scoreAggregator,
@@ -1580,4 +1682,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
   // Shadow only (default off): log the deterministic Beat Scheduler grid next to this outline.
   runAgent7SchedulerShadow(ctx, narrative);
+
+  // P1.3 (default off): when the scheduler is authoritative, stamp pacing-shaped per-scene budgets.
+  applyAgent7SchedulerAuthority(ctx, narrative);
 }

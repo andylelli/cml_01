@@ -9,6 +9,7 @@ import type { CaseData } from "@cml/cml";
 import {
   getGenerationParams,
   getStoryLengthTarget,
+  resolveSceneWordBudget,
   anonymizeUnknownTitledNames,
 } from "@cml/story-validation";
 import { selectChapterAtoms, buildAssetLibrary } from "../asset-library.js";
@@ -648,7 +649,7 @@ const buildChapterOutcomeBlock = (
   const modeOutcomeByMode: Record<string, string> = {
     discovery_opening: "Introduce cast relevance and plant first clue while keeping culprit unresolved.",
     early_investigation: "Advance contradiction/alibi pressure and change working theory.",
-    suspect_pressure: "Increase or complicate suspicion through new pressure revelation.",
+    suspect_pressure: "Increase or complicate suspicion through a new pressure revelation — WITHOUT resolving the case: do NOT name, accuse, or extract a confession from the culprit, make an arrest, or declare the case closed (that is reserved for the final reveal).",
     false_suspect_clearing: "Prove innocence with evidence and re-target suspicion.",
     clue_reinterpretation: "Reframe prior clue meaning and update suspect implications.",
     discriminating_test: "Execute discriminating test and state prove-vs-rule-out outcome.",
@@ -708,7 +709,7 @@ const buildModeSpecificChecklistItems = (activeMode: string): string[] => {
     case "suspect_pressure":
       return [
         "□ Mode check (Suspect Pressure): chapter contains a NEW pressure reveal (fear, motive, lie, loyalty conflict, or secret).",
-        "□ Mode check (Suspect Pressure): no full culprit confession in this mode unless outline-required.",
+        "□ Mode check (Suspect Pressure): NO culprit resolution — the chapter must NOT contain a confession, an arrest/'under arrest', 'case closed', 'I accuse'/'I name', or 'the culprit/murderer/killer is/was …'. Build suspicion only; the accusation is reserved for the final reveal.",
       ];
     case "false_suspect_clearing":
       return [
@@ -1761,18 +1762,40 @@ ${victimIdentityRule}`;
   );
   const characterPressureContractBlock = buildPostChapterOneCharacterPressureBlock(chapterStart, chapterEnd);
 
-  const developerWithContracts = developerWithAudit.replace(
+  let developerWithContracts = developerWithAudit.replace(
     '\n\nNOVEL-QUALITY PROSE REQUIREMENTS:',
     `\n\n${wordCountContract}\n\nNOVEL-QUALITY PROSE REQUIREMENTS:`,
   ) + stageModeContractBlock + chapterOutcomeBlock;
 
+  // P1.3: when the Agent 7 scheduler is authoritative, respect each scene's own budget (clamped to a
+  // sane band) instead of flooring every chapter up to one uniform target. Default-OFF ⇒ unchanged.
+  const schedulerAuthoritative = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? '');
+
+  // A_50 §9.3 #3: honor the Agent 7 mechanism-reveal gate. Before the discriminating-test scene,
+  // withhold the full HOW-it-was-done explanation (observable clues only); telegraphing it early
+  // kills the reveal's surprise (judge: "the mechanism is explained too early"). Only when the
+  // scheduler is authoritative (it stamps the per-scene `mechanismRevealAllowed` flag).
+  if (schedulerAuthoritative) {
+    const gateFlags = (scenes as any[]).map((s) => s?.mechanismRevealAllowed);
+    const anyWithheld = gateFlags.some((f) => f === false);
+    const anyReveal = gateFlags.some((f) => f === true);
+    if (anyReveal && anyWithheld) {
+      developerWithContracts +=
+        `\n\nMECHANISM REVEAL GATE (reveal here): This chapter contains the discriminating test — this is where the full concealment mechanism is explained for the first time. Do not assume the reader was already told HOW the crime was concealed.`;
+    } else if (anyWithheld) {
+      developerWithContracts +=
+        `\n\nMECHANISM REVEAL GATE (withhold): The discriminating test has NOT happened yet. Show observable clues, contradictions, and suspicions, but do NOT yet explain HOW the concealment mechanism actually works, and do not state outright that it was deliberately rigged — keep the method an open question. Reserve the full explanation for the discriminating-test chapter.`;
+    }
+  }
   const scenesWithAdjustedEstimates = sanitizeScenesCharacters(
     (scenes as any[]).map((scene) => ({
       ...scene,
-      estimatedWordCount: Math.max(
-        typeof scene?.estimatedWordCount === 'number' ? scene.estimatedWordCount : 0,
+      estimatedWordCount: resolveSceneWordBudget({
+        sceneEstimate: typeof scene?.estimatedWordCount === 'number' ? scene.estimatedWordCount : undefined,
         chapterTargetWords,
-      ),
+        hardFloorWords: chapterWordTargets.hardFloorWords,
+        authoritative: schedulerAuthoritative,
+      }),
     })),
     cast.map((c: any) => c.name),
   );
