@@ -514,3 +514,20 @@ The judge's three `flags` on the probe (`RubricScorer`, total 60) were traced to
 - **Acceptance (pending live run):** the full mechanism explanation no longer appears before the test chapter; `opening_hook`/`pacing` ↑.
 
 **→ Structural triad (#1/#2/#3) is code-complete + unit-tested, flag-coupled to the existing levers. Next: one levers-on canary validates all three at once** (the §9 probe config; expect `matchedThemePrimary=true`, no discriminating-planting warning, mechanism-reveal-gate telemetry, and the three judge flags cleared). Total green: story-validation 288, prompts-llm 507, worker 212.
+
+### §9.5 — Triad validation run `mystery-1782508634205` (2026-06-26 22:33): mechanics ✅, two new root causes exposed
+
+**The triad fired exactly as designed — confirmed by reading the shipped prose (`stories/story_20260626-2233/`), not just telemetry:**
+- **#1 (theme-lock) ✅** — no `[agent3b-theme-lock]` off-theme warning; 3b's primary device is now clock-tampering with coherent locked facts (`time_of_death "ten minutes past eleven"` indicated / `actual "twenty minutes past ten"`), vs the probe's tide/"ten past ten".
+- **#2 (plant-before-reveal) ✅** — no `[agent3-discriminating-planting]` warning; **the means-discriminator is planted in Ch3** ("you know how it works?" / "You've a knack for machinery, Doctor") and used at the Ch8 reveal.
+- **#3 (mechanism-reveal gate) ✅** — telemetry "full mechanism withheld in 7 pre-test scene(s); reveal from scene #8"; **prose honors it** — Ch1–3 pose the clock as an open question, the full explanation lands Ch7–8.
+
+**Yet the rubric was flat (`63` final / `58` raw LLM) with the SAME judge flags and the SAME release-gate triad.** This is the decisive part:
+
+1. **🔑 The final-story rubric judge (`gpt-4o-mini`) is NOISY/TEMPLATED — and we just proved it.** It re-issued *"the reveal uses evidence not planted earlier"* — **demonstrably false** this run (Finch's clock expertise is planted Ch3). Three structurally-distinct runs (plain 59, probe 63, triad 63) all land ~60 with near-identical flags regardless of real structural changes. **This empirically validates §8's governing principle — make the measuring stick honest BEFORE reading levers off it.** Landing/flipping case-contract levers against this judge cannot register success. The final-story judge — not just the per-agent `HONEST_SCORERS` — is the dishonest stick.
+
+2. **🔑 The real structural ceiling is the CAST/ROLE DEFICIT (§8 rank 13).** This run's victim is an **unnamed phantom** ("a woman, evening dress rumpled, one shoe missing") — not one of the 4 cast, who are all detective (Eleanor) / culprit (Finch) / cleared (Hale, Beatrice). **Four people cannot fill five roles** (victim + detective + culprit + ≥2 suspects), so the victim has no name, no relationship, no motive-anchor → the persistent `critical continuity issue` + `fair-play 70/100` + the hollow "passion/jealousy" motive. The §9 runs that instead drew the victim FROM the cast produced the dead-victim-speaks abort. Both are the same root: **the fixed 4-cast is too small for a coherent fair-play mystery.**
+
+**Verdict & pivot (supersedes "more contract levers").** The case-design triad was correct work and improved the prose — but it proved the bottleneck is UPSTREAM of the case contract. Stop tuning contract levers against the noisy judge. Two priorities, in order:
+1. **Enlarge the cast / add a dedicated named victim (§8 rank 13, cast Option A)** — give the case victim + detective + culprit + ≥2 suspects as distinct people (the canary inputs already have commented-out extra names: Sylvia Trent, Hugo Vane, Agnes Pike). This is now empirically the #1 blocker — it attacks continuity + fair-play + motive-hollowness at once.
+2. **Make the FINAL-STORY rubric honest (§8 Milestone A, extended).** `HONEST_SCORERS` covered the per-agent scorers, but the gpt-4o-mini final judge — the number we keep reading — is itself untrustworthy. It needs deterministic structural caps / a stronger judge model / planted-evidence checks, so real structural gains register instead of templated flags. Until then, the rubric number is not a valid acceptance signal.
