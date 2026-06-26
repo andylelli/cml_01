@@ -6,10 +6,12 @@
  * audit (Agent 8) with one retry on failure, and writes ctx.cml + ctx.noveltyAudit.
  */
 
-import { generateCML, auditNovelty } from "@cml/prompts-llm";
+import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { validateCml } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
-import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled } from "./shared.js";
+import { scoreRealCml } from "@cml/story-validation";
+import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
+import { effectiveNoveltyThreshold } from "../novelty-ledger.js";
 
 function buildEvidenceFallback(step: any, stepIndex: number): string {
   const observation = String(step?.observation ?? "").trim();
@@ -233,41 +235,46 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       cmlQualityScore = Math.min(cmlQualityScore, 45);
     }
     const cmlTotal = Math.round(100 * 0.5 + cmlQualityScore * 0.3 + 100 * 0.2);
+    // T3.5: the vanity score hardcodes validation/completeness/consistency = 100 and derives quality
+    // only from the Agent-4 repair COUNT. applyHonestScorer swaps in scoreRealCml (content assertions
+    // on the CASE block) when HONEST_SCORERS=enforce; default OFF keeps this byte-identical.
+    const vanityCmlScore: PhaseScore = {
+      agent: "agent3-cml-generation",
+      validation_score: 100,
+      quality_score: cmlQualityScore,
+      completeness_score: 100,
+      consistency_score: 100,
+      total: cmlTotal,
+      grade: (cmlTotal >= 90 ? "A" : cmlTotal >= 80 ? "B" : cmlTotal >= 70 ? "C" : cmlTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
+      passed: true,
+      tests: [
+        {
+          name: "Schema validation",
+          category: "validation" as const,
+          passed: true,
+          score: 100,
+          weight: 2,
+          message: `Valid after ${cmlAttemptCount} attempt(s)`,
+        },
+        {
+          name: "Structural revision (Agent 4)",
+          category: "quality" as const,
+          passed: !cmlRevisedByAgent4 && !cmlDegraded,
+          score: cmlQualityScore,
+          weight: 1,
+          message: cmlDegraded
+            ? `Shipped with ${cmlResult.unresolvedLogicWarnings?.length ?? 0} unresolved validation warning(s) after ${cmlRepairCount} repair(s)`
+            : cmlRevisedByAgent4
+            ? `Required ${cmlRepairCount} targeted repair(s)/revision(s)`
+            : "No structural revision needed",
+        },
+      ],
+    };
+    const cmlScore = applyHonestScorer(vanityCmlScore, () => scoreRealCml(ctx.cml), ctx.warnings, "agent3-cml");
     ctx.scoreAggregator.upsertPhaseScore(
       "agent3_cml",
       "CML Generation",
-      {
-        agent: "agent3-cml-generation",
-        validation_score: 100,
-        quality_score: cmlQualityScore,
-        completeness_score: 100,
-        consistency_score: 100,
-        total: cmlTotal,
-        grade: (cmlTotal >= 90 ? "A" : cmlTotal >= 80 ? "B" : cmlTotal >= 70 ? "C" : cmlTotal >= 60 ? "D" : "F") as PhaseScore["grade"],
-        passed: true,
-        tests: [
-          {
-            name: "Schema validation",
-            category: "validation" as const,
-            passed: true,
-            score: 100,
-            weight: 2,
-            message: `Valid after ${cmlAttemptCount} attempt(s)`,
-          },
-          {
-            name: "Structural revision (Agent 4)",
-            category: "quality" as const,
-            passed: !cmlRevisedByAgent4 && !cmlDegraded,
-            score: cmlQualityScore,
-            weight: 1,
-            message: cmlDegraded
-              ? `Shipped with ${cmlResult.unresolvedLogicWarnings?.length ?? 0} unresolved validation warning(s) after ${cmlRepairCount} repair(s)`
-              : cmlRevisedByAgent4
-              ? `Required ${cmlRepairCount} targeted repair(s)/revision(s)`
-              : "No structural revision needed",
-          },
-        ],
-      },
+      cmlScore,
       ctx.agentDurations["agent3_cml"] ?? 0,
       ctx.agentCosts["agent3_cml"] ?? 0,
     );
@@ -275,10 +282,13 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   }
 
   // ── Agent 8: Novelty Audit ─────────────────────────────────────────────────
-  const similarityThreshold =
+  const baseSimilarityThreshold =
     typeof ctx.inputs.similarityThreshold === "number"
       ? ctx.inputs.similarityThreshold
       : Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || 0.9);
+  // T1.6: when NOVELTY_CROSS_RUN is on, cap the threshold so the audit actually fires (the static
+  // default ≥1.0 deliberately skips it). Default-OFF ⇒ threshold and skip behaviour are unchanged.
+  const similarityThreshold = effectiveNoveltyThreshold(baseSimilarityThreshold);
   const shouldSkipNovelty = Boolean(ctx.inputs.skipNoveltyCheck) || similarityThreshold >= 1;
 
   if (!shouldSkipNovelty) {
@@ -477,4 +487,18 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     }
     try { await ctx.savePartialReport(); } catch { /* best-effort */ }
   }
+
+  // A_50 §9.3 fix #2 — observability: flag discriminating-test evidence that is NOT planted before
+  // the reveal scene (the probe's "reveal uses evidence not planted earlier"). Non-fatal — surfaces
+  // the gap for fair-play/repair without aborting; the contract fix lives in the Agent 3 prompt.
+  try {
+    const { unplanted, unmapped } = findUnplantedDiscriminatingClues(ctx.cml);
+    if (unplanted.length > 0) {
+      ctx.warnings.push(
+        `[agent3-discriminating-planting] ${unplanted.length} discriminating clue(s) not planted before the reveal scene` +
+          `${unmapped.length ? ` (${unmapped.length} absent from clue_to_scene_mapping)` : ""}: ${unplanted.join(", ")} — ` +
+          `reveal may rely on unplanted evidence (fair-play risk).`,
+      );
+    }
+  } catch { /* best-effort observability */ }
 }

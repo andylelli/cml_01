@@ -106,13 +106,69 @@ function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
 export interface Clue {
   id: string;                       // Unique clue identifier
   category: "temporal" | "spatial" | "physical" | "behavioral" | "testimonial";
-  description: string;              // What the clue is
+  description: string;              // Analytic spec sentence (planning surface — kept OUT of prose)
+  observable?: string;              // P1.2: the on-page anomaly a character can SEE/HEAR/FIND (preferred for prose)
+  inference?: string;               // P1.2: the reasoning the observable supports (embargoed pre-reveal)
   sourceInCML: string;              // Where it comes from in CML (for traceability)
   pointsTo: string;                 // What it reveals (without spoiling)
+  first_full_reveal_chapter?: number; // P1.2: earliest chapter the full implication may be stated
   placement: "early" | "mid" | "late"; // When it should appear
   criticality: "essential" | "supporting" | "optional";
   supportsInferenceStep?: number;   // 1-indexed inference_path step this clue enables
   evidenceType?: "observation" | "contradiction" | "elimination"; // Role the clue plays in the step
+}
+
+/**
+ * P1.2 — the on-page surface a character can SEE/HEAR/FIND. Prefer the dedicated `observable`
+ * field and fall back to the analytic `description`, so existing distributions stay valid (this
+ * lever is inert until the synthesizer/LLM starts emitting `observable`).
+ */
+export function deriveClueObservable(clue: Pick<Clue, "observable" | "description">): string {
+  const observable = String(clue.observable ?? "").trim();
+  if (observable.length > 0) return observable;
+  return String(clue.description ?? "").trim();
+}
+
+/** P1.2 — canonical planning description; falls back to `observable` only if description is blank. */
+export function deriveClueDescription(clue: Pick<Clue, "description" | "observable">): string {
+  const description = String(clue.description ?? "").trim();
+  if (description.length > 0) return description;
+  return String(clue.observable ?? "").trim();
+}
+
+export interface PointsToCollision {
+  normalized: string;
+  clueIds: string[];
+}
+
+export interface PointsToDistinctnessResult {
+  ok: boolean;
+  collisions: PointsToCollision[];
+}
+
+/**
+ * P1.2 — no two solving clues may resolve to the SAME implication. Redundant "points to X" clues
+ * (and the over-eliminated suspects they imply) are a top cause of a flabby, repetitive middle.
+ * Advisory by design: callers decide whether to diversify or retry.
+ */
+export function checkPointsToDistinctness(clues: Clue[]): PointsToDistinctnessResult {
+  const byNormalized = new Map<string, string[]>();
+  for (const clue of clues) {
+    if (clue.criticality === "optional") continue;
+    const normalized = String(clue.pointsTo ?? "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+    if (!normalized) continue;
+    const ids = byNormalized.get(normalized) ?? [];
+    ids.push(clue.id);
+    byNormalized.set(normalized, ids);
+  }
+  const collisions: PointsToCollision[] = [];
+  for (const [normalized, clueIds] of byNormalized) {
+    if (clueIds.length > 1) collisions.push({ normalized, clueIds });
+  }
+  return { ok: collisions.length === 0, collisions };
 }
 
 export interface RedHerring {
@@ -272,6 +328,20 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
       evidenceType: "observation",
       criticality: "essential",
       sourceInCML: "CASE.culpability.culprits[0]",
+      keyTerms: [culprit.name, ...extractKeyTerms(mechanismAnchor)].slice(0, 4),
+      suggestedPlacement: "mid",
+      category: inferCategory(mechanismAnchor),
+    });
+
+    // A_50 §9.3 fix #2 — UNIQUE-MEANS discriminator. When the concealment mechanism needs a special
+    // skill/tool/access to execute, plant (early/mid, reader-visible) that ONLY the culprit had it —
+    // so the reveal never has to invent "only X had the mechanical knowledge" (the probe's unfair-reveal).
+    requirements.push({
+      requirement: `Generate one essential early-or-mid clue establishing that ${culprit.name} UNIQUELY had the means/skill/access/knowledge required to execute the concealment mechanism, and that the other suspects did not — so the reveal relies only on this already-planted capability, never on a means introduced for the first time at the confrontation.`,
+      supportsInferenceStep: undefined,
+      evidenceType: "elimination",
+      criticality: "essential",
+      sourceInCML: "CASE.hidden_model.mechanism / CASE.culpability.culprits[0]",
       keyTerms: [culprit.name, ...extractKeyTerms(mechanismAnchor)].slice(0, 4),
       suggestedPlacement: "mid",
       category: inferCategory(mechanismAnchor),
@@ -803,8 +873,11 @@ ${validSourcePaths.length > 0 ? validSourcePaths.map((p) => `- ${p}`).join("\n")
       "id": "clue_1",
       "category": "temporal|spatial|physical|behavioral|testimonial",
       "description": "Concrete, specific clue description",
+      "observable": "The on-page surface a character can SEE/HEAR/FIND — no interpretation",
+      "inference": "What that observable lets the detective conclude",
       "sourceInCML": "Where in CML this comes from",
       "pointsTo": "What it reveals",
+      "first_full_reveal_chapter": null,
       "placement": "early|mid|late",
       "criticality": "essential|supporting|optional",
       "supportsInferenceStep": 1,
@@ -869,6 +942,8 @@ ${firstAttemptContracts}
 - SOURCE FORMAT CONTRACT: sourceInCML MUST use bracket-index leaf paths only (no dot-index and no intermediate-node paths).
 - DISCRIMINATING ID EXACTNESS: keep discriminating clue IDs as exact string matches, including underscores.
 - FULL OBJECT CONTRACT: each clue object MUST include id, category, description, sourceInCML, pointsTo, placement, criticality, supportsInferenceStep, evidenceType.
+- OBSERVABLE/INFERENCE SPLIT: also give each clue an "observable" (the concrete thing a character sees/hears/finds, with NO interpretation) and an "inference" (what that observable lets the detective conclude). Keep the solution/pointsTo OUT of "observable".
+- POINTS-TO DISTINCTNESS: no two essential clues may share the same "pointsTo" implication — each solving clue must advance a DISTINCT step of the deduction rather than re-eliminating the same suspect.
 - SELF-CHECK OUTPUT RULE: run all checks internally and output JSON only; do not output checklist commentary.
 - ANTI-COLLAPSE OUTPUT RULE: if checks fail, keep status="fail" but still output a non-empty best-effort clues[] set unless CML evidence is unusable.
 - If quality controls require late clues, satisfy late placement with supporting or optional clues only.
@@ -1132,6 +1207,13 @@ export async function extractClues(
     // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
     // Prefer inferred values from source paths over null/default model outputs.
     for (const clue of normalizedClues) {
+      // P1.2: normalize the additive restructure fields (inert when the model omits them).
+      if (typeof clue.observable === "string") clue.observable = clue.observable.trim();
+      if (typeof clue.inference === "string") clue.inference = clue.inference.trim();
+      const revealChapter = Number(clue.first_full_reveal_chapter);
+      clue.first_full_reveal_chapter =
+        Number.isInteger(revealChapter) && revealChapter > 0 ? revealChapter : undefined;
+
       const inferredStep = inferStepFromSourcePath(clue?.sourceInCML);
       const currentStep = Number(clue?.supportsInferenceStep);
       if (Number.isInteger(currentStep) && currentStep > 0) {

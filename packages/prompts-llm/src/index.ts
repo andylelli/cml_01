@@ -80,6 +80,8 @@ export {
   scoreDeviceThemeMatch,
   selectThemeCoherentPrimary,
 } from "./agent3b-hard-logic-devices.js";
+export { findUnplantedDiscriminatingClues } from "./agent3-discriminating-planting.js";
+export type { UnplantedDiscriminatingClues } from "./agent3-discriminating-planting.js";
 export {
   AGENT3B_PLAUSIBILITY_FLOOR,
   parsePlausibilityJudgeMode,
