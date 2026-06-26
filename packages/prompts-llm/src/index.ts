@@ -29,11 +29,11 @@ export type {
   RejectedPatch,
   ContractResult,
 } from "./agent4-patch.js";
-export { buildCluePrompt, extractClues } from "./agent5-clues.js";
+export { buildCluePrompt, extractClues, deriveClueObservable, deriveClueDescription, checkPointsToDistinctness } from "./agent5-clues.js";
 export { buildFairPlayPrompt, auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { buildNarrativePrompt, formatNarrative, GOLDEN_AGE_BEATS, GOLDEN_AGE_BEAT_GUIDE } from "./agent7-narrative.js";
 export { generateCharacterProfiles } from "./agent2b-character-profiles.js";
-export { extractVoiceCapsule, checkVoiceCapsules } from "./agent2b-voice-capsule.js";
+export { extractVoiceCapsule, checkVoiceCapsules, voiceGatePass, buildVoiceGateFeedback } from "./agent2b-voice-capsule.js";
 export type {
   VoiceCapsule,
   VoiceRegister,
@@ -46,6 +46,19 @@ export type {
 } from "./agent2b-voice-capsule.js";
 export { generateLocationProfiles } from "./agent2c-location-profiles.js";
 export { extractLocationSpine, checkLocationSpine } from "./agent2c-location-spine.js";
+export {
+  parseSceneGateMode,
+  locationAtomSet,
+  checkLocationDistinctness,
+  checkCrimeSceneProfiled,
+  buildSceneGateFeedback,
+} from "./agent2c-location-distinctness.js";
+export type {
+  SceneGateMode,
+  LocationDistinctnessIssue,
+  LocationDistinctnessResult,
+  CrimeSceneAuditResult,
+} from "./agent2c-location-distinctness.js";
 export type {
   LocationSpine,
   LocationSpinePlace,
@@ -58,8 +71,28 @@ export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { deriveBackgroundContext, rankAnchors, MAX_CAST_ANCHORS, BACKDROP_SUMMARY_STUB } from "./agent2e-background-derive.js";
 export type { DeriveBackgroundContextInputs } from "./agent2e-background-derive.js";
 export { assembleProseBrief, checkProseBrief } from "./prose-brief.js";
+export { deriveStoryTitle, isGenerationResidueTitle } from "./story-title.js";
 export type { ProseBrief, ProseBriefHealth, AssembleProseBriefInputs } from "./prose-brief.js";
-export { buildHardLogicDevicePrompt, generateHardLogicDevices } from "./agent3b-hard-logic-devices.js";
+export {
+  buildHardLogicDevicePrompt,
+  generateHardLogicDevices,
+  extractThemeMechanismFamilies,
+  scoreDeviceThemeMatch,
+  selectThemeCoherentPrimary,
+} from "./agent3b-hard-logic-devices.js";
+export {
+  AGENT3B_PLAUSIBILITY_FLOOR,
+  parsePlausibilityJudgeMode,
+  plausibilityGatePass,
+  buildPlausibilityJudgePrompt,
+  judgeMechanismPlausibility,
+  buildPlausibilityJudgeFeedback,
+} from "./agent3b-plausibility-judge.js";
+export type {
+  PlausibilityJudgeMode,
+  PlausibilityJudgeResult,
+  PlausibilityJudgeContext,
+} from "./agent3b-plausibility-judge.js";
 export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled } from "./agent9-prose.js";
 export type { ProseBlindReadResult } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";

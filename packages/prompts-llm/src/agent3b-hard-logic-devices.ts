@@ -40,6 +40,108 @@ export interface HardLogicDeviceResult {
   attempt: number;
   latencyMs: number;
   cost: number;
+  /**
+   * A_50 §9.3: true when the theme commits to a concrete mechanism family AND the primary
+   * device (devices[0]) realizes it. false when a locked theme was given but no generated
+   * device matched it (off-theme primary — feeds the regen "never downgrade theme-coherence"
+   * guard and telemetry). Absent/false also when the theme leaves the mechanism open.
+   */
+  matchedThemePrimary?: boolean;
+}
+
+/**
+ * A_50 §9.3 — theme/device mechanism-family map.
+ *
+ * When the story theme commits to a specific murder mechanism (e.g. "clock-tampering"), Agent 3b
+ * must make the PRIMARY device realize THAT family — otherwise the locked-fact registry (built from
+ * devices[0]) and the CML diverge from the case the prose tells (probe `mystery-1782504792424`:
+ * theme = clock-tampering, but 3b emitted a thermal-latch primary, then the plausibility regen
+ * swapped in a tide/drowning device — neither realized the clock). Both the theme text and a
+ * generated device's text are mapped through the SAME stems, then intersected. Stems are chosen to
+ * be specific enough to avoid false matches in ordinary prose ("witness account", "the heat of the
+ * moment") — bare generic words are deliberately excluded.
+ */
+const MECHANISM_FAMILY_KEYWORDS: Record<string, string[]> = {
+  clock: ["clock", "chime", "pendulum", "timepiece", "horolog", "clockwork", "winding key"],
+  tide: ["tide", "tidal", "drown", "flood tide", "sea level", "water level", "sluice"],
+  poison: ["poison", "toxin", "venom", "arsenic", "cyanide", "toxicolog", "dosage"],
+  acoustic: ["acoustic", "gramophone", "phonograph", "recording", "soundproof", "echo chamber"],
+  optics: ["mirror", "optical", "reflection", "lens", "prism", "refraction"],
+  ledger: ["ledger", "forgery", "forged", "embezzl", "account book", "bookkeep"],
+  thermal: ["thermal", "heat expansion", "temperature", "expansion of", "fahrenheit", "furnace"],
+  identity: ["impersonat", "disguise", "twin", "masquerade", "double identity"],
+};
+
+const familiesIn = (text: string): string[] => {
+  const hay = text.toLowerCase();
+  const found: string[] = [];
+  for (const [family, stems] of Object.entries(MECHANISM_FAMILY_KEYWORDS)) {
+    if (stems.some((stem) => hay.includes(stem))) found.push(family);
+  }
+  return found;
+};
+
+/**
+ * The concrete mechanism families a theme commits to (empty ⇒ the theme leaves the method open and
+ * the de-anchoring "explore many families" guidance applies freely). Reads the theme text first
+ * (the strongest signal — `deriveHardLogicDirectives` only yields abstract axis families like
+ * "schedule contradiction"), supplemented by any explicit mechanism-family hints.
+ */
+export function extractThemeMechanismFamilies(theme?: string, mechanismFamilies?: string[]): string[] {
+  return familiesIn(`${theme ?? ""} ${(mechanismFamilies ?? []).join(" ")}`);
+}
+
+/** How many of the theme's locked mechanism families a single device realizes. */
+export function scoreDeviceThemeMatch(device: HardLogicDeviceIdea, themeFamilies: string[]): number {
+  if (themeFamilies.length === 0) return 0;
+  const deviceFamilies = new Set(
+    familiesIn(
+      [
+        device.title,
+        device.corePrinciple,
+        device.surfaceIllusion,
+        device.underlyingReality,
+        ...(device.mechanismFamilyHints ?? []),
+      ].join(" "),
+    ),
+  );
+  return themeFamilies.reduce((n, family) => n + (deviceFamilies.has(family) ? 1 : 0), 0);
+}
+
+/**
+ * Reorder devices so the one best realizing the locked theme leads (becomes devices[0], the source
+ * of the locked-fact registry + CML grounding). No-op — preserving full novelty — when the theme
+ * leaves the mechanism open (`themeFamilies` empty) or when no device matches it (best-effort: keep
+ * the model's order, flag `matchedThemePrimary=false`). Never drops or mutates a device.
+ */
+export function selectThemeCoherentPrimary(
+  devices: HardLogicDeviceIdea[],
+  themeFamilies: string[],
+): { devices: HardLogicDeviceIdea[]; matchedThemePrimary: boolean; reorderedFrom: number } {
+  if (devices.length === 0 || themeFamilies.length === 0) {
+    return { devices, matchedThemePrimary: false, reorderedFrom: -1 };
+  }
+  let bestIdx = 0;
+  let bestScore = scoreDeviceThemeMatch(devices[0], themeFamilies);
+  for (let i = 1; i < devices.length; i += 1) {
+    const score = scoreDeviceThemeMatch(devices[i], themeFamilies);
+    if (score > bestScore) {
+      bestScore = score;
+      bestIdx = i;
+    }
+  }
+  if (bestScore <= 0) {
+    return { devices, matchedThemePrimary: false, reorderedFrom: -1 };
+  }
+  if (bestIdx === 0) {
+    return { devices, matchedThemePrimary: true, reorderedFrom: -1 };
+  }
+  const reordered = [
+    devices[bestIdx],
+    ...devices.slice(0, bestIdx),
+    ...devices.slice(bestIdx + 1),
+  ];
+  return { devices: reordered, matchedThemePrimary: true, reorderedFrom: bestIdx };
 }
 
 const principleTypeValues = new Set([
@@ -110,6 +212,19 @@ Novelty constraints:
 `
     : "";
 
+  // A_50 §9.3: when the theme commits to a concrete mechanism, the PRIMARY device must realize it.
+  // The de-anchoring "explore many families" guidance below then applies only to SECONDARY devices.
+  const themeFamilies = extractThemeMechanismFamilies(inputs.theme, mechanismFamilies);
+  const themeLockSection = themeFamilies.length > 0
+    ? `
+LOCKED THEME — PRIMARY DEVICE CONSTRAINT (non-negotiable):
+The theme commits to a specific murder-mechanism family: ${themeFamilies.join(", ")} (from the theme: "${inputs.theme}").
+- The PRIMARY device (devices[0]) MUST realize this mechanism family. Its corePrinciple, surfaceIllusion, underlyingReality, fairPlayClues, and lockedFacts must all concern ${themeFamilies.join(" / ")} — not a substitute method.
+- Do NOT swap in an unrelated family (e.g. tide, poison, acoustics, thermal) for the primary device "for novelty". The locked-fact registry and the whole case are built from this primary device; an off-theme primary makes the final story incoherent.
+- The "explore many families / do not default to the clock" guidance applies ONLY to the SECONDARY devices (devices[1..]) for variety — it never overrides the locked theme for the primary device.
+`
+    : "";
+
   const system = `You are a Golden Age detective plot engineer (1920-1945), specializing in fair-play hard-logic murder mechanisms.
 
 Your job is to propose novel mechanism devices that are contradiction-driven and period-solvable.
@@ -133,7 +248,7 @@ Spec context:
 - Mechanism family hints: ${mechanismFamilies.join(", ") || "(none)"}
 - Hard-logic mode tags: ${hardLogicModes.join(", ") || "standard varied mix"}
 - Difficulty mode: ${difficultyMode}
-${noveltySection}
+${noveltySection}${themeLockSection}
 Output JSON only, with this exact structure:
 
 {
@@ -156,9 +271,11 @@ Output JSON only, with this exact structure:
         { "id": "<another_fact_id>", "value": "<word-form value>", "description": "<what it pins down>" }
       ]
       // lockedFacts MUST be specific to the device you invented above — do NOT copy the placeholder ids/values.
-      // Invent the device fresh from the assigned mechanism family; a stopped/rewound clock is ONE possible
-      // family among many (poison timing, sound/acoustics, optics/mirrors, tide/temperature, ledger forgery,
-      // impersonation, mechanical traps) — do not default to the clock unless the family genuinely calls for it.
+      // For SECONDARY devices (and whenever no LOCKED THEME is specified above), invent each fresh from a
+      // DIFFERENT mechanism family for variety — a stopped/rewound clock is ONE family among many (poison
+      // timing, sound/acoustics, optics/mirrors, tide/temperature, ledger forgery, impersonation, mechanical
+      // traps); do not default to the clock. But when a LOCKED THEME is given, the PRIMARY device (devices[0])
+      // MUST realize that theme's family — the variety rule never overrides the locked theme for the primary.
 
 NOTE — TIME VALUES IN lockedFacts: All clock times MUST be written in old-style English word form. 
 CORRECT: "ten minutes past eleven", "a quarter to three", "twenty past midnight"
@@ -295,7 +412,19 @@ export async function generateHardLogicDevices(
       }
 
       const rawDevices = Array.isArray(parsed.devices) ? parsed.devices : [];
-      const devices = rawDevices.map((device, index) => normalizeDevice(device, index)).slice(0, 5);
+      const normalized = rawDevices.map((device, index) => normalizeDevice(device, index)).slice(0, 5);
+
+      // A_50 §9.3: keep the PRIMARY device coherent with a theme that commits to a concrete
+      // mechanism (the locked-fact registry + CML are built from devices[0]). No-op for open themes.
+      const themeFamilies = extractThemeMechanismFamilies(inputs.theme, inputs.mechanismFamilies);
+      const primarySelection = selectThemeCoherentPrimary(normalized, themeFamilies);
+      const devices = primarySelection.devices;
+      if (primarySelection.reorderedFrom > 0) {
+        console.warn(
+          `[Agent 3b] theme-lock: promoted device #${primarySelection.reorderedFrom + 1} ` +
+            `("${devices[0].title}") to primary to realize theme family [${themeFamilies.join(", ")}].`,
+        );
+      }
 
       if (devices.length < 3) {
         await logger.logError({
@@ -338,6 +467,7 @@ export async function generateHardLogicDevices(
           attempt,
           latencyMs: Date.now() - startTime,
           cost,
+          matchedThemePrimary: primarySelection.matchedThemePrimary,
         },
         cost,
       };
