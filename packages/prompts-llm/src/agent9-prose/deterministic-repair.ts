@@ -4,9 +4,11 @@
  * and shared chapter repair context derivation.
  */
 import type { CaseData } from "@cml/cml";
+import { deriveClueObservable } from "../agent5-clues.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import {
   composeKeyTermPhrase,
+  composeProseTermPhrase,
   countWords,
   isDeliveryMethodLabel,
   resolveClueObligationState,
@@ -125,7 +127,9 @@ export const summarizeClueForFallback = (
   if (fromLedger && fromLedger.trim().length > 0) {
     return fromLedger.trim().replace(/\s+/g, " ");
   }
-  const fromDistribution = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? "") === clueId)?.description;
+  // P1.2: prefer the on-page observable (falls back to description ⇒ byte-identical until P1.2).
+  const distClue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? "") === clueId);
+  const fromDistribution = distClue ? deriveClueObservable(distClue) : "";
   if (fromDistribution && fromDistribution.trim().length > 0) {
     return fromDistribution.trim().replace(/\s+/g, " ");
   }
@@ -143,7 +147,7 @@ const summarizeClueForProse = (
   // R-A (M0): every return is KEY TERMS (composeKeyTermPhrase), never the raw description/pointsTo
   // sentence — so the deterministic pastes downstream can never reproduce a 12-word verbatim run.
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id ?? "") === clueId);
-  const fromDistribution = String(clue?.description ?? "").trim();
+  const fromDistribution = (clue ? deriveClueObservable(clue) : "").trim();
   if (fromDistribution && !isDeliveryMethodLabel(fromDistribution)) {
     const terms = composeKeyTermPhrase(fromDistribution);
     if (terms) return terms;
@@ -187,8 +191,11 @@ const buildDiscriminatingTestEvidenceSummary = (
   clueDistribution: ClueDistributionResult | undefined,
   clueText?: string,
 ): string => {
+  // A_50 Fix #1 (missed-site): render PROSE-readable (composeProseTermPhrase) — summarizeClueForProse
+  // returns comma-joined key terms, which pasted into testParagraph ("It hinged on …") as the exact
+  // line-227 machine evidence-table. Space-join + de-spoil so it reads as a clause.
   const evidenceSummaries = extractDiscriminatingTestEvidenceClueIds(caseData)
-    .map((clueId) => normalizeOptionalClueSummary(summarizeClueForProse(clueId, ledgerEntry, clueDistribution)))
+    .map((clueId) => composeProseTermPhrase(normalizeOptionalClueSummary(summarizeClueForProse(clueId, ledgerEntry, clueDistribution)) ?? ""))
     .filter((value): value is string => Boolean(value));
   if (evidenceSummaries.length > 0) {
     return evidenceSummaries.join("; ");
@@ -215,13 +222,15 @@ const buildRequiredClueMaterializations = (
     );
     // R-A (M0): force both operands to KEY TERMS regardless of source (proseFacingDescription may be a
     // full sentence even when summarizeClueForProse is already term-reduced).
-    const description = composeKeyTermPhrase(
+    // A_50 Fix #1: render PROSE-facing (space-joined, sentence-cased) — same de-spoiled key terms as
+    // composeKeyTermPhrase, but not the comma-lowercase dump that read as machine text in the re-score.
+    const description = composeProseTermPhrase(
       normalizeOptionalClueSummary(
         clueState.proseFacingDescription
         || summarizeClueForProse(clueId, ledgerEntry, clueDistribution),
       ) ?? "",
     );
-    const pointsTo = composeKeyTermPhrase(normalizeOptionalClueSummary(clueState.pointsTo ?? undefined) ?? "");
+    const pointsTo = composeProseTermPhrase(normalizeOptionalClueSummary(clueState.pointsTo ?? undefined) ?? "");
     const isMissing = !clueState.isPresent;
     const requiresEarlyPlacement = clueState.placement === "early" && !clueState.isEarlyEnough;
     return {
@@ -274,22 +283,23 @@ const buildDeterministicClueParagraphs = (
   isEarly: boolean,
 ): string[] => {
   if (materials.length === 0) return [];
-  const clueList = materials.map((entry) => entry.description).join("; ");
+  const clueList = materials.map((entry) => entry.description).filter(Boolean).join("; ");
+  // A_50 Fix #1: drop the content-free meta-narration ("treated those facts as observable evidence…")
+  // and the flagged scaffold leads; operands are de-spoiled key terms rendered as a readable clause.
   const lead = isEarly
-    ? `At the start of the exchange, ${investigatorName} put concrete details where everyone could see them`
-    : `${investigatorName} surfaced the next hard detail before the scene could drift into speculation`;
-  const observationParagraph =
-    `${lead}: ${clueList}. The chapter treated those facts as observable evidence, not rumor, and tied them to what could be seen, timed, and compared in real time.`;
-  // R-A (M0): operands are now key-term lists (≤6 tokens each), composed into a sentence — never a
-  // pasted spec sentence, so no 12-word verbatim run can survive.
+    ? `${investigatorName} laid the facts out plainly where the others could see them`
+    : `${investigatorName} pressed on to the next concrete detail`;
+  const observationParagraph = `${lead}: ${clueList}.`;
+  // R-A (M0): operands are key-term lists (≤6 tokens each), composed into a sentence — never a pasted
+  // spec sentence, so no 12-word verbatim run can survive.
   const inferenceSentences = materials.map((entry) => {
     if (entry.pointsTo) {
-      return `Weighing ${entry.description}, ${investigatorName} saw the evidence narrow toward ${entry.pointsTo}.`;
+      return `${investigatorName} weighed ${entry.description}, and the trail bent toward ${entry.pointsTo}.`;
     }
-    return `Weighing ${entry.description}, ${investigatorName} judged the standing explanation weakened and in need of a stricter test.`;
+    return `${investigatorName} weighed ${entry.description}, and the standing account looked weaker for it.`;
   });
   const inferenceParagraph =
-    `${materials.length > 1 ? "Those observations" : "That observation"} redirected the reasoning at once. ${inferenceSentences.join(" ")}`;
+    `${materials.length > 1 ? "Those details" : "That detail"} shifted the reasoning. ${inferenceSentences.join(" ")}`;
   return [observationParagraph, inferenceParagraph];
 };
 
@@ -362,10 +372,10 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
   const theoryParagraph =
     `${args.investigatorName} set out the two competing readings so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
   const testParagraph =
-    `${args.investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. The comparison turned on ${args.evidenceSummary}, and the result was plain enough for every witness to read for themselves.`;
+    `${args.investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. It hinged on ${args.evidenceSummary}, and the result was there for everyone present to see.`;
   const eliminationLead = eliminatedSuspects.length > 0
     ? `${eliminatedSuspects.join(", ")} ${eliminatedSuspects.length > 1 ? "were" : "was"} ruled out because the same result contradicted ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"} once the evidence was compared under identical conditions.`
-    : "One path was ruled out because the evidence failed it under direct comparison, while the surviving path matched each observable result.";
+    : "One path was ruled out because the evidence failed it under direct comparison, while the surviving path held up to every check.";
   const conclusionTail = culpritName
     ? ` That left ${culpritName} as the only suspect whose version still depended on the false explanation.`
     : "";
@@ -460,7 +470,7 @@ const buildDeterministicClearanceParagraph = (
   const supportHints = (clearance.supporting_clues ?? [])
     .slice(0, 2)
     // R-A (M0): key-terms at the paste site — the rich summary feeds the guard, not the prose.
-    .map((clueId) => composeKeyTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
+    .map((clueId) => composeProseTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
     .filter(Boolean);
   const supportClause = supportHints.length > 0
     ? `the evidence around ${supportHints.join(" and ")}`
@@ -531,7 +541,7 @@ export const repairChapterDeterministically = (args: {
   if (args.repairContext.stageMode === "discriminating_test") {
     // R-A (M0): key-terms at the paste site; requiredClueSummaries stays rich for the guard.
     const clueText = args.repairContext.requiredClueSummaries
-      .map((s) => composeKeyTermPhrase(s))
+      .map((s) => composeProseTermPhrase(s))
       .filter(Boolean)
       .join("; ");
     const dtPatch = applyDeterministicDiscriminatingTestPatch(
@@ -613,7 +623,7 @@ const buildStageAwareFallbackParagraphs = (args: {
       || "the culprit";
     // R-A (M0): the mechanism description is long analytical text — prime 12-word-run material. Surface
     // key terms only (the run flagged "A precisely timed gust of wind entered through the garden window…").
-    const methodDescription = composeKeyTermPhrase(
+    const methodDescription = composeProseTermPhrase(
       String((args.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? "").trim(),
     ) || "the precise murder method";
 
@@ -670,9 +680,20 @@ export const resolveBatchMatchingClearances = (args: {
       .filter((entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase().includes("victim"))
       .map((entry: any) => String(entry?.name ?? "").trim().toLowerCase()),
   );
+  // A_50 §9: never author a clearance for the actual CULPRIT — clearing the culprit is the upstream
+  // cause of cleared_culprit_conflict. Match the lifecycle validator's culprit source (culpability.culprits).
+  const culpritNames = new Set<string>(
+    ((cmlCase?.culpability?.culprits ?? []) as any[])
+      .map((name: unknown) => String(name ?? "").trim().toLowerCase())
+      .filter(Boolean),
+  );
+  const excludedFromClearance = (name: unknown): boolean => {
+    const n = String(name ?? "").trim().toLowerCase();
+    return victimNames.has(n) || culpritNames.has(n);
+  };
   const allClearanceScenes: MatchingClearance[] = Array.isArray(cmlCase?.prose_requirements?.suspect_clearance_scenes)
     ? cmlCase.prose_requirements.suspect_clearance_scenes.filter(
-        (entry: any) => !victimNames.has(String(entry?.suspect_name ?? "").trim().toLowerCase()),
+        (entry: any) => !excludedFromClearance(entry?.suspect_name),
       )
     : [];
 
@@ -797,11 +818,11 @@ export const buildCompletionFallbackChapter = (
     .filter(Boolean)
     .slice(0, 3);
   // R-A (M0): scene objective/summary can be a full spec sentence — surface key terms only.
-  const sceneObjective = composeKeyTermPhrase(String(scene?.objective ?? scene?.purpose ?? scene?.summary ?? "").trim());
+  const sceneObjective = composeProseTermPhrase(String(scene?.objective ?? scene?.purpose ?? scene?.summary ?? "").trim());
   const floorWords = Math.max(850, ledgerEntry?.hardFloorWords ?? 0);
   // R-A (M0): key-terms at the paste site (completion fallback ships directly to the reader).
   const clueText = (ledgerEntry?.requiredClueIds ?? [])
-    .map((clueId) => composeKeyTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
+    .map((clueId) => composeProseTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
     .filter(Boolean)
     .join("; ");
   const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
@@ -817,7 +838,7 @@ export const buildCompletionFallbackChapter = (
 
   const namedCharacters = characters.length > 0 ? characters.join(", ") : "the investigators";
   const clueSentence = clueText.length > 0
-    ? `The most important observable details were ${clueText}, and they were handled as things seen, touched, compared, or challenged in the room.`
+    ? `The most important observable details were ${clueText}, and each was something the investigators could see, time, or test for themselves.`
     : "The important evidence stayed physical and visible: time, place, testimony, and object all had to agree before anyone could trust an inference.";
 
   const fallbackParagraphs: string[] = [

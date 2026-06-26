@@ -25,16 +25,25 @@ export interface CharacterLifecycleLedger {
   byCharacter: Record<string, CharacterLifecycleEvent[]>;
 }
 
-const DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
-const CONFESSION_RE = /\b(?:confessed|confession|admitted\s+(?:it|the\s+(?:murder|killing))|i\s+(?:killed|murdered|poisoned|struck|shot|stabbed))\b/i;
-const ACTIVE_VERB_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
+// A_50 §8 rank 3 / A_43 G/H/I: these predicates are the SINGLE SOURCE OF TRUTH for the deceased/
+// victim-alive family. The worker's deterministic repair (applyCanonicalVictimRescue) imports them so
+// the repair's flag-set can never drift from the detector's (the drift that left the rescue reframing
+// one sentence while the critical re-fired and aborted the run).
+export const DEATH_RE = /\b(?:dead|body|corpse|deceased|lifeless|murdered|killed|slain)\b/i;
+export const CONFESSION_RE = /\b(?:confessed|confession|admitted\s+(?:it|the\s+(?:murder|killing))|i\s+(?:killed|murdered|poisoned|struck|shot|stabbed))\b/i;
+export const ACTIVE_VERB_RE = /\b(?:said|asked|replied|answered|entered|stood|walked|looked|nodded|spoke|turned|moved|sat|rose|gestured|examined|handed|pointed|confessed|admitted)\b/i;
 const CLEARED_RE = /\b(?:cleared|ruled\s+out|eliminated|innocent|alibi\s+(?:holds|held|confirmed)|could\s+not\s+have)\b/i;
+// A_50 §9: a culprit named near a clearance word in the SAME (reveal) chapter is overwhelmingly the
+// DEMOLITION of a false alibi ("the alibi that had once cleared X collapsed"), not an exoneration —
+// so a clearance sentence carrying one of these negation/collapse markers must NOT seed a `cleared`
+// event for a culprit (it false-fired `cleared_culprit_conflict` and blocked the run).
+const CLEARANCE_NEGATION_RE = /\b(?:no longer|had once|once cleared|false alibi|collapsed|crumbled|unravell?ed|fell apart|failed|broke|no alibi|never (?:had|held))\b/i;
 // ANALYSIS_43 Phase 2 (G): a sentence that OPENS with an explicit recollection/flashback
 // frame is a remembered moment, not a live appearance — so it must not count as
 // `active_dialogue` for a deceased victim. Anchored to the sentence start so it cannot be
 // tripped by an incidental mid-sentence "remembered"; the deterministic victim rescue
 // emits exactly this frame ("In a remembered moment, ...") to clear a false reappearance.
-const RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b|[A-Z][a-z]+ (?:remembered|recalled) (?:how|that|the)\b)/i;
+export const RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b|[A-Z][a-z]+ (?:remembered|recalled) (?:how|that|the)\b)/i;
 
 const normalizeName = (value: string): string => value.toLowerCase().replace(/\s+/g, ' ').trim();
 
@@ -107,6 +116,7 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
   const castNames = getCastNames(story, cml);
   const victimNames = getVictimNames(cml);
   const culpritNames = getCulpritNames(cml);
+  const culpritKeys = new Set(Array.from(culpritNames).map(normalizeName));
 
   for (const victimName of victimNames) {
     addEvent(ledger, {
@@ -172,7 +182,13 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
           });
         }
 
-        if (CLEARED_RE.test(sentence)) {
+        // A_50 §9: don't seed a `cleared` event for the CULPRIT when the clearance is explicitly
+        // negated/demolished ("the alibi that had once cleared X collapsed") — that is the reveal
+        // tearing down a false alibi, not an exoneration, and it false-fired cleared_culprit_conflict.
+        if (
+          CLEARED_RE.test(sentence) &&
+          !(culpritKeys.has(normalizeName(name)) && CLEARANCE_NEGATION_RE.test(sentence))
+        ) {
           addEvent(ledger, {
             characterName: name,
             status: 'cleared',

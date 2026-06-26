@@ -39,7 +39,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -260,6 +260,13 @@ const splitLongParagraphForReadability = (paragraph: string, maxLength = 900): s
   return chunks;
 };
 
+/**
+ * Words that may legitimately appear doubled in English prose and must NOT be collapsed by the
+ * adjacent-duplicate sweep in sanitizeProseText: "he had had enough", "the fact that that happened",
+ * the cleft "what it is is…". Everything else (e.g. "the the", "soft soft") is treated as an artefact.
+ */
+const VALID_DOUBLED_WORDS = new Set(["had", "that", "is"]);
+
 export const sanitizeProseText = (value: unknown) => {
   let text = typeof value === "string" ? value : value == null ? "" : String(value);
   text = text.normalize("NFC");
@@ -267,7 +274,13 @@ export const sanitizeProseText = (value: unknown) => {
     text = text.replace(pattern, replacement);
   }
   return text
-    .replace(/^Generated in scene batches\.?$/gim, "")
+    .replace(/^Generated in scene batches\b.*$/gim, "")
+    // Collapse accidental adjacent duplicate words ("the the" → "the", "soft soft" → "soft"),
+    // preserving the first word's case and the grammatical doublings in VALID_DOUBLED_WORDS.
+    // The trailing \b stops false positives where a word merely prefixes the next ("the thermometer").
+    .replace(/\b(\w+)\s+\1\b/gi, (match, word: string) =>
+      VALID_DOUBLED_WORDS.has(word.toLowerCase()) ? match : word,
+    )
     // Fix possessive+article bleed: "my The Study" → "the Study"; "in my The Library" → "in the Library"
     .replace(/\b(my|your|his|her|our|their)\s+(The|A|An)\s+/gi, (_, _poss, art) => `${art.toLowerCase()} `)
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
@@ -1697,6 +1710,20 @@ export const applyVictimReappearanceRescue = (
 const VICTIM_RECOLLECTION_PREFIX = "In a remembered moment, ";
 const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
 
+/**
+ * A_50 §8 rank 3: match a victim by full name, surname, or possessive — parity with the lifecycle
+ * detector's in-sentence name match (incl. dialogue-tag/possessive references) so the rescue reframes
+ * EVERY flagged sentence, not only the literal-full-name one (the under-firing that aborted the run).
+ */
+const victimSentencePattern = (name: string): RegExp => {
+  const parts = String(name ?? "").trim().split(/\s+/).filter(Boolean);
+  const alts = new Set<string>();
+  if (parts.length) alts.add(escapeRegex(parts.join(" ")));
+  const surname = parts.length > 1 ? parts[parts.length - 1] : "";
+  if (surname.length > 2) alts.add(escapeRegex(surname));
+  return new RegExp(`\\b(?:${Array.from(alts).join("|")})(?:['’]s)?\\b`, "i");
+};
+
 export const applyCanonicalVictimRescue = (
   prose: any,
   castCharacters: CastEntry[],
@@ -1724,6 +1751,8 @@ export const applyCanonicalVictimRescue = (
 
   let repairCount = 0;
   const reframed = new Set<string>();
+  const namePatterns = new Map<string, RegExp>();
+  for (const issue of issueByName.values()) namePatterns.set(issue.characterName, victimSentencePattern(issue.characterName));
   const chapters = (prose.chapters as any[]).map((chapter: any, chapterIdx: number) => {
     const chapterNumber = chapterIdx + 1;
     const paragraphs = Array.isArray(chapter?.paragraphs)
@@ -1739,12 +1768,20 @@ export const applyCanonicalVictimRescue = (
       for (let i = 0; i < sentences.length; i += 1) {
         let sentence = sentences[i];
         if (VICTIM_RECOLLECTION_FRAME_RE.test(sentence)) continue; // already a recollection
-        if (LIFECYCLE_DEATH_RE.test(sentence)) continue;           // death/discovery sentence — leave
-        if (!LIFECYCLE_ACTIVE_RE.test(sentence)) continue;         // no active verb — not flagged
+        // A_50 §8 rank 3: mirror the detector's flag predicates EXACTLY so every flagged sentence is
+        // reframed (not just active-verb ones): confession-by-noun/first-person AND active dialogue.
+        const confessHit = LIFECYCLE_CONFESSION_RE.test(sentence) && !LIFECYCLE_RECOLLECTION_RE.test(sentence);
+        const activeHit = LIFECYCLE_ACTIVE_RE.test(sentence);
+        // Leave PURE death/discovery narration untouched — but a death word that co-occurs with a
+        // confession/active use ("'I killed him,' the note in her hand read") MUST still reframe.
+        if (LIFECYCLE_DEATH_RE.test(sentence) && !confessHit && !activeHit) continue;
+        if (!confessHit && !activeHit) continue; // not a flagged sentence
 
         for (const issue of issueByName.values()) {
-          if (chapterNumber <= issue.deadByChapter) continue;      // only chapters after death
-          const namePattern = new RegExp(`\\b${escapeRegex(issue.characterName)}\\b`, "i");
+          // validator flags confessions with chapter >= deadByChapter, so the death chapter itself is
+          // reframable (canonical victim with no prose death ⇒ deadByChapter defaults to 1).
+          if (chapterNumber < issue.deadByChapter) continue;
+          const namePattern = namePatterns.get(issue.characterName) ?? victimSentencePattern(issue.characterName);
           if (!namePattern.test(sentence)) continue;
           sentence = VICTIM_RECOLLECTION_PREFIX + sentence.replace(/^\s+/, "");
           changed = true;
@@ -4551,6 +4588,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const REPAIRABLE_ISSUE_TYPES = new Set<string>([
     "victim_reappears_alive",
     "deceased_character_confesses",
+    // A_50 §9: a same-chapter "clearance" of the actual culprit in the reveal is a false-alibi
+    // demolition, not an exoneration — the detector guard now suppresses most, but admit it here so a
+    // residual softens failed→needs_review instead of throwing (it co-occurred with the confession
+    // critical and its absence from this allowlist blocked softening entirely). Upstream agent3/agent6
+    // fair-play cause tracked separately.
+    "cleared_culprit_conflict",
     "pronoun_drift",
     "pronoun_gender_mismatch",
     "locked_fact_missing_value",

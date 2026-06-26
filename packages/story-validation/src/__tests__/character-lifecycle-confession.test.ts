@@ -58,3 +58,24 @@ describe("validateCharacterLifecycle — deceased_character_confesses recollecti
     expect(typeof confession?.details?.deadByChapter).toBe("number");
   });
 });
+
+describe("validateCharacterLifecycle — cleared_culprit_conflict guard (A_50 §9)", () => {
+  it("does NOT flag a culprit whose clearance is negated/demolished in the reveal", () => {
+    const story = makeStory([
+      ["The body of Margaret Langley was discovered in the study."],
+      ["John Avery seemed beyond reproach that evening."],
+      ["The alibi that had once cleared John Avery collapsed under the new evidence."],
+    ]);
+    const errors = validateCharacterLifecycle(story as any, cml as any);
+    expect(errors.some((e: any) => e.type === "cleared_culprit_conflict")).toBe(false);
+  });
+
+  it("STILL flags a genuine (incoherent) bare clearance of the culprit", () => {
+    const story = makeStory([
+      ["The body of Margaret Langley was discovered in the study."],
+      ["John Avery was cleared; his alibi held and no one doubted him again."],
+    ]);
+    const errors = validateCharacterLifecycle(story as any, cml as any);
+    expect(errors.some((e: any) => e.type === "cleared_culprit_conflict")).toBe(true);
+  });
+});

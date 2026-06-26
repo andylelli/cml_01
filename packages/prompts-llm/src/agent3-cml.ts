@@ -1001,6 +1001,14 @@ export async function generateCML(
         .map((c: any) => (c.name as string).trim().toLowerCase())
     );
 
+    // A_50 §9: drop any LLM-authored clearance for the CULPRIT (or detective) — the gap-fill below
+    // already skips them on ADD, but the LLM's original list was written back UNFILTERED, leaving a
+    // culprit-clearance that causes cleared_culprit_conflict. Remove them at the source.
+    for (let i = existingClearances.length - 1; i >= 0; i -= 1) {
+      const n = String(existingClearances[i]?.suspect_name ?? "").trim().toLowerCase();
+      if (n && (culpritSet.has(n) || detectiveCastNames.has(n))) existingClearances.splice(i, 1);
+    }
+
     // Determine a sensible default scene for gap-filled clearances:
     // one scene before the culprit revelation scene (which is late Act 3).
     const revealActNum: number =

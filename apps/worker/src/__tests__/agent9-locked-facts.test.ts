@@ -754,4 +754,37 @@ describe("applyCanonicalVictimRescue (canonical victim_reappears_alive)", () => 
     expect(after.some((e: any) => e.type === "deceased_character_confesses")).toBe(false);
     expect(after.some((e: any) => e.type === "victim_reappears_alive")).toBe(false);
   });
+
+  it("A_50 §8 rank 3: COMPREHENSIVE — reframes confession-by-noun, first-person+death, and active (not just one), so the critical clears", () => {
+    const before = makeProse([
+      { paragraphs: ["The lifeless body of Charles Hargrove lay beside the desk."] },
+      { paragraphs: [
+        "Charles Hargrove left a written confession on the blotter.", // noun form, NO active verb — old rescue skipped this
+        "\"I killed him,\" Charles Hargrove had scrawled before the end.", // first-person + death word
+        "Charles Hargrove confessed to the killing in front of the household.", // active
+      ] },
+    ]);
+    const baseline = validateCharacterLifecycle(makeStory(before) as any, cml as any);
+    expect(baseline.some((e: any) => e.type === "deceased_character_confesses")).toBe(true);
+
+    const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
+    // All THREE post-death sentences reframed (the under-firing fix), not just the active one.
+    expect(rescued.repairCount).toBe(3);
+    expect(rescued.prose.chapters[1].paragraphs.every((p: string) => /^In a remembered moment,/.test(p))).toBe(true);
+
+    // Re-validation finds no residual (no sibling-sentence whack-a-mole) and the death line is intact.
+    const after = validateCharacterLifecycle(makeStory(rescued.prose) as any, cml as any);
+    expect(after.some((e: any) => e.type === "deceased_character_confesses")).toBe(false);
+    expect(rescued.prose.chapters[0].paragraphs[0]).toBe("The lifeless body of Charles Hargrove lay beside the desk.");
+  });
+
+  it("A_50: default-safe — a correctly dead-and-silent victim is untouched", () => {
+    const before = makeProse([
+      { paragraphs: ["The lifeless body of Charles Hargrove lay beside the desk."] },
+      { paragraphs: ["Margaret Hargrove studied the room and questioned each guest in turn."] }, // living suspect, no victim activity
+    ]);
+    const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
+    expect(rescued.repairCount).toBe(0);
+    expect(rescued.prose.chapters[1].paragraphs[0]).toBe("Margaret Hargrove studied the room and questioned each guest in turn.");
+  });
 });
