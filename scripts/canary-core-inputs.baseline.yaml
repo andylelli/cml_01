@@ -47,16 +47,16 @@ eraPreference: "1930s"
 locationPreset: CountryHouse
 tone: "Classic"
 primaryAxis: temporal
-# K1 (ANALYSIS_51): grown 4 -> 6 so the victim is a distinct, named role rather
-# than a phantom drawn from the detective/culprit/suspect pool.
-castSize: 6
+# A_52 role model: 1 detective + 1 victim + (n-2) suspects; n=5 is the lean fair-play
+# minimum (3 suspects = culprit + 2 red herrings).
+castSize: 5
 castNames:
   - "Eleanor Voss"
   - "Dr. Mallory Finch"
   - "Captain Ivor Hale"
   - "Beatrice Quill"
   - "Sylvia Trent"
-  - "Hugo Vane"
+#  - "Hugo Vane"
 #  - "Agnes Pike"
 detectiveType: amateur
 targetLength: short

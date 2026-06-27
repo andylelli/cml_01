@@ -47,6 +47,11 @@ export interface CharacterProfile {
   characterArcPotential: string;
   // Schema allows male, female, and non-binary values.
   gender?: 'male' | 'female' | 'non-binary';
+  // A_52 role model: the fair-play cast has exactly one detective and one victim (both
+  // first-class, fixed roles) and n-2 suspects. The culprit is a hidden attribute of ONE
+  // suspect (assigned downstream by Agent 3), NOT a role here. Optional so legacy/LLM output
+  // without the field still validates — the deterministic invariant resolves/repairs it.
+  role?: 'detective' | 'victim' | 'suspect';
 }
 
 export interface RelationshipWeb {
@@ -251,6 +256,7 @@ Non-negotiable rules:
 
 Character schema (all fields required):
 - name, ageRange, occupation, roleArchetype
+- role (detective|victim|suspect) — exactly ONE detective, exactly ONE victim, all others suspect
 - publicPersona, privateSecret
 - motiveSeed, motiveStrength (weak|moderate|strong|compelling)
 - alibiWindow, accessPlausibility (impossible|unlikely|possible|easy)
@@ -406,8 +412,9 @@ ${inputs.socialContext ? `**Social Context**: ${inputs.socialContext}` : ""}
 **Tone**: ${inputs.tone}
 
 Hard requirements:
+ROLE MODEL: tag every character with a single \`role\` — exactly ONE "detective", exactly ONE "victim", and the remaining ${count - 2} are "suspect". The culprit is chosen later from the suspects; do NOT mark anyone "culprit". The detective and the victim are different people, and neither is a suspect.
 1. Create complete profiles for all ${count} characters — the characters array MUST have exactly ${count} entries
-2. ONE character is the investigator/detective (roleArchetype: "${detectiveRoleLabel}") — they must NOT appear in crimeDynamics.possibleCulprits
+2. ONE character is the investigator/detective (role: "detective", roleArchetype: "${detectiveRoleLabel}") — they must NOT appear in crimeDynamics.possibleCulprits
 3. Ensure diverse representation (age, background, archetype)
 4. Build interconnected relationships with hidden tensions
 5. Generate plausible motives and alibis for each non-detective character
@@ -419,7 +426,7 @@ Hard requirements:
 11. Declare \`gender\` for each character: "male" or "female" only — no other values are permitted (required — never omit)
 12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
 13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
-14. VICTIM (first-class role): exactly ONE character is the murder victim. Give them roleArchetype "victim", a full publicPersona and privateSecret so their death carries weight, and name them in crimeDynamics.victimCandidates. The victim MUST NOT appear in crimeDynamics.possibleCulprits and MUST NOT be the detective — these are five distinct roles (victim, detective, culprit, and at least two other suspects).
+14. VICTIM (first-class role): exactly ONE character has role "victim". Give them roleArchetype "victim", a full publicPersona and privateSecret so their death carries weight, and name them in crimeDynamics.victimCandidates. The victim is DEAD from the murder onward — they appear only via discovery, recollection, or evidence, never as an active living character. The victim MUST NOT appear in crimeDynamics.possibleCulprits and MUST NOT be the detective.
 15. The victim MUST be tied to the case by relationships: at least one HIGH-tension relationship with a culprit-candidate (the motive anchor — why someone wanted them dead) and at least one relationship with each other suspect (the misdirection surface).
 
 CRITICAL COMPLETENESS RULES:
@@ -427,7 +434,8 @@ CRITICAL COMPLETENESS RULES:
 - crimeDynamics.possibleCulprits MUST name at least ${Math.min(3, count - 1)} characters (suspects only — never the detective)
 - The detective character's roleArchetype MUST be "${detectiveRoleLabel}"
 - The cast MUST include at least ${minUniqueArchetypes} unique roleArchetype labels
-- Exactly ONE character has roleArchetype "victim"; that character is named in crimeDynamics.victimCandidates and appears in NEITHER possibleCulprits NOR as the detective
+- Exactly ONE character has role "detective" and exactly ONE has role "victim"; the other ${count - 2} are "suspect"
+- The victim is named in crimeDynamics.victimCandidates and appears in NEITHER possibleCulprits NOR as the detective
 
 ${inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0 ? `## Quality Guardrails (Must Satisfy)
 ${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}

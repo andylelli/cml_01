@@ -6,12 +6,13 @@ import { enforceVictimRoleInvariant } from "../jobs/agents/agent2-run.js";
  * These tests exercise the worker-layer repair seam directly.
  */
 
-type Char = { name: string; roleArchetype?: string };
+type Char = { name: string; roleArchetype?: string; role?: string };
 
 function castRaw(opts: {
   characters: Char[];
   possibleCulprits?: string[];
   victimCandidates?: string[];
+  detectiveCandidates?: string[];
   pairs?: Array<{ character1: string; character2: string; tension?: string }>;
 }): Record<string, unknown> {
   return {
@@ -20,7 +21,7 @@ function castRaw(opts: {
       possibleCulprits: opts.possibleCulprits ?? [],
       redHerrings: [],
       victimCandidates: opts.victimCandidates ?? [],
-      detectiveCandidates: [],
+      detectiveCandidates: opts.detectiveCandidates ?? [],
     },
     relationships: { pairs: opts.pairs ?? [] },
   };
@@ -109,5 +110,96 @@ describe("enforceVictimRoleInvariant — repair, never abort", () => {
     const cast = castRaw({ characters: [{ name: "Solo", roleArchetype: "detective" }] });
     const warnings: string[] = [];
     expect(() => enforceVictimRoleInvariant(cast, warnings)).not.toThrow();
+  });
+});
+
+describe("enforceVictimRoleInvariant — A_52 role model (explicit detective/victim slots)", () => {
+  const roleOf = (cast: Record<string, unknown>, name: string): string => {
+    const c = (cast.characters as Array<Record<string, unknown>>).find((x) => x.name === name);
+    return String(c?.role ?? "");
+  };
+
+  it("does NOT designate the detective as victim when the detective's archetype lacks a keyword (the confirmation-run bug)", () => {
+    // Eleanor Voss is the detective by explicit role, but her archetype is "Authority Figure" —
+    // the old regex (/detective|investigator|inspector|sleuth/) missed her and made her the victim.
+    const cast = castRaw({
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Authority Figure", role: "detective" },
+        { name: "Mallory Finch", roleArchetype: "Professional" },
+        { name: "Ivor Hale", roleArchetype: "Veteran" },
+        { name: "Beatrice Quill", roleArchetype: "Insider" },
+        { name: "Sylvia Trent", roleArchetype: "Helper" },
+      ],
+      possibleCulprits: ["Mallory Finch", "Ivor Hale", "Beatrice Quill"],
+    });
+    const warnings: string[] = [];
+    enforceVictimRoleInvariant(cast, warnings);
+
+    const victim = ((cast.crimeDynamics as Record<string, unknown>).victimCandidates as string[])[0];
+    expect(victim).not.toBe("Eleanor Voss"); // the detective is never the victim
+    expect(roleOf(cast, "Eleanor Voss")).toBe("detective");
+    expect(roleOf(cast, victim)).toBe("victim");
+  });
+
+  it("resolves the detective via crimeDynamics.detectiveCandidates when role + archetype are both uninformative", () => {
+    const cast = castRaw({
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Hotel Manager" },
+        { name: "Mallory Finch", roleArchetype: "Professional" },
+        { name: "Ivor Hale", roleArchetype: "Veteran" },
+        { name: "Beatrice Quill", roleArchetype: "Insider" },
+        { name: "Sylvia Trent", roleArchetype: "Helper" },
+      ],
+      possibleCulprits: ["Mallory Finch", "Ivor Hale", "Beatrice Quill"],
+      detectiveCandidates: ["Eleanor Voss"],
+    });
+    const warnings: string[] = [];
+    enforceVictimRoleInvariant(cast, warnings);
+    const victim = ((cast.crimeDynamics as Record<string, unknown>).victimCandidates as string[])[0];
+    expect(victim).not.toBe("Eleanor Voss");
+    expect(roleOf(cast, "Eleanor Voss")).toBe("detective");
+  });
+
+  it("tags exactly one detective, one victim, and the rest suspects", () => {
+    const cast = castRaw({
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Authority Figure", role: "detective" },
+        { name: "Mallory Finch", roleArchetype: "Professional", role: "suspect" },
+        { name: "Ivor Hale", roleArchetype: "Veteran", role: "victim" },
+        { name: "Beatrice Quill", roleArchetype: "Insider", role: "suspect" },
+        { name: "Sylvia Trent", roleArchetype: "Helper", role: "suspect" },
+      ],
+      possibleCulprits: ["Mallory Finch", "Beatrice Quill", "Sylvia Trent"],
+      victimCandidates: ["Ivor Hale"],
+      pairs: [{ character1: "Ivor Hale", character2: "Mallory Finch", tension: "high" }],
+    });
+    enforceVictimRoleInvariant(cast, []);
+    const chars = cast.characters as Array<Record<string, unknown>>;
+    expect(chars.filter((c) => c.role === "detective")).toHaveLength(1);
+    expect(chars.filter((c) => c.role === "victim")).toHaveLength(1);
+    expect(chars.filter((c) => c.role === "suspect")).toHaveLength(3);
+    expect(roleOf(cast, "Eleanor Voss")).toBe("detective");
+    expect(roleOf(cast, "Ivor Hale")).toBe("victim");
+  });
+
+  it("demotes a stray second detective-tagged character to suspect", () => {
+    const cast = castRaw({
+      characters: [
+        { name: "Eleanor Voss", roleArchetype: "Sleuth", role: "detective" },
+        { name: "Sylvia Trent", roleArchetype: "Investigator", role: "detective" }, // stray second detective
+        { name: "Mallory Finch", roleArchetype: "Professional", role: "suspect" },
+        { name: "Ivor Hale", roleArchetype: "victim", role: "victim" },
+        { name: "Beatrice Quill", roleArchetype: "Insider", role: "suspect" },
+      ],
+      possibleCulprits: ["Mallory Finch", "Beatrice Quill", "Sylvia Trent"],
+      victimCandidates: ["Ivor Hale"],
+      pairs: [{ character1: "Ivor Hale", character2: "Mallory Finch", tension: "high" }],
+    });
+    const warnings: string[] = [];
+    enforceVictimRoleInvariant(cast, warnings);
+    const chars = cast.characters as Array<Record<string, unknown>>;
+    expect(chars.filter((c) => c.role === "detective")).toHaveLength(1);
+    expect(roleOf(cast, "Sylvia Trent")).toBe("suspect");
+    expect(warnings.some((w) => /demoted .* extra "detective"/.test(w))).toBe(true);
   });
 });

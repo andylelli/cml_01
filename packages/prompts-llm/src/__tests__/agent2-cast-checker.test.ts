@@ -17,6 +17,7 @@ function makeChar(overrides: Partial<CharacterProfile> & { name: string }): Char
     stakes: overrides.stakes ?? "ruin and disgrace",
     characterArcPotential: overrides.characterArcPotential ?? "cracks under pressure",
     gender: overrides.gender ?? "male",
+    ...(overrides.role ? { role: overrides.role } : {}),
   };
 }
 
@@ -256,5 +257,32 @@ describe("checkCast — K1 victim invariant (warn-severity, never errors)", () =
     const r = checkCast(cast, { expectedCount: 5 });
     expect(r.metrics.victimTiedToSuspect).toBe(false);
     expect(r.issues.some((i) => i.code === "victim_not_tied_to_suspect" && i.severity === "warn")).toBe(true);
+  });
+});
+
+describe("checkCast — A_52 role model (explicit role counts)", () => {
+  function roleCast(roles: string[]): CastDesign {
+    const names = ["Eleanor Voss", "Mallory Finch", "Ivor Hale", "Beatrice Quill", "Sylvia Trent"];
+    return {
+      characters: names.map((name, i) =>
+        makeChar({ name, role: roles[i] as CharacterProfile["role"], roleArchetype: roles[i] === "victim" ? "victim" : `archetype-${i}`, gender: i % 2 === 0 ? "female" : "male" }),
+      ),
+      relationships: { pairs: [pair("Ivor Hale", "Mallory Finch", "high")] },
+      diversity: { stereotypeCheck: [], recommendations: [] },
+      crimeDynamics: { possibleCulprits: ["Mallory Finch", "Beatrice Quill", "Sylvia Trent"], redHerrings: [], victimCandidates: ["Ivor Hale"], detectiveCandidates: ["Eleanor Voss"] },
+    };
+  }
+
+  it("a 1-detective / 1-victim / 3-suspect cast raises no role-count warnings", () => {
+    const r = checkCast(roleCast(["detective", "suspect", "victim", "suspect", "suspect"]), { expectedCount: 5 });
+    expect(r.issues.some((i) => i.code === "role_count_detective" || i.code === "role_count_victim")).toBe(false);
+    expect(r.metrics.victimName).toBe("Ivor Hale");
+  });
+
+  it("flags two detectives and zero victims (warn-severity)", () => {
+    const r = checkCast(roleCast(["detective", "detective", "suspect", "suspect", "suspect"]), { expectedCount: 5 });
+    expect(r.issues.some((i) => i.code === "role_count_detective" && i.severity === "warn")).toBe(true);
+    expect(r.issues.some((i) => i.code === "role_count_victim" && i.severity === "warn")).toBe(true);
+    expect(r.ok).toBe(true); // warn-severity never aborts
   });
 });

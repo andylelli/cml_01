@@ -320,15 +320,43 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
     ? cd.victimCandidates.map((n) => String(n).trim()).filter(Boolean)
     : [];
 
-  const detectiveChar = characters.find((c) => /(detective|investigator|inspector|sleuth)/.test(norm(c?.roleArchetype)));
+  // A_52 role model: prefer the explicit `role` field over archetype inference.
+  const roleOf = (c: CharacterProfile): string => norm((c as { role?: unknown })?.role);
+  const detectiveChar =
+    characters.find((c) => roleOf(c) === "detective" && String(c?.name ?? "").trim()) ??
+    characters.find((c) => /(detective|investigator|inspector|sleuth)/.test(norm(c?.roleArchetype)));
   const detectiveName = detectiveChar ? String(detectiveChar.name ?? "").trim() : "";
 
+  const victimByRole = characters.find((c) => roleOf(c) === "victim" && String(c?.name ?? "").trim());
   const victimByArchetype = characters.find((c) => /victim/.test(norm(c?.roleArchetype)) && String(c?.name ?? "").trim());
   const victimByCandidate = characters.find((c) =>
     victimCandidates.some((v) => v.toLowerCase() === String(c?.name ?? "").trim().toLowerCase()),
   );
-  const victimChar = victimByArchetype ?? victimByCandidate ?? null;
+  const victimChar = victimByRole ?? victimByArchetype ?? victimByCandidate ?? null;
   const victimName = victimChar ? String(victimChar.name ?? "").trim() : (victimCandidates[0] ?? null);
+
+  // Role-count check (only when the explicit `role` field is in use): exactly one detective, one victim.
+  const rolesPresent = characters.some((c) => roleOf(c).length > 0);
+  if (rolesPresent) {
+    const detectiveCount = characters.filter((c) => roleOf(c) === "detective").length;
+    const victimRoleCount = characters.filter((c) => roleOf(c) === "victim").length;
+    if (detectiveCount !== 1) {
+      issues.push({
+        code: "role_count_detective",
+        severity: "warn",
+        message: `Expected exactly one character with role "detective"; got ${detectiveCount}.`,
+        feedback: 'Tag exactly ONE character with role "detective".',
+      });
+    }
+    if (victimRoleCount !== 1) {
+      issues.push({
+        code: "role_count_victim",
+        severity: "warn",
+        message: `Expected exactly one character with role "victim"; got ${victimRoleCount}.`,
+        feedback: 'Tag exactly ONE character with role "victim".',
+      });
+    }
+  }
 
   let victimDistinct = false;
   let victimTiedToSuspect = false;

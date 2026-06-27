@@ -20,6 +20,11 @@ characters:
       roleArchetype:
         type: string
         required: true
+      role:
+        type: string
+        required: false
+        allowed: [detective, victim, suspect]
+        description: "A_52 role model: exactly one detective, one victim, the rest suspects. The culprit is a hidden attribute of one suspect (assigned by Agent 3), not a role. Optional — resolved/repaired deterministically in enforceVictimRoleInvariant when absent."
       publicPersona:
         type: string
         required: true

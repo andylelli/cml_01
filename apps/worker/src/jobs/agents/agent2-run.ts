@@ -143,11 +143,17 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
       inferGenderFromName(String(character.name ?? "")) ?? (idx % 2 === 0 ? "female" : "male");
   });
 
+  // A_52 role model: identify the detective by the explicit `role` field first, then the archetype
+  // regex — NOT an exact "detective" archetype match (which missed a detective labelled e.g.
+  // "Authority Figure" and let them leak into the culprit/victim fallbacks).
+  const looksDetective = (c: Record<string, unknown>): boolean =>
+    String((c as Record<string, unknown>).role ?? "").trim().toLowerCase() === "detective" ||
+    /detective|investigator|inspector|sleuth/.test(String(c.roleArchetype ?? "").toLowerCase());
   const nonDetectiveNames = characters
-    .filter((c) => String(c.roleArchetype ?? "").toLowerCase() !== "detective" && c.name)
+    .filter((c) => !looksDetective(c) && c.name)
     .map((c) => String(c.name));
   const detectiveNames = characters
-    .filter((c) => String(c.roleArchetype ?? "").toLowerCase() === "detective" && c.name)
+    .filter((c) => looksDetective(c) && c.name)
     .map((c) => String(c.name));
   if (!Array.isArray(cd.possibleCulprits) || (cd.possibleCulprits as unknown[]).length === 0) {
     cd.possibleCulprits = nonDetectiveNames.slice(0, Math.min(3, nonDetectiveNames.length));
@@ -351,17 +357,21 @@ function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[
 }
 
 /**
- * K1 (ANALYSIS_51 §1) — guarantee a first-class, NAMED victim distinct from the
- * detective / culprit-candidates / suspects, the root fix for the "phantom victim".
+ * A_52 role model (was K1, ANALYSIS_51 §1) — guarantee the fair-play cast structure:
+ * exactly one DETECTIVE (alive throughout) and one first-class NAMED VICTIM (dead from the
+ * murder on), with the remaining characters as suspects (the culprit is a hidden attribute of
+ * one suspect, assigned downstream — never a role here). This is the root fix for both the
+ * "phantom victim" and the "victim is dead AND alive" failure class.
  *
- * Deterministic and repair-not-abort (per MEMORY: a victim defect must repair, never
- * throw). It (1) resolves the victim — preferring a "victim" archetype, then
- * crimeDynamics.victimCandidates, then the first non-detective non-culprit character;
- * (2) locks that character's roleArchetype to "victim"; (3) removes the victim from
- * possibleCulprits (topping the suspect pool back up from the remaining cast);
- * (4) pins crimeDynamics.victimCandidates to the single victim; and (5) synthesises a
- * high-tension victim↔culprit-candidate relationship (the motive anchor) when none exists.
- * Every repair is surfaced on `warnings`; the run always continues.
+ * Deterministic and repair-not-abort (per MEMORY: a role defect must repair, never throw). It
+ * (1) resolves the detective from the explicit `role` field → crimeDynamics.detectiveCandidates
+ * → archetype regex (so a detective labelled e.g. "Authority Figure" is no longer missed and the
+ * detective can never be designated victim); (2) resolves the victim from the explicit `role` →
+ * victim archetype → victimCandidates → first non-detective non-culprit; (3) locks the victim's
+ * archetype, (4) removes the victim from possibleCulprits (topping the pool back up), (5) pins
+ * crimeDynamics.victimCandidates, (6) synthesises the motive-anchor relationship when missing,
+ * and (7) tags every character's `role` (detective | victim | suspect) so downstream consumers
+ * and the lifecycle lock read a fixed role instead of inferring it. Repairs surface on `warnings`.
  *
  * Exported for unit testing.
  */
@@ -372,16 +382,19 @@ export function enforceVictimRoleInvariant(
   const characters = Array.isArray(castRaw.characters)
     ? (castRaw.characters as Array<Record<string, unknown>>)
     : [];
-  // Too small to host five distinct roles — leave it to checkCast to flag (don't fabricate).
+  // Too small to host the distinct roles — leave it to checkCast to flag (don't fabricate).
   if (characters.length < 3) return;
 
   const cd = (castRaw.crimeDynamics ?? (castRaw.crimeDynamics = {})) as Record<string, unknown>;
   const nameOf = (c: Record<string, unknown>): string => String(c?.name ?? "").trim();
   const archetypeOf = (c: Record<string, unknown>): string => String(c?.roleArchetype ?? "").toLowerCase();
-  const isDetective = (c: Record<string, unknown>): boolean =>
+  const roleOf = (c: Record<string, unknown>): string => String(c?.role ?? "").trim().toLowerCase();
+  const archetypeDetective = (c: Record<string, unknown>): boolean =>
     /detective|investigator|inspector|sleuth/.test(archetypeOf(c));
 
-  const detectiveNames = new Set(characters.filter(isDetective).map(nameOf).filter(Boolean).map((n) => n.toLowerCase()));
+  const detectiveCandidateKeys = Array.isArray(cd.detectiveCandidates)
+    ? (cd.detectiveCandidates as unknown[]).map((n) => String(n).trim().toLowerCase()).filter(Boolean)
+    : [];
   const possibleCulprits = Array.isArray(cd.possibleCulprits)
     ? (cd.possibleCulprits as unknown[]).map((n) => String(n).trim()).filter(Boolean)
     : [];
@@ -390,24 +403,34 @@ export function enforceVictimRoleInvariant(
     ? (cd.victimCandidates as unknown[]).map((n) => String(n).trim()).filter(Boolean)
     : [];
 
-  // 1. Resolve the victim.
+  // 0. Resolve THE detective (single) — explicit role → detectiveCandidates → archetype regex.
+  const detective =
+    characters.find((c) => roleOf(c) === "detective" && nameOf(c)) ??
+    characters.find((c) => nameOf(c) && detectiveCandidateKeys.includes(nameOf(c).toLowerCase())) ??
+    characters.find((c) => archetypeDetective(c) && nameOf(c));
+  const detectiveKey = detective ? nameOf(detective).toLowerCase() : "";
+
+  // 1. Resolve the victim — explicit role → victim archetype → victimCandidates → first
+  //    non-detective non-culprit. The detective is excluded deterministically (no regex guessing).
   const victim =
-    characters.find((c) => /victim/.test(archetypeOf(c)) && nameOf(c)) ??
-    characters.find((c) => nameOf(c) && victimCandidates.some((v) => v.toLowerCase() === nameOf(c).toLowerCase())) ??
+    characters.find((c) => roleOf(c) === "victim" && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
+    characters.find((c) => /victim/.test(archetypeOf(c)) && nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey) ??
+    characters.find((c) => nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey && victimCandidates.some((v) => v.toLowerCase() === nameOf(c).toLowerCase())) ??
     characters.find((c) => {
       const k = nameOf(c).toLowerCase();
-      return k && !detectiveNames.has(k) && !culpritKeys.has(k);
+      return k && k !== detectiveKey && !culpritKeys.has(k);
     }) ??
-    characters.find((c) => nameOf(c) && !detectiveNames.has(nameOf(c).toLowerCase()));
+    characters.find((c) => nameOf(c) && nameOf(c).toLowerCase() !== detectiveKey);
 
   if (!victim || !nameOf(victim)) {
     warnings.push(
-      "[agent2-victim][repair] no eligible victim could be assigned (cast lacks a non-detective character) — grow the cast (K1 Path A).",
+      "[agent2-victim][repair] no eligible victim could be assigned (cast lacks a non-detective character) — grow the cast.",
     );
     return;
   }
   const victimName = nameOf(victim);
   const victimKey = victimName.toLowerCase();
+  const detectiveNames = new Set(detectiveKey ? [detectiveKey] : []);
 
   // 2. Lock the victim archetype so the role is first-class downstream.
   if (!/victim/.test(archetypeOf(victim))) {
@@ -460,6 +483,29 @@ export function enforceVictimRoleInvariant(
     });
     warnings.push(
       `[agent2-victim][repair] added the motive-anchor relationship ${victimName} ↔ ${anchor} (the victim must be tied to a suspect).`,
+    );
+  }
+
+  // 6/7. Tag every character's explicit `role` so downstream consumers and the lifecycle lock read
+  //      a fixed role instead of inferring it: exactly one detective, one victim, the rest suspects.
+  //      (The culprit stays a hidden attribute of one suspect — never tagged here.) Re-tagging is a
+  //      silent metadata repair, but a demotion of a stray extra detective is worth a warning.
+  let demotedExtraDetectives = 0;
+  for (const c of characters) {
+    const k = nameOf(c).toLowerCase();
+    if (!k) continue;
+    if (k === victimKey) {
+      c.role = "victim";
+    } else if (k === detectiveKey) {
+      c.role = "detective";
+    } else {
+      if (roleOf(c) === "detective") demotedExtraDetectives += 1;
+      c.role = "suspect";
+    }
+  }
+  if (demotedExtraDetectives > 0) {
+    warnings.push(
+      `[agent2-victim][repair] demoted ${demotedExtraDetectives} extra "detective"-tagged character(s) to suspect (exactly one detective allowed).`,
     );
   }
 }
