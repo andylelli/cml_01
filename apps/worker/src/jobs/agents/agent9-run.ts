@@ -2672,11 +2672,19 @@ export const partitionNsdRevealedCluesForReleaseGate = (
 
 const placeholderRoleSurnamePattern =
   /\b(?:a|an|the)\s+(inspector|detective|constable|sergeant|captain|gentleman|lady|woman|man|doctor)\s+([A-Z][a-z]+(?:[-''][A-Z][a-z]+)?)\b/g;
-const placeholderNamedStandalonePattern = /\b(a woman [A-Z][a-z]+|a man [A-Z][a-z]+)\b/g;
+const placeholderNamedStandalonePattern = /\b(?:a woman|a man) ([A-Z][a-z]+)\b/g;
+// "a woman X" / "a man X" is a placeholder only when X is an APPOSITIVE name
+// ("a woman Quill, pale and shaking"). When X is the SUBJECT of a relative clause —
+// "a woman Eleanor had once mentored" = "a woman [whom] Eleanor had mentored" — it is
+// ordinary prose, not leakage. The following token discriminates: a verb/auxiliary or
+// relativizer ⇒ relative clause ⇒ NOT a placeholder. (The role+surname branch already
+// guards itself via the known-cast-name filter; this is the equivalent guard.)
+const relativeClauseFollowerPattern =
+  /^\s+(?:had|has|have|was|were|is|are|am|will|would|could|should|did|does|do|been|who|whom|that|which|she|he|they|then|once|never|always|often|seldom|might|may|must)\b/i;
 const placeholderGenericRolePattern =
   /\b(a gentleman|an inspector|a detective|a constable|a sergeant|a captain|a doctor)\b/gi;
 
-const evaluatePlaceholderLeakage = (prose: any, castSurnames?: Set<string>) => {
+export const evaluatePlaceholderLeakage = (prose: any, castSurnames?: Set<string>) => {
   const joined = prose.chapters
     .map((chapter: any) => {
       const body = (chapter.paragraphs || []).join("\n");
@@ -2694,15 +2702,23 @@ const evaluatePlaceholderLeakage = (prose: any, castSurnames?: Set<string>) => {
     .map((match) => match[0]);
   const namedStandaloneMatches = (Array.from(
     joined.matchAll(placeholderNamedStandalonePattern),
-  ) as RegExpMatchArray[]).map((match) => match[0]);
+  ) as RegExpMatchArray[])
+    // Drop relative-clause uses ("a woman Eleanor had once mentored") — the name is the clause
+    // subject, not an apposed placeholder. This is the false positive that hard-stopped good,
+    // complete stories whose victim prose read "a woman <Detective> had once mentored …".
+    .filter((match) => !relativeClauseFollowerPattern.test(joined.slice((match.index ?? 0) + match[0].length)))
+    .map((match) => match[0]);
   const genericRoleMatches = joined.match(placeholderGenericRolePattern) || [];
   const uniqueRoleSurnameMatches = Array.from(new Set(roleSurnameMatches));
+  const uniqueStandaloneMatches = Array.from(new Set(namedStandaloneMatches));
 
   return {
     roleSurnameCount: roleSurnameMatches.length,
     standaloneCount: namedStandaloneMatches.length,
     genericRoleCount: genericRoleMatches.length,
-    examples: uniqueRoleSurnameMatches.slice(0, 5),
+    // Surface BOTH offending kinds so a future leakage abort names its token (this diagnosis
+    // had to be reconstructed from the raw prose because standalone examples weren't reported).
+    examples: [...uniqueRoleSurnameMatches, ...uniqueStandaloneMatches].slice(0, 5),
     severeLeakage: roleSurnameMatches.length > 0 || namedStandaloneMatches.length >= 2,
     hasLeakage:
       roleSurnameMatches.length > 0 ||
