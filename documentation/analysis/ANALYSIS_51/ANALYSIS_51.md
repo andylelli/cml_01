@@ -125,12 +125,15 @@ First live generation with K1+K2+triad active, levers OFF (isolates the keystone
 - **The pattern: two 6-cast runs, two different late-stage aborts, K2 never reached.** The reference 4-cast runs (59/63/63) all *completed*. The new variable is the cast (4→6). **Conclusion: K1's cast growth trades the phantom-victim defect for higher late-pipeline load** — more named characters ⇒ more weave/continuity/grounding/placeholder surface for Agent 9 + the release gate. The §0 #5 "no abort" property held for the 4-cast; it does **not** yet hold for the 6-cast. This is the new top blocker.
 - **K2 — mechanism confirmed live (decoupled from the pipeline).** `scripts/rubric-score-spike.mjs` against the live Azure judge: CLEAN 71 (no caps) · LEAKY 66→**63** (leakage cap forces prose ≤4, overall ≤65, overriding the critic) · COLLISION 49→**46** (culprit==victim caps overall ≤55). The deterministic cap engine overrides the LLM critic exactly as designed. The *new* structural verifiers (planted-evidence/mechanism-timing/citation) remain unit-tested only — the spike's synthetic cases lack the CASE discriminating-clue structure to exercise them, and the live pipeline can't yet hand them a completed story.
 
-**Decision fork (next action — needs a call):**
-1. **Trim cast 6→5** (the minimum for five distinct roles) to cut weave load, then re-run — cheapest shot at a completed story + an in-situ K2 number.
-2. **Harden the late pipeline for the larger cast** (death-method-at-reveal, placeholder weave, continuity, scene-grounding) — the real fix; a small project (overlaps §2 #11/#12).
-3. **Accept K1 as banked + K2 as unit/spike-validated**, and measure end-to-end K2 calibration later once #1/#2 land a completed story.
+### 3.4 Diagnosis (no new run) — the "6-cast fragility" was overstated; it's TWO specific, cheap gate bugs
 
-**Original next action superseded:** the reveal death-method abort was *not* variance — it recurs as part of the broader 6-cast late-pipeline fragility above.
+Read the run-2 prose + the gate sources instead of re-running. Findings:
+
+- **Run #2 abort = a FALSE POSITIVE, not genuine leakage.** The flagged "named standalone placeholder" was the single phrase **"a woman Eleanor"**, inside: *"…Beatrice, the hotel's head of guest services, **a woman Eleanor had once mentored** but lately only regarded across a widening gulf…"*. That is a relative clause (`a woman [whom] Eleanor had once mentored`) characterising the **victim** (Beatrice) — the exact rich victim prose K1 was built to produce — with the **detective's** first name as the clause subject. The detector ([`agent9-run.ts:2675`](../../../apps/worker/src/jobs/agents/agent9-run.ts) `placeholderNamedStandalonePattern = /\b(a woman [A-Z][a-z]+|a man [A-Z][a-z]+)\b/`) greedily matched across the clause boundary. The sibling role+surname check whitelists known cast names (`:2687`); **the named-standalone check has no such guard** → it hard-stops complete, good stories. *Fix: add the known-cast-name / followed-by-verb guard the role+surname branch already has.* Cheap, clearly correct, should land flag-free.
+- **Run #1 abort = real-ish, separate.** The reveal didn't surface the death-method word ("strangled") because the clock/timing mechanism dominated the reveal. *Fix: a reveal-prompt nudge to explicitly restate how the culprit killed the victim* (the gate at `clue-validation.ts:1102` is correct — don't weaken it).
+- **Revised conclusion:** the cast growth is NOT fundamentally too heavy. Two narrow gate/prompt bugs blocked the two runs; neither warrants trimming the cast. Fix both, then one re-run should complete and finally yield an in-situ K2 number.
+
+**Next action:** implement the two targeted fixes (named-standalone placeholder guard + reveal death-method nudge) with unit tests — no paid run needed to land/test them — then a single confirmation run.
 
 ---
 
@@ -165,8 +168,8 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 |---|:--:|---|
 | K1 cast enlargement + named victim | ✅ | **Confirmed in prose** (`a08be22d` + live run `mystery-1782545187071`): victim "Beatrice Quill" named + distinct + strangled in her room; phantom victim gone. |
 | K2 final-rubric honesty | ◐ | **Cap engine confirmed LIVE** (spike: leakage 66→63, collision 49→46 override the critic) + new verifiers unit-tested (`6ee19960`). **End-to-end calibration on a real story still owed** — pipeline aborts before final rubric. |
-| **6-cast late-pipeline fragility (NEW top blocker)** | ☐ | Both 6-cast runs aborted late (run #1 death-method reveal; run #2 placeholder leak + continuity + grounding 5/10); 4-cast refs completed. K1's growth raised Agent 9 / release-gate load. Decide: trim 6→5, or harden the late gates. |
-| Reveal death-method completeness (`clue-validation.ts:1102`) | ◐ | Recurs both runs (not variance) — one facet of the 6-cast load. Run #2 retried+recovered it; run #1 aborted on it. |
+| **Named-standalone placeholder FALSE POSITIVE (`agent9-run.ts:2675`)** | ☐ | Diagnosed: run #2 hard-stopped on "a woman Eleanor had once mentored" (a relative clause describing the victim) — the regex lacks the known-cast-name guard the role+surname branch has. Killed a complete, good story. Cheap fix. |
+| Reveal death-method nudge (`clue-validation.ts:1102`) | ☐ | Run #1 abort: reveal didn't restate the death method ("strangled"); clock mechanism dominated. Gate is correct — fix via a reveal-prompt nudge, not by weakening it. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
 | Triad #1/#2/#3 | ☑ | Landed + verified in prose (§3). Awaiting K2 to register on the rubric. |
 | Role-coherence repair (§9.1) | ☑ | Holds levers-on (no abort across 2 runs). |
