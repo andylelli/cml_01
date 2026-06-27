@@ -1,5 +1,7 @@
 # ANALYSIS_51 — Outstanding issues, restated (post-triad register)
 
+> **Superseded by [ANALYSIS_52](../ANALYSIS_52/ANALYSIS_52.md) (2026-06-27).** A_51 remains the detailed record of the K1/K2 build, the two live diagnoses, and the Fix #1/Fix #2 work (§3.1–§3.7). A_52 is now the live register: it formalizes the cast **role model** and re-orders the remaining work.
+
 Status: **living register — supersedes [ANALYSIS_50](../ANALYSIS_50/ANALYSIS_50.md) as the single source of truth for what is still open.** A_50 remains the historical record of the §9 structural-pivot investigation and the triad fixes; **A_51 restates the outstanding work with everything learned through the triad validation run (`mystery-1782508634205`, 2026-06-26), reorders it around the two root causes that investigation exposed, and pairs each open item with a best-solution idea.**
 
 > Lineage: A_48 (upstream-fitness thesis + T-backlog) → A_49 (code plans for the deferred Tier-1 levers) → A_50 (agent-keyed scoreboard + the §9 structural pivot) → **A_51 (this doc: the bottleneck has moved; restate accordingly).** Target unchanged: [ROADMAP_TO_80](../ANALYSIS_47/ROADMAP_TO_80.md).

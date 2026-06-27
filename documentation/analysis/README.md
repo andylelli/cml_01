@@ -3,7 +3,8 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
-- `ANALYSIS_51/ANALYSIS_51.md` — **outstanding issues, restated (post-triad register)** — CURRENT single source of truth; supersedes A_50. Two keystones: cast/role deficit (phantom victim) + final-rubric-judge honesty. *(Directory doc — distinct from the older flat `ANALYSIS_51_pre_prose_enrichment_strategy.md`.)*
+- `ANALYSIS_52/ANALYSIS_52.md` — **the role model + the remaining work** — CURRENT single source of truth; supersedes A_51. K1 (named victim) + K2 (rubric honesty) landed and the pipeline now completes (K2 honest in situ, 62/100); formalizes the cast **role model** (1 detective + 1 victim + n-2 suspects, n≥5) that closes the victim dead-and-alive class, and re-orders the remaining work around triad-effectiveness-in-prose. *(Directory doc — distinct from the older flat `ANALYSIS_52_run_970b323c_error_warning_report.md`.)*
+- `ANALYSIS_51/ANALYSIS_51.md` — outstanding issues, restated (post-triad register) + the detailed K1/K2 build, two live diagnoses, and Fix #1/Fix #2 record (§3.1–§3.7). **Superseded by A_52 for tracking; retained as the build history.**
 - `ANALYSIS_50/ANALYSIS_50.md` — outstanding issues by agent (consolidated register + the §9 structural-pivot investigation + triad fixes). **Superseded by A_51 for tracking; retained as history.**
 - `ANALYSIS_49/ANALYSIS_49.md` — implementation plans for the four deferred A_48 items (novelty store, clue restructure, Agent 7 scheduler+budget, voice gate)
 - `ANALYSIS_48/ANALYSIS_48.md` — agents 1–8 to 90% prose-fitness (vanity-scorer + shadow-machinery thesis) so Agent 9 can reach 80
