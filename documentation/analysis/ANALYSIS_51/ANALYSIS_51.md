@@ -146,7 +146,22 @@ Root cause pinned by reading the code (not another run): `buildStageAwareFallbac
 - **Scope note (honest):** the deterministic *guarantee* is on the **fallback** path — exactly where run #1 died. On the normal LLM path the gate's retry already recovers (run #2's ch9). A morphological stem-matcher for the gate was prototyped and **reverted**: the obvious stem ("strangl") doesn't even bridge "strangled"↔"strangulation" (they diverge at char 7), so it was misleading; Part 3 makes it unnecessary.
 - +1 regression test; prompts-llm 512, worker 221, story-validation 288 green.
 
-**Next action — a single confirmation run.** Both diagnosed abort classes now have fixes (Fix #1 placeholder false positive; Fix #2 fallback death method). One paid run should complete and finally yield an **in-situ K2 number** — the last open piece of K2 acceptance.
+### 3.7 Confirmation run `mystery-1782585273377` (2026-06-27) — IT COMPLETED; K2 measured in situ and is HONEST
+
+First end-to-end completion with the 6-cast. Both fixes held.
+
+- **No abort, 0 hard-stops.** Got past the ch8 reveal (Fix #2) and the release gate registered **0 hard-stops** (Fix #1). It "failed" the release gate only on **2 warnings** — the same complete-but-not-passing state as the reference runs (59/63/63), a decisive step up from aborting. Internal aggregate 74/C.
+- **K1 confirmed again** in coherent prose: victim **Captain Ivor Hale**, found dead in the lobby — named, distinct from detective (Eleanor Voss) and culprit. Phantom victim solved.
+- **🔑 K2 measured in situ: 62/100 ("Promising but rough"), and it is HONEST.** The deterministic structural verdict backs every cap with specific facts — not LLM noise:
+  - `mechanismExplainedChapter: 1` vs `testChapter: 8` → mechanism explained 7 chapters early → "explained too early" caps on `plot_structure`/`pacing` (≤6) are **structurally confirmed**.
+  - `unplantedEvidence: [clue_1, clue_2, clue_3, clue_5]` → "reveal uses evidence not planted earlier → ending ≤5" is **structurally confirmed** (4 named clues).
+  This is precisely the trustworthy measuring stick K2 was built for. The 62 is defensible. **K2's honesty is now demonstrated in situ — its acceptance is essentially met** (deterministic structural facts drive the caps; the live spike already showed leakage/collision overrides).
+- **What K2's honesty now EXPOSES (the real remaining quality ceiling):** the triad fixes are **not fully landing in prose** — the mechanism is still explained at ch1 (triad #3 mechanism-reveal-gate not withholding it) and 4 reveal clues are unplanted (triad #2 not guaranteeing planted reveal-evidence). Previously hidden by the noisy judge; now visible. This is the next frontier (triad effectiveness / the category ladder against the honest stick).
+- **Latent K1 bug found (masked by retry this run):** `enforceVictimRoleInvariant` identifies the detective by archetype regex (`/detective|investigator|inspector|sleuth/`). Agent 2 attempt 1 labelled the detective Eleanor Voss "Authority Figure" → regex missed her → she was wrongly designated victim. That cast was retried away (the shipped cast has Hale), but it's fragile. **Fix: also exclude `crimeDynamics.detectiveCandidates` from victim eligibility.**
+
+**Net:** K1 ✅ accepted · K2 ✅ honest stick demonstrated in situ · pipeline completes (no abort). The bottleneck has moved again — to **triad effectiveness in prose** (mechanism withholding + reveal-evidence planting), now measurable on an honest rubric.
+
+**Next actions:** (1) harden the K1 detective-identity check (exclude `detectiveCandidates`). (2) Re-open the triad/category ladder against the now-honest rubric: make the mechanism-reveal gate actually withhold to the test chapter, and ensure reveal clues are planted earlier — the two defects K2 just named.
 
 ---
 
@@ -180,7 +195,9 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 | Item | Status | Notes |
 |---|:--:|---|
 | K1 cast enlargement + named victim | ✅ | **Confirmed in prose** (`a08be22d` + live run `mystery-1782545187071`): victim "Beatrice Quill" named + distinct + strangled in her room; phantom victim gone. |
-| K2 final-rubric honesty | ◐ | **Cap engine confirmed LIVE** (spike: leakage 66→63, collision 49→46 override the critic) + new verifiers unit-tested (`6ee19960`). **End-to-end calibration on a real story still owed** — pipeline aborts before final rubric. |
+| K2 final-rubric honesty | ✅ | **Honest stick demonstrated in situ** (`mystery-1782585273377`): 62/100 with every cap backed by a deterministic structural fact (mechanism@ch1 vs test@ch8; unplanted clue_1/2/3/5) + live-spike overrides. Trustworthy now. |
+| Triad effectiveness in prose (NEW frontier) | ☐ | K2's honest verdict exposes it: mechanism still explained @ch1 (triad #3 not withholding) + 4 reveal clues unplanted (triad #2 not guaranteeing). The real quality ceiling, now measurable. |
+| K1 detective-identity robustness | ☐ | `enforceVictimRoleInvariant` missed a detective labelled "Authority Figure" (no archetype keyword) → wrongly designated her victim (retried away). Fix: also exclude `crimeDynamics.detectiveCandidates`. |
 | Named-standalone placeholder FALSE POSITIVE (`agent9-run.ts:2675`) | ✅ | **Fixed (`97a299ae`):** relative-clause guard + standalone examples + 4 tests. Removes run #2's abort class. |
 | Reveal death-method adherence (`clue-validation.ts:1102`) | ✅ | **Fixed (`4768c3ed`):** the deterministic final_reveal fallback now surfaces the death method via the gate's own `resolveDeathMethod` (root cause: it only stated the concealment mechanism); prompt grammar fixed. +1 test. The normal LLM path's retry already recovers. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
