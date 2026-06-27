@@ -107,7 +107,18 @@ All on `redesign/agent-blue-sky`, build + unit tests green (story-validation 288
 | `6ee19960` | **K2 — rubric honesty.** Extended `packages/rubric-score`: deterministic structural verifiers (`structural-verifiers.ts`) that **veto/confirm** the LLM judge — planted-evidence (reuses `findUnplantedDiscriminatingClues`), mechanism-timing, victim-named; per-flag **cited-evidence verification** (flags with unverifiable chapter+sentence citations are dropped); `RUBRIC_JUDGE_MODEL` makes the final judge independently upgradeable; `calibration.ts` records the internal↔external delta. Shadow default + never-throw wrapper preserved. +14 unit tests incl. the planted-vs-unplanted fixture. |
 | `a08be22d` | **K1 — first-class named victim.** Canary cast grown 4→6; first-class VICTIM contract in the Agent 2 prompt; `checkCast` victim reporting (warn-severity) + metrics; `enforceVictimRoleInvariant` in `agent2-run` — deterministic, **repair-not-abort**: resolves/locks the victim, excludes it from `possibleCulprits`, pins `victimCandidates`, and synthesises the motive-anchor edge, surfacing every repair on `ctx.warnings`. +9 unit tests. |
 
-**Two caveats, recorded honestly.** (1) Neither keystone has been run through a live generation — the unit fixtures pass, but the *acceptance* gates ("warnings clear on a real run" for K1; "internal↔external within single digits" for K2) need one replay. (2) The first parallel K1 attempt was discarded: its isolated worktree was created from a ~46-commit-stale base and re-created files that already exist — K1 was re-implemented against the correct HEAD. Lesson: **verify a worktree's base commit before trusting its output.**
+**Two caveats, recorded honestly.** (1) The first parallel K1 attempt was discarded: its isolated worktree was created from a ~46-commit-stale base and re-created files that already exist — K1 was re-implemented against the correct HEAD. Lesson: **verify a worktree's base commit before trusting its output.** (2) See the live run below for what is and isn't yet confirmed.
+
+### 3.2 Live levers-OFF run `mystery-1782545187071` (2026-06-27) — K1 confirmed, K2 still unmeasured
+
+First live generation with K1+K2+triad active, levers OFF (isolates the keystones vs the plain `59` baseline). Cast grew 4→6 (6 profiles generated).
+
+- **K1 — CONFIRMED in prose.** The victim invariant fired: `[agent2-victim][repair] designated Beatrice Quill as the named victim (was "Outsider")`. The shipped arc opens on *"the shocking discovery of Beatrice Quill's lifeless body, strangled in her room"* — a **named, profiled, first-class victim**, distinct from detective (Eleanor Voss) and excluded from the culprit pool by construction. This directly fixes the unnamed-phantom victim of the triad run ("a woman … never named"). **K1's structural acceptance is met.**
+- **K2 — NOT measured.** The run **aborted at chapter 8 (the reveal)** before final-story rubric scoring, so no K2 shadow score exists yet. The structural verifiers never ran end-to-end.
+- **The abort is independent of K1.** It is the pre-existing `final_reveal` completeness hard-gate ([`clue-validation.ts:1102`](../../../packages/prompts-llm/src/agent9-prose/clue-validation.ts)): a chapter-8 *generation-exception fallback* produced reveal prose that didn't surface the death-method word ("strangled"), so `proseSurfacesDeathMethod` failed and hard-aborted. K1 touches neither reveal prose nor death-method logic; this gate recurs across many prior runs. Most likely generation variance (an exception on ch8 + a thin fallback), retryable via the temperature retry-salt — **not** a K1 regression. NB it does contradict A_51 §0 #5's "no abort" claim for *this* seed, so abort-freedom is not universal.
+- **Internal pipeline:** 96/A, per-chapter 89–95 — but `passed:false` (aborted). Internal aggregate ≠ the final-story rubric the keystones target.
+
+**Next action:** re-run (1–2×) to land a completed story so K2 can finally be measured, and to see whether the reveal death-method abort recurs (variance vs systematic). If systematic, the fix is a reveal-prompt nudge to restate the death method — *not* weakening the (correct) gate.
 
 ---
 
@@ -140,8 +151,9 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 
 | Item | Status | Notes |
 |---|:--:|---|
-| K1 cast enlargement + named victim | ◐ | **Code-complete + unit-tested (`a08be22d`).** Cast 4→6; first-class victim contract; `enforceVictimRoleInvariant` (repair-not-abort). Awaiting a live run to confirm the shipped story names the victim + warnings clear. |
-| K2 final-rubric honesty | ◐ | **Code-complete + unit-tested (`6ee19960`).** Structural verifiers veto/confirm judge flags; cited-evidence verification; `RUBRIC_JUDGE_MODEL`. Planted-vs-unplanted fixture passes; external calibration still a seam. |
+| K1 cast enlargement + named victim | ✅ | **Confirmed in prose** (`a08be22d` + live run `mystery-1782545187071`): victim "Beatrice Quill" named + distinct + strangled in her room; phantom victim gone. |
+| K2 final-rubric honesty | ◐ | **Code-complete + unit-tested (`6ee19960`); still unmeasured live** — the live run aborted at the reveal gate before final-story rubric ran. Needs a *completed* run. |
+| Reveal death-method completeness abort (`clue-validation.ts:1102`) | ☐ | **New/observed in `mystery-1782545187071`:** ch8 fallback didn't surface "strangled" → hard abort. Independent of K1; likely variance. Re-run to confirm; if systematic, nudge the reveal prompt to restate the death method. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
 | Triad #1/#2/#3 | ☑ | Landed + verified in prose (§3). Awaiting K2 to register on the rubric. |
 | Role-coherence repair (§9.1) | ☑ | Holds levers-on (no abort across 2 runs). |
