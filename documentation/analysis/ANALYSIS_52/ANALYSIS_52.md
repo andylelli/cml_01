@@ -148,9 +148,10 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 | K1 named victim | ✅ | Confirmed in prose 3× (`a08be22d`). |
 | K2 rubric honesty | ✅ | Honest stick demonstrated in situ — 62/100, caps backed by structural facts (`6ee19960`). |
 | Pipeline completes (no abort) | ✅ | Fix #1 (`97a299ae`) + Fix #2 (`4768c3ed`) → `mystery-1782585273377` ran end-to-end, 0 hard-stops. |
-| **Role model (detective+victim+n-2 suspects)** | ☑ 🔑 | **Landed `4cbf146f`** — explicit `role` slots, robust detective resolution, role tagging, canary `n=5`. +6 tests. Live confirmation (zero victim-lifecycle signals) pending. |
-| **Triad effectiveness in prose** | ☑ 🔑 | **`c17a3bc4`** — was K2 over-detection, not a real defect; verifiers fixed (explanation-marker + indeterminate-prose). Re-measure next run. |
-| Release gate — 2 warnings | ◐ | scene-grounding obligation elevated (`60476705`); critical-continuity is run-specific (identity_role_alias_break / case_transition_missing). |
+| **Role model (detective+victim+n-2 suspects)** | ✅ | **Confirmed live** (`mystery-1782591615045`, n=6): LLM emits `role` tags; the invariant repaired the LLM's missing-victim cast → victim Sylvia Trent, detective Eleanor correctly excluded; **zero** dead-and-alive signals. (`4cbf146f`, +6 tests) |
+| **Triad effectiveness in prose** | ✅ | **Confirmed live** (`c17a3bc4`): `caps_applied: []`; `mechanismExplainedChapter:9 ≥ testChapter:8` (was falsely 1); `unplantedEvidence:[]`, vetoed. The false caps cleared — K2 reads the structure accurately. |
+| Release gate — continuity warning | ✅ | **Cleared** — the critical-continuity warning is gone; release gate now **PASSED** (0 hard-stops, 1 warning, was 2). |
+| Release gate — scene-grounding | ☐ | Still below target (2/9). The prompt elevation (`60476705`) did not move it — needs a different lever (deterministic lead is off for repetition; or a per-chapter grounding obligation in the obligation block). |
 | Category ladder vs honest rubric | ◐ | Built, flag-OFF; now legitimately testable. |
 | Premise diversity | ☐ | Single fixed canary theme guarantees a clone. |
 
@@ -164,5 +165,6 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 | `mystery-1782545187071` (A_51) | 6-cast, levers off, K1+K2+triad | **aborted** ch8 (death-method fallback) | K1 confirmed (named victim); exposed the Fix #2 fallback bug |
 | `mystery-1782577884032` (A_51) | 6-cast | **aborted** release gate (placeholder FP) | exposed the Fix #1 false positive |
 | **`mystery-1782585273377` (A_52)** | 6-cast, K1+K2+triad+Fix#1+Fix#2 | **completed**, 0 hard-stops, **K2 = 62/100 honest** | pipeline completes; K2 honest in situ; bottleneck → role model + triad-in-prose |
+| **`mystery-1782591615045` (A_52)** | n=6 role model + phase 2/3 | **completed**, release gate **PASSED** (1 warning), K2 59 (raw, **no caps**) | role model live (roles tagged, repair works, zero dead-and-alive); phase-2 caps cleared (mechanism@9≥test@8, unplanted=[] vetoed); continuity warning cleared; only scene-grounding (2/9) remains. (`infra_failure` = a benign post-step DNS blip — story passed the gate.) |
 
 Baseline for reference: `run_9b824eb2` (Tier-1 only, older judge) = 71 LLM / 68 shadow. Target: [ROADMAP_TO_80](../ANALYSIS_47/ROADMAP_TO_80.md) ≥ 80.

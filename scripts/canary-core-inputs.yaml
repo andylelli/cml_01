@@ -48,19 +48,18 @@ locationPreset: SeasideHotel
 tone: "Classic"
 primaryAxis: temporal
 # A_52 role model: the fair-play cast is 1 detective + 1 victim + (n-2) suspects.
-# n=5 is the lean minimum — 3 suspects = 1 culprit + 2 red herrings — which satisfies
-# "≥2 red herrings, inference-isolated from the solution" while keeping the fewest
-# names to weave (lower late-pipeline continuity/grounding load). Bump to 6 only if the
-# honest rubric shows misdirection/novelty is thin.
-castSize: 5
+# n=6 here — 1 detective + 1 victim + 4 suspects (culprit + 3 red herrings) for a richer
+# misdirection field. (n=5 is the lean minimum; 6 trades a little more weave load for novelty.)
+castSize: 6
 castNames:
   - "Eleanor Voss"
   - "Dr. Mallory Finch"
   - "Captain Ivor Hale"
   - "Beatrice Quill"
   - "Sylvia Trent"
+  - "Hugo Vane"
 # Gender lock: prevents per-run ambiguity for names the LLM may misread.
-# Captain Ivor Hale (Ivor = Welsh male name) is masculine — lock to male.
+# Captain Ivor Hale (Ivor = Welsh male name) and Hugo Vane are masculine — lock to male.
 # All other characters are female. This is non-negotiable via Agent2 prompt.
 castGenders:
   "Eleanor Voss": female
@@ -68,7 +67,7 @@ castGenders:
   "Captain Ivor Hale": male
   "Beatrice Quill": female
   "Sylvia Trent": female
-#  - "Hugo Vane"
+  "Hugo Vane": male
 #  - "Agnes Pike"
 detectiveType: amateur
 targetLength: short
