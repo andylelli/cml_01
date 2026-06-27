@@ -179,8 +179,16 @@ function deriveThroughLine(profile: Partial<CharacterProfileOutput>): string {
 export function extractVoiceCapsule(profile: Partial<CharacterProfileOutput> | null | undefined): VoiceCapsule {
   const p = (profile ?? {}) as Partial<CharacterProfileOutput> & Record<string, unknown>;
 
-  const speechTics = deriveSpeechTics(p.speechMannerisms);
+  const derivedTics = deriveSpeechTics(p.speechMannerisms);
   const register = deriveRegister(p.speechMannerisms);
+
+  // P1.4: an explicit signatureTic is the most load-bearing voice marker — lead the tic list with it
+  // so it feeds deployability (≥1 tic) and distinctiveness. Back-compat: absent ⇒ derived tics only.
+  const signatureTic = norm((p as Record<string, unknown>).signatureTic);
+  const speechTics =
+    !isEmptyish(signatureTic) && !derivedTics.includes(signatureTic)
+      ? [signatureTic, ...derivedTics]
+      : derivedTics;
 
   // Tells under stress: a physical mannerism (if the profile carries one) plus the speech tics,
   // which double as verbal tells. De-duplicated, order-stable.
@@ -350,4 +358,30 @@ export function checkVoiceCapsules(
     issues,
     metrics,
   };
+}
+
+/**
+ * P1.4 — the bounded-retry acceptance gate for `AGENT2B_VOICE_CHECK=enforce`. The cast voices are
+ * "distinct enough" when a clear majority carry distinct registers, no two voices collide, and every
+ * profile is deployable (register + ≥1 tic). Pure + deterministic so the retry decision is testable.
+ * An empty cast passes (nothing to gate).
+ */
+export function voiceGatePass(metrics: VoiceCapsuleMetrics | null | undefined): boolean {
+  if (!metrics || metrics.count <= 0) return true;
+  const minDistinctRegisters = Math.ceil(0.6 * metrics.count);
+  return (
+    metrics.uniqueRegisters >= minDistinctRegisters &&
+    metrics.duplicatePairs === 0 &&
+    metrics.deployableCount === metrics.count
+  );
+}
+
+/** P1.4 — one structured-feedback instruction for a voice-gate retry, built from the checker issues. */
+export function buildVoiceGateFeedback(check: VoiceCapsuleCheckResult): string {
+  const fixes = [...new Set(check.issues.map((i) => `- ${i.feedback}`))];
+  return [
+    "VOICE DISTINCTNESS RETRY: the cast voices are too similar or under-specified. Fix the following:",
+    ...fixes,
+    "Give each character a DISTINCT speaking register and at least one concrete signatureTic; no two characters may share a register+tic signature.",
+  ].join("\n");
 }

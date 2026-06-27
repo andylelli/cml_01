@@ -27,7 +27,15 @@ export const CONTROL_PLANE_LEAKAGE_PATTERNS: LeakagePattern[] = [
     severity: 'critical',
   },
   { code: 'obligation_term', pattern: /\bobligation\b/i, confidence: 'contextual', severity: 'major' },
-  { code: 'contract_term', pattern: /\bcontract\b/i, confidence: 'contextual', severity: 'major' },
+  // Scaffold "contract" only — qualified to the obligation/chapter/prose/request/scene/clue/story
+  // contract terminology. The bare word /\bcontract\b/ false-fired on the ordinary English verb/noun
+  // ("the walls seem to contract", "a marriage contract") — common in period prose.
+  {
+    code: 'contract_term',
+    pattern: /\b(?:obligation|chapter|prose|request|scene|clue|story|generation)[\s-]?contract(?:s|ual)?\b|\bcontract\s+(?:term|block|gate|requirement|obligation)s?\b/i,
+    confidence: 'contextual',
+    severity: 'major',
+  },
   { code: 'instruction_shape', pattern: /\b(?:must include|required to|ensure that)\b/i, confidence: 'contextual', severity: 'major' },
   // Schema / outline-reasoning leakage: clue.description and points_to fields are
   // authored as analytical conclusions ("Eliminates X because… narrowing the

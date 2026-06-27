@@ -38,6 +38,12 @@ type LoadSummary = {
 
 const defaultValidation: ValidationResult = { valid: true, errors: [], warnings: [] };
 
+// Agent 9's diagnostic note ("Generated in scene batches. N batch(es) required retry for validation.")
+// is generation metadata, never a title/subtitle — never surface it in the UI.
+const GENERATION_RESIDUE = /generated in scene batches|batch\(es\)\s*required|required retry for validation/i;
+const stripResidueNote = (value: unknown): string | undefined =>
+  typeof value === "string" && !GENERATION_RESIDUE.test(value) ? value : undefined;
+
 export const useProjectStore = defineStore("project", () => {
   const artifactsStatus = ref<"idle" | "loading" | "ready" | "partial" | "error">("idle");
 
@@ -176,7 +182,7 @@ export const useProjectStore = defineStore("project", () => {
       tone: payload.tone,
       chapters: normalizedChapters,
       cast: payload.cast,
-      note: payload.note ?? payload.title ?? fallbackTitle,
+      note: stripResidueNote(payload.note) ?? stripResidueNote(payload.title) ?? fallbackTitle,
     };
   };
 

@@ -34,7 +34,7 @@ import type {
   GenerationReport,
   ValidationReport,
 } from "@cml/story-validation";
-import { buildRetryFeedback, getFailedComponents } from "@cml/story-validation";
+import { buildRetryFeedback, getFailedComponents, parseHonestScorerMode } from "@cml/story-validation";
 import type { ScoringLogger } from "../scoring-logger.js";
 import type { RunLogger } from "../run-logger.js";
 import type { MysteryGenerationInputs } from "../mystery-orchestrator.js";
@@ -473,6 +473,36 @@ export function appendRetryFeedbackOptional(base: string | undefined, retryFeedb
 export function preAgent9LlmRetriesEnabled(): boolean {
   const raw = String(process.env.AGENT_PRE9_ENABLE_LLM_RETRIES ?? "").trim().toLowerCase();
   return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+}
+
+/**
+ * ANALYSIS_50 Phase 3 — honest-scorer selector. Reads the umbrella `HONEST_SCORERS` flag
+ * (off/shadow/enforce, default OFF). `off` returns the vanity score unchanged (byte-identical).
+ * `shadow` computes the honest score, logs the vanity↔honest delta, but RETURNS the vanity score.
+ * `enforce` returns the honest score. Never throws — a scorer error keeps the vanity score.
+ */
+export function applyHonestScorer(
+  vanity: PhaseScore,
+  honest: () => PhaseScore | null | undefined,
+  warnings: string[],
+  label: string,
+): PhaseScore {
+  const mode = parseHonestScorerMode(process.env.HONEST_SCORERS);
+  if (mode === "off") return vanity;
+  let h: PhaseScore | null | undefined;
+  try {
+    h = honest();
+  } catch (err) {
+    warnings.push(`[honest-scorer][${mode}] ${label} error: ${(err as Error).message}; keeping vanity score`);
+    return vanity;
+  }
+  if (!h) return vanity;
+  warnings.push(
+    `[honest-scorer][${mode}] ${label} vanity=${vanity.total}/${vanity.grade} ` +
+      `honest=${h.total}/${h.grade} passed=${h.passed}` +
+      (h.component_failures && h.component_failures.length ? ` weak=${h.component_failures.join(",")}` : ""),
+  );
+  return mode === "enforce" ? h : vanity;
 }
 
 export function preAgent9ContractRecoveryEnabled(): boolean {

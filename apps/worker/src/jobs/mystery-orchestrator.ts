@@ -49,6 +49,7 @@ import {
 import type { GenerationReport, ValidationReport, PhaseScore } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
 import { RunLogger } from "./run-logger.js";
+import { evaluateRetryGateGuard } from "./retry-gate-guard.js";
 import {
   runAgent1,
   runAgent2,
@@ -784,6 +785,11 @@ export async function generateMystery(
       latestProseScore: null,
       nsdTransferTrace: [],
     };
+
+    // ── Retry-gate guard (A_50): at most one retry-bearing enforce gate per run ──
+    const retryGateGuard = evaluateRetryGateGuard();
+    for (const w of retryGateGuard.warnings) ctx.warnings.push(w);
+    if (retryGateGuard.fatal) throw new Error(retryGateGuard.fatal);
 
     // ── Pipeline ────────────────────────────────────────────────────────────
     await runAgent1(ctx);   // Era & Setting Refiner

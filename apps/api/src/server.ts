@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
 import { AzureOpenAIClient, LLMLogger, LogLevel } from "@cml/llm-client";
-import { generateCharacterProfiles } from "@cml/prompts-llm";
+import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
@@ -318,9 +318,7 @@ const buildGamePackPdf = (gamePack: Record<string, unknown>) => {
 };
 
 const buildProsePdf = (prose: Record<string, unknown>, fallbackTitle?: string) => {
-  const title = sanitizePdfLine(
-    (prose.title as string) || fallbackTitle || (prose.note as string) || "Mystery Story"
-  );
+  const title = sanitizePdfLine(deriveStoryTitle(prose, fallbackTitle));
   const chapters = Array.isArray(prose.chapters) ? (prose.chapters as Array<Record<string, unknown>>) : [];
 
   const proseLines: string[] = [`# ${title}`, "", "## Chapters"];
@@ -484,7 +482,7 @@ const splitLongParagraph = (paragraph: string, maxLength = 900) => {
 };
 
 const stripSystemResidue = (value: string) => {
-  if (/^generated in scene batches\.?$/i.test(value.trim())) {
+  if (/^generated in scene batches\b.*$/i.test(value.trim())) {
     return "";
   }
   return value;
@@ -562,7 +560,7 @@ const toStoryFileToken = (projectId: string) => {
 };
 
 const buildReadableStoryText = (prose: Record<string, unknown>, fallbackTitle?: string) => {
-  const title = normalizeProseText(prose.title || prose.note || fallbackTitle || "Mystery Story");
+  const title = normalizeProseText(deriveStoryTitle(prose, fallbackTitle));
   const chapters = Array.isArray(prose.chapters)
     ? (prose.chapters as Array<Record<string, unknown>>)
     : [];
@@ -601,7 +599,7 @@ const buildReadableStoryText = (prose: Record<string, unknown>, fallbackTitle?: 
 };
 
 const saveReadableStoryText = async (projectId: string, prose: Record<string, unknown>, runId: string, fallbackTitle?: string) => {
-  const rawTitle = String(prose.title || prose.note || fallbackTitle || "Mystery Story");
+  const rawTitle = deriveStoryTitle(prose, fallbackTitle);
   const storyTitle = rawTitle
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201C\u201D]/g, '"')
@@ -716,7 +714,10 @@ const runPipeline = async (
 
     // Build mystery generation inputs from spec
     const similarityThreshold = Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || 0.9);
-    const skipNoveltyCheck = String(process.env.NOVELTY_SKIP || "").toLowerCase() === "true" || similarityThreshold >= 1;
+    // Only the explicit operator skip is decided here. The threshold-based skip is the WORKER's call
+    // (agent3-run.ts), which applies effectiveNoveltyThreshold() first — otherwise the raw `>= 1`
+    // here would override the NOVELTY_CROSS_RUN cap and silently disable the audit (P1.1 dead flip).
+    const skipNoveltyCheck = String(process.env.NOVELTY_SKIP || "").toLowerCase() === "true";
 
     const tone = (specPayload?.tone as string | undefined) ?? undefined;
     const narrativeStyle = (specPayload?.narrativeStyle as "classic" | "modern" | "atmospheric")

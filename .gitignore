@@ -44,5 +44,7 @@ Thumbs.db
 # Runtime outputs
 validation/
 data/*.bak
+data/novelty-ledger.json
+data/novelty-ledger*.tmp
 stories/
 scripts/.corpus-cache/

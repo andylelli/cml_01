@@ -9,9 +9,28 @@ import {
   mergePriorRunsIntoConstraints,
   loadNoveltyLedger,
   appendNoveltyLedger,
+  effectiveNoveltyThreshold,
+  CROSS_RUN_NOVELTY_THRESHOLD,
   type PriorRunRecord,
   type NoveltyConstraints,
 } from "../jobs/novelty-ledger.js";
+
+describe("effectiveNoveltyThreshold — flag-coupled gate (T1.6)", () => {
+  it("leaves the threshold untouched when cross-run novelty is OFF (default-safe)", () => {
+    // The static default ≥1.0 must keep skipping the audit when the flag is off.
+    expect(effectiveNoveltyThreshold(1.1, false)).toBe(1.1);
+    expect(effectiveNoveltyThreshold(0.9, false)).toBe(0.9);
+  });
+
+  it("caps the threshold so the audit fires when cross-run novelty is ON", () => {
+    expect(effectiveNoveltyThreshold(1.1, true)).toBe(CROSS_RUN_NOVELTY_THRESHOLD);
+    expect(effectiveNoveltyThreshold(1.1, true)).toBeLessThan(1);
+  });
+
+  it("never raises an already-lower threshold", () => {
+    expect(effectiveNoveltyThreshold(0.5, true)).toBe(0.5);
+  });
+});
 
 const sampleCml = {
   CASE: {

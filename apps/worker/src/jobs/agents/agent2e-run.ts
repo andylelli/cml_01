@@ -13,13 +13,14 @@ import {
   type BackgroundContextArtifact,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { BackgroundContextScorer } from "@cml/story-validation";
+import { BackgroundContextScorer, scoreRealBackground } from "@cml/story-validation";
 import { adaptBackgroundContextForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
   executeAgentWithRetry,
   appendRetryFeedback,
   appendRetryFeedbackOptional,
+  applyHonestScorer,
 } from "./shared.js";
 
 export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
@@ -56,7 +57,22 @@ export async function runAgent2e(ctx: OrchestratorContext): Promise<void> {
           cml: undefined as any,
           threshold_config: { mode: "standard" },
         });
-        return { adapted, score };
+        return {
+          adapted,
+          score: applyHonestScorer(
+            score,
+            () => scoreRealBackground(bgResult.backgroundContext, {
+              castRoster: (((cast.cast as any)?.characters ?? []) as any[]).map((c) => String(c?.name ?? "")).filter(Boolean),
+              agent1Echo: [
+                setting.setting.location?.description,
+                setting.setting.atmosphere?.mood,
+                setting.setting.atmosphere?.visualDescription,
+              ].filter((x): x is string => Boolean(x)),
+            }),
+            ctx.warnings,
+            "agent2e-background",
+          ),
+        };
       },
       ctx.retryManager,
       ctx.scoreAggregator,

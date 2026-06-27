@@ -6,13 +6,23 @@
  * and writes ctx.locationProfiles.
  */
 
-import { generateLocationProfiles, compileSensoryAtoms, extractLocationSpine, checkLocationSpine } from "@cml/prompts-llm";
+import {
+  generateLocationProfiles,
+  compileSensoryAtoms,
+  extractLocationSpine,
+  checkLocationSpine,
+  parseSceneGateMode,
+  checkLocationDistinctness,
+  checkCrimeSceneProfiled,
+  buildSceneGateFeedback,
+} from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { LocationProfilesScorer } from "@cml/story-validation";
+import { LocationProfilesScorer, scoreRealLocations } from "@cml/story-validation";
 import {
   type OrchestratorContext,
   appendRetryFeedback,
   executeAgentWithRetry,
+  applyHonestScorer,
 } from "./shared.js";
 import { adaptLocationsForScoring } from "../scoring-adapters/index.js";
 
@@ -130,7 +140,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
           cml: undefined as any,
           threshold_config: { mode: "standard" },
         });
-        return { adapted, score };
+        return { adapted, score: applyHonestScorer(score, () => scoreRealLocations(locResult), ctx.warnings, "agent2c-location") };
       },
       ctx.retryManager,
       ctx.scoreAggregator,
@@ -214,6 +224,104 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
       }
     } catch (err) {
       ctx.warnings.push(`[agent2c-spine-check][shadow] checker error: ${(err as Error).message}`);
+    }
+  }
+
+  // ── P2.3: Crime-scene profiling (T2.7) + cross-location distinctness gate (T2.8) ──
+  // Default OFF (AGENT2C_SCENE_GATE unset) ⇒ skipped, byte-identical. shadow ⇒ surface findings as
+  // warnings only. enforce ⇒ bounded regenerate-with-feedback while a gate fails, accept the best
+  // candidate (fewest issues), re-validate schema each time, never throw. Runs on the raw
+  // KeyLocation.sensoryDetails arrays (before any lossy scoring adaptation).
+  const sceneGateMode = parseSceneGateMode(process.env.AGENT2C_SCENE_GATE);
+  if (sceneGateMode !== "off" && ctx.locationProfiles) {
+    // Exclude the deterministic fallback atoms from the distinctness comparison — they are injected
+    // identically into every sparse room, so counting them would make distinct rooms collide.
+    const distinctnessOpts = { ignoreAtoms: Object.values(DEFAULT_SENSORY_FALLBACKS).flat() };
+    // NOTE: the outline (and thus the actual murder room) is not known at 2c time, and CASE.meta
+    // .setting.location is the broad setting, not a room — so we do NOT pass it as a crime-scene
+    // hint (it would mismatch every room and force needless retries). The gate only verifies that a
+    // crime-scene-purposed location exists; the room-accuracy fix needs the deferred 2c-after-7 reorder.
+    const countIssues = (profiles: typeof ctx.locationProfiles): number => {
+      const d = checkLocationDistinctness(profiles, distinctnessOpts);
+      const c = checkCrimeSceneProfiled(profiles);
+      return d.issues.length + (c.ok ? 0 : 1);
+    };
+
+    const boundedRetries =
+      sceneGateMode === "enforce"
+        ? Math.min(2, Math.max(0, Math.trunc(Number(process.env.AGENT2C_SCENE_GATE_MAX_RETRIES ?? 1)) || 0))
+        : 0;
+
+    let bestProfiles = ctx.locationProfiles;
+    let bestIssues = countIssues(bestProfiles);
+    let attempt = 0;
+    while (sceneGateMode === "enforce" && bestIssues > 0 && attempt < boundedRetries) {
+      attempt += 1;
+      const feedback = buildSceneGateFeedback(
+        checkLocationDistinctness(bestProfiles, distinctnessOpts),
+        checkCrimeSceneProfiled(bestProfiles),
+      );
+      ctx.warnings.push(
+        `[agent2c-scene-gate][enforce] ${bestIssues} issue(s) (attempt ${attempt}/${boundedRetries}); regenerating with distinctness/crime-scene feedback.`,
+      );
+      const regenStart = Date.now();
+      // True marginal cost via byAgent delta — the generator's returned .cost is a cumulative total.
+      const costLabel = "Agent2c-LocationProfiles";
+      const costBefore = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
+      let regenerated: Awaited<ReturnType<typeof generateLocationProfiles>>;
+      try {
+        regenerated = await generateLocationProfiles(ctx.client, {
+          settingRefinement: ctx.setting!.setting,
+          caseData: ctx.cml!,
+          narrative: ctx.narrative,
+          tone: appendRetryFeedback(ctx.inputs.tone || "Classic", feedback),
+          targetWordCount: 1000,
+          runId: ctx.runId,
+          projectId: ctx.projectId || "",
+        });
+      } catch (err) {
+        // A gate must never kill a run: a regeneration failure keeps the best-so-far.
+        ctx.warnings.push(`[agent2c-scene-gate][enforce] regeneration error: ${(err as Error).message}; keeping previous best.`);
+        break;
+      }
+      const costAfter = ctx.client.getCostTracker().getSummary().byAgent[costLabel] || 0;
+      ctx.agentCosts["agent2c_location_profiles"] =
+        (ctx.agentCosts["agent2c_location_profiles"] || 0) + Math.max(0, costAfter - costBefore);
+      ctx.agentDurations["agent2c_location_profiles"] =
+        (ctx.agentDurations["agent2c_location_profiles"] || 0) + (Date.now() - regenStart);
+
+      const candidate = enforceLocationSensoryFallbacks(compileSensoryAtoms(regenerated), ctx.warnings);
+      const candidateValidation = validateArtifact("location_profiles", candidate);
+      if (!candidateValidation.valid) {
+        ctx.warnings.push(
+          "[agent2c-scene-gate][enforce] regenerated candidate failed schema validation; keeping previous best.",
+        );
+        continue;
+      }
+      const candidateIssues = countIssues(candidate);
+      if (candidateIssues < bestIssues) {
+        bestProfiles = candidate;
+        bestIssues = candidateIssues;
+      }
+    }
+    ctx.locationProfiles = bestProfiles;
+
+    // Surface the final findings (shadow always; enforce after exhaustion).
+    const finalDistinct = checkLocationDistinctness(bestProfiles, distinctnessOpts);
+    const finalCrimeScene = checkCrimeSceneProfiled(bestProfiles);
+    const gateState =
+      sceneGateMode === "enforce" ? (bestIssues === 0 ? "pass" : `accept-after-${attempt}`) : "shadow";
+    ctx.warnings.push(
+      `[agent2c-scene-gate][${sceneGateMode}] gate=${gateState} crimeScene=${finalCrimeScene.ok} ` +
+        `distinctnessIssues=${finalDistinct.issues.length}`,
+    );
+    if (!finalCrimeScene.ok && finalCrimeScene.issue) {
+      ctx.warnings.push(`[agent2c-scene-gate][${sceneGateMode}] ${finalCrimeScene.issue}`);
+    }
+    for (const issue of finalDistinct.issues) {
+      ctx.warnings.push(
+        `[agent2c-scene-gate][${sceneGateMode}] ${issue.a} ↔ ${issue.b}: ${issue.detail}`,
+      );
     }
   }
 

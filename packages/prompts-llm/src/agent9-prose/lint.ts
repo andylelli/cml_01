@@ -132,6 +132,11 @@ export const lintBatchProse = (
     victimNames?: string[];
     /** Section 10: when enabled, hard-fail malformed quote/apostrophe boundary corruption. */
     boundaryIntegrityGateEnabled?: boolean;
+    /** Cast/character full names. Their name tokens are excluded from the repeated-opener gate:
+     *  in dialogue-driven prose a paragraph naturally opens with a character name, which is content,
+     *  not scaffold "template bleed". Without this, a chapter that opens 3+ paragraphs with the same
+     *  cast name false-fails (the dominant failure mode on small-cast runs). */
+    castNames?: string[];
   },
 ): ProseLinterIssue[] => {
   const issues: ProseLinterIssue[] = [];
@@ -262,6 +267,15 @@ export const lintBatchProse = (
   // following attempt (the "whack-a-mole" that burned the per-chapter retry budget). Each
   // distinct opener is emitted as its own issue so the singular message + the feedback regex
   // (`repeated content opener detected ("X")`) are preserved while every opener reaches the retry.
+  // Character-name tokens are content, not scaffold: a paragraph opening with a cast name is
+  // natural in dialogue-driven prose and must not trip the "template bleed" opener gate.
+  const nameOpenerTokens = new Set<string>();
+  for (const name of options?.castNames ?? []) {
+    for (const token of tokenizeWords(String(name ?? ""))) nameOpenerTokens.add(token);
+  }
+  const isNonScaffoldOpener = (token: string): boolean =>
+    isMeaningfulOpenerToken(token) && !nameOpenerTokens.has(token);
+
   for (const chapter of batchChapters) {
     const firstWordCounts = new Map<string, number>();
     const firstTwoWordsSeen = new Set<string>();
@@ -271,9 +285,9 @@ export const lintBatchProse = (
       if (tokens.length === 0) continue;
       const firstWord = tokens[0];
       const firstTwoWords = tokens.length >= 2 ? `${tokens[0]} ${tokens[1]}` : tokens[0];
-      const firstWordMeaningful = isMeaningfulOpenerToken(firstWord);
+      const firstWordMeaningful = isNonScaffoldOpener(firstWord);
       const firstTwoWordsMeaningful =
-        tokens.length >= 2 && isMeaningfulOpenerToken(tokens[0]) && isMeaningfulOpenerToken(tokens[1]);
+        tokens.length >= 2 && isNonScaffoldOpener(tokens[0]) && isNonScaffoldOpener(tokens[1]);
       const currentFirstWordCount = firstWordMeaningful ? (firstWordCounts.get(firstWord) ?? 0) + 1 : 0;
 
       let offendingOpener: string | null = null;

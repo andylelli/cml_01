@@ -118,6 +118,26 @@ const TEMPLATE_LEAKAGE = [
   /^\s*at \w+,\s+(early|late|mid)[- ]?(morning|afternoon|evening|night)?\b/im, // "At Study, Early afternoon settled…"
   /\bthe (?:doctor|captain|inspector|professor|colonel|major|sergeant|constable|lady|lord|sir) [A-Z]\w+/, // "the doctor Finch"
   /\b(\w{3,})\s+\1\b/i, // doubled words (3+ letters)
+  // Deterministic-repair FALLBACK scaffold (A_50 Fix #1, run_2026-06-25 external re-score): canned
+  // meta-narration + composeKeyTermPhrase comma-token dumps that the completion-first fallback
+  // committed into shipped prose. Each is a fixed template string → high precision, no false positives
+  // on genuine prose. (deterministic-repair.ts ~280-292, 368-371, 823.)
+  /\btreated those facts as observable evidence\b/i,
+  /\bsurfaced the next hard detail\b/i,
+  /\bput concrete details where everyone could see\b/i,
+  /\bsaw the evidence narrow toward\b/i,
+  /\bjudged the standing explanation weakened\b/i,
+  /\bthe comparison turned on\b/i,
+  /\bplain enough for every witness to read\b/i,
+  /\bmatched each observable result\b/i,
+  /\bhandled as things seen, touched, compared\b/i,
+  // composeKeyTermPhrase machine evidence-TABLE: 2+ semicolon-separated runs of ≥3 comma-joined
+  // lowercase single words (e.g. "clock, displays, time; clock, shows, body, discovered; …"). This
+  // shape never occurs in genuine prose, so it is high-precision — unlike a bare comma run, which
+  // collides with ordinary 5+ item / Oxford lists ("cold, wet, tired, hungry, and afraid"). Bare
+  // single-run dumps are prevented at source (composeProseTermPhrase) and flagged by the canned
+  // scaffold phrases that always accompany them.
+  /\b[a-z]{2,}(?:,\s+[a-z]{2,}){2,};\s*[a-z]{2,}(?:,\s+[a-z]{2,}){2,}/,
 ];
 
 /**

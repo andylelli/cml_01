@@ -25,6 +25,7 @@ export interface CharacterProfileOutput {
   humourStyle?: "understatement" | "dry_wit" | "polite_savagery" | "self_deprecating" | "observational" | "deadpan" | "sardonic" | "blunt" | "none";
   humourLevel?: number;
   speechMannerisms?: string;
+  signatureTic?: string;
   internalConflict?: string;
   personalStakeInCase?: string;
   paragraphs: string[];
@@ -78,7 +79,7 @@ const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: s
   const developer = `# Character Profiles Output Schema\nReturn JSON with this structure:\n\n{\n  "status": "draft",\n  "tone": "${tone}",\n  "targetWordCount": ${targetWordCount},\n  "profiles": [\n    {\n      "name": "Name",\n      "summary": "1-2 sentence overview",\n      "publicPersona": "...",\n      "privateSecret": "...",\n      "motiveSeed": "...",\n      "motiveStrength": "weak|moderate|strong|compelling",\n      "alibiWindow": "...",\n      "accessPlausibility": "...",\n      "stakes": "...",
       "humourStyle": "understatement|dry_wit|polite_savagery|self_deprecating|observational|deadpan|sardonic|blunt|none",
       "humourLevel": 0.0,
-      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      "internalConflict": "Psychological tension or moral struggle (e.g. guilt, conflicted loyalty, fear of what the truth means)",\n      "personalStakeInCase": "Why this crime matters personally — REQUIRED for detective, recommended for others",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
+      "speechMannerisms": "Brief description of speech patterns, verbal tics, and dialogue mannerisms",\n      "signatureTic": "ONE short quotable verbal tic unique to this character (a recurring phrase or habit Agent 9 can put in their mouth)",\n      "internalConflict": "Psychological tension or moral struggle (e.g. guilt, conflicted loyalty, fear of what the truth means)",\n      "personalStakeInCase": "Why this crime matters personally — REQUIRED for detective, recommended for others",\n      "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3", "Paragraph 4"],\n      "order": 1\n    }\n  ],\n  "note": ""\n}\n\nRequirements:\n- One profile per cast member (${inputs.cast.characters.length}).\n- 4-6 paragraphs per profile (target ~${targetWordCount} words each).\n- Use tone: ${tone}.\n- Keep all facts consistent with the cast details and CML.
 
 DETECTIVE PERSONAL STAKE (REQUIRED):
 - The detective character MUST have both 'internalConflict' and 'personalStakeInCase' filled.
@@ -113,7 +114,7 @@ VOICE DISTINCTNESS (critical — the dialogue must not all sound the same):
   cold and exact, one nervous and hedging. No two characters should share the same register.
 - Give each character ONE concrete, quotable verbal tic (a recurring phrase, a habit of answering
   questions with questions, a regional idiom, dropping into jargon) that is theirs alone — something
-  Agent 9 can literally put in their mouth, not an abstract description.
+  Agent 9 can literally put in their mouth, not an abstract description. Record it in the "signatureTic" field.
 
 Quality bar:
 - Every profile must create a usable prose voice (speechMannerisms + internalConflict + personalStakeInCase all concrete, not placeholders).

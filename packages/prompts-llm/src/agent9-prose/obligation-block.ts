@@ -3,7 +3,7 @@
  * buildChapterObligationBlock â€” the combined clue-obligation / NSD context block
  * injected into every prose prompt.
  */
-import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
+import { deriveClueObservable, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
 import { getGenerationParams } from "@cml/story-validation";
 import {
   ARC_POS_TO_SCENE_TYPE,
@@ -400,7 +400,7 @@ export function buildChapterObligationBlock(
           const earlyFlag = clue.placement === 'early'
             ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
-          lines.push(`    • ${surfaceSpecKeyTerms(String(clue.description ?? ''))} [${clueId}]${earlyFlag}`);
+          lines.push(`    • ${surfaceSpecKeyTerms(deriveClueObservable(clue))} [${clueId}]${earlyFlag}`);
           if (isDeferredReveal) {
             // Reveal-class clue in a pre-reveal chapter: surface the OBSERVABLE anomaly but
             // withhold the solution. The "Points to" (who it implicates) line and the

@@ -44,6 +44,29 @@ describe("§3.2 golden — validation-gated mutation REVERTS the grounding-lead 
     expect(detectTemplateLeakage("Gray crossed to the window and watched the rain.")).toEqual([]);
   });
 
+  it("A_50 Fix #1: catches deterministic-fallback scaffold leakage (the external re-score's exact strings)", () => {
+    // Canned meta-narration + leads.
+    expect(detectTemplateLeakage("The chapter treated those facts as observable evidence, not rumor.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("Beatrice Quill surfaced the next hard detail before the scene could drift.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("Weighing the facts, she saw the evidence narrow toward Hale.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("The comparison turned on clock, displays, time, clearly.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("the result was plain enough for every witness to read for themselves.").length).toBeGreaterThan(0);
+    // composeKeyTermPhrase machine evidence-TABLE (2+ semicolon-separated comma-runs) — the line-227 shape.
+    expect(detectTemplateLeakage("It hinged on clock, displays, time; clock, shows, body, discovered; witnesses, provide, accounts.").length).toBeGreaterThan(0);
+  });
+
+  it("A_50 Fix #1: does NOT flag the repaired (readable, space-joined) fallback prose or natural lists", () => {
+    // The new composeProseTermPhrase rendering + rephrased scaffold sentences.
+    expect(detectTemplateLeakage("Beatrice pressed on to the next concrete detail: Captain ivor hale seen acting nervously.")).toEqual([]);
+    expect(detectTemplateLeakage("Beatrice weighed Captain ivor hale seen acting nervously, and the trail bent toward Hale.")).toEqual([]);
+    expect(detectTemplateLeakage("It hinged on the clock displays time, and the result was there for everyone present to see.")).toEqual([]);
+    // Natural lists — including 5+ item / Oxford / asyndeton — must NOT trip the table pattern
+    // (the bare-single-run false positive the review caught; a bare dump is prevented at source instead).
+    expect(detectTemplateLeakage("The room smelled of beeswax, old paper, and cold ash.")).toEqual([]);
+    expect(detectTemplateLeakage("He was cold, wet, tired, hungry, and afraid.")).toEqual([]);
+    expect(detectTemplateLeakage("She paused, considered, sighed, nodded, continued.")).toEqual([]);
+  });
+
   it("a genuinely lossless mutation (it doesn't regress) IS allowed to ship", () => {
     const addTitle = (p: string): string => p.replace(/^/, ""); // no-op-ish, regresses nothing
     const outcome = mutateThenValidate(cleanChapter, addTitle, noMetadataDumpValidator);

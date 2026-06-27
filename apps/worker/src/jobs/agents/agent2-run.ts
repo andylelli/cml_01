@@ -13,7 +13,7 @@ import {
   type NameGeneratorContext,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { CastDesignScorer } from "@cml/story-validation";
+import { CastDesignScorer, scoreRealCast } from "@cml/story-validation";
 import { adaptCastForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
@@ -21,6 +21,7 @@ import {
   appendRetryFeedback,
   preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
+  applyHonestScorer,
 } from "./shared.js";
 
 /**
@@ -388,7 +389,15 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
           cml: undefined as any,
           threshold_config: { mode: "standard" },
         });
-        return { adapted, score };
+        return {
+          adapted,
+          score: applyHonestScorer(
+            score,
+            () => scoreRealCast(castResult.cast, checkCast(castResult.cast, { expectedCount: scorerInput.cast_size }), { expectedCount: scorerInput.cast_size }),
+            ctx.warnings,
+            "agent2-cast",
+          ),
+        };
       },
       ctx.retryManager,
       ctx.scoreAggregator,

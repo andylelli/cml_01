@@ -108,6 +108,17 @@ export { SettingRefinementScorer } from './phase-scorers/agent1-setting-refineme
 export { ProseScorer } from './phase-scorers/agent9-prose-scorer.js';
 export { Agent65WorldBuilderScorer } from './phase-scorers/agent65-world-builder-scorer.js';
 
+// Honest scorers (ANALYSIS_50 Phase 3 — grade the REAL artifact; default OFF, off/shadow/enforce)
+export { parseHonestScorerMode, assembleHonestScore, normalizeAtom } from './honest-scorer.js';
+export type { HonestScorerMode } from './honest-scorer.js';
+export { scoreRealCast } from './phase-scorers/agent2-cast-real-scorer.js';
+export { scoreRealSetting } from './phase-scorers/agent1-setting-real-scorer.js';
+export { scoreRealLocations } from './phase-scorers/agent2c-location-real-scorer.js';
+export { scoreRealBackground } from './phase-scorers/agent2e-background-real-scorer.js';
+export { scoreRealCml } from './phase-scorers/agent3-cml-real-scorer.js';
+export { scoreRealHardLogic } from './phase-scorers/agent3b-device-real-scorer.js';
+export { scoreRealNarrative } from './phase-scorers/agent7-narrative-real-scorer.js';
+
 // Retry feedback
 export { 
   buildRetryFeedback, 

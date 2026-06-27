@@ -124,3 +124,69 @@ export function getStoryLengthTargetMetadata(length?: string) {
   } as const;
 }
 
+// ---------------------------------------------------------------------------
+// P1.3 — per-scene word budget (Agent 7 scheduler-authority lever)
+// ---------------------------------------------------------------------------
+
+export interface SceneWordBudgetInput {
+  /** The scene's own estimate from Agent 7 / the deterministic scheduler, if any. */
+  sceneEstimate?: number;
+  /** The uniform prompt-preferred target for this length (today's floor). */
+  chapterTargetWords: number;
+  /** The hard floor below which a chapter fails length validation. */
+  hardFloorWords: number;
+  /** When true, the scheduler's per-scene budget is authoritative (P1.3 flag). */
+  authoritative: boolean;
+}
+
+/**
+ * P1.3 — resolve the per-scene word budget fed to the Agent 9 prose prompt.
+ *
+ * Default (`authoritative === false`) reproduces today's behaviour EXACTLY: floor every scene up to
+ * the single uniform `chapterTargetWords`, which makes every chapter the same length — a known
+ * cause of flat pacing. When the scheduler is authoritative, the scene's OWN budget is respected and
+ * merely clamped into a sane band, so climactic and transitional chapters can legitimately differ in
+ * length while never dropping below the validation hard floor.
+ */
+export function resolveSceneWordBudget(input: SceneWordBudgetInput): number {
+  const { sceneEstimate, chapterTargetWords, hardFloorWords, authoritative } = input;
+  const estimate =
+    typeof sceneEstimate === 'number' && Number.isFinite(sceneEstimate) ? sceneEstimate : 0;
+
+  if (!authoritative) {
+    return Math.max(estimate, chapterTargetWords);
+  }
+
+  const ceil = Math.round(chapterTargetWords * 1.6);
+  const floor = Math.max(hardFloorWords, Math.round(chapterTargetWords * 0.7));
+  const base = estimate > 0 ? estimate : chapterTargetWords;
+  return Math.min(ceil, Math.max(floor, base));
+}
+
+/**
+ * P1.3 — deterministic per-chapter word budget shaped to a three-act pacing curve: leaner setup,
+ * ideal-length rising action, fuller climax, settled denouement. Each value is clamped to
+ * [chapterMinWords, 1.6 × ideal] so the run never falls below the length hard floor. Returns one
+ * budget per scene, in scene order.
+ */
+export function distributeChapterWordBudget(sceneCount: number, length?: string): number[] {
+  const t = getStoryLengthTarget(length);
+  const ideal = t.chapterIdealWords;
+  const floor = t.chapterMinWords;
+  const ceil = Math.round(ideal * 1.6);
+  const n = Number.isFinite(sceneCount) ? Math.max(0, Math.floor(sceneCount)) : 0;
+
+  const budgets: number[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const p = n > 1 ? i / (n - 1) : 0; // normalized position 0..1
+    let weight: number;
+    if (p < 0.3) weight = 0.9;        // Act I — setup, leaner
+    else if (p < 0.75) weight = 1.0;  // Act II — rising action, ideal
+    else if (p < 0.95) weight = 1.18; // climax — fuller chapters
+    else weight = 1.0;                // denouement — settle back
+    const raw = Math.round((ideal * weight) / 50) * 50;
+    budgets.push(Math.min(ceil, Math.max(floor, raw)));
+  }
+  return budgets;
+}
+

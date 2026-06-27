@@ -158,6 +158,59 @@ import {
   polishPassingChapter,
 } from "../agent9-prose.ts";
 import type { ProseGenerationResult } from "../agent9-prose.ts";
+import { hasAffirmativePrematureResolution, composeKeyTermPhrase, composeProseTermPhrase } from "../agent9-prose/clue-validation.ts";
+
+// ── composeProseTermPhrase (A_50 Fix #1 — readable de-spoiled rendering) ──────
+describe("composeProseTermPhrase — same de-spoiled terms, readable (no comma-dump)", () => {
+  it("space-joins + sentence-cases instead of comma-lowercase", () => {
+    const input = "Captain Ivor Hale seen acting nervously";
+    expect(composeKeyTermPhrase(input)).toContain(", "); // legacy: comma-token dump
+    const prose = composeProseTermPhrase(input);
+    expect(prose).not.toContain(", "); // readable: no comma-token dump
+    expect(prose.charAt(0)).toBe(prose.charAt(0).toUpperCase()); // sentence-cased
+    expect(prose.split(" ").length).toBeGreaterThan(1);
+  });
+  it("returns '' for empty input (caller falls through to generic language)", () => {
+    expect(composeProseTermPhrase("")).toBe("");
+    expect(composeProseTermPhrase("   ")).toBe("");
+  });
+  it("neutralizes control-plane phrases the space-join would otherwise re-form (keeps the words)", () => {
+    const a = composeProseTermPhrase("Direct evidence links Lady Eleanor to the mechanism access point");
+    expect(a).not.toMatch(/direct evidence (links|ties)/i);
+    expect(a).not.toMatch(/mechanism access point/i);
+    expect(a.toLowerCase()).toContain("eleanor"); // content token preserved (clue presence)
+    expect(composeProseTermPhrase("Eliminates Carter because the alibi holds")).not.toMatch(/^eliminates/i);
+  });
+});
+
+// ── hasAffirmativePrematureResolution (suspect_pressure gate) ─────────────────
+describe("hasAffirmativePrematureResolution — genuine resolution only, no false positives", () => {
+  it("does NOT flag ordinary suspect-pressure prose (the live-run false positives)", () => {
+    for (const sentence of [
+      "But I confess, I lost track of time entirely.",
+      "Her confession hung in the air, another thread in the tangled web of the evening.",
+      "When I asked you yesterday about the mechanism, you confessed you had never touched it.",
+      "Time itself had been arrested by violence, the lobby clock unmoving.",
+      "The murderer was still among them, hidden behind a polite smile.",
+      "The killer was careful to leave no trace.",
+    ]) {
+      expect(hasAffirmativePrematureResolution(sentence)).toBe(false);
+    }
+  });
+
+  it("DOES flag a genuine culprit resolution", () => {
+    for (const sentence of [
+      "Eleanor confessed to the murder before the assembled guests.",
+      "She confessed she had killed him with the winding key.",
+      "\"You're under arrest, Captain Hale,\" said the inspector.",
+      "The case is closed: the evidence was overwhelming.",
+      "The murderer is Eleanor Voss, and the proof is in the clock.",
+      "I accuse you, Captain — you stopped the clock yourself.",
+    ]) {
+      expect(hasAffirmativePrematureResolution(sentence)).toBe(true);
+    }
+  });
+});
 
 // ── formatProvisionalScoringFeedbackBlock ────────────────────────────────────
 describe("formatProvisionalScoringFeedbackBlock", () => {
@@ -1441,6 +1494,24 @@ describe("Agent 9 prompt hardening fixes", () => {
 
     expect(issues.some((issue) => issue.type === "banned_phrase")).toBe(true);
     expect(issues.some((issue) => /banned phrase detected/i.test(issue.message))).toBe(true);
+  });
+
+  it("repeated-opener gate excludes cast names (dialogue prose opening with a character name)", () => {
+    const chapter = {
+      title: "1",
+      paragraphs: [
+        "Beatrice crossed to the window and watched the rain.",
+        "Beatrice turned back to the room, her jaw set.",
+        "Beatrice would not be the first to speak, she decided.",
+        "The clock on the mantel ticked into the silence.",
+      ],
+    };
+    // Without a cast roster, the character-name opener still trips the gate (legacy behaviour).
+    const before = lintBatchProse([chapter] as any, [], [], {});
+    expect(before.some((i) => /repeated content opener detected \("beatrice"\)/i.test(i.message))).toBe(true);
+    // With the cast roster, "Beatrice" is content, not scaffold — no template_bleed false positive.
+    const after = lintBatchProse([chapter] as any, [], [], { castNames: ["Beatrice Quill"] });
+    expect(after.some((i) => /repeated content opener detected \("beatrice"\)/i.test(i.message))).toBe(false);
   });
 
   it("Section 10 protects mechanical spring collocations during season lock rewrites", () => {

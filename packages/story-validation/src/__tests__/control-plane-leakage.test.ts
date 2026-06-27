@@ -74,4 +74,25 @@ describe('detectControlPlaneLeakage — schema/outline reasoning patterns', () =
     const findings = detectControlPlaneLeakage(prose);
     expect(findings.filter((f) => f.code.startsWith('reasoning_leak'))).toHaveLength(0);
   });
+
+  describe('contract_term is scaffold-qualified (not the ordinary English word)', () => {
+    it('does NOT flag the verb/noun "contract" in ordinary prose', () => {
+      for (const prose of [
+        'The storm pressed close, making the walls seem to contract around the anxious guests.',
+        'She produced the marriage contract and laid it on the table.',
+        'He had begun to contract a fever by the third night.',
+      ]) {
+        expect(detectControlPlaneLeakage(prose).map((f) => f.code)).not.toContain('contract_term');
+      }
+    });
+    it('still flags genuine scaffold contract terminology', () => {
+      for (const prose of [
+        'This chapter satisfies the obligation contract for the discovery beat.',
+        'The chapter contract requires three clues before the reveal.',
+        'Each scene must meet its contract requirements before commit.',
+      ]) {
+        expect(detectControlPlaneLeakage(prose).map((f) => f.code)).toContain('contract_term');
+      }
+    });
+  });
 });

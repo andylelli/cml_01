@@ -38,6 +38,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
+import { deriveStoryTitle } from "@cml/prompts-llm";
 import { createLLMRubricJudge, scoreStory } from "@cml/rubric-score";
 
 import { runAgent9 } from "./agents/agent9-run.js";
@@ -154,7 +155,7 @@ function saveReadableStory(
   storyDir: string,
   fallbackTitle: string,
 ): { filePath: string; slug: string; title: string } {
-  const storyTitle = normalizeText(prose?.title || prose?.note || fallbackTitle || "Mystery Story") || "Mystery Story";
+  const storyTitle = normalizeText(deriveStoryTitle(prose, fallbackTitle)) || "Mystery Story";
   const slug =
     storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48) || "story";
   const chapters: any[] = Array.isArray(prose?.chapters) ? prose.chapters : [];

@@ -5,6 +5,7 @@
  */
 import { getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
 import type { AzureOpenAIClient } from "@cml/llm-client";
+import { deriveClueObservable } from "../agent5-clues.js";
 import type { ClueDistributionResult, Clue } from "../agent5-clues.js";
 import type { BatchGateName, BatchCommitRecord } from "../contracts/batch-commit-record.js";
 import type {
@@ -396,6 +397,30 @@ export const composeKeyTermPhrase = (value: string, max = 6): string =>
   Array.from(new Set(tokenizeForClueObligation(String(value ?? "")))).slice(0, max).join(", ");
 
 /**
+ * A_50 Fix #1: prose-facing rendering of the SAME de-spoiled key terms as composeKeyTermPhrase, but
+ * space-joined + sentence-cased instead of comma-lowercase-joined. The comma-token form
+ * ("captain, ivor, hale, seen, acting, nervously") reads as a machine dump and tripped the external
+ * re-score; this reformats the already-tokenized terms into a readable clause without re-introducing
+ * any spec/reasoning leakage (the de-spoiling is preserved — same tokens, different join). Returns ''
+ * when no usable terms remain.
+ */
+export const composeProseTermPhrase = (value: string, max = 6): string => {
+  const phrase = Array.from(new Set(tokenizeForClueObligation(String(value ?? "")))).slice(0, max).join(" ");
+  if (!phrase) return phrase;
+  // Space-joining de-spoiled tokens can re-form a control-plane/reasoning phrase the comma form broke
+  // ("direct evidence links", "mechanism access point", a leading "Eliminates"). Neutralize those
+  // specific adjacencies — keep every token (clue-presence is preserved) but break the exact phrase
+  // the control-plane-leakage detector matches. Full coverage arrives with P1.2 observables.
+  const neutralized = phrase
+    .replace(/\bdirect evidence (links?|ties?)\b/gi, (_m, v) => `evidence ${v} directly`)
+    .replace(/\bmechanism access point\b/gi, "access point and mechanism")
+    .replace(/\bcompeting (?:suspect )?timelines\b/gi, "the rival timelines")
+    .replace(/\bnarrowing the solution\b/gi, "the solution narrowed")
+    .replace(/^(eliminates|excludes)\b/i, (m) => (m.toLowerCase() === "excludes" ? "rules out" : "clears"));
+  return neutralized.charAt(0).toUpperCase() + neutralized.slice(1);
+};
+
+/**
  * Remove tokens that are proper-name words from non-cast characters.
  * A token is considered a non-cast proper-name token if it appears as a
  * capitalized word (≥ 3 chars) in `rawDescription` AND is not a substring of
@@ -525,7 +550,10 @@ export const buildChapterRequirementLedger = (
       const mappingEntry = mappingEntryMap.get(id);
       return {
         id,
-        description: distClue?.description ?? mappingEntry?.delivery_method ?? undefined,
+        // P1.2: the obligation presence-check must look for the de-spoiled OBSERVABLE that Agent 9
+        // is actually told to write (obligation-block.ts), not the raw spec sentence. Falls back to
+        // description when no observable is emitted, so this is byte-identical until P1.2 activates.
+        description: (distClue ? deriveClueObservable(distClue) : undefined) ?? mappingEntry?.delivery_method ?? undefined,
         placement: distClue?.placement ?? (Number(mappingEntry?.act_number) === 1 ? 'early' : undefined),
         deliveryMethod: mappingEntry?.delivery_method ?? undefined,
       };
@@ -626,15 +654,18 @@ export const chapterMentionsRequiredClue = (
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || "") === clueId);
   if (!clue) return false;
 
-  const descIsGenreLabel = isDeliveryMethodLabel(clue.description);
-  // When description is a delivery-method label (e.g. "Direct observation"), its tokens
+  // P1.2: validate against the on-page OBSERVABLE (what Agent 9 is told to write), not the spec
+  // sentence. deriveClueObservable falls back to description, so this is byte-identical until P1.2.
+  const onPage = deriveClueObservable(clue);
+  const descIsGenreLabel = isDeliveryMethodLabel(onPage);
+  // When the on-page text is a delivery-method label (e.g. "Direct observation"), its tokens
   // ("direct", "observation") never appear in narrative prose.  Use only pointsTo tokens.
   // If pointsTo is also empty, the clue metadata is incomplete — pass rather than
   // false-failing every attempt.
   const rawTokens = descIsGenreLabel
     ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? "")))).slice(0, 10)
     : Array.from(new Set([
-        ...tokenizeForClueObligation(String(clue.description ?? "")),
+        ...tokenizeForClueObligation(String(onPage ?? "")),
         ...tokenizeForClueObligation(String(clue.pointsTo ?? "")),
       ])).slice(0, 10);
 
@@ -642,7 +673,7 @@ export const chapterMentionsRequiredClue = (
   // by Agent 5 referencing source-text characters (not in the prose cast) don't
   // perpetually fail the token-match threshold.  Only applies when castNames is provided.
   const tokens = castNames?.length
-    ? filterNonCastProperNameTokens(rawTokens, String(clue.description ?? ''), castNames)
+    ? filterNonCastProperNameTokens(rawTokens, String(onPage ?? ''), castNames)
     : rawTokens;
 
   // Genre-label clue with no usable pointsTo tokens — metadata is insufficient for
@@ -653,15 +684,15 @@ export const chapterMentionsRequiredClue = (
   // Behavioural/emotional clues use synonym-rich vocabulary — relax to 0.35 so e.g.
   // "nervousness" is satisfied by "fidgeted", "uneasy", "agitated" (R35 abort root cause).
   const factualThreshold = 0.55;
-  const behaviouralThreshold = isBehaviouralClue(clue?.description ?? '') ? 0.35 : factualThreshold;
+  const behaviouralThreshold = isBehaviouralClue(onPage ?? '') ? 0.35 : factualThreshold;
   const requiredMatches = Math.max(1, Math.ceil(tokens.length * behaviouralThreshold));
   if (matched.length >= requiredMatches) {
     return true;
   }
 
   // Semantic anchor fallback: allows clues to pass when prose uses equivalent observational
-  // language derived from upstream clue intent (description + pointsTo), not brittle phrase echoes.
-  const semanticFamilies = buildClueSemanticAnchorFamilies(clue?.description, clue?.pointsTo);
+  // language derived from upstream clue intent (observable + pointsTo), not brittle phrase echoes.
+  const semanticFamilies = buildClueSemanticAnchorFamilies(onPage, clue?.pointsTo);
   if (semanticFamilies.length > 0) {
     const requiredFamilies = Math.min(2, semanticFamilies.length);
     const familyHits = semanticAnchorFamiliesMatched(chapterText, semanticFamilies);
@@ -693,17 +724,19 @@ export const chapterClueAppearsEarly = (
   const clue = (clueDistribution?.clues ?? []).find((entry) => String(entry?.id || '') === clueId);
   if (!clue) return false;
 
-  const descIsGenreLabel = isDeliveryMethodLabel(clue.description);
+  // P1.2: match the on-page OBSERVABLE (falls back to description ⇒ byte-identical until P1.2).
+  const onPage = deriveClueObservable(clue);
+  const descIsGenreLabel = isDeliveryMethodLabel(onPage);
   const rawTokens = descIsGenreLabel
     ? Array.from(new Set(tokenizeForClueObligation(String(clue.pointsTo ?? '')))).slice(0, 10)
     : Array.from(new Set([
-        ...tokenizeForClueObligation(String(clue.description ?? '')),
+        ...tokenizeForClueObligation(String(onPage ?? '')),
         ...tokenizeForClueObligation(String(clue.pointsTo ?? '')),
       ])).slice(0, 10);
 
   // Strip proper-name tokens from non-cast characters (same logic as chapterMentionsRequiredClue).
   const tokens = castNames?.length
-    ? filterNonCastProperNameTokens(rawTokens, String(clue.description ?? ''), castNames)
+    ? filterNonCastProperNameTokens(rawTokens, String(onPage ?? ''), castNames)
     : rawTokens;
 
   if (tokens.length === 0) return descIsGenreLabel ? true : false;
@@ -718,7 +751,7 @@ export const chapterClueAppearsEarly = (
     return true;
   }
 
-  const semanticFamilies = buildClueSemanticAnchorFamilies(clue?.description, clue?.pointsTo);
+  const semanticFamilies = buildClueSemanticAnchorFamilies(onPage, clue?.pointsTo);
   if (semanticFamilies.length > 0) {
     // Early check is observational: require at least one anchor family in the opening window.
     return semanticAnchorFamiliesMatched(earlyText, semanticFamilies) >= 1;
@@ -872,8 +905,29 @@ export const proseSurfacesDeathMethod = (proseLower: string, method: string): bo
   );
 };
 
-const AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE =
-  /\b(?:confess(?:ed|es|ion)|arrest(?:ed)?|under arrest|case closed|guilty beyond doubt|the culprit (?:is|was)|the murderer (?:is|was)|the killer (?:is|was)|i accuse|i name)\b/i;
+// A "full culprit resolution" is a genuine end-of-mystery beat, NOT the ordinary appearance of the
+// words "confess"/"arrest". The earlier bare regex false-fired on suspect-pressure prose that is
+// exactly what the stage is FOR — a suspect confessing a *secret* ("I confess, I lost track of
+// time"; "her confession hung in the air"), a metaphor ("time arrested by violence"), or suspense
+// ("the murderer was still among them"). Each branch below now requires the resolution to be tied
+// to the crime / an actual arrest / a named accusation. (Per-sentence [^.!?] guards never span
+// sentences, so confession-then-unrelated-clause cannot match.)
+const AFFIRMATIVE_SUSPECT_PRESSURE_RESOLUTION_RE = new RegExp(
+  [
+    // confession tied to the crime (not a secret, alibi, or "I confess I was late")
+    /\bconfess(?:ed|es|ing|ion)?\b[^.!?]{0,40}\b(?:murder(?:ed)?|kill(?:ed|ing|er)?|crime|poison(?:ed|ing)?|stabb(?:ed|ing)|strangl\w+|did it|guilt)\b/.source,
+    // a real arrest (not the metaphor "arrested by violence")
+    /\b(?:under arrest|placed under arrest|you(?:'re| are) under arrest|made an arrest|arrest(?:ed|ing)? (?:him|her|them|the (?:suspect|culprit|murderer|killer)))\b/.source,
+    // the case explicitly declared solved
+    /\bcase (?:is )?closed\b|\bguilty beyond (?:all )?(?:reasonable )?doubt\b/.source,
+    // explicit accusation / naming the culprit
+    /\bi accuse you\b|\bi name (?:the (?:culprit|murderer|killer)|you|him|her)\b/.source,
+    // "the culprit/murderer/killer is/was X" — excluding suspense continuations (no name follows)
+    /\bthe (?:culprit|murderer|killer) (?:is|was)(?! (?:still|someone|some|among|amongst|here|near|in this|in the|out there|one of|not|never|no |a |an |the |loose|free|gone|clever|careful|cunning|cold|nowhere))/
+      .source,
+  ].join("|"),
+  "i",
+);
 
 const NEGATED_RESOLUTION_RE =
   /\b(?:no|not|never|without|still no|not yet|had not|did not|could not|would not)\b[^.!?]{0,40}\b(?:confess(?:ed|es|ion)|arrest(?:ed)?|accusation|culprit|murderer|killer|guilty)\b/i;

@@ -738,7 +738,7 @@ export async function blindReaderSimulation(
   clues: ClueDistributionResult,
   falseAssumption: string,
   castNames: string[],
-  inputs: { runId?: string; projectId?: string }
+  inputs: { runId?: string; projectId?: string; placementFilter?: Array<"early" | "mid" | "late"> }
 ): Promise<BlindReaderResult> {
   const config = getGenerationParams().agent6_fairplay.params;
   const startTime = Date.now();
@@ -748,7 +748,14 @@ export async function blindReaderSimulation(
     "story. You do NOT know the solution, the inference path, or the detective reasoning. " +
     "You must work it out from the clues alone.";
 
-  const clueList = clues.clues
+  // P2.1/T2.1: an optional placement filter lets the runner simulate an early+mid-only reader
+  // (the "fooled" stage) without the late reversal clue. Default = all clues (legacy behaviour).
+  const placementFilter = inputs.placementFilter;
+  const visibleClues = placementFilter
+    ? clues.clues.filter((c) => placementFilter.includes(c.placement as "early" | "mid" | "late"))
+    : clues.clues;
+
+  const clueList = visibleClues
     .slice()
     .sort((a, b) => {
       const order: Record<string, number> = { early: 0, mid: 1, late: 2 };

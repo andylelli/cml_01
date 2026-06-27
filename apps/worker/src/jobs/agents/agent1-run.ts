@@ -7,7 +7,7 @@
 
 import { refineSetting } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
-import { SettingRefinementScorer } from "@cml/story-validation";
+import { SettingRefinementScorer, scoreRealSetting } from "@cml/story-validation";
 import { adaptSettingForScoring } from "../scoring-adapters/index.js";
 import {
   type OrchestratorContext,
@@ -15,6 +15,7 @@ import {
   appendRetryFeedbackOptional,
   preAgent9LlmRetriesEnabled,
   preAgent9ContractRecoveryEnabled,
+  applyHonestScorer,
 } from "./shared.js";
 
 export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
@@ -45,7 +46,7 @@ export async function runAgent1(ctx: OrchestratorContext): Promise<void> {
           cml: undefined as any,
           threshold_config: { mode: "standard" },
         });
-        return { adapted, score };
+        return { adapted, score: applyHonestScorer(score, () => scoreRealSetting(settingResult.setting), ctx.warnings, "agent1-setting") };
       },
       ctx.retryManager,
       ctx.scoreAggregator,

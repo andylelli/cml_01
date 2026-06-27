@@ -3003,6 +3003,9 @@ export async function generateProse(
           linterOptions.bannedPhrases = bannedPhrasePolicy.hard;
         }
         linterOptions.boundaryIntegrityGateEnabled = rolloutFlags.boundary_integrity_gate_enabled;
+        // Cast names: exclude character-name paragraph openers from the template-bleed gate
+        // (a paragraph opening with a cast name is natural prose, not scaffold repetition).
+        linterOptions.castNames = castNames;
         // [PHASE 5] Pass macro arc plan and batch start for archetype validation
         if (inputs.macroArcPlan && inputs.macroArcPlan.length > 0) {
           linterOptions.macroArcPlan = inputs.macroArcPlan;

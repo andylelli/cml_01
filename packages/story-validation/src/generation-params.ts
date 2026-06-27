@@ -608,7 +608,9 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
           "Reveal fear, motive, lie, loyalty conflict, or secret.",
           "Suspicion state changes by chapter end.",
         ],
-        forbidden_reveals: ["No full murder confession unless outline-required."],
+        forbidden_reveals: [
+          "No culprit resolution: no confession, no arrest, no 'case closed', no accusation ('I accuse'/'I name'), and never state 'the culprit/murderer/killer is/was …'. The accusation is reserved for the final reveal — build suspicion only.",
+        ],
       },
       false_suspect_clearing: {
         balance_targets: {

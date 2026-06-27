@@ -51,6 +51,20 @@ const DEFAULT_WINDOW = 20;
 export const isCrossRunNoveltyEnabled = (): boolean =>
   /^(1|true|yes|on)$/i.test(process.env.NOVELTY_CROSS_RUN ?? "");
 
+/** The capped similarity threshold used when cross-run novelty is enabled (T1.6). */
+export const CROSS_RUN_NOVELTY_THRESHOLD = 0.7;
+
+/**
+ * T1.6 — couple the active similarity threshold to the cross-run flag. The static default (≥1.0)
+ * deliberately *skips* the audit; lowering it blind would fire the LLM audit on every run with no
+ * divergence feed behind it. So we only cap the threshold when cross-run novelty is enabled —
+ * pairing the lower threshold with the prior-run feed, exactly as the plan intends.
+ */
+export const effectiveNoveltyThreshold = (
+  baseThreshold: number,
+  crossRunEnabled: boolean = isCrossRunNoveltyEnabled(),
+): number => (crossRunEnabled ? Math.min(baseThreshold, CROSS_RUN_NOVELTY_THRESHOLD) : baseThreshold);
+
 export const noveltyLedgerPath = (): string =>
   process.env.CML_NOVELTY_LEDGER_PATH ?? path.resolve(process.cwd(), "data", "novelty-ledger.json");
 

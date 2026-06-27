@@ -33,6 +33,12 @@ import {
   shouldEscalateStructuralCmlRevision,
   type FairPlayFailureClass,
 } from "./agent6-escalation-policy.js";
+import {
+  parseRevealGateMode,
+  auditRedHerringTargets,
+  auditDeathMethodDeducibility,
+  evaluateRevealVerdict,
+} from "./agent6-reveal-gate.js";
 
 // ============================================================================
 // classifyFairPlayFailure (agent-6 only)
@@ -2172,6 +2178,68 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
   ctx.fairPlayAudit = fairPlayAudit!;
   ctx.hasCriticalFairPlayFailure = hasCriticalFairPlayFailure;
+
+  // ── P2.1: Reveal gate (T2.1 fooled-then-convinced, T2.2 herring→culprit, T2.3 death-method) ──
+  // Default OFF (AGENT6_REVEAL_GATE unset) ⇒ this block is skipped entirely and behaviour is
+  // byte-identical. shadow ⇒ surface findings as warnings only; enforce ⇒ also mark the audit
+  // blocking (routed through the existing binding gate, which respects forceWarnings) — it NEVER
+  // throws on its own (see MEMORY: no-backstop gates kill runs).
+  const revealGateMode = parseRevealGateMode(process.env.AGENT6_REVEAL_GATE);
+  if (revealGateMode !== "off") {
+    const revealIssues: string[] = [];
+
+    // T2.2 — a red herring must never point at the real culprit.
+    const herringAudit = auditRedHerringTargets(ctx.cml);
+    if (!herringAudit.ok) {
+      revealIssues.push(
+        `red herring(s) point at the real culprit: ` +
+          herringAudit.offenders.map((o) => `${o.id}→"${o.pointsAtSuspect}"`).join(", "),
+      );
+    }
+
+    // T2.3 — the manner of death must be deducible from an essential early|mid clue.
+    const deathAudit = auditDeathMethodDeducibility(ctx.cml, ctx.clues ?? { clues: [] });
+    if (!deathAudit.ok) revealIssues.push(deathAudit.reason);
+
+    // T2.1 — an early+mid-only reader who already names the culprit means the reveal is too obvious.
+    if (castNamesForBlind.length > 0 && actualCulpritName) {
+      try {
+        const earlyMidReader = await blindReaderSimulation(
+          ctx.client,
+          ctx.clues!,
+          falseAssumptionStatement,
+          castNamesForBlind,
+          { runId: ctx.runId, projectId: ctx.projectId || "", placementFilter: ["early", "mid"] },
+        );
+        // cost from byAgent is cumulative across the run → overwrite; durationMs is per-call → add.
+        ctx.agentCosts["agent6_blind_reader"] = earlyMidReader.cost;
+        ctx.agentDurations["agent6_blind_reader"] =
+          (ctx.agentDurations["agent6_blind_reader"] || 0) + earlyMidReader.durationMs;
+        const verdict = evaluateRevealVerdict({
+          earlyMidGuess: earlyMidReader.suspectedCulprit,
+          culprit: actualCulpritName,
+          falseSolutionSuspect: caseBlockForBlind?.false_solution?.accused_suspect,
+        });
+        if (verdict.verdict === "too_obvious") revealIssues.push(...verdict.reasons);
+        else verdict.reasons.forEach((r) => emitAgent6Warning(`[agent6-reveal-gate][${revealGateMode}] ${r}`, "transient-diagnostic"));
+      } catch (err) {
+        emitAgent6Warning(
+          `[agent6-reveal-gate][${revealGateMode}] early+mid blind reader error: ${(err as Error).message}`,
+          "transient-diagnostic",
+        );
+      }
+    }
+
+    for (const issue of revealIssues) {
+      emitAgent6Warning(`[agent6-reveal-gate][${revealGateMode}] ${issue}`, "persistent-risk");
+    }
+    if (revealGateMode === "enforce" && revealIssues.length > 0) {
+      // Hard gate, but never a new throw: flip the audit to needs-revision so the existing binding
+      // gate (below) blocks only when enableBindingGates is on and forceWarnings is off.
+      if (fairPlayAudit!.overallStatus === "pass") fairPlayAudit!.overallStatus = "needs-revision";
+      ctx.fairPlayAudit = fairPlayAudit!;
+    }
+  }
 
   // Pillar 3 (Unit 3.3): flag blocking when gate is active and fair-play did not pass.
   // Covers both "fail" and "needs-revision" — earlyStructuralAbort follows and may also throw.

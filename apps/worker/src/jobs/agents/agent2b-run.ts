@@ -10,6 +10,8 @@ import {
   generateCharacterProfiles,
   extractVoiceCapsule,
   checkVoiceCapsules,
+  voiceGatePass,
+  buildVoiceGateFeedback,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import { CharacterProfilesScorer } from "@cml/story-validation";
@@ -81,27 +83,60 @@ export async function runAgent2b(ctx: OrchestratorContext): Promise<void> {
   validation.warnings.forEach((w) => ctx.warnings.push(`  - Schema warning: ${w}`));
 
   // Phase-0 shadow: project each finalized profile into a typed Voice Capsule and run the
-  // deterministic distinctiveness/groundedness/deployability checker for telemetry only. Default
-  // OFF; when AGENT2B_VOICE_CHECK is set (shadow/on) it LOGS findings into warnings WITHOUT
-  // changing behavior — the deterministic foundation for the Agent 2b redesign
-  // (documentation/12_system_redesign/03_agent_2b_character_profiles.md §4, §9). Mirrors the
-  // Agent 2 cast-checker shadow hook (AGENT2_CAST_CHECK).
+  // deterministic distinctiveness/groundedness/deployability checker. Default OFF.
+  //   AGENT2B_VOICE_CHECK = on|shadow  → LOG findings into warnings WITHOUT changing behavior.
+  //   AGENT2B_VOICE_CHECK = enforce    → P1.4: run a bounded (≤ AGENT2B_VOICE_MAX_RETRIES, default 1)
+  //       regeneration retry when the voice gate fails, then accept the best result (accept-after-
+  //       exhaustion). Never enable in the same run as another retry-gated lever.
+  // (documentation/12_system_redesign/03_agent_2b_character_profiles.md §4, §9.)
   const voiceCheckMode = (process.env.AGENT2B_VOICE_CHECK ?? "").trim().toLowerCase();
-  if (voiceCheckMode && voiceCheckMode !== "off" && voiceCheckMode !== "false" && voiceCheckMode !== "0") {
+  const voiceCheckActive =
+    voiceCheckMode && voiceCheckMode !== "off" && voiceCheckMode !== "false" && voiceCheckMode !== "0";
+  if (voiceCheckActive) {
+    const enforce = voiceCheckMode === "enforce";
+    const maxRetries = enforce ? Math.max(0, Math.trunc(Number(process.env.AGENT2B_VOICE_MAX_RETRIES ?? 1)) || 0) : 0;
+    const label = enforce ? "enforce" : "shadow";
     try {
-      const capsules = ctx.characterProfiles.profiles.map((profile) => extractVoiceCapsule(profile));
-      const check = checkVoiceCapsules(capsules);
+      let check = checkVoiceCapsules(ctx.characterProfiles.profiles.map((profile) => extractVoiceCapsule(profile)));
+      let attempt = 0;
+      while (enforce && !voiceGatePass(check.metrics) && attempt < maxRetries) {
+        attempt += 1;
+        const feedback = buildVoiceGateFeedback(check);
+        ctx.warnings.push(
+          `[agent2b-voice-check][enforce] gate failed (attempt ${attempt}/${maxRetries}); regenerating with voice feedback.`
+        );
+        const regenStart = Date.now();
+        const regenerated = await generateCharacterProfiles(ctx.client, {
+          caseData: ctx.cml!,
+          cast: ctx.cast!.cast,
+          tone: appendRetryFeedback(ctx.inputs.narrativeStyle || "classic", feedback),
+          targetWordCount: 1000,
+          runId: ctx.runId,
+          projectId: ctx.projectId || "",
+        });
+        ctx.agentCosts["agent2b_profiles"] = (ctx.agentCosts["agent2b_profiles"] ?? 0) + regenerated.cost;
+        ctx.agentDurations["agent2b_profiles"] =
+          (ctx.agentDurations["agent2b_profiles"] ?? 0) + (Date.now() - regenStart);
+        const regenCheck = checkVoiceCapsules(regenerated.profiles.map((profile) => extractVoiceCapsule(profile)));
+        // Accept-after-exhaustion: keep the regenerated cast only if it passes the gate or strictly
+        // improves register distinctness; otherwise retain the best-so-far profiles.
+        if (voiceGatePass(regenCheck.metrics) || regenCheck.metrics.uniqueRegisters > check.metrics.uniqueRegisters) {
+          ctx.characterProfiles = regenerated;
+          check = regenCheck;
+        }
+      }
+      const gateState = enforce ? (voiceGatePass(check.metrics) ? "pass" : `accept-after-${attempt}`) : "shadow";
       ctx.warnings.push(
-        `[agent2b-voice-check][shadow] ok=${check.ok} count=${check.metrics.count} ` +
+        `[agent2b-voice-check][${label}] gate=${gateState} ok=${check.ok} count=${check.metrics.count} ` +
           `deployable=${check.metrics.deployableCount} grounded=${check.metrics.groundedRegisterCount} ` +
           `uniqueRegisters=${check.metrics.uniqueRegisters} duplicatePairs=${check.metrics.duplicatePairs} ` +
           `issues=${check.issues.length}`
       );
       for (const issue of check.issues) {
-        ctx.warnings.push(`[agent2b-voice-check][shadow] ${issue.severity}: ${issue.message}`);
+        ctx.warnings.push(`[agent2b-voice-check][${label}] ${issue.severity}: ${issue.message}`);
       }
     } catch (err) {
-      ctx.warnings.push(`[agent2b-voice-check][shadow] checker error: ${(err as Error).message}`);
+      ctx.warnings.push(`[agent2b-voice-check][${label}] checker error: ${(err as Error).message}`);
     }
   }
 
