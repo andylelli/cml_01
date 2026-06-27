@@ -118,7 +118,19 @@ First live generation with K1+K2+triad active, levers OFF (isolates the keystone
 - **The abort is independent of K1.** It is the pre-existing `final_reveal` completeness hard-gate ([`clue-validation.ts:1102`](../../../packages/prompts-llm/src/agent9-prose/clue-validation.ts)): a chapter-8 *generation-exception fallback* produced reveal prose that didn't surface the death-method word ("strangled"), so `proseSurfacesDeathMethod` failed and hard-aborted. K1 touches neither reveal prose nor death-method logic; this gate recurs across many prior runs. Most likely generation variance (an exception on ch8 + a thin fallback), retryable via the temperature retry-salt — **not** a K1 regression. NB it does contradict A_51 §0 #5's "no abort" claim for *this* seed, so abort-freedom is not universal.
 - **Internal pipeline:** 96/A, per-chapter 89–95 — but `passed:false` (aborted). Internal aggregate ≠ the final-story rubric the keystones target.
 
-**Next action:** re-run (1–2×) to land a completed story so K2 can finally be measured, and to see whether the reveal death-method abort recurs (variance vs systematic). If systematic, the fix is a reveal-prompt nudge to restate the death method — *not* weakening the (correct) gate.
+### 3.3 Run #2 `mystery-1782577884032` + live rubric spike (2026-06-27) — abort is NOT variance; it's 6-cast late-pipeline load
+
+- **K1 — confirmed again, more fully.** Both repair paths fired: victim named (`Beatrice Quill`) **and** the motive-anchor synthesised (`Beatrice Quill ↔ Dr. Mallory Finch`). The victim fix is robust.
+- **Aborted again — at a DIFFERENT late gate.** Got past the death-method gate (ch9 retried, recovered), generated all 10 chapters, then the **release gate hard-stopped on placeholder-token leakage** (`named standalone placeholders: 1`), alongside `critical continuity issue` and `scene-grounding 5/10`. Internal aggregate **59/F** (= the plain baseline), but aborted.
+- **The pattern: two 6-cast runs, two different late-stage aborts, K2 never reached.** The reference 4-cast runs (59/63/63) all *completed*. The new variable is the cast (4→6). **Conclusion: K1's cast growth trades the phantom-victim defect for higher late-pipeline load** — more named characters ⇒ more weave/continuity/grounding/placeholder surface for Agent 9 + the release gate. The §0 #5 "no abort" property held for the 4-cast; it does **not** yet hold for the 6-cast. This is the new top blocker.
+- **K2 — mechanism confirmed live (decoupled from the pipeline).** `scripts/rubric-score-spike.mjs` against the live Azure judge: CLEAN 71 (no caps) · LEAKY 66→**63** (leakage cap forces prose ≤4, overall ≤65, overriding the critic) · COLLISION 49→**46** (culprit==victim caps overall ≤55). The deterministic cap engine overrides the LLM critic exactly as designed. The *new* structural verifiers (planted-evidence/mechanism-timing/citation) remain unit-tested only — the spike's synthetic cases lack the CASE discriminating-clue structure to exercise them, and the live pipeline can't yet hand them a completed story.
+
+**Decision fork (next action — needs a call):**
+1. **Trim cast 6→5** (the minimum for five distinct roles) to cut weave load, then re-run — cheapest shot at a completed story + an in-situ K2 number.
+2. **Harden the late pipeline for the larger cast** (death-method-at-reveal, placeholder weave, continuity, scene-grounding) — the real fix; a small project (overlaps §2 #11/#12).
+3. **Accept K1 as banked + K2 as unit/spike-validated**, and measure end-to-end K2 calibration later once #1/#2 land a completed story.
+
+**Original next action superseded:** the reveal death-method abort was *not* variance — it recurs as part of the broader 6-cast late-pipeline fragility above.
 
 ---
 
@@ -152,8 +164,9 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 | Item | Status | Notes |
 |---|:--:|---|
 | K1 cast enlargement + named victim | ✅ | **Confirmed in prose** (`a08be22d` + live run `mystery-1782545187071`): victim "Beatrice Quill" named + distinct + strangled in her room; phantom victim gone. |
-| K2 final-rubric honesty | ◐ | **Code-complete + unit-tested (`6ee19960`); still unmeasured live** — the live run aborted at the reveal gate before final-story rubric ran. Needs a *completed* run. |
-| Reveal death-method completeness abort (`clue-validation.ts:1102`) | ☐ | **New/observed in `mystery-1782545187071`:** ch8 fallback didn't surface "strangled" → hard abort. Independent of K1; likely variance. Re-run to confirm; if systematic, nudge the reveal prompt to restate the death method. |
+| K2 final-rubric honesty | ◐ | **Cap engine confirmed LIVE** (spike: leakage 66→63, collision 49→46 override the critic) + new verifiers unit-tested (`6ee19960`). **End-to-end calibration on a real story still owed** — pipeline aborts before final rubric. |
+| **6-cast late-pipeline fragility (NEW top blocker)** | ☐ | Both 6-cast runs aborted late (run #1 death-method reveal; run #2 placeholder leak + continuity + grounding 5/10); 4-cast refs completed. K1's growth raised Agent 9 / release-gate load. Decide: trim 6→5, or harden the late gates. |
+| Reveal death-method completeness (`clue-validation.ts:1102`) | ◐ | Recurs both runs (not variance) — one facet of the 6-cast load. Run #2 retried+recovered it; run #1 aborted on it. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
 | Triad #1/#2/#3 | ☑ | Landed + verified in prose (§3). Awaiting K2 to register on the rubric. |
 | Role-coherence repair (§9.1) | ☑ | Holds levers-on (no abort across 2 runs). |
