@@ -694,6 +694,36 @@ const buildChapterOutcomeBlock = (
           `manipulated. A reveal that explains the concealment but never the killing fails the fair-play contract.`,
       );
     }
+
+    // A_52 category ladder: plot_structure / clues / ending all sit at 5/10 because the reveal reads as
+    // a clinical alibi-by-alibi elimination ("innocence established by the physical record"), pays off
+    // clues as fresh logic rather than earned earlier, and resolves on a generic, asserted motive
+    // ("jealousy") with no emotional weight. Push the reveal toward a single clear chain, clues-as-payoff,
+    // a specific emotionally-grounded motive, and human closure.
+    const culprit =
+      String((cmlCase as any)?.culpability?.culprits?.[0] ?? "the culprit").trim() || "the culprit";
+    const victim =
+      String(
+        (cmlCase as any)?.culpability?.victim ??
+          (cmlCase as any)?.crimeDynamics?.victimCandidates?.[0] ??
+          (Array.isArray((cmlCase as any)?.cast)
+            ? ((cmlCase as any).cast.find((c: any) =>
+                /victim/i.test(String(c?.role ?? c?.role_archetype ?? c?.roleArchetype ?? "")),
+              )?.name ?? "")
+            : ""),
+      ).trim() || "the victim";
+    lines.push(
+      `Solution chain (plot clarity, NOT a timeline ledger): present the solution as ONE clear spine the reader can follow — ${culprit}, by the named means, with the established opportunity, for a specific reason. Clear each other suspect in a line or two; do NOT walk through every alibi and timeline as bookkeeping. A convoluted multi-timeline elimination is the failure mode here.`,
+    );
+    lines.push(
+      `Clues as payoff (fair-play): build the reveal from clues the reader has ALREADY seen and the detective has weighed earlier — name them as they are paid off ("the scratched casing from the first morning", "the chimes the gardener heard"). Do not introduce decisive evidence for the first time here; clues should feel earned, not produced.`,
+    );
+    lines.push(
+      `Motive (specific + emotional, NEVER a bare label): develop WHY ${culprit} killed ${victim} with concrete, personal specificity drawn from their relationship and history — the emotional truth that made murder feel, to ${culprit}, like the only door left. A one-word motive ("jealousy", "greed", "revenge") asserted without that interior truth is a FAIL: name what was actually at stake for ${culprit} and why no lesser act would serve.`,
+    );
+    lines.push(
+      `Closure (emotional payoff, not a verdict): end on human consequence — the cost to those left behind, ${culprit}'s undoing, and the detective's reflection on what the truth changes — not a clinical "innocence established by the physical record." The reader should FEEL the weight of the resolution, not merely verify it.`,
+    );
   }
 
   return lines.join("\n");
