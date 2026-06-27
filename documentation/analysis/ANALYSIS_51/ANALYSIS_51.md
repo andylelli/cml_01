@@ -6,6 +6,24 @@ Status: **living register — supersedes [ANALYSIS_50](../ANALYSIS_50/ANALYSIS_5
 
 ---
 
+## ⏱ Implementation order (do top-to-bottom)
+
+Legend: `✅` landed · `☐` not started · `◐` built, acceptance-blocked. **Rule:** do the keystones (1–2) before reopening the category ladder (5); a "fix" is only *accepted* on a trustworthy signal (structural for K1, an honest rubric after K2).
+
+| # | Fix | Status | Depends on → Unblocks | Accept when |
+|:--:|---|:--:|---|---|
+| 0a | Role-coherence repair (§9.1) | ✅ | — | *Done* — holds levers-on, no abort |
+| 0b | Case-design triad #1/#2/#3 (§3) | ✅ | — → registers once #2 done | *Done in prose* — registers on rubric after #2 |
+| **1** | **K1 — Enlarge cast + first-class named victim** (§1 K1) | ☐ 🔑 | none (start now) → fixes continuity / fair-play / motive | Victim named + related to culprit; `critical continuity` + fair-play warnings clear (structural, not rubric) |
+| **2** | **K2 — Final-story rubric honesty** (§1 K2) | ☐ 🔑 | none (parallel with 1) → **gates acceptance of 4 & 5** | Planted-vs-unplanted fixture scores correctly; internal↔external agree within single digits |
+| 3 | Premise diversity (rotate seed theme + structural cross-run divergence) (§2 #3) | ☐ | after 1 → `premise` can vary run-to-run | Two runs diverge on ≥2 structural fields (victim/mechanism/motive class); not the clone |
+| 4 | **Re-open category ladder** (one flag/run): novelty → voice → reveal → plausibility → 2c-hold (§4) | ◐ | **needs 2 (honest judge) + 1 (coherent cast)** | Each: target category ↑ on the *honest* rubric, nothing regressed |
+| 5 | Residual polish: reveal-gate→exact test chapter · pronoun sweep under role-swap · mutation re-validation full chain · scene-grounding for withheld chapters (§2 #4/#11/#12) | ☐ | after 4 | Each defect gone on a clean run |
+
+**One-liner:** ✅ triad/repair done → **1 cast + 2 honest judge (parallel) → 3 premise diversity → 4 category ladder → 5 polish.** Stop flipping category levers until 1 and 2 land.
+
+---
+
 ## 0. TL;DR — the state of play (2026-06-27)
 
 1. **The category-lever machinery is built and the case-design triad is landed + verified in prose — but the rubric will not move, for two reasons that are now proven, not hypothesised.** Three structurally-distinct levers-on runs (plain `59`, probe `63`, triad `63`) all land ~60 with near-identical judge flags.
