@@ -137,7 +137,16 @@ Read the run-2 prose + the gate sources instead of re-running. Findings:
 
 `evaluatePlaceholderLeakage` now drops `a woman/man <Name>` matches followed by a verb/relativizer (the relative-clause guard), exported for testing, and surfaces standalone tokens in `examples` so a future leakage abort self-identifies. +4 worker unit tests (incl. the exact offending sentence); worker 221 green. This removes run #2's abort class.
 
-**Next action:** (a) **Fix #2 (reveal death-method adherence)** is now its own focused item — start by unifying the death-method derivation + fixing the grammar, then consider a deterministic reveal post-check/repair since prompting alone failed 3×. (b) A **single confirmation run** with Fix #1 in place to see how far the pipeline gets and whether the death-method gate recurs (it may; run #2 showed its *retry* can recover when no generation-exception intervenes).
+### 3.6 Landed: Fix #2 — deterministic reveal fallback surfaces the death method (`4768c3ed`)
+
+Root cause pinned by reading the code (not another run): `buildStageAwareFallbackParagraphs` (final_reveal) surfaced `hidden_model.mechanism.description` — the **concealment mechanism** (the clock trick) — but **never the death method**. When ch8's LLM generation threw and fell back to this deterministic chapter, the fallback described the clock and was immediately failed by the death-method gate → run #1's abort. Exactly the "surface the DEATH method, not the concealment" trap the M0 comment warns about — the fallback builder had never received that treatment.
+
+- **Fix:** the final_reveal fallback now states the manner of death via the **same `resolveDeathMethod`** the gate uses (so it can never fail that gate), with colon phrasing that reads for both participles ("strangled") and noun phrases ("a stab wound"). The mechanism line is kept, now correctly labelled *concealment*.
+- **Also:** fixed the broken prompt grammar ("the victim was killed by strangled" → "cause of death: <method>") on the LLM path.
+- **Scope note (honest):** the deterministic *guarantee* is on the **fallback** path — exactly where run #1 died. On the normal LLM path the gate's retry already recovers (run #2's ch9). A morphological stem-matcher for the gate was prototyped and **reverted**: the obvious stem ("strangl") doesn't even bridge "strangled"↔"strangulation" (they diverge at char 7), so it was misleading; Part 3 makes it unnecessary.
+- +1 regression test; prompts-llm 512, worker 221, story-validation 288 green.
+
+**Next action — a single confirmation run.** Both diagnosed abort classes now have fixes (Fix #1 placeholder false positive; Fix #2 fallback death method). One paid run should complete and finally yield an **in-situ K2 number** — the last open piece of K2 acceptance.
 
 ---
 
@@ -173,7 +182,7 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 | K1 cast enlargement + named victim | ✅ | **Confirmed in prose** (`a08be22d` + live run `mystery-1782545187071`): victim "Beatrice Quill" named + distinct + strangled in her room; phantom victim gone. |
 | K2 final-rubric honesty | ◐ | **Cap engine confirmed LIVE** (spike: leakage 66→63, collision 49→46 override the critic) + new verifiers unit-tested (`6ee19960`). **End-to-end calibration on a real story still owed** — pipeline aborts before final rubric. |
 | Named-standalone placeholder FALSE POSITIVE (`agent9-run.ts:2675`) | ✅ | **Fixed (`97a299ae`):** relative-clause guard + standalone examples + 4 tests. Removes run #2's abort class. |
-| Reveal death-method adherence (`clue-validation.ts:1102`) | ☐ | Run #1: reveal omitted "strangled" across 3 attempts despite a strong MUST instruction — genuine adherence gap (clock crowds out the killing), not transient. Latent: broken grammar ("killed by strangled") + dual death-method derivation. Needs a focused fix (unify derivation; consider deterministic reveal repair). |
+| Reveal death-method adherence (`clue-validation.ts:1102`) | ✅ | **Fixed (`4768c3ed`):** the deterministic final_reveal fallback now surfaces the death method via the gate's own `resolveDeathMethod` (root cause: it only stated the concealment mechanism); prompt grammar fixed. +1 test. The normal LLM path's retry already recovers. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
 | Triad #1/#2/#3 | ☑ | Landed + verified in prose (§3). Awaiting K2 to register on the rubric. |
 | Role-coherence repair (§9.1) | ☑ | Holds levers-on (no abort across 2 runs). |
