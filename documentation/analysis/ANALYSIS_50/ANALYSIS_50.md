@@ -1,5 +1,7 @@
 # ANALYSIS_50 — Outstanding issues by agent (consolidated register)
 
+> **⏭ SUPERSEDED (2026-06-27) by [ANALYSIS_51](../ANALYSIS_51/ANALYSIS_51.md)** for outstanding-issues tracking. A_50 is retained as the historical record of the §9 structural-pivot investigation and the triad fixes (§9.1–§9.5); the restated outstanding work — reordered around the two root causes the triad validation exposed (cast/role deficit + final-rubric-judge honesty) — lives in A_51.
+
 Status: **living register — the single place that tracks every still-open per-agent defect across the pipeline.** Sibling of [ANALYSIS_48](../ANALYSIS_48/ANALYSIS_48.md) (the upstream-fitness thesis + the T1/T2/T3 backlog), [ANALYSIS_49](../ANALYSIS_49/ANALYSIS_49.md) (code-grounded plans for the four deferred Tier-1 items), and the [ROADMAP_TO_80](../ANALYSIS_47/ROADMAP_TO_80.md). Where A_48 is "what's wrong and why" and A_49 is "how to land the four deferred levers," **A_50 is the agent-keyed scoreboard: for each agent, what is still open, what landed, and what to do next.**
 
 > Naming: follows the established `ANALYSIS_nn` convention (prior doc is ANALYSIS_49). "A_50" = this file. Pull-through source of truth for status is A_48 §8 (implementation log) and A_49 §1 (novelty live status); this doc consolidates them by **agent** rather than by tier.

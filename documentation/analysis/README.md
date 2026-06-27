@@ -3,6 +3,8 @@
 This folder tracks run-level failure analysis reports and consolidated issue lists.
 
 ## Latest
+- `ANALYSIS_51/ANALYSIS_51.md` — **outstanding issues, restated (post-triad register)** — CURRENT single source of truth; supersedes A_50. Two keystones: cast/role deficit (phantom victim) + final-rubric-judge honesty. *(Directory doc — distinct from the older flat `ANALYSIS_51_pre_prose_enrichment_strategy.md`.)*
+- `ANALYSIS_50/ANALYSIS_50.md` — outstanding issues by agent (consolidated register + the §9 structural-pivot investigation + triad fixes). **Superseded by A_51 for tracking; retained as history.**
 - `ANALYSIS_49/ANALYSIS_49.md` — implementation plans for the four deferred A_48 items (novelty store, clue restructure, Agent 7 scheduler+budget, voice gate)
 - `ANALYSIS_48/ANALYSIS_48.md` — agents 1–8 to 90% prose-fitness (vanity-scorer + shadow-machinery thesis) so Agent 9 can reach 80
 - `ANALYSIS_47/ANALYSIS_47.md` — upstream-vs-prose ablation + ROADMAP_TO_80/90
@@ -25,6 +27,7 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 
 | Date       | Analysis | Run ID (short) | Status | Primary failure class |
 |------------|----------|----------------|--------|-----------------------|
+| 2026-06-24 | `ANALYSIS_50` | `9b824eb2` | complete (10/10) | **First clean corrected-build baseline.** Tier-1 keystones **HELD** — death-method / pronoun / season-lock killers did not recur (every structural judge-flag passes; no churn, no abort). Rubric **71 LLM / 68 shadow**. Loss now concentrated in *open levers*: `pacing 6` + `opening_hook 6` (Agent 7 mechanical repetition — same timeline contradiction restated ×4 in Ch1; chapters ~1.0k–1.46k words, so **T1.2/T2.11, not T1.3**) and `premise 7` (Agent 8 novelty **skipped**, threshold ≥1.0). New polish leaks: **title scaffold** ("Generated in scene batches…") + **`the the`** doubled-word. |
 | 2026-06-19 | `ANALYSIS_44` | `70ac132d` | incomplete (died at Ch4/10) | Validation run for ANALYSIS_43 G/H/I. A–D content fixes confirmed holding (0 leakage/setting/reveal/pronoun in committed Ch1–3; D2 gate caught+cleared a Ch3 `mechanism access point` leak). G/H/I **never exercised** — they run at final validation, but the run died in per-chapter prose generation. New run-killer = template linter `template_bleed` (repeated paragraph openers) firing every chapter, no exhaustion backstop → no story produced; report frozen green 97.85/A `in_progress`. |
 | 2026-06-18 | `ANALYSIS_43` | `1d55f7c7` → `5411ba7f` | aborted (fixes landed) | Baseline 1d55f7c7: verbatim schema/test leakage + post-LLM pronoun corruption & setting dump + dead disclosure embargo (premature reveal) — Layers A–D landed. Follow-up 5411ba7f (74/C, aborted): those killers did NOT recur; new blockers = victim-alive/identity slip (Ch3) + male→female pronoun miss (Ch5), both deterministically repairable but routed to terminal abort (recs G/H/I). |
 | 2026-06-16 | `ANALYSIS_42` | `bdaf4d70` | warning | False-green passed run: upstream timeline contradiction + locked-fact injection + deterministic fallback prose regression |
@@ -42,6 +45,7 @@ This folder tracks run-level failure analysis reports and consolidated issue lis
 | 2026-04-13 | `ANALYSIS_51` | n/a | strategy doc | Pre-prose enrichment strategy review |
 
 ## Analysis Reports
+- `ANALYSIS_50/ANALYSIS_50.md` — outstanding issues by agent (consolidated register)
 - `ANALYSIS_44/ANALYSIS_44.md`
 - `ANALYSIS_43/ANALYSIS_43.md`
 - `ANALYSIS_42/ANALYSIS_42.md`
