@@ -21,6 +21,7 @@ export type {
   ChapterIssue,
   RubricScore,
   StoryFacts,
+  StructuralAdjustments,
   Band,
   CappedScore,
 } from "./types.js";
@@ -36,3 +37,27 @@ export { scoreStory } from "./score.js";
 export type { JudgeRequest, JudgeResult, RubricJudge, ScoreStoryInput, ScoreStoryResult } from "./score.js";
 export { createLLMRubricJudge, parseJudgeResult } from "./llm-judge.js";
 export type { ChatFn, ChatArgs, ChatMessage, LLMJudgeOptions } from "./llm-judge.js";
+
+// K2 §1/§2 — deterministic structural verifiers + citation verification.
+export {
+  verifyStructure,
+  verifyCitations,
+  splitProseIntoChapters,
+  findUnplantedDiscriminatingCluesLocal,
+} from "./structural-verifiers.js";
+export type {
+  StructuralVerdict,
+  VerifyStructureInput,
+  FlagCitation,
+  CitationCheckResult,
+  FindUnplantedFn,
+  UnplantedCluesLike,
+} from "./structural-verifiers.js";
+
+// K2 §3 — internal↔external calibration hook.
+export {
+  computeCalibrationDelta,
+  summarizeCalibration,
+  CALIBRATION_SINGLE_DIGIT_BAND,
+} from "./calibration.js";
+export type { ExternalRescore, CalibrationDelta, CalibrationSummary } from "./calibration.js";

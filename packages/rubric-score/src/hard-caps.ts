@@ -59,6 +59,12 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
   // ── Ending caps (§ Category 9 Hard Caps + § Final Reveal) ────────────────────
   if (facts.culpritConfessesTamperingOnly) capCat("ending", 6, "culprit confesses to tampering, not death");
   if (facts.revealUsesUnplantedEvidence) capCat("ending", 5, "reveal uses evidence not planted earlier");
+  // K2: a mechanism explained BEFORE the discriminating-test scene spoils the test (fair-play / pacing).
+  // Only fires when CONFIRMED by the structural verifier (a false "too early" flag is vetoed in score.ts).
+  if (facts.mechanismExplainedTooEarly) {
+    capCat("plot_structure", 6, "mechanism explained too early (before the discriminating-test scene)");
+    capCat("pacing", 6, "mechanism explained too early (before the discriminating-test scene)");
+  }
   if (facts.noResolution) capCat("ending", 5, "no confession / exposure / arrest / consequence");
   if (facts.endingContradictsEarlier) capCat("ending", 4, "ending contradicts earlier chapters");
 

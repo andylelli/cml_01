@@ -25,16 +25,25 @@ export function buildRubricSystemPrompt(): string {
     "",
     "Also report the structural conditions you observe (the `flags`), because they carry hard penalties:",
     "  dead victim appears alive without flashback; culprit confesses only to tampering not the death;",
-    "  the reveal uses evidence not planted earlier; the ending contradicts earlier chapters; pronouns",
-    "  repeatedly switch for one character; multiple characters change roles; victim identity unclear;",
-    "  no real resolution (no confession/exposure/arrest/consequence).",
+    "  the reveal uses evidence not planted earlier (revealUsesUnplantedEvidence); the mechanism is fully",
+    "  explained too early — before the discriminating-test scene (mechanismExplainedTooEarly); the ending",
+    "  contradicts earlier chapters; pronouns repeatedly switch for one character; multiple characters",
+    "  change roles; victim identity unclear; no real resolution (no confession/exposure/arrest/consequence).",
+    "",
+    "EVIDENCE IS MANDATORY. For EVERY flag you set to true, add an entry to `flag_citations` giving the",
+    "chapter number and the VERBATIM sentence from the prose that proves it. A flag with no citation, or a",
+    "citation whose sentence does not appear in the cited chapter, will be DROPPED automatically — do not",
+    "raise a structural flag you cannot point to a specific sentence for. In particular, only set",
+    "revealUsesUnplantedEvidence if you can name the reveal sentence AND confirm no earlier chapter shows",
+    "that evidence; only set mechanismExplainedTooEarly if the full mechanism is spelled out in a chapter",
+    "BEFORE the discriminating-test scene. Deterministic checks will verify both against the structure.",
     "",
     "Prioritise: is the victim clearly named and consistently dead? is the investigator stable? is the",
     "culprit distinct from the victim? are pronouns stable? are clues planted before they are used? does",
     "the reveal explain the MURDER, not just the cover-up? does the prose read like fiction, not notes?",
     "",
     "Return JSON only, matching the provided schema (categories[10] with mark+reason, total, overall_view,",
-    "what_works, main_problems, chapter_issues, fastest_fixes, flags).",
+    "what_works, main_problems, chapter_issues, fastest_fixes, flags, flag_citations).",
   ].join("\n");
 }
 
@@ -42,10 +51,19 @@ export function buildRubricSystemPrompt(): string {
  * The user message: the verified facts (so the critic reasons about prose, not facts it can't extract)
  * followed by the full story prose.
  */
-export function buildRubricUserMessage(prose: string, verified: StoryFacts & { victimName?: string; culprit?: string }): string {
+export function buildRubricUserMessage(
+  prose: string,
+  verified: StoryFacts & { victimName?: string; culprit?: string; testChapter?: number | null },
+): string {
   const facts: string[] = [];
   if (verified.victimName) facts.push(`Victim (confirmed from the structured model): ${verified.victimName}.`);
   if (verified.culprit) facts.push(`Culprit (confirmed): ${verified.culprit}.`);
+  if (verified.testChapter) {
+    facts.push(
+      `The discriminating-test scene is Chapter ${verified.testChapter}. The mechanism is only "explained too early" ` +
+        `if it is fully spelled out BEFORE Chapter ${verified.testChapter}.`,
+    );
+  }
   if (verified.culpritIsVictim) facts.push("CONFIRMED DEFECT: the culprit and the victim are the same person.");
   if (verified.victimIsInvestigator) facts.push("CONFIRMED DEFECT: the victim and the investigator are the same person.");
   if (verified.victimUnnamed) facts.push("CONFIRMED: the victim is never named in the prose.");

@@ -24,7 +24,7 @@ import { scoreStory, createLLMRubricJudge } from "@cml/rubric-score";
 // Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
 import { deriveClueSpec } from "@cml/clue-spec";
 import type { CaseData } from "@cml/cml";
-import { loadSeedCMLFiles } from "@cml/prompts-llm";
+import { loadSeedCMLFiles, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import type {
   ClueDistributionResult,
   FairPlayAuditResult,
@@ -523,7 +523,8 @@ function assembleCharacterBundle(
 // the report as a diagnostic, but does NOT (yet) replace the headline overall_score. Wrapped so it
 // can NEVER break a run. Set RUBRIC_SCORING_MODE=off to skip.
 
-function assembleFullProse(prose: any): string {
+/** Assemble each chapter into its own string (title + body), in order. */
+function assembleChapters(prose: any): string[] {
   const chapters = Array.isArray(prose?.chapters) ? prose.chapters : [];
   return chapters
     .map((c: any) => {
@@ -531,8 +532,11 @@ function assembleFullProse(prose: any): string {
       const title = c?.title ? `${c.title}\n\n` : "";
       return `${title}${body}`.trim();
     })
-    .filter(Boolean)
-    .join("\n\n");
+    .filter(Boolean);
+}
+
+function assembleFullProse(prose: any): string {
+  return assembleChapters(prose).join("\n\n");
 }
 
 async function runRubricScoring(args: {
@@ -547,9 +551,12 @@ async function runRubricScoring(args: {
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
   try {
-    const proseText = assembleFullProse(args.prose);
+    const chapters = assembleChapters(args.prose);
+    const proseText = chapters.join("\n\n");
     if (proseText.length < 200) return; // nothing meaningful to score
-    const model = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+    // K2 §3: the final judge model is independently configurable so it can point at a STRONGER deployment
+    // than the per-agent scorers. RUBRIC_JUDGE_MODEL wins; falls back to the run's default deployment.
+    const model = process.env.RUBRIC_JUDGE_MODEL || process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
     const judge = createLLMRubricJudge(
       (chatArgs) =>
         args.client.chat({
@@ -559,10 +566,24 @@ async function runRubricScoring(args: {
         } as any),
       { model, temperature: 0.2, maxTokens: 4000 },
     );
-    const r = await scoreStory({ prose: proseText, cml: args.cml, judge });
+    // K2 §1: inject the live findUnplantedDiscriminatingClues (A_50 §9.3) and the true chapter boundaries
+    // so the structural verifiers can veto/confirm the judge's checkable flags.
+    const r = await scoreStory({
+      prose: proseText,
+      cml: args.cml,
+      judge,
+      chapters,
+      findUnplanted: findUnplantedDiscriminatingClues,
+    });
+    const vetoes = [
+      r.structural?.unplantedEvidenceVetoed && "unplanted-evidence vetoed",
+      r.structural?.mechanismTimingVetoed && "mechanism-timing vetoed",
+      r.structural?.citationsDropped?.length && `citations dropped: ${r.structural.citationsDropped.join(",")}`,
+    ].filter(Boolean);
     console.info(
       `[Rubric] ${r.final}/100 (${r.band}); raw ${r.rawTotal}` +
-        (r.capsApplied.length ? `; caps: ${r.capsApplied.join("; ")}` : ""),
+        (r.capsApplied.length ? `; caps: ${r.capsApplied.join("; ")}` : "") +
+        (vetoes.length ? `; structural: ${vetoes.join("; ")}` : ""),
     );
     args.warnings.push(`Final-story rubric (shadow): ${r.final}/100 — ${r.band}`);
     args.aggregator?.upsertDiagnostic("rubric_score", "scoring", "Final-Story Rubric", "rubric_score", {
@@ -571,6 +592,7 @@ async function runRubricScoring(args: {
       raw_total: r.rawTotal,
       categories: r.categories,
       caps_applied: r.capsApplied,
+      structural: r.structural,
       overall_view: r.rubric.overall_view,
       main_problems: r.rubric.main_problems,
       fastest_fixes: r.rubric.fastest_fixes,

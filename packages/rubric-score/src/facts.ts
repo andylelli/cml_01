@@ -139,6 +139,7 @@ export function mergeFacts(deterministic: StoryFacts, fromJudge: StoryFacts = {}
     pronounsUnstable: fromJudge.pronounsUnstable ?? deterministic.pronounsUnstable,
     culpritConfessesTamperingOnly: fromJudge.culpritConfessesTamperingOnly ?? deterministic.culpritConfessesTamperingOnly,
     revealUsesUnplantedEvidence: fromJudge.revealUsesUnplantedEvidence ?? deterministic.revealUsesUnplantedEvidence,
+    mechanismExplainedTooEarly: fromJudge.mechanismExplainedTooEarly ?? deterministic.mechanismExplainedTooEarly,
     noResolution: fromJudge.noResolution ?? deterministic.noResolution,
     endingContradictsEarlier: fromJudge.endingContradictsEarlier ?? deterministic.endingContradictsEarlier,
     // the extractor's exact facts are authoritative

@@ -79,8 +79,29 @@ export interface StoryFacts {
   weakMurderMethod?: boolean;
   culpritConfessesTamperingOnly?: boolean;
   revealUsesUnplantedEvidence?: boolean;
+  mechanismExplainedTooEarly?: boolean;
   noResolution?: boolean;
   endingContradictsEarlier?: boolean;
+}
+
+/**
+ * What the deterministic structural verifiers (K2 §1) decided about the judge's checkable flags. Each
+ * `*Vetoed` field records that the structure CONTRADICTS the judge's corresponding flag, so the cap
+ * engine dropped it; the verdict is attached to the score for telemetry / the report's "Main Problems".
+ */
+export interface StructuralAdjustments {
+  /** Judge flagged "unplanted evidence" but every cited piece IS planted earlier → flag dropped. */
+  unplantedEvidenceVetoed?: boolean;
+  /** Judge flagged "explained too early" but the mechanism is explained at/after the test scene → dropped. */
+  mechanismTimingVetoed?: boolean;
+  /** Citation verification dropped these flags (cited chapter/sentence absent from the prose). */
+  citationsDropped?: string[];
+  /** 1-based chapter the mechanism is first fully explained (telemetry). */
+  mechanismExplainedChapter?: number | null;
+  /** 1-based discriminating-test chapter (telemetry). */
+  testChapter?: number | null;
+  /** Evidence the reveal leans on that is genuinely NOT planted earlier (confirms a real unplanted flag). */
+  unplantedEvidence?: string[];
 }
 
 export type Band =
@@ -103,4 +124,6 @@ export interface CappedScore {
   categories: CategoryMark[];
   /** The judge's raw total, before any cap (for telemetry / shadow comparison). */
   rawTotal: number;
+  /** What the structural verifiers vetoed/confirmed on the judge's checkable flags (K2 §1). */
+  structural?: StructuralAdjustments;
 }

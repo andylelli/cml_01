@@ -8,6 +8,7 @@
  */
 
 import type { JudgeRequest, JudgeResult, RubricJudge } from "./score.js";
+import type { FlagCitation } from "./structural-verifiers.js";
 import { CATEGORIES, type Category, type CategoryMark, type RubricScore, type StoryFacts } from "./types.js";
 
 export interface ChatMessage {
@@ -94,7 +95,25 @@ export function parseJudgeResult(content: string): JudgeResult {
     fastest_fixes: asStringArray(obj.fastest_fixes),
   };
   const flags = obj.flags && typeof obj.flags === "object" ? (obj.flags as StoryFacts) : undefined;
-  return { rubric, flags };
+  const flagCitations = parseFlagCitations(obj.flag_citations);
+  return { rubric, flags, flagCitations };
+}
+
+/** Parse the judge's per-flag citations (K2 §2), tolerant of alt key names and missing fields. */
+function parseFlagCitations(raw: unknown): FlagCitation[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out: FlagCitation[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const c = item as Record<string, unknown>;
+    const flag = String(c.flag ?? c.condition ?? c.name ?? "").trim();
+    if (!flag) continue;
+    const chapterRaw = c.chapter ?? c.chapter_number ?? c.ch;
+    const chapter = typeof chapterRaw === "number" && Number.isFinite(chapterRaw) ? chapterRaw : Number(chapterRaw);
+    const sentence = String(c.sentence ?? c.quote ?? c.text ?? c.evidence ?? "").trim();
+    out.push({ flag, chapter: Number.isFinite(chapter) ? chapter : undefined, sentence: sentence || undefined });
+  }
+  return out.length ? out : undefined;
 }
 
 function stripFences(s: string): string {

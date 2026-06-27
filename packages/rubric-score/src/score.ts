@@ -10,7 +10,14 @@ import { applyHardCaps } from "./hard-caps.js";
 import { extractStoryFacts, mergeFacts, type ScoringCaseInput } from "./facts.js";
 import { buildRubricSystemPrompt, buildRubricUserMessage } from "./prompt.js";
 import { RUBRIC_SCHEMA } from "./schema.js";
-import type { CappedScore, RubricScore, StoryFacts } from "./types.js";
+import {
+  splitProseIntoChapters,
+  verifyCitations,
+  verifyStructure,
+  type FindUnplantedFn,
+  type FlagCitation,
+} from "./structural-verifiers.js";
+import type { CappedScore, RubricScore, StoryFacts, StructuralAdjustments } from "./types.js";
 
 export interface JudgeRequest {
   systemPrompt: string;
@@ -18,10 +25,12 @@ export interface JudgeRequest {
   schema: typeof RUBRIC_SCHEMA;
 }
 
-/** What the LLM critic returns: the rubric score + the structural conditions it observed. */
+/** What the LLM critic returns: the rubric score + the structural conditions it observed + its citations. */
 export interface JudgeResult {
   rubric: RubricScore;
   flags?: StoryFacts;
+  /** K2 §2: per-flag chapter+sentence the model claims proves each flag it set. */
+  flagCitations?: FlagCitation[];
 }
 
 /** The injectable judge — a stub in tests, the Azure structured-output call in production. */
@@ -31,6 +40,17 @@ export interface ScoreStoryInput {
   prose: string;
   cml: unknown;
   judge: RubricJudge;
+  /**
+   * The finished story split into chapters in order (chapters[0] = Chapter 1). When omitted, `scoreStory`
+   * splits the assembled `prose` on chapter headings. Pass it from the structured prose object when you
+   * have it — the structural verifiers and citation checks are sharper with true chapter boundaries.
+   */
+  chapters?: string[];
+  /**
+   * The real `findUnplantedDiscriminatingClues` (@cml/prompts-llm). Injected by the orchestrator so the
+   * planted-evidence verifier reuses the live A_50 §9.3 logic; a faithful local fallback runs without it.
+   */
+  findUnplanted?: FindUnplantedFn;
 }
 
 export interface ScoreStoryResult extends CappedScore {
@@ -40,27 +60,83 @@ export interface ScoreStoryResult extends CappedScore {
 
 /**
  * Score a finished story: extract the verified facts, ask the critic to score the prose (knowing
- * those facts), then enforce the hard caps in code. The number the pipeline ships is `final`.
+ * those facts), run the deterministic structural verifiers + citation check to **veto** the judge's
+ * false/unsupported structural flags, then enforce the hard caps in code. The number the pipeline
+ * ships is `final`.
  */
 export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResult> {
   const deterministic = extractStoryFacts(input.cml, input.prose);
   const caseData = unwrapCase(input.cml);
 
-  const userMessage = buildRubricUserMessage(input.prose, {
-    ...deterministic,
-    victimName: caseData.cast?.find((c) => /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`))?.name,
-    culprit: caseData.culpability?.culprits?.[0],
+  const chapters = input.chapters && input.chapters.length ? input.chapters : splitProseIntoChapters(input.prose);
+  const victimName = caseData.cast?.find((c) => /victim/i.test(`${c.role ?? ""} ${c.role_archetype ?? ""}`))?.name;
+
+  // Run the structural verifiers BEFORE the judge so the test-chapter context can be handed to it.
+  const verdict = verifyStructure({
+    cml: input.cml,
+    chapters,
+    victimName,
+    findUnplanted: input.findUnplanted,
   });
 
-  const { rubric, flags } = await input.judge({
+  const userMessage = buildRubricUserMessage(input.prose, {
+    ...deterministic,
+    victimName,
+    culprit: caseData.culpability?.culprits?.[0],
+    testChapter: verdict.testChapter,
+  });
+
+  const { rubric, flags, flagCitations } = await input.judge({
     systemPrompt: buildRubricSystemPrompt(),
     userMessage,
     schema: RUBRIC_SCHEMA,
   });
 
-  const facts = mergeFacts(deterministic, flags ?? {});
+  // ── K2 §2: drop any flag whose cited chapter+sentence does not appear in the prose ────────────
+  const judgeFlags: StoryFacts = { ...(flags ?? {}) };
+  const structural: StructuralAdjustments = {
+    mechanismExplainedChapter: verdict.mechanismExplainedChapter,
+    testChapter: verdict.testChapter,
+    unplantedEvidence: verdict.unplantedEvidence,
+  };
+  const citationsDropped: string[] = [];
+  if (flagCitations && flagCitations.length) {
+    const checks = verifyCitations(flagCitations, chapters);
+    const verifiedByFlag = new Map<string, boolean>();
+    for (const c of checks) verifiedByFlag.set(c.flag, (verifiedByFlag.get(c.flag) ?? false) || c.verified);
+    for (const [flag, verified] of verifiedByFlag) {
+      if (!verified && (judgeFlags as Record<string, unknown>)[flag] === true) {
+        (judgeFlags as Record<string, unknown>)[flag] = false;
+        citationsDropped.push(flag);
+      }
+    }
+  }
+  if (citationsDropped.length) structural.citationsDropped = citationsDropped;
+
+  // ── K2 §1: the structural verifiers override the judge for the things they can check ──────────
+  // Planted-evidence verifier: if every cited piece of reveal evidence IS planted earlier, veto the
+  // "unplanted evidence" flag; if the verifier positively finds unplanted evidence, confirm it.
+  if (verdict.allRevealEvidencePlanted === true && judgeFlags.revealUsesUnplantedEvidence) {
+    judgeFlags.revealUsesUnplantedEvidence = false;
+    structural.unplantedEvidenceVetoed = true;
+  } else if (verdict.allRevealEvidencePlanted === false && verdict.unplantedEvidence.length > 0) {
+    judgeFlags.revealUsesUnplantedEvidence = true;
+  }
+  // Mechanism-timing check: if the explanation is at/after the test scene, veto a false "too early" flag.
+  if (verdict.mechanismExplainedAtOrAfterTest === true && judgeFlags.mechanismExplainedTooEarly) {
+    judgeFlags.mechanismExplainedTooEarly = false;
+    structural.mechanismTimingVetoed = true;
+  } else if (verdict.mechanismExplainedAtOrAfterTest === false) {
+    // explanation is genuinely before the test scene → confirm a real "too early" condition
+    judgeFlags.mechanismExplainedTooEarly = true;
+  }
+  // Victim-named check: feed the prose scan into the facts (overrides the judge's victimIdentityUnclear
+  // guesswork when we can positively confirm the named victim is present).
+  if (verdict.victimNamedInProse === true) judgeFlags.victimIdentityUnclear = false;
+
+  const facts = mergeFacts(deterministic, judgeFlags);
   const capped = applyHardCaps(rubric, facts);
-  return { ...capped, rubric, facts };
+  return { ...capped, structural, rubric, facts };
 }
 
 function unwrapCase(cml: unknown): ScoringCaseInput {

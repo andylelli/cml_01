@@ -58,8 +58,33 @@ export const RUBRIC_SCHEMA = {
         pronounsUnstable: { type: "boolean" },
         culpritConfessesTamperingOnly: { type: "boolean" },
         revealUsesUnplantedEvidence: { type: "boolean" },
+        mechanismExplainedTooEarly: { type: "boolean" },
         noResolution: { type: "boolean" },
         endingContradictsEarlier: { type: "boolean" },
+      },
+    },
+    // K2 §2: EVERY flag set true above MUST cite the chapter + the verbatim sentence that proves it.
+    // The cap engine deterministically verifies each citation against the prose and DROPS any flag whose
+    // cited evidence does not actually appear — this self-exposes the templated false-positives.
+    flag_citations: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["flag", "chapter", "sentence"],
+        properties: {
+          flag: {
+            type: "string",
+            enum: [
+              "deadVictimAppearsAlive", "deadVictimIsCulprit", "victimIdentityUnclear",
+              "multipleRoleChanges", "pronounsUnstable", "culpritConfessesTamperingOnly",
+              "revealUsesUnplantedEvidence", "mechanismExplainedTooEarly", "noResolution",
+              "endingContradictsEarlier",
+            ],
+          },
+          chapter: { type: "integer", minimum: 1 },
+          sentence: { type: "string", minLength: 1 },
+        },
       },
     },
   },
