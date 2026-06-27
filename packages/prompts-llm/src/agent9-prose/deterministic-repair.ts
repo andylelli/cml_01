@@ -17,6 +17,9 @@ import {
   sceneMatchesCmlSceneRef,
 } from "./clue-validation.js";
 import type { StageModeKey } from "./clue-validation.js";
+// Reuse the SAME death-method resolver the reveal-completeness gate uses, so the deterministic
+// fallback reveal surfaces exactly the token the gate checks for (no abort on the fallback path).
+import { resolveDeathMethod } from "./prompt-builder.js";
 import type {
   ChapterRequirementLedgerEntry,
   ProseChapter,
@@ -623,13 +626,23 @@ const buildStageAwareFallbackParagraphs = (args: {
       || "the culprit";
     // R-A (M0): the mechanism description is long analytical text — prime 12-word-run material. Surface
     // key terms only (the run flagged "A precisely timed gust of wind entered through the garden window…").
-    const methodDescription = composeProseTermPhrase(
+    const mechanismDescription = composeProseTermPhrase(
       String((args.caseData as any)?.CASE?.hidden_model?.mechanism?.description ?? "").trim(),
-    ) || "the precise murder method";
+    ) || "the means of concealing the crime";
+    // ROADMAP_TO_80 M0 / L1: the reveal-completeness gate (clue-validation.ts) requires the prose to
+    // surface the DEATH method (how the victim was killed), NOT only the concealment mechanism — the
+    // distinction that aborted run `mystery-1782545187071` ("…connect culprit to death method
+    // (strangled)"). The fallback previously only stated the mechanism. Surface the death method via the
+    // SAME resolver the gate uses, so the deterministic fallback can never fail that gate. A colon
+    // phrasing reads naturally for both participles ("strangled") and noun phrases ("a stab wound").
+    const deathMethod = (resolveDeathMethod(args.caseData) || "").trim();
+    const deathMethodSentence = deathMethod
+      ? ` ${investigatorName} stated plainly how the victim had died: ${deathMethod} — the manner of death itself, not merely how the timing had been disguised.`
+      : "";
 
     return [
       `${investigatorName} named ${culpritName} only after laying motive and opportunity side by side in plain terms. The motive was tied to emotional pressure that had already surfaced in testimony, while the opportunity was tied to verified access and a narrowed time window no other suspect could satisfy.`,
-      `${investigatorName} then connected means to method without ornament: ${methodDescription}. The opportunity and access linkage held against alibi checks, and the method detail matched the physical evidence rather than a dramatic accusation.`,
+      `${investigatorName} then connected means to method without ornament: ${mechanismDescription}.${deathMethodSentence} The opportunity and access linkage held against alibi checks, and the method detail matched the physical evidence rather than a dramatic accusation.`,
       `The room understood why the accusation stood. Motive explained the decision, opportunity explained the timing, and method explained the death itself; together they formed one chain of proof that could be tested and repeated without contradiction.`,
     ];
   }

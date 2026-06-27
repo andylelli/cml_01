@@ -689,8 +689,8 @@ const buildChapterOutcomeBlock = (
     const deathMethod = resolveDeathMethod(cmlCase);
     if (deathMethod) {
       lines.push(
-        `Manner of death (MUST be named in the reveal): the victim was killed by ${deathMethod}. ` +
-          `State plainly HOW the victim died (e.g. "${deathMethod}") — not only how the clock/timeline was ` +
+        `Manner of death (MUST be named in the reveal): state plainly how the victim died — cause of death: ${deathMethod}. ` +
+          `Surface it in the prose in plain words (e.g. "${deathMethod}") — not only how the clock/timeline was ` +
           `manipulated. A reveal that explains the concealment but never the killing fails the fair-play contract.`,
       );
     }

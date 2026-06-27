@@ -722,6 +722,43 @@ describe("validateChapterPreCommitObligations", () => {
 
     expect(result.hardFailures.some((msg) => msg.includes("Final reveal completeness failed"))).toBe(false);
   });
+
+  it("final-reveal fallback surfaces the DEATH method, not only the concealment mechanism", () => {
+    // Regression for run mystery-1782545187071: the deterministic fallback reveal described the
+    // clock-tampering MECHANISM but never the killing, so the death-method gate hard-aborted
+    // ("…connect culprit to death method (strangled)"). With CASE.death_method = "strangled" and a
+    // clock-only mechanism, the fallback must now state the manner of death and pass the gate.
+    const ledger = { chapterNumber: 9, hardFloorWords: 700, preferredWords: 900, requiredClueIds: ["clue_clock"] };
+    const caseData = {
+      ...baseCaseData,
+      CASE: {
+        ...baseCaseData.CASE,
+        death_method: "strangled",
+        culpability: { culprits: ["Edgar Vale"] },
+        hidden_model: { mechanism: { description: "rewound the mantel clock to fake the time of death" } },
+      },
+    };
+    const chapter = buildCompletionFallbackChapter(
+      undefined,
+      baseScene,
+      9,
+      ledger as any,
+      baseInputs.clueDistribution,
+      caseData,
+      { stageMode: "final_reveal", focusName: "Edgar Vale" },
+    );
+    expect((chapter.paragraphs ?? []).join(" ").toLowerCase()).toContain("strangled");
+
+    const result = validateChapterPreCommitObligations(
+      chapter,
+      ledger as any,
+      baseInputs.clueDistribution,
+      ["Clara Whitfield", "Edgar Vale"],
+      undefined,
+      { mode: "final_reveal", culpritName: "Edgar Vale", murderMethod: "strangled" } as any,
+    );
+    expect(result.hardFailures.some((msg) => msg.includes("death method"))).toBe(false);
+  });
 });
 
 describe("proseSurfacesDeathMethod — L1 reveal gate aligned to the rubric grader", () => {
