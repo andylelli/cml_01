@@ -139,14 +139,11 @@ function clueSearchTerms(clue: unknown, caseData: Record<string, any>): string[]
  * in some chapter STRICTLY before the test chapter? A clue counts as planted-in-prose if ≥1 of its salient
  * terms surfaces earlier — that is the reader-facing "was this shown before it was used?" question.
  */
-function scanProsePlanting(
-  clue: unknown,
-  caseData: Record<string, any>,
+function termsAppearBeforeTest(
+  terms: string[],
   chaptersLower: string[],
   testChapterIdx: number | null,
 ): boolean {
-  const terms = clueSearchTerms(clue, caseData);
-  if (terms.length === 0) return false;
   const lastEarlierIdx = testChapterIdx !== null ? testChapterIdx - 1 : chaptersLower.length - 1;
   for (let i = 0; i <= lastEarlierIdx && i < chaptersLower.length; i++) {
     if (terms.some((t) => chaptersLower[i].includes(t))) return true;
@@ -194,11 +191,21 @@ function resolveTestChapter(
   return rank >= 1 && rank <= chapterCount ? rank : null;
 }
 
+// Causal / method / agentive language that distinguishes EXPLAINING the mechanism ("she had reset
+// the clock to fake the time of death", "the trick was…") from merely PLANTING the clue or naming the
+// suspicious object ("fresh scratches, as though someone had fumbled with it", "the clock's hands
+// pointed to ten past nine"). Without this, a crime-scene chapter that introduces the clock-tampering
+// CLUE trips the term-density check and is falsely scored as "mechanism explained too early" — the
+// over-detection observed in run mystery-1782585273377 (ch1 plants beautifully, explains nothing).
+const MECHANISM_EXPLANATION_MARKER =
+  /\b(?:in order to|so as to|so that|this (?:gave|created|allowed|meant|explained|produced)|which (?:gave|created|allowed|meant)|to (?:fake|conceal|disguise|fabricate|stage|simulate|forge)\b|(?:had|then|she|he|they) (?:reset|rewound|wound back|set back|moved|advanced|adjusted|altered|rigged|tampered with) the|the (?:trick|method|mechanism|scheme|deception) (?:was|lay|had been)|explained (?:how|that|the)|how (?:the )?(?:murder|crime|killer|culprit|trick|mechanism|clock))\b/;
+
 /**
- * Mechanism-timing: find the first chapter that FULLY explains the mechanism. The mechanism description's
- * salient terms appearing together in a chapter is the honest "explained here" signal; the first such
- * chapter is the explanation chapter. A *false* "explained too early" flag is one where that chapter is at
- * or after the discriminating-test chapter (the withhold gate held).
+ * Mechanism-timing: find the first chapter that FULLY explains the mechanism. A chapter explains the
+ * mechanism only when (a) a majority of the description's salient terms co-occur there AND (b) the
+ * chapter carries causal/method/agentive EXPLANATION language — not merely the mechanism's terms as
+ * scene-setting or a planted clue. A *false* "explained too early" flag is one where that chapter is
+ * at or after the discriminating-test chapter (the withhold gate held).
  */
 function resolveMechanismExplainedChapter(
   caseData: Record<string, any>,
@@ -214,11 +221,12 @@ function resolveMechanismExplainedChapter(
     .split(" ")
     .filter((w) => w.length >= 5 && !STOP.has(w));
   if (terms.length === 0) return null;
-  // A chapter "fully explains" the mechanism when a majority of its salient terms co-occur there.
+  // A chapter "fully explains" the mechanism when a majority of its salient terms co-occur there AND
+  // the chapter actually explains (not just names) the mechanism.
   const need = Math.max(2, Math.ceil(terms.length * 0.5));
   for (let i = 0; i < chaptersLower.length; i++) {
     const hits = terms.filter((t) => chaptersLower[i].includes(t)).length;
-    if (hits >= need) return i + 1; // 1-based
+    if (hits >= need && MECHANISM_EXPLANATION_MARKER.test(chaptersLower[i])) return i + 1; // 1-based
   }
   return null;
 }
@@ -254,11 +262,17 @@ export function verifyStructure(input: VerifyStructureInput): StructuralVerdict 
 
     const unplanted: string[] = [];
     for (const clue of evidenceClues) {
-      const plantedByCaseOrdering = !caseUnplantedSet.has(clue);
-      const plantedInProse = scanProsePlanting(clue, caseData, chaptersLower, testChapter);
-      // A clue is "planted earlier" if the CASE scene-ordering places it before the test AND its content
-      // actually surfaces in an earlier chapter's prose. Either failing → genuinely unplanted.
-      if (!(plantedByCaseOrdering && plantedInProse)) unplanted.push(clue);
+      const unplantedByCaseOrdering = caseUnplantedSet.has(clue);
+      // The prose scan only contributes a verdict when it can resolve the clue's content. When
+      // clueSearchTerms yields no usable terms (e.g. the CASE carries no prose-facing description, so it
+      // falls back to the bare id), the scan is INDETERMINATE and must NOT veto a valid CASE-ordering
+      // "planted" — that blindness was flagging well-planted clues as unplanted (run mystery-1782585273377).
+      const proseTerms = clueSearchTerms(clue, caseData);
+      const unplantedByProse =
+        proseTerms.length > 0 && !termsAppearBeforeTest(proseTerms, chaptersLower, testChapter);
+      // Flag unplanted only on POSITIVE evidence: the CASE ordering places it at/after the test, OR the
+      // prose determinately lacks its content earlier. Indeterminate prose never adds a false unplanted.
+      if (unplantedByCaseOrdering || unplantedByProse) unplanted.push(clue);
     }
     verdict.unplantedEvidence = unplanted;
     verdict.allRevealEvidencePlanted = unplanted.length === 0;

@@ -101,6 +101,59 @@ describe("verifyStructure — planted-evidence verifier (K2 §1)", () => {
     expect(v.allRevealEvidencePlanted).toBe(false);
     expect(v.unplantedEvidence).toContain("clockwork_expertise");
   });
+
+  // Over-detection fix (run mystery-1782585273377): when a clue's content cannot be resolved
+  // (no prose-facing description → clueSearchTerms falls back to the bare id → no usable terms), the
+  // prose scan is INDETERMINATE and must not veto a valid CASE-ordering "planted".
+  it("does NOT flag an id-only clue as unplanted when the CASE ordering plants it before the test", () => {
+    const caseIdOnly = {
+      CASE: {
+        cast: [
+          { name: "Eleanor Voss", role: "detective" },
+          { name: "Dr. Mallory Finch", role: "suspect" },
+          { name: "Sylvia Trent", role: "victim" },
+        ],
+        culpability: { culprits: ["Dr. Mallory Finch"] },
+        clues: [], // no description for "clue_1" → indeterminate prose scan
+        hidden_model: { mechanism: { description: "the pendulum clock was wound backward to fake the timeline" } },
+        discriminating_test: { evidence_clues: ["clue_1"] },
+        prose_requirements: {
+          discriminating_test_scene: { act_number: 3, scene_number: 1 },
+          clue_to_scene_mapping: [{ clue_id: "clue_1", act_number: 1, scene_number: 1 }], // planted before the test
+        },
+      },
+    };
+    // The prose (PLANTED_CHAPTERS) never literally says "clue_1", yet it must NOT be flagged unplanted:
+    // the CASE ordering places it before the test and the prose scan is indeterminate.
+    const v = verifyStructure({ cml: caseIdOnly, chapters: PLANTED_CHAPTERS });
+    expect(v.unplantedEvidence).not.toContain("clue_1");
+  });
+});
+
+describe("verifyStructure — mechanism-timing requires EXPLANATION, not just term presence (K2 §1)", () => {
+  // A crime-scene chapter dense with the mechanism's TERMS but only as planting/atmosphere (no causal /
+  // method / agentive language) must NOT count as "mechanism explained" — the ch1 over-detection.
+  const PLANT_HEAVY = [
+    "Chapter 1\n\nSylvia Trent lay dead beneath the pendulum clock. The escapement gears stood still and the timeline felt wrong — the clock's scratched brass and frozen hands a silent mechanism, as though someone had fumbled with it.",
+    ...PLANTED_CHAPTERS.slice(1, 6),
+    "Chapter 7\n\nAt the discriminating test, Voss showed how Finch had wound the pendulum clock backward to fake the escapement timeline — the reveal.",
+  ];
+
+  it("a term-dense crime-scene chapter without explanation language is not the explanation chapter", () => {
+    const v = verifyStructure({ cml: caseWith({ cluePlantedScene: { act: 1, scene: 1 } }), chapters: PLANT_HEAVY });
+    expect(v.mechanismExplainedChapter).toBe(7); // ch1 plants the terms; ch7 actually explains ("to fake")
+  });
+
+  it("still detects a genuine EARLY explanation (terms + causal marker before the test)", () => {
+    const earlyExplain = [
+      "Chapter 1\n\nSylvia Trent lay dead beneath the pendulum clock.",
+      "Chapter 2\n\nFinch had wound the pendulum clock backward to fake the escapement timeline, he confessed early — the whole mechanism laid bare.",
+      ...PLANTED_CHAPTERS.slice(2),
+    ];
+    const v = verifyStructure({ cml: caseWith({ cluePlantedScene: { act: 1, scene: 1 } }), chapters: earlyExplain });
+    expect(v.mechanismExplainedChapter).toBe(2); // explained at ch2, before the ch7 test
+    expect(v.mechanismExplainedAtOrAfterTest).toBe(false);
+  });
 });
 
 describe("scoreStory — the 'unplanted evidence' flag fires ONLY on the genuinely unplanted story", () => {
