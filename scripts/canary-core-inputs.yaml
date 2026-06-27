@@ -47,22 +47,28 @@ eraPreference: "1940s"
 locationPreset: SeasideHotel
 tone: "Classic"
 primaryAxis: temporal
-castSize: 4
+# K1 (ANALYSIS_51): a fair-play mystery needs FIVE distinct roles — victim +
+# detective + culprit + >=2 suspects. A 4-person cast starved one role (usually
+# the victim, who became an unnamed phantom). Grown to 6 so the victim can be a
+# first-class, named, profiled character distinct from detective/culprit/suspects.
+castSize: 6
 castNames:
   - "Eleanor Voss"
   - "Dr. Mallory Finch"
   - "Captain Ivor Hale"
   - "Beatrice Quill"
+  - "Sylvia Trent"
+  - "Hugo Vane"
 # Gender lock: prevents per-run ambiguity for names the LLM may misread.
-# Captain Ivor Hale is masculine (Ivor = Welsh male name) — lock to male.
+# Captain Ivor Hale (Ivor = Welsh male name) and Hugo Vane are masculine — lock to male.
 # All other characters are female. This is non-negotiable via Agent2 prompt.
 castGenders:
   "Eleanor Voss": female
   "Dr. Mallory Finch": female
   "Captain Ivor Hale": male
   "Beatrice Quill": female
-#  - "Sylvia Trent"
-#  - "Hugo Vane"
+  "Sylvia Trent": female
+  "Hugo Vane": male
 #  - "Agnes Pike"
 detectiveType: amateur
 targetLength: short

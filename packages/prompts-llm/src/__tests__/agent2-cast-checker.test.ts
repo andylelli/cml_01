@@ -186,3 +186,75 @@ describe("checkCast — robustness & ordering", () => {
     expect(r.metrics.graph.isolatedNodes).toEqual([]);
   });
 });
+
+describe("checkCast — K1 victim invariant (warn-severity, never errors)", () => {
+  /** A 5-person cast with a first-class, distinct, tied victim. */
+  function castWithVictim(): CastDesign {
+    return {
+      characters: [
+        makeChar({ name: "Eleanor Voss", roleArchetype: "amateur sleuth", gender: "female" }),
+        makeChar({ name: "Mallory Finch", roleArchetype: "estate physician", gender: "female" }),
+        makeChar({ name: "Ivor Hale", roleArchetype: "retired captain", gender: "male" }),
+        makeChar({ name: "Beatrice Quill", roleArchetype: "household companion", gender: "female" }),
+        makeChar({
+          name: "Sylvia Trent",
+          roleArchetype: "victim",
+          gender: "female",
+          publicPersona: "the imperious matriarch who controlled the estate purse",
+          privateSecret: "had just rewritten her will to disinherit the family",
+        }),
+      ],
+      relationships: {
+        pairs: [
+          pair("Sylvia Trent", "Mallory Finch", "high"),
+          pair("Mallory Finch", "Ivor Hale", "low"),
+          pair("Ivor Hale", "Beatrice Quill", "moderate"),
+          pair("Beatrice Quill", "Eleanor Voss", "low"),
+        ],
+      },
+      diversity: { stereotypeCheck: [], recommendations: [] },
+      crimeDynamics: {
+        possibleCulprits: ["Mallory Finch", "Ivor Hale", "Beatrice Quill"],
+        redHerrings: [],
+        victimCandidates: ["Sylvia Trent"],
+        detectiveCandidates: ["Eleanor Voss"],
+      },
+    };
+  }
+
+  it("a distinct, profiled, tied victim raises no victim warnings", () => {
+    const r = checkCast(castWithVictim(), { expectedCount: 5 });
+    expect(r.metrics.victimName).toBe("Sylvia Trent");
+    expect(r.metrics.victimDistinct).toBe(true);
+    expect(r.metrics.victimTiedToSuspect).toBe(true);
+    expect(r.issues.some((i) => i.code.startsWith("victim_") || i.code === "missing_victim")).toBe(false);
+    expect(summarizeCastCheck(r)).toContain("victim=Sylvia Trent");
+  });
+
+  it("flags a missing victim (warn, not error)", () => {
+    const cast = castWithVictim();
+    cast.characters[4].roleArchetype = "houseguest";
+    cast.crimeDynamics.victimCandidates = [];
+    const r = checkCast(cast, { expectedCount: 5 });
+    expect(r.ok).toBe(true); // warn-severity: never aborts
+    expect(r.metrics.victimName).toBeNull();
+    expect(r.issues.some((i) => i.code === "missing_victim" && i.severity === "warn")).toBe(true);
+  });
+
+  it("flags a victim who is also a culprit-candidate", () => {
+    const cast = castWithVictim();
+    cast.crimeDynamics.possibleCulprits = ["Sylvia Trent", "Mallory Finch", "Ivor Hale"];
+    const r = checkCast(cast, { expectedCount: 5 });
+    expect(r.metrics.victimDistinct).toBe(false);
+    expect(r.issues.some((i) => i.code === "victim_is_suspect" && i.severity === "warn")).toBe(true);
+  });
+
+  it("flags a victim with no relationship to any culprit-candidate (no motive anchor)", () => {
+    const cast = castWithVictim();
+    // sever the victim↔suspect edge, leave the victim attached only to the detective
+    cast.relationships = { pairs: [pair("Sylvia Trent", "Eleanor Voss", "moderate"), pair("Mallory Finch", "Ivor Hale", "low")] };
+    const r = checkCast(cast, { expectedCount: 5 });
+    expect(r.metrics.victimTiedToSuspect).toBe(false);
+    expect(r.issues.some((i) => i.code === "victim_not_tied_to_suspect" && i.severity === "warn")).toBe(true);
+  });
+});

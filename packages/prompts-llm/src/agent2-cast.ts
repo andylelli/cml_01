@@ -269,9 +269,9 @@ Diversity schema:
 - recommendations
 
 Crime dynamics schema:
-- possibleCulprits
+- possibleCulprits (suspects only — never the detective and never the victim)
 - redHerrings
-- victimCandidates
+- victimCandidates (the single first-class victim: roleArchetype "victim", named and profiled, distinct from detective/culprit/suspects)
 - detectiveCandidates
 
 Quality bar:
@@ -419,12 +419,15 @@ Hard requirements:
 11. Declare \`gender\` for each character: "male" or "female" only — no other values are permitted (required — never omit)
 12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
 13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
+14. VICTIM (first-class role): exactly ONE character is the murder victim. Give them roleArchetype "victim", a full publicPersona and privateSecret so their death carries weight, and name them in crimeDynamics.victimCandidates. The victim MUST NOT appear in crimeDynamics.possibleCulprits and MUST NOT be the detective — these are five distinct roles (victim, detective, culprit, and at least two other suspects).
+15. The victim MUST be tied to the case by relationships: at least one HIGH-tension relationship with a culprit-candidate (the motive anchor — why someone wanted them dead) and at least one relationship with each other suspect (the misdirection surface).
 
 CRITICAL COMPLETENESS RULES:
 - The final characters array MUST have exactly ${count} entries — no more, no fewer
 - crimeDynamics.possibleCulprits MUST name at least ${Math.min(3, count - 1)} characters (suspects only — never the detective)
 - The detective character's roleArchetype MUST be "${detectiveRoleLabel}"
 - The cast MUST include at least ${minUniqueArchetypes} unique roleArchetype labels
+- Exactly ONE character has roleArchetype "victim"; that character is named in crimeDynamics.victimCandidates and appears in NEITHER possibleCulprits NOR as the detective
 
 ${inputs.qualityGuardrails && inputs.qualityGuardrails.length > 0 ? `## Quality Guardrails (Must Satisfy)
 ${inputs.qualityGuardrails.map((rule, idx) => `${idx + 1}. ${rule}`).join('\n')}

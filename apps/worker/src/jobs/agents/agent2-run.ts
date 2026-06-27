@@ -29,8 +29,9 @@ import {
  * Handles snake_case crimeDynamics keys, missing required array fields,
  * and relationships returned as a bare array instead of { pairs: [...] }.
  * Mutates the object in place — call before validateArtifact.
+ * Any deterministic repairs (e.g. the K1 victim invariant) are surfaced on `warnings`.
  */
-function normaliseCastOutput(castRaw: Record<string, unknown>): void {
+function normaliseCastOutput(castRaw: Record<string, unknown>, warnings: string[] = []): void {
   // --- crimeDynamics: snake_case → camelCase ---
   const cd = ((castRaw.crimeDynamics ?? {}) as Record<string, unknown>);
   if (!cd.possibleCulprits && cd.possible_culprits)         { cd.possibleCulprits = cd.possible_culprits; }
@@ -325,6 +326,11 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
     relationshipContainer.pairs = fallbackPairs;
   }
 
+  // --- K1: enforce the first-class victim invariant (deterministic, repair-not-abort) ---
+  // Runs after possibleCulprits and relationships are settled so it can both fix
+  // crimeDynamics and synthesise the missing motive-anchor edge.
+  enforceVictimRoleInvariant(castRaw, warnings);
+
   // --- diversity: coerce string fields to string[] ---
   // gpt-4.1-mini returns a single string for recommendations/stereotypeCheck when
   // it has one unified thought. The schema requires string[]; wrap rather than abort.
@@ -341,6 +347,120 @@ function normaliseCastOutput(castRaw: Record<string, unknown>): void {
     } else if (!Array.isArray(divObj.stereotypeCheck)) {
       divObj.stereotypeCheck = [];
     }
+  }
+}
+
+/**
+ * K1 (ANALYSIS_51 §1) — guarantee a first-class, NAMED victim distinct from the
+ * detective / culprit-candidates / suspects, the root fix for the "phantom victim".
+ *
+ * Deterministic and repair-not-abort (per MEMORY: a victim defect must repair, never
+ * throw). It (1) resolves the victim — preferring a "victim" archetype, then
+ * crimeDynamics.victimCandidates, then the first non-detective non-culprit character;
+ * (2) locks that character's roleArchetype to "victim"; (3) removes the victim from
+ * possibleCulprits (topping the suspect pool back up from the remaining cast);
+ * (4) pins crimeDynamics.victimCandidates to the single victim; and (5) synthesises a
+ * high-tension victim↔culprit-candidate relationship (the motive anchor) when none exists.
+ * Every repair is surfaced on `warnings`; the run always continues.
+ *
+ * Exported for unit testing.
+ */
+export function enforceVictimRoleInvariant(
+  castRaw: Record<string, unknown>,
+  warnings: string[] = [],
+): void {
+  const characters = Array.isArray(castRaw.characters)
+    ? (castRaw.characters as Array<Record<string, unknown>>)
+    : [];
+  // Too small to host five distinct roles — leave it to checkCast to flag (don't fabricate).
+  if (characters.length < 3) return;
+
+  const cd = (castRaw.crimeDynamics ?? (castRaw.crimeDynamics = {})) as Record<string, unknown>;
+  const nameOf = (c: Record<string, unknown>): string => String(c?.name ?? "").trim();
+  const archetypeOf = (c: Record<string, unknown>): string => String(c?.roleArchetype ?? "").toLowerCase();
+  const isDetective = (c: Record<string, unknown>): boolean =>
+    /detective|investigator|inspector|sleuth/.test(archetypeOf(c));
+
+  const detectiveNames = new Set(characters.filter(isDetective).map(nameOf).filter(Boolean).map((n) => n.toLowerCase()));
+  const possibleCulprits = Array.isArray(cd.possibleCulprits)
+    ? (cd.possibleCulprits as unknown[]).map((n) => String(n).trim()).filter(Boolean)
+    : [];
+  const culpritKeys = new Set(possibleCulprits.map((n) => n.toLowerCase()));
+  const victimCandidates = Array.isArray(cd.victimCandidates)
+    ? (cd.victimCandidates as unknown[]).map((n) => String(n).trim()).filter(Boolean)
+    : [];
+
+  // 1. Resolve the victim.
+  const victim =
+    characters.find((c) => /victim/.test(archetypeOf(c)) && nameOf(c)) ??
+    characters.find((c) => nameOf(c) && victimCandidates.some((v) => v.toLowerCase() === nameOf(c).toLowerCase())) ??
+    characters.find((c) => {
+      const k = nameOf(c).toLowerCase();
+      return k && !detectiveNames.has(k) && !culpritKeys.has(k);
+    }) ??
+    characters.find((c) => nameOf(c) && !detectiveNames.has(nameOf(c).toLowerCase()));
+
+  if (!victim || !nameOf(victim)) {
+    warnings.push(
+      "[agent2-victim][repair] no eligible victim could be assigned (cast lacks a non-detective character) — grow the cast (K1 Path A).",
+    );
+    return;
+  }
+  const victimName = nameOf(victim);
+  const victimKey = victimName.toLowerCase();
+
+  // 2. Lock the victim archetype so the role is first-class downstream.
+  if (!/victim/.test(archetypeOf(victim))) {
+    const prior = String(victim.roleArchetype ?? "").trim();
+    victim.roleArchetype = "victim";
+    warnings.push(`[agent2-victim][repair] designated ${victimName} as the named victim (was "${prior || "unset"}").`);
+  }
+
+  // 3. The victim cannot be a suspect — remove from possibleCulprits and top the pool back up.
+  if (culpritKeys.has(victimKey)) {
+    const remaining = possibleCulprits.filter((n) => n.toLowerCase() !== victimKey);
+    const eligible = characters
+      .map(nameOf)
+      .filter((n) => n && n.toLowerCase() !== victimKey && !detectiveNames.has(n.toLowerCase()));
+    const merged: string[] = [];
+    for (const n of [...remaining, ...eligible]) {
+      if (!merged.some((m) => m.toLowerCase() === n.toLowerCase())) merged.push(n);
+    }
+    cd.possibleCulprits = merged.slice(0, Math.max(remaining.length, Math.min(3, merged.length)));
+    warnings.push(
+      `[agent2-victim][repair] removed the victim ${victimName} from possibleCulprits (a victim cannot also be a suspect).`,
+    );
+  }
+
+  // 4. Pin victimCandidates to the single resolved victim.
+  if (victimCandidates.length !== 1 || victimCandidates[0]?.toLowerCase() !== victimKey) {
+    cd.victimCandidates = [victimName];
+  }
+
+  // 5. Motive anchor — ensure a victim↔culprit-candidate relationship exists.
+  const culprits = Array.isArray(cd.possibleCulprits)
+    ? (cd.possibleCulprits as unknown[]).map((n) => String(n).trim()).filter(Boolean)
+    : [];
+  const rel = (castRaw.relationships ?? (castRaw.relationships = {})) as Record<string, unknown>;
+  const pairs = Array.isArray(rel.pairs) ? (rel.pairs as Array<Record<string, unknown>>) : (rel.pairs = []) as Array<Record<string, unknown>>;
+  const tiedToCulprit = pairs.some((p) => {
+    const a = String(p.character1 ?? "").toLowerCase();
+    const b = String(p.character2 ?? "").toLowerCase();
+    return (a === victimKey && culprits.some((c) => c.toLowerCase() === b)) ||
+      (b === victimKey && culprits.some((c) => c.toLowerCase() === a));
+  });
+  if (!tiedToCulprit && culprits.length > 0) {
+    const anchor = culprits[0];
+    pairs.push({
+      character1: victimName,
+      character2: anchor,
+      relationship: `${victimName} and ${anchor} — victim and prime suspect`,
+      tension: "high",
+      sharedHistory: `${anchor} held a personal grievance against ${victimName} that anchors the motive for the murder.`,
+    });
+    warnings.push(
+      `[agent2-victim][repair] added the motive-anchor relationship ${victimName} ↔ ${anchor} (the victim must be tied to a suspect).`,
+    );
   }
 }
 
@@ -432,7 +552,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
 
   // Normalise field-name variants (snake_case → camelCase, missing arrays, relationships shape)
   // before schema validation so cosmetic LLM formatting differences don't abort the pipeline.
-  normaliseCastOutput((cast.cast as unknown) as Record<string, unknown>);
+  normaliseCastOutput((cast.cast as unknown) as Record<string, unknown>, ctx.warnings);
 
   if (cast.cast.diversity.stereotypeCheck.length > 0) {
     ctx.errors.push(...cast.cast.diversity.stereotypeCheck.map((w: string) => `Agent 2: ${w}`));
@@ -471,7 +591,7 @@ export async function runAgent2(ctx: OrchestratorContext): Promise<void> {
     });
     ctx.agentCosts["agent2_cast"] = (ctx.agentCosts["agent2_cast"] || 0) + retriedCast.cost;
     ctx.agentDurations["agent2_cast"] = (ctx.agentDurations["agent2_cast"] || 0) + (Date.now() - castSchemaRetryStart);
-    normaliseCastOutput((retriedCast.cast as unknown) as Record<string, unknown>);
+    normaliseCastOutput((retriedCast.cast as unknown) as Record<string, unknown>, ctx.warnings);
     const retriedPayload = {
       ...((retriedCast.cast as unknown) as Record<string, unknown>),
       cost: retriedCast.cost,

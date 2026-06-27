@@ -63,6 +63,12 @@ export interface CastCheckMetrics {
   placeholderCount: number;
   illegalEnumCount: number;
   graph: CastGraphMetrics;
+  /** K1: the resolved victim's name, or null when no victim is designated. */
+  victimName: string | null;
+  /** K1: true when the victim is neither a culprit-candidate nor the detective. */
+  victimDistinct: boolean;
+  /** K1: true when the victim has a relationship edge to at least one culprit-candidate. */
+  victimTiedToSuspect: boolean;
 }
 
 export interface CastCheckResult {
@@ -300,6 +306,95 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
     });
   }
 
+  // --- victim (K1): first-class, named, distinct from detective/culprit/suspects ---
+  // A fair-play mystery needs five distinct roles (victim + detective + culprit + >=2 suspects).
+  // The victim must be a NAMED, profiled character tied to a culprit-candidate (the motive anchor),
+  // never the detective and never one of the suspects. These are all warn-severity: a victim defect
+  // feeds a retry/repair, it never errors the cast (repair-not-abort).
+  const cd = (cast?.crimeDynamics ?? {}) as { possibleCulprits?: unknown; victimCandidates?: unknown };
+  const possibleCulprits = Array.isArray(cd.possibleCulprits)
+    ? cd.possibleCulprits.map((n) => String(n).trim()).filter(Boolean)
+    : [];
+  const culpritKeys = new Set(possibleCulprits.map((n) => n.toLowerCase()));
+  const victimCandidates = Array.isArray(cd.victimCandidates)
+    ? cd.victimCandidates.map((n) => String(n).trim()).filter(Boolean)
+    : [];
+
+  const detectiveChar = characters.find((c) => /(detective|investigator|inspector|sleuth)/.test(norm(c?.roleArchetype)));
+  const detectiveName = detectiveChar ? String(detectiveChar.name ?? "").trim() : "";
+
+  const victimByArchetype = characters.find((c) => /victim/.test(norm(c?.roleArchetype)) && String(c?.name ?? "").trim());
+  const victimByCandidate = characters.find((c) =>
+    victimCandidates.some((v) => v.toLowerCase() === String(c?.name ?? "").trim().toLowerCase()),
+  );
+  const victimChar = victimByArchetype ?? victimByCandidate ?? null;
+  const victimName = victimChar ? String(victimChar.name ?? "").trim() : (victimCandidates[0] ?? null);
+
+  let victimDistinct = false;
+  let victimTiedToSuspect = false;
+
+  if (!victimName) {
+    issues.push({
+      code: "missing_victim",
+      severity: "warn",
+      message: 'No character is designated as the victim (no "victim" archetype and no crimeDynamics.victimCandidates).',
+      feedback:
+        'Designate exactly one character as the victim: roleArchetype "victim", named in crimeDynamics.victimCandidates, distinct from the detective and from possibleCulprits.',
+    });
+  } else {
+    const vk = victimName.toLowerCase();
+    const victimIsCulprit = culpritKeys.has(vk);
+    const victimIsDetective = Boolean(detectiveName) && vk === detectiveName.toLowerCase();
+    victimDistinct = !victimIsCulprit && !victimIsDetective;
+
+    if (victimIsCulprit) {
+      issues.push({
+        code: "victim_is_suspect",
+        severity: "warn",
+        character: victimName,
+        message: `The victim ${victimName} also appears in possibleCulprits.`,
+        feedback: `Remove the victim ${victimName} from possibleCulprits — the victim cannot also be a suspect.`,
+      });
+    }
+    if (victimIsDetective) {
+      issues.push({
+        code: "victim_is_detective",
+        severity: "warn",
+        character: victimName,
+        message: `The victim ${victimName} is also the detective.`,
+        feedback: "The victim and the detective must be different characters; reassign one role.",
+      });
+    }
+    if (victimChar) {
+      const vp = String((victimChar as CharacterProfile).publicPersona ?? "").trim();
+      const vs = String((victimChar as CharacterProfile).privateSecret ?? "").trim();
+      if (vp.length < thinThreshold && vs.length < thinThreshold) {
+        issues.push({
+          code: "victim_thinly_drawn",
+          severity: "warn",
+          character: victimName,
+          message: `The victim ${victimName} is thinly drawn — their death will not carry weight.`,
+          feedback: `Give the victim ${victimName} a concrete publicPersona and privateSecret so the loss matters and the motive is specific.`,
+        });
+      }
+    }
+
+    victimTiedToSuspect = edges.some((e) => {
+      const a = e.a.toLowerCase();
+      const b = e.b.toLowerCase();
+      return (a === vk && culpritKeys.has(b)) || (b === vk && culpritKeys.has(a));
+    });
+    if (possibleCulprits.length > 0 && !victimTiedToSuspect) {
+      issues.push({
+        code: "victim_not_tied_to_suspect",
+        severity: "warn",
+        character: victimName,
+        message: `The victim ${victimName} has no relationship with any culprit-candidate — the motive has no anchor.`,
+        feedback: `Add a high-tension relationship between the victim ${victimName} and at least one possibleCulprit (the motive anchor).`,
+      });
+    }
+  }
+
   const metrics: CastCheckMetrics = {
     count: characters.length,
     expectedCount,
@@ -317,6 +412,9 @@ export function checkCast(cast: CastDesign, opts: CastCheckOptions = {}): CastCh
       highTensionEdges,
       danglingNames,
     },
+    victimName,
+    victimDistinct,
+    victimTiedToSuspect,
   };
 
   // Errors first, then warns; de-duplicate identical feedback strings.
@@ -347,6 +445,7 @@ export function summarizeCastCheck(result: CastCheckResult): string {
     `count=${m.count}${m.expectedCount !== null ? `/${m.expectedCount}` : ""} ` +
     `archetypeUniq=${m.archetypeUniqueRatio.toFixed(2)} genderComplete=${m.genderCompleteness.toFixed(2)} ` +
     `placeholders=${m.placeholderCount} illegalEnums=${m.illegalEnumCount} ` +
-    `isolated=${m.graph.isolatedNodes.length} highTension=${m.graph.highTensionEdges} dangling=${m.graph.danglingNames.length}`
+    `isolated=${m.graph.isolatedNodes.length} highTension=${m.graph.highTensionEdges} dangling=${m.graph.danglingNames.length} ` +
+    `victim=${m.victimName ?? "none"} victimDistinct=${m.victimDistinct} victimTied=${m.victimTiedToSuspect}`
   );
 }
