@@ -12,7 +12,7 @@ Legend: `✅` landed · `☐` not started · `◐` partial. **Rule:** the role m
 
 | # | Work | Status | Why now |
 |:--:|---|:--:|---|
-| **1** | **Role model: `detective` + `victim` first-class, `n-2` suspects** (§1) | ☐ 🔑 | Closes victim dead-and-alive **and** the detective-identity bug at the root; replaces inferred roles with explicit slots |
+| **1** | **Role model: `detective` + `victim` first-class, `n-2` suspects** (§1) | ☑ 🔑 | **Landed (`4cbf146f`)** — code-complete + unit-tested; closes victim dead-and-alive **and** the detective-identity bug at the root. Live confirmation (zero victim-lifecycle signals on a full run) pending |
 | 2 | Triad effectiveness in prose (withhold mechanism to the test scene; plant reveal-evidence earlier) (§3 #2) | ☐ 🔑 | K2's honest verdict now *names* these defects (mechanism @ch1; clues 1/2/3/5 unplanted) — the real quality ceiling |
 | 3 | Close the 2 release-gate warnings (critical continuity + scene-grounding ≤ target) (§3 #3) | ☐ | The only thing between "completes" and "passes the release gate" |
 | 4 | Re-open the category ladder (one flag/run) against the honest rubric (§3 #4) | ◐ | Now legitimate — K2 can finally tell a real lever from noise |
@@ -117,7 +117,7 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 
 | # | Area | Outstanding issue | Status | Best solution |
 |---|---|---|:--:|---|
-| 1 | **Cast role model** | Roles inferred + reassignable → victim dead-and-alive class + detective-identity bug | ☐ 🔑 | §1: explicit `detective`/`victim` slots + `n-2` suspects; deterministic invariants; lifecycle lock; canary `n=5` |
+| 1 | **Cast role model** | Roles inferred + reassignable → victim dead-and-alive class + detective-identity bug | ☑ 🔑 | **Landed `4cbf146f`:** explicit `role` field + invariant resolving detective via role→candidates→archetype + role tagging + `checkCast` role counts + canary `n=5`. Live confirmation pending |
 | 2 | **Triad effectiveness in prose** | Mechanism still explained @ch1 (triad #3 reveal-gate not withholding) + reveal clues 1/2/3/5 unplanted (triad #2 not guaranteeing) — *now visible on the honest rubric* | ☐ 🔑 | Make the mechanism-reveal gate actually withhold to the discriminating-test chapter; ensure every reveal clue is planted in an earlier chapter; re-measure on K2 |
 | 3 | **Release gate (2 warnings)** | `critical continuity issue` + `scene-grounding coverage below target` keep a completed run from *passing* | ☐ | Resolve the continuity warning (largely subsumed by §1's lifecycle lock); pair the withhold-gate with "ground in setting/character, not mechanism" for pre-test chapters |
 | 4 | **Category ladder** | P1.1/P1.3/P1.4/P2.1/P2.2/P2.3/P3 built, flag-OFF — never legitimately acceptance-tested | ◐ | Re-open one flag per replay against the *honest* rubric; accept only on a moved (trustworthy) category |
@@ -148,7 +148,7 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 | K1 named victim | ✅ | Confirmed in prose 3× (`a08be22d`). |
 | K2 rubric honesty | ✅ | Honest stick demonstrated in situ — 62/100, caps backed by structural facts (`6ee19960`). |
 | Pipeline completes (no abort) | ✅ | Fix #1 (`97a299ae`) + Fix #2 (`4768c3ed`) → `mystery-1782585273377` ran end-to-end, 0 hard-stops. |
-| **Role model (detective+victim+n-2 suspects)** | ☐ 🔑 | §1. Closes victim dead-and-alive + detective-identity bug. Canary → `n=5`. |
+| **Role model (detective+victim+n-2 suspects)** | ☑ 🔑 | **Landed `4cbf146f`** — explicit `role` slots, robust detective resolution, role tagging, canary `n=5`. +6 tests. Live confirmation (zero victim-lifecycle signals) pending. |
 | **Triad effectiveness in prose** | ☐ 🔑 | K2 names it: mechanism @ch1; unplanted clue_1/2/3/5. |
 | Release gate — 2 warnings | ☐ | critical continuity + scene-grounding. |
 | Category ladder vs honest rubric | ◐ | Built, flag-OFF; now legitimately testable. |
