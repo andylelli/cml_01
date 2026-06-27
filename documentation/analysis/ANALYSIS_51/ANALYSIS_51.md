@@ -14,13 +14,15 @@ Legend: `✅` landed · `☐` not started · `◐` built, acceptance-blocked. **
 |:--:|---|:--:|---|---|
 | 0a | Role-coherence repair (§9.1) | ✅ | — | *Done* — holds levers-on, no abort |
 | 0b | Case-design triad #1/#2/#3 (§3) | ✅ | — → registers once #2 done | *Done in prose* — registers on rubric after #2 |
-| **1** | **K1 — Enlarge cast + first-class named victim** (§1 K1) | ☐ 🔑 | none (start now) → fixes continuity / fair-play / motive | Victim named + related to culprit; `critical continuity` + fair-play warnings clear (structural, not rubric) |
-| **2** | **K2 — Final-story rubric honesty** (§1 K2) | ☐ 🔑 | none (parallel with 1) → **gates acceptance of 4 & 5** | Planted-vs-unplanted fixture scores correctly; internal↔external agree within single digits |
+| **1** | **K1 — Enlarge cast + first-class named victim** (§1 K1) | ◐ 🔑 | none (start now) → fixes continuity / fair-play / motive | Victim named + related to culprit; `critical continuity` + fair-play warnings clear (structural, not rubric) — *code-complete + unit-tested (`a08be22d`); live-run confirmation pending* |
+| **2** | **K2 — Final-story rubric honesty** (§1 K2) | ◐ 🔑 | none (parallel with 1) → **gates acceptance of 4 & 5** | Planted-vs-unplanted fixture scores correctly; internal↔external agree within single digits — *fixture half met + unit-tested (`6ee19960`); external calibration still a seam* |
 | 3 | Premise diversity (rotate seed theme + structural cross-run divergence) (§2 #3) | ☐ | after 1 → `premise` can vary run-to-run | Two runs diverge on ≥2 structural fields (victim/mechanism/motive class); not the clone |
 | 4 | **Re-open category ladder** (one flag/run): novelty → voice → reveal → plausibility → 2c-hold (§4) | ◐ | **needs 2 (honest judge) + 1 (coherent cast)** | Each: target category ↑ on the *honest* rubric, nothing regressed |
 | 5 | Residual polish: reveal-gate→exact test chapter · pronoun sweep under role-swap · mutation re-validation full chain · scene-grounding for withheld chapters (§2 #4/#11/#12) | ☐ | after 4 | Each defect gone on a clean run |
 
 **One-liner:** ✅ triad/repair done → **1 cast + 2 honest judge (parallel) → 3 premise diversity → 4 category ladder → 5 polish.** Stop flipping category levers until 1 and 2 land.
+
+> **2026-06-27 update — both keystones landed code-complete (one live run still owed).** K1 (`a08be22d`) and K2 (`6ee19960`) are implemented, unit-tested, and committed; the previously-uncommitted A_50/A_51 §4 machinery + scorers + ROADMAP_TO_80 docs were banked first (`36e12e26`). All suites green (prompts-llm 511, story-validation 288, worker 217, rubric-score 42, prose-guard 21, web 174). **Neither keystone has been exercised on a live generation yet** — that single replay is the next action, and it is what flips 1 & 2 from ◐ to ✅ and lets the triad finally register. See §3.1.
 
 ---
 
@@ -97,6 +99,16 @@ All on `redesign/agent-blue-sky`, build + unit tests green (story-validation 288
 
 **Key lesson banked:** the triad was correct and improved the prose — and *that's how we proved the bottleneck is elsewhere* (K1/K2). The triad is not wasted; it removes real defects and will register once K2 makes the judge honest.
 
+### 3.1 Landed 2026-06-27 — both keystones (code-complete) + a tree-hygiene correction
+
+| Commit | What |
+|---|---|
+| `36e12e26` | **Tree-hygiene correction.** §4 claimed the "built-but-blocked" machinery was banked; it was actually sitting **uncommitted** in the working tree (honest/real scorers, agent6 reveal-gate, retry-gate-guard, agent3b plausibility judge, agent2b voice gate, agent2c distinctness, story-title helper, **and the ANALYSIS_47 ROADMAP_TO_80/90 docs**). Banked as a green checkpoint (source/tests/docs only; run-output artifacts excluded). The §4 list is now *actually* on the branch. |
+| `6ee19960` | **K2 — rubric honesty.** Extended `packages/rubric-score`: deterministic structural verifiers (`structural-verifiers.ts`) that **veto/confirm** the LLM judge — planted-evidence (reuses `findUnplantedDiscriminatingClues`), mechanism-timing, victim-named; per-flag **cited-evidence verification** (flags with unverifiable chapter+sentence citations are dropped); `RUBRIC_JUDGE_MODEL` makes the final judge independently upgradeable; `calibration.ts` records the internal↔external delta. Shadow default + never-throw wrapper preserved. +14 unit tests incl. the planted-vs-unplanted fixture. |
+| `a08be22d` | **K1 — first-class named victim.** Canary cast grown 4→6; first-class VICTIM contract in the Agent 2 prompt; `checkCast` victim reporting (warn-severity) + metrics; `enforceVictimRoleInvariant` in `agent2-run` — deterministic, **repair-not-abort**: resolves/locks the victim, excludes it from `possibleCulprits`, pins `victimCandidates`, and synthesises the motive-anchor edge, surfacing every repair on `ctx.warnings`. +9 unit tests. |
+
+**Two caveats, recorded honestly.** (1) Neither keystone has been run through a live generation — the unit fixtures pass, but the *acceptance* gates ("warnings clear on a real run" for K1; "internal↔external within single digits" for K2) need one replay. (2) The first parallel K1 attempt was discarded: its isolated worktree was created from a ~46-commit-stale base and re-created files that already exist — K1 was re-implemented against the correct HEAD. Lesson: **verify a worktree's base commit before trusting its output.**
+
 ---
 
 ## 4. Built-but-blocked machinery (flag-OFF; acceptance gated on K2)
@@ -128,8 +140,8 @@ The A_50 §8 order put rubric-honesty first, then the flag ladder. The triad inv
 
 | Item | Status | Notes |
 |---|:--:|---|
-| K1 cast enlargement + named victim | ☐ | Top priority. Config has commented-out names; needs Agent 2 victim-role contract + invariant. |
-| K2 final-rubric honesty | ☐ | Deterministic caps + cited-evidence verify + stronger judge. Gates all category-lever acceptance. |
+| K1 cast enlargement + named victim | ◐ | **Code-complete + unit-tested (`a08be22d`).** Cast 4→6; first-class victim contract; `enforceVictimRoleInvariant` (repair-not-abort). Awaiting a live run to confirm the shipped story names the victim + warnings clear. |
+| K2 final-rubric honesty | ◐ | **Code-complete + unit-tested (`6ee19960`).** Structural verifiers veto/confirm judge flags; cited-evidence verification; `RUBRIC_JUDGE_MODEL`. Planted-vs-unplanted fixture passes; external calibration still a seam. |
 | Premise diversity (rotate seed + structural divergence) | ☐ | Canary's single fixed theme guarantees a clone; product themes vary. |
 | Triad #1/#2/#3 | ☑ | Landed + verified in prose (§3). Awaiting K2 to register on the rubric. |
 | Role-coherence repair (§9.1) | ☑ | Holds levers-on (no abort across 2 runs). |
