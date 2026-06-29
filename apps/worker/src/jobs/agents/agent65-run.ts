@@ -59,7 +59,10 @@ export async function runAgent65(ctx: OrchestratorContext): Promise<void> {
       ctx.runId,
       ctx.projectId || "",
       ctx.warnings,
-      ctx.savePartialReport
+      ctx.savePartialReport,
+      // A_53 P2: Agent 6.5 produces creative texture — a sub-threshold score degrades to a warning +
+      // best-effort document rather than aborting the whole pipeline.
+      false,
     );
     ctx.worldDocument = result;
     ctx.agentCosts["agent65_world_builder"] = cost;

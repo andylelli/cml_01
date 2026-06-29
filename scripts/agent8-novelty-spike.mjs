@@ -17,19 +17,33 @@
 
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import yaml from "js-yaml";
-import {
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..");
+
+// A_53 P11 (spike-reads-uncompiled-dist): dist/ is gitignored, so a static import of the compiled
+// package throws a cryptic ERR_MODULE_NOT_FOUND on a clean checkout / stale dist. Preflight the dist
+// entry and, if missing, fail with a clear build instruction instead. (Lowest-risk: no new dep / no
+// package.json change — tsx is not installed in this repo.)
+const noveltyDist = path.join(repoRoot, "packages/novelty/dist/index.js");
+if (!fs.existsSync(noveltyDist)) {
+  console.error(
+    `\n[agent8-novelty-spike] @cml/novelty is not built: ${path.relative(repoRoot, noveltyDist)} is missing.\n` +
+      `  dist/ is gitignored, so build the package first, then re-run the spike:\n` +
+      `    npm run -w @cml/novelty build && node scripts/agent8-novelty-spike.mjs\n`,
+  );
+  process.exit(1);
+}
+const {
   judgeNovelty,
   judgeAgainstAll,
   loadSeedFingerprints,
   loadClicheLedger,
   loadReferenceCorpus,
   NoveltyStore,
-} from "../packages/novelty/dist/index.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
+} = await import(pathToFileURL(noveltyDist).href);
 const skel = (fp) => ({ id: fp.id, axis: fp.axis, mechanism_family: fp.mechanism_family, false_assumption_pattern: fp.false_assumption_pattern, discriminating_test_shape: fp.discriminating_test_shape, inference_shape: fp.inference_shape, premise: fp.premise });
 
 function part1_confirmDarkCode() {

@@ -106,6 +106,19 @@ export interface TemporalContextInputs {
 // (./shared/temporal-anchor.ts). Re-exported here so existing importers/tests keep resolving.
 export { simpleHash, generateSpecificDate };
 
+/**
+ * A_53 P5/P6 — single source of truth for the month→season mapping (SeasonalContext "fall" vocab).
+ * Used by the prompt (to pin the season) and by Agent 2d's runner (to deterministically re-pin it
+ * before the season feeds the Agent 9 lock).
+ */
+export const deriveSeasonFromMonth = (month: string | undefined): "spring" | "summer" | "fall" | "winter" => {
+  const m = String(month ?? "").trim().toLowerCase();
+  if (["march", "april", "may"].includes(m)) return "spring";
+  if (["june", "july", "august"].includes(m)) return "summer";
+  if (["september", "october", "november"].includes(m)) return "fall";
+  return "winter"; // december, january, february (+ unknown fallback)
+};
+
 const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
@@ -118,7 +131,13 @@ const buildTemporalContextPrompt = (inputs: TemporalContextInputs, previousError
   
   // Generate specific date for this mystery to ensure variation
   const specificDate = generateSpecificDate(decade, inputs.runId || inputs.projectId || "");
-  
+
+  // A_53 P5 (agent2d-season-month-inconsistency): derive the season from the mandated month rather
+  // than letting the LLM free-choose it (which could ship month="December" + season="fall"). Agent 9
+  // independently locks the season from the same month, so pinning it here keeps the artifact and the
+  // prose in agreement. Uses the shared SeasonalContext "fall" vocabulary to stay schema-consistent.
+  const derivedSeason = deriveSeasonFromMonth(specificDate.month);
+
   // Extract technology and social norms from setting
   const technology = (inputs.settingRefinement.era.technology || []).slice(0, 5);
   const socialNorms = (inputs.settingRefinement.era.socialNorms || []).slice(0, 5);
@@ -147,8 +166,8 @@ Return JSON with this structure:
     "era": "${decade}"
   },
   "seasonal": {
-    "season": "spring|summer|fall|winter",
-    "month": "month name",
+    "season": "${derivedSeason}",
+    "month": "${specificDate.month}",
     "weather": ["weather detail 1", "weather detail 2", "weather detail 3"],
     "daylight": "daylight description for this season (e.g. 'Long summer evenings, sunset after nine o'clock at night, darkness falls around ten o'clock at night')",
     "time_of_day_of_crime": "Specific period when the crime occurs — use period words like 'late evening', 'after midnight', 'morning', 'afternoon' (e.g. 'Late evening — between nine and eleven at night, after dinner has concluded')",
@@ -221,6 +240,7 @@ CRITICAL DATE REQUIREMENT:
 - YOU MUST use the exact year and month specified above: ${specificDate.month} ${specificDate.year}
 - This date has been specifically selected for THIS mystery to ensure uniqueness
 - DO NOT change the year or month - use ${specificDate.month} ${specificDate.year} exactly
+- The season is FIXED as "${derivedSeason}" (it follows from ${specificDate.month}) — use it exactly; do not pick a different season
 - You may optionally choose a specific day number (1-31) appropriate for the month
 
 Requirements:

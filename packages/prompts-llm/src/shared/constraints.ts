@@ -67,8 +67,58 @@ function readKbMode(): KbMode {
   return "off";
 }
 
+/** Parse the leading year out of a decade key/label (e.g. "1930s" -> 1930). */
+function decadeToYear(decade: string): number | undefined {
+  const match = /\d{3,4}/.exec(decade);
+  if (!match) return undefined;
+  const year = Number.parseInt(match[0], 10);
+  return Number.isFinite(year) ? year : undefined;
+}
+
+/**
+ * A_53 P11 (era-constraints-silent-default-1930s): an unrecognised decade used to silently
+ * get 1930s era facts while the prompt named the real decade — a silent period mismatch.
+ * Resolve to the *nearest seeded decade* (derived from the map's own keys) and WARN, mirroring
+ * the KB path's explicit nearest-anchor binding. Holistic: no hardcoded fallback decade —
+ * the choice is data-driven from whatever decades are seeded, with an earlier-anchor tie-break.
+ */
+function nearestSeededDecade(decade: string): string {
+  const seeded = Object.keys(LEGACY_ERA_CONSTRAINTS);
+  const target = decadeToYear(decade);
+
+  // If we cannot parse a year (or nothing is seeded), fall back to the first seeded decade.
+  if (target === undefined || seeded.length === 0) {
+    return seeded[0] ?? decade;
+  }
+
+  let best: string | undefined;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  let bestYear = Number.POSITIVE_INFINITY;
+  for (const key of seeded) {
+    const year = decadeToYear(key);
+    if (year === undefined) continue;
+    const distance = Math.abs(year - target);
+    // Earlier-anchor tie-break, deterministic (matches the KB oracle's pickNearestYear).
+    if (distance < bestDistance || (distance === bestDistance && year < bestYear)) {
+      best = key;
+      bestDistance = distance;
+      bestYear = year;
+    }
+  }
+  return best ?? seeded[0];
+}
+
 function legacyEraConstraints(decade: string): string {
-  return LEGACY_ERA_CONSTRAINTS[decade] || LEGACY_ERA_CONSTRAINTS["1930s"];
+  const exact = LEGACY_ERA_CONSTRAINTS[decade];
+  if (exact) return exact;
+
+  // A_53 P11 (era-constraints-silent-default-1930s): warn + nearest-seeded-decade resolution
+  // instead of a silent default-to-1930s.
+  const resolved = nearestSeededDecade(decade);
+  console.warn(
+    `[agent1-era] no era constraints seeded for decade "${decade}"; using nearest seeded decade "${resolved}"`
+  );
+  return LEGACY_ERA_CONSTRAINTS[resolved] ?? LEGACY_ERA_CONSTRAINTS["1930s"];
 }
 
 export function buildEraConstraints(decade: string): string {

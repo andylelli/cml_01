@@ -29,11 +29,24 @@ const baseInputs = (): RevisionInputs => ({
 const UNPARSEABLE = "this is not json or a cml object at all";
 
 describe("Agent 4 — graceful degrade on exhaustion (AGENT4_GRACEFUL_DEGRADE)", () => {
-  it("DEFAULT (flag off): exhaustion still THROWS — a run-killer, legacy behavior preserved", async () => {
-    delete process.env[FLAG];
+  // A_53 P2 (graceful-degrade-default-off-kills-runs): the default flipped to ON — a CML that merely
+  // ran out of revisions degrades to best-so-far instead of killing ~30 agents of work.
+  it("explicit off: exhaustion still THROWS — strict mode for reproducible eval", async () => {
+    process.env[FLAG] = "off";
     await expect(reviseCml(mockClient(UNPARSEABLE), baseInputs(), 1)).rejects.toThrow(
       /parsing failed|revision failed/i,
     );
+  });
+
+  it("DEFAULT (unset): exhaustion DEGRADES — returns best-so-far + warnings instead of throwing", async () => {
+    delete process.env[FLAG];
+    const result = await reviseCml(mockClient(UNPARSEABLE), baseInputs(), 1);
+    expect(result.degraded).toBe(true);
+    expect(typeof result.cml).toBe("object");
+    expect(result.cml).not.toBeNull();
+    expect(Array.isArray(result.unresolvedLogicWarnings)).toBe(true);
+    // it surfaced the failure as a revision note rather than crashing
+    expect(result.revisionsApplied.some((r) => /degraded/i.test(r))).toBe(true);
   });
 
   it("flag on: exhaustion DEGRADES — returns best-so-far + warnings instead of throwing", async () => {
@@ -43,7 +56,6 @@ describe("Agent 4 — graceful degrade on exhaustion (AGENT4_GRACEFUL_DEGRADE)",
     expect(typeof result.cml).toBe("object");
     expect(result.cml).not.toBeNull();
     expect(Array.isArray(result.unresolvedLogicWarnings)).toBe(true);
-    // it surfaced the failure as a revision note rather than crashing
     expect(result.revisionsApplied.some((r) => /degraded/i.test(r))).toBe(true);
   });
 

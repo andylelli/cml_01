@@ -26,6 +26,7 @@ import type {
   NarrativeState,
   WorldDocumentResult,
 } from "@cml/prompts-llm";
+import { checkPointsToDistinctness } from "@cml/prompts-llm";
 import type {
   ScoreAggregator,
   RetryManager,
@@ -411,6 +412,42 @@ export const applyClueGuardrails = (cml: CaseData, clues: ClueDistributionResult
     });
   }
 
+  // A_56 5-A (P1.2 distinctness): no two SOLVING clues should resolve to the SAME implication —
+  // redundant "points to X" essentials are a top cause of a flabby, repetitive middle. Repair-not-abort:
+  // when a collision group has >1 essential clue, keep ONE as the anchor and DEMOTE the extras to
+  // "supporting" (never delete the clue; never drop the total essential count below the required
+  // minimum). Holistic — keyed off `pointsTo` only, no story-specific terms. Groups with a single
+  // essential (one essential + supporting echoes) are left untouched; only redundant essentials demote.
+  const distinct = checkPointsToDistinctness(clues.clues);
+  if (!distinct.ok) {
+    const byId = new Map(clues.clues.map((c) => [c.id, c]));
+    let essentialCount = clues.clues.filter((c) => c.criticality === "essential").length;
+    let demoted = 0;
+    for (const collision of distinct.collisions) {
+      const essentialsInGroup = collision.clueIds
+        .map((id) => byId.get(id))
+        .filter((c): c is NonNullable<typeof c> => !!c && c.criticality === "essential");
+      // Keep essentialsInGroup[0] as the anchor; demote the rest while the minimum is preserved.
+      for (let i = 1; i < essentialsInGroup.length; i++) {
+        if (essentialCount <= essentialMin) break;
+        essentialsInGroup[i].criticality = "supporting";
+        essentialCount -= 1;
+        demoted += 1;
+      }
+    }
+    if (demoted > 0) {
+      fixes.push(
+        `Demoted ${demoted} redundant essential clue(s) to supporting (P1.2 distinctness — shared "points to" implication)`,
+      );
+    }
+    issues.push({
+      severity: "warning",
+      message:
+        `Detected ${distinct.collisions.length} clue group(s) sharing a 'points to' implication: ` +
+        distinct.collisions.map((c) => `"${c.normalized}" (${c.clueIds.join(", ")})`).join("; "),
+    });
+  }
+
   normalizeClueTimeline(clues);
 
   return {
@@ -526,7 +563,12 @@ export async function executeAgentWithRetry<T>(
   runId: string,
   projectId: string,
   warnings: string[],
-  onPhaseScored?: () => Promise<void>
+  onPhaseScored?: () => Promise<void>,
+  // A_53 P2 (agent65-score-failure-aborts-via-shared-retry): phases whose output is creative texture
+  // (e.g. Agent 6.5 World Builder) are NOT abort-critical — a sub-threshold score degrades to a
+  // warning + best-effort document instead of killing the whole pipeline. Defaults to abort-critical
+  // to preserve existing behavior for the load-bearing phases.
+  abortCritical: boolean = true,
 ): Promise<{ result: T; duration: number; cost: number; retryCount: number }> {
   let attempts = 0;
   let totalCost = 0;
@@ -570,13 +612,17 @@ export async function executeAgentWithRetry<T>(
       }
 
       if (!retryManager.canRetry(agentId)) {
-        if (retryManager.shouldAbortOnMaxRetries()) {
+        if (retryManager.shouldAbortOnMaxRetries() && abortCritical) {
           throw new Error(
             `${phaseName} failed after ${attempts + 1} attempt(s) and all retries are exhausted. ` +
             `Aborting generation. Failure reason: ${score.failure_reason || `Score ${score.total}/100 (${score.grade}) below threshold`}`
           );
         }
-        warnings.push(`${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - Max retries exceeded`);
+        warnings.push(
+          abortCritical
+            ? `${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - Max retries exceeded`
+            : `${phaseName}: ✗ Failed after ${attempts + 1} attempt(s) - ${score.grade} (${score.total}/100) - non-critical phase, continuing with best-effort document`,
+        );
         const totalDuration = Date.now() - startTime;
         return { result, duration: totalDuration, cost: totalCost, retryCount: attempts };
       }

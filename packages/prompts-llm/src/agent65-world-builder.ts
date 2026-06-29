@@ -271,6 +271,39 @@ Critical constraints:
 
 You will produce a single JSON object. Return only the JSON. No preamble, no commentary.`;
 
+// A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): the World Builder is explicitly
+// forbidden from inventing clues or describing any clue "in specific forensic detail", so it does not
+// need the full stringified clue distribution (per-clue pointsTo / inference / sourceInCML, red-herring
+// misdirection, timelines, fair-play flags). Project to a slim summary: counts by placement/criticality
+// plus an id + placement + category one-liner per clue. Conservative: keeps enough for clue-density and
+// emotional-pacing grounding without re-shipping forensic prose at 6000 tokens ×3. Returns null when no
+// distribution is provided so the section stays "null" exactly as before.
+function summarizeClueDistribution(clueDistribution: any): unknown {
+  if (clueDistribution == null) return null;
+  const clues = Array.isArray(clueDistribution.clues) ? clueDistribution.clues : [];
+  const byPlacement: Record<string, number> = { early: 0, mid: 0, late: 0 };
+  const byCriticality: Record<string, number> = {};
+  for (const c of clues) {
+    const placement = typeof c?.placement === 'string' ? c.placement : 'unknown';
+    byPlacement[placement] = (byPlacement[placement] ?? 0) + 1;
+    const criticality = typeof c?.criticality === 'string' ? c.criticality : 'unknown';
+    byCriticality[criticality] = (byCriticality[criticality] ?? 0) + 1;
+  }
+  return {
+    totalClues: clues.length,
+    countsByPlacement: byPlacement,
+    countsByCriticality: byCriticality,
+    redHerringCount: Array.isArray(clueDistribution.redHerrings) ? clueDistribution.redHerrings.length : 0,
+    // High-level catalogue only — no forensic detail (no pointsTo/inference/sourceInCML/description).
+    clues: clues.map((c: any) => ({
+      id: c?.id,
+      placement: c?.placement,
+      criticality: c?.criticality,
+      category: c?.category,
+    })),
+  };
+}
+
 function buildWorldBuilderUserMessage(inputs: WorldBuilderInputs): string {
   const { gate: ARC_DESC_GATE, prompt: ARC_DESC_PROMPT } = getArcDescParams();
   const caseSection = (inputs.caseData as any)?.CASE ?? inputs.caseData;
@@ -298,8 +331,8 @@ ${JSON.stringify(inputs.backgroundContext, null, 2)}
 ### LOCKED_FACTS
 ${JSON.stringify(lockedFacts, null, 2)}
 
-### CLUE_DISTRIBUTION
-${JSON.stringify(inputs.clueDistribution ?? null, null, 2)}
+### CLUE_DISTRIBUTION (summary — counts + id/placement/category only; no forensic detail)
+${JSON.stringify(summarizeClueDistribution(inputs.clueDistribution ?? null), null, 2)}
 
 ---
 
@@ -898,6 +931,26 @@ export async function generateWorldDocument(
         );
         if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
         continue;
+      }
+
+      // A_53 P2 (agent65-3-attempt-loop-can-hard-throw): if the model returned all the right names but
+      // in a different order, deterministically reorder portraits/sketches to match CASE.cast rather
+      // than failing a cosmetic ordering gate across all 3 attempts. Only a genuinely missing/extra
+      // name (a real content error) survives to the mismatch check below.
+      {
+        const expectedNames = castMembers.map((m: any) => m?.name);
+        const reorderByName = <T extends { name?: string }>(items: T[]): T[] => {
+          const byName = new Map<string, T>();
+          for (const it of items) {
+            const n = it?.name;
+            if (typeof n === "string" && !byName.has(n)) byName.set(n, it);
+          }
+          const allPresent = expectedNames.every((n: any) => typeof n === "string" && byName.has(n));
+          if (!allPresent || byName.size !== items.length) return items;
+          return expectedNames.map((n: any) => byName.get(n) as T);
+        };
+        parsed.characterPortraits = reorderByName(parsed.characterPortraits);
+        parsed.characterVoiceSketches = reorderByName(parsed.characterVoiceSketches);
       }
 
       let castNameMismatch: string | null = null;

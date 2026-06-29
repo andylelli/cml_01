@@ -1801,11 +1801,12 @@ ${victimIdentityRule}`;
   // sane band) instead of flooring every chapter up to one uniform target. Default-OFF ⇒ unchanged.
   const schedulerAuthoritative = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? '');
 
-  // A_50 §9.3 #3: honor the Agent 7 mechanism-reveal gate. Before the discriminating-test scene,
-  // withhold the full HOW-it-was-done explanation (observable clues only); telegraphing it early
-  // kills the reveal's surprise (judge: "the mechanism is explained too early"). Only when the
-  // scheduler is authoritative (it stamps the per-scene `mechanismRevealAllowed` flag).
-  if (schedulerAuthoritative) {
+  // A_50 §9.3 #3 / A_52 item 4: honor the Agent 7 mechanism-reveal gate. Before the discriminating-test
+  // scene, withhold the full HOW-it-was-done explanation (observable clues only); telegraphing it early
+  // kills the reveal's surprise (judge: "the mechanism is explained too early"). The block self-gates on
+  // the per-scene `mechanismRevealAllowed` flag — when no scene carries it (gate not stamped) both
+  // branches are inert — so it no longer depends on the heavier scheduler-authority experiment.
+  {
     const gateFlags = (scenes as any[]).map((s) => s?.mechanismRevealAllowed);
     const anyWithheld = gateFlags.some((f) => f === false);
     const anyReveal = gateFlags.some((f) => f === true);

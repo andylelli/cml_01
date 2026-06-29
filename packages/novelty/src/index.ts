@@ -35,3 +35,13 @@ export {
 
 export { judgeNovelty, sharedFields, TRICK_SHARED_FOR_VARIATION, CLONE_MIN_SHARED } from "./compare.js";
 export { NoveltyStore, judgeAgainstAll } from "./store.js";
+
+// A_56 8-A — the LLM skeleton-extractor (§9.1-spike-2): the only way to produce the hand-authored
+// `false_assumption_pattern` / `inference_shape` labels the structural judge gates on. Pure prompt +
+// parser behind a `ChatFn` seam; the worker supplies the chat fn and runs it SHADOW.
+export type { ChatFn, ChatArgs, ChatMessage, SkeletonExtractorOptions } from "./extractor.js";
+export {
+  createSkeletonExtractor,
+  buildSkeletonExtractionMessages,
+  parseSkeletonResponse,
+} from "./extractor.js";

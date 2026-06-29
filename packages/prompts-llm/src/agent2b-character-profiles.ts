@@ -51,6 +51,40 @@ export interface CharacterProfilesInputs {
   projectId?: string;
 }
 
+// A_53 P10 (subagent-prompt-ships-full-artifacts): project each cast member down to the
+// slim whitelist of fields this prompt actually references when authoring a profile. This
+// bounds the per-character serialized payload to a known shape (token cost no longer scales
+// with whatever extra keys the upstream cast artifact carries now or later), while keeping
+// every field the writer needs (identity grounding + the persona/secret/motive/alibi/access/
+// stakes source material it is asked to preserve and expand). Holistic: pure projection of the
+// artifact's own data, no story-specific content.
+const PROFILE_SOURCE_FIELDS = [
+  "name",
+  "ageRange",
+  "occupation",
+  "roleArchetype",
+  "gender",
+  "role",
+  "publicPersona",
+  "privateSecret",
+  "motiveSeed",
+  "motiveStrength",
+  "alibiWindow",
+  "accessPlausibility",
+  "stakes",
+  "characterArcPotential",
+] as const;
+
+const pickProfileSource = (character: Record<string, unknown> | undefined): Record<string, unknown> => {
+  const slim: Record<string, unknown> = {};
+  if (!character) return slim;
+  for (const field of PROFILE_SOURCE_FIELDS) {
+    const value = character[field];
+    if (value !== undefined) slim[field] = value;
+  }
+  return slim;
+};
+
 const buildProfilesPrompt = (inputs: CharacterProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
@@ -135,7 +169,10 @@ Before finalizing, run a silent checklist:
 - paragraphs arrays exist and contain 4-6 entries
 - JSON only, no markdown fences`;
 
-  const user = `Write narrative character profiles for the following mystery.\n\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCast: ${castNames}\n\nCast details:\n${JSON.stringify(inputs.cast.characters, null, 2)}`;
+  // A_53 P10 (subagent-prompt-ships-full-artifacts): serialize the slim per-character
+  // projection instead of the full cast array to avoid token bloat scaling with cast size.
+  const slimCast = inputs.cast.characters.map((c) => pickProfileSource(c as unknown as Record<string, unknown>));
+  const user = `Write narrative character profiles for the following mystery.\n\nTitle: ${title}\nEra: ${era}\nSetting: ${location}\nCast: ${castNames}\n\nCast details:\n${JSON.stringify(slimCast, null, 2)}`;
 
   const messages = [
     { role: "system" as const, content: `${system}\n\n${developer}` },
@@ -173,7 +210,8 @@ async function repairMissingParagraphs(
         `Return JSON with this exact structure: {"paragraphs": ["Paragraph 1", "Paragraph 2", ...]}\n\n` +
         `Requirements:\n- 4-6 paragraphs totalling ~${targetWordCount} words\n- Tone: ${tone}\n` +
         `- Keep all facts consistent with the character details and existing profile fields below.\n\n` +
-        `Character: ${JSON.stringify(character, null, 2)}\n\n` +
+        // A_53 P10 (subagent-prompt-ships-full-artifacts): slim the single-character payload too.
+        `Character: ${JSON.stringify(pickProfileSource(character as unknown as Record<string, unknown>), null, 2)}\n\n` +
         `Existing profile (paragraphs missing — supply them): ${JSON.stringify({ ...profile, paragraphs: [] }, null, 2)}`,
     },
   ];

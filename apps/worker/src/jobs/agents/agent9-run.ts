@@ -130,8 +130,16 @@ const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION
  * "repeated atmospheric/setting descriptions", the Ch1 location mismatch (keyLocations[idx % n] ≠ the
  * scene's room), and the Ch6 verbatim doubled opener. It is now OFF by default: chapters keep the
  * model's own opening (gpt-4.1 + the OPENING_STYLE_ROTATION prompt guidance). Reversible — set
- * `AGENT9_GROUNDING_LEAD=1` to restore the legacy prepend. The leak/duplicate SANITISATION fallbacks
+ * `AGENT9_GROUNDING_LEAD=1` to restore the prepend. The leak/duplicate SANITISATION fallbacks
  * (replacing a scaffold-leak or exact-duplicate paragraph) still use the template as a last resort.
+ *
+ * A_52 item 3: kept OFF by default ON PURPOSE. Scene-grounding is only a release-gate *warning*, but the
+ * prepend's repetition was itself a K2 prose penalty ("repeated atmospheric/setting descriptions") — so
+ * forcing it to clear the warning can lower the score we are trying to raise. The primary lever is now
+ * the prompt reconciliation (OPENING_STYLE_ROTATION + the grounding checklist no longer fight). The
+ * opt-in path is still improved: the Ch1 location-mismatch noted above is FIXED — the lead now anchors
+ * to a location the chapter actually visits (preferredLocationName), so enabling it no longer describes
+ * the wrong room.
  */
 const AGENT9_GROUNDING_LEAD = parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD, false);
 
@@ -368,6 +376,18 @@ const cleanLocationName = (raw: unknown, fallback: string): string => {
   return v;
 };
 
+// A_52 item 3: single source of truth for the scene-grounding vocabulary. The release-gate scorer
+// (evaluateSceneGroundingCoverage), the rescue trigger (getGroundingSignals), and the deterministic
+// leads all grade against THESE exact terms. Keeping them in one place stops the scorer and the rescue
+// from silently drifting apart — a drift would make the rescue "fix" a chapter the gate still fails.
+const GROUNDING_SENSORY_SOURCE =
+  "smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim";
+const GROUNDING_ATMOSPHERE_SOURCE =
+  "rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight";
+// Fresh instances per call — a shared /g regex carries mutable lastIndex state across .test()/.match().
+const groundingSensoryRegex = (): RegExp => new RegExp(`\\b(${GROUNDING_SENSORY_SOURCE})\\b`, "gi");
+const groundingAtmosphereRegex = (): RegExp => new RegExp(`\\b(${GROUNDING_ATMOSPHERE_SOURCE})\\b`, "i");
+
 // Minimal, field-free grounding leads used when the profile-derived lead would be
 // malformed. They carry the sensory + atmosphere + location-anchor signals that
 // getGroundingSignals requires, but interpolate ONLY the sanitised location name.
@@ -383,14 +403,24 @@ const buildSafeGroundingLead = (chapterIndex: number, locationName: string): str
   return sanitizeProseText(safeTemplates[chapterIndex % safeTemplates.length]);
 };
 
-const buildDeterministicGroundingLead = (
+export const buildDeterministicGroundingLead = (
   chapterIndex: number,
   locationProfiles: any,
+  preferredLocationName?: string,
 ): string => {
   const primary = locationProfiles.primary;
   const keyLocations = locationProfiles.keyLocations || [];
-  const target =
+  // A_52 item 3: anchor the lead to the location the chapter actually visits when known — prepending
+  // atmosphere about a room the chapter never enters was the "mismatched opener" defect that got this
+  // pass disabled. Match the preferred name to its profile (for coherent sensory detail) and fall back
+  // to a bare name; only when no preference is given do we rotate through keyLocations.
+  let target: any =
     keyLocations.length > 0 ? keyLocations[chapterIndex % keyLocations.length] : undefined;
+  if (preferredLocationName && preferredLocationName.trim().length > 0) {
+    const pref = preferredLocationName.trim().toLowerCase();
+    const match = keyLocations.find((l: any) => String(l?.name || "").toLowerCase() === pref);
+    target = match || { name: preferredLocationName.trim() };
+  }
 
   const locationName = cleanLocationName(target?.name || primary?.name, "the premises");
   // Cap geography to a single short place token and DROP the country — never emit the
@@ -443,15 +473,8 @@ const normalizeParagraphForLeakageDedup = (paragraph: string) =>
 const getGroundingSignals = (opening: string, anchors: string[]) => {
   const normalized = opening.toLowerCase();
   const hasAnchor = anchors.some((anchor) => normalized.includes(anchor));
-  const sensoryCount = (
-    normalized.match(
-      /\b(smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim)\b/gi,
-    ) || []
-  ).length;
-  const hasAtmosphere =
-    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight)\b/i.test(
-      normalized,
-    );
+  const sensoryCount = (normalized.match(groundingSensoryRegex()) || []).length;
+  const hasAtmosphere = groundingAtmosphereRegex().test(normalized);
   return { hasAnchor, sensoryCount, hasAtmosphere };
 };
 
@@ -1989,29 +2012,55 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
     : [];
   if (culprits.length === 0) return prose;
 
-  // F1: Guard against victim/culprit identity collision.
-  // When the CML generator incorrectly assigns the discovered-dead character as the culprit,
-  // injecting an accusation sentence for them produces an impossible story (accused in Ch9,
-  // already dead in Ch1). Scan Chapter 1 for each culprit's surname near a death-marker;
-  // skip injection and log a critical error if found.
-  const DEATH_RE = /\b(lifeless|body|dead|found\s+dead|died|killed|corpse|murder\s+victim|slumped|shot|stabbed|strangled|poisoned)\b/i;
+  // F1 (A_54 #1): Guard against the REAL victim/culprit identity collision — the CML assigning the
+  // discovered-dead character as the culprit (accused in Ch9, already dead in Ch1) — WITHOUT the
+  // old false positive. The previous ±250-char window flagged the culprit merely being CO-PRESENT at
+  // the Ch1 crime scene, which is normal: in a Golden-Age opening every suspect (incl. the culprit) is
+  // in the room when the body is found, so it fired almost every run, suppressed culprit evidence, and
+  // gated clean runs to "failure". We now skip injection ONLY when (a) the culprit matches the NAMED
+  // VICTIM, or (b) the culprit is the grammatical SUBJECT/OBJECT of a death in Ch1 (tight adjacency).
+  const victimSurnames = new Set(
+    (Array.isArray(cml?.CASE?.cast) ? cml.CASE.cast : [])
+      .filter((c: any) => {
+        const role = String(c?.role ?? '').trim().toLowerCase();
+        const ra = String(c?.role_archetype ?? '').trim().toLowerCase().replace(/^the\s+/, '');
+        return role === 'victim' || ra === 'victim';
+      })
+      .map((c: any) => extractSurname(String(c?.name ?? '')).toLowerCase())
+      .filter(Boolean),
+  );
+  const DEATH_WORD = `(?:lifeless|dead|slain|killed|murdered|shot|stabbed|strangled|poisoned|slumped|body|corpse|remains)`;
   const ch1Text = ((prose.chapters?.[0]?.paragraphs ?? []) as string[]).join(' ');
   const liveCulprits = culprits.filter((culprit) => {
     const surname = extractSurname(culprit);
-    const culpritRE = new RegExp(`\\b${surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    const match = culpritRE.exec(ch1Text);
-    if (!match) return true; // name not in Ch1 — safe to inject
-    const idx = match.index;
-    const window = ch1Text.slice(Math.max(0, idx - 250), idx + 250);
-    if (DEATH_RE.test(window)) {
+    if (!surname) return true;
+    const esc = surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // (a) genuine collision: the culprit IS the named victim.
+    if (victimSurnames.has(surname.toLowerCase())) {
       console.error(
-        `[Agent 9] enforceCulpritEvidencePresence: SKIPPED injection for "${culprit}" — ` +
-        `name appears near a death marker in Chapter 1. CML culprit assignment is likely invalid. ` +
-        `Story logic cannot be repaired by injection; manual CML fix required.`
+        `[Agent 9] enforceCulpritEvidencePresence: SKIPPED injection for "${culprit}" — the culprit ` +
+        `matches the named victim; the CML culprit/victim assignment is invalid (manual CML fix required).`,
       );
       return false;
     }
-    return true;
+    // (b) the culprit is described as the deceased in Ch1 (subject/object of the death — tight binding,
+    // NOT merely within 250 chars of a death word).
+    const deathSubjectRE = new RegExp(
+      `\\b${esc}\\b(?:['’]s\\s+(?:body|corpse|remains)` +
+        `|\\s+(?:lay|was|had\\s+been|is|'s)\\b[^.!?]{0,30}\\b${DEATH_WORD}\\b` +
+        `|\\s*,\\s*(?:now\\s+)?(?:dead|lifeless|slain))` +
+        `|\\b(?:body|corpse|remains)\\s+of\\s+${esc}\\b` +
+        `|\\bfound\\s+${esc}\\b[^.!?]{0,20}\\b${DEATH_WORD}\\b`,
+      'i',
+    );
+    if (deathSubjectRE.test(ch1Text)) {
+      console.error(
+        `[Agent 9] enforceCulpritEvidencePresence: SKIPPED injection for "${culprit}" — the culprit is ` +
+        `described as the deceased in Chapter 1; the CML culprit assignment is likely invalid (manual CML fix required).`,
+      );
+      return false;
+    }
+    return true; // co-present at the crime scene is normal — safe to inject culprit evidence.
   });
 
   if (liveCulprits.length === 0) return prose;
@@ -2262,9 +2311,9 @@ export const applyDeterministicProsePostProcessing = (
   let totalPronounRepairs = 0;
   let groundingLeadReverts = 0; // §4.2 validation-gated-mutation telemetry (0 unless the flag is on)
 
-  const buildUniqueGroundingLead = (baseIndex: number): string => {
+  const buildUniqueGroundingLead = (baseIndex: number, preferredLocationName?: string): string => {
     for (let offset = 0; offset < 5; offset++) {
-      const candidate = buildDeterministicGroundingLead(baseIndex + offset, locationProfiles);
+      const candidate = buildDeterministicGroundingLead(baseIndex + offset, locationProfiles, preferredLocationName);
       const key = candidate.replace(/\s+/g, ' ').trim().toLowerCase();
       if (!seenGroundingLeads.has(key)) {
         seenGroundingLeads.add(key);
@@ -2272,7 +2321,7 @@ export const applyDeterministicProsePostProcessing = (
       }
     }
     // All 5 templates used — fall back to primary location with a unique offset
-    return buildDeterministicGroundingLead(baseIndex + 5, locationProfiles);
+    return buildDeterministicGroundingLead(baseIndex + 5, locationProfiles, preferredLocationName);
   };
 
   const processedChapters = prose.chapters.map((chapter: any, index: number) => {
@@ -2280,8 +2329,23 @@ export const applyDeterministicProsePostProcessing = (
     const opening = readableParagraphs.slice(0, 2).join(" ");
     const signals = getGroundingSignals(opening, anchors);
 
-    // M1: only prepend the templated grounding lead when explicitly re-enabled. Default OFF removes the
-    // repeated/mismatched chapter openers; the model's own opening (kept here) is graded directly.
+    // A_52 item 3: anchor any rescue lead to a location the chapter actually visits, so we never
+    // prepend atmosphere about a room the chapter never enters. Prefer a PROPER-CASE known location
+    // already present in the chapter's own prose; fall back to the primary location name.
+    const chapterTextLc = readableParagraphs.join(" ").toLowerCase();
+    const knownLocationNames: string[] = [];
+    if (locationProfiles.primary?.name) knownLocationNames.push(String(locationProfiles.primary.name));
+    (locationProfiles.keyLocations || []).forEach((loc: any) => {
+      if (loc?.name) knownLocationNames.push(String(loc.name));
+    });
+    const presentName = knownLocationNames.find((n) => chapterTextLc.includes(n.toLowerCase()));
+    const preferredAnchorName =
+      presentName ?? (locationProfiles.primary?.name ? String(locationProfiles.primary.name) : undefined);
+
+    // A_52 item 3: the validation-gated rescue is ON by default. The prompt-only experiment (lead OFF)
+    // plateaued at 2/9 chapters grounded; this prepends a profile-derived, location-matched grounding
+    // sentence ONLY to chapters that fail the scorer, and only if it introduces no metadata dump.
+    // Reversible: set AGENT9_GROUNDING_LEAD=0 to restore pure model openings.
     const needsGroundingLead =
       AGENT9_GROUNDING_LEAD &&
       (!signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere);
@@ -2293,7 +2357,7 @@ export const applyDeterministicProsePostProcessing = (
       // @cml/prose-guard primitive instead of the bespoke looksMalformed guard.
       const outcome = mutateThenValidate(
         readableParagraphs,
-        (paras: string[]) => [buildUniqueGroundingLead(index), ...paras],
+        (paras: string[]) => [buildUniqueGroundingLead(index, preferredAnchorName), ...paras],
         (paras: string[]) => noMetadataDumpValidator(paras.join(" ")),
       );
       groundedParagraphs = outcome.value;
@@ -2306,7 +2370,7 @@ export const applyDeterministicProsePostProcessing = (
       }
     } else {
       groundedParagraphs = needsGroundingLead
-        ? [buildUniqueGroundingLead(index), ...readableParagraphs]
+        ? [buildUniqueGroundingLead(index, preferredAnchorName), ...readableParagraphs]
         : readableParagraphs;
     }
 
@@ -2314,7 +2378,7 @@ export const applyDeterministicProsePostProcessing = (
       .map((paragraph: string, paragraphIndex: number) => {
         const cleaned = sanitizeProseText(paragraph);
         if (templateLeakageScaffoldPattern.test(cleaned)) {
-          return buildUniqueGroundingLead(index + paragraphIndex);
+          return buildUniqueGroundingLead(index + paragraphIndex, preferredAnchorName);
         }
         return cleaned;
       })
@@ -2330,7 +2394,7 @@ export const applyDeterministicProsePostProcessing = (
           seenLongParagraphs.add(normalized);
           return paragraph;
         }
-        return buildUniqueGroundingLead(index + paragraphIndex + 1);
+        return buildUniqueGroundingLead(index + paragraphIndex + 1, preferredAnchorName);
       },
     );
 
@@ -2341,6 +2405,28 @@ export const applyDeterministicProsePostProcessing = (
         { ...chapter, paragraphs: leakageDedupedParagraphs },
         castCharacters,
       );
+      // A_52 item 6: gate this per-chapter repair with the same monotonic guard the full-cast sweep
+      // uses. The §3.3 bug (a pronoun pass flipping a correct gender run) is exactly the unguarded
+      // mutation the redesign's "universal law" forbids — yet this sibling call shipped repairChapter-
+      // Pronouns' output unvalidated. If the repair did not strictly reduce wrong-gender pronouns, keep
+      // the model's. (Title normalisation, if any, is re-applied downstream by applyDeterministicPronoun-
+      // Sweep, so reverting here loses nothing permanent.)
+      const beforeMismatch = countChapterPronounMismatches(
+        leakageDedupedParagraphs.join("\n\n"),
+        castCharacters,
+      );
+      const afterMismatch = countChapterPronounMismatches(
+        (pronRepaired.chapter.paragraphs as string[]).join("\n\n"),
+        castCharacters,
+      );
+      if (afterMismatch > beforeMismatch) {
+        console.warn(
+          `[Agent 9] applyDeterministicProsePostProcessing: reverted per-chapter pronoun repair on ` +
+            `chapter ${index + 1} — it increased pronoun mismatches (${beforeMismatch} → ${afterMismatch}); ` +
+            `kept the model's pronouns.`,
+        );
+        return { ...chapter, paragraphs: leakageDedupedParagraphs };
+      }
       totalPronounRepairs += pronRepaired.repairCount;
       return pronRepaired.chapter;
     }
@@ -2627,20 +2713,13 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
     if (loc?.name) knownAnchors.add(String(loc.name).toLowerCase());
   });
 
-  const sensoryTerms =
-    /\b(smell|scent|odor|fragrance|sound|echo|silence|whisper|creak|cold|warm|damp|rough|smooth|glow|shadow|flicker|dim)\b/gi;
-  const atmosphereTerms =
-    /\b(rain|wind|fog|storm|mist|thunder|evening|morning|night|dawn|dusk|lighting|season|weather|afternoon|midday|noon|midnight|twilight|sunrise|sunset|daylight|sunlight|overcast|cloudy|bright|dark|grey|gray|pale|cold|warm|chill|crisp|damp|drizzle|haze|lamplight|firelight)\b/i;
-
   // Convert to array once — avoids re-allocating Array.from(knownAnchors) per chapter.
   const anchorList = Array.from(knownAnchors);
   let grounded = 0;
   prose.chapters.forEach((chapter: any) => {
     const opening = (chapter.paragraphs || []).slice(0, 2).join(" ").toLowerCase();
-    const hasAnchor = anchorList.some((anchor) => opening.includes(anchor));
-    const sensoryCount = (opening.match(sensoryTerms) || []).length;
-    const hasAtmosphere = atmosphereTerms.test(opening);
-    if (hasAnchor && sensoryCount >= 2 && hasAtmosphere) {
+    const signals = getGroundingSignals(opening, anchorList);
+    if (signals.hasAnchor && signals.sensoryCount >= 2 && signals.hasAtmosphere) {
       grounded += 1;
     }
   });

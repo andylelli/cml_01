@@ -87,8 +87,16 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
     return max !== undefined && c.mark > max ? { ...c, mark: max, capped: true } : c;
   });
 
-  const rawTotal = clamp(raw.categories.reduce((s, c) => s + c.mark, 0), 0, 100);
-  let total = categories.reduce((s, c) => s + c.mark, 0);
+  // A_55 (defensive): if categories came back EMPTY (a malformed judge payload the parser couldn't
+  // reshape into the 10-category array), do NOT report a false 0 — fall back to the judge's own
+  // reported `total`. The primary fix is in parseJudgeResult (object-map shape); this guard catches any
+  // other unknown shape so a present-but-unparseable score is never silently zeroed. (Caps can't apply
+  // without categories, so the fallback total is uncapped — acceptable for an already-degraded payload.)
+  const categoriesEmpty = raw.categories.length === 0;
+  const rawTotal = categoriesEmpty
+    ? clamp(typeof raw.total === "number" ? raw.total : 0, 0, 100)
+    : clamp(raw.categories.reduce((s, c) => s + c.mark, 0), 0, 100);
+  let total = categoriesEmpty ? rawTotal : categories.reduce((s, c) => s + c.mark, 0);
   for (const ceiling of ceilings) total = Math.min(total, ceiling);
   total = clamp(total, 0, 100);
 

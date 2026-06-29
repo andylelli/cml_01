@@ -970,7 +970,9 @@ describe("agent5-run testables", () => {
     expect(text.toLowerCase()).toContain("gerald");
   });
 
-  it("fails deterministic contracts on invalid source paths", () => {
+  it("repairs an unrescuable invalid source path to a guaranteed-valid CML location (repair-not-abort)", () => {
+    // A bogus path no targeted heuristic can fix used to leave the clue invalid → the source-path gate
+    // then hard-aborted the run. Now it is anchored to a guaranteed-valid CML location and continues.
     const cml = {
       CASE: {
         cast: [],
@@ -986,13 +988,36 @@ describe("agent5-run testables", () => {
           sourceInCML: "CASE.cast[99].alibi_window",
           description: "Aled Price was at the station at quarter to nine.",
           pointsTo: "Directly implicates Aled Price.",
+          evidenceType: "observation",
+        },
+      ],
+      redHerrings: [],
+    } as any;
+
+    const repairs = __testables.repairInvalidSourcePaths(cml, clues);
+    expect(repairs.length).toBe(1);
+    expect(clues.clues[0].sourceInCML).not.toBe("CASE.cast[99].alibi_window");
+    expect(__testables.validateSourcePath(cml, clues.clues[0].sourceInCML)).toBe(true);
+  });
+
+  it("still hard-fails only the degenerate CML that exposes no valid source path anywhere", () => {
+    // The residual legitimate abort: when the CML contains zero traceable locations, there is nothing
+    // to repair to, so the gate surfaces the broken upstream artifact rather than shipping untraceable clues.
+    const cml = { CASE: { cast: [], culpability: { culprits: [] } } } as any;
+    const clues = {
+      clues: [
+        {
+          id: "clue_orphan",
+          sourceInCML: "CASE.cast[99].alibi_window",
+          description: "An orphaned clue with nowhere valid to anchor.",
+          pointsTo: "Nothing tractable.",
           placement: "mid",
           criticality: "essential",
           evidenceType: "observation",
         },
       ],
       redHerrings: [],
-      clueTimeline: { early: [], mid: ["clue_clock"], late: [] },
+      clueTimeline: { early: [], mid: ["clue_orphan"], late: [] },
     } as any;
 
     expect(() => __testables.enforceAgent5DeterministicContracts(cml, clues)).toThrow(
@@ -1338,7 +1363,7 @@ describe("agent5-run testables", () => {
     )).toBe(true);
   });
 
-  it("fails deterministic contracts on meta-audit clue text", () => {
+  it("warns (does not abort) on meta-audit clue text", () => {
     const cml = {
       CASE: {
         cast: [],
@@ -1390,6 +1415,9 @@ describe("agent5-run testables", () => {
       clueTimeline: { early: ["clue_meta_obs"], mid: ["clue_step_1_contradiction"], late: [] },
     } as any;
 
-    expect(() => __testables.enforceAgent5DeterministicContracts(cml, clues)).toThrow(/meta clue gate failed/i);
+    // A_53 P2 (repair-not-abort): meta-audit clue text is now a non-fatal warning, not a hard abort
+    // (the broad substring patterns are false-positive-prone — tightened in P5).
+    const result = __testables.enforceAgent5DeterministicContracts(cml, clues);
+    expect(result.warnings.some((entry) => /meta clue text \(non-fatal\)/i.test(entry))).toBe(true);
   });
 });

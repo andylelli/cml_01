@@ -175,7 +175,12 @@ const nameAppearsInText = (name: string, text: string): boolean => {
   const nameTokens = normalizeTokens(name).filter((t) => t.length > 2);
   if (nameTokens.length === 0) return false;
   const haystack = ` ${normalizeTokens(text).join(" ")} `;
-  return nameTokens.every((token) => haystack.includes(` ${token} `));
+  // A_53 P4 (a5-namesappearsintext-substring-collision): require the full name as an ORDERED phrase
+  // (so "Mary …" and "… Vane" in separate sentences no longer match "Mary Vane"), or a distinctive
+  // surname token (the last name token, length ≥3). The old "every token appears anywhere" over-matched.
+  if (haystack.includes(` ${nameTokens.join(" ")} `)) return true;
+  const surnameToken = nameTokens[nameTokens.length - 1];
+  return surnameToken.length >= 3 && haystack.includes(` ${surnameToken} `);
 };
 
 const isEliminationLike = (text: string): boolean =>
@@ -482,7 +487,14 @@ const pushIndexedSourcePaths = (
   }
 };
 
-const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
+// A_53 P10 (a5-strict-feedback-recomputed-per-attempt): the strict source-path whitelist is a pure
+// derivation of the immutable CML but is rebuilt 5-10x per Agent-5 invocation (every retry attempt
+// and every gate re-check). Memoize per CML object so repeated callers reuse the first result. The
+// WeakMap is keyed on the case object identity, so a different CML (next run) is computed fresh and
+// stale entries are GC'd with the case object.
+const strictSourcePathWhitelistCache = new WeakMap<object, string[]>();
+
+const computeStrictSourcePathWhitelist = (cml: CaseData): string[] => {
   const caseBlock = getCaseBlock(cml);
   const paths: string[] = [];
 
@@ -531,14 +543,35 @@ const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
   return [...new Set(paths)].filter((path) => validateSourcePath(cml, path));
 };
 
+const buildStrictSourcePathWhitelist = (cml: CaseData): string[] => {
+  // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.
+  const key = (cml as unknown as object) ?? undefined;
+  if (!key || typeof key !== "object") return computeStrictSourcePathWhitelist(cml);
+  const cached = strictSourcePathWhitelistCache.get(key);
+  if (cached) return cached;
+  const computed = computeStrictSourcePathWhitelist(cml);
+  strictSourcePathWhitelistCache.set(key, computed);
+  return computed;
+};
+
 const buildStrictStepCoverageFloors = (cml: CaseData): Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }> => {
   const caseBlock = getCaseBlock(cml);
   const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
-  return steps.map((_step: any, index: number) => ({
-    step: index + 1,
-    requireContradiction: true,
-    requireMapped: true,
-  }));
+  // A_53 P2 (a5-step-coverage-floor-requires-contradiction): a step can only be held to a
+  // contradiction-coverage floor if it actually has a contradiction SOURCE — its own `correction`,
+  // or a case-level time.contradictions anchor. A pure-observation step with neither must not abort
+  // the run on a contradiction it can never satisfy.
+  const hasTimeContradictions =
+    Array.isArray(caseBlock?.constraint_space?.time?.contradictions) &&
+    caseBlock.constraint_space.time.contradictions.length > 0;
+  return steps.map((step: any, index: number) => {
+    const hasOwnCorrection = String(step?.correction ?? "").trim().length > 0;
+    return {
+      step: index + 1,
+      requireContradiction: hasOwnCorrection || hasTimeContradictions,
+      requireMapped: true,
+    };
+  });
 };
 
 const buildAgent5ProactiveFirstPassFeedback = (cml: CaseData): any => {
@@ -686,7 +719,12 @@ const buildStrictIdToSourceMappings = (
   return Array.from(uniqueById.values());
 };
 
-export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPayload | undefined => {
+// A_53 P10 (a5-strict-feedback-recomputed-per-attempt): the full strict-prompt-feedback payload is
+// also a pure derivation of the immutable CML, rebuilt on every Agent-5 attempt. Memoize per CML
+// object (WeakMap, keyed on case identity) so it is computed once per run.
+const strictPromptFeedbackCache = new WeakMap<object, { value: StrictPromptFeedbackPayload | undefined }>();
+
+const computeStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPayload | undefined => {
   const strictSourcePaths = buildStrictSourcePathWhitelist(cml);
   const requiredStepCoverageFloors = buildStrictStepCoverageFloors(cml);
   const requiredLateClueSlot = buildStrictLateClueSlot(cml);
@@ -716,6 +754,19 @@ export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPa
     requiredLateClueSlot,
     requiredDirectCulpritClue,
   };
+};
+
+export const buildStrictPromptFeedback = (cml: CaseData): StrictPromptFeedbackPayload | undefined => {
+  // A_53 P10 (a5-strict-feedback-recomputed-per-attempt): memoized wrapper over the pure compute.
+  // The cache box stores even an `undefined` result so the (non-trivial) computation isn't repeated
+  // when strict contracts legitimately produce no payload.
+  const key = (cml as unknown as object) ?? undefined;
+  if (!key || typeof key !== "object") return computeStrictPromptFeedback(cml);
+  const cached = strictPromptFeedbackCache.get(key);
+  if (cached) return cached.value;
+  const value = computeStrictPromptFeedback(cml);
+  strictPromptFeedbackCache.set(key, { value });
+  return value;
 };
 
 const rebuildClueTimelineFromPlacements = (clues: ClueDistributionResult): void => {
@@ -832,6 +883,27 @@ const ensureStrictDirectCulpritClue = (
     };
     clues.clues.push(clue);
     repairs.push(`strict direct culprit slot repair: synthesized ${requiredDirectCulpritClue.id}`);
+  }
+
+  // A_53 P4 (a5-direct-culprit-slot-admits-non-culprit): a donor/adopted clue may name the culprit
+  // AND a non-culprit without exclusivity language → it doesn't actually discriminate. Enforce the
+  // same `mentionsNonCulprit && !hasExclusivityLanguage` test the exclusivity validator uses, here in
+  // the slot builder: rewrite to the canonical exclusive description so the slot points uniquely at
+  // the culprit. (Synthesized clues already use this description; this catches adopted donors.)
+  {
+    const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`;
+    const mentionsNonCulprit = eligibleNonCulprits.some((n) => nameAppearsInText(n, clueText));
+    if (mentionsNonCulprit && !hasExclusivityLanguage(clueText)) {
+      clue.description =
+        `Direct evidence ties ${culpritName} to the mechanism access point before the discriminating ` +
+        `test and excludes competing suspect timelines.`;
+      clue.pointsTo =
+        `This direct evidence shows ${culpritName} had means and opportunity, narrowing the solution ` +
+        `uniquely toward the culprit. ${nonCulpritClause}`;
+      repairs.push(
+        `strict direct culprit exclusivity repair: rewrote ${requiredDirectCulpritClue.id} to the canonical exclusive description`,
+      );
+    }
   }
 
   if (
@@ -1158,6 +1230,13 @@ const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionResult):
     return candidate && validateSourcePath(cml, candidate) ? candidate : "";
   })();
 
+  // Last-resort guaranteed-valid path (CML-derived): a clue whose invalid path no targeted heuristic
+  // below can rescue is still repaired to a REAL CML location, so the source-path gate REPAIRS rather
+  // than hard-aborts the run (project rule: every violation is a warning → deterministic repair, never
+  // a throw). Prefer the inference-chain anchor; else the first validated whitelist path. Empty only for
+  // a degenerate CML that exposes no valid source path anywhere — that residual case the gate surfaces.
+  const guaranteedFallbackPath = fallbackSourcePath || buildStrictSourcePathWhitelist(cml)[0] || "";
+
   for (const clue of clues.clues as any[]) {
     const clueId = String(clue?.id ?? "(unknown-id)");
     const sourcePath = String(clue?.sourceInCML ?? "").trim();
@@ -1219,6 +1298,11 @@ const repairInvalidSourcePaths = (cml: CaseData, clues: ClueDistributionResult):
     if (repaired && validateSourcePath(cml, repaired)) {
       clue.sourceInCML = repaired;
       repairs.push(`${clueId}: ${sourcePath} -> ${repaired}`);
+    } else if (guaranteedFallbackPath) {
+      // No targeted heuristic matched this path shape — anchor the clue to a guaranteed-valid CML
+      // location so the gate repairs rather than aborts (repair-not-abort).
+      clue.sourceInCML = guaranteedFallbackPath;
+      repairs.push(`${clueId}: ${sourcePath} -> ${guaranteedFallbackPath} [fallback]`);
     }
   }
 
@@ -1502,7 +1586,9 @@ function buildSuspectCoverage(
     .map((c: any) => String(c?.name ?? "").trim())
     .filter(Boolean);
 
-  const castTokenFrequency = buildCastNameTokenFrequency(castArr);
+  // A_53 P10 (a5-suspect-coverage-recomputed-every-recheck): the cast-name token frequency depends
+  // only on the immutable cast array; build it once per cast object instead of per coverage scan.
+  const castTokenFrequency = getCastNameTokenFrequencyCached(castArr);
 
   return suspects.map((suspect: string) => {
     let directReferences = 0;
@@ -1552,6 +1638,18 @@ function buildCastNameTokenFrequency(castArr: any[]): Map<string, number> {
   return frequency;
 }
 
+// A_53 P10 (a5-suspect-coverage-recomputed-every-recheck): memoize the cast-name token frequency on
+// the cast-array object identity (immutable for a run) so it isn't re-tokenized on every recheck.
+const castNameTokenFrequencyCache = new WeakMap<object, Map<string, number>>();
+function getCastNameTokenFrequencyCached(castArr: any[]): Map<string, number> {
+  if (!Array.isArray(castArr)) return buildCastNameTokenFrequency(castArr);
+  const cached = castNameTokenFrequencyCache.get(castArr);
+  if (cached) return cached;
+  const computed = buildCastNameTokenFrequency(castArr);
+  castNameTokenFrequencyCache.set(castArr, computed);
+  return computed;
+}
+
 function nameAppearsForSuspectCoverage(
   suspectName: string,
   clueText: string,
@@ -1576,7 +1674,24 @@ function nameAppearsForSuspectCoverage(
   return uniqueTokens.some((token) => clueTokens.has(token));
 }
 
-function analyzeSuspectCoverage(
+// A_53 P10 (a5-suspect-coverage-recomputed-every-recheck): the suspect coverage scan is O(suspects ×
+// clues × tokenize) and is rebuilt ~10x/run on a clue list that is unchanged between most adjacent
+// checks. Cache the analysis on the `clues` object identity, invalidated by a cheap content version
+// (the coverage-relevant fields only) and the `cml` identity. When clues mutate (retry/repair) the
+// signature changes and the scan re-runs; when it doesn't, the cached result is reused.
+const suspectCoverageCache = new WeakMap<object, { signature: string; cml: CaseData; value: SuspectCoverageAnalysis }>();
+
+const buildSuspectCoverageSignature = (clues: ClueDistributionResult): string => {
+  const parts: string[] = [];
+  for (const clue of clues.clues as any[]) {
+    parts.push(
+      `${String(clue?.id ?? "")}${String(clue?.description ?? "")}${String(clue?.pointsTo ?? "")}${String(clue?.evidenceType ?? "")}`,
+    );
+  }
+  return parts.join("");
+};
+
+function computeSuspectCoverage(
   cml: CaseData,
   clues: ClueDistributionResult,
 ): SuspectCoverageAnalysis {
@@ -1588,6 +1703,31 @@ function analyzeSuspectCoverage(
     .filter((r) => r.directReferences > 0 && r.eliminationLike + r.alibiLike === 0)
     .map((r) => r.suspect);
   return { records, uncovered, weakElimination };
+}
+
+function analyzeSuspectCoverage(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+): SuspectCoverageAnalysis {
+  // A_53 P10 (a5-suspect-coverage-recomputed-every-recheck): memoized wrapper over the pure scan.
+  // A_53 integration fix: return defensive COPIES of the derived arrays — callers do
+  // `analyzeSuspectCoverage(...).weakElimination.sort()` (in-place), which would otherwise mutate and
+  // corrupt the cached value's order. The expensive part (buildSuspectCoverage) stays memoized.
+  const cloneCoverage = (v: SuspectCoverageAnalysis): SuspectCoverageAnalysis => ({
+    records: v.records,
+    uncovered: [...v.uncovered],
+    weakElimination: [...v.weakElimination],
+  });
+  const key = clues as unknown as object;
+  if (!key || typeof key !== "object") return cloneCoverage(computeSuspectCoverage(cml, clues));
+  const signature = buildSuspectCoverageSignature(clues);
+  const cached = suspectCoverageCache.get(key);
+  if (cached && cached.signature === signature && cached.cml === cml) {
+    return cloneCoverage(cached.value);
+  }
+  const value = computeSuspectCoverage(cml, clues);
+  suspectCoverageCache.set(key, { signature, cml, value });
+  return cloneCoverage(value);
 }
 
 function getEligibleNonCulpritNames(caseBlock: any, culpritName: string): string[] {
@@ -1902,13 +2042,29 @@ function checkInferencePathCoverage(
       const clueText = (String(clue.description ?? "") + " " + String((clue as any).sourceInCML ?? "")).toLowerCase();
       const obsText = (typeof step.observation === "string" ? step.observation : "").toLowerCase();
       const obsWords = obsText.split(/\s+/).filter((w: string) => w.length > 4);
-      const matchCount = obsWords.filter((w: string) => clueText.includes(w)).length;
-      if (obsWords.length > 0 && matchCount >= Math.ceil(obsWords.length * 0.4)) coverage.observation = true;
+      // A_53 P5 (a5-fuzzy-coverage-04-threshold-and-evidence-key): the fuzzy fallback now requires not
+      // just 40% overlap but at least one step-DISTINCTIVE token (length ≥ 7) shared with the clue, so
+      // incidental common-word overlap ("evening", "before") can no longer mark a step covered. (The
+      // primary path via supportsInferenceStep still covers steps whose words are all short.)
+      const obsMatched = obsWords.filter((w: string) => clueText.includes(w));
+      if (
+        obsWords.length > 0 &&
+        obsMatched.length >= Math.ceil(obsWords.length * 0.4) &&
+        obsMatched.some((w: string) => w.length >= 7)
+      ) {
+        coverage.observation = true;
+      }
       if (Array.isArray(step.required_evidence)) {
         for (const ev of step.required_evidence) {
           const evWords = String(ev ?? "").toLowerCase().split(/\s+/).filter((w: string) => w.length > 4);
-          const evMatch = evWords.filter((w: string) => clueText.includes(w)).length;
-          if (evWords.length > 0 && evMatch >= Math.ceil(evWords.length * 0.4)) coverage.observation = true;
+          const evMatched = evWords.filter((w: string) => clueText.includes(w));
+          if (
+            evWords.length > 0 &&
+            evMatched.length >= Math.ceil(evWords.length * 0.4) &&
+            evMatched.some((w: string) => w.length >= 7)
+          ) {
+            coverage.observation = true;
+          }
         }
       }
     }
@@ -2019,12 +2175,17 @@ function findRedHerringOverlapDetails(cml: CaseData, clues: ClueDistributionResu
     const rhId = String(rh?.id ?? `rh_${i + 1}`).trim() || `rh_${i + 1}`;
     // Do not score supportsAssumption for overlap: it is expected to echo the false assumption.
     const text = `${String(rh?.description ?? "")} ${String(rh?.misdirection ?? "")}`.toLowerCase();
+    // A_53 P10 (a5-rebuilt-regex-in-overlap-loop-O-n2): tokenize the red-herring text ONCE into an
+    // alphanumeric-word Set and test membership, instead of compiling a fresh `\b${word}\b` RegExp
+    // per correction-word per step per red herring. Both `text` and `step.words` are already
+    // lowercased alphanumeric runs, so Set membership is equivalent to the word-boundary match.
+    const textTokenSet = new Set(text.split(/[^a-z0-9]+/).filter(Boolean));
 
     const matchedStepIndexes: number[] = [];
     const matchedCorrectionWords = new Set<string>();
     let phraseWeightedScore = 0;
     for (const step of stepCorrectionWords) {
-      const stepMatches = step.words.filter((word: string) => new RegExp(`\\b${word}\\b`, "i").test(text));
+      const stepMatches = step.words.filter((word: string) => textTokenSet.has(word));
       const bigramMatches = step.phrases.bigrams.filter((phrase: string) => text.includes(phrase));
       const trigramMatches = step.phrases.trigrams.filter((phrase: string) => text.includes(phrase));
       if (stepMatches.length > 0) {
@@ -2632,6 +2793,61 @@ function synthesizeSuspectCoverageBackstopClues(
   return repairs;
 }
 
+/**
+ * A_53 P2 (repair-not-abort) — deterministically promote any LATE clue that the discriminating-test
+ * timing gate or the mechanism-visibility gate requires to be early/mid up to "mid", mirroring those
+ * checkers' own clue-selection so the repair never drifts from what they enforce. Returns the ids
+ * promoted; the caller rebuilds the timeline and re-checks. Genuinely-unrepairable defects (a missing
+ * evidence id, or no mechanism-visible clue at all) are left for the caller to surface as warnings.
+ */
+const promoteLateGateCluesToMid = (cml: CaseData, clues: ClueDistributionResult): string[] => {
+  const promoted: string[] = [];
+  const promote = (clue: any) => {
+    if (!clue) return;
+    const placement = String(clue.placement ?? "").toLowerCase();
+    if (placement !== "early" && placement !== "mid") {
+      clue.placement = "mid";
+      promoted.push(String(clue.id ?? "(unknown-id)"));
+    }
+  };
+
+  // (1) Discriminating-test evidence clues — by canonical id, else by design/knowledge text overlap
+  // (mirrors checkDiscriminatingTestReachability).
+  const clueById = new Map((clues.clues as any[]).map((c) => [String(c.id), c]));
+  const caseBlock = getCaseBlock(cml);
+  const evidenceIds = getCanonicalEvidenceClueIds(cml);
+  if (evidenceIds.length > 0) {
+    for (const id of evidenceIds) promote(clueById.get(id));
+  } else {
+    const discrimTest = caseBlock?.discriminating_test;
+    const combined = `${String(discrimTest?.design ?? "")} ${String(discrimTest?.knowledge_revealed ?? "")}`.toLowerCase();
+    const testWords = combined.split(/\s+/).filter((w) => w.length > 4);
+    if (testWords.length > 0) {
+      for (const clue of clues.clues as any[]) {
+        const clueText = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")} ${String(clue?.sourceInCML ?? "")}`.toLowerCase();
+        const matchCount = testWords.filter((w) => clueText.includes(w)).length;
+        if (matchCount >= Math.ceil(testWords.length * 0.2)) promote(clue);
+      }
+    }
+  }
+
+  // (2) Mechanism-visible clues (mirrors checkMechanismVisibility's selection).
+  const mechanismText = `${String(caseBlock?.hidden_model?.mechanism?.description ?? "")} ${String(caseBlock?.discriminating_test?.knowledge_revealed ?? "")}`.trim();
+  const terms = extractMechanismVisibilityTerms(mechanismText);
+  if (terms.length >= 3) {
+    const phrases = extractMechanismVisibilityPhrases(mechanismText);
+    for (const clue of clues.clues as any[]) {
+      const text = `${String(clue?.description ?? "")} ${String(clue?.pointsTo ?? "")}`.toLowerCase();
+      const tokenSet = new Set(normalizeTokens(text));
+      const termMatches = terms.filter((term) => tokenSet.has(term)).length;
+      const phraseMatch = phrases.some((phrase) => text.includes(phrase));
+      if (phraseMatch || termMatches >= 1) promote(clue);
+    }
+  }
+
+  return [...new Set(promoted)];
+};
+
 export function enforceAgent5DeterministicContracts(
   cml: CaseData,
   clues: ClueDistributionResult,
@@ -2738,7 +2954,12 @@ export function enforceAgent5DeterministicContracts(
   }
 
   if (strictStepCoverageIssues.length > 0) {
-    throw new Error(`Agent 5 strict step coverage gate failed with ${strictStepCoverageIssues.length} critical issue(s).`);
+    // A_53 P2 (repair-not-abort): the deterministic backstop synthesis already ran above; per-step
+    // contradiction floors now exclude pure-observation steps. Any residual coverage gap is a
+    // fair-play warning, not a run-killer.
+    strictStepCoverageIssues.forEach((issue) =>
+      warnings.push(`Agent 5 strict step coverage (non-fatal): ${issue.message}`),
+    );
   }
 
   const strictContractIssues = checkStrictPromptContracts(clues, strictPromptFeedback)
@@ -2750,22 +2971,38 @@ export function enforceAgent5DeterministicContracts(
   const metaAuditIssues = checkMetaAuditClueText(clues)
     .filter((issue) => issue.severity === "critical");
   if (metaAuditIssues.length > 0) {
-    throw new Error(`Agent 5 meta clue gate failed with ${metaAuditIssues.length} critical issue(s).`);
+    // A_53 P2 (repair-not-abort): meta-audit text in a clue is a quality warning — and the broad
+    // substring patterns are false-positive-prone (tightened in P5) — never a run-killer.
+    metaAuditIssues.forEach((issue) => warnings.push(`Agent 5 meta clue text (non-fatal): ${issue.message}`));
   }
 
-  const discrimReachabilityIssues = checkDiscriminatingTestReachability(cml, clues)
+  // A_53 P2 (repair-not-abort): the discriminating-timing and mechanism-visibility gates fail almost
+  // exclusively because a required clue sits in LATE placement — exactly the mechanical repair the
+  // clue guardrails already perform. Promote those clues to mid, rebuild the timeline, and re-check;
+  // only a genuinely-unrepairable defect (missing evidence id, no mechanism-visible clue at all)
+  // survives — surfaced as a warning, never a throw.
+  let discrimReachabilityIssues = checkDiscriminatingTestReachability(cml, clues)
     .filter((issue) => issue.severity === "critical");
-  if (discrimReachabilityIssues.length > 0) {
-    throw new Error(
-      `Agent 5 discriminating test timing gate failed with ${discrimReachabilityIssues.length} critical issue(s).`,
+  let mechanismVisibilityIssues = checkMechanismVisibility(cml, clues)
+    .filter((issue) => issue.severity === "critical");
+  if (discrimReachabilityIssues.length > 0 || mechanismVisibilityIssues.length > 0) {
+    const promoted = promoteLateGateCluesToMid(cml, clues);
+    if (promoted.length > 0) {
+      rebuildClueTimelineFromPlacements(clues);
+      reconcileModelAudit(cml, clues);
+      warnings.push(
+        `Agent 5 timing-gate repair: promoted ${promoted.length} late clue(s) to mid (${promoted.join(", ")}).`,
+      );
+      discrimReachabilityIssues = checkDiscriminatingTestReachability(cml, clues)
+        .filter((issue) => issue.severity === "critical");
+      mechanismVisibilityIssues = checkMechanismVisibility(cml, clues)
+        .filter((issue) => issue.severity === "critical");
+    }
+    discrimReachabilityIssues.forEach((issue) =>
+      warnings.push(`Agent 5 discriminating-timing residual (non-fatal): ${issue.message}`),
     );
-  }
-
-  const mechanismVisibilityIssues = checkMechanismVisibility(cml, clues)
-    .filter((issue) => issue.severity === "critical");
-  if (mechanismVisibilityIssues.length > 0) {
-    throw new Error(
-      `Agent 5 mechanism visibility gate failed with ${mechanismVisibilityIssues.length} critical issue(s).`,
+    mechanismVisibilityIssues.forEach((issue) =>
+      warnings.push(`Agent 5 mechanism-visibility residual (non-fatal): ${issue.message}`),
     );
   }
 
@@ -3536,6 +3773,11 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       const caseBlock = getCaseBlock(ctx.cml!);
       if (caseBlock?.discriminating_test) {
         caseBlock.discriminating_test.evidence_clues = seededEvidenceIds;
+        // A_53 integration fix: the strict whitelist/feedback memos are keyed by the cml object's
+        // identity and the whitelist includes CASE.discriminating_test.evidence_clues[i] paths — this
+        // in-place mutation would otherwise leave those memos stale. Invalidate them for this cml.
+        strictSourcePathWhitelistCache.delete(ctx.cml! as unknown as object);
+        strictPromptFeedbackCache.delete(ctx.cml! as unknown as object);
         ctx.reportProgress(
           "clues",
           `Agent 5: deterministically seeded discriminating_test.evidence_clues from canonical clue IDs (${seededEvidenceIds.join(", ")}).`,
@@ -3791,6 +4033,7 @@ export const __testables = {
   checkCastNamePathConsistency,
   repairCastNamePathConsistency,
   repairInvalidSourcePaths,
+  validateSourcePath,
   sanitizeRedHerringOverlap,
   synthesizeMissingCulpritDiscriminatingClues,
   pruneOverlappingRedHerrings,

@@ -14,6 +14,10 @@
  */
 
 import type { CaseData } from "@cml/cml";
+// A_53 P4 (Pattern D): the word-boundary/surname matcher lives in a shared module now; re-exported
+// here for this file's existing importers.
+import { namesMatch } from "./identity-match.js";
+export { namesMatch } from "./identity-match.js";
 
 export type RevealGateMode = "off" | "shadow" | "enforce";
 
@@ -26,24 +30,6 @@ export const parseRevealGateMode = (raw: string | undefined): RevealGateMode => 
   if (!v || v === "off" || v === "false" || v === "0") return "off";
   if (v === "enforce") return "enforce";
   return "shadow";
-};
-
-const surname = (value: string | undefined): string =>
-  String(value ?? "").trim().split(/\s+/).pop()?.toLowerCase() ?? "";
-
-/**
- * Exact (case-insensitive) match OR shared surname. Deliberately NOT a raw substring match —
- * `"Ann".includes`-style logic false-positives on "Joanna"/"Annabelle" and could fail a clean run
- * via the T2.1 verdict. Mirrors prose-blind-reader's surname matcher.
- */
-export const namesMatch = (a: string | undefined, b: string | undefined): boolean => {
-  const x = String(a ?? "").trim().toLowerCase();
-  const y = String(b ?? "").trim().toLowerCase();
-  if (!x || !y) return false;
-  if (x === y) return true;
-  const sa = surname(x);
-  const sb = surname(y);
-  return Boolean(sa) && sa === sb;
 };
 
 const caseOf = (cml: CaseData | undefined | null): any => (cml as any)?.CASE ?? cml ?? {};
@@ -168,7 +154,14 @@ export const auditDeathMethodDeducibility = (
     if (c?.criticality !== "essential") return false;
     if (c?.placement !== "early" && c?.placement !== "mid") return false;
     const text = `${c?.description ?? ""} ${c?.observable ?? ""} ${c?.pointsTo ?? ""}`.toLowerCase();
-    return tokens.some((t) => text.includes(t));
+    // A_53 P5 (reveal-gate-death-method-token-prefix-false-positive): word-boundary match so a short
+    // fallback token like "fall" no longer matches "befall"/"fallen leaves" and falsely reports the
+    // manner of death as reader-deducible.
+    return tokens.some((t) => {
+      const tok = String(t ?? "").trim();
+      if (!tok) return false;
+      return new RegExp(`\\b${tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(text);
+    });
   });
   return {
     ok: deducible,

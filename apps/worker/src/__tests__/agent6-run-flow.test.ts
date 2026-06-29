@@ -10,6 +10,8 @@ vi.mock("@cml/prompts-llm", () => ({
   blindReaderSimulation: (...args: any[]) => mockBlindReaderSimulation(...args),
   buildCMLPrompt: vi.fn(),
   reviseCml: vi.fn(),
+  // A_56 5-A: shared.ts applyClueGuardrails now imports this; stub as a no-op (no collisions).
+  checkPointsToDistinctness: () => ({ ok: true, collisions: [] }),
 }));
 
 vi.mock("@cml/story-validation", () => ({
@@ -55,7 +57,7 @@ describe("agent6-run flow", () => {
     delete process.env.AGENT_PRE9_ENABLE_LLM_RETRIES;
   });
 
-  it("retries once on fail, accumulates costs, and updates fair-play handoff state", async () => {
+  it("retries once on fail, tracks cumulative per-agent costs, and updates fair-play handoff state", async () => {
     mockAuditFairPlay
       .mockResolvedValueOnce({
         overallStatus: "fail",
@@ -214,8 +216,11 @@ describe("agent6-run flow", () => {
     expect(mockExtractClues).toHaveBeenCalledTimes(1);
     expect(ctx.fairPlayAudit?.overallStatus).toBe("pass");
     expect(Array.isArray(ctx.allCoverageIssues)).toBe(true);
-    expect(ctx.agentCosts.agent5_clues).toBeCloseTo(1.02, 6);
-    expect(ctx.agentCosts.agent6_fairplay).toBeCloseTo(0.07, 6);
+    // A_53 P3 (cost double-count fix): result.cost is the CUMULATIVE byAgent total, so per-agent cost
+    // is the latest cumulative value (overwrite), not the sum of cumulatives. agent5_clues = the clue
+    // regeneration's cumulative (0.02); agent6_fairplay = the final audit's cumulative (0.04).
+    expect(ctx.agentCosts.agent5_clues).toBeCloseTo(0.02, 6);
+    expect(ctx.agentCosts.agent6_fairplay).toBeCloseTo(0.04, 6);
   });
 
   it("passes strict first-pass acceptance directives in fair-play feedback payload", async () => {

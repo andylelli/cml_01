@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyDeterministicProsePostProcessing,
   applyDeterministicPronounSweep,
+  buildDeterministicGroundingLead,
 } from "../jobs/agents/agent9-run.js";
 
 describe("buildDeterministicGroundingLead (via applyDeterministicProsePostProcessing) — C4", () => {
@@ -50,6 +51,27 @@ describe("buildDeterministicGroundingLead (via applyDeterministicProsePostProces
     expect(text).not.toMatch(/Wynthorpe Manor\s*-\s*Library/i);
     // The full geographic chain must not be reproduced.
     expect(text).not.toMatch(/Northumberland, England/i);
+  });
+
+  // A_52 item 3: the rescue lead must anchor to the location the chapter actually visits, not a room
+  // chosen by index rotation — the "mismatched opener" that helped get this pass disabled.
+  it("anchors the lead to the preferred (chapter-present) location instead of the rotated keyLocation", () => {
+    const profiles = {
+      primary: { name: "Harbour Hotel" },
+      keyLocations: [
+        { name: "The Lounge", sensoryDetails: { smells: ["pipe smoke"], sounds: ["a ticking clock"], tactile: ["worn velvet"] } },
+        { name: "The Boathouse", sensoryDetails: { smells: ["brine"], sounds: ["lapping water"], tactile: ["damp rope"] } },
+      ],
+      atmosphere: { weather: "fog", mood: "uneasy" },
+    };
+    // chapterIndex 0 would rotate to "The Lounge"; preferring "The Boathouse" must win.
+    const lead = buildDeterministicGroundingLead(0, profiles, "The Boathouse");
+    expect(lead).toMatch(/Boathouse/i);
+    expect(lead).not.toMatch(/Lounge/i);
+
+    // With no preference, it falls back to the rotated keyLocation (index 0 → The Lounge).
+    const rotated = buildDeterministicGroundingLead(0, profiles);
+    expect(rotated).toMatch(/Lounge/i);
   });
 });
 

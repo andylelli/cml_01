@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "shipped": [
+    {
+      "id": "run_09168377-8a7c-483c-b498-af9745492070",
+      "title": "The Sundial Shadow Conspiracy",
+      "era": "1930s",
+      "location": "Marwood Manor, Little Middleton, Yorkshire",
+      "crimeSubtype": "stabbing",
+      "deathMethod": "stabbed with a dagger",
+      "axis": "temporal",
+      "falseAssumption": "The victim was murdered shortly before sunset as all household servants consistently testified.",
+      "discrimMethod": "trap",
+      "discrimDesign": "A controlled sundial shadow experiment is conducted by placing an identical watch face at the sundial under the same sunlight conditions at various times, demonstrating the precise shadow length and direction that contradicts servant testimonies and Edward’s claimed alibi, thereby proving the murder’s true timing and implicating Edward Marwood.",
+      "premise": "In the isolated Marwood Manor during a drizzly early autumn afternoon, Edith Marwood is found stabbed in her private sitting room. The household staff and family provide conflicting timelines. The sundial in the garden and the stopped watch on Edith reveal a contradiction in the reported time of death. Arthur Langley investigates, unravelling a scheme that manipulated the timing of events and exploited social trust to conceal the real murderer within the family."
+    }
+  ]
+}

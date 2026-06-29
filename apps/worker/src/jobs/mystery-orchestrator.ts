@@ -94,6 +94,20 @@ import {
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
 
+// A_53 P10 (seed-corpus-loaded-and-summarized-per-run): the 14 static seed CMLs are read-only and
+// identical every run, but loadSeedCMLFiles re-reads + re-parses them on EVERY generateMystery call —
+// wasteful in a canary-loop (many runs per process). Memoize at module scope keyed by the examples
+// root. (loadSeedCMLFiles is synchronous, so we cache the parsed array directly.)
+const seedEntriesCache = new Map<string, ReturnType<typeof loadSeedCMLFiles>>();
+const loadSeedCMLFilesCached = (root: string): ReturnType<typeof loadSeedCMLFiles> => {
+  let entries = seedEntriesCache.get(root);
+  if (!entries) {
+    entries = loadSeedCMLFiles(root);
+    seedEntriesCache.set(root, entries);
+  }
+  return entries;
+};
+
 const shouldRunAzureEndpointPreflight = (): boolean => {
   const raw = String(process.env.AZURE_ENDPOINT_PREFLIGHT ?? "true").trim().toLowerCase();
   return !(raw === "0" || raw === "false" || raw === "off" || raw === "no");
@@ -747,7 +761,7 @@ export async function generateMystery(
       inputs.locationPreset
     );
     const primaryAxis = normalizePrimaryAxis(inputs.primaryAxis);
-    const seedEntries = await loadSeedCMLFiles(EXAMPLES_ROOT);
+    const seedEntries = loadSeedCMLFilesCached(EXAMPLES_ROOT);
     let noveltyConstraints = buildNoveltyConstraints(
       seedEntries as Array<{ filename: string; cml: CaseData }>
     );

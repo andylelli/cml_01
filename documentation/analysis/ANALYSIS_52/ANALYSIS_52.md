@@ -111,6 +111,22 @@ All on `redesign/agent-blue-sky`; suites green throughout (prompts-llm 512, stor
 
 ---
 
+## 2.1 Landed 2026-06-28 (this session) — code-complete + unit-tested; live confirmation pending
+
+Suites green: prompts-llm 517, worker 226 (+5 new), canary-loop 71 (+7 new); worker + prompts-llm type-check clean. None of these is run-validated yet — the next `canary:core` run is the measurement.
+
+| Item | Change | Why it should move the number |
+|---|---|---|
+| **4 · mechanism-early-leak** 🔑 | Decoupled the **mechanism-reveal gate** from the default-OFF `AGENT7_SCHEDULER_AUTHORITATIVE` experiment → new default-ON `AGENT7_MECHANISM_GATE`; the prose prompt's "MECHANISM REVEAL GATE (withhold)" block now self-activates on the stamped per-scene flag. | The gate (stamp + prompt instruction) was **never reaching the prose on normal runs** — so the LLM was never told to withhold the HOW and the honest rubric correctly capped **plot_structure/pacing ≤6**. This is the direct lever for that cap. (+3 prompt tests) |
+| **3 · scene-grounding** | (a) Grounding vocab is now a **single source of truth** — the gate scorer calls `getGroundingSignals` directly, so the rescue trigger and the gate can't drift. (b) **Opening-style ↔ grounding reconciliation**: the `expository-setup` "no atmosphere" rule and the checklist now agree (style = first sentence; grounding = anywhere in first 2 paragraphs) + fuller vocab menu. (c) The opt-in deterministic lead's **Ch1 location-mismatch is fixed** (anchors to a location the chapter actually visits). | Prompt-only plateaued at 2/9. The reconciliation removes a real prompt contradiction (the no-prose-risk lever). The blunt prepend is kept **OFF by design** — its repetition was itself a K2 prose penalty, so forcing it to clear a *warning* could lower the score. (+1 worker test) |
+| **6 · pronoun re-validation** | The per-chapter `repairChapterPronouns` call now carries the **same monotonic guard** as the full-cast sweep (revert if wrong-gender pronouns increase). Role-swap mis-gendering is structurally closed by the landed role model (gender locks ⇒ cast gender authoritative). | Closes the unguarded-mutation gap the memory note + `mutate.ts` docstring flag — the §3.3 "correct female run flipped to male" bug class. |
+| **5 · premise diversity** | New `CANARY_THEME` knob + theme library (clock/poison/tide/acoustic/optics/identity) — rotates the mechanism family per run; `=rotate` auto-picks. **Default unset ⇒ YAML theme unchanged.** | Breaks the "Second Key" attractor for the eval loop by varying the dominant divergence driver (Agent 3b locks the primary device to the theme's family). (+7 tests) |
+| **7 · Agent 5/4** | **Not changed — deferred by design** (doc sequences it after 1–4). Needs a run that exhibits the non-culprit-admitted / non-convergence failure to diagnose; changing the revision logic blind is the wrong move. | — |
+
+**Reversibility:** every behavioural change is one env var — `AGENT7_MECHANISM_GATE=0` (item 4), `AGENT9_GROUNDING_LEAD=1` to try the lead (item 3), `CANARY_THEME=…` (item 5).
+
+---
+
 ## 3. Outstanding work (the register)
 
 Legend: `☐` open · `◐` partial · `🔑` keystone.
@@ -151,9 +167,10 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 | **Role model (detective+victim+n-2 suspects)** | ✅ | **Confirmed live** (`mystery-1782591615045`, n=6): LLM emits `role` tags; the invariant repaired the LLM's missing-victim cast → victim Sylvia Trent, detective Eleanor correctly excluded; **zero** dead-and-alive signals. (`4cbf146f`, +6 tests) |
 | **Triad effectiveness in prose** | ✅ | **Confirmed live** (`c17a3bc4`): `caps_applied: []`; `mechanismExplainedChapter:9 ≥ testChapter:8` (was falsely 1); `unplantedEvidence:[]`, vetoed. The false caps cleared — K2 reads the structure accurately. |
 | Release gate — continuity warning | ✅ | **Cleared** — the critical-continuity warning is gone; release gate now **PASSED** (0 hard-stops, 1 warning, was 2). |
-| Release gate — scene-grounding | ☐ | Still below target (2/9). The prompt elevation (`60476705`) did not move it — needs a different lever (deterministic lead is off for repetition; or a per-chapter grounding obligation in the obligation block). |
-| Category ladder vs honest rubric | ◐ | Built, flag-OFF; now legitimately testable. |
-| Premise diversity | ☐ | Single fixed canary theme guarantees a clone. |
+| Release gate — scene-grounding | ◐ | **2/9 → 8/10 (80%)** on `mystery-1782647685448` via the §2.1 item-3 prompt reconciliation (deterministic lead stayed OFF — no prose-quality cost). One chapter short of the 0.9 gate; still a warning. |
+| Mechanism-early-leak cap (plot_structure/pacing ≤6) | ✅ | **Cleared** (`mystery-1782647685448`: `caps_applied: []`, K2 70 raw). §2.1 item 4 decoupled the mechanism gate from scheduler-authority so it fires on every run. |
+| Category ladder vs honest rubric | ◐ | Built, flag-OFF; now legitimately testable. `clues` still the open category (mid-story planting subtlety). |
+| Premise diversity | ◐ | §2.1 item 5: `CANARY_THEME` rotation knob landed (opt-in; default unchanged). Not yet exercised in a run. |
 
 ---
 
@@ -166,5 +183,7 @@ Legend: `☐` open · `◐` partial · `🔑` keystone.
 | `mystery-1782577884032` (A_51) | 6-cast | **aborted** release gate (placeholder FP) | exposed the Fix #1 false positive |
 | **`mystery-1782585273377` (A_52)** | 6-cast, K1+K2+triad+Fix#1+Fix#2 | **completed**, 0 hard-stops, **K2 = 62/100 honest** | pipeline completes; K2 honest in situ; bottleneck → role model + triad-in-prose |
 | **`mystery-1782591615045` (A_52)** | n=6 role model + phase 2/3 | **completed**, release gate **PASSED** (1 warning), K2 59 (raw, **no caps**) | role model live (roles tagged, repair works, zero dead-and-alive); phase-2 caps cleared (mechanism@9≥test@8, unplanted=[] vetoed); continuity warning cleared; only scene-grounding (2/9) remains. (`infra_failure` = a benign post-step DNS blip — story passed the gate.) |
+| **`mystery-1782594824861` (A_52)** | + reveal obligations (`81811b5f`) | **completed**, gate PASSED, **K2 65** | category ladder, iteration 1: **ending 5→7**, **plot_structure 5→6**, character_clarity 6→7. **clues stuck at 5** (mid-story planting issue — "foreshadow more subtly", a reveal obligation can't fix). plot_structure/pacing capped ≤6 by a REAL mechanism-early-leak this seed (triad #3 didn't hold — honest rubric caught it, not a false positive). |
+| **`mystery-1782647685448` (A_52)** | + §2.1 items 3/4/6 (default theme) | **completed**, status `warning` (3 gate warnings), **K2 70 (raw 70, `caps_applied: []`)** | **Item 4 validated:** mechanism gate fired on a normal run (`withheld in 8 pre-test scenes; reveal @ scene #9`) → the mechanism-early-leak cap is GONE (no caps applied; +5 over the 65 baseline). **Item 3 validated:** scene-grounding **8/10 (80%)** vs 2/9 — the LLM self-grounded with the lead OFF (ch1 opens on rain/salt/cigar-smoke/grey-light organically). Remaining: scene-grounding one chapter short of the 0.9 gate; **two new soft (major, not hard-stop) warnings.** ① `temporal_contradiction` — **diagnosed as a validator false positive and FIXED**: a sentence-initial modal *"'May I?'"* was read as the month May (→spring) and clashed with the genuine "summery" setting; the ambiguous-month guard now requires an explicit calendar context (not the clock, not item 3). ② `missing_case_transition_bridge` — disappearance→death transition without an explicit body-discovery bridge (run-specific narrative phrasing; not yet investigated). |
 
 Baseline for reference: `run_9b824eb2` (Tier-1 only, older judge) = 71 LLM / 68 shadow. Target: [ROADMAP_TO_80](../ANALYSIS_47/ROADMAP_TO_80.md) ≥ 80.

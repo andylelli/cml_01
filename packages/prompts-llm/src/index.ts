@@ -66,7 +66,7 @@ export type {
   LocationBaselinePalette,
   LocationSpineCheckResult,
 } from "./agent2c-location-spine.js";
-export { generateTemporalContext } from "./agent2d-temporal-context.js";
+export { generateTemporalContext, deriveSeasonFromMonth } from "./agent2d-temporal-context.js";
 export { generateBackgroundContext } from "./agent2e-background-context.js";
 export { deriveBackgroundContext, rankAnchors, MAX_CAST_ANCHORS, BACKDROP_SUMMARY_STUB } from "./agent2e-background-derive.js";
 export type { DeriveBackgroundContextInputs } from "./agent2e-background-derive.js";

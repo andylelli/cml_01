@@ -46,25 +46,71 @@ const AGENT7_SCHEDULER_SHADOW = !/^(0|false|no|off)$/i.test(process.env.AGENT7_S
  * Default OFF; never enable in the same run as another retry-gated lever. */
 const AGENT7_SCHEDULER_AUTHORITATIVE = /^(1|true|yes|on)$/i.test(process.env.AGENT7_SCHEDULER_AUTHORITATIVE ?? "");
 
+/** A_53 P8 (scheduler-authority-dark-no-safe-enable-path): split the scheduler-authority lever into
+ * its two independent halves so the non-destructive one is safely enableable on its own. This flag
+ * gates ONLY the once-per-clue grid clue-job stamp (the half that used to misalign + overwrite). It is
+ * now additive + (act, act-scene-number)-aligned + coverage-re-validated, so enabling it can no longer
+ * delete an LLM-assigned clue. Default OFF; `AGENT7_SCHEDULER_AUTHORITATIVE` alone now ships only the
+ * safe pacing-shaped word budgets. */
+const AGENT7_CLUE_JOB_AUTHORITY = /^(1|true|yes|on)$/i.test(process.env.AGENT7_CLUE_JOB_AUTHORITY ?? "");
+
+/** A_52 item 4 (mechanism-early-leak): the mechanism-reveal gate is a safe, targeted prompt hint —
+ * withhold the full HOW-it-was-done explanation until the discriminating-test scene — that on its own
+ * neither reorders scenes nor moves clues. It was previously trapped behind the heavier (default-OFF)
+ * scheduler-authority experiment, so on normal runs the prose was NEVER told to withhold the mechanism
+ * and the honest rubric correctly capped plot_structure/pacing ≤6 for the early leak. Decoupled here:
+ * default ON, reversible via AGENT7_MECHANISM_GATE=0. */
+const AGENT7_MECHANISM_GATE = !/^(0|false|no|off)$/i.test(process.env.AGENT7_MECHANISM_GATE ?? "");
+
+/** A_53 P10 (scheduler-grid-rebuilt-twice-per-run): the scheduler shadow and the clue-job authority
+ * both build `buildSceneGrid`+`collectObligations` from the same ctx-derived inputs. This memoizing
+ * cache builds each (grid, obligations) pair once per scene-count and lets both call sites share it,
+ * so when shadow+authority are both enabled the grid is built once instead of twice. Pure perf — the
+ * inputs (caseData/clues/redHerrings) don't change between these end-of-run calls. */
+type Agent7GridCache = {
+  caseData: any;
+  clues: Array<{ id: any; placement: any; criticality: any; supportsInferenceStep: any }>;
+  redHerrings: Array<{ id?: string }>;
+  get(sceneCount: number): { grid: ReturnType<typeof buildSceneGrid>; obligations: ReturnType<typeof collectObligations>["obligations"] };
+};
+
+function makeAgent7GridCache(ctx: OrchestratorContext): Agent7GridCache {
+  const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+  const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
+    id: c.id,
+    placement: c.placement,
+    criticality: c.criticality,
+    supportsInferenceStep: c.supportsInferenceStep,
+  }));
+  const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
+  const memo = new Map<number, { grid: ReturnType<typeof buildSceneGrid>; obligations: ReturnType<typeof collectObligations>["obligations"] }>();
+  return {
+    caseData,
+    clues,
+    redHerrings,
+    get(sceneCount: number) {
+      const cached = memo.get(sceneCount);
+      if (cached) return cached;
+      const grid = buildSceneGrid({ cml: caseData, clues, redHerrings }, sceneCount);
+      const obligations = collectObligations(caseData, clues, redHerrings).obligations;
+      const built = { grid, obligations };
+      memo.set(sceneCount, built);
+      return built;
+    },
+  };
+}
+
 /** Build + invariant-check the deterministic grid for the produced outline, logging the comparison. */
-function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: NarrativeOutline, gridCache: Agent7GridCache): void {
   if (!AGENT7_SCHEDULER_SHADOW) return;
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
     const liveScenes =
       (narrative as any).totalScenes ??
       (narrative.acts ?? []).reduce((n: number, a: any) => n + (Array.isArray(a.scenes) ? a.scenes.length : 0), 0);
-    const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
-      id: c.id,
-      placement: c.placement,
-      criticality: c.criticality,
-      supportsInferenceStep: c.supportsInferenceStep,
-    }));
-    const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
     const sceneCount = liveScenes && liveScenes >= 4 ? liveScenes : 10;
 
-    const grid = buildSceneGrid({ cml: caseData, clues, redHerrings }, sceneCount);
-    const obligations = collectObligations(caseData, clues, redHerrings).obligations;
+    // A_53 P10 (scheduler-grid-rebuilt-twice-per-run): shared memoized grid (see makeAgent7GridCache).
+    const { grid, obligations } = gridCache.get(sceneCount);
     const complete = checkComplete(grid, obligations);
     const ordered = checkOrdered(grid);
     const coverage = checkCoverage(grid);
@@ -85,7 +131,7 @@ function runAgent7SchedulerShadow(ctx: OrchestratorContext, narrative: Narrative
 
 /** P1.3: when the scheduler is authoritative, stamp a pacing-shaped per-scene word budget onto the
  * outline so Agent 9 produces varied chapter lengths (climax fuller, setup leaner). No-op by default. */
-function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: NarrativeOutline, gridCache: Agent7GridCache): void {
   if (!AGENT7_SCHEDULER_AUTHORITATIVE) return;
   const sceneRefs = flattenNarrativeScenes(narrative);
   if (sceneRefs.length === 0) return;
@@ -112,41 +158,99 @@ function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: Narr
       `(${budgets[0]}…${budgets[budgets.length - 1]} words).`,
   );
 
-  // Job authority (T1.2): promote the deterministic grid from shadow to gate for per-scene clue
-  // jobs. The grid assigns every reveal obligation to exactly one slot, so a clue is dramatized in a
-  // single chapter instead of being re-revealed across adjacent ones (the dominant pacing smear).
-  // Guarded: an infeasible grid keeps the existing LLM distribution untouched.
+  // A_53 P8 (scheduler-authority-dark-no-safe-enable-path): the destructive clue-job half is now a
+  // SEPARATE opt-in (AGENT7_CLUE_JOB_AUTHORITY) so the word budgets above can ship on their own.
+  applyAgent7ClueJobAuthority(ctx, narrative, sceneRefs, gridCache);
+}
+
+/** A_53 P8: the once-per-clue grid clue-job stamp — now additive + (act, act-scene-number)-aligned +
+ * coverage-re-validated. Gated behind AGENT7_CLUE_JOB_AUTHORITY (default OFF). */
+function applyAgent7ClueJobAuthority(
+  ctx: OrchestratorContext,
+  narrative: NarrativeOutline,
+  sceneRefs: ReturnType<typeof flattenNarrativeScenes>,
+  gridCache: Agent7GridCache,
+): void {
+  if (!AGENT7_CLUE_JOB_AUTHORITY) return;
+  // Job authority (T1.2): the grid assigns every reveal obligation to exactly one slot, so a clue is
+  // dramatized in a single chapter instead of being re-revealed across adjacent ones. Guarded: an
+  // infeasible grid (or per-act count mismatch) keeps the existing LLM distribution untouched.
   try {
-    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
-    const clues = ((ctx.clues?.clues ?? []) as any[]).map((c) => ({
-      id: c.id,
-      placement: c.placement,
-      criticality: c.criticality,
-      supportsInferenceStep: c.supportsInferenceStep,
-    }));
-    const redHerrings = (ctx.clues?.redHerrings ?? []) as Array<{ id?: string }>;
-    const grid = buildSceneGrid({ cml: caseData, clues, redHerrings }, sceneRefs.length);
-    const { stamped, dedupRemoved } = applyGridClueJobs(
-      sceneRefs.map((r) => r.scene),
-      grid.slots,
-    );
-    console.info(
-      `[Agent 7 scheduler authority] stamped grid clue jobs on ${stamped} scenes ` +
-        `(one reveal per clue; ${dedupRemoved} duplicate re-reveals removed).`,
-    );
+    // A_53 P10 (scheduler-grid-rebuilt-twice-per-run): shared memoized grid (see makeAgent7GridCache).
+    const { grid } = gridCache.get(sceneRefs.length);
+    // Pass act + scene-number so the stamp aligns by (act, act-scene-number), not raw index.
+    const sceneCells = sceneRefs.map((r) => {
+      const cell = r.scene as any;
+      cell.act = r.act;
+      if (typeof cell.sceneNumber !== "number") cell.sceneNumber = r.sceneNumber;
+      return cell;
+    });
+    const { stamped, dedupRemoved, fellBack } = applyGridClueJobs(sceneCells, grid.slots);
+    if (fellBack) {
+      ctx.warnings.push(
+        "[Agent 7 clue-job authority] per-act counts differ between grid and outline — kept the LLM clue distribution (no stamp).",
+      );
+    } else {
+      // A_53 P8 (re-run the coverage gate after stamping): the additive union can't drop a clue to
+      // zero scenes, but re-evaluate to force-assign any genuinely-unanchored clue id deterministically.
+      reassertClueCoverage(ctx, narrative);
+      console.info(
+        `[Agent 7 clue-job authority] reconciled grid clue jobs on ${stamped} scenes ` +
+          `(one reveal per clue; ${dedupRemoved} duplicate re-reveals removed).`,
+      );
+    }
   } catch (e) {
     if (e instanceof SchedulerInfeasibleError) {
       console.info(
-        `[Agent 7 scheduler authority] grid INFEASIBLE — keeping the LLM clue distribution: ${e.unmet}`,
+        `[Agent 7 clue-job authority] grid INFEASIBLE — keeping the LLM clue distribution: ${e.unmet}`,
       );
     } else {
-      console.warn(`[Agent 7 scheduler authority] clue-job stamp skipped: ${(e as Error).message}`);
+      console.warn(`[Agent 7 clue-job authority] clue-job stamp skipped: ${(e as Error).message}`);
     }
   }
+}
 
-  // Mechanism-reveal gate (A_50 §9.3 #3): withhold the full concealment-mechanism explanation until
-  // the discriminating-test scene, so it isn't telegraphed in Act 1 (judge: "explained too early").
-  // The clue-job grid places reveals but not the mechanism *explanation* beat — this fills that gap.
+/** A_53 P8: after the clue-job stamp, ensure every distribution clue id is still anchored in ≥1 scene;
+ * force-assign any unanchored id to the least-loaded scene in its target act (mirrors the main
+ * clue-coverage gate) so the additive stamp can never leave a clue in zero scenes. */
+function reassertClueCoverage(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  const allScenes = (narrative.acts ?? []).flatMap((a: any) => a.scenes ?? []);
+  const covered = new Set<string>(
+    allScenes
+      .flatMap((s: any) => (Array.isArray(s.cluesRevealed) ? s.cluesRevealed : []))
+      .map(String)
+      .filter(Boolean),
+  );
+  const allIds = (ctx.clues?.clues ?? []).map((c: any) => String(c.id ?? "")).filter(Boolean);
+  const uncovered = allIds.filter((id) => !covered.has(id));
+  if (uncovered.length === 0) return;
+  for (const clueId of uncovered) {
+    const clueEntry = (ctx.clues!.clues as any[]).find((c) => c.id === clueId);
+    const placement: string = clueEntry?.placement ?? "mid";
+    const targetAct = placement === "early" ? 1 : placement === "late" ? 3 : 2;
+    const actScenes = allScenes.filter((s: any) => s.act === targetAct);
+    const candidates = actScenes.length > 0 ? actScenes : allScenes;
+    const target = [...candidates].sort(
+      (a: any, b: any) => (a.cluesRevealed?.length ?? 0) - (b.cluesRevealed?.length ?? 0),
+    )[0];
+    if (target) {
+      if (!Array.isArray(target.cluesRevealed)) target.cluesRevealed = [];
+      if (!target.cluesRevealed.includes(clueId)) target.cluesRevealed.push(clueId);
+    }
+  }
+  ctx.warnings.push(
+    `[Agent 7 clue-job authority] re-ran coverage gate: force-assigned ${uncovered.length} unanchored clue id(s) after stamping.`,
+  );
+}
+
+/** A_52 item 4: stamp the mechanism-reveal gate on every run (default ON, independent of scheduler
+ * authority). Withholds the full concealment-mechanism explanation until the discriminating-test scene
+ * so it isn't telegraphed in Act 1 (judge: "explained too early"). Pure metadata stamp + prompt hint —
+ * it does not reorder scenes or move clues, so it is safe to run unconditionally. */
+function applyMechanismRevealGate(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!AGENT7_MECHANISM_GATE) return;
+  const sceneRefs = flattenNarrativeScenes(narrative);
+  if (sceneRefs.length === 0) return;
   try {
     const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
     const testScene = caseData?.prose_requirements?.discriminating_test_scene;
@@ -157,14 +261,58 @@ function applyAgent7SchedulerAuthority(ctx: OrchestratorContext, narrative: Narr
     const gate = stampMechanismRevealGate(sceneRefs.map((r) => r.scene), thresholdIndex);
     if (gate.thresholdIndex >= 0) {
       console.info(
-        `[Agent 7 scheduler authority] mechanism-reveal gate: full mechanism withheld in ${gate.withheld} pre-test scene(s); ` +
+        `[Agent 7 mechanism gate] full mechanism withheld in ${gate.withheld} pre-test scene(s); ` +
           `reveal allowed from scene #${gate.thresholdIndex + 1} (the discriminating test).`,
       );
     } else {
-      console.info(`[Agent 7 scheduler authority] mechanism-reveal gate: discriminating-test scene not locatable — no gate applied.`);
+      console.info(`[Agent 7 mechanism gate] discriminating-test scene not locatable — no gate applied.`);
     }
   } catch (e) {
-    console.warn(`[Agent 7 scheduler authority] mechanism-reveal gate skipped: ${(e as Error).message}`);
+    console.warn(`[Agent 7 mechanism gate] skipped: ${(e as Error).message}`);
+  }
+}
+
+/** A_55 #5 (G4 gap): ensure the discriminating-test scene actually REFERENCES at least one of the
+ * test's evidence clues, so the test can be dramatized as applying real evidence (the outline-level gap
+ * the Agent-9 G4 detector warns about — "no DT evidence clue scheduled in the outline"). Additive only:
+ * it never removes a clue from any scene, so it cannot violate the clue-pacing gates. Prefers a clue
+ * that is FRESH at the test (revealed in no earlier scene) so the scene can produce new evidence, and
+ * falls back to re-surfacing an already-planted evidence clue. Holistic: derives entirely from
+ * discriminating_test.evidence_clues + the located test scene, never from a specific story/character. */
+export function ensureDiscriminatingTestEvidencePresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const evidenceClues: string[] = Array.isArray(caseData?.discriminating_test?.evidence_clues)
+      ? caseData.discriminating_test.evidence_clues.map(String).filter(Boolean)
+      : [];
+    if (evidenceClues.length === 0) return;
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length === 0) return;
+    const dtIndex = resolveDiscriminatingSceneIndex(
+      sceneRefs.map((r) => ({ act: r.act, actSceneNumber: r.actSceneNumber })),
+      caseData?.prose_requirements?.discriminating_test_scene,
+    );
+    if (dtIndex < 0) return;
+    const dtScene = sceneRefs[dtIndex].scene as any;
+    if (!Array.isArray(dtScene.cluesRevealed)) dtScene.cluesRevealed = [];
+    const dtSceneClues = new Set<string>(dtScene.cluesRevealed.map(String));
+    // Already references an evidence clue? The test scene can dramatize it — nothing to do.
+    if (evidenceClues.some((id) => dtSceneClues.has(id))) return;
+    // Clues revealed strictly BEFORE the test scene — used to prefer a FRESH evidence clue.
+    const revealedBefore = new Set<string>();
+    for (let i = 0; i < dtIndex; i++) {
+      const s = sceneRefs[i].scene as any;
+      if (Array.isArray(s.cluesRevealed)) for (const c of s.cluesRevealed) revealedBefore.add(String(c));
+    }
+    const freshChoice = evidenceClues.find((id) => !revealedBefore.has(id));
+    const chosen = freshChoice ?? evidenceClues[0];
+    dtScene.cluesRevealed.push(chosen);
+    ctx.warnings.push(
+      `[Agent 7 DT-evidence] discriminating-test scene referenced none of its evidence clues; ` +
+        `added ${freshChoice ? "fresh" : "re-surfaced"} evidence clue "${chosen}" to the test scene.`,
+    );
+  } catch (e) {
+    console.warn(`[Agent 7 DT-evidence] skipped: ${(e as Error).message}`);
   }
 }
 
@@ -582,37 +730,77 @@ export function applyDeterministicCluePreAssignment(
       !(Array.isArray(refs[end + 1].scene?.cluesRevealed) && refs[end + 1].scene.cluesRevealed.length > 0)
     ) end++;
     if (end - start + 1 > 2) {
-      for (let pos = start + 2; pos <= end; pos += 3) {
-        if (addClueToScene(refs[pos])) gapFillAssignments++;
+      // A_53 P8 (gapfill-stride-skips-mid-gap-scenes): the old `start+2` stride-of-3 didn't GUARANTEE
+      // ≤2 consecutive clueless scenes once a fill failed. Walk the gap greedily: after 2 clueless
+      // scenes, fill the next; on a fill failure advance and retry so a single unfillable scene can't
+      // open a >2 run (mirrors the scheduler's liftCoverage guarantee).
+      let cluelessRun = 0;
+      for (let pos = start; pos <= end; pos++) {
+        const hasClue =
+          Array.isArray(refs[pos].scene?.cluesRevealed) && refs[pos].scene.cluesRevealed.length > 0;
+        if (hasClue) {
+          cluelessRun = 0;
+          continue;
+        }
+        if (cluelessRun >= 2 && addClueToScene(refs[pos])) {
+          gapFillAssignments++;
+          cluelessRun = 0;
+        } else {
+          cluelessRun++;
+        }
       }
     }
     i = end + 1;
   }
 
   // 4) If still below threshold, fill additional empty scenes with act-balanced picks
-  while (countClueScenes() < minRequired && thresholdFillAssignments < maxThresholdFillAssignments) {
-    const actTotals = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
-    const actCovered = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
-    for (const ref of refs) {
-      actTotals[ref.act]++;
-      if (Array.isArray(ref.scene?.cluesRevealed) && ref.scene.cluesRevealed.length > 0) actCovered[ref.act]++;
+  // A_53 P10 (clue-preassign-recounts-scenes-in-loop): the previous loop re-ran countClueScenes()
+  // (full scan), rebuilt per-act totals, and re-filtered+sorted emptyRefs on EVERY assignment (O(n²)
+  // over ~0.6N). Maintain the invariants incrementally instead:
+  //   • actTotals never changes (scene→act assignment is fixed) — compute once.
+  //   • coveredCount + actCovered change by exactly +1 when a previously-empty scene gets a clue.
+  //   • emptyRefs only shrinks — keep it as a mutable list and pick the min by the LIVE ratio
+  //     (ascending ratio, then ascending index — identical ordering to the old filter+sort, but a
+  //     single O(emptyRefs) min-scan with no per-iteration sort or whole-corpus rescans).
+  const actTotals = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+  const actCovered = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+  let coveredCount = 0;
+  const emptyRefs: SceneRef[] = [];
+  for (const ref of refs) {
+    actTotals[ref.act]++;
+    const hasClue = Array.isArray(ref.scene?.cluesRevealed) && ref.scene.cluesRevealed.length > 0;
+    if (hasClue) {
+      actCovered[ref.act]++;
+      coveredCount++;
+    } else {
+      emptyRefs.push(ref);
     }
-    const emptyRefs = refs.filter(
-      (r) => !Array.isArray(r.scene?.cluesRevealed) || r.scene.cluesRevealed.length === 0
-    );
+  }
+  while (coveredCount < minRequired && thresholdFillAssignments < maxThresholdFillAssignments) {
     if (emptyRefs.length === 0) break;
-    emptyRefs.sort((a, b) => {
-      const ratioA = actTotals[a.act] > 0 ? actCovered[a.act] / actTotals[a.act] : 1;
-      const ratioB = actTotals[b.act] > 0 ? actCovered[b.act] / actTotals[b.act] : 1;
-      if (ratioA !== ratioB) return ratioA - ratioB;
-      return a.index - b.index;
-    });
-    const target = emptyRefs[0];
-    if (!target || !addClueToScene(target)) break;
+    let bestPos = -1;
+    let bestRatio = Number.POSITIVE_INFINITY;
+    let bestIndex = Number.POSITIVE_INFINITY;
+    for (let p = 0; p < emptyRefs.length; p++) {
+      const ref = emptyRefs[p];
+      const ratio = actTotals[ref.act] > 0 ? actCovered[ref.act] / actTotals[ref.act] : 1;
+      if (ratio < bestRatio || (ratio === bestRatio && ref.index < bestIndex)) {
+        bestRatio = ratio;
+        bestIndex = ref.index;
+        bestPos = p;
+      }
+    }
+    if (bestPos < 0) break;
+    const target = emptyRefs[bestPos];
+    if (!addClueToScene(target)) break;
+    // The scene is no longer empty: drop it from emptyRefs and bump the incremental counts.
+    emptyRefs.splice(bestPos, 1);
+    actCovered[target.act]++;
+    coveredCount++;
     thresholdFillAssignments++;
   }
 
-  return { totalScenes, minRequired, before, after: countClueScenes(), mappingAssignments, essentialAssignments, gapFillAssignments, thresholdFillAssignments };
+  return { totalScenes, minRequired, before, after: coveredCount, mappingAssignments, essentialAssignments, gapFillAssignments, thresholdFillAssignments };
 }
 
 function buildCluePacingGuardrails(expectedScenes: number, minRatio: number): string[] {
@@ -1618,8 +1806,38 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // retries, inject the required vocabulary directly into the purpose of the
   // best candidate scene (last Act-2 scene, or first Act-3 scene).  This
   // prevents the agent-9 hard-stop while preserving all other scene content.
+  // A_53 P10 (outline-coverage-evaluated-thrice): hoist the coverage result + a "did a patch mutate
+  // a scene purpose?" flag so the post-block recompute for ctx.outlineCoverageIssues can reuse this
+  // scan when nothing changed (the 4 whole-corpus regex scans were re-run up to 4×/run).
+  let finalCoverageIssues: OutlineCoverageIssue[];
+  let coveragePatched = false;
   {
     const prePatchIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
+    finalCoverageIssues = prePatchIssues;
+    // A_53 P1 (holistic): derive the patch vocabulary from the case's OWN discriminating test +
+    // cast, never a fixed plot. The previous patch spliced a literal "clock mechanism" and exactly
+    // "two suspects" into ANY mystery missing a discriminating-test scene — a false plot beat that
+    // Agent 9 then honoured. We now parameterise the test method and the ruled-out count, and refer
+    // to the mechanism only generically (so a poison/tide/acoustic case is never told it has a clock).
+    const patchCase = (ctx.cml as any)?.CASE ?? {};
+    const patchDiscrim = patchCase.discriminating_test ?? {};
+    const patchMethod =
+      String(patchDiscrim.method ?? "constraint_proof").replace(/_/g, " ").trim() || "constraint proof";
+    const patchDesign = String(patchDiscrim.design ?? "").trim();
+    const patchDesignClause = patchDesign ? ` (${patchDesign})` : "";
+    const patchCulprits: string[] = Array.isArray(patchCase.culpability?.culprits)
+      ? (patchCase.culpability.culprits as string[])
+      : [];
+    const nonCulpritSuspectCount = (Array.isArray(patchCase.cast) ? patchCase.cast : [])
+      .filter((c: any) => String(c?.role_archetype ?? c?.role ?? "").toLowerCase().includes("suspect"))
+      .map((c: any) => String(c?.name ?? "").trim())
+      .filter((name: string) => name.length > 0 && !patchCulprits.includes(name)).length;
+    const numberWord = (n: number): string =>
+      ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][n] ?? String(n);
+    const ruledOutPhrase = nonCulpritSuspectCount >= 1
+      ? `${numberWord(nonCulpritSuspectCount)} suspect${nonCulpritSuspectCount === 1 ? "" : "s"}`
+      : "the other suspects";
+
     if (prePatchIssues.some((issue) => issue.type === "missing_discriminating_test_scene")) {
       const allRefs = flattenNarrativeScenes(narrative);
       const act2Last = [...allRefs].filter((r) => r.act === 2).at(-1);
@@ -1628,10 +1846,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       const candidate = act2Last ?? act3First ?? fallback;
       if (candidate?.scene) {
         const patch =
-          "The detective stages a discriminating re-enactment test; timing constraints" +
-          " prove that two suspects are ruled out because the clock mechanism could not" +
-          " have been set by them — evidence and alibi confirm only one person had access.";
+          `The detective stages a discriminating ${patchMethod} test${patchDesignClause}: its` +
+          ` constraints prove that ${ruledOutPhrase} are ruled out because the established mechanism` +
+          ` could not have been operated by them — the evidence, timeline, and alibi confirm only the` +
+          ` culprit had access.`;
         candidate.scene.purpose = [candidate.scene.purpose ?? "", patch].filter(Boolean).join(" ");
+        coveragePatched = true; // A_53 P10: a purpose changed → final coverage scan must re-run.
         ctx.warnings.push(
           `Outline discriminating-test vocabulary patch applied deterministically to` +
           ` scene ${candidate.sceneNumber} (act ${candidate.act}).`,
@@ -1644,9 +1864,10 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       const candidate = act3Scenes.at(-2) ?? act3Scenes.at(-1) ?? allRefs.at(-1);
       if (candidate?.scene) {
         const patch =
-          "Suspects are systematically cleared: alibi confirmed for two, ruled out by" +
-          " timeline evidence, leaving only the culprit identified by proof.";
+          `Suspects are systematically cleared: alibi confirmed for ${ruledOutPhrase}, ruled out by` +
+          ` timeline evidence, leaving only the culprit identified by a complete evidence chain.`;
         candidate.scene.purpose = [candidate.scene.purpose ?? "", patch].filter(Boolean).join(" ");
+        coveragePatched = true; // A_53 P10: a purpose changed → final coverage scan must re-run.
         ctx.warnings.push(
           `Outline suspect-closure vocabulary patch applied deterministically to` +
           ` scene ${candidate.sceneNumber} (act ${candidate.act}).`,
@@ -1678,11 +1899,29 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   }
 
   ctx.narrative = narrative;
-  ctx.outlineCoverageIssues = evaluateOutlineCoverage(narrative, ctx.cml!);
+  // A_53 P10 (outline-coverage-evaluated-thrice): reuse the deterministic-patch scan; only the
+  // coverage patch above (and SWEEP B, which touches no coverage field) runs between it and here,
+  // so re-scan only when a patch actually rewrote a scene purpose.
+  ctx.outlineCoverageIssues = coveragePatched
+    ? evaluateOutlineCoverage(narrative, ctx.cml!)
+    : finalCoverageIssues;
+
+  // A_53 P10 (scheduler-grid-rebuilt-twice-per-run): build the scheduler grid cache ONCE and share it
+  // across the shadow log and the clue-job authority stamp, so the grid is not rebuilt when both run.
+  const schedulerGridCache = makeAgent7GridCache(ctx);
 
   // Shadow only (default off): log the deterministic Beat Scheduler grid next to this outline.
-  runAgent7SchedulerShadow(ctx, narrative);
+  runAgent7SchedulerShadow(ctx, narrative, schedulerGridCache);
 
   // P1.3 (default off): when the scheduler is authoritative, stamp pacing-shaped per-scene budgets.
-  applyAgent7SchedulerAuthority(ctx, narrative);
+  applyAgent7SchedulerAuthority(ctx, narrative, schedulerGridCache);
+
+  // A_52 item 4 (default on): stamp the mechanism-reveal gate so the prose withholds the HOW until the
+  // discriminating test — independent of scheduler authority, which kept it dark on normal runs.
+  applyMechanismRevealGate(ctx, narrative);
+
+  // A_55 #5 (default on): guarantee the discriminating-test scene references ≥1 of its evidence clues
+  // (additive only) so the Agent-9 G4 detector's "no DT evidence clue scheduled in the outline" gap
+  // cannot arise from the LLM omitting it. Runs after coverage so it sees the final clue placement.
+  ensureDiscriminatingTestEvidencePresent(ctx, narrative);
 }

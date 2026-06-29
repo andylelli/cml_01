@@ -229,7 +229,7 @@ export const OPENING_STYLE_ROTATION: Array<{ style: string; directive: string }>
   {
     style: 'expository-setup',
     directive:
-      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an expository setup — e.g. "It was not until…" / "There had been no word since…" / "There was a note on the table…". Begin with "It was", "There was", or "There had been" followed immediately by a specific condition, event, or discovery. Do NOT begin with generic atmosphere.',
+      'OPENING STYLE (HARD): Start the VERY FIRST SENTENCE with an expository setup — e.g. "It was not until…" / "There had been no word since…" / "There was a note on the table…". Begin with "It was", "There was", or "There had been" followed immediately by a specific condition, event, or discovery. Do not open on generic mood alone — but still anchor the location and weave in the sensory + time-of-day grounding across the next sentence or two.',
   },
 ];
 
@@ -291,7 +291,7 @@ export function buildSceneGroundingChecklist(
 
     checklistLines.push(
       `- Chapter ${chapterNumber}: ${openingStyleDirective} ` +
-      `Anchor opening in "${locationHint}". HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/sound/echo/silence/creak/whisper/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark. These are validated requirements, not style suggestions; missing them triggers a retry.`
+      `Anchor opening in "${locationHint}". The opening style above governs only your FIRST SENTENCE; the grounding below may land anywhere in the first 2 paragraphs (it need not be sentence one, and never conflicts with the chosen opening style). HARD REQUIREMENT for the first 2 paragraphs: (a) include 2+ sensory words — choose from smell/scent/odor/fragrance/sound/echo/silence/whisper/creak/cold/warm/damp/rough/smooth/glow/shadow/flicker/dim — and (b) include 1+ atmosphere/time word — choose from rain/wind/fog/storm/mist/thunder/evening/morning/night/dawn/dusk/lighting/weather/season/afternoon/midday/noon/midnight/twilight/sunrise/sunset/daylight/sunlight/overcast/cloudy/bright/dark/grey/pale/chill/crisp/drizzle/haze/lamplight/firelight. These are validated requirements, not style suggestions; missing them triggers a retry.`
     );
   });
 

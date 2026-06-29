@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import YAML from "yaml";
+import { selectCanaryTheme } from "./theme-library.mjs";
 
 const ALLOWED_INPUT_KEYS = new Set([
   "theme",
@@ -193,6 +194,15 @@ export async function loadCanaryInputOverrides({
   const coreInputYaml = await readYamlObject(coreInputsPath);
   const coreOverrides = sanitizeCanaryInputs(coreInputYaml);
 
+  // A_52 item 5 (premise diversity): optional per-run theme rotation for the eval loop. CANARY_THEME=
+  // poison|tide|acoustic|optics|identity|clock selects a structurally different mechanism family;
+  // CANARY_THEME=rotate picks one per run. Unset → the YAML theme is used unchanged (default).
+  const themeOverride = selectCanaryTheme(process.env.CANARY_THEME, Date.now());
+  if (themeOverride) {
+    coreOverrides.theme = themeOverride.theme;
+    coreOverrides.primaryAxis = themeOverride.primaryAxis;
+  }
+
   let quickRunOverrides = {};
   if (quickRunEnabled) {
     const quickRunYaml = await readYamlObject(quickRunRequestPath);
@@ -208,6 +218,7 @@ export async function loadCanaryInputOverrides({
       coreInputsPath,
       quickRunEnabled,
       quickRunRequestPath: quickRunEnabled ? quickRunRequestPath : undefined,
+      themeKey: themeOverride?.key,
     },
   };
 }

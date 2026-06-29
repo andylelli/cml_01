@@ -83,7 +83,9 @@ describe("Agent 2 cast diversity hardening", () => {
     expect(uniqueArchetypes.size).toBeGreaterThanOrEqual(4);
   });
 
-  it("fails final attempt when fallback cannot recover diversity", async () => {
+  // A_53 P2 (repair-not-abort): a low-diversity cast is a warn-level quality miss, not a run-killer —
+  // the final attempt accepts the best-effort deterministic diversification instead of throwing.
+  it("accepts best-effort on final attempt when fallback cannot recover diversity (no abort)", async () => {
     const unrecoverable = {
       ...makeLowDiversityPayload(),
       characters: [
@@ -98,9 +100,8 @@ describe("Agent 2 cast diversity hardening", () => {
     const chat = vi.fn().mockResolvedValue({ content: JSON.stringify(unrecoverable) });
     const client = { chat } as any;
 
-    await expect(designCast(client, makeInputs(), 1)).rejects.toThrow(
-      /role diversity guardrail failed after fallback/i,
-    );
+    const result = await designCast(client, makeInputs(), 1);
+    expect(result.cast.characters).toHaveLength(5);
     expect(chat).toHaveBeenCalledTimes(1);
   });
 });

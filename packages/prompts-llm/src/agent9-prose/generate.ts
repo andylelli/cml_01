@@ -321,6 +321,60 @@ export const sanitizeForContentPolicy = (text: string): string => {
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// ── A_55 #2: pre-test mechanism-leak gate ────────────────────────────────────────────────────────
+// Mirrors @cml/rubric-score structural-verifiers.resolveMechanismExplainedChapter so that what we
+// PREVENT at prose-time is exactly what the rubric would HARD-CAP (plot_structure & pacing ≤6 when the
+// concealment mechanism is fully explained before the discriminating-test scene). A chapter "explains"
+// the mechanism only when ≥50% of the mechanism description's salient terms co-occur AND causal/method
+// EXPLANATION language is present — merely PLANTING the clue (naming the object, no causal language)
+// does not trip it. Holistic: derived entirely from hidden_model.mechanism.description + the chapter's
+// stage mode, never from a specific story/character/plot.
+const MECHANISM_EXPLANATION_MARKER_A9 =
+  /\b(?:in order to|so as to|so that|this (?:gave|created|allowed|meant|explained|produced)|which (?:gave|created|allowed|meant)|to (?:fake|conceal|disguise|fabricate|stage|simulate|forge)\b|(?:had|then|she|he|they) (?:reset|rewound|wound back|set back|moved|advanced|adjusted|altered|rigged|tampered with) the|the (?:trick|method|mechanism|scheme|deception) (?:was|lay|had been)|explained (?:how|that|the)|how (?:the )?(?:murder|crime|killer|culprit|trick|mechanism|clock))\b/;
+const MECHANISM_TERM_STOPWORDS = new Set([
+  "the", "and", "for", "with", "that", "this", "from", "into", "was", "had", "has",
+  "her", "his", "him", "she", "they", "their", "about", "which", "then", "been",
+]);
+export const deriveMechanismTerms = (mechanismDescription: string): string[] =>
+  String(mechanismDescription ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length >= 5 && !MECHANISM_TERM_STOPWORDS.has(w));
+export const chapterFullyExplainsMechanism = (chapterTextLower: string, mechanismTerms: string[]): boolean => {
+  if (mechanismTerms.length === 0) return false;
+  const need = Math.max(2, Math.ceil(mechanismTerms.length * 0.5));
+  const hits = mechanismTerms.filter((t) => chapterTextLower.includes(t)).length;
+  return hits >= need && MECHANISM_EXPLANATION_MARKER_A9.test(chapterTextLower);
+};
+// Stage modes that precede the discriminating-test scene. A FULL mechanism explanation in any of these
+// spoils the test; it is only legitimate at/after `discriminating_test` (and in the reveal/aftermath).
+const PRE_DISCRIMINATING_TEST_MODES = new Set<string>([
+  "discovery_opening",
+  "early_investigation",
+  "suspect_pressure",
+  "false_suspect_clearing",
+  "clue_reinterpretation",
+]);
+
+// ── A_55 #4: severity-aware best-attempt ranking ─────────────────────────────────────────────────
+// The completion-first fallback retains the "best" parseable attempt across retries. Ranking by raw
+// error COUNT lets a cosmetic-heavy attempt (entropy/opener/fingerprint residue) lose to one that has
+// fewer errors but a STRUCTURAL defect (missing clue, victim acting after death, early resolution,
+// mechanism leak). Rank by (structuralCount, totalCount) so a 0-structural attempt always wins, with
+// total count as the tiebreak. Cosmetic classes mirror the accept-after-exhaustion bypass messages.
+const COSMETIC_BATCH_ERROR_RE =
+  /opening-style entropy too low|repeated content opener detected|repeated verbatim back-to-back|opens with the same sentence as a prior chapter|paragraph[_ ]fingerprint|repeated long paragraph fingerprint|high n-gram overlap|debug note|internal audit/i;
+export const scoreBatchErrorSeverity = (errors: string[]): { structural: number; cosmetic: number; rank: number } => {
+  let structural = 0;
+  let cosmetic = 0;
+  for (const e of errors) {
+    if (COSMETIC_BATCH_ERROR_RE.test(e)) cosmetic += 1;
+    else structural += 1;
+  }
+  return { structural, cosmetic, rank: structural * 1000 + errors.length };
+};
+
 /**
  * Scans generated paragraphs for the victim's name acting as the subject of a
  * current-scene living action. Historical testimony and corpse/body references
@@ -330,9 +384,27 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName: string): string[] => {
   if (!victimName || !chapter?.paragraphs) return [];
   const escapedName = escapeRegExp(victimName.trim());
+  // A_55 #3b: cover PAST-TENSE verbs (the register of Golden-Age mystery prose) as well as present
+  // tense. The prior pattern listed ONLY present-tense forms (says/asks/stands), so in past-tense prose
+  // ("Harcourt said…", "Harcourt stood…") it matched almost nothing — every real active-victim sentence
+  // fell through this pre-commit gate to the post-hoc reframe pass. Mirrors @cml/story-validation
+  // ACTIVE_VERB_RE (the authoritative lifecycle gate). The full victim name is still required in the
+  // sentence (as the authoritative validator does), so a shared family surname cannot false-trip it.
+  const ACTIVE_VERBS =
+    `(?:said|says?|asked|asks?|replied|replies|answered|answers?|entered|enters?|sat|sits?|stood|stands?|` +
+    `nodded|nods?|walked|walks?|crossed|cross(?:es)?|confirmed|confirms?|turned|turns?|looked|looks?|spoke|speaks?|` +
+    `reacted|reacts?|responded|responds?|moved|moves?|appeared|appears?|summoned|summons?|gestured|gestures?|` +
+    `examined|examines?|glanced|glances?|watched|watches?|smiled|smiles?|rose|rises?|stepped|steps?|laughed|laughs?|` +
+    `leaned|leans?|wrote|writes?|listened|listens?|pointed|points?|opened|opens?|closed|closes?|handed|hands?|` +
+    `pushed|pushes?|pulled|pulls?|whispered|whispers?|muttered|mutters?|declared|declares?|insisted|insists?|` +
+    `is\\s+\\w+ing|was\\s+\\w+ing)`;
   const victimSubjectPattern = new RegExp(
-    `\\b${escapedName}\\b(?:\\s*,[^.!?]{0,40},)?\\s+` +
-    `(?:says?|asks?|enters?|sits?|stands?|nods?|walks?|cross(?:es)?|confirms?|turns?|looks?|speaks?|reacts?|replies?|responds?|moves?|appears?|summons?|gestures?|examines?|glances?|watches?|smiles?|rises?|steps?|laughs?|leans?|reads?|writes?|listens?|points?|opens?|closes?|hands?|pushes?|pulls?|is\\s+(?:\\w+ing))\\b`,
+    `\\b${escapedName}\\b(?:\\s*,[^.!?]{0,40},)?\\s+(?:\\w+\\s+){0,3}${ACTIVE_VERBS}\\b`,
+    'i',
+  );
+  // Verb-first dialogue attribution: "…," said Harcourt / replied Sir Reginald Harcourt.
+  const victimAttributionPattern = new RegExp(
+    `\\b(?:said|asked|replied|answered|confessed|admitted|whispered|muttered|declared|insisted)\\b[^.!?]{0,20}\\b${escapedName}\\b`,
     'i',
   );
   const victimBodyActionPattern = new RegExp(
@@ -355,6 +427,7 @@ export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName
     const sentences = para.match(/[^.!?]+[.!?]*/g) ?? [para];
     const hit = sentences.some((sentence) =>
       (victimSubjectPattern.test(sentence) ||
+        victimAttributionPattern.test(sentence) ||
         victimBodyActionPattern.test(sentence) ||
         victimActivePresencePattern.test(sentence)) &&
       !historicalOrReportedContext.test(sentence) &&
@@ -2138,6 +2211,11 @@ export async function generateProse(
     let batchSelectedObligationAtomIds: string[] = [];
     const cmlCase = (inputs.caseData as any)?.CASE ?? {};
     const dtSceneCheck = cmlCase?.prose_requirements?.discriminating_test_scene;
+    // A_55 #2: salient terms of the concealment mechanism, computed once. Used by the pre-test
+    // mechanism-leak gate below to keep the method withheld until the discriminating-test scene.
+    const mechanismTermsA55 = deriveMechanismTerms(
+      String((cmlCase as any)?.hidden_model?.mechanism?.description ?? ""),
+    );
     // §4.4: Arc position for this batch — used to populate previousChapterArcPosition in NSD
     const totalScenesCount = (inputs.outline as any)?.totalScenes ?? scenes.length;
     const arcAnchorChapter = chapterEnd;
@@ -2175,6 +2253,9 @@ export async function generateProse(
     // "Best" = fewest hard validation errors; ties keep the earliest attempt.
     let bestAttemptChapters: ProseChapter[] | null = null;
     let bestAttemptErrorCount = Number.POSITIVE_INFINITY;
+    // A_55 #4: severity rank of the retained best attempt (structuralCount*1000 + totalCount). Lower is
+    // better; a structurally-clean attempt always outranks one with a structural defect.
+    let bestAttemptSeverityRank = Number.POSITIVE_INFINITY;
     const cloneProseChapter = (c: ProseChapter): ProseChapter => ({
       ...c,
       title: c.title,
@@ -2665,6 +2746,25 @@ export async function generateProse(
                   preferredTargetMissCount += 1;
                   preferredTargetMissChapters.add(chapterNumber);
                 }
+              }
+            }
+
+            // A_55 #2: a pre-test chapter must PLANT the mechanism clue but WITHHOLD the method. A full
+            // causal explanation here spoils the discriminating test and the rubric hard-caps
+            // plot_structure & pacing ≤6. Gated to pre-test stage modes (the test scene + reveal may
+            // explain freely) and to the rubric's own detector so we only block what would be capped.
+            if (
+              mechanismTermsA55.length > 0 &&
+              PRE_DISCRIMINATING_TEST_MODES.has(chapterMode as string)
+            ) {
+              const candidateTextLower = (candidate.paragraphs ?? []).join("\n").toLowerCase();
+              if (chapterFullyExplainsMechanism(candidateTextLower, mechanismTermsA55)) {
+                hardErrors.push(
+                  `Chapter ${chapterNumber}: the concealment mechanism is explained before the ` +
+                  `discriminating-test scene. Plant the physical clue (name the object/observation), but ` +
+                  `do NOT reveal HOW the trick worked — withhold the method/causal explanation until the ` +
+                  `discriminating-test scene or the final reveal.`,
+                );
               }
             }
 
@@ -3235,10 +3335,13 @@ export async function generateProse(
           }
         }
 
-        // FIX 2: snapshot this attempt if it has the fewest hard errors seen so far. Runs for
-        // every attempt (including 0-error ones, though those commit directly below), so a good
-        // attempt-2 is never lost to a worse attempt-3.
-        if (batchErrors.length < bestAttemptErrorCount) {
+        // FIX 2 + A_55 #4: snapshot the STRUCTURALLY-soundest attempt seen so far (not merely the
+        // fewest-errors one), so a cosmetic-heavy attempt never loses to one carrying a structural
+        // defect. Ranks by (structuralCount, totalCount). Runs for every attempt (including 0-error
+        // ones, though those commit directly below), so a good attempt-2 is never lost to a worse one.
+        const attemptSeverity = scoreBatchErrorSeverity(batchErrors);
+        if (attemptSeverity.rank < bestAttemptSeverityRank) {
+          bestAttemptSeverityRank = attemptSeverity.rank;
           bestAttemptErrorCount = batchErrors.length;
           bestAttemptChapters = proseBatch.chapters.map(cloneProseChapter);
         }
@@ -3605,13 +3708,24 @@ export async function generateProse(
           const batchClueIds = (batchScenes as any[])
             .flatMap((s: any) => Array.isArray(s.cluesRevealed) ? s.cluesRevealed : [])
             .map(String).filter(Boolean);
-          const freshDTClues = evidenceClues.filter(id => batchClueIds.includes(id) && !priorRevealed.has(id));
-          if (freshDTClues.length === 0) {
+          // A_55 #5: the test may either PRODUCE fresh evidence OR re-apply evidence the reader was
+          // already shown — both are fair play. The genuine gap is a test scene that references NONE of
+          // its evidence clues (it cannot then be dramatized as discriminating). Warn only on that. The
+          // Agent-7 `ensureDiscriminatingTestEvidencePresent` pass guarantees ≥1 is scheduled, so this
+          // should now be rare; when it fires it is a true outline omission.
+          const dtCluesPresent = evidenceClues.filter(id => batchClueIds.includes(id));
+          const freshDTClues = dtCluesPresent.filter(id => !priorRevealed.has(id));
+          if (dtCluesPresent.length === 0) {
             const needed = evidenceClues.slice(0, 3).join(', ');
             console.warn(
               `[Agent 9] G4 DT-scene scheduling gap ch${batchLabel}: discriminating-test scene ` +
-              `has no fresh DT evidence clue scheduled in the outline (needed one of: ${needed}). ` +
+              `references none of its DT evidence clues in the outline (needed one of: ${needed}). ` +
               `This is an outline-level gap that prose generation cannot repair.`
+            );
+          } else if (freshDTClues.length === 0) {
+            console.info(
+              `[Agent 9] DT-scene ch${batchLabel}: test re-applies already-planted evidence ` +
+              `(${dtCluesPresent.join(', ')}) rather than producing fresh evidence — acceptable fair play.`
             );
           }
         })();

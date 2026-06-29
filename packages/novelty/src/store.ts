@@ -11,11 +11,27 @@
 import { judgeNovelty } from "./compare.js";
 import type { Fingerprint, NoveltyVerdict, Skeleton } from "./types.js";
 
+// A_53 P11 (prior-run-store-unbounded-vs-ledger-cap): mirror the fs ledger's MAX_LEDGER_ENTRIES=500
+// so the in-memory store has the same bounded growth/window semantics (no latent unbounded leak).
+const DEFAULT_MAX_ENTRIES = 500;
+
 export class NoveltyStore {
   private readonly shipped: Fingerprint[] = [];
+  private readonly maxEntries: number;
 
-  constructor(initial: Fingerprint[] = []) {
+  constructor(initial: Fingerprint[] = [], maxEntries: number = DEFAULT_MAX_ENTRIES) {
+    // A_53 P11 (prior-run-store-unbounded-vs-ledger-cap): a non-positive cap disables bounding.
+    this.maxEntries = maxEntries > 0 ? maxEntries : Number.POSITIVE_INFINITY;
     for (const fp of initial) this.shipped.push({ ...fp, corpus: "prior_run" });
+    this.trim();
+  }
+
+  // A_53 P11 (prior-run-store-unbounded-vs-ledger-cap): keep only the most recent maxEntries,
+  // matching the fs ledger's `.slice(-MAX_LEDGER_ENTRIES)`.
+  private trim(): void {
+    if (this.shipped.length > this.maxEntries) {
+      this.shipped.splice(0, this.shipped.length - this.maxEntries);
+    }
   }
 
   /** Append a shipped skeleton (tagged as a prior run). */
@@ -30,6 +46,7 @@ export class NoveltyStore {
       inference_shape: skeleton.inference_shape,
       premise: skeleton.premise,
     });
+    this.trim();
   }
 
   /** The most recent N shipped fingerprints (the comparison window). */
@@ -47,6 +64,17 @@ export class NoveltyStore {
   }
 }
 
+// A_53 P10 (O(n*m)-similarity-scan-uncached): concatenate the three corpora once. A retry loop
+// judging the same corpus repeatedly should build this once/run and pass the result straight to
+// `judgeNovelty`, instead of re-spreading the arrays on every candidate.
+export function buildCorpus(corpora: {
+  seeds?: Fingerprint[];
+  cliches?: Fingerprint[];
+  priorRuns?: Fingerprint[];
+}): Fingerprint[] {
+  return [...(corpora.seeds ?? []), ...(corpora.cliches ?? []), ...(corpora.priorRuns ?? [])];
+}
+
 /**
  * Judge a candidate against all three corpora at once (§4.4) and return the worst verdict — seeds,
  * cliches, and recent prior runs treated identically.
@@ -55,6 +83,6 @@ export function judgeAgainstAll(
   skeleton: Skeleton,
   corpora: { seeds?: Fingerprint[]; cliches?: Fingerprint[]; priorRuns?: Fingerprint[] },
 ): NoveltyVerdict {
-  const all = [...(corpora.seeds ?? []), ...(corpora.cliches ?? []), ...(corpora.priorRuns ?? [])];
-  return judgeNovelty(skeleton, all);
+  // A_53 P10 (O(n*m)-similarity-scan-uncached): share the corpus-build path with `buildCorpus`.
+  return judgeNovelty(skeleton, buildCorpus(corpora));
 }

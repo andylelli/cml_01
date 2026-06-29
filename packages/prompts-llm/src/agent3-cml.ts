@@ -59,6 +59,12 @@ export const deriveDeathMethodFromCrimeClass = (subtype: string, category: strin
   return "";
 };
 
+// A_53 P10 (seed-loader-recompute-per-generate-call): memoize the seed library load+extract+format
+// keyed by (examplesDir, primaryAxis). generateCML rebuilds the prompt on each collision/novelty
+// retry, which otherwise re-reads and re-parses the entire seed library up to 3×/run for an input
+// that never changes. The cache is process-local (seed files are read-only at runtime).
+const seedPatternsTextCache = new Map<string, string>();
+
 /**
  * Build the complete prompt for CML generation
  */
@@ -66,13 +72,21 @@ export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): P
   // Load seed patterns if examples directory provided
   let seedPatternsText = "No seed patterns loaded (will generate from first principles).";
   if (examplesDir) {
-    try {
-      const cmlFiles = loadSeedCMLFiles(examplesDir);
-      const patterns = extractStructuralPatterns(cmlFiles);
-      const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3);
-      seedPatternsText = formatPatternsForPrompt(relevantPatterns);
-    } catch (error) {
-      console.warn("Failed to load seed patterns:", error);
+    // A_53 P10 (seed-loader-recompute-per-generate-call): serve from the (dir, axis) memo when present.
+    const seedCacheKey = `${examplesDir}::${inputs.primaryAxis}`;
+    const cached = seedPatternsTextCache.get(seedCacheKey);
+    if (cached !== undefined) {
+      seedPatternsText = cached;
+    } else {
+      try {
+        const cmlFiles = loadSeedCMLFiles(examplesDir);
+        const patterns = extractStructuralPatterns(cmlFiles);
+        const relevantPatterns = selectRelevantPatterns(patterns, inputs.primaryAxis, 3);
+        seedPatternsText = formatPatternsForPrompt(relevantPatterns);
+        seedPatternsTextCache.set(seedCacheKey, seedPatternsText);
+      } catch (error) {
+        console.warn("Failed to load seed patterns:", error);
+      }
     }
   }
 
@@ -888,11 +902,50 @@ export async function generateCML(
 
     const inferencePath = ensureObject(caseBlock.inference_path);
     caseBlock.inference_path = inferencePath;
-    if (!Array.isArray(inferencePath.steps) || inferencePath.steps.length < 3) {
-      throw new Error(
-        "CML generation produced " + (Array.isArray(inferencePath.steps) ? inferencePath.steps.length : 0) +
-        " inference_path steps (minimum 3 required). " +
-        "The LLM must produce concrete inference steps - placeholder injection is no longer supported."
+    const originalStepCount = Array.isArray(inferencePath.steps) ? inferencePath.steps.length : 0;
+    if (originalStepCount < 3) {
+      // A_53 P2 (repair-not-abort): synthesize the missing steps from THIS case's own constraint
+      // anchors + mechanism (never a fixed plot), pad to the floor of 3, and warn — so Agent 4 sees a
+      // structurally-valid artifact instead of the run dying inside normalize. Evidence on synthesized
+      // steps is repaired downstream by repairInferenceRequiredEvidence.
+      const steps: any[] = Array.isArray(inferencePath.steps) ? [...inferencePath.steps] : [];
+      const anchors = [
+        ...ensureArray(constraintTime.anchors),
+        ...ensureArray(constraintTime.windows),
+        ...ensureArray(constraintTime.contradictions),
+        ...ensureArray(constraintAccess.actors),
+        ...ensureArray(constraintAccess.objects),
+        ...ensureArray(constraintAccess.permissions),
+        ...ensureArray(constraintPhysical.laws),
+        ...ensureArray(constraintPhysical.traces),
+        ...ensureArray(constraintSocial.trust_channels),
+        ...ensureArray(constraintSocial.authority_sources),
+      ]
+        .map((entry) => ensureString(entry, "").trim())
+        .filter((entry) => entry.length > 0);
+      const mechanismHint = ensureString(
+        ensureObject(ensureObject(caseBlock.hidden_model).mechanism).description,
+        "",
+      ).trim();
+      while (steps.length < 3) {
+        const i = steps.length;
+        const anchor = anchors[i % Math.max(anchors.length, 1)];
+        steps.push({
+          observation: anchor && anchor.length > 0
+            ? anchor
+            : `Observation ${i + 1}: a concrete scene-level detail is established on the page.`,
+          correction: mechanismHint
+            ? `Re-read against the established mechanism (${mechanismHint}), this detail revises the surface sequence.`
+            : `Correction ${i + 1}: the surface reading of this detail is revised by the on-page evidence.`,
+          effect: "The set of viable explanations narrows toward a single testable hypothesis.",
+          required_evidence: [],
+          reader_observable: true,
+        });
+      }
+      inferencePath.steps = steps;
+      console.warn(
+        `[agent3-cml] inference_path had ${originalStepCount} step(s); synthesized ${3 - originalStepCount} ` +
+        `from this case's constraint anchors to reach the floor of 3 (repair-not-abort).`,
       );
     }
     // Ensure each step has required_evidence array and reader_observable
@@ -1304,11 +1357,20 @@ export async function generateCML(
         });
 
         try {
-          // CML_REPAIR_MODE = rewrite | shadow | patch (default rewrite = legacy whole-CML revision).
-          //  - patch:  try node-scoped targeted patches first (redesign §4.2/§9.2); on full resolution
-          //            return immediately, else fall through to the legacy rewrite.
+          // CML_REPAIR_MODE = patch | rewrite | shadow.
+          //  - patch:  node-scoped targeted patches first (redesign §4.2/§9.2); avoids re-emitting the
+          //            whole 8000-token doc to fix one field. On full resolution returns immediately.
+          //  - rewrite: legacy whole-CML revision (the default — preserves prior score behavior).
           //  - shadow: run patching for telemetry only and ALWAYS use the legacy rewrite result.
+          // A_53 P9 (full-rewrite-resends-entire-cml-each-pass): the patch engine is the efficiency
+          // win, but it is a SCORE-SENSITIVE default change (it produces a different CML revision path),
+          // so A_53 integration keeps the default at "rewrite" until an A/B validates patch quality —
+          // set CML_REPAIR_MODE=patch to opt in. (See ANALYSIS_53 integration note.)
           const repairMode = (process.env.CML_REPAIR_MODE ?? "rewrite").trim().toLowerCase();
+          // A_53 P9 (patch-then-rewrite-double-spend): hold the partially-repaired CML from a
+          // non-resolving patch pass so the legacy rewrite continues from patch progress instead of
+          // discarding it and re-revising the ORIGINAL cml. Null when patch didn't run/produce output.
+          let patchedSoFar: Record<string, unknown> | undefined;
           if (repairMode === "patch" || repairMode === "shadow") {
             try {
               const patchResult = await patchCmlNode({
@@ -1316,6 +1378,12 @@ export async function generateCML(
                 propose: makeLlmPatchProposer(client, { runId: inputs.runId, projectId: inputs.projectId }),
                 maxPatches: 16,
               });
+              // A_53 P9 (patch-then-rewrite-double-spend): remember the (partially) repaired doc; it is
+              // used below as the rewrite seed when patch couldn't fully resolve, so applied patches are
+              // not thrown away. (shadow mode intentionally ignores this and rewrites from original.)
+              if (repairMode === "patch") {
+                patchedSoFar = patchResult.cml as Record<string, unknown>;
+              }
               await logger.logResponse({
                 runId: inputs.runId,
                 projectId: inputs.projectId,
@@ -1335,9 +1403,17 @@ export async function generateCML(
                 },
               });
               if (repairMode === "patch" && patchResult.validation.valid) {
+                // A_53 P6 (grounding-mutation-after-validation): the patch may have re-mutated
+                // discriminating_test / inference_path — re-ground knowledge_revealed then re-validate
+                // ONCE so grounding never ships stale after a mutation. (required_evidence is repaired
+                // downstream by applyCmlRepairAndRevalidate in agent3-run.) Keep the patched validation
+                // if re-grounding somehow regresses it.
+                const patchedCaseBlock = (patchResult.cml as any)?.CASE ?? patchResult.cml;
+                groundDiscriminatingKnowledgeRevealed(patchedCaseBlock as Record<string, unknown>);
+                const regrounded = validateCml(patchResult.cml as any);
                 return {
                   cml: patchResult.cml,
-                  validation: patchResult.validation,
+                  validation: regrounded.valid ? regrounded : patchResult.validation,
                   attempt: resolvedMaxAttempts + 1,
                   latencyMs: Date.now() - startTime,
                   cost: client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0,
@@ -1367,7 +1443,10 @@ export async function generateCML(
               developer: prompt.developer || "", 
               user: prompt.user 
             },
-            invalidCml: yaml.dump(cml),
+            // A_53 P9 (patch-then-rewrite-double-spend): seed the rewrite with patch progress when a
+            // patch pass ran but didn't fully resolve; else the original parse. Preserves applied
+            // patches instead of re-revising from scratch.
+            invalidCml: yaml.dump(patchedSoFar ?? cml),
             validationErrors: validation.errors,
             attempt: 1,
             runId: inputs.runId,

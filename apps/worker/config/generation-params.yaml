@@ -164,7 +164,10 @@ agent8_novelty:
       temperature: 0.3
       max_tokens: 2500
     thresholds:
-      similarity_threshold_default: 1.1
+      # A_53 P6: aligned to the DEFAULT_CONFIG / live default (0.9) so the audit fires by default and
+      # there is a single source of truth. (Was 1.1, which clamped to 1.0 and would skip — but the live
+      # path read a separate hardcoded 0.9, so the audit ran anyway; this removes that silent drift.)
+      similarity_threshold_default: 0.9
       fail_delta: 0.1
     weighting:
       plot: 0.3

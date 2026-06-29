@@ -366,7 +366,10 @@ export interface GenerationParamsConfig {
   };
 }
 
-const DEFAULT_CONFIG: GenerationParamsConfig = {
+// Exported for the A_56 X-E config-parity test: the fallback DEFAULT_CONFIG (used when the YAML fails to
+// load) must not drift below the YAML for truncation-critical model params, or a read error silently
+// degrades generation. The test compares this against the live (YAML-merged) config.
+export const DEFAULT_CONFIG: GenerationParamsConfig = {
   story_length_policy: {
     targets: { short: 10, medium: 20, long: 30 },
     chapter_target_tolerance: 2,
@@ -401,16 +404,20 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
   },
   agent2b_profiles: {
     status: "implemented",
+    // A_56 X-E: reconciled to the YAML (the source of truth). The fallback DEFAULT_CONFIG had drifted
+    // (4000/2) below the YAML's deliberately-raised values, so a YAML-load failure would silently
+    // truncate profile JSON. The config-equality test now guards this.
     params: {
-      model: { temperature: 0.6, max_tokens: 4000 },
-      generation: { default_max_attempts: 2 },
+      model: { temperature: 0.6, max_tokens: 8000 },
+      generation: { default_max_attempts: 3 },
     },
   },
   agent2c_location_profiles: {
     status: "implemented",
+    // A_56 X-E: reconciled to the YAML (max_tokens 4500→8000 "atmosphere block truncated"; attempts 2→3).
     params: {
-      model: { temperature: 0.6, max_tokens: 4500 },
-      generation: { default_max_attempts: 2 },
+      model: { temperature: 0.6, max_tokens: 8000 },
+      generation: { default_max_attempts: 3 },
     },
   },
   agent2d_temporal_context: {
@@ -442,7 +449,8 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
   agent3b_hard_logic_devices: {
     status: "implemented",
     params: {
-      model: { temperature: 0.7, max_tokens: 2600 },
+      // A_56 X-E: reconciled to the YAML (max_tokens 2600→6000 "5-device JSON consistently truncated at 4000").
+      model: { temperature: 0.7, max_tokens: 6000 },
       generation: { default_max_attempts: 3 },
     },
   },
@@ -468,7 +476,10 @@ const DEFAULT_CONFIG: GenerationParamsConfig = {
         model: { temperature: 0.2, max_tokens: 1500 },
         pass_criteria: {
           min_confidence: "likely",
-          max_remediation_cycles: 2,
+          // A_53 P6 (max-remediation-cycles-config-mismatch): aligned to the YAML (1). The fallback
+          // DEFAULT_CONFIG must equal the parsed YAML so a YAML load failure can't silently DOUBLE
+          // Agent 6's remediation spend. A config-equality test guards this.
+          max_remediation_cycles: 1,
         },
       },
       retries: {

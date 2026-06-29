@@ -15,20 +15,21 @@ import {
   type NoveltyConstraints,
 } from "../jobs/novelty-ledger.js";
 
-describe("effectiveNoveltyThreshold — flag-coupled gate (T1.6)", () => {
-  it("leaves the threshold untouched when cross-run novelty is OFF (default-safe)", () => {
-    // The static default ≥1.0 must keep skipping the audit when the flag is off.
-    expect(effectiveNoveltyThreshold(1.1, false)).toBe(1.1);
-    expect(effectiveNoveltyThreshold(0.9, false)).toBe(0.9);
+describe("effectiveNoveltyThreshold — mode-coupled gate (T1.6 / A_53 P7)", () => {
+  it("leaves the threshold untouched in off and shadow modes (only explicit 'on' caps it)", () => {
+    expect(effectiveNoveltyThreshold(1.1, "off")).toBe(1.1);
+    expect(effectiveNoveltyThreshold(0.9, "off")).toBe(0.9);
+    // A_53 P7: shadow (the new default) records + feeds prior runs but does NOT cap the threshold.
+    expect(effectiveNoveltyThreshold(0.9, "shadow")).toBe(0.9);
   });
 
-  it("caps the threshold so the audit fires when cross-run novelty is ON", () => {
-    expect(effectiveNoveltyThreshold(1.1, true)).toBe(CROSS_RUN_NOVELTY_THRESHOLD);
-    expect(effectiveNoveltyThreshold(1.1, true)).toBeLessThan(1);
+  it("caps the threshold so the audit fires harder when cross-run novelty is fully ON", () => {
+    expect(effectiveNoveltyThreshold(1.1, "on")).toBe(CROSS_RUN_NOVELTY_THRESHOLD);
+    expect(effectiveNoveltyThreshold(1.1, "on")).toBeLessThan(1);
   });
 
   it("never raises an already-lower threshold", () => {
-    expect(effectiveNoveltyThreshold(0.5, true)).toBe(0.5);
+    expect(effectiveNoveltyThreshold(0.5, "on")).toBe(0.5);
   });
 });
 

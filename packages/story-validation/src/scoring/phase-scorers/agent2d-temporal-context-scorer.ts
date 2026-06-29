@@ -155,7 +155,9 @@ export class TemporalContextScorer
   private checkDateSpecificity(date: string): { score: number; reason: string } {
     // Look for specific patterns
     const hasYear = /\d{4}/.test(date);
-    const hasMonth = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}\/\d{1,2})/i.test(date);
+    // A_56 7-C: require a period on "mar" so the month abbreviation does not collide with the English
+    // verb "mar" (mirrors temporal-consistency.ts AMBIGUOUS_MONTHS). "March" still matches via the full name.
+    const hasMonth = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar\.|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}\/\d{1,2})/i.test(date);
     const hasDay = /\d{1,2}(st|nd|rd|th)?/.test(date);
 
     if (hasYear && hasMonth && hasDay) {
@@ -326,7 +328,8 @@ export class TemporalContextScorer
     if (typeof value !== 'string' || value.trim().length === 0) return false;
     const v = value.toLowerCase();
     const hasYear = /\b\d{4}\b/.test(v);
-    const hasMonth = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(v);
+    // A_56 7-C: "mar\." (period required) so the abbreviation does not match the verb "mar"; "march" full name still matches.
+    const hasMonth = /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar\.|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(v);
     return hasYear && hasMonth;
   }
 

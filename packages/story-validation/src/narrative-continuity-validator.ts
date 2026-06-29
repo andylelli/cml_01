@@ -8,7 +8,11 @@ import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
 const DISAPPEARANCE_TERMS = /\b(disappear(?:ed|ance)?|missing|vanished|gone without trace)\b/i;
 const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b/i;
-const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing)\b/i;
+// A_53 P5 (missing-bridge-false-positive-body-discovery): a plain discovery-of-body sentence — "they
+// found her body at the foot of the cliff", "the corpse was discovered" — IS a valid disappearance→
+// death bridge, but the old pattern only matched "found dead"/"body was found". Add the discovery
+// collocations so a legitimately-bridged scene is no longer flagged `missing_case_transition_bridge`.
+const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing|(?:found|discovered|recovered)\s+(?:\w+\s+){0,3}(?:body|corpse|remains)|(?:body|corpse|remains)\s+(?:was\s+|were\s+)?(?:found|discovered|recovered))\b/i;
 const ARREST_OR_CONFESSION_TERMS = /\b(arrested|under arrest|confess(?:ed|ion)|admitted\s+it|the\s+culprit\s+was\s+revealed)\b/i;
 const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/i;
 const AMATEUR_INVESTIGATOR_TERMS = /\b(amateur investigator|civilian investigator|friend[- ]turned[- ]investigator)\b/i;

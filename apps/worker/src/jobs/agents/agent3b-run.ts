@@ -21,6 +21,7 @@ import {
   buildPlausibilityJudgeFeedback,
   AGENT3B_PLAUSIBILITY_FLOOR,
   extractThemeMechanismFamilies,
+  scoreDeviceThemeMatch,
 } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import { HardLogicScorer, scoreRealHardLogic } from "@cml/story-validation";
@@ -33,12 +34,69 @@ import {
   applyHonestScorer,
 } from "./shared.js";
 
+// A_53 P6 (lockedfact-digit-form-not-repaired): convert digit/metric values in a locked-fact value to
+// era word-form at REGISTRY BUILD, so the enforced ground truth matches era-word prose (a digit value
+// like "10:50 PM" never substring-matches "ten-fifty" prose → permanent false warning + Agent 9 told
+// to inject the era-violating digits). Holistic + parameter-free: pure number→word conversion.
+const numberToWordsSmall = (n: number): string => {
+  const ones = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+    "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+  ];
+  const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  if (n < 0 || n >= 100) return String(n); // leave large/negative numbers as-is
+  if (n < 20) return ones[n];
+  const t = Math.floor(n / 10);
+  const o = n % 10;
+  return o === 0 ? tens[t] : `${tens[t]}-${ones[o]}`;
+};
+
+const wordifyLockedFactValue = (value: string): string => {
+  let out = value;
+  // Clock times: "10:50 PM", "10:50 p.m.", "10:50" → "ten-fifty" / "ten o'clock" (era word-form;
+  // surrounding prose carries the meridiem, which the canonical value omits).
+  out = out.replace(/\b(\d{1,2}):(\d{2})\s*(?:a\.?m\.?|p\.?m\.?)?/gi, (_m, h: string, min: string) => {
+    const hour = parseInt(h, 10);
+    const minute = parseInt(min, 10);
+    if (hour > 23 || minute > 59) return _m;
+    const hour12 = ((hour + 11) % 12) + 1;
+    const hourWord = numberToWordsSmall(hour12);
+    return minute === 0 ? `${hourWord} o'clock` : `${hourWord}-${numberToWordsSmall(minute)}`;
+  });
+  // Standalone small number before a measurement word: "4 metres" → "four metres".
+  out = out.replace(/\b(\d{1,2})\b(?=\s+[a-zA-Z])/g, (_m, d: string) => numberToWordsSmall(parseInt(d, 10)));
+  return out;
+};
+
 export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
   ctx.reportProgress("hard_logic_devices", "Generating novel hard-logic device concepts...", 28);
 
   const setting = ctx.setting!;
   const cast = ctx.cast!;
   const backgroundContext = ctx.backgroundContext!;
+
+  // A_53 P11 (plausibility-regen-reuses-stale-theme-families): the locked mechanism families that the
+  // theme commits to were previously re-derived in ~3 places with different inputs (the generator's
+  // internal extract, the plausibility-regen guard's `matchedThemePrimary` flags, and the theme-lock
+  // telemetry below). Because the generator computed `matchedThemePrimary` from the *initial* directives'
+  // abstract axis families — which the keyword map can't see — the "never trade theme for plausibility"
+  // guard silently never engaged. Compute ONE canonical family list here from the same inputs and reuse it
+  // for every theme-coherence decision in this file, so the guard and the telemetry agree. Stored on ctx
+  // for any downstream cross-agent reuse. Holistic: derived purely from the theme prose + structured hints.
+  const lockedThemeFamilies = extractThemeMechanismFamilies(
+    ctx.inputs.theme,
+    ctx.initialHardLogicDirectives.mechanismFamilies,
+  );
+  (ctx as { lockedThemeFamilies?: string[] }).lockedThemeFamilies = lockedThemeFamilies;
+  // Whether a result's PRIMARY device (devices[0], the source of the locked-fact registry + CML) realizes
+  // the canonical locked families. Re-derived locally against ONE family list rather than trusting the
+  // generator's `matchedThemePrimary` (which was computed from a possibly-different family list). When the
+  // theme leaves the mechanism open (no locked families) this is vacuously false — matching the prior
+  // semantics where the guard short-circuits and full novelty is preserved.
+  const primaryRealizesTheme = (devices: { devices: Array<Parameters<typeof scoreDeviceThemeMatch>[0]> }): boolean =>
+    lockedThemeFamilies.length > 0 &&
+    devices.devices.length > 0 &&
+    scoreDeviceThemeMatch(devices.devices[0], lockedThemeFamilies) > 0;
 
   if (ctx.enableScoring && ctx.scoreAggregator && ctx.retryManager && ctx.scoringLogger) {
     const { result, duration, cost } = await executeAgentWithRetry(
@@ -199,8 +257,11 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
       // one — a more "plausible" tide device that abandons the locked clock theme makes the case
       // incoherent (the probe's regen did exactly this). Recovering theme-coherence the current best
       // lacks is always worth accepting; otherwise fall back to the plausibility-score rank.
-      const bestThemeOk = bestDevices.matchedThemePrimary === true;
-      const regenThemeOk = regenerated.matchedThemePrimary === true;
+      // A_53 P11 (plausibility-regen-reuses-stale-theme-families): judge theme-coherence against the
+      // single canonical family list, not the generator's `matchedThemePrimary` (computed from a
+      // different family list) — that mismatch is why this guard silently never engaged.
+      const bestThemeOk = primaryRealizesTheme(bestDevices);
+      const regenThemeOk = primaryRealizesTheme(regenerated);
       const acceptRegen =
         regenJudge.ran &&
         (regenThemeOk || !bestThemeOk) &&
@@ -232,11 +293,10 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
   // A_50 §9.3: telemetry — if the theme commits to a concrete mechanism family but no generated
   // device realized it (off-theme primary), the locked-fact registry/CML will diverge from the
   // theme. Surface it (never abort) so the prompt fix's effect is observable across runs.
-  const lockedThemeFamilies = extractThemeMechanismFamilies(
-    ctx.inputs.theme,
-    ctx.initialHardLogicDirectives.mechanismFamilies,
-  );
-  if (lockedThemeFamilies.length > 0 && ctx.hardLogicDevices!.matchedThemePrimary !== true) {
+  // A_53 P11 (plausibility-regen-reuses-stale-theme-families): reuse the single canonical
+  // `lockedThemeFamilies` computed once at the top and the local `primaryRealizesTheme` check, so the
+  // telemetry agrees with the regen guard instead of re-deriving from possibly-different inputs.
+  if (lockedThemeFamilies.length > 0 && !primaryRealizesTheme(ctx.hardLogicDevices!)) {
     ctx.warnings.push(
       `[agent3b-theme-lock] theme commits to [${lockedThemeFamilies.join(", ")}] but no device realized it; ` +
         `primary device ("${ctx.hardLogicDevices!.devices[0]?.title ?? "?"}") is off-theme — locked facts may diverge from the case.`,
@@ -256,11 +316,19 @@ export async function runAgent3b(ctx: OrchestratorContext): Promise<void> {
 
     ctx.lockedFactRegistry = rawFacts
       .filter((f) => typeof f.id === "string" && typeof f.value === "string" && (f.value as string).trim().length > 0)
-      .map((f) => ({
-        id: (f.id as string).trim(),
-        value: (f.value as string).trim(),
-        description: typeof f.description === "string" ? (f.description as string).trim() : "",
-      }));
+      .map((f) => {
+        const id = (f.id as string).trim();
+        const original = (f.value as string).trim();
+        const value = wordifyLockedFactValue(original);
+        if (value !== original) {
+          ctx.warnings.push(`Pillar 1: repaired digit-form locked fact ${id} "${original}" → "${value}" (era word-form)`);
+        }
+        return {
+          id,
+          value,
+          description: typeof f.description === "string" ? (f.description as string).trim() : "",
+        };
+      });
 
     // Emit to apps/worker/logs/locked-facts-{runId}.json for observability
     try {

@@ -77,7 +77,19 @@ const num = (...vals: unknown[]): number => {
 /** Parse a judge response into `{ rubric, flags }`, tolerant of code fences, alt keys, and missing fields. */
 export function parseJudgeResult(content: string): JudgeResult {
   const obj = JSON.parse(stripFences(content)) as Record<string, unknown>;
-  const rawCats = (Array.isArray(obj.categories) ? obj.categories : []) as Array<Record<string, unknown>>;
+  // A_55 (critical): some judge outputs (gpt-4.1-mini) return `categories` as an OBJECT MAP keyed by
+  // category name (`{ premise: {mark,reason}, opening_hook: {...}, … }`) instead of the schema's ARRAY.
+  // The old `Array.isArray(...) ? ... : []` silently produced [] → the whole score collapsed to a FALSE
+  // raw 0 while the judge's own `total` (e.g. 73) was discarded. Accept both shapes: convert the map's
+  // entries to the array form (key → category label), letting the normalizer below resolve the label.
+  const rawCats: Array<Record<string, unknown>> = Array.isArray(obj.categories)
+    ? (obj.categories as Array<Record<string, unknown>>)
+    : obj.categories && typeof obj.categories === "object"
+      ? Object.entries(obj.categories as Record<string, unknown>).map(([key, val]) => {
+          const v = (val && typeof val === "object" ? (val as Record<string, unknown>) : {}) as Record<string, unknown>;
+          return { ...v, category: v.category ?? key };
+        })
+      : [];
   // Normalize each category to { category, mark, reason }: tolerate `name`/`score`/`value` keys and,
   // when the label is missing, fall back to position (the schema requires the 10 in canonical order).
   const categories: CategoryMark[] = rawCats.map((c, i) => ({

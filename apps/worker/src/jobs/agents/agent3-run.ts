@@ -7,11 +7,12 @@
  */
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
+import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
 import { validateCml } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
-import { scoreRealCml } from "@cml/story-validation";
+import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
-import { effectiveNoveltyThreshold } from "../novelty-ledger.js";
+import { effectiveNoveltyThreshold, resolveNoveltyMode } from "../novelty-ledger.js";
 
 function buildEvidenceFallback(step: any, stepIndex: number): string {
   const observation = String(step?.observation ?? "").trim();
@@ -49,10 +50,11 @@ function applyCmlRepairAndRevalidate(
   ctx: OrchestratorContext,
   phase: string,
 ): Awaited<ReturnType<typeof generateCML>> {
-  if (cmlResult.validation.valid) {
-    return cmlResult;
-  }
-
+  // A_53 P6 (inference-required-evidence-not-repaired-on-valid-path): repair empty required_evidence
+  // UNCONDITIONALLY — a schema-VALID CML can still ship steps with required_evidence:[] (Agent 5
+  // depends on it), so the prior early return on validity caused silent fair-play data loss. Only the
+  // re-validation outcome is gated.
+  const wasValid = cmlResult.validation.valid;
   const repairedCount = repairInferenceRequiredEvidence(cmlResult.cml as any);
   if (repairedCount === 0) {
     return cmlResult;
@@ -60,11 +62,13 @@ function applyCmlRepairAndRevalidate(
 
   const repairedValidation = validateCml(cmlResult.cml as any);
   if (!repairedValidation.valid) {
+    // Repair didn't yield a valid document — preserve the prior result/validation.
     return cmlResult;
   }
 
   ctx.warnings.push(
-    `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase} and recovered schema validity`,
+    `Agent 3: Auto-repaired required_evidence for ${repairedCount} inference step(s) during ${phase}` +
+      (wasValid ? "." : " and recovered schema validity."),
   );
   return {
     ...cmlResult,
@@ -126,8 +130,11 @@ function checkVictimCulpritCollision(cml: any): string[] {
       .filter((c: any) => {
         // Generated CML uses role_archetype ("victim", "the victim").
         // Example YAMLs may use the legacy `role` field — check both.
-        const ra = String(c.role_archetype ?? c.role ?? '').toLowerCase();
-        return ra.includes('victim');
+        // A_53 P4 (Pattern D): exact-match the controlled vocabulary, never substring — otherwise
+        // "victim's confidant"/"victim advocate" false-positive as the victim.
+        const ra = String(c.role_archetype ?? '').trim().toLowerCase().replace(/^the\s+/, '');
+        const roleField = String(c.role ?? '').trim().toLowerCase();
+        return ra === 'victim' || roleField === 'victim';
       })
       .map((c: any) => String(c.name ?? '').trim().toLowerCase())
   );
@@ -204,7 +211,9 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
       ctx,
       "collision-repair retry",
     );
-    ctx.agentCosts["agent3_cml"] = (ctx.agentCosts["agent3_cml"] ?? 0) + retryResult.cost;
+    // A_53 P3 (collision-retry-cost-double-count): retryResult.cost is the CUMULATIVE byAgent total,
+    // so accumulating double-counts the first generation — assign, like the novelty-retry path below.
+    ctx.agentCosts["agent3_cml"] = retryResult.cost;
     ctx.agentDurations["agent3_cml"] = (ctx.agentDurations["agent3_cml"] ?? 0) + (Date.now() - retryStart);
     const retryCollisions = checkVictimCulpritCollision(retryResult.cml);
     if (!retryResult.validation.valid || retryCollisions.length > 0) {
@@ -282,14 +291,69 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
   }
 
   // ── Agent 8: Novelty Audit ─────────────────────────────────────────────────
+  // A_53 P6 (novelty-audit-is-NOT-disabled-live): resolve the default threshold from the SINGLE
+  // source of truth (getGenerationParams, already clamped [0,1]) instead of a hardcoded 0.9 that
+  // silently diverged from the YAML. Explicit ctx.inputs / env still override.
+  const noveltyThresholdDefault =
+    getGenerationParams().agent8_novelty.params.thresholds.similarity_threshold_default;
   const baseSimilarityThreshold =
     typeof ctx.inputs.similarityThreshold === "number"
       ? ctx.inputs.similarityThreshold
-      : Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || 0.9);
+      : Number(process.env.NOVELTY_SIMILARITY_THRESHOLD || noveltyThresholdDefault);
   // T1.6: when NOVELTY_CROSS_RUN is on, cap the threshold so the audit actually fires (the static
   // default ≥1.0 deliberately skips it). Default-OFF ⇒ threshold and skip behaviour are unchanged.
   const similarityThreshold = effectiveNoveltyThreshold(baseSimilarityThreshold);
-  const shouldSkipNovelty = Boolean(ctx.inputs.skipNoveltyCheck) || similarityThreshold >= 1;
+  // A_53 P7: NOVELTY_MODE=off skips the audit entirely (single source for on/off/active).
+  const noveltyMode = resolveNoveltyMode();
+  const shouldSkipNovelty =
+    Boolean(ctx.inputs.skipNoveltyCheck) || similarityThreshold >= 1 || noveltyMode === "off";
+
+  // A_56 8-A — deterministic-corpus novelty judge via the LLM skeleton-extractor (SHADOW). This is the
+  // only path that can produce the hand-authored `false_assumption_pattern` / `inference_shape` labels
+  // the structural judge gates on (a deterministic skeleton scores `distinct` for everything). It LOGS
+  // the structural verdict next to the LLM audit and NEVER blocks/skips — gated by NOVELTY_SKELETON_JUDGE
+  // (off|shadow, default shadow). Fully guarded: any error is swallowed so it can't break a run, and it
+  // shares the seed corpus with the LLM audit. Promote to gating only after the shadow telemetry shows it
+  // tracks the LLM auditor (see the novelty-judge-needs-skeleton-extractor memory).
+  const skeletonJudgeMode = (process.env.NOVELTY_SKELETON_JUDGE ?? "shadow").toLowerCase();
+  if (skeletonJudgeMode !== "off" && noveltyMode !== "off") {
+    try {
+      const sjStart = Date.now();
+      const extract = createSkeletonExtractor(
+        (chatArgs) =>
+          ctx.client.chat({
+            ...chatArgs,
+            model: chatArgs.model ?? process.env.NOVELTY_SKELETON_MODEL,
+            logContext: { agent: "NoveltySkeletonJudge", runId: ctx.runId, projectId: ctx.projectId || "unknown" },
+          } as any),
+        { model: process.env.NOVELTY_SKELETON_MODEL },
+      );
+      const skeleton = await extract(ctx.cml, ctx.runId);
+      const verdict = judgeNovelty(skeleton, loadReferenceCorpus());
+      ctx.agentDurations["agent8_skeleton_judge"] = Date.now() - sjStart;
+      console.info(
+        `[Novelty skeleton-judge SHADOW] ${verdict.verdict} — ` +
+          (verdict.nearest
+            ? `nearest ${verdict.nearest.corpus}:${verdict.nearest.id} (${verdict.nearest.relation})`
+            : "no corpus") +
+          `; skeleton=${JSON.stringify(skeleton)}; ${verdict.divergence_directive}`,
+      );
+      ctx.scoreAggregator?.upsertDiagnostic(
+        "novelty_skeleton_judge",
+        "NoveltySkeletonJudge",
+        "Novelty (skeleton, shadow)",
+        verdict.verdict,
+        { skeleton, verdict },
+      );
+      if (verdict.verdict !== "distinct") {
+        ctx.warnings.push(
+          `[Novelty skeleton-judge SHADOW] ${verdict.verdict} vs ${verdict.nearest?.id ?? "?"}: ${verdict.divergence_directive}`,
+        );
+      }
+    } catch (e) {
+      console.warn(`[Novelty skeleton-judge SHADOW] skipped: ${(e as Error).message}`);
+    }
+  }
 
   if (!shouldSkipNovelty) {
     ctx.reportProgress("novelty", "Checking novelty vs seed patterns...", 52);
@@ -370,15 +434,23 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     }
 
     if (ctx.noveltyAudit!.status === "fail") {
-      const hardFail = String(process.env.NOVELTY_HARD_FAIL || "false").toLowerCase() === "true";
-      if (hardFail) {
-        ctx.errors.push("Agent 8: Novelty audit FAILED - too similar to seed patterns");
-        ctx.noveltyAudit!.violations.forEach((v: string) => ctx.errors.push(`  - ${v}`));
-        throw new Error("Novelty audit failed");
+      // A_53 P7 (audit-runs-but-is-toothless-warning-only): NOVELTY_MODE governs the verdict.
+      // active = a confirmed clone blocks (sets `blocking` for the orchestrator binding gate AND
+      // throws, unless forceWarnings overrides); shadow (default) = downgrade to a warning.
+      if (noveltyMode === "active") {
+        ctx.noveltyAudit = { ...ctx.noveltyAudit!, blocking: true };
+        if (!ctx.inputs.forceWarnings) {
+          ctx.errors.push("Agent 8: Novelty audit FAILED (NOVELTY_MODE=active) - too similar to seed patterns");
+          ctx.noveltyAudit.violations.forEach((v: string) => ctx.errors.push(`  - ${v}`));
+          throw new Error("Novelty audit failed (NOVELTY_MODE=active)");
+        }
+        ctx.warnings.push("Agent 8: Novelty audit failed (NOVELTY_MODE=active) but forceWarnings override is set; continuing.");
+        ctx.noveltyAudit = { ...ctx.noveltyAudit!, status: "warning", blocking: true };
+      } else {
+        ctx.warnings.push(`Agent 8: Novelty audit failed (NOVELTY_MODE=${noveltyMode}); continuing with warning`);
+        ctx.noveltyAudit!.violations.forEach((v: string) => ctx.warnings.push(`  - ${v}`));
+        ctx.noveltyAudit = { ...ctx.noveltyAudit!, status: "warning" };
       }
-      ctx.warnings.push("Agent 8: Novelty audit failed; continuing with warning");
-      ctx.noveltyAudit!.violations.forEach((v: string) => ctx.warnings.push(`  - ${v}`));
-      ctx.noveltyAudit = { ...ctx.noveltyAudit!, status: "warning" };
     } else if (ctx.noveltyAudit!.status === "warning") {
       ctx.warnings.push("Agent 8: Moderate similarity detected");
       ctx.noveltyAudit!.warnings.forEach((w: string) => ctx.warnings.push(`  - ${w}`));

@@ -68,6 +68,37 @@ describe("extractThemeMechanismFamilies", () => {
   it("does not false-match ordinary words (witness 'account', 'heat of the moment')", () => {
     expect(extractThemeMechanismFamilies("the witness gave an account in the heat of the argument")).toEqual([]);
   });
+
+  // A_53 P1 — data-driven fallback for a committed mechanism OUTSIDE the 8-family keyword menu.
+  it("derives synthetic families when theme prose + hints share a distinctive method noun", () => {
+    const fams = extractThemeMechanismFamilies(
+      "a murder hinging on a botanical grafting method",
+      ["pollen-grafting horticulture"],
+    );
+    expect(fams).toContain("grafting");
+  });
+
+  it("stays [] for an open theme even when abstract axis hints are present (preserve novelty)", () => {
+    // 'misdirection'/'timing' are stop-worded; no shared distinctive method noun with the prose.
+    expect(
+      extractThemeMechanismFamilies("A country-house murder among rival heirs", ["misdirection", "timing"]),
+    ).toEqual([]);
+  });
+
+  it("does not invent a family from theme prose alone (no corroborating hint)", () => {
+    expect(extractThemeMechanismFamilies("a murder hinging on a botanical grafting method")).toEqual([]);
+  });
+
+  // A_56 3-A — corroboration is now inflection-robust: a theme noun and a hint noun that share a stem
+  // ("grafting" ↔ "graft") still lock a synthetic family, canonicalised to the shorter stem.
+  it("corroborates a method noun across an inflection (theme 'grafting' ↔ hint 'graft')", () => {
+    const fams = extractThemeMechanismFamilies("a murder hinging on a grafting method", ["a graft technique"]);
+    expect(fams).toContain("graft");
+  });
+
+  it("still stays [] for an open theme whose nouns share no stem with the hints", () => {
+    expect(extractThemeMechanismFamilies("a murder among rival heirs", ["timing pressure"])).toEqual([]);
+  });
 });
 
 describe("scoreDeviceThemeMatch", () => {
@@ -80,6 +111,16 @@ describe("scoreDeviceThemeMatch", () => {
   });
   it("scores 0 when there is no locked theme", () => {
     expect(scoreDeviceThemeMatch(clockDevice, [])).toBe(0);
+  });
+
+  // A_53 P1 — a synthetic (non-keyword) family token is realized via whole-word match in device text.
+  it("scores a device that realizes a synthetic-token family", () => {
+    const graftDevice = device({
+      title: "The Grafted Alibi",
+      underlyingReality: "A grafting splice on the rootstock releases the toxin on a delay.",
+    });
+    expect(scoreDeviceThemeMatch(graftDevice, ["grafting"])).toBe(1);
+    expect(scoreDeviceThemeMatch(clockDevice, ["grafting"])).toBe(0);
   });
 });
 

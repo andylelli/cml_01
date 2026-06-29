@@ -8,11 +8,16 @@ import type { Story, ValidationError } from './types.js';
 
 const CLOCK_TIME_PATTERN = /\b(\d{1,2})[:.]\s?(\d{2})\s*(a\.?m\.?|p\.?m\.?|AM|PM|o[''\u2019]?clock)?\b/gi;
 const NAMED_TIME_PATTERN = /\b(midnight|noon|half\s+past\s+\w+|quarter\s+to\s+\w+|quarter\s+past\s+\w+|dawn|dusk|daybreak|sunrise|sunset)\b/gi;
+// A_53 P5 (timeline-validator-no-day-tracking): cues that advance the calendar day, so a backward
+// clock time after one (9 p.m. \u2192 2 p.m. "the next afternoon") is not a contradiction.
+const DAY_ADVANCE_PATTERN =
+  /\b(?:the\s+)?(?:next|following)\s+(?:day|morning|afternoon|evening|night)\b|\b(?:a\s+day\s+later|the\s+day\s+after|the\s+day\s+after\s+that|tomorrow|overnight|by\s+(?:the\s+next\s+)?morning|twenty[- ]four\s+hours\s+later)\b/gi;
 
 export interface TimeReference {
   raw: string;
   normalizedMinutes: number; // minutes from midnight
   chapter: number;
+  dayIndex: number; // 0-based day within the scene, incremented by each day-advance cue before it
 }
 
 /**
@@ -23,6 +28,7 @@ export function extractTimeReferences(story: Story): TimeReference[] {
 
   for (const scene of story.scenes) {
     const text = scene.text ?? '';
+    const sceneRefs: Array<{ raw: string; normalizedMinutes: number; index: number }> = [];
 
     // Clock times (e.g. "9:30 PM", "3.15 a.m.", "7:00 o'clock")
     const clockRe = new RegExp(CLOCK_TIME_PATTERN.source, CLOCK_TIME_PATTERN.flags);
@@ -34,11 +40,7 @@ export function extractTimeReferences(story: Story): TimeReference[] {
       const meridiem = (match[3] ?? '').toLowerCase().replace(/\./g, '').replace(/['\u2019]/g, '');
       if (meridiem.startsWith('p') && hours < 12) hours += 12;
       if (meridiem.startsWith('a') && hours === 12) hours = 0;
-      refs.push({
-        raw: match[0],
-        normalizedMinutes: hours * 60 + minutes,
-        chapter: scene.number,
-      });
+      sceneRefs.push({ raw: match[0], normalizedMinutes: hours * 60 + minutes, index: match.index });
     }
 
     // Named times (midnight, noon, dawn, dusk, etc.)
@@ -51,8 +53,25 @@ export function extractTimeReferences(story: Story): TimeReference[] {
       else if (name === 'dawn' || name === 'daybreak' || name === 'sunrise') mins = 360;
       else if (name === 'dusk' || name === 'sunset') mins = 1080;
       if (mins >= 0) {
-        refs.push({ raw: match[0], normalizedMinutes: mins, chapter: scene.number });
+        sceneRefs.push({ raw: match[0], normalizedMinutes: mins, index: match.index });
       }
+    }
+
+    // A_53 P5 (timeline-validator-no-day-tracking): order refs by text position (so clock + named
+    // times interleave correctly) and stamp each with the day it falls on \u2014 the count of day-advance
+    // cues that appear before it in the scene.
+    const dayCuePositions: number[] = [];
+    const dayRe = new RegExp(DAY_ADVANCE_PATTERN.source, DAY_ADVANCE_PATTERN.flags);
+    while ((match = dayRe.exec(text)) !== null) dayCuePositions.push(match.index);
+
+    sceneRefs.sort((a, b) => a.index - b.index);
+    for (const ref of sceneRefs) {
+      refs.push({
+        raw: ref.raw,
+        normalizedMinutes: ref.normalizedMinutes,
+        chapter: scene.number,
+        dayIndex: dayCuePositions.filter((p) => p < ref.index).length,
+      });
     }
   }
 
@@ -84,7 +103,9 @@ export function validateTimeline(story: Story): ValidationError[] {
       // Flag if time goes backwards by more than 60 min
       // but less than 720 min (to allow midnight crossing / flashback tolerance)
       const diff = curr.normalizedMinutes - prev.normalizedMinutes;
-      if (diff < -60 && diff > -720) {
+      // A_53 P5: only a SAME-DAY backward jump is a contradiction — a backward clock time after a
+      // day-advance cue (9 p.m. → 2 p.m. the next afternoon) is legitimate.
+      if (curr.dayIndex === prev.dayIndex && diff < -60 && diff > -720) {
         errors.push({
           type: 'timeline_contradiction',
           message: `Chapter ${chapter}: Time goes backwards from "${prev.raw}" to "${curr.raw}"`,

@@ -104,7 +104,14 @@ export function collectObligations(cml: unknown, clues: SchedulerClue[], redHerr
     obligations.push({ kind: "clear_suspect", name, supportingClues: clearanceClues.get(name) ?? [] });
   }
 
-  const hasFalseSolution = Boolean(caseData.false_solution && typeof caseData.false_solution === "object");
+  // A_53 P5 (false-solution-empty-object-truthy): an empty stub `false_solution: {}` is truthy but
+  // carries no beat — require a meaningful field (an accused suspect, or any non-empty key) so the
+  // scheduler doesn't have to place a phantom obligation on tight grids.
+  const fs = caseData.false_solution as Record<string, unknown> | undefined | null;
+  const hasFalseSolution = Boolean(
+    fs && typeof fs === "object" && !Array.isArray(fs) &&
+    (String((fs as any).accused_suspect ?? "").trim().length > 0 || Object.keys(fs).length > 0),
+  );
   if (hasFalseSolution) obligations.push({ kind: "false_solution" });
 
   obligations.push({ kind: "discriminating_test", supportingClues: testSupportingClues(caseData, clues), timing: testTiming(caseData) });

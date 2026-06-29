@@ -66,21 +66,42 @@ const SPRING_MECHANICAL_RE = new RegExp(
 );
 
 // Months that are also common English words (modal verb / motion verb).
-// Require Title Case so lowercase "may" and "march" don't trigger false positives.
 const AMBIGUOUS_MONTHS = new Set(['may', 'march']);
+
+// Title Case alone is NOT enough to disambiguate: a sentence- or quote-initial modal/verb is also Title
+// Case ("'May I?' she asked", "March on!"). Require an explicit CALENDAR context — a temporal
+// preposition/determiner before the month, an adjacent day-number or year, or a dated time-of-day —
+// so only the genuine month sense counts. (Fixes the mystery-1782647685448 false positive: «'May I?'
+// Eleanor asked» in a genuinely summery scene was read as the month May and flagged against "summery".)
+const AMBIGUOUS_MONTH_CONTEXT_WORDS =
+  'in|by|on|since|until|till|through|during|before|after|that|last|this|next|each|every|early|late|mid|of|one';
+const buildAmbiguousMonthPattern = (month: string): RegExp =>
+  new RegExp(
+    [
+      String.raw`\b(?:${AMBIGUOUS_MONTH_CONTEXT_WORDS})\s+${month}\b`,
+      String.raw`\b${month}\s+(?:\d{1,2}(?:st|nd|rd|th)?|\d{4}|morning|afternoon|evening|night)\b`,
+      String.raw`\b\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?${month}\b`,
+    ].join('|'),
+    'i',
+  );
 
 const MONTH_PATTERNS: Array<{ month: string; pattern: RegExp }> = [
   ...Object.keys(MONTH_TO_SEASON).map((month) => ({
     month,
-    // Ambiguous months need a capital first letter to avoid matching common verbs
-    // (e.g. "he may leave" or "they march forward").
+    // Ambiguous months require an explicit calendar context (see above); the rest match the bare word.
     pattern: AMBIGUOUS_MONTHS.has(month)
-      ? new RegExp(`\\b${month[0].toUpperCase()}${month.slice(1)}\\b`)
+      ? buildAmbiguousMonthPattern(month)
       : new RegExp(`\\b${month}\\b`, 'i'),
   })),
   ...Object.entries(MONTH_ABBREVIATIONS).map(([abbr, month]) => ({
     month,
-    pattern: new RegExp(`\\b${abbr}\\.?\\b`, 'i'),
+    // A_53 P5 (mar-abbrev-collides-with-ambiguous-march): an abbreviation whose expansion is an
+    // ambiguous English word ("mar" → march, also the verb "to mar") must carry the abbreviating
+    // PERIOD — "Mar." is the month; bare "mar" ("would mar the autumn") is the verb. Unambiguous
+    // abbreviations still match with or without the period.
+    pattern: AMBIGUOUS_MONTHS.has(month)
+      ? new RegExp(`\\b${abbr}\\.`, 'i')
+      : new RegExp(`\\b${abbr}\\.?\\b`, 'i'),
   })),
 ];
 
@@ -98,7 +119,8 @@ export function analyzeTemporalConsistency(
   const monthMentions = new Set<string>();
 
   for (const { month, pattern } of MONTH_PATTERNS) {
-    // Ambiguous month patterns require Title Case, so test against the original text.
+    // Ambiguous months ("May"/"March") match only inside an explicit calendar context (see
+    // buildAmbiguousMonthPattern); test against the original text to preserve any day/year casing.
     // Other patterns are case-insensitive and can use the pre-lowercased copy.
     const testTarget = AMBIGUOUS_MONTHS.has(month) ? text : lowered;
     if (pattern.test(testTarget)) {

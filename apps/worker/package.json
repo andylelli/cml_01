@@ -30,7 +30,8 @@
     "@cml/prose-guard": "file:../../packages/prose-guard",
     "@cml/beat-scheduler": "file:../../packages/beat-scheduler",
     "@cml/rubric-score": "file:../../packages/rubric-score",
-    "@cml/clue-spec": "file:../../packages/clue-spec"
+    "@cml/clue-spec": "file:../../packages/clue-spec",
+    "@cml/novelty": "file:../../packages/novelty"
   },
   "devDependencies": {
     "vitest": "^2.1.5"

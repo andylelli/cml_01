@@ -223,12 +223,125 @@ You audit the mystery by analyzing the CML structure (which defines the logical 
 Your goal is to ensure a reader, armed with the clues, can deduce the solution using logical reasoning—exactly as the detective does.`;
 
   // Developer: Provide the CML and clue data for analysis
-  const developer = buildDeveloperContext(caseData, clues, structuralAuditResult);
+  // A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): in narrative-only mode the
+  // structural facts are system-verified and the prompt explicitly says not to re-derive them, so
+  // build a slim developer context (drop cast/constraint/manifest/quality-control blocks and collapse
+  // the 4 redundant clue listings into one summary) instead of re-shipping the whole CML each call.
+  const developer = structurallyVerified
+    ? buildNarrativeDeveloperContext(caseData, clues, structuralAuditResult)
+    : buildDeveloperContext(caseData, clues, structuralAuditResult);
 
   // User: Request the audit — narrative-only when structure is verified, full audit otherwise
   const user = buildUserRequest(structurallyVerified);
 
   return { system, developer, user };
+}
+
+// A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): shared one-line clue projection.
+// Keeps id + placement + criticality + step + a single description line so the narrative checks can
+// still "cite specific clue IDs", while avoiding the 4× repeated full-prose listings of the full audit.
+function summarizeCluesForNarrative(clues: ClueDistributionResult): string {
+  const order: Record<string, number> = { early: 0, mid: 1, late: 2 };
+  const lines = clues.clues
+    .slice()
+    .sort((a, b) => (order[a.placement] ?? 1) - (order[b.placement] ?? 1))
+    .map((c) => {
+      const step = c.supportsInferenceStep ? ` →step${c.supportsInferenceStep}` : "";
+      return `- ${c.id ?? "?"} [${c.placement}/${c.criticality}]${step}: ${c.description}`;
+    });
+  return lines.join("\n") || "None";
+}
+
+// A_53 P9 (ships-whole-cml-and-full-clue-prose-to-every-audit): narrative-only developer context.
+// Only the sections the 4 narrative-quality checks actually depend on (surface/hidden/false-assumption,
+// inference path, discriminating test, and a slim clue summary) — structural blocks the prompt says
+// not to re-derive (cast, constraint space, clue-ID manifest, fair-play declarations, quality controls,
+// clue-to-scene mapping) are dropped, since they are system-verified and out of scope for this call.
+function buildNarrativeDeveloperContext(
+  caseData: CaseData,
+  clues: ClueDistributionResult,
+  structuralAuditResult?: StructuralAuditResult,
+): string {
+  const legacy = caseData as any;
+  const cmlCase = (legacy?.CASE ?? {}) as any;
+  const meta = cmlCase.meta ?? legacy.meta ?? {};
+  const crimeClass = meta.crime_class ?? {};
+  const castList = Array.isArray(cmlCase.cast) ? cmlCase.cast : legacy.cast ?? [];
+
+  const title = meta?.title || "Untitled Mystery";
+  const primaryAxis = cmlCase.false_assumption?.type || meta?.primary_axis || "unknown";
+  const crime = crimeClass.subtype || crimeClass.category || legacy.setup?.crime?.description || "crime";
+  const culpritName = cmlCase.culpability?.culprits?.[0] || castList[0]?.name || "Unknown";
+
+  const falseAssumptionStatement =
+    cmlCase.false_assumption?.statement || legacy.solution?.false_assumption?.description || "Unknown";
+  const falseAssumptionWhyReasonable: string = cmlCase.false_assumption?.why_it_seems_reasonable ?? "";
+  const falseAssumptionWhatHides: string = cmlCase.false_assumption?.what_it_hides ?? "";
+
+  const surfaceNarrative: string = cmlCase.surface_model?.narrative?.summary ?? "";
+  const hiddenMechanism: string = cmlCase.hidden_model?.mechanism?.description ?? "";
+
+  const inferenceSteps = (cmlCase.inference_path?.steps ?? legacy.inference_path?.steps ?? []).map(
+    (step: any, idx: number) => {
+      const observation = step.observation || "Observation";
+      const correction = step.correction || "Correction";
+      const effect = step.effect ? ` → ${step.effect}` : "";
+      const readerNote = step.reader_observable === false ? " *(detective reasoning only)*" : "";
+      return `${idx + 1}. **${observation}**: ${correction}${effect}${readerNote}`;
+    },
+  );
+
+  const discrimTest = cmlCase.discriminating_test
+    ? `**Method**: ${cmlCase.discriminating_test.method}\n**Design**: ${cmlCase.discriminating_test.design}\n**Reveals**: ${cmlCase.discriminating_test.knowledge_revealed}`
+    : `**When**: ${legacy.inference_path?.discriminating_test?.when ?? "final act"}\n**What**: ${legacy.inference_path?.discriminating_test?.test ?? "N/A"}\n**Why**: ${legacy.inference_path?.discriminating_test?.reveals ?? "N/A"}`;
+
+  const redHerrings = clues.redHerrings
+    .map((rh) => `- ${rh.description} (supports: ${rh.supportsAssumption})`)
+    .join("\n");
+
+  const structuralStatusBlock = structuralAuditResult?.passed
+    ? `\n\n## STRUCTURAL STATUS (system-verified — do not re-derive)\nAll structural checks PASSED before this call: discriminating-test evidence present, every inference step has essential early|mid coverage, and non-culprit eliminations are in place.\n\n> Your task: assess NARRATIVE QUALITY only.`
+    : "";
+
+  return `# Narrative Quality Audit Context
+
+## Mystery Overview
+**Title**: ${title}
+**Primary Axis / False Assumption Type**: ${primaryAxis}
+**Crime**: ${crime}
+**Culprit**: ${culpritName}
+${structuralStatusBlock}
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+${surfaceNarrative || "not specified"}
+
+## Hidden Model (What Is Actually True)
+${hiddenMechanism || "not specified"}
+
+---
+
+## False Assumption
+**Statement**: ${falseAssumptionStatement}
+**Why it seems reasonable**: ${falseAssumptionWhyReasonable || "not specified"}
+**What it hides**: ${falseAssumptionWhatHides || "not specified"}
+
+---
+
+## Inference Path (Detective's Logic)
+${inferenceSteps.join("\n") || "None"}
+
+### Discriminating Test
+${discrimTest}
+
+---
+
+## Clue Distribution (summary — id, placement/criticality, one-line)
+${summarizeCluesForNarrative(clues)}
+
+### Red Herrings
+${redHerrings || "None"}`;
 }
 
 function buildDeveloperContext(caseData: CaseData, clues: ClueDistributionResult, structuralAuditResult?: StructuralAuditResult): string {

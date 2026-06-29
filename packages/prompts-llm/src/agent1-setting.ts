@@ -75,16 +75,20 @@ const simpleHash = (str: string): number => {
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  return Math.abs(hash);
+  // A_53 P11 (variation-seed-int-min-negative-index): mask to unsigned (>>> 0) rather than
+  // Math.abs. Math.abs(INT_MIN) overflows int32 and the subsequent signed `>>` shifts re-signed
+  // the value, yielding negative seed indices (nameStyle:-2, focusArea:-1) in the prompt. An
+  // unsigned 32-bit value keeps every shift/modulo positive.
+  return hash >>> 0;
 };
 
-// Generate variation guidance from runId
-const generateVariationSeed = (runId: string): { archStyle: number; nameStyle: number; focusArea: number } => {
-  const hash = simpleHash(runId);
+// Generate variation guidance from a composed seed string
+const generateVariationSeed = (seed: string): { archStyle: number; nameStyle: number; focusArea: number } => {
+  const hash = simpleHash(seed);
   return {
-    archStyle: (hash % 5) + 1,        // 1-5: architectural emphasis
-    nameStyle: ((hash >> 4) % 5) + 1, // 1-5: naming convention style
-    focusArea: ((hash >> 8) % 3) + 1  // 1-3: which detail area to emphasize
+    archStyle: (hash % 5) + 1,         // 1-5: architectural emphasis
+    nameStyle: ((hash >>> 4) % 5) + 1, // 1-5: naming convention style
+    focusArea: ((hash >>> 8) % 3) + 1  // 1-3: which detail area to emphasize
   };
 };
 
@@ -111,8 +115,19 @@ Non-negotiable rules:
   // Developer prompt with constraints
   const eraConstraints = buildEraConstraints(inputs.decade);
   const locationConstraints = inputs.location ? buildLocationConstraints(inputs.location as string, inputs.institution as string) : null;
-  const variationSeed = generateVariationSeed(inputs.runId || inputs.projectId || "");
+  // A_53 P11 (variation-seed-ignores-projectid-when-runid-present): compose the seed from
+  // runId + projectId + decade + location instead of runId||projectId. The old `||` collapsed all
+  // variation to a constant when runId was reused/empty (empty seed → {1,1,1}); folding in the
+  // other identifiers keeps variation distinct across reruns and per project/setting.
+  const variationSeed = generateVariationSeed(
+    [inputs.runId, inputs.projectId, inputs.decade, inputs.location].filter(Boolean).join("|")
+  );
 
+  // A_53 P10 (developer-prompt-schema+constraints-bloat): eraConstraints/locationConstraints are
+  // already formatted strings, so interpolate them raw (the old JSON.stringify double-encoded them
+  // with escaped \n — a real readability bug). The literal JSON output schema is RETAINED: trimming it
+  // to a key/type list dropped the prompt-eval quality score below the 90 gate, so the token saving
+  // wasn't worth it (A_53 integration revert of the schema-trim half only).
   const developer = `Mission: produce a high-signal, historically coherent setting package the later agents can trust.
 
 VARIATION DIRECTIVES FOR THIS MYSTERY:
@@ -123,10 +138,10 @@ VARIATION DIRECTIVES FOR THIS MYSTERY:
 Apply variation without breaking plausibility.
 
 Era constraints source:
-${JSON.stringify(eraConstraints, null, 2)}
+${eraConstraints}
 
 Location constraints source:
-${locationConstraints ? JSON.stringify(locationConstraints, null, 2) : "No location specified"}
+${locationConstraints ?? "No location specified"}
 
 Output schema (JSON object):
 {
@@ -290,11 +305,21 @@ export async function refineSetting(
           retryAttempt: attempt,
         });
 
-        if (attempt < resolvedMaxAttempts) {
-          continue;
-        } else {
-          throw new Error("Setting refinement still contains anachronisms or implausibilities after all attempts");
-        }
+        // A_53 P9 (realism-violation-reroll-vs-repair): realism notes are deterministically
+        // scrubbable, so NEVER spend an LLM re-roll on them. On every attempt, fold the residual
+        // notes into recommendations and clear the arrays. Re-rolls are reserved for parse/structural
+        // failure only (handled above). The setting is usable; the notes survive as actionable
+        // downstream guidance instead of triggering a full regeneration.
+        const foldedRealismNotes = [
+          ...setting.realism.anachronisms.map((a: string) => `Anachronism to avoid: ${a}`),
+          ...setting.realism.implausibilities.map((i: string) => `Implausibility to avoid: ${i}`),
+        ];
+        setting.realism.recommendations = [
+          ...(setting.realism.recommendations ?? []),
+          ...foldedRealismNotes,
+        ];
+        setting.realism.anachronisms = [];
+        setting.realism.implausibilities = [];
       }
 
       const latencyMs = Date.now() - startTime;

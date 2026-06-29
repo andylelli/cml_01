@@ -47,28 +47,77 @@ export interface NoveltyConstraints {
 const MAX_LEDGER_ENTRIES = 500;
 const DEFAULT_WINDOW = 20;
 
-/** Cross-run novelty is opt-in and default-OFF — the current single-run behavior is the fallback. */
-export const isCrossRunNoveltyEnabled = (): boolean =>
-  /^(1|true|yes|on)$/i.test(process.env.NOVELTY_CROSS_RUN ?? "");
+// ── A_53 P7: single NOVELTY_MODE replacing the three permissive flags ────────────────────────────
+export type NoveltyMode = "off" | "shadow" | "active";
 
-/** The capped similarity threshold used when cross-run novelty is enabled (T1.6). */
+/**
+ * A_53 P7 (audit-runs-but-is-toothless-warning-only): one `NOVELTY_MODE = off | shadow | active`
+ * instead of NOVELTY_HARD_FAIL × enableBindingGates × !forceWarnings (all default-permissive, so a
+ * confirmed clone always shipped). off = skip the audit; shadow (default) = run + downgrade a fail to
+ * a warning; active = run + block a fail. Back-compat: legacy NOVELTY_HARD_FAIL=true ⇒ active.
+ */
+export const resolveNoveltyMode = (): NoveltyMode => {
+  const raw = (process.env.NOVELTY_MODE ?? "").trim().toLowerCase();
+  if (raw === "off") return "off";
+  if (raw === "active" || raw === "on" || raw === "enforce") return "active";
+  if (raw === "shadow" || raw === "warn") return "shadow";
+  // Unset: honour the legacy hard-fail flag, else default to shadow.
+  if (/^(1|true|yes|on)$/i.test(process.env.NOVELTY_HARD_FAIL ?? "")) return "active";
+  return "shadow";
+};
+
+// ── Cross-run novelty: tri-state, default SHADOW ─────────────────────────────────────────────────
+export type CrossRunMode = "off" | "shadow" | "on";
+
+/**
+ * A_53 P7 (cross-run-novelty-off-by-default): default to SHADOW — record the ledger and feed prior
+ * runs into the avoidance constraints (the documented divergence pressure against premise/mode
+ * collapse) WITHOUT the aggressive threshold cap. Only explicit `on` caps the threshold (more LLM
+ * audit firing). `off` is the kill-switch for reproducible eval.
+ */
+export const resolveCrossRunMode = (): CrossRunMode => {
+  const raw = (process.env.NOVELTY_CROSS_RUN ?? "").trim().toLowerCase();
+  if (raw === "off" || raw === "0" || raw === "false" || raw === "no") return "off";
+  if (raw === "on" || raw === "1" || raw === "true" || raw === "yes" || raw === "active") return "on";
+  return "shadow"; // unset or "shadow"
+};
+
+/** Cross-run novelty is engaged (records + feeds prior runs) in both shadow and on modes. */
+export const isCrossRunNoveltyEnabled = (): boolean => resolveCrossRunMode() !== "off";
+
+/** The capped similarity threshold used when cross-run novelty is fully ON (T1.6). */
 export const CROSS_RUN_NOVELTY_THRESHOLD = 0.7;
 
 /**
- * T1.6 — couple the active similarity threshold to the cross-run flag. The static default (≥1.0)
- * deliberately *skips* the audit; lowering it blind would fire the LLM audit on every run with no
- * divergence feed behind it. So we only cap the threshold when cross-run novelty is enabled —
- * pairing the lower threshold with the prior-run feed, exactly as the plan intends.
+ * T1.6 — only the explicit `on` mode caps the threshold (pairing the aggressive lower threshold with
+ * the prior-run feed). Shadow keeps the base threshold so the default divergence pressure doesn't also
+ * multiply LLM audit firing.
  */
 export const effectiveNoveltyThreshold = (
   baseThreshold: number,
-  crossRunEnabled: boolean = isCrossRunNoveltyEnabled(),
-): number => (crossRunEnabled ? Math.min(baseThreshold, CROSS_RUN_NOVELTY_THRESHOLD) : baseThreshold);
+  mode: CrossRunMode = resolveCrossRunMode(),
+): number => (mode === "on" ? Math.min(baseThreshold, CROSS_RUN_NOVELTY_THRESHOLD) : baseThreshold);
 
 export const noveltyLedgerPath = (): string =>
   process.env.CML_NOVELTY_LEDGER_PATH ?? path.resolve(process.cwd(), "data", "novelty-ledger.json");
 
 const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+
+// ── A_53 P7 (buildNoveltyConstraints-axis-field-mismatch) ─────────────────────────────────────────
+/**
+ * The canonical 6-axis novelty vocabulary (mirrors @cml/novelty's `Axis`). The CML false_assumption.type
+ * is recorded as a free string; this shared helper maps it to a canonical axis (alias + fallback) so a
+ * recorded "axis" is always a valid value the deterministic judge / fingerprint schema accepts — no
+ * fragile inline mapping at each call site.
+ */
+export const NOVELTY_AXES = ["temporal", "spatial", "identity", "epistemic", "behavioral", "authority"] as const;
+export type NoveltyAxis = (typeof NOVELTY_AXES)[number];
+export const mapToNoveltyAxis = (raw: string | undefined): NoveltyAxis => {
+  const a = String(raw ?? "").trim().toLowerCase();
+  if ((NOVELTY_AXES as readonly string[]).includes(a)) return a as NoveltyAxis;
+  if (a === "epistemological" || a === "knowledge" || a === "informational") return "epistemic";
+  return "behavioral"; // safe fallback for an unknown/blank type
+};
 
 /** Pull the avoidance-relevant fields out of a CML CASE — mirrors `buildNoveltyConstraints`'s reads. */
 export const extractPriorRunRecord = (cml: unknown, runId: string): PriorRunRecord => {
@@ -81,7 +130,8 @@ export const extractPriorRunRecord = (cml: unknown, runId: string): PriorRunReco
     location: str(meta?.setting?.location),
     crimeSubtype: str(meta?.crime_class?.subtype),
     deathMethod: str(cmlCase?.death_method),
-    axis: str(cmlCase?.false_assumption?.type),
+    // A_53 P7: normalize to a canonical axis so cross-run records can feed the deterministic judge.
+    axis: mapToNoveltyAxis(cmlCase?.false_assumption?.type),
     falseAssumption: str(cmlCase?.false_assumption?.statement),
     discrimMethod: str(cmlCase?.discriminating_test?.method),
     discrimDesign: str(cmlCase?.discriminating_test?.design),

@@ -63,17 +63,43 @@ function categorizeErrors(errors: string[]): {
   const allowedValueErrors: string[] = [];
   const groundingErrors: string[] = [];
 
+  // A_53 P11 (categorize-typeerror-catchall-mislabels): the validator has no numeric codes, so we key
+  // off the stable substring each `errors.push(...)` emits, ordered MOST-SPECIFIC-FIRST. The old code
+  // used `else -> typeErrors` plus `includes("must be")`, which (a) swept fair-play/coverage/quality
+  // messages ("is too short/abstract", "missing or empty", "relies on detective-only") into "Type
+  // Errors", and (b) mis-caught allowed/quality messages whose text contains "must be" (e.g. the
+  // too-short message "...must be a concrete, scene-level fact"). The earliest matching predicate wins.
+  type Categorizer = (e: string) => boolean;
+  const matchers: Array<[Categorizer, string[]]> = [
+    // Missing required fields (schema-required + required_evidence absence).
+    [(e) => e.includes("is required") || hasRequiredEvidenceMissingSignal(e), missingRequired],
+    // Reader-visible grounding gap (most specific phrase, checked before any "must be" branch).
+    [(e) => e.includes("not grounded in reader-visible inference evidence"), groundingErrors],
+    // Fair-play / coverage / inference-quality messages — keep them OUT of "Type Errors". These all
+    // carry a stable substring even when their text also contains the word "must be".
+    [
+      (e) =>
+        e.includes("is too short")
+        || e.includes("is too brief")
+        || e.includes("is too abstract")
+        || e.includes("is missing or empty")
+        || e.includes("is a duplicate")
+        || e.includes("relies on detective-only")
+        || e.includes("reader_observable is false"),
+      groundingErrors,
+    ],
+    // Allowed-value (enum) errors — must precede the generic "must be" type branch.
+    [(e) => e.includes("must be one of"), allowedValueErrors],
+    // Genuine schema type mismatches ("X must be <type>") — the narrow trailing case.
+    [(e) => /\bmust be (string|number|boolean|object|array)\b/.test(e), typeErrors],
+  ];
+
   for (const error of errors) {
-    if (error.includes("is required") || hasRequiredEvidenceMissingSignal(error)) {
-      missingRequired.push(error);
-    } else if (error.includes("not grounded in reader-visible inference evidence")) {
-      groundingErrors.push(error);
-    } else if (error.includes("must be one of")) {
-      allowedValueErrors.push(error);
-    } else if (error.includes("must be")) {
-      typeErrors.push(error);
+    const matched = matchers.find(([predicate]) => predicate(error));
+    if (matched) {
+      matched[1].push(error);
     } else {
-      // Unknown error format - add to type errors as fallback
+      // Unknown/unmatched error format — surface it as a type error so it is never silently dropped.
       typeErrors.push(error);
     }
   }
@@ -437,7 +463,9 @@ export async function reviseCml(
     const crimeClass = ensureObject(meta.crime_class);
     meta.crime_class = crimeClass;
     crimeClass.category = normalizeEnum(crimeClass.category, ["murder", "theft", "disappearance", "fraud"], "murder");
-    crimeClass.subtype = ensureString(crimeClass.subtype, "poisoning");
+    // A_53 P1 (holistic): neutral placeholder, never a concrete method ("poisoning") that would
+    // inject a specific plot into an unrelated case if the LLM omitted the subtype.
+    crimeClass.subtype = ensureString(crimeClass.subtype, "unspecified");
 
     caseBlock.cast = Array.isArray(caseBlock.cast)
       ? caseBlock.cast.map((member, index) => {
@@ -458,7 +486,9 @@ export async function reviseCml(
             relationships: ensureArray(existing.relationships),
             public_persona: ensureString(existing.public_persona, "reserved"),
             private_secret: ensureString(existing.private_secret, "keeps a secret"),
-            motive_seed: ensureString(existing.motive_seed, "inheritance"),
+            // A_53 P1 (holistic): generic motive placeholder, never a concrete motive ("inheritance")
+            // that would assert a specific plot for every motive-less suspect.
+            motive_seed: ensureString(existing.motive_seed, "a personal stake in the outcome"),
             motive_strength: ensureString(existing.motive_strength, "moderate"),
             alibi_window: ensureString(existing.alibi_window, "evening"),
             access_plausibility: ensureString(existing.access_plausibility, "medium"),
@@ -536,42 +566,9 @@ export async function reviseCml(
     constraintSocial.trust_channels = ensureArray(constraintSocial.trust_channels);
     constraintSocial.authority_sources = ensureArray(constraintSocial.authority_sources);
 
-    const inferencePath = ensureObject(caseBlock.inference_path);
-    caseBlock.inference_path = inferencePath;
-    inferencePath.steps = Array.isArray(inferencePath.steps) && inferencePath.steps.length
-      ? inferencePath.steps
-      : [
-          {
-            observation: "The teacup ring remains on the study desk beside fresh ash.",
-            correction: "The victim drank tea in the study, not in the dining room.",
-            effect: "The timeline anchor shifts to a later private meeting.",
-          },
-          {
-            observation: "The service corridor latch is scratched from the inside.",
-            correction: "Someone exited through the corridor after the household retired.",
-            effect: "Only staff-level access plausibly fits the movement.",
-          },
-          {
-            observation: "A pawn ticket bears the same initials as the blackmail note.",
-            correction: "The debt pressure links motive and opportunity to one suspect.",
-            effect: "The suspect pool narrows to a testable single hypothesis.",
-          },
-        ];
-
-    const isAbstractEvidence = (text: string) => {
-      const normalized = text.toLowerCase();
-      const abstractMarkers = [
-        "timeline discrepancy",
-        "suspicious behavior",
-        "hidden motive",
-        "detective insight",
-        "something was wrong",
-        "inconsistency",
-        "general contradiction",
-      ];
-      return abstractMarkers.some((marker) => normalized.includes(marker));
-    };
-
+    // A_53 P1 (holistic): evidence anchors derived from THIS document's own constraint space — used
+    // both to synthesize fallback inference steps and to repair required_evidence below. Hoisted here
+    // (from its later definition) so the step fallback can reference it.
     const evidenceAnchors = [
       ...ensureArray(constraintTime.anchors),
       ...ensureArray(constraintTime.windows),
@@ -587,19 +584,66 @@ export async function reviseCml(
       .map((entry) => ensureString(entry, "").trim())
       .filter((entry) => entry.length > 0)
       .slice(0, 20);
+    // A_53 integration: exclude the normalizer's literal "Unknown" default so the fallback step never
+    // reads "Re-read against the established mechanism (Unknown)" — fall back to the generic phrasing.
+    const mechanismHintRaw = ensureString(hiddenMechanism.description, "").trim();
+    const mechanismHint = mechanismHintRaw.toLowerCase() === "unknown" ? "" : mechanismHintRaw;
 
-    const fallbackEvidence = (index: number, observation: string, correction: string) => {
-      const anchorA = evidenceAnchors[index % Math.max(evidenceAnchors.length, 1)] ||
-        "A dated document anchors the event timing.";
-      const anchorB =
-        evidenceAnchors[(index + 1) % Math.max(evidenceAnchors.length, 1)] ||
-        "A physical trace corroborates the corrected sequence.";
-      return [
-        `${anchorA}`,
-        `${anchorB}`,
-        `${observation} is directly visible to witnesses in-scene.`,
-        `${correction} follows from these concrete records without private knowledge.`,
+    // A_53 P1 (holistic): when a CML loses ALL its inference steps, synthesize the minimum floor
+    // from the document's OWN anchors/mechanism — never inject a fixed teacup/poisoning plot that
+    // would then pass validation as canon for an unrelated case.
+    const buildFallbackInferenceSteps = (): Array<Record<string, string>> => {
+      const steps: Array<Record<string, string>> = [];
+      for (let i = 0; i < 3; i += 1) {
+        const anchor = evidenceAnchors[i % Math.max(evidenceAnchors.length, 1)];
+        const observation = anchor && anchor.length > 0
+          ? anchor
+          : `Observation ${i + 1}: a concrete scene-level detail is established on the page.`;
+        const correction = mechanismHint
+          ? `Re-read against the established mechanism (${mechanismHint}), this detail revises the surface sequence.`
+          : `Correction ${i + 1}: the surface reading of this detail is revised by the on-page evidence.`;
+        steps.push({
+          observation,
+          correction,
+          effect: "The set of viable explanations narrows toward a single testable hypothesis.",
+        });
+      }
+      return steps;
+    };
+
+    const inferencePath = ensureObject(caseBlock.inference_path);
+    caseBlock.inference_path = inferencePath;
+    inferencePath.steps = Array.isArray(inferencePath.steps) && inferencePath.steps.length
+      ? inferencePath.steps
+      : buildFallbackInferenceSteps();
+
+    const isAbstractEvidence = (text: string) => {
+      const normalized = text.toLowerCase();
+      const abstractMarkers = [
+        "timeline discrepancy",
+        "suspicious behavior",
+        "hidden motive",
+        "detective insight",
+        "something was wrong",
+        "inconsistency",
+        "general contradiction",
       ];
+      return abstractMarkers.some((marker) => normalized.includes(marker));
+    };
+
+    // A_53 P6 (silent-evidence-truncation-and-synthesis): synthesize required_evidence ONLY from the
+    // document's own constraint anchors, falling back to step-derived (observation/correction) lines —
+    // never a fixed free-text template ("A dated document …") that reads as an unplantable fair-play clue.
+    const fallbackEvidence = (index: number, observation: string, correction: string): string[] => {
+      const out: string[] = [];
+      const anchorCount = evidenceAnchors.length;
+      if (anchorCount > 0) {
+        out.push(evidenceAnchors[index % anchorCount]);
+        if (anchorCount > 1) out.push(evidenceAnchors[(index + 1) % anchorCount]);
+      }
+      out.push(`${observation} is directly visible to witnesses in-scene.`);
+      out.push(`${correction} follows from the concrete records without private knowledge.`);
+      return out.filter((s) => s.trim().length > 0);
     };
 
     const inferenceSteps = ensureArray(inferencePath.steps);
@@ -745,16 +789,32 @@ export async function reviseCml(
 
   let currentCml = inputs.invalidCml;
   let currentErrors = [...inputs.validationErrors];
+  // A_53 P11 (parse-error-feedback-bloats-prompt): transient parse/runtime failures are tracked in a
+  // SINGLE replaced note (not accumulated into `currentErrors`), so the schema-error list fed to the
+  // prompt stays clean across attempts instead of growing with stale "Output parsing failed: ..." and
+  // "Runtime error on attempt N: ..." lines that the model would treat as schema errors to fix.
+  let lastAttemptFailureNote: string | undefined;
   let attempt = inputs.attempt || 1;
   let revisionsApplied: string[] = [];
+  // A_53 P2 convergence guard: consecutive passes that fail to reduce the error count.
+  let noProgressStreak = 0;
 
   // Phase 0 (graceful degrade — documentation/12_system_redesign/09_agent_4_cml_revision.md §9.2):
-  // when AGENT4_GRACEFUL_DEGRADE is on, budget exhaustion returns the best CML we have plus
-  // structured warnings instead of throwing — a CML that merely "ran out of revisions" no longer
-  // kills the whole run. Default OFF preserves today's throw-on-exhaustion behavior exactly.
-  const gracefulDegrade = ["1", "true", "on", "enabled"].includes(
+  // budget/attempt exhaustion returns the best CML we have plus structured warnings instead of
+  // throwing — a CML that merely "ran out of revisions" no longer kills the whole run.
+  // A_53 P2 (graceful-degrade-default-off-kills-runs): default ON; set AGENT4_GRACEFUL_DEGRADE to
+  // off/false/0/disabled to restore the strict throw-on-exhaustion behavior for reproducible eval.
+  const gracefulDegrade = !["0", "false", "off", "disabled", "no"].includes(
     (process.env.AGENT4_GRACEFUL_DEGRADE ?? "").trim().toLowerCase(),
   );
+
+  // A_53 P3 (cost-budget-not-enforced): an optional hard $ ceiling on Agent 4 spend. The cost tracker
+  // was read for reporting only; now spend exceeding AGENT4_MAX_COST_USD breaks to degrade (unset =
+  // no ceiling, today's behavior). Only enforced when graceful degrade is available to fall back to.
+  const maxCostUsd = (() => {
+    const raw = Number.parseFloat((process.env.AGENT4_MAX_COST_USD ?? "").trim());
+    return Number.isFinite(raw) && raw > 0 ? raw : Infinity;
+  })();
 
   let bestNormalized: Record<string, unknown> | undefined;
   let bestValidation: { valid: boolean; errors: string[] } = { valid: false, errors: [...inputs.validationErrors] };
@@ -769,7 +829,11 @@ export async function reviseCml(
     try {
       const original = yaml.load(inputs.invalidCml) as Record<string, unknown> | undefined;
       if (original && typeof original === "object") {
-        recordCandidate(normalizeCml(original), validateCml(normalizeCml(original)));
+        // A_53 P11 (degrade-seed-double-normalize-mutation): normalizeCml mutates in place, so calling
+        // it twice meant the candidate object stored differed from the object that was validated.
+        // Normalize once and reuse the SAME reference for both the candidate and its validation.
+        const normalizedOriginal = normalizeCml(original);
+        recordCandidate(normalizedOriginal, validateCml(normalizedOriginal));
       }
     } catch {
       // ignore — bestNormalized may stay undefined; degrade falls back to the raw parse
@@ -779,13 +843,35 @@ export async function reviseCml(
   const degrade = async (reason: string): Promise<RevisionResult> => {
     const latencyMs = Date.now() - startTime;
     const cost = client.getCostTracker().getSummary().byAgent["Agent4-Revision"] || 0;
-    const fallbackCml = bestNormalized ?? ensureObject(yaml.load(inputs.invalidCml));
-    // If the best-so-far is actually valid (e.g. the aggressive normalizer recovered it), return it
-    // as a clean success; only mark `degraded` when validation genuinely remains unresolved.
-    const stillInvalid = !bestValidation.valid;
+    // A_53 P6 (no-revalidation-after-grounding-mutation-in-degrade): when there is no recorded
+    // candidate, normalize + validate the raw parse so the returned `validation` actually describes
+    // the returned CML — the raw fallback was previously shipped with the ORIGINAL doc's validation,
+    // a mismatch (normalize grounds + repairs, which changes the error set).
+    let fallbackCml: Record<string, unknown>;
+    let fallbackValidation = bestValidation;
+    let noCandidate = false;
+    if (bestNormalized) {
+      fallbackCml = bestNormalized;
+    } else {
+      // No real parse candidate was ever recorded (e.g. unparseable output) — fabricate a normalized
+      // skeleton so cml + validation are CONSISTENT, but this is ALWAYS a degrade (meaningless
+      // defaults), never a clean success even if the skeleton happens to validate.
+      noCandidate = true;
+      fallbackCml = normalizeCml(ensureObject(yaml.load(inputs.invalidCml)));
+      fallbackValidation = validateCml(fallbackCml);
+    }
+    // If the best-so-far is actually valid (e.g. the aggressive normalizer recovered a real candidate),
+    // return it as a clean success; only mark `degraded` when validation genuinely remains unresolved
+    // OR there was no real candidate to begin with.
+    const stillInvalid = noCandidate || !fallbackValidation.valid;
+    const unresolvedWarnings = !stillInvalid
+      ? undefined
+      : fallbackValidation.errors.length > 0
+        ? fallbackValidation.errors
+        : ["No parseable CML candidate after exhaustion; returned a normalized skeleton."];
     revisionsApplied.push(
       stillInvalid
-        ? `Degraded after exhaustion (${reason}) — returning best-so-far with ${bestValidation.errors.length} unresolved warning(s).`
+        ? `Degraded after exhaustion (${reason}) — returning best-so-far with ${unresolvedWarnings!.length} unresolved warning(s).`
         : `Recovered a valid CML on the best-so-far candidate after exhaustion (${reason}).`,
     );
     await logger.logResponse({
@@ -798,17 +884,17 @@ export async function reviseCml(
       validationStatus: stillInvalid ? "fail" : "pass",
       retryAttempt: attempt,
       latencyMs,
-      metadata: { reason, unresolvedErrorCount: bestValidation.errors.length },
+      metadata: { reason, unresolvedErrorCount: unresolvedWarnings?.length ?? 0 },
     });
     return {
       cml: fallbackCml,
-      validation: bestValidation,
+      validation: fallbackValidation,
       revisionsApplied,
       attempt,
       latencyMs,
       cost,
       degraded: stillInvalid,
-      unresolvedLogicWarnings: stillInvalid ? bestValidation.errors : undefined,
+      unresolvedLogicWarnings: unresolvedWarnings,
     };
   };
 
@@ -836,6 +922,13 @@ export async function reviseCml(
     };
 
     const prompt = buildRevisionPrompt(revisionInput);
+
+    // A_53 P11 (parse-error-feedback-bloats-prompt): inject the SINGLE most-recent transient-failure
+    // note (parse/runtime) as a clearly-separated heads-up, replaced every attempt — never accumulated
+    // into the schema-error sections that buildRevisionPrompt categorizes.
+    if (lastAttemptFailureNote) {
+      prompt.user += `\n\n## Last Attempt Failed Because\n\n- ${lastAttemptFailureNote}\n- Return a single, complete, valid JSON document this time.`;
+    }
 
     try {
       // Call LLM for revision
@@ -997,8 +1090,10 @@ export async function reviseCml(
         });
 
         if (attempt < resolvedMaxAttempts) {
-          // Try again with parsing error feedback
-          currentErrors = [...currentErrors, `Output parsing failed: ${jsonMessage}`];
+          // A_53 P11 (parse-error-feedback-bloats-prompt): record the parse failure as the single
+          // replaced note instead of appending it to the schema-error list (which the prompt would
+          // otherwise present as a validation error to fix).
+          lastAttemptFailureNote = `Output parsing failed: ${jsonMessage}`;
           revisionsApplied.push(`Attempt ${attempt}: Output parse failed, retrying`);
           attempt++;
           continue;
@@ -1010,6 +1105,11 @@ export async function reviseCml(
       }
 
       const normalized = normalizeCml(cml);
+
+      // A_53 P11 (parse-error-feedback-bloats-prompt): output parsed this attempt, so any prior
+      // transient parse/runtime note is resolved — clear it so the next prompt isn't told about a
+      // failure that no longer applies.
+      lastAttemptFailureNote = undefined;
 
       // Validate revised CML
       const validation = validateCml(normalized);
@@ -1072,6 +1172,32 @@ export async function reviseCml(
         `Attempt ${attempt}: Reduced errors from ${currentErrors.length} to ${validation.errors.length}`
       );
 
+      // A_53 P2 (convergence guard): if a pass fails to reduce the error count, count it; after 2
+      // consecutive non-reducing passes, stop burning LLM calls and degrade to best-so-far (when
+      // degrade is enabled — the default). A stuck loop that can't converge shouldn't pay full budget.
+      if (validation.errors.length < currentErrors.length) {
+        noProgressStreak = 0;
+      } else {
+        noProgressStreak += 1;
+      }
+      if (gracefulDegrade && noProgressStreak >= 2 && attempt < resolvedMaxAttempts) {
+        revisionsApplied.push(
+          `Stopping early after ${noProgressStreak} non-reducing passes (errors stuck at ${validation.errors.length}).`,
+        );
+        return await degrade(`no convergence (${noProgressStreak} non-reducing passes)`);
+      }
+
+      // A_53 P3 (cost-budget-not-enforced): cap total Agent 4 spend when a $ ceiling is configured.
+      if (gracefulDegrade && maxCostUsd !== Infinity) {
+        const spentSoFar = client.getCostTracker().getSummary().byAgent["Agent4-Revision"] || 0;
+        if (spentSoFar > maxCostUsd) {
+          revisionsApplied.push(
+            `Cost budget exceeded ($${spentSoFar.toFixed(4)} > $${maxCostUsd.toFixed(4)}); degrading to best-so-far.`,
+          );
+          return await degrade(`cost budget exceeded ($${spentSoFar.toFixed(4)})`);
+        }
+      }
+
       if (attempt < resolvedMaxAttempts) {
         // Update for next iteration
         currentCml = yaml.dump(normalized);
@@ -1105,7 +1231,9 @@ export async function reviseCml(
 
       if (attempt < resolvedMaxAttempts) {
         revisionsApplied.push(`Attempt ${attempt}: runtime error (${message}), retrying`);
-        currentErrors = [...currentErrors, `Runtime error on attempt ${attempt}: ${message}`];
+        // A_53 P11 (parse-error-feedback-bloats-prompt): replace the single transient-failure note
+        // rather than accumulating runtime-error text into the schema-error list.
+        lastAttemptFailureNote = `Runtime error on attempt ${attempt}: ${message}`;
         attempt++;
         continue;
       }

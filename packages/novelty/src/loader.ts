@@ -51,7 +51,41 @@ export function loadClicheLedger(): Fingerprint[] {
   return (clicheCache ??= loadLedger("cliche-ledger.yaml"));
 }
 
-/** Seeds + cliches — the two static reference corpora a new idea must diverge from. */
+/**
+ * A_53 P7 (seed-cliche-fingerprint-duplicates): the structural identity of a fingerprint — the five
+ * abstract fields the verdict is computed from. Two entries with the same key are the same idea even
+ * if their ids differ (`spare_key_relock` ≡ `the_second_key`).
+ */
+const structuralKey = (fp: Fingerprint): string =>
+  [fp.axis, fp.mechanism_family, fp.false_assumption_pattern, fp.discriminating_test_shape, fp.inference_shape]
+    .map((s) => String(s ?? "").trim().toLowerCase())
+    .join("|");
+
+// More-specific corpora win a collision: a concrete prior run / seed beats a generic genre cliche.
+const CORPUS_SPECIFICITY: Record<string, number> = { prior_run: 3, seed: 2, cliche: 1 };
+
+/**
+ * Seeds + cliches — the two static reference corpora a new idea must diverge from. A_53 P7: de-duped
+ * across corpora by structural key (warn on collision) so the same idea isn't double-counted and the
+ * corpus labelling is deterministic; on collision keep the more-specific corpus.
+ */
 export function loadReferenceCorpus(): Fingerprint[] {
-  return [...loadSeedFingerprints(), ...loadClicheLedger()];
+  const all = [...loadSeedFingerprints(), ...loadClicheLedger()];
+  const byKey = new Map<string, Fingerprint>();
+  for (const fp of all) {
+    const key = structuralKey(fp);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, fp);
+      continue;
+    }
+    const keep = (CORPUS_SPECIFICITY[fp.corpus] ?? 0) > (CORPUS_SPECIFICITY[existing.corpus] ?? 0) ? fp : existing;
+    const drop = keep === fp ? existing : fp;
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[novelty] duplicate fingerprint across corpora: "${drop.id}" (${drop.corpus}) ≡ "${keep.id}" (${keep.corpus}); keeping the more-specific corpus.`,
+    );
+    byKey.set(key, keep);
+  }
+  return [...byKey.values()];
 }

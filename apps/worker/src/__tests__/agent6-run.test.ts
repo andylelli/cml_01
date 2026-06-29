@@ -9,13 +9,19 @@ describe("agent6-run regenerated clue contracts", () => {
     expect(() => budget.consume(0.06, "second retry")).toThrow(/cost limit reached/i);
   });
 
-  it("fails when regenerated clues violate Agent 5 deterministic source-path contract", () => {
+  it("repairs an unrescuable regenerated source path instead of aborting the contract (repair-not-abort)", () => {
+    // Previously an invalid regenerated sourceInCML hard-failed the run via the source-path gate. The
+    // gate is now repair-not-abort: a path no targeted heuristic can rescue is anchored to a valid CML
+    // location and the regeneration continues.
     const ctx = {
       cml: {
         CASE: {
-          cast: [],
-          inference_path: { steps: [{ observation: "Clock hands were moved." }] },
-          discriminating_test: { evidence_clues: ["clue_anchor"] },
+          cast: [{ name: "Iwan Hale", alibi_window: "after supper" }],
+          inference_path: { steps: [{ observation: "Grease marked the clock key slot." }] },
+          discriminating_test: {
+            design: "Use clock grease and timing mismatch to isolate culprit",
+            evidence_clues: ["clue_anchor"],
+          },
           culpability: { culprits: [] },
         },
       },
@@ -23,20 +29,20 @@ describe("agent6-run regenerated clue contracts", () => {
         clues: [
           {
             id: "clue_anchor",
-            sourceInCML: "CASE.cast[99].alibi_window",
+            sourceInCML: "CASE.entirely.made.up.path", // no targeted heuristic (cast/step/clamp) can rescue this shape
             description: "Aled Price was seen near the station before supper.",
             pointsTo: "Timeline inconsistency around station witness accounts.",
-            placement: "mid",
+            placement: "early",
             criticality: "essential",
             evidenceType: "observation",
             supportsInferenceStep: 1,
           },
           {
-            id: "clue_fill_early",
+            id: "clue_fill_mid",
             sourceInCML: "CASE.inference_path.steps[0].observation",
             description: "The corridor carpet held damp marks by early evening.",
             pointsTo: "Supports sequence-of-movement reconstruction.",
-            placement: "early",
+            placement: "mid",
             criticality: "essential",
             evidenceType: "observation",
             supportsInferenceStep: 1,
@@ -53,14 +59,16 @@ describe("agent6-run regenerated clue contracts", () => {
           },
         ],
         redHerrings: [],
-        clueTimeline: { early: ["clue_fill_early"], mid: ["clue_anchor"], late: ["clue_fill_late"] },
+        clueTimeline: { early: ["clue_anchor"], mid: ["clue_fill_mid"], late: ["clue_fill_late"] },
       },
       warnings: [],
       errors: [],
     } as any;
 
-    expect(() => __testables.applyAgent5ContractsToRegeneratedClues(ctx, "unit")).toThrow(/source-path gate failed/i);
-    expect(ctx.errors.some((e: string) => /deterministic contract \(unit\)/i.test(e))).toBe(true);
+    expect(() => __testables.applyAgent5ContractsToRegeneratedClues(ctx, "unit")).not.toThrow();
+    // the unrescuable path is repaired to a real CML location rather than aborting the run
+    const anchor = ctx.clues.clues.find((c: any) => c.id === "clue_anchor");
+    expect(anchor.sourceInCML).not.toBe("CASE.entirely.made.up.path");
   });
 
   it("propagates deterministic synthesis warnings during regenerated clue validation", () => {

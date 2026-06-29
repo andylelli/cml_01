@@ -69,7 +69,11 @@ const MECHANISM_FAMILY_KEYWORDS: Record<string, string[]> = {
   optics: ["mirror", "optical", "reflection", "lens", "prism", "refraction"],
   ledger: ["ledger", "forgery", "forged", "embezzl", "account book", "bookkeep"],
   thermal: ["thermal", "heat expansion", "temperature", "expansion of", "fahrenheit", "furnace"],
-  identity: ["impersonat", "disguise", "twin", "masquerade", "double identity"],
+  // A_53 P11 (identity-family-collides-with-identity-axis): renamed from 'identity' to
+  // 'impersonation' so the mechanism family no longer collides semantically with the "identity"
+  // primary axis. Dropped the 'twin' stem — the prompt bans the twins-as-solution trope, so the
+  // keyword must not lock a primary device onto it.
+  impersonation: ["impersonat", "disguise", "masquerade", "double identity"],
 };
 
 const familiesIn = (text: string): string[] => {
@@ -82,30 +86,100 @@ const familiesIn = (text: string): string[] => {
 };
 
 /**
+ * A_53 P1 — generic words that are NOT distinctive mechanism nouns. Excluded from the data-driven
+ * synthetic-family fallback so it can't fire on ordinary mystery prose or on the abstract axis
+ * labels `deriveHardLogicDirectives` emits ("schedule contradiction", "misdirection", …).
+ */
+const SYNTHETIC_FAMILY_STOPWORDS = new Set([
+  "murder", "murders", "mystery", "death", "deaths", "killer", "victim", "crime", "case",
+  "story", "clue", "clues", "detective", "suspect", "suspects", "method", "methods",
+  "mechanism", "trick", "technique", "scheme", "twist", "alibi", "motive", "based",
+  "around", "involving", "hinging", "driven", "using", "with", "from", "that", "this",
+  "into", "onto", "about", "golden", "age", "classic",
+  // abstract axis / directive labels — not concrete, device-realizable mechanisms
+  "contradiction", "confusion", "misdirection", "manipulation", "tampering", "pressure",
+  "institutional", "administrative", "psychology", "psychological", "behavioral", "behavioural",
+  "temporal", "spatial", "identity", "authority", "timing", "timeline", "impossible", "location",
+]);
+
+/** Distinct lower-cased content tokens (≥4 letters, not a stopword) in a piece of text. */
+const salientMechanismTokens = (text: string): string[] => {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const tok of text.toLowerCase().match(/[a-z]{4,}/g) ?? []) {
+    if (SYNTHETIC_FAMILY_STOPWORDS.has(tok) || seen.has(tok)) continue;
+    seen.add(tok);
+    out.push(tok);
+  }
+  return out;
+};
+
+/** True when a synthetic (non-keyword) family token appears as a whole word in device text. */
+const syntheticFamilyRealized = (token: string, deviceTextLower: string): boolean =>
+  token.length >= 4 && new RegExp(`\\b${token}`, "i").test(deviceTextLower);
+
+/**
+ * A_56 3-A: two method tokens name the SAME concept when they are identical OR one is a prefix of the
+ * other (≥4-letter stem) — so an inflection mismatch between the theme prose and the structured hints
+ * ("grafting" theme vs a "graft" hint, "poisoning" vs "poison") still corroborates a synthetic family.
+ * Stays conservative: it never relaxes the requirement that BOTH the theme and the hints name the method
+ * (open themes still produce no synthetic family), it only stops exact-token equality from missing
+ * inflections. The shorter form (the stem) is the canonical token, so device-realization matching
+ * (`syntheticFamilyRealized`, a `\b<stem>` prefix test) also covers all inflections.
+ */
+const sharesMethodStem = (a: string, b: string): boolean => {
+  if (a === b) return true;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  return short.length >= 4 && long.startsWith(short);
+};
+
+/**
  * The concrete mechanism families a theme commits to (empty ⇒ the theme leaves the method open and
- * the de-anchoring "explore many families" guidance applies freely). Reads the theme text first
- * (the strongest signal — `deriveHardLogicDirectives` only yields abstract axis families like
- * "schedule contradiction"), supplemented by any explicit mechanism-family hints.
+ * the de-anchoring "explore many families" guidance applies freely). Primary signal is the 8-family
+ * keyword map (theme text + explicit hints — the strongest signal; `deriveHardLogicDirectives` only
+ * yields abstract axis families). A_53 P1: when the keyword map yields nothing but the theme prose
+ * AND the structured mechanism-family hints independently name the SAME distinctive noun (e.g. a
+ * botanical "grafting" method outside the menu), those shared nouns become synthetic families so the
+ * theme-lock still engages — degrading gracefully WITHOUT firing on open themes (whose prose shares
+ * no method noun with the hints) or on abstract axis labels (stop-worded above).
  */
 export function extractThemeMechanismFamilies(theme?: string, mechanismFamilies?: string[]): string[] {
-  return familiesIn(`${theme ?? ""} ${(mechanismFamilies ?? []).join(" ")}`);
+  const hints = (mechanismFamilies ?? []).join(" ");
+  const keyworded = familiesIn(`${theme ?? ""} ${hints}`);
+  if (keyworded.length > 0) return keyworded;
+  const themeTokenList = salientMechanismTokens(theme ?? "");
+  if (themeTokenList.length === 0) return [];
+  // A_56 3-A: corroborate theme↔hint method nouns by STEM (inflection-robust) rather than exact token,
+  // and canonicalise to the shorter stem so off-menu themes phrased with an inflection still engage
+  // theme-lock. Still requires the hints to independently name the method (open themes stay open).
+  const shared: string[] = [];
+  for (const tok of salientMechanismTokens(hints)) {
+    const match = themeTokenList.find((t) => sharesMethodStem(t, tok));
+    if (!match) continue;
+    const stem = match.length <= tok.length ? match : tok;
+    if (!shared.some((s) => sharesMethodStem(s, stem))) shared.push(stem);
+  }
+  return shared.slice(0, 4);
 }
 
 /** How many of the theme's locked mechanism families a single device realizes. */
 export function scoreDeviceThemeMatch(device: HardLogicDeviceIdea, themeFamilies: string[]): number {
   if (themeFamilies.length === 0) return 0;
-  const deviceFamilies = new Set(
-    familiesIn(
-      [
-        device.title,
-        device.corePrinciple,
-        device.surfaceIllusion,
-        device.underlyingReality,
-        ...(device.mechanismFamilyHints ?? []),
-      ].join(" "),
-    ),
-  );
-  return themeFamilies.reduce((n, family) => n + (deviceFamilies.has(family) ? 1 : 0), 0);
+  const deviceText = [
+    device.title,
+    device.corePrinciple,
+    device.surfaceIllusion,
+    device.underlyingReality,
+    ...(device.mechanismFamilyHints ?? []),
+  ].join(" ");
+  const deviceTextLower = deviceText.toLowerCase();
+  const deviceFamilies = new Set(familiesIn(deviceText));
+  return themeFamilies.reduce((n, family) => {
+    const realized = Object.prototype.hasOwnProperty.call(MECHANISM_FAMILY_KEYWORDS, family)
+      ? deviceFamilies.has(family)
+      : syntheticFamilyRealized(family, deviceTextLower);
+    return n + (realized ? 1 : 0);
+  }, 0);
 }
 
 /**
@@ -123,11 +197,22 @@ export function selectThemeCoherentPrimary(
   }
   let bestIdx = 0;
   let bestScore = scoreDeviceThemeMatch(devices[0], themeFamilies);
+  let bestQuality = deviceQualitySignal(devices[0]);
   for (let i = 1; i < devices.length; i += 1) {
     const score = scoreDeviceThemeMatch(devices[i], themeFamilies);
+    // A_53 P11 (selection-tie-break-ignores-plausibility): on an equal theme-score, prefer the
+    // higher quality signal (clue richness / lockedFacts / valid principleType) instead of locking
+    // onto whichever device happened to come first in the model's array.
     if (score > bestScore) {
       bestScore = score;
+      bestQuality = deviceQualitySignal(devices[i]);
       bestIdx = i;
+    } else if (score === bestScore) {
+      const quality = deviceQualitySignal(devices[i]);
+      if (quality > bestQuality) {
+        bestQuality = quality;
+        bestIdx = i;
+      }
     }
   }
   if (bestScore <= 0) {
@@ -150,6 +235,21 @@ const principleTypeValues = new Set([
   "cognitive_bias",
   "social_logic",
 ]);
+
+/**
+ * A_53 P11 (selection-tie-break-ignores-plausibility): a holistic, data-driven quality signal for a
+ * device, used ONLY to break ties between devices with equal theme-score (never to override theme
+ * coherence). Derived entirely from the device's own artifact fields — no story-specific content:
+ * clue richness (fair-play clues are what make a device solvable/plausible), the count of locked
+ * facts (concrete pinned ground truth), and whether it carries a valid principleType. Higher is
+ * better; a richer, better-grounded on-theme device should lead over a thin one at the same score.
+ */
+const deviceQualitySignal = (device: HardLogicDeviceIdea): number => {
+  const clueRichness = (device.fairPlayClues ?? []).filter((c) => c && c.trim().length > 0).length;
+  const lockedFactCount = (device.lockedFacts ?? []).length;
+  const validPrinciple = principleTypeValues.has(device.principleType) ? 1 : 0;
+  return clueRichness + lockedFactCount + validPrinciple;
+};
 
 const asString = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
@@ -182,8 +282,11 @@ const normalizeDevice = (value: unknown, index: number): HardLogicDeviceIdea => 
     modeTags: asStringArray(record.modeTags),
     moralAmbiguity: typeof record.moralAmbiguity === 'string' && record.moralAmbiguity.trim() ? record.moralAmbiguity.trim() : undefined,
     lockedFacts: Array.isArray(record.lockedFacts)
-      ? (record.lockedFacts as any[]).map((f: any) => ({
-          id: asString(f?.id, `fact_${index}`),
+      ? (record.lockedFacts as any[]).map((f: any, fIdx: number) => ({
+          // A_53 P11 (normalizedevice-lockedfact-id-collision): include the fact's own index so two
+          // id-less facts in the same device don't both collapse to `fact_${index}` (id-keyed consumers
+          // would merge them). Device index keeps ids unique across devices; fIdx within the device.
+          id: asString(f?.id, `fact_${index}_${fIdx}`),
           value: asString(f?.value, ''),
           description: asString(f?.description, ''),
           ...(Array.isArray(f?.appearsInChapters) ? { appearsInChapters: (f.appearsInChapters as any[]).map(String) } : {}),

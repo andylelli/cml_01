@@ -148,12 +148,17 @@ const generateCastVariation = (runId: string, count: number): {
     'Cornish or Devon coastal (Trevithick, Carne, Pengelly, Rosevear style)',
     'Edwardian theatrical/artistic circle (Sable, Lancing, Beauchamp, Glaive style)',
   ];
+  // A_53 P11 (variation-seed-int-min-negative-index): mask to unsigned (>>> 0) before
+  // shifting/mod. `simpleHash` returns Math.abs(hash), but Math.abs(INT_MIN) overflows int32
+  // and signed `>>` re-signs it, so `% n` could yield a NEGATIVE array/seed index. Unsigned
+  // shifts (>>>) and an unsigned base keep every derived index non-negative for ANY runId.
+  const uHash = hash >>> 0;
   return {
-    relationshipStyle: (hash % 4) + 1,
-    motivePattern: ((hash >> 4) % 3) + 1,
-    dynamicType: ((hash >> 8) % 3) + 1,
-    namingPool: namingPools[(hash >> 12) % namingPools.length],
-    nameInitials: deriveNameInitials(hash, count),
+    relationshipStyle: (uHash % 4) + 1,
+    motivePattern: ((uHash >>> 4) % 3) + 1,
+    dynamicType: ((uHash >>> 8) % 3) + 1,
+    namingPool: namingPools[(uHash >>> 12) % namingPools.length],
+    nameInitials: deriveNameInitials(uHash, count),
   };
 };
 
@@ -261,7 +266,7 @@ Character schema (all fields required):
 - motiveSeed, motiveStrength (weak|moderate|strong|compelling)
 - alibiWindow, accessPlausibility (impossible|unlikely|possible|easy)
 - stakes, characterArcPotential
-- gender (male|female)
+- gender (male|female|non-binary)
 
 Relationship schema:
 - pairs[] with character1, character2, relationship, tension (none|low|moderate|high), sharedHistory
@@ -423,7 +428,7 @@ ROLE MODEL: tag every character with a single \`role\` — exactly ONE "detectiv
 8. Avoid stereotypes and clichés
 9. Ensure each character has both public facade and private secrets
 10. Resolve any potential stereotypes; output stereotypeCheck as []
-11. Declare \`gender\` for each character: "male" or "female" only — no other values are permitted (required — never omit)
+11. Declare \`gender\` for each character: "male", "female", or "non-binary" — no other values are permitted (required — never omit). Where a GENDER ASSIGNMENT above locks a character's gender, that value is non-negotiable and overrides this choice.
 12. Archetype diversity requirement: provide at least ${minUniqueArchetypes} distinct roleArchetype values across the cast of ${count}
 13. Do not repeat the same roleArchetype across multiple non-detective suspects unless absolutely unavoidable
 14. VICTIM (first-class role): exactly ONE character has role "victim". Give them roleArchetype "victim", a full publicPersona and privateSecret so their death carries weight, and name them in crimeDynamics.victimCandidates. The victim is DEAD from the murder onward — they appear only via discovery, recollection, or evidence, never as an active living character. The victim MUST NOT appear in crimeDynamics.possibleCulprits and MUST NOT be the detective.
@@ -737,6 +742,54 @@ export async function designCast(
           );
           continue;
         }
+        // A_53 P11 (culprit-count-not-enforced-final): on the FINAL attempt the minimum was
+        // previously retried but never enforced, so an under-filled suspect pool could ship.
+        // Deterministically top up from the cast's OWN names — never the detective, never the
+        // victim (both are barred from possibleCulprits). Holistic: derived entirely from the
+        // artifact's role tags / candidate lists, no injected content.
+        const detectiveNames = new Set(
+          [
+            ...cast.characters.filter((c: any) => c?.role === "detective").map((c: any) => c?.name),
+            ...(Array.isArray(cast.crimeDynamics?.detectiveCandidates) ? cast.crimeDynamics.detectiveCandidates : []),
+          ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
+        );
+        const victimNames = new Set(
+          [
+            ...cast.characters.filter((c: any) => c?.role === "victim").map((c: any) => c?.name),
+            ...(Array.isArray(cast.crimeDynamics?.victimCandidates) ? cast.crimeDynamics.victimCandidates : []),
+          ].filter((n: unknown): n is string => typeof n === "string" && n.trim().length > 0),
+        );
+        const existing = new Set(possibleCulprits.map((n: string) => n));
+        // Prefer explicit suspects, then any other non-detective/non-victim character.
+        const eligible = cast.characters
+          .map((c: any) => (typeof c?.name === "string" ? c.name : ""))
+          .filter((name: string) => name.trim().length > 0)
+          .filter((name: string) => !detectiveNames.has(name) && !victimNames.has(name) && !existing.has(name));
+        const suspectsFirst = [
+          ...cast.characters
+            .filter((c: any) => c?.role === "suspect" && typeof c?.name === "string" && eligible.includes(c.name))
+            .map((c: any) => c.name),
+          ...eligible,
+        ];
+        const toppedUp = [...possibleCulprits];
+        for (const name of suspectsFirst) {
+          if (toppedUp.length >= requiredCulprits) break;
+          if (!toppedUp.includes(name)) toppedUp.push(name);
+        }
+        console.warn(
+          `Attempt ${attempt}: Final attempt — only ${possibleCulprits.length} possibleCulprits, need ${requiredCulprits}. ` +
+            `Topped up to ${toppedUp.length} from the cast's own non-detective/non-victim names.`,
+        );
+        if (cast.crimeDynamics) {
+          cast.crimeDynamics.possibleCulprits = toppedUp;
+        } else {
+          cast.crimeDynamics = {
+            possibleCulprits: toppedUp,
+            redHerrings: [],
+            victimCandidates: [],
+            detectiveCandidates: [],
+          };
+        }
       }
 
       // Validate role-archetype diversity: require >=70% unique labels.
@@ -786,8 +839,12 @@ export async function designCast(
             cast.characters.map((char: any) => normalizeArchetypeKey(char.roleArchetype)).filter(Boolean),
           );
           if (uniqueAfterFallback.size < requiredUniqueArchetypes) {
-            throw new Error(
-              `Cast role diversity guardrail failed after fallback (${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique archetypes).`,
+            // A_53 P2 (repair-not-abort): a low-diversity cast is a warn-level quality miss, not a
+            // run-killer. Mirror the constrained path — accept the best-effort deterministic
+            // diversification rather than throwing away the whole run on the final attempt.
+            console.warn(
+              `Attempt ${attempt}: Final attempt — ${uniqueAfterFallback.size}/${requiredUniqueArchetypes} unique ` +
+                `archetypes after deterministic diversification. Accepting best-effort cast (no abort).`,
             );
           }
         }

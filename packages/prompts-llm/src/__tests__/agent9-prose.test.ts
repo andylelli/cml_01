@@ -1229,6 +1229,28 @@ const baseInputs: any = {
 };
 
 describe("Agent 9 prompt hardening fixes", () => {
+  // A_52 item 4: the mechanism-reveal gate must reach the prose prompt on a normal run — it was
+  // previously trapped behind AGENT7_SCHEDULER_AUTHORITATIVE (off by default), so the LLM was never
+  // told to withhold the HOW and the honest rubric capped plot_structure/pacing for the early leak.
+  it("emits a withhold instruction for a pre-test scene stamped mechanismRevealAllowed=false (no scheduler authority)", () => {
+    const withheldScene = { ...baseScene, mechanismRevealAllowed: false };
+    const prompt = buildProsePrompt(baseInputs, [withheldScene], 1, []);
+    expect(prompt.developer).toContain("MECHANISM REVEAL GATE (withhold)");
+    expect(prompt.developer).not.toContain("MECHANISM REVEAL GATE (reveal here)");
+  });
+
+  it("emits a reveal instruction when a chapter spans the discriminating test (withhold + reveal scenes)", () => {
+    const withheld = { ...baseScene, sceneNumber: 1, mechanismRevealAllowed: false };
+    const reveal = { ...baseScene, sceneNumber: 2, mechanismRevealAllowed: true };
+    const prompt = buildProsePrompt(baseInputs, [withheld, reveal], 1, []);
+    expect(prompt.developer).toContain("MECHANISM REVEAL GATE (reveal here)");
+  });
+
+  it("emits no mechanism-gate instruction when scenes carry no gate flag (gate not stamped)", () => {
+    const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
+    expect(prompt.developer).not.toContain("MECHANISM REVEAL GATE");
+  });
+
   it("injects full prior chapter text as Story To Date context", () => {
     const priorChapters = [
       {

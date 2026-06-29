@@ -45,11 +45,6 @@ export interface ClueExtractionInputs {
   lockedFacts?: Array<{ id: string; value: string; description: string }>;
 }
 
-// Keep a per-run extraction attempt counter so retries are labeled consistently
-// in generated request/response artifacts (first attempt has no retry suffix).
-const clueAttemptCounterByRun = new Map<string, number>();
-const MAX_TRACKED_CLUE_RUN_KEYS = 1000;
-
 const STEP_SOURCE_RE = /^CASE\.inference_path\.steps\[(\d+)\]\./i;
 const CORRECTION_SOURCE_RE = /CASE\.inference_path\.steps\[\d+\]\.correction/i;
 const CONTRADICTION_SOURCE_RE = /CASE\.constraint_space\.time\.contradictions\[\d+\]/i;
@@ -83,24 +78,17 @@ const inferEvidenceType = (clue: any): "observation" | "contradiction" | "elimin
   return "observation";
 };
 
+// A_53 P11 (a5-getclueattemptnumber-fifo-eviction): the attempt number is the caller-supplied
+// retryAttempt (1-based). The previous per-run fallback Map evicted its oldest-inserted key when
+// full — which could be a still-active long-lived run — resetting that run's counter to 1 and
+// mislabeling its retry artifact filenames. The fallback was dead on the primary path (every
+// caller passes retryAttempt) and held unbounded process state, so it is removed: absent an
+// explicit retryAttempt, this is the first attempt (no retry suffix).
 function getClueAttemptNumber(inputs: ClueExtractionInputs): number {
   if (typeof inputs.retryAttempt === "number" && Number.isFinite(inputs.retryAttempt) && inputs.retryAttempt >= 1) {
     return Math.floor(inputs.retryAttempt);
   }
-
-  const runKey = `${inputs.runId || "unknown-run"}::${inputs.projectId || "unknown-project"}`;
-
-  // Keep bounded process memory for long-lived worker processes.
-  if (!clueAttemptCounterByRun.has(runKey) && clueAttemptCounterByRun.size >= MAX_TRACKED_CLUE_RUN_KEYS) {
-    const oldestKey = clueAttemptCounterByRun.keys().next().value;
-    if (oldestKey) {
-      clueAttemptCounterByRun.delete(oldestKey);
-    }
-  }
-
-  const next = (clueAttemptCounterByRun.get(runKey) || 0) + 1;
-  clueAttemptCounterByRun.set(runKey, next);
-  return next;
+  return 1;
 }
 
 export interface Clue {

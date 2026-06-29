@@ -14,7 +14,7 @@ import {
   buildCMLPrompt,
   reviseCml,
 } from "@cml/prompts-llm";
-import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap } from "@cml/prompts-llm";
+import type { FairPlayAuditResult, StructuralAuditResult, StructuralGap, BlindReaderResult } from "@cml/prompts-llm";
 import type { CaseData } from "@cml/cml";
 import { getGenerationParams, validateGenreStructure, type PhaseScore, type TestResult } from "@cml/story-validation";
 import {
@@ -39,6 +39,7 @@ import {
   auditDeathMethodDeducibility,
   evaluateRevealVerdict,
 } from "./agent6-reveal-gate.js";
+import { nameAppearsAsWord } from "./identity-match.js";
 
 // ============================================================================
 // classifyFairPlayFailure (agent-6 only)
@@ -722,14 +723,23 @@ export const runDeterministicStructuralAudit = (
   const stepsCovered: number[] = [];
   const stepsUncovered: number[] = [];
 
+  // A_53 P10 (backstop-and-parity-bridge-recompute-clue-scans): build a single Set of steps covered by
+  // an essential early|mid clue in ONE pass over the clues, instead of an O(clues) `some(...)` scan per
+  // step (O(steps×clues) every audit, run multiple times per generation).
+  const coveredStepNumbers = new Set<number>();
+  for (const c of clueList) {
+    if (
+      c.criticality === "essential" &&
+      (c.placement === "early" || c.placement === "mid")
+    ) {
+      const step = Number(c.supportsInferenceStep);
+      if (Number.isFinite(step)) coveredStepNumbers.add(step);
+    }
+  }
+
   for (let i = 0; i < inferenceSteps.length; i++) {
     const stepNumber = i + 1;
-    const hasEarlyMidEssential = clueList.some(
-      (c) =>
-        c.criticality === "essential" &&
-        (c.placement === "early" || c.placement === "mid") &&
-        Number(c.supportsInferenceStep) === stepNumber,
-    );
+    const hasEarlyMidEssential = coveredStepNumbers.has(stepNumber);
     if (hasEarlyMidEssential) {
       stepsCovered.push(stepNumber);
     } else {
@@ -759,11 +769,11 @@ export const runDeterministicStructuralAudit = (
   const eliminationMissing: string[] = [];
 
   for (const name of nonCulprits) {
-    const nameLower = name.toLowerCase();
     const hasElimination = clueList.some((c) => {
       const desc = String(c.description ?? "").toLowerCase();
       const pointsTo = String(c.pointsTo ?? "").toLowerCase();
-      const isAboutSuspect = desc.includes(nameLower) || pointsTo.includes(nameLower);
+      // A_53 P4 (Pattern D): word-boundary/surname match, not substring — "Ann" must not match "Joanna".
+      const isAboutSuspect = nameAppearsAsWord(name, desc) || nameAppearsAsWord(name, pointsTo);
       const isEliminatory =
         c.evidenceType === "elimination" ||
         pointsTo.includes("eliminat") ||
@@ -782,12 +792,22 @@ export const runDeterministicStructuralAudit = (
     }
   }
 
-  // If NO non-culprits have elimination clues at all, treat as a structural gap
-  if (nonCulprits.length > 0 && eliminationPresent.length === 0) {
-    gaps.push({
-      kind: "elimination_missing",
-      description: `No elimination clues found for any non-culprit suspect (${eliminationMissing.join(", ")})`,
-    });
+  // A_53 P5 (structural-audit-elimination-all-or-nothing): the old check only fired when ZERO
+  // non-culprits had an elimination clue — a single elimination silenced the gap for the other N.
+  // Flag when fewer than a minimum FRACTION are eliminated, and always surface the missing names.
+  // (Advisory: elimination_missing is filtered out of blockingGaps below — this only sharpens the
+  // signal the backstop/telemetry sees, never aborts.)
+  if (nonCulprits.length > 0) {
+    const MIN_ELIMINATED_FRACTION = 0.5;
+    const eliminatedFraction = eliminationPresent.length / nonCulprits.length;
+    if (eliminatedFraction < MIN_ELIMINATED_FRACTION) {
+      gaps.push({
+        kind: "elimination_missing",
+        description:
+          `Only ${eliminationPresent.length}/${nonCulprits.length} non-culprit suspect(s) have elimination clues ` +
+          `(missing: ${eliminationMissing.join(", ")})`,
+      });
+    }
   }
 
   // ── Check 4: at least one evidence clue explicitly names the culprit in pointsTo (advisory) ───
@@ -797,7 +817,8 @@ export const runDeterministicStructuralAudit = (
       const clue = clueById.get(id);
       if (!clue) return false;
       const pointsTo = String(clue.pointsTo ?? "").toLowerCase();
-      return culpritList.some((culprit) => pointsTo.includes(culprit));
+      // A_53 P4 (Pattern D): word-boundary/surname match, not substring.
+      return culpritList.some((culprit) => nameAppearsAsWord(culprit, pointsTo));
     });
     if (!anyCulpritPointing) {
       gaps.push({
@@ -988,19 +1009,31 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
   const template = clueList.find((clue) => clue?.criticality === "essential") ?? clueList[0];
   if (!template) return repairs;
 
+  // A_53 P10 (backstop-and-parity-bridge-recompute-clue-scans): index early|mid essential clues by
+  // supportsInferenceStep ONCE, then keep it in sync as backstop clues are pushed — instead of two
+  // O(clues) `clueList.some(...)` scans per step (O(steps×clues) every call, 5–8×/run on data that
+  // only grows incrementally). The index is the source of truth for per-step membership below.
+  const earlyMidEssentialByStep = new Map<number, any[]>();
+  const indexClueForStep = (clue: any): void => {
+    const isEarlyMidEssential =
+      clue?.criticality === "essential"
+      && (clue?.placement === "early" || clue?.placement === "mid");
+    if (!isEarlyMidEssential) return;
+    const step = Number(clue?.supportsInferenceStep);
+    if (!Number.isFinite(step)) return;
+    const bucket = earlyMidEssentialByStep.get(step);
+    if (bucket) bucket.push(clue);
+    else earlyMidEssentialByStep.set(step, [clue]);
+  };
+  for (const clue of clueList) indexClueForStep(clue);
+  const isContradiction = (clue: any): boolean =>
+    String(clue?.evidenceType ?? "").toLowerCase() === "contradiction";
+
   for (let i = 0; i < inferenceSteps.length; i += 1) {
     const stepNumber = i + 1;
-    let hasEarlyMidEssentialForStep = clueList.some(
-      (clue) => clue?.criticality === "essential"
-        && (clue?.placement === "early" || clue?.placement === "mid")
-        && Number(clue?.supportsInferenceStep) === stepNumber,
-    );
-    let hasEarlyMidContradictionForStep = clueList.some(
-      (clue) => clue?.criticality === "essential"
-        && (clue?.placement === "early" || clue?.placement === "mid")
-        && Number(clue?.supportsInferenceStep) === stepNumber
-        && String(clue?.evidenceType ?? "").toLowerCase() === "contradiction",
-    );
+    const stepBucket = earlyMidEssentialByStep.get(stepNumber) ?? [];
+    let hasEarlyMidEssentialForStep = stepBucket.length > 0;
+    let hasEarlyMidContradictionForStep = stepBucket.some(isContradiction);
 
     const step = inferenceSteps[i] ?? {};
     const observation = String(step?.observation ?? "").trim();
@@ -1032,7 +1065,7 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
 
     if (!hasEarlyMidEssentialForStep) {
       const evidenceType = correction ? "contradiction" : "observation";
-      clueList.push({
+      const essentialClue = {
         ...template,
         id: clueId,
         sourceInCML,
@@ -1042,7 +1075,9 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
         criticality: "essential",
         evidenceType,
         supportsInferenceStep: stepNumber,
-      });
+      };
+      clueList.push(essentialClue);
+      indexClueForStep(essentialClue); // A_53 P10: keep the per-step index in sync incrementally
 
       if (placement === "early") {
         timeline.early.push(clueId);
@@ -1072,7 +1107,7 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
       "Concrete case evidence overturns the false account.",
     );
 
-    clueList.push({
+    const contradictionClue = {
       ...template,
       id: contradictionId,
       sourceInCML: contradictionSource,
@@ -1082,7 +1117,9 @@ const ensureCriticalFairPlayBackstopClues = (cml: CaseData, clues: any): string[
       criticality: "essential",
       evidenceType: "contradiction",
       supportsInferenceStep: stepNumber,
-    });
+    };
+    clueList.push(contradictionClue);
+    indexClueForStep(contradictionClue); // A_53 P10: keep the per-step index in sync incrementally
 
     if (placement === "early") {
       timeline.early.push(contradictionId);
@@ -1308,6 +1345,24 @@ export const __testables = {
 
 export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
+
+  // A_53 P11 (genre-structure-cml-string-vs-object): normalise ctx.cml to a parsed object ONCE here so
+  // every downstream `(cml as any)?.CASE ?? cml` accessor sees a real object. If a raw string ever
+  // reaches audit time, that accessor returns the string and the case-block reads vacuously "pass".
+  // ctx.cml is typed CaseData and in practice always arrives as a serialisable object from Agent 4;
+  // this only repairs the defensive edge where a JSON string slipped in (repair-not-abort: on a
+  // non-JSON/unparseable string we leave it untouched and warn rather than throw).
+  if (typeof (ctx.cml as unknown) === "string") {
+    const raw = ctx.cml as unknown as string;
+    try {
+      ctx.cml = JSON.parse(raw) as CaseData;
+    } catch {
+      ctx.warnings.push(
+        "Agent 6: ctx.cml arrived as a non-JSON string and could not be normalised to an object; downstream case-block accessors may be unreliable.",
+      );
+    }
+  }
+
   type Agent6WarningKind = "transient-progress" | "transient-diagnostic" | "persistent-risk";
 
   const transientProgressWarnings = new Set<string>();
@@ -1342,6 +1397,26 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const fairPlayConfig = getGenerationParams().agent6_fairplay.params;
   const MAX_FAIR_PLAY_RETRY_COST = fairPlayConfig.retries.max_retry_cost_usd;
   const retryBudget = createFairPlayRetryBudgetTracker(MAX_FAIR_PLAY_RETRY_COST);
+
+  // A_53 P3 (cost double-count): every `result.cost` is the CUMULATIVE byAgent run-total, so
+  // accumulating it (`+=`) or feeding it straight to `retryBudget.consume` double-counts — the
+  // inflated value trips the $0.15 retry budget early and manufactures a spurious abort. Charge the
+  // budget the true PER-CALL delta instead: the first observation of each cost source establishes the
+  // baseline (spend already incurred before this remediation loop → 0 delta); only later increments
+  // count. agentCosts are written as the cumulative total (overwrite, not +=) per the byAgent semantics.
+  const lastCumulativeCost: Record<string, number> = {};
+  const seenCostBaseline = new Set<string>();
+  const perCallCostDelta = (costKey: string, cumulativeCost: number): number => {
+    const c = Number.isFinite(cumulativeCost) ? cumulativeCost : 0;
+    if (!seenCostBaseline.has(costKey)) {
+      seenCostBaseline.add(costKey);
+      lastCumulativeCost[costKey] = c;
+      return 0;
+    }
+    const delta = Math.max(0, c - (lastCumulativeCost[costKey] ?? 0));
+    lastCumulativeCost[costKey] = c;
+    return delta;
+  };
   const minBlindConfidence = normalizeConfidence(
     (fairPlayConfig.blind_reader as any)?.pass_criteria?.min_confidence ?? "likely",
   );
@@ -1444,10 +1519,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     if (firstFairPlayStatus === null) {
       firstFairPlayStatus = fairPlayAudit.overallStatus;
     }
-    fairPlayAuditCostDuringLoop += fairPlayAudit.cost;
+    fairPlayAuditCostDuringLoop = fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — track latest, don't sum
 
     if (fairPlayAttempt > 1) {
-      retryBudget.consume(fairPlayAudit.cost, `fair-play re-audit attempt ${fairPlayAttempt}`);
+      retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", fairPlayAudit.cost),`fair-play re-audit attempt ${fairPlayAttempt}`);
     }
 
     if (fairPlayAudit.overallStatus === "pass") break;
@@ -1473,10 +1548,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       });
 
       applyAgent5ContractsToRegeneratedClues(ctx, "fair-play retry");
-      retryBudget.consume(ctx.clues.cost, `fair-play clue regeneration attempt ${fairPlayAttempt + 1}`);
+      retryBudget.consume(perCallCostDelta("Agent5-Clues", ctx.clues.cost),`fair-play clue regeneration attempt ${fairPlayAttempt + 1}`);
 
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + ctx.clues.cost;
+        ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - retryCluesStart);
     }
@@ -1485,7 +1560,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   if (!fairPlayAudit) throw new Error("Fair play audit failed to produce a report");
 
   ctx.agentCosts["agent6_fairplay"] =
-    (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAuditCostDuringLoop;
+    fairPlayAuditCostDuringLoop; // A_53 P3: final cumulative byAgent total — overwrite, not +=
   ctx.agentDurations["agent6_fairplay"] =
     (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - fairPlayStart);
 
@@ -1579,13 +1654,58 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
   const falseAssumptionStatement = caseBlockForBlind?.false_assumption?.statement || "";
   const actualCulpritName = caseBlockForBlind?.culpability?.culprits?.[0] || "";
 
-  if (castNamesForBlind.length > 0 && falseAssumptionStatement && actualCulpritName) {
-    ctx.reportProgress("fairplay", "Running blind reader simulation...", 73);
-
-    const blindResult = await blindReaderSimulation(
+  // A_53 P9 (blind-reader-single-sample-gates, low-cost interpretation): the blind-reader gate is
+  // advisory by default (Phase 2). Do NOT add extra LLM samples by default — the cheap single-sample
+  // deterministic path is preferred. Majority-of-k (resolves the "one stochastic sample flips the
+  // verdict" defect) is an explicit, default-OFF opt-in: AGENT6_BLIND_READER_MAJORITY_K=<k>=k≥2 runs
+  // k samples for the PRIMARY gate read and returns the representative sample matching the majority
+  // pass/fail verdict, so the downstream advisory logic is unchanged. Unset/≤1 ⇒ exactly one call
+  // (byte-identical legacy behaviour). Only the primary gate read is sampled; remediation/rescue
+  // re-checks stay single-sample so the opt-in never multiplies cost across the whole loop.
+  const blindReaderSamplePasses = (sample: BlindReaderResult): boolean => {
+    const gotItRight =
+      sample.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
+      actualCulpritName.toLowerCase().includes(sample.suspectedCulprit.toLowerCase());
+    return (
+      gotItRight &&
+      (CONFIDENCE_RANK[normalizeConfidence(sample.confidenceLevel)] ?? -1) >=
+        (CONFIDENCE_RANK[minBlindConfidence] ?? CONFIDENCE_RANK.likely)
+    );
+  };
+  const parsedMajorityK = Math.trunc(Number(process.env.AGENT6_BLIND_READER_MAJORITY_K ?? ""));
+  const blindMajorityK = Number.isFinite(parsedMajorityK) && parsedMajorityK >= 2 ? parsedMajorityK : 1;
+  const runPrimaryBlindRead = async (): Promise<BlindReaderResult> => {
+    const first = await blindReaderSimulation(
       ctx.client, ctx.clues!, falseAssumptionStatement, castNamesForBlind,
       { runId: ctx.runId, projectId: ctx.projectId || "" }
     );
+    if (blindMajorityK <= 1) return first;
+    const samples = [first];
+    for (let s = 1; s < blindMajorityK; s += 1) {
+      samples.push(
+        await blindReaderSimulation(
+          ctx.client, ctx.clues!, falseAssumptionStatement, castNamesForBlind,
+          { runId: ctx.runId, projectId: ctx.projectId || "" }
+        ),
+      );
+    }
+    const passCount = samples.filter(blindReaderSamplePasses).length;
+    const majorityPass = passCount * 2 > samples.length;
+    // Return a representative sample whose own pass/fail equals the majority verdict so the inline
+    // gate (recomputed below) yields the majority outcome; fall back to the last sample if none match.
+    const representative = samples.find((sample) => blindReaderSamplePasses(sample) === majorityPass)
+      ?? samples[samples.length - 1];
+    ctx.warnings.push(
+      `Blind reader majority-of-${blindMajorityK}: ${passCount}/${samples.length} samples passed ` +
+      `(verdict ${majorityPass ? "PASS" : "FAIL"}).`,
+    );
+    return representative;
+  };
+
+  if (castNamesForBlind.length > 0 && falseAssumptionStatement && actualCulpritName) {
+    ctx.reportProgress("fairplay", "Running blind reader simulation...", 73);
+
+    const blindResult = await runPrimaryBlindRead();
 
     ctx.agentCosts["agent6_blind_reader"] = blindResult.cost;
     ctx.agentDurations["agent6_blind_reader"] = blindResult.durationMs;
@@ -1659,19 +1779,19 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         });
 
         ctx.agentCosts["agent5_clues"] =
-          (ctx.agentCosts["agent5_clues"] || 0) + ctx.clues.cost;
+          ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent5_clues"] =
           (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - blindRetryStart);
         applyAgent5ContractsToRegeneratedClues(ctx, "blind-reader remediation");
-        retryBudget.consume(ctx.clues.cost, `blind-reader clue remediation cycle ${cycle}`);
+        retryBudget.consume(perCallCostDelta("Agent5-Clues", ctx.clues.cost),`blind-reader clue remediation cycle ${cycle}`);
 
         const blindReAuditStart = Date.now();
         fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
-          (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+          fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_fairplay"] =
           (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - blindReAuditStart);
-        retryBudget.consume(fairPlayAudit.cost, `blind-reader fair-play re-audit cycle ${cycle}`);
+        retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", fairPlayAudit.cost),`blind-reader fair-play re-audit cycle ${cycle}`);
         hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
 
@@ -1683,10 +1803,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           { runId: ctx.runId, projectId: ctx.projectId || "" }
         );
         ctx.agentCosts["agent6_blind_reader"] =
-          (ctx.agentCosts["agent6_blind_reader"] || 0) + latestBlind.cost;
+          latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_blind_reader"] =
           (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
-        retryBudget.consume(latestBlind.cost, `blind-reader simulation cycle ${cycle}`);
+        retryBudget.consume(perCallCostDelta("Agent6-BlindReader", latestBlind.cost),`blind-reader simulation cycle ${cycle}`);
 
         const latestGotItRight =
           latestBlind.suspectedCulprit.toLowerCase().includes(actualCulpritName.toLowerCase()) ||
@@ -1717,7 +1837,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           { runId: ctx.runId, projectId: ctx.projectId || "" }
         );
         ctx.agentCosts["agent6_blind_reader"] =
-          (ctx.agentCosts["agent6_blind_reader"] || 0) + latestBlind.cost;
+          latestBlind.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_blind_reader"] =
           (ctx.agentDurations["agent6_blind_reader"] || 0) + latestBlind.durationMs;
 
@@ -1735,8 +1855,22 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       }
 
       if (!latestReaderPass) {
-        throw new Error(
-          `Agent 6 blind-reader gate failed: simulated suspect "${latestBlind.suspectedCulprit}" (confidence ${latestBlind.confidenceLevel}) does not meet configured pass criteria (culprit=${actualCulpritName}, minConfidence=${minBlindConfidence}).`,
+        // A_53 P2 (repair-not-abort): a single stochastic blind-reader sample (temp 0.2) is not a
+        // deterministic verdict — a fair mystery that reads "uncertain" once must not abort ~30 agents
+        // of work. Default to a non-fatal advisory; only the default-false AGENT6_BLIND_READER_BLOCKING
+        // opt-in makes it a hard gate (majority-of-k / proveSolvability is the P9 follow-up).
+        const blindReaderBlocking = ["1", "true", "on", "enabled"].includes(
+          (process.env.AGENT6_BLIND_READER_BLOCKING ?? "").trim().toLowerCase(),
+        );
+        const blindReaderMessage =
+          `Agent 6 blind-reader gate: simulated suspect "${latestBlind.suspectedCulprit}" ` +
+          `(confidence ${latestBlind.confidenceLevel}) does not meet configured pass criteria ` +
+          `(culprit=${actualCulpritName}, minConfidence=${minBlindConfidence}).`;
+        if (blindReaderBlocking) {
+          throw new Error(blindReaderMessage);
+        }
+        ctx.warnings.push(
+          `${blindReaderMessage} [non-fatal — single-sample advisory; set AGENT6_BLIND_READER_BLOCKING to enforce]`,
         );
       }
     }
@@ -1925,8 +2059,9 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       ctx.reportProgress("cml", "Revising CML to fix structural fair play issues...", 55);
       const revisionStart = Date.now();
 
-      const cmlYaml =
-        typeof ctx.cml === "string" ? (ctx.cml as string) : JSON.stringify(ctx.cml, null, 2);
+      // A_53 P11 (genre-structure-cml-string-vs-object): ctx.cml is normalised to an object at agent
+      // entry, so the prior string/object dual-handling is gone — serialise the object directly.
+      const cmlYaml = JSON.stringify(ctx.cml, null, 2);
       const revisionPrompt = buildCMLPrompt({
         decade: effectiveDecade,
         location: effectiveLocationDescription,
@@ -1972,7 +2107,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
 
       ctx.agentCosts["agent4_fairplay_revision"] = revisedResult.cost;
       ctx.agentDurations["agent4_fairplay_revision"] = Date.now() - revisionStart;
-      retryBudget.consume(revisedResult.cost, "structural CML revision");
+      retryBudget.consume(perCallCostDelta("Agent4-Revision", revisedResult.cost),"structural CML revision");
 
       const revisedSteps =
         ((revisedResult.cml as any)?.CASE ?? revisedResult.cml)?.inference_path?.steps ?? [];
@@ -1988,10 +2123,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           try {
             const provisionalAudit = await auditCurrentFairPlay(preAuditStructuralResult);
             ctx.agentCosts["agent6_fairplay"] =
-              (ctx.agentCosts["agent6_fairplay"] || 0) + provisionalAudit.cost;
+              provisionalAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
             ctx.agentDurations["agent6_fairplay"] =
               (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - feedbackAuditStart);
-            retryBudget.consume(provisionalAudit.cost, "post-CML-revision feedback re-audit");
+            retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", provisionalAudit.cost),"post-CML-revision feedback re-audit");
             revisionFeedbackAudit = provisionalAudit;
           } catch (error) {
             emitAgent6Warning(
@@ -2012,11 +2147,11 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
           projectId: ctx.projectId || "",
         });
         ctx.agentCosts["agent5_clues"] =
-          (ctx.agentCosts["agent5_clues"] || 0) + ctx.clues.cost;
+          ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent5_clues"] =
           (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - reCluesStart);
         applyAgent5ContractsToRegeneratedClues(ctx, "post-cml-revision");
-        retryBudget.consume(ctx.clues.cost, "post-CML-revision clue regeneration");
+        retryBudget.consume(perCallCostDelta("Agent5-Clues", ctx.clues.cost),"post-CML-revision clue regeneration");
 
         // Re-run backstops + structural audit on the revised CML + fresh clues
         if (ctx.cml && ctx.clues) {
@@ -2043,10 +2178,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         const reAuditStart = Date.now();
         fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
-          (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+          fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_fairplay"] =
           (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - reAuditStart);
-        retryBudget.consume(fairPlayAudit.cost, "post-CML-revision fair-play re-audit");
+        retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", fairPlayAudit.cost),"post-CML-revision fair-play re-audit");
         hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
       }
@@ -2074,19 +2209,19 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         projectId: ctx.projectId || "",
       });
       ctx.agentCosts["agent5_clues"] =
-        (ctx.agentCosts["agent5_clues"] || 0) + ctx.clues.cost;
+        ctx.clues.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
       ctx.agentDurations["agent5_clues"] =
         (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - finalClueRetryStart);
       applyAgent5ContractsToRegeneratedClues(ctx, "final-targeted-regen");
-      retryBudget.consume(ctx.clues.cost, "final targeted clue regeneration");
+      retryBudget.consume(perCallCostDelta("Agent5-Clues", ctx.clues.cost),"final targeted clue regeneration");
 
       const finalAuditStart = Date.now();
       fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
       ctx.agentCosts["agent6_fairplay"] =
-        (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+        fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
       ctx.agentDurations["agent6_fairplay"] =
         (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - finalAuditStart);
-      retryBudget.consume(fairPlayAudit.cost, "final targeted fair-play re-audit");
+      retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", fairPlayAudit.cost),"final targeted fair-play re-audit");
       hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
       await recordFairPlayScore();
     }
@@ -2120,10 +2255,10 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
         const backstopAuditStart = Date.now();
         fairPlayAudit = await auditCurrentFairPlay(preAuditStructuralResult);
         ctx.agentCosts["agent6_fairplay"] =
-          (ctx.agentCosts["agent6_fairplay"] || 0) + fairPlayAudit.cost;
+          fairPlayAudit.cost; // A_53 P3: cumulative byAgent total — overwrite, not +=
         ctx.agentDurations["agent6_fairplay"] =
           (ctx.agentDurations["agent6_fairplay"] || 0) + (Date.now() - backstopAuditStart);
-        retryBudget.consume(fairPlayAudit.cost, "deterministic fair-play backstop re-audit");
+        retryBudget.consume(perCallCostDelta("Agent6-FairPlayAuditor", fairPlayAudit.cost),"deterministic fair-play backstop re-audit");
         hasCriticalFairPlayFailure = hasCriticalFairPlayViolations(fairPlayAudit, criticalFairPlayRules);
         await recordFairPlayScore();
       }
@@ -2234,10 +2369,12 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
       emitAgent6Warning(`[agent6-reveal-gate][${revealGateMode}] ${issue}`, "persistent-risk");
     }
     if (revealGateMode === "enforce" && revealIssues.length > 0) {
-      // Hard gate, but never a new throw: flip the audit to needs-revision so the existing binding
-      // gate (below) blocks only when enableBindingGates is on and forceWarnings is off.
+      // A_53 P5 (reveal-gate-enforce-only-downgrades-pass-not-fail): in ENFORCE mode a real reveal
+      // break must block regardless of prior status OR enableBindingGates — otherwise "enforce" was
+      // only a warning whenever binding gates were off. Flip pass→needs-revision AND set a dedicated
+      // blocking flag (enforce is an explicit opt-in; default-off/shadow stay advisory; still no throw).
       if (fairPlayAudit!.overallStatus === "pass") fairPlayAudit!.overallStatus = "needs-revision";
-      ctx.fairPlayAudit = fairPlayAudit!;
+      ctx.fairPlayAudit = { ...fairPlayAudit!, blocking: true };
     }
   }
 

@@ -93,6 +93,11 @@ export function extractStoryFacts(cml: unknown, prose: string): StoryFacts {
     asString(caseAny.victim?.name) ||
     asString(caseAny.meta?.victim) ||
     asString(caseAny.meta?.victim?.name) ||
+    // A_56 1-C: a victim promoted via `culpability.victim` (no `role:victim` cast tag) must still resolve,
+    // so `victimUnnamed` fires consistently with the prose-side stageContractCheck (prompt-builder
+    // resolveVictimName already checks this path). Only flags when the resolved name is absent from prose.
+    asString(caseAny.culpability?.victim) ||
+    asString(caseAny.culpability?.victim?.name) ||
     undefined;
 
   const facts: StoryFacts = {};
