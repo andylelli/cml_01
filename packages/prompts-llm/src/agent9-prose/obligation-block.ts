@@ -605,6 +605,9 @@ export function buildChapterObligationBlock(
       lines.push(`  - ⚠ EVIDENCE CHAIN REQUIRED: before or during the confession the detective must summarise the evidence chain — stating at minimum: (a) the mechanism of death, (b) how the culprit accessed the victim, (c) the motive, and (d) why all other suspects are excluded.`);
       lines.push(`  - ⚠ KILL STATEMENT REQUIRED: the culprit must use or strongly imply a specific act verb — "I killed", "I poisoned", "I struck", "I administered" — within 3 sentences of naming the victim. Passive constructions ("the death occurred", "she was found") are NOT sufficient. The culprit's agency must be explicit.`);
       lines.push(`  - ⚠ PRONOUN RESOLUTION: any pronoun in the confession that refers to a third party ("protect him", "because of her") must be resolved by naming the character in the same sentence.`);
+      // A_58 #1: the reveal repeatedly failed "no resolution event" + "close in-scene". Make both explicit.
+      lines.push(`  - ⚠ RESOLUTION EVENT REQUIRED: this chapter must contain a concrete resolution beat — the culprit CONFESSES, is ARRESTED/taken into custody, or the detective explicitly names them as the murderer with the evidence. A reflective summary is NOT a resolution event.`);
+      lines.push(`  - ⚠ CLOSE IN-SCENE (final paragraph): end the chapter INSIDE the scene — on a line of dialogue, a physical action, or a sensation. Do NOT end on a narrator's summary verdict ("the case was closed", "justice had been served", "X was responsible"). The last sentence should be something a character does, says, or feels in the moment.`);
     }
     // §3.3b: Sensory obligation injection
     const selectedVariant = sensoryVariantsByChapter?.[chapterNumber];

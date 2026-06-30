@@ -872,9 +872,15 @@ export const RESOLUTION_RE = /\b(confess(?:ed|es)?|arrest(?:ed)?|taken\s+into\s+
  * and the post-generation injection (agent9-run.ts).  Centralised here so the two sites
  * cannot drift — fixes issue #2.4.
  */
+// A_58 #1: the injected backstop is the FINAL paragraph of the resolution chapter, so it must (a) match
+// RESOLUTION_RE (confess/arrest/"I did") to clear "no resolution event", and (b) close IN-SCENE — never a
+// summary verdict ("the case was closed" / "justice had been served"), which trips the resolution
+// close-in-scene lint (VERDICT_CLOSER_RE). It is rendered as a dramatized confession + arrest beat ending
+// on a sensation, so when the backstop must fire it is no longer a tell-not-show verdict (A_57 D4).
 export const buildResolutionBackstopSentence = (culpritSurname: string): string =>
-  `${culpritSurname} confessed at last, the evidence having made denial impossible. ` +
-  `They were taken into custody before long. The case was closed.`;
+  `"It was me." The words left ${culpritSurname} at last, barely above a whisper. ` +
+  `"I confess — I did it." A constable stepped forward, a hand closing gently over ${culpritSurname}'s arm, ` +
+  `and the room let out the breath it had been holding.`;
 
 export interface StageContractCheck {
   mode: StageModeKey;

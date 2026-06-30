@@ -422,20 +422,24 @@ export const detectVictimAlive = (chapter: { paragraphs?: string[] }, victimName
     /\b(?:before|prior to|earlier|once|formerly|in life|while alive|when alive|had\s+\w+|used to|remembered|recalled|reported|testified|wrote|letter|diary|journal|statement|said that|claimed that)\b/i;
   const deadBodyContext =
     /\b(?:body|corpse|dead|death|murdered|killed|lifeless|remains|coffin|mortuary|wound|blood|autopsy|post-mortem)\b/i;
-  const offendingParagraphs: string[] = [];
+  // A_58 #4: return the matching SENTENCE, not the whole paragraph. The hit requires the full victim
+  // name, so the offending sentence names the victim — surfacing the paragraph start (which can be a
+  // DIFFERENT character) produced a misleading "VICTIM ALIVE: <non-victim>…" diagnostic in the run log.
+  const offendingSentences: string[] = [];
   for (const para of chapter.paragraphs) {
     const sentences = para.match(/[^.!?]+[.!?]*/g) ?? [para];
-    const hit = sentences.some((sentence) =>
-      (victimSubjectPattern.test(sentence) ||
-        victimAttributionPattern.test(sentence) ||
-        victimBodyActionPattern.test(sentence) ||
-        victimActivePresencePattern.test(sentence)) &&
-      !historicalOrReportedContext.test(sentence) &&
-      !deadBodyContext.test(sentence)
-    );
-    if (hit) offendingParagraphs.push(para);
+    for (const sentence of sentences) {
+      const hit =
+        (victimSubjectPattern.test(sentence) ||
+          victimAttributionPattern.test(sentence) ||
+          victimBodyActionPattern.test(sentence) ||
+          victimActivePresencePattern.test(sentence)) &&
+        !historicalOrReportedContext.test(sentence) &&
+        !deadBodyContext.test(sentence);
+      if (hit) offendingSentences.push(sentence.trim());
+    }
   }
-  return offendingParagraphs;
+  return offendingSentences;
 };
 
 /**
@@ -2464,7 +2468,9 @@ export async function generateProse(
           proseBatch = parseProseResponse(extracted.prose);
         } catch (parseError: unknown) {
           const rawLength = response.content.length;
-          const rawTail = response.content.slice(-300);
+          // A_58 #11: trim trailing whitespace for the DISPLAY so a model that pads its response with
+          // dozens of blank lines doesn't bury the meaningful tail (the stored response is untouched).
+          const rawTail = response.content.trimEnd().slice(-300);
           const appearsTruncated = !response.content.trimEnd().endsWith('}');
           console.error(
             `[Agent 9] PARSE FAILURE ch${batchLabel} attempt ${attempt}/${maxBatchAttempts}:\n` +
@@ -3429,7 +3435,8 @@ export async function generateProse(
             countWords((ch.paragraphs ?? []).join(' '))
           );
           const totalExtractedWords = extractedChapterWordCounts.reduce((a, b) => a + b, 0);
-          const rawTail = response.content.slice(-300);
+          // A_58 #11: trim trailing whitespace for the DISPLAY (model padding shouldn't bury the tail).
+          const rawTail = response.content.trimEnd().slice(-300);
           const appearsTruncated = !response.content.trimEnd().endsWith('}');
           console.warn(
             `[Agent 9] DIAGNOSTICS ch${batchLabel} attempt ${attempt}/${maxBatchAttempts}:\n` +
@@ -3715,14 +3722,20 @@ export async function generateProse(
           // should now be rare; when it fires it is a true outline omission.
           const dtCluesPresent = evidenceClues.filter(id => batchClueIds.includes(id));
           const freshDTClues = dtCluesPresent.filter(id => !priorRevealed.has(id));
-          if (dtCluesPresent.length === 0) {
+          // A_58 #3: the DT-scene matcher's fallback regex (/discriminating|test|prove|disprove/) can
+          // ALSO match a later resolution chapter, which re-triggers this gap spuriously even though the
+          // real DT scene already cited its evidence earlier (observed: gap fired on ch10 while ch9 had
+          // shown clue_mechanism_visibility_core). If any DT evidence clue was ALREADY revealed in a prior
+          // scene, the test was satisfied upstream — this match is a duplicate, not a true outline gap.
+          const dtEvidenceShownEarlier = evidenceClues.some(id => priorRevealed.has(id));
+          if (dtCluesPresent.length === 0 && !dtEvidenceShownEarlier) {
             const needed = evidenceClues.slice(0, 3).join(', ');
             console.warn(
               `[Agent 9] G4 DT-scene scheduling gap ch${batchLabel}: discriminating-test scene ` +
               `references none of its DT evidence clues in the outline (needed one of: ${needed}). ` +
               `This is an outline-level gap that prose generation cannot repair.`
             );
-          } else if (freshDTClues.length === 0) {
+          } else if (dtCluesPresent.length > 0 && freshDTClues.length === 0) {
             console.info(
               `[Agent 9] DT-scene ch${batchLabel}: test re-applies already-planted evidence ` +
               `(${dtCluesPresent.join(', ')}) rather than producing fresh evidence — acceptable fair play.`

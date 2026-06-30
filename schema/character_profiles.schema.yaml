@@ -59,6 +59,14 @@ profiles:
       speechMannerisms:
         type: string
         required: false
+      signatureTic:
+        type: string
+        required: false
+        description: >
+          ONE short, quotable verbal tic unique to this character — a recurring phrase or habit Agent 9
+          can put in their mouth (the most load-bearing voice marker; A_57 D6). Requested by the Agent 2b
+          prompt and consumed by the voice-capsule builder; declared here so it is not flagged as an
+          unexpected field.
       physicalMannerisms:
         type: string
         required: false

@@ -28,6 +28,14 @@ import { adaptLocationsForScoring } from "../scoring-adapters/index.js";
 
 const CONJUGATED_VERB_RE = /\b(is|are|was|were|has|have|had|set|ran|stood|made|gave|filled|hung|crackled|ticked|gleamed|drifted|carried|rose|fell|swept|lay|sat|pooled|cast|played|echoed)\b/i;
 
+// A_58 #6: a sensory entry is full-SENTENCE bleed only when it carries a finite verb AND is long enough
+// to be a clause rather than a noun phrase. The length guard kills homograph false positives — several
+// verbs above double as common sensory NOUNS/adjectives ("rose" the flower vs past-tense of rise, "cast",
+// "lay", "set"), so a short noun phrase like "rain-speckled rose petals" must not be flagged as bleed.
+// (Threshold mirrors the existing normalizeSensoryPhrase guard.)
+export const isFullSentenceBleed = (entry: string): boolean =>
+  CONJUGATED_VERB_RE.test(entry) && String(entry ?? "").trim().split(/\s+/).length > 4;
+
 const DEFAULT_SENSORY_FALLBACKS: Record<"sights" | "sounds" | "smells" | "tactile", string[]> = {
   sights: ["dim gaslight pooling on polished wood", "narrow shadows along the corridor"] ,
   sounds: ["muffled footsteps in the passage", "the faint tick of a mantel clock"],
@@ -42,7 +50,7 @@ const normalizeSensoryPhrase = (value: unknown): string => {
     .replace(/[.!?]+$/g, "")
     .trim();
   if (normalized.length === 0) return "";
-  if (CONJUGATED_VERB_RE.test(normalized) && normalized.split(/\s+/).length > 4) {
+  if (isFullSentenceBleed(normalized)) {
     return "";
   }
   return normalized;
@@ -185,16 +193,16 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     const details = (loc as any).sensoryDetails ?? {};
     for (const field of ['sights', 'sounds', 'smells', 'tactile'] as const) {
       for (const entry of (details[field] ?? []) as string[]) {
-        if (CONJUGATED_VERB_RE.test(entry)) {
-          sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryDetails.${field}: "${entry}" (contains verb — should be noun phrase)`);
+        if (isFullSentenceBleed(entry)) {
+          sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryDetails.${field}: "${entry}" (full-sentence bleed — should be noun phrase)`);
         }
       }
     }
     for (const variant of (loc as any).sensoryVariants ?? []) {
       for (const field of ['sights', 'sounds', 'smells'] as const) {
         for (const entry of (variant[field] ?? []) as string[]) {
-          if (CONJUGATED_VERB_RE.test(entry)) {
-            sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryVariants[${variant.id ?? '?'}].${field}: "${entry}" (contains verb)`);
+          if (isFullSentenceBleed(entry)) {
+            sensoryBleedWarnings.push(`  - [${loc.id ?? 'unknown'}].sensoryVariants[${variant.id ?? '?'}].${field}: "${entry}" (full-sentence bleed)`);
           }
         }
       }

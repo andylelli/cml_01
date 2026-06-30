@@ -13,14 +13,44 @@ import type { Fingerprint } from "./types.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = (): string => path.resolve(HERE, "..");
 const dataFile = (name: string): string => path.join(packageRoot(), "data", name);
-const schemaPath = (): string => path.resolve(packageRoot(), "..", "..", "schema", "novelty_fingerprint.schema.yaml");
+
+/** Walk up from `start` looking for `relative`, so the shared repo-root schema resolves whether the
+ * package is loaded from its real path (packages/novelty) OR via a node_modules symlink — in which case
+ * `packageRoot()/../..` lands in node_modules, not the repo root (the A_56 8-A worker ENOENT). */
+const findUp = (relative: string, start: string): string | undefined => {
+  let dir = start;
+  for (let i = 0; i < 10; i++) {
+    const candidate = path.join(dir, relative);
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return undefined;
+};
+
+const SCHEMA_REL = path.join("schema", "novelty_fingerprint.schema.yaml");
+const schemaPath = (): string | undefined => {
+  const direct = path.resolve(packageRoot(), "..", "..", SCHEMA_REL);
+  if (fs.existsSync(direct)) return direct;
+  return findUp(SCHEMA_REL, packageRoot());
+};
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 let validator: ValidateFunction | undefined;
 
 const getValidator = (): ValidateFunction => {
   if (validator) return validator;
-  const schema = yaml.load(fs.readFileSync(schemaPath(), "utf8")) as Record<string, unknown>;
+  const file = schemaPath();
+  if (!file) {
+    // Schema unreachable (e.g. an unexpected symlink layout). Degrade gracefully: load fingerprints
+    // unvalidated rather than throwing, so the (shadow) novelty judge still works. Logged once.
+    // eslint-disable-next-line no-console
+    console.warn("[novelty] fingerprint schema not found; loading corpus without ajv validation.");
+    validator = (() => true) as unknown as ValidateFunction;
+    return validator;
+  }
+  const schema = yaml.load(fs.readFileSync(file, "utf8")) as Record<string, unknown>;
   validator = ajv.compile(schema);
   return validator;
 };
