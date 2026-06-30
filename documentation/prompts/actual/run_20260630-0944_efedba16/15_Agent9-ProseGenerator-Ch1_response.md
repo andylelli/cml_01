@@ -1,0 +1,674 @@
+# Actual Prompt Response Record
+
+- Run ID: `run_efedba16-9baf-44a2-9d3a-254029d53cd9`
+- Project ID: `proj_aa8a2295-c4b0-4827-a98f-2565d70fe160`
+- Request Timestamp: `2026-06-30T09:54:42.607Z`
+- Response Timestamp: `2026-06-30T09:55:19.542Z`
+- Agent: `Agent9-ProseGenerator-Ch1`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `266ac7dad4f5f422`
+- Response Hash: `c41b2e5169ab8d45`
+- Latency (ms): `36932`
+- Prompt Tokens: `16805`
+- Completion Tokens: `4500`
+- Total Tokens: `21305`
+- Estimated Cost: `0.011970475000000001`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 1: The Sundial’s Shadow",
+      "summary": "Evelyn Harcourt arrives at Harcourt Manor Garden near the Sundial to find Lord Charles Harcourt dead, the household reeling. The garden thermometer reads an unusually high temperature, casting immediate doubt on the sundial’s accuracy and the timeline of the crime. Suspects gather, each revealing subtle tension as Evelyn assumes the role of investigator.",
+      "paragraphs": [
+        "Evelyn Harcourt stepped onto the gravel path that wound through the Harcourt Manor Garden near the Sundial, the chill of an autumn morning clinging to her skin. A faint, earthy dampness lingered in the air, made heavier by the fog that drifted low over the clipped box hedges. The silence was broken only by the distant caw of a rook and the soft crunch of her shoes on the frost-tipped leaves. Ahead, the sundial’s brass gnomon glinted dully in the pale daylight, and beside it, sprawled with unsettling stillness, lay Lord Charles Harcourt. The body’s presence fractured the garden’s order, a jarring interruption to the estate’s routines.",
+        "A garden thermometer, its glass tube beaded with condensation, stood propped near the sundial. Evelyn’s gaze caught the red line: it hovered at a reading well above seventy-five degrees Fahrenheit, an anomaly in the otherwise crisp air. The incongruity struck her at once. The thermometer’s evidence, so out of keeping with the autumnal chill, unsettled the apparent certainty of the sundial’s shadow and the time it was meant to mark. Evelyn’s mind, trained to distrust the obvious, catalogued the detail with care. The temperature here, she noted, was not merely a background fact—it was a contradiction waiting to be explained.",
+        "She knelt, careful not to disturb the fallen leaves or the stillness that seemed to press in from every side. Lord Charles Harcourt’s features, once known for their stern composure, were now slack, the pallor of his skin accentuated by the grey morning light. His right hand rested limply on the sundial’s stone base, as if in a final gesture of authority. Evelyn’s breath clouded in the cold, but a bead of sweat clung to the dead man’s temple—a detail that did not belong. She let her gloved fingers hover above his wrist, confirming what everyone already feared: Lord Charles Harcourt was beyond help.",
+        "A hush fell as James Harcourt approached, his footsteps loud in the hush of the garden. As the heir and amateur historian, James was the first of the household to break the paralysis of shock. He halted beside Evelyn, his jaw set, hands shoved deep into the pockets of his tweed jacket. For a moment, he stared not at his father but at the sundial, as if searching its face for an answer that would not come. When he finally spoke, his voice was rough. “You’ll want to know what happened here, Miss Harcourt. I thought it best to send for you at once.” His gaze flickered to the thermometer, then away. The gesture was small, but Evelyn caught it—a nervousness, perhaps, or a reluctance to meet the evidence head-on.",
+        "Behind James, Beatrice Langley lingered at the edge of the gravel, her gloved hands folded tightly around the handle of a beaded handbag. Beatrice, the socialite whose presence at Harcourt Manor was as carefully curated as her silk blouse and cloche hat, offered a brittle smile when Evelyn met her eyes. “I must say, the morning has taken a turn for the dramatic,” she murmured, her tone measured and a touch too bright. Her gaze darted from the body to the sundial, then to the thermometer, as if weighing which detail might prove most damning. Evelyn noted the defensive set of her shoulders, the way Beatrice’s fingers whitened around her bag. There was calculation beneath the charm, and a flicker of fear.",
+        "Agnes Wilkes, the housekeeper, stood a little apart, her grey hair pulled back in a severe knot, her uniform immaculate despite the hour. Years of service had schooled Agnes in composure, but today her hands trembled as she gripped the handle of a garden trug. She did not look at Lord Charles Harcourt, but at the ground beside him, lips pressed together in silent mourning. When Evelyn addressed her, Agnes’s reply was steady, but her eyes betrayed a storm of feeling. “I found him just as you see, Miss Harcourt. No one should meet their end alone in the cold.” The words were simple, but Evelyn heard the weight of decades in them—a loyalty now rendered useless.",
+        "Edward Mallory’s arrival was marked by the brisk snap of his leather gloves as he removed them, his stride confident despite the tension that gripped the garden. The upstart entrepreneur, always eager to assert his place among the old guard, surveyed the scene with a practiced eye. “A tragedy, of course,” Edward said, his tone smooth. “But I trust you’ll find the facts less ambiguous than the atmosphere suggests.” He nodded toward the sundial, then the thermometer, as if daring Evelyn to challenge the evidence. Yet his fingers lingered a moment too long on the brass railing, betraying a flicker of unease. Evelyn marked the gesture, the subtle attempt to control the narrative.",
+        "The fog thickened, muffling the edges of the world and pressing the group into a circle of uneasy proximity. Evelyn rose, brushing a stray leaf from her skirt, and surveyed the gathering. Each face was a study in self-control—James’s restless energy, Beatrice’s brittle poise, Agnes’s silent grief, Edward’s polished composure. The autumn air, so often a balm, now felt laden with secrets. The garden, for all its order, had become a stage for suspicion.",
+        "Evelyn’s mind returned to the thermometer’s reading, the red line standing in silent opposition to the chill that prickled her skin. If the temperature here was truly well above seventy-five degrees Fahrenheit, what did that say about the sundial’s supposed precision? The time of death, so neatly suggested by the shadow’s position, was suddenly cast into doubt. She considered the implications: if the sundial could not be trusted, then every alibi, every recollection of the morning’s events, would have to be re-examined. Someone was counting on the estate’s routines to shield them, but the evidence had already begun to unravel that comfort.",
+        "A distant clock chimed the hour, its echo lost in the fog. Agnes shifted, her voice barely above a whisper. “He always came here before luncheon, to check the sundial. Said it kept the household honest.” There was a trace of irony in her words, a private joke now soured by tragedy. Beatrice’s lips tightened, but she said nothing. James glanced at Evelyn, impatience flickering in his eyes. “You’ll want to speak to us all, I suppose. But if you’re looking for clarity, you won’t find it in this weather.” His tone was defensive, but the challenge was half-hearted.",
+        "Evelyn allowed the silence to stretch, watching how each member of the household filled it. Edward Mallory produced a silver cigarette case, but did not light one; Beatrice adjusted the clasp on her handbag, eyes fixed on the gravel; Agnes stared at her shoes, as if the answers might be found in the pattern of mud and leaves. The garden, which had once been a place of measured tranquillity, now seemed to pulse with unspoken accusations.",
+        "The investigation had begun, not with a revelation, but with a contradiction. The sundial’s shadow, the thermometer’s improbable heat, the body of Lord Charles Harcourt—each a piece of a puzzle that refused to settle. Evelyn felt the weight of the household’s expectation pressing in, but she welcomed it. In the tension between what was seen and what was true, she would find her way.",
+        "As she turned from the sundial, Evelyn caught sight of a single chrysanthemum, its petals bruised beneath Lord Charles Harcourt’s outstretched arm. She knelt to retrieve it, the flower’s scent sharp and earthy in the cold air. It was a small thing, easily overlooked, yet it spoke to the fragility of the order that had just been shattered. The autumn garden, for all its careful design, could not conceal the violence that had entered it.",
+        "Evelyn straightened, her resolve hardening. She would begin with the facts: the thermometer’s reading, the sundial’s shadow, the testimony of those gathered. The truth, she knew, would not be found in the obvious. It would be coaxed from the silences, the contradictions, the things left unsaid. The morning’s chill deepened, and as the fog pressed closer, Evelyn Harcourt took her place as the estate’s last hope for honesty."
+      ]
+    }
+  ],
+  "cast": [
+    "Evelyn Harcourt",
+    "Lord Charles Harcourt",
+    "James Harcourt",
+    "Beatrice Langley",
+    "Agnes Wilkes",
+    "Edward Mallory"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 2 | present in paragraph 9",
+    "season_words_used": "autumn, autumnal, autumn garden, autumn air, autumn morning",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_1: paragraph 2",
+    "early_observation_present": "thermometer reading: paragraph 2",
+    "early_inference_present": "yes: paragraph 9"
+  }
+}
+  
+ 		 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	
+```

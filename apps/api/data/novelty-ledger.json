@@ -13,6 +13,19 @@
       "discrimMethod": "trap",
       "discrimDesign": "A controlled sundial shadow experiment is conducted by placing an identical watch face at the sundial under the same sunlight conditions at various times, demonstrating the precise shadow length and direction that contradicts servant testimonies and Edward’s claimed alibi, thereby proving the murder’s true timing and implicating Edward Marwood.",
       "premise": "In the isolated Marwood Manor during a drizzly early autumn afternoon, Edith Marwood is found stabbed in her private sitting room. The household staff and family provide conflicting timelines. The sundial in the garden and the stopped watch on Edith reveal a contradiction in the reported time of death. Arthur Langley investigates, unravelling a scheme that manipulated the timing of events and exploited social trust to conceal the real murderer within the family."
+    },
+    {
+      "id": "run_efedba16-9baf-44a2-9d3a-254029d53cd9",
+      "title": "The Sundial’s Silent Verdict",
+      "era": "1930s",
+      "location": "Harcourt Manor Estate",
+      "crimeSubtype": "poisoning with delayed effect",
+      "deathMethod": "poisoned with aconite concealed in ice cubes",
+      "axis": "temporal",
+      "falseAssumption": "Lord Charles Harcourt died exactly at solar noon, as indicated by the sundial’s shadow.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled demonstration measures the sundial’s shadow delay under similar temperature conditions, confirming the approximately ten-minute lag caused by thermal expansion of the brass gnomon. This proves the victim’s actual time of death predates servant alibis and ledger entries, invalidating their timelines and exposing the forged evidence. Additionally, re-examination of hollow ice cubes confirms the delayed-release poison mechanism unique to the culprit’s access and knowledge.",
+      "premise": "On a foggy autumn day at Harcourt Manor, Lord Charles Harcourt is found dead, apparently poisoned. Everyone believes he died at solar noon, as indicated by the sundial. However, Evelyn Harcourt discovers the sundial’s shadow was delayed due to thermal expansion of the brass gnomon, meaning he died earlier. A forged ledger and servants’ contradictory testimonies about footsteps and timing further complicate the timeline. Evelyn must unravel the temporal illusion, exposing the true time of death and revealing James Harcourt as the killer who exploited this false assumption to stage his alibi."
     }
   ]
 }
