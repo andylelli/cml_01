@@ -95,13 +95,22 @@ export type {
   PlausibilityJudgeResult,
   PlausibilityJudgeContext,
 } from "./agent3b-plausibility-judge.js";
-export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled } from "./agent9-prose.js";
+export { generateProse, resolveVictimName, buildCharacterPersonalityBlock, buildLocationProfilesBlock, buildTemporalContextBlock, selectSensoryVariant, compileSensoryAtoms, extractBeatFingerprints, buildMacroArcPlan, RESOLUTION_RE, buildResolutionBackstopSentence, blindReadProse, isProseBlindReaderEnabled, isAtomicLockedFactValue } from "./agent9-prose.js";
 export type { ProseBlindReadResult } from "./agent9-prose.js";
 export type { BeatFingerprint, MacroArcEntry } from "./agent9-prose.js";
 export { precompileStoryContract, resolveVictimContract } from "./story-contract.js";
 export type { StoryContract, VictimContract, VictimRoleSource, SensoryAtomSet, LockedFactContract } from "./story-contract.js";
 export { ARC_POS_TO_SCENE_TYPE, ARC_POSITION_REGISTER, HIGH_TENSION_POSITIONS } from "./constants/arc-position.js";
 export { buildNoveltyPrompt, auditNovelty } from "./agent8-novelty.js";
+// A_57 D3 — mechanism–environment consistency
+export { deriveMechanismEnvironmentPrecondition, checkMechanismEnvironmentConsistency } from "./mechanism-environment.js";
+export type { MechanismEnvironmentPrecondition, MechanismEnvironmentCheck, EnvironmentFactor, DeviceLike, AtmosphereLike } from "./mechanism-environment.js";
+// A_57 §9.1 — the Story World-State ledger (single source of truth + contradiction gate)
+export { buildStoryWorldState, runContradictionGate } from "./world-state.js";
+export type { StoryWorldState, WorldStateFact, WorldStateCharacter, WorldStateConflict, WorldStateConflictKind, ContradictionGateResult, WorldStateInputs, CharacterGender } from "./world-state.js";
+// A_57 §9.2 — the discriminator verifier (logical soundness over the suspect partition)
+export { verifyDiscriminator } from "./discriminator-verifier.js";
+export type { DiscriminatorVerdict, DiscriminatorIssue, DiscriminatorIssueKind, DiscriminatorVerifierInputs } from "./discriminator-verifier.js";
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
 export type { WorldDocumentResult, WorldDocumentHistoricalMoment, WorldDocumentCharacterPortrait, WorldDocumentVoiceFragment, WorldDocumentCharacterVoiceSketch, WorldDocumentLocationRegister, WorldDocumentArcTurningPoint, WorldDocumentEmotionalArc, WorldDocumentHumourEntry, WorldDocumentBreakMoment, WorldDocumentValidationConfirmations } from "./types/world-document.js";

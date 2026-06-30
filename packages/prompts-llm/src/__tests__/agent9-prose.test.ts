@@ -1421,9 +1421,52 @@ describe("Agent 9 prompt hardening fixes", () => {
   });
 
   it("Fix 2 uses positive locked-fact phrasing in the prose prompt", () => {
+    // A_57 D1: the verbatim block is now headed "LOCKED EVIDENCE VALUES" (atomic times/numbers/
+    // measurements only); descriptive facts are split into a separate paraphrase block. baseInputs'
+    // locked facts ("thirteen minutes to midnight", "three drops") are both atomic, so the verbatim
+    // block is emitted.
     const prompt = buildProsePrompt(baseInputs, [baseScene], 1, []);
-    expect(prompt.messages[0].content).toContain("NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES");
+    expect(prompt.messages[0].content).toContain("NON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES");
     expect(prompt.messages[0].content).toContain("it MUST use the exact phrase shown");
+  });
+
+  it("A_57 D2 — emits the single-contradiction contract when a staged/true time pair is locked", () => {
+    const inputs = {
+      ...baseInputs,
+      lockedFacts: [
+        { id: "lf_staged", description: "time the servants claimed", value: "half past three in the afternoon" },
+        { id: "lf_true", description: "true time the shadow required", value: "twenty minutes past four in the afternoon" },
+      ],
+    };
+    const content = buildProsePrompt(inputs, [baseScene], 1, []).messages[0].content;
+    expect(content).toContain("CENTRAL CONTRADICTION");
+    expect(content).toContain("AS A SINGLE CONTRAST");
+    expect(content).toContain("half past three in the afternoon");
+    expect(content).toContain("twenty minutes past four in the afternoon");
+  });
+
+  it("A_57 D2 — does NOT emit the contradiction contract for unrelated locked facts (time + dose)", () => {
+    // baseInputs' facts are a time and a bare count — different dimensions, so there is no pair to contrast.
+    const content = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("CENTRAL CONTRADICTION");
+  });
+
+  it("A_57 D3 — surfaces the mechanism-environment exception instruction when present", () => {
+    const exception =
+      "MECHANISM–ENVIRONMENT EXCEPTION (the central clue depends on it): render a brief clearing in the overcast.";
+    const content = buildProsePrompt(
+      { ...baseInputs, mechanismEnvironmentException: exception },
+      [baseScene],
+      1,
+      [],
+    ).messages[0].content;
+    expect(content).toContain("MECHANISM–ENVIRONMENT EXCEPTION");
+    expect(content).toContain("brief clearing in the overcast");
+  });
+
+  it("A_57 D3 — omits the exception instruction when there is no conflict", () => {
+    const content = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content;
+    expect(content).not.toContain("MECHANISM–ENVIRONMENT EXCEPTION");
   });
 
   it("applies word_target_multiplier when sending chapter ideal words to the LLM prompt", () => {

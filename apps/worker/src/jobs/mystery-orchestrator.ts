@@ -561,6 +561,8 @@ async function runRubricScoring(args: {
   warnings: string[];
   runId: string;
   projectId?: string;
+  /** A_57 D2 — the world-state ledger's canonical staged/true pair (for the dual-value-without-contrast cap). */
+  discriminatingPair?: { values: [string, string] } | null;
 }): Promise<void> {
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
@@ -588,6 +590,7 @@ async function runRubricScoring(args: {
       judge,
       chapters,
       findUnplanted: findUnplantedDiscriminatingClues,
+      discriminatingPair: args.discriminatingPair,
     });
     const vetoes = [
       r.structural?.unplantedEvidenceVetoed && "unplanted-evidence vetoed",
@@ -1154,6 +1157,7 @@ export async function generateMystery(
       warnings,
       runId,
       projectId,
+      discriminatingPair: ctx.discriminatingContradiction ?? null,
     });
 
     // ── Complete ─────────────────────────────────────────────────────────────

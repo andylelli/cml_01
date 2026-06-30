@@ -731,7 +731,7 @@ export function buildChapterObligationBlock(
     if (finalChapterSuspects.length > 0) {
       lines.push(`  6. SUSPECT CLEARANCES (MANDATORY — lint-enforced): every non-culprit suspect below MUST be named explicitly and cleared in a dedicated paragraph in THIS chapter:`);
       for (const suspectName of finalChapterSuspects) {
-        lines.push(`    • "${suspectName}" — include a paragraph that: (a) names "${suspectName}" by name, (b) states a clearance phrase (cleared / ruled out / innocent / alibi holds / alibi confirmed / could not have), (c) includes a reasoning connector (because / therefore / which proves / alibi). Example: "${suspectName} was cleared because [evidence]; [their] alibi confirmed [they] could not have committed the crime." All three elements must be in the SAME paragraph — do not split across paragraphs.`);
+        lines.push(`    • "${suspectName}" — include a paragraph that: (a) names "${suspectName}" by name, (b) states a clearance phrase (cleared / ruled out / innocent / alibi holds / alibi confirmed / could not have), (c) includes a reasoning connector (because / therefore / which proves / alibi). Write it as DEDUCTION the reader watches, NOT a verdict: show the alibi as a witnessed fact, then the conclusion — avoid the report frame "X was cleared because…". Example: "Two witnesses had placed ${suspectName} elsewhere until well after it happened, which proves ${suspectName} could not have been responsible." All three elements must be in the SAME paragraph — do not split across paragraphs.`);
       }
       lines.push(`  Items 1–6 are ALL mandatory. A chapter missing any item will be rejected and regenerated.`);
     }

@@ -54,4 +54,22 @@ describe("enforceCulpritEvidencePresence — culprit-near-death false positive (
     const out = enforceCulpritEvidencePresence(prose, cml);
     expect(allText(out)).not.toContain("Hugo Vane was responsible");
   });
+
+  // A_56 (run review 09168377): the collision test must be on the FULL name, not the surname. A culprit
+  // who only SHARES A FAMILY SURNAME with the victim (Edward vs Edith Marwood) is a different person; the
+  // old surname-only test suppressed culprit evidence on every family mystery.
+  it("INJECTS for a culprit who only shares a surname with the victim (Edward Marwood vs victim Edith Marwood)", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["Edith Marwood lay lifeless beneath the sundial. Edward Marwood watched from the terrace, his face unreadable."] },
+        { paragraphs: ["At last Arthur gathered them. The ledger and the shadow showed that only Edward Marwood could have arranged it."] },
+      ],
+    };
+    const cml = { CASE: { culpability: { culprits: ["Edward Marwood"] }, cast: [
+      { name: "Edith Marwood", role: "victim" },
+      { name: "Edward Marwood", role: "suspect" },
+    ] } };
+    const out = enforceCulpritEvidencePresence(prose, cml);
+    expect(allText(out)).toContain("Edward Marwood was responsible");
+  });
 });

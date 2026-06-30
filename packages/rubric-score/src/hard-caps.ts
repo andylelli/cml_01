@@ -75,6 +75,25 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
     // leakage (≥2 distinct fragments). A single note-like line is a Prose penalty, not a global cap.
     if (leakHits >= 2) ceil(65, "significant prompt / template / validation-text leakage");
   }
+  // A_57 D1 — garbled evidence surfacing (a locked-fact value spliced into prose with a stray
+  // apostrophe/no space). A human reads these as broken prose; the LLM judge under-detects them. Cap
+  // prose, with a global ceiling when material (≥3 fragments) — mirrors the leakage rule.
+  const malformedHits = (facts.malformedEvidenceSurfacing ?? []).length;
+  if (malformedHits > 0) {
+    capCat("prose", malformedHits >= 3 ? 4 : 5, "garbled evidence surfacing (malformed locked-fact splice)");
+    if (malformedHits >= 3) ceil(70, "material garbled evidence surfacing");
+  }
+  // A_57 D4 — report-style clearance ("X was cleared because …"): reads as validation output, not
+  // dramatized deduction. Hurts polish and the reveal.
+  if (facts.reportStyleClearance) {
+    capCat("prose", 6, "report-style clearance (verdict, not dramatized deduction)");
+    capCat("ending", 7, "report-style clearance in the reveal");
+  }
+  // A_57 D2 — the central clue's staged & true values are stated as two flat parallel truths with no
+  // contrast connective ("the central clue contradicts itself" — ChatGPT's biggest problem). Cap clues.
+  if (facts.dualValueNoContrast) {
+    capCat("clues", 6, "central clue stated as two flat values, not one contradiction");
+  }
   if (facts.victimUnnamed) ceil(72, "victim unnamed");
   if (facts.weakMurderMethod) {
     capCat("ending", 6, "weak murder method (concealment explained, death not)");

@@ -193,7 +193,16 @@ export function buildDiscriminatingTestChecklist(
     checklist += `  ☐ Demonstrate which suspects pass/fail the test with explicit on-page elimination logic\n`;
   }
   checklist += `\n`;
-  
+
+  // A_57 D7 — physical concreteness. The test must DEMONSTRATE, not assert. A human reader penalises a
+  // test that "proves itself" with vague geometry; show the action, the observed value, and the explicit
+  // exclusion of the false account. Generic across test types.
+  checklist += `☐ **Physical Concreteness (the test must SHOW, not assert — do not let "the evidence prove itself")**\n`;
+  checklist += `  ☐ A concrete physical ACTION with the apparatus or evidence — place it, measure it, re-enact it, or lay one record beside another, on the page\n`;
+  checklist += `  ☐ The specific OBSERVED VALUE the test yields — the measurement, angle, time, count, or reading as a concrete quantity, not "the evidence" or "the truth"\n`;
+  checklist += `  ☐ The EXCLUSION made explicit — show that this observed value can ONLY fit the true account and CANNOT fit the false one the suspects gave; name both and rule one out in the prose\n`;
+  checklist += `\n`;
+
   // Suspect elimination requirements
   if (eliminated.length > 0) {
     checklist += `☐ **Suspect Elimination**\n`;

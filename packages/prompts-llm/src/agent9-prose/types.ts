@@ -102,6 +102,13 @@ export interface ProseGenerationInputs {
   detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings
   qualityGuardrails?: string[];
   moralAmbiguityNote?: string;
+  /**
+   * A_57 D3 — when the mystery's mechanism requires an environmental condition (sunlight for a sundial,
+   * a tide, a temperature) that the setting weather contradicts, this carries a generic instruction to
+   * render a brief, justified local exception so the clue holds WITHOUT fighting the established ambient.
+   * Computed by `checkMechanismEnvironmentConsistency`; absent when there is no conflict.
+   */
+  mechanismEnvironmentException?: string;
   lockedFacts?: Array<{ id: string; value: string; description: string; appearsInChapters?: string[] }>;
   /** Agent5 clue distribution — used to inject full clue descriptions into per-chapter prose prompts. */
   clueDistribution?: ClueDistributionResult;

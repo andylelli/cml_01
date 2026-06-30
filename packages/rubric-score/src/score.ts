@@ -51,6 +51,12 @@ export interface ScoreStoryInput {
    * planted-evidence verifier reuses the live A_50 §9.3 logic; a faithful local fallback runs without it.
    */
   findUnplanted?: FindUnplantedFn;
+  /**
+   * A_57 D2 — the discriminating clue's canonical staged/true value pair (from the world-state ledger).
+   * When supplied, enables the high-precision dual-value-without-contrast detector (caps *clues* when the
+   * two values are stated as flat parallel truths instead of one contradiction).
+   */
+  discriminatingPair?: { values: [string, string] } | null;
 }
 
 export interface ScoreStoryResult extends CappedScore {
@@ -65,7 +71,7 @@ export interface ScoreStoryResult extends CappedScore {
  * ships is `final`.
  */
 export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResult> {
-  const deterministic = extractStoryFacts(input.cml, input.prose);
+  const deterministic = extractStoryFacts(input.cml, input.prose, { discriminatingPair: input.discriminatingPair });
   const caseData = unwrapCase(input.cml);
 
   const chapters = input.chapters && input.chapters.length ? input.chapters : splitProseIntoChapters(input.prose);

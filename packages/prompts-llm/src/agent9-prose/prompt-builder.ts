@@ -85,6 +85,90 @@ import type {
   ProseGenerationInputs,
   MacroArcEntry,
 } from "./types.js";
+
+/**
+ * A_57 D1 — is a locked-fact value ATOMIC (a time / number / measurement that must be reproduced
+ * verbatim) vs DESCRIPTIVE (a log entry / weather note / document clause that must be paraphrased, not
+ * spliced in verbatim)? Parameter-generic: keys off the value's shape, never its content. Exported so
+ * the prose prompt and the worker's locked-fact presence enforcer agree on which facts are verbatim.
+ */
+export const isAtomicLockedFactValue = (raw: string): boolean => {
+  const v = String(raw ?? "").trim();
+  if (!v) return false;
+  // A clue-critical time may carry a trailing day-part ("…past four in the afternoon"); it is still an
+  // atomic time and must stay verbatim. Strip that qualifier before the length check so a pure time of 7+
+  // words ("twenty minutes past four in the afternoon") is not misread as a descriptive clause and routed
+  // to the paraphrase block — which would lose fidelity on the single most clue-critical value.
+  const core = v.replace(/[,\s]+(?:in\s+the\s+(?:morning|afternoon|evening)|at\s+night)\.?$/i, "").trim();
+  const words = core.split(/\s+/).filter(Boolean);
+  if (words.length > 6) return false; // a clause/sentence is descriptive
+  if (/\d|\bo[’']clock\b|\b(?:past|to|quarter|half)\b|\b(?:minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/i.test(core)) {
+    return true; // time / measurement / quantity
+  }
+  if (words.length <= 3 && /^(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty)\b/i.test(core)) {
+    return true; // a short number-word amount
+  }
+  return false;
+};
+
+/**
+ * A_57 D2 — the discriminating dimension of an atomic locked-fact value: a clock-time, else a measurement
+ * unit, used to pair a STAGED value against a TRUE value of the SAME scale. Bare counts (no unit, no time)
+ * return null: two unrelated tallies ("three drops", "two letters") are NOT a comparable contradiction, so
+ * they must never be paired. Parameter-generic — keys off the value's shape, never its content.
+ */
+const lockedFactDimension = (raw: string): string | null => {
+  const v = String(raw ?? "").trim().toLowerCase();
+  if (!v) return null;
+  if (/\b(?:past|to|quarter|half)\b/.test(v) || /\bo[’']clock\b/.test(v)) return "time";
+  const unit = v.match(
+    /\b(minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/,
+  );
+  if (unit) return `unit:${unit[1].replace(/s$/, "")}`;
+  return null; // a bare count is not a comparable dimension — never pair on it
+};
+
+export interface DiscriminatingContradictionPair {
+  /** the two contradicting locked-fact values (a staged value and the true value), in registry order */
+  values: [string, string];
+  /** their locked-fact descriptions, for the obligation text */
+  descriptions: [string, string];
+}
+
+/**
+ * A_57 D2 — find the "single canonical contradiction" pair among the locked facts. A discriminating
+ * timeline/quantity mystery turns on a STAGED value and a TRUE value of the SAME dimension (two
+ * clock-times, two readings). When the prose states both as flat parallel truths instead of ONE
+ * contradiction, a human reads "the central clue contradicts itself" (ChatGPT's biggest problem on run
+ * 09168377). Returning the pair lets the chapter obligation require them to appear AS A CONTRAST.
+ *
+ * Conservative: groups the ATOMIC locked facts by dimension (clock-time / measurement unit) and returns a
+ * pair ONLY when exactly one dimension holds exactly two DISTINCT values. Any ambiguity (no such
+ * dimension, three+ same-dimension values, or several candidate pairs) → null, so a wrong contrast is
+ * never forced onto unrelated facts. Parameter-generic across clock, tide table, thermometer, or ledger.
+ */
+export const findDiscriminatingContradictionPair = (
+  lockedFacts: ReadonlyArray<{ description?: string; value?: string }> | undefined,
+): DiscriminatingContradictionPair | null => {
+  if (!Array.isArray(lockedFacts)) return null;
+  const byDim = new Map<string, Array<{ description: string; value: string }>>();
+  for (const f of lockedFacts) {
+    const value = String(f?.value ?? "").trim();
+    if (!value || !isAtomicLockedFactValue(value)) continue;
+    const dim = lockedFactDimension(value);
+    if (!dim) continue;
+    const list = byDim.get(dim) ?? [];
+    if (!list.some((x) => x.value.toLowerCase() === value.toLowerCase())) {
+      list.push({ description: String(f?.description ?? "").trim(), value });
+      byDim.set(dim, list);
+    }
+  }
+  const candidates = [...byDim.values()].filter((list) => list.length === 2);
+  if (candidates.length !== 1) return null; // none, or ambiguous (multiple candidate pairs)
+  const [a, b] = candidates[0];
+  return { values: [a.value, b.value], descriptions: [a.description, b.description] };
+};
+
 export const REVEAL_GROUNDWORK_BANNED_TERMS = [
   'culprit',
   'murderer',
@@ -1429,6 +1513,7 @@ Rules:
 - TEMPORAL CONSISTENCY: If a month is mentioned (for example, May), season wording in the same timeline must be compatible with that month.
 - DENOUEMENT REQUIREMENT: The final chapter of any act or the story must show concrete consequences, not just reflection. At minimum: state what happened to the culprit (arrest, flight, confession), show how relationships changed between surviving characters, and give the detective one moment of personal resolution (relief, regret, or changed understanding). Emotional aftermath is required.
 ${inputs.moralAmbiguityNote ? `- MORAL COMPLEXITY REQUIREMENT: The mechanism of this crime carries a moral gray area: "${inputs.moralAmbiguityNote}" — the culprit reveal and denouement MUST acknowledge this ambiguity. Do not let the ending feel clean or simple. Give the reader at least one moment of uncomfortable sympathy or moral doubt.` : '- MORAL COMPLEXITY: When writing the denouement, include at least one detail that complicates the moral verdict — a motive the reader can understand, a consequence that feels unjust, or a relationship that can never recover.'}
+${inputs.mechanismEnvironmentException ? `- ${inputs.mechanismEnvironmentException}` : ''}
 ${victimIdentityRule}`;
 
   // [PHASE 1] Rule 2 (per-character pronoun list + 'Never switch pronouns mid-story') removed from
@@ -1560,7 +1645,14 @@ ${victimIdentityRule}`;
       return forbidden.filter(f => f.toLowerCase() !== lower);
     };
 
-    const factLines = inputs.lockedFacts
+    // A_57 D1: an ATOMIC value (time / number / measurement) MUST be reproduced verbatim — fidelity is
+    // the whole point of the clue. A DESCRIPTIVE value (a weather log, a document's contents) must NOT be
+    // forced verbatim: jamming a long exact clause mid-sentence is what produced the garbled apostrophe
+    // splices ("drizzle'the groundskeeper's entry … skies"). Split them and surface descriptive facts as
+    // "convey the meaning in your own words" so the model writes a clean, grammatical observation.
+    const atomicFacts = inputs.lockedFacts.filter(f => isAtomicLockedFactValue(String(f.value ?? '')));
+    const descriptiveFacts = inputs.lockedFacts.filter(f => !isAtomicLockedFactValue(String(f.value ?? '')));
+    const factLines = atomicFacts
       .map(f => {
         let line = `  - ${f.description}: "${f.value}"`;
         if (isWordFormTimeValue(f.value)) {
@@ -1572,7 +1664,21 @@ ${victimIdentityRule}`;
         return line;
       })
       .join('\n');
-    lockedFactsBlock = `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE PHRASES (VERBATIM REQUIRED):\nThe following physical evidence values are absolute ground truth. Every time this chapter describes, mentions, or alludes to the relevant evidence — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked facts:\n${factLines}\n\nIf a locked fact has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`;
+    const verbatimBlock = atomicFacts.length > 0
+      ? `\n\nNON-NEGOTIABLE CHAPTER OBLIGATIONS — LOCKED EVIDENCE VALUES (VERBATIM REQUIRED):\nThe following measured values (times, amounts, measurements) are absolute ground truth. Every time this chapter describes, mentions, or alludes to one — no matter how briefly — it MUST use the exact phrase shown below, character for character. NO paraphrase, approximation, rounding, or synonym is permitted.\n\nFAILURE EXAMPLE: if the locked value is "at thirteen minutes to midnight" and you write "just before midnight" or "around midnight" — that is a HARD FAIL. You must write "at thirteen minutes to midnight". Equally, if the locked value is written in words, such as "ten minutes past eleven", and you convert it to figure-based clock notation — that is also a HARD FAIL. Words stay as words; figure forms are forbidden for word-phrased facts.\n\nCRITICAL — WORD-PHRASED VALUES: If the canonical value is written out in words (e.g. a time like "ten minutes past eleven", or an amount like "forty minutes"), reproduce those exact words. DO NOT convert to figure-based time notation, twenty-four-hour format, or any other numeric shorthand. Correct: "ten minutes past eleven". WRONG: figure-based clock notation or numeric shorthand.\n\nLocked values:\n${factLines}\n\nIf a value has no relevance to this chapter, omit it. But the moment you reference the underlying evidence, only the exact phrase above is acceptable.`
+      : '';
+    const descriptiveBlock = descriptiveFacts.length > 0
+      ? `\n\nEVIDENCE TO CONVEY IN YOUR OWN WORDS (NOT verbatim): weave each of these descriptive facts into the chapter as a COMPLETE, GRAMMATICAL observation by a character — surface the MEANING, never copy the phrasing word-for-word, and NEVER splice two evidence phrases together with an apostrophe or run two clauses together without a sentence break. If a fact has no relevance to this chapter, omit it.\n${descriptiveFacts.map(f => `  - ${f.description}: ${f.value}`).join('\n')}`
+      : '';
+    // A_57 D2 — the "single canonical contradiction" contract. When two locked values are the staged/true
+    // pair of the discriminating clue, a chapter that states BOTH as flat parallel truths reads as a clue
+    // that "contradicts itself" (ChatGPT's biggest problem on run 09168377). Require them to surface AS ONE
+    // contrast, never two standalone statements. The values stay verbatim (they are in the block above).
+    const contradictionPair = findDiscriminatingContradictionPair(atomicFacts);
+    const contradictionBlock = contradictionPair
+      ? `\n\n⚠ CENTRAL CONTRADICTION (the heart of the mystery): the two locked values "${contradictionPair.values[0]}" and "${contradictionPair.values[1]}" are NOT two separate facts — they are ONE contradiction (a staged appearance versus the true state). If this chapter references both, you MUST present them AS A SINGLE CONTRAST joined by a contrast connective (but / yet / however / could only / whereas), e.g. "the watch read ${contradictionPair.values[0]}, yet the evidence could place it only at ${contradictionPair.values[1]}". NEVER state them as two flat, side-by-side truths — that makes the central clue read as if it contradicts itself.`
+      : '';
+    lockedFactsBlock = verbatimBlock + descriptiveBlock + contradictionBlock;
   }
 
   // Build NSD block (narrative state document) — style register and fact history

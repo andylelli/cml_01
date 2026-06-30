@@ -31,6 +31,11 @@ import {
   precompileStoryContract,
   RESOLUTION_RE,
   buildResolutionBackstopSentence,
+  isAtomicLockedFactValue,
+  checkMechanismEnvironmentConsistency,
+  buildStoryWorldState,
+  runContradictionGate,
+  verifyDiscriminator,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
@@ -39,7 +44,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -1830,6 +1835,66 @@ export const applyCanonicalVictimRescue = (
   return { prose: { ...prose, chapters }, repairCount, reframedVictimNames: Array.from(reframed) };
 };
 
+/**
+ * A_57 D1 — clean a garbled evidence splice: a stray apostrophe joining two word-tokens with no space
+ * that is NEITHER a contraction/possessive ('s, n't, 're, 've, 'll, 'd, 'm, o'clock) NOR a name particle
+ * (O'Brien, d'Arcy). These come from forcing a *descriptive* locked-fact value verbatim into prose
+ * ("…drizzle'the groundskeeper's entry noting … skies"). Rewrites the stray apostrophe into "; " so the
+ * clause is grammatical. Parameter-generic; never touches valid possessives/contractions/names; pure.
+ */
+export const repairMalformedSurfacing = (prose: any): { prose: any; repairCount: number } => {
+  if (!Array.isArray(prose?.chapters)) return { prose, repairCount: 0 };
+  const CONTRACTION = /^(?:s|t|re|ve|ll|d|m|clock)$/i;
+  const NAME_PARTICLE = /^[odl]$/i;
+  let repairCount = 0;
+  const chapters = (prose.chapters as any[]).map((ch: any) => {
+    if (!Array.isArray(ch?.paragraphs)) return ch;
+    const paragraphs = (ch.paragraphs as unknown[]).map((p) =>
+      String(p ?? "").replace(/([A-Za-z]+)(['’])([A-Za-z][A-Za-z]*)/g, (whole, before: string, _apos: string, after: string) => {
+        if (CONTRACTION.test(after) || NAME_PARTICLE.test(before)) return whole;
+        repairCount += 1;
+        return `${before}; ${after}`;
+      }),
+    );
+    return { ...ch, paragraphs };
+  });
+  return { prose: { ...prose, chapters }, repairCount };
+};
+
+/**
+ * A_57 D5 — a deterministic pronoun-stability validator for `mutateThenValidate`. Counts
+ * `pronoun_gender_mismatch` errors via the (synchronous, deterministic) CharacterConsistencyValidator,
+ * which reads cast genders from `cml.CASE.cast`. Higher score = fewer misgendered pronouns, so a
+ * post-processing pass that RAISES the count regresses and gets reverted, while a pass that lowers it (a
+ * genuine repair) ships. Any measurement failure returns "no signal" (score 100) so the gate is inert,
+ * never harmful. Exported for unit testing. Pure given pure inputs.
+ */
+export const buildPronounStabilityValidator =
+  (cml: any, runId: string, projectId: string) =>
+  (currentProse: any): { ok: boolean; score: number; violations: string[] } => {
+    let mismatches = 0;
+    try {
+      const story = {
+        id: runId,
+        projectId,
+        scenes: ((currentProse?.chapters ?? []) as any[]).map((ch: any, idx: number) => ({
+          number: idx + 1,
+          title: ch?.title,
+          text: ((ch?.paragraphs ?? []) as string[]).join("\n\n"),
+        })),
+      };
+      const result = new CharacterConsistencyValidator().validate(story as any, cml as any);
+      mismatches = (result.errors ?? []).filter((e: any) => e?.type === "pronoun_gender_mismatch").length;
+    } catch {
+      return { ok: true, score: 100, violations: [] };
+    }
+    return {
+      ok: mismatches === 0,
+      score: 100 - mismatches * 10,
+      violations: mismatches > 0 ? [`pronoun_gender_mismatch:${mismatches}`] : [],
+    };
+  };
+
 export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): any => {
   if (!Array.isArray(lockedFacts) || lockedFacts.length === 0) return prose;
 
@@ -1855,6 +1920,10 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
       const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
       const description = typeof fact?.description === "string" ? fact.description.trim() : "";
       if (!canonical || !description) continue;
+      // A_57 D1: only ATOMIC values (times/numbers/measurements) are force-injected verbatim. DESCRIPTIVE
+      // values (log entries, weather notes) are conveyed by the model in its own words (the prose prompt
+      // requests that) — force-injecting their exact clause is what produced the garbled splices.
+      if (!isAtomicLockedFactValue(canonical)) continue;
 
       const scopedChapters = Array.isArray(fact?.appearsInChapters)
         ? new Set((fact.appearsInChapters as string[]).map((v) => Number(v)).filter((n) => Number.isFinite(n)))
@@ -2019,38 +2088,50 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
   // in the room when the body is found, so it fired almost every run, suppressed culprit evidence, and
   // gated clean runs to "failure". We now skip injection ONLY when (a) the culprit matches the NAMED
   // VICTIM, or (b) the culprit is the grammatical SUBJECT/OBJECT of a death in Ch1 (tight adjacency).
-  const victimSurnames = new Set(
+  // A_56 (run review): match the culprit↔victim collision on the FULL name, not the surname. A shared
+  // family surname (culprit "Edward Marwood" vs victim "Edith Marwood") is two DIFFERENT people; the old
+  // surname-only test false-fired on any family mystery and suppressed culprit evidence (observed run
+  // 09168377). Honorific-stripped, space-collapsed full names distinguish siblings/spouses.
+  const stripHonorific = (s: string): string =>
+    String(s ?? '')
+      .toLowerCase()
+      .replace(/\b(?:mr|mrs|ms|miss|dr|sir|lord|lady|mme|mlle|the)\b\.?/g, ' ')
+      .replace(/[^a-z\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const victimFullNames = new Set(
     (Array.isArray(cml?.CASE?.cast) ? cml.CASE.cast : [])
       .filter((c: any) => {
         const role = String(c?.role ?? '').trim().toLowerCase();
         const ra = String(c?.role_archetype ?? '').trim().toLowerCase().replace(/^the\s+/, '');
         return role === 'victim' || ra === 'victim';
       })
-      .map((c: any) => extractSurname(String(c?.name ?? '')).toLowerCase())
+      .map((c: any) => stripHonorific(String(c?.name ?? '')))
       .filter(Boolean),
   );
   const DEATH_WORD = `(?:lifeless|dead|slain|killed|murdered|shot|stabbed|strangled|poisoned|slumped|body|corpse|remains)`;
   const ch1Text = ((prose.chapters?.[0]?.paragraphs ?? []) as string[]).join(' ');
   const liveCulprits = culprits.filter((culprit) => {
-    const surname = extractSurname(culprit);
-    if (!surname) return true;
-    const esc = surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // (a) genuine collision: the culprit IS the named victim.
-    if (victimSurnames.has(surname.toLowerCase())) {
+    const culpritFull = stripHonorific(culprit);
+    if (!culpritFull) return true;
+    // (a) genuine collision: the culprit IS the named victim (same person — FULL-name equality).
+    if (victimFullNames.has(culpritFull)) {
       console.error(
         `[Agent 9] enforceCulpritEvidencePresence: SKIPPED injection for "${culprit}" — the culprit ` +
         `matches the named victim; the CML culprit/victim assignment is invalid (manual CML fix required).`,
       );
       return false;
     }
-    // (b) the culprit is described as the deceased in Ch1 (subject/object of the death — tight binding,
-    // NOT merely within 250 chars of a death word).
+    // (b) the culprit (by FULL name, so a same-surname victim narrated as dead does NOT trip it) is
+    // described as the deceased in Ch1 — a genuinely broken CML where the discovered-dead character is
+    // the named culprit. Tight subject/object binding, not mere co-presence near a death word.
+    const escFull = culpritFull.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
     const deathSubjectRE = new RegExp(
-      `\\b${esc}\\b(?:['’]s\\s+(?:body|corpse|remains)` +
+      `\\b${escFull}\\b(?:['’]s\\s+(?:body|corpse|remains)` +
         `|\\s+(?:lay|was|had\\s+been|is|'s)\\b[^.!?]{0,30}\\b${DEATH_WORD}\\b` +
         `|\\s*,\\s*(?:now\\s+)?(?:dead|lifeless|slain))` +
-        `|\\b(?:body|corpse|remains)\\s+of\\s+${esc}\\b` +
-        `|\\bfound\\s+${esc}\\b[^.!?]{0,20}\\b${DEATH_WORD}\\b`,
+        `|\\b(?:body|corpse|remains)\\s+of\\s+${escFull}\\b` +
+        `|\\bfound\\s+${escFull}\\b[^.!?]{0,20}\\b${DEATH_WORD}\\b`,
       'i',
     );
     if (deathSubjectRE.test(ch1Text)) {
@@ -3229,6 +3310,91 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     Array.isArray(d.lockedFacts) ? d.lockedFacts : []
   );
 
+  // A_57 §9.1 — Story World-State ledger: the SINGLE canonical, typed, cross-checked view of the facts the
+  // prose will reference — typed locked facts (D1), the staged/true contradiction (D2), the
+  // mechanism-environment check (D3), and per-character identity. Built ONCE; D1/D2/D3 all DRAW from it
+  // rather than re-deriving (§9.5 clause 2), so e.g. the D3 prose instruction below is read off the ledger
+  // instead of a second `checkMechanismEnvironmentConsistency` call.
+  const caseBlock = (cml as any)?.CASE ?? {};
+  const worldStateVictim = (Array.isArray(caseBlock.cast) ? caseBlock.cast : [])
+    .find((c: any) => /victim/i.test(String(c?.role_archetype ?? c?.role ?? "")))?.name ?? null;
+  const worldStateCulprits: string[] = Array.isArray(caseBlock.culpability?.culprits) ? caseBlock.culpability.culprits : [];
+  const worldState = buildStoryWorldState({
+    lockedFacts: proseLockedFacts,
+    device: hardLogicDevices.devices[0],
+    atmosphere: settingRefinement?.atmosphere,
+    cast: Array.isArray(caseBlock.cast) ? caseBlock.cast : [],
+    victim: worldStateVictim,
+    culprits: worldStateCulprits,
+  });
+  // A_57 D2 — publish the ledger's canonical staged/true pair so the FINAL rubric scorer can run the
+  // dual-value-without-contrast detector off the same single source of truth (no re-derivation).
+  ctx.discriminatingContradiction = worldState.contradiction;
+
+  // A_57 D3 — drawn from the ledger (not re-derived). When the mechanism's environmental precondition
+  // contradicts the setting weather, surface a generic instruction so the prose renders a brief, justified
+  // local exception rather than straining to reconcile the clue with the ambient world (the run-09168377
+  // sundial-needs-sun vs winter-overcast defect).
+  const mechanismEnvironmentException = worldState.environment.conflict
+    ? worldState.environment.repairInstruction
+    : undefined;
+  if (worldState.environment.conflict) {
+    ctx.warnings.push(
+      `[Agent 9] mechanism–environment conflict (A_57 D3): mechanism requires ${worldState.environment.precondition?.factor} ` +
+      `but the setting is "${worldState.environment.ambient}" (note "${worldState.environment.conflictTerm}"). Injected a ` +
+      `local-exception instruction into the prose prompt so the clue holds without contradicting the weather.`,
+    );
+  }
+
+  // A_57 §9.1 contradiction gate + §9.2 discriminator verifier — coherence + soundness telemetry over the
+  // ledger BEFORE prose (the §9.4 "judge sees coherence/soundness" foundation). Warn-level in v1: it makes
+  // the defects VISIBLE without risking a mid-pipeline abort. The discriminator verifier confirms the test
+  // partitions the suspects soundly — culprit is the unique survivor, every other suspect eliminated, at
+  // least one planted clue cited. Suspect/clue sets are derived exactly as the DT checklist derives them.
+  {
+    const gate = runContradictionGate(worldState);
+    if (!gate.ok) {
+      ctx.warnings.push(
+        `[Agent 9] world-state contradiction gate (A_57 §9.1): ${gate.conflicts.length} conflict(s) — ` +
+          gate.conflicts.map((c) => `${c.kind}: ${c.detail}`).join("; ") + ".",
+      );
+    }
+
+    const dt = caseBlock.discriminating_test ?? {};
+    const castList: any[] = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
+    const isSuspectRole = (c: any): boolean => {
+      const role = String(c?.role_archetype ?? c?.role ?? "").toLowerCase();
+      return !role.includes("detective") && !role.includes("victim");
+    };
+    const suspectNames = castList.filter(isSuspectRole).map((c: any) => String(c?.name ?? "")).filter(Boolean);
+    const culpritSet = new Set(worldStateCulprits.map((n) => String(n).trim().toLowerCase()));
+    // Mirror discriminating.ts: explicit eliminated_suspects when present, else the derived "every
+    // non-culprit, non-guilty suspect is eliminated" set (so suspect_unaccounted never false-fires on a
+    // CML that simply doesn't enumerate eliminations).
+    const rawEliminated: any[] = Array.isArray(dt.eliminated_suspects) ? dt.eliminated_suspects : [];
+    const eliminatedSuspects: string[] = rawEliminated.length > 0
+      ? rawEliminated.map((s: any) => (typeof s === "string" ? s : s?.name)).filter(Boolean)
+      : castList
+          .filter((c: any) => isSuspectRole(c) && !culpritSet.has(String(c?.name ?? "").trim().toLowerCase()) && String(c?.culpability ?? "").toLowerCase() !== "guilty")
+          .map((c: any) => String(c?.name ?? ""))
+          .filter(Boolean);
+    const evidenceClueCount = Array.isArray(dt.evidence_clues)
+      ? dt.evidence_clues.filter(Boolean).length
+      : 0;
+    const verdict = verifyDiscriminator({
+      culprits: worldStateCulprits,
+      suspects: suspectNames,
+      eliminatedSuspects,
+      evidenceClueCount,
+    });
+    if (!verdict.sound) {
+      ctx.warnings.push(
+        `[Agent 9] discriminator verifier (A_57 §9.2): ${verdict.issues.length} soundness issue(s) — ` +
+          verdict.issues.map((i: { kind: string; detail: string }) => `${i.kind}: ${i.detail}`).join("; ") + ".",
+      );
+    }
+  }
+
   // Derive which chapters each locked fact is expected to appear in by cross-referencing
   // the narrative scene→clue assignments against locked fact keyword overlap.
   //
@@ -3615,6 +3781,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     temporalContext: temporalContext,
     characterBundle: ctx.characterBundle,
     moralAmbiguityNote,
+    mechanismEnvironmentException,
     lockedFacts: annotatedLockedFacts,
     clueDistribution: clues,
     narrativeState,
@@ -4293,6 +4460,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       temporalContext: temporalContext,
       characterBundle: ctx.characterBundle,
       moralAmbiguityNote,
+      mechanismEnvironmentException,
       lockedFacts: annotatedLockedFacts,
       clueDistribution: clues,
       narrativeState,
@@ -4355,16 +4523,61 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const validationStart = Date.now();
   const validationPipeline = new StoryValidationPipeline(client, { runId, projectId: projectId || runId, agent: 'Agent9-Validation' });
 
+  // A_57 D5 — re-validate-after-mutation for the pronoun property. Extend the validation-gated mutation
+  // law (until now only on the grounding lead, §4.2) to the deterministic post-processing passes that
+  // could re-introduce gender drift. The CharacterConsistencyValidator is deterministic + synchronous and
+  // reads cast genders from cml.CASE.cast, so we can cheaply count pronoun_gender_mismatch errors before
+  // and after a pass; if a pass INCREASES that count, revert it (the §3.3 "sweep flipped a correct
+  // pronoun run" bug). Pure-win: it only ever reverts a regression, never blocks an improvement. Any
+  // measurement failure falls back to "no signal" (score 100), so the guard is inert rather than harmful.
+  // Gated by AGENT9_MUTATION_REVALIDATION (default on). Only cleanup/repair passes are wrapped — NEVER a
+  // content-injection pass, where a revert could drop a REQUIRED culprit/resolution/clearance sentence.
+  const pronounStabilityValidator = buildPronounStabilityValidator(cml, runId, projectId || runId);
+  const applyPronounGuardedMutation = (currentProse: any, mutate: (p: any) => any, label: string): any => {
+    if (!AGENT9_MUTATION_REVALIDATION) return mutate(currentProse);
+    const outcome = mutateThenValidate(currentProse, mutate, pronounStabilityValidator);
+    if (outcome.reverted) {
+      ctx.warnings.push(`[Agent 9] mutation-revalidation (A_57 D5): reverted ${label} — ${outcome.reason}.`);
+    }
+    return outcome.value;
+  };
+
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters, pronounRepairEnabled);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
   prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
+  // A_57 D1: clean any garbled evidence splice (a locked-fact value joined to the next clause by a stray
+  // apostrophe/no space) BEFORE the culprit/resolution passes run over the text. Minimal + safe — it only
+  // rewrites a non-contraction, non-possessive, non-name-particle apostrophe-join into a clean separator.
+  {
+    const surfacingRepair = repairMalformedSurfacing(prose);
+    if (surfacingRepair.repairCount > 0) {
+      const beforeSurfacing = prose;
+      // D5-guarded: a splice cleanup must never introduce a pronoun regression.
+      prose = applyPronounGuardedMutation(
+        prose,
+        () => surfacingRepair.prose,
+        `repairMalformedSurfacing (A_57 D1, ${surfacingRepair.repairCount} splice(s))`,
+      );
+      if (prose !== beforeSurfacing) {
+        ctx.warnings.push(
+          `[Agent 9] repairMalformedSurfacing: cleaned ${surfacingRepair.repairCount} garbled evidence splice(s) (A_57 D1).`,
+        );
+      }
+    }
+  }
   prose = enforceCulpritEvidencePresence(prose, cml);
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
   prose = injectResolutionIfAbsent(prose, cml);
   prose = enforceSuspectEliminationPresence(prose, cml, castDesign); // P1-7: pass castDesign
   prose = applyLifecycleContinuityGuard(prose, castDesign.characters as CastEntry[], cml).prose;
   if (pronounRepairEnabled) {
-    prose = applyDeterministicPronounSweep(prose, castDesign.characters as CastEntry[]);
+    // D5-guarded: the broad pronoun sweep is the canonical fix, but the §3.3 bug was a sweep that
+    // FLIPPED a correct pronoun run. Revert it if it raises the mismatch count rather than lowering it.
+    prose = applyPronounGuardedMutation(
+      prose,
+      (p) => applyDeterministicPronounSweep(p, castDesign.characters as CastEntry[]),
+      "applyDeterministicPronounSweep",
+    );
   }
   // FIX-D: pass { locationProfiles } rather than bare cml so buildLocationRegistry
   // finds location data. ctx.cml (the CML case data) does not carry locationProfiles —

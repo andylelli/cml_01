@@ -71,6 +71,17 @@ export interface StoryFacts {
   // detectors over prose
   templateLeakageHits?: string[];
   pronounsUnstable?: boolean;
+  // A_57 — prose-layer defects a human always penalises but the LLM judge under-detects. Deterministic,
+  // parameter-generic. D1: a locked-fact value spliced into prose with a stray apostrophe/no space
+  // ("drizzle'the groundskeeper's entry … skies"). D4: a clearance written as a passive verdict
+  // ("X was cleared because …") rather than dramatized deduction.
+  malformedEvidenceSurfacing?: string[];
+  reportStyleClearance?: boolean;
+  // A_57 D2 — the discriminating clue's staged value and true value appear co-present in the prose with NO
+  // contrast connective between them (stated as two flat parallel truths rather than ONE contradiction).
+  // A human reads "the central clue contradicts itself"; the LLM judge under-detects it. Only set when the
+  // canonical staged/true pair is supplied (from the world-state ledger), so it is high-precision.
+  dualValueNoContrast?: boolean;
   // semantic — supplied by the judge (or a deeper checker), default false
   deadVictimAppearsAlive?: boolean;
   deadVictimIsCulprit?: boolean;

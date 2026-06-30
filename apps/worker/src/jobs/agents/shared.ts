@@ -215,6 +215,10 @@ export interface OrchestratorContext {
   prose?: ProseGenerationResult;       // may be reassigned by Agent 9 retries
   validationReport?: ValidationReport;
 
+  // ── A_57 §9.1/D2: the discriminating staged/true contradiction pair, computed once by the Agent 9
+  //    world-state ledger and read by the final rubric scorer (single source of truth). ───────────────
+  discriminatingContradiction?: { values: [string, string]; descriptions: [string, string] } | null;
+
   // ── Pillar 1: Locked Fact Registry (populated by Agent 3b when enableLockedFactRegistry) ─
   lockedFactRegistry?: LockedFactRegistry;
 

@@ -71,8 +71,19 @@ function unwrapCase(cml: unknown): ScoringCaseInput {
   return {};
 }
 
+/** A_57 D2 — the canonical staged/true discriminating pair, supplied by the world-state ledger. */
+export interface DiscriminatingPairInput {
+  values: [string, string];
+}
+
+export interface ExtractStoryFactsOptions {
+  /** The discriminating clue's staged value and true value (from the world-state ledger). When present,
+   *  enables the high-precision dual-value-without-contrast detector (D2). */
+  discriminatingPair?: DiscriminatingPairInput | null;
+}
+
 /** The exact facts: role collisions, template leakage, victim-unnamed. Everything else stays for the judge. */
-export function extractStoryFacts(cml: unknown, prose: string): StoryFacts {
+export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStoryFactsOptions = {}): StoryFacts {
   const caseData = unwrapCase(cml);
   const cast = caseData.cast ?? [];
   const culprits = (caseData.culpability?.culprits ?? []).map((c) => norm(String(c)));
@@ -128,7 +139,91 @@ export function extractStoryFacts(cml: unknown, prose: string): StoryFacts {
   }
 
   facts.templateLeakageHits = detectTemplateLeakage(prose);
+  const malformed = detectMalformedSurfacing(prose);
+  if (malformed.length > 0) facts.malformedEvidenceSurfacing = malformed;
+  if (detectReportStyleClearance(prose)) facts.reportStyleClearance = true;
+  if (opts.discriminatingPair && detectDualValueNoContrast(prose, opts.discriminatingPair)) {
+    facts.dualValueNoContrast = true;
+  }
   return facts;
+}
+
+/** Lowercased indexes of every occurrence of `needle` in `haystack`. */
+function allIndexes(haystack: string, needle: string): number[] {
+  const out: number[] = [];
+  if (!needle) return out;
+  let from = 0;
+  for (;;) {
+    const i = haystack.indexOf(needle, from);
+    if (i === -1) break;
+    out.push(i);
+    from = i + needle.length;
+  }
+  return out;
+}
+
+/**
+ * A_57 D2 — the discriminating clue's staged value and true value appear close together with NO contrast
+ * connective binding them (two flat parallel truths instead of one contradiction). High-precision: it
+ * fires only on the two CANONICAL values (from the world-state ledger) co-occurring within a tight window
+ * and lacking a contrast connective in that window. A story that properly frames the contrast
+ * ("the watch read X, yet the shadow could only fall that way at Y") is NOT flagged.
+ */
+function detectDualValueNoContrast(prose: string, pair: { values: [string, string] }): boolean {
+  const a = String(pair.values?.[0] ?? "").trim().toLowerCase();
+  const b = String(pair.values?.[1] ?? "").trim().toLowerCase();
+  if (!a || !b || a === b) return false;
+  const lower = prose.toLowerCase();
+  const CONTRAST = /\b(?:but|yet|however|whereas|while|though|although|rather than|instead of|could only|only have|cannot|can['’]?t|impossible|contradict\w*|discrepan\w*|at odds|conflict\w*|mismatch\w*|inconsisten\w*|did not match|didn['’]?t match)\b/;
+  const WINDOW = 240; // ~2-3 sentences: "stated as two flat, side-by-side truths"
+  const idxsA = allIndexes(lower, a);
+  const idxsB = allIndexes(lower, b);
+  for (const ia of idxsA) {
+    for (const ib of idxsB) {
+      const lo = Math.min(ia, ib);
+      const hi = Math.max(ia + a.length, ib + b.length);
+      if (hi - lo <= WINDOW) {
+        // Inspect a slightly padded window so a contrast connective just before/after still counts.
+        const windowText = lower.slice(Math.max(0, lo - 48), Math.min(lower.length, hi + 48));
+        if (!CONTRAST.test(windowText)) return true; // co-present, no contrast → the D2 defect
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * A_57 D1 — a verbatim/descriptive locked-fact value spliced into prose with a stray apostrophe and no
+ * space ("drizzle'the groundskeeper's entry … skies"). High-precision, parameter-generic: it matches an
+ * apostrophe joining two word-tokens that is NEITHER a valid contraction/possessive ('s, n't, 're, 've,
+ * 'll, 'd, 'm, o'clock) NOR a name particle (O'Brien, d'Arcy). Returns short context slices (capped).
+ */
+function detectMalformedSurfacing(prose: string): string[] {
+  const re = /([a-z]+)['’]([a-z][a-z]*)/gi;
+  const CONTRACTION = /^(?:s|t|re|ve|ll|d|m|clock)$/i;
+  const NAME_PARTICLE = /^[odl]$/i;
+  const hits: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(prose)) !== null && hits.length < 10) {
+    if (CONTRACTION.test(m[2]) || NAME_PARTICLE.test(m[1])) continue;
+    const start = Math.max(0, m.index - 18);
+    hits.push(prose.slice(start, m.index + m[0].length + 18).replace(/\s+/g, " ").trim());
+  }
+  return hits;
+}
+
+/**
+ * A_57 D4 — a suspect clearance written as a passive VERDICT ("X was cleared because …"), the
+ * deterministic clearance-patch signature ("… placed X outside the fatal sequence …"), or the detective
+ * clearing himself ("As for myself—"). Reads as validation output, not dramatized deduction. Generic.
+ */
+function detectReportStyleClearance(prose: string): boolean {
+  return (
+    /\b(?:was|were|is|are|been)\s+cleared\s+(?:because|by|due\s+to)\b/i.test(prose) ||
+    /\bplaced\s+[A-Z][^.!?]{0,40}\boutside\s+the\s+(?:fatal\s+sequence|sequence\s+of\s+events)\b/i.test(prose) ||
+    /\bestablished\s+by\s+the\s+evidence\s+and\s+the\s+timeline\b/i.test(prose) ||
+    /\bas\s+for\s+(?:myself|my\s+own)\b\s*[—,-]/i.test(prose)
+  );
 }
 
 /** Merge deterministic facts with judge-supplied semantic flags (the deterministic ones win for the exact caps). */

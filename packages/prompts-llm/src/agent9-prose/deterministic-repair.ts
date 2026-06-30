@@ -475,12 +475,16 @@ const buildDeterministicClearanceParagraph = (
     // R-A (M0): key-terms at the paste site — the rich summary feeds the guard, not the prose.
     .map((clueId) => composeProseTermPhrase(summarizeClueForFallback(clueId, ledgerEntry, clueDistribution)))
     .filter(Boolean);
+  // A_57 D4: a clearance must read as DEDUCTION, not a passive verdict. Avoid the report-style frame
+  // ("X was cleared because … placed X outside the fatal sequence … established by the evidence and the
+  // timeline") that a human reads as validation output (and the rubric now caps). State the alibi as a
+  // fact that accounts for the suspect's whereabouts, then the conclusion.
   const supportClause = supportHints.length > 0
     ? `the evidence around ${supportHints.join(" and ")}`
     : clearance.clearance_method
-      ? `the ${clearance.clearance_method} established by the evidence and the timeline`
-      : "the evidence and the timeline";
-  return `${suspectName} was cleared because ${supportClause} placed ${suspectName} outside the fatal sequence of events. ${suspectName}'s alibi was confirmed, which proved ${suspectName} could not have been the culprit the room first feared.`;
+      ? `the ${clearance.clearance_method}`
+      : "the testimony and the timeline";
+  return `By the time of the crime, ${supportClause} accounted for ${suspectName}'s movements elsewhere; ${suspectName} could not have been the killer.`;
 };
 
 export const applyDeterministicClearancePatch = (
