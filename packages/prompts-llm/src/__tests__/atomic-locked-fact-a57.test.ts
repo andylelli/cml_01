@@ -34,4 +34,19 @@ describe("isAtomicLockedFactValue (A_57 D1)", () => {
       expect(isAtomicLockedFactValue(v), v).toBe(false);
     }
   });
+
+  // A_58 review: a bare "to"/"half"/"quarter" is ordinary English, not a clock time. These short
+  // descriptive phrases must NOT be misclassified atomic (which would force verbatim splicing and enable
+  // a bogus discriminating-contradiction pairing).
+  it("does NOT treat a bare preposition / non-time use as an atomic clock value", () => {
+    for (const v of [
+      "pinned to the door",
+      "addressed to the housekeeper",
+      "a quarter of the estate",
+      "the half-open study door",
+      "close to the window",
+    ]) {
+      expect(isAtomicLockedFactValue(v), v).toBe(false);
+    }
+  });
 });

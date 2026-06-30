@@ -86,6 +86,31 @@ import type {
   MacroArcEntry,
 } from "./types.js";
 
+// A_58 review: a CLOCK TIME requires a number/number-word around the preposition — not a bare `to`/
+// `half`/`quarter`, which match ordinary English ("pinned TO the door", "a QUARTER of the estate", "the
+// HALF-open door"). The old `\b(?:past|to|quarter|half)\b` test mis-classified such descriptive values as
+// atomic (D1) and could pair them as a bogus discriminating contradiction (D2). Matches: "3:30", "4.20",
+// "ten o'clock", "half past three", "quarter to nine", "twenty minutes past four", "thirteen minutes to
+// midnight". Does NOT match a bare preposition with no clock number on both sides.
+const TIME_NUM = "(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|noon|midnight|midday|quarter|half)";
+const CLOCK_TIME_RE = new RegExp(
+  "\\d{1,2}\\s*[:.]\\s*\\d{2}" + // 3:30 / 4.20
+    "|\\b[\\w-]+\\s+o[’']clock\\b" + // ten o'clock
+    `|\\b(?:${TIME_NUM}|\\d{1,2})(?:[-\\s]${TIME_NUM})*\\s+(?:minutes?\\s+)?(?:past|to)\\s+(?:the\\s+)?(?:${TIME_NUM}|\\d{1,2})\\b`, // half past three / twenty minutes past four / thirteen minutes to midnight
+  "i",
+);
+
+// Canonical singular for each measurement unit, so a staged/true pair of the SAME scale merges even across
+// irregular plurals ("ten feet" vs "twelve foot"; "metres" vs "meters").
+const UNIT_CANON: Record<string, string> = {
+  minutes: "minute", minute: "minute", hours: "hour", hour: "hour", seconds: "second", second: "second",
+  degrees: "degree", degree: "degree", feet: "foot", foot: "foot", metres: "metre", metre: "metre",
+  meters: "metre", meter: "metre", yards: "yard", yard: "yard", inches: "inch", inch: "inch",
+  paces: "pace", pace: "pace", miles: "mile", mile: "mile", pounds: "pound", pound: "pound",
+  ounces: "ounce", ounce: "ounce", stone: "stone", grains: "grain", grain: "grain",
+};
+const UNIT_RE = /\b(minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/i;
+
 /**
  * A_57 D1 — is a locked-fact value ATOMIC (a time / number / measurement that must be reproduced
  * verbatim) vs DESCRIPTIVE (a log entry / weather note / document clause that must be paraphrased, not
@@ -102,7 +127,7 @@ export const isAtomicLockedFactValue = (raw: string): boolean => {
   const core = v.replace(/[,\s]+(?:in\s+the\s+(?:morning|afternoon|evening)|at\s+night)\.?$/i, "").trim();
   const words = core.split(/\s+/).filter(Boolean);
   if (words.length > 6) return false; // a clause/sentence is descriptive
-  if (/\d|\bo[’']clock\b|\b(?:past|to|quarter|half)\b|\b(?:minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/i.test(core)) {
+  if (/\d/.test(core) || CLOCK_TIME_RE.test(core) || UNIT_RE.test(core)) {
     return true; // time / measurement / quantity
   }
   if (words.length <= 3 && /^(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty)\b/i.test(core)) {
@@ -120,11 +145,9 @@ export const isAtomicLockedFactValue = (raw: string): boolean => {
 const lockedFactDimension = (raw: string): string | null => {
   const v = String(raw ?? "").trim().toLowerCase();
   if (!v) return null;
-  if (/\b(?:past|to|quarter|half)\b/.test(v) || /\bo[’']clock\b/.test(v)) return "time";
-  const unit = v.match(
-    /\b(minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/,
-  );
-  if (unit) return `unit:${unit[1].replace(/s$/, "")}`;
+  if (CLOCK_TIME_RE.test(v)) return "time"; // a real clock time, not a bare to/half/quarter (A_58 review)
+  const unit = v.match(UNIT_RE);
+  if (unit) return `unit:${UNIT_CANON[unit[1].toLowerCase()] ?? unit[1].toLowerCase().replace(/s$/, "")}`;
   return null; // a bare count is not a comparable dimension — never pair on it
 };
 
@@ -1676,8 +1699,12 @@ ${victimIdentityRule}`;
     // that "contradicts itself" (ChatGPT's biggest problem on run 09168377). Require them to surface AS ONE
     // contrast, never two standalone statements. The values stay verbatim (they are in the block above).
     const contradictionPair = findDiscriminatingContradictionPair(atomicFacts);
+    // A_58 review: the pair is returned in registry order, which does NOT tell us which value is the
+    // staged appearance vs the true state — so the instruction must stay order-neutral (a hardcoded
+    // "the watch read VALUES[0], yet … VALUES[1]" example could invert staged/true). Let the model infer
+    // which is which from the evidence; we only require the two to surface as ONE contrast, not two truths.
     const contradictionBlock = contradictionPair
-      ? `\n\n⚠ CENTRAL CONTRADICTION (the heart of the mystery): the two locked values "${contradictionPair.values[0]}" and "${contradictionPair.values[1]}" are NOT two separate facts — they are ONE contradiction (a staged appearance versus the true state). If this chapter references both, you MUST present them AS A SINGLE CONTRAST joined by a contrast connective (but / yet / however / could only / whereas), e.g. "the watch read ${contradictionPair.values[0]}, yet the evidence could place it only at ${contradictionPair.values[1]}". NEVER state them as two flat, side-by-side truths — that makes the central clue read as if it contradicts itself.`
+      ? `\n\n⚠ CENTRAL CONTRADICTION (the heart of the mystery): the two locked values "${contradictionPair.values[0]}" and "${contradictionPair.values[1]}" are NOT two separate facts — they are ONE contradiction (one is a staged appearance, the other the true state; the evidence determines which). If this chapter references both, you MUST present them AS A SINGLE CONTRAST joined by a contrast connective (but / yet / however / could only / whereas) — e.g. "the watch showed the one time, yet the evidence proved it could only have been the other" — making clear which reading is the appearance and which is the truth. NEVER state them as two flat, side-by-side truths — that makes the central clue read as if it contradicts itself.`
       : '';
     lockedFactsBlock = verbatimBlock + descriptiveBlock + contradictionBlock;
   }

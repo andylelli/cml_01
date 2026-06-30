@@ -54,6 +54,31 @@ describe("findDiscriminatingContradictionPair (A_57 D2)", () => {
     ).toBeNull();
   });
 
+  it("A_58 review: does NOT pair a real time against a descriptive value containing a bare 'to'/'half'", () => {
+    // "pinned to the door" / "a quarter of the estate" must not be read as clock times and paired.
+    expect(
+      findDiscriminatingContradictionPair([
+        { description: "true time", value: "half past three" },
+        { description: "where the note was", value: "pinned to the door" },
+      ]),
+    ).toBeNull();
+    expect(
+      findDiscriminatingContradictionPair([
+        { description: "true time", value: "twenty minutes past four" },
+        { description: "share of the estate", value: "a quarter of the estate" },
+      ]),
+    ).toBeNull();
+  });
+
+  it("A_58 review: pairs same-scale measurements across irregular plurals (feet vs foot)", () => {
+    const pair = findDiscriminatingContradictionPair([
+      { description: "claimed height", value: "ten feet" },
+      { description: "true height", value: "twelve foot" },
+    ]);
+    expect(pair).not.toBeNull();
+    expect(pair!.values).toEqual(["ten feet", "twelve foot"]);
+  });
+
   it("returns null when three+ same-dimension values make the pair ambiguous", () => {
     expect(
       findDiscriminatingContradictionPair([

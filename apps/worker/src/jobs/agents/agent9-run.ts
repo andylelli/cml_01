@@ -1891,7 +1891,11 @@ export const buildPronounStabilityValidator =
     return {
       ok: mismatches === 0,
       score: 100 - mismatches * 10,
-      violations: mismatches > 0 ? [`pronoun_gender_mismatch:${mismatches}`] : [],
+      // A_58 review: the violation label MUST be count-free. mutateThenValidate reverts when the mutated
+      // value introduces a violation string not present before; embedding the count made a PARTIAL repair
+      // (e.g. 5→2 mismatches) read as a brand-new violation ("…:2" ∉ ["…:5") and get reverted, so only a
+      // repair to exactly zero ever shipped. A stable label lets the score comparison gate regressions.
+      violations: mismatches > 0 ? ["pronoun_gender_mismatch"] : [],
     };
   };
 

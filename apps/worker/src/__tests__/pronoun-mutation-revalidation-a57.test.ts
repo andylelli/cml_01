@@ -66,4 +66,26 @@ describe("buildPronounStabilityValidator (A_57 D5)", () => {
     expect(noGender(MISGENDERED).score).toBe(100);
     expect(noGender(MISGENDERED).ok).toBe(true);
   });
+
+  // A_58 review: the violation label MUST be count-free. The earlier label embedded the count
+  // ("pronoun_gender_mismatch:N"); via mutateThenValidate's "new-violation ⇒ revert" rule a PARTIAL repair
+  // (5→2) produced "…:2" ∉ ["…:5"] and was reverted, so only a repair to exactly 0 ever shipped. A stable
+  // label means two non-zero states share the same violation set, so only the score gates acceptance.
+  it("uses a COUNT-FREE violation label (so partial repairs are not reverted)", () => {
+    const v = validate(MISGENDERED);
+    expect(v.ok).toBe(false);
+    expect(v.violations).toEqual(["pronoun_gender_mismatch"]); // exactly this — no ":N" count suffix
+    for (const label of v.violations) expect(label).not.toMatch(/:\d/);
+  });
+
+  it("APPLIES an improvement and REVERTS a regression purely by score, with the label held constant", () => {
+    // Stub two non-zero states to isolate the mutateThenValidate interaction from the validator's
+    // competing-gender counting quirks: same (count-free) label, different scores.
+    const worse = { ok: false, score: 50, violations: ["pronoun_gender_mismatch"] };
+    const better = { ok: false, score: 80, violations: ["pronoun_gender_mismatch"] };
+    const improve = mutateThenValidate("A", () => "B", (x: string) => (x === "A" ? worse : better));
+    expect(improve.applied).toBe(true); // partial improvement (50→80) ships — the bug being fixed
+    const regress = mutateThenValidate("A", () => "B", (x: string) => (x === "A" ? better : worse));
+    expect(regress.reverted).toBe(true); // 80→50 still reverts on score
+  });
 });
