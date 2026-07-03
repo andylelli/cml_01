@@ -111,6 +111,10 @@ export type { StoryWorldState, WorldStateFact, WorldStateCharacter, WorldStateCo
 // A_57 §9.2 — the discriminator verifier (logical soundness over the suspect partition)
 export { verifyDiscriminator } from "./discriminator-verifier.js";
 export type { DiscriminatorVerdict, DiscriminatorIssue, DiscriminatorIssueKind, DiscriminatorVerifierInputs } from "./discriminator-verifier.js";
+// A_61 RC2.5 — deterministic case-soundness repair (repair-not-abort; the prerequisite for promoting
+// the contradiction/discriminator gates to blocking).
+export { repairCaseSoundness } from "./case-soundness-repair.js";
+export type { CaseSoundnessRepairResult } from "./case-soundness-repair.js";
 // First-principles LLD §5.1/§6.1 — the Story Bible (single dereference source) + source-level gates
 export { buildStoryBible, runBibleGates } from "./story-bible.js";
 export type {

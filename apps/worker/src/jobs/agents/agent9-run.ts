@@ -40,6 +40,7 @@ import {
   runCritiqueRewritePass,
   runScaffoldRegenPass,
   makeRegenFn,
+  repairCaseSoundness,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -3356,6 +3357,17 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // rather than re-deriving (§9.5 clause 2), so e.g. the D3 prose instruction below is read off the ledger
   // instead of a second `checkMechanismEnvironmentConsistency` call.
   const caseBlock = (cml as any)?.CASE ?? {};
+  // A_61 RC2.5 — repair clear-cut case-soundness data errors AT SOURCE (unknown gender, culprit==victim,
+  // self-contradicting/incomplete elimination set, missing culprit derivable from cast) BEFORE the
+  // world-state is built and the gate runs — the repair-not-abort prerequisite for promoting the gate to
+  // blocking. Mutates caseBlock in place so both the prose prompt and the gate see the repaired data.
+  {
+    const soundnessRepair = repairCaseSoundness(caseBlock);
+    for (const r of soundnessRepair.repairs) ctx.warnings.push(`[Agent 9] ${r}`);
+    if (soundnessRepair.residualBlocked.length > 0) {
+      ctx.warnings.push(`[Agent 9] case-soundness: unrepairable residual conflicts — ${soundnessRepair.residualBlocked.join(", ")}.`);
+    }
+  }
   const worldStateVictim = (Array.isArray(caseBlock.cast) ? caseBlock.cast : [])
     .find((c: any) => /victim/i.test(String(c?.role_archetype ?? c?.role ?? "")))?.name ?? null;
   const worldStateCulprits: string[] = Array.isArray(caseBlock.culpability?.culprits) ? caseBlock.culpability.culprits : [];
@@ -3397,8 +3409,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const detail =
         `[Agent 9] world-state contradiction gate (A_57 §9.1): ${gate.conflicts.length} conflict(s) — ` +
         gate.conflicts.map((c) => `${c.kind}: ${c.detail}`).join("; ") + ".";
-      // P2: block at source when enabled; otherwise stay warn-level (today's behaviour).
-      if (isBibleGatesBlockingEnabled()) {
+      // P2: block at source when enabled; otherwise stay warn-level (today's behaviour). RC2.5:
+      // mechanism_environment is already prose-repaired (repairInstruction above), so it must NEVER
+      // trigger the blocking throw — only genuinely unsound, unrepaired conflicts abort.
+      const blockingConflicts = gate.conflicts.filter((c) => c.kind !== "mechanism_environment");
+      if (isBibleGatesBlockingEnabled() && blockingConflicts.length > 0) {
         throw new Error(`${detail} [AGENT9_BIBLE_GATES_BLOCKING] repair the case upstream before prose.`);
       }
       ctx.warnings.push(detail);
