@@ -131,7 +131,10 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean 
  * When on but no regression occurs, behaviour is identical to legacy (the lead ships unchanged); it
  * only ever REVERTS a lead that would have introduced a metadata-dump opening (a strict improvement).
  */
-const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, true);
+// Read at RUNTIME, not import time: the worker/canary call dotenv `config()` AFTER their (hoisted)
+// static imports, so a module-level `const = process.env.X` would freeze to the default before
+// .env.local loads and a flag set only there would silently never flip. Getters read on each call.
+const isMutationRevalidationEnabled = () => parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, true);
 
 /**
  * ROADMAP_TO_80 M1: the deterministic grounding-lead PREPEND cycled 5 fixed location-preamble
@@ -150,7 +153,7 @@ const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION
  * to a location the chapter actually visits (preferredLocationName), so enabling it no longer describes
  * the wrong room.
  */
-const AGENT9_GROUNDING_LEAD = parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD, false);
+const isGroundingLeadEnabled = () => parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD, false);
 
 /**
  * First-principles LLD §6.1 / phase P2 — promote the world-state contradiction gate and the
@@ -159,7 +162,7 @@ const AGENT9_GROUNDING_LEAD = parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD,
  * on turns previously-shipping unsound cases into aborts, so it must land with an upstream repair hook
  * and clear an N≥4 gate first. When off, behaviour is unchanged (the conflicts stay warnings).
  */
-const AGENT9_BIBLE_GATES_BLOCKING = parseBooleanEnv(process.env.AGENT9_BIBLE_GATES_BLOCKING, false);
+const isBibleGatesBlockingEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_GATES_BLOCKING, false);
 
 /**
  * First-principles LLD §6.5 / phase P5 — the critique→rewrite-at-creative-temperature pass. After
@@ -168,7 +171,7 @@ const AGENT9_BIBLE_GATES_BLOCKING = parseBooleanEnv(process.env.AGENT9_BIBLE_GAT
  * smuggle scaffold; clue-presence and pronoun fidelity are additionally backstopped by the downstream
  * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
  */
-const AGENT9_CRITIQUE_REWRITE = parseBooleanEnv(process.env.AGENT9_CRITIQUE_REWRITE, false);
+const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQUE_REWRITE, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -2454,10 +2457,10 @@ export const applyDeterministicProsePostProcessing = (
     // sentence ONLY to chapters that fail the scorer, and only if it introduces no metadata dump.
     // Reversible: set AGENT9_GROUNDING_LEAD=0 to restore pure model openings.
     const needsGroundingLead =
-      AGENT9_GROUNDING_LEAD &&
+      isGroundingLeadEnabled() &&
       (!signals.hasAnchor || signals.sensoryCount < 2 || !signals.hasAtmosphere);
     let groundedParagraphs: string[];
-    if (AGENT9_MUTATION_REVALIDATION && needsGroundingLead) {
+    if (isMutationRevalidationEnabled() && needsGroundingLead) {
       // Validation-gated mutation (§4.2): prepend the grounding lead, but revert to the model's clean
       // opening if doing so introduces a location-metadata-dump (the run_1d55f7c7 §3.2 leak). The
       // mutation ships only if it broke nothing — the universal law, applied here via the shared
@@ -3384,7 +3387,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         `[Agent 9] world-state contradiction gate (A_57 §9.1): ${gate.conflicts.length} conflict(s) — ` +
         gate.conflicts.map((c) => `${c.kind}: ${c.detail}`).join("; ") + ".";
       // P2: block at source when enabled; otherwise stay warn-level (today's behaviour).
-      if (AGENT9_BIBLE_GATES_BLOCKING) {
+      if (isBibleGatesBlockingEnabled()) {
         throw new Error(`${detail} [AGENT9_BIBLE_GATES_BLOCKING] repair the case upstream before prose.`);
       }
       ctx.warnings.push(detail);
@@ -3422,7 +3425,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         `[Agent 9] discriminator verifier (A_57 §9.2): ${verdict.issues.length} soundness issue(s) — ` +
         verdict.issues.map((i: { kind: string; detail: string }) => `${i.kind}: ${i.detail}`).join("; ") + ".";
       // P2: block at source when enabled; otherwise stay warn-level (today's behaviour).
-      if (AGENT9_BIBLE_GATES_BLOCKING) {
+      if (isBibleGatesBlockingEnabled()) {
         throw new Error(`${detail} [AGENT9_BIBLE_GATES_BLOCKING] repair the case upstream before prose.`);
       }
       ctx.warnings.push(detail);
@@ -4167,7 +4170,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // through the existing gates; the library's own validator rolls back any rewrite that drops a locked
   // fact or introduces scaffold, and clue-presence/pronoun fidelity are re-checked downstream. Wrapped
   // so any failure leaves the generated chapters untouched.
-  if (AGENT9_CRITIQUE_REWRITE && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+  if (isCritiqueRewriteEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
     // Snapshot the client's running cost so the critique-rewrite LLM spend is folded into prose.cost
     // (otherwise the per-agent cost telemetry under-reports it).
     const costBeforeRewrite = client.getCostTracker().getTotalCost();
@@ -4635,7 +4638,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // content-injection pass, where a revert could drop a REQUIRED culprit/resolution/clearance sentence.
   const pronounStabilityValidator = buildPronounStabilityValidator(cml, runId, projectId || runId);
   const applyPronounGuardedMutation = (currentProse: any, mutate: (p: any) => any, label: string): any => {
-    if (!AGENT9_MUTATION_REVALIDATION) return mutate(currentProse);
+    if (!isMutationRevalidationEnabled()) return mutate(currentProse);
     const outcome = mutateThenValidate(currentProse, mutate, pronounStabilityValidator);
     if (outcome.reverted) {
       ctx.warnings.push(`[Agent 9] mutation-revalidation (A_57 D5): reverted ${label} — ${outcome.reason}.`);
