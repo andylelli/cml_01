@@ -44,6 +44,7 @@ import {
   runCaseTransitionRegenPass,
   makeRegenFn,
   repairCaseSoundness,
+  genderMapFromBible,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -197,6 +198,10 @@ const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_R
 /** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
  * murder with none. Default-off (N≥4 before default-on), runtime-read. */
 const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_TRANSITION, false);
+
+/** A_61 RC2.2 — dereference the frozen Bible gender map as the SINGLE authoritative pronoun source
+ * (validators + narrative state), instead of each site re-parsing raw cast gender. Default-off. */
+const isBibleAuthoritativeEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_AUTHORITATIVE, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -1920,7 +1925,7 @@ export const repairMalformedSurfacing = (prose: any): { prose: any; repairCount:
  * never harmful. Exported for unit testing. Pure given pure inputs.
  */
 export const buildPronounStabilityValidator =
-  (cml: any, runId: string, projectId: string) =>
+  (cml: any, runId: string, projectId: string, genderOverride?: Record<string, "male" | "female">) =>
   (currentProse: any): { ok: boolean; score: number; violations: string[] } => {
     let mismatches = 0;
     try {
@@ -1933,7 +1938,7 @@ export const buildPronounStabilityValidator =
           text: ((ch?.paragraphs ?? []) as string[]).join("\n\n"),
         })),
       };
-      const result = new CharacterConsistencyValidator().validate(story as any, cml as any);
+      const result = new CharacterConsistencyValidator(genderOverride).validate(story as any, cml as any);
       mismatches = (result.errors ?? []).filter((e: any) => e?.type === "pronoun_gender_mismatch").length;
     } catch {
       return { ok: true, score: 100, violations: [] };
@@ -4761,7 +4766,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // measurement failure falls back to "no signal" (score 100), so the guard is inert rather than harmful.
   // Gated by AGENT9_MUTATION_REVALIDATION (default on). Only cleanup/repair passes are wrapped — NEVER a
   // content-injection pass, where a revert could drop a REQUIRED culprit/resolution/clearance sentence.
-  const pronounStabilityValidator = buildPronounStabilityValidator(cml, runId, projectId || runId);
+  // RC2.2: when Bible-authoritative, the pronoun-stability validator checks against the frozen Bible
+  // gender map (the single source), not a re-parse of raw cast gender. RC2.5's soundness repair has
+  // already guaranteed every cast member resolves, so the map is complete.
+  const bibleGenderMapRc22 = isBibleAuthoritativeEnabled() ? genderMapFromBible(worldState) : undefined;
+  const pronounStabilityValidator = buildPronounStabilityValidator(cml, runId, projectId || runId, bibleGenderMapRc22);
   const applyPronounGuardedMutation = (currentProse: any, mutate: (p: any) => any, label: string): any => {
     if (!isMutationRevalidationEnabled()) return mutate(currentProse);
     const outcome = mutateThenValidate(currentProse, mutate, pronounStabilityValidator);

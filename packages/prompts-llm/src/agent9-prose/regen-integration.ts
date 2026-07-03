@@ -31,6 +31,20 @@ export function pronounsFromBible(bible: Pick<StoryBible, "characters">): Record
   return out;
 }
 
+/**
+ * A_61 RC2.2 — the canonical typed gender per named character from the frozen Bible (male/female only;
+ * "unknown" is omitted — the contradiction gate surfaces it). This is the SINGLE authoritative gender
+ * source the validators/generation dereference under AGENT9_BIBLE_AUTHORITATIVE, instead of each site
+ * re-parsing raw cast gender. (RC2.5's soundness repair guarantees no cast member reaches here unknown.)
+ */
+export function genderMapFromBible(bible: Pick<StoryBible, "characters">): Record<string, "male" | "female"> {
+  const out: Record<string, "male" | "female"> = {};
+  for (const c of bible.characters ?? []) {
+    if (c.name && (c.gender === "male" || c.gender === "female")) out[c.name] = c.gender;
+  }
+  return out;
+}
+
 /** Atomic locked-fact values that must be reproduced verbatim (descriptive facts are paraphrasable). */
 export function lockedFactValues(bible: Pick<StoryBible, "facts">): Array<{ value: string; description?: string }> {
   return (bible.facts ?? [])

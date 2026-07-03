@@ -10,6 +10,14 @@ const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|M
 export class CharacterConsistencyValidator implements Validator {
   name = 'CharacterConsistencyValidator';
 
+  /**
+   * A_61 RC2.2 — optional frozen Bible gender map (canonical name → male/female). When supplied (under
+   * AGENT9_BIBLE_AUTHORITATIVE), it is the authoritative gender source, so this validator and generation
+   * dereference the SAME frozen map instead of independently re-parsing raw cast gender. Absent → today's
+   * `parseGender(char.gender)` path (byte-identical).
+   */
+  constructor(private readonly genderOverride?: Record<string, 'male' | 'female'>) {}
+
   validate(story: Story, cml?: CMLData): ValidationResult {
     const errors: ValidationError[] = [];
 
@@ -91,7 +99,8 @@ export class CharacterConsistencyValidator implements Validator {
     };
 
     for (const char of cml.CASE.cast) {
-      const gender = this.parseGender(char.gender);
+      // RC2.2: dereference the frozen Bible gender map when provided; else re-parse the raw cast gender.
+      const gender = this.genderOverride?.[char.name] ?? this.parseGender(char.gender);
       manifest.set(char.name, {
         name: char.name,
         gender,
