@@ -65,6 +65,29 @@ describe("buildPlausibilityJudgePrompt", () => {
     expect(user).toContain(device.underlyingReality);
     expect(user).toMatch(/does this mechanism actually work/i);
   });
+
+  it("RC3.2 — the system prompt forces a magnitude/decisiveness judgment (the brass-thermal class fails)", () => {
+    const { system } = buildPlausibilityJudgePrompt(device, { decade: "1930s" });
+    expect(system).toMatch(/magnitude/i);
+    expect(system).toMatch(/directionally real but quantitatively negligible/i);
+    expect(system).toMatch(/MUST score below 80/);
+  });
+
+  it("RC3.2 — with concrete values the user prompt demands an order-of-magnitude estimate", () => {
+    const withValues: HardLogicDeviceIdea = {
+      ...device,
+      lockedFacts: [{ id: "rod_length", value: "30 cm brass" }, { id: "temp_rise", value: "8 degrees C" }],
+    };
+    const { user } = buildPlausibilityJudgePrompt(withValues, { decade: "1930s" });
+    expect(user).toMatch(/order of magnitude/i);
+    expect(user).toMatch(/too small to be decisive.*failure/i);
+    expect(user).toContain("rod_length=30 cm brass");
+  });
+
+  it("RC3.2 — without concrete values it still asks about decisiveness (no crash)", () => {
+    const { user } = buildPlausibilityJudgePrompt(device, { decade: "1930s" });
+    expect(user).toMatch(/magnitude is large enough to be decisive/i);
+  });
 });
 
 describe("buildPlausibilityJudgeFeedback", () => {

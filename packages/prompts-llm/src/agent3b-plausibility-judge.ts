@@ -76,6 +76,7 @@ export const buildPlausibilityJudgePrompt = (
 ): { system: string; user: string } => {
   const era = String(ctx.decade ?? "").trim() || "the period";
   const scene = [ctx.location, ctx.institution].filter(Boolean).join(", ");
+  const hasValues = !!(device.lockedFacts && device.lockedFacts.length > 0);
   const system =
     "You are an exacting physical-plausibility judge for Golden Age detective fiction. You assess ONE " +
     "mechanism against the real physics, chemistry, and engineering available in the stated era. You are " +
@@ -84,17 +85,28 @@ export const buildPlausibilityJudgePrompt = (
     '{ "score": <0-100 integer>, "reasons": ["why it does or does not work"], ' +
     '"suggestions": ["concrete fixes if it does not"] }. ' +
     "score ≥ 80 means a knowledgeable reader of the era would accept it as genuinely workable; " +
-    "below 80 means a real physical flaw, anachronism, or hand-wave.";
+    "below 80 means a real physical flaw, anachronism, a hand-wave, " +
+    // RC3.2 — magnitude/decisiveness: a mechanism can be DIRECTIONALLY real yet quantitatively far too
+    // small to cause the plot consequence it is claimed to cause (e.g. thermal expansion of a metal rod
+    // producing a decisive, minutes-scale timing shift). That is a failure, not a pass.
+    "or an effect whose real-world MAGNITUDE is far too small to produce the plot consequence it is " +
+    "claimed to cause. A mechanism that is directionally real but quantitatively negligible (e.g. thermal " +
+    "expansion of a metal rod producing a decisive, minutes-scale timing shift) MUST score below 80.";
   const user =
     `Era: ${era}${scene ? `\nScene: ${scene}` : ""}\n\n` +
     `Mechanism title: ${device.title}\n` +
     `Core principle (${device.principleType}): ${device.corePrinciple}\n` +
     `Surface illusion: ${device.surfaceIllusion}\n` +
     `Underlying reality (the physical claim to judge): ${device.underlyingReality}\n` +
-    (device.lockedFacts && device.lockedFacts.length > 0
-      ? `Concrete physical values: ${device.lockedFacts.map((f) => `${f.id}=${f.value}`).join("; ")}\n`
+    (hasValues
+      ? `Concrete physical values: ${device.lockedFacts!.map((f) => `${f.id}=${f.value}`).join("; ")}\n`
       : "") +
     `\nGiven the era's real physics and this scene, does this mechanism actually work? ` +
+    (hasValues
+      ? `Using the concrete values above, estimate the ORDER OF MAGNITUDE of the effect and state whether ` +
+        `it is large enough to cause the described plot consequence. If the effect is real but too small ` +
+        `to be decisive, that is a failure (score < 80). `
+      : `Consider whether the effect's magnitude is large enough to be decisive, not merely directionally real. `) +
     `Judge only the underlying reality, not the prose. Return JSON only.`;
   return { system, user };
 };

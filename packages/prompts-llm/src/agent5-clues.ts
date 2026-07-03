@@ -45,6 +45,28 @@ export interface ClueExtractionInputs {
   lockedFacts?: Array<{ id: string; value: string; description: string }>;
 }
 
+/**
+ * A_61 RC3.5 — map a physical death method to fair-play tells a witness could observe at the
+ * body-discovery scene, plus the tokens Agent 7 uses to locate the generated tell clue. Generic across
+ * the canonical methods; defaults to a neutral "manner of death" tell for anything unrecognised.
+ */
+export function deathMethodTellHints(deathMethod: string): { examples: string; tokens: string[] } {
+  const m = String(deathMethod ?? "").toLowerCase();
+  if (/poison|toxin|venom|arsenic|cyanide|strychnine/.test(m))
+    return { examples: "for poison: numbness, a bitter almond residue, constriction, or sudden collapse with no wound", tokens: ["numbness", "bitter", "residue", "collapse", "convulsion", "no wound", "froth"] };
+  if (/stab|knife|blade|dagger|puncture/.test(m))
+    return { examples: "for stabbing: a puncture wound, blood pooling, a torn garment, or a missing blade", tokens: ["wound", "blood", "blade", "puncture", "torn"] };
+  if (/blunt|struck|bludgeon|blow|struck down|beaten/.test(m))
+    return { examples: "for blunt-force: a head wound, a bloodied heavy object, or bruising", tokens: ["wound", "blood", "bruis", "struck", "blunt"] };
+  if (/strangl|garrot|throttle|asphyxiat|suffocat/.test(m))
+    return { examples: "for strangulation: ligature marks, petechiae in the eyes, or a disturbed collar", tokens: ["ligature", "marks", "throat", "collar", "petechiae", "bruis"] };
+  if (/shot|gun|firearm|bullet|pistol|revolver/.test(m))
+    return { examples: "for shooting: a bullet wound, powder burns, a spent cartridge, or the report heard", tokens: ["wound", "bullet", "powder", "cartridge", "gunshot"] };
+  if (/drown/.test(m))
+    return { examples: "for drowning: water in the lungs, sodden clothing, or weed on the body", tokens: ["water", "sodden", "drown", "lungs"] };
+  return { examples: "a concrete physical sign of how the victim died, visible at the scene", tokens: ["wound", "mark", "residue", "collapse"] };
+}
+
 const STEP_SOURCE_RE = /^CASE\.inference_path\.steps\[(\d+)\]\./i;
 const CORRECTION_SOURCE_RE = /CASE\.inference_path\.steps\[\d+\]\.correction/i;
 const CONTRADICTION_SOURCE_RE = /CASE\.constraint_space\.time\.contradictions\[\d+\]/i;
@@ -203,6 +225,7 @@ interface RequiredClueSpec {
   keyTerms: string[];               // Important terms that should appear
   suggestedPlacement: "early" | "mid";  // Essential clues never late
   category: "temporal" | "spatial" | "physical" | "behavioral" | "testimonial";
+  isDeathMethodTell?: boolean;          // A_61 RC3.5 — the cause-of-death "key tell" (discovery-scene)
 }
 
 /**
@@ -278,6 +301,26 @@ function generateExplicitClueRequirements(cml: Record<string, unknown>): Require
       keyTerms: extractKeyTerms(caseData.hidden_model.mechanism.description),
       suggestedPlacement: "early",
       category: inferCategory(caseData.hidden_model.mechanism.description),
+    });
+  }
+
+  // 1c. Cause-of-death "key tell" (A_61 RC3.5). Distinct from the concealment mechanism (1b): a
+  // reader-visible, fair-play indicator of the PHYSICAL manner of death (CASE.death_method), observable
+  // at the body-discovery scene, so the reader can in principle infer HOW the victim died without being
+  // told the concealment trick. Essential + early so Agent 7 can pin it to the discovery scene (RC3.5 PartB).
+  if (typeof caseData?.death_method === "string" && caseData.death_method.trim()) {
+    const deathMethod = String(caseData.death_method).trim();
+    const tellHints = deathMethodTellHints(deathMethod);
+    requirements.push({
+      requirement: `Generate one essential EARLY clue giving a concrete, fair-play indicator of the manner of death (${deathMethod}) observable at the body-discovery scene — e.g. ${tellHints.examples}. Do NOT name or explain the concealment trick; only the physical tell a witness could see at the scene.`,
+      supportsInferenceStep: undefined,
+      evidenceType: "observation",
+      criticality: "essential",
+      sourceInCML: "CASE.death_method",
+      keyTerms: Array.from(new Set([...extractKeyTerms(deathMethod), ...tellHints.tokens])),
+      suggestedPlacement: "early",
+      category: inferCategory(deathMethod),
+      isDeathMethodTell: true,
     });
   }
 

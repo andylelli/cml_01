@@ -62,6 +62,73 @@ const AGENT7_CLUE_JOB_AUTHORITY = /^(1|true|yes|on)$/i.test(process.env.AGENT7_C
  * default ON, reversible via AGENT7_MECHANISM_GATE=0. */
 const AGENT7_MECHANISM_GATE = !/^(0|false|no|off)$/i.test(process.env.AGENT7_MECHANISM_GATE ?? "");
 
+/** A_61 RC3.5 — guarantee the body-discovery scene references a cause-of-death "key tell" clue. Default
+ * OFF (structural lever; N≥4 before default-on), read at runtime. Additive-only: appends one clue id to
+ * the discovery scene's cluesRevealed, so it cannot violate the clue-pacing/coverage gates. */
+const isDiscoveryTellEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT7_DISCOVERY_TELL ?? "");
+
+/** RC3.5 — tokens that signal a physical manner of death, used to locate the tell clue Agent 5 planted
+ * (kept local to avoid a cross-package import, per the DEATH_METHOD_CANON duplication note in agent3-cml). */
+function deathMethodTellTokens(deathMethod: unknown): string[] {
+  const m = String(deathMethod ?? "").toLowerCase();
+  if (!m) return [];
+  if (/poison|toxin|venom|arsenic|cyanide|strychnine/.test(m)) return ["poison", "numbness", "bitter", "residue", "collapse", "convulsion", "froth"];
+  if (/stab|knife|blade|dagger|puncture/.test(m)) return ["stab", "wound", "blood", "blade", "puncture"];
+  if (/blunt|struck|bludgeon|blow|beaten/.test(m)) return ["blunt", "wound", "blood", "bruis", "struck"];
+  if (/strangl|garrot|throttle|asphyxiat|suffocat/.test(m)) return ["strangl", "ligature", "throat", "collar", "petechiae"];
+  if (/shot|gun|firearm|bullet|pistol|revolver/.test(m)) return ["shot", "wound", "bullet", "powder", "cartridge", "gunshot"];
+  if (/drown/.test(m)) return ["drown", "water", "sodden", "lungs"];
+  return [];
+}
+
+/**
+ * A_61 RC3.5 — the discovery-scene mirror of ensureDiscriminatingTestEvidencePresent. Additively
+ * guarantees the body-discovery scene (the "crime" beat / Act1 Scene1) references a clue that signals
+ * the death_method, so the method's key tell lands EARLY rather than buried later in Act 1. A tell clue
+ * is one Agent 5 tagged isDeathMethodTell, or whose description/pointsTo/keyTerms match a death-method
+ * token. No-op when the discovery scene already references one, or when no tell clue exists.
+ */
+export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!isDiscoveryTellEnabled()) return;
+  try {
+    const caseData = (ctx.cml as any)?.CASE ?? ctx.cml;
+    const deathMethod = caseData?.death_method;
+    const tokens = deathMethodTellTokens(deathMethod);
+    const clues = (ctx.clues?.clues ?? []) as any[];
+    if (clues.length === 0) return;
+
+    const isTellClue = (c: any): boolean => {
+      if (c?.isDeathMethodTell === true) return true;
+      if (tokens.length === 0) return false;
+      const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${(Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : "")}`.toLowerCase();
+      return tokens.some((t) => blob.includes(t));
+    };
+    const tellClueIds = clues.filter(isTellClue).map((c) => String(c.id ?? "")).filter(Boolean);
+    if (tellClueIds.length === 0) return; // nothing to pin — Agent 5 didn't plant a recognisable tell
+
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length === 0) return;
+    // Locate the body-discovery scene robustly: the "crime" beat, else Act1 Scene1, else the first scene.
+    const discoveryRef =
+      sceneRefs.find((r) => String((r.scene as any)?.beat ?? "").toLowerCase() === "crime") ??
+      sceneRefs.find((r) => r.act === 1 && r.actSceneNumber === 1) ??
+      sceneRefs[0];
+    const discoveryScene = discoveryRef.scene as any;
+    if (!Array.isArray(discoveryScene.cluesRevealed)) discoveryScene.cluesRevealed = [];
+    const already = new Set<string>(discoveryScene.cluesRevealed.map(String));
+    if (tellClueIds.some((id) => already.has(id))) return; // discovery already shows a tell — done
+
+    const chosen = tellClueIds[0];
+    discoveryScene.cluesRevealed.push(chosen); // additive — never replaces/reorders
+    ctx.warnings.push(
+      `[Agent 7 discovery-tell] body-discovery scene referenced no cause-of-death tell; ` +
+        `added tell clue "${chosen}" (${String(deathMethod ?? "manner of death")}) to the discovery scene.`,
+    );
+  } catch (e) {
+    console.warn(`[Agent 7 discovery-tell] skipped: ${(e as Error).message}`);
+  }
+}
+
 /** A_53 P10 (scheduler-grid-rebuilt-twice-per-run): the scheduler shadow and the clue-job authority
  * both build `buildSceneGrid`+`collectObligations` from the same ctx-derived inputs. This memoizing
  * cache builds each (grid, obligations) pair once per scene-count and lets both call sites share it,
@@ -2009,4 +2076,5 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // (additive only) so the Agent-9 G4 detector's "no DT evidence clue scheduled in the outline" gap
   // cannot arise from the LLM omitting it. Runs after coverage so it sees the final clue placement.
   ensureDiscriminatingTestEvidencePresent(ctx, narrative);
+  ensureDiscoverySceneMethodTellPresent(ctx, narrative);
 }

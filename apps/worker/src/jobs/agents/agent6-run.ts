@@ -1206,10 +1206,20 @@ const derivePreTestSceneTarget = (
   return { act_number: actNumber, scene_number: sceneNumber };
 };
 
+/** A_61 RC3.4 — force every discriminating-test evidence clue into a pre-test scene, even if it is
+ * absent from clues.clues (the Agent-5 soft-repair gap). Default OFF; N≥4 before default-on. */
+const isDtEvidenceCompletenessEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT6_DT_EVIDENCE_COMPLETENESS ?? "");
+
 const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any): string[] => {
   const caseBlock = (cml as any)?.CASE ?? cml ?? {};
   const clueList: any[] = Array.isArray(clues?.clues) ? clues.clues : [];
-  if (clueList.length === 0) return [];
+  // RC3.4: the completeness backstop must run even with zero generated clue objects (the Agent-5
+  // soft-repair gap plants no object but the evidence id still needs a pre-test mapping).
+  const hasEvidenceForCompleteness =
+    isDtEvidenceCompletenessEnabled() &&
+    Array.isArray(caseBlock?.discriminating_test?.evidence_clues) &&
+    caseBlock.discriminating_test.evidence_clues.length > 0;
+  if (clueList.length === 0 && !hasEvidenceForCompleteness) return [];
 
   const proseRequirements = ((caseBlock as any).prose_requirements ??= {});
   const discriminatingScene = ((proseRequirements as any).discriminating_test_scene ??= {});
@@ -1249,7 +1259,10 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
       return leftId.localeCompare(rightId);
     });
 
-  if (relevantClues.length === 0) return [];
+  // RC3.4: when the completeness backstop is on, still run even with no relevant clues so an evidence
+  // clue absent from clues.clues (the Agent-5 soft-repair gap) is force-mapped before the DT scene.
+  const runCompleteness = isDtEvidenceCompletenessEnabled() && evidenceIdSet.size > 0;
+  if (relevantClues.length === 0 && !runCompleteness) return [];
 
   const existingEntries = Array.isArray(proseRequirements.clue_to_scene_mapping)
     ? proseRequirements.clue_to_scene_mapping
@@ -1294,6 +1307,38 @@ const synchronizeClueTraceabilityFromCurrentClues = (cml: CaseData, clues: any):
         delivery_method: String(existing.delivery_method ?? "").trim() || deliveryMethod,
       });
       updates.push(`${clueId} -> Act ${target.act_number}, Scene ${target.scene_number}`);
+    }
+  }
+
+  // RC3.4 — DT-evidence completeness backstop. Iterate the evidence clue IDs DIRECTLY so an evidence
+  // clue that is unmapped OR mapped at/after the DT scene is corrected to a pre-test scene, independent
+  // of whether it has an object in clues.clues. This closes the Agent-5 soft-repair gap that otherwise
+  // leaves a stale unplanted-evidence mapping and a false revealUsesUnplantedEvidence rubric cap.
+  if (runCompleteness) {
+    const dtKey = discriminatingAct * 100 + discriminatingSceneNumber;
+    let evIdx = 0;
+    for (const evId of evidenceIdSet as Set<string>) {
+      const existing = mappingById.get(evId);
+      const key = existing && Number.isFinite(Number(existing.act_number))
+        ? Number(existing.act_number) * 100 + Number(existing.scene_number || 0)
+        : null;
+      if (existing && key !== null && key < dtKey) continue; // already planted strictly before the DT scene
+      const target = derivePreTestSceneTarget("mid", evIdx++, discriminatingAct, discriminatingSceneNumber);
+      const targetKey = target.act_number * 100 + target.scene_number;
+      if (targetKey >= dtKey) {
+        // Pathological DT scene at Act1/Scene1: nothing can be planted before it. Log, don't emit an
+        // equal-key entry (that would keep failing findUnplantedDiscriminatingClues).
+        updates.push(`${evId} (DT-evidence completeness) SKIPPED — DT scene at Act ${discriminatingAct} Scene ${discriminatingSceneNumber} leaves no pre-test slot`);
+        continue;
+      }
+      mappingById.set(evId, {
+        ...(existing ?? { clue_id: evId }),
+        clue_id: evId,
+        act_number: target.act_number,
+        scene_number: target.scene_number,
+        delivery_method: String(existing?.delivery_method ?? "").trim() || "Direct observation",
+      });
+      updates.push(`${evId} (DT-evidence completeness) -> Act ${target.act_number}, Scene ${target.scene_number}`);
     }
   }
 

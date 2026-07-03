@@ -567,7 +567,7 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
     const { unplanted, unmapped } = findUnplantedDiscriminatingClues(ctx.cml);
     if (unplanted.length > 0) {
       ctx.warnings.push(
-        `[agent3-discriminating-planting] ${unplanted.length} discriminating clue(s) not planted before the reveal scene` +
+        `[agent3-discriminating-planting] (pre-repair snapshot; Agent 6 reschedules) ${unplanted.length} discriminating clue(s) not planted before the reveal scene` +
           `${unmapped.length ? ` (${unmapped.length} absent from clue_to_scene_mapping)` : ""}: ${unplanted.join(", ")} — ` +
           `reveal may rely on unplanted evidence (fair-play risk).`,
       );
