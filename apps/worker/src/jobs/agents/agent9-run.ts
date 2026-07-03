@@ -55,7 +55,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -202,6 +202,14 @@ const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_
 /** A_61 RC2.2 — dereference the frozen Bible gender map as the SINGLE authoritative pronoun source
  * (validators + narrative state), instead of each site re-parsing raw cast gender. Default-off. */
 const isBibleAuthoritativeEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_AUTHORITATIVE, false);
+
+/** A_61 RC5.3 — the dialogue-distinctiveness (voice idiolect) gate mode: off | shadow | enforce.
+ * Default off. shadow logs coverage/leakage telemetry; enforce additionally surfaces leakage as a
+ * release-gate warning (repair-not-abort — never aborts the run). Runtime-read. */
+const voiceEnforceMode = (): "off" | "shadow" | "enforce" => {
+  const m = String(process.env.AGENT9_VOICE_ENFORCE ?? "off").trim().toLowerCase();
+  return m === "enforce" ? "enforce" : m === "shadow" || m === "1" || m === "true" || m === "on" ? "shadow" : "off";
+};
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -4292,6 +4300,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const transitionCost = client.getCostTracker().getTotalCost() - costBeforeTransition;
         if (transitionCost > 0 && typeof prose?.cost === "number") prose.cost += transitionCost;
       }
+    }
+  }
+
+  // A_61 RC5.3 — dialogue-distinctiveness (voice idiolect) gate. Verifies the frozen signature tics reach
+  // the prose: coverage (each speaker uses their tic) is warn-only; leakage (a tic in the wrong speaker's
+  // mouth) is the strong voice-swap signal. shadow logs telemetry; enforce surfaces leakage as a release
+  // warning. Never aborts (repair-not-abort); attribution is conservative so it can't fail unattributable prose.
+  if (voiceEnforceMode() !== "off" && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    try {
+      const capsules = ((ctx.characterBundle?.characters ?? []) as any[])
+        .map((c) => ({ name: String(c?.name ?? ""), speechTics: String(c?.signatureTic ?? "").trim() ? [String(c.signatureTic).trim()] : [] }))
+        .filter((c) => c.name);
+      const proseText = (prose.chapters as any[]).map((ch) => ((ch?.paragraphs ?? []) as string[]).join(" ")).join("\n\n");
+      const verdict = validateDialogueIdiolect(capsules, proseText);
+      ctx.warnings.push(`[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s).`);
+      if (voiceEnforceMode() === "enforce") {
+        for (const issue of verdict.issues.filter((i) => i.severity === "error")) {
+          ctx.warnings.push(`[Agent 9] voice-idiolect LEAKAGE: ${issue.message}`);
+        }
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] voice-idiolect gate skipped: ${err instanceof Error ? err.message : String(err)}.`);
     }
   }
 

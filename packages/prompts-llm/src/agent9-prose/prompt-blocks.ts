@@ -152,6 +152,13 @@ export const buildCharacterContractsBlock = (
     if (char.speechMannerisms) {
       lines.push(`Voice & mannerisms: ${char.speechMannerisms}`);
     }
+    // A_61 RC5.3 — the signature tic is the binding idiolect anchor the dialogue-distinctiveness gate
+    // checks. Instruct the model to put a version of it in this character's mouth. Back-compat: absent ⇒
+    // the line is omitted and the block is unchanged.
+    const signatureTic = String((char as any).signatureTic ?? '').trim();
+    if (signatureTic) {
+      lines.push(`SIGNATURE TIC (put a version of this in ${char.name}'s mouth at least once, and never in anyone else's): "${signatureTic}"`);
+    }
     if (char.voiceFragments.length > 0) {
       lines.push('Sample voice fragments (match this register and rhythm):');
       for (const frag of char.voiceFragments.slice(0, 2)) {

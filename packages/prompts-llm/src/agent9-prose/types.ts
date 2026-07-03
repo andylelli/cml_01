@@ -96,7 +96,7 @@ export interface ProseGenerationInputs {
   temporalContext?: any; // TemporalContextResult
   worldDocument?: any; // WorldDocumentResult — when present, supersedes raw profile blocks
   /** Pillar 2: Character Context Bundle — per-character voice, humour, forbidden clichés, and per-act behaviour contracts */
-  characterBundle?: { runId: string; characters: Array<{ name: string; voiceFragments: Array<{ register: string; text: string }>; humourStyle: string; humourLevel: number; forbiddenCliché: string; internalConflict: string; speechMannerisms: string; permittedBehavioursByAct: { act1: string; act2: string; act3: string }; }> };
+  characterBundle?: { runId: string; characters: Array<{ name: string; voiceFragments: Array<{ register: string; text: string }>; humourStyle: string; humourLevel: number; forbiddenCliché: string; internalConflict: string; speechMannerisms: string; signatureTic?: string; permittedBehavioursByAct: { act1: string; act2: string; act3: string }; }> };
   targetLength?: "short" | "medium" | "long";
   narrativeStyle?: "classic" | "modern" | "atmospheric";
   detectiveType?: 'police' | 'private' | 'amateur'; // Affects phantom-name warnings

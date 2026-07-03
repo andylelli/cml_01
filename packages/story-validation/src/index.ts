@@ -55,3 +55,6 @@ export { PhysicalPlausibilityValidator } from './physical-validator.js';
 export { EraAuthenticityValidator } from './era-validator.js';
 export { ChapterValidator } from './chapter-validator.js';
 export { semanticValidateDiscriminatingTest, semanticValidateSuspectElimination, semanticValidateCulpritEvidence } from './semantic-validator.js';
+// A_61 RC5.3 — the deterministic dialogue-distinctiveness (voice idiolect) gate.
+export { validateDialogueIdiolect } from './dialogue-idiolect-validator.js';
+export type { DialogueVoiceCapsule, DialogueIdiolectResult, DialogueIdiolectIssue } from './dialogue-idiolect-validator.js';

@@ -494,6 +494,8 @@ function assembleCharacterBundle(
     const internalConflict: string = (profile as any).internalConflict ?? "";
     const speechMannerisms: string = (profile as any).speechMannerisms ?? "";
     const motiveSeed: string = (profile as any).motiveSeed ?? "";
+    // A_61 RC5.3 — the LLM-emitted signature tic (the binding idiolect anchor the dialogue gate checks).
+    const signatureTic: string = String((profile as any).signatureTic ?? "").trim();
 
     // Voice fragments from world document voice sketches
     const voiceSketch = (worldDocument.characterVoiceSketches ?? []).find(
@@ -522,6 +524,7 @@ function assembleCharacterBundle(
       forbiddenCliché,
       internalConflict,
       speechMannerisms,
+      signatureTic,
       permittedBehavioursByAct: { act1, act2, act3 },
     };
   });
