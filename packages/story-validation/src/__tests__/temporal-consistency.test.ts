@@ -36,6 +36,50 @@ describe('analyzeTemporalConsistency — mechanical-spring exclusion', () => {
   });
 });
 
+describe('analyzeTemporalConsistency — A_60 sundial spring-loaded blade trap', () => {
+  // The run_0d45c651 abort: an August (summer) story whose murder weapon is a "spring-loaded blade".
+  // Every "spring" was mechanical, yet the detector flagged `august vs spring` and could not converge.
+  // These are the verbatim prose forms from that run — none may read as the season.
+  it('does NOT flag hyphenated "spring-loaded blade"', () => {
+    const text = "It was August. A brass catch at the base of the gnomon was connected to a spring-loaded blade.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.expectedSeasons).toContain('summer');
+    expect(a.conflictingSeasons).toEqual([]);
+  });
+
+  it('does NOT flag "a mechanical spring-loaded blade trap"', () => {
+    const text = "August heat pressed down. He had stabbed her with a mechanical spring-loaded blade trap set to trigger at noon.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.conflictingSeasons).toEqual([]);
+  });
+
+  it('does NOT flag enumerated "a spring or a blade"', () => {
+    const text = "The recess seemed to hold something in place — perhaps a spring or a blade, though he could not be sure. It was high August.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.conflictingSeasons).toEqual([]);
+  });
+
+  it('does NOT flag enumerated "a spring, perhaps, or a blade" with interposed words', () => {
+    const text = "The cavity was engineered to hold something under tension. A spring, perhaps, or a blade — the inspector could not yet say. August light fell across it.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.conflictingSeasons).toEqual([]);
+  });
+
+  // Both-directions guard: a genuine seasonal "spring" must STILL flag, even when a "blade" is nearby,
+  // as long as it is not enumerated as a trap alternative.
+  it('STILL flags a genuine seasonal "spring" that merely sits near a blade', () => {
+    const text = "It was August. Yet in the spring the gardener had sharpened his blade for the long season ahead.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.conflictingSeasons).toContain('spring');
+  });
+
+  it('STILL flags "spring blossom" / "vernal" in an August story', () => {
+    const text = "August, and yet the beds were heavy with spring blossom and a vernal freshness.";
+    const a = analyzeTemporalConsistency(text, 'August');
+    expect(a.conflictingSeasons).toContain('spring');
+  });
+});
+
 describe('analyzeTemporalConsistency — ambiguous month disambiguation (May/March)', () => {
   // Regression for mystery-1782647685448: a sentence-initial modal "May" in a summery scene was read
   // as the month and flagged against "summery".

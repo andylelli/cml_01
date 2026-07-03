@@ -103,6 +103,20 @@ const hasActiveUse = (sentence: string, name: string): boolean => {
   return subjectPattern.test(sentence) || dialoguePattern.test(sentence);
 };
 
+// RC4.4 (A_61 / run_33ecb4ad): a confession sentence that names this character as the OBJECT of the
+// killing — "I killed <name>", "I strangled <name>" — makes them the VICTIM, not the confessor. The
+// culprit's confession routinely names the victim ("I killed Lady Beatrice Ellsworth"), which otherwise
+// false-fires `deceased_character_confesses` on the victim (the name-in-sentence class, cf. A_58 VICTIM
+// ALIVE). Exclude the confession attribution when the character's name/surname follows a first-person
+// harm verb. (The victim-as-SUBJECT confession — "Margaret Langley confessed …" — is untouched.)
+const CONFESSION_KILL_VERB_RE = 'killed|murdered|poisoned|struck|shot|stabbed|strangled|slew|slain|smothered|drowned|throttled|did away with';
+const isConfessionKillObject = (sentence: string, name: string): boolean => {
+  const surname = name.split(/\s+/).slice(-1)[0] ?? name;
+  const alt = Array.from(new Set([name, surname].filter(Boolean))).map(escapeRegExp).join('|');
+  if (!alt) return false;
+  return new RegExp(`\\bi\\s+(?:${CONFESSION_KILL_VERB_RE})\\b[^.!?]{0,30}?\\b(?:${alt})\\b`, 'i').test(sentence);
+};
+
 const addEvent = (
   ledger: CharacterLifecycleLedger,
   event: CharacterLifecycleEvent,
@@ -171,7 +185,11 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
         // A confession explicitly framed as recollection/flashback is not a LIVE confession
         // by the (dead) character — mirror the hasActiveUse() recollection exclusion so the
         // canonical-victim rescue's "In a remembered moment, …" reframe clears this event.
-        if (CONFESSION_RE.test(sentence) && !RECOLLECTION_FRAME_RE.test(sentence)) {
+        if (
+          CONFESSION_RE.test(sentence) &&
+          !RECOLLECTION_FRAME_RE.test(sentence) &&
+          !isConfessionKillObject(sentence, name)
+        ) {
           addEvent(ledger, {
             characterName: name,
             status: 'confesses',

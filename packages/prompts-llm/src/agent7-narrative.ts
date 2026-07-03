@@ -677,6 +677,15 @@ The police detective/inspector is summoned in an official capacity following a f
       `\nThe culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect, and "revelation" must be deduction-led (no confession as the proof).\n`
     : "";
 
+  // Only cue the model to emit `beat` when the Golden-Age arc is active (the 10-chapter path
+  // that supplies the allowed vocabulary above). Off that path the schema still enforces the
+  // beat enum, but the vocabulary is never supplied — so an emitted `beat` free-texts and
+  // hard-aborts validation. Omitting it from the output example removes the cue at source;
+  // Agent 7's deterministic coercion cleans any stragglers.
+  const beatExampleField = totalSceneCount === GOLDEN_AGE_BEATS.length
+    ? `\n          "beat": "gathering",`
+    : "";
+
   const proseRequirementsBlock = buildProseRequirements(caseData);
 
   // Pillar 4: pre-compute completeness contract strings for template interpolation
@@ -870,8 +879,7 @@ Return a JSON object:
             "tension": "Every suspect had access to the victim",
             "microMomentBeats": ["[Optional] Governess lingers at the door — unguarded grief"]
           },
-          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",
-          "beat": "gathering",
+          "summary": "[2-3 sentence scene description using only exact names from the Cast of Characters above]",${beatExampleField}
           "estimatedWordCount": 1800${completenessExampleFields}
         }
       ],

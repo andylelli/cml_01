@@ -59,6 +59,28 @@ describe("validateCharacterLifecycle — deceased_character_confesses recollecti
   });
 });
 
+describe("validateCharacterLifecycle — culprit confesses to killing the named victim (RC4.4 / run_33ecb4ad)", () => {
+  it("does NOT flag the victim when the culprit's confession names her as the kill-object", () => {
+    // Exact run_33ecb4ad shape: the culprit confesses "I killed <victim>"; the victim's name appears
+    // only as the object of the killing — she is not confessing.
+    const story = makeStory([
+      ["The lifeless body of Margaret Langley was found in the locked study."],
+      ["Reginald Clarke's composure cracked. 'I killed Margaret Langley. I strangled her with a silk cord there in the study.'"],
+    ]);
+    const errors = validateCharacterLifecycle(story as any, cml as any);
+    expect(errors.some((e: any) => e.type === "deceased_character_confesses")).toBe(false);
+  });
+
+  it("STILL flags the victim as SUBJECT of a genuine confession (true positive preserved)", () => {
+    const story = makeStory([
+      ["The lifeless body of Margaret Langley was found in the locked study."],
+      ["Margaret Langley confessed to the murder before the assembled household."],
+    ]);
+    const errors = validateCharacterLifecycle(story as any, cml as any);
+    expect(errors.some((e: any) => e.type === "deceased_character_confesses")).toBe(true);
+  });
+});
+
 describe("validateCharacterLifecycle — cleared_culprit_conflict guard (A_50 §9)", () => {
   it("does NOT flag a culprit whose clearance is negated/demolished in the reveal", () => {
     const story = makeStory([

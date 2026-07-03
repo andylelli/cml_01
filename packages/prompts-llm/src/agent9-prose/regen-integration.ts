@@ -1,0 +1,288 @@
+/**
+ * Glue between the verifiers, the Story Bible, and the scoped regen loop (first-principles LLD §6.4 /
+ * P3.3). Pure and testable: it turns a `ProseDefect` into a fully-constrained `RegenRequest` by
+ * DEREFERENCING the Bible (pronouns from identity, locked-fact values, the culprit embargo from the
+ * chapter beat) — nothing re-derived — and composes the chapter validator the loop gates against. The
+ * orchestrator's remaining job is then just: detect defects → `runRegenRepair(..., makeRegenFn(...))`.
+ */
+
+import { noScaffoldValidator } from "@cml/prose-guard";
+import type { ValidatorResult } from "@cml/prose-guard";
+import type { ClueDistributionResult } from "../agent5-clues.js";
+import type { StoryBible, ChapterBeat } from "../story-bible.js";
+import { chapterMentionsRequiredClue } from "./clue-validation.js";
+import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
+import { runRegenRepair } from "./regen-repair.js";
+import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./regen-repair.js";
+
+const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
+
+/** Locked pronouns per named character, from the Bible identity substrate (D5). */
+export function pronounsFromBible(bible: Pick<StoryBible, "characters">): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const c of bible.characters ?? []) {
+    if (c.name) out[c.name] = pronounFor(c.gender);
+  }
+  return out;
+}
+
+/** Atomic locked-fact values that must be reproduced verbatim (descriptive facts are paraphrasable). */
+export function lockedFactValues(bible: Pick<StoryBible, "facts">): Array<{ value: string; description?: string }> {
+  return (bible.facts ?? [])
+    .filter((f) => f.type === "atomic" && f.value)
+    .map((f) => ({ value: f.value, description: f.description || undefined }));
+}
+
+/** The reveal embargo for a chapter: the culprit name(s) when this beat must not reveal the solution. */
+export function embargoForBeat(bible: Pick<StoryBible, "culprits">, beat: ChapterBeat | undefined): string[] {
+  if (!beat || !beat.mustNotReveal?.solutionCulprit) return [];
+  return (bible.culprits ?? []).map((c) => `${c} is the culprit`).concat(beat.mustNotReveal.clues ?? []);
+}
+
+/** Map a defect kind to a concrete in-scene instruction for the model. */
+export function instructionForDefect(defect: ProseDefect): string {
+  const ref = defect.obligationRef ? ` (${defect.obligationRef})` : "";
+  switch (defect.kind) {
+    case "missing_clue":
+    case "clue_too_late":
+      return `Plant the required clue${ref} in this chapter as a concrete in-scene observation a character sees, does, or says — not as a summary. Detail: ${defect.detail}`;
+    case "missing_clearance":
+      return `Dramatize the clearance of ${defect.obligationRef ?? "this suspect"} as a witnessed deduction (where they were, who saw them) — not a verdict. Detail: ${defect.detail}`;
+    case "missing_resolution":
+      return `Render the resolution in-scene (confession / arrest / consequence), naming the culprit — not as a report. Detail: ${defect.detail}`;
+    case "culprit_unlinked":
+      return `Connect the culprit to the means and method through evidence already on the page, dramatized — not asserted. Detail: ${defect.detail}`;
+    case "scaffold_not_prose":
+      return `Rewrite the flagged deductive-scaffold sentence(s) as grounded in-scene prose, preserving the underlying fact. Detail: ${defect.detail}`;
+    case "pronoun_mismatch":
+      return `Correct the pronoun(s) to match the locked gender for the named character; change nothing else. Detail: ${defect.detail}`;
+    case "locked_fact_absent":
+      return `Surface the locked fact${ref} verbatim, woven into the scene. Detail: ${defect.detail}`;
+    case "early_spoiler":
+    case "leakage":
+      return `Remove the premature reveal / leaked material, keeping the scene intact. Detail: ${defect.detail}`;
+    default:
+      return defect.detail;
+  }
+}
+
+/** Build the fully-constrained regen request for a defect, dereferencing the Bible. */
+export function buildRegenRequest(chapter: ProseChapter, defect: ProseDefect, bible: StoryBible): RegenRequest {
+  const beat = bible.beatSheet?.find((b) => b.chapter === defect.chapter);
+  return {
+    chapter,
+    paragraphIndex: defect.paragraphIndex,
+    instruction: instructionForDefect(defect),
+    constraints: {
+      lockedFacts: lockedFactValues(bible),
+      pronouns: pronounsFromBible(bible),
+      mustNotReveal: embargoForBeat(bible, beat),
+    },
+    defect,
+  };
+}
+
+/**
+ * Compose the chapter validator the loop gates against: the general scaffold gate (every regen must
+ * not re-introduce template) plus any caller-supplied targeted checks (clue presence, pronoun count,
+ * fidelity). Scores sum and violations concat — a regen ships only if it improves the target and
+ * regresses none of these. Mirrors `prose-guard`'s `allOf`, lifted to `ProseChapter`.
+ */
+export function composeChapterValidator(
+  ...checks: Array<(chapter: ProseChapter) => ValidatorResult>
+): ChapterValidator {
+  const all = [(c: ProseChapter) => noScaffoldValidator((c.paragraphs ?? []).join(" ")), ...checks];
+  return (chapter: ProseChapter): ValidatorResult => {
+    const results = all.map((v) => v(chapter));
+    return {
+      ok: results.every((r) => r.ok),
+      score: results.reduce((s, r) => s + r.score, 0),
+      violations: results.flatMap((r) => r.violations),
+    };
+  };
+}
+
+const chapterText = (c: ProseChapter): string => (c.paragraphs ?? []).join(" ");
+
+/** A presence check for one required clue id, for the composed validator. */
+const cluePresenceValidator =
+  (clueId: string, clueDistribution?: ClueDistributionResult, castNames?: string[]) =>
+  (c: ProseChapter): ValidatorResult => {
+    const present = chapterMentionsRequiredClue(chapterText(c), clueId, clueDistribution, castNames);
+    return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`missing_clue:${clueId}`] };
+  };
+
+const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const CLEARANCE_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+(?:culprit|killer)|innocent|alibi\s+(?:holds|confirmed)|could\s+not\s+have)\b/i;
+const CLEARANCE_EVIDENCE = /\b(evidence|because|therefore|proof|alibi|timeline|witness(?:es)?|saw|seen|account)\b/i;
+
+/** A co-located clearance check for one suspect: name + clearance term + evidence connector in one paragraph. */
+const clearancePresenceValidator =
+  (suspect: string) =>
+  (c: ProseChapter): ValidatorResult => {
+    const name = suspect.trim();
+    const surname = name.split(/\s+/).pop() ?? name;
+    const nameRe = new RegExp(`\\b(?:${escapeRe(name)}|${escapeRe(surname)})\\b`, "i");
+    const present = (c.paragraphs ?? []).some(
+      (p) => nameRe.test(p) && CLEARANCE_TERMS.test(p) && CLEARANCE_EVIDENCE.test(p),
+    );
+    return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`missing_clearance:${name}`] };
+  };
+
+const normPara = (p: string): string => String(p ?? "").replace(/\s+/g, " ").trim();
+
+/**
+ * Insertion-only guard for clue planting: the regen may ADD paragraphs (where the new in-scene
+ * observation lives) but must not MODIFY or DROP any existing paragraph. This is the deterministic
+ * safety net for the `repair.ts:153` lesson — a whole-chapter regen that re-genders a character, drops
+ * an already-present clue, or alters a locked-fact value in untouched text changes an original
+ * paragraph, so it fails here and is rolled back. Whitespace-normalized so trivial reformatting of a
+ * preserved paragraph does not false-trip.
+ */
+const preserveOriginalParagraphsValidator =
+  (originalParagraphs: ReadonlyArray<string>) =>
+  (c: ProseChapter): ValidatorResult => {
+    const present = new Set((c.paragraphs ?? []).map(normPara));
+    const dropped = originalParagraphs.map(normPara).filter((p) => p.length > 0 && !present.has(p));
+    return {
+      ok: dropped.length === 0,
+      score: dropped.length === 0 ? 100 : 0,
+      violations: dropped.length > 0 ? [`modified_or_dropped_original_paragraph:${dropped.length}`] : [],
+    };
+  };
+
+export interface InsertionRegenPassResult {
+  chapter: ProseChapter;
+  /** obligationRefs that were missing and are now present after regen. */
+  repaired: string[];
+  /** obligationRefs regen could not surface — caller logs + falls to the deterministic floor. */
+  unresolved: string[];
+  /** true when at least one defect was present (i.e. the pass actually ran a regen). */
+  ran: boolean;
+}
+
+/**
+ * P4 — the general insertion-regen pass: dramatize each given defect (clue, clearance, resolution, …)
+ * as an in-scene addition through the scoped regen loop, gated by (a) the scaffold detector, (b) the
+ * insertion-only preservation guard (no existing paragraph modified — the `repair.ts:153` re-gendering
+ * safety net), and (c) one presence validator per defect. A plant ships only if it surfaces its target
+ * and breaks none of the others; whatever regen cannot resolve is returned for the deterministic floor.
+ * The injector this replaces does not fire when run BEFORE it (the element is now present).
+ */
+export async function runInsertionRegenPass(args: {
+  chapter: ProseChapter;
+  defects: ReadonlyArray<ProseDefect>;
+  bible: StoryBible;
+  regen: RegenFn;
+  presenceValidatorFor: (defect: ProseDefect) => (c: ProseChapter) => ValidatorResult;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  if (args.defects.length === 0) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const validate = composeChapterValidator(
+    preserveOriginalParagraphsValidator(args.chapter.paragraphs ?? []),
+    ...args.defects.map((d) => args.presenceValidatorFor(d)),
+  );
+  const result = await runRegenRepair(
+    args.chapter,
+    args.defects,
+    (chapter, defect) => buildRegenRequest(chapter, defect, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = args.defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+/** Back-compat alias of the result shape for the clue pass. */
+export type ClueRegenPassResult = InsertionRegenPassResult;
+
+/**
+ * P3.3 — the clue-miss regen pass (the A1 replacement). Detects required clues absent from the chapter
+ * via the SAME presence check the deterministic patch uses, then runs the general insertion-regen pass.
+ *
+ * Ordering contract: run BEFORE `repairChapterDeterministically` so a successful plant makes the clue
+ * present and the deterministic A1 patch does not inject (A1 demoted to the logged emergency floor).
+ */
+export async function runClueRegenPass(args: {
+  chapter: ProseChapter;
+  ledgerEntry?: ChapterRequirementLedgerEntry;
+  bible: StoryBible;
+  regen: RegenFn;
+  clueDistribution?: ClueDistributionResult;
+  castNames?: string[];
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<ClueRegenPassResult> {
+  const requiredClueIds = args.ledgerEntry?.requiredClueIds ?? [];
+  const missing = requiredClueIds.filter(
+    (id) => !chapterMentionsRequiredClue(chapterText(args.chapter), id, args.clueDistribution, args.castNames),
+  );
+  if (missing.length === 0) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const chapterNumber = args.ledgerEntry?.chapterNumber ?? 0;
+  const ctxById = new Map((args.ledgerEntry?.clueObligationContext ?? []).map((c) => [c.id, c]));
+  const defects: ProseDefect[] = missing.map((id) => {
+    const ctx = ctxById.get(id);
+    return {
+      chapter: chapterNumber,
+      kind: "missing_clue" as const,
+      detail: ctx?.description || ctx?.deliveryMethod || `required clue ${id} is absent`,
+      obligationRef: id,
+      severity: "hard" as const,
+    };
+  });
+  return runInsertionRegenPass({
+    chapter: args.chapter,
+    defects,
+    bible: args.bible,
+    regen: args.regen,
+    presenceValidatorFor: (d) => cluePresenceValidator(d.obligationRef ?? "", args.clueDistribution, args.castNames),
+    maxAttemptsPerDefect: args.maxAttemptsPerDefect,
+    onUnresolved: args.onUnresolved,
+  });
+}
+
+/**
+ * P4 — the clearance regen pass (the A3/B7 replacement). Given the suspects that need a co-located
+ * clearance in this chapter (detected upstream from prose_requirements / the suspect-closure verifier),
+ * dramatizes each as a witnessed deduction rather than the deterministic verdict template.
+ */
+export async function runClearanceRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  suspectsNeedingClearance: ReadonlyArray<string>;
+  bible: StoryBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const needing = args.suspectsNeedingClearance.filter(
+    (s) => s && !clearancePresenceValidator(s)(args.chapter).ok,
+  );
+  if (needing.length === 0) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const defects: ProseDefect[] = needing.map((suspect) => ({
+    chapter: args.chapterNumber,
+    kind: "missing_clearance" as const,
+    detail: `clear ${suspect} as a witnessed deduction (where they were, who saw them)`,
+    obligationRef: suspect,
+    severity: "hard" as const,
+  }));
+  return runInsertionRegenPass({
+    chapter: args.chapter,
+    defects,
+    bible: args.bible,
+    regen: args.regen,
+    presenceValidatorFor: (d) => clearancePresenceValidator(d.obligationRef ?? ""),
+    maxAttemptsPerDefect: args.maxAttemptsPerDefect,
+    onUnresolved: args.onUnresolved,
+  });
+}

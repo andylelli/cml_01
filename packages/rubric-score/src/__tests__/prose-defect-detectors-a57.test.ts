@@ -76,6 +76,34 @@ describe("A_57 D4 — report-style clearance", () => {
   });
 });
 
+describe("LLD §6.4 — deductive-scaffold leakage cap (A_59 #1/#4)", () => {
+  it("flags the A_59 Sundial clue/inference scaffold and caps prose", () => {
+    const prose =
+      "Evelyn Harcourt pressed on to the next concrete detail: Poison concealed hollow cubes releasing toxin. " +
+      "That detail shifted the reasoning. Evelyn Harcourt weighed the cold tea, and the trail bent toward the gardener.";
+    const facts = extractStoryFacts({ CASE: {} }, prose);
+    expect((facts.scaffoldHits ?? []).length).toBeGreaterThan(0);
+    expect(proseMark(allAt(8), facts)).toBeLessThanOrEqual(4);
+  });
+
+  it("ceils the total when scaffold leakage is material (≥2 distinct signatures)", () => {
+    const prose =
+      "Evelyn set out the two competing readings so everyone could weigh them side by side. " +
+      "Mallory was thoroughly cleared by the evidence; the alibi confirmed it.";
+    const facts = extractStoryFacts({ CASE: {} }, prose);
+    expect((facts.scaffoldHits ?? []).length).toBeGreaterThanOrEqual(2);
+    expect(applyHardCaps(allAt(9), facts).final).toBeLessThanOrEqual(65);
+  });
+
+  it("does NOT flag genuine dramatized deduction", () => {
+    const prose =
+      'Evelyn knelt by the sundial and pressed the brass. "You wound this back," she said. James looked away; his tea had gone cold.';
+    const facts = extractStoryFacts({ CASE: {} }, prose);
+    expect(facts.scaffoldHits).toBeUndefined();
+    expect(proseMark(allAt(8), facts)).toBe(8);
+  });
+});
+
 describe("A_57 D2 — dual-value-without-contrast (the central clue contradicts itself)", () => {
   const pair = { values: ["half past three in the afternoon", "twenty minutes past four in the afternoon"] as [string, string] };
 

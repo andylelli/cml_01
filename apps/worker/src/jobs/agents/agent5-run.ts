@@ -2541,6 +2541,73 @@ function synthesizeMissingDiscriminatingEvidenceClues(
   return repairs;
 }
 
+/**
+ * RC3.1 (A_61 Phase 2a) — repair-not-abort for inference steps with NO covering clue.
+ *
+ * The coverage hard gate otherwise aborts the whole run when an `inference_path` step has no clue
+ * covering its observation (run bfmz7izf6 died here). Instead, synthesise a covering clue per uncovered
+ * step: `supportsInferenceStep`/`evidenceType:"observation"` mark it as that step's observation evidence
+ * (the PRIMARY coverage path — see checkInferencePathCoverage), and the description embeds the step's own
+ * observation text so it also satisfies the fuzzy fallback and reads as a real, plantable observation.
+ * Mirrors synthesizeMissingDiscriminatingEvidenceClues. A step whose observation is empty cannot be
+ * planted and is deliberately left for the hard gate (correct — there is nothing to surface).
+ */
+function synthesizeInferenceStepCoverageClues(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+  uncoveredStepNums: number[],
+): string[] {
+  if (!Array.isArray(uncoveredStepNums) || uncoveredStepNums.length === 0) return [];
+  const caseBlock = getCaseBlock(cml);
+  const steps = Array.isArray(caseBlock?.inference_path?.steps) ? caseBlock.inference_path.steps : [];
+  if (steps.length === 0) return [];
+
+  const existingIds = new Set(clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean));
+  // Field template: prefer an essential observation clue so required schema fields are preserved.
+  const template =
+    clues.clues.find((c: any) => c?.criticality === "essential" && ((c as any)?.evidenceType ?? "observation") === "observation") ||
+    clues.clues.find((c: any) => c?.criticality === "essential") ||
+    clues.clues[0];
+
+  const repairs: string[] = [];
+  for (const stepNum of uncoveredStepNums) {
+    const step = steps[stepNum - 1];
+    const observation = typeof step?.observation === "string" ? step.observation.trim() : "";
+    if (!observation) continue; // nothing to plant → leave for the hard gate
+
+    let id = `clue_inference_cover_step_${stepNum}`;
+    let suffix = 1;
+    while (existingIds.has(id)) id = `clue_inference_cover_step_${stepNum}_${suffix++}`;
+
+    const requiredEvidence = Array.isArray(step?.required_evidence)
+      ? step.required_evidence.filter((e: any) => typeof e === "string" && e.trim()).join("; ")
+      : "";
+    const description = requiredEvidence ? `${observation} (${requiredEvidence})` : observation;
+    const placement = (template as any)?.placement === "late" ? "mid" : ((template as any)?.placement || "mid");
+
+    clues.clues.push({
+      ...(template ?? {}),
+      id,
+      description,
+      criticality: "essential",
+      evidenceType: "observation",
+      supportsInferenceStep: stepNum,
+      sourceInCML: `CASE.inference_path.steps[${stepNum - 1}].observation`,
+      placement,
+    } as any);
+    existingIds.add(id);
+
+    const timeline = (clues as any).clueTimeline ?? { early: [], mid: [], late: [] };
+    if (placement === "early") timeline.early = [...(timeline.early ?? []), id];
+    else if (placement === "late") timeline.late = [...(timeline.late ?? []), id];
+    else timeline.mid = [...(timeline.mid ?? []), id];
+    (clues as any).clueTimeline = timeline;
+
+    repairs.push(`${id} => covers inference step ${stepNum}`);
+  }
+  return repairs;
+}
+
 function selectDiscriminatingEvidenceCandidateIds(
   cml: CaseData,
   clues: ClueDistributionResult,
@@ -3883,6 +3950,26 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // RC3.1 (A_61 Phase 2a): repair-not-abort — synthesise a covering clue for any inference step still
+  // uncovered after retries, so an uncovered-by-the-LLM step does not hard-kill the run (run bfmz7izf6).
+  // Runs before the deterministic contracts so they validate the synthesised clues, and before the hard
+  // gate so a coverable step no longer aborts. A step with an empty observation stays uncovered → the
+  // hard gate still fires (correct: nothing to plant).
+  finalCoverage = buildCoverageSnapshot(clues);
+  if (finalCoverage.coverageResult.uncoveredSteps.length > 0) {
+    const coverageRepairs = synthesizeInferenceStepCoverageClues(
+      ctx.cml!,
+      clues,
+      finalCoverage.coverageResult.uncoveredSteps,
+    );
+    if (coverageRepairs.length > 0) {
+      coverageRepairs.forEach((repair) =>
+        ctx.warnings.push(`Agent 5 inference-step coverage synthesis: ${repair}`),
+      );
+      finalCoverage = buildCoverageSnapshot(clues);
+    }
+  }
+
   try {
     const deterministicContracts = enforceAgent5DeterministicContracts(ctx.cml!, clues, {
       hardLogicLockedFacts,
@@ -4028,6 +4115,8 @@ export const __testables = {
   alignDiscriminatingEvidenceIdsWithSceneMapping,
   remapMissingDiscriminatingEvidenceIdsToExistingClues,
   synthesizeMissingDiscriminatingEvidenceClues,
+  synthesizeInferenceStepCoverageClues,
+  checkInferencePathCoverage,
   selectDiscriminatingEvidenceCandidateIds,
   sanitizeEraTimeStyleInClues,
   checkCastNamePathConsistency,

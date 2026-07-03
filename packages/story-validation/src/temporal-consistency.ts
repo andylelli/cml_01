@@ -57,10 +57,17 @@ const SPRING_MECHANICAL_RE = new RegExp(
   [
     // <mechanism word>('s) spring(s): clock spring, clock's spring, mainspring, watch spring, balance spring
     String.raw`\b(?:main|coil|leaf|suspension|torsion|hair|clock|watch|pendulum|escapement|balance|mantel|grandfather)(?:'?s)?\s*-?\s*springs?\b`,
-    // spring(s) <mechanism qualifier>: spring tension, spring housing, spring barrel, spring steel...
-    String.raw`\bsprings?\s+(?:tension|housing|barrel|mechanism|steel|coil|loaded|driven|assembly|recoil)\b`,
+    // spring(s) <mechanism/trap qualifier>: spring tension, spring housing, spring-loaded, spring blade,
+    // spring trap, spring catch... The separator is [\s-]+ (space OR hyphen) so "spring-loaded" — the
+    // dominant A_60 sundial-trap form — is stripped, not read as the season.
+    String.raw`\bsprings?[\s-]+(?:tension|housing|barrel|mechanism|steel|coil|loaded|driven|assembly|recoil|blade|trap|catch|latch|lever|release|bolt|dagger|hinge|clip|arm)\b`,
     // <action> spring(s): wound spring, winding spring, coiled spring, tensioned spring, over-wound spring
     String.raw`\b(?:wound|winding|coiled|tension(?:ed)?|over-?wound|recoiled)\s+springs?\b`,
+    // enumerated trap components — "a spring or a blade", "a spring, perhaps, or a blade" (A_60): a
+    // "spring" listed as an alternative mechanism within one clause of a trap noun via or/and. Bounded
+    // by [^.!?]{0,25} so it stays in-sentence and short — a seasonal "spring" is not enumerated against
+    // a blade, so "in the spring, the roses bloomed" is untouched.
+    String.raw`\bsprings?\b[^.!?]{0,25}?\b(?:or|and)\s+(?:an?\s+|the\s+)?(?:blade|trap|catch|latch|lever|bolt|dagger|mechanism)s?\b`,
   ].join('|'),
   'gi',
 );

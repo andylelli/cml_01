@@ -70,6 +70,11 @@ export interface StoryFacts {
   victimUnnamed?: boolean;
   // detectors over prose
   templateLeakageHits?: string[];
+  // First-principles LLD §6.4 — the general "scaffold-not-prose" family: deductive/validation
+  // scaffolding the deterministic injectors emit ("pressed on to the next concrete detail / the trail
+  // bent toward / set out the two competing readings / was thoroughly cleared by the evidence"). One
+  // detector over the SHAPE replaces N per-template caps; each entry is the rule that fired.
+  scaffoldHits?: string[];
   pronounsUnstable?: boolean;
   // A_57 — prose-layer defects a human always penalises but the LLM judge under-detects. Deterministic,
   // parameter-generic. D1: a locked-fact value spliced into prose with a stray apostrophe/no space

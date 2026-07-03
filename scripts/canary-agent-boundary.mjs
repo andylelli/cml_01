@@ -170,6 +170,20 @@ async function main() {
   emitFirstPassTelemetry(agentCode, ctx);
   emitAgent6RescueTelemetry(agentCode, ctx);
 
+  // Additive, env-gated: dump the shipped Agent-9 prose + flag/cost/gate metrics for the
+  // AGENT9_REGEN_CLUE A/B harness (scripts/exp-regen-clue-*). Unset ⇒ today's behaviour.
+  if (agentCode === "9" && process.env.CANARY_PROSE_DUMP_PATH) {
+    try {
+      await writeAgent9ProseDump(ctx, process.env.CANARY_PROSE_DUMP_PATH, artifactBundle.runId);
+      console.log("CANARY_PROSE_DUMP", process.env.CANARY_PROSE_DUMP_PATH);
+    } catch (dumpErr) {
+      console.log(
+        "CANARY_PROSE_DUMP_FAILED",
+        String(dumpErr instanceof Error ? dumpErr.message : dumpErr),
+      );
+    }
+  }
+
   console.log("CANARY_STATUS success");
   console.log("WARNINGS_COUNT", String(ctx.warnings.length));
   if (ctx.warnings.length > 0) {
@@ -562,6 +576,78 @@ function hasContextForCode(ctx, code) {
     default:
       return false;
   }
+}
+
+async function writeAgent9ProseDump(ctx, dumpPath, runId) {
+  const prose = ctx.prose ?? {};
+  const chaptersRaw = Array.isArray(prose.chapters) ? prose.chapters : [];
+  const chapters = chaptersRaw.map((ch, i) => {
+    const paragraphs = Array.isArray(ch?.paragraphs)
+      ? ch.paragraphs
+      : ch?.text
+        ? [ch.text]
+        : [];
+    const text = paragraphs.map((p) => String(p ?? "")).join("\n\n").trim();
+    return { index: i + 1, title: String(ch?.title ?? `Chapter ${i + 1}`), text };
+  });
+  const totalWords = chapters.reduce(
+    (sum, ch) => sum + (ch.text ? ch.text.split(/\s+/).filter(Boolean).length : 0),
+    0,
+  );
+
+  let agent9CostUsd = 0;
+  for (const [key, value] of Object.entries(ctx.agentCosts ?? {})) {
+    if (key.startsWith("agent9")) agent9CostUsd += Number(value) || 0;
+  }
+  let agent9DurationMs = 0;
+  for (const [key, value] of Object.entries(ctx.agentDurations ?? {})) {
+    if (key.startsWith("agent9")) agent9DurationMs += Number(value) || 0;
+  }
+
+  const vr = ctx.validationReport ?? {};
+  const gate = vr.releaseGateAudit ?? vr.releaseGate ?? null;
+  const releaseGate = gate
+    ? {
+        status: gate.status ?? null,
+        hardStops: Array.isArray(gate.hardStopReasons) ? gate.hardStopReasons : [],
+        warnings: Array.isArray(gate.warningReasons) ? gate.warningReasons : [],
+      }
+    : {
+        status: null,
+        hardStops: Array.isArray(vr.hardStopReasons) ? vr.hardStopReasons : [],
+        warnings: Array.isArray(vr.warningReasons) ? vr.warningReasons : [],
+      };
+
+  const payload = {
+    runId,
+    agent: "9",
+    regenClueEnabled:
+      process.env.AGENT9_REGEN_CLUE === "true" || process.env.AGENT9_REGEN_CLUE === "1",
+    chapterCount: chapters.length,
+    totalWords,
+    chapters,
+    cast: extractCastGenders(ctx.cast),
+    agent9CostUsd,
+    agent9DurationMs,
+    releaseGate,
+    warnings: Array.isArray(ctx.warnings) ? ctx.warnings.map(String) : [],
+  };
+
+  await fs.mkdir(path.dirname(dumpPath), { recursive: true });
+  await fs.writeFile(dumpPath, JSON.stringify(payload, null, 2), "utf8");
+}
+
+function extractCastGenders(cast) {
+  const characters =
+    (cast && Array.isArray(cast.characters) && cast.characters) ||
+    (cast && cast.cast && Array.isArray(cast.cast.characters) && cast.cast.characters) ||
+    [];
+  return characters
+    .map((c) => ({
+      name: String(c?.name ?? "").trim(),
+      gender: String(c?.gender ?? "").trim().toLowerCase(),
+    }))
+    .filter((c) => c.name);
 }
 
 function parseBooleanEnv(value, fallback) {

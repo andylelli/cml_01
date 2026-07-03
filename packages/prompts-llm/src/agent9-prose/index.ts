@@ -36,4 +36,9 @@ export type {
 } from "./deterministic-repair.js";
 export * from "./post-pass-polish.js";
 export * from "./prose-blind-reader.js";
+export * from "./regen-repair.js";
+export * from "./regen-llm.js";
+export * from "./regen-integration.js";
+export * from "./model-tiering.js";
+export * from "./critique-rewrite.js";
 export * from "./generate.js";

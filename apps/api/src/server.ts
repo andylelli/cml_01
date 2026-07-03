@@ -664,6 +664,7 @@ const runPipeline = async (
       { key: "clues", type: "clues", message: "Partial clues persisted after failure" },
       { key: "fairPlayAudit", type: "fair_play_report", message: "Partial fair-play report persisted after failure" },
       { key: "narrative", type: "outline", message: "Partial outline persisted after failure" },
+      { key: "failedNarrative", type: "outline_failed", message: "Failing narrative outline persisted for debugging" },
       { key: "characterProfiles", type: "character_profiles", message: "Partial character profiles persisted after failure" },
       { key: "locationProfiles", type: "location_profiles", message: "Partial location profiles persisted after failure" },
       { key: "temporalContext", type: "temporal_context", message: "Partial temporal context persisted after failure" },

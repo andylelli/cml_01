@@ -111,6 +111,46 @@ export type { StoryWorldState, WorldStateFact, WorldStateCharacter, WorldStateCo
 // A_57 §9.2 — the discriminator verifier (logical soundness over the suspect partition)
 export { verifyDiscriminator } from "./discriminator-verifier.js";
 export type { DiscriminatorVerdict, DiscriminatorIssue, DiscriminatorIssueKind, DiscriminatorVerifierInputs } from "./discriminator-verifier.js";
+// First-principles LLD §5.1/§6.1 — the Story Bible (single dereference source) + source-level gates
+export { buildStoryBible, runBibleGates } from "./story-bible.js";
+export type {
+  StoryBible,
+  StoryBibleInputs,
+  BibleClock,
+  BibleVoice,
+  BibleDiscriminatingTest,
+  ChapterBeat,
+  BibleGateResult,
+} from "./story-bible.js";
+// First-principles LLD P3/P4/P5 — the scoped regen-repair loop, its concrete LLM bridge, the
+// verifier→Bible→regen glue, and the critique→rewrite craft pass. Surfaced at the package boundary so
+// the worker orchestrator can wire them (all default-off behind their flags).
+export {
+  runRegenRepair,
+  regenThenValidate,
+  makeRegenFn,
+  buildRegenPrompt,
+  buildRegenRequest,
+  composeChapterValidator,
+  runClueRegenPass,
+  runClearanceRegenPass,
+  runInsertionRegenPass,
+  resolveStageModel,
+  runCritiqueRewritePass,
+  critiqueAndRewriteChapter,
+  selectLowestScoringChapters,
+} from "./agent9-prose.js";
+export type {
+  ProseDefect,
+  ProseDefectKind,
+  RegenRequest,
+  RegenFn,
+  ChapterValidator,
+  ClueRegenPassResult,
+  InsertionRegenPassResult,
+  CritiqueRewriteResult,
+  ChapterScoreRef,
+} from "./agent9-prose.js";
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";
 export type { WorldDocumentResult, WorldDocumentHistoricalMoment, WorldDocumentCharacterPortrait, WorldDocumentVoiceFragment, WorldDocumentCharacterVoiceSketch, WorldDocumentLocationRegister, WorldDocumentArcTurningPoint, WorldDocumentEmotionalArc, WorldDocumentHumourEntry, WorldDocumentBreakMoment, WorldDocumentValidationConfirmations } from "./types/world-document.js";

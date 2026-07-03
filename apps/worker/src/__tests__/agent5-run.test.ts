@@ -1363,6 +1363,67 @@ describe("agent5-run testables", () => {
     )).toBe(true);
   });
 
+  it("RC3.1: synthesizes a covering clue for an uncovered inference step (repair-not-abort round-trip)", () => {
+    const cml = {
+      CASE: {
+        inference_path: {
+          steps: [
+            {
+              observation: "Witnesses heard a struggle at six twenty in the morning room.",
+              correction: "The struggle time contradicts the staged clock.",
+              required_evidence: ["The morning-room rug was disturbed."],
+            },
+          ],
+        },
+      },
+    } as any;
+
+    // A clue that does NOT cover the step (unrelated text, no supportsInferenceStep).
+    const clues = {
+      clues: [
+        {
+          id: "clue_unrelated",
+          description: "A teacup sat cold on the sideboard.",
+          pointsTo: "Ambient detail.",
+          placement: "mid",
+          criticality: "essential",
+          evidenceType: "observation",
+        },
+      ],
+      clueTimeline: { early: [], mid: ["clue_unrelated"], late: [] },
+      redHerrings: [],
+    } as any;
+
+    const before = __testables.checkInferencePathCoverage(cml, clues);
+    expect(before.uncoveredSteps).toEqual([1]);
+    expect(before.hasCriticalGaps).toBe(true);
+
+    const repairs = __testables.synthesizeInferenceStepCoverageClues(cml, clues, before.uncoveredSteps);
+    expect(repairs).toHaveLength(1);
+
+    const synthesized = clues.clues.find((c: any) => String(c.id).startsWith("clue_inference_cover_step_1"));
+    expect(synthesized).toBeTruthy();
+    expect(synthesized.supportsInferenceStep).toBe(1);
+    expect(synthesized.evidenceType).toBe("observation");
+    expect(String(synthesized.description)).toContain("struggle at six twenty");
+    expect(["early", "mid"]).toContain(String(synthesized.placement));
+
+    const after = __testables.checkInferencePathCoverage(cml, clues);
+    expect(after.uncoveredSteps).toEqual([]); // the step is now covered → the hard gate would NOT abort
+    expect(after.hasCriticalGaps).toBe(false);
+  });
+
+  it("RC3.1: leaves an empty-observation step uncovered (nothing to plant → hard gate still fires)", () => {
+    const cml = {
+      CASE: { inference_path: { steps: [{ observation: "   ", correction: "x", required_evidence: [] }] } },
+    } as any;
+    const clues = { clues: [], clueTimeline: { early: [], mid: [], late: [] }, redHerrings: [] } as any;
+
+    const repairs = __testables.synthesizeInferenceStepCoverageClues(cml, clues, [1]);
+    expect(repairs).toEqual([]); // no synthesis when there is no observation text
+    expect(clues.clues).toHaveLength(0);
+  });
+
   it("warns (does not abort) on meta-audit clue text", () => {
     const cml = {
       CASE: {

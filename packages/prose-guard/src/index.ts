@@ -51,3 +51,5 @@ export {
   pronounConsistencyValidator,
 } from "./fidelity.js";
 export type { FidelityOptions } from "./fidelity.js";
+export { detectScaffoldNotProse, noScaffoldValidator } from "./scaffold.js";
+export type { ScaffoldHit } from "./scaffold.js";

@@ -1094,6 +1094,71 @@ async function rescoreNarrative(ctx: OrchestratorContext, narrative: NarrativeOu
 // runAgent7
 // ============================================================================
 
+/**
+ * Known natural-language aliases the LLM reaches for → the canonical Golden-Age beat.
+ * Only high-confidence mappings; anything not here (and not already canonical) is dropped.
+ */
+const BEAT_SYNONYMS: Record<string, string> = {
+  discovery: "crime",
+  investigation: "first_enquiries",
+  interrogation: "first_enquiries",
+  interview: "first_enquiries",
+  interviews: "first_enquiries",
+  enquiries: "first_enquiries",
+  inquiries: "first_enquiries",
+  motive: "motives",
+  suspicion: "motives",
+  alibi: "alibis",
+  confrontation: "final_trap",
+  trap: "final_trap",
+  climax: "final_trap",
+  reveal: "revelation",
+  resolution: "revelation",
+  solution: "revelation",
+  denouement: "revelation",
+};
+
+/**
+ * Deterministically normalise `scene.beat` to the Golden-Age enum, in place.
+ *
+ * `scene.beat` is an OPTIONAL controlled-vocabulary field, but the schema enforces the
+ * Golden-Age enum on ANY value present. The allowed vocabulary is only injected into the
+ * prompt on the exact 10-chapter path (beatArcBlock in agent7-narrative.ts). Off that path
+ * the model still emits `beat` and free-texts values like "interrogation"/"discovery"/
+ * "resolution", which hard-abort the run at schema validation — even through the schema-repair
+ * retry (run_01150a9f). Deterministic code owns `beat` (agent-7 redesign: beat is
+ * scheduler-owned), so map known synonyms onto the canonical arc, normalise casing/whitespace,
+ * and drop anything unrecognised. Never abort a run on this cosmetic, optional field.
+ *
+ * @returns counts of coerced (synonym-mapped) and dropped (unrecognised) beats.
+ */
+export function coerceNarrativeSceneBeats(narrative: unknown): { coerced: number; dropped: number } {
+  const allowed = new Set<string>(GOLDEN_AGE_BEATS);
+  let coerced = 0;
+  let dropped = 0;
+  const acts = (narrative as any)?.acts;
+  if (!Array.isArray(acts)) return { coerced, dropped };
+  for (const act of acts) {
+    if (!act || !Array.isArray(act.scenes)) continue;
+    for (const scene of act.scenes) {
+      if (!scene || typeof scene !== "object" || scene.beat == null || scene.beat === "") continue;
+      const key = String(scene.beat).trim().toLowerCase();
+      if (allowed.has(key)) {
+        if (scene.beat !== key) scene.beat = key; // normalise casing/whitespace
+        continue;
+      }
+      if (BEAT_SYNONYMS[key]) {
+        scene.beat = BEAT_SYNONYMS[key];
+        coerced++;
+      } else {
+        delete scene.beat;
+        dropped++;
+      }
+    }
+  }
+  return { coerced, dropped };
+}
+
 export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
@@ -1251,11 +1316,20 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // ── Deterministic beat coercion (before schema validation) ──────────────────
+  const beatCoercion = coerceNarrativeSceneBeats(narrative);
+  if (beatCoercion.coerced > 0 || beatCoercion.dropped > 0) {
+    ctx.warnings.push(
+      `Narrative beat coercion: mapped ${beatCoercion.coerced} synonym beat(s) to the Golden-Age arc, dropped ${beatCoercion.dropped} unrecognised beat(s) before schema validation.`,
+    );
+  }
+
   // ── Schema repair ──────────────────────────────────────────────────────────
   let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
   if (!narrativeSchemaValidation.valid) {
     if (!contractRecoveryEnabled) {
       narrativeSchemaValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
+      ctx.failedNarrative = narrative; // capture the failing candidate for the partial-artifact snapshot
       throw new Error("Narrative outline artifact failed schema validation (contract recovery disabled)");
     }
     ctx.warnings.push(
@@ -1285,9 +1359,20 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     ctx.agentDurations["agent7_narrative"] =
       (ctx.agentDurations["agent7_narrative"] || 0) + (Date.now() - narrativeSchemaRetryStart);
 
+    // The retry is a fresh LLM generation and can re-emit out-of-enum beats, so it needs the
+    // same deterministic coercion as the first attempt — otherwise a beat-only defect on the
+    // retry still hard-aborts at the last gate before failure.
+    const retryBeatCoercion = coerceNarrativeSceneBeats(retriedNarrative);
+    if (retryBeatCoercion.coerced > 0 || retryBeatCoercion.dropped > 0) {
+      ctx.warnings.push(
+        `Narrative beat coercion (retry): mapped ${retryBeatCoercion.coerced} synonym beat(s), dropped ${retryBeatCoercion.dropped} unrecognised beat(s) before schema validation.`,
+      );
+    }
+
     const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     if (!retryValidation.valid) {
       retryValidation.errors.forEach((error) => ctx.errors.push(`Outline schema failure: ${error}`));
+      ctx.failedNarrative = retriedNarrative; // capture the failing retry candidate for the partial-artifact snapshot
       throw new Error("Narrative outline artifact failed schema validation");
     }
 

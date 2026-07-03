@@ -207,6 +207,7 @@ export interface OrchestratorContext {
   agent6RetryInvoked?: boolean;
   agent6FailureClass?: string;
   narrative?: NarrativeOutline;        // may be reassigned by Agent 7 retries
+  failedNarrative?: NarrativeOutline;  // last outline candidate that failed schema validation (debug-only; set on Agent 7 abort)
   outlineCoverageIssues?: OutlineCoverageIssue[];
   characterProfiles?: CharacterProfilesResult;
   locationProfiles?: LocationProfilesResult;

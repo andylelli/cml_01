@@ -1593,7 +1593,18 @@ ${victimIdentityRule}`;
   // Build continuity context from chapter 2 onwards (character names, setting terms from earlier chapters)
   let continuityBlock = '';
   if (chapterSummaries.length > 0) {
-    continuityBlock = buildContinuityContext(chapterSummaries, chapterStart);
+    // P1.3 (default-off, AGENT9_BIBLE_AUTHORITATIVE): dereference the true-time anchor from the case
+    // ground truth (storyContract crime-time anchors, else an atomic locked-fact time) instead of
+    // scraping it from generated prose. Default undefined → today's scrape.
+    let lockedTimeAnchor: string | undefined;
+    if (process.env.AGENT9_BIBLE_AUTHORITATIVE === 'true' || process.env.AGENT9_BIBLE_AUTHORITATIVE === '1') {
+      const anchorFromContract = (inputs.storyContract as any)?.crimeTimeAnchors?.find?.((a: unknown) => String(a ?? '').trim());
+      const anchorFromFacts = (inputs.lockedFacts ?? [])
+        .map((f) => String(f?.value ?? '').trim())
+        .find((v) => isAtomicLockedFactValue(v) && /\b(?:past|to|after|before|o'clock|:|midnight|noon)\b/i.test(v));
+      lockedTimeAnchor = (String(anchorFromContract ?? '').trim() || anchorFromFacts) || undefined;
+    }
+    continuityBlock = buildContinuityContext(chapterSummaries, chapterStart, lockedTimeAnchor);
   }
 
   const storyToDateBlock = buildStoryToDateBlock(priorChapters, chapterStart);

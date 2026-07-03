@@ -1417,6 +1417,7 @@ export async function generateMystery(
       clues: ctx?.clues,
       fairPlayAudit: ctx?.fairPlayAudit,
       narrative: ctx?.narrative,
+      failedNarrative: ctx?.failedNarrative,
       characterProfiles: ctx?.characterProfiles,
       locationProfiles: ctx?.locationProfiles,
       temporalContext: ctx?.temporalContext,

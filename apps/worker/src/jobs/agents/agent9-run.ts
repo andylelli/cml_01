@@ -36,10 +36,14 @@ import {
   buildStoryWorldState,
   runContradictionGate,
   verifyDiscriminator,
+  buildStoryBible,
+  runCritiqueRewritePass,
+  type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
+import { noScaffoldValidator } from "@cml/prose-guard";
 import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -147,6 +151,24 @@ const AGENT9_MUTATION_REVALIDATION = parseBooleanEnv(process.env.AGENT9_MUTATION
  * the wrong room.
  */
 const AGENT9_GROUNDING_LEAD = parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD, false);
+
+/**
+ * First-principles LLD §6.1 / phase P2 — promote the world-state contradiction gate and the
+ * discriminator verifier from warn-level telemetry to SOURCE-LEVEL BLOCKING: an incoherent or unsound
+ * case is repaired upstream (Agent 3b/5/7), never papered over in prose. OFF by default — flipping it
+ * on turns previously-shipping unsound cases into aborts, so it must land with an upstream repair hook
+ * and clear an N≥4 gate first. When off, behaviour is unchanged (the conflicts stay warnings).
+ */
+const AGENT9_BIBLE_GATES_BLOCKING = parseBooleanEnv(process.env.AGENT9_BIBLE_GATES_BLOCKING, false);
+
+/**
+ * First-principles LLD §6.5 / phase P5 — the critique→rewrite-at-creative-temperature pass. After
+ * generation, the lowest-scoring chapters are critiqued against the rubric and rewritten at temp
+ * 0.7–0.9, with deterministic re-validation + rollback (the rewrite can never drop a locked fact or
+ * smuggle scaffold; clue-presence and pronoun fidelity are additionally backstopped by the downstream
+ * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
+ */
+const AGENT9_CRITIQUE_REWRITE = parseBooleanEnv(process.env.AGENT9_CRITIQUE_REWRITE, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -3358,10 +3380,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   {
     const gate = runContradictionGate(worldState);
     if (!gate.ok) {
-      ctx.warnings.push(
+      const detail =
         `[Agent 9] world-state contradiction gate (A_57 §9.1): ${gate.conflicts.length} conflict(s) — ` +
-          gate.conflicts.map((c) => `${c.kind}: ${c.detail}`).join("; ") + ".",
-      );
+        gate.conflicts.map((c) => `${c.kind}: ${c.detail}`).join("; ") + ".";
+      // P2: block at source when enabled; otherwise stay warn-level (today's behaviour).
+      if (AGENT9_BIBLE_GATES_BLOCKING) {
+        throw new Error(`${detail} [AGENT9_BIBLE_GATES_BLOCKING] repair the case upstream before prose.`);
+      }
+      ctx.warnings.push(detail);
     }
 
     const dt = caseBlock.discriminating_test ?? {};
@@ -3392,10 +3418,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       evidenceClueCount,
     });
     if (!verdict.sound) {
-      ctx.warnings.push(
+      const detail =
         `[Agent 9] discriminator verifier (A_57 §9.2): ${verdict.issues.length} soundness issue(s) — ` +
-          verdict.issues.map((i: { kind: string; detail: string }) => `${i.kind}: ${i.detail}`).join("; ") + ".",
-      );
+        verdict.issues.map((i: { kind: string; detail: string }) => `${i.kind}: ${i.detail}`).join("; ") + ".";
+      // P2: block at source when enabled; otherwise stay warn-level (today's behaviour).
+      if (AGENT9_BIBLE_GATES_BLOCKING) {
+        throw new Error(`${detail} [AGENT9_BIBLE_GATES_BLOCKING] repair the case upstream before prose.`);
+      }
+      ctx.warnings.push(detail);
     }
   }
 
@@ -4131,6 +4161,73 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   };
 
   prose = applyStandardPostProcessingChain(prose);
+
+  // P5 (default-off, AGENT9_CRITIQUE_REWRITE) — critique→rewrite the lowest-scoring chapters at creative
+  // temperature. Runs BEFORE first-pass scoring + the story-validation pipeline, so every rewrite flows
+  // through the existing gates; the library's own validator rolls back any rewrite that drops a locked
+  // fact or introduces scaffold, and clue-presence/pronoun fidelity are re-checked downstream. Wrapped
+  // so any failure leaves the generated chapters untouched.
+  if (AGENT9_CRITIQUE_REWRITE && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    // Snapshot the client's running cost so the critique-rewrite LLM spend is folded into prose.cost
+    // (otherwise the per-agent cost telemetry under-reports it).
+    const costBeforeRewrite = client.getCostTracker().getTotalCost();
+    try {
+      const atomicValues = (worldState.facts ?? [])
+        .filter((f) => f.type === "atomic")
+        .map((f) => String(f.value ?? "").trim())
+        .filter(Boolean);
+      const pronouns: Record<string, string> = {};
+      for (const c of (castDesign.characters ?? []) as any[]) {
+        const g = String(c?.gender ?? "").toLowerCase();
+        const name = String(c?.name ?? "").trim();
+        if (name) pronouns[name] = g === "male" ? "he/him" : g === "female" ? "she/her" : "they/them";
+      }
+      const validatorFor = (_index: number, original: any): ChapterValidator => {
+        const presentValues = atomicValues.filter((v) => (original.paragraphs ?? []).join(" ").includes(v));
+        return (cand) => {
+          const text = (cand.paragraphs ?? []).join(" ");
+          const scaffold = noScaffoldValidator(text);
+          const dropped = presentValues.filter((v) => !text.includes(v));
+          return {
+            ok: scaffold.ok && dropped.length === 0,
+            score: scaffold.score + (presentValues.length - dropped.length) * 10,
+            violations: [...scaffold.violations, ...dropped.map((v) => `dropped_locked_fact:${v}`)],
+          };
+        };
+      };
+      const scored = (ctx.proseChapterScores ?? [])
+        .map((s: any) => ({ index: (Number(s?.chapter) || 0) - 1, score: Number(s?.individual_score) || 0 }))
+        .filter((s) => s.index >= 0 && s.index < prose.chapters.length);
+      const rw = await runCritiqueRewritePass({
+        client,
+        chapters: prose.chapters,
+        scored,
+        maxChapters: 4,
+        validatorFor,
+        constraintsFor: () => ({ lockedFacts: atomicValues, pronouns, requiredClues: [] }),
+        model: proseDeployment,
+        runId: ctx.runId,
+        projectId: ctx.projectId,
+        onResult: (i, r) => {
+          if (!r.rewritten && r.rollbackReason) {
+            ctx.warnings.push(`[Agent 9] critique-rewrite ch${i + 1} rolled back: ${r.rollbackReason}`);
+          }
+        },
+      });
+      if (rw.rewrittenIndices.length > 0) {
+        prose.chapters = rw.chapters;
+        prose = applyStandardPostProcessingChain(prose); // re-run hygiene over the rewritten chapters
+        ctx.warnings.push(`[Agent 9] critique-rewrite rewrote chapter(s) [${rw.rewrittenIndices.map((i) => i + 1).join(", ")}].`);
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] critique-rewrite pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+    } finally {
+      // Fold the critique-rewrite spend into the prose cost regardless of outcome (calls may have run
+      // before a rollback), so per-agent cost telemetry stays accurate.
+      const rewriteCost = client.getCostTracker().getTotalCost() - costBeforeRewrite;
+      if (rewriteCost > 0 && typeof prose?.cost === "number") prose.cost += rewriteCost;
+    }
+  }
   // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
   // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
   // 1d: Normalize location names to canonical capitalised forms before validation.
@@ -5011,6 +5108,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       validationReport.summary.major +
       " major issues";
     ctx.errors.push(validationFailureMsg);
+
+    // Triage de-masking (A_60 V.1 / P.7): month/season contradictions are a single, false-positive-prone
+    // class (mechanical "spring" in a trap-based mystery reads as the season). When they dominate the
+    // major count, the run looks broadly broken but is one concentrated issue. Surface the breakdown so
+    // the log isn't misread — and so a genuine season conflict is still visible.
+    const majorEnErrors = (validationReport.errors ?? []).filter(
+      (e: any) => e?.severity === "major" || e?.severity === "critical",
+    );
+    const seasonMajors = majorEnErrors.filter((e: any) =>
+      /month\/season contradiction/i.test(String(e?.message ?? "")),
+    );
+    if (seasonMajors.length > 0) {
+      const seasonTriageMsg =
+        `Validation triage: ${seasonMajors.length}/${majorEnErrors.length} major issue(s) are month/season contradictions — ` +
+        `one class (A_60 V.1). Verify these are not mechanical-"spring" false positives before treating the run as broadly failing.`;
+      console.warn(`[Agent 9] ${seasonTriageMsg}`);
+      ctx.warnings.push(seasonTriageMsg);
+    }
+
     await client.getLogger()?.logError({
       runId,
       projectId,

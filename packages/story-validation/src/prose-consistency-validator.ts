@@ -113,6 +113,15 @@ export class ProseConsistencyValidator implements Validator {
           ? new Set(fact.appearsInChapters.map(Number))
           : null;
 
+      // RC2.1 (A_61 Phase 2b): a locked fact's canonical value need only be surfaced ONCE across the
+      // chapters that genuinely reference it — not restated in every incidental-keyword chapter. The
+      // per-scene "missing value" check multiplied a single fact into many majors (run bf6khyl2r: one
+      // "thirty feet" distance fact → 6 majors) and demanded robotic repetition (A_57 D1). We now collect
+      // the scenes that reference the fact, and require the value to appear in AT LEAST ONE of them.
+      // (A *conflicting* value stays a per-scene critical — a contradiction anywhere is a real error.)
+      const relevantSceneNumbers: number[] = [];
+      let valueAppearsSomewhere = false;
+
       for (const scene of story.scenes) {
         // Primary chapter scope gate: if the fact has been annotated with the chapters
         // where its associated evidence is formally introduced, skip all others.
@@ -132,23 +141,40 @@ export class ProseConsistencyValidator implements Validator {
         const mentionsFact = matchedKeywords.length >= requiredMatches;
         if (!mentionsFact) continue;
 
+        relevantSceneNumbers.push(scene.number);
+
         // Does the verbatim value appear? If not, check structural variants before flagging.
         const valuePattern = new RegExp(escapeRegex(canonicalValue.toLowerCase()), 'i');
         const valueFound = valuePattern.test(scene.text) || this.checkValueVariants(canonicalValue, scene.text);
-        if (!valueFound) {
-          // Check whether a recognisably *different* numeric value appears near the keywords
-          const hasConflict = this.detectConflictingValue(scene.text, canonicalValue);
+        if (valueFound) {
+          valueAppearsSomewhere = true;
+          continue;
+        }
+
+        // A recognisably *different* numeric/time value near the keywords is a hard contradiction
+        // wherever it occurs — kept per-scene and critical.
+        if (this.detectConflictingValue(scene.text, canonicalValue)) {
           errors.push({
-            type: hasConflict ? 'locked_fact_contradicted' : 'locked_fact_missing_value',
-            message: hasConflict
-              ? `Locked fact "${fact.description}" contradicted in chapter ${scene.number}. Expected value "${canonicalValue}" but a different value appears nearby.`
-              : `Locked fact "${fact.description}" is described in chapter ${scene.number} without its canonical value "${canonicalValue}".`,
-            severity: hasConflict ? 'critical' : 'major',
+            type: 'locked_fact_contradicted',
+            message: `Locked fact "${fact.description}" contradicted in chapter ${scene.number}. Expected value "${canonicalValue}" but a different value appears nearby.`,
+            severity: 'critical',
             sceneNumber: scene.number,
             suggestion: `Use the exact value "${canonicalValue}" whenever this evidence is described.`,
             cmlReference: `lockedFacts[${fact.id}]`,
           });
         }
+      }
+
+      // Missing-value: flag ONCE if the canonical value never appears in any chapter that references it.
+      if (relevantSceneNumbers.length > 0 && !valueAppearsSomewhere) {
+        errors.push({
+          type: 'locked_fact_missing_value',
+          message: `Locked fact "${fact.description}" is referenced (chapter(s) ${relevantSceneNumbers.join(', ')}) but its canonical value "${canonicalValue}" never appears. State it at least once where the evidence is introduced.`,
+          severity: 'major',
+          sceneNumber: relevantSceneNumbers[0],
+          suggestion: `Use the exact value "${canonicalValue}" at least once where this evidence is described.`,
+          cmlReference: `lockedFacts[${fact.id}]`,
+        });
       }
     }
 

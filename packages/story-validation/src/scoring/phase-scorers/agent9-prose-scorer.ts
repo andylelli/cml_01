@@ -91,6 +91,44 @@ const normalizeClueIdForMatch = (value: string): string =>
     .trim()
     .replace(/[^a-z0-9]+/g, "");
 
+/**
+ * Is a location profile referenced anywhere in the prose?
+ *
+ * A profile carries a *decorated* name ("The Thermally Sealed Study", "The Walled Gardens"), but prose
+ * refers to it naturally ("the study", "the gardens"). Exact full-name substring matching therefore
+ * massively under-counts — it hard-capped a 94%-quality draft to 60/D because "the thermally sealed
+ * study" never appears verbatim (run_33ecb4ad, A_61). Match on the location's HEAD NOUN (the last
+ * content word — study/library/gardens/quarters) with singular/plural tolerance; for a generic
+ * container head (room/hall/wing/quarters) also require a distinctive modifier so "Drawing Room" and
+ * "Dining Room" don't both match a bare "room". `allProse` must already be lower-cased.
+ */
+export function locationReferencedInProse(locationName: string, allProse: string): boolean {
+  const lower = String(locationName ?? "").toLowerCase().trim();
+  if (!lower) return false;
+  // 1. Verbatim full-name match.
+  if (allProse.includes(lower)) return true;
+
+  // 2. Head-noun match.
+  const STOP = new Set(["the", "a", "an", "of", "and", "old", "new"]);
+  const GENERIC = new Set(["room", "hall", "wing", "area", "house", "manor", "quarter", "chamber", "floor", "place", "block"]);
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Strip punctuation incl. apostrophes so a possessive ("Servants'") matches the bare word in prose.
+  const words = lower.replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((w) => w && !STOP.has(w));
+  if (words.length === 0) return false;
+
+  const head = words[words.length - 1];
+  const headSingular = head.replace(/s$/, "");
+  if (headSingular.length < 4) return false;
+  if (!new RegExp(`\\b${esc(headSingular)}s?\\b`).test(allProse)) return false;
+
+  if (GENERIC.has(headSingular)) {
+    // Generic container word → require at least one distinctive modifier to also appear.
+    const modifiers = words.slice(0, -1).filter((w) => w.length >= 4);
+    return modifiers.some((m) => new RegExp(`\\b${esc(m)}\\b`).test(allProse));
+  }
+  return true;
+}
+
 export class ProseScorer
   implements Scorer<any, ProseOutput>
 {
@@ -714,7 +752,7 @@ export class ProseScorer
 
     let referencedLocations = 0;
     for (const locationName of profileNames) {
-      if (allProse.includes(locationName)) {
+      if (locationReferencedInProse(locationName, allProse)) {
         referencedLocations++;
       }
     }

@@ -125,6 +125,13 @@ import {
   resolveBatchMatchingClearances,
   resolveFallbackStageMode,
 } from "./deterministic-repair.js";
+// First-principles LLD §6.4 / P3.3 — scoped clue-regen (the A1 replacement), default-off behind
+// AGENT9_REGEN_CLUE. When enabled, runs BEFORE repairChapterDeterministically so a successful regen
+// makes the clue present and the deterministic A1 patch does not inject (A1 demoted to logged floor).
+import { runClueRegenPass } from "./regen-integration.js";
+import { makeRegenFn } from "./regen-llm.js";
+import { buildStoryBible } from "../story-bible.js";
+import type { StoryBible } from "../story-bible.js";
 import type {
   ProseChapter,
   ChapterSummary,
@@ -2070,6 +2077,9 @@ export async function generateProse(
   const proseModelConfig = getGenerationParams().agent9_prose.prose_model;
   const batchSize = Math.max(1, Math.min(inputs.batchSize || 1, proseModelConfig.max_batch_size));
   const pronounCheckingEnabled = getPronounPolicySettings().checkingEnabled;
+  // P3.3 — scoped clue-regen, OFF by default (behaviour identical to today unless explicitly enabled).
+  const regenClueEnabled = process.env.AGENT9_REGEN_CLUE === "true" || process.env.AGENT9_REGEN_CLUE === "1";
+  let regenBible: StoryBible | null = null; // built lazily on the first chapter that needs it
   const proseLinterStats: ProseLinterStats = {
     checksRun: 0,
     failedChecks: 0,
@@ -2610,6 +2620,49 @@ export async function generateProse(
           // P2-10: Sanitize (anonymize unknown titled names) after pronoun repair so that
           // weakened antecedents don't cause pronoun misresolution.
           chapter = sanitizeGeneratedChapter(chapter, castNames);
+
+          // P3.3 (default-off, AGENT9_REGEN_CLUE) — dramatize any MISSING required clue in-scene via a
+          // scoped LLM regen BEFORE the deterministic A1 patch. A successful plant makes the clue
+          // present, so `repairChapterDeterministically` will not inject the A1 scaffold; whatever regen
+          // cannot resolve is logged and falls through to the deterministic floor (never silent).
+          if (regenClueEnabled) {
+            try {
+              if (!regenBible) {
+                regenBible = buildStoryBible({
+                  lockedFacts: inputs.lockedFacts,
+                  cast: cmlCase?.cast,
+                  victim: resolveVictimName(inputs.cast) || undefined,
+                  culprits: cmlCase?.culpability?.culprits,
+                  macroArcPlan: inputs.macroArcPlan ?? inputs.storyContract?.macroArcPlan,
+                  cmlCase,
+                  characterBundle: inputs.characterBundle as any,
+                  storyContract: inputs.storyContract as any,
+                });
+              }
+              const cluePass = await runClueRegenPass({
+                chapter,
+                ledgerEntry,
+                bible: regenBible,
+                regen: makeRegenFn({ client, model: inputs.model, runId: inputs.runId, projectId: inputs.projectId }),
+                clueDistribution: inputs.clueDistribution,
+                castNames,
+                onUnresolved: (d, reason) =>
+                  console.warn(`[Agent 9] regen-clue UNRESOLVED ch${chapterNumber} ${d.obligationRef}: ${reason} (deterministic floor will apply)`),
+              });
+              if (cluePass.ran) {
+                chapter = cluePass.chapter;
+                proseBatch.chapters[i] = chapter;
+                if (cluePass.repaired.length > 0) {
+                  console.warn(`[Agent 9] regen-clue planted [${cluePass.repaired.join(", ")}] in ch${chapterNumber} (A1 patch suppressed for these).`);
+                }
+              }
+            } catch (err) {
+              // Regen is best-effort: any failure leaves `chapter` untouched and the deterministic
+              // repair below runs exactly as it does today. Never breaks the run.
+              console.warn(`[Agent 9] regen-clue pass failed ch${chapterNumber}: ${err instanceof Error ? err.message : String(err)} (falling through to deterministic repair).`);
+            }
+          }
+
           const deterministicRepair = repairChapterDeterministically({
             chapter,
             repairContext,

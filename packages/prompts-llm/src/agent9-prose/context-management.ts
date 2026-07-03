@@ -67,7 +67,15 @@ export function extractChapterSummary(chapter: ProseChapter, chapterNumber: numb
  * Build continuity context from previous chapter summaries
  * Provides character name consistency and setting vocabulary for late chapters
  */
-export function buildContinuityContext(summaries: ChapterSummary[], currentChapterStart: number): string {
+export function buildContinuityContext(
+  summaries: ChapterSummary[],
+  currentChapterStart: number,
+  // P1.3 (first-principles LLD §6.1) — when the Story Bible supplies an authoritative true-time anchor,
+  // pass it here to DEREFERENCE it instead of scraping the time out of generated prose. The scrape is a
+  // drift surface (a misread prior chapter pins the wrong time); the Bible value is ground truth. Default
+  // undefined → today's scrape behaviour (no change).
+  lockedTimeAnchorOverride?: string,
+): string {
   if (summaries.length === 0) {
     return '';
   }
@@ -132,12 +140,17 @@ export function buildContinuityContext(summaries: ChapterSummary[], currentChapt
       if (matches) clockAnchors.push(...matches);
     });
   });
-  const uniqueClockAnchors = [...new Set(clockAnchors.map(a => a.toLowerCase()))];
-  if (uniqueClockAnchors.length > 0) {
+  const scrapedAnchors = [...new Set(clockAnchors.map(a => a.toLowerCase()))];
+  // P1.3: the Bible override is authoritative when supplied; otherwise fall back to the scraped anchor.
+  const override = (lockedTimeAnchorOverride ?? '').trim();
+  const authoritative = override || scrapedAnchors[0];
+  if (authoritative) {
     context += '\n**⏱ LOCKED TIME ANCHOR — use verbatim, do not paraphrase:**\n';
-    context += `Clock time established in earlier chapters: **"${uniqueClockAnchors[0]}"**\n`;
-    if (uniqueClockAnchors.length > 1) {
-      context += `⚠ CONFLICT: multiple times found (${uniqueClockAnchors.join(', ')}). Use ONLY the first: "${uniqueClockAnchors[0]}". All others are errors.\n`;
+    context += `Clock time${override ? ' (from the case ground truth)' : ' established in earlier chapters'}: **"${authoritative}"**\n`;
+    // Conflict note: any scraped anchor that disagrees with the authoritative value is an error.
+    const conflicting = scrapedAnchors.filter((a) => a !== authoritative.toLowerCase());
+    if (conflicting.length > 0) {
+      context += `⚠ CONFLICT: other times appear (${conflicting.join(', ')}). Use ONLY: "${authoritative}". All others are errors.\n`;
     }
     context += '✓ RULE: Every reference to the clock MUST use exactly this phrase. No variation permitted.\n';
   }

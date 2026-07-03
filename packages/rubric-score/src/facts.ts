@@ -8,7 +8,7 @@
  * merged in `scoreStory`; they default to "not a problem".
  */
 
-import { detectTemplateLeakage } from "@cml/prose-guard";
+import { detectTemplateLeakage, detectScaffoldNotProse } from "@cml/prose-guard";
 import type { StoryFacts } from "./types.js";
 
 export interface CastMember {
@@ -139,6 +139,10 @@ export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStor
   }
 
   facts.templateLeakageHits = detectTemplateLeakage(prose);
+  // First-principles LLD §6.4 — the deductive-scaffold family (complements detectTemplateLeakage,
+  // which catches metadata/audit/comma-table leakage). De-duplicated to distinct rule labels.
+  const scaffoldRules = Array.from(new Set(detectScaffoldNotProse(prose).map((h) => h.rule)));
+  if (scaffoldRules.length > 0) facts.scaffoldHits = scaffoldRules;
   const malformed = detectMalformedSurfacing(prose);
   if (malformed.length > 0) facts.malformedEvidenceSurfacing = malformed;
   if (detectReportStyleClearance(prose)) facts.reportStyleClearance = true;

@@ -75,6 +75,16 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
     // leakage (≥2 distinct fragments). A single note-like line is a Prose penalty, not a global cap.
     if (leakHits >= 2) ceil(65, "significant prompt / template / validation-text leakage");
   }
+  // First-principles LLD §6.4 — deductive-scaffold leakage (the A_59 #1/#4 family: "pressed on to the
+  // next concrete detail / the trail bent toward / set out the two competing readings / was thoroughly
+  // cleared by the evidence"). Same disease as template leakage (a deterministic inject shipped as
+  // prose), so the same cap shape; high-precision (fixed injector signatures + the reasoning-verb +
+  // connective shape), so it never fires on genuine dramatized prose.
+  const scaffoldHits = (facts.scaffoldHits ?? []).length;
+  if (scaffoldHits > 0) {
+    capCat("prose", 4, "deductive-scaffold leakage (template, not dramatized prose)");
+    if (scaffoldHits >= 2) ceil(65, "significant deductive-scaffold leakage");
+  }
   // A_57 D1 — garbled evidence surfacing (a locked-fact value spliced into prose with a stray
   // apostrophe/no space). A human reads these as broken prose; the LLM judge under-detects them. Cap
   // prose, with a global ceiling when material (≥3 fragments) — mirrors the leakage rule.
