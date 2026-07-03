@@ -130,7 +130,7 @@ import {
 // makes the clue present and the deterministic A1 patch does not inject (A1 demoted to logged floor).
 import { runClueRegenPass } from "./regen-integration.js";
 import { makeRegenFn } from "./regen-llm.js";
-import { buildStoryBible } from "../story-bible.js";
+import { buildStoryBible, resolveDiscriminatingTestChapter } from "../story-bible.js";
 import type { StoryBible } from "../story-bible.js";
 import type {
   ProseChapter,
@@ -2230,6 +2230,13 @@ export async function generateProse(
     const mechanismTermsA55 = deriveMechanismTerms(
       String((cmlCase as any)?.hidden_model?.mechanism?.description ?? ""),
     );
+    // A_61 RC2.4 — when Bible-authoritative, the pre-test boundary is the frozen macro-arc DISCRIMINATING
+    // chapter (read once), not re-derived from the stage-mode-name set. Null → keep today's stage-mode path.
+    const bibleAuthoritativeA55 =
+      process.env.AGENT9_BIBLE_AUTHORITATIVE === "true" || process.env.AGENT9_BIBLE_AUTHORITATIVE === "1";
+    const dtBoundaryChapter = bibleAuthoritativeA55
+      ? resolveDiscriminatingTestChapter(inputs.macroArcPlan ?? inputs.storyContract?.macroArcPlan ?? [])
+      : null;
     // §4.4: Arc position for this batch — used to populate previousChapterArcPosition in NSD
     const totalScenesCount = (inputs.outline as any)?.totalScenes ?? scenes.length;
     const arcAnchorChapter = chapterEnd;
@@ -2814,7 +2821,10 @@ export async function generateProse(
             // explain freely) and to the rubric's own detector so we only block what would be capped.
             if (
               mechanismTermsA55.length > 0 &&
-              PRE_DISCRIMINATING_TEST_MODES.has(chapterMode as string)
+              // RC2.4: dereference the frozen Bible boundary when authoritative, else the stage-mode set.
+              (dtBoundaryChapter != null
+                ? chapterNumber < dtBoundaryChapter
+                : PRE_DISCRIMINATING_TEST_MODES.has(chapterMode as string))
             ) {
               const candidateTextLower = (candidate.paragraphs ?? []).join("\n").toLowerCase();
               if (chapterFullyExplainsMechanism(candidateTextLower, mechanismTermsA55)) {

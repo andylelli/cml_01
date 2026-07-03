@@ -58,6 +58,10 @@ export interface BibleDiscriminatingTest {
   exposingAction: string;
   evidenceClueIds: string[];
   eliminatedSuspects: string[];
+  /** A_61 RC2.4 — the first chapter at/after which the full mechanism may be explained (the macro-arc
+   *  DISCRIMINATING chapter). null when the plan has no such boundary. The mechanism embargo dereferences
+   *  this instead of re-deriving from stage-mode names. */
+  discriminatingTestChapter: number | null;
 }
 
 export interface ChapterBeat {
@@ -75,7 +79,7 @@ export interface ChapterBeat {
   suspectPressured?: string;
   arcPosition: string;
   emotionalTurn?: string;
-  mustNotReveal: { clues: string[]; solutionCulprit: boolean };
+  mustNotReveal: { clues: string[]; solutionCulprit: boolean; mechanism?: boolean };
 }
 
 export interface StoryBible extends StoryWorldState {
@@ -163,6 +167,19 @@ const buildVoices = (inputs: StoryBibleInputs): Record<string, BibleVoice> => {
   return out;
 };
 
+/**
+ * A_61 RC2.4 — the mechanism-reveal boundary IS the macro-arc DISCRIMINATING chapter (the authoritative
+ * narrative boundary), never scraped from prose or a stage-mode string. Falls back to the first
+ * confrontation/resolution chapter, else null when the plan declares no such beat.
+ */
+export const resolveDiscriminatingTestChapter = (
+  plan: ReadonlyArray<{ archetype?: string; chapter?: number }>,
+): number | null => {
+  const byArch = (re: RegExp): number | undefined => plan.find((e) => re.test(lc(e?.archetype)))?.chapter;
+  const ch = byArch(/discriminat/) ?? byArch(/confront/) ?? byArch(/resolution/);
+  return typeof ch === "number" && Number.isFinite(ch) ? ch : null;
+};
+
 const buildDiscriminatingTest = (ws: StoryWorldState, inputs: StoryBibleInputs): BibleDiscriminatingTest => {
   const dt = inputs.cmlCase?.discriminating_test ?? {};
   const evidenceClueIds = (Array.isArray(dt?.evidence_clues) ? dt.evidence_clues : [])
@@ -176,6 +193,9 @@ const buildDiscriminatingTest = (ws: StoryWorldState, inputs: StoryBibleInputs):
     exposingAction: norm(dt?.design ?? dt?.pass_condition ?? dt?.exposing_action),
     evidenceClueIds,
     eliminatedSuspects,
+    discriminatingTestChapter: resolveDiscriminatingTestChapter(
+      inputs.macroArcPlan ?? inputs.storyContract?.macroArcPlan ?? [],
+    ),
   };
 };
 
@@ -193,6 +213,8 @@ const buildBeatSheet = (inputs: StoryBibleInputs): ChapterBeat[] => {
   const total = plan.length;
   const cast = Array.isArray(inputs.cmlCase?.cast) ? inputs.cmlCase.cast : [];
   const charactersPresent = cast.map((c: any) => norm(c?.name)).filter(Boolean);
+  // RC2.4 — the mechanism must not be explained before the discriminating-test chapter.
+  const dtChapter = resolveDiscriminatingTestChapter(plan);
   return plan.map((entry) => {
     const beats: string[] = [];
     if (norm(entry.mustContain)) beats.push(norm(entry.mustContain));
@@ -209,6 +231,8 @@ const buildBeatSheet = (inputs: StoryBibleInputs): ChapterBeat[] => {
         clues: [],
         // the culprit must not be revealed before a confrontation/resolution archetype
         solutionCulprit: !isResolution,
+        // RC2.4 — the concealment mechanism is embargoed until the discriminating-test chapter
+        mechanism: dtChapter != null && entry.chapter < dtChapter,
       },
     };
   });

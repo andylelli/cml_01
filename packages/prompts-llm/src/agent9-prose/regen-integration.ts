@@ -38,10 +38,18 @@ export function lockedFactValues(bible: Pick<StoryBible, "facts">): Array<{ valu
     .map((f) => ({ value: f.value, description: f.description || undefined }));
 }
 
-/** The reveal embargo for a chapter: the culprit name(s) when this beat must not reveal the solution. */
+/** The reveal embargo for a chapter: the culprit name(s) when this beat must not reveal the solution,
+ *  plus (A_61 RC2.4) the concealment mechanism when this beat precedes the discriminating-test chapter. */
 export function embargoForBeat(bible: Pick<StoryBible, "culprits">, beat: ChapterBeat | undefined): string[] {
-  if (!beat || !beat.mustNotReveal?.solutionCulprit) return [];
-  return (bible.culprits ?? []).map((c) => `${c} is the culprit`).concat(beat.mustNotReveal.clues ?? []);
+  if (!beat) return [];
+  const out: string[] = [];
+  if (beat.mustNotReveal?.solutionCulprit) {
+    out.push(...(bible.culprits ?? []).map((c) => `${c} is the culprit`), ...(beat.mustNotReveal.clues ?? []));
+  }
+  if (beat.mustNotReveal?.mechanism) {
+    out.push("how the concealment mechanism works (withheld until the discriminating test)");
+  }
+  return out;
 }
 
 /** Map a defect kind to a concrete in-scene instruction for the model. */
