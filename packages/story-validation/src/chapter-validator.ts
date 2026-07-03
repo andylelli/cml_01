@@ -6,7 +6,7 @@
 
 import type { CMLData, Story, ValidationError } from './types.js';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
-import { analyzeTemporalConsistency } from './temporal-consistency.js';
+import { analyzeTemporalConsistency, extractCaseMechanismTerms } from './temporal-consistency.js';
 import { detectControlPlaneLeakage, detectVerbatimFieldEcho } from './control-plane-leakage.js';
 
 export interface ChapterValidationIssue {
@@ -78,7 +78,7 @@ export class ChapterValidator {
     issues.push(...encodingIssues);
 
     // 7. Check temporal consistency (ALL CHAPTERS)
-    const temporalIssues = this.checkTemporalConsistency(chapter);
+    const temporalIssues = this.checkTemporalConsistency(chapter, cmlCase);
     issues.push(...temporalIssues);
 
     // 8. Check for template/scaffold leakage (ALL CHAPTERS)
@@ -444,10 +444,13 @@ export class ChapterValidator {
     return issues;
   }
 
-  private checkTemporalConsistency(chapter: ChapterContent): ChapterValidationIssue[] {
+  private checkTemporalConsistency(chapter: ChapterContent, cmlCase?: any): ChapterValidationIssue[] {
     const issues: ChapterValidationIssue[] = [];
     const text = chapter.paragraphs.join(' ');
-    const analysis = analyzeTemporalConsistency(text, chapter.temporalMonth);
+    // RC2.3: exclude the case's own declared mechanism "spring" collocations by construction, so a novel
+    // time-tampering device (sundial/gnomon/orrery) never false-fires as a seasonal contradiction.
+    const mechanismTerms = extractCaseMechanismTerms(cmlCase);
+    const analysis = analyzeTemporalConsistency(text, chapter.temporalMonth, mechanismTerms);
 
     if (analysis.conflictingSeasons.length > 0) {
       const monthAnchor = analysis.mentionedMonths[0] ?? chapter.temporalMonth ?? 'timeline month';

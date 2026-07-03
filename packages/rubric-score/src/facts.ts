@@ -62,6 +62,40 @@ const norm = (s: string): string => s.trim().toLowerCase();
 const includesCI = (haystack: string, needle: string): boolean =>
   needle.trim().length > 0 && haystack.toLowerCase().includes(needle.trim().toLowerCase());
 
+// A_61 RC4.4 — match a full cast name by its natural short forms (surname / first+surname), not only
+// the verbatim decorated full name. Same false-negative class as the RC4.3 setting-fidelity head-noun
+// fix: a valid story that refers to "Lady Beatrice Ellsworth" as "Ellsworth" must not be scored as if
+// the name never appears. Mirrors story-validation's suspect-closure buildNameAliases (rubric-score
+// cannot depend on story-validation, so a local copy — the established pattern in structural-verifiers).
+// A bare-surname alias is only added when >=3 chars, and title+surname prose is covered by the surname
+// alias (\bEllsworth\b matches "Lady Ellsworth"), so no collision-prone bare-first-name alias is used.
+const NAME_TITLES = new Set([
+  "dr","mr","mrs","miss","ms","lord","lady","sir","capt","captain","col","colonel","prof","professor",
+  "rev","reverend","madame","madam","mme","mlle","hon","dame",
+]);
+const escapeReForName = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export const nameAliasesForMatch = (fullName: string): string[] => {
+  const raw = String(fullName ?? "").trim();
+  const tokens = raw.split(/\s+/).map((t) => t.replace(/\.$/, "")).filter(Boolean);
+  if (tokens.length === 0) return [];
+  const hasTitle = NAME_TITLES.has(tokens[0].toLowerCase());
+  const surname = tokens[tokens.length - 1];
+  const firstNonTitle = hasTitle ? tokens[1] : tokens[0];
+  const aliases = new Set<string>();
+  aliases.add(tokens.join(" "));
+  if (raw) aliases.add(raw);
+  if (surname && surname.length >= 3) aliases.add(surname);
+  if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
+    aliases.add(`${firstNonTitle} ${surname}`);
+  }
+  return Array.from(aliases).filter(Boolean);
+};
+export const nameAppearsInProse = (fullName: string, prose: string): boolean => {
+  const text = String(prose ?? "");
+  return nameAliasesForMatch(fullName).some((alias) =>
+    new RegExp(`\\b${escapeReForName(alias)}\\b`, "i").test(text));
+};
+
 function unwrapCase(cml: unknown): ScoringCaseInput {
   if (cml && typeof cml === "object") {
     const obj = cml as Record<string, unknown>;
@@ -115,7 +149,8 @@ export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStor
   if (victimName) {
     facts.culpritIsVictim = culprits.includes(norm(victimName)); // accidental culprit==victim collision
     if (detective?.name) facts.victimIsInvestigator = norm(detective.name) === norm(victimName);
-    facts.victimUnnamed = !includesCI(prose, victimName);
+    facts.victimUnnamed = !nameAppearsInProse(victimName, prose); // RC4.4: surname/first+surname count
+
   }
   // else: victim name unresolved → leave victimUnnamed undefined (do NOT flag); the judge decides.
 

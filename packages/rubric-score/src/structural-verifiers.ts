@@ -15,6 +15,8 @@
  * tests / when no injector is supplied.
  */
 
+import { nameAppearsInProse } from "./facts.js";
+
 /** Result of the three structural verifiers + the per-flag citation check. */
 export interface StructuralVerdict {
   /** undefined = could not determine; true = every cited piece of reveal evidence is planted earlier. */
@@ -286,9 +288,11 @@ export function verifyStructure(input: VerifyStructureInput): StructuralVerdict 
   }
 
   // ── Victim-named check ──────────────────────────────────────────────────────
+  // RC4.4: match by natural short forms (surname / first+surname), not only the verbatim full name —
+  // a surname-only reference ("Ashworth") must still VETO the judge's victimIdentityUnclear cap on a
+  // valid story (same false-negative class as RC4.3). Genuine miss (name never appears) still yields false.
   if (input.victimName && input.victimName.trim()) {
-    const needle = input.victimName.trim().toLowerCase();
-    verdict.victimNamedInProse = chaptersLower.some((c) => c.includes(needle));
+    verdict.victimNamedInProse = nameAppearsInProse(input.victimName, chaptersLower.join(" \n "));
   }
 
   return verdict;

@@ -129,6 +129,37 @@ export function locationReferencedInProse(locationName: string, allProse: string
   return true;
 }
 
+/**
+ * RC4.4 — a cast member is "referenced" when prose uses ANY natural short form of the name (surname,
+ * first+surname), not only the verbatim decorated full name. Golden-Age prose refers to "Dr. Eliza
+ * Hawthorne" as "Hawthorne"; exact-full-name matching under-counts references → the character-name
+ * consistency scorer partials/fails a valid story (same false-negative class as `locationReferencedInProse`).
+ * A bare-surname alias is only used when >=3 chars; title+surname prose ("Dr. Hawthorne") is covered by
+ * the surname alias. `allProse` may be any case (matched case-insensitively).
+ */
+const NAME_TITLE_TOKENS = new Set([
+  "dr", "mr", "mrs", "miss", "ms", "lord", "lady", "sir", "capt", "captain", "col", "colonel",
+  "prof", "professor", "rev", "reverend", "madame", "madam", "mme", "mlle", "hon", "dame",
+]);
+export function castNameReferencedInProse(fullName: string, allProse: string): boolean {
+  const raw = String(fullName ?? "").trim();
+  const tokens = raw.split(/\s+/).map((t) => t.replace(/\.$/, "")).filter(Boolean);
+  if (tokens.length === 0) return false;
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const hasTitle = NAME_TITLE_TOKENS.has(tokens[0].toLowerCase());
+  const surname = tokens[tokens.length - 1];
+  const firstNonTitle = hasTitle ? tokens[1] : tokens[0];
+  const aliases = new Set<string>();
+  aliases.add(tokens.join(" "));
+  if (raw) aliases.add(raw);
+  if (surname && surname.length >= 3) aliases.add(surname);
+  if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
+    aliases.add(`${firstNonTitle} ${surname}`);
+  }
+  return Array.from(aliases).filter(Boolean).some((alias) =>
+    new RegExp(`\\b${esc(alias)}\\b`, "i").test(allProse));
+}
+
 export class ProseScorer
   implements Scorer<any, ProseOutput>
 {
@@ -718,13 +749,12 @@ export class ProseScorer
     const allProse = chapters.map(c => c.prose || '').join(' ');
     const words = allProse.split(/\s+/);
 
-    // Count references to each cast member
+    // Count references to each cast member. RC4.4: a member counts as referenced when prose uses any
+    // natural short form (surname / first+surname), not only the verbatim full name — Golden-Age prose
+    // says "Hawthorne" for "Dr. Eliza Hawthorne", and exact-full-name matching wrongly scored 0.
     const references: Record<string, number> = {};
     for (const name of castNames) {
-      const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const pattern = new RegExp(`\\b${escapedName}\\b`, 'gi');
-      const matches = allProse.match(pattern);
-      references[name] = matches ? matches.length : 0;
+      references[name] = castNameReferencedInProse(name, allProse) ? 1 : 0;
     }
 
     // Check if all cast members are referenced
