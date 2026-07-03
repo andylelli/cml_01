@@ -41,6 +41,7 @@ import {
   runScaffoldRegenPass,
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
+  runCaseTransitionRegenPass,
   makeRegenFn,
   repairCaseSoundness,
   type ChapterValidator,
@@ -53,7 +54,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -192,6 +193,10 @@ const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SC
  * default-off (N≥4 before default-on), runtime-read; the deterministic injectors stay as the floor. */
 const isResolutionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_RESOLUTION, false);
 const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_CULPRIT_EVIDENCE, false);
+
+/** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
+ * murder with none. Default-off (N≥4 before default-on), runtime-read. */
+const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_TRANSITION, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -4243,6 +4248,45 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     } finally {
       const scaffoldCost = client.getCostTracker().getTotalCost() - costBeforeScaffold;
       if (scaffoldCost > 0 && typeof prose?.cost === "number") prose.cost += scaffoldCost;
+    }
+  }
+
+  // P4 (default-off, AGENT9_REGEN_TRANSITION) — RC3.3: dramatize an explicit body-discovery/confirmation
+  // bridge in any chapter that shifts a missing-person frame to murder with no bridge (detected here in
+  // the worker, which owns @cml/story-validation; the BRIDGE_TERMS predicate is injected into the pass so
+  // prompts-llm stays acyclic). Runs before scoring so a bridged chapter no longer trips the continuity gate.
+  if (isTransitionRegenEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const transitionDefects = detectMissingCaseTransitionBridge(prose.chapters);
+    if (transitionDefects.length > 0) {
+      const costBeforeTransition = client.getCostTracker().getTotalCost();
+      try {
+        const regenBibleT = { ...worldState, beatSheet: [] };
+        const regenFnT = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        const bridgePresent = (text: string): boolean => BRIDGE_TERMS.test(text);
+        for (const loc of transitionDefects) {
+          const idx = loc.chapterNumber - 1;
+          if (idx < 0 || idx >= prose.chapters.length) continue;
+          const pass = await runCaseTransitionRegenPass({
+            chapter: prose.chapters[idx],
+            chapterNumber: loc.chapterNumber,
+            paragraphIndex: loc.paragraphIndex,
+            bible: regenBibleT,
+            regen: regenFnT,
+            bridgePresent,
+            onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-transition UNRESOLVED ch${loc.chapterNumber}: ${reason} (continuity gate still applies).`),
+          });
+          if (pass.ran && pass.repaired.length > 0) {
+            prose.chapters[idx] = pass.chapter;
+            ctx.warnings.push(`[Agent 9] regen-transition inserted a case-transition bridge in ch${loc.chapterNumber}.`);
+          }
+        }
+        prose = applyStandardPostProcessingChain(prose);
+      } catch (err) {
+        ctx.warnings.push(`[Agent 9] regen-transition pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+      } finally {
+        const transitionCost = client.getCostTracker().getTotalCost() - costBeforeTransition;
+        if (transitionCost > 0 && typeof prose?.cost === "number") prose.cost += transitionCost;
+      }
     }
   }
 

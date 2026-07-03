@@ -67,6 +67,8 @@ export function instructionForDefect(defect: ProseDefect): string {
       return `Connect the culprit to the means and method through evidence already on the page, dramatized — not asserted. Detail: ${defect.detail}`;
     case "scaffold_not_prose":
       return `Rewrite the flagged deductive-scaffold sentence(s) as grounded in-scene prose, preserving the underlying fact. Detail: ${defect.detail}`;
+    case "missing_case_transition_bridge":
+      return `Insert an explicit body-discovery / confirmation / identification bridge that reclassifies the missing-person case as murder BEFORE any murder language appears — a concrete, witnessed discovery event, not a summary. Detail: ${defect.detail}`;
     case "pronoun_mismatch":
       return `Correct the pronoun(s) to match the locked gender for the named character; change nothing else. Detail: ${defect.detail}`;
     case "locked_fact_absent":
@@ -459,6 +461,62 @@ export async function runResolutionRegenPass(args: {
     maxAttemptsPerDefect: args.maxAttemptsPerDefect,
     onUnresolved: args.onUnresolved,
   });
+}
+
+/**
+ * P4 (RC3.3) — the case-transition-bridge regen pass. When a chapter shifts a missing-person frame to
+ * murder language with no bridge (detected upstream by @cml/story-validation, whose regexes live in the
+ * worker layer — passed in as `bridgePresent` to keep this package acyclic), dramatize an explicit
+ * body-discovery/confirmation bridge in the flagged paragraph via the scoped regen. Cross-chapter: the
+ * caller supplies the detected paragraphIndex. A REWRITE pass (composeChapterValidator, not insertion),
+ * so it may modify the death paragraph; ships only if a bridge is now present and no locked fact dropped.
+ */
+export async function runCaseTransitionRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  paragraphIndex: number;
+  bible: RegenBible;
+  regen: RegenFn;
+  /** BRIDGE_TERMS.test — injected from @cml/story-validation so this module has no story-validation dep. */
+  bridgePresent: (chapterText: string) => boolean;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  if (args.bridgePresent(chapterText(args.chapter))) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && chapterText(args.chapter).includes(v));
+  const validate = composeChapterValidator(
+    (c: ProseChapter): ValidatorResult => {
+      const ok = args.bridgePresent(chapterText(c));
+      return { ok, score: ok ? 100 : 0, violations: ok ? [] : ["missing_case_transition_bridge"] };
+    },
+    (c: ProseChapter): ValidatorResult => {
+      const dropped = requiredValues.filter((v) => !chapterText(c).includes(v));
+      return { ok: dropped.length === 0, score: dropped.length === 0 ? 100 : 0, violations: dropped.map((v) => `dropped_locked_fact:${v}`) };
+    },
+  );
+  const defect: ProseDefect = {
+    chapter: args.chapterNumber,
+    paragraphIndex: args.paragraphIndex,
+    kind: "missing_case_transition_bridge",
+    detail: "the case shifts from a missing person to murder with no bridging discovery event",
+    obligationRef: `transition_ch${args.chapterNumber}`,
+    severity: "hard",
+  };
+  const result = await runRegenRepair(
+    args.chapter,
+    [defect],
+    (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
 }
 
 const CULPRIT_TERMS_RE = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;

@@ -7,12 +7,47 @@ import type { Validator, Story, ValidationResult, ValidationError } from './type
 import { analyzeTemporalConsistency } from './temporal-consistency.js';
 
 const DISAPPEARANCE_TERMS = /\b(disappear(?:ed|ance)?|missing|vanished|gone without trace)\b/i;
-const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b/i;
+export const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b/i;
 // A_53 P5 (missing-bridge-false-positive-body-discovery): a plain discovery-of-body sentence — "they
 // found her body at the foot of the cliff", "the corpse was discovered" — IS a valid disappearance→
 // death bridge, but the old pattern only matched "found dead"/"body was found". Add the discovery
 // collocations so a legitimately-bridged scene is no longer flagged `missing_case_transition_bridge`.
-const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing|(?:found|discovered|recovered)\s+(?:\w+\s+){0,3}(?:body|corpse|remains)|(?:body|corpse|remains)\s+(?:was\s+|were\s+)?(?:found|discovered|recovered))\b/i;
+export const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing|(?:found|discovered|recovered)\s+(?:\w+\s+){0,3}(?:body|corpse|remains)|(?:body|corpse|remains)\s+(?:was\s+|were\s+)?(?:found|discovered|recovered))\b/i;
+
+// A_61 RC3.3 — a person-context disappearance check for the detect→regen trigger. Tighter than the
+// validator's DISAPPEARANCE_TERMS (which the validator keeps for back-compat): a bare "missing" object
+// noun ("missing cufflink") must NOT trigger a regen, so the detector requires person context.
+const PERSON_DISAPPEARANCE_RE =
+  /\b(disappear(?:ed|ance)?|vanished|gone\s+without\s+trace|(?:went|gone)\s+missing|missing[- ](?:person|man|woman|lady|gentleman|girl|boy|child|heir|guest)|(?:person|man|woman|lady|gentleman|girl|boy|child|heir|guest)\b[^.!?]{0,20}?\bmissing)\b/i;
+
+/** Location of a missing-transition-bridge defect for the RC3.3 regen pass. */
+export interface CaseTransitionDefectLoc {
+  /** 1-based chapter number of the chapter that introduces murder language without a bridge. */
+  chapterNumber: number;
+  /** 0-based paragraph index (first paragraph matching DEATH_TERMS) to scope the regen edit. */
+  paragraphIndex: number;
+}
+
+/**
+ * A_61 RC3.3 — chapter-granularity detector: a chapter whose PREDECESSOR frames a person's disappearance
+ * and which introduces murder language WITHOUT a bridging body-discovery/confirmation event. Returns one
+ * defect per offending chapter (empty = clean). Pure; used by the Agent-9 detect→regen pass.
+ */
+export function detectMissingCaseTransitionBridge(
+  chapters: ReadonlyArray<{ paragraphs?: string[] }>,
+): CaseTransitionDefectLoc[] {
+  const out: CaseTransitionDefectLoc[] = [];
+  for (let i = 1; i < chapters.length; i += 1) {
+    const prevText = (chapters[i - 1]?.paragraphs ?? []).join(' ');
+    const curParas = chapters[i]?.paragraphs ?? [];
+    const curText = curParas.join(' ');
+    if (PERSON_DISAPPEARANCE_RE.test(prevText) && DEATH_TERMS.test(curText) && !BRIDGE_TERMS.test(curText)) {
+      const idx = curParas.findIndex((p) => DEATH_TERMS.test(String(p ?? '')));
+      out.push({ chapterNumber: i + 1, paragraphIndex: Math.max(0, idx) });
+    }
+  }
+  return out;
+}
 const ARREST_OR_CONFESSION_TERMS = /\b(arrested|under arrest|confess(?:ed|ion)|admitted\s+it|the\s+culprit\s+was\s+revealed)\b/i;
 const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/i;
 const AMATEUR_INVESTIGATOR_TERMS = /\b(amateur investigator|civilian investigator|friend[- ]turned[- ]investigator)\b/i;

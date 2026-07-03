@@ -29,6 +29,7 @@ export type ProseDefectKind =
   | "victim_animated"
   | "locked_fact_absent"
   | "scaffold_not_prose"
+  | "missing_case_transition_bridge"
   | "early_spoiler"
   | "leakage";
 
