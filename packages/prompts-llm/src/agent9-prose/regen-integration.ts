@@ -15,7 +15,7 @@ import {
 import type { ValidatorResult } from "@cml/prose-guard";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { StoryBible, ChapterBeat } from "../story-bible.js";
-import { chapterMentionsRequiredClue } from "./clue-validation.js";
+import { chapterMentionsRequiredClue, RESOLUTION_RE } from "./clue-validation.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 import { runRegenRepair } from "./regen-repair.js";
 import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./regen-repair.js";
@@ -189,7 +189,7 @@ export interface InsertionRegenPassResult {
 export async function runInsertionRegenPass(args: {
   chapter: ProseChapter;
   defects: ReadonlyArray<ProseDefect>;
-  bible: StoryBible;
+  bible: RegenBible;
   regen: RegenFn;
   presenceValidatorFor: (defect: ProseDefect) => (c: ProseChapter) => ValidatorResult;
   maxAttemptsPerDefect?: number;
@@ -399,4 +399,153 @@ export async function runScaffoldRegenPass(args: {
   const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
   const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
   return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+// ── RC1.4 — the resolution + culprit-evidence injectors converted to regen ──────────────────────────
+const surnameOf = (fullName: string): string => {
+  const t = String(fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  return t[t.length - 1] ?? "";
+};
+const nameOrSurnameRe = (fullName: string): RegExp => {
+  const name = String(fullName ?? "").trim();
+  const surname = surnameOf(name);
+  return new RegExp(`\\b(?:${escapeRe(name)}|${escapeRe(surname)})\\b`, "i");
+};
+
+/** Resolution presence: the final chapter both closes (RESOLUTION_RE) AND names the culprit surname. */
+const resolutionPresent = (finalChapter: ProseChapter, culpritSurname: string): boolean => {
+  const t = chapterText(finalChapter);
+  return RESOLUTION_RE.test(t) && new RegExp(`\\b${escapeRe(culpritSurname)}\\b`, "i").test(t);
+};
+const resolutionPresenceValidator =
+  (culpritSurname: string) =>
+  (c: ProseChapter): ValidatorResult => {
+    const present = resolutionPresent(c, culpritSurname);
+    return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`missing_resolution:${culpritSurname}`] };
+  };
+
+/**
+ * P4 (RC1.3/RC1.4) — the resolution regen pass (the B6 injectResolutionIfAbsent replacement). When the
+ * FINAL chapter does not close in-scene (confession/arrest naming the culprit), dramatize the reveal via
+ * the scoped regen instead of pasting the deterministic "It was me… I confess" backstop. Runs BEFORE the
+ * injector so a successful regen makes it a logged no-op floor.
+ */
+export async function runResolutionRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  culprit: string;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const culpritSurname = surnameOf(args.culprit);
+  if (!args.culprit || !culpritSurname || resolutionPresenceValidator(culpritSurname)(args.chapter).ok) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const defects: ProseDefect[] = [{
+    chapter: args.chapterNumber,
+    kind: "missing_resolution",
+    detail: `render the reveal in-scene — ${args.culprit} confesses or is arrested, named explicitly — not a report`,
+    obligationRef: args.culprit,
+    severity: "hard",
+  }];
+  return runInsertionRegenPass({
+    chapter: args.chapter,
+    defects,
+    bible: args.bible,
+    regen: args.regen,
+    presenceValidatorFor: () => resolutionPresenceValidator(culpritSurname),
+    maxAttemptsPerDefect: args.maxAttemptsPerDefect,
+    onUnresolved: args.onUnresolved,
+  });
+}
+
+const CULPRIT_TERMS_RE = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
+const CULPRIT_EVIDENCE_RE = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
+
+/** Culprit-evidence link present in a chapter: name + culprit-term + evidence-term co-located. */
+const culpritEvidenceInChapter = (c: ProseChapter, culprit: string): boolean => {
+  const t = chapterText(c);
+  return nameOrSurnameRe(culprit).test(t) && CULPRIT_TERMS_RE.test(t) && CULPRIT_EVIDENCE_RE.test(t);
+};
+const culpritEvidencePresenceValidator =
+  (culprit: string) =>
+  (c: ProseChapter): ValidatorResult => {
+    const present = culpritEvidenceInChapter(c, culprit);
+    return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`culprit_unlinked:${culprit}`] };
+  };
+
+export interface CulpritEvidenceRegenResult {
+  chapters: ProseChapter[];
+  repaired: string[];
+  unresolved: string[];
+  ran: boolean;
+}
+
+/**
+ * P4 (RC1.4) — the culprit-evidence regen pass (the B5 enforceCulpritEvidencePresence replacement). For
+ * each LIVE culprit (the caller applies the F1/A_54 victim-collision + Ch1-deceased guards and passes the
+ * filtered list) not already linked to the means/method by evidence on the page, dramatize the link in the
+ * last chapter that names them, via the scoped regen. Runs BEFORE the injector, which stays as the floor.
+ */
+export async function runCulpritEvidenceRegenPass(args: {
+  chapters: ProseChapter[];
+  liveCulprits: ReadonlyArray<string>;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<CulpritEvidenceRegenResult> {
+  const chapters = [...args.chapters];
+  const repaired: string[] = [];
+  const unresolved: string[] = [];
+  let ran = false;
+  const requiredValues = lockedFactValues(args.bible).map((f) => f.value).filter(Boolean);
+
+  for (const culprit of args.liveCulprits) {
+    if (!culprit) continue;
+    // Already linked in ANY chapter → nothing to do (mirrors the injector's whole-prose predicate).
+    if (chapters.some((c) => culpritEvidenceInChapter(c, culprit))) continue;
+    // Target the LAST chapter that names the culprit, else the last chapter (mirrors the injector).
+    const re = nameOrSurnameRe(culprit);
+    let targetIdx = -1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      if (re.test(chapterText(chapters[i]))) { targetIdx = i; break; }
+    }
+    if (targetIdx < 0) targetIdx = chapters.length - 1;
+    if (targetIdx < 0) continue;
+    ran = true;
+    const target = chapters[targetIdx];
+    const presentValues = requiredValues.filter((v) => chapterText(target).includes(v));
+    const validate = composeChapterValidator(
+      culpritEvidencePresenceValidator(culprit),
+      (c: ProseChapter): ValidatorResult => {
+        const dropped = presentValues.filter((v) => !chapterText(c).includes(v));
+        return { ok: dropped.length === 0, score: dropped.length === 0 ? 100 : 0, violations: dropped.map((v) => `dropped_locked_fact:${v}`) };
+      },
+    );
+    const defect: ProseDefect = {
+      chapter: targetIdx + 1,
+      kind: "culprit_unlinked",
+      detail: `connect ${culprit} to the means and method through evidence already on the page, dramatized — not asserted`,
+      obligationRef: culprit,
+      severity: "hard",
+    };
+    const result = await runRegenRepair(
+      target,
+      [defect],
+      (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+      args.regen,
+      validate,
+      { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+    );
+    if (result.unresolved.length === 0) {
+      chapters[targetIdx] = result.chapter;
+      repaired.push(culprit);
+    } else {
+      unresolved.push(culprit);
+    }
+  }
+  return { chapters, repaired, unresolved, ran };
 }

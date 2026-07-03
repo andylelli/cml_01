@@ -39,6 +39,8 @@ import {
   buildStoryBible,
   runCritiqueRewritePass,
   runScaffoldRegenPass,
+  runResolutionRegenPass,
+  runCulpritEvidenceRegenPass,
   makeRegenFn,
   repairCaseSoundness,
   type ChapterValidator,
@@ -184,6 +186,12 @@ const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQ
  * rewrite ships only if it clears the shape AND drops no locked fact. OFF by default; N≥4 before default-on.
  */
 const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, false);
+
+/** A_61 RC1.4 — dramatize the reveal/culprit-evidence in-scene instead of pasting the deterministic
+ * "It was me… I confess" resolution backstop / "beyond all reasonable doubt" culprit sentence. Both
+ * default-off (N≥4 before default-on), runtime-read; the deterministic injectors stay as the floor. */
+const isResolutionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_RESOLUTION, false);
+const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_CULPRIT_EVIDENCE, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -2116,11 +2124,16 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
   );
 };
 
-export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
+/**
+ * A_61 RC1.4 — the F1/A_54 "live culprit" guards, extracted so the culprit-evidence REGEN pass and the
+ * deterministic injector floor share ONE guard: a culprit is skipped only when it (a) matches the named
+ * victim by full name, or (b) is described as the deceased in Ch1. Co-presence at the crime scene is normal.
+ */
+export const computeLiveCulprits = (prose: any, cml: any): string[] => {
   const culprits: string[] = Array.isArray(cml?.CASE?.culpability?.culprits)
     ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim()).filter(Boolean)
     : [];
-  if (culprits.length === 0) return prose;
+  if (culprits.length === 0) return [];
 
   // F1 (A_54 #1): Guard against the REAL victim/culprit identity collision — the CML assigning the
   // discovered-dead character as the culprit (accused in Ch9, already dead in Ch1) — WITHOUT the
@@ -2185,6 +2198,11 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
     return true; // co-present at the crime scene is normal — safe to inject culprit evidence.
   });
 
+  return liveCulprits;
+};
+
+export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
+  const liveCulprits = computeLiveCulprits(prose, cml);
   if (liveCulprits.length === 0) return prose;
 
   const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
@@ -4730,6 +4748,55 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           `[Agent 9] repairMalformedSurfacing: cleaned ${surfacingRepair.repairCount} garbled evidence splice(s) (A_57 D1).`,
         );
       }
+    }
+  }
+  // A_61 RC1.4 — inject→regen for culprit-evidence (B5) and resolution (B6). Each runs BEFORE its
+  // deterministic injector so a successful regen makes the injector a logged no-op floor; on failure the
+  // injector fires exactly as today. Wrapped so any regen failure leaves prose untouched.
+  if ((isCulpritEvidenceRegenEnabled() || isResolutionRegenEnabled()) && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeRegen = client.getCostTracker().getTotalCost();
+    try {
+      const regenBibleRc14 = { ...worldState, beatSheet: [] };
+      const regenFnRc14 = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      if (isCulpritEvidenceRegenEnabled()) {
+        const liveCulprits = computeLiveCulprits(prose, cml);
+        if (liveCulprits.length > 0) {
+          const pass = await runCulpritEvidenceRegenPass({
+            chapters: prose.chapters,
+            liveCulprits,
+            bible: regenBibleRc14,
+            regen: regenFnRc14,
+            onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-culprit-evidence UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
+          });
+          if (pass.ran) {
+            prose.chapters = pass.chapters;
+            if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-culprit-evidence linked [${pass.repaired.join(", ")}] (injector suppressed for these).`);
+          }
+        }
+      }
+      if (isResolutionRegenEnabled()) {
+        const culprit = String(((cml as any)?.CASE?.culpability?.culprits ?? [])[0] ?? "").trim();
+        const lastIdx = prose.chapters.length - 1;
+        if (culprit && lastIdx >= 0) {
+          const pass = await runResolutionRegenPass({
+            chapter: prose.chapters[lastIdx],
+            chapterNumber: lastIdx + 1,
+            culprit,
+            bible: regenBibleRc14,
+            regen: regenFnRc14,
+            onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-resolution UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
+          });
+          if (pass.ran) {
+            prose.chapters[lastIdx] = pass.chapter;
+            if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-resolution dramatized the reveal for "${culprit}" (injector suppressed).`);
+          }
+        }
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] RC1.4 regen pass failed: ${err instanceof Error ? err.message : String(err)} (injector floor applies).`);
+    } finally {
+      const regenCost = client.getCostTracker().getTotalCost() - costBeforeRegen;
+      if (regenCost > 0 && typeof prose?.cost === "number") prose.cost += regenCost;
     }
   }
   prose = enforceCulpritEvidencePresence(prose, cml);

@@ -139,6 +139,8 @@ export {
   runClueRegenPass,
   runClearanceRegenPass,
   runScaffoldRegenPass,
+  runResolutionRegenPass,
+  runCulpritEvidenceRegenPass,
   runInsertionRegenPass,
   resolveStageModel,
   runCritiqueRewritePass,
