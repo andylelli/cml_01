@@ -107,3 +107,34 @@ export const noScaffoldValidator: Validator<string> = (prose) => {
     violations: hits.map((h) => `scaffold_not_prose:${h.rule}`),
   };
 };
+
+/**
+ * A_57 D4 — a suspect clearance written as a passive VERDICT ("X was cleared because …"), the
+ * deterministic clearance-patch signature ("… placed X outside the fatal sequence …"), or the detective
+ * clearing himself ("As for myself—"). Reads as validation output, not dramatized deduction. Generic.
+ *
+ * Single source of truth: `@cml/rubric-score` imports this so the regen validator and the score cap
+ * fire on the exact same shape — clearing the regen provably clears the `report-style clearance` cap.
+ */
+export function detectReportStyleClearance(prose: string): boolean {
+  const text = String(prose ?? "");
+  return (
+    /\b(?:was|were|is|are|been)\s+cleared\s+(?:because|by|due\s+to)\b/i.test(text) ||
+    /\bplaced\s+[A-Z][^.!?]{0,40}\boutside\s+the\s+(?:fatal\s+sequence|sequence\s+of\s+events)\b/i.test(text) ||
+    /\bestablished\s+by\s+the\s+evidence\s+and\s+the\s+timeline\b/i.test(text) ||
+    /\bas\s+for\s+(?:myself|my\s+own)\b\s*[—,-]/i.test(text)
+  );
+}
+
+/**
+ * Validator form of the report-style-clearance detector, for the regen loop: a chapter that states a
+ * clearance as a verdict fails; a witnessed, dramatized deduction passes.
+ */
+export const noReportStyleClearanceValidator: Validator<string> = (prose) => {
+  const hit = detectReportStyleClearance(prose);
+  return {
+    ok: !hit,
+    score: hit ? 0 : 100,
+    violations: hit ? ["report_style_clearance"] : [],
+  };
+};

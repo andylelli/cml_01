@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { mutateThenValidate } from "../mutate.js";
-import { detectScaffoldNotProse, noScaffoldValidator } from "../scaffold.js";
+import {
+  detectScaffoldNotProse,
+  noScaffoldValidator,
+  detectReportStyleClearance,
+  noReportStyleClearanceValidator,
+} from "../scaffold.js";
 
 // ───────────────────────────────────────────────────────────────────────────
 // A_59 #1/#4 GOLDEN — the deductive-scaffold leakage the injectors emit
@@ -83,5 +88,43 @@ describe("noScaffoldValidator — gates a regen under mutateThenValidate", () =>
 
   it("clean prose passes", () => {
     expect(noScaffoldValidator(clean).ok).toBe(true);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// A_57 D4 — report-style clearance (the single source shared with the rubric cap)
+// ───────────────────────────────────────────────────────────────────────────
+describe("detectReportStyleClearance — verdict prose fires, dramatized deduction does not", () => {
+  it("fires on 'was cleared because …'", () => {
+    expect(detectReportStyleClearance("Beatrice was cleared because the timeline held.")).toBe(true);
+  });
+
+  it("fires on the deterministic clearance-patch 'placed X outside the fatal sequence' signature", () => {
+    expect(
+      detectReportStyleClearance("The evidence placed Hugo Vane outside the fatal sequence of events."),
+    ).toBe(true);
+  });
+
+  it("fires on the 'established by the evidence and the timeline' frame", () => {
+    expect(detectReportStyleClearance("Her innocence was established by the evidence and the timeline.")).toBe(true);
+  });
+
+  it("fires on the detective self-clearance 'As for myself—' frame", () => {
+    expect(detectReportStyleClearance("As for myself—I had been in the library all evening.")).toBe(true);
+  });
+
+  it("does NOT fire on a dramatized, witnessed clearance", () => {
+    const dramatized =
+      '"I was in the kitchen with Cook when the clock struck," Beatrice said, and Cook nodded — she had ' +
+      "watched Beatrice scald the milk at that very hour.";
+    expect(detectReportStyleClearance(dramatized)).toBe(false);
+  });
+
+  it("noReportStyleClearanceValidator gates a mutation that introduces a verdict", () => {
+    const clean = "Beatrice caught his eye and looked away; the milk had scalded while the clock chimed.";
+    const toVerdict = (p: string): string => `${p} Beatrice was cleared because the timeline held.`;
+    const outcome = mutateThenValidate(clean, toVerdict, noReportStyleClearanceValidator);
+    expect(outcome.reverted).toBe(true);
+    expect(outcome.reason).toMatch(/report_style_clearance/);
   });
 });

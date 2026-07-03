@@ -134,6 +134,7 @@ export {
   composeChapterValidator,
   runClueRegenPass,
   runClearanceRegenPass,
+  runScaffoldRegenPass,
   runInsertionRegenPass,
   resolveStageModel,
   runCritiqueRewritePass,

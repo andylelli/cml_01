@@ -10,6 +10,7 @@ import {
   composeChapterValidator,
   runClueRegenPass,
   runClearanceRegenPass,
+  runScaffoldRegenPass,
 } from "../agent9-prose/regen-integration.js";
 import { makeRegenFn } from "../agent9-prose/regen-llm.js";
 import type { ProseDefect } from "../agent9-prose/regen-repair.js";
@@ -255,5 +256,106 @@ describe("runClearanceRegenPass — the A3/B7 replacement (P4)", () => {
     });
     expect(res.repaired).toEqual([]);
     expect(res.unresolved).toContain("Edward Mallory");
+  });
+});
+
+describe("runScaffoldRegenPass — RC1.2/RC1.3 endgame de-templating (P4)", () => {
+  const scaffoldChapter: ProseChapter = {
+    title: "Ch8",
+    paragraphs: [
+      "The library had gone very still.",
+      "She weighed the timing, and the trail bent toward the gardener.",
+    ],
+  };
+
+  it("is a no-op (no LLM call) when the chapter has no scaffold or report-style clearance", async () => {
+    const client = { chat: vi.fn() } as any;
+    const clean: ProseChapter = { title: "Ch8", paragraphs: ["Evelyn set the cold cup down and named the killer at last."] };
+    const res = await runScaffoldRegenPass({ chapter: clean, chapterNumber: 8, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("dramatizes a deductive-scaffold paragraph and reports it repaired", async () => {
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch8",
+            paragraphs: [
+              "The library had gone very still.",
+              "Evelyn turned the cold teacup in her hands until the gardener's eyes dropped to the floor.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runScaffoldRegenPass({ chapter: scaffoldChapter, chapterNumber: 8, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(true);
+    expect(res.repaired.length).toBeGreaterThan(0);
+    expect(res.unresolved).toEqual([]);
+    // the flagged scaffold shape is gone from the shipped chapter
+    expect(res.chapter.paragraphs.join(" ")).not.toMatch(/the trail bent toward/i);
+  });
+
+  it("dramatizes a report-style clearance ('X was cleared because …') into a witnessed deduction", async () => {
+    const verdict: ProseChapter = {
+      title: "Ch8",
+      paragraphs: ["The drawing room waited.", "Beatrice was cleared because the timeline held."],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch8",
+            paragraphs: [
+              "The drawing room waited.",
+              '"I was scalding milk with Cook when the clock struck," Beatrice said, and Cook nodded that she had watched her do it.',
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runScaffoldRegenPass({ chapter: verdict, chapterNumber: 8, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(true);
+    expect(res.repaired.length).toBeGreaterThan(0);
+    expect(res.chapter.paragraphs.join(" ")).not.toMatch(/was cleared because/i);
+  });
+
+  it("ROLLS BACK a rewrite that drops a locked fact present in the original", async () => {
+    const onUnresolved = vi.fn();
+    const withFact: ProseChapter = {
+      title: "Ch8",
+      paragraphs: [
+        "The clock had stopped at half past three.",
+        "She weighed the timing, and the trail bent toward the gardener.",
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        // clears the scaffold but silently drops the locked value "half past three"
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch8",
+            paragraphs: [
+              "The clock had stopped.",
+              "Evelyn turned the cold teacup until the gardener looked away.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runScaffoldRegenPass({
+      chapter: withFact,
+      chapterNumber: 8,
+      bible,
+      regen: makeRegenFn({ client }),
+      maxAttemptsPerDefect: 1,
+      onUnresolved,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved.length).toBeGreaterThan(0);
+    expect(onUnresolved).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/dropped_locked_fact|lowered score/));
+    expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
   });
 });

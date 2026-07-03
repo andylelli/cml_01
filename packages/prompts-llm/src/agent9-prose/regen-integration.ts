@@ -6,7 +6,12 @@
  * orchestrator's remaining job is then just: detect defects → `runRegenRepair(..., makeRegenFn(...))`.
  */
 
-import { noScaffoldValidator } from "@cml/prose-guard";
+import {
+  noScaffoldValidator,
+  detectScaffoldNotProse,
+  detectReportStyleClearance,
+  noReportStyleClearanceValidator,
+} from "@cml/prose-guard";
 import type { ValidatorResult } from "@cml/prose-guard";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { StoryBible, ChapterBeat } from "../story-bible.js";
@@ -66,8 +71,11 @@ export function instructionForDefect(defect: ProseDefect): string {
   }
 }
 
+/** The Bible slice the regen dereferences: locked facts, identity pronouns, culprit embargo, beat sheet. */
+export type RegenBible = Pick<StoryBible, "facts" | "characters" | "culprits" | "beatSheet">;
+
 /** Build the fully-constrained regen request for a defect, dereferencing the Bible. */
-export function buildRegenRequest(chapter: ProseChapter, defect: ProseDefect, bible: StoryBible): RegenRequest {
+export function buildRegenRequest(chapter: ProseChapter, defect: ProseDefect, bible: RegenBible): RegenRequest {
   const beat = bible.beatSheet?.find((b) => b.chapter === defect.chapter);
   return {
     chapter,
@@ -285,4 +293,102 @@ export async function runClearanceRegenPass(args: {
     maxAttemptsPerDefect: args.maxAttemptsPerDefect,
     onUnresolved: args.onUnresolved,
   });
+}
+
+/** Report-style clearance as a whole-chapter validator (verdict prose fails; dramatized deduction passes). */
+const reportStyleClearanceChapterValidator = (c: ProseChapter): ValidatorResult =>
+  noReportStyleClearanceValidator(chapterText(c));
+
+/**
+ * Locked-fact values that were present in the ORIGINAL chapter must survive a rewrite. Unlike the clue
+ * pass (which INSERTS and forbids touching existing paragraphs), the scaffold pass REWRITES the offending
+ * paragraph, so the preservation guard is fact-level, not paragraph-level: every canonical value that was
+ * on the page stays on the page. (Clue-presence and pronoun fidelity are re-checked downstream.)
+ */
+const preserveLockedFactsValidator =
+  (requiredValues: ReadonlyArray<string>) =>
+  (c: ProseChapter): ValidatorResult => {
+    const text = chapterText(c);
+    const dropped = requiredValues.filter((v) => v && !text.includes(v));
+    return {
+      ok: dropped.length === 0,
+      score: dropped.length === 0 ? 100 : 0,
+      violations: dropped.map((v) => `dropped_locked_fact:${v}`),
+    };
+  };
+
+/** Best-effort: which paragraph index contains a fragment (case-insensitive prefix). -1 if none. */
+const paragraphIndexOfFragment = (paragraphs: ReadonlyArray<string>, fragment: string): number => {
+  const needle = fragment.trim().slice(0, 60).toLowerCase();
+  if (!needle) return -1;
+  return paragraphs.findIndex((p) => String(p ?? "").toLowerCase().includes(needle));
+};
+
+/**
+ * P4 (RC1.2/RC1.3) — the deductive-scaffold / report-style-clearance regen pass. The re-measure cap
+ * family: the endgame ships its deduction and suspect clearances as templated verdicts ("X was cleared
+ * because …", "the trail bent toward …") that the rubric hard-caps (prose ≤ 4 scaffold, prose ≤ 6 /
+ * ending ≤ 7 report-style). Instead of another per-signature reword (a confirmed mole — A_59, 3×), this
+ * DETECTS the offending shape with the SAME detectors the rubric caps use (single source in
+ * `@cml/prose-guard`) and DRAMATIZES the flagged paragraph in-scene via the scoped regen loop, gated so
+ * a rewrite ships only if it clears the scaffold + report-style shape AND drops no locked fact.
+ *
+ * Ordering contract: run AFTER generation + deterministic hygiene, BEFORE scoring — a cleared chapter no
+ * longer trips the cap; whatever regen cannot resolve is logged and the (uncapped-if-clean) score is honest.
+ */
+export async function runScaffoldRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const paragraphs = args.chapter.paragraphs ?? [];
+  const text = paragraphs.join(" ");
+  const scaffoldHits = detectScaffoldNotProse(text);
+  const reportStyle = detectReportStyleClearance(text);
+  if (scaffoldHits.length === 0 && !reportStyle) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  // Group the offending fragments by paragraph so each regen edit is paragraph-scoped (never a free
+  // whole-chapter rewrite — the repair.ts:153 re-gendering lesson).
+  const fragmentsByParagraph = new Map<number, string[]>();
+  const addFragment = (idx: number, frag: string) => {
+    const key = idx >= 0 ? idx : 0;
+    const list = fragmentsByParagraph.get(key) ?? [];
+    list.push(frag);
+    fragmentsByParagraph.set(key, list);
+  };
+  for (const h of scaffoldHits) addFragment(paragraphIndexOfFragment(paragraphs, h.fragment), h.fragment);
+  if (reportStyle) {
+    const idx = paragraphs.findIndex((p) => detectReportStyleClearance(p));
+    addFragment(idx, "a suspect clearance stated as a verdict — dramatize it as a witnessed deduction");
+  }
+  const defects: ProseDefect[] = [...fragmentsByParagraph.entries()].map(([idx, frags]) => ({
+    chapter: args.chapterNumber,
+    paragraphIndex: idx,
+    kind: "scaffold_not_prose" as const,
+    detail: frags.join(" | "),
+    obligationRef: `scaffold_ch${args.chapterNumber}_p${idx}`,
+    severity: "hard" as const,
+  }));
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+  const validate = composeChapterValidator(
+    reportStyleClearanceChapterValidator,
+    preserveLockedFactsValidator(requiredValues),
+  );
+  const result = await runRegenRepair(
+    args.chapter,
+    defects,
+    (chapter, defect) => buildRegenRequest(chapter, defect, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
 }

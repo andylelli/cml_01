@@ -38,6 +38,8 @@ import {
   verifyDiscriminator,
   buildStoryBible,
   runCritiqueRewritePass,
+  runScaffoldRegenPass,
+  makeRegenFn,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -172,6 +174,15 @@ const isBibleGatesBlockingEnabled = () => parseBooleanEnv(process.env.AGENT9_BIB
  * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
  */
 const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQUE_REWRITE, false);
+
+/**
+ * First-principles LLD §6.4 / phase P4 (RC1.2/RC1.3) — the deductive-scaffold / report-style-clearance
+ * regen pass. After generation + deterministic hygiene, any chapter whose endgame ships its deduction or
+ * a suspect clearance as a templated verdict (the rubric caps: prose ≤ 4 scaffold, prose ≤ 6 / ending ≤ 7
+ * report-style) has the flagged paragraph DRAMATIZED in-scene via the scoped regen loop, gated so a
+ * rewrite ships only if it clears the shape AND drops no locked fact. OFF by default; N≥4 before default-on.
+ */
+const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, false);
 
 export const buildSyntheticNsdClueAnchor = (
   clueId: string,
@@ -4164,6 +4175,43 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   };
 
   prose = applyStandardPostProcessingChain(prose);
+
+  // P4 (default-off, AGENT9_REGEN_SCAFFOLD) — RC1.2/RC1.3: dramatize any chapter whose endgame ships its
+  // deduction / a suspect clearance as a templated verdict (the rubric scaffold prose≤4 + report-style
+  // prose≤6/ending≤7 caps). Per-chapter scoped regen through the SAME detectors the caps use; a rewrite
+  // ships only if it clears the shape and drops no locked fact. Runs BEFORE scoring so a cleared chapter
+  // is scored honestly; whatever regen can't resolve is logged (the cap then applies — never silent).
+  // The empty beat sheet means no embargo is enforced here — safe because this fires in the reveal (the
+  // culprit is already named) and the downstream story-validation gate still catches any early reveal.
+  if (isScaffoldRegenEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeScaffold = client.getCostTracker().getTotalCost();
+    try {
+      const regenBible = { ...worldState, beatSheet: [] };
+      const scaffoldRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      for (let i = 0; i < prose.chapters.length; i++) {
+        const pass = await runScaffoldRegenPass({
+          chapter: prose.chapters[i],
+          chapterNumber: i + 1,
+          bible: regenBible,
+          regen: scaffoldRegen,
+          onUnresolved: (d, reason) =>
+            ctx.warnings.push(`[Agent 9] regen-scaffold UNRESOLVED ch${i + 1} ${d.obligationRef}: ${reason} (cap may still apply).`),
+        });
+        if (pass.ran) {
+          prose.chapters[i] = pass.chapter;
+          if (pass.repaired.length > 0) {
+            ctx.warnings.push(`[Agent 9] regen-scaffold dramatized [${pass.repaired.join(", ")}] in ch${i + 1}.`);
+          }
+        }
+      }
+      prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] regen-scaffold pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+    } finally {
+      const scaffoldCost = client.getCostTracker().getTotalCost() - costBeforeScaffold;
+      if (scaffoldCost > 0 && typeof prose?.cost === "number") prose.cost += scaffoldCost;
+    }
+  }
 
   // P5 (default-off, AGENT9_CRITIQUE_REWRITE) — critique→rewrite the lowest-scoring chapters at creative
   // temperature. Runs BEFORE first-pass scoring + the story-validation pipeline, so every rewrite flows

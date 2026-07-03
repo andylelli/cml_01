@@ -8,7 +8,7 @@
  * merged in `scoreStory`; they default to "not a problem".
  */
 
-import { detectTemplateLeakage, detectScaffoldNotProse } from "@cml/prose-guard";
+import { detectTemplateLeakage, detectScaffoldNotProse, detectReportStyleClearance } from "@cml/prose-guard";
 import type { StoryFacts } from "./types.js";
 
 export interface CastMember {
@@ -214,20 +214,6 @@ function detectMalformedSurfacing(prose: string): string[] {
     hits.push(prose.slice(start, m.index + m[0].length + 18).replace(/\s+/g, " ").trim());
   }
   return hits;
-}
-
-/**
- * A_57 D4 — a suspect clearance written as a passive VERDICT ("X was cleared because …"), the
- * deterministic clearance-patch signature ("… placed X outside the fatal sequence …"), or the detective
- * clearing himself ("As for myself—"). Reads as validation output, not dramatized deduction. Generic.
- */
-function detectReportStyleClearance(prose: string): boolean {
-  return (
-    /\b(?:was|were|is|are|been)\s+cleared\s+(?:because|by|due\s+to)\b/i.test(prose) ||
-    /\bplaced\s+[A-Z][^.!?]{0,40}\boutside\s+the\s+(?:fatal\s+sequence|sequence\s+of\s+events)\b/i.test(prose) ||
-    /\bestablished\s+by\s+the\s+evidence\s+and\s+the\s+timeline\b/i.test(prose) ||
-    /\bas\s+for\s+(?:myself|my\s+own)\b\s*[—,-]/i.test(prose)
-  );
 }
 
 /** Merge deterministic facts with judge-supplied semantic flags (the deterministic ones win for the exact caps). */
