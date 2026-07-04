@@ -69,12 +69,22 @@ const SEASON_WORDS_FOR_STOP = [
   'spring', 'springtime', 'summer', 'summertime', 'midsummer', 'summery',
   'autumn', 'autumnal', 'winter', 'wintertime', 'wintry', 'vernal', 'season', 'seasonal',
 ];
+// A_61 RC2.3 (review fix) — generic weather/temperature/time MODIFIERS must never be harvested as
+// mechanism nouns: an adjective like "cold"/"early"/"damp" harvested from mechanism prose would enter the
+// spring-collocation regex and strip a GENUINE seasonal "cold spring air", masking a real season conflict.
+const GENERIC_MODIFIER_STOPWORDS = [
+  'cold', 'warm', 'cool', 'chill', 'chilly', 'damp', 'dry', 'wet', 'mild', 'fresh', 'crisp', 'bitter',
+  'harsh', 'misty', 'foggy', 'frosty', 'icy', 'rainy', 'sunny', 'windy', 'stormy', 'clear', 'grey', 'gray',
+  'early', 'late', 'morning', 'evening', 'night', 'midnight', 'noon', 'dawn', 'dusk', 'hours', 'hour',
+  'heavy', 'light', 'dark', 'pale', 'bright', 'soft', 'still', 'quiet', 'sudden', 'slow', 'deep', 'high', 'low',
+];
 const MECH_TERM_STOPWORDS = new Set<string>([
   'the', 'and', 'with', 'that', 'this', 'from', 'was', 'were', 'had', 'has', 'have', 'her', 'his',
   'him', 'she', 'they', 'their', 'them', 'then', 'than', 'which', 'while', 'been', 'into', 'onto',
   'over', 'under', 'when', 'where', 'what', 'who', 'whom', 'whose', 'because', 'would', 'could',
   'should', 'about', 'after', 'before', 'above', 'below', 'between', 'through', 'during',
   ...SEASON_WORDS_FOR_STOP,
+  ...GENERIC_MODIFIER_STOPWORDS,
 ]);
 
 const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

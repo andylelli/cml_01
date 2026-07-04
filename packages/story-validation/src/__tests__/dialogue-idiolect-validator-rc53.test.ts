@@ -61,4 +61,13 @@ describe("validateDialogueIdiolect — robustness", () => {
     expect(r.ok).toBe(true);
     expect(r.metrics.ticLeakagePairs).toBe(0);
   });
+
+  // Review fix — an ADDRESSEE named after the quote must not be treated as the speaker.
+  it("does NOT misattribute a pronoun-speaker line to the addressee (no false leakage on good prose)", () => {
+    // Speaker is "she" (Beatrice); "Vane" is only the addressee. Beatrice's tic is in the quote.
+    const prose = '"As it happens, I saw nothing," she said to Vane.';
+    const r = validateDialogueIdiolect(capsules, prose);
+    expect(r.ok).toBe(true); // NOT flagged as Hugo speaking Beatrice's tic
+    expect(r.metrics.ticLeakagePairs).toBe(0);
+  });
 });

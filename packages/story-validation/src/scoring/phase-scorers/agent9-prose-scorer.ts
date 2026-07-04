@@ -141,6 +141,17 @@ const NAME_TITLE_TOKENS = new Set([
   "dr", "mr", "mrs", "miss", "ms", "lord", "lady", "sir", "capt", "captain", "col", "colonel",
   "prof", "professor", "rev", "reverend", "madame", "madam", "mme", "mlle", "hon", "dame",
 ]);
+// A_61 RC4.4 (review fix) — surnames that are also ordinary English words: a bare-surname alias for these
+// over-counts references (an atmospheric "a thin layer of frost" would credit cast member "Jonathan Frost"),
+// hiding a genuinely absent character. Keep full + first+surname; suppress the collision-prone bare surname.
+const COMMON_WORD_SURNAMES = new Set([
+  "frost", "stone", "rose", "green", "brown", "snow", "marsh", "reed", "wood", "woods", "bell", "gray",
+  "grey", "hill", "hills", "brook", "brooks", "moor", "moore", "heath", "field", "fields", "bank", "banks",
+  "ford", "cross", "west", "north", "south", "east", "king", "vale", "dale", "lane", "park", "hall", "gate",
+  "gates", "day", "may", "march", "rice", "cook", "cooke", "fox", "wolf", "bird", "finch", "crane", "swan",
+  "hart", "lamb", "drake", "winter", "summer", "noble", "young", "little", "long", "short", "white", "black",
+  "gold", "glass", "waters", "rivers", "forest", "meadow", "chance", "savage", "poole", "pool", "chase", "love",
+]);
 export function castNameReferencedInProse(fullName: string, allProse: string): boolean {
   const raw = String(fullName ?? "").trim();
   const tokens = raw.split(/\s+/).map((t) => t.replace(/\.$/, "")).filter(Boolean);
@@ -152,7 +163,7 @@ export function castNameReferencedInProse(fullName: string, allProse: string): b
   const aliases = new Set<string>();
   aliases.add(tokens.join(" "));
   if (raw) aliases.add(raw);
-  if (surname && surname.length >= 3) aliases.add(surname);
+  if (surname && surname.length >= 3 && !COMMON_WORD_SURNAMES.has(surname.toLowerCase())) aliases.add(surname);
   if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
     aliases.add(`${firstNonTitle} ${surname}`);
   }

@@ -102,9 +102,14 @@ export function repairCaseSoundness(caseBlock: any): CaseSoundnessRepairResult {
     }
   }
 
-  // 2. no_culprit — derive from cast[].culpability==="guilty"; residual if none.
+  // 2. no_culprit — derive from cast[].culpability==="guilty"; residual if none. RC2.5 review fix: EXCLUDE
+  // the victim (a {role:victim, culpability:guilty} stale entry must not re-introduce culprit_is_victim
+  // after step 7 dropped it — that would defeat the repair and, once the gate is blocking, force an abort).
   if (culprits.length === 0) {
-    const guilty = cast.filter((c) => norm(c?.culpability) === "guilty").map((c) => String(c?.name ?? "")).filter(Boolean);
+    const victimKey = victimName ? norm(victimName) : "";
+    const guilty = cast
+      .filter((c) => norm(c?.culpability) === "guilty" && (!victimKey || norm(c?.name) !== victimKey))
+      .map((c) => String(c?.name ?? "")).filter(Boolean);
     if (guilty.length > 0) {
       culprits = guilty;
       repairs.push(`case-soundness: derived culprit(s) [${guilty.join(", ")}] from cast culpability=guilty`);

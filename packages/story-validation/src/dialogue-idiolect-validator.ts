@@ -46,7 +46,9 @@ const surnameOf = (fullName: string): string => {
   return t[t.length - 1] ?? "";
 };
 
-interface NameMatcher { name: string; re: RegExp; }
+// Prepositions/verbs that mark the following name as the ADDRESSEE (or a bystander), not the speaker.
+const ADDRESSEE_MARKER = "to|at|toward|towards|for|told|beside|near|with|regarding|of|about|as";
+interface NameMatcher { name: string; re: RegExp; addresseeRe: RegExp; }
 const buildNameMatchers = (capsules: ReadonlyArray<DialogueVoiceCapsule>): NameMatcher[] =>
   capsules
     .map((c) => String(c.name ?? "").trim())
@@ -54,7 +56,13 @@ const buildNameMatchers = (capsules: ReadonlyArray<DialogueVoiceCapsule>): NameM
     .map((name) => {
       const surname = surnameOf(name);
       const alt = surname && surname.length >= 3 ? `${escapeRe(name)}|${escapeRe(surname)}` : escapeRe(name);
-      return { name, re: new RegExp(`\\b(?:${alt})\\b`, "i") };
+      return {
+        name,
+        re: new RegExp(`\\b(?:${alt})\\b`, "i"),
+        // RC5.3 review fix: a name preceded by an addressee marker ("she said to Vane") is the addressee,
+        // not the speaker — matching it would misattribute good prose and mis-flag the true speaker's tic.
+        addresseeRe: new RegExp(`\\b(?:${ADDRESSEE_MARKER})\\s+(?:${alt})\\b`, "i"),
+      };
     });
 
 interface AttributedSpan { speaker: string; text: string; }
@@ -78,7 +86,8 @@ function attributedSpans(prose: string, matchers: NameMatcher[]): AttributedSpan
     const before = beforeFull.slice(prevStop >= 0 ? prevStop + 1 : Math.max(0, beforeFull.length - 45));
     const window = `${before}   ${after}`;
     if (!ATTRIBUTION_VERB.test(window)) continue;
-    const named = matchers.filter((mm) => mm.re.test(window));
+    // Attribute only to a name in SPEAKER position — present in the window and not marked as the addressee.
+    const named = matchers.filter((mm) => mm.re.test(window) && !mm.addresseeRe.test(window));
     if (named.length === 1) spans.push({ speaker: named[0].name, text: quote });
   }
   return spans;

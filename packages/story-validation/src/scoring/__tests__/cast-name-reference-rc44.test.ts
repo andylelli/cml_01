@@ -17,4 +17,12 @@ describe("castNameReferencedInProse — RC4.4 both directions", () => {
   it("still fails when the cast member is never referenced (genuine gap preserved)", () => {
     expect(castNameReferencedInProse("Sylvia Trent", "the inspector questioned the gardener")).toBe(false);
   });
+
+  // Review fix — a common-word surname must not over-count coverage on atmospheric prose.
+  it("does NOT credit 'Jonathan Frost' for the weather word 'frost'", () => {
+    expect(castNameReferencedInProse("Jonathan Frost", "a thin layer of frost covered the sill")).toBe(false);
+  });
+  it("still credits a common-word surname when the FULL/first+surname form appears", () => {
+    expect(castNameReferencedInProse("Jonathan Frost", "jonathan frost warmed his hands by the fire")).toBe(true);
+  });
 });

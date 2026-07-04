@@ -29,6 +29,17 @@ describe("nameAppearsInProse — surname-only reference counts, genuine miss sti
   it("still fails when the name never appears (genuine miss)", () => {
     expect(nameAppearsInProse("Lord Edmund Ashworth", "The detective examined the empty study.")).toBe(false);
   });
+
+  // Review fix — a common-word surname must NOT false-match atmospheric prose.
+  it("does NOT match the weather word 'frost' for a never-named victim 'Eleanor Frost'", () => {
+    expect(nameAppearsInProse("Eleanor Frost", "Frost coated the panes and the deceased woman lay still.")).toBe(false);
+  });
+  it("does NOT match 'rose'/'stone'/'marsh' as bare surnames", () => {
+    expect(nameAliasesForMatch("Mary Rose")).not.toContain("Rose");
+    expect(nameAliasesForMatch("Dr. Eliza Frost")).not.toContain("Frost");
+    // first+surname is still available for a real reference
+    expect(nameAppearsInProse("Mary Rose", "Mary Rose entered the parlour.")).toBe(true);
+  });
 });
 
 describe("extractStoryFacts.victimUnnamed — RC4.4 both directions", () => {

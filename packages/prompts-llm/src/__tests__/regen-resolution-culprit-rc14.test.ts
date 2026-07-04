@@ -76,6 +76,24 @@ describe("runCulpritEvidenceRegenPass — the B5 replacement", () => {
     expect(res.repaired).toContain("James Harcourt");
   });
 
+  it("review fix — rolls back a rewrite that DROPS an existing (non-locked-fact) paragraph, e.g. a planted clue", async () => {
+    const onUnresolved = vi.fn();
+    const withClue: ProseChapter[] = [{ title: "Ch6", paragraphs: [
+      "James Harcourt stood accused before them all.",
+      "A torn railway ticket lay on the desk, its edge stained with ink.", // a planted fair-play clue, not a locked fact
+    ] }];
+    const client = {
+      // adds the culprit link but DROPS the railway-ticket clue paragraph (whole-chapter rewrite)
+      chat: vi.fn(async () => ({ content: JSON.stringify({ chapter: { title: "Ch6", paragraphs: [
+        "James Harcourt was responsible because the evidence and the timeline proved it beyond doubt.",
+      ] } }) })),
+    } as any;
+    const res = await runCulpritEvidenceRegenPass({ chapters: withClue, liveCulprits: ["James Harcourt"], bible, regen: makeRegenFn({ client }), maxAttemptsPerDefect: 1, onUnresolved });
+    expect(res.repaired).toEqual([]); // insertion-only guard rejects the dropped paragraph
+    expect(res.unresolved).toContain("James Harcourt");
+    expect(res.chapters[0].paragraphs.join(" ")).toMatch(/railway ticket/); // clue preserved for the floor
+  });
+
   it("rolls back (floor applies) when regen drops a locked fact present in the target", async () => {
     const onUnresolved = vi.fn();
     const withFact: ProseChapter[] = [{ title: "Ch6", paragraphs: ["James Harcourt was named at half past ten before the others."] }];

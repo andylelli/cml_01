@@ -73,6 +73,18 @@ const NAME_TITLES = new Set([
   "dr","mr","mrs","miss","ms","lord","lady","sir","capt","captain","col","colonel","prof","professor",
   "rev","reverend","madame","madam","mme","mlle","hon","dame",
 ]);
+// A_61 RC4.4 (review fix) — surnames that are also ordinary English words. A BARE-surname alias for these
+// would false-match atmospheric prose ("Frost coated the panes" for victim "Eleanor Frost"), falsely
+// clearing victimUnnamed / vetoing the judge / inflating name coverage. For such names we keep the full
+// name and first+surname aliases (still robust) but SUPPRESS the collision-prone bare surname.
+export const COMMON_WORD_SURNAMES = new Set([
+  "frost","stone","rose","green","brown","snow","marsh","reed","wood","woods","bell","gray","grey","hill",
+  "hills","brook","brooks","moor","moore","heath","field","fields","bank","banks","ford","cross","west",
+  "north","south","east","king","vale","dale","lane","park","hall","gate","gates","day","may","march",
+  "rice","cook","cooke","fox","wolf","bird","finch","crane","swan","hart","lamb","drake","nightingale",
+  "winter","summer","noble","young","little","long","short","white","black","gold","glass","waters",
+  "rivers","forest","meadow","payne","pain","sterling","chance","savage","poole","pool","chase","love",
+]);
 const escapeReForName = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export const nameAliasesForMatch = (fullName: string): string[] => {
   const raw = String(fullName ?? "").trim();
@@ -84,7 +96,8 @@ export const nameAliasesForMatch = (fullName: string): string[] => {
   const aliases = new Set<string>();
   aliases.add(tokens.join(" "));
   if (raw) aliases.add(raw);
-  if (surname && surname.length >= 3) aliases.add(surname);
+  // Bare surname only when ≥3 chars AND not an ordinary English word (else it false-matches prose noise).
+  if (surname && surname.length >= 3 && !COMMON_WORD_SURNAMES.has(surname.toLowerCase())) aliases.add(surname);
   if (firstNonTitle && surname && firstNonTitle.toLowerCase() !== surname.toLowerCase()) {
     aliases.add(`${firstNonTitle} ${surname}`);
   }

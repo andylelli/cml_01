@@ -14,11 +14,14 @@ export const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b
 // collocations so a legitimately-bridged scene is no longer flagged `missing_case_transition_bridge`.
 export const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing|(?:found|discovered|recovered)\s+(?:\w+\s+){0,3}(?:body|corpse|remains)|(?:body|corpse|remains)\s+(?:was\s+|were\s+)?(?:found|discovered|recovered))\b/i;
 
-// A_61 RC3.3 — a person-context disappearance check for the detect→regen trigger. Tighter than the
-// validator's DISAPPEARANCE_TERMS (which the validator keeps for back-compat): a bare "missing" object
-// noun ("missing cufflink") must NOT trigger a regen, so the detector requires person context.
+// A_61 RC3.3 — a person-context disappearance check for the detect→regen trigger. Because a match drives a
+// fair-play-sensitive body-discovery regen, this is deliberately CONSERVATIVE (favour false-negatives over
+// false-positives): it requires an unambiguous person-disappearance phrasing and never fires on a bare
+// "missing" object noun ("missing cufflink", "the gentleman noticed a missing button"). A phrasing the
+// regex misses (e.g. "Eleanor was missing") is still caught by the validator's own DISAPPEARANCE_TERMS
+// gate — it just won't be auto-repaired, which is the safe direction.
 const PERSON_DISAPPEARANCE_RE =
-  /\b(disappear(?:ed|ance)?|vanished|gone\s+without\s+trace|(?:went|gone)\s+missing|missing[- ](?:person|man|woman|lady|gentleman|girl|boy|child|heir|guest)|(?:person|man|woman|lady|gentleman|girl|boy|child|heir|guest)\b[^.!?]{0,20}?\bmissing)\b/i;
+  /\b(disappear(?:ed|ance|s)?|vanished|gone\s+without\s+(?:a\s+)?trace|(?:went|gone|reported)\s+missing|missing[- ](?:person|man|woman|lady|gentleman|girl|boy|child|heir|heiress|guest|husband|wife|daughter|son|niece|nephew))\b/i;
 
 /** Location of a missing-transition-bridge defect for the RC3.3 regen pass. */
 export interface CaseTransitionDefectLoc {

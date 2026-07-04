@@ -74,6 +74,16 @@ describe("ensureDiscoverySceneMethodTellPresent — RC3.5 both directions", () =
     expect(narrative.acts[0].scenes[0].cluesRevealed).toEqual([]);
   });
 
+  it("review fix — does NOT pin a culprit-implicating clue to the discovery scene (early-reveal guard)", () => {
+    process.env.AGENT7_DISCOVERY_TELL = "1";
+    // a culprit-direct clue whose description happens to contain a death-method token ("blood")
+    const clues = [{ id: "clue_culprit_direct_1", description: "blood on Hugo's sleeve proves the killer", pointsTo: "the culprit" }];
+    const ctx = makeCtx({ deathMethod: "stabbing", clues }) as any;
+    const narrative = makeNarrative("crime", []) as any;
+    ensureDiscoverySceneMethodTellPresent(ctx, narrative);
+    expect(narrative.acts[0].scenes[0].cluesRevealed).toEqual([]); // not pinned — would reveal the culprit early
+  });
+
   it("is a no-op when no recognisable tell clue exists", () => {
     process.env.AGENT7_DISCOVERY_TELL = "1";
     const clues = [{ id: "clue_other", description: "a muddy footprint" }];

@@ -97,7 +97,16 @@ export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, 
     const clues = (ctx.clues?.clues ?? []) as any[];
     if (clues.length === 0) return;
 
+    // A_61 RC3.5 (review fix): the isDeathMethodTell tag currently does not survive Agent-5's output
+    // schema, so token-matching over description/pointsTo/keyTerms is the real identifier (the tag is a
+    // best-effort fast path for when it is present). Guard the false-positive early-reveal risk: NEVER pin
+    // a culprit-implicating clue to the Act-1 discovery scene — a generic token like "blood"/"wound" could
+    // otherwise match a culprit-direct clue and reveal the solution too early.
+    const isCulpritImplicating = (c: any): boolean =>
+      /culprit|direct|reveal|solution|guilt/i.test(String(c?.id ?? "")) ||
+      /\bculprit\b|\bthe\s+killer\b|is\s+guilty/i.test(String(c?.pointsTo ?? ""));
     const isTellClue = (c: any): boolean => {
+      if (isCulpritImplicating(c)) return false;
       if (c?.isDeathMethodTell === true) return true;
       if (tokens.length === 0) return false;
       const blob = `${c?.description ?? ""} ${c?.pointsTo ?? ""} ${(Array.isArray(c?.keyTerms) ? c.keyTerms.join(" ") : "")}`.toLowerCase();

@@ -30,6 +30,20 @@ describe("detectMissingCaseTransitionBridge — both directions", () => {
     expect(detectMissingCaseTransitionBridge(chapters)).toEqual([]);
   });
 
+  it("review fix — a person keyword + a MISSING OBJECT does not fire (the FP the loose guard allowed)", () => {
+    const chapters = [
+      { paragraphs: ["The gentleman noticed a missing button on his cuff."] },
+      { paragraphs: ["The body still lay in the morgue; the murder was unsolved."] },
+    ];
+    expect(detectMissingCaseTransitionBridge(chapters)).toEqual([]);
+    // and a 'reported missing' person phrasing still fires
+    const real = [
+      { paragraphs: ["The heiress was reported missing on the Tuesday."] },
+      { paragraphs: ["It was murder, the inspector said grimly."] },
+    ];
+    expect(detectMissingCaseTransitionBridge(real)).toHaveLength(1);
+  });
+
   it("BRIDGE_TERMS matches a body-discovery event", () => {
     expect(BRIDGE_TERMS.test("the body was found at dawn")).toBe(true);
     expect(BRIDGE_TERMS.test("nothing was resolved")).toBe(false);

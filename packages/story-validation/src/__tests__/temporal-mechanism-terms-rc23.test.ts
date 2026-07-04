@@ -52,6 +52,18 @@ describe("analyzeTemporalConsistency — genuine seasonal 'spring' still flags (
   });
 });
 
+describe("review fix — a harvested generic modifier must NOT strip a genuine seasonal 'spring'", () => {
+  it("'cold' from death_method 'cold steel blade' does not suppress the August-vs-spring conflict", () => {
+    const terms = extractCaseMechanismTerms({ death_method: "cold steel blade" });
+    expect(terms).not.toContain("cold"); // generic modifier is no longer harvested
+    const a = analyzeTemporalConsistency("It was August. The cold spring air bit at her cheeks.", "August", terms);
+    expect(a.conflictingSeasons).toContain("spring");
+  });
+  it("'early' is not harvested either", () => {
+    expect(extractCaseMechanismTerms({ discriminating_test: { design: "released in the early hours" } })).not.toContain("early");
+  });
+});
+
 describe("buildSpringMechanicalRe([]) is the byte-identical fallback", () => {
   it("still strips a builtin mainspring collocation", () => {
     const re = buildSpringMechanicalRe([]);

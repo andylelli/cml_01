@@ -115,6 +115,20 @@ describe("repairCaseSoundness — culprit derivation & partition repairs", () =>
     expect(verdict.issues.some((i) => i.kind === "suspect_unaccounted")).toBe(false);
   });
 
+  it("review fix — a victim marked guilty is NOT re-derived as culprit after the victim-drop empties culprits", () => {
+    const caseBlock = {
+      cast: [
+        { name: "Lady Beatrice Ellsworth", role_archetype: "victim", gender: "female", culpability: "guilty" }, // stale guilty tag
+        { name: "Reginald Ashford", role_archetype: "suspect", gender: "male", culpability: "innocent" },
+      ],
+      culpability: { culprits: ["Lady Beatrice Ellsworth"] }, // only the victim → step 7 empties it
+      discriminating_test: {},
+    };
+    const { residualBlocked } = repairCaseSoundness(caseBlock);
+    expect(caseBlock.culpability.culprits).not.toContain("Lady Beatrice Ellsworth"); // NOT re-derived
+    expect(residualBlocked).toContain("no_culprit"); // honestly unrepairable (no non-victim guilty cast)
+  });
+
   it("is idempotent — a second run repairs nothing", () => {
     const caseBlock = {
       cast: [{ name: "Margaret Vane", role_archetype: "suspect" }],

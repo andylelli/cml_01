@@ -590,7 +590,11 @@ export async function runCulpritEvidenceRegenPass(args: {
     ran = true;
     const target = chapters[targetIdx];
     const presentValues = requiredValues.filter((v) => chapterText(target).includes(v));
+    // RC1.4 review fix: insertion-only — the culprit link is ADDED, so no existing paragraph may be
+    // modified or dropped (the whole-chapter rewrite could otherwise silently delete a planted fair-play
+    // clue that isn't an atomic locked fact — no downstream gate would restore it).
     const validate = composeChapterValidator(
+      preserveOriginalParagraphsValidator(target.paragraphs ?? []),
       culpritEvidencePresenceValidator(culprit),
       (c: ProseChapter): ValidatorResult => {
         const dropped = presentValues.filter((v) => !chapterText(c).includes(v));
