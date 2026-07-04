@@ -1,8 +1,8 @@
 import path from "path";
-import { mkdir, writeFile } from "fs/promises";
 import { config } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
+import { saveReadableStory } from "../apps/worker/dist/jobs/save-readable-story.js";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 
 const root = process.cwd();
@@ -29,6 +29,8 @@ const client = new AzureOpenAIClient({
   apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
   requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
   logger: new LLMLogger({
+    // Matches the API's buildLlmLogger() exactly, so a canary run produces the same logs as a UI run.
+    logLevel: process.env.LOG_LEVEL,
     logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
     logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
     logFilePath: process.env.LOG_FILE_PATH ?? path.resolve(root, "logs", "llm.jsonl"),
@@ -129,41 +131,22 @@ if (integrityAssertionFailures.length > 0) {
   }));
 }
 
-// ── Save human-readable story to C:\CML\stories ──────────────────────────
+// ── Save the story to stories/ via the SAME writer the API uses (save-readable-story.ts) ──
+// so a canary run produces the identical story file (title/slug/path/format) as a UI-triggered run.
+// The title fallback mirrors the API's synopsis title (CASE.meta.title || "Untitled Mystery").
 try {
   const prose = result.prose ?? {};
   const chapters = Array.isArray(prose.chapters) ? prose.chapters : [];
 
   if (chapters.length > 0) {
-    const runId = result.metadata.runId;
-    const rawTitle = String(prose.title || prose.note || result.cml?.title || "Mystery Story");
-    const storyTitle = rawTitle.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
-
-    // Slug from title: lowercase, replace non-alnum with underscores, trim
-    const slug = storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48);
-    const now = new Date();
-    const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
-    const storyDir = path.join(root, "stories", `story_${datePart}`);
-    const storyFile = path.join(storyDir, `${slug}.md`);
-
-    const lines = [`# ${storyTitle}`, ``, `*Run ID: ${runId} — Generated ${now.toDateString()}*`, ``, `---`];
-
-    for (let i = 0; i < chapters.length; i++) {
-      const ch = chapters[i];
-      const chTitle = String(ch.title || `Chapter ${i + 1}`).replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
-      lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
-      const paragraphs = Array.isArray(ch.paragraphs) ? ch.paragraphs : (ch.text ? [ch.text] : []);
-      for (const p of paragraphs) {
-        const text = String(p ?? "").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, "...").replace(/[\u2013\u2014]/g, "-").trim();
-        if (text) lines.push(text, ``);
-      }
-      lines.push(`---`);
-    }
-
-    const content = lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
-    await mkdir(storyDir, { recursive: true });
-    await writeFile(storyFile, content, "utf-8");
-    console.log("STORY_SAVED", storyFile);
+    const fallbackTitle = result.cml?.CASE?.meta?.title || "Untitled Mystery";
+    const saved = await saveReadableStory({
+      storiesDir: path.join(root, "stories"),
+      prose,
+      runId: result.metadata.runId,
+      fallbackTitle,
+    });
+    console.log("STORY_SAVED", saved.absPath);
   }
 } catch (storySaveErr) {
   console.error("STORY_SAVE_FAILED", String(storySaveErr));

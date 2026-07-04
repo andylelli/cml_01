@@ -9,6 +9,7 @@ import { AzureOpenAIClient, LLMLogger, LogLevel } from "@cml/llm-client";
 import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
+import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
 
 const ALLOWED_CML_MODES = new Set(["advanced", "expert"] as const);
@@ -599,50 +600,10 @@ const buildReadableStoryText = (prose: Record<string, unknown>, fallbackTitle?: 
 };
 
 const saveReadableStoryText = async (projectId: string, prose: Record<string, unknown>, runId: string, fallbackTitle?: string) => {
-  const rawTitle = deriveStoryTitle(prose, fallbackTitle);
-  const storyTitle = rawTitle
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/\u2026/g, '...')
-    .replace(/[\u2013\u2014]/g, '-')
-    .trim();
-
-  const slug = storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 48);
-  const now = new Date();
-  const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-  const storyDir = path.join(storiesDir, `story_${datePart}`);
-  const filename = `${slug}.md`;
-  const filePath = path.join(storyDir, filename);
-
-  const chapters = Array.isArray(prose.chapters) ? (prose.chapters as Array<Record<string, unknown>>) : [];
-  const lines: string[] = [`# ${storyTitle}`, ``, `*Run ID: ${runId} \u2014 Generated ${now.toDateString()}*`, ``, `---`];
-
-  for (let i = 0; i < chapters.length; i++) {
-    const ch = chapters[i];
-    const chTitle = String(ch.title || `Chapter ${i + 1}`)
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/\u2026/g, '...')
-      .replace(/[\u2013\u2014]/g, '-')
-      .trim();
-    lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
-    const paragraphs = Array.isArray(ch.paragraphs) ? ch.paragraphs : (ch.text ? [ch.text] : []);
-    for (const p of paragraphs) {
-      const text = String(p ?? '')
-        .replace(/[\u2018\u2019]/g, "'")
-        .replace(/[\u201C\u201D]/g, '"')
-        .replace(/\u2026/g, '...')
-        .replace(/[\u2013\u2014]/g, '-')
-        .trim();
-      if (text) lines.push(text, ``);
-    }
-    lines.push(`---`);
-  }
-
-  const content = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
-  await fs.mkdir(storyDir, { recursive: true });
-  await fs.writeFile(filePath, content, 'utf-8');
-  return path.join(`story_${datePart}`, filename);
+  // Delegates to the shared writer (@cml/worker) so a UI-triggered run and a canary run produce the
+  // identical story file (title, slug, path, formatting). See save-readable-story.ts.
+  const saved = await saveReadableStory({ storiesDir, prose, runId, fallbackTitle });
+  return saved.relPath;
 };
 
 
