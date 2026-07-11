@@ -336,23 +336,22 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 // EXPLANATION language is present — merely PLANTING the clue (naming the object, no causal language)
 // does not trip it. Holistic: derived entirely from hidden_model.mechanism.description + the chapter's
 // stage mode, never from a specific story/character/plot.
-const MECHANISM_EXPLANATION_MARKER_A9 =
-  /\b(?:in order to|so as to|so that|this (?:gave|created|allowed|meant|explained|produced)|which (?:gave|created|allowed|meant)|to (?:fake|conceal|disguise|fabricate|stage|simulate|forge)\b|(?:had|then|she|he|they) (?:reset|rewound|wound back|set back|moved|advanced|adjusted|altered|rigged|tampered with) the|the (?:trick|method|mechanism|scheme|deception) (?:was|lay|had been)|explained (?:how|that|the)|how (?:the )?(?:murder|crime|killer|culprit|trick|mechanism|clock))\b/;
-const MECHANISM_TERM_STOPWORDS = new Set([
-  "the", "and", "for", "with", "that", "this", "from", "into", "was", "had", "has",
-  "her", "his", "him", "she", "they", "their", "about", "which", "then", "been",
-]);
-export const deriveMechanismTerms = (mechanismDescription: string): string[] =>
-  String(mechanismDescription ?? "")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]+/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length >= 5 && !MECHANISM_TERM_STOPWORDS.has(w));
-export const chapterFullyExplainsMechanism = (chapterTextLower: string, mechanismTerms: string[]): boolean => {
-  if (mechanismTerms.length === 0) return false;
-  const need = Math.max(2, Math.ceil(mechanismTerms.length * 0.5));
-  const hits = mechanismTerms.filter((t) => chapterTextLower.includes(t)).length;
-  return hits >= need && MECHANISM_EXPLANATION_MARKER_A9.test(chapterTextLower);
+// The detector itself now lives in the ./mechanism-detect.js leaf module so the pre-scoring
+// mechanism-reveal regen pass (regen-integration.ts) can key off the SAME predicate without a circular
+// import (generate.ts already imports runClueRegenPass from regen-integration.js). Imported here for the
+// internal generation-time gate uses below AND re-exported so existing `from "./generate.js"` importers
+// and the barrel keep working unchanged.
+import {
+  MECHANISM_EXPLANATION_MARKER_A9,
+  deriveMechanismTerms,
+  chapterFullyExplainsMechanism,
+  mechanismExplanationParagraphIndex,
+} from "./mechanism-detect.js";
+export {
+  MECHANISM_EXPLANATION_MARKER_A9,
+  deriveMechanismTerms,
+  chapterFullyExplainsMechanism,
+  mechanismExplanationParagraphIndex,
 };
 // Stage modes that precede the discriminating-test scene. A FULL mechanism explanation in any of these
 // spoils the test; it is only legitimate at/after `discriminating_test` (and in the reveal/aftermath).

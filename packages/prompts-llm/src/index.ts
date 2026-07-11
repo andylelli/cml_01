@@ -116,7 +116,7 @@ export type { DiscriminatorVerdict, DiscriminatorIssue, DiscriminatorIssueKind, 
 export { repairCaseSoundness } from "./case-soundness-repair.js";
 export type { CaseSoundnessRepairResult } from "./case-soundness-repair.js";
 // First-principles LLD §5.1/§6.1 — the Story Bible (single dereference source) + source-level gates
-export { buildStoryBible, runBibleGates } from "./story-bible.js";
+export { buildStoryBible, runBibleGates, resolveDiscriminatingTestChapter } from "./story-bible.js";
 export type {
   StoryBible,
   StoryBibleInputs,
@@ -142,9 +142,11 @@ export {
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
+  runMechanismRevealRegenPass,
   runInsertionRegenPass,
   pronounsFromBible,
   genderMapFromBible,
+  deriveMechanismTerms,
   resolveStageModel,
   runCritiqueRewritePass,
   critiqueAndRewriteChapter,

@@ -42,9 +42,12 @@ import {
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
+  runMechanismRevealRegenPass,
   makeRegenFn,
   repairCaseSoundness,
   genderMapFromBible,
+  deriveMechanismTerms,
+  resolveDiscriminatingTestChapter,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -55,7 +58,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -198,6 +201,11 @@ const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_R
 /** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
  * murder with none. Default-off (N≥4 before default-on), runtime-read. */
 const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_TRANSITION, false);
+
+/** A_61 roadmap S8 — the fifth regen pass: withhold the causal mechanism explanation in any chapter
+ * strictly before the discriminating-test chapter (the plot_structure/pacing "mechanism explained too
+ * early" cap). Default-off (powered ≥4×4 A/B before default-on), runtime-read. */
+const isMechanismRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_MECHANISM, false);
 
 /** A_61 roadmap S2 — the reliability floor for `illegal_named_walk_on`: rewrite an out-of-cast titled
  * walk-on to a role noun instead of aborting the run over an incidental extra. Default-off, runtime-read. */
@@ -2418,9 +2426,9 @@ const normalizeChapterTitles = (prose: any): any => {
 // in climax/resolution chapters despite the IDENTITY STABILITY prohibition in the
 // prompt. This deterministic post-processor replaces those phrases with the
 // culprit's canonical name, preventing identity_role_alias_break validation errors.
-const ROLE_ALIAS_TERMS_RE = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/gi;
+// (role-alias regex now single-sourced from @cml/story-validation ROLE_ALIAS_TERMS — see the repair below)
 
-const substituteRoleAliasesInPostRevealChapters = (prose: any, cml: any): any => {
+export const substituteRoleAliasesInPostRevealChapters = (prose: any, cml: any): any => {
   const cmlCase = (cml as any)?.CASE ?? cml;
   const culprits: string[] = Array.isArray(cmlCase?.culpability?.culprits)
     ? cmlCase.culpability.culprits.map((n: any) => String(n ?? "").trim()).filter(Boolean)
@@ -2429,17 +2437,25 @@ const substituteRoleAliasesInPostRevealChapters = (prose: any, cml: any): any =>
 
   const primaryCulprit = culprits[0];
   const chapters = prose.chapters as any[];
-  const tc = chapters.length;
-  // Chapters with ci > floor(tc * 0.8) map to 'climax' or 'resolution' arc positions
-  // and are post-reveal — the culprit's identity is already known to the reader.
-  const postRevealThreshold = Math.floor(tc * 0.8);
+  // Roadmap Phase A fix: the post-reveal boundary must mirror the DETECTOR's content-driven pivot, not a
+  // static floor(0.8*tc). The old threshold only covered the last ~20% of chapters, so when a reveal was
+  // followed by >1 denouement chapter (normal Golden-Age structure), the detector flagged a role alias in
+  // a middle post-reveal chapter that the repair skipped → identity_role_alias_break critical aborted the
+  // run (M1 clock run, scene 9 of 10). computeArrestPivotIndex returns the FIRST arrest/confession chapter,
+  // so rewriting everything AFTER it is a guaranteed superset of what the detector flags. No arrest → no
+  // reveal yet → leave prose untouched (never rename a still-hidden culprit). Regex single-sourced from
+  // story-validation's ROLE_ALIAS_TERMS so the two can never drift.
+  const chapterTexts = chapters.map((ch: any) => (Array.isArray(ch?.paragraphs) ? ch.paragraphs.join(' ') : ''));
+  const arrestCi = computeArrestPivotIndex(chapterTexts);
+  if (arrestCi < 0) return prose; // no arrest/confession → nothing is post-reveal
+  const roleAliasReplaceRe = new RegExp(ROLE_ALIAS_TERMS.source, 'gi');
 
   let substitutions = 0;
   const updatedChapters = chapters.map((chapter: any, ci: number) => {
-    if (ci <= postRevealThreshold) return chapter; // pre_climax — skip
+    if (ci <= arrestCi) return chapter; // at/before the reveal — skip
     const paragraphs = Array.isArray(chapter.paragraphs) ? (chapter.paragraphs as string[]) : [];
     const updatedParagraphs = paragraphs.map((p: string) => {
-      const updated = p.replace(ROLE_ALIAS_TERMS_RE, primaryCulprit);
+      const updated = p.replace(roleAliasReplaceRe, primaryCulprit);
       if (updated !== p) substitutions++;
       return updated;
     });
@@ -4265,6 +4281,49 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     } finally {
       const scaffoldCost = client.getCostTracker().getTotalCost() - costBeforeScaffold;
       if (scaffoldCost > 0 && typeof prose?.cost === "number") prose.cost += scaffoldCost;
+    }
+  }
+
+  // S8 (default-off, AGENT9_REGEN_MECHANISM) — the fifth regen pass: any chapter STRICTLY BEFORE the
+  // discriminating-test chapter that fully explains HOW the concealment trick worked trips the
+  // plot_structure/pacing "mechanism explained too early" cap. This rewrites the offending paragraph to
+  // withhold the causal clause (keeping the physical clue on the page), through the SAME
+  // chapterFullyExplainsMechanism predicate the cap keys off; a rewrite ships only if it clears the
+  // predicate and drops no locked fact. Bible-authoritative boundary: resolveDiscriminatingTestChapter,
+  // never re-derived stage modes. Runs before scoring so a cleared chapter scores honestly.
+  if (isMechanismRegenEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const mechanismTerms = deriveMechanismTerms(String(caseBlock?.hidden_model?.mechanism?.description ?? ""));
+    const dtChapter = resolveDiscriminatingTestChapter(macroArcPlan);
+    if (mechanismTerms.length > 0 && dtChapter != null) {
+      const costBeforeMechanism = client.getCostTracker().getTotalCost();
+      try {
+        const regenBibleM = { ...worldState, beatSheet: [] };
+        const mechanismRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        for (let i = 0; i < prose.chapters.length; i++) {
+          if (i + 1 >= dtChapter) continue; // only chapters strictly before the discriminating-test scene
+          const pass = await runMechanismRevealRegenPass({
+            chapter: prose.chapters[i],
+            chapterNumber: i + 1,
+            mechanismTerms,
+            bible: regenBibleM,
+            regen: mechanismRegen,
+            onUnresolved: (_d, reason) =>
+              ctx.warnings.push(`[Agent 9] regen-mechanism UNRESOLVED ch${i + 1}: ${reason} (cap may still apply).`),
+          });
+          if (pass.ran) {
+            prose.chapters[i] = pass.chapter;
+            if (pass.repaired.length > 0) {
+              ctx.warnings.push(`[Agent 9] regen-mechanism withheld the method in ch${i + 1}.`);
+            }
+          }
+        }
+        prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+      } catch (err) {
+        ctx.warnings.push(`[Agent 9] regen-mechanism pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+      } finally {
+        const mechanismCost = client.getCostTracker().getTotalCost() - costBeforeMechanism;
+        if (mechanismCost > 0 && typeof prose?.cost === "number") prose.cost += mechanismCost;
+      }
     }
   }
 

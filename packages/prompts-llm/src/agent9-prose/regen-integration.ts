@@ -19,6 +19,8 @@ import { chapterMentionsRequiredClue, RESOLUTION_RE } from "./clue-validation.js
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 import { runRegenRepair } from "./regen-repair.js";
 import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./regen-repair.js";
+// Leaf-module detectors (no cycle: mechanism-detect.js imports nothing from generate/regen-integration).
+import { chapterFullyExplainsMechanism, mechanismExplanationParagraphIndex } from "./mechanism-detect.js";
 
 const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
 
@@ -87,6 +89,8 @@ export function instructionForDefect(defect: ProseDefect): string {
       return `Correct the pronoun(s) to match the locked gender for the named character; change nothing else. Detail: ${defect.detail}`;
     case "locked_fact_absent":
       return `Surface the locked fact${ref} verbatim, woven into the scene. Detail: ${defect.detail}`;
+    case "mechanism_revealed_early":
+      return `Withhold the causal/method explanation of the concealment mechanism. Keep the physical clue/observation on the page (name the object, what was seen, what was measured), but do NOT explain HOW the trick worked — remove the "because / so that / this allowed / how the X worked" causal clause — until the discriminating-test scene. Detail: ${defect.detail}`;
     case "early_spoiler":
     case "leakage":
       return `Remove the premature reveal / leaked material, keeping the scene intact. Detail: ${defect.detail}`;
@@ -414,6 +418,69 @@ export async function runScaffoldRegenPass(args: {
   );
   const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
   const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+/**
+ * S8 (A_61 mechanism-too-early) — the fifth member of the regen family, the WRITE/REPAIR arm the
+ * mechanism-timing check never had. When a PRE-discriminating-test chapter fully explains HOW the
+ * concealment trick worked (the same `chapterFullyExplainsMechanism` predicate the A_55 generation gate
+ * and the rubric's "mechanism explained too early" cap key off), the only prior lever was a
+ * generation-time hardError the completion-first fallback could bypass — after which the cap silently
+ * clamps two categories. This REWRITES the offending paragraph to withhold the causal clause while
+ * keeping the physical clue on the page (a rewrite, not an insertion), gated so a rewrite ships only if
+ * it clears the same predicate AND drops no locked fact.
+ *
+ * Soundness: the validator's first check IS chapterFullyExplainsMechanism, so a passing regen provably no
+ * longer trips the class; preserveLockedFactsValidator guarantees no locked fact is dropped. Runs BEFORE
+ * scoring so a cleared chapter scores honestly; whatever regen cannot resolve is logged and the cap (if
+ * still tripped) behaves exactly as today. No-op (ran:false) on a chapter that only NAMES mechanism nouns
+ * without the causal marker — legitimate clue-planting is never stripped.
+ */
+export async function runMechanismRevealRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  mechanismTerms: ReadonlyArray<string>;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const paragraphs = args.chapter.paragraphs ?? [];
+  const text = paragraphs.join(" ");
+  const terms = [...args.mechanismTerms];
+  if (terms.length === 0 || !chapterFullyExplainsMechanism(text.toLowerCase(), terms)) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const idx = mechanismExplanationParagraphIndex(paragraphs, terms);
+  const defect: ProseDefect = {
+    chapter: args.chapterNumber,
+    paragraphIndex: idx >= 0 ? idx : 0,
+    kind: "mechanism_revealed_early",
+    detail: `mechanism method explained before the discriminating test (terms: ${terms.slice(0, 6).join(", ")})`,
+    obligationRef: `mechanism_ch${args.chapterNumber}`,
+    severity: "hard",
+  };
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+  const validate = composeChapterValidator(
+    (c) => {
+      const ok = !chapterFullyExplainsMechanism(chapterText(c).toLowerCase(), terms);
+      return { ok, score: ok ? 100 : 0, violations: ok ? [] : ["mechanism_explained_too_early"] };
+    },
+    preserveLockedFactsValidator(requiredValues),
+  );
+  const result = await runRegenRepair(
+    args.chapter,
+    [defect],
+    (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
   return { chapter: result.chapter, repaired, unresolved, ran: true };
 }
 

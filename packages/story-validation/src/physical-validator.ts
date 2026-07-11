@@ -123,9 +123,26 @@ export class PhysicalPlausibilityValidator implements Validator {
     const errors: ValidationError[] = [];
     const rule = EVIDENCE_RULES.find(r => r.type === 'footprints')!;
 
-    // Check for footprints on non-viable surfaces
+    // Check for footprints on non-viable surfaces — sentence-scoped, word-bounded, preposition-linked,
+    // and medium-guarded, mirroring the weather branch below. The old whole-chapter substring check
+    // (`text.includes('metal') && /footprint/`) hard-failed clean runs: a clock story is saturated with
+    // "metal" and has footprints "in the dust" in different sentences, so they co-fired with no proximity;
+    // it also matched 'metal' inside 'metallic' and ignored that a print in a deposited medium ON a hard
+    // surface ("footprints in the dust on the metal walkway") is perfectly plausible. Precision only —
+    // a footprint clearly pressed onto the bare hard surface still fires.
+    const VIABLE_MEDIUM = /\b(?:dust|snow|mud|muddy|sand|ash|flour|soot|powder|grime|silt|wet|damp|water|carpet|rug)\b/i;
+    const surfaceSentences = scene.text.split(/(?<=[.!?])\s+/);
     for (const { surface, reason, alternative } of rule.nonViableSurfaces) {
-      if (scene.text.toLowerCase().includes(surface) && scene.text.match(/footprint/i)) {
+      const surfWords = surface.replace(/\s+/g, '\\s+');
+      const surfaceRe = new RegExp(`\\b${surfWords}\\b`, 'i');
+      const onSurface = new RegExp(
+        `\\bfootprints?\\b[^.!?]{0,60}\\b(?:on|onto|across|over|along|atop|(?:pressed|stamped|imprinted|pushed|driven|marked)\\s+(?:in|into|on|onto))\\b[^.!?]{0,25}\\b${surfWords}\\b`, 'i');
+      const onSurfaceRev = new RegExp(`\\b${surfWords}\\b[^.!?]{0,40}\\bfootprints?\\b`, 'i');
+      const hit = surfaceSentences.some(s =>
+        surfaceRe.test(s) && /\bfootprints?\b/i.test(s) &&
+        (onSurface.test(s) || onSurfaceRev.test(s)) &&
+        !VIABLE_MEDIUM.test(s));
+      if (hit) {
         errors.push({
           type: 'implausible_footprints',
           message: `Footprints on ${surface} are physically implausible. ${reason}`,

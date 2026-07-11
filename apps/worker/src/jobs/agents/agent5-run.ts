@@ -2542,6 +2542,63 @@ function synthesizeMissingDiscriminatingEvidenceClues(
 }
 
 /**
+ * A_61 evidence-mapping FP fix — purge unmappable discriminating-test evidence ids, then reseed.
+ *
+ * An evidence id that references no real clue after the LLM retries AND the deterministic remap is an
+ * UNMAPPABLE placeholder — most often the Agent-3 prompt example ids (clue_1/clue_2/clue_3, which match
+ * CANONICAL_CLUE_ID_RE and leaked in as literal case data). The prior backstop CLONED a real clue under
+ * the junk name, fabricating and mislabelling evidence. Instead we drop any evidence id absent from the
+ * distributed clue set (mirrors mystery-orchestrator's `currentEvidence.filter(id => distributedClueIds
+ * .has(id))`) and, if the list empties, re-seed from real canonical clue IDs (mirrors the empty-evidence
+ * reseed at the top of the final-remediation block).
+ *
+ * "Real defect still fails" guarantee: when no plantable evidence exists the reseed returns [] and
+ * evidence_clues stays empty, so checkDiscriminatingTestReachability's text-match branch still emits the
+ * critical "references no evidence found in the clue set" — the identical gate the genuine zero-evidence
+ * case has always hit. The purge only turns a placeholder-id FP into that same well-defined outcome.
+ */
+function purgeUnmappableDiscriminatingEvidenceIds(
+  cml: CaseData,
+  clues: ClueDistributionResult,
+): { removed: string[]; reseeded: string[] } {
+  const caseBlock = getCaseBlock(cml);
+  const discrimTest = caseBlock?.discriminating_test;
+  if (!discrimTest || !Array.isArray(discrimTest.evidence_clues)) {
+    return { removed: [], reseeded: [] };
+  }
+
+  const distributedClueIds = new Set(
+    clues.clues.map((c: any) => String(c?.id ?? "").trim()).filter(Boolean),
+  );
+  const original = discrimTest.evidence_clues.slice();
+  const kept = original.filter((id: unknown) => distributedClueIds.has(String(id ?? "").trim()));
+  if (kept.length === original.length) return { removed: [], reseeded: [] };
+
+  const removed = original
+    .filter((id: unknown) => !distributedClueIds.has(String(id ?? "").trim()))
+    .map((id: unknown) => String(id ?? "").trim())
+    .filter(Boolean);
+
+  discrimTest.evidence_clues = kept;
+  // Whitelist/feedback memos are keyed by the cml identity and enumerate evidence_clues[i] paths —
+  // invalidate them after mutating the array (same rationale as the empty-evidence reseed).
+  strictSourcePathWhitelistCache.delete(cml as unknown as object);
+  strictPromptFeedbackCache.delete(cml as unknown as object);
+
+  let reseeded: string[] = [];
+  if (discrimTest.evidence_clues.length === 0) {
+    reseeded = selectDiscriminatingEvidenceCandidateIds(cml, clues, 3);
+    if (reseeded.length > 0) {
+      discrimTest.evidence_clues = reseeded;
+      strictSourcePathWhitelistCache.delete(cml as unknown as object);
+      strictPromptFeedbackCache.delete(cml as unknown as object);
+    }
+  }
+
+  return { removed, reseeded };
+}
+
+/**
  * RC3.1 (A_61 Phase 2a) — repair-not-abort for inference steps with NO covering clue.
  *
  * The coverage hard gate otherwise aborts the whole run when an `inference_path` step has no clue
@@ -3936,15 +3993,21 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   }
 
   if (remainingMissingEvidenceIds.length > 0) {
-    const synthRepairs = synthesizeMissingDiscriminatingEvidenceClues(
-      ctx.cml!,
-      clues,
-      remainingMissingEvidenceIds,
-    );
-    if (synthRepairs.length > 0) {
-      synthRepairs.forEach((repair) =>
-        ctx.warnings.push(`Agent 5 evidence-id deterministic synthesis: ${repair}`),
+    // A_61 evidence-mapping FP fix: any evidence id that still references no real clue after the LLM
+    // retries and the deterministic remap is an unmappable placeholder (most often the Agent-3 prompt
+    // example ids clue_1/clue_2/clue_3). Purge those and reseed from real clue IDs rather than cloning
+    // a real clue under the junk name. See purgeUnmappableDiscriminatingEvidenceIds for the soundness
+    // argument that a genuine "no plantable evidence" case still hard-fails.
+    const purge = purgeUnmappableDiscriminatingEvidenceIds(ctx.cml!, clues);
+    if (purge.removed.length > 0) {
+      ctx.warnings.push(
+        `Agent 5 evidence-id purge: dropped ${purge.removed.length} unmappable/placeholder evidence id(s) absent from the distributed clue set (${purge.removed.join(", ")}).`,
       );
+      if (purge.reseeded.length > 0) {
+        ctx.warnings.push(
+          `Agent 5 evidence-id purge reseed: repopulated discriminating_test.evidence_clues from canonical clue IDs (${purge.reseeded.join(", ")}).`,
+        );
+      }
       finalCoverage = buildCoverageSnapshot(clues);
       remainingMissingEvidenceIds = getMissingDiscriminatingEvidenceIds(ctx.cml!, clues);
     }
@@ -4115,6 +4178,7 @@ export const __testables = {
   alignDiscriminatingEvidenceIdsWithSceneMapping,
   remapMissingDiscriminatingEvidenceIdsToExistingClues,
   synthesizeMissingDiscriminatingEvidenceClues,
+  purgeUnmappableDiscriminatingEvidenceIds,
   synthesizeInferenceStepCoverageClues,
   checkInferencePathCoverage,
   selectDiscriminatingEvidenceCandidateIds,

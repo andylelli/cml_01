@@ -11,7 +11,13 @@ import {
   runClueRegenPass,
   runClearanceRegenPass,
   runScaffoldRegenPass,
+  runMechanismRevealRegenPass,
 } from "../agent9-prose/regen-integration.js";
+import {
+  deriveMechanismTerms,
+  chapterFullyExplainsMechanism,
+  mechanismExplanationParagraphIndex,
+} from "../agent9-prose/mechanism-detect.js";
 import { makeRegenFn } from "../agent9-prose/regen-llm.js";
 import type { ProseDefect } from "../agent9-prose/regen-repair.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "../agent9-prose/types.js";
@@ -356,6 +362,131 @@ describe("runScaffoldRegenPass — RC1.2/RC1.3 endgame de-templating (P4)", () =
     expect(res.repaired).toEqual([]);
     expect(res.unresolved.length).toBeGreaterThan(0);
     expect(onUnresolved).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/dropped_locked_fact|lowered score/));
+    expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
+  });
+});
+
+describe("mechanism-detect — the single-source predicate the S8 pass and the rubric cap both key off", () => {
+  const MECH = "The culprit rewound the mantel clock and reset the hands to fabricate the alibi timing.";
+  const terms = deriveMechanismTerms(MECH);
+
+  it("derives salient (≥5-char, non-stopword) mechanism terms", () => {
+    expect(terms).toEqual(expect.arrayContaining(["culprit", "rewound", "mantel", "clock", "reset", "fabricate", "alibi", "timing"]));
+    expect(terms).not.toContain("the"); // stopword
+    expect(terms).not.toContain("and");
+  });
+
+  it("EXPLAINS when ≥50% terms co-occur AND a causal marker is present", () => {
+    const explains = "Then she rewound the mantel clock and reset the hands to fabricate the alibi timing, so the culprit's scheme held.";
+    expect(chapterFullyExplainsMechanism(explains.toLowerCase(), terms)).toBe(true);
+  });
+
+  it("does NOT explain when the chapter only NAMES mechanism nouns without the causal marker (legit clue-planting)", () => {
+    const planted = "The mantel clock, its hands still, sat beside the culprit's chair; the alibi and the timing troubled her.";
+    // ≥5 term hits but no explanation marker → must NOT trip
+    expect(chapterFullyExplainsMechanism(planted.toLowerCase(), terms)).toBe(false);
+  });
+
+  it("mechanismExplanationParagraphIndex locates the paragraph that both hits terms and carries the marker", () => {
+    const paras = [
+      "The house was quiet in the small hours.",
+      "Then she rewound the mantel clock and reset the hands to fabricate the alibi timing.",
+    ];
+    expect(mechanismExplanationParagraphIndex(paras, terms)).toBe(1);
+    expect(mechanismExplanationParagraphIndex(["A quiet room.", "The clock sat on the mantel."], terms)).toBe(-1);
+  });
+});
+
+describe("runMechanismRevealRegenPass — S8 mechanism-too-early de-spoiling (pre-scoring)", () => {
+  const MECH = "The culprit rewound the mantel clock and reset the hands to fabricate the alibi timing.";
+  const mechanismTerms = deriveMechanismTerms(MECH);
+
+  it("is a no-op (no LLM call) when the chapter only plants the clue without explaining the method", async () => {
+    const client = { chat: vi.fn() } as any;
+    const planted: ProseChapter = {
+      title: "Ch3",
+      paragraphs: ["The mantel clock, its hands still, sat beside the culprit's chair; the alibi and the timing troubled her."],
+    };
+    const res = await runMechanismRevealRegenPass({ chapter: planted, chapterNumber: 3, mechanismTerms, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op when there are no mechanism terms (empty mechanism description)", async () => {
+    const client = { chat: vi.fn() } as any;
+    const explains: ProseChapter = {
+      title: "Ch3",
+      paragraphs: ["Then she rewound the mantel clock and reset the hands to fabricate the alibi timing, so the scheme held."],
+    };
+    const res = await runMechanismRevealRegenPass({ chapter: explains, chapterNumber: 3, mechanismTerms: [], bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("REWRITES a pre-test chapter that explains the method, withholding the causal clause, and reports it repaired", async () => {
+    const explains: ProseChapter = {
+      title: "Ch3",
+      paragraphs: [
+        "The house was quiet in the small hours.",
+        "Then she rewound the mantel clock and reset the hands to fabricate the alibi timing, so the culprit's scheme held.",
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch3",
+            paragraphs: [
+              "The house was quiet in the small hours.",
+              "The mantel clock had stopped; its hands lay still, and she noted the hour without another word.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runMechanismRevealRegenPass({ chapter: explains, chapterNumber: 3, mechanismTerms, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toEqual(["mechanism_ch3"]);
+    expect(res.unresolved).toEqual([]);
+    // the method explanation is gone; the physical clue (the clock) is still on the page
+    expect(chapterFullyExplainsMechanism(res.chapter.paragraphs.join(" ").toLowerCase(), mechanismTerms)).toBe(false);
+    expect(res.chapter.paragraphs.join(" ")).toMatch(/clock/i);
+  });
+
+  it("ROLLS BACK a rewrite that drops a locked fact present in the original (preservation guard)", async () => {
+    const onUnresolved = vi.fn();
+    const withFact: ProseChapter = {
+      title: "Ch3",
+      paragraphs: [
+        "The clock had stopped at half past three.",
+        "Then she rewound the mantel clock and reset the hands to fabricate the alibi timing, so the scheme held.",
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        // withholds the method BUT silently drops the locked value "half past three"
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch3",
+            paragraphs: [
+              "The clock had stopped.",
+              "The mantel clock's hands lay still, and she noted the hour without a word.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runMechanismRevealRegenPass({
+      chapter: withFact,
+      chapterNumber: 3,
+      mechanismTerms,
+      bible,
+      regen: makeRegenFn({ client }),
+      maxAttemptsPerDefect: 1,
+      onUnresolved,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved.length).toBeGreaterThan(0);
     expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
   });
 });

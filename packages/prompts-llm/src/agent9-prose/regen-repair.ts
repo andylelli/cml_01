@@ -31,6 +31,7 @@ export type ProseDefectKind =
   | "scaffold_not_prose"
   | "missing_case_transition_bridge"
   | "early_spoiler"
+  | "mechanism_revealed_early"
   | "leakage";
 
 export interface ProseDefect {

@@ -420,7 +420,9 @@ CASE:
     design: ""
     knowledge_revealed: ""
     pass_condition: ""
-    evidence_clues: ["clue_1", "clue_2", "clue_3"]
+    # Leave empty — Agent 5 back-fills evidence_clues with the real planted clue ids. Do NOT emit
+    # placeholder ids like clue_1/clue_2 (they are treated as canonical evidence obligations and abort).
+    evidence_clues: []
   fair_play:
     all_clues_visible: true
     no_special_knowledge_required: true

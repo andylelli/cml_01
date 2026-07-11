@@ -53,8 +53,25 @@ export function detectMissingCaseTransitionBridge(
   }
   return out;
 }
-const ARREST_OR_CONFESSION_TERMS = /\b(arrested|under arrest|confess(?:ed|ion)|admitted\s+it|the\s+culprit\s+was\s+revealed)\b/i;
-const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/i;
+export const ARREST_OR_CONFESSION_TERMS = /\b(arrested|under arrest|confess(?:ed|ion)|admitted\s+it|the\s+culprit\s+was\s+revealed)\b/i;
+export const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/i;
+
+/**
+ * Roadmap Phase A — the 0-based index of the FIRST arrest/confession chapter within the reveal window
+ * (>= totalScenes - max(2, ceil(0.3*total))), or -1 if none. The role-alias repair
+ * (substituteRoleAliasesInPostRevealChapters) rewrites every chapter AFTER this index — a guaranteed
+ * SUPERSET of the scenes this validator flags (those after the LAST arrest), so no flagged alias can
+ * escape the repair. Single source of truth so the repair's boundary can never drift from the detector's.
+ */
+export function computeArrestPivotIndex(chapterTexts: ReadonlyArray<string>): number {
+  const total = chapterTexts.length;
+  if (total === 0) return -1;
+  const pivotWindowStart = Math.max(1, total - Math.max(2, Math.ceil(total * 0.3)));
+  for (let i = 0; i < total; i += 1) {
+    if (i + 1 >= pivotWindowStart && ARREST_OR_CONFESSION_TERMS.test(chapterTexts[i] ?? '')) return i;
+  }
+  return -1;
+}
 const AMATEUR_INVESTIGATOR_TERMS = /\b(amateur investigator|civilian investigator|friend[- ]turned[- ]investigator)\b/i;
 const OFFICIAL_TAKES_CHARGE_TERMS = /\b(inspector|detective|constable)\b[\s\S]{0,30}\b(took\s+charge|led\s+the\s+investigation|assumed\s+command)\b/i;
 const ROLE_TRANSITION_TERMS = /\b(joined\s+forces|worked\s+together|assisted\s+the\s+police|in\s+partnership\s+with)\b/i;

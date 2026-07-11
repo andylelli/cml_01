@@ -1482,3 +1482,99 @@ describe("agent5-run testables", () => {
     expect(result.warnings.some((entry) => /meta clue text \(non-fatal\)/i.test(entry))).toBe(true);
   });
 });
+
+describe("purgeUnmappableDiscriminatingEvidenceIds — A_61 evidence-mapping FP fix", () => {
+  const clueSet = (extra: any[] = []) => ({
+    clues: [
+      {
+        id: "clue_clock_smudge",
+        description: "A smudge near the clock winding key suggests tampering.",
+        pointsTo: "Clock timing was manipulated.",
+        placement: "mid",
+        criticality: "essential",
+        evidenceType: "observation",
+      },
+      {
+        id: "clue_witness_time",
+        description: "The witness fixes the time of the last sighting.",
+        pointsTo: "Anchors the timeline against tampering.",
+        placement: "early",
+        criticality: "essential",
+        evidenceType: "observation",
+      },
+      ...extra,
+    ],
+    redHerrings: [],
+  } as any);
+
+  it("FP: purges a placeholder id (clue_1) while keeping the real evidence id, without reseeding", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          design: "Use clock tampering and witness timing to isolate the culprit",
+          evidence_clues: ["clue_1", "clue_clock_smudge"],
+        },
+      },
+    } as any;
+
+    const result = __testables.purgeUnmappableDiscriminatingEvidenceIds(cml, clueSet());
+    expect(result.removed).toEqual(["clue_1"]);
+    expect(result.reseeded).toEqual([]);
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual(["clue_clock_smudge"]);
+  });
+
+  it("FP: purging ALL placeholder ids reseeds from real canonical clue IDs (no junk survives)", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          design: "Use clock tampering and witness timing to isolate the culprit",
+          evidence_clues: ["clue_1", "clue_2", "clue_3"],
+        },
+      },
+    } as any;
+
+    const result = __testables.purgeUnmappableDiscriminatingEvidenceIds(cml, clueSet());
+    expect(result.removed).toEqual(["clue_1", "clue_2", "clue_3"]);
+    expect(result.reseeded.length).toBeGreaterThan(0);
+    const finalEvidence: string[] = cml.CASE.discriminating_test.evidence_clues;
+    expect(finalEvidence.length).toBeGreaterThan(0);
+    // every surviving id references a real distributed clue — no clue_1/clue_2/clue_3 remain
+    expect(finalEvidence.every((id) => ["clue_clock_smudge", "clue_witness_time"].includes(id))).toBe(true);
+  });
+
+  it("no-op when every evidence id maps to a real distributed clue", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          design: "Use clock tampering and witness timing to isolate the culprit",
+          evidence_clues: ["clue_clock_smudge", "clue_witness_time"],
+        },
+      },
+    } as any;
+
+    const result = __testables.purgeUnmappableDiscriminatingEvidenceIds(cml, clueSet());
+    expect(result.removed).toEqual([]);
+    expect(result.reseeded).toEqual([]);
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual(["clue_clock_smudge", "clue_witness_time"]);
+  });
+
+  it("GUARANTEE: with no plantable evidence, purge empties the list and the reachability gate STILL fails critical", () => {
+    const cml = {
+      CASE: {
+        discriminating_test: {
+          design: "Use clock tampering and witness timing to isolate the culprit",
+          evidence_clues: ["clue_1"],
+        },
+      },
+    } as any;
+    const emptyClues = { clues: [], redHerrings: [] } as any;
+
+    const result = __testables.purgeUnmappableDiscriminatingEvidenceIds(cml, emptyClues);
+    expect(result.removed).toEqual(["clue_1"]);
+    expect(result.reseeded).toEqual([]); // nothing to reseed from
+    expect(cml.CASE.discriminating_test.evidence_clues).toEqual([]); // stays empty
+
+    const issues = __testables.checkDiscriminatingTestReachability(cml, emptyClues);
+    expect(issues.some((i: any) => i.severity === "critical" && /no evidence found in the clue set/i.test(i.message))).toBe(true);
+  });
+});
