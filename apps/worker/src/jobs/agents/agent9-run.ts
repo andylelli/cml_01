@@ -55,7 +55,7 @@ import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -198,6 +198,10 @@ const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_R
 /** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
  * murder with none. Default-off (N≥4 before default-on), runtime-read. */
 const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_TRANSITION, false);
+
+/** A_61 roadmap S2 — the reliability floor for `illegal_named_walk_on`: rewrite an out-of-cast titled
+ * walk-on to a role noun instead of aborting the run over an incidental extra. Default-off, runtime-read. */
+const isWalkonRepairEnabled = () => parseBooleanEnv(process.env.AGENT9_WALKON_REPAIR, false);
 
 /** A_61 RC2.2 — dereference the frozen Bible gender map as the SINGLE authoritative pronoun source
  * (validators + narrative state), instead of each site re-parsing raw cast gender. Default-off. */
@@ -4905,6 +4909,31 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // Fix 8.1: Replace any role-alias phrases ("the killer", "the murderer", etc.) with the
   // culprit's canonical name in post-reveal chapters, preventing identity_role_alias_break.
   prose = substituteRoleAliasesInPostRevealChapters(prose, cml);
+
+  // A_61 roadmap S2 (default-off, AGENT9_WALKON_REPAIR) — reliability floor: rewrite any out-of-cast
+  // titled walk-on (Mrs Green, Mr Bayless…) to a role noun so an incidental extra never aborts the run
+  // on `illegal_named_walk_on`. Only touches names NOT in the cast — never a locked fact / clue / culprit.
+  if (isWalkonRepairEnabled() && Array.isArray(prose?.chapters) && prose.chapters.length > 0) {
+    try {
+      const castNamesForWalkon = ((castDesign?.characters ?? []) as any[])
+        .map((c) => String(c?.name ?? "").trim()).filter(Boolean);
+      const allowedParts = buildAllowedNameParts(castNamesForWalkon);
+      const replacedAll: string[] = [];
+      for (const ch of prose.chapters as any[]) {
+        if (!Array.isArray(ch?.paragraphs)) continue;
+        ch.paragraphs = ch.paragraphs.map((p: any) => {
+          const r = anonymiseNamedWalkOns(String(p ?? ""), allowedParts);
+          if (r.replaced.length > 0) replacedAll.push(...r.replaced);
+          return r.text;
+        });
+      }
+      if (replacedAll.length > 0) {
+        ctx.warnings.push(`[Agent 9] walk-on repair: anonymised ${replacedAll.length} out-of-cast named walk-on(s) [${Array.from(new Set(replacedAll)).join(", ")}].`);
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] walk-on repair skipped: ${err instanceof Error ? err.message : String(err)}.`);
+    }
+  }
 
   const buildStoryForValidation = (currentProse: any) => ({
     id: runId,

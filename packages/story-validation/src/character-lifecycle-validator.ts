@@ -38,6 +38,14 @@ const CLEARED_RE = /\b(?:cleared|ruled\s+out|eliminated|innocent|alibi\s+(?:hold
 // so a clearance sentence carrying one of these negation/collapse markers must NOT seed a `cleared`
 // event for a culprit (it false-fired `cleared_culprit_conflict` and blocked the run).
 const CLEARANCE_NEGATION_RE = /\b(?:no longer|had once|once cleared|false alibi|collapsed|crumbled|unravell?ed|fell apart|failed|broke|no alibi|never (?:had|held))\b/i;
+// Roadmap S3 — reveal-teardown vocabulary: a culprit's apparent clearance overturned by the reveal.
+// Kept distinct from CLEARANCE_NEGATION_RE (the alibi-mechanics verbs) so both read clearly.
+const CLEARANCE_REVEAL_RE = /\b(?:but|yet|however|in (?:truth|fact|reality)|actually|revealed|unmask(?:ed)?|exposed|confess(?:ed|es|ion)|lied|deception|guilty|the (?:real )?(?:culprit|killer|murderer)|was (?:in fact )?(?:the )?(?:culprit|killer|murderer|guilty)|had done it|committed the)\b/i;
+/** True when a culprit's clearance sentence is overturned within a short window (this + next 2 sentences). */
+const clearanceOverturnedNear = (sentences: string[], index: number): boolean => {
+  const windowText = sentences.slice(index, index + 3).join(' ');
+  return CLEARANCE_NEGATION_RE.test(windowText) || CLEARANCE_REVEAL_RE.test(windowText);
+};
 // ANALYSIS_43 Phase 2 (G): a sentence that OPENS with an explicit recollection/flashback
 // frame is a remembered moment, not a live appearance — so it must not count as
 // `active_dialogue` for a deceased victim. Anchored to the sentence start so it cannot be
@@ -156,7 +164,9 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
 
   for (const scene of story.scenes ?? []) {
     const text = scene.text ?? '';
-    for (const sentence of sentenceSplit(text)) {
+    const sentences = sentenceSplit(text);
+    for (let si = 0; si < sentences.length; si++) {
+      const sentence = sentences[si];
       for (const name of castNames) {
         if (!nameInSentence(sentence, name)) continue;
 
@@ -200,12 +210,16 @@ export function buildCharacterLifecycleLedger(story: Story, cml?: CMLData): Char
           });
         }
 
-        // A_50 §9: don't seed a `cleared` event for the CULPRIT when the clearance is explicitly
-        // negated/demolished ("the alibi that had once cleared X collapsed") — that is the reveal
-        // tearing down a false alibi, not an exoneration, and it false-fired cleared_culprit_conflict.
+        // A_50 §9 + roadmap S3: don't seed a `cleared` event for the CULPRIT when the clearance is
+        // negated/demolished — that is the reveal tearing down a false alibi, not an exoneration, and it
+        // false-fired cleared_culprit_conflict. A reveal usually overturns in the NEXT sentence ("…her
+        // alibi cleared her. But the detective proved she had lied."), so the teardown is checked over a
+        // short window (this + next 2 sentences), and the vocabulary includes reveal language, not just
+        // "collapsed"-style verbs. A genuine standalone clearance of the culprit with no teardown nearby
+        // still fires (both-directions tested).
         if (
           CLEARED_RE.test(sentence) &&
-          !(culpritKeys.has(normalizeName(name)) && CLEARANCE_NEGATION_RE.test(sentence))
+          !(culpritKeys.has(normalizeName(name)) && clearanceOverturnedNear(sentences, si))
         ) {
           addEvent(ledger, {
             characterName: name,

@@ -7,6 +7,54 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError, Char
 
 const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.?|Mrs\.?|Miss|Dr\.?)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)/g;
 
+// Roadmap S2 — the deterministic anonymise-repair for `illegal_named_walk_on`. The LLM sometimes invents
+// out-of-cast named figures (Mrs Green, Mr Bayless…) → a major that aborts the whole run. This is the
+// reliability FLOOR: rather than abort an otherwise-shippable story over an incidental extra, rewrite the
+// out-of-cast titled name to a title-appropriate role noun ("the woman", "the constable"). It touches
+// only names NOT in the cast, never a locked fact/clue/culprit, so it cannot corrupt the case.
+const WALKON_TITLE_ROLE: Record<string, string> = {
+  inspector: 'the inspector', constable: 'the constable', sergeant: 'the sergeant',
+  captain: 'the captain', detective: 'the detective',
+  mr: 'the man', mrs: 'the woman', miss: 'the young woman', dr: 'the doctor',
+};
+
+/** The cast surname/name-part set the walk-on detector treats as allowed (mirrors buildCharacterManifest). */
+export const buildAllowedNameParts = (castNames: ReadonlyArray<string>): Set<string> => {
+  const s = new Set<string>();
+  for (const name of castNames) {
+    for (const part of String(name ?? '').split(/\s+/)) {
+      const clean = part.replace(/[.,;:!?"'’\-]/g, '').toLowerCase();
+      if (clean.length >= 2) s.add(clean);
+    }
+  }
+  return s;
+};
+
+/**
+ * Replace out-of-cast titled walk-on names in `text` with a role noun. Returns the rewritten text and the
+ * list of names replaced. In-cast titled names are left untouched. Capitalises the role at a sentence start.
+ */
+export const anonymiseNamedWalkOns = (
+  text: string,
+  allowedNameParts: Set<string>,
+): { text: string; replaced: string[] } => {
+  const replaced: string[] = [];
+  const out = String(text ?? '').replace(
+    TITLED_NAME_PATTERN,
+    (full: string, title: string, surname: string, offset: number, str: string) => {
+      const key = String(surname ?? '').replace(/[.,;:!?"'”’)]$/g, '').toLowerCase();
+      if (!key || allowedNameParts.has(key)) return full; // a real cast member — leave it
+      const t = String(title ?? '').replace(/\.$/, '').toLowerCase();
+      let role = WALKON_TITLE_ROLE[t] ?? 'the visitor';
+      const before = String(str).slice(0, offset).replace(/\s+$/, '');
+      if (before === '' || /[.!?"'”’\n]$/.test(before)) role = role.charAt(0).toUpperCase() + role.slice(1);
+      replaced.push(full);
+      return role;
+    },
+  );
+  return { text: out, replaced };
+};
+
 export class CharacterConsistencyValidator implements Validator {
   name = 'CharacterConsistencyValidator';
 
