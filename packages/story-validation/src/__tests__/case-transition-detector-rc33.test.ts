@@ -44,6 +44,23 @@ describe("detectMissingCaseTransitionBridge — both directions", () => {
     expect(detectMissingCaseTransitionBridge(real)).toHaveLength(1);
   });
 
+  it("Phase A — a person + copula 'was/had been missing' fires; a person who merely NOTICES a missing object does not", () => {
+    // fires: person is the subject of the disappearance
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The woman was missing for three days."] },
+      { paragraphs: ["Then it was murder, plain and cold."] },
+    ])).toHaveLength(1);
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["She had been missing since Tuesday."] },
+      { paragraphs: ["The body turned up; a killing."] },
+    ])).toHaveLength(1);
+    // does NOT fire: "missing" modifies an object, not the person
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The gentleman noticed a missing button on his cuff."] },
+      { paragraphs: ["The body lay in the morgue; the murder was unsolved."] },
+    ])).toEqual([]);
+  });
+
   it("BRIDGE_TERMS matches a body-discovery event", () => {
     expect(BRIDGE_TERMS.test("the body was found at dawn")).toBe(true);
     expect(BRIDGE_TERMS.test("nothing was resolved")).toBe(false);
