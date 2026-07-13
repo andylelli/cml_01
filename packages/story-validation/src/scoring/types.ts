@@ -164,7 +164,9 @@ export interface GenerationReport {
     passed_threshold: boolean;
   };
   release_gate_outcome?: {
-    status: 'passed' | 'failed' | 'unknown';
+    /** 'warning' = shipped needs-review: 0 hard stops but gate warnings — counts as SHIPPED for
+     *  ship-rate/M1 bookkeeping (run_outcome stays phase-threshold-driven and may still be 'failed'). */
+    status: 'passed' | 'warning' | 'failed' | 'unknown';
     hard_stop_count: number;
     warning_count: number;
   };

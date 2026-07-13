@@ -14,16 +14,44 @@ export const DEATH_TERMS = /\b(murder(?:ed)?|killed|dead|body|corpse|homicide)\b
 // collocations so a legitimately-bridged scene is no longer flagged `missing_case_transition_bridge`.
 export const BRIDGE_TERMS = /\b(body\s+was\s+found|confirmed\s+dead|turned\s+up\s+dead|missing\s+person\s+case\s+became\s+a\s+murder|identified\s+the\s+body|found\s+dead|found\s+\w+\s+dead|discovered\s+dead|discovered\s+\w+\s+dead|was\s+found\s+dead|had\s+been\s+(?:murdered|killed|slain)|no\s+longer\s+missing|(?:found|discovered|recovered)\s+(?:\w+\s+){0,3}(?:body|corpse|remains)|(?:body|corpse|remains)\s+(?:was\s+|were\s+)?(?:found|discovered|recovered))\b/i;
 
-// A_61 RC3.3 + roadmap Phase A — the SINGLE person-context disappearance condition shared by the
-// validator (which aborts the run) AND the detect→regen trigger, so the regen fires exactly when the
-// validator would flag (previously the validator used a looser bare-"missing" regex that the tight regen
-// detector missed → the regen was inert and the run aborted anyway, run_M1_1). It excludes a bare
-// "missing" OBJECT ("missing cufflink", "the button was missing") — an object being missing before a
-// murder is not a disappearance→murder case — while catching person phrasings incl. a person noun/pronoun
-// adjacent to "missing" ("the woman was missing", "she had been missing for days") and the unambiguous
-// disappear/vanish verbs.
-const PERSON_DISAPPEARANCE_RE =
-  /\b(?:disappear(?:ed|ance|s)?|vanished|gone\s+without\s+(?:a\s+)?trace|(?:went|gone|reported)\s+missing|missing[- ](?:person|man|woman|lady|gentleman|girl|boy|child|heir|heiress|guest|husband|wife|daughter|son|niece|nephew)|(?:person|man|woman|lady|gentleman|girl|boy|child|heir|heiress|guest|husband|wife|daughter|son|niece|nephew|she|he|they)\s+(?:(?:had|has|was|were|is|are|went|gone|remained|stayed|been)\s+){1,3}missing)\b/i;
+// A_61 RC3.3 + roadmap Phase A + ledger P0.1 — the SINGLE person-context disappearance condition
+// shared by the validator (which flags at the release gate) AND the detect→regen trigger, so the regen
+// fires exactly when the validator would flag. Two hardenings, one per observed FP class:
+// (1) a bare "missing" OBJECT ("missing cufflink", "the button was missing") is excluded — person
+//     context is required around "missing" (41e7fe02, run_M1_1);
+// (2) the bare verbs "vanished/disappeared" are excluded — figurative prose ("the last remnants of
+//     bravado vanished from his posture", run f90e5f09 ch8) matched the old unguarded verb branch and
+//     produced a spurious disappearance→murder flag on a confession chapter. The verbs now also require
+//     a person subject: a person noun/pronoun (case-insensitive) or an honorific + proper Name
+//     (case-SENSITIVE half below — under /i any word would satisfy the [A-Z] name shape).
+const PERSON_NOUNS =
+  "person|man|woman|lady|gentleman|girl|boy|child|heir|heiress|guest|husband|wife|daughter|son|niece|nephew";
+const PERSON_SUBJECTS = `(?:${PERSON_NOUNS}|she|he|they)`;
+const DISAPPEARANCE_AUX = "(?:(?:had|has|was|were|is|are|then|simply|just|quietly)\\s+){0,3}";
+const PERSON_DISAPPEARANCE_RE = new RegExp(
+  "\\b(?:" +
+    "gone\\s+without\\s+(?:a\\s+)?trace" +
+    "|(?:went|gone|reported)\\s+missing" +
+    `|missing[- ](?:${PERSON_NOUNS})` +
+    `|${PERSON_SUBJECTS}\\s+(?:(?:had|has|was|were|is|are|went|gone|remained|stayed|been)\\s+){1,3}missing` +
+    "|(?:her|his|their)\\s+disappearance" +
+    `|disappearance\\s+of\\s+(?:the\\s+)?(?:${PERSON_NOUNS})` +
+    `|${PERSON_SUBJECTS}\\s+${DISAPPEARANCE_AUX}(?:disappeared|vanished)` +
+    ")\\b",
+  "i",
+);
+const NAMED_PERSON_DISAPPEARANCE_RE = new RegExp(
+  "\\b(?:" +
+    "(?:Lady|Lord|Sir|Mr|Mrs|Miss|Ms|Dr|Inspector|Constable|Sergeant|Professor|Captain|Colonel|Reverend)\\.?\\s+" +
+    "[A-Z][A-Za-z'’-]+(?:\\s+[A-Z][A-Za-z'’-]+)?\\s+" +
+    DISAPPEARANCE_AUX +
+    "(?:disappeared|vanished)" +
+    "|disappearance\\s+of\\s+[A-Z][A-Za-z'’-]+" +
+    ")\\b",
+);
+/** True when the text frames a PERSON's disappearance (both call sites share this predicate). */
+const hasPersonDisappearance = (text: string): boolean =>
+  PERSON_DISAPPEARANCE_RE.test(text) || NAMED_PERSON_DISAPPEARANCE_RE.test(text);
 
 /** Location of a missing-transition-bridge defect for the RC3.3 regen pass. */
 export interface CaseTransitionDefectLoc {
@@ -46,7 +74,7 @@ export function detectMissingCaseTransitionBridge(
     const prevText = (chapters[i - 1]?.paragraphs ?? []).join(' ');
     const curParas = chapters[i]?.paragraphs ?? [];
     const curText = curParas.join(' ');
-    if (PERSON_DISAPPEARANCE_RE.test(prevText) && DEATH_TERMS.test(curText) && !BRIDGE_TERMS.test(curText)) {
+    if (hasPersonDisappearance(prevText) && DEATH_TERMS.test(curText) && !BRIDGE_TERMS.test(curText)) {
       const idx = curParas.findIndex((p) => DEATH_TERMS.test(String(p ?? '')));
       out.push({ chapterNumber: i + 1, paragraphIndex: Math.max(0, idx) });
     }
@@ -96,7 +124,7 @@ export class NarrativeContinuityValidator implements Validator {
       // Roadmap Phase A — use the SHARED person-context condition (same as detectMissingCaseTransitionBridge)
       // so the auto-repair regen fires exactly when this gate would abort, and neither FP-fires on a bare
       // "missing" object. (Was DISAPPEARANCE_TERMS, which diverged from the regen and let runs abort unrepaired.)
-      const crossesDisappearanceToDeath = PERSON_DISAPPEARANCE_RE.test(prevText) && DEATH_TERMS.test(currentText);
+      const crossesDisappearanceToDeath = hasPersonDisappearance(prevText) && DEATH_TERMS.test(currentText);
       if (crossesDisappearanceToDeath && !BRIDGE_TERMS.test(currentText)) {
         errors.push({
           type: 'missing_case_transition_bridge',

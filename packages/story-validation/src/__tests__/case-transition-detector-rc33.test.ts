@@ -65,4 +65,40 @@ describe("detectMissingCaseTransitionBridge — both directions", () => {
     expect(BRIDGE_TERMS.test("the body was found at dawn")).toBe(true);
     expect(BRIDGE_TERMS.test("nothing was resolved")).toBe(false);
   });
+
+  // Ledger P0.1 (run f90e5f09) — the bare verb branch needs a person subject.
+  it("does NOT fire on figurative 'vanished/disappeared' (the f90e5f09 FP class)", () => {
+    // the exact sentence that flagged run f90e5f09's confession chapter
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["Charles, subdued, stared into his glass, the last remnants of bravado vanished from his posture."] },
+      { paragraphs: ['"I killed Lady Beatrice Wentworth," he said. "You are under arrest for the murder."'] },
+    ])).toEqual([]);
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The smile vanished from her face; every doubt disappeared with it."] },
+      { paragraphs: ["The murder inquiry resumed at dawn."] },
+    ])).toEqual([]);
+  });
+
+  it("STILL fires on a genuine person disappearance phrased with the verbs", () => {
+    // pronoun subject (case-insensitive branch)
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["She had simply vanished; the household searched until midnight."] },
+      { paragraphs: ["By morning the inspector called it murder."] },
+    ])).toHaveLength(1);
+    // person noun subject
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The woman disappeared that night without explanation."] },
+      { paragraphs: ["It was murder, the inspector said."] },
+    ])).toHaveLength(1);
+    // honorific + Name (case-sensitive branch)
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["Lady Beatrice Wentworth vanished from the terrace before supper."] },
+      { paragraphs: ["The murder was confirmed by the coroner."] },
+    ])).toHaveLength(1);
+    // "disappearance of <Name>"
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The disappearance of Eleanor troubled the entire household."] },
+      { paragraphs: ["Then came word of murder."] },
+    ])).toHaveLength(1);
+  });
 });

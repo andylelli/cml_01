@@ -236,13 +236,19 @@ export class ScoreAggregator {
         : inferredDeterministicHardGateFailure
           ? 'failed'
           : releaseGateStatusRaw;
-    const releaseGateStatus: 'passed' | 'failed' | 'unknown' =
-      effectiveReleaseGateStatusRaw === 'passed' || effectiveReleaseGateStatusRaw === 'failed'
-        ? effectiveReleaseGateStatusRaw
-        : effectiveReleaseGateHardStopCount > 0
-          ? 'failed'
+    // A hard stop ALWAYS fails the gate. `validation_status` is the story-validation pipeline's
+    // verdict, not the gate's — run a3c2973f validated clean (0 issues) yet hard-stopped on NSD
+    // clue visibility, and trusting the raw field verbatim produced the contradictory surface
+    // `release_gate_outcome: { status: "passed", hard_stop_count: 1 }` on an aborted run.
+    // Ledger P0.2 (run f90e5f09): warnings WITHOUT a hard stop are a SHIPPED needs-review gate
+    // ('warning'), not 'failed' — the story exists and was scored; run_outcome stays phase-driven.
+    const releaseGateStatus: 'passed' | 'warning' | 'failed' | 'unknown' =
+      effectiveReleaseGateHardStopCount > 0
+        ? 'failed'
+        : effectiveReleaseGateStatusRaw === 'passed' || effectiveReleaseGateStatusRaw === 'failed'
+          ? effectiveReleaseGateStatusRaw
           : releaseGateWarningCount > 0
-            ? 'failed'
+            ? 'warning'
             : this.diagnostics.some((d) => d.diagnostic_type === 'release_gate_summary')
               ? 'passed'
               : 'unknown';

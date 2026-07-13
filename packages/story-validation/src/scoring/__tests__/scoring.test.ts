@@ -486,6 +486,82 @@ describe("ScoreAggregator", () => {
     expect(report.run_outcome_reason).toBe("Deterministic hard gate failure");
   });
 
+  it("fails the gate status when a hard stop fires even though validation_status is 'passed' (run a3c2973f)", () => {
+    // The story-validation pipeline can validate clean (0 issues) while the release gate itself
+    // hard-stops (NSD clue visibility). The surfaced status must reflect the gate, not validation —
+    // previously this produced { status: "passed", hard_stop_count: 1 } on an aborted run.
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore("agent2-cast", "Cast", makeScore({ total: 92 }), 1000);
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "passed",
+        validation_summary: { totalIssues: 0, critical: 0, major: 0, moderate: 0, minor: 0 },
+        release_gate_hard_stop_count: 1,
+        release_gate_warning_count: 2,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.release_gate_outcome?.status).toBe("failed");
+    expect(report.release_gate_outcome?.hard_stop_count).toBe(1);
+    expect(report.run_outcome).toBe("aborted");
+  });
+
+  // Ledger P0.2 — warnings WITHOUT a hard stop are a SHIPPED needs-review gate ('warning'),
+  // and run_outcome stays phase-threshold-driven. Ship-rate/M1 bookkeeping reads the GATE status.
+  it("maps a warnings-only gate to status 'warning' with run_outcome from phase thresholds (passing)", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore("agent2-cast", "Cast", makeScore({ total: 92 }), 1000);
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "needs_review",
+        validation_summary: { totalIssues: 1, critical: 0, major: 1, moderate: 0, minor: 0 },
+        release_gate_hard_stop_count: 0,
+        release_gate_warning_count: 2,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.release_gate_outcome?.status).toBe("warning");
+    expect(report.run_outcome).toBe("passed"); // phases passed; warnings alone do not fail the run
+    expect(report.passed).toBe(true);
+  });
+
+  it("keeps run_outcome 'failed' on a warnings-only gate when a phase misses threshold (the f90e5f09 shape)", () => {
+    const agg = new ScoreAggregator(standardConfig);
+    agg.addPhaseScore(
+      "agent9-prose",
+      "Prose Generation",
+      makeScore({ agent: "agent9-prose", total: 60, passed: false }),
+      1000,
+    );
+    agg.upsertDiagnostic(
+      "agent9_prose_release_gate_summary",
+      "agent9_prose",
+      "Release Gate",
+      "release_gate_summary",
+      {
+        validation_status: "needs_review",
+        validation_summary: { totalIssues: 1, critical: 0, major: 1, moderate: 0, minor: 0 },
+        release_gate_hard_stop_count: 0,
+        release_gate_warning_count: 2,
+      },
+    );
+
+    const report = agg.generateReport(metadata);
+    expect(report.release_gate_outcome?.status).toBe("warning"); // SHIPPED for ship-rate purposes
+    expect(report.run_outcome).toBe("failed"); // but the phase threshold verdict stands
+    expect(report.run_outcome_reason).toBe("One or more phases failed threshold");
+  });
+
   it("classifies infrastructure DNS failures as infra_failure", () => {
     const agg = new ScoreAggregator(standardConfig);
     agg.addPhaseScore(

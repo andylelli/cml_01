@@ -299,7 +299,8 @@ export interface GenerationReport {
     passed_threshold: boolean;
   };
   release_gate_outcome?: {
-    status: "passed" | "failed" | "unknown";
+    /** "warning" = shipped needs-review (0 hard stops, gate warnings) — counts as shipped. */
+    status: "passed" | "warning" | "failed" | "unknown";
     hard_stop_count: number;
     warning_count: number;
   };
