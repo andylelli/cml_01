@@ -13,9 +13,9 @@
 
 | Milestone | Target | Status |
 |---|---|---|
-| **M1 — Floor** | 8/8 consecutive post-change runs reach a scored release gate (never aborted/failure) | **in progress** — smoke runs done (1 abort → root-caused + fixed, 1 shipped); S0 baseline batch not yet run; ⚠ blocked on the outcome-mapping decision (Open Item 2) |
-| **M2 — Ceiling** | top-4 caps ≤1 occurrence across ≥4 runs; median shipped ≥ 73 | **directionally on track** — first shipped run: 0 caps fired, 74; needs the batch |
-| **M3 — Target 80** | mean ChatGPT ≥ 80, internal−external gap ≤ 3, ship 100%, ≥4×4 matched | not started — **no external scores collected yet** (the gap criterion is currently unmeasured) |
+| **M1 — Floor** | 8/8 consecutive post-change runs reach a scored release gate (never aborted/failure) | **S0 baseline COMPLETE 2026-07-13: 4/4 shipped, 0 hard stops** (5/5 counting smoke f90e5f09). The formal M1 gate (two dedicated 4-run batches) remains to be run — P2. |
+| **M2 — Ceiling** | top-4 caps ≤1 occurrence across ≥4 runs; median shipped ≥ 73 | **at risk on current data** — scaffold/report-style fired on 2/4 S0 runs; S0 median rubric 66 (59/60/66/70 + smoke 70). The scaffold lever fires but loses ~half the time (Item 8) → the A/B decides whether to strengthen the pass. |
+| **M3 — Target 80** | mean ChatGPT ≥ 80, internal−external gap ≤ 3, ship 100%, ≥4×4 matched | not started — **no external scores collected yet**; 5 shipped stories now flagged for reads (Item 6) |
 
 ---
 
@@ -29,7 +29,8 @@
 | `f90e5f09` | 2026-07-13 | smoke | **shipped** (needs_review; surfaced as `failed` — see Open Item 2) | 0 / 2 | 74 C | **70, `caps_applied: []`** | — | £0.26 / 18.6 | Fixes held: 19/19 clues, no parse warnings, gate status consistent. 1 major = validator FP (Open Item 1). Grounding 5/10 (warn). |
 | `mystery-…1161277` (poison) | 2026-07-13 | **S0-1** | **SHIPPED** (gate `passed`) | 0 / 1 | 74 C | **59, `caps: []`** | — | £0.21 / 17.0 | Clean gate, 19/19 clues. Uncapped but LOW rubric — craft floor across the board (no mark above 7). Grounding 8/10 ✓. `run_outcome=failed` is phase-threshold only. |
 | `mystery-…2181080` (tide) | 2026-07-13 | **S0-2** | **SHIPPED** (gate `warning`) | 0 / 2 | 95 A (phase-weighted) | **66 (raw 70), 3 caps** | — | £0.23 / 19.5 | Caps: deductive-scaffold → prose ≤4; report-style clearance ×2 → prose ≤6 / ending ≤7. Scaffold regen DID fire (Ch1 ×2, Ch10 ×1) — effectiveness question → Open Item 8. Continuity warning = NEW FP class → Open Item 7 (fixed). Grounding 3/10. 17/17 clues. |
-| S0-3 acoustic / S0-4 identity | 2026-07-13 | S0 | *in flight* | | | | | | Same dist as S0-1/2; both may still show the Item-7 warn-level FP (fix landed after launch — warn-only, does not affect ship). |
+| `mystery-…4840251` (acoustic) | 2026-07-13 | **S0-3** | **SHIPPED** (gate `warning`) | 0 / 1 | 95 A (phase-weighted) | **60 (raw 63), 5 caps** | — | £0.21 / 20.9 | Scaffold family fired HARD: scaffold → prose ≤4, ceil-65, report-style ×2, **dualValueNoContrast** (marked "fixed" — reopened, see Cap panel). Scaffold regen attempted on Ch4/6/7/10 and lost → Item 8. Grounding 1/10. 17/17 clues. No Item-7 FP. |
+| `mystery-…6096323` (identity) | 2026-07-13 | **S0-4** | **SHIPPED** (gate `passed`) | 0 / 1 | 95 A (phase-weighted) | **70, `caps: []`** | — | £0.20 / 14.9 | Clean and uncapped — and its scaffold regen ALSO fired (Ch3 ×2, Ch8 ×2, Ch10) and won: the lever can work. 19/19 clues. Grounding 1/10 (warn). |
 
 ---
 
@@ -55,39 +56,40 @@
 
 *Read `caps_applied` + `structural` from the report's `rubric_score` diagnostic. Aborted runs don't count (no honest rubric).*
 
-| Cap | Lever | `f90e5f09` | poison | tide | Shipped freq |
-|---|---|---|---|---|---|
-| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 | 0 | 0 | 0/3 |
-| `scaffoldHits` | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0 | **1** | **1/3** |
-| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0 | **2** | **1/3** |
-| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 | 0 | 0 | 0/3 |
-| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0 | 0 | 0/3 |
-| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0 | 0 | 0/3 |
-| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0 | 0 | 0/3 |
-| `victimUnnamed` / `malformedEvidenceSurfacing` / `dualValueNoContrast` | fixed (landed) | 0 | 0 | 0 | 0/3 |
-| `weakMurderMethod` | RC3.5 tell · off | 0 | 0 | 0 | 0/3 |
+| Cap | Lever | `f90e5f09` | poison | tide | acoustic | identity | Shipped freq |
+|---|---|---|---|---|---|---|---|
+| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `scaffoldHits` (incl. ceil-65 at ≥2) | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0 | **1** | **2** | 0 | **2/5** |
+| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0 | **2** | **2** | 0 | **2/5** |
+| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `victimUnnamed` / `malformedEvidenceSurfacing` | fixed (landed) | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| `dualValueNoContrast` | A_57 D2 — **REOPENED** (fired on acoustic: "central clue stated as two flat values, not one contradiction" → clues ≤6) | 0 | 0 | 0 | **1** | 0 | **1/5** |
+| `weakMurderMethod` | RC3.5 tell · off | 0 | 0 | 0 | 0 | 0 | 0/5 |
 
-**Across 3 shipped runs: only the scaffold/report-style family has fired (tide), and its regen DID attempt** (labels `Regen-Ch1-scaffold_not_prose` ×2, `Regen-Ch10` ×1) — a lever-*effectiveness* question (the rubric's LLM judge reads "report-style" more broadly than the regen's deterministic clear-check), not a wiring bug. → Open Item 8; the P4 A/B measures whether the lever moves the frequency at all.
+**The S0 read: the scaffold/report-style family is THE dominant live cap (2/5 runs), and the lever's story is now precise** — the regen attempted on every capped run (tide Ch1/Ch10; acoustic Ch4/6/7/10) *and* on the uncapped identity run (Ch3/8/10) where it won. So the pass works sometimes and loses sometimes; whether it beats no-lever at all is exactly the P4 A/B question (Open Item 8). `dualValueNoContrast` reopened at 1/5 (Open Item 9).
 
 ---
 
 ## 4. Category Floor  *(ten rubric marks vs the 8.0 each needs; the LAST lift — S14)*
 
-| Category | Target | `f90e5f09` | poison | tide | Mean (3 shipped) |
-|---|---|---|---|---|---|
-| premise | 8 | 7 | **6** | 8 | 7.0 |
-| opening_hook | 8 | **6** | **5** | 7 | **6.0** |
-| plot_structure | 8 | 7 | **6** | **6** | 6.3 |
-| character_clarity | 8 | 7 | **5** | 7 | 6.3 |
-| dialogue | 8 | **6** | **6** | 8 | 6.7 |
-| atmosphere | 8 | 8 | 7 | 8 | 7.7 |
-| clues | 8 | 8 | **5** | **6** | 6.3 |
-| pacing | 8 | **6** | **6** | **5** | **5.7** |
-| ending | 8 | 8 | **6** | 7 | 7.0 |
-| prose | 8 | 7 | 7 | **4** (capped) | 6.0 |
-| **Mean** | **8.0** | 7.0 | 5.9 | 6.6 | **6.5** |
+| Category | Target | `f90e5f09` | poison | tide | acoustic | identity | Mean (5 shipped) |
+|---|---|---|---|---|---|---|---|
+| premise | 8 | 7 | **6** | 8 | 7 | 8 | 7.2 |
+| opening_hook | 8 | **6** | **5** | 7 | **6** | 7 | **6.2** |
+| plot_structure | 8 | 7 | **6** | **6** | **5** | **6** | **6.0** |
+| character_clarity | 8 | 7 | **5** | 7 | **6** | 7 | 6.4 |
+| dialogue | 8 | **6** | **6** | 8 | 7 | **6** | 6.6 |
+| atmosphere | 8 | 8 | 7 | 8 | 8 | 8 | 7.8 |
+| clues | 8 | 8 | **5** | **6** | **5** (capped) | 7 | **6.2** |
+| pacing | 8 | **6** | **6** | **5** | **6** | **6** | **5.8** |
+| ending | 8 | 8 | **6** | 7 | **6** (capped) | 8 | 7.0 |
+| prose | 8 | 7 | 7 | **4** (capped) | **4** (capped) | 7 | **5.8** |
+| **Mean** | **8.0** | 7.0 | 5.9 | 6.6 | 6.0 | 7.0 | **6.5** |
 
-The floor is broader than the single smoke run suggested: **pacing (5.7) and opening_hook (6.0) are the deepest consistent deficits**, and poison shows a run can ship perfectly clean yet score 59 on craft alone. Theme matters too — clock-family runs (f90e5f09) score higher than poison/tide, which is exactly why the A/B matches on structure. Craft lift (S14/P5) remains the last-mile answer; per the roadmap it only reads true once measurement is powered.
+**S0 baseline floor: 6.5 mean, no category at target.** The uncapped ceiling today is ~70 (f90e5f09, identity); the consistent deficits are **pacing (5.8), prose (5.8 — cap-dragged), plot_structure (6.0), opening_hook (6.2)**. Atmosphere (7.8) is the only near-target category. Reading: extinguishing the scaffold family (Item 8) recovers prose/ending/clues on capped runs, but even cap-free runs sit at 70 — the last ten points are craft (P5), exactly as the roadmap predicted.
 
 ---
 
@@ -102,7 +104,8 @@ The floor is broader than the single smoke run suggested: **pacing (5.7) and ope
 | 5 | **Scene-grounding coverage below target** (1/10 → 5/10) | craft/warn | monitor; feeds the pacing/atmosphere floor |
 | 6 | **No external (ChatGPT) scores collected yet** — the M3 gap ≤ 3 criterion is unmeasured on every run so far | measurement debt | start collecting on the S0 batch (one external read per shipped run) |
 | 7 | **Victim-timeline reconstruction FP** (tide) — "Dr. Finch **vanished** from the lobby just before eleven" is reconstruction of the victim's last movements, not a case transition; person-context can't exclude it (a person genuinely vanishes) | validator FP, second shape of the Item-1 family | **FIXED 2026-07-13** — the transition check (detector + validator, shared) now applies ONLY where death language FIRST enters the story; once a murder is established, later disappearance phrasing never flags. Tide's exact shape is a must-not-match test; 10/10 detector tests, 371/371 suite. *(Landed after S0-3/4 launched — those two may still show the warn-level FP; discount it when tallying.)* |
-| 8 | **Scaffold/report-style regen effectiveness** (tide) — `AGENT9_REGEN_SCAFFOLD` fired (Ch1 ×2, Ch10 ×1) yet the rubric still capped prose ≤4 / ending ≤7: the LLM judge's "report-style" reading is broader than the regen's deterministic clear-check | lever effectiveness (NOT wiring) | measure in the P4 A/B (`--flag AGENT9_REGEN_SCAFFOLD`); if the lever doesn't move cap frequency, strengthen the pass (prompt/attempts/validator alignment with the rubric's reading) — a POST-A/B change by design |
+| 8 | **Scaffold/report-style regen effectiveness** — fired on every capped run (tide Ch1/10; acoustic Ch4/6/7/10 → still 5 caps) AND on the uncapped identity run (Ch3/8/10 → clean): works sometimes, loses sometimes; the rubric's LLM judge reads "report-style" more broadly than the regen's deterministic clear-check | lever effectiveness (NOT wiring) — **now 2/4 S0 runs affected; the dominant live cap** | measure in the P4 A/B (`--flag AGENT9_REGEN_SCAFFOLD`); if the lever doesn't move cap frequency, strengthen the pass (prompt/attempts/validator alignment with the rubric's reading) — a POST-A/B change by design |
+| 9 | **`dualValueNoContrast` REOPENED** (acoustic) — "central clue stated as two flat values, not one contradiction" → clues ≤6; the Cap Ledger had this marked fixed (A_57 D2) | cap regression or sub-shape the D2 fix missed | 1/5 shipped; check the acoustic central-clue phrasing vs the D2 detector before the M1 batches; candidate small fix |
 
 ---
 
