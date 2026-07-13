@@ -94,6 +94,8 @@ export function instructionForDefect(defect: ProseDefect): string {
     case "early_spoiler":
     case "leakage":
       return `Remove the premature reveal / leaked material, keeping the scene intact. Detail: ${defect.detail}`;
+    case "voice_tic_leakage":
+      return `Rewrite the flagged speaker's dialogue so it stays in THEIR OWN idiom: remove the other character's signature phrase from their line. Do NOT reassign the line to the other character and do NOT delete the exchange — reword it in the speaker's established voice, preserving what the line communicates. Detail: ${defect.detail}`;
     default:
       return defect.detail;
   }
@@ -598,6 +600,101 @@ export async function runCaseTransitionRegenPass(args: {
   const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
   const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
   return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+/**
+ * RC5.3 (enforce-with-repair) — the voice-idiolect leakage regen pass, the REPAIR half the dialogue-
+ * distinctiveness gate never had. When another character's SIGNATURE TIC appears verbatim in a speaker's
+ * attributed dialogue (the strong voice-swap signal the deterministic gate flags at error severity), the
+ * offending paragraph is REWRITTEN so the speaker stays in their own idiom — via the scoped regen, never
+ * a deterministic reword (the standing law: deterministic code verifies, it never writes prose).
+ *
+ * Gated on the SAME predicate the gate uses: `leakGone` is injected from the caller (the worker owns
+ * @cml/story-validation's validateDialogueIdiolect) so this package stays acyclic — mirroring
+ * runCaseTransitionRegenPass's `bridgePresent`. A rewrite ships only if the chapter no longer carries
+ * leakage AND drops no locked fact. Repair-not-abort: whatever regen cannot clear is logged by the
+ * caller and ships with the release-gate warning exactly as before this pass existed.
+ */
+export async function runVoiceLeakageRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  /** Verbatim leaked tics with their owner and the wrong-mouth speaker (from the idiolect gate). */
+  leaks: ReadonlyArray<{ owner: string; speaker: string; tic: string }>;
+  bible: RegenBible;
+  regen: RegenFn;
+  /**
+   * validateDialogueIdiolect-derived probe: the tics CURRENTLY leaked in the given chapter text.
+   * Per-tic (not a whole-chapter boolean) so fixing leak 1 of 2 validates on its own merits — a
+   * chapter-level "no leakage anywhere" predicate would revert a good first fix while the second
+   * leak still stands (runRegenRepair validates after EVERY defect with the same validator).
+   */
+  leakedTics: (chapterText: string) => string[];
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const normText = (s: string): string => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  const initiallyLeaked = new Set(args.leakedTics(chapterText(args.chapter)).map(normText));
+  // Group by tic: the same phrase leaked into two mouths is ONE rewrite obligation naming both
+  // speakers — two same-tic defects would each fail validation while the other's occurrence stands.
+  const byTic = new Map<string, { owner: string; speakers: string[]; tic: string }>();
+  for (const leak of args.leaks) {
+    const key = normText(leak?.tic ?? "");
+    if (!key || !String(leak.speaker ?? "").trim() || !initiallyLeaked.has(key)) continue;
+    const entry = byTic.get(key) ?? { owner: leak.owner, speakers: [], tic: leak.tic };
+    if (!entry.speakers.includes(leak.speaker)) entry.speakers.push(leak.speaker);
+    byTic.set(key, entry);
+  }
+  if (byTic.size === 0) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && chapterText(args.chapter).includes(v));
+
+  let current = args.chapter;
+  const repaired: string[] = [];
+  const unresolved: string[] = [];
+  let seq = 0;
+  for (const entry of byTic.values()) {
+    seq += 1;
+    const ref = `voice_leak_ch${args.chapterNumber}_${seq}`;
+    // Scope to the offending paragraph only when the tic appears in exactly ONE paragraph — with
+    // several (e.g. the owner's legitimate use elsewhere) attribution is ambiguous here, so fall
+    // back to the whole chapter and let the instruction target the wrong speaker's line.
+    const paragraphs = current.paragraphs ?? [];
+    const hits = paragraphs
+      .map((p, i) => (normText(p).includes(normText(entry.tic)) ? i : -1))
+      .filter((i) => i >= 0);
+    const defect: ProseDefect = {
+      chapter: args.chapterNumber,
+      paragraphIndex: hits.length === 1 ? hits[0] : undefined,
+      kind: "voice_tic_leakage",
+      detail:
+        `"${entry.tic}" is ${entry.owner}'s signature phrase but appears in ${entry.speakers.join(" and ")}'s ` +
+        `dialogue — reword ${entry.speakers.join(" and ")}'s line(s) in their own voice, without ${entry.owner}'s phrase`,
+      obligationRef: ref,
+      severity: "hard",
+    };
+    const validate = composeChapterValidator(
+      (c: ProseChapter): ValidatorResult => {
+        const still = args.leakedTics(chapterText(c)).map(normText).includes(normText(entry.tic));
+        return { ok: !still, score: still ? 0 : 100, violations: still ? [`voice_tic_leakage:${entry.tic}`] : [] };
+      },
+      preserveLockedFactsValidator(requiredValues),
+    );
+    const result = await runRegenRepair(
+      current,
+      [defect],
+      (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+      args.regen,
+      validate,
+      { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+    );
+    current = result.chapter;
+    if (result.unresolved.length > 0) unresolved.push(ref);
+    else repaired.push(ref);
+  }
+  return { chapter: current, repaired, unresolved, ran: true };
 }
 
 const CULPRIT_TERMS_RE = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;

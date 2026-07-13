@@ -143,6 +143,7 @@ export {
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
   runMechanismRevealRegenPass,
+  runVoiceLeakageRegenPass,
   runInsertionRegenPass,
   pronounsFromBible,
   genderMapFromBible,

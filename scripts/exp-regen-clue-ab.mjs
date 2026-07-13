@@ -13,11 +13,16 @@
 // LIVE LLM — this is the manual test-run step. Nothing here runs until you invoke it.
 //
 //   node scripts/exp-regen-clue-ab.mjs --runIds R1,R2,R3,R4 [--flag AGENT9_REGEN_CLUE] \
-//       [--treatmentValue true] [--controlValue false] [--out results/ab-<flag>]
+//       [--treatmentValue true] [--controlValue false] [--agents 9] [--out results/ab-<flag>]
 //
 // Mode-valued flag example (voice enforcement is off|shadow|enforce, not a boolean):
 //   node scripts/exp-regen-clue-ab.mjs --runIds R1,R2,R3,R4 --flag AGENT9_VOICE_ENFORCE \
 //       --treatmentValue enforce --controlValue off
+//
+// Upstream-lever example (roadmap S11 caveat): an Agent-6 flag needs Agent 6 to run FRESH per arm,
+// with the Agent-7 outline still hydrated (pair stays chapter-count-matched by construction):
+//   node scripts/exp-regen-clue-ab.mjs --runIds R1,R2,R3,R4 --flag AGENT6_DT_EVIDENCE_COMPLETENESS \
+//       --agents 6,9
 
 import path from "path";
 import fs from "fs/promises";
@@ -59,10 +64,10 @@ async function runArm(runId, arm, outDir, exp) {
     [exp.flag]: flagValue,
     CANARY_PROSE_DUMP_PATH: dumpPath,
   };
-  console.log(`\n=== ${runId} :: ${arm} (${exp.flag}=${flagValue}) ===`);
+  console.log(`\n=== ${runId} :: ${arm} (${exp.flag}=${flagValue}, agents=${exp.agents}) ===`);
   const child = spawnSync(
     process.execPath,
-    [path.join("scripts", "canary-agent-boundary.mjs"), "--agent", "9", "--runId", runId],
+    [path.join("scripts", "canary-agent-boundary.mjs"), "--agent", exp.agents, "--runId", runId],
     { cwd: root, env, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
   );
   const stdout = String(child.stdout ?? "");
@@ -84,6 +89,7 @@ async function runArm(runId, arm, outDir, exp) {
     runId,
     flag: exp.flag,
     flagValue,
+    agents: exp.agents,
     exitCode,
     status,
     synthesizedAgent7,
@@ -121,7 +127,20 @@ async function main() {
     console.error(`--treatmentValue and --controlValue must differ (both "${treatmentValue}") — a matched pair needs one flag to change.`);
     process.exit(2);
   }
-  const exp = { flag, treatmentValue, controlValue };
+  // Replay boundary. Default "9" (Agent-9-only replay). For an UPSTREAM lever the flagged agent
+  // must run fresh in the chain — e.g. AGENT6_DT_EVIDENCE_COMPLETENESS needs --agents 6,9 (Agent 6
+  // fresh per arm, outline stays hydrated, Agent 9 fresh over the fresh clue schedule). A flag whose
+  // owner never runs fresh makes both arms identical — reject the obvious case below.
+  const agents = String(args.agents ?? "9").trim();
+  if (!/^[0-9a-z]+(,[0-9a-z]+)*$/i.test(agents)) {
+    console.error(`--agents must be a comma-separated agent-code list (got "${agents}"). Example: --agents 6,9`);
+    process.exit(2);
+  }
+  if (/^AGENT6_/.test(flag) && !agents.split(",").includes("6")) {
+    console.error(`--flag ${flag} is an Agent-6 lever but --agents (${agents}) never runs Agent 6 fresh — both arms would be identical. Use --agents 6,9.`);
+    process.exit(2);
+  }
+  const exp = { flag, treatmentValue, controlValue, agents };
 
   // Default the out dir off the flag so different experiments never overwrite each other; the historical
   // AGENT9_REGEN_CLUE experiment keeps its original path.

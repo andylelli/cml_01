@@ -25,6 +25,10 @@ export interface DialogueIdiolectIssue {
   type: "voice_tic_missing" | "voice_tic_leakage";
   message: string;
   speaker?: string;
+  /** RC5.3 repair: on leakage, the NORMALIZED leaked tic — what the regen pass must remove. */
+  tic?: string;
+  /** RC5.3 repair: on leakage, the character whose signature the tic is. */
+  owner?: string;
 }
 
 export interface DialogueIdiolectResult {
@@ -134,7 +138,14 @@ export function validateDialogueIdiolect(
       if (speaker === cap.name) continue;
       if (lines.includes(primaryTic)) {
         ticLeakagePairs += 1;
-        issues.push({ severity: "error", type: "voice_tic_leakage", speaker, message: `${cap.name}'s signature tic appears in ${speaker}'s dialogue (voice-swap / cross-speaker leakage).` });
+        issues.push({
+          severity: "error",
+          type: "voice_tic_leakage",
+          speaker,
+          tic: primaryTic,
+          owner: cap.name,
+          message: `${cap.name}'s signature tic appears in ${speaker}'s dialogue (voice-swap / cross-speaker leakage).`,
+        });
       }
     }
   }

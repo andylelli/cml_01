@@ -71,15 +71,31 @@ const SYNTHESIS_ORDER = ["1", "2", "2e", "3b", "3", "5", "6", "2b", "2c", "2d", 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runId = String(args.runId ?? "").trim();
-  const agentCode = normalizeAgentCode(args.agent);
+  // Chain support (roadmap S11): `--agent 6,9` runs each listed agent FRESH, in pipeline order,
+  // over hydrated artifacts for everything else. This is what lets an upstream lever (e.g.
+  // AGENT6_DT_EVIDENCE_COMPLETENESS) be A/B'd on shipped prose while the Agent-7 outline stays
+  // hydrated-identical across arms — the pair remains matched on chapter count by construction.
+  // NOTE: split on commas BEFORE normalizeAgentCode — it strips punctuation ("6,9" → "69").
+  const agentCodes = dedupeInPipelineOrder(
+    String(args.agent ?? "")
+      .split(",")
+      .map((part) => normalizeAgentCode(part))
+      .filter(Boolean),
+  );
+  // Terminal agent anchors artifact resolution, completeness backstop, and the prose dump.
+  const agentCode = agentCodes[agentCodes.length - 1] ?? null;
   const startChapter = toPositiveInt(args.startChapter) ?? undefined;
 
   if (!runId) {
     throw new Error("runId is required for canary-agent-boundary");
   }
-  if (!agentCode || !AGENT_LABELS[agentCode]) {
-    throw new Error("--agent is required and must be one of: 1,2,2e,3b,3,4,5,6,2b,2c,2d,65,7,9");
+  if (!agentCode || agentCodes.some((code) => !AGENT_LABELS[code])) {
+    throw new Error("--agent is required and must be one (or a comma-separated chain) of: 1,2,2e,3b,3,4,5,6,2b,2c,2d,65,7,9");
   }
+  if (agentCodes.length > 1 && agentCodes.includes("4")) {
+    throw new Error("--agent chains cannot include agent 4 (its boundary check runs standalone only).");
+  }
+  const chainSet = new Set(agentCodes);
 
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
   const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
@@ -111,10 +127,15 @@ async function main() {
     allowMissingAgentRecords: true,
   });
 
+  // Chain members run fresh, so they are excluded from hydration even when another
+  // chain member lists them as required (e.g. 9 requires 6, but a 6,9 chain runs 6 live).
+  const hydrationCodes = [
+    ...new Set(agentCodes.flatMap((code) => REQUIRED_CODES[code] ?? [])),
+  ].filter((code) => !chainSet.has(code));
   const { upstreamByCode, missingRequiredCodes } = await hydrateUpstreamArtifacts({
     runState: artifactBundle.runState,
     runFolder: artifactBundle.runFolder,
-    requiredCodes: REQUIRED_CODES[agentCode] ?? [],
+    requiredCodes: hydrationCodes,
     forceFreshUpstream,
   });
 
@@ -137,17 +158,22 @@ async function main() {
     ctx,
     forceFreshUpstream,
   });
-  await ensureBoundaryContextCompleteness({
-    agentCode,
-    ctx,
-  });
+  if (agentCodes.length === 1) {
+    // Single-agent invocation: identical behaviour to before chains existed.
+    // For chains the backstop runs inside the loop, AFTER earlier chain agents, so a
+    // fresh upstream stage (Agent 6 in a 6,9 chain) is never re-synthesized from stale artifacts.
+    await ensureBoundaryContextCompleteness({
+      agentCode,
+      ctx,
+    });
+  }
 
   if (startChapter) {
     console.log("FROM_CHAPTER", startChapter);
     console.log("CHAPTER_START", startChapter);
   }
 
-  console.log("CANARY_AGENT", AGENT_LABELS[agentCode]);
+  console.log("CANARY_AGENT", agentCodes.map((code) => AGENT_LABELS[code]).join("+"));
   console.log("RUN_ID", artifactBundle.runId);
   console.log("CANARY_INPUTS_FILE", canaryInputConfig.sources.coreInputsPath);
   if (canaryInputConfig.sources.quickRunEnabled && canaryInputConfig.sources.quickRunRequestPath) {
@@ -155,24 +181,30 @@ async function main() {
   }
   console.log("HYDRATED_CODES", Object.keys(upstreamByCode).join(",") || "none");
 
+  const rescueTelemetryCode = chainSet.has("6") ? "6" : agentCode;
   try {
     if (agentCode === "4") {
       await runAgent4BoundaryCheck(ctx);
     } else {
-      await runAgentBoundary(agentCode, ctx);
+      for (const code of agentCodes) {
+        if (agentCodes.length > 1 && code === agentCode) {
+          await ensureBoundaryContextCompleteness({ agentCode: code, ctx });
+        }
+        await runAgentBoundary(code, ctx);
+      }
     }
   } catch (error) {
     emitFirstPassTelemetry(agentCode, ctx);
-    emitAgent6RescueTelemetry(agentCode, ctx);
+    emitAgent6RescueTelemetry(rescueTelemetryCode, ctx);
     throw error;
   }
 
   emitFirstPassTelemetry(agentCode, ctx);
-  emitAgent6RescueTelemetry(agentCode, ctx);
+  emitAgent6RescueTelemetry(rescueTelemetryCode, ctx);
 
   // Additive, env-gated: dump the shipped Agent-9 prose + flag/cost/gate metrics for the
   // AGENT9_REGEN_CLUE A/B harness (scripts/exp-regen-clue-*). Unset ⇒ today's behaviour.
-  if (agentCode === "9" && process.env.CANARY_PROSE_DUMP_PATH) {
+  if (chainSet.has("9") && process.env.CANARY_PROSE_DUMP_PATH) {
     try {
       await writeAgent9ProseDump(ctx, process.env.CANARY_PROSE_DUMP_PATH, artifactBundle.runId);
       console.log("CANARY_PROSE_DUMP", process.env.CANARY_PROSE_DUMP_PATH);
@@ -942,6 +974,18 @@ function wrapNarrative(raw) {
     return raw.outline;
   }
   return { acts: [] };
+}
+
+// Chains must execute in pipeline order regardless of how the caller listed them;
+// SYNTHESIS_ORDER carries every runnable code except 9 (terminal prose) and 4 (standalone check).
+function dedupeInPipelineOrder(codes) {
+  const canonical = [...SYNTHESIS_ORDER, "4", "9"];
+  const unique = [...new Set(codes)];
+  return unique.sort((a, b) => {
+    const ai = canonical.indexOf(a);
+    const bi = canonical.indexOf(b);
+    return (ai === -1 ? canonical.length : ai) - (bi === -1 ? canonical.length : bi);
+  });
 }
 
 function parseAgentCode(input) {

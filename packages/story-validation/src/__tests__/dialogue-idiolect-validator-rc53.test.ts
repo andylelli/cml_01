@@ -40,6 +40,16 @@ describe("validateDialogueIdiolect — leakage (error, ok=false)", () => {
     expect(r.metrics.ticLeakagePairs).toBeGreaterThan(0);
   });
 
+  it("carries the leaked tic + owner on the issue (what the RC5.3 regen pass consumes)", () => {
+    const prose =
+      '"As it happens, I was in the garden," said Beatrice Quill. ' +
+      '"As it happens, so was I," said Hugo Vane.';
+    const leak = validateDialogueIdiolect(capsules, prose).issues.find((i) => i.type === "voice_tic_leakage");
+    expect(leak?.tic).toBe("as it happens"); // normalized — the regen probe matches case-insensitively
+    expect(leak?.owner).toBe("Beatrice Quill");
+    expect(leak?.speaker).toBe("Hugo Vane");
+  });
+
   it("does NOT flag leakage when two speakers keep distinct tics", () => {
     const prose =
       '"As it happens, I was in the garden," said Beatrice Quill. ' +

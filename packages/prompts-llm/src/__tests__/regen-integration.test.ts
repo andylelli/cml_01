@@ -12,6 +12,7 @@ import {
   runClearanceRegenPass,
   runScaffoldRegenPass,
   runMechanismRevealRegenPass,
+  runVoiceLeakageRegenPass,
 } from "../agent9-prose/regen-integration.js";
 import {
   deriveMechanismTerms,
@@ -488,5 +489,131 @@ describe("runMechanismRevealRegenPass — S8 mechanism-too-early de-spoiling (pr
     expect(res.repaired).toEqual([]);
     expect(res.unresolved.length).toBeGreaterThan(0);
     expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
+  });
+});
+
+describe("runVoiceLeakageRegenPass — RC5.3 enforce-with-repair (cross-speaker tic leakage)", () => {
+  // Test oracle standing in for validateDialogueIdiolect (the worker injects the real one):
+  // the tic counts as LEAKED while a James-attributed quote still carries Evelyn's signature phrase.
+  const TIC = "mark my words";
+  const JAMES_LEAK_RE = /"[^"]*mark my words[^"]*"\s*,?\s*(?:said|replied)\s+James/i;
+  const leakedTics = (text: string): string[] => (JAMES_LEAK_RE.test(text) ? [TIC] : []);
+  const leaks = [{ owner: "Evelyn Harcourt", speaker: "James Harcourt", tic: TIC }];
+
+  it("is a no-op (no LLM call) when the tic only appears in its owner's mouth", async () => {
+    const client = { chat: vi.fn() } as any;
+    const clean: ProseChapter = {
+      title: "Ch4",
+      paragraphs: ['"Mark my words, the vicar lied," said Evelyn Harcourt.'],
+    };
+    const res = await runVoiceLeakageRegenPass({
+      chapter: clean, chapterNumber: 4, leaks, bible, regen: makeRegenFn({ client }), leakedTics,
+    });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("REWRITES the wrong speaker's line in their own idiom and reports it repaired", async () => {
+    const leaking: ProseChapter = {
+      title: "Ch4",
+      paragraphs: [
+        "The study smelled of cold ash.",
+        '"Mark my words, the vicar lied," said James Harcourt.',
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch4",
+            paragraphs: [
+              "The study smelled of cold ash.",
+              '"The vicar lied — I would stake the estate on it," said James Harcourt.',
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runVoiceLeakageRegenPass({
+      chapter: leaking, chapterNumber: 4, leaks, bible, regen: makeRegenFn({ client }), leakedTics,
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toEqual(["voice_leak_ch4_1"]);
+    expect(res.unresolved).toEqual([]);
+    // the leak is gone; James still speaks (the line was reworded, not deleted or reassigned)
+    expect(leakedTics(res.chapter.paragraphs.join(" "))).toEqual([]);
+    expect(res.chapter.paragraphs.join(" ")).toMatch(/said James Harcourt/);
+  });
+
+  it("ROLLS BACK a rewrite that clears the leak but drops a locked fact (preservation guard)", async () => {
+    const onUnresolved = vi.fn();
+    const withFact: ProseChapter = {
+      title: "Ch4",
+      paragraphs: [
+        "The clock had stopped at half past three.",
+        '"Mark my words, the vicar lied," said James Harcourt.',
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        // clears the tic BUT silently drops the locked value "half past three"
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch4",
+            paragraphs: [
+              "The clock had stopped.",
+              '"The vicar lied," said James Harcourt.',
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runVoiceLeakageRegenPass({
+      chapter: withFact, chapterNumber: 4, leaks, bible, regen: makeRegenFn({ client }),
+      leakedTics, maxAttemptsPerDefect: 1, onUnresolved,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved).toEqual(["voice_leak_ch4_1"]);
+    expect(onUnresolved).toHaveBeenCalled();
+    expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
+  });
+
+  it("groups the SAME tic leaked into two mouths as one obligation naming both speakers", async () => {
+    const doubleLeakRe = /"[^"]*mark my words[^"]*"\s*,?\s*(?:said|replied)\s+(?:James|Charles)/i;
+    const doubleLeakedTics = (text: string): string[] => (doubleLeakRe.test(text) ? [TIC] : []);
+    const leaking: ProseChapter = {
+      title: "Ch5",
+      paragraphs: [
+        '"Mark my words, the gate was locked," said James Harcourt.',
+        '"Mark my words indeed," replied Charles.',
+      ],
+    };
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch5",
+            paragraphs: [
+              '"The gate was locked — depend upon it," said James Harcourt.',
+              '"Depend upon it indeed," replied Charles.',
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runVoiceLeakageRegenPass({
+      chapter: leaking,
+      chapterNumber: 5,
+      leaks: [
+        { owner: "Evelyn Harcourt", speaker: "James Harcourt", tic: TIC },
+        { owner: "Evelyn Harcourt", speaker: "Charles", tic: TIC },
+      ],
+      bible,
+      regen: makeRegenFn({ client }),
+      leakedTics: doubleLeakedTics,
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toEqual(["voice_leak_ch5_1"]); // ONE grouped obligation, not two
+    expect(client.chat).toHaveBeenCalledTimes(1);
   });
 });

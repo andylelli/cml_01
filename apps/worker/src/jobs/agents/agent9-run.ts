@@ -43,6 +43,7 @@ import {
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
   runMechanismRevealRegenPass,
+  runVoiceLeakageRegenPass,
   makeRegenFn,
   repairCaseSoundness,
   genderMapFromBible,
@@ -4368,18 +4369,62 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   // A_61 RC5.3 — dialogue-distinctiveness (voice idiolect) gate. Verifies the frozen signature tics reach
   // the prose: coverage (each speaker uses their tic) is warn-only; leakage (a tic in the wrong speaker's
-  // mouth) is the strong voice-swap signal. shadow logs telemetry; enforce surfaces leakage as a release
-  // warning. Never aborts (repair-not-abort); attribution is conservative so it can't fail unattributable prose.
+  // mouth) is the strong voice-swap signal. shadow logs telemetry; enforce REPAIRS leakage via the scoped
+  // regen (runVoiceLeakageRegenPass) and surfaces whatever regen cannot clear as a release warning.
+  // Never aborts (repair-not-abort); attribution is conservative so it can't fail unattributable prose.
   if (voiceEnforceMode() !== "off" && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
     try {
       const capsules = ((ctx.characterBundle?.characters ?? []) as any[])
         .map((c) => ({ name: String(c?.name ?? ""), speechTics: String(c?.signatureTic ?? "").trim() ? [String(c.signatureTic).trim()] : [] }))
         .filter((c) => c.name);
-      const proseText = (prose.chapters as any[]).map((ch) => ((ch?.paragraphs ?? []) as string[]).join(" ")).join("\n\n");
+      const chapterTextOf = (ch: any): string => ((ch?.paragraphs ?? []) as string[]).join(" ");
+      const proseText = (prose.chapters as any[]).map(chapterTextOf).join("\n\n");
       const verdict = validateDialogueIdiolect(capsules, proseText);
       ctx.warnings.push(`[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s).`);
-      if (voiceEnforceMode() === "enforce") {
-        for (const issue of verdict.issues.filter((i) => i.severity === "error")) {
+      if (voiceEnforceMode() === "enforce" && !verdict.ok) {
+        // RC5.3 enforce-with-repair — regen each leaking chapter's offending line in the speaker's own
+        // idiom, gated on the SAME validateDialogueIdiolect predicate + locked-fact preservation. Runs
+        // pre-validation/pre-scoring like the other regen passes; unresolved leaks warn exactly as before.
+        const costBeforeVoice = client.getCostTracker().getTotalCost();
+        try {
+          const regenBibleV = { ...worldState, beatSheet: [] };
+          const regenFnV = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+          const leakedTicsIn = (text: string): string[] =>
+            validateDialogueIdiolect(capsules, text).issues
+              .filter((iss) => iss.severity === "error" && iss.type === "voice_tic_leakage")
+              .map((iss) => String(iss.tic ?? ""))
+              .filter(Boolean);
+          for (let i = 0; i < prose.chapters.length; i++) {
+            const chVerdict = validateDialogueIdiolect(capsules, chapterTextOf(prose.chapters[i]));
+            const leaks = chVerdict.issues
+              .filter((iss) => iss.severity === "error" && iss.type === "voice_tic_leakage")
+              .map((iss) => ({ owner: String(iss.owner ?? ""), speaker: String(iss.speaker ?? ""), tic: String(iss.tic ?? "") }));
+            if (leaks.length === 0) continue;
+            const pass = await runVoiceLeakageRegenPass({
+              chapter: prose.chapters[i],
+              chapterNumber: i + 1,
+              leaks,
+              bible: regenBibleV,
+              regen: regenFnV,
+              leakedTics: leakedTicsIn,
+              onUnresolved: (_d, reason) =>
+                ctx.warnings.push(`[Agent 9] regen-voice UNRESOLVED ch${i + 1}: ${reason} (leakage warning stands).`),
+            });
+            if (pass.ran && pass.repaired.length > 0) {
+              prose.chapters[i] = pass.chapter;
+              ctx.warnings.push(`[Agent 9] regen-voice cleared ${pass.repaired.length} cross-speaker tic leak(s) in ch${i + 1}.`);
+            }
+          }
+          prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+        } catch (err) {
+          ctx.warnings.push(`[Agent 9] regen-voice pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+        } finally {
+          const voiceCost = client.getCostTracker().getTotalCost() - costBeforeVoice;
+          if (voiceCost > 0 && typeof prose?.cost === "number") prose.cost += voiceCost;
+        }
+        // Surface whatever still leaks AFTER repair (the pre-repair issues may now be stale).
+        const postVerdict = validateDialogueIdiolect(capsules, (prose.chapters as any[]).map(chapterTextOf).join("\n\n"));
+        for (const issue of postVerdict.issues.filter((i) => i.severity === "error")) {
           ctx.warnings.push(`[Agent 9] voice-idiolect LEAKAGE: ${issue.message}`);
         }
       }
