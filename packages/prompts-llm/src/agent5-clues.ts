@@ -199,6 +199,8 @@ export interface ClueDistributionResult {
   redHerrings: RedHerring[];
   status?: "pass" | "fail";
   audit?: ClueExtractionAudit;
+  /** Parse-boundary anomalies (truncated response, dropped jsonrepair artifacts) for ctx.warnings. */
+  parseWarnings?: string[];
   clueTimeline: {
     early: string[];                // Clue IDs for Act I
     mid: string[];                  // Clue IDs for Act II
@@ -1156,6 +1158,62 @@ Hard retry contract:
 /**
  * Extract and organize clues from validated CML
  */
+/**
+ * Parse the Agent-5 JSON payload, flagging completion-limit truncation. jsonrepair silently CLOSES a
+ * truncated structure, fabricating partial objects from the cut-off tail — run a3c2973f's response
+ * ended `{"id": "clue_` and the repaired parse yielded a phantom clue that survived every downstream
+ * repair pass and hard-stopped the release gate (NSD visibility) 15 minutes later. A merely-sloppy
+ * response (trailing comma, unquoted key) still ends with its closing brace; a truncated one does not.
+ */
+export const parseClueJsonContent = (
+  content: string,
+): { clueData: any; repaired: boolean; truncated: boolean } => {
+  let clueData: any;
+  let repaired = false;
+  try {
+    clueData = JSON.parse(content);
+  } catch {
+    clueData = JSON.parse(jsonrepair(content));
+    repaired = true;
+  }
+  const truncated = repaired && !content.trim().endsWith("}");
+  return { clueData, repaired, truncated };
+};
+
+/** Canonical parsed-clue id shape (mirrors the worker's canonicalizeClueId): a bare "clue_" fails. */
+export const CANONICAL_PARSED_CLUE_ID_RE = /^clue_[a-z0-9_-]+$/i;
+
+/**
+ * Drop structurally incomplete clue entries at the parse boundary — the only layer that knows they
+ * were never real model output. An entry without a canonical id or without a description cannot be
+ * planted, cleared, or anchored; letting it through poisons the clue timeline, the Agent-7 outline,
+ * and the NSD visibility ledger (the run-a3c2973f abort class).
+ */
+export const dropMalformedParsedClues = (
+  rawClues: unknown,
+): { kept: any[]; droppedWarnings: string[] } => {
+  const kept: any[] = [];
+  const droppedWarnings: string[] = [];
+  for (const clue of Array.isArray(rawClues) ? rawClues : []) {
+    const id = String((clue as any)?.id ?? "").trim();
+    const description = String((clue as any)?.description ?? "").trim();
+    if (!CANONICAL_PARSED_CLUE_ID_RE.test(id)) {
+      droppedWarnings.push(
+        `dropped parsed clue with non-canonical id "${id || "(empty)"}" (likely truncation/jsonrepair artifact)`,
+      );
+      continue;
+    }
+    if (!description) {
+      droppedWarnings.push(
+        `dropped parsed clue "${id}" with empty description (likely truncation/jsonrepair artifact)`,
+      );
+      continue;
+    }
+    kept.push(clue);
+  }
+  return { kept, droppedWarnings };
+};
+
 export async function extractClues(
   client: AzureOpenAIClient,
   inputs: ClueExtractionInputs
@@ -1196,23 +1254,26 @@ export async function extractClues(
       },
     });
 
-    const response = await client.chat({
-      model: resolveDesignModel(),
-      messages: [
-        { role: "system", content: prompt.system },
-        { role: "developer", content: prompt.developer },
-        { role: "user", content: prompt.user },
-      ],
-      temperature: config.model.temperature,
-      maxTokens: config.model.max_tokens,
-      jsonMode: true,   // Structured output
-      logContext: {
-        runId,
-        projectId,
-        agent: "Agent5-ClueExtraction",
-        retryAttempt: attempt,
-      },
-    });
+    const callClueModel = (retryAttempt: number) =>
+      client.chat({
+        model: resolveDesignModel(),
+        messages: [
+          { role: "system", content: prompt.system },
+          { role: "developer", content: prompt.developer },
+          { role: "user", content: prompt.user },
+        ],
+        temperature: config.model.temperature,
+        maxTokens: config.model.max_tokens,
+        jsonMode: true,   // Structured output
+        logContext: {
+          runId,
+          projectId,
+          agent: "Agent5-ClueExtraction",
+          retryAttempt,
+        },
+      });
+
+    let response = await callClueModel(attempt);
 
     await logger.logResponse({
       runId,
@@ -1224,15 +1285,38 @@ export async function extractClues(
       latencyMs: response.latencyMs,
     });
 
-    // Parse JSON response
-    let clueData: any;
-    try {
-      clueData = JSON.parse(response.content);
-    } catch {
-      clueData = JSON.parse(jsonrepair(response.content));
+    // Parse JSON response. A truncated payload (completion limit hit mid-clue) gets ONE fresh
+    // retry — jsonrepair would otherwise fabricate phantom entries from the cut-off tail
+    // (run a3c2973f). If the retry is also truncated, keep whichever parse yielded more clues;
+    // dropMalformedParsedClues below removes the fabricated remnants either way.
+    const parseWarnings: string[] = [];
+    let parsed = parseClueJsonContent(response.content);
+    if (parsed.truncated) {
+      parseWarnings.push(
+        `truncated clue JSON detected (response does not close its root object; max_tokens=${config.model.max_tokens}) — retried once`,
+      );
+      const retryResponse = await callClueModel(attempt + 1);
+      const retryParsed = parseClueJsonContent(retryResponse.content);
+      const retryClueCount = Array.isArray(retryParsed.clueData?.clues) ? retryParsed.clueData.clues.length : 0;
+      const firstClueCount = Array.isArray(parsed.clueData?.clues) ? parsed.clueData.clues.length : 0;
+      if (!retryParsed.truncated || retryClueCount > firstClueCount) {
+        response = retryResponse;
+        parsed = retryParsed;
+        parseWarnings.push(
+          retryParsed.truncated
+            ? `retry was also truncated; kept the retry (more clues: ${retryClueCount} > ${firstClueCount})`
+            : "retry returned a complete payload",
+        );
+      } else {
+        parseWarnings.push(
+          `retry was also truncated with no more clues (${retryClueCount} <= ${firstClueCount}); kept the first response`,
+        );
+      }
     }
+    const clueData: any = parsed.clueData;
 
-    const normalizedClues = Array.isArray(clueData?.clues) ? clueData.clues : [];
+    const { kept: normalizedClues, droppedWarnings } = dropMalformedParsedClues(clueData?.clues);
+    parseWarnings.push(...droppedWarnings);
     const normalizedRedHerrings = Array.isArray(clueData?.redHerrings) ? clueData.redHerrings : [];
 
     // WP3D: Deterministically normalize supportsInferenceStep and evidenceType.
@@ -1307,6 +1391,7 @@ export async function extractClues(
       redHerrings: normalizedRedHerrings,
       status: clueData.status === "pass" || clueData.status === "fail" ? clueData.status : undefined,
       audit: clueData.audit && typeof clueData.audit === "object" ? clueData.audit : undefined,
+      parseWarnings: parseWarnings.length > 0 ? parseWarnings : undefined,
       clueTimeline,
       fairPlayChecks,
       latencyMs,

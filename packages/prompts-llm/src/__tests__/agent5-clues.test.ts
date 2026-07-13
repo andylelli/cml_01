@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildCluePrompt } from "../agent5-clues.ts";
+import {
+  buildCluePrompt,
+  parseClueJsonContent,
+  dropMalformedParsedClues,
+  CANONICAL_PARSED_CLUE_ID_RE,
+} from "../agent5-clues.ts";
 
 const summarizePromptParity = (prompt: { developer: string; user: string }) => ({
   developerMarkers: [
@@ -302,5 +307,79 @@ describe("agent5 clue prompt first-pass contract", () => {
     });
 
     expect(prompt.developer).not.toContain("## Fair Play Audit Feedback");
+  });
+});
+
+// ── Parse-boundary hardening (run a3c2973f phantom-clue class) ─────────────────────────────────
+// The LLM hit its completion limit mid-clue; the raw payload ended `{"id": "clue_` and jsonrepair
+// closed it into a phantom clue with no content, which survived every downstream repair and
+// hard-stopped the release gate on NSD visibility. Both halves of the fix are covered here.
+
+describe("parseClueJsonContent — truncation detection", () => {
+  it("clean JSON parses without repair or truncation", () => {
+    const res = parseClueJsonContent('{"clues": [{"id": "clue_1", "description": "A stopped clock."}]}');
+    expect(res.repaired).toBe(false);
+    expect(res.truncated).toBe(false);
+    expect(res.clueData.clues).toHaveLength(1);
+  });
+
+  it("sloppy-but-complete JSON (trailing comma) is repaired but NOT flagged truncated", () => {
+    const res = parseClueJsonContent('{"clues": [{"id": "clue_1", "description": "A stopped clock."},]}');
+    expect(res.repaired).toBe(true);
+    expect(res.truncated).toBe(false);
+  });
+
+  it("a payload cut mid-string (the run-a3c2973f tail) is repaired AND flagged truncated", () => {
+    const truncatedPayload =
+      '{"clues": [{"id": "clue_16", "description": "Edward Fletcher was in the main hall."}, {"id": "clue_';
+    const res = parseClueJsonContent(truncatedPayload);
+    expect(res.repaired).toBe(true);
+    expect(res.truncated).toBe(true);
+    // jsonrepair fabricates the phantom — which is exactly why dropMalformedParsedClues must run
+    const ids = (res.clueData.clues as any[]).map((c) => String(c?.id ?? ""));
+    expect(ids).toContain("clue_16");
+  });
+});
+
+describe("dropMalformedParsedClues — phantom-clue filter", () => {
+  it("drops the exact run-a3c2973f phantom (bare id, no description) and keeps real clues", () => {
+    const { kept, droppedWarnings } = dropMalformedParsedClues([
+      { id: "clue_16", description: "Edward Fletcher was in the main hall.", placement: "mid" },
+      { id: "clue_", evidenceType: "observation" }, // the phantom, post-normalizer shape
+    ]);
+    expect(kept.map((c: any) => c.id)).toEqual(["clue_16"]);
+    expect(droppedWarnings).toHaveLength(1);
+    expect(droppedWarnings[0]).toContain('"clue_"');
+  });
+
+  it("drops a canonical-id clue whose description is empty (unplantable)", () => {
+    const { kept, droppedWarnings } = dropMalformedParsedClues([
+      { id: "clue_17", description: "   " },
+    ]);
+    expect(kept).toHaveLength(0);
+    expect(droppedWarnings[0]).toContain("clue_17");
+  });
+
+  it("keeps named synthetics and hyphen/underscore ids untouched (no false positives)", () => {
+    const clues = [
+      { id: "clue_mechanism_visibility_core", description: "The sundial shadow falls wrong." },
+      { id: "clue_culprit_direct_rupert_langley", description: "Direct evidence ties Rupert to the gnomon." },
+      { id: "clue_late_optional_slot_1", description: "A late texture detail." },
+    ];
+    const { kept, droppedWarnings } = dropMalformedParsedClues(clues);
+    expect(kept).toHaveLength(3);
+    expect(droppedWarnings).toHaveLength(0);
+  });
+
+  it("the canonical regex rejects a bare clue_ but accepts suffixed ids (mirrors the worker gate)", () => {
+    expect(CANONICAL_PARSED_CLUE_ID_RE.test("clue_")).toBe(false);
+    expect(CANONICAL_PARSED_CLUE_ID_RE.test("clue_1")).toBe(true);
+    expect(CANONICAL_PARSED_CLUE_ID_RE.test("clue_core_contradiction_chain")).toBe(true);
+  });
+
+  it("tolerates a non-array input (returns empty, no throw)", () => {
+    const { kept, droppedWarnings } = dropMalformedParsedClues(undefined);
+    expect(kept).toEqual([]);
+    expect(droppedWarnings).toEqual([]);
   });
 });

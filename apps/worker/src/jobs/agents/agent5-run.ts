@@ -3333,6 +3333,10 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
   ctx.agentDurations["agent5_clues"] = Date.now() - cluesStart;
 
+  // Surface parse-boundary anomalies (truncated payload, dropped jsonrepair artifacts — the
+  // run-a3c2973f phantom-clue class) in the run report so a batch review sees them.
+  (clues.parseWarnings ?? []).forEach((w) => ctx.warnings.push(`Agent 5: parse boundary: ${w}`));
+
   ctx.reportProgress("clues", `${clues.clues.length} clues distributed`, 62);
 
   // ── First guardrail pass ───────────────────────────────────────────────────

@@ -465,7 +465,10 @@ export const DEFAULT_CONFIG: GenerationParamsConfig = {
   agent5_clues: {
     status: "implemented",
     params: {
-      model: { temperature: 0.4, max_tokens: 3000 },
+      // 3000 → 6000 (run a3c2973f): 18 detailed clues + red herrings hit the 3000 ceiling and the
+      // payload truncated mid-clue; jsonrepair then fabricated a phantom clue from the tail. The
+      // parser now detects truncation and retries once, but the budget must fit the full payload.
+      model: { temperature: 0.4, max_tokens: 6000 },
     },
   },
   agent6_fairplay: {
