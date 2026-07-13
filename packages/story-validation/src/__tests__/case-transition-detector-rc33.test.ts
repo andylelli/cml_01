@@ -79,6 +79,27 @@ describe("detectMissingCaseTransitionBridge — both directions", () => {
     ])).toEqual([]);
   });
 
+  // Ledger batch finding (tide run) — the transition only exists where death language FIRST enters.
+  it("does NOT fire on victim-timeline reconstruction after the murder is already established", () => {
+    // murder established in ch1; ch8-style reconstruction 'Dr. Finch vanished…' beside ch9 murder vocab
+    expect(detectMissingCaseTransitionBridge([
+      { paragraphs: ["The tide brought the body ashore at dawn; murder was beyond doubt."] },
+      { paragraphs: ["Dr. Finch vanished from the lobby just before eleven, Miss Voss observed."] },
+      { paragraphs: ["If the murder happened at the quarter hour, the alibi collapses."] },
+    ])).toEqual([]);
+  });
+
+  it("STILL fires when death language first enters AFTER the disappearance frame", () => {
+    // three-chapter shape: disappearance ch1-2, death introduced unbridged at ch3
+    const defects = detectMissingCaseTransitionBridge([
+      { paragraphs: ["The household searched the grounds all evening."] },
+      { paragraphs: ["She had been missing since Tuesday, and hope wore thin."] },
+      { paragraphs: ["By morning the inspector called it murder."] },
+    ]);
+    expect(defects).toHaveLength(1);
+    expect(defects[0].chapterNumber).toBe(3);
+  });
+
   it("STILL fires on a genuine person disappearance phrased with the verbs", () => {
     // pronoun subject (case-insensitive branch)
     expect(detectMissingCaseTransitionBridge([

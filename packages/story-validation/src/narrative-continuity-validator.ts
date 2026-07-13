@@ -63,23 +63,30 @@ export interface CaseTransitionDefectLoc {
 
 /**
  * A_61 RC3.3 — chapter-granularity detector: a chapter whose PREDECESSOR frames a person's disappearance
- * and which introduces murder language WITHOUT a bridging body-discovery/confirmation event. Returns one
+ * and which INTRODUCES murder language WITHOUT a bridging body-discovery/confirmation event. Returns one
  * defect per offending chapter (empty = clean). Pure; used by the Agent-9 detect→regen pass.
+ *
+ * Ledger batch finding (run mystery-1783972181080 "tide"): the disappearance→murder TRANSITION concept
+ * only applies where death language FIRST enters the story. Once a murder is established (a body in
+ * chapter 1), later investigative reconstruction — "Dr. Finch vanished from the lobby just before
+ * eleven" beside continuing murder vocabulary — is not a case transition, and person-context guards
+ * cannot save it (it genuinely is a person disappearing). So both this detector and the validator
+ * below flag ONLY the first death-language chapter.
  */
 export function detectMissingCaseTransitionBridge(
   chapters: ReadonlyArray<{ paragraphs?: string[] }>,
 ): CaseTransitionDefectLoc[] {
-  const out: CaseTransitionDefectLoc[] = [];
-  for (let i = 1; i < chapters.length; i += 1) {
-    const prevText = (chapters[i - 1]?.paragraphs ?? []).join(' ');
-    const curParas = chapters[i]?.paragraphs ?? [];
-    const curText = curParas.join(' ');
-    if (hasPersonDisappearance(prevText) && DEATH_TERMS.test(curText) && !BRIDGE_TERMS.test(curText)) {
-      const idx = curParas.findIndex((p) => DEATH_TERMS.test(String(p ?? '')));
-      out.push({ chapterNumber: i + 1, paragraphIndex: Math.max(0, idx) });
-    }
+  const texts = chapters.map((c) => (c?.paragraphs ?? []).join(' '));
+  const firstDeathIdx = texts.findIndex((t) => DEATH_TERMS.test(t));
+  if (firstDeathIdx <= 0) return []; // death frame absent, or present from chapter 1 (no transition)
+  const prevText = texts[firstDeathIdx - 1];
+  const curParas = chapters[firstDeathIdx]?.paragraphs ?? [];
+  const curText = texts[firstDeathIdx];
+  if (hasPersonDisappearance(prevText) && !BRIDGE_TERMS.test(curText)) {
+    const idx = curParas.findIndex((p) => DEATH_TERMS.test(String(p ?? '')));
+    return [{ chapterNumber: firstDeathIdx + 1, paragraphIndex: Math.max(0, idx) }];
   }
-  return out;
+  return [];
 }
 export const ARREST_OR_CONFESSION_TERMS = /\b(arrested|under arrest|confess(?:ed|ion)|admitted\s+it|the\s+culprit\s+was\s+revealed)\b/i;
 export const ROLE_ALIAS_TERMS = /\b(the\s+(killer|murderer|culprit|criminal)|the\s+suspect\s+did\s+it)\b/i;
@@ -111,6 +118,12 @@ export class NarrativeContinuityValidator implements Validator {
     const errors: ValidationError[] = [];
     let sawAmateurInvestigator = false;
 
+    // Ledger batch finding ("tide"): the disappearance→murder transition only exists where death
+    // language FIRST enters the story (shared restriction with detectMissingCaseTransitionBridge).
+    // Once a murder is established, later "X vanished at ten forty-five" is timeline reconstruction,
+    // not a case transition.
+    const firstDeathSceneIdx = story.scenes.findIndex((s) => DEATH_TERMS.test(s.text || ''));
+
     for (let i = 1; i < story.scenes.length; i += 1) {
       const prev = story.scenes[i - 1];
       const current = story.scenes[i];
@@ -124,7 +137,8 @@ export class NarrativeContinuityValidator implements Validator {
       // Roadmap Phase A — use the SHARED person-context condition (same as detectMissingCaseTransitionBridge)
       // so the auto-repair regen fires exactly when this gate would abort, and neither FP-fires on a bare
       // "missing" object. (Was DISAPPEARANCE_TERMS, which diverged from the regen and let runs abort unrepaired.)
-      const crossesDisappearanceToDeath = hasPersonDisappearance(prevText) && DEATH_TERMS.test(currentText);
+      const crossesDisappearanceToDeath =
+        i === firstDeathSceneIdx && hasPersonDisappearance(prevText) && DEATH_TERMS.test(currentText);
       if (crossesDisappearanceToDeath && !BRIDGE_TERMS.test(currentText)) {
         errors.push({
           type: 'missing_case_transition_bridge',

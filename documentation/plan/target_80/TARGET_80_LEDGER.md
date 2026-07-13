@@ -27,6 +27,9 @@
 |---|---|---|---|---|---|---|---|---|---|
 | `a3c2973f` | 2026-07-12 | smoke | **aborted** | 1 / 2 | 59 F (pre-abort) | — | — | £0.29 / 15.4 | Phantom clue `clue_` from truncated Agent-5 JSON + jsonrepair; all 20 real clues visible. Class fixed same day (parse filter + truncation retry + max_tokens 6000 + gate-status fix). |
 | `f90e5f09` | 2026-07-13 | smoke | **shipped** (needs_review; surfaced as `failed` — see Open Item 2) | 0 / 2 | 74 C | **70, `caps_applied: []`** | — | £0.26 / 18.6 | Fixes held: 19/19 clues, no parse warnings, gate status consistent. 1 major = validator FP (Open Item 1). Grounding 5/10 (warn). |
+| `mystery-…1161277` (poison) | 2026-07-13 | **S0-1** | **SHIPPED** (gate `passed`) | 0 / 1 | 74 C | **59, `caps: []`** | — | £0.21 / 17.0 | Clean gate, 19/19 clues. Uncapped but LOW rubric — craft floor across the board (no mark above 7). Grounding 8/10 ✓. `run_outcome=failed` is phase-threshold only. |
+| `mystery-…2181080` (tide) | 2026-07-13 | **S0-2** | **SHIPPED** (gate `warning`) | 0 / 2 | 95 A (phase-weighted) | **66 (raw 70), 3 caps** | — | £0.23 / 19.5 | Caps: deductive-scaffold → prose ≤4; report-style clearance ×2 → prose ≤6 / ending ≤7. Scaffold regen DID fire (Ch1 ×2, Ch10 ×1) — effectiveness question → Open Item 8. Continuity warning = NEW FP class → Open Item 7 (fixed). Grounding 3/10. 17/17 clues. |
+| S0-3 acoustic / S0-4 identity | 2026-07-13 | S0 | *in flight* | | | | | | Same dist as S0-1/2; both may still show the Item-7 warn-level FP (fix landed after launch — warn-only, does not affect ship). |
 
 ---
 
@@ -44,7 +47,7 @@
 | Agent-7 `scene.beat` enum | coercion + persistence live (audited) | 0 | 0 | 0/2 |
 | **Truncated Agent-5 JSON → jsonrepair phantom clue** | parse filter + retry + max_tokens 6000 · **fixed 2026-07-12** | **1 — the abort** | 0 | 1/2 (pre-fix) |
 
-**Ship rate:** 1/2 smoke (abort root-caused and fixed the same day). Post-fix: 1/1.
+**Ship rate:** smoke 1/2 (abort root-caused and fixed the same day). **Post-fix: 3/3 shipped** (f90e5f09, S0-poison, S0-tide) — zero hard stops, zero aborts; every §2 row at 0 occurrences across all post-fix runs.
 
 ---
 
@@ -52,39 +55,39 @@
 
 *Read `caps_applied` + `structural` from the report's `rubric_score` diagnostic. Aborted runs don't count (no honest rubric).*
 
-| Cap | Lever | `f90e5f09` | Batch freq |
-|---|---|---|---|
-| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 (`mechanismExplainedChapter: null`) | 0/1 |
-| `scaffoldHits` | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0/1 |
-| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0/1 |
-| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 (`unplantedEvidence: []`) | 0/1 |
-| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0/1 |
-| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0/1 |
-| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0/1 |
-| `victimUnnamed` / `malformedEvidenceSurfacing` / `dualValueNoContrast` | fixed (landed) | 0 | 0/1 |
-| `weakMurderMethod` | RC3.5 tell · off | 0 | 0/1 |
+| Cap | Lever | `f90e5f09` | poison | tide | Shipped freq |
+|---|---|---|---|---|---|
+| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 | 0 | 0 | 0/3 |
+| `scaffoldHits` | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0 | **1** | **1/3** |
+| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0 | **2** | **1/3** |
+| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 | 0 | 0 | 0/3 |
+| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0 | 0 | 0/3 |
+| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0 | 0 | 0/3 |
+| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0 | 0 | 0/3 |
+| `victimUnnamed` / `malformedEvidenceSurfacing` / `dualValueNoContrast` | fixed (landed) | 0 | 0 | 0 | 0/3 |
+| `weakMurderMethod` | RC3.5 tell · off | 0 | 0 | 0 | 0/3 |
 
-**First shipped run under the full Phase A+B config: zero caps.** Caveat: n=1, and no regen label fired this run except critique/rewrite + atmosphere — the caps may simply not have been provoked. The batch decides.
+**Across 3 shipped runs: only the scaffold/report-style family has fired (tide), and its regen DID attempt** (labels `Regen-Ch1-scaffold_not_prose` ×2, `Regen-Ch10` ×1) — a lever-*effectiveness* question (the rubric's LLM judge reads "report-style" more broadly than the regen's deterministic clear-check), not a wiring bug. → Open Item 8; the P4 A/B measures whether the lever moves the frequency at all.
 
 ---
 
 ## 4. Category Floor  *(ten rubric marks vs the 8.0 each needs; the LAST lift — S14)*
 
-| Category | Target | `f90e5f09` | Δ |
-|---|---|---|---|
-| premise | 8 | 7 | −1 |
-| opening_hook | 8 | **6** | −2 |
-| plot_structure | 8 | 7 | −1 |
-| character_clarity | 8 | 7 | −1 |
-| dialogue | 8 | **6** | −2 |
-| atmosphere | 8 | 8 | ✓ |
-| clues | 8 | 8 | ✓ |
-| pacing | 8 | **6** | −2 |
-| ending | 8 | 8 | ✓ |
-| prose | 8 | 7 | −1 |
-| **Mean** | **8.0** | **7.0** | −1.0 |
+| Category | Target | `f90e5f09` | poison | tide | Mean (3 shipped) |
+|---|---|---|---|---|---|
+| premise | 8 | 7 | **6** | 8 | 7.0 |
+| opening_hook | 8 | **6** | **5** | 7 | **6.0** |
+| plot_structure | 8 | 7 | **6** | **6** | 6.3 |
+| character_clarity | 8 | 7 | **5** | 7 | 6.3 |
+| dialogue | 8 | **6** | **6** | 8 | 6.7 |
+| atmosphere | 8 | 8 | 7 | 8 | 7.7 |
+| clues | 8 | 8 | **5** | **6** | 6.3 |
+| pacing | 8 | **6** | **6** | **5** | **5.7** |
+| ending | 8 | 8 | **6** | 7 | 7.0 |
+| prose | 8 | 7 | 7 | **4** (capped) | 6.0 |
+| **Mean** | **8.0** | 7.0 | 5.9 | 6.6 | **6.5** |
 
-With every cap at 0, the binding constraint is now this floor — **opening_hook, dialogue, pacing (all 6)** are the deepest deficits. That is S14 (craft lift: critique-rewrite targeting, voice enforce, model tiering) territory, and per the roadmap it only reads true once measurement is powered (Phase C).
+The floor is broader than the single smoke run suggested: **pacing (5.7) and opening_hook (6.0) are the deepest consistent deficits**, and poison shows a run can ship perfectly clean yet score 59 on craft alone. Theme matters too — clock-family runs (f90e5f09) score higher than poison/tide, which is exactly why the A/B matches on structure. Craft lift (S14/P5) remains the last-mile answer; per the roadmap it only reads true once measurement is powered.
 
 ---
 
@@ -94,10 +97,12 @@ With every cap at 0, the binding constraint is now this floor — **opening_hook
 |---|---|---|---|
 | 1 | **`PERSON_DISAPPEARANCE_RE` verb-branch FP** — bare `vanished/disappeared` needed person-context (fired on "bravado **vanished** from his posture" + confession-scene murder vocab → spurious `missing_case_transition_bridge` major → gate warning) | validator FP (guardrail #4 family) | **FIXED 2026-07-13 (P0.1)** — verb branch now requires a person noun/pronoun subject (case-insensitive) or honorific+Name (case-sensitive); the exact f90e5f09 sentence is a must-not-match test; 8/8 detector tests green |
 | 2 | **Warnings-only outcome mapping** — gate audit `warning` / validation `needs_review` surfaced as `run_outcome: "failed"`; M1 counts shipped+needs_review as success, so the bookkeeping was ambiguous | definitions / aggregator mapping | **DECIDED + IMPLEMENTED 2026-07-13 (P0.2)** — `release_gate_outcome.status` gains `'warning'` (shipped needs-review); run_outcome stays phase-driven; SHIPPED definition added to this file's header; pinned by 2 tests |
-| 3 | **Rewrite passes can reintroduce cleared defect classes** — transition/mechanism predicates are not in the critique-rewrite / atmosphere-repair acceptance validators; a post-regen rewrite mutated ch8/ch9 text after the transition detector had run | ordering gap (systemic) | deferred — harden rewrite acceptance validators; harmless this run (the "defect" was Item 1's FP) |
+| 3 | **Rewrite passes can reintroduce cleared defect classes** — transition/mechanism predicates were not in the critique-rewrite acceptance validator; a post-regen rewrite mutated ch8/ch9 text after the transition detector had run | ordering gap (systemic) | **FIXED 2026-07-13 (P4.2)** — `buildRewriteAcceptanceValidator` (agent9-run.ts, exported + 6 both-directions tests) adds case-transition (candidate swapped into the chapter snapshot, defects at the rewritten position ±1) and mechanism-too-early predicates; self-baselines via isRegression so pre-existing defects don't block. Atmosphere-repair needs no guard: it runs BEFORE the regen detectors (phrase-level, during generation), so the regens see its output |
 | 4 | **`agent2-cast` below phase threshold both runs** (85 vs threshold) | phase scoring calibration | monitor on batch; non-fatal |
 | 5 | **Scene-grounding coverage below target** (1/10 → 5/10) | craft/warn | monitor; feeds the pacing/atmosphere floor |
 | 6 | **No external (ChatGPT) scores collected yet** — the M3 gap ≤ 3 criterion is unmeasured on every run so far | measurement debt | start collecting on the S0 batch (one external read per shipped run) |
+| 7 | **Victim-timeline reconstruction FP** (tide) — "Dr. Finch **vanished** from the lobby just before eleven" is reconstruction of the victim's last movements, not a case transition; person-context can't exclude it (a person genuinely vanishes) | validator FP, second shape of the Item-1 family | **FIXED 2026-07-13** — the transition check (detector + validator, shared) now applies ONLY where death language FIRST enters the story; once a murder is established, later disappearance phrasing never flags. Tide's exact shape is a must-not-match test; 10/10 detector tests, 371/371 suite. *(Landed after S0-3/4 launched — those two may still show the warn-level FP; discount it when tallying.)* |
+| 8 | **Scaffold/report-style regen effectiveness** (tide) — `AGENT9_REGEN_SCAFFOLD` fired (Ch1 ×2, Ch10 ×1) yet the rubric still capped prose ≤4 / ending ≤7: the LLM judge's "report-style" reading is broader than the regen's deterministic clear-check | lever effectiveness (NOT wiring) | measure in the P4 A/B (`--flag AGENT9_REGEN_SCAFFOLD`); if the lever doesn't move cap frequency, strengthen the pass (prompt/attempts/validator alignment with the rubric's reading) — a POST-A/B change by design |
 
 ---
 
