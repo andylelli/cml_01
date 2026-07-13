@@ -48,6 +48,7 @@ import {
   repairCaseSoundness,
   genderMapFromBible,
   deriveMechanismTerms,
+  chapterFullyExplainsMechanism,
   resolveDiscriminatingTestChapter,
   type ChapterValidator,
   type NarrativeState,
@@ -222,6 +223,54 @@ const isBibleAuthoritativeEnabled = () => parseBooleanEnv(process.env.AGENT9_BIB
 const voiceEnforceMode = (): "off" | "shadow" | "enforce" => {
   const m = String(process.env.AGENT9_VOICE_ENFORCE ?? "off").trim().toLowerCase();
   return m === "enforce" ? "enforce" : m === "shadow" || m === "1" || m === "true" || m === "on" ? "shadow" : "off";
+};
+
+/**
+ * Ledger P4.2 — the critique-rewrite acceptance validator: a creative-temperature rewrite may not
+ * REINTRODUCE defect classes the regen passes (which run BEFORE the rewrite) already cleared.
+ * Evaluated on the original first (critiqueAndRewriteChapter's isRegression), so pre-existing
+ * defects self-baseline: only NEW violations roll a rewrite back.
+ * (a) case-transition: the candidate is swapped into the chapter snapshot and any
+ *     missing_case_transition_bridge defect touching the rewritten position (as the death-side
+ *     chapter, or as the disappearance frame for the NEXT chapter) is a violation.
+ * (b) mechanism-too-early: a pre-discriminating-test chapter must not gain a full mechanism
+ *     explanation (same predicate as the S8 regen and the rubric cap).
+ * Snapshot note: within one pass, earlier accepted rewrites aren't reflected in the snapshot — a
+ * combination defect across two same-pass rewrites still lands on the final release gate.
+ */
+export const buildRewriteAcceptanceValidator = (args: {
+  atomicValues: ReadonlyArray<string>;
+  chapterSnapshot: ReadonlyArray<any>;
+  mechanismTerms: ReadonlyArray<string>;
+  dtChapter: number | null;
+  index: number;
+  original: any;
+}): ((cand: any) => { ok: boolean; score: number; violations: string[] }) => {
+  const presentValues = args.atomicValues.filter((v) =>
+    ((args.original?.paragraphs ?? []) as string[]).join(" ").includes(v),
+  );
+  return (cand: any) => {
+    const text = ((cand?.paragraphs ?? []) as string[]).join(" ");
+    const scaffold = noScaffoldValidator(text);
+    const dropped = presentValues.filter((v) => !text.includes(v));
+    const candList = args.chapterSnapshot.map((ch, i) => (i === args.index ? cand : ch));
+    const transitionViolations = detectMissingCaseTransitionBridge(candList as any)
+      .filter((d) => d.chapterNumber === args.index + 1 || d.chapterNumber === args.index + 2)
+      .map((d) => `case_transition_defect_ch${d.chapterNumber}`);
+    const mechanismViolations =
+      args.mechanismTerms.length > 0 &&
+      args.dtChapter != null &&
+      args.index + 1 < args.dtChapter &&
+      chapterFullyExplainsMechanism(text.toLowerCase(), [...args.mechanismTerms])
+        ? ["mechanism_revealed_early"]
+        : [];
+    const introduced = [...transitionViolations, ...mechanismViolations];
+    return {
+      ok: scaffold.ok && dropped.length === 0 && introduced.length === 0,
+      score: scaffold.score + (presentValues.length - dropped.length) * 10 - introduced.length * 25,
+      violations: [...scaffold.violations, ...dropped.map((v) => `dropped_locked_fact:${v}`), ...introduced],
+    };
+  };
 };
 
 export const buildSyntheticNsdClueAnchor = (
@@ -4453,19 +4502,24 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const name = String(c?.name ?? "").trim();
         if (name) pronouns[name] = g === "male" ? "he/him" : g === "female" ? "she/her" : "they/them";
       }
-      const validatorFor = (_index: number, original: any): ChapterValidator => {
-        const presentValues = atomicValues.filter((v) => (original.paragraphs ?? []).join(" ").includes(v));
-        return (cand) => {
-          const text = (cand.paragraphs ?? []).join(" ");
-          const scaffold = noScaffoldValidator(text);
-          const dropped = presentValues.filter((v) => !text.includes(v));
-          return {
-            ok: scaffold.ok && dropped.length === 0,
-            score: scaffold.score + (presentValues.length - dropped.length) * 10,
-            violations: [...scaffold.violations, ...dropped.map((v) => `dropped_locked_fact:${v}`)],
-          };
-        };
-      };
+      // Ledger P4.2 — a creative-temperature rewrite may not REINTRODUCE defect classes the regen
+      // passes (which run BEFORE this pass) already cleared. The validator is evaluated on the
+      // original first (critiqueAndRewriteChapter's isRegression), so pre-existing defects self-
+      // baseline: only NEW violations roll a rewrite back. Chapter-list snapshot note: within one
+      // pass, earlier accepted rewrites aren't reflected here — a combination defect across two
+      // same-pass rewrites still lands on the final release gate, which is unchanged.
+      const rewriteMechanismTerms = deriveMechanismTerms(String(caseBlock?.hidden_model?.mechanism?.description ?? ""));
+      const rewriteDtChapter = resolveDiscriminatingTestChapter(macroArcPlan);
+      const rewriteChapterSnapshot = (prose.chapters as any[]).slice();
+      const validatorFor = (index: number, original: any): ChapterValidator =>
+        buildRewriteAcceptanceValidator({
+          atomicValues,
+          chapterSnapshot: rewriteChapterSnapshot,
+          mechanismTerms: rewriteMechanismTerms,
+          dtChapter: rewriteDtChapter,
+          index,
+          original,
+        });
       const scored = (ctx.proseChapterScores ?? [])
         .map((s: any) => ({ index: (Number(s?.chapter) || 0) - 1, score: Number(s?.individual_score) || 0 }))
         .filter((s) => s.index >= 0 && s.index < prose.chapters.length);

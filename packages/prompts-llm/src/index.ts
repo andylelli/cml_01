@@ -148,6 +148,7 @@ export {
   pronounsFromBible,
   genderMapFromBible,
   deriveMechanismTerms,
+  chapterFullyExplainsMechanism,
   resolveStageModel,
   runCritiqueRewritePass,
   critiqueAndRewriteChapter,
