@@ -67,6 +67,17 @@ describe("§3.2 golden — validation-gated mutation REVERTS the grounding-lead 
     expect(detectTemplateLeakage("She paused, considered, sighed, nodded, continued.")).toEqual([]);
   });
 
+  it("Item 15: catches the time-injector echo + arc-summary filler, not neutral time phrasing", () => {
+    // The worker's spliced status line and the fillers the model echoes around it.
+    expect(detectTemplateLeakage("The hour stood at nine when the lamps were lit.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("The investigation had entered a new phase.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("The shape of the crime was finally coming into focus.").length).toBeGreaterThan(0);
+    expect(detectTemplateLeakage("Two clues remained, setting the stage for the final confrontation.").length).toBeGreaterThan(0);
+    // Neutral time phrasing must stay clean — the ban is the injector's frame, not clock references.
+    expect(detectTemplateLeakage("The clock read eight.")).toEqual([]);
+    expect(detectTemplateLeakage("It was close to nine when the lamps were lit.")).toEqual([]);
+  });
+
   it("a genuinely lossless mutation (it doesn't regress) IS allowed to ship", () => {
     const addTitle = (p: string): string => p.replace(/^/, ""); // no-op-ish, regresses nothing
     const outcome = mutateThenValidate(cleanChapter, addTitle, noMetadataDumpValidator);

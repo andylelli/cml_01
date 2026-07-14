@@ -6,7 +6,10 @@
  * LLM: (1) COVERAGE — each character with a signature tic uses it (or a speech tic) in ≥1 of their
  * attributed dialogue lines (warn-severity — dialogue attribution is heuristic, so a miss is a nudge, not
  * a failure); (2) LEAKAGE — no character's signature tic appears verbatim in ANOTHER character's attributed
- * line (error-severity — a verbatim tic in the wrong mouth is a strong voice-swap signal).
+ * line (error-severity — a verbatim tic in the wrong mouth is a strong voice-swap signal); (3) OVERUSE —
+ * the primary tic does not recur verbatim ≥4 times across the WHOLE prose (warn-severity — item 14: the
+ * per-chapter prompt mandate compounds into tic spam; counted over the full text, not attributed lines,
+ * because repetition grates regardless of who the heuristic can attribute it to).
  *
  * Attribution is conservative: a quoted span is attributed only when exactly ONE capsule name appears in a
  * tight window around it next to an attribution verb; ambiguous spans are skipped, never misattributed —
@@ -22,10 +25,10 @@ export interface DialogueVoiceCapsule {
 
 export interface DialogueIdiolectIssue {
   severity: "error" | "warn";
-  type: "voice_tic_missing" | "voice_tic_leakage";
+  type: "voice_tic_missing" | "voice_tic_leakage" | "voice_tic_overuse";
   message: string;
   speaker?: string;
-  /** RC5.3 repair: on leakage, the NORMALIZED leaked tic — what the regen pass must remove. */
+  /** RC5.3 repair: on leakage/overuse, the NORMALIZED tic — what the regen pass must remove/thin. */
   tic?: string;
   /** RC5.3 repair: on leakage, the character whose signature the tic is. */
   owner?: string;
@@ -34,8 +37,17 @@ export interface DialogueIdiolectIssue {
 export interface DialogueIdiolectResult {
   ok: boolean;
   issues: DialogueIdiolectIssue[];
-  metrics: { speakersWithTic: number; ticLeakagePairs: number; distinctSignatures: number };
+  metrics: {
+    speakersWithTic: number;
+    ticLeakagePairs: number;
+    distinctSignatures: number;
+    /** Item 14: owners whose primary tic recurs verbatim ≥ TIC_OVERUSE_THRESHOLD times in the whole prose. */
+    ticOveruseSpeakers: string[];
+  };
 }
+
+// Item 14: verbatim whole-text occurrences of one primary tic at or above this count warn as over-use.
+const TIC_OVERUSE_THRESHOLD = 4;
 
 const ATTRIBUTION_VERB =
   /\b(said|asked|murmured|replied|whispered|continued|cried|called|added|began|insisted|admitted|declared|announced|exclaimed|muttered|snapped|observed|remarked|went\s+on|put\s+in)\b/i;
@@ -44,6 +56,18 @@ const normalizeQuotes = (s: string): string =>
   String(s ?? "").replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
 const normalizeForMatch = (s: string): string => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Non-overlapping occurrence count of a normalized needle in a normalized haystack. */
+const countOccurrences = (haystack: string, needle: string): number => {
+  if (!needle) return 0;
+  let count = 0;
+  let idx = haystack.indexOf(needle);
+  while (idx !== -1) {
+    count += 1;
+    idx = haystack.indexOf(needle, idx + needle.length);
+  }
+  return count;
+};
 
 const surnameOf = (fullName: string): string => {
   const t = String(fullName ?? "").trim().split(/\s+/).filter(Boolean);
@@ -99,7 +123,8 @@ function attributedSpans(prose: string, matchers: NameMatcher[]): AttributedSpan
 
 /**
  * Verify dialogue idiolect in the assembled prose. `ok` is false only on LEAKAGE (a verbatim tic in the
- * wrong speaker's mouth). Missing coverage is warn-only. Empty capsules or prose → ok:true (nothing to gate).
+ * wrong speaker's mouth). Missing coverage and over-use are warn-only. Empty capsules or prose → ok:true
+ * (nothing to gate).
  */
 export function validateDialogueIdiolect(
   capsules: ReadonlyArray<DialogueVoiceCapsule>,
@@ -108,7 +133,7 @@ export function validateDialogueIdiolect(
   const issues: DialogueIdiolectIssue[] = [];
   const withTic = (capsules ?? []).filter((c) => c?.name && Array.isArray(c.speechTics) && normalizeForMatch(c.speechTics[0]).length >= 3);
   if (withTic.length === 0 || !String(prose ?? "").trim()) {
-    return { ok: true, issues, metrics: { speakersWithTic: 0, ticLeakagePairs: 0, distinctSignatures: withTic.length } };
+    return { ok: true, issues, metrics: { speakersWithTic: 0, ticLeakagePairs: 0, distinctSignatures: withTic.length, ticOveruseSpeakers: [] } };
   }
   const matchers = buildNameMatchers(capsules);
   const spans = attributedSpans(prose, matchers);
@@ -116,9 +141,13 @@ export function validateDialogueIdiolect(
   for (const s of spans) {
     bySpeaker.set(s.speaker, `${bySpeaker.get(s.speaker) ?? ""}  ${normalizeForMatch(s.text)}`);
   }
+  // OVERUSE is counted over the WHOLE prose (narration + all quotes), not attributed spans — the
+  // attribution heuristic skipping a line must not let verbatim tic spam through un-warned.
+  const wholeText = normalizeForMatch(normalizeQuotes(prose));
 
   let speakersWithTic = 0;
   let ticLeakagePairs = 0;
+  const ticOveruseSpeakers: string[] = [];
 
   for (const cap of withTic) {
     const primaryTic = normalizeForMatch(cap.speechTics[0]);
@@ -131,6 +160,20 @@ export function validateDialogueIdiolect(
     else if (ownLines) {
       // only nudge when we DID attribute lines to them (else we simply couldn't attribute — no signal)
       issues.push({ severity: "warn", type: "voice_tic_missing", speaker: cap.name, message: `${cap.name} does not use their signature tic in any attributed dialogue line.` });
+    }
+
+    // OVERUSE (warn): the primary tic recurs verbatim across the whole prose. Warn-only — never flips
+    // ok — because frequency is a style nudge for the regen pass, not a hard voice-integrity failure.
+    const verbatimUses = countOccurrences(wholeText, primaryTic);
+    if (verbatimUses >= TIC_OVERUSE_THRESHOLD) {
+      ticOveruseSpeakers.push(cap.name);
+      issues.push({
+        severity: "warn",
+        type: "voice_tic_overuse",
+        speaker: cap.name,
+        tic: primaryTic,
+        message: `${cap.name}'s signature tic appears verbatim ${verbatimUses} times across the prose (threshold ${TIC_OVERUSE_THRESHOLD}) — thin to at most one use per chapter, paraphrased where possible.`,
+      });
     }
 
     // LEAKAGE (error): the primary tic appears verbatim in another speaker's attributed line.
@@ -153,6 +196,6 @@ export function validateDialogueIdiolect(
   return {
     ok: ticLeakagePairs === 0,
     issues,
-    metrics: { speakersWithTic, ticLeakagePairs, distinctSignatures: withTic.length },
+    metrics: { speakersWithTic, ticLeakagePairs, distinctSignatures: withTic.length, ticOveruseSpeakers },
   };
 }

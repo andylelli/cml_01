@@ -129,8 +129,14 @@ export interface ExtractStoryFactsOptions {
   discriminatingPair?: DiscriminatingPairInput | null;
 }
 
+/** Deterministic pronoun-instability evidence attached alongside `StoryFacts.pronounsUnstable`. */
+export type StoryFactsWithEvidence = StoryFacts & {
+  /** Offending sentences (chapter-labelled) behind a deterministic pronounsUnstable=true. */
+  pronounInstabilityEvents?: string[];
+};
+
 /** The exact facts: role collisions, template leakage, victim-unnamed. Everything else stays for the judge. */
-export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStoryFactsOptions = {}): StoryFacts {
+export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStoryFactsOptions = {}): StoryFactsWithEvidence {
   const caseData = unwrapCase(cml);
   const cast = caseData.cast ?? [];
   const culprits = (caseData.culpability?.culprits ?? []).map((c) => norm(String(c)));
@@ -158,7 +164,7 @@ export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStor
     asString(caseAny.culpability?.victim?.name) ||
     undefined;
 
-  const facts: StoryFacts = {};
+  const facts: StoryFactsWithEvidence = {};
   if (victimName) {
     facts.culpritIsVictim = culprits.includes(norm(victimName)); // accidental culprit==victim collision
     if (detective?.name) facts.victimIsInvestigator = norm(detective.name) === norm(victimName);
@@ -197,6 +203,30 @@ export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStor
   if (opts.discriminatingPair && detectDualValueNoContrast(prose, opts.discriminatingPair)) {
     facts.dualValueNoContrast = true;
   }
+
+  // pronounsUnstable — deterministic (pronoun_policy "verify"): the same two high-precision drift
+  // detectors story-validation runs (attribution-flip, impossible-self-reference), applied per chapter.
+  // "Unstable" = a repeated defect: only set true on >= 2 confirmed events across >= 2 distinct
+  // chapters; below that threshold the flag is left UNSET so the (citation-gated) judge still decides —
+  // the detectors are precision-first and deliberately low-recall.
+  const genderedCast = cast
+    .map((c) => ({ name: String(c.name ?? "").trim(), gender: c.gender }))
+    .filter((c) => c.name && normalizePronounGender(c.gender));
+  if (genderedCast.length > 0) {
+    const events: string[] = [];
+    const chaptersWithEvents = new Set<number>();
+    splitProseForPronounScan(prose).forEach((chapterText, i) => {
+      for (const ev of detectPronounDriftEventsLocal(chapterText, genderedCast)) {
+        chaptersWithEvents.add(i + 1);
+        events.push(`ch${i + 1} [${ev.kind}] ${ev.characterName}: "${ev.sentence}"`);
+      }
+    });
+    if (events.length >= 2 && chaptersWithEvents.size >= 2) {
+      facts.pronounsUnstable = true;
+      facts.pronounInstabilityEvents = events.slice(0, 10);
+    }
+  }
+
   return facts;
 }
 
@@ -221,7 +251,7 @@ function allIndexes(haystack: string, needle: string): number[] {
  * and lacking a contrast connective in that window. A story that properly frames the contrast
  * ("the watch read X, yet the shadow could only fall that way at Y") is NOT flagged.
  */
-function detectDualValueNoContrast(prose: string, pair: { values: [string, string] }): boolean {
+export function detectDualValueNoContrast(prose: string, pair: { values: [string, string] }): boolean {
   const a = String(pair.values?.[0] ?? "").trim().toLowerCase();
   const b = String(pair.values?.[1] ?? "").trim().toLowerCase();
   if (!a || !b || a === b) return false;
@@ -264,6 +294,236 @@ function detectMalformedSurfacing(prose: string): string[] {
   return hits;
 }
 
+// ---------------------------------------------------------------------------
+// Pronoun-drift detector kernel — LOCAL REPLICA.
+// Source of truth: packages/story-validation/src/prose-consistency-validator.ts
+// (detectPronounDriftEvents / detectAttributionFlips / detectImpossibleSelfReferences).
+// rubric-score cannot depend on story-validation (the established pattern — see
+// nameAliasesForMatch above), so the predicate is replicated minimally here. Keep in sync.
+// ---------------------------------------------------------------------------
+
+interface PronounDriftEventLocal {
+  kind: "attribution_flip" | "impossible_self_reference";
+  characterName: string;
+  sentence: string;
+}
+
+type PronounGender = "male" | "female";
+
+function normalizePronounGender(gender: string | undefined): PronounGender | null {
+  const g = (gender ?? "").trim().toLowerCase();
+  return g === "male" || g === "female" ? g : null;
+}
+
+// Past-tense speech verbs only — prose is past tense.
+const PRONOUN_SPEECH_VERBS =
+  "said|asked|replied|observed|answered|added|continued|murmured|muttered|whispered|remarked|noted|" +
+  "countered|insisted|agreed|admitted|conceded|pressed|urged|demanded|snapped|sighed|offered|ventured|" +
+  "began|repeated|echoed|announced|declared|explained|protested|warned|corrected|mused|responded|" +
+  "interjected|interrupted|confirmed|suggested";
+
+const PRONOUN_SELF_NOUNS =
+  "gloves?|hat|coat|jacket|waistcoat|collar|cuffs?|tie|cravat|spectacles|monocle|hair|moustache|mustache|" +
+  "beard|brow|forehead|eyes?|jaw|chin|lips?|mouth|throat|voice|breath|composure|temper|gaze|expression|" +
+  "hands?|fingers?|palms?|shoulders?|arms?|knees?|sleeves?|pockets?|watch|cane|pipe|notebook|notes|pen|" +
+  "skirts?|gown|dress|shawl|scarf|handbag|umbrella|glasses|shoes?|boots?";
+
+const PRONOUN_NAME_TITLES = new Set([...NAME_TITLES, "inspector", "sergeant", "constable"]);
+
+/** Strip balanced quoted dialogue (mirrors story-validation's stripDialogueFromWindow). */
+function stripQuotedDialogue(text: string): string {
+  return text
+    .replace(/“[^”]*”/g, " ")
+    .replace(/"[^"]{0,300}"/g, " ");
+}
+
+/** Narration-only scan window: balanced strip, then cut dangling open/close quote segments. */
+function pronounNarrationOnly(window: string): string {
+  let s = stripQuotedDialogue(window);
+  const firstDanglingClose = s.indexOf("”");
+  if (firstDanglingClose !== -1) s = s.slice(firstDanglingClose + 1);
+  const lastDanglingOpen = Math.max(s.lastIndexOf('"'), s.lastIndexOf("“"));
+  if (lastDanglingOpen !== -1) s = s.slice(0, lastDanglingOpen);
+  return s;
+}
+
+/** Gendered name-token index; ambiguous tokens (both genders) are dropped — precision first. */
+function buildPronounTokenIndex(
+  cast: Array<{ name: string; gender?: string }>,
+): Map<string, { name: string; gender: PronounGender }> {
+  const index = new Map<string, { name: string; gender: PronounGender }>();
+  const ambiguous = new Set<string>();
+  for (const member of cast) {
+    const gender = normalizePronounGender(member.gender);
+    const name = String(member.name ?? "").trim();
+    if (!gender || !name) continue;
+    for (const rawToken of name.split(/\s+/)) {
+      const token = rawToken.replace(/\.$/, "").toLowerCase();
+      if (token.length < 3 || PRONOUN_NAME_TITLES.has(token)) continue;
+      const existing = index.get(token);
+      if (existing && existing.gender !== gender) {
+        ambiguous.add(token);
+        continue;
+      }
+      if (!existing) index.set(token, { name, gender });
+    }
+  }
+  for (const token of ambiguous) index.delete(token);
+  return index;
+}
+
+/** Detector (a) — attribution flip. See source of truth for the full contract. */
+function detectAttributionFlipsLocal(
+  text: string,
+  tokenIndex: Map<string, { name: string; gender: PronounGender }>,
+): PronounDriftEventLocal[] {
+  const events: PronounDriftEventLocal[] = [];
+  const tagPattern = new RegExp(`["\\u201D]\\s*(he|she)\\s+(?:${PRONOUN_SPEECH_VERBS})\\b`, "gi");
+  let tag: RegExpExecArray | null;
+  while ((tag = tagPattern.exec(text)) !== null) {
+    if (text[tag.index] === '"') {
+      const quotesThrough = (text.slice(0, tag.index + 1).match(/"/g) ?? []).length;
+      if (quotesThrough % 2 !== 0) continue; // opening quote → tag pronoun is inside dialogue
+    }
+    const tagGender: PronounGender = tag[1].toLowerCase() === "he" ? "male" : "female";
+
+    let windowStart = 0;
+    const currentBoundary = text.lastIndexOf("\n\n", tag.index);
+    if (currentBoundary !== -1) {
+      const previousBoundary = text.lastIndexOf("\n\n", currentBoundary - 1);
+      windowStart = previousBoundary === -1 ? 0 : previousBoundary + 2;
+    }
+    const narration = pronounNarrationOnly(text.slice(windowStart, tag.index));
+
+    let nearest: { pos: number; gender: PronounGender } | null = null;
+    let nearestOppositeName: { pos: number; name: string } | null = null;
+    let sameGenderNamePresent = false;
+    for (const [token, info] of tokenIndex) {
+      const namePattern = new RegExp(`\\b${escapeReForName(token)}\\b`, "gi");
+      let nameMatch: RegExpExecArray | null;
+      while ((nameMatch = namePattern.exec(narration)) !== null) {
+        if (info.gender === tagGender) sameGenderNamePresent = true;
+        if (!nearest || nameMatch.index > nearest.pos) nearest = { pos: nameMatch.index, gender: info.gender };
+        if (info.gender !== tagGender && (!nearestOppositeName || nameMatch.index > nearestOppositeName.pos)) {
+          nearestOppositeName = { pos: nameMatch.index, name: info.name };
+        }
+      }
+    }
+    const subjectPronounPattern = /\b(he|she)\b/gi;
+    let pronounMatch: RegExpExecArray | null;
+    while ((pronounMatch = subjectPronounPattern.exec(narration)) !== null) {
+      const gender: PronounGender = pronounMatch[1].toLowerCase() === "he" ? "male" : "female";
+      if (!nearest || pronounMatch.index > nearest.pos) nearest = { pos: pronounMatch.index, gender };
+    }
+
+    if (!nearest) continue;
+    if (nearest.gender === tagGender) continue;
+    if (sameGenderNamePresent) continue;
+    if (!nearestOppositeName) continue;
+
+    const snippet = text
+      .slice(Math.max(0, tag.index - 120), Math.min(text.length, tag.index + tag[0].length + 60))
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
+    events.push({ kind: "attribution_flip", characterName: nearestOppositeName.name, sentence: snippet });
+  }
+  return events;
+}
+
+/** Detector (b) — impossible self-reference. See source of truth for the full contract. */
+function detectImpossibleSelfReferencesLocal(
+  text: string,
+  tokenIndex: Map<string, { name: string; gender: PronounGender }>,
+): PronounDriftEventLocal[] {
+  const events: PronounDriftEventLocal[] = [];
+  const subjectPattern = /^\s*((?:[A-Z][A-Za-z'\-]*\.?\s+){0,2}[A-Z][A-Za-z'\-]*)/;
+
+  for (const paragraph of text.split(/\n\s*\n/)) {
+    const narration = stripQuotedDialogue(paragraph);
+    const paragraphLower = narration.toLowerCase();
+
+    for (const sentence of narration.split(/(?<=[.!?])\s+/)) {
+      const subjectMatch = sentence.match(subjectPattern);
+      if (!subjectMatch) continue;
+      const candidateTokens = subjectMatch[1]
+        .split(/\s+/)
+        .map((t) => t.replace(/\.$/, "").toLowerCase())
+        .filter((t) => t.length >= 3 && !PRONOUN_NAME_TITLES.has(t));
+      let subject: { name: string; gender: PronounGender } | null = null;
+      for (const candidate of candidateTokens) {
+        const info = tokenIndex.get(candidate);
+        if (info) { subject = info; break; }
+      }
+      if (!subject) continue;
+
+      const wrongGender: PronounGender = subject.gender === "male" ? "female" : "male";
+      const wrongReflexive = subject.gender === "female" ? "himself" : "herself";
+      const wrongPossessive = subject.gender === "female" ? "his" : "her";
+      const intervener = subject.gender === "female" ? /\b(he|him)\b/i : /\bshe\b/i;
+
+      const rest = sentence.slice((subjectMatch.index ?? 0) + subjectMatch[0].length);
+      const reflexiveMatch = new RegExp(`\\b${wrongReflexive}\\b`, "i").exec(rest);
+      const possessiveMatch = new RegExp(`\\b${wrongPossessive}\\s+(?:own\\s+)?(?:${PRONOUN_SELF_NOUNS})\\b`, "i").exec(rest);
+      const hit =
+        reflexiveMatch && (!possessiveMatch || reflexiveMatch.index <= possessiveMatch.index)
+          ? reflexiveMatch
+          : possessiveMatch;
+      if (!hit) continue;
+      if (intervener.test(rest.slice(0, hit.index))) continue;
+
+      let wrongGenderCastPresent = false;
+      for (const [token, info] of tokenIndex) {
+        if (info.gender !== wrongGender) continue;
+        if (new RegExp(`\\b${escapeReForName(token)}\\b`).test(paragraphLower)) { wrongGenderCastPresent = true; break; }
+      }
+      if (wrongGenderCastPresent) continue;
+
+      events.push({
+        kind: "impossible_self_reference",
+        characterName: subject.name,
+        sentence: sentence.replace(/\s+/g, " ").trim().slice(0, 200),
+      });
+    }
+  }
+  return events;
+}
+
+function detectPronounDriftEventsLocal(
+  text: string,
+  cast: Array<{ name: string; gender?: string }>,
+): PronounDriftEventLocal[] {
+  const tokenIndex = buildPronounTokenIndex(cast);
+  if (tokenIndex.size === 0) return [];
+  return [
+    ...detectAttributionFlipsLocal(text, tokenIndex),
+    ...detectImpossibleSelfReferencesLocal(text, tokenIndex),
+  ];
+}
+
+/**
+ * Chapter split for the pronoun scan. Source of truth: splitProseIntoChapters in
+ * ./structural-verifiers.ts — replicated (same heading regex) because structural-verifiers
+ * imports THIS module and a back-import would create a cycle.
+ */
+function splitProseForPronounScan(prose: string): string[] {
+  const text = String(prose ?? "");
+  if (!text.trim()) return [];
+  const re = /^\s*chapter\s+(?:\d+|[ivxlcdm]+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b.*$/gim;
+  const indices: number[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) indices.push(m.index);
+  if (indices.length === 0) return [text];
+  const chunks: string[] = [];
+  if (indices[0] > 0 && text.slice(0, indices[0]).trim()) chunks.push(text.slice(0, indices[0]));
+  for (let i = 0; i < indices.length; i++) {
+    const start = indices[i];
+    const end = i + 1 < indices.length ? indices[i + 1] : text.length;
+    chunks.push(text.slice(start, end));
+  }
+  return chunks;
+}
+
 /** Merge deterministic facts with judge-supplied semantic flags (the deterministic ones win for the exact caps). */
 export function mergeFacts(deterministic: StoryFacts, fromJudge: StoryFacts = {}): StoryFacts {
   return {
@@ -274,7 +534,10 @@ export function mergeFacts(deterministic: StoryFacts, fromJudge: StoryFacts = {}
     deadVictimIsCulprit: fromJudge.deadVictimIsCulprit ?? deterministic.deadVictimIsCulprit,
     victimIdentityUnclear: fromJudge.victimIdentityUnclear ?? deterministic.victimIdentityUnclear,
     multipleRoleChanges: fromJudge.multipleRoleChanges ?? deterministic.multipleRoleChanges,
-    pronounsUnstable: fromJudge.pronounsUnstable ?? deterministic.pronounsUnstable,
+    // pronounsUnstable now has a deterministic extractor (drift detectors, >=2 events / >=2 chapters);
+    // when it speaks (only ever `true`) it WINS over the judge. It stays unset below threshold, so the
+    // citation-gated judge still decides for defects the precision-first detectors cannot see.
+    pronounsUnstable: deterministic.pronounsUnstable ?? fromJudge.pronounsUnstable,
     culpritConfessesTamperingOnly: fromJudge.culpritConfessesTamperingOnly ?? deterministic.culpritConfessesTamperingOnly,
     revealUsesUnplantedEvidence: fromJudge.revealUsesUnplantedEvidence ?? deterministic.revealUsesUnplantedEvidence,
     mechanismExplainedTooEarly: fromJudge.mechanismExplainedTooEarly ?? deterministic.mechanismExplainedTooEarly,

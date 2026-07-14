@@ -15,7 +15,7 @@ import {
 import type { ValidatorResult } from "@cml/prose-guard";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { StoryBible, ChapterBeat } from "../story-bible.js";
-import { chapterMentionsRequiredClue, RESOLUTION_RE } from "./clue-validation.js";
+import { chapterMentionsRequiredClue, resolveClueObligationState, RESOLUTION_RE } from "./clue-validation.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "./types.js";
 import { runRegenRepair } from "./regen-repair.js";
 import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./regen-repair.js";
@@ -68,13 +68,21 @@ export function embargoForBeat(bible: Pick<StoryBible, "culprits">, beat: Chapte
   return out;
 }
 
+/**
+ * The A1 early-clue lead emitted by deterministic-repair.ts (and matched by prose-guard's
+ * `A1:laid_facts_out` detector). MUST stay byte-identical to both — the scaffold override below keys
+ * off its presence in the defect detail.
+ */
+const A1_EARLY_CLUE_LEAD = "laid the facts out plainly where the others could see them";
+
 /** Map a defect kind to a concrete in-scene instruction for the model. */
 export function instructionForDefect(defect: ProseDefect): string {
   const ref = defect.obligationRef ? ` (${defect.obligationRef})` : "";
   switch (defect.kind) {
     case "missing_clue":
-    case "clue_too_late":
       return `Plant the required clue${ref} in this chapter as a concrete in-scene observation a character sees, does, or says — not as a summary. Detail: ${defect.detail}`;
+    case "clue_too_late":
+      return `The required clue${ref} surfaces too late in this chapter. ADD a concrete in-scene observation of it within the FIRST QUARTER of the chapter — something a character sees, does, or says inside the ongoing scene, not a summary — and keep the existing later mention intact. Detail: ${defect.detail}`;
     case "missing_clearance":
       return `Dramatize the clearance of ${defect.obligationRef ?? "this suspect"} as a witnessed deduction (where they were, who saw them) — not a verdict. Detail: ${defect.detail}`;
     case "missing_resolution":
@@ -82,6 +90,12 @@ export function instructionForDefect(defect: ProseDefect): string {
     case "culprit_unlinked":
       return `Connect the culprit to the means and method through evidence already on the page, dramatized — not asserted. Detail: ${defect.detail}`;
     case "scaffold_not_prose":
+      // The A1 early-clue lead: a free rewrite dramatizes it as the investigator ANNOUNCING the case
+      // to assembled listeners (the reveal-style chapter opening). Constrain the rewrite to a private,
+      // in-scene noticing instead.
+      if (defect.detail.toLowerCase().includes(A1_EARLY_CLUE_LEAD)) {
+        return `Rewrite the flagged sentence(s) so the investigator PRIVATELY notices or examines the evidence inside the ongoing scene, preserving the underlying fact(s). Do NOT stage the investigator announcing conclusions or presenting the case to assembled listeners, and do NOT summarize what is known. Detail: ${defect.detail}`;
+      }
       return `Rewrite the flagged deductive-scaffold sentence(s) as grounded in-scene prose, preserving the underlying fact. Detail: ${defect.detail}`;
     case "missing_case_transition_bridge":
       return `Insert an explicit body-discovery / confirmation / identification bridge that reclassifies the missing-person case as murder BEFORE any murder language appears — a concrete, witnessed discovery event, not a summary. Detail: ${defect.detail}`;
@@ -148,6 +162,24 @@ const cluePresenceValidator =
   (c: ProseChapter): ValidatorResult => {
     const present = chapterMentionsRequiredClue(chapterText(c), clueId, clueDistribution, castNames);
     return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`missing_clue:${clueId}`] };
+  };
+
+/**
+ * Early-placement check for one required clue, for the composed validator. Dereferences the SAME
+ * composite the deterministic floor keys off (`resolveClueObligationState().isEarlyEnough` — i.e.
+ * chapterClueAppearsEarly plus the context-only fallback), so a regen that passes here provably
+ * pre-empts the early-clue prepend in `applyDeterministicCluePatch`. Not re-derived.
+ */
+const clueEarlyPlacementValidator =
+  (
+    clueId: string,
+    ledgerEntry: ChapterRequirementLedgerEntry,
+    clueDistribution?: ClueDistributionResult,
+    castNames?: string[],
+  ) =>
+  (c: ProseChapter): ValidatorResult => {
+    const early = resolveClueObligationState(c, ledgerEntry, clueId, clueDistribution, castNames).isEarlyEnough;
+    return { ok: early, score: early ? 100 : 0, violations: early ? [] : [`clue_too_late:${clueId}`] };
   };
 
 const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -242,10 +274,13 @@ export type ClueRegenPassResult = InsertionRegenPassResult;
 
 /**
  * P3.3 — the clue-miss regen pass (the A1 replacement). Detects required clues absent from the chapter
- * via the SAME presence check the deterministic patch uses, then runs the general insertion-regen pass.
+ * via the SAME presence check the deterministic patch uses — and required EARLY clues that are present
+ * but fail the early-placement check (the other trigger of the deterministic prepend) — then runs the
+ * general insertion-regen pass.
  *
  * Ordering contract: run BEFORE `repairChapterDeterministically` so a successful plant makes the clue
- * present and the deterministic A1 patch does not inject (A1 demoted to the logged emergency floor).
+ * present (and early, for `clue_too_late`) and the deterministic A1 patch does not inject (A1 demoted
+ * to the logged emergency floor).
  */
 export async function runClueRegenPass(args: {
   chapter: ProseChapter;
@@ -257,31 +292,57 @@ export async function runClueRegenPass(args: {
   maxAttemptsPerDefect?: number;
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
 }): Promise<ClueRegenPassResult> {
-  const requiredClueIds = args.ledgerEntry?.requiredClueIds ?? [];
+  const ledgerEntry = args.ledgerEntry;
+  const requiredClueIds = ledgerEntry?.requiredClueIds ?? [];
   const missing = requiredClueIds.filter(
     (id) => !chapterMentionsRequiredClue(chapterText(args.chapter), id, args.clueDistribution, args.castNames),
   );
-  if (missing.length === 0) {
+  // Present-but-late early clues must reach the LLM path too: otherwise the deterministic floor is the
+  // first thing to touch them, and its early-clue block is what the scaffold regen later dramatizes
+  // into a reveal-style chapter opening. Same composite predicate the floor's trigger uses.
+  const tooLate = ledgerEntry
+    ? requiredClueIds.filter((id) => {
+        if (missing.includes(id)) return false;
+        const state = resolveClueObligationState(args.chapter, ledgerEntry, id, args.clueDistribution, args.castNames);
+        return state.placement === "early" && state.isPresent && !state.isEarlyEnough;
+      })
+    : [];
+  if (missing.length === 0 && tooLate.length === 0) {
     return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
   }
-  const chapterNumber = args.ledgerEntry?.chapterNumber ?? 0;
-  const ctxById = new Map((args.ledgerEntry?.clueObligationContext ?? []).map((c) => [c.id, c]));
-  const defects: ProseDefect[] = missing.map((id) => {
-    const ctx = ctxById.get(id);
-    return {
-      chapter: chapterNumber,
-      kind: "missing_clue" as const,
-      detail: ctx?.description || ctx?.deliveryMethod || `required clue ${id} is absent`,
-      obligationRef: id,
-      severity: "hard" as const,
-    };
-  });
+  const chapterNumber = ledgerEntry?.chapterNumber ?? 0;
+  const ctxById = new Map((ledgerEntry?.clueObligationContext ?? []).map((c) => [c.id, c]));
+  const defects: ProseDefect[] = [
+    ...missing.map((id) => {
+      const ctx = ctxById.get(id);
+      return {
+        chapter: chapterNumber,
+        kind: "missing_clue" as const,
+        detail: ctx?.description || ctx?.deliveryMethod || `required clue ${id} is absent`,
+        obligationRef: id,
+        severity: "hard" as const,
+      };
+    }),
+    ...tooLate.map((id) => {
+      const ctx = ctxById.get(id);
+      return {
+        chapter: chapterNumber,
+        kind: "clue_too_late" as const,
+        detail: `${ctx?.description || `required clue ${id}`} — present, but only after the first quarter of the chapter`,
+        obligationRef: id,
+        severity: "hard" as const,
+      };
+    }),
+  ];
   return runInsertionRegenPass({
     chapter: args.chapter,
     defects,
     bible: args.bible,
     regen: args.regen,
-    presenceValidatorFor: (d) => cluePresenceValidator(d.obligationRef ?? "", args.clueDistribution, args.castNames),
+    presenceValidatorFor: (d) =>
+      d.kind === "clue_too_late" && ledgerEntry
+        ? clueEarlyPlacementValidator(d.obligationRef ?? "", ledgerEntry, args.clueDistribution, args.castNames)
+        : cluePresenceValidator(d.obligationRef ?? "", args.clueDistribution, args.castNames),
     maxAttemptsPerDefect: args.maxAttemptsPerDefect,
     onUnresolved: args.onUnresolved,
   });

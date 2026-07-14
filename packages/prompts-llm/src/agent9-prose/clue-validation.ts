@@ -952,7 +952,17 @@ export const validateChapterPreCommitObligations = (
   ledgerEntry: ChapterRequirementLedgerEntry,
   clueDistribution?: ClueDistributionResult,
   castNames?: string[],
-  resolutionCheck?: { isLastChapter: boolean; culpritName: string; culpritSurname: string; murderMethod?: string },
+  resolutionCheck?: {
+    isLastChapter: boolean;
+    culpritName: string;
+    culpritSurname: string;
+    murderMethod?: string;
+    /** ITEM 11 (#4): full text of the RESOLVED reveal chapter when it precedes the final
+     *  chapter. When the reveal chapter already carries the resolution markers, the final
+     *  (aftermath) chapter is not required to re-stage them — it must still name the
+     *  culprit surname. Absent ⇒ behaviour is byte-identical to the pre-ITEM-11 check. */
+    revealChapterText?: string;
+  },
   stageContractCheck?: StageContractCheck,
 ): ChapterObligationResult => {
   const hardFailures: string[] = [];
@@ -1130,7 +1140,27 @@ export const validateChapterPreCommitObligations = (
   // Phase 6 Layer 2: Final chapter resolution check
   if (resolutionCheck?.isLastChapter && resolutionCheck.culpritSurname) {
     const culpritRE = new RegExp(`\\b${resolutionCheck.culpritSurname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    if (!RESOLUTION_RE.test(chapterText) || !culpritRE.test(chapterText)) {
+    // ITEM 11 (#4): the resolution markers may legitimately live in an EARLIER resolved
+    // reveal chapter (aftermath final chapter). The check is satisfied when RESOLUTION_RE +
+    // culprit surname + murder method all hold in the reveal chapter OR in the final
+    // chapter — forcing them into the final chapter re-staged the Ch9 reveal in Ch10.
+    const revealText = String(resolutionCheck.revealChapterText ?? '');
+    const revealSatisfiesResolution =
+      revealText.length > 0 &&
+      RESOLUTION_RE.test(revealText) &&
+      culpritRE.test(revealText) &&
+      (!resolutionCheck.murderMethod ||
+        proseSurfacesDeathMethod(revealText.toLowerCase(), resolutionCheck.murderMethod));
+    if (revealSatisfiesResolution) {
+      // Reveal already delivered — the aftermath chapter must still name the culprit
+      // surname (parity with G6-Q2) but is NOT required to re-stage the resolution event.
+      if (!culpritRE.test(chapterText)) {
+        uniqueHardFailures.push(
+          `Final chapter: the culprit was revealed in an earlier chapter, but this aftermath chapter never names ` +
+          `${resolutionCheck.culpritName}. Refer to the culprit by name ("${resolutionCheck.culpritSurname}") when the solved case is discussed.`
+        );
+      }
+    } else if (!RESOLUTION_RE.test(chapterText) || !culpritRE.test(chapterText)) {
       uniqueHardFailures.push(
         `Final chapter: no resolution event detected. Include a scene where ${resolutionCheck.culpritName} ` +
         `confesses, is arrested, or the detective explicitly names them as the murderer with evidence.`

@@ -44,6 +44,7 @@ import {
   runCaseTransitionRegenPass,
   runMechanismRevealRegenPass,
   runVoiceLeakageRegenPass,
+  runInsertionRegenPass,
   makeRegenFn,
   repairCaseSoundness,
   genderMapFromBible,
@@ -212,6 +213,11 @@ const isMechanismRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_M
 /** A_61 roadmap S2 — the reliability floor for `illegal_named_walk_on`: rewrite an out-of-cast titled
  * walk-on to a role noun instead of aborting the run over an incidental extra. Default-off, runtime-read. */
 const isWalkonRepairEnabled = () => parseBooleanEnv(process.env.AGENT9_WALKON_REPAIR, false);
+
+/** Ledger Item 15 — LLM-first surfacing of missing atomic locked-fact values (insertion regen) so the
+ * deterministic "The hour stood at X." injector (externally read as generated-sounding, 2/4 S0 reviews)
+ * becomes a rare floor instead of the norm. Default-off, runtime-read; N≥4 before default-on. */
+const isLockedFactRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_LOCKED_FACT, false);
 
 /** A_61 RC2.2 — dereference the frozen Bible gender map as the SINGLE authoritative pronoun source
  * (validators + narrative state), instead of each site re-parsing raw cast gender. Default-off. */
@@ -2033,6 +2039,21 @@ export const enforceLockedFactValuePresence = (prose: any, lockedFacts: any[]): 
   // producing the same sentence verbatim 7-8 times in an 11-chapter story.
   const MAX_INJECTIONS_PER_FACT = 2;
   const globalInjectionCount = new Map<string, number>();
+  // Ledger Item 15: this function runs at MORE THAN ONE call site per run, and each call used to
+  // start its count at zero — tide shipped "The hour stood at…" 3× (cap 2). Seed the cap with the
+  // template sentences ALREADY present so the cap is idempotent across calls.
+  const fullTextForSeed = (prose.chapters as any[])
+    .map((ch: any) => (Array.isArray(ch?.paragraphs) ? ch.paragraphs.join("\n\n") : ""))
+    .join("\n\n");
+  for (const fact of lockedFacts) {
+    const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
+    if (!canonical || !isAtomicLockedFactValue(canonical)) continue;
+    const rendered = INJECTION_TEMPLATES[classifyFactValue(canonical)](String(fact?.description ?? ""), canonical).trim();
+    if (!rendered) continue;
+    const escaped = rendered.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existing = (fullTextForSeed.match(new RegExp(escaped, "gi")) ?? []).length;
+    if (existing > 0) globalInjectionCount.set(canonical.toLowerCase(), existing);
+  }
 
   const chapters = (prose.chapters as any[]).map((chapter: any, idx: number) => {
     const chapterNumber = idx + 1;
@@ -2308,7 +2329,6 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
   if (chapters.length === 0) return prose;
 
   const finalChapter = chapters[chapters.length - 1];
-  const finalText = ((finalChapter.paragraphs ?? []) as string[]).join(' ');
   const culprit: string = ((cml?.CASE?.culpability?.culprits ?? []) as string[])[0] ?? '';
   if (!culprit) return prose;
 
@@ -2316,8 +2336,16 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
   // RESOLUTION_RE imported from @cml/prompts-llm — shared with agent9-prose.ts (fix #3.2)
   const culpritRE = new RegExp(`\\b${culpritSurname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
 
-  if (RESOLUTION_RE.test(finalText) && culpritRE.test(finalText)) {
-    return prose; // resolution already present
+  // Ledger Item 11: the resolution may legitimately live in the REVEAL chapter (final_trap/Ch9)
+  // with the final chapter as aftermath — injecting a second confession into the final chapter
+  // is the duplicated-reveal defect all four S0 external reviews flagged. The floor only fires
+  // when NO chapter carries the resolution.
+  const anyChapterResolves = chapters.some((ch) => {
+    const t = ((ch?.paragraphs ?? []) as string[]).join(' ');
+    return RESOLUTION_RE.test(t) && culpritRE.test(t);
+  });
+  if (anyChapterResolves) {
+    return prose; // resolution already present somewhere — never duplicate it into the final chapter
   }
 
   const paragraphs = [...((finalChapter.paragraphs ?? []) as string[])];
@@ -2335,10 +2363,17 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
 // excluding quoted speech. This mirrors the repair's own view of the text, so a
 // before/after comparison reliably detects whether the sweep made gendering worse.
 const countChapterPronounMismatches = (text: string, castCharacters: CastEntry[]): number => {
+  // Ledger Item 13: match on full name OR first name OR surname — the previous full-name-only
+  // labels meant a sentence like "Eleanor adjusted his gloves" (bare first name; the dominant
+  // register of the prose) was never counted, blinding the monotonicity comparison.
   const chars = (castCharacters as any[])
     .filter((c) => typeof c?.gender === "string" && /^(male|female)$/i.test(c.gender))
-    .map((c) => ({ name: String(c.name ?? "").trim().toLowerCase(), gender: String(c.gender).toLowerCase() }))
-    .filter((c) => c.name.length > 0);
+    .map((c) => {
+      const full = String(c.name ?? "").trim().toLowerCase();
+      const parts = full.split(/\s+/).filter((p) => p.length >= 3 && !/^(dr|mr|mrs|miss|ms|sir|lady|lord|captain|colonel|professor|inspector|constable|sergeant|reverend)\.?$/.test(p));
+      return { labels: [...new Set([full, ...parts])].filter(Boolean), gender: String(c.gender).toLowerCase() };
+    })
+    .filter((c) => c.labels.length > 0);
   if (chars.length === 0) return 0;
 
   // Strip quoted speech so dialogue (which refers to third parties) is not counted.
@@ -2348,7 +2383,7 @@ const countChapterPronounMismatches = (text: string, castCharacters: CastEntry[]
   for (const sentence of sentences) {
     const lower = sentence.toLowerCase();
     const present = chars.filter((c) =>
-      new RegExp(`\\b${c.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(lower),
+      c.labels.some((label) => new RegExp(`\\b${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(lower)),
     );
     if (present.length === 0) continue;
     const genders = new Set(present.map((c) => c.gender));
@@ -4974,6 +5009,64 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
 
   prose = applyDeterministicProsePostProcessing(sanitizeProseResult(prose), locationProfiles, castDesign.characters, pronounRepairEnabled);
   prose = repairWordFormLockedFacts(prose, annotatedLockedFacts);
+  // Ledger Item 15 — LLM-first: surface each missing atomic locked-fact value in-scene via the
+  // insertion regen BEFORE the deterministic injector, so "The hour stood at X." (externally read
+  // as generated-sounding) fires only as a rare floor. Insertion-only pass: existing paragraphs are
+  // never modified; a regen ships only if the canonical value is now verbatim on the page.
+  if (isLockedFactRegenEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeLf = client.getCostTracker().getTotalCost();
+    try {
+      const regenBibleLf = { ...worldState, beatSheet: [] };
+      const regenFnLf = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const chapterTextsLf = (prose.chapters as any[]).map((ch: any) =>
+        (Array.isArray(ch?.paragraphs) ? ch.paragraphs.join("\n\n") : "").toLowerCase(),
+      );
+      for (const fact of annotatedLockedFacts as any[]) {
+        const canonical = typeof fact?.value === "string" ? fact.value.trim() : "";
+        const description = typeof fact?.description === "string" ? fact.description.trim() : "";
+        if (!canonical || !description || !isAtomicLockedFactValue(canonical)) continue;
+        if (chapterTextsLf.some((t) => t.includes(canonical.toLowerCase()))) continue; // already on the page
+        // Target the chapter with the strongest description-token affinity (the injector's own heuristic).
+        const descTokens = tokenizeLockedFactDescription(description);
+        if (descTokens.length < 2) continue;
+        let bestIdx = -1;
+        let bestScore = 1; // require >= 2 token hits, mirroring the injector's gate
+        for (let i = 0; i < chapterTextsLf.length; i += 1) {
+          const score = descTokens.filter((token) => chapterTextsLf[i].includes(token)).length;
+          if (score > bestScore) { bestScore = score; bestIdx = i; }
+        }
+        if (bestIdx < 0) continue;
+        const pass = await runInsertionRegenPass({
+          chapter: prose.chapters[bestIdx],
+          defects: [{
+            chapter: bestIdx + 1,
+            kind: "locked_fact_absent",
+            detail: `${description} — the exact phrase "${canonical}" must appear verbatim, woven into the scene as observation or dialogue`,
+            obligationRef: canonical,
+            severity: "hard",
+          }],
+          bible: regenBibleLf,
+          regen: regenFnLf,
+          presenceValidatorFor: () => (c: any) => {
+            const present = ((c?.paragraphs ?? []) as string[]).join(" ").toLowerCase().includes(canonical.toLowerCase());
+            return { ok: present, score: present ? 100 : 0, violations: present ? [] : [`locked_fact_absent:${canonical}`] };
+          },
+          onUnresolved: (_d: any, reason: string) =>
+            ctx.warnings.push(`[Agent 9] regen-locked-fact UNRESOLVED "${canonical}": ${reason} (injector floor applies).`),
+        });
+        if (pass.ran && pass.repaired.length > 0) {
+          prose.chapters[bestIdx] = pass.chapter;
+          chapterTextsLf[bestIdx] = ((pass.chapter?.paragraphs ?? []) as string[]).join("\n\n").toLowerCase();
+          ctx.warnings.push(`[Agent 9] regen-locked-fact surfaced "${canonical}" in ch${bestIdx + 1} (injector suppressed).`);
+        }
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] regen-locked-fact pass failed: ${err instanceof Error ? err.message : String(err)} (injector floor applies).`);
+    } finally {
+      const lfCost = client.getCostTracker().getTotalCost() - costBeforeLf;
+      if (lfCost > 0 && typeof prose?.cost === "number") prose.cost += lfCost;
+    }
+  }
   prose = enforceLockedFactValuePresence(prose, annotatedLockedFacts);
   // A_57 D1: clean any garbled evidence splice (a locked-fact value joined to the next clause by a stray
   // apostrophe/no space) BEFORE the culprit/resolution passes run over the text. Minimal + safe — it only
@@ -5023,17 +5116,31 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const culprit = String(((cml as any)?.CASE?.culpability?.culprits ?? [])[0] ?? "").trim();
         const lastIdx = prose.chapters.length - 1;
         if (culprit && lastIdx >= 0) {
-          const pass = await runResolutionRegenPass({
-            chapter: prose.chapters[lastIdx],
-            chapterNumber: lastIdx + 1,
-            culprit,
-            bible: regenBibleRc14,
-            regen: regenFnRc14,
-            onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-resolution UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
-          });
-          if (pass.ran) {
-            prose.chapters[lastIdx] = pass.chapter;
-            if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-resolution dramatized the reveal for "${culprit}" (injector suppressed).`);
+          // Ledger Item 11: the resolution's home is the REVEAL chapter, not unconditionally the
+          // final chapter (which is aftermath when the reveal lands earlier). Skip entirely when ANY
+          // chapter already resolves (mirrors injectResolutionIfAbsent); otherwise target the last
+          // chapter that names the culprit (the de-facto reveal), falling back to the final chapter.
+          const culpritSurnameR = extractSurname(culprit);
+          const culpritReR = new RegExp(`\\b${culpritSurnameR.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+          const chapterTextR = (ch: any): string => ((ch?.paragraphs ?? []) as string[]).join(" ");
+          const anyResolves = (prose.chapters as any[]).some((ch) => RESOLUTION_RE.test(chapterTextR(ch)) && culpritReR.test(chapterTextR(ch)));
+          let targetIdx = lastIdx;
+          for (let i = lastIdx; i >= 0; i--) {
+            if (culpritReR.test(chapterTextR(prose.chapters[i]))) { targetIdx = i; break; }
+          }
+          if (!anyResolves) {
+            const pass = await runResolutionRegenPass({
+              chapter: prose.chapters[targetIdx],
+              chapterNumber: targetIdx + 1,
+              culprit,
+              bible: regenBibleRc14,
+              regen: regenFnRc14,
+              onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-resolution UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
+            });
+            if (pass.ran) {
+              prose.chapters[targetIdx] = pass.chapter;
+              if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-resolution dramatized the reveal for "${culprit}" in ch${targetIdx + 1} (injector suppressed).`);
+            }
           }
         }
       }

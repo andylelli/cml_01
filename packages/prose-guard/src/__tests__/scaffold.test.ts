@@ -63,6 +63,51 @@ describe("detectScaffoldNotProse — fires on the injector signatures, not on cl
       '"You wound this back," she said, and James looked away. The tea had gone cold in his cup.';
     expect(detectScaffoldNotProse(clean)).toEqual([]);
   });
+
+  // Item 15 — the A1 trail seed matches the inflected forms, not only the past-tense original.
+  it("catches the inflected trail forms (bends/bending) and still the past-tense bent", () => {
+    for (const line of [
+      "The trail bent toward the gardener before anyone spoke.",
+      "The trail bends toward the gardener before anyone speaks.",
+      "She watched the trail bending toward the gardener.",
+    ]) {
+      expect(detectScaffoldNotProse(line).some((h) => h.rule === "A1:trail_bent_toward")).toBe(true);
+    }
+  });
+
+  it("does NOT fire the trail seed on unrelated trail prose", () => {
+    expect(detectScaffoldNotProse("The trail wound toward the cliffs and vanished in gorse.")).toEqual([]);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Item 15 (S0) — post-confession validation-note family (two-anchor rule)
+// ───────────────────────────────────────────────────────────────────────────
+describe("detectScaffoldNotProse — S0 validation-note family fires only on >= 2 anchors", () => {
+  it("fires when two anchors co-occur in one chapter (the S0 residue)", () => {
+    const s0 =
+      "We must not forget the sequence of the keys. That detail matters more than any confession.";
+    expect(detectScaffoldNotProse(s0).some((h) => h.rule === "S0:validation_note")).toBe(true);
+  });
+
+  it("fires on the answer-to + texture-change anchor pair", () => {
+    const s0 =
+      "Everything that follows in this account must answer to that single fact. " +
+      "The texture of the night changed there, and no one in the room pretended otherwise.";
+    expect(detectScaffoldNotProse(s0).some((h) => h.rule === "S0:validation_note")).toBe(true);
+  });
+
+  it("does NOT fire on a lone conversational anchor", () => {
+    expect(detectScaffoldNotProse('"We must not forget our duty," the colonel said.')).toEqual([]);
+    expect(detectScaffoldNotProse("That detail matters to me more than you know.")).toEqual([]);
+  });
+
+  it("does NOT fire on ordinary dramatized prose", () => {
+    const clean =
+      "The confession hung in the air. Evelyn folded the letter twice and slid it under the lamp, " +
+      "and the others watched her hands rather than her face.";
+    expect(detectScaffoldNotProse(clean)).toEqual([]);
+  });
 });
 
 describe("noScaffoldValidator — gates a regen under mutateThenValidate", () => {

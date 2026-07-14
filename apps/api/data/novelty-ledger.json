@@ -26,6 +26,32 @@
       "discrimMethod": "constraint_proof",
       "discrimDesign": "A controlled demonstration measures the sundial’s shadow delay under similar temperature conditions, confirming the approximately ten-minute lag caused by thermal expansion of the brass gnomon. This proves the victim’s actual time of death predates servant alibis and ledger entries, invalidating their timelines and exposing the forged evidence. Additionally, re-examination of hollow ice cubes confirms the delayed-release poison mechanism unique to the culprit’s access and knowledge.",
       "premise": "On a foggy autumn day at Harcourt Manor, Lord Charles Harcourt is found dead, apparently poisoned. Everyone believes he died at solar noon, as indicated by the sundial. However, Evelyn Harcourt discovers the sundial’s shadow was delayed due to thermal expansion of the brass gnomon, meaning he died earlier. A forged ledger and servants’ contradictory testimonies about footsteps and timing further complicate the timeline. Evelyn must unravel the temporal illusion, exposing the true time of death and revealing James Harcourt as the killer who exploited this false assumption to stage his alibi."
+    },
+    {
+      "id": "run_33ecb4ad-7a23-477a-bb17-c808f54e79b2",
+      "title": "The Thermally Sealed Study: A Manor House Mystery",
+      "era": "1930s",
+      "location": "Ellsworth Manor",
+      "crimeSubtype": "strangulation with cord in locked study",
+      "deathMethod": "strangled with a silk cord",
+      "axis": "temporal",
+      "falseAssumption": "The study door was unlocked and opened shortly after Lady Beatrice was last seen alive at early evening, so the murder must have occurred then.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "Recreate the thermal conditions of the study’s hearth fire with an identical brass bolt latch and mantel thermometer to demonstrate the precise forty-minute delay in bolt retraction, invalidating witness claims of the door opening at early evening and confirming the murder occurred later.",
+      "premise": "On a damp autumn evening at Ellsworth Manor, Lady Beatrice Ellsworth is found strangled in her locked study. Witnesses insist the study door was unlocked soon after her last sighting, and an early timeline places the murder at early evening. However, thermal evidence of the brass bolt latch reveals a delayed unlocking mechanism, contradicting all witness claims and forcing a re-examination of the murder timeline. Inspector Edmund Hargrave unravels a complex temporal deception involving estate routines, social expectations, and physical laws to reveal the true culprit."
+    },
+    {
+      "id": "run_f90e5f09-fc85-42df-ac3f-0b2046c0c3e1",
+      "title": "The Garden Sundial Enigma",
+      "era": "1930s",
+      "location": "Wentworth Manor",
+      "crimeSubtype": "brass latch delayed gate bolt murder",
+      "deathMethod": "struck with a heavy brass garden gate bolt",
+      "axis": "temporal",
+      "falseAssumption": "The garden gate was opened at noon as all household members and guests saw Lady Beatrice entering the grounds then.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "Demonstrate by controlled temperature simulation and gate latch observation that the garden gate’s bolt cannot be released before 1:45 pm, contradicting witness statements. Then cross-reference servants’ timeline inconsistencies and James Porter’s exclusive latch knowledge to prove only he could have exploited this delay to commit the murder.",
+      "premise": "At Wentworth Manor, Lady Beatrice Wentworth is found dead, struck by a heavy brass garden gate bolt. Witnesses unanimously claim to have seen her enter the garden grounds at noon, but physical evidence and mechanical timing contradict this. Inspector Evelyn Harcourt uncovers a deception embedded in the thermal expansion delay of the garden gate’s brass latch, exposing a false timeline created by manipulated memories and overlooked physical laws. Through careful reconstruction and social scrutiny, the truth emerges: the butler, James Porter, exploited the garden gate’s delayed bolt release to commit murder, hiding the true time of death and misdirecting suspicion."
     }
   ]
 }

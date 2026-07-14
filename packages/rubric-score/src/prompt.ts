@@ -27,8 +27,9 @@ export function buildRubricSystemPrompt(): string {
     "  dead victim appears alive without flashback; culprit confesses only to tampering not the death;",
     "  the reveal uses evidence not planted earlier (revealUsesUnplantedEvidence); the mechanism is fully",
     "  explained too early — before the discriminating-test scene (mechanismExplainedTooEarly); the ending",
-    "  contradicts earlier chapters; pronouns repeatedly switch for one character; multiple characters",
-    "  change roles; victim identity unclear; no real resolution (no confession/exposure/arrest/consequence).",
+    "  contradicts earlier chapters; pronouns repeatedly switch for one character (pronounsUnstable);",
+    "  multiple characters change roles; victim identity unclear; no real resolution (no",
+    "  confession/exposure/arrest/consequence).",
     "",
     "EVIDENCE IS MANDATORY. For EVERY flag you set to true, add an entry to `flag_citations` giving the",
     "chapter number and the VERBATIM sentence from the prose that proves it. A flag with no citation, or a",
@@ -36,7 +37,9 @@ export function buildRubricSystemPrompt(): string {
     "raise a structural flag you cannot point to a specific sentence for. In particular, only set",
     "revealUsesUnplantedEvidence if you can name the reveal sentence AND confirm no earlier chapter shows",
     "that evidence; only set mechanismExplainedTooEarly if the full mechanism is spelled out in a chapter",
-    "BEFORE the discriminating-test scene. Deterministic checks will verify both against the structure.",
+    "BEFORE the discriminating-test scene; only set pronounsUnstable if you can quote a VERBATIM sentence",
+    "where the narration uses the wrong-gender pronoun for a named character — dialogue about an absent",
+    "third party does not count. Deterministic checks will verify these against the structure.",
     "",
     "Prioritise: is the victim clearly named and consistently dead? is the investigator stable? is the",
     "culprit distinct from the victim? are pronouns stable? are clues planted before they are used? does",
@@ -67,6 +70,9 @@ export function buildRubricUserMessage(
   if (verified.culpritIsVictim) facts.push("CONFIRMED DEFECT: the culprit and the victim are the same person.");
   if (verified.victimIsInvestigator) facts.push("CONFIRMED DEFECT: the victim and the investigator are the same person.");
   if (verified.victimUnnamed) facts.push("CONFIRMED: the victim is never named in the prose.");
+  if (verified.pronounsUnstable) {
+    facts.push("CONFIRMED DEFECT: narration pronouns switch gender for at least one character across multiple chapters.");
+  }
   if ((verified.templateLeakageHits ?? []).length) {
     facts.push(`CONFIRMED LEAKAGE (generated/validation text in the prose): ${verified.templateLeakageHits!.join(" | ")}`);
   }

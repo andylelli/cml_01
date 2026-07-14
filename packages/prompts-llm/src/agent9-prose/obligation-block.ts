@@ -53,6 +53,20 @@ export function buildChapterObligationBlock(
 
   const proseRequirements = cmlCase?.prose_requirements ?? {};
   const dtScene = proseRequirements?.discriminating_test_scene;
+  // ITEM 11 (#3): DT exclusivity — resolve the discriminating-test chapter ONCE across the
+  // whole outline. When ANY outline scene EXACT-matches the DT scene ref (act/scene
+  // coordinates), that chapter alone owns the DT contract and the keyword fallback is
+  // disabled for every other chapter — otherwise a later chapter whose summary merely says
+  // "disproved" re-claims the full reveal contract after the true DT chapter already ran
+  // (the Ch9/Ch10 duplicated-reveal defect). The keyword fallback applies only when no
+  // exact match exists anywhere.
+  const DT_SIGNAL_RE = /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i;
+  const dtResolutionScenes: any[] = Array.isArray(allOutlineScenes) && allOutlineScenes.length > 0
+    ? allOutlineScenes
+    : (Array.isArray(scenesForChapter) ? (scenesForChapter as any[]) : []);
+  const dtHasExactMatch = Boolean(
+    dtScene && dtResolutionScenes.some((s: any) => sceneMatchesCmlSceneRef(s, dtScene, allOutlineScenes)),
+  );
   // Exclude deceased victims from clearance obligations — a dead character cannot
   // meaningfully appear in a "alibi confirmed" paragraph and causes the LLM to
   // generate nonsensical or repetitive prose when forced to clear a victim.
@@ -253,12 +267,46 @@ export function buildChapterObligationBlock(
     const matchingClearances: typeof exactClearances = exactClearances.length > 0
       ? exactClearances
       : (() => {
-          // Act-level fallback: only fire on the genuinely last chapter of the act.
-          // With proseBatchSize=1 every batch has 1 scene, so idx===length-1 is always true —
-          // which caused the fallback to fire for every chapter in the act (#24).
-          // Check allOutlineScenes to find whether any scene with the same act number has a
-          // higher sceneNumber than the current one.  If there is a later scene in the same act,
-          // this is not the clearance chapter yet.
+          // ITEM 11 (#2): unmatched act clearances belong on the act's resolved reveal/DT
+          // chapter — the chapter where the case is argued on-page. Attaching them to the
+          // last chapter of the act unconditionally stacked a full clearance list onto the
+          // aftermath chapter AFTER the reveal already delivered them (Ch9/Ch10 duplicated
+          // reveal). Last-in-act remains the fallback only when neither the revelation
+          // scene nor the DT scene resolves to a chapter within this act.
+          const actScenes = dtResolutionScenes.filter((s: any) => Number(s?.act) === sceneAct);
+          const anchorRefs: Array<{ ref: any; signal: RegExp }> = [
+            {
+              ref: proseRequirements.culprit_revelation_scene ?? null,
+              signal: /\b(culprit|confront|confession|resolve|resolution|denouement|case\s+closed)/i,
+            },
+            { ref: dtScene ?? null, signal: DT_SIGNAL_RE },
+          ];
+          // Exact coordinate matches take precedence over keyword signals for BOTH refs, so
+          // a keyword-only hit can never outrank the configured reveal/DT chapter.
+          let anchorScene: any = null;
+          for (const { ref } of anchorRefs) {
+            if (!ref) continue;
+            anchorScene = actScenes.find((s: any) => sceneMatchesCmlSceneRef(s, ref, allOutlineScenes)) ?? null;
+            if (anchorScene) break;
+          }
+          if (!anchorScene) {
+            for (const { ref, signal } of anchorRefs) {
+              if (!ref) continue;
+              anchorScene = actScenes.find((s: any) => sceneMatchesCmlSceneRef(s, ref, allOutlineScenes, signal)) ?? null;
+              if (anchorScene) break;
+            }
+          }
+          if (anchorScene) {
+            return Number(anchorScene?.sceneNumber) === Number(scene?.sceneNumber)
+              ? clearanceScenes.filter((entry: any) => Number(entry?.act_number) === sceneAct)
+              : [];
+          }
+          // No reveal/DT chapter resolves in this act — only fire on the genuinely last
+          // chapter of the act. With proseBatchSize=1 every batch has 1 scene, so
+          // idx===length-1 is always true — which caused the fallback to fire for every
+          // chapter in the act (#24). Check allOutlineScenes to find whether any scene with
+          // the same act number has a higher sceneNumber than the current one. If there is
+          // a later scene in the same act, this is not the clearance chapter yet.
           const isLastInAct = allOutlineScenes
             ? !allOutlineScenes.some(
                 (s: any) => Number(s?.act) === sceneAct && Number(s?.sceneNumber) > Number(scene?.sceneNumber),
@@ -268,13 +316,11 @@ export function buildChapterObligationBlock(
             ? clearanceScenes.filter((entry: any) => Number(entry?.act_number) === sceneAct)
             : [];
         })();
-    const isDiscriminatingTestChapter =
-      sceneMatchesCmlSceneRef(
-        scene,
-        dtScene,
-        allOutlineScenes,
-        /\b(discriminating|test|controlled comparison|trap|prove|disprove)/i,
-      );
+    // ITEM 11 (#3): keyword fallback only when no exact DT match exists anywhere (see
+    // dtHasExactMatch above) — the DT contract is exclusive to the exact-matched chapter.
+    const isDiscriminatingTestChapter = dtHasExactMatch
+      ? sceneMatchesCmlSceneRef(scene, dtScene, allOutlineScenes)
+      : sceneMatchesCmlSceneRef(scene, dtScene, allOutlineScenes, DT_SIGNAL_RE);
 
     // Post-reveal naming constraint — fires for chapters that come after the revelation
     // scene so the LLM doesn't replace the culprit's name with role aliases.
@@ -690,7 +736,21 @@ export function buildChapterObligationBlock(
   }
 
   // Phase 6 Layer 1: Resolution chapter mandatory checklist
-  if (currentArcPosition === 'resolution') {
+  // ITEM 11 (#1): `currentArcPosition === 'resolution'` is purely POSITIONAL (the last
+  // chapter), while the stage-mode layer knows WHETHER the reveal already happened in an
+  // earlier chapter ('aftermath_consequence'). Re-issuing the full reveal mandate on an
+  // aftermath final chapter duplicated the Ch9 reveal into Ch10 — the aftermath contract
+  // below requires retrospect instead of re-staging.
+  if (currentArcPosition === 'resolution' && currentStageMode === 'aftermath_consequence') {
+    const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
+    lines.push(`\n⛔ AFTERMATH CONTRACT — THIS IS THE FINAL CHAPTER (the culprit was already exposed in an earlier chapter):`);
+    lines.push(`  Four requirements MUST hold:`);
+    lines.push(`  1. NAME IN RETROSPECT: refer to ${culpritNames || 'the culprit'} BY NAME whenever the solved case is discussed — never only "the killer", "the murderer", or "the culprit".`);
+    lines.push(`  2. OUTCOME REFERENCE: reference the already-delivered outcome (arrest, custody, or confession) as a settled fact — characters speak of it or its consequences are visible. Do NOT re-enact it.`);
+    lines.push(`  3. REMAINING QUESTIONS: tie off the questions the reveal left open — what becomes of the household, the estate, and the surviving characters' obligations.`);
+    lines.push(`  4. CONSEQUENCE: show the emotional and social consequences of the truth on the surviving characters.`);
+    lines.push(`  ⛔ DO NOT RE-STAGE THE REVEAL: no new accusation scene, no fresh confession, no re-run of the evidence chain, and no per-suspect clearance recitation — all of these already happened on-page in the reveal chapter, and repeating them will be rejected and regenerated.`);
+  } else if (currentArcPosition === 'resolution') {
     const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
     const murderMethod: string = cmlCase?.hidden_model?.mechanism?.description ?? 'the crime method';
     lines.push(`\n⛔ MANDATORY RESOLUTION — THIS IS THE FINAL CHAPTER:`);

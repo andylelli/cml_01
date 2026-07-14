@@ -72,6 +72,246 @@ function oppositePronouns(gender: string): { subject: string; object: string; po
   }
 }
 
+// ---------------------------------------------------------------------------
+// High-precision pronoun-drift detectors (pronoun_policy "verify" — detection
+// without the deterministic prose-writing fixer). Pure functions so the rubric
+// scorer's pronounsUnstable extractor can replicate the exact same predicate
+// (packages/rubric-score/src/facts.ts holds a local copy — rubric-score cannot
+// depend on story-validation). Precision over recall: dialogue is never scanned,
+// ungendered cast members are skipped, and any same-gender cast mention in the
+// window suppresses the event.
+// ---------------------------------------------------------------------------
+
+export interface PronounDriftCastEntry {
+  name: string;
+  gender?: string;
+}
+
+export interface PronounDriftEvent {
+  kind: 'attribution_flip' | 'impossible_self_reference';
+  /** Canonical full cast name of the drifted character. */
+  characterName: string;
+  /** Offending snippet (whitespace-collapsed, capped) for the report/rubric citation. */
+  sentence: string;
+}
+
+// Past-tense speech verbs only — prose is past tense; a present-tense list would silently no-op.
+const SPEECH_VERBS =
+  'said|asked|replied|observed|answered|added|continued|murmured|muttered|whispered|remarked|noted|' +
+  'countered|insisted|agreed|admitted|conceded|pressed|urged|demanded|snapped|sighed|offered|ventured|' +
+  'began|repeated|echoed|announced|declared|explained|protested|warned|corrected|mused|responded|' +
+  'interjected|interrupted|confirmed|suggested';
+
+// Personal-object nouns for the possessive branch of impossible-self-reference: an opposite-gender
+// possessive over the subject's OWN body/attire/effects is near-certain drift; a generic noun is not.
+const SELF_NOUNS =
+  'gloves?|hat|coat|jacket|waistcoat|collar|cuffs?|tie|cravat|spectacles|monocle|hair|moustache|mustache|' +
+  'beard|brow|forehead|eyes?|jaw|chin|lips?|mouth|throat|voice|breath|composure|temper|gaze|expression|' +
+  'hands?|fingers?|palms?|shoulders?|arms?|knees?|sleeves?|pockets?|watch|cane|pipe|notebook|notes|pen|' +
+  'skirts?|gown|dress|shawl|scarf|handbag|umbrella|glasses|shoes?|boots?';
+
+const DETECTOR_NAME_TITLES = new Set([
+  'dr', 'mr', 'mrs', 'miss', 'ms', 'lord', 'lady', 'sir', 'capt', 'captain', 'col', 'colonel',
+  'prof', 'professor', 'rev', 'reverend', 'madame', 'madam', 'inspector', 'sergeant', 'constable', 'dame',
+]);
+
+type BinaryGender = 'male' | 'female';
+
+function normalizeBinaryGender(gender: string | undefined): BinaryGender | null {
+  const g = (gender ?? '').trim().toLowerCase();
+  return g === 'male' || g === 'female' ? g : null;
+}
+
+/**
+ * Gendered name-token index: lowercased token → { canonical full name, gender }.
+ * Titles are dropped, tokens under 3 chars are dropped, and a token shared by
+ * characters of BOTH genders is dropped entirely (ambiguous — precision first).
+ */
+function buildGenderedTokenIndex(cast: PronounDriftCastEntry[]): Map<string, { name: string; gender: BinaryGender }> {
+  const index = new Map<string, { name: string; gender: BinaryGender }>();
+  const ambiguous = new Set<string>();
+  for (const member of cast) {
+    const gender = normalizeBinaryGender(member.gender);
+    const name = String(member.name ?? '').trim();
+    if (!gender || !name) continue; // skip ungendered names
+    for (const rawToken of name.split(/\s+/)) {
+      const token = rawToken.replace(/\.$/, '').toLowerCase();
+      if (token.length < 3 || DETECTOR_NAME_TITLES.has(token)) continue;
+      const existing = index.get(token);
+      if (existing && existing.gender !== gender) {
+        ambiguous.add(token);
+        continue;
+      }
+      if (!existing) index.set(token, { name, gender });
+    }
+  }
+  for (const token of ambiguous) index.delete(token);
+  return index;
+}
+
+/**
+ * Prepare a narration-only scan window: strip balanced quoted dialogue, then cut anything
+ * trailing an unmatched opening quote (the window often ends mid-dialogue, just before the
+ * tag being examined) and anything preceding an unmatched closing curly quote (the window
+ * may begin mid-dialogue).
+ */
+function narrationOnly(window: string): string {
+  let s = stripDialogueFromWindow(window);
+  const firstDanglingClose = s.indexOf('”');
+  if (firstDanglingClose !== -1) s = s.slice(firstDanglingClose + 1);
+  const lastDanglingOpen = Math.max(s.lastIndexOf('"'), s.lastIndexOf('“'));
+  if (lastDanglingOpen !== -1) s = s.slice(0, lastDanglingOpen);
+  return s;
+}
+
+function snippetAround(text: string, start: number, end: number): string {
+  return text
+    .slice(Math.max(0, start), Math.min(text.length, end))
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+}
+
+/**
+ * Detector (a) — attribution flip: a narration dialogue-tag pronoun ('"…," he said') whose nearest
+ * preceding gendered narration referent (cast name or subject pronoun, scanning back at most one
+ * paragraph boundary) is opposite-gender, with no same-gender cast name anywhere in that window.
+ */
+export function detectAttributionFlips(text: string, cast: PronounDriftCastEntry[]): PronounDriftEvent[] {
+  const events: PronounDriftEvent[] = [];
+  const tokenIndex = buildGenderedTokenIndex(cast);
+  if (tokenIndex.size === 0) return events;
+
+  const tagPattern = new RegExp(`["\\u201D]\\s*(he|she)\\s+(?:${SPEECH_VERBS})\\b`, 'gi');
+  let tag: RegExpExecArray | null;
+  while ((tag = tagPattern.exec(text)) !== null) {
+    // The tag pronoun must be narration: a straight quote at the match start must be a CLOSING
+    // quote (even count of straight quotes up to and including it); a curly ” always closes.
+    if (text[tag.index] === '"') {
+      const quotesThrough = (text.slice(0, tag.index + 1).match(/"/g) ?? []).length;
+      if (quotesThrough % 2 !== 0) continue; // opening quote → pronoun is inside dialogue
+    }
+
+    const tagGender: BinaryGender = tag[1].toLowerCase() === 'he' ? 'male' : 'female';
+
+    // Scan-back window: current paragraph plus at most one paragraph boundary back.
+    let windowStart = 0;
+    const currentBoundary = text.lastIndexOf('\n\n', tag.index);
+    if (currentBoundary !== -1) {
+      const previousBoundary = text.lastIndexOf('\n\n', currentBoundary - 1);
+      windowStart = previousBoundary === -1 ? 0 : previousBoundary + 2;
+    }
+    const narration = narrationOnly(text.slice(windowStart, tag.index));
+
+    // Gendered referents in narration: cast-name tokens and bare subject pronouns.
+    let nearest: { pos: number; gender: BinaryGender } | null = null;
+    let nearestOppositeName: { pos: number; name: string } | null = null;
+    let sameGenderNamePresent = false;
+    for (const [token, info] of tokenIndex) {
+      const namePattern = new RegExp(`\\b${escapeRegex(token)}\\b`, 'gi');
+      let nameMatch: RegExpExecArray | null;
+      while ((nameMatch = namePattern.exec(narration)) !== null) {
+        if (info.gender === tagGender) sameGenderNamePresent = true;
+        if (!nearest || nameMatch.index > nearest.pos) nearest = { pos: nameMatch.index, gender: info.gender };
+        if (info.gender !== tagGender && (!nearestOppositeName || nameMatch.index > nearestOppositeName.pos)) {
+          nearestOppositeName = { pos: nameMatch.index, name: info.name };
+        }
+      }
+    }
+    const subjectPronounPattern = /\b(he|she)\b/gi;
+    let pronounMatch: RegExpExecArray | null;
+    while ((pronounMatch = subjectPronounPattern.exec(narration)) !== null) {
+      const gender: BinaryGender = pronounMatch[1].toLowerCase() === 'he' ? 'male' : 'female';
+      if (!nearest || pronounMatch.index > nearest.pos) nearest = { pos: pronounMatch.index, gender };
+    }
+
+    if (!nearest) continue;                       // no gendered referent → nothing to contradict
+    if (nearest.gender === tagGender) continue;   // tag agrees with the nearest referent
+    if (sameGenderNamePresent) continue;          // a same-gender character is in scope — ambiguous, skip
+    if (!nearestOppositeName) continue;           // opposite referent is pronoun-only — cannot name a character
+
+    events.push({
+      kind: 'attribution_flip',
+      characterName: nearestOppositeName.name,
+      sentence: snippetAround(text, tag.index - 120, tag.index + tag[0].length + 60),
+    });
+  }
+  return events;
+}
+
+/**
+ * Detector (b) — impossible self-reference: a narration sentence whose subject is a gendered cast
+ * name and which refers back to that subject with an opposite-gender reflexive ("Eleanor composed
+ * himself") or an opposite-gender possessive over a personal-object noun ("Eleanor … adjusted his
+ * gloves"). Skipped when an opposite-gender pronoun intervenes (a second actor is in play) or when
+ * ANY cast member matching the wrong pronoun's gender appears in the paragraph.
+ */
+export function detectImpossibleSelfReferences(text: string, cast: PronounDriftCastEntry[]): PronounDriftEvent[] {
+  const events: PronounDriftEvent[] = [];
+  const tokenIndex = buildGenderedTokenIndex(cast);
+  if (tokenIndex.size === 0) return events;
+
+  // 1–3 leading capitalized tokens (optional title + first/surname); the verb that follows is
+  // lowercase in past-tense prose so the match stops at the subject.
+  const subjectPattern = /^\s*((?:[A-Z][A-Za-z'\-]*\.?\s+){0,2}[A-Z][A-Za-z'\-]*)/;
+
+  for (const paragraph of text.split(/\n\s*\n/)) {
+    const narration = stripDialogueFromWindow(paragraph);
+    const paragraphLower = narration.toLowerCase();
+
+    for (const sentence of narration.split(/(?<=[.!?])\s+/)) {
+      const subjectMatch = sentence.match(subjectPattern);
+      if (!subjectMatch) continue;
+      const candidateTokens = subjectMatch[1]
+        .split(/\s+/)
+        .map((t) => t.replace(/\.$/, '').toLowerCase())
+        .filter((t) => t.length >= 3 && !DETECTOR_NAME_TITLES.has(t));
+      let subject: { name: string; gender: BinaryGender } | null = null;
+      for (const candidate of candidateTokens) {
+        const info = tokenIndex.get(candidate);
+        if (info) { subject = info; break; }
+      }
+      if (!subject) continue; // subject is not a gendered cast member
+
+      const wrongGender: BinaryGender = subject.gender === 'male' ? 'female' : 'male';
+      const wrongReflexive = subject.gender === 'female' ? 'himself' : 'herself';
+      const wrongPossessive = subject.gender === 'female' ? 'his' : 'her';
+      // An intervening opposite-gender pronoun means a second actor is in play, not drift.
+      const intervener = subject.gender === 'female' ? /\b(he|him)\b/i : /\bshe\b/i;
+
+      const rest = sentence.slice((subjectMatch.index ?? 0) + subjectMatch[0].length);
+      const reflexiveMatch = new RegExp(`\\b${wrongReflexive}\\b`, 'i').exec(rest);
+      const possessiveMatch = new RegExp(`\\b${wrongPossessive}\\s+(?:own\\s+)?(?:${SELF_NOUNS})\\b`, 'i').exec(rest);
+      const hit =
+        reflexiveMatch && (!possessiveMatch || reflexiveMatch.index <= possessiveMatch.index)
+          ? reflexiveMatch
+          : possessiveMatch;
+      if (!hit) continue;
+      if (intervener.test(rest.slice(0, hit.index))) continue;
+
+      // Same-gender-as-wrong-pronoun cast mention anywhere in the paragraph → plausible referent, skip.
+      let wrongGenderCastPresent = false;
+      for (const [token, info] of tokenIndex) {
+        if (info.gender !== wrongGender) continue;
+        if (new RegExp(`\\b${escapeRegex(token)}\\b`).test(paragraphLower)) { wrongGenderCastPresent = true; break; }
+      }
+      if (wrongGenderCastPresent) continue;
+
+      events.push({
+        kind: 'impossible_self_reference',
+        characterName: subject.name,
+        sentence: sentence.replace(/\s+/g, ' ').trim().slice(0, 200),
+      });
+    }
+  }
+  return events;
+}
+
+/** Both high-precision detectors over one chapter's text. */
+export function detectPronounDriftEvents(text: string, cast: PronounDriftCastEntry[]): PronounDriftEvent[] {
+  return [...detectAttributionFlips(text, cast), ...detectImpossibleSelfReferences(text, cast)];
+}
+
 export class ProseConsistencyValidator implements Validator {
   name = 'ProseConsistencyValidator';
 
@@ -254,6 +494,32 @@ export class ProseConsistencyValidator implements Validator {
 
     const errors: ValidationError[] = [];
 
+    // High-precision detectors first (attribution-flip, impossible-self-reference): specific
+    // offending snippets make better repair directives than the proximity-window message.
+    // One pronoun_drift error per character per scene across BOTH layers — flaggedPairs seeds
+    // the window heuristic below. The "Pronoun drift for \"<name>\"" message prefix is the
+    // contract extractPronounTargetNames (agent9-run) parses for LLM-regen repair targeting.
+    const flaggedPairs = new Set<string>(); // `${cast name}::${scene number}`
+    const castEntries: PronounDriftCastEntry[] = cml.CASE.cast.map((c) => ({ name: c.name, gender: c.gender }));
+    for (const scene of story.scenes) {
+      for (const event of detectPronounDriftEvents(scene.text, castEntries)) {
+        const pairKey = `${event.characterName}::${scene.number}`;
+        if (flaggedPairs.has(pairKey)) continue;
+        flaggedPairs.add(pairKey);
+        const detail = event.kind === 'attribution_flip'
+          ? 'a dialogue tag uses the opposite-gender pronoun for the nearest referent'
+          : 'an opposite-gender possessive/reflexive refers back to the sentence subject';
+        errors.push({
+          type: 'pronoun_drift',
+          message: `Pronoun drift for "${event.characterName}" in chapter ${scene.number}: ${detail} — "${event.sentence}".`,
+          severity: 'moderate',
+          sceneNumber: scene.number,
+          suggestion: `Use the pronouns matching ${event.characterName}'s gender exclusively when the narration refers to ${event.characterName}.`,
+          cmlReference: `cast[${event.characterName}].gender`,
+        });
+      }
+    }
+
     for (const castMember of cml.CASE.cast) {
       const gender = castMember.gender;
       // Era constraint: CML stories are set in the 1930s–1950s; all characters are binary-gendered.
@@ -282,8 +548,11 @@ export class ProseConsistencyValidator implements Validator {
         .filter((c) => c.gender === oppositeGender)
         .flatMap((c) => c.name.split(/\s+/).filter((part) => part.length >= 3));
 
-      // Track scenes already flagged for this character (one error per character per scene).
-      const flaggedScenes = new Set<number>();
+      // Track scenes already flagged for this character (one error per character per scene),
+      // seeded with scenes the high-precision detectors above already reported.
+      const flaggedScenes = new Set<number>(
+        story.scenes.map((s) => s.number).filter((n) => flaggedPairs.has(`${castMember.name}::${n}`)),
+      );
 
       for (const scene of story.scenes) {
         if (flaggedScenes.has(scene.number)) continue;

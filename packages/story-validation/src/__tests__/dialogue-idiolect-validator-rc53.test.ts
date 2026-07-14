@@ -58,6 +58,44 @@ describe("validateDialogueIdiolect — leakage (error, ok=false)", () => {
   });
 });
 
+// Item 14 — over-use is counted over the WHOLE prose (narration + quotes), warns at >= 4, never flips ok.
+describe("validateDialogueIdiolect — overuse (warn-only)", () => {
+  it("warns at 4 verbatim whole-text occurrences without changing ok", () => {
+    const prose =
+      '"As it happens, I was in the garden," said Beatrice Quill. ' +
+      '"As it happens, the gate was locked," said Beatrice Quill. ' +
+      "As it happens had become her refrain, and as it happens the household braced whenever she drew breath.";
+    const r = validateDialogueIdiolect(capsules, prose);
+    expect(r.ok).toBe(true); // overuse is warn-only — ok must NOT flip
+    const overuse = r.issues.find((i) => i.type === "voice_tic_overuse");
+    expect(overuse?.severity).toBe("warn");
+    expect(overuse?.speaker).toBe("Beatrice Quill");
+    expect(overuse?.tic).toBe("as it happens"); // normalized, like the leakage payload
+    expect(r.metrics.ticOveruseSpeakers).toEqual(["Beatrice Quill"]);
+  });
+
+  it("is silent at 3 occurrences — legitimate reuse stays untouched, ok unchanged", () => {
+    const prose =
+      '"As it happens, I was in the garden," said Beatrice Quill. ' +
+      '"As it happens, the gate was locked," said Beatrice Quill. ' +
+      "As it happens had become her refrain, though tonight she held her tongue.";
+    const r = validateDialogueIdiolect(capsules, prose);
+    expect(r.ok).toBe(true);
+    expect(r.issues.filter((i) => i.type === "voice_tic_overuse")).toHaveLength(0);
+    expect(r.metrics.ticOveruseSpeakers).toEqual([]);
+  });
+
+  it("counts narration uses too — spam the attribution heuristic cannot attribute still warns", () => {
+    // Zero attributed quotes: all four uses live in narration, so leakage/coverage see nothing.
+    const prose =
+      "As it happens, the door was open. As it happens, the dog had not barked. " +
+      "As it happens, the will was gone. As it happens, no one had heard the shot.";
+    const r = validateDialogueIdiolect(capsules, prose);
+    expect(r.ok).toBe(true);
+    expect(r.issues.some((i) => i.type === "voice_tic_overuse" && i.speaker === "Beatrice Quill")).toBe(true);
+  });
+});
+
 describe("validateDialogueIdiolect — robustness", () => {
   it("empty capsules or prose → ok, nothing to gate", () => {
     expect(validateDialogueIdiolect([], "some prose").ok).toBe(true);

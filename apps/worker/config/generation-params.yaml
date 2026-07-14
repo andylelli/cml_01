@@ -107,7 +107,10 @@ agent5_clues:
   params:
     model:
       temperature: 0.4
-      max_tokens: 3000
+      # 3000 -> 6000 (run a3c2973f): an 18-clue payload truncated mid-clue at 3000 and jsonrepair
+      # fabricated a phantom clue from the tail. This yaml OVERRIDES the code default — keep in sync
+      # with packages/story-validation/src/generation-params.ts.
+      max_tokens: 6000
 
 agent6_fairplay:
   status: implemented
@@ -537,11 +540,13 @@ agent9_prose:
         minor_gap_score: 85
 
   validation:
-    # Unified pronoun policy: strict | relaxed | off.
+    # Unified pronoun policy: strict | relaxed | verify | off.
     # strict => deterministic checks+repairs ON, validator pronoun errors ON.
     # relaxed => checks+repairs ON, validator pronoun errors OFF.
+    # verify => validator pronoun errors ON, deterministic repairs OFF.
     # off => both OFF.
-    pronoun_policy: off
+    # verify: deterministic fixer stays off (it corrupted prose historically); pronoun errors now flow to the report/rubric.
+    pronoun_policy: verify
     # Enable/disable deterministic pronoun repair post-processing.
     # Default false: LLM produces correct pronouns; the deterministic fixer introduces errors.
     pronoun_checking_enabled: false

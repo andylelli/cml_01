@@ -178,8 +178,10 @@ export const GOLDEN_AGE_BEAT_GUIDE: Record<GoldenAgeBeat, string> = {
   false_solution: "The False Solution — a convincing wrong solution accusing an innocent suspect; the detective spots its one flaw; end with the case seeming solved to everyone but the detective.",
   secrets: "Secrets Beneath Secrets — unrelated lies surface and explain earlier red herrings; separate moral guilt from criminal guilt; end on a clue that reinterprets an earlier scene.",
   pattern: "The Pattern Emerges — reconstruct timeline/scene via logic, language, etiquette, placement; end preparing a final test or trap.",
-  final_trap: "The Final Trap — staged confrontation/decisive proof; the culprit exposes themselves through knowledge or reaction; end ready to explain.",
-  revelation: "The Revelation — deduction-led solution (who/why/how/when, alibi trick, which clues mattered, why the false solution was wrong); NOT a confession; end on the emotional/social aftermath.",
+  final_trap: "The Final Trap — staged confrontation/decisive, deduction-led proof (NOT a confession as the proof); the culprit exposes themselves through knowledge or reaction and is named on-page; end ready to explain.",
+  // ITEM 11: final_trap carries the exposure, so the revelation beat is aftermath-dominant —
+  // re-issuing "deduction-led solution" here made the last chapter re-stage the reveal.
+  revelation: "The Revelation — aftermath-dominant close: with the culprit already exposed in the final trap, tie off which clues mattered and why the false solution was wrong WITHOUT re-staging the accusation or confession; refer to the culprit by name in retrospect; end on the emotional/social aftermath.",
 };
 
 export interface Scene {
@@ -674,7 +676,7 @@ The police detective/inspector is summoned in an official capacity following a f
       `Produce exactly ${GOLDEN_AGE_BEATS.length} scenes (one per chapter), each fulfilling the beat below IN THIS ORDER. ` +
       `Set the "beat" field on each scene to the given key.\n` +
       GOLDEN_AGE_BEATS.map((b, i) => `${i + 1}. beat: "${b}" — ${GOLDEN_AGE_BEAT_GUIDE[b]}`).join("\n") +
-      `\nThe culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect, and "revelation" must be deduction-led (no confession as the proof).\n`
+      `\nThe culprit must already be present by beat "crime". The false_solution beat must accuse an innocent suspect. "final_trap" must be deduction-led (no confession as the proof), and "revelation" must NOT re-stage the accusation or confession — it ties off the explanation and aftermath.\n`
     : "";
 
   // Only cue the model to emit `beat` when the Golden-Age arc is active (the 10-chapter path

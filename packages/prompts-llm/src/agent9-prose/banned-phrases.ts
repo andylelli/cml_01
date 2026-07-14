@@ -13,6 +13,9 @@ const DEFAULT_TIERED_BANNED_PHRASE_POLICY: TieredBannedPhrasePolicy = {
     "near the clock tower at quarter past",
     "showed quarter past three when the body",
     "in the formal gardens during the murder",
+    // Item 15: the worker time-injector's spliced sentence ("The hour stood at {time}.") — the model
+    // must never echo the injector's frame; the time belongs in scene action, not a status line.
+    "the hour stood at",
   ],
   // Soft bans are strongly discouraged and should be rewritten if present.
   soft: [
@@ -28,6 +31,10 @@ const DEFAULT_TIERED_BANNED_PHRASE_POLICY: TieredBannedPhrasePolicy = {
     "the sergeant [Surname] (use Sergeant Surname or 'the sergeant', never role + bare surname)",
     "the constable [Surname] (use Constable Surname or 'the constable', never role + bare surname)",
     "the gentleman [Surname] (use Mr. Surname or 'the gentleman', never role + bare surname)",
+    // Item 15: arc-summary filler that reads as outline narration, not scene prose.
+    "the investigation had entered a new phase",
+    "finally coming into focus",
+    "setting the stage for the final confrontation",
   ],
   // Watchlist terms are tracked for telemetry/early warning.
   watch: [

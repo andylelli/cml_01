@@ -19,6 +19,7 @@ import {
   chapterFullyExplainsMechanism,
   mechanismExplanationParagraphIndex,
 } from "../agent9-prose/mechanism-detect.js";
+import { chapterClueAppearsEarly } from "../agent9-prose/clue-validation.js";
 import { makeRegenFn } from "../agent9-prose/regen-llm.js";
 import type { ProseDefect } from "../agent9-prose/regen-repair.js";
 import type { ProseChapter, ChapterRequirementLedgerEntry } from "../agent9-prose/types.js";
@@ -83,6 +84,23 @@ describe("instructionForDefect — maps kind to a concrete in-scene instruction"
   });
   it("scaffold → rewrite as grounded prose preserving the fact", () => {
     expect(instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose" })).toMatch(/grounded in-scene prose/i);
+  });
+  it("clue_too_late → add the observation within the first quarter, keeping the later mention", () => {
+    const instr = instructionForDefect({ ...clueDefect, kind: "clue_too_late" });
+    expect(instr).toMatch(/FIRST QUARTER/);
+    expect(instr).toMatch(/later mention intact/i);
+  });
+  it("scaffold carrying the A1 early-clue lead → constrained to PRIVATE noticing, no announcement (ITEM 12)", () => {
+    const a1Detail = "Clara laid the facts out plainly where the others could see them: mantel clock rewound.";
+    const instr = instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose", detail: a1Detail });
+    expect(instr).toMatch(/PRIVATELY notices or examines/);
+    expect(instr).toMatch(/do NOT stage the investigator announcing conclusions/i);
+    expect(instr).toMatch(/assembled listeners/i);
+    expect(instr).toMatch(/do NOT summarize what is known/i);
+    // ordinary scaffold details keep the normal wording — the override fires only on the A1 lead
+    const normal = instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose", detail: "the trail bent toward the gardener" });
+    expect(normal).toMatch(/grounded in-scene prose/i);
+    expect(normal).not.toMatch(/assembled listeners/i);
   });
 });
 
@@ -205,6 +223,149 @@ describe("runClueRegenPass — the A1 replacement (P3.3), end-to-end with a mock
     expect(res.repaired).toEqual([]);
     expect(onUnresolved).toHaveBeenCalled();
     expect(res.chapter.paragraphs.join(" ")).not.toMatch(/cold tea/); // original retained for the floor
+  });
+});
+
+describe("runClueRegenPass — clue_too_late (ITEM 12): present-but-late EARLY clue reaches the LLM before the deterministic prepend", () => {
+  const earlyLedger: ChapterRequirementLedgerEntry = {
+    chapterNumber: 1,
+    hardFloorWords: 800,
+    preferredWords: 1200,
+    requiredClueIds: ["clue_clock"],
+    clueObligationContext: [
+      { id: "clue_clock", description: "The mantel clock has been rewound.", placement: "early" },
+    ],
+  };
+  const earlyClueDistribution: any = {
+    clues: [
+      {
+        id: "clue_clock",
+        description: "The mantel clock has been rewound.",
+        category: "physical",
+        criticality: "essential",
+        placement: "early",
+        pointsTo: "the time of death was staged",
+      },
+    ],
+  };
+  // Clue tokens appear ONLY in the final paragraph — present, but outside the first-quarter window.
+  const lateChapter: ProseChapter = {
+    title: "Ch1",
+    paragraphs: [
+      "Clara crossed the drawing room and let the household settle before she spoke.",
+      "Edgar kept his eyes on the hearth while the servants avoided one another.",
+      "The butler answered each question with the same flat courtesy he gave every guest.",
+      "Rain pressed against the tall panes, and the fire did little to warm the corners.",
+      "Someone had drawn the curtains, and no one would say who.",
+      "Clara watched the small betrayals pass between them, saying nothing yet.",
+      "The maid's account and the gardener's account refused to agree on the smallest points.",
+      "Only at the end did Clara mark it: the mantel clock had been rewound, and the time of death it implied was staged.",
+    ],
+  };
+
+  it("emits a clue_too_late defect and repairs it when the regen ADDS an early in-scene observation", async () => {
+    const client = {
+      chat: vi.fn(async () => ({
+        // all 8 originals preserved; the observation is INSERTED early (index 1)
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch1",
+            paragraphs: [
+              lateChapter.paragraphs[0],
+              "On her way past the hearth, Clara paused: the mantel clock had been rewound, its staged time promising a lie about the death.",
+              ...lateChapter.paragraphs.slice(1),
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runClueRegenPass({
+      chapter: lateChapter,
+      ledgerEntry: earlyLedger,
+      bible,
+      regen: makeRegenFn({ client }),
+      clueDistribution: earlyClueDistribution,
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toContain("clue_clock");
+    expect(res.unresolved).toEqual([]);
+    // the clue now satisfies the early-placement check the deterministic floor keys off
+    expect(chapterClueAppearsEarly(res.chapter.paragraphs, "clue_clock", earlyClueDistribution)).toBe(true);
+    // the chapter opening was not replaced
+    expect(res.chapter.paragraphs[0]).toBe(lateChapter.paragraphs[0]);
+  });
+
+  it("is a no-op (no LLM call) when the early clue is ALREADY early", async () => {
+    const client = { chat: vi.fn() } as any;
+    const earlyChapter: ProseChapter = {
+      title: "Ch1",
+      paragraphs: [
+        "Clara saw at once that the mantel clock had been rewound; whoever staged the time of death had been careless.",
+        ...lateChapter.paragraphs.slice(1, 7),
+      ],
+    };
+    const res = await runClueRegenPass({
+      chapter: earlyChapter,
+      ledgerEntry: earlyLedger,
+      bible,
+      regen: makeRegenFn({ client }),
+      clueDistribution: earlyClueDistribution,
+    });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op (no LLM call) for a late clue that is NOT required-early (placement mid)", async () => {
+    const client = { chat: vi.fn() } as any;
+    const midLedger: ChapterRequirementLedgerEntry = {
+      ...earlyLedger,
+      clueObligationContext: [
+        { id: "clue_clock", description: "The mantel clock has been rewound.", placement: "mid" },
+      ],
+    };
+    const midDistribution: any = {
+      clues: [{ ...earlyClueDistribution.clues[0], placement: "mid" }],
+    };
+    const res = await runClueRegenPass({
+      chapter: lateChapter,
+      ledgerEntry: midLedger,
+      bible,
+      regen: makeRegenFn({ client }),
+      clueDistribution: midDistribution,
+    });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("reports unresolved (chapter untouched) when the regen still leaves the clue late — deterministic floor still applies", async () => {
+    const onUnresolved = vi.fn();
+    const client = {
+      chat: vi.fn(async () => ({
+        // originals preserved but the added mention is APPENDED — still outside the early window
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch1",
+            paragraphs: [
+              ...lateChapter.paragraphs,
+              "She thought again of the rewound mantel clock before retiring for the night.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runClueRegenPass({
+      chapter: lateChapter,
+      ledgerEntry: earlyLedger,
+      bible,
+      regen: makeRegenFn({ client }),
+      clueDistribution: earlyClueDistribution,
+      maxAttemptsPerDefect: 1,
+      onUnresolved,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved).toContain("clue_clock");
+    expect(onUnresolved).toHaveBeenCalled();
+    expect(res.chapter.paragraphs).toEqual(lateChapter.paragraphs); // original retained for the floor
   });
 });
 

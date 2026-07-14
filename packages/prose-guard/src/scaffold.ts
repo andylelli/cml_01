@@ -33,7 +33,9 @@ const SEED_SIGNATURES: Array<{ rule: string; re: RegExp }> = [
   // A1 — clue/inference surfacing (deterministic-repair.ts:283/300)
   { rule: "A1:pressed_on", re: /\bpressed on to the next concrete detail\b/i },
   { rule: "A1:laid_facts_out", re: /\blaid the facts out plainly where the others could see them\b/i },
-  { rule: "A1:trail_bent_toward", re: /\bthe trail bent toward\b/i },
+  // Item 15: broadened to the inflected forms the model produces when it paraphrases the injector
+  // ("bends"/"bending"); the past-tense "bent" form is still matched.
+  { rule: "A1:trail_bent_toward", re: /\bthe trail (?:bent|bends|bending) toward\b/i },
   { rule: "A1:account_weaker", re: /\bthe standing account looked weaker for it\b/i },
   { rule: "A1:shifted_reasoning", re: /\b(?:that detail|those details) shifted the reasoning\b/i },
   // A2 — discriminating-test scaffold (deterministic-repair.ts:375)
@@ -49,6 +51,27 @@ const SEED_SIGNATURES: Array<{ rule: string; re: RegExp }> = [
   { rule: "D4:as_for_myself", re: /\bas for (?:myself|my own)\b\s*[—,-]/i },
   { rule: "D4:which_proves_not_responsible", re: /\bwhich proves [^.!?]{0,40}\b(?:could not|cannot) have been (?:responsible|the killer)\b/i },
 ];
+
+// Item 15 (S0) — the post-confession "validation-note" family: the summing-up chapter narrates its own
+// audit ("we must not forget…", "that detail matters…"). Any ONE anchor alone is plausible conversation
+// ("we must not forget our duty"), so the family is TWO-ANCHOR: it fires only when ≥2 distinct anchors
+// co-occur in the same chapter text — precision over recall, matching the seed-signature philosophy.
+const VALIDATION_NOTE_ANCHORS: RegExp[] = [
+  /\bwe must not forget\b/i,
+  /\bthat detail matters\b/i,
+  /\beverything that follows\b[^.!?]{0,80}\bmust answer to\b/i,
+  /\bthe texture of the (?:night|evening|day|scene) chang(?:es|ed) there\b/i,
+];
+const VALIDATION_NOTE_MIN_ANCHORS = 2;
+
+/** The two-anchor family: ≥2 distinct validation-note anchors in the same text → one hit. */
+function detectValidationNoteFamily(prose: string): ScaffoldHit | null {
+  const matches = VALIDATION_NOTE_ANCHORS
+    .map((re) => re.exec(prose))
+    .filter((m): m is RegExpExecArray => m !== null);
+  if (matches.length < VALIDATION_NOTE_MIN_ANCHORS) return null;
+  return { fragment: matches[0][0].trim().slice(0, 160), rule: "S0:validation_note" };
+}
 
 // Reasoning verbs and reasoning-connectives whose ADJACENCY is the deductive-scaffold shape. A
 // dramatized scene puts a physical action or line of dialogue between observation and inference; the
@@ -89,6 +112,11 @@ export function detectScaffoldNotProse(prose: string): ScaffoldHit[] {
       seen.add(h.rule);
       hits.push(h);
     }
+  }
+  const noteHit = detectValidationNoteFamily(text);
+  if (noteHit && !seen.has(noteHit.rule)) {
+    seen.add(noteHit.rule);
+    hits.push(noteHit);
   }
   return hits;
 }

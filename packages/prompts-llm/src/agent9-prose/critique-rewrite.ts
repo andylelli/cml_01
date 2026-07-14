@@ -45,6 +45,21 @@ export function selectLowestScoringChapters(
 
 const REWRITE_DIMENSIONS = ["prose", "dialogue", "character voice", "atmosphere", "de-repetition"];
 
+/**
+ * Constraints handed to the rewrite prompt. Locked facts are PRESERVATION-ONLY: the rewrite must keep
+ * verbatim any value the chapter already states, but must never insert one the chapter does not state
+ * (a flat "reproduce these" imperative made the temp-0.8 rewrite INSERT absent values side-by-side —
+ * the dualValueNoContrast defect). `contradictionPair` names the staged-vs-true reading pair: when the
+ * chapter states BOTH values they must read as one explicit contradiction, never two disconnected
+ * readings; with one or neither present the pair imposes nothing.
+ */
+export interface RewriteConstraints {
+  lockedFacts: ReadonlyArray<string>;
+  pronouns: Record<string, string>;
+  requiredClues: ReadonlyArray<string>;
+  contradictionPair?: { stagedValue: string; trueValue: string } | null;
+}
+
 /** Build the critique prompt (read-only analysis against the rubric dimensions). Pure. */
 export function buildCritiquePrompt(chapter: ProseChapter): { system: string; user: string } {
   const system =
@@ -64,19 +79,32 @@ export function buildCritiquePrompt(chapter: ProseChapter): { system: string; us
 export function buildRewritePrompt(
   chapter: ProseChapter,
   issues: ReadonlyArray<string>,
-  constraints: { lockedFacts: ReadonlyArray<string>; pronouns: Record<string, string>; requiredClues: ReadonlyArray<string> },
+  constraints: RewriteConstraints,
 ): { system: string; user: string } {
   const system = [
     "You are a master prose stylist for Golden-Age detective fiction.",
     "Rewrite the chapter to fix the listed craft issues — sharper dramatization, distinct character voices, real atmosphere, no repetition.",
     "ABSOLUTE CONSTRAINTS: change NO facts, times, clues, alibis, who is implicated or cleared, or chapter events.",
-    "Never alter any character's pronoun, gender, or name. Reproduce every locked fact value verbatim. Keep every clue present.",
+    "Never alter any character's pronoun, gender, or name. Reproduce verbatim every locked fact value the chapter already states; never introduce locked values the chapter does not state. Keep every clue present.",
     "Do not emit instruction-shaped text, validation language, or planning notes. Output JSON only.",
   ].join(" ");
   const pronounLines = Object.entries(constraints.pronouns ?? {}).map(([n, p]) => `${n}: ${p}`).join("; ");
+  // the contradiction obligation binds only when the chapter already states BOTH readings — with one
+  // or neither present, adding it would pressure the rewrite to insert the missing value
+  const chapterText = (chapter.paragraphs ?? []).join("\n").toLowerCase();
+  const pair = constraints.contradictionPair;
+  const pairBinds =
+    pair != null &&
+    chapterText.includes(pair.stagedValue.toLowerCase()) &&
+    chapterText.includes(pair.trueValue.toLowerCase());
   const user = [
     issues.length > 0 ? `Fix these craft issues:\n${issues.map((i) => `  • ${i}`).join("\n")}` : "Lift the prose, dialogue, character voice, and atmosphere.",
-    constraints.lockedFacts.length > 0 ? `Reproduce these values verbatim: ${constraints.lockedFacts.join("; ")}.` : "",
+    constraints.lockedFacts.length > 0
+      ? `If the chapter mentions any of these measured values, reproduce the exact phrase verbatim: ${constraints.lockedFacts.join("; ")}. NEVER introduce a locked value the chapter does not already state.`
+      : "",
+    pairBinds && pair
+      ? `CONTRADICTION OBLIGATION: the chapter states both "${pair.stagedValue}" and "${pair.trueValue}" — they must appear as ONE explicit contradiction (what claimed or appeared to be ${pair.stagedValue}, but ${pair.trueValue} was true), never as two disconnected readings.`
+      : "",
     pronounLines ? `PRONOUN LOCK — never change: ${pronounLines}.` : "",
     constraints.requiredClues.length > 0 ? `Every one of these clues must remain on the page: ${constraints.requiredClues.join("; ")}.` : "",
     "Return EXACTLY: {\"chapter\":{\"title\":\"...\",\"summary\":\"...\",\"paragraphs\":[\"...\"]}}",
@@ -106,7 +134,7 @@ export interface CritiqueRewriteResult {
 export interface CritiqueRewriteChapterArgs {
   client: AzureOpenAIClient;
   chapter: ProseChapter;
-  constraints: { lockedFacts: ReadonlyArray<string>; pronouns: Record<string, string>; requiredClues: ReadonlyArray<string> };
+  constraints: RewriteConstraints;
   /** gates the rewrite: facts/clues/pronouns/scaffold. Rewrite kept only if it does NOT regress. */
   validate: ChapterValidator;
   model?: string;
@@ -182,8 +210,8 @@ export interface CritiqueRewritePassArgs {
   skipAtOrAbove?: number;
   /** per-chapter validator factory: returns the gate for chapter at `index`. */
   validatorFor: (index: number, chapter: ProseChapter) => ChapterValidator;
-  /** per-chapter constraints (locked facts / pronouns / required clues). */
-  constraintsFor: (index: number, chapter: ProseChapter) => { lockedFacts: ReadonlyArray<string>; pronouns: Record<string, string>; requiredClues: ReadonlyArray<string> };
+  /** per-chapter constraints (locked facts / pronouns / required clues / contradiction pair). */
+  constraintsFor: (index: number, chapter: ProseChapter) => RewriteConstraints;
   model?: string;
   rewriteTemperature?: number;
   runId?: string;

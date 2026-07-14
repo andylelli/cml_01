@@ -333,7 +333,19 @@ export const applyDeterministicCluePatch = (
   const lateMaterials = materials.filter((entry) => !entry.requiresEarlyPlacement && entry.isMissing);
 
   if (earlyMaterials.length > 0) {
-    paragraphs.splice(0, 0, ...buildDeterministicClueParagraphs(earlyMaterials, investigatorName, true));
+    const earlyInsert = buildDeterministicClueParagraphs(earlyMaterials, investigatorName, true);
+    // Never PREPEND at index 0 when the chapter already has paragraphs: an index-0 template becomes
+    // the chapter OPENING, which the scaffold regen then dramatizes as the investigator announcing
+    // the case to assembled listeners at the top of Ch1 (the reveal-style opening). The block must
+    // still land inside the first-quarter window chapterClueAppearsEarly checks POST-insertion, so
+    // take the deepest index >= 1 whose inserted block ends at that quarter boundary.
+    const earlyInsertAt = paragraphs.length === 0
+      ? 0
+      : Math.min(
+          paragraphs.length,
+          Math.max(1, Math.ceil((paragraphs.length + earlyInsert.length) * 0.25) - earlyInsert.length),
+        );
+    paragraphs.splice(earlyInsertAt, 0, ...earlyInsert);
   }
   if (lateMaterials.length > 0) {
     const insertionIndex = Math.max(1, paragraphs.length - 1);

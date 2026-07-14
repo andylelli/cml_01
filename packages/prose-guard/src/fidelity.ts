@@ -138,6 +138,13 @@ const TEMPLATE_LEAKAGE = [
   // single-run dumps are prevented at source (composeProseTermPhrase) and flagged by the canned
   // scaffold phrases that always accompany them.
   /\b[a-z]{2,}(?:,\s+[a-z]{2,}){2,};\s*[a-z]{2,}(?:,\s+[a-z]{2,}){2,}/,
+  // Item 15: the worker time-injector's spliced status line ("The hour stood at {time}.") + the
+  // arc-summary filler the model echoes around it. Fixed template strings → high precision; neutral
+  // time phrasing ("The clock read eight.") stays clean.
+  /\bthe hour stood at\b/i,
+  /\bthe investigation had entered a new phase\b/i,
+  /\b(?:was|were) finally coming into focus\b/i,
+  /\bsetting the stage for the final confrontation\b/i,
 ];
 
 /**

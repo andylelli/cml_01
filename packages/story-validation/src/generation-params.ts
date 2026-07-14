@@ -241,7 +241,13 @@ export interface Agent9ValidationConfig {
   pronoun_validation_enabled: boolean;
 }
 
-export type PronounPolicy = "strict" | "relaxed" | "off";
+// Unified pronoun policy (runtime-read via getPronounPolicySettings — never freeze at module load):
+//   strict  => deterministic checking/repair ON,  validator pronoun errors ON.
+//   relaxed => deterministic checking/repair ON,  validator pronoun errors OFF.
+//   verify  => deterministic checking/repair OFF, validator pronoun errors ON — detection without the
+//              prose-writing fixer (which corrupted prose historically); errors flow to the report/rubric.
+//   off     => both OFF.
+export type PronounPolicy = "strict" | "relaxed" | "verify" | "off";
 
 export type PronounPolicySettings = {
   policy: PronounPolicy;
@@ -1610,7 +1616,7 @@ const mergeConfig = (partial: Partial<GenerationParamsConfig>): GenerationParams
       validation: {
         pronoun_policy: (() => {
           const raw = String(partial.agent9_prose?.validation?.pronoun_policy ?? "").trim().toLowerCase();
-          if (raw === "strict" || raw === "relaxed" || raw === "off") {
+          if (raw === "strict" || raw === "relaxed" || raw === "verify" || raw === "off") {
             return raw as PronounPolicy;
           }
           return DEFAULT_CONFIG.agent9_prose.validation.pronoun_policy;
@@ -1675,6 +1681,9 @@ const derivePronounPolicyFromLegacyFlags = (
 ): PronounPolicy => {
   if (!checkingEnabled && !validationEnabled) return "off";
   if (checkingEnabled && validationEnabled) return "strict";
+  // Legacy flag pair (checking=false, validation=true) is exactly the "verify" contract:
+  // detection/report stays on while the deterministic prose-writing fixer stays off.
+  if (!checkingEnabled && validationEnabled) return "verify";
   return "relaxed";
 };
 
@@ -1695,6 +1704,12 @@ export const getPronounPolicySettings = (
 
   if (policy === "relaxed") {
     return { policy, checkingEnabled: true, validationEnabled: false };
+  }
+
+  // "verify": pronoun errors are detected and reported, but the deterministic
+  // prose-writing repair stays off (repairs go through LLM regen, validator-gated).
+  if (policy === "verify") {
+    return { policy, checkingEnabled: false, validationEnabled: true };
   }
 
   return { policy: "strict", checkingEnabled: true, validationEnabled: true };
