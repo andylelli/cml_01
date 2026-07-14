@@ -2994,21 +2994,32 @@ const evaluateSceneGroundingCoverage = (prose: any, locationProfiles: any) => {
 export const partitionNsdRevealedCluesForReleaseGate = (
   nsdRevealedClues: Iterable<string>,
   expectedClueIds: Iterable<string>,
+  optionalClueIds: Iterable<string> = [],
 ) => {
   const expected = new Set(Array.from(expectedClueIds).map((id) => String(id)));
+  const optional = new Set(Array.from(optionalClueIds).map((id) => String(id)));
   const enforceable: string[] = [];
   const advisoryOnly: string[] = [];
+  const optionalDowngraded: string[] = [];
   for (const rawId of nsdRevealedClues) {
     const id = String(rawId);
-    if (expected.has(id)) {
-      enforceable.push(id);
-    } else {
+    if (!expected.has(id)) {
       advisoryOnly.push(id);
+    } else if (optional.has(id)) {
+      // Optional-criticality clues are texture, not fair-play-load-bearing: a missing prose
+      // anchor for one can NEVER be a fair-play failure, so it must never hard-stop the run.
+      // (e.g. clue_late_optional_slot_1 — a strict-mapping-contract filler Agent 5 is required
+      // to synthesize; run mystery-1784055526685 hard-aborted on exactly this.) Essential and
+      // supporting clues stay enforceable.
+      optionalDowngraded.push(id);
+    } else {
+      enforceable.push(id);
     }
   }
   return {
     enforceable,
     advisoryOnly,
+    optionalDowngraded,
   };
 };
 
@@ -5900,8 +5911,19 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const nsdRevealedClues = new Set(
     ctx.nsdTransferTrace.flatMap((step: any) => step.newly_revealed_clue_ids),
   );
-  const { enforceable: enforceableNsdRevealedClues, advisoryOnly: advisoryOnlyNsdRevealedClues } =
-    partitionNsdRevealedCluesForReleaseGate(nsdRevealedClues, expectedClueIds);
+  // Optional-criticality clues (e.g. Agent 5's synthesized late-texture slot) are not
+  // fair-play-load-bearing, so an unanchored one must not hard-stop the release gate.
+  const optionalClueIds = new Set<string>(
+    (((clues as any)?.clues ?? []) as any[])
+      .filter((c: any) => String(c?.criticality ?? "").toLowerCase() === "optional")
+      .map((c: any) => String(c?.id ?? ""))
+      .filter(Boolean),
+  );
+  const {
+    enforceable: enforceableNsdRevealedClues,
+    advisoryOnly: advisoryOnlyNsdRevealedClues,
+    optionalDowngraded: optionalDowngradedNsdRevealedClues,
+  } = partitionNsdRevealedCluesForReleaseGate(nsdRevealedClues, expectedClueIds, optionalClueIds);
   const enforceableNsdRevealedClueSet = new Set(enforceableNsdRevealedClues);
   const evidenceVisibleClues = new Set(clueEvidence.visibleClueIds);
   const revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
@@ -5930,6 +5952,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   if (advisoryOnlyNsdRevealedClues.length > 0) {
     ctx.warnings.push(
       `NSD advisory: ${advisoryOnlyNsdRevealedClues.length} NSD-only clue id(s) are outside expected visibility set and excluded from hard-gate parity checks: ${advisoryOnlyNsdRevealedClues.join(", ")}`,
+    );
+  }
+  const optionalDowngradedWithoutEvidence = optionalDowngradedNsdRevealedClues.filter(
+    (id) => !evidenceVisibleClues.has(id),
+  );
+  if (optionalDowngradedWithoutEvidence.length > 0) {
+    ctx.warnings.push(
+      `NSD advisory: ${optionalDowngradedWithoutEvidence.length} optional-criticality NSD-revealed clue(s) lack a prose evidence anchor; downgraded from hard-stop to advisory (optional texture clues are not fair-play-load-bearing): ${optionalDowngradedWithoutEvidence.join(", ")}`,
     );
   }
   const proseContainsIllegalControlChars = prose.chapters.some((chapter: any) =>

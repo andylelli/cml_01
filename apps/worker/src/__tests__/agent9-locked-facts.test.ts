@@ -432,6 +432,45 @@ describe("partitionNsdRevealedCluesForReleaseGate", () => {
     expect(result.enforceable).toEqual(["clue_a", "clue_b"]);
     expect(result.advisoryOnly).toEqual([]);
   });
+
+  // Regression: run mystery-1784055526685 hard-aborted because an OPTIONAL-criticality clue
+  // (clue_late_optional_slot_1, a synthesized strict-mapping filler) landed in the enforceable
+  // set and its missing prose anchor tripped the fair-play hard-stop. Optional texture clues
+  // are never fair-play-load-bearing → they must be advisory, never enforceable.
+  it("downgrades an expected-but-OPTIONAL clue to advisory, never enforceable", () => {
+    const result = partitionNsdRevealedCluesForReleaseGate(
+      ["clue_1", "clue_late_optional_slot_1", "clue_2"],
+      ["clue_1", "clue_2", "clue_late_optional_slot_1"], // optional clue IS distributed/expected
+      ["clue_late_optional_slot_1"], // …but flagged optional
+    );
+
+    expect(result.enforceable).toEqual(["clue_1", "clue_2"]);
+    expect(result.optionalDowngraded).toEqual(["clue_late_optional_slot_1"]);
+    expect(result.enforceable).not.toContain("clue_late_optional_slot_1");
+  });
+
+  it("still enforces an ESSENTIAL/SUPPORTING expected clue that is NOT in the optional set", () => {
+    const result = partitionNsdRevealedCluesForReleaseGate(
+      ["clue_essential", "clue_supporting"],
+      ["clue_essential", "clue_supporting"],
+      ["clue_some_other_optional"], // neither revealed clue is optional
+    );
+
+    expect(result.enforceable).toEqual(["clue_essential", "clue_supporting"]);
+    expect(result.optionalDowngraded).toEqual([]);
+  });
+
+  it("keeps a non-expected optional clue in advisoryOnly (not double-counted as downgraded)", () => {
+    const result = partitionNsdRevealedCluesForReleaseGate(
+      ["rh_1"],
+      ["clue_1"], // rh_1 is not expected at all
+      ["rh_1"], // and also happens to be optional
+    );
+
+    expect(result.advisoryOnly).toEqual(["rh_1"]);
+    expect(result.optionalDowngraded).toEqual([]);
+    expect(result.enforceable).toEqual([]);
+  });
 });
 
 describe("buildSyntheticNsdClueAnchor", () => {
