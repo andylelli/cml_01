@@ -179,6 +179,45 @@ const getCulpritRevealChapter = (cmlCase: any, allOutlineScenes: any[], fallback
   );
 };
 
+// ITEM 11 (Ch9/Ch10 duplicated reveal): in the Golden-Age 10-beat arc the culprit is
+// named on-page in the `final_trap` chapter, so the closing `revelation` chapter is
+// aftermath — NOT a second reveal (see agent7-narrative GOLDEN_AGE_BEAT_GUIDE.revelation).
+// The stage-mode resolver otherwise binds the reveal to the LAST chapter, because
+// getCulpritRevealChapter falls back to `totalScenes` whenever the CML
+// culprit_revelation_scene ref is missing/unresolvable; that issues a second "MANDATORY
+// RESOLUTION" mandate to the final chapter (obligation-block.ts) and the LLM re-stages the
+// whole accusation/confession/clearance there. Honor the authored beat so the AFTERMATH
+// CONTRACT branch fires instead. Beat strings mirror agent7-narrative.GOLDEN_AGE_BEATS;
+// kept as local literals to avoid coupling clue-validation to the agent-7 module.
+const GOLDEN_AGE_FINAL_TRAP_BEAT = "final_trap";
+const GOLDEN_AGE_REVELATION_BEAT = "revelation";
+
+const readSceneBeat = (scene: any): string => String(scene?.beat ?? "").trim().toLowerCase();
+
+const isGoldenAgeAftermathFinalChapter = (
+  chapterEnd: number,
+  totalScenes: number,
+  batchScenes: any[],
+  allOutlineScenes: any[],
+): boolean => {
+  // Only the final chapter can be the aftermath close.
+  if (chapterEnd < totalScenes) return false;
+  const scenes = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+  if (scenes.length === 0) return false;
+  // The current chapter (or, defensively, the last outline scene) must be authored
+  // `revelation`. Absent beats (non-Golden-Age arcs) never satisfy this → no behaviour change.
+  const finalIsRevelation =
+    (Array.isArray(batchScenes) &&
+      batchScenes.some((scene) => readSceneBeat(scene) === GOLDEN_AGE_REVELATION_BEAT)) ||
+    readSceneBeat(scenes[scenes.length - 1]) === GOLDEN_AGE_REVELATION_BEAT;
+  if (!finalIsRevelation) return false;
+  // And an EARLIER chapter must carry the on-page naming (`final_trap`), so we never
+  // suppress a legitimately-late reveal in a story with no separate trap chapter.
+  return scenes.some(
+    (scene, idx) => idx < scenes.length - 1 && readSceneBeat(scene) === GOLDEN_AGE_FINAL_TRAP_BEAT,
+  );
+};
+
 export const resolveStageModeKey = (
   chapterStart: number,
   chapterEnd: number,
@@ -189,6 +228,14 @@ export const resolveStageModeKey = (
   batchScenes: any[] = [],
 ): StageModeKey => {
   if (chapterStart <= 1) return "discovery_opening";
+
+  // ITEM 11: honor the Golden-Age authored arc first — the `revelation` final chapter is
+  // aftermath when an earlier `final_trap` chapter already named the culprit on-page. This
+  // must precede the culprit-reveal-chapter fallback below, which would otherwise bind the
+  // reveal to the last chapter and duplicate it.
+  if (isGoldenAgeAftermathFinalChapter(chapterEnd, totalScenes, batchScenes, allOutlineScenes)) {
+    return "aftermath_consequence";
+  }
 
   const culpritRevealChapter = getCulpritRevealChapter(cmlCase, allOutlineScenes, totalScenes);
   const signalText = batchScenes.map(normalizeSceneSignalText).join(" ");
