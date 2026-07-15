@@ -96,7 +96,7 @@ These were found on S0 and are the only *code* candidates left before the batche
 
 **Goal:** top-4 Cap-Ledger rows at ≤1 occurrence across ≥4 runs; median shipped rubric ≥ 73.
 
-- [ ] **P3.1** — `VERIFY` — on the M1 batches, confirm every cap that appears in any report has a corresponding `Agent9-Regen-*` label. Absent label = wiring bug → `CODE` fix.
+- [x] **P3.1 (attempt-1 runs)** — `VERIFY` — label audit run 2026-07-15: **the scaffold family is cleanly wired** — every scaffold/report-style cap on every capped run has matching `Agent9-Regen-*-scaffold_not_prose` labels (fired-and-lost = Item 8, effectiveness not wiring). Two leverless caps found: `templateLeakageHits` (in-loop batch gate only → **new Item 17**, decision deferred to the P3 gate — 1/11 doesn't justify a mid-count code change) and `dualValueNoContrast` (Item 9's route). Re-run the audit on the restarted batch.
 - [ ] **P3.2** — `RUN` ×4 — re-batch only if P3.1 required fixes; else the M1 batches double as the M2 sample.
 
 **The known M2 risk (Open Item 8):** the **scaffold / report-style regen fires on every capped run but wins only ~half the time** (won on the clean `identity` run; lost on `acoustic`/`tide`). This is a *lever-effectiveness* question, not a wiring one. **By design it is answered in the P4 A/B, not patched blind** — if the A/B shows the lever doesn't move cap frequency, strengthen the pass (prompt / attempts / align the deterministic clear-check with the rubric LLM's broader reading of "report-style"). Do not touch it before P4.
