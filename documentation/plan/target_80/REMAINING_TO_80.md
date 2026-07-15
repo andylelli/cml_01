@@ -82,9 +82,13 @@ These were found on S0 and are the only *code* candidates left before the batche
 | # | Theme | Run ID | Chapters | Outcome | Notes |
 |---|---|---|---|---|---|
 | — | poison | `mystery-1784133922125` | — (aborted at Agent 6.5) | **ABORTED** (pre-fix) | Voice-sketch cast-coverage hard-fail → root-caused + fixed (`257f7855`). Does **not** count. |
-| 1–8 | poison, tide, optics, acoustic, identity, clock, poison, tide | — | — | ⏳ launched 2026-07-15 | Chained fail-fast, poison first to validate the fix on the aborting theme. |
+| 1 | poison | `mystery-1784135454932` | 10 | ✅ **SHIPPED** (warning) | Sailed through Agent 6.5 first-attempt (fix's exempt path not needed this time). Rubric 56 (raw 59) — caps: **`revealUsesUnplantedEvidence` → ending ≤5 and `mechanismExplainedTooEarly` ×2 — first-ever occurrences of both** (were 0/11; now 1/13 each). Watch for the rescope's observational-verdict premise. |
+| 2 | tide | `mystery-1784137570721` | 10 | ✅ **SHIPPED** (warning) | Rubric 64 (raw 66) — caps: **template-leakage (Item 17 RECURS — now 2/13)** + scaffold ×2. The chain then stopped on a **harness bug**: `result.status` (phase-threshold) read `failure` on this shipped run — Open Item 2's shape in the canary exit code. Fixed `64e5f49e` (exit follows `release_gate_outcome`); **harness-only, generation code untouched → count does NOT restart.** |
+| 3–8 | optics, acoustic, identity, clock, poison, tide | — | — | ⏳ relaunched 2026-07-15 | Chained fail-fast under the fixed exit logic. |
 
-**Tally on the restarted count: 0/8 — batch in flight.** Attempt 1 reached 6/8 shipped with 0 aborts before the new class fired; both abort classes found so far were root-caused and fixed same-day (`dd2190f6`, `257f7855`).
+**Tally on the restarted count: 2/8 shipped, 0 aborts — runs 3–8 in flight.** Attempt 1 reached 6/8 with 0 aborts before the Agent 6.5 class fired; both abort classes were root-caused and fixed same-day (`dd2190f6`, `257f7855`).
+
+**Cap watch for the P3 gate (restarted batch):** template-leakage has now fired on 2 of the last 3 scored runs (Item 17's decision trigger is met — the P3 gate must choose between adding the leakage regen kind (+ count restart) or the Item 15 linter route); and run 1 broke the "never fires" record of two caps the rescope demoted to observational verdicts — if either recurs across this batch, the reserve buys that lever back per §8.
 
 **M2 preview from the M1 batch (feeds P3/P4):** caps fired on **5/6 shipped runs** — report-style 3/6, scaffold 2/6, template-leakage 1/6, `dualValueNoContrast` 1/6 (Item 9 recurs, now 2/11 shipped). The only uncapped run was **identity — the same theme as S0's cap-free run**; treat theme as a confound when reading cap frequency. Median shipped rubric **63** (59/60/63/63/65/68) vs the M2 bar ≥73 — the scaffold-family A/B (P4, Item 8) is carrying even more load than S0 suggested.
 
