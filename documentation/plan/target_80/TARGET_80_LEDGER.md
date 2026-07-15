@@ -13,8 +13,8 @@
 
 | Milestone | Target | Status |
 |---|---|---|
-| **M1 — Floor** | 8/8 consecutive post-change runs reach a scored release gate (never aborted/failure) | **S0 baseline COMPLETE 2026-07-13: 4/4 shipped, 0 hard stops** (5/5 counting smoke f90e5f09). The formal M1 gate (two dedicated 4-run batches) remains to be run — P2. |
-| **M2 — Ceiling** | top-4 caps ≤1 occurrence across ≥4 runs; median shipped ≥ 73 | **at risk on current data** — scaffold/report-style fired on 2/4 S0 runs; S0 median rubric 66 (59/60/66/70 + smoke 70). The scaffold lever fires but loses ~half the time (Item 8) → the A/B decides whether to strengthen the pass. |
+| **M1 — Floor** | 8/8 consecutive post-change runs reach a scored release gate (never aborted/failure) | **COUNT RESTARTED 2026-07-15 at `257f7855`** — attempt 1 reached **6/8 shipped, 0 aborts**, then the run-7 re-run hard-aborted on a **new class** (Agent 6.5 refuses to voice-sketch the victim, 3/3 attempts → `mystery-1784133922125`); fixed same-day (victim-exempt cast coverage, `257f7855`) and a fresh 8-run fail-fast batch launched (poison first). Two abort classes found and killed so far (`dd2190f6`, `257f7855`) — the gate is doing its job. Attempt 1's 6 shipped runs still feed the cap ledger and P4 pool. |
+| **M2 — Ceiling** | top-4 caps ≤1 occurrence across ≥4 runs; median shipped ≥ 73 | **at risk, and M1 sharpens it** — caps fired on **5/6** M1 runs (report-style 3/6, scaffold 2/6); M1 median shipped rubric **63** (59/60/63/63/65/68) vs the ≥73 bar. Only the identity-theme run ran uncapped — in S0 *and* M1 (theme confound). The scaffold lever fires but loses ~half the time (Item 8) → the P4 A/B decides whether to strengthen the pass. |
 | **M3 — Target 80** | mean ChatGPT ≥ 80, internal−external gap ≤ 3, ship 100%, ≥4×4 matched | **first external reads (S0, 2026-07-13): mean ChatGPT 73.25** (75/69/73/76) — the bar is 6.75 points away, much closer than internal suggested. **BUT the gap criterion fails in the NEW direction: internal−external = −9.5** (internal 63.75) — the rubric now *underscores*; per-run gaps −16/−3/−13/−6. Safe direction (no blind-spot risk) but the honesty criterion needs recalibration → Open Item 10. |
 
 ---
@@ -31,24 +31,35 @@
 | `mystery-…2181080` (tide) | 2026-07-13 | **S0-2** | **SHIPPED** (gate `warning`) | 0 / 2 | 95 A (phase-weighted) | **66 (raw 70), 3 caps** | **69** (gap −3) | £0.23 / 19.5 | Caps: deductive-scaffold → prose ≤4; report-style clearance ×2 → prose ≤6 / ending ≤7. Scaffold regen DID fire (Ch1 ×2, Ch10 ×1) — effectiveness question → Open Item 8. Continuity warning = NEW FP class → Open Item 7 (fixed). Grounding 3/10. 17/17 clues. |
 | `mystery-…4840251` (acoustic) | 2026-07-13 | **S0-3** | **SHIPPED** (gate `warning`) | 0 / 1 | 95 A (phase-weighted) | **60 (raw 63), 5 caps** | **73** (gap −13) | £0.21 / 20.9 | Scaffold family fired HARD: scaffold → prose ≤4, ceil-65, report-style ×2, **dualValueNoContrast** (marked "fixed" — reopened, see Cap panel). Scaffold regen attempted on Ch4/6/7/10 and lost → Item 8. Grounding 1/10. 17/17 clues. No Item-7 FP. |
 | `mystery-…6096323` (identity) | 2026-07-13 | **S0-4** | **SHIPPED** (gate `passed`) | 0 / 1 | 95 A (phase-weighted) | **70, `caps: []`** | **76** (gap −6) | £0.20 / 14.9 | Clean and uncapped — and its scaffold regen ALSO fired (Ch3 ×2, Ch8 ×2, Ch10) and won: the lever can work. 19/19 clues. Grounding 1/10 (warn). Best external of the batch. |
+| `mystery-…5526685` (optics) | 2026-07-14 | M1 pre | **ABORTED** (pre-count) | 1 / 2 | — | — | — | £1.16 / 15.0 | Clue-visibility hard-stop on `clue_late_optional_slot_1` — an **optional**-criticality NSD clue landed in the enforceable set. Fixed `dd2190f6` (optional → advisory `optionalDowngraded` bucket); the M1 count starts after this fix. |
+| `mystery-…7933768` (optics) | 2026-07-14 | **M1-1** | **SHIPPED** (gate `warning`) | 0 / 1 | 74 C | **68 (raw 70), 2 caps** | — | £0.27 / 20.3 | 10-ch. **Items 11+12 confirmed fixed live** (Ch10 = aftermath, no re-staged reveal; Ch1 opens with the generated scene). Caps: report-style ×2. Residual Ch10 clearance recitation → **Item 16**. |
+| `mystery-…9393094` (poison) | 2026-07-14 | **M1-2** | **SHIPPED** (gate `warning`) | 0 / 1 | 95.93 A (phase-weighted) | **59 (raw 61), 2 caps** | — | £0.18 / 12.8 | 9-ch. Caps: template/validation-text leakage → prose ≤4 (**first cap-level occurrence** — Item 15 family) + **dualValueNoContrast → clues ≤6 (Item 9 recurs)**. |
+| `mystery-…0164809` (tide) | 2026-07-14 | **M1-3** | **SHIPPED** (gate `warning`) | 0 / 1 | 74 C | **63 (raw 63), 2 caps** | — | **£1.23** / 25.0 | 9-ch. Caps: report-style ×2. Cost outlier ~6× the batch norm — check regen/retry volume. `structural.mechanismExplainedChapter=6` recorded with NO mechanism cap — watch the detector/rubric split. |
+| `mystery-…1663248` (acoustic) | 2026-07-14 | **M1-4** | **SHIPPED** (gate `warning`) | 0 / 1 | 74 C | **65 (raw 69), 2 caps** | — | £0.24 / 23.7 | 9-ch. Caps: scaffold → prose ≤4 + ceil-65 (the scaffold family again). |
+| `mystery-…3124632` (identity) | 2026-07-14 | **M1-5** | **SHIPPED** (gate `warning`) | 0 / 1 | 74 C | **63, `caps: []`** | — | £0.23 / 18.9 | 10-ch. Uncapped but LOW — the craft floor again (cf. S0-poison's 59). Identity is now the cap-free theme in **both** S0 and M1. |
+| `mystery-…4257736` (clock) | 2026-07-14 | **M1-6** | **SHIPPED** (gate **`passed`**) | 0 / 1 | 74 C | **60 (raw 63), 3 caps** | — | £0.28 / **72.1** | 10-ch. First outright `passed` of the batch — while carrying 3 caps (scaffold + report-style ×2): the gate and the rubric measure different things. Duration outlier 72 min. |
+| `mystery-…8590753` (poison) | 2026-07-15 | M1-7 (attempt 1) | **INTERRUPTED** — does not count | — | — | — | — | — | Machine stop ~04:52 mid-Agent-7 (report stuck `in_progress: true`; 12/12 upstream phases had passed). Not a pipeline abort. |
+| `mystery-…3922125` (poison) | 2026-07-15 | M1-7 re-run | **ABORTED — NEW CLASS → count restarted** | abort | — | — | — | — | **Agent 6.5 voice-sketch cast-coverage hard-fail**: the model refuses to voice-sketch the **victim** (Hugo Vane) — sketches 5/6 on all 3 attempts (retry feedback fixed portraits, never sketches). Fixed `257f7855`: victim-exempt `enforceCastCoverage` (downstream find()s by name and tolerates absence; no fabricated victim dialogue). Fresh 8-run batch launched 2026-07-15. |
 
 ---
 
 ## 2. Reliability Ledger  *(abort channels — every row must read 0 occurrences per batch)*
 
-| Hard-fail class | Lever / state (roadmap §6) | `a3c2973f` | `f90e5f09` | Batch tally |
-|---|---|---|---|---|
-| `illegal_named_walk_on` | `AGENT9_WALKON_REPAIR` ON · built | 0 | 0 | 0/2 |
-| `cleared_culprit_conflict` | construction guard (unflagged) · built | 0 | 0 | 0/2 |
-| `missing_case_transition_bridge` (abort form) | `AGENT9_REGEN_TRANSITION` ON · built | 0 | 0 (warn-level FP only — Open Item 1) | 0/2 |
-| season/mechanism FP | fixed · live | 0 | 0 | 0/2 |
-| Agent-5 coverage abort | RC3.1 repair-not-abort · fixed | 0 | 0 | 0/2 |
-| reveal never converges | `AGENT9_REGEN_RESOLUTION` ON | 0 | 0 | 0/2 |
-| template-bleed openers | backstops live (audited 2026-07-12) | 0 | 0 | 0/2 |
-| Agent-7 `scene.beat` enum | coercion + persistence live (audited) | 0 | 0 | 0/2 |
-| **Truncated Agent-5 JSON → jsonrepair phantom clue** | parse filter + retry + max_tokens 6000 · **fixed 2026-07-12** | **1 — the abort** | 0 | 1/2 (pre-fix) |
+| Hard-fail class | Lever / state (roadmap §6) | `a3c2973f` | `f90e5f09` | M1 runs 1–6 | Batch tally |
+|---|---|---|---|---|---|
+| `illegal_named_walk_on` | `AGENT9_WALKON_REPAIR` ON · built | 0 | 0 | 0 | 0/8 |
+| `cleared_culprit_conflict` | construction guard (unflagged) · built | 0 | 0 | 0 | 0/8 |
+| `missing_case_transition_bridge` (abort form) | `AGENT9_REGEN_TRANSITION` ON · built | 0 | 0 (warn-level FP only — Open Item 1) | 0 | 0/8 |
+| season/mechanism FP | fixed · live | 0 | 0 | 0 | 0/8 |
+| Agent-5 coverage abort | RC3.1 repair-not-abort · fixed | 0 | 0 | 0 | 0/8 |
+| reveal never converges | `AGENT9_REGEN_RESOLUTION` ON | 0 | 0 | 0 | 0/8 |
+| template-bleed openers | backstops live (audited 2026-07-12) | 0 | 0 | 0 | 0/8 |
+| Agent-7 `scene.beat` enum | coercion + persistence live (audited) | 0 | 0 | 0 | 0/8 |
+| **Truncated Agent-5 JSON → jsonrepair phantom clue** | parse filter + retry + max_tokens 6000 · **fixed 2026-07-12** | **1 — the abort** | 0 | 0 | 1/8 (pre-fix) |
+| **Clue-visibility hard-stop on optional-criticality NSD clue** | `partitionNsdRevealedCluesForReleaseGate` → advisory `optionalDowngraded` · **fixed 2026-07-14 `dd2190f6`** | — | — | **1 pre-count abort** (optics `…5526685`) · 0/6 post-fix | 1 pre-fix, 0 since |
+| **Agent 6.5 victim voice-sketch cast-coverage hard-fail** | victim-exempt `enforceCastCoverage` (accept a missing victim, never fabricate dialogue) · **fixed 2026-07-15 `257f7855`** | — | — | **1 — the run-7 re-run abort** (`…3922125`, poison) → **M1 count restarted** | 1 pre-fix, 0 since |
 
-**Ship rate:** smoke 1/2 (abort root-caused and fixed the same day). **Post-fix: 3/3 shipped** (f90e5f09, S0-poison, S0-tide) — zero hard stops, zero aborts; every §2 row at 0 occurrences across all post-fix runs.
+**Ship rate:** every abort class so far has been root-caused and fixed same-day (jsonrepair 2026-07-12; optional-clue visibility `dd2190f6` 2026-07-14; victim voice-sketch `257f7855` 2026-07-15). Attempt 1 post-`dd2190f6`: **6/6 shipped** — zero hard stops; every §2 row reads 0 across those runs. The restarted 8-run count (post-`257f7855`) is in flight. Run 7's first attempt was a machine interruption (not a pipeline abort) and doesn't tally here.
 
 ---
 
@@ -56,20 +67,22 @@
 
 *Read `caps_applied` + `structural` from the report's `rubric_score` diagnostic. Aborted runs don't count (no honest rubric).*
 
-| Cap | Lever | `f90e5f09` | poison | tide | acoustic | identity | Shipped freq |
-|---|---|---|---|---|---|---|---|
-| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `scaffoldHits` (incl. ceil-65 at ≥2) | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0 | **1** | **2** | 0 | **2/5** |
-| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0 | **2** | **2** | 0 | **2/5** |
-| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `victimUnnamed` / `malformedEvidenceSurfacing` | fixed (landed) | 0 | 0 | 0 | 0 | 0 | 0/5 |
-| `dualValueNoContrast` | A_57 D2 — **REOPENED** (fired on acoustic: "central clue stated as two flat values, not one contradiction" → clues ≤6) | 0 | 0 | 0 | **1** | 0 | **1/5** |
-| `weakMurderMethod` | RC3.5 tell · off | 0 | 0 | 0 | 0 | 0 | 0/5 |
+| Cap | Lever | `f90e5f09` | poison | tide | acoustic | identity | M1 runs 1–6 | Shipped freq |
+|---|---|---|---|---|---|---|---|---|
+| `mechanismExplainedTooEarly` | `AGENT9_REGEN_MECHANISM` ON | 0 | 0 | 0 | 0 | 0 | 0 *(but see M1-3: `mechanismExplainedChapter=6` with no cap)* | 0/11 |
+| `scaffoldHits` (incl. ceil-65 at ≥2) | `AGENT9_REGEN_SCAFFOLD` ON | 0 | 0 | **1** | **2** | 0 | **2** (M1-4 acoustic incl. ceil-65; M1-6 clock) | **4/11** |
+| `reportStyleClearance` | same lever (scaffold pass) | 0 | 0 | **2** | **2** | 0 | **3** (M1-1 optics ×2; M1-3 tide ×2; M1-6 clock ×2) | **5/11** |
+| `revealUsesUnplantedEvidence` | `AGENT6_DT_EVIDENCE_COMPLETENESS` ON | 0 | 0 | 0 | 0 | 0 | 0 | 0/11 |
+| `templateLeakageHits` | `AGENT9_REGEN_CLUE` ON | 0 | 0 | 0 | 0 | 0 | **1** (M1-2 poison → prose ≤4 — first cap-level occurrence; Item 15 family) | **1/11** |
+| `culpritIsVictim` / role collision | `repairCaseSoundness` unconditional | 0 | 0 | 0 | 0 | 0 | 0 | 0/11 |
+| `pronounsUnstable` | `AGENT9_BIBLE_AUTHORITATIVE` ON | 0 | 0 | 0 | 0 | 0 | 0 | 0/11 |
+| `victimUnnamed` / `malformedEvidenceSurfacing` | fixed (landed) | 0 | 0 | 0 | 0 | 0 | 0 | 0/11 |
+| `dualValueNoContrast` | A_57 D2 — **REOPENED** (fired on acoustic: "central clue stated as two flat values, not one contradiction" → clues ≤6) | 0 | 0 | 0 | **1** | 0 | **1** (M1-2 poison — recurrence, Item 9) | **2/11** |
+| `weakMurderMethod` | RC3.5 tell · off | 0 | 0 | 0 | 0 | 0 | 0 | 0/11 |
 
 **The S0 read: the scaffold/report-style family is THE dominant live cap (2/5 runs), and the lever's story is now precise** — the regen attempted on every capped run (tide Ch1/Ch10; acoustic Ch4/6/7/10) *and* on the uncapped identity run (Ch3/8/10) where it won. So the pass works sometimes and loses sometimes; whether it beats no-lever at all is exactly the P4 A/B question (Open Item 8). `dualValueNoContrast` reopened at 1/5 (Open Item 9).
+
+**The M1 read (runs 1–6, 2026-07-14): caps fired on 5/6 shipped runs — the family is getting MORE frequent, not less.** Report-style 3/6, scaffold 2/6; `templateLeakageHits` reached cap level for the first time (M1-2 poison) and `dualValueNoContrast` recurred on the same run (Item 9, now 2/11). The only uncapped run was **identity — the same theme as S0's cap-free run**: treat theme as a confound when reading cap frequency, and make sure the P4 A/B pool is theme-matched. M1 median shipped rubric **63** vs the M2 bar ≥73 — P4's scaffold verdict is now clearly the biggest single lever on the board. **P3.1 (regen-label verify per fired cap) has NOT yet been run on this batch.**
 
 ---
 
@@ -91,6 +104,24 @@
 
 **S0 baseline floor: 6.5 mean, no category at target.** The uncapped ceiling today is ~70 (f90e5f09, identity); the consistent deficits are **pacing (5.8), prose (5.8 — cap-dragged), plot_structure (6.0), opening_hook (6.2)**. Atmosphere (7.8) is the only near-target category. Reading: extinguishing the scaffold family (Item 8) recovers prose/ending/clues on capped runs, but even cap-free runs sit at 70 — the last ten points are craft (P5), exactly as the roadmap predicted.
 
+### M1 batch (runs 1–6, 2026-07-14)
+
+| Category | Target | optics | poison | tide | acoustic | identity | clock | Mean (6) |
+|---|---|---|---|---|---|---|---|---|
+| premise | 8 | 8 | 7 | 7 | 7 | 7 | 7 | 7.2 |
+| opening_hook | 8 | 7 | **6** | **6** | **6** | **6** | **6** | **6.2** |
+| plot_structure | 8 | **6** | **5** | **6** | 7 | **5** | **5** | **5.7** |
+| character_clarity | 8 | 7 | **6** | 7 | 8 | **6** | **6** | 6.7 |
+| dialogue | 8 | **6** | 7 | **6** | 7 | 7 | 7 | 6.7 |
+| atmosphere | 8 | 8 | **6** | 7 | 8 | 8 | 8 | 7.5 |
+| clues | 8 | **6** | **5** (capped) | **5** | **6** | **5** | **5** | **5.3** |
+| pacing | 8 | 7 | **6** | **6** | **5** | **6** | **6** | **6.0** |
+| ending | 8 | 7 (capped) | 7 | 7 (capped) | 8 | 7 | **6** (capped) | 7.0 |
+| prose | 8 | **6** (capped) | **4** (capped) | **6** (capped) | **4** (capped) | **6** | **4** (capped) | **5.0** |
+| **Mean** | **8.0** | 6.8 | 5.9 | 6.3 | 6.6 | 6.3 | 6.0 | **6.3** |
+
+**M1 floor: 6.3 vs S0's 6.5 — flat, as expected from reliability runs.** Prose is cap-dragged to 5.0 (three runs at 4) and **clues fell to 5.3** — now the second-worst category (S0: 6.2). plot_structure 5.7 with four runs at 5–6. opening_hook is a uniform 6 wall except optics (7 — the run where Item 12's fix was confirmed live; suggestive, not conclusive at n=1). The floor lift remains P4 (caps) + P5 (craft); nothing here changes that ordering, but clues' slide says Item 9 deserves its pre-P4 look.
+
 ---
 
 ## 5. Open Items  *(found on smoke runs; each needs a lever or a decision before/during the batches)*
@@ -105,19 +136,20 @@
 | 6 | **No external (ChatGPT) scores collected yet** — the M3 gap ≤ 3 criterion is unmeasured on every run so far | measurement debt | start collecting on the S0 batch (one external read per shipped run) |
 | 7 | **Victim-timeline reconstruction FP** (tide) — "Dr. Finch **vanished** from the lobby just before eleven" is reconstruction of the victim's last movements, not a case transition; person-context can't exclude it (a person genuinely vanishes) | validator FP, second shape of the Item-1 family | **FIXED 2026-07-13** — the transition check (detector + validator, shared) now applies ONLY where death language FIRST enters the story; once a murder is established, later disappearance phrasing never flags. Tide's exact shape is a must-not-match test; 10/10 detector tests, 371/371 suite. *(Landed after S0-3/4 launched — those two may still show the warn-level FP; discount it when tallying.)* |
 | 8 | **Scaffold/report-style regen effectiveness** — fired on every capped run (tide Ch1/10; acoustic Ch4/6/7/10 → still 5 caps) AND on the uncapped identity run (Ch3/8/10 → clean): works sometimes, loses sometimes; the rubric's LLM judge reads "report-style" more broadly than the regen's deterministic clear-check | lever effectiveness (NOT wiring) — **now 2/4 S0 runs affected; the dominant live cap** | measure in the P4 A/B (`--flag AGENT9_REGEN_SCAFFOLD`); if the lever doesn't move cap frequency, strengthen the pass (prompt/attempts/validator alignment with the rubric's reading) — a POST-A/B change by design |
-| 9 | **`dualValueNoContrast` REOPENED** (acoustic) — "central clue stated as two flat values, not one contradiction" → clues ≤6; the Cap Ledger had this marked fixed (A_57 D2) | cap regression or sub-shape the D2 fix missed | 1/5 shipped; check the acoustic central-clue phrasing vs the D2 detector before the M1 batches; candidate small fix |
+| 9 | **`dualValueNoContrast` REOPENED** (acoustic) — "central clue stated as two flat values, not one contradiction" → clues ≤6; the Cap Ledger had this marked fixed (A_57 D2) | cap regression or sub-shape the D2 fix missed | **2/11 shipped — recurred on M1-2 (poison) 2026-07-14**; check both runs' central-clue phrasing vs the D2 detector before P4; candidate small fix; clues is now the second-worst floor category (5.3) |
 | 10 | **Internal rubric UNDERSCORES by ~9.5** (S0 externals: −16/−3/−13/−6) — opposite direction from the A_57 blind-spot; external reads plot/pacing/ending 1–2 marks higher than internal on the same stories | rubric calibration (M3 gap ≤3 fails) | safe direction (no false-80 risk) but the honesty criterion fails; diagnose AFTER caps are extinguished — capped runs (tide/acoustic) show the biggest single-category divergences, so Item 8 may close much of this |
-| 11 | **Ch9/Ch10 duplicated reveal — flagged by ALL FOUR external reads** ("Chapter 10 should be aftermath only") | structural, outline-level (Agent-7 final_trap/revelation beats) or resolution-enforcement writing the reveal twice | strongest single external signal; investigate whether the resolution/culprit-evidence obligations force a second reveal into Ch10; candidate pre-P2 fix |
-| 12 | **Ch1 opens with reveal-like exposition, then "restarts" with the discovery** (poison + tide: "duplicated/generated opening") | suspicious of a deterministic lead-paragraph injection (grounding-lead class) or outline Ch1 beat | check whether Ch1 paragraph 1 is injected vs generated; also depresses the measured opening_hook floor (6.2) |
+| 11 | **Ch9/Ch10 duplicated reveal — flagged by ALL FOUR external reads** ("Chapter 10 should be aftermath only") | structural — root-caused: `getCulpritRevealChapter`'s last-chapter fallback gave Ch10 the full MANDATORY-RESOLUTION mandate even when Ch9 (`final_trap`) already revealed | **FIXED 2026-07-14 (`2b6cfc23`, beat-aware stage classifier)** — `resolveStageModeKey` returns `aftermath_consequence` for the final chapter when the outline authored a `revelation` beat after an earlier `final_trap`; only fires on beat-authored (10-ch Golden-Age) arcs, never suppresses a legitimately-late reveal. **Confirmed live on M1-1** (10-ch optics): Ch10 = aftermath, no re-staging. Residual clearance recitation → Item 16. |
+| 12 | **Ch1 opens with reveal-like exposition, then "restarts" with the discovery** (poison + tide: "duplicated/generated opening") | deterministic clue-materialization repair (`applyDeterministicCluePatch`) prepended two templated clue paragraphs at index 0 — *not* the grounding-lead pass | **FIXED (`4826eb80`, `earlyInsertAt = max(1,…)` — the repair never opens a chapter)** + regression test; the worker's dist was stale until `build:all` 2026-07-14. **Confirmed live on M1-1**: Ch1 opens with the generated scene. Watch opening_hook for movement (M1-1 scored 7 vs the batch's 6 wall). |
 | 13 | **Pronoun drift visible in ALL FOUR external reads while the internal `pronounsUnstable` cap stayed silent** | internal gate under-detects (sweep repairs the countable cases; residuals remain) | quantify: run the pronoun validator standalone on the S0 stories; if it reads clean while externals see slips, the detector needs the externals' examples |
 | 14 | **Signature tics read as "artificial repeated catchphrases"** (3/4 reads) — the RC5.3 idiolect injection is landing but reads mechanical | craft/lever tuning | feed into P5: tic frequency cap or variation; the voice A/B (`AGENT9_VOICE_ENFORCE`) should measure dialogue mark movement, not just leakage |
-| 15 | **Prompt-leakage lines externally visible** ("The hour stood at…", "The investigation had entered a new phase…") below the internal linter's ≥2-hits cap threshold | template-leakage detector gap (sub-threshold instances) | collect the externals' quoted lines as linter fixtures; low priority until Items 8/11 land |
+| 15 | **Prompt-leakage lines externally visible** ("The hour stood at…", "The investigation had entered a new phase…") below the internal linter's ≥2-hits cap threshold | template-leakage detector gap (sub-threshold instances) | collect the externals' quoted lines as linter fixtures; low priority until Items 8/11 land. **Related: the leakage family reached full cap level on M1-2 (poison, `templateLeakageHits` → prose ≤4)** — the detector fires when hits are dense enough; the gap is only the sub-threshold tail |
+| 16 | **Ch10 aftermath still recites suspect clearances** (found on M1-1 with Item 11's fix live) — no re-staged accusation/confession, but per-suspect clearance recitation persists ("Dr. Finch was innocent…"), incl. an injection artifact ("the **Confirmed** alibi by hotel staff…") | deterministic suspect-clearance injection that runs regardless of stage mode (the capitalized "Confirmed" is the tell) | NEW 2026-07-14; candidate for the injector-layer deletion (P4.4 / LLD P7); low priority — milder than the old full duplicate, not blocking |
 
 ---
 
 ## 6. What's next
 
-The immediate three moves: close Open Item 1, decide Item 2, run the S0 baseline batch. The full path from here to a validated 80 is §7.
+The immediate three moves (2026-07-15): finish the **restarted** M1 gate — 8 fresh runs post-`257f7855`, chained fail-fast (poison, tide, optics, acoustic, identity, clock, poison, tide); then P3.1 (verify every fired cap has a matching `Agent9-Regen-*` label in `logs/llm-prompts-full.jsonl` — not yet done); then assemble the P4 A/B pool (theme-matched — identity is a known cap-free confound). The full path is §7.
 
 ---
 

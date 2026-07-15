@@ -1,6 +1,6 @@
 # WHAT'S LEFT TO REACH 80 — the remaining-work list
 
-**Date:** 2026-07-14 · **Branch:** `redesign/agent-blue-sky`
+**Date:** 2026-07-15 · **Branch:** `redesign/agent-blue-sky`
 **Companions:** [ROADMAP_TO_80.md](ROADMAP_TO_80.md) (the full grounded plan, §10 = the phased steps) · [TARGET_80_LEDGER.md](TARGET_80_LEDGER.md) (the standing three-panel scoreboard — the numbers)
 **What this is:** the short, execution-ready list of everything still between us and a *validated* 80. The roadmap is the reasoning; the ledger is the scoreboard; **this file is the to-do list.** If a line here conflicts with the ledger, the ledger wins (update this file).
 
@@ -8,7 +8,7 @@
 
 ## 0. Where we are right now (one paragraph)
 
-**Every CODE and CONFIG step in the roadmap is done.** The initiative is in its measurement phase. The **S0 baseline batch is complete** (4/4 shipped, 0 hard stops) and carried the **first external reads: mean ChatGPT 73.25 (75/69/73/76)** — only **6.75 points off 80**, much closer than the internal rubric suggested. What remains is almost entirely **runs and reads**, plus a handful of small candidate fixes surfaced by those first external reads. The two things still pinning the score: the **scaffold/report-style cap** (fired on 2/5 shipped runs, the lever wins only ~half the time) and the **craft floor** (category mean 6.5; even cap-free runs top out at ~70 internal).
+**Every CODE and CONFIG step in the roadmap is done.** The initiative is in its measurement phase. The **S0 baseline batch is complete** (4/4 shipped, 0 hard stops) and carried the **first external reads: mean ChatGPT 73.25 (75/69/73/76)** — only **6.75 points off 80**, much closer than the internal rubric suggested. The **M1 gate's first attempt reached 6/8 shipped, 0 aborts**, then run 7's re-run surfaced a new abort class (Agent 6.5 victim voice-sketch) — fixed same-day (`257f7855`) and the **count restarted 2026-07-15; a fresh 8-run batch is in flight**. What remains is almost entirely **runs and reads**, plus a handful of small candidate fixes surfaced by those first external reads. The two things still pinning the score: the **scaffold/report-style cap** (fired on 2/5 shipped runs, the lever wins only ~half the time) and the **craft floor** (category mean 6.5; even cap-free runs top out at ~70 internal).
 
 **Acceptance bar for "80" (unchanged):** mean ChatGPT ≥ 80 · internal−external gap ≤ 3 · ship rate 100% · over a ≥4×4 matched batch.
 
@@ -38,7 +38,7 @@ These were found on S0 and are the only *code* candidates left before the batche
 |---|---|---|---|---|
 | **11** | **Ch9/Ch10 duplicated reveal** — "Ch10 should be aftermath only" | **Flagged by ALL FOUR external reads** — the single strongest signal | **ROOT-CAUSED (2026-07-14), NOT yet fixed.** *Not* a regen pass (ruled out empirically — zero `missing_resolution`/`culprit_unlinked` regen calls in any run; those passes correctly no-op because Ch9 resolves). Cause = **stage-mode misclassification**: the aftermath guard at `obligation-block.ts:744` only fires when Ch10 is `aftermath_consequence`, but `getCulpritRevealChapter` (`clue-validation.ts:171-180`) falls back to the **last** chapter when the CML `culprit_revelation_scene` ref is unresolvable → Ch10 gets the full "MANDATORY RESOLUTION" mandate, so Ch9 (final_trap) + Ch10 both fully reveal. **FIXED 2026-07-14 (beat-aware classifier).** `resolveStageModeKey` (`clue-validation.ts`) now returns `aftermath_consequence` for the final chapter when the outline authored a `revelation` final beat after an earlier `final_trap` — honoring the authored arc *before* the culprit-reveal-chapter fallback can bind the reveal to the last chapter. So Ch10 now gets the AFTERMATH CONTRACT ("do not re-stage") instead of MANDATORY RESOLUTION. Only fires when a genuine earlier `final_trap` exists (never suppresses a legitimately-late reveal); no-op on non-Golden-Age (beatless) outlines. New both-directions suite `stage-mode-item11-aftermath.test.ts` (5 tests, +13 existing ITEM 11 tests); full prompts-llm suite 737 green. `build:all` + dist verified live 2026-07-14. | ✅ **CONFIRMED LIVE** on run `mystery-1784057933768` (10-ch): stage mode = `aftermath_consequence`, Ch10 no longer re-stages accusation/confession/arrest. Residual: some suspect-clearance recitation persists in Ch10 → **new Item 16**. |
 | **12** | **Ch1 opens with reveal-like exposition, then "restarts" with the discovery** (poison + tide) | 2/4 reads; also depresses the measured opening_hook floor (6.2) | **RESOLVED (2026-07-14).** Root cause = the deterministic clue-materialization repair (`buildDeterministicClueParagraphs` / `applyDeterministicCluePatch`, `packages/prompts-llm/src/agent9-prose/deterministic-repair.ts`), **not** the grounding-lead pass — it prepended two templated clue paragraphs at index 0, pushing the real generated opener to para 3. Fixed in source at commit `4826eb80` (`earlyInsertAt = max(1,…)`, never opens the chapter) with a regression test; S0 predates the fix. **Was stale in the worker's built dist → `build:all` rebuilt + dist verified live 2026-07-14.** | ✅ **CONFIRMED LIVE** on run `mystery-1784057933768`: Ch1 opens with the generated scene, no templated clue paragraphs. |
-| **9** | **`dualValueNoContrast` REOPENED** (acoustic) — central clue stated as two flat values, not one contradiction → clues ≤6 | 1/5 shipped | Compare the acoustic central-clue phrasing against the A_57 D2 detector — is it a regression or a sub-shape the D2 fix missed? | `CODE` (small, targeted) |
+| **9** | **`dualValueNoContrast` REOPENED** (acoustic) — central clue stated as two flat values, not one contradiction → clues ≤6 | **2/11 shipped** (S0-acoustic + M1-poison) | Compare the acoustic central-clue phrasing against the A_57 D2 detector — is it a regression or a sub-shape the D2 fix missed? **Recurred on M1 run 2 (poison) — now 2/11 shipped**, alongside a first cap-level template-leakage hit (Item 15 family). | `CODE` (small, targeted) |
 | **16** | **Ch10 aftermath still recites suspect clearances** (found on run `mystery-1784057933768`) — with Item 11's stage-mode fix live, Ch10 no longer re-stages the accusation/confession, but it still recites per-suspect clearances ("Dr. Finch was innocent…", "Captain Hale could not have been the killer"), incl. an injection artifact ("the **Confirmed** alibi by hotel staff…"). Milder than the old full duplicate, but the aftermath contract is meant to suppress clearance recitation. | new — found during M1 | Likely a deterministic suspect-clearance INJECTION that runs regardless of stage mode (the capitalized "Confirmed" is the tell). Candidate for the injector-layer deletion (P4.4 / LLD P7). `CODE`, low priority — not blocking. |
 
 **Guardrail:** any fix here ships with a both-directions test + `npm run build:all` (worker consumes dist), and must not reintroduce a cleared defect class — the P4.2 rewrite-acceptance validator already guards that, keep it green.
@@ -48,6 +48,7 @@ These were found on S0 and are the only *code* candidates left before the batche
 | Abort class | Root cause | Fix | State |
 |---|---|---|---|
 | **`clue visibility incomplete` hard-stop** (run `mystery-1784055526685`, optics, 9-ch) | An **optional**-criticality NSD-revealed clue (`clue_late_optional_slot_1`, a strict-mapping-contract filler Agent 5 is *required* to synthesize) that the prose didn't anchor landed in the *enforceable* hard-stop set. Optional texture clues are not fair-play-load-bearing → can never be a fair-play failure. | `partitionNsdRevealedCluesForReleaseGate` routes optional-criticality clues to a new `optionalDowngraded` bucket (advisory warning), never the hard-stop; essential/supporting stay enforced. 4 new tests, worker suite 301 green. Commit `dd2190f6`. | ✅ **FIXED + validated** — re-run `mystery-1784057933768` ships (was hard-abort). |
+| **Agent 6.5 voice-sketch cast-coverage hard-fail** (run `mystery-1784133922125`, poison, 2026-07-15) | The model **refuses to voice-sketch the victim** (dead character) — `characterVoiceSketches` came back 5/6 with the victim absent on **all 3 attempts** (retry feedback fixed the portraits, never the sketches); the count gate treated any shortfall as fatal. But every downstream consumer (agent7 `dominantCharacterNote`, agent9 prompt-builder, orchestrator voiceFragments) looks sketches up by name and tolerates absence — the gate was stricter than the pipeline needs. | `enforceCastCoverage` (extracted + exported): an array missing **only the victim** is accepted on the spot (no retry burn, no fabricated victim dialogue — that would feed the template-leakage class); any other gap (missing suspect, unknown/duplicate name) keeps retry/abort. Subset-aware reorder supersedes the A_53 P2 reorder. 10 both-directions tests, prompts-llm 747 green, `build:all` + dist verified. Commit `257f7855`. | ✅ **FIXED** — validation = run 1 of the restarted batch (poison). **M1 count restarted.** |
 
 ---
 
@@ -62,16 +63,30 @@ These were found on S0 and are the only *code* candidates left before the batche
 **Exit M1:** 8/8 consecutive scored, all §2 Reliability rows at 0.
 **Watch:** Item 7 (victim-timeline `vanished` FP) was fixed *after* S0-3/4 launched — those two may still show the warn-level FP; the fix is now in, so the M1 batch must read clean.
 
-### M1 progress (live — 2026-07-14; count restarts from the last code change, commit `dd2190f6`)
+### M1 progress — attempt 1 (2026-07-14, count from `dd2190f6`) — **SUPERSEDED: count restarted 2026-07-15 at `257f7855`** (Agent 6.5 voice-sketch abort on the poison re-run; the 6 shipped runs below still feed the cap ledger / P4 pool as shipped runs, they just no longer count toward the 8)
 
 | # | Theme | Run ID | Chapters | Outcome | Notes |
 |---|---|---|---|---|---|
 | — | optics | `mystery-1784055526685` | 9 | **ABORTED** (pre-fix) | Clue-visibility hard-stop → root-caused + fixed (`dd2190f6`). Does **not** count. |
 | 1 | optics | `mystery-1784057933768` | 10 | ✅ **SHIPPED** (warning/needs-review) | First post-fix run. Items 11+12 confirmed fixed live. Only warn: scene-grounding 4/10. |
-| 2 | poison | — | — | running | fail-fast chunk (runs 2–4) |
-| 3 | tide | — | — | running | |
-| 4 | acoustic | — | — | running | |
-| 5–8 | identity, clock, poison, tide | — | — | queued | second chunk after 2–4 clear |
+| 2 | poison | `mystery-1784059393094` | 9 | ✅ **SHIPPED** (warning) | 37 warns |
+| 3 | tide | `mystery-1784060164809` | 9 | ✅ **SHIPPED** (warning) | 35 warns |
+| 4 | acoustic | `mystery-1784061663248` | 9 | ✅ **SHIPPED** (warning) | 36 warns |
+| 5 | identity | `mystery-1784063124632` | 10 | ✅ **SHIPPED** (warning) | Rubric 63 **uncapped** — the craft floor again (cf. S0-poison's 59). |
+| 6 | clock | `mystery-1784064257736` | 10 | ✅ **SHIPPED** (**passed**) | First outright `passed` of the batch — while carrying 3 caps (scaffold + report-style ×2; rubric 60, raw 63). Duration outlier: 72 min. |
+| 7 | poison | `mystery-1784068590753` | — | ⚠️ **INTERRUPTED** | Process died mid-Agent-7 (~04:52 2026-07-15; machine stop, not an abort). The re-run then hard-aborted on the **new Agent 6.5 voice-sketch class** (`mystery-1784133922125`) → fix `257f7855` → **count restarted**. |
+| 8 | tide | — | — | — | Never started (fail-fast chain stopped at run 7). |
+
+### M1 progress — attempt 2 (live — 2026-07-15; count from `257f7855`, the victim-exempt coverage fix)
+
+| # | Theme | Run ID | Chapters | Outcome | Notes |
+|---|---|---|---|---|---|
+| — | poison | `mystery-1784133922125` | — (aborted at Agent 6.5) | **ABORTED** (pre-fix) | Voice-sketch cast-coverage hard-fail → root-caused + fixed (`257f7855`). Does **not** count. |
+| 1–8 | poison, tide, optics, acoustic, identity, clock, poison, tide | — | — | ⏳ launched 2026-07-15 | Chained fail-fast, poison first to validate the fix on the aborting theme. |
+
+**Tally on the restarted count: 0/8 — batch in flight.** Attempt 1 reached 6/8 shipped with 0 aborts before the new class fired; both abort classes found so far were root-caused and fixed same-day (`dd2190f6`, `257f7855`).
+
+**M2 preview from the M1 batch (feeds P3/P4):** caps fired on **5/6 shipped runs** — report-style 3/6, scaffold 2/6, template-leakage 1/6, `dualValueNoContrast` 1/6 (Item 9 recurs, now 2/11 shipped). The only uncapped run was **identity — the same theme as S0's cap-free run**; treat theme as a confound when reading cap frequency. Median shipped rubric **63** (59/60/63/63/65/68) vs the M2 bar ≥73 — the scaffold-family A/B (P4, Item 8) is carrying even more load than S0 suggested.
 
 **Note (Item 11 coverage):** chapter count varies per run (optics gave 9 then 10). My Item 11 fix only fires on the **10-beat Golden-Age arc**; the 9-chapter arc has no beats and takes the unchanged fallback. So Item 11 is only *exercised* on 10-chapter runs — the batch/validation must include those (run 1 was 10-ch and confirmed it).
 
