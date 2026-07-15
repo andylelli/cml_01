@@ -202,7 +202,7 @@ Ordered and dependency-sequenced from the **current** state (all roadmap CODE/CO
 |---|---|---|---|
 | **P4.1** | `VERIFY` | S11 pool: pick ≥4 shipped runs from P1–P3, diverse on era/setting/cast/crime/mechanism, chapter-count known. | no `SYNTHESIZING_CODE 7` on replay |
 | **P4.2** | `CODE` (pre-req) | Open Item 3 before rewrite levers are A/B'd: add the transition/mechanism predicates to critique-rewrite & atmosphere-repair acceptance validators (a rewrite may not reintroduce a cleared defect class). | both-directions test; suites green |
-| **P4.3** | `RUN` (≥16 arms) | S12: `exp-regen-clue-ab.mjs --flag <NAME>` per lever, one flag per replay (`--agents 6,9` for the Agent-6 lever; `--treatmentValue enforce --controlValue shadow` for the plausibility judge). Read raw scores + cap frequencies, never the band. | per-lever accept/reject table with deltas appended to this file |
+| **P4.3** | `RUN` (×8 matched pairs) | **Rescoped 2026-07-15 (−25%):** powered A/B on `AGENT9_REGEN_SCAFFOLD` only — the sole lever whose caps fire at measurable frequency (report-style 5/11, scaffold 4/11; every other target cap 0–1/11). Other regens keep observational verdicts (stay ON, zero caps across the batch); plausibility judge stays shadow. Pool theme-matched (identity = cap-free confound). Read raw scores + cap frequencies, never the band. | scaffold accept/reject verdict with deltas appended to this file |
 | **P4.4** | `CODE` | S13: flip code defaults for winners; delete the injector layer (LLD P7) once every RC-1 regen is validated-on. | full suite green; empty-`.env.local` run behaves like the validated config |
 
 **Exit P4:** every lever has a powered verdict; defaults match the evidence.
@@ -211,7 +211,7 @@ Ordered and dependency-sequenced from the **current** state (all roadmap CODE/CO
 
 | Step | Kind | What | Exit check |
 |---|---|---|---|
-| **P5.1** | `RUN` A/B | S14: A/B the craft levers in isolation — critique-rewrite targeting (aim it at opening_hook/dialogue/pacing, the three 6s), `AGENT9_VOICE_ENFORCE=enforce` (the RC5.3 repair is built and untested live), model tiering. | each lever moves its target category ≥+1 with nothing regressed |
+| **P5.1** | `RUN` A/B | S14 (rescoped 2026-07-15): A/B **two** craft levers in isolation — critique-rewrite targeting (aim it at opening_hook/dialogue/pacing) and `AGENT9_VOICE_ENFORCE=enforce` (the RC5.3 repair is built and untested live). Model tiering moved to the decision-gated reserve (buy only in the 76–78 gray zone). | each lever moves its target category ≥+1 with nothing regressed |
 | **P5.2** | `RUN`+`SCORE` | Final validation batch: ≥4×4 matched, external read per run. | — |
 | **P5.3** | `VERIFY` | Also watch Open Items 4–5 (agent2-cast threshold, scene grounding) across the batch — recalibrate or fix only if they persist at batch scale. | — |
 

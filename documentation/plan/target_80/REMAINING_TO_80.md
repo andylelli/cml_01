@@ -21,8 +21,8 @@
    → P-fixes  small pre-batch fixes (Items 9/11/12)      ← optional, do the cheap ones first
    → P2  M1 gate: 8/8 consecutive scored runs, 0 aborts  ← RUN ×8
    → P3  M2 gate: caps ≤1 across ≥4, median ≥73          ← VERIFY (+RUN ×4 if fixes needed)
-   → P4  the powered A/B: ≥16 arms, one flag per replay   ← RUN, then flip defaults + delete injectors
-   → P5  craft lift A/B + final ≥4×4 validation + reads   ← RUN + SCORE
+   → P4  the powered A/B: scaffold ×8 matched pairs       ← RUN, then flip defaults + delete injectors
+   → P5  craft lift A/B (2 levers) + final ≥4×4 + reads   ← RUN + SCORE
    → 80 ✅
 ```
 
@@ -105,18 +105,19 @@ These were found on S0 and are the only *code* candidates left before the batche
 
 ---
 
-## 5. P4 — the powered A/B: PROVE (RUN, ≥16 arms) — *the move deferred since A_54*
+## 5. P4 — the powered A/B: PROVE (RUN, scaffold ×8 matched pairs) — *the move deferred since A_54*
 
-**Goal:** every lever gets a powered verdict; code defaults match the evidence.
+**Goal (rescoped 2026-07-15, −25% cut):** the one lever with live cap signal gets the powered verdict; the rest get observational verdicts. Rationale: across all 11 shipped runs, only the scaffold/report-style family fires at measurable frequency (report-style 5/11, scaffold 4/11) — `mechanismExplainedTooEarly` 0/11, `revealUsesUnplantedEvidence` 0/11, `templateLeakageHits` 1/11. The plan's own rule applies: **a lever whose cap never fired can't show movement; A/B'ing it burns runs for no signal.**
 
 - [ ] **P4.1** — `VERIFY` — assemble the pool: ≥4 shipped runs from P1–P3, diverse on era/setting/cast/crime/mechanism, chapter-count known. No `SYNTHESIZING_CODE 7` on replay.
 - [x] **P4.2** — `CODE` — rewrite-acceptance validator (transition + mechanism predicates) — **DONE** (`a408451b`). Keep the suite green; it's the guard that lets rewrite levers be A/B'd safely.
-- [ ] **P4.3** — `RUN` (≥16 arms) — `scripts/exp-regen-clue-ab.mjs --flag <NAME>`, **one flag per replay** (`--agents 6,9` for the Agent-6 lever; `--treatmentValue enforce --controlValue shadow` for the plausibility judge). Read **raw scores + cap frequencies, never the grade band** (60/63/70 quantization exaggerates). Accept a lever only if its target category/cap moved and nothing regressed.
-- [ ] **P4.4** — `CODE` — flip code defaults for winners; **delete the injector layer** (LLD P7) once every RC-1 regen is validated-on. Empty-`.env.local` run must then behave like the validated config.
+- [ ] **P4.3** — `RUN` (×8 matched pairs) — `scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_SCAFFOLD`, **one flag per replay**, pool theme-matched (identity is a known cap-free confound — balance it across arms or exclude it). Read **raw scores + cap frequencies, never the grade band** (60/63/70 quantization exaggerates). Accept only if the scaffold/report-style cap frequency moved and nothing regressed.
+- [ ] **P4.4** — `CODE` — flip the scaffold default per the verdict; **delete the injector layer** (LLD P7). Empty-`.env.local` run must then behave like the validated config.
 
-**Levers with a pending verdict:** `AGENT9_REGEN_SCAFFOLD` (the big one — Item 8), `AGENT9_REGEN_CLUE`, `AGENT9_REGEN_MECHANISM`, `AGENT9_REGEN_RESOLUTION`, `AGENT9_REGEN_CULPRIT_EVIDENCE`, `AGENT6_DT_EVIDENCE_COMPLETENESS`, `AGENT3B_PLAUSIBILITY_JUDGE` (shadow→enforce).
+**Powered verdict:** `AGENT9_REGEN_SCAFFOLD` only (Item 8 — the M2 gate rides on it).
+**Observational verdicts (rescope 2026-07-15):** `AGENT9_REGEN_CLUE`, `AGENT9_REGEN_MECHANISM`, `AGENT9_REGEN_RESOLUTION`, `AGENT9_REGEN_CULPRIT_EVIDENCE`, `AGENT6_DT_EVIDENCE_COMPLETENESS` stay ON on observational grounds — their target caps read 0–1 across 11 shipped runs, so a powered A/B has nothing to measure. `AGENT3B_PLAUSIBILITY_JUDGE` stays shadow (promote only if its shadow telemetry ever disagrees with outcomes). **Accepted tradeoff:** the injector-layer deletion (P4.4) now rests on zero-cap observational evidence for the non-scaffold regens, not powered proof — a deliberate lowering of the evidence bar. The reserve can buy any single lever ×4 pairs back if the post-P4 projection lands in the 76–78 gray zone.
 
-**Exit P4:** per-lever accept/reject table with deltas appended to the ledger; defaults flipped.
+**Exit P4:** the scaffold accept/reject verdict with deltas appended to the ledger; defaults flipped; injectors deleted.
 
 ---
 
@@ -134,7 +135,7 @@ The S0 Category Floor (mean **6.5**, no category at target) names the targets �
 | **opening_hook** | 6.2 | Ch1 "restart" fix (Item 12); critique-rewrite |
 | **clues** | 6.2 | `dualValueNoContrast` fix (Item 9) |
 
-- [ ] **P5.1** — `RUN` A/B — A/B the craft levers in isolation: `AGENT9_CRITIQUE_REWRITE` aimed at opening_hook/dialogue/pacing, `AGENT9_VOICE_ENFORCE=enforce` (RC5.3 repair is built, untested live), model tiering. Each lever must move its target category ≥+1 with nothing regressed.
+- [ ] **P5.1** — `RUN` A/B — A/B **two** craft levers in isolation (rescope 2026-07-15): `AGENT9_CRITIQUE_REWRITE` aimed at opening_hook/dialogue/pacing, and `AGENT9_VOICE_ENFORCE=enforce` (RC5.3 repair is built, untested live; must measure dialogue-mark movement per Item 14, not just leakage). Each must move its target category ≥+1 with nothing regressed. **Model tiering moves to the decision-gated reserve** — buy it only if the projection sits in the 76–78 gray zone after these two.
 - [ ] **P5.2** — `RUN` + `SCORE` — final validation batch: **≥4×4 matched, one external ChatGPT read per run.**
 - [ ] **P5.3** — `VERIFY` — watch Open Items 4–5 (agent2-cast phase threshold, scene grounding) at batch scale; recalibrate only if they persist.
 
@@ -160,8 +161,8 @@ The S0 Category Floor (mean **6.5**, no category at target) names the targets �
 
 | Tranche | What | Est. cost |
 |---|---|---|
-| **Committed (~£10.40)** | M1 floor 8/8 (£2.00) · P4 A/B on the levers that can show a delta — **scaffold ×8 matched pairs** + 2 levers ×4 (£4.80) · P5 craft A/B incl. **model-tiering**, 3 levers ×4 (£3.60) | ~£10.40 |
-| **Decision-gated reserve (~£4.60)** | Read the A/B + craft deltas at the gate, flip winners, **then** spend: if projecting **≥ 78** → an 8-run final validation + external reads; if **< 76** → a second craft iteration / the Item-11 fix A/B, re-measure, then validate | ~£4.60 |
+| **Committed (~£6.80)** *(rescoped 2026-07-15, −25%: secondary P4 levers cut — caps 0–1/11, no signal to measure; model tiering moved to reserve)* | M1 floor 8/8 (£2.00) · P4 **scaffold ×8 matched pairs only** (£2.40) · P5 craft A/B **2 levers** ×4 (£2.40) | ~£6.80 |
+| **Decision-gated reserve (~£8.20 headroom, spend ≤ half)** | Read the scaffold + craft deltas at the gate, flip winners, **then**: if projecting **≥ 78** → the 8-run final validation + external reads (£2.00); if **76–78** → first buy back ONE lever ×4 pairs (model tiering or a craft lever, £1.20), re-measure, then validate; if **< 76** → a second craft iteration, re-measure, then validate. Abort-class restarts of M1 also draw from here (£2.00 per restart). | ~£2.00–£5.20 |
 
 *The budget is still the plan — but the binding discipline is now **N, not £**.* Never A/B or validate below **4 matched pairs** (run-to-run SD is ~5–8 points; fewer pairs certify noise — the exact A_54 trap). Put any surplus into **A/B power and the final-batch N**, never into the reliability count (8/8 already saturates it — reliability runs earn least at the margin). Scope the A/B to levers whose caps actually fired in the baseline; a lever that never fired can't show movement, so A/B'ing it burns runs for no signal.
 
