@@ -56,16 +56,56 @@ export interface CaseSoundnessRepairResult {
   residualBlocked: string[];
 }
 
+export interface CaseSoundnessRepairOptions {
+  /** Agent 2's normalised cast (castDesign.characters) — the design authority on who the detective is. */
+  castDesignCharacters?: Array<{ name?: unknown; role?: unknown }>;
+}
+
 /**
  * Repair the clear-cut soundness data errors on `caseBlock` in place. Idempotent: a second run on a
  * repaired case is a no-op. Never throws.
  */
-export function repairCaseSoundness(caseBlock: any): CaseSoundnessRepairResult {
+export function repairCaseSoundness(
+  caseBlock: any,
+  options: CaseSoundnessRepairOptions = {},
+): CaseSoundnessRepairResult {
   const repairs: string[] = [];
   const residualBlocked: string[] = [];
   if (!caseBlock || typeof caseBlock !== "object") return { repairs, residualBlocked };
 
   const cast: any[] = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
+
+  // 8. duplicate detective archetype (M1 abort mystery-1784144041323): Agent 3 gave TWO cast members
+  //    role_archetype "Detective" while Agent 2's design had exactly one detective — the story-validation
+  //    name-switch check then reads both names in prose as "the detective renamed" and hard-aborts a
+  //    consistent story. Agent 2's cast design is the authority (the P1-7 precedence); demote every other
+  //    detective-archetype member to their designed role. Without a design, keep the first and demote the
+  //    rest deterministically.
+  {
+    const isDetectiveRole = (value: unknown): boolean => norm(value).includes("detective");
+    const detectiveMembers = cast.filter((c) => isDetectiveRole(c?.role_archetype ?? c?.role));
+    if (detectiveMembers.length > 1) {
+      const designed = (options.castDesignCharacters ?? []).filter((c) => isDetectiveRole(c?.role));
+      const designedKeys = new Set(designed.map((c) => norm(c?.name)).filter(Boolean));
+      const keep =
+        detectiveMembers.find((c) => designedKeys.has(norm(c?.name))) ?? detectiveMembers[0];
+      const designedRoleOf = (name: unknown): string | null => {
+        const match = (options.castDesignCharacters ?? []).find((c) => norm(c?.name) === norm(name));
+        const role = match ? String(match.role ?? "").trim() : "";
+        return role && !isDetectiveRole(role) ? role : null;
+      };
+      for (const member of detectiveMembers) {
+        if (member === keep) continue;
+        const fallback = designedRoleOf(member?.name) ?? "suspect";
+        const demoted = fallback.charAt(0).toUpperCase() + fallback.slice(1);
+        member.role_archetype = demoted;
+        repairs.push(
+          `case-soundness: demoted duplicate detective "${String(member?.name ?? "(unnamed)")}" to ` +
+          `"${demoted}" (design authority keeps "${String(keep?.name ?? "(unnamed)")}" as the detective)`
+        );
+      }
+    }
+  }
 
   // 1. character_missing_gender — the kind that actually fires. Resolve declared → name-inferred →
   //    deterministic alternation (the agent2 FIX-4 ladder), so no cast member reaches the Bible as unknown.

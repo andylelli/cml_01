@@ -3514,7 +3514,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // world-state is built and the gate runs — the repair-not-abort prerequisite for promoting the gate to
   // blocking. Mutates caseBlock in place so both the prose prompt and the gate see the repaired data.
   {
-    const soundnessRepair = repairCaseSoundness(caseBlock);
+    const soundnessRepair = repairCaseSoundness(caseBlock, {
+      castDesignCharacters: castDesign.characters,
+    });
     for (const r of soundnessRepair.repairs) ctx.warnings.push(`[Agent 9] ${r}`);
     if (soundnessRepair.residualBlocked.length > 0) {
       ctx.warnings.push(`[Agent 9] case-soundness: unrepairable residual conflicts — ${soundnessRepair.residualBlocked.join(", ")}.`);

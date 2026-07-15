@@ -448,46 +448,36 @@ export class CharacterConsistencyValidator implements Validator {
     return errors;
   }
 
-  private detectNameSwitches(story: Story, manifest: Map<string, CharacterState>): ValidationError[] {
+  private detectNameSwitches(story: Story, _manifest: Map<string, CharacterState>): ValidationError[] {
     const errors: ValidationError[] = [];
 
-    // Derive detective name patterns from the cast rather than using a hardcoded list.
-    const castDetectives = Array.from(manifest.keys()).filter(
-      (name) => manifest.get(name)!.role.toLowerCase().includes('detective')
-    );
-    const detectiveNames: string[] = castDetectives.length > 0
-      ? Array.from(new Set(
-          castDetectives.flatMap((name) => {
-            const parts = name.trim().split(/\s+/);
-            const surname = parts[parts.length - 1]!;
-            return [name, `Detective ${surname}`];
-          })
-        ))
-      : ['Detective Thompson', 'Detective Harrington', 'Detective Chen', 'Detective'];
-    const foundDetectives = new Set<string>();
+    // A cast member's bare name in prose is never evidence of a detective name switch — every
+    // cast member is named in prose by design. The old bare-name scan turned an upstream CML
+    // defect (two cast members with the Detective archetype, M1 abort mystery-1784144041323)
+    // into a critical abort on a consistent story. Only the TITLED address form
+    // ("Detective <Surname>") shows the prose presenting someone AS the detective; a switch
+    // means two different titled surnames. Rank words after the title ("Detective Inspector
+    // Craddock") resolve to the following word.
+    const RANK_WORDS = new Set(['inspector', 'sergeant', 'constable', 'superintendent', 'chief']);
+    const titledForms = new Map<string, string>(); // lower surname -> display form
 
     for (const scene of story.scenes) {
-      for (const name of detectiveNames) {
-        if (scene.text.includes(name)) {
-          foundDetectives.add(name);
+      for (const match of scene.text.matchAll(/\bDetective\s+([A-Z][A-Za-z'\-]+)(?:\s+([A-Z][A-Za-z'\-]+))?/g)) {
+        let surname = match[1]!;
+        if (RANK_WORDS.has(surname.toLowerCase())) {
+          if (!match[2]) continue; // bare rank ("the Detective Sergeant said") — no surname to compare
+          surname = match[2]!;
         }
+        titledForms.set(surname.toLowerCase(), `Detective ${surname}`);
       }
     }
 
-    // F30-1: Normalize found forms by surname before checking inconsistency.
-    // "Janet Warenne" and "Detective Warenne" share the same surname and are
-    // equivalent address forms for the same character — not an inconsistency.
-    // Only flag when two distinct surnames appear (genuinely different names).
-    const foundSurnames = new Set<string>();
-    for (const name of foundDetectives) {
-      const parts = name.trim().split(/\s+/);
-      foundSurnames.add(parts[parts.length - 1]!.toLowerCase());
-    }
-
-    if (foundSurnames.size > 1) {
+    // F30-1 still holds: bare "Janet Warenne" alongside "Detective Warenne" is the same surname —
+    // not an inconsistency. Only two distinct TITLED surnames flag.
+    if (titledForms.size > 1) {
       errors.push({
         type: 'detective_name_inconsistency',
-        message: `Detective name switches between: ${Array.from(foundDetectives).join(', ')}. Use ONE consistent name.`,
+        message: `Detective name switches between: ${Array.from(titledForms.values()).join(', ')}. Use ONE consistent name.`,
         severity: 'critical',
         suggestion: 'Choose one detective name and use it throughout the entire story'
       });

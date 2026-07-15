@@ -147,3 +147,78 @@ describe("repairCaseSoundness — culprit derivation & partition repairs", () =>
     expect(ref.cast[0].gender).toBeDefined();
   });
 });
+
+// M1 abort class (run mystery-1784144041323, clock): Agent 3 assigned role_archetype
+// "Detective" to two cast members while Agent 2's design had exactly one detective.
+describe("repairCaseSoundness — duplicate detective archetype (M1 clock abort)", () => {
+  const dualDetectiveCase = () => ({
+    cast: [
+      { name: "Eleanor Voss", role_archetype: "Detective", gender: "female" },
+      { name: "Sylvia Trent", role_archetype: "Detective", gender: "female" },
+      { name: "Hugo Vane", role_archetype: "Victim", gender: "male" },
+      { name: "Beatrice Quill", role_archetype: "Socialite", gender: "female" },
+    ],
+    culpability: { culprits: ["Beatrice Quill"] },
+  });
+
+  it("keeps the designed detective and demotes the duplicate to their designed role", () => {
+    const caseBlock = dualDetectiveCase();
+    const { repairs } = repairCaseSoundness(caseBlock, {
+      castDesignCharacters: [
+        { name: "Sylvia Trent", role: "detective" },
+        { name: "Eleanor Voss", role: "suspect" },
+        { name: "Hugo Vane", role: "victim" },
+        { name: "Beatrice Quill", role: "suspect" },
+      ],
+    });
+    expect(caseBlock.cast[1].role_archetype).toBe("Detective");
+    expect(caseBlock.cast[0].role_archetype).toBe("Suspect");
+    expect(repairs.some((r) => r.includes('demoted duplicate detective "Eleanor Voss"'))).toBe(true);
+  });
+
+  it("falls back to keeping the first detective when no design is provided", () => {
+    const caseBlock = dualDetectiveCase();
+    const { repairs } = repairCaseSoundness(caseBlock);
+    expect(caseBlock.cast[0].role_archetype).toBe("Detective");
+    expect(caseBlock.cast[1].role_archetype).toBe("Suspect");
+    expect(repairs.some((r) => r.includes("demoted duplicate detective"))).toBe(true);
+  });
+
+  it("is a no-op when exactly one detective exists (both directions)", () => {
+    const caseBlock = {
+      cast: [
+        { name: "Sylvia Trent", role_archetype: "Detective", gender: "female" },
+        { name: "Eleanor Voss", role_archetype: "Suspect", gender: "female" },
+      ],
+      culpability: { culprits: ["Eleanor Voss"] },
+    };
+    const { repairs } = repairCaseSoundness(caseBlock, {
+      castDesignCharacters: [{ name: "Sylvia Trent", role: "detective" }],
+    });
+    expect(caseBlock.cast[0].role_archetype).toBe("Detective");
+    expect(repairs.some((r) => r.includes("demoted duplicate detective"))).toBe(false);
+  });
+
+  it("is idempotent: a second run repairs nothing further", () => {
+    const caseBlock = dualDetectiveCase();
+    repairCaseSoundness(caseBlock);
+    const second = repairCaseSoundness(caseBlock);
+    expect(second.repairs.some((r) => r.includes("demoted duplicate detective"))).toBe(false);
+  });
+
+  it("demoted duplicate re-enters the suspect pool for elimination completion", () => {
+    const caseBlock = {
+      ...dualDetectiveCase(),
+      discriminating_test: { eliminated_suspects: ["Sylvia Trent"] },
+    };
+    repairCaseSoundness(caseBlock, {
+      castDesignCharacters: [
+        { name: "Sylvia Trent", role: "detective" },
+        { name: "Eleanor Voss", role: "suspect" },
+      ],
+    });
+    // Eleanor, demoted to Suspect before suspectNames is derived, must be unioned into the
+    // explicitly-listed elimination set by the completion step.
+    expect(caseBlock.discriminating_test.eliminated_suspects).toContain("Eleanor Voss");
+  });
+});
