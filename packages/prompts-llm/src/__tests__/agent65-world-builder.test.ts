@@ -238,3 +238,131 @@ describe("agent65 structural normalization", () => {
     });
   });
 });
+
+// M1 abort class (run mystery-1784133922125): the model refuses to voice-sketch the
+// victim — characterVoiceSketches came back 5/6 with the victim absent on all 3
+// attempts and the run hard-aborted. enforceCastCoverage accepts a missing VICTIM
+// (downstream consumers look sketches up by name and tolerate absence) while every
+// other gap keeps the retry/abort behaviour.
+describe("agent65 enforceCastCoverage (victim-exempt)", () => {
+  const cast = [
+    { name: "Eleanor Voss", role: "detective" },
+    { name: "Dr. Mallory Finch", role: "suspect" },
+    { name: "Captain Ivor Hale", role: "suspect" },
+    { name: "Beatrice Quill", role: "suspect" },
+    { name: "Sylvia Trent", role: "suspect" },
+    { name: "Hugo Vane", role: "victim" },
+  ];
+  const entry = (name: string) => ({ name, portrait: "p", eraIntersection: "e" });
+  const sketch = (name: string) => ({ name, voiceDescription: "v", fragments: [] });
+  const allNames = cast.map((m) => m.name);
+  const nonVictimNames = allNames.filter((n) => n !== "Hugo Vane");
+
+  it("accepts voice sketches missing ONLY the victim (the abort shape)", () => {
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: nonVictimNames.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(true);
+    expect(verdict.missingVictimNames).toEqual(["Hugo Vane"]);
+    expect(parsed.characterVoiceSketches.map((s: any) => s.name)).toEqual(nonVictimNames);
+  });
+
+  it("accepts BOTH arrays missing only the victim (attempt-1 shape)", () => {
+    const parsed = {
+      characterPortraits: nonVictimNames.map(entry),
+      characterVoiceSketches: nonVictimNames.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(true);
+    expect(verdict.missingVictimNames).toEqual(["Hugo Vane"]);
+  });
+
+  it("reorders a victim-absent subset into CASE.cast order", () => {
+    const shuffled = ["Sylvia Trent", "Eleanor Voss", "Beatrice Quill", "Dr. Mallory Finch", "Captain Ivor Hale"];
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: shuffled.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(true);
+    expect(parsed.characterVoiceSketches.map((s: any) => s.name)).toEqual(nonVictimNames);
+  });
+
+  it("still reorders full out-of-order arrays (A_53 P2 regression)", () => {
+    const reversed = [...allNames].reverse();
+    const parsed = {
+      characterPortraits: reversed.map(entry),
+      characterVoiceSketches: reversed.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(true);
+    expect(verdict.missingVictimNames).toEqual([]);
+    expect(parsed.characterPortraits.map((p: any) => p.name)).toEqual(allNames);
+    expect(parsed.characterVoiceSketches.map((s: any) => s.name)).toEqual(allNames);
+  });
+
+  it("REJECTS sketches missing a non-victim cast member", () => {
+    const missingSuspect = allNames.filter((n) => n !== "Sylvia Trent");
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: missingSuspect.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("characterVoiceSketches count (5) does not match cast size (6)");
+  });
+
+  it("REJECTS sketches missing the victim AND a suspect", () => {
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: allNames.filter((n) => n !== "Hugo Vane" && n !== "Sylvia Trent").map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("does not match cast size");
+  });
+
+  it("REJECTS a short array containing an unknown name", () => {
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: [...nonVictimNames.slice(0, 4), "Mrs. Nobody"].map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("characterVoiceSketches count");
+  });
+
+  it("REJECTS a full-length array with a wrong name", () => {
+    const wrong = [...nonVictimNames, "Mrs. Nobody"];
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: wrong.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("Mrs. Nobody");
+  });
+
+  it("REJECTS duplicates hiding a missing victim at full length", () => {
+    const dup = [...nonVictimNames, "Sylvia Trent"];
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: dup.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, cast);
+    expect(verdict.ok).toBe(false);
+  });
+
+  it("does NOT exempt when the cast has no victim role", () => {
+    const noVictimCast = cast.map((m) => ({ ...m, role: m.role === "victim" ? "suspect" : m.role }));
+    const parsed = {
+      characterPortraits: allNames.map(entry),
+      characterVoiceSketches: nonVictimNames.map(sketch),
+    };
+    const verdict = __testables.enforceCastCoverage(parsed, noVictimCast);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("characterVoiceSketches count (5)");
+  });
+});

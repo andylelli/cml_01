@@ -778,6 +778,122 @@ function buildDefaultValidationConfirmations(value: unknown): WorldDocumentResul
   };
 }
 
+interface CastCoverageVerdict {
+  ok: boolean;
+  /** Retryable error message when !ok — format matches the pre-existing gate messages. */
+  error?: string;
+  /** Victim names accepted as absent (victim-exempt coverage) — for logging/telemetry. */
+  missingVictimNames: string[];
+}
+
+/**
+ * Cast-coverage gate for characterPortraits / characterVoiceSketches, with a
+ * victim exemption. M1 abort class (run mystery-1784133922125): the model
+ * declines to invent dialogue for the victim, returning the sketches 5/6 with
+ * the victim absent on all 3 attempts and hard-aborting the run. Every
+ * downstream consumer (agent7-run dominantCharacterNote, agent9 prompt-builder,
+ * orchestrator voiceFragments) looks sketches up by name and tolerates absence,
+ * so an array missing ONLY the victim is accepted rather than retried/aborted —
+ * fabricating victim speech deterministically would inject exactly the
+ * template-dialogue class the leakage gates exist to catch. Any other gap
+ * (missing suspect, unknown or duplicate name, wrong order that reordering
+ * can't fix) keeps the original retry/abort behaviour.
+ *
+ * Reorders both arrays into CASE.cast order in place (subset-aware superset of
+ * the A_53 P2 reorder, which required all names present).
+ */
+function enforceCastCoverage(
+  parsed: Pick<WorldDocumentResult, 'characterPortraits' | 'characterVoiceSketches'>,
+  castMembers: Array<{ name?: string; role?: string }>,
+): CastCoverageVerdict {
+  const expectedNames = castMembers
+    .map((m) => (typeof m?.name === 'string' ? m.name : ''))
+    .filter(Boolean);
+  const victimNames = new Set(
+    castMembers
+      .filter((m) => ((m?.role ?? '') as string).toLowerCase() === 'victim')
+      .map((m) => (typeof m?.name === 'string' ? m.name.trim() : ''))
+      .filter(Boolean),
+  );
+
+  // Accept a short array only when every present name is a distinct cast name
+  // and every absent name is a victim.
+  const coverageGap = (items: Array<{ name?: string }>, label: string): { error?: string; missing: string[] } => {
+    if (items.length === castMembers.length) return { missing: [] };
+    const countError = `${label} count (${items.length}) does not match cast size (${castMembers.length})`;
+    const seen = new Set<string>();
+    for (const it of items) {
+      const n = it?.name;
+      if (typeof n !== 'string' || !expectedNames.includes(n) || seen.has(n)) {
+        return { error: countError, missing: [] };
+      }
+      seen.add(n);
+    }
+    const missing = expectedNames.filter((n) => !seen.has(n));
+    if (!missing.every((n) => victimNames.has(n))) return { error: countError, missing: [] };
+    return { missing };
+  };
+
+  const portraitGap = coverageGap(parsed.characterPortraits ?? [], 'characterPortraits');
+  if (portraitGap.error) return { ok: false, error: portraitGap.error, missingVictimNames: [] };
+  const sketchGap = coverageGap(parsed.characterVoiceSketches ?? [], 'characterVoiceSketches');
+  if (sketchGap.error) return { ok: false, error: sketchGap.error, missingVictimNames: [] };
+
+  // A_53 P2 (agent65-3-attempt-loop-can-hard-throw): if the model returned valid names
+  // in a different order, deterministically reorder portraits/sketches to match CASE.cast
+  // rather than failing a cosmetic ordering gate across all 3 attempts. Only a genuinely
+  // missing/extra name (a real content error) survives to the mismatch check below.
+  const reorderByName = <T extends { name?: string }>(items: T[]): T[] => {
+    const byName = new Map<string, T>();
+    for (const it of items) {
+      const n = it?.name;
+      if (typeof n === 'string' && !byName.has(n)) byName.set(n, it);
+    }
+    if (byName.size !== items.length) return items;
+    const ordered = expectedNames.filter((n) => byName.has(n)).map((n) => byName.get(n) as T);
+    return ordered.length === items.length ? ordered : items;
+  };
+  parsed.characterPortraits = reorderByName(parsed.characterPortraits ?? []);
+  parsed.characterVoiceSketches = reorderByName(parsed.characterVoiceSketches ?? []);
+
+  // Name/order verification — walks CASE.cast, skipping victims accepted as absent.
+  const orderMismatch = (items: Array<{ name?: string }>, label: string): string | null => {
+    let idx = 0;
+    for (let i = 0; i < castMembers.length; i++) {
+      const expectedName = castMembers[i]?.name;
+      const actualName = items[idx]?.name;
+      if (actualName === expectedName) {
+        idx++;
+        continue;
+      }
+      if (
+        typeof expectedName === 'string' &&
+        victimNames.has(expectedName) &&
+        !items.some((it) => it?.name === expectedName)
+      ) {
+        continue;
+      }
+      return (
+        `${label}[${idx}].name (${actualName ?? 'undefined'}) ` +
+        `does not match CASE.cast[${i}] (${expectedName ?? 'undefined'})`
+      );
+    }
+    if (idx !== items.length) {
+      const leftover = items.slice(idx).map((it) => it?.name ?? 'undefined').join(', ');
+      return `${label} has ${items.length - idx} entr${items.length - idx === 1 ? 'y' : 'ies'} not matching CASE.cast (${leftover})`;
+    }
+    return null;
+  };
+
+  const mismatch =
+    orderMismatch(parsed.characterPortraits ?? [], 'characterPortraits') ??
+    orderMismatch(parsed.characterVoiceSketches ?? [], 'characterVoiceSketches');
+  if (mismatch) return { ok: false, error: mismatch, missingVictimNames: [] };
+
+  const missingVictimNames = [...new Set([...portraitGap.missing, ...sketchGap.missing])];
+  return { ok: true, missingVictimNames };
+}
+
 function normalizeWorldDocumentStructure(
   parsed: WorldDocumentResult,
   inputs: Pick<WorldBuilderInputs, 'caseData' | 'temporalContext'>,
@@ -915,67 +1031,20 @@ export async function generateWorldDocument(
       continue;
     }
 
-    // Cast coverage check
-    const castMembers: Array<{ name: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
+    // Cast coverage check (victim-exempt — see enforceCastCoverage)
+    const castMembers: Array<{ name: string; role?: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
     if (castMembers.length > 0) {
-      if (parsed.characterPortraits.length !== castMembers.length) {
-        lastError = new Error(
-          `characterPortraits count (${parsed.characterPortraits.length}) does not match cast size (${castMembers.length})`
+      const coverage = enforceCastCoverage(parsed, castMembers);
+      if (!coverage.ok) {
+        lastError = new Error(coverage.error);
+        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
+        continue;
+      }
+      if (coverage.missingVictimNames.length > 0) {
+        console.log(
+          `[Agent 6.5 (World Builder)] victim-exempt cast coverage: accepted without ` +
+          `${coverage.missingVictimNames.join(', ')} (downstream consumers tolerate absence)`
         );
-        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-        continue;
-      }
-      if (parsed.characterVoiceSketches.length !== castMembers.length) {
-        lastError = new Error(
-          `characterVoiceSketches count (${parsed.characterVoiceSketches.length}) does not match cast size (${castMembers.length})`
-        );
-        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-        continue;
-      }
-
-      // A_53 P2 (agent65-3-attempt-loop-can-hard-throw): if the model returned all the right names but
-      // in a different order, deterministically reorder portraits/sketches to match CASE.cast rather
-      // than failing a cosmetic ordering gate across all 3 attempts. Only a genuinely missing/extra
-      // name (a real content error) survives to the mismatch check below.
-      {
-        const expectedNames = castMembers.map((m: any) => m?.name);
-        const reorderByName = <T extends { name?: string }>(items: T[]): T[] => {
-          const byName = new Map<string, T>();
-          for (const it of items) {
-            const n = it?.name;
-            if (typeof n === "string" && !byName.has(n)) byName.set(n, it);
-          }
-          const allPresent = expectedNames.every((n: any) => typeof n === "string" && byName.has(n));
-          if (!allPresent || byName.size !== items.length) return items;
-          return expectedNames.map((n: any) => byName.get(n) as T);
-        };
-        parsed.characterPortraits = reorderByName(parsed.characterPortraits);
-        parsed.characterVoiceSketches = reorderByName(parsed.characterVoiceSketches);
-      }
-
-      let castNameMismatch: string | null = null;
-      for (let i = 0; i < castMembers.length; i++) {
-        const expectedName = castMembers[i]?.name;
-        const portraitName = parsed.characterPortraits[i]?.name;
-        const voiceName = parsed.characterVoiceSketches[i]?.name;
-        if (portraitName !== expectedName) {
-          castNameMismatch =
-            `characterPortraits[${i}].name (${portraitName ?? 'undefined'}) ` +
-            `does not match CASE.cast[${i}] (${expectedName ?? 'undefined'})`;
-          break;
-        }
-        if (voiceName !== expectedName) {
-          castNameMismatch =
-            `characterVoiceSketches[${i}].name (${voiceName ?? 'undefined'}) ` +
-            `does not match CASE.cast[${i}] (${expectedName ?? 'undefined'})`;
-          break;
-        }
-      }
-
-      if (castNameMismatch) {
-        lastError = new Error(castNameMismatch);
-        if (attempt === 3) throw new Error(`Agent 6.5 World Builder failed: ${lastError.message}`);
-        continue;
       }
     }
 
@@ -1146,4 +1215,5 @@ export const __testables = {
   buildDefaultValidationConfirmations,
   buildDefaultStoryEmotionalArc,
   normalizeWorldDocumentStructure,
+  enforceCastCoverage,
 };
