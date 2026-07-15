@@ -152,7 +152,14 @@ try {
   console.error("STORY_SAVE_FAILED", String(storySaveErr));
 }
 
-// Exit 0 for success or warning (pipeline completed, only soft issues remain).
-// Exit 1 for hard failure (prose generation aborted, etc.).
+// Exit per the pinned SHIPPED definition (P0.2, TARGET_80_LEDGER header): a run
+// ships iff release_gate_outcome.status ∈ {passed, warning} — a scored gate with
+// zero hard stops. result.status is phase-threshold-driven and may read "failure"
+// on a shipped run (Open Item 2's shape); it must never decide the exit code.
+// Fallback to result.status only when no gate outcome exists (scoring disabled).
 const integrityFailed = integrityAssertionFailures.length > 0;
-process.exit(result.status === "failure" || integrityFailed ? 1 : 0);
+const gateStatus = result.scoringReport?.release_gate_outcome?.status;
+const shipped = gateStatus === "passed" || gateStatus === "warning";
+const hardFailed = gateStatus ? !shipped : result.status === "failure";
+console.log("CANARY_RELEASE_GATE", gateStatus ?? "unknown");
+process.exit(hardFailed || integrityFailed ? 1 : 0);
