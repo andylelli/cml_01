@@ -24,6 +24,35 @@ export const escalateRetryTemperature = (base: number, retryAttempt: number): nu
   return Math.min(RETRY_TEMP_CAP, Math.max(base, base + RETRY_TEMP_STEP * retriesSoFar));
 };
 
+// ── A_62 RC-6: per-request timeout ───────────────────────────────────────────────────────────────
+// WHY: `getChatCompletions` was called with NO abortSignal and NO requestOptions.timeout, so a
+// stalled or severed response blocked the run FOREVER. Observed twice, same signature both times —
+// CPU 0, socket to Azure still ESTABLISHED, request logged with no response:
+//   * run mystery-1784231640128 (2026-07-16): Agent9-Regen-Ch7 hung >15 min until killed by hand.
+//   * run mystery-1784150843898 (2026-07-15): Agent9 Ch7 hung 4h28m across a machine standby and
+//     then COMPLETED on wake — proving the client will wait on a dead socket indefinitely rather
+//     than fail fast and retry.
+// Between them these cost 4 lost runs, each of which had to be hand-diagnosed to tell "interrupted"
+// (count-safe) from "aborted" (restarts the M1 count).
+//
+// The bitter part: `defaultRetryConfig.retryableErrors` has listed "timeout" / "ETIMEDOUT" /
+// "connection_error" all along — that retry path was simply UNREACHABLE, because nothing ever timed
+// out. Setting a deadline makes the existing retry machinery live; it is not new behaviour so much
+// as behaviour that was always intended.
+//
+// Chosen default 240s: the slowest healthy Agent-9 chapter call observed is ~30s, and the slowest
+// whole run (M1-6 clock) was 72 min across ~100 calls. 240s is ~8x the slowest single call — long
+// enough never to cut off a legitimately slow generation, short enough that a hang costs one retry
+// rather than a night. Override with LLM_REQUEST_TIMEOUT_MS; 0/off disables (restores the old hang).
+const DEFAULT_REQUEST_TIMEOUT_MS = 240_000;
+export const resolveRequestTimeoutMs = (raw = process.env.LLM_REQUEST_TIMEOUT_MS): number => {
+  if (raw === undefined || raw.trim() === "") return DEFAULT_REQUEST_TIMEOUT_MS;
+  if (/^(off|false|no)$/i.test(raw.trim())) return 0; // 0 = no deadline (opt out)
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_REQUEST_TIMEOUT_MS;
+  return Math.floor(parsed);
+};
+
 export class AzureOpenAIClient {
   private client: OpenAIClient;
   private circuitBreaker: CircuitBreaker;
@@ -104,6 +133,10 @@ export class AzureOpenAIClient {
       });
     }
 
+    // A_62 RC-6: bound the request. Without this the call blocks forever on a stalled socket (see
+    // resolveRequestTimeoutMs). Declared outside the try so the catch can attribute an abort to it.
+    const timeoutMs = resolveRequestTimeoutMs();
+
     try {
       const response = await this.client.getChatCompletions(
         model,
@@ -115,6 +148,7 @@ export class AzureOpenAIClient {
           temperature,
           maxTokens,
           responseFormat: options.jsonMode ? { type: "json_object" as const } : undefined,
+          ...(timeoutMs > 0 ? { abortSignal: AbortSignal.timeout(timeoutMs) } : {}),
         }
       );
 
@@ -168,20 +202,42 @@ export class AzureOpenAIClient {
     } catch (error) {
       const latencyMs = Date.now() - startTime;
 
+      // A_62 RC-6: normalize our own deadline into a RETRYABLE error.
+      // `isRetryableError` substring-matches on error.message, and the abort paths do NOT say
+      // "timeout": AbortSignal.timeout raises a DOMException named "TimeoutError", while the Azure
+      // pipeline surfaces it as an AbortError whose message is "The operation was aborted." — neither
+      // matches any entry in defaultRetryConfig.retryableErrors. Left raw, the deadline would convert
+      // an indefinite HANG into a hard FAILURE, which is strictly worse: a hang is count-safe
+      // (interrupted), an unretried failure aborts the run and restarts the M1 count. Re-throwing with
+      // "timeout" in the message routes it into withRetry's existing backoff, which is the whole point
+      // of setting a deadline. We are the only signal source on this call, so an abort here can only
+      // be ours.
+      const err = error as Error & { name?: string };
+      const isOurDeadline =
+        timeoutMs > 0 && (err?.name === "TimeoutError" || err?.name === "AbortError");
+      const normalized = isOurDeadline
+        ? Object.assign(
+            new Error(
+              `timeout: LLM request exceeded the ${timeoutMs}ms deadline after ${latencyMs}ms (${err.name}) — retryable`,
+            ),
+            { code: "ETIMEDOUT", cause: err },
+          )
+        : error;
+
       // Log error
       if (options.logContext) {
         await this.logger.logError({
           ...options.logContext,
           operation: "chat_error",
           model,
-          errorMessage: (error as Error).message,
-          errorCode: (error as any).code,
+          errorMessage: (normalized as Error).message,
+          errorCode: (normalized as any).code,
           timestamp: new Date().toISOString(),
           promptHash: LLMLogger.hashContent(JSON.stringify(options.messages)),
         });
       }
 
-      throw error;
+      throw normalized;
     }
   }
 
