@@ -244,14 +244,19 @@ describe("agent65 structural normalization", () => {
 // attempts and the run hard-aborted. enforceCastCoverage accepts a missing VICTIM
 // (downstream consumers look sketches up by name and tolerate absence) while every
 // other gap keeps the retry/abort behaviour.
-describe("agent65 enforceCastCoverage (victim-exempt)", () => {
+describe("agent65 enforceCastCoverage (victim-exempt) — role_archetype, the PRODUCTION shape", () => {
+  // ABORT CLASS #2 RECURRENCE (mystery-1784243328960): production CASE.cast carries
+  // `role_archetype: "Victim"` and NO `role` field. The original fix read `m.role`, so the
+  // exemption was dead code — and this suite's fixtures used `role: "victim"`, encoding the same
+  // wrong assumption, which is why 10 green tests proved nothing. The production shape is now the
+  // PRIMARY fixture; the legacy `role` fallback keeps its own block below.
   const cast = [
-    { name: "Eleanor Voss", role: "detective" },
-    { name: "Dr. Mallory Finch", role: "suspect" },
-    { name: "Captain Ivor Hale", role: "suspect" },
-    { name: "Beatrice Quill", role: "suspect" },
-    { name: "Sylvia Trent", role: "suspect" },
-    { name: "Hugo Vane", role: "victim" },
+    { name: "Eleanor Voss", role_archetype: "Detective" },
+    { name: "Dr. Mallory Finch", role_archetype: "Suspect" },
+    { name: "Captain Ivor Hale", role_archetype: "Suspect" },
+    { name: "Beatrice Quill", role_archetype: "Suspect" },
+    { name: "Sylvia Trent", role_archetype: "Suspect" },
+    { name: "Hugo Vane", role_archetype: "Victim" },
   ];
   const entry = (name: string) => ({ name, portrait: "p", eraIntersection: "e" });
   const sketch = (name: string) => ({ name, voiceDescription: "v", fragments: [] });
@@ -356,7 +361,10 @@ describe("agent65 enforceCastCoverage (victim-exempt)", () => {
   });
 
   it("does NOT exempt when the cast has no victim role", () => {
-    const noVictimCast = cast.map((m) => ({ ...m, role: m.role === "victim" ? "suspect" : m.role }));
+    const noVictimCast = cast.map((m) => ({
+      ...m,
+      role_archetype: m.role_archetype === "Victim" ? "Suspect" : m.role_archetype,
+    }));
     const parsed = {
       characterPortraits: allNames.map(entry),
       characterVoiceSketches: nonVictimNames.map(sketch),
@@ -364,5 +372,61 @@ describe("agent65 enforceCastCoverage (victim-exempt)", () => {
     const verdict = __testables.enforceCastCoverage(parsed, noVictimCast);
     expect(verdict.ok).toBe(false);
     expect(verdict.error).toContain("characterVoiceSketches count (5)");
+  });
+});
+
+describe("agent65 enforceCastCoverage — legacy `role` fallback + the exact recurrence shape", () => {
+  const entry = (name: string) => ({ name, portrait: "p", eraIntersection: "e" });
+  const sketch = (name: string) => ({ name, voiceDescription: "v", fragments: [] });
+
+  it("still honours the legacy lowercase `role: 'victim'` field (fallback)", () => {
+    const legacyCast = [
+      { name: "A Detective", role: "detective" },
+      { name: "B Suspect", role: "suspect" },
+      { name: "C Victim", role: "victim" },
+    ];
+    const names = ["A Detective", "B Suspect"];
+    const verdict = __testables.enforceCastCoverage(
+      { characterPortraits: names.map(entry), characterVoiceSketches: names.map(sketch) },
+      legacyCast,
+    );
+    expect(verdict.ok).toBe(true);
+    expect(verdict.missingVictimNames).toEqual(["C Victim"]);
+  });
+
+  it("REGRESSION mystery-1784243328960: portraits 5/6 with role_archetype Victim absent must be ACCEPTED", () => {
+    // The exact abort: 3 attempts, portraits AND sketches both 5/6, Hugo Vane (role_archetype:
+    // "Victim", no `role` field at all) omitted every time. The old code read m.role → victimNames
+    // empty → countError → hard abort. This test fails on the pre-fix code.
+    const prodCast = [
+      { name: "Eleanor Voss", role_archetype: "Detective" },
+      { name: "Dr. Mallory Finch", role_archetype: "Suspect" },
+      { name: "Captain Ivor Hale", role_archetype: "Suspect" },
+      { name: "Beatrice Quill", role_archetype: "Suspect" },
+      { name: "Sylvia Trent", role_archetype: "Suspect" },
+      { name: "Hugo Vane", role_archetype: "Victim" },
+    ];
+    const five = prodCast.slice(0, 5).map((m) => m.name);
+    const verdict = __testables.enforceCastCoverage(
+      { characterPortraits: five.map(entry), characterVoiceSketches: five.map(sketch) },
+      prodCast,
+    );
+    expect(verdict.ok).toBe(true);
+    expect(verdict.missingVictimNames).toEqual(["Hugo Vane"]);
+  });
+
+  it("a missing SUSPECT still fails even under role_archetype (the exemption is victim-only)", () => {
+    const prodCast = [
+      { name: "A Detective", role_archetype: "Detective" },
+      { name: "B Suspect", role_archetype: "Suspect" },
+      { name: "C Victim", role_archetype: "Victim" },
+    ];
+    const missingSuspect = ["A Detective", "C Victim"];
+    const verdict = __testables.enforceCastCoverage(
+      { characterPortraits: missingSuspect.map(entry), characterVoiceSketches: missingSuspect.map(sketch) },
+      prodCast,
+    );
+    expect(verdict.ok).toBe(false);
+    expect(verdict.error).toContain("count (2)");
   });
 });

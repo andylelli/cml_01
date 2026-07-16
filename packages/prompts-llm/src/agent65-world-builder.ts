@@ -804,14 +804,21 @@ interface CastCoverageVerdict {
  */
 function enforceCastCoverage(
   parsed: Pick<WorldDocumentResult, 'characterPortraits' | 'characterVoiceSketches'>,
-  castMembers: Array<{ name?: string; role?: string }>,
+  castMembers: Array<{ name?: string; role?: string; role_archetype?: string }>,
 ): CastCoverageVerdict {
   const expectedNames = castMembers
     .map((m) => (typeof m?.name === 'string' ? m.name : ''))
     .filter(Boolean);
+  // ABORT CLASS #2 RECURRENCE (run mystery-1784243328960, 2026-07-16): the original 257f7855 fix
+  // read `m.role` — but CASE.cast entries carry `role_archetype: "Victim"` and no `role` field at
+  // all, so victimNames was ALWAYS EMPTY and the victim exemption below was dead code from the day
+  // it shipped. Its tests passed because the fixtures used the same wrong field (`role: "victim"`);
+  // its one live validation ("sailed through first-attempt") never exercised the path. Read the
+  // field production actually writes, keep `role` as a fallback, case-insensitive — and the tests
+  // now pin BOTH shapes.
   const victimNames = new Set(
     castMembers
-      .filter((m) => ((m?.role ?? '') as string).toLowerCase() === 'victim')
+      .filter((m) => String((m as any)?.role_archetype ?? m?.role ?? '').toLowerCase() === 'victim')
       .map((m) => (typeof m?.name === 'string' ? m.name.trim() : ''))
       .filter(Boolean),
   );
@@ -1032,7 +1039,7 @@ export async function generateWorldDocument(
     }
 
     // Cast coverage check (victim-exempt — see enforceCastCoverage)
-    const castMembers: Array<{ name: string; role?: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
+    const castMembers: Array<{ name: string; role?: string; role_archetype?: string }> = (inputs.caseData as any)?.CASE?.cast ?? [];
     if (castMembers.length > 0) {
       const coverage = enforceCastCoverage(parsed, castMembers);
       if (!coverage.ok) {
