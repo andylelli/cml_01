@@ -1,6 +1,18 @@
 # WHAT'S LEFT TO REACH 80 — the remaining-work list
 
-**Date:** 2026-07-15 · **Branch:** `redesign/agent-blue-sky`
+> **⚠️ A_62 AMENDMENT (2026-07-16) — read before acting on §4/§5.** A from-source recomputation of all
+> shipped runs ([ANALYSIS_62](../../analysis/ANALYSIS_62/ANALYSIS_62.md)) falsified two premises this
+> file still argues from: **(1)** the §5 rescope's "template-leakage 1/11" is wrong — the true M1-era
+> figure is **7/15, the most frequent single cap on current code**, and on 4/15 runs it fires with no
+> scaffold-family cap at all, so **P4 as scoped cannot deliver M2 alone**; **(2)** "identity is the
+> cap-free theme" is dead — M1v2-5 (identity) fired 7 caps, the most of any run. Both leverless caps
+> now HAVE levers (A_62 RC-2.1/RC-2.2, built 2026-07-16, default-OFF pending the P3 A/B): the Item 17
+> lever existed all along and was merely unwired. Also: the M1 count restarted at `941fc94e` (A_62
+> RC-6 — every LLM request was unbounded; a hang is now a retry). Inline `[A_62 …]` notes below mark
+> the corrected claims; the ledger remains the authority on all numbers — **derive, never hand-tally**
+> (`scripts/derive-ledger-panels.mjs`).
+
+**Date:** 2026-07-15 (amended 2026-07-16) · **Branch:** `redesign/agent-blue-sky`
 **Companions:** [ROADMAP_TO_80.md](ROADMAP_TO_80.md) (the full grounded plan, §10 = the phased steps) · [TARGET_80_LEDGER.md](TARGET_80_LEDGER.md) (the standing three-panel scoreboard — the numbers)
 **What this is:** the short, execution-ready list of everything still between us and a *validated* 80. The roadmap is the reasoning; the ledger is the scoreboard; **this file is the to-do list.** If a line here conflicts with the ledger, the ledger wins (update this file).
 
@@ -110,7 +122,7 @@ These were found on S0 and are the only *code* candidates left before the batche
 
 **Goal:** top-4 Cap-Ledger rows at ≤1 occurrence across ≥4 runs; median shipped rubric ≥ 73.
 
-- [x] **P3.1 (attempt-1 runs)** — `VERIFY` — label audit run 2026-07-15: **the scaffold family is cleanly wired** — every scaffold/report-style cap on every capped run has matching `Agent9-Regen-*-scaffold_not_prose` labels (fired-and-lost = Item 8, effectiveness not wiring). Two leverless caps found: `templateLeakageHits` (in-loop batch gate only → **new Item 17**, decision deferred to the P3 gate — 1/11 doesn't justify a mid-count code change) and `dualValueNoContrast` (Item 9's route). Re-run the audit on the restarted batch.
+- [x] **P3.1 (attempt-1 runs)** — `VERIFY` — label audit run 2026-07-15: **the scaffold family is cleanly wired** — every scaffold/report-style cap on every capped run has matching `Agent9-Regen-*-scaffold_not_prose` labels (fired-and-lost = Item 8, effectiveness not wiring). Two leverless caps found: `templateLeakageHits` (in-loop batch gate only → **new Item 17**, ~~decision deferred to the P3 gate — 1/11 doesn't justify a mid-count code change~~ **[A_62: the deferral rested on two wrong numbers at once — the true rate was 7/15, and the "new regen kind" was already built and merely unwired. Lever wired 2026-07-16 (`AGENT9_REGEN_LEAKAGE`, default-OFF, count-safe); A/B at P4.]**) and `dualValueNoContrast` (Item 9's route — **[A_62: detector promoted to prose-guard, lever built (`AGENT9_REGEN_DUAL_VALUE`, default-OFF); 6/21 and accelerating.]**). Re-run the audit on the restarted batch.
 - [ ] **P3.2** — `RUN` ×4 — re-batch only if P3.1 required fixes; else the M1 batches double as the M2 sample.
 
 **The known M2 risk (Open Item 8):** the **scaffold / report-style regen fires on every capped run but wins only ~half the time** (won on the clean `identity` run; lost on `acoustic`/`tide`). This is a *lever-effectiveness* question, not a wiring one. **By design it is answered in the P4 A/B, not patched blind** — if the A/B shows the lever doesn't move cap frequency, strengthen the pass (prompt / attempts / align the deterministic clear-check with the rubric LLM's broader reading of "report-style"). Do not touch it before P4.
@@ -121,11 +133,11 @@ These were found on S0 and are the only *code* candidates left before the batche
 
 ## 5. P4 — the powered A/B: PROVE (RUN, scaffold ×8 matched pairs) — *the move deferred since A_54*
 
-**Goal (rescoped 2026-07-15, −25% cut):** the one lever with live cap signal gets the powered verdict; the rest get observational verdicts. Rationale: across all 11 shipped runs, only the scaffold/report-style family fires at measurable frequency (report-style 5/11, scaffold 4/11) — `mechanismExplainedTooEarly` 0/11, `revealUsesUnplantedEvidence` 0/11, `templateLeakageHits` 1/11. The plan's own rule applies: **a lever whose cap never fired can't show movement; A/B'ing it burns runs for no signal.**
+**Goal (rescoped 2026-07-15, −25% cut):** the one lever with live cap signal gets the powered verdict; the rest get observational verdicts. ~~Rationale: across all 11 shipped runs, only the scaffold/report-style family fires at measurable frequency (report-style 5/11, scaffold 4/11) — `mechanismExplainedTooEarly` 0/11, `revealUsesUnplantedEvidence` 0/11, `templateLeakageHits` 1/11.~~ **[A_62: this rationale is FALSIFIED — the figures were hand-tallied and wrong. Derived truth: template-leakage 7/15 M1-era (the most frequent single cap on current code, rising 1/6→3/5→2/4), `dualValueNoContrast` 6/21 and accelerating, `mechanism`/`reveal` 2/20 each (both §8 buy-back triggers MET). The P4 A/B must cover `AGENT9_REGEN_LEAKAGE` alongside `AGENT9_REGEN_SCAFFOLD` — the two caps co-fire on only 3/15 runs, so the scaffold verdict alone cannot clear prose. Both new levers are built (A_62 RC-2.1/RC-2.2), default-OFF, awaiting this gate.]** The plan's own rule still applies: **a lever whose cap never fired can't show movement; A/B'ing it burns runs for no signal** — the correction is to what the numbers actually are, not to the rule.
 
 - [ ] **P4.1** — `VERIFY` — assemble the pool: ≥4 shipped runs from P1–P3, diverse on era/setting/cast/crime/mechanism, chapter-count known. No `SYNTHESIZING_CODE 7` on replay.
 - [x] **P4.2** — `CODE` — rewrite-acceptance validator (transition + mechanism predicates) — **DONE** (`a408451b`). Keep the suite green; it's the guard that lets rewrite levers be A/B'd safely.
-- [ ] **P4.3** — `RUN` (×8 matched pairs) — `scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_SCAFFOLD`, **one flag per replay**, pool theme-matched (identity is a known cap-free confound — balance it across arms or exclude it). Read **raw scores + cap frequencies, never the grade band** (60/63/70 quantization exaggerates). Accept only if the scaffold/report-style cap frequency moved and nothing regressed.
+- [ ] **P4.3** — `RUN` (×8 matched pairs) — `scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_SCAFFOLD`, **one flag per replay**, pool theme-matched ~~(identity is a known cap-free confound — balance it across arms or exclude it)~~ **[A_62: the identity-confound claim is DEAD — M1v2-5 (identity) fired 7 caps, the most of any run; every theme has now capped. Balance the pool on CHAPTER COUNT instead — the confound that survives (9-ch vs 10-ch arcs take different code paths, e.g. Item 11 only fires on 10-beat Golden-Age arcs).]** Read **raw scores + cap frequencies, never the grade band** (60/63/70 quantization exaggerates). Accept only if the scaffold/report-style cap frequency moved and nothing regressed. **[A_62: run the `AGENT9_REGEN_LEAKAGE` A/B in the same batch — same pool, one flag per replay.]**
 - [ ] **P4.4** — `CODE` — flip the scaffold default per the verdict; **delete the injector layer** (LLD P7). Empty-`.env.local` run must then behave like the validated config.
 
 **Powered verdict:** `AGENT9_REGEN_SCAFFOLD` only (Item 8 — the M2 gate rides on it).

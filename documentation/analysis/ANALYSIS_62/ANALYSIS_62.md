@@ -5,12 +5,48 @@
 
 **Purpose.** Two findings from 2026-07-16 invalidate part of the standing plan, and one of them makes the biggest remaining blocker much cheaper than budgeted. Organised **by root cause, not by instance** (the A_59 §B lesson), each action tagged **Structural** (dissolves a class) or **Tactical** (unblock-only).
 
-**The two headlines:**
+**The three headlines:**
 
 1. **The cap ledger was hand-tallied and materially wrong.** M1v2-1 was logged as "3 caps" (actually **5**), M1v2-5 as "2 caps" (actually **7**). Every downstream number — and the **−25% P4 rescope that was justified by those numbers** — inherits the error.
 2. **Item 17's "missing" regen lever is already built.** The detector, a ready-made validator, the `"leakage"` defect kind and its regen instruction **all exist in shipped code**. Nothing emits the defect. The gap is ~10–30 lines of wiring, not a new lever plus an M1 count restart.
+3. **(added mid-doc, 2026-07-16) Every LLM request was unbounded.** No `abortSignal`, no timeout → a stalled socket hung a run forever. **4 runs lost to this.** The retry config had listed `"timeout"` as retryable all along; that path was simply unreachable. → **RC-6**, fixed `941fc94e`.
 
-**Status of the M1 gate at time of writing:** attempt 3 at 4/8 shipped, 0 aborts, runs 5–8 in flight. Reliability is *not* the problem addressed here. The ceiling is.
+---
+
+## TRACKER — state as of 2026-07-16 22:15
+
+**M1 floor gate: attempt 4, 2/8, count from `941fc94e`** (the request-deadline fix; restarted by decision because a deadline turns a hang into a retry that may then ship — not an inert change). Run 1 (identity — the theme that hung) **shipped clean, deadline never fired**; run 2 (clock) shipped; run 3 (poison) in flight.
+
+| # | Root cause | Tag | State | Evidence / next action |
+|---|---|---|---|---|
+| **RC-1** | Scoreboard hand-derived → plans rest on wrong numbers | Structural | ✅ **DONE** | `scripts/derive-ledger-panels.mjs` (`941fc94e`). Earned itself immediately: caught 2 bugs in its own first classifier (aborts misfiled as interruptions — they differ on whether the count restarts) and found the reports dir holds **28** reports, not the 20 a truncated `ls` had shown. Has `--expect-caps` assertion mode. |
+| **RC-2.1** | `templateLeakageHits` (Item 17) — lever built, not plugged in | Structural | ✅ **SOURCE-COMPLETE** (2026-07-16) | `runTemplateLeakageRegenPass` + `AGENT9_REGEN_LEAKAGE` call site, **default-OFF**. Guards: locked facts preserved; **chapter length preserved** (deletion would trade a prose cap for a `completeness_structure` run-killer); **post-processing re-injection logged as data** (the injector layer can re-dirty a cleaned chapter — without the log the P3 A/B would misread "lever ineffective"). 6 both-directions tests; prompts-llm 765 green; tsc clean. ⏳ `build:all` + label check (`Agent9-Regen-Ch*-leakage`) **after run 8 only**. |
+| **RC-2.2** | `dualValueNoContrast` (Item 9) — detector was rubric-only | Structural | ✅ **SOURCE-COMPLETE** (2026-07-16) | Detector promoted verbatim to `prose-guard/dual-value.ts`; rubric-score imports it back — cap and lever share ONE function. **Surgical prose-guard dist rebuild, diff-verified additions-only** (3 new files + 2 export lines; every pre-existing compiled file byte-identical → count-safe, nothing loads the new symbol until `build:all`). `runDualValueContrastRegenPass` + `AGENT9_REGEN_DUAL_VALUE` (default-OFF); pair from `worldState.contradiction` — the same ledger value the rubric consumes. **False-win guard:** a rewrite deleting either canonical value is rejected even though the detector reads clean. 7 tests; rubric-score 76 green through the re-export. Item 9 now **7/23 — 4 of the last 7 runs** (M1v4-2 fired it again mid-implementation). |
+| **RC-2.3** | The general detector sweep | Structural | ⬜ blocked **by design** | Gated on RC-2.1/2.2 measuring at P3/P4 first. Not backlog — a deliberate no-speculative-fixes gate. |
+| **RC-3** | Plan premises derived from the bad numbers | Tactical | ✅ **DONE** | REMAINING_TO_80 amended 2026-07-16: header banner + inline `[A_62 …]` strikes on the `1/11` rescope premise (§5), the identity-confound claim (P4.3 — balance the pool on **chapter count** instead), and the Item 17 deferral rationale (P3.1). Ledger stays the numeric authority. |
+| **RC-4** | Detectors silent where readers see defects (Items 13/10) | Tactical | 🟡 **EVIDENCE COMPLETE — blocked on external notes** | `scripts/pronoun-audit.mjs` over S0 (real shipped detector, designed casts, temporal pairing): the framing **inverts** — see the RC-4 register section. S0-era rubric never ran the scan (version skew); on current code the cap WOULD fire on S0-2 tide **on two false positives**; zero events elsewhere. **Do NOT harden the detector** — blocked on the externals' quoted examples (`47fe3c20` recorded none). Item 10 deferred until caps clear — by design. |
+| **RC-5** | Batch harness loses runs to the host | Tactical | ✅ **DONE** | `standby-timeout-ac` 2700→0 (**restore after the batch**); chain resumable (`m1v4-runs.sh`); `scripts/mark-interrupted-reports.mjs` stamps dead `in_progress` reports (`interrupted: true` + reason; 30-min mtime guard protects live runs) — ran 2026-07-16: **4 stamped, live run correctly skipped**; the derive script prefers the stamp. Interrupted-vs-aborted is now data, not forensics. |
+| **RC-6** | **Unbounded LLM requests → indefinite hang** | Structural | ✅ **DONE** | `941fc94e`. 30 tests green, `tsc` clean, `build:all` + **worker-resolved dist verified to export a live 240s deadline** (not merely green tests — the standing dist trap). |
+
+### Phase progress
+
+| Phase | State | Notes |
+|---|---|---|
+| **P1 — Trust the instrument** | ✅ **DONE** | 1a derive script; 1b REMAINING_TO_80 amended (RC-3). No runs; count-safe. |
+| **P2 — Wire the built lever** | 🟡 **source-complete** | **BOTH** levers (RC-2.1 leakage + RC-2.2 dual-value) written, tested, default-OFF. ⏳ remaining: `build:all` + worker-dist verify + one label-check run — **after run 8 only**. Worker typecheck deliberately deferred with it (checks against prompts-llm dist, which lacks the new exports until then). |
+| **P3 — Measure it** | ⬜ blocked on P2 build | A/B leakage + scaffold **together** (co-fire on only 3/15 — the scaffold verdict alone cannot clear prose) + dual-value in the same batch; one flag per replay; pool balanced on **chapter count** (the confound that survives). ~£3.60 at ~£0.30/pair for three levers ×4. |
+| **P4 — Item 9 + sweep** | ⬜ blocked on P3 | Decide `mechanism`/`reveal` buy-backs (both triggers MET) with P3's numbers → M2. |
+
+### Correction log (this doc's own errors, kept visible on purpose)
+
+RC-1 exists because unverified numbers propagate. That applies to this document too:
+
+| Claim | Correction |
+|---|---|
+| "template-leakage is the most frequent single cap" | True for the **M1 era only** (7/15 vs scaffold 6/15). **False across all 20** — scaffold edges it 8–7. Leakage is the one *rising* (1/6 → 3/5 → 2/4), which is what makes it the priority. |
+| "Item 17 → 5/17, Item 9 → 5/17" (first report) | Both wrong — carried the bad hand-tally **and** a wrong denominator. Verified: **7/20** and **5/20** (Item 9 now 6/21). |
+| "M1v3-5 died of machine sleep" | **Incomplete.** Standby was the trigger; the *mechanism* was RC-6's missing deadline — that is why a severed socket became a 4h28m wait instead of a retry, and why the same signature recurred on a fully awake machine. |
+| "15 M1 shipped runs" (§3 below) | Now **16** — M1v3-5 (acoustic) shipped on re-run. §3's ratios are as-of the recompute; re-derive with the script rather than adjusting by hand. |
 
 ---
 
@@ -22,6 +58,8 @@
 | Canary exit follows the pinned SHIPPED definition | `canary-core.mjs` (`64e5f49e`) | M1v2-4 shipped with `CANARY_STATUS=failure`; old logic would have killed the chain |
 | Items 11 + 12 (Ch10 double-reveal, Ch1 restart) | `clue-validation.ts` `resolveStageModeKey` · `deterministic-repair.ts` | confirmed live on `mystery-1784057933768` |
 | Cap ledger rebuilt from report JSONs | `TARGET_80_LEDGER.md` §3 | 20 runs re-derived from `caps_applied` 2026-07-16 |
+| **RC-1** panels derived, never hand-counted | `scripts/derive-ledger-panels.mjs` (`941fc94e`) | reconciles with the hand-recompute; `--expect-caps` fails loudly on a stale claim |
+| **RC-6** every LLM request bounded (240s) + deadline normalized to retryable | `llm-client/src/client.ts` (`941fc94e`) | 30 tests green; worker-resolved **dist verified** to export a live deadline |
 
 ---
 
@@ -120,9 +158,14 @@ Three standing premises are now falsified:
 
 ---
 
-### RC-4 — Detectors silent where readers see defects (the FN class) · **Tactical → needs evidence first**
+### RC-4 — Detectors silent where readers see defects (the FN class) · **Tactical → EVIDENCE PASS RUN 2026-07-16, and it inverts the framing**
 
-- **Item 13 — `pronounsUnstable` reads 0/20 while all four external reads saw pronoun drift.** RC-2's fix does nothing here: feeding a silent detector back into regen changes nothing. This is a **detector-sensitivity** problem (the RC-4 family of A_61, inverted). Action: run the pronoun validator standalone over the S0 stories; if clean, feed it the externals' quoted examples as fixtures. **Evidence before code.**
+- **Item 13 — audited** (`scripts/pronoun-audit.mjs`: the real shipped `detectPronounDriftEvents` over the saved S0 stories, casts recovered from each run's Agent-2 response — designed genders, never inferred; stories paired to runs temporally, since name-overlap alone mispairs — the model reuses cast names across runs almost totally, itself a novelty red flag). **Three findings:**
+  1. **The S0-era rubric never ran the pronoun scan.** S0 reports carry neither `pronounsUnstable` nor `pronounInstabilityEvents` — the facts-level scan postdates S0. The "0/20 while externals saw drift" history is **partly version skew**, not pure detector blindness.
+  2. **On current code the cap WOULD fire on S0-2 (tide)** — 2 events across 2 chapters meets the ≥2/≥2 threshold — **and both events are false positives**: "As Eleanor spoke, the night porter stepped forward, clearing his throat" (the porter is male but *unnamed*, so the cast-whitelist suppression at `prose-consistency-validator.ts:295-298` can't see him) and "Eleanor noted his jaw tightening" (referent named in the *previous* paragraph; the check is paragraph-local). Eleanor is confirmed female in that story's own prose (80 she/her vs 18 he/his near her name) — not a pairing artifact.
+  3. **The drift the externals actually saw yields zero events on the other four stories** — the recall gap is real too.
+
+  **Verdict: the detector has BOTH a precision gap and a recall gap. Hardening or promoting it now would ADD false caps** — the exact A_61 RC-4 mole this register exists to prevent. **Blocked on:** the externals' quoted pronoun examples, which were never recorded in the repo (`47fe3c20` summarized the reads without quotes) — recover them from the ChatGPT conversations, then fixture-drive both gaps (unnamed-role suppression for precision; the externals' shapes for recall).
 - **Item 10 — the internal rubric underscores by ~9.5** (internal 63.75 vs external 73.25). Safe direction, but fails the M3 gap ≤3 criterion. Unchanged guidance: **do not recalibrate until the caps clear** — the largest divergences are on capped runs, and RC-2 is expected to close much of it. Re-measure on cap-free runs after P4.
 
 ---
@@ -132,8 +175,36 @@ Three standing premises are now falsified:
 **2 of 17 attempted runs died to host power, not the pipeline** (M1-7 ~04:52; M1v3-5 confirmed: unplugged 22:39 → Modern Standby 22:41:53 mid-Ch7 → 4h28m on battery → "Critical Battery Trigger Met" 03:10:11 → death mid-Ch8). Each costs a partial run and, worse, *looks* like an abort until diagnosed.
 
 - **Done:** `standby-timeout-ac` 2700→0 for the batch (restore after).
-- **Structural option (cheap, worth it):** the chain is fail-fast and stateless — a killed chain loses its place. Make `m1v3-runs-5-8.sh`-style chains **resumable** (write a completed-runs file; skip on restart), and have the runner mark `in_progress: true` reports as `INTERRUPTED` rather than leaving them ambiguous.
+- **Structural option (cheap, worth it):** the chain is fail-fast and stateless — a killed chain loses its place. Make `m1v3-runs-5-8.sh`-style chains **resumable** (write a completed-runs file; skip on restart) — ✅ **done** in `m1v4-runs.sh` — and have the runner mark `in_progress: true` reports as `INTERRUPTED` rather than leaving them ambiguous (⬜ still open).
 - **Guardrail:** an interrupted run must **never** restart the M1 count — it is not an abort class. Both instances were correctly classified only after manual event-log forensics; encode it instead.
+- **Superseded in part by RC-6:** power was the *trigger*, not the *mechanism*. See below.
+
+---
+
+### RC-6 — **Every LLM request was unbounded → one stalled socket hangs the run forever** · **Structural · FIXED `941fc94e`**
+
+*Found 2026-07-16 while diagnosing an M1v3 run-6 hang; it reframes RC-5 and closes the "interrupted" class.*
+
+**The defect.** `client.ts:108` called `getChatCompletions(model, messages, {temperature, maxTokens, responseFormat})`. The SDK's `GetChatCompletionsOptions extends OperationOptions`, which carries `abortSignal` and `requestOptions.timeout`. **We passed neither.** A response that never arrives blocks the run indefinitely.
+
+**Evidence — two instances, identical signature:**
+
+| Run | Observation |
+|---|---|
+| `mystery-1784231640128` (2026-07-16) | `Agent9-Regen-Ch7` request logged 20:11:20.761Z, **no response for 15 min** (healthy call ≈30s). **CPU delta 0 over 8s** — not computing. **TCP to Azure `51.12.73.214:443` still `ESTABLISHED`.** Killed by hand. |
+| `mystery-1784150843898` (2026-07-15) | Ch7 hung **4h28m** across a machine standby — then **completed on wake**. Proof the client will wait on a dead socket indefinitely rather than fail fast and retry. |
+
+**Cost:** 4 lost runs, each requiring hand forensics to separate *interrupted* (count-safe) from *aborted* (restarts the count).
+
+**The irony.** `defaultRetryConfig.retryableErrors` has listed `"timeout"`, `"ETIMEDOUT"`, `"connection_error"` since it was written. **That path was unreachable** — nothing ever timed out. The fix does not add retry behaviour; it makes behaviour that was always intended actually reachable.
+
+**The trap (why this was not a one-liner).** `isRetryableError` substring-matches `error.message`, and **neither abort path says "timeout"**: `AbortSignal.timeout` raises `DOMException{name:"TimeoutError"}`; the Azure pipeline surfaces `AbortError{message:"The operation was aborted."}`. Left raw, a deadline converts a **count-safe hang** into a **count-restarting abort** — *strictly worse than the bug*. The catch normalizes our own deadline into a retryable `"timeout: …"` error. `request-timeout.test.ts` pins it both ways, including a test that **proves the trap is real** (a raw abort is not retryable) and one that proves a normalized deadline is retried and can then succeed.
+
+**Chosen default 240s** — ~8× the slowest healthy Agent-9 call (~30s); the slowest whole run (M1-6 clock, 72 min) spans ~100 calls, so this never truncates legitimate work. `LLM_REQUEST_TIMEOUT_MS` overrides; `off`/`0` restores the old hang; garbage falls back to the default (a typo must never silently reinstate an infinite wait).
+
+**Why this restarted the M1 count.** A deadline turns a hang into a retry, and a retry may then ship. That changes run outcomes, so unlike the `64e5f49e` canary-exit fix it is **not** inert and attempt-3's shipped runs cannot carry over.
+
+**Watch on attempt 4:** the chain logs `deadline_fired=N` per run. A firing deadline followed by a shipped run is the win condition. A deadline firing on *every* run would mean 240s is too tight — no evidence of that (healthy calls are ~30s), but it is the thing to check.
 
 ---
 
@@ -154,13 +225,15 @@ Three standing premises are now falsified:
 
 ## 4. Priority
 
-1. **RC-1** derive-the-panels script — *everything else is unverifiable without it* (~1h)
-2. **RC-2.1** wire `noTemplateLeakageValidator` → `kind:"leakage"` — highest value/effort ratio on the board; targets the most frequent M1-era cap with parts that already exist
-3. **RC-5** resumable chain + `INTERRUPTED` classification — protects the runs the rest of the plan spends
-4. **RC-2.2** promote `detectDualValueNoContrast` (Item 9, 5/20)
-5. **RC-3** re-read the rescope *with the corrected numbers* at the P4 gate — decide Item 8 and Item 17 together
-6. **RC-4** Item 13 evidence pass; Item 10 stays deferred until caps clear
-7. **RC-2.3** the general detector sweep — only after 2.1 measures
+1. ~~**RC-1** derive-the-panels script~~ — ✅ **DONE** `941fc94e`. *Everything else was unverifiable without it.*
+2. ~~**RC-6** bound every LLM request~~ — ✅ **DONE** `941fc94e` + validated live (M1v4 runs 1–2 shipped through the bounded client).
+3. ~~**RC-2.1** wire `noTemplateLeakageValidator` → `kind:"leakage"`~~ — ✅ **SOURCE-COMPLETE** 2026-07-16 (default-OFF; build deferred to post-batch).
+4. ~~**RC-5** remaining half: stamp `in_progress` reports `INTERRUPTED`~~ — ✅ **DONE** (`mark-interrupted-reports.mjs`; 4 stamped).
+5. ~~**RC-2.2** promote `detectDualValueNoContrast`~~ — ✅ **SOURCE-COMPLETE** 2026-07-16 (Item 9 now **7/23**; diff-verified surgical prose-guard rebuild).
+6. ~~**RC-3** strike the falsified premises from REMAINING_TO_80~~ — ✅ **DONE** 2026-07-16 (banner + inline `[A_62 …]` strikes). The P4-gate re-read of the rescope *with these numbers* remains part of P3/P4.
+7. ~~**RC-4** Item 13 evidence pass~~ — 🟡 **EVIDENCE COMPLETE**; detector has both precision and recall gaps; **blocked on the externals' quoted examples** (never recorded in-repo). Item 10 stays deferred until caps clear.
+8. **RC-2.3** the general detector sweep — ⬜ only after 2.1/2.2 measure at P3. **The deliberate stopping point.**
+9. **NEXT ACTION (post-batch):** `build:all` → worker-dist verify → one label-check run per lever → the P3 A/B (three levers ×4 pairs, ~£3.60).
 
 ---
 

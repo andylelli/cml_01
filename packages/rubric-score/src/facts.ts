@@ -8,7 +8,7 @@
  * merged in `scoreStory`; they default to "not a problem".
  */
 
-import { detectTemplateLeakage, detectScaffoldNotProse, detectReportStyleClearance } from "@cml/prose-guard";
+import { detectTemplateLeakage, detectScaffoldNotProse, detectReportStyleClearance, detectDualValueNoContrast } from "@cml/prose-guard";
 import type { StoryFacts } from "./types.js";
 
 export interface CastMember {
@@ -230,49 +230,15 @@ export function extractStoryFacts(cml: unknown, prose: string, opts: ExtractStor
   return facts;
 }
 
-/** Lowercased indexes of every occurrence of `needle` in `haystack`. */
-function allIndexes(haystack: string, needle: string): number[] {
-  const out: number[] = [];
-  if (!needle) return out;
-  let from = 0;
-  for (;;) {
-    const i = haystack.indexOf(needle, from);
-    if (i === -1) break;
-    out.push(i);
-    from = i + needle.length;
-  }
-  return out;
-}
-
 /**
- * A_57 D2 — the discriminating clue's staged value and true value appear close together with NO contrast
- * connective binding them (two flat parallel truths instead of one contradiction). High-precision: it
- * fires only on the two CANONICAL values (from the world-state ledger) co-occurring within a tight window
- * and lacking a contrast connective in that window. A story that properly frames the contrast
- * ("the watch read X, yet the shadow could only fall that way at Y") is NOT flagged.
+ * A_57 D2 — MOVED to `@cml/prose-guard/dual-value.ts` (A_62 RC-2.2) so the generation loop can reach
+ * it: the RC-2 rule is that a cap has a lever iff its detector is reachable from generation, and
+ * `prompts-llm` must not depend on this package. Re-exported here verbatim so this package's public
+ * API (and the worker's rewrite-acceptance import) is unchanged. The cap (facts.ts below) and the
+ * regen lever (`runDualValueContrastRegenPass`) now key off the SAME function — same pattern as
+ * `detectTemplateLeakage` / `detectScaffoldNotProse`.
  */
-export function detectDualValueNoContrast(prose: string, pair: { values: [string, string] }): boolean {
-  const a = String(pair.values?.[0] ?? "").trim().toLowerCase();
-  const b = String(pair.values?.[1] ?? "").trim().toLowerCase();
-  if (!a || !b || a === b) return false;
-  const lower = prose.toLowerCase();
-  const CONTRAST = /\b(?:but|yet|however|whereas|while|though|although|rather than|instead of|could only|only have|cannot|can['’]?t|impossible|contradict\w*|discrepan\w*|at odds|conflict\w*|mismatch\w*|inconsisten\w*|did not match|didn['’]?t match)\b/;
-  const WINDOW = 240; // ~2-3 sentences: "stated as two flat, side-by-side truths"
-  const idxsA = allIndexes(lower, a);
-  const idxsB = allIndexes(lower, b);
-  for (const ia of idxsA) {
-    for (const ib of idxsB) {
-      const lo = Math.min(ia, ib);
-      const hi = Math.max(ia + a.length, ib + b.length);
-      if (hi - lo <= WINDOW) {
-        // Inspect a slightly padded window so a contrast connective just before/after still counts.
-        const windowText = lower.slice(Math.max(0, lo - 48), Math.min(lower.length, hi + 48));
-        if (!CONTRAST.test(windowText)) return true; // co-present, no contrast → the D2 defect
-      }
-    }
-  }
-  return false;
-}
+export { detectDualValueNoContrast } from "@cml/prose-guard";
 
 /**
  * A_57 D1 — a verbatim/descriptive locked-fact value spliced into prose with a stray apostrophe and no

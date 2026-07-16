@@ -121,8 +121,11 @@ const runs = loadReports()
     //   ABORT       -> in_progress: false, run_outcome: "aborted", run_outcome_reason: <why>
     //   INTERRUPTED -> in_progress: true,  run_outcome: "passed"  (stale/optimistic — the process
     //                  died before the field was finalised; trusting it would score a dead run)
-    const inFlight = report.in_progress === true && now - mtimeMs < IN_FLIGHT_STALE_MS;
-    const interrupted = report.in_progress === true && !inFlight;
+    // The durable stamp (scripts/mark-interrupted-reports.mjs, A_62 RC-5) wins over the mtime
+    // heuristic; the heuristic remains as the fallback for reports that died un-stamped.
+    const stampedInterrupted = report.interrupted === true;
+    const inFlight = !stampedInterrupted && report.in_progress === true && now - mtimeMs < IN_FLIGHT_STALE_MS;
+    const interrupted = stampedInterrupted || (report.in_progress === true && !inFlight);
     const shipped = !interrupted && !inFlight && (gate === "passed" || gate === "warning");
     const aborted = !interrupted && !inFlight && !shipped;
     return {

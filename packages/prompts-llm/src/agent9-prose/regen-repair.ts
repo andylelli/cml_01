@@ -33,7 +33,8 @@ export type ProseDefectKind =
   | "early_spoiler"
   | "mechanism_revealed_early"
   | "leakage"
-  | "voice_tic_leakage";
+  | "voice_tic_leakage"
+  | "dual_value_no_contrast";
 
 export interface ProseDefect {
   chapter: number;

@@ -11,7 +11,13 @@ import {
   detectScaffoldNotProse,
   detectReportStyleClearance,
   noReportStyleClearanceValidator,
+  // A_62 RC-2.1 — the detector the rubric's `templateLeakageHits` cap already keys off. It has lived in
+  // this shared package all along; only the generation-side consumer was missing (see below).
+  detectTemplateLeakage,
+  // A_62 RC-2.2 — moved INTO prose-guard from rubric-score so this loop can reach it (the RC-2 rule).
+  detectDualValueNoContrast,
 } from "@cml/prose-guard";
+import type { DiscriminatingPair } from "@cml/prose-guard";
 import type { ValidatorResult } from "@cml/prose-guard";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import type { StoryBible, ChapterBeat } from "../story-bible.js";
@@ -110,6 +116,11 @@ export function instructionForDefect(defect: ProseDefect): string {
       return `Remove the premature reveal / leaked material, keeping the scene intact. Detail: ${defect.detail}`;
     case "voice_tic_leakage":
       return `Rewrite the flagged speaker's dialogue so it stays in THEIR OWN idiom: remove the other character's signature phrase from their line. Do NOT reassign the line to the other character and do NOT delete the exchange — reword it in the speaker's established voice, preserving what the line communicates. Detail: ${defect.detail}`;
+    case "dual_value_no_contrast":
+      // A_62 RC-2.2 / A_57 D2 — the central clue stated as two flat side-by-side truths. The fix is
+      // MORE binding, not less content: both canonical values must survive, joined as one observed
+      // contradiction. Deleting either value would silence the detector while destroying the clue.
+      return `The two flagged values are stated as flat, parallel facts. Rewrite so a character OBSERVES them as one contradiction: keep BOTH values verbatim on the page and bind them with explicit contrast (yet / but / could only / impossible / did not match) inside the ongoing scene. Do NOT delete or alter either value, and do NOT explain HOW the trick behind the discrepancy worked. Detail: ${defect.detail}`;
     default:
       return defect.detail;
   }
@@ -408,6 +419,39 @@ const preserveLockedFactsValidator =
     };
   };
 
+/** No prompt/template/validation-text leakage anywhere in the chapter (A_62 RC-2.1). */
+const noTemplateLeakageChapterValidator = (c: ProseChapter): ValidatorResult => {
+  const hits = detectTemplateLeakage(chapterText(c));
+  return {
+    ok: hits.length === 0,
+    score: hits.length === 0 ? 100 : 0,
+    violations: hits.map((h) => `template_leakage:${h}`),
+  };
+};
+
+/**
+ * A_62 RC-2.1 guardrail — the leakage instruction says "REMOVE the leaked material", and removal
+ * shortens the chapter. A rewrite that satisfies the leakage detector by deleting text would trade a
+ * `prose ≤4` cap for a `completeness_structure` batch-gate failure (word floors) — swapping a scoring
+ * problem for a RUN-KILLING one. So a leakage rewrite must not shrink the chapter meaningfully: it has
+ * to re-dramatize the material in-scene, not cut it.
+ *
+ * The 15% tolerance is deliberate: excising a genuinely templated sentence legitimately loses a few
+ * words, but a paragraph that collapses has been deleted rather than rewritten.
+ */
+const preserveChapterLengthValidator =
+  (originalWordCount: number, tolerance = 0.15) =>
+  (c: ProseChapter): ValidatorResult => {
+    const words = chapterText(c).split(/\s+/).filter(Boolean).length;
+    const floor = Math.floor(originalWordCount * (1 - tolerance));
+    const ok = words >= floor;
+    return {
+      ok,
+      score: ok ? 100 : 0,
+      violations: ok ? [] : [`chapter_shrank:${words}<${floor} (leakage rewrite deleted text instead of re-dramatizing it)`],
+    };
+  };
+
 /** Best-effort: which paragraph index contains a fragment (case-insensitive prefix). -1 if none. */
 const paragraphIndexOfFragment = (paragraphs: ReadonlyArray<string>, fragment: string): number => {
   const needle = fragment.trim().slice(0, 60).toLowerCase();
@@ -481,6 +525,178 @@ export async function runScaffoldRegenPass(args: {
   );
   const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
   const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+/**
+ * A_62 RC-2.1 — `templateLeakageHits`, the most frequent cap of the M1 era (7/15 runs; prose ≤4 on
+ * 10/15) and, until now, the one with no repair arm.
+ *
+ * THE FINDING THIS CLOSES: the lever was already built and simply never plugged in. Everything below
+ * already shipped —
+ *   - `detectTemplateLeakage`      (`@cml/prose-guard/fidelity.ts:155`) — returns the exact fragments
+ *   - `noTemplateLeakageValidator` (`…/fidelity.ts:165`)
+ *   - `ProseDefectKind` `"leakage"` (`regen-repair.ts:35`) — declared, and emitted by NOTHING
+ *   - the regen instruction         (`instructionForDefect`, `case "leakage"`)
+ *   - the regen/retry/accept loop   (shared with `scaffold_not_prose`)
+ * The only missing piece was a producer mapping detector hits onto `ProseDefect{kind:"leakage"}`.
+ *
+ * THE GENERAL RULE (A_62 RC-2): *a cap has a lever iff its detector is reachable from the generation
+ * loop.* `prompts-llm` never imports `@cml/rubric-score` (three files hand-mirror it in comments), so
+ * scoring-only detectors are structurally leverless. `@cml/prose-guard` is the sanctioned shared home
+ * — `scaffold.ts:144` says so outright — and `scaffold` already proves the pattern. This applies it.
+ *
+ * Soundness: the validator's first check IS `detectTemplateLeakage`, the same function the rubric cap
+ * keys off, so a passing regen provably no longer trips the class. `preserveLockedFactsValidator`
+ * guarantees no canonical value is dropped, and `preserveChapterLengthValidator` guarantees the model
+ * RE-DRAMATIZED rather than deleted (see its note — deletion would trade a cap for a run-killer).
+ * Paragraph-scoped, never a free whole-chapter rewrite (the repair.ts:153 re-gendering lesson).
+ * No-op (`ran:false`) on a clean chapter — no cost burn, no LLM call.
+ */
+export async function runTemplateLeakageRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const paragraphs = args.chapter.paragraphs ?? [];
+  const text = paragraphs.join(" ");
+  const hits = detectTemplateLeakage(text);
+  if (hits.length === 0) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+
+  // Group the leaked fragments by paragraph so each regen edit stays paragraph-scoped.
+  const fragmentsByParagraph = new Map<number, string[]>();
+  for (const hit of hits) {
+    const idx = paragraphIndexOfFragment(paragraphs, hit);
+    const key = idx >= 0 ? idx : 0;
+    const list = fragmentsByParagraph.get(key) ?? [];
+    list.push(hit);
+    fragmentsByParagraph.set(key, list);
+  }
+
+  const defects: ProseDefect[] = [...fragmentsByParagraph.entries()].map(([idx, frags]) => ({
+    chapter: args.chapterNumber,
+    paragraphIndex: idx,
+    kind: "leakage" as const,
+    detail: frags.join(" | "),
+    obligationRef: `leakage_ch${args.chapterNumber}_p${idx}`,
+    severity: "hard" as const,
+  }));
+
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+  const originalWords = text.split(/\s+/).filter(Boolean).length;
+
+  const validate = composeChapterValidator(
+    noTemplateLeakageChapterValidator,
+    preserveLockedFactsValidator(requiredValues),
+    preserveChapterLengthValidator(originalWords),
+  );
+
+  const result = await runRegenRepair(
+    args.chapter,
+    defects,
+    (chapter, defect) => buildRegenRequest(chapter, defect, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
+  return { chapter: result.chapter, repaired, unresolved, ran: true };
+}
+
+/**
+ * A_62 RC-2.2 — `dualValueNoContrast` (Item 9, A_57 D2): the discriminating clue's staged and true
+ * values stated as two flat side-by-side truths instead of one observed contradiction → `clues ≤6`.
+ * 6/21 shipped runs and ACCELERATING (3 of 5 on M1 attempt 3) — the second of the two leverless caps.
+ *
+ * Unlike RC-2.1 (pure wiring), this required promoting the detector: it lived only in
+ * `@cml/rubric-score`, which this package must not depend on, so the cap was structurally leverless
+ * (the RC-2 rule). It now lives in `@cml/prose-guard/dual-value.ts`; rubric-score imports it from
+ * there — cap and lever key off the SAME function, so a passing regen provably no longer trips it.
+ *
+ * THE FALSE-WIN GUARD (the part that makes this pass safe): the cheapest way to silence the detector
+ * is to DELETE one of the two values — no co-occurrence, no defect… and no discriminating clue. The
+ * validator therefore requires BOTH canonical values verbatim in the rewritten chapter; a rewrite
+ * that drops either is rejected even though the detector would read clean. The fix is more binding,
+ * not less content.
+ *
+ * Takes the pair from the world-state ledger (`worldState.contradiction` — the same single source of
+ * truth `ctx.discriminatingContradiction` publishes to the rubric; A_57 D2, never re-derived).
+ * Paragraph-scoped where the co-occurrence sits inside one paragraph; falls back to the paragraph
+ * holding the first value when the window spans a boundary. No-op (`ran:false`) when the pair is
+ * absent or the chapter is clean — no LLM call, no cost.
+ */
+export async function runDualValueContrastRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  bible: RegenBible;
+  pair: DiscriminatingPair | null | undefined;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const paragraphs = args.chapter.paragraphs ?? [];
+  const text = paragraphs.join(" ");
+  if (!args.pair || !detectDualValueNoContrast(text, args.pair)) {
+    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+  }
+
+  // Scope: prefer the single paragraph that trips the detector on its own; if the window spans a
+  // paragraph boundary, anchor on the paragraph carrying the first canonical value.
+  let targetIdx = paragraphs.findIndex((p) => detectDualValueNoContrast(String(p ?? ""), args.pair!));
+  if (targetIdx < 0) targetIdx = Math.max(0, paragraphIndexOfFragment(paragraphs, args.pair.values[0]));
+
+  const [staged, truth] = args.pair.values;
+  const defect: ProseDefect = {
+    chapter: args.chapterNumber,
+    paragraphIndex: targetIdx,
+    kind: "dual_value_no_contrast",
+    detail: `staged value "${staged}" and true value "${truth}" sit side-by-side with no contrast connective`,
+    obligationRef: `dual_value_ch${args.chapterNumber}_p${targetIdx}`,
+    severity: "hard" as const,
+  };
+
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+
+  const detectorClearValidator = (c: ProseChapter): ValidatorResult => {
+    const fired = detectDualValueNoContrast(chapterText(c), args.pair!);
+    return { ok: !fired, score: fired ? 0 : 100, violations: fired ? ["dual_value_no_contrast:still flat"] : [] };
+  };
+  const bothValuesPreservedValidator = (c: ProseChapter): ValidatorResult => {
+    const lower = chapterText(c).toLowerCase();
+    const missing = args.pair!.values.filter((v) => !lower.includes(String(v ?? "").trim().toLowerCase()));
+    return {
+      ok: missing.length === 0,
+      score: missing.length === 0 ? 100 : 0,
+      violations: missing.map((v) => `dual_value_dropped:${v} (deleting a value silences the detector but destroys the clue)`),
+    };
+  };
+
+  const validate = composeChapterValidator(
+    detectorClearValidator,
+    bothValuesPreservedValidator,
+    preserveLockedFactsValidator(requiredValues),
+  );
+
+  const result = await runRegenRepair(
+    args.chapter,
+    [defect],
+    (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
+  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
   return { chapter: result.chapter, repaired, unresolved, ran: true };
 }
 

@@ -39,6 +39,8 @@ import {
   buildStoryBible,
   runCritiqueRewritePass,
   runScaffoldRegenPass,
+  runTemplateLeakageRegenPass,
+  runDualValueContrastRegenPass,
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
@@ -56,7 +58,7 @@ import {
   type BatchCommitRecord,
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage } from "@cml/prose-guard";
 import { validateArtifact, validateCml } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -194,6 +196,27 @@ const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQ
  * rewrite ships only if it clears the shape AND drops no locked fact. OFF by default; N≥4 before default-on.
  */
 const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, false);
+
+/**
+ * A_62 RC-2.1 — the repair arm for `templateLeakageHits`, the most frequent cap of the M1 era (7/15
+ * runs; it pins `prose ≤4` on 10/15 and fires with NO scaffold-family cap on 4/15, so the P4 scaffold
+ * A/B provably cannot reach those runs). The detector, the `"leakage"` defect kind and its regen
+ * instruction all shipped already — only the producer was missing (see `runTemplateLeakageRegenPass`).
+ *
+ * OFF by default, and deliberately so: an unmeasured default-on lever is the A_54 trap, and it would
+ * silently confound the P4 scaffold read (the two caps co-fire on 3/15 runs). N≥4 matched pairs before
+ * default-on. Runtime getter, never a module const — the flags-freeze-before-dotenv trap.
+ */
+const isTemplateLeakageRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_LEAKAGE, false);
+
+/**
+ * A_62 RC-2.2 — the repair arm for `dualValueNoContrast` (Item 9, A_57 D2): 6/21 shipped runs and
+ * accelerating (3 of 5 on M1 attempt 3). The detector was promoted from rubric-score into
+ * prose-guard so cap and lever key off the same function. Pair source: `worldState.contradiction`
+ * — the SAME `ctx.discriminatingContradiction` the final rubric consumes (never re-derived).
+ * OFF by default (N≥4 matched pairs before default-on); runtime getter, never a module const.
+ */
+const isDualValueRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_DUAL_VALUE, false);
 
 /** A_61 RC1.4 — dramatize the reveal/culprit-evidence in-scene instead of pasting the deterministic
  * "It was me… I confess" resolution backstop / "beyond all reasonable doubt" culprit sentence. Both
@@ -4379,6 +4402,98 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     } finally {
       const scaffoldCost = client.getCostTracker().getTotalCost() - costBeforeScaffold;
       if (scaffoldCost > 0 && typeof prose?.cost === "number") prose.cost += scaffoldCost;
+    }
+  }
+
+  // A_62 RC-2.1 (default-off, AGENT9_REGEN_LEAKAGE) — the repair arm `templateLeakageHits` never had.
+  // Runs AFTER the scaffold pass on purpose: the two detectors are complementary (prose-guard's
+  // scaffold.ts:15 says so — scaffold catches deductive scaffolding, detectTemplateLeakage catches
+  // metadata/audit/comma-table leakage), and a scaffold rewrite can itself introduce templated text, so
+  // leakage gets the last word. Through the SAME detector the rubric cap keys off, so a passing regen
+  // provably no longer trips the class. Paragraph-scoped; a rewrite ships only if it clears the leakage,
+  // drops no locked fact, and does NOT shrink the chapter (deletion would trade a prose cap for a
+  // completeness_structure run-killer). Runs before scoring so a cleared chapter scores honestly.
+  if (isTemplateLeakageRegenEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeLeakage = client.getCostTracker().getTotalCost();
+    try {
+      const regenBible = { ...worldState, beatSheet: [] };
+      const leakageRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      for (let i = 0; i < prose.chapters.length; i++) {
+        const pass = await runTemplateLeakageRegenPass({
+          chapter: prose.chapters[i],
+          chapterNumber: i + 1,
+          bible: regenBible,
+          regen: leakageRegen,
+          onUnresolved: (d, reason) =>
+            ctx.warnings.push(`[Agent 9] regen-leakage UNRESOLVED ch${i + 1} ${d.obligationRef}: ${reason} (cap may still apply).`),
+        });
+        if (pass.ran) {
+          prose.chapters[i] = pass.chapter;
+          if (pass.repaired.length > 0) {
+            ctx.warnings.push(`[Agent 9] regen-leakage cleared [${pass.repaired.join(", ")}] in ch${i + 1}.`);
+          }
+        }
+      }
+      prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+
+      // ATTRIBUTION GUARD (A_62 §6 mole list / the "post-processing runs after validation" trap).
+      // applyStandardPostProcessingChain runs DETERMINISTIC INJECTORS (applyDeterministicProsePostProcessing,
+      // repairWordFormLockedFacts) that WRITE prose — the very layer RC-1 blames for leakage (LLD P7 /
+      // P4.4 exists to delete it). So a chapter this pass just cleaned can be re-dirtied downstream.
+      // Without this check the P3 A/B would read "the leakage lever doesn't work" when the truth is
+      // "the lever worked and an injector undid it" — the exact fired-and-lost misattribution the P3.1
+      // label audit had to untangle for the scaffold family. Log it as data, don't paper over it.
+      for (let i = 0; i < (prose.chapters?.length ?? 0); i++) {
+        const after = detectTemplateLeakage((prose.chapters[i]?.paragraphs ?? []).join(" "));
+        if (after.length > 0) {
+          ctx.warnings.push(
+            `[Agent 9] regen-leakage POST-PROCESSING RE-INJECTED leakage in ch${i + 1} after the pass cleared it: ${after.join(" | ")} — attribute to the injector layer (LLD P7), NOT to lever ineffectiveness.`,
+          );
+        }
+      }
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] regen-leakage pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+    } finally {
+      const leakageCost = client.getCostTracker().getTotalCost() - costBeforeLeakage;
+      if (leakageCost > 0 && typeof prose?.cost === "number") prose.cost += leakageCost;
+    }
+  }
+
+  // A_62 RC-2.2 (default-off, AGENT9_REGEN_DUAL_VALUE) — the repair arm for `dualValueNoContrast`
+  // (Item 9: clues ≤6). Binds the staged/true pair as ONE observed contradiction; the validator
+  // rejects any rewrite that deletes either canonical value (silencing the detector by destroying the
+  // clue is the false win this guards). Pair from worldState.contradiction — the same ledger value the
+  // rubric consumes. Ordered after the leakage pass (its rewrite could in principle introduce flat
+  // restatements) and before the mechanism pass (which can then strip any causal language a contrast
+  // rewrite might edge toward). Runs before scoring so a cleared chapter scores honestly.
+  if (isDualValueRegenEnabled() && worldState.contradiction && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeDualValue = client.getCostTracker().getTotalCost();
+    try {
+      const regenBible = { ...worldState, beatSheet: [] };
+      const dualValueRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      for (let i = 0; i < prose.chapters.length; i++) {
+        const pass = await runDualValueContrastRegenPass({
+          chapter: prose.chapters[i],
+          chapterNumber: i + 1,
+          bible: regenBible,
+          pair: worldState.contradiction,
+          regen: dualValueRegen,
+          onUnresolved: (d, reason) =>
+            ctx.warnings.push(`[Agent 9] regen-dual-value UNRESOLVED ch${i + 1} ${d.obligationRef}: ${reason} (cap may still apply).`),
+        });
+        if (pass.ran) {
+          prose.chapters[i] = pass.chapter;
+          if (pass.repaired.length > 0) {
+            ctx.warnings.push(`[Agent 9] regen-dual-value bound the contradiction [${pass.repaired.join(", ")}] in ch${i + 1}.`);
+          }
+        }
+      }
+      prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+    } catch (err) {
+      ctx.warnings.push(`[Agent 9] regen-dual-value pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+    } finally {
+      const dualValueCost = client.getCostTracker().getTotalCost() - costBeforeDualValue;
+      if (dualValueCost > 0 && typeof prose?.cost === "number") prose.cost += dualValueCost;
     }
   }
 
