@@ -20,6 +20,12 @@ export interface ChatOptions {
   maxTokens?: number;
   jsonMode?: boolean;
   logContext?: LogContext;
+  /**
+   * A_62 RC-6.2 — override the TRANSPORT retry budget for this call (attempts/delays over network
+   * failures inside `chat()`). Defaults to `defaultRetryConfig`. Content-level retries (an agent
+   * re-prompting on a bad draft) are the caller's loop and unrelated to this knob.
+   */
+  retryConfig?: RetryConfig;
 }
 
 export interface ChatResponse {

@@ -46,7 +46,9 @@ RC-1 exists because unverified numbers propagate. That applies to this document 
 | "template-leakage is the most frequent single cap" | True for the **M1 era only** (7/15 vs scaffold 6/15). **False across all 20** — scaffold edges it 8–7. Leakage is the one *rising* (1/6 → 3/5 → 2/4), which is what makes it the priority. |
 | "Item 17 → 5/17, Item 9 → 5/17" (first report) | Both wrong — carried the bad hand-tally **and** a wrong denominator. Verified: **7/20** and **5/20** (Item 9 now 6/21). |
 | "M1v3-5 died of machine sleep" | **Incomplete.** Standby was the trigger; the *mechanism* was RC-6's missing deadline — that is why a severed socket became a 4h28m wait instead of a retry, and why the same signature recurred on a fully awake machine. |
-| "15 M1 shipped runs" (§3 below) | Now **16** — M1v3-5 (acoustic) shipped on re-run. §3's ratios are as-of the recompute; re-derive with the script rather than adjusting by hand. |
+| "15 M1 shipped runs" (§3 below) | Now **18** (M1v3-5 re-run + M1v4-1/2). §3's ratios are as-of the recompute; re-derive with the script rather than adjusting by hand. |
+| RC-6: "normalized … so withRetry's existing backoff takes over" | **Overstated when written.** True only for agents 1/3/3b — the other 23 call sites bypassed `withRetry` entirely, so the normalization had no consumer on the prose path until RC-6.2 moved retry inside `chat()`. The mechanism was right; the edge was missing. |
+| Tracker (22:15): "M1 attempt 4, 2/8 … run 3 in flight" | Run 3 became **abort class #4** (DNS outage → RC-6.2). Attempt 4 superseded → **attempt 5**, count from the RC-6.2 fix, poison first. |
 
 ---
 
@@ -205,6 +207,24 @@ Three standing premises are now falsified:
 **Why this restarted the M1 count.** A deadline turns a hang into a retry, and a retry may then ship. That changes run outcomes, so unlike the `64e5f49e` canary-exit fix it is **not** inert and attempt-3's shipped runs cannot carry over.
 
 **Watch on attempt 4:** the chain logs `deadline_fired=N` per run. A firing deadline followed by a shipped run is the win condition. A deadline firing on *every* run would mean 240s is too tight — no evidence of that (healthy calls are ~30s), but it is the thing to check.
+
+### RC-6.2 — the retry layer was BYPASSED by 23 call sites → abort class #4 · **Structural · FIXED 2026-07-16**
+
+*Found via M1v4 run 3 (`mystery-1784236058900`, poison): a ~30s DNS outage (`getaddrinfo ENOTFOUND`, three hits 16s/6s/6s apart) at Agent-9 Ch9 aborted the run.*
+
+**The tell was 18 milliseconds.** Error at `:36.983`, next request at `:37.001`. `withRetry`'s delays (1.5s base, 3s DNS floor) never ran — those three "retries" were the **chapter loop's three CONTENT attempts**, each burning instantly on a transport error. Enumerating the pipeline: **23 call sites call `chat()` directly** (agents 2, 2b–2e, 3b-judge, 4, 5, 6, 6.5, 7, 8, and all seven Agent-9 prose paths); only agents 1/3/3b ever used `chatWithRetry`. Consequences:
+
+1. `defaultRetryConfig.retryableErrors` was **dead code on ~90% of the pipeline** — every transport blip fell through to agents' content-retry loops.
+2. **RC-6's own normalization was unreachable on those sites too** — "so withRetry's backoff takes over" was only true for 1/3/3b (correction logged below).
+3. With all content attempts dead before any draft, the **generation-exception fallback** built a from-scratch final chapter with **no resolution event** — and the last-batch obligations made the abort *certain*. The retry-exhaustion path has had a deterministic resolution backstop since A_44; the exception path never got it.
+
+**The fix (two layers):**
+- **Transport retry moved INSIDE `chat()`** (`chat = withRetry(chatOnce)`) — the invariant lives at the choke point; all 23 sites inherit it with zero call-site churn. `chatWithRetry` demoted to breaker-only (`breaker.execute(() => chat())`) — nested retry would have multiplied to 16 worst-case attempts; a test pins "always-dead transport = exactly 4 SDK calls". Per-attempt logging stays in `chatOnce` — the diagnostic contract (one `chat_request`/`chat_error` per real network attempt) is what made this forensics possible. New `ChatOptions.retryConfig` seam for ops/test budgets.
+- **Exception-path resolution backstop** (generate.ts): mirrors the A_44 pattern with the same `.every()` resolution-only semantics — mixed failures still abort (genuine), an already-resolving fallback is never double-injected (Item 16's lesson).
+
+4 new tests (incl. the exact run-3 shape: DNS dies twice, third succeeds); llm-client 34 green; prompts-llm 765 green; worker tsc clean; all five changes (this + RC-2 levers) verified in worker-resolved dist. **Count restarts → attempt 5, poison first.**
+
+**The pattern worth naming:** RC-6 bounded the request; RC-6.2 made the bound *reachable*. Both are instances of the same defect shape as RC-2 — *machinery built but not wired into the path that needs it* (regen kinds nothing emitted; retryable errors nothing retried). When a system has a correct-looking mechanism that never fires, look for the missing edge, not a missing mechanism.
 
 ---
 

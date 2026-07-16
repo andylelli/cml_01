@@ -4087,6 +4087,35 @@ export async function generateProse(
                 fallbackValidationErrors.push(...fallbackObligations.hardFailures);
               }
             });
+            // A_62 abort class #4 (M1v4 run 3, mystery-1784236058900): a transport outage during the
+            // FINAL batch leaves no best attempt (all content attempts died before any draft), so the
+            // built-from-scratch fallback carries no resolution event — and the last-batch obligations
+            // then make the abort CERTAIN. The retry-exhaustion path has had a deterministic resolution
+            // backstop since A_44 (isResolutionOnlyFailure, ~l.3353); the exception path never got it.
+            // Mirror it with the same `.every()` semantics: only when resolution absence is the ONLY
+            // hard failure — mixed failures still abort (they are genuine), and a fallback that already
+            // resolves is never double-injected (Item 16's duplicate-clearance lesson).
+            if (
+              !usedBestAttempt &&
+              isLastBatch &&
+              fallbackValidationErrors.length > 0 &&
+              fallbackValidationErrors.every((e) => e.includes('no resolution event detected'))
+            ) {
+              const culpritName: string = ((inputs.caseData as any)?.CASE?.culpability?.culprits ?? [])[0] ?? '';
+              const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
+              if (culpritSurname && fallbackChapters.length > 0) {
+                const lastIdx = fallbackChapters.length - 1;
+                const lastChapter = fallbackChapters[lastIdx];
+                const paragraphs = [...((lastChapter.paragraphs ?? []) as string[])];
+                paragraphs.push(buildResolutionBackstopSentence(culpritSurname));
+                fallbackChapters[lastIdx] = { ...lastChapter, paragraphs };
+                fallbackValidationErrors.length = 0;
+                console.warn(
+                  `[Agent 9] Resolution backstop (exception path): ch${batchLabel} fallback lacked a ` +
+                  `resolution event after a generation exception; injected deterministic resolution for "${culpritName}".`,
+                );
+              }
+            }
             if (fallbackValidationErrors.length > 0) {
               if (usedBestAttempt) {
                 // FIX 2: best-effort commit of the best real LLM attempt; residual issues warn.

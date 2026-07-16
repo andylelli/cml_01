@@ -95,7 +95,27 @@ export class AzureOpenAIClient {
     this.logger = config.logger || new LLMLogger();
   }
 
+  // ── A_62 RC-6.2: transport retry lives HERE, at the choke point ─────────────────────────────────
+  // Found via M1v4 run 3 (mystery-1784236058900): a ~30s DNS outage (getaddrinfo ENOTFOUND, 3 hits
+  // 16s/6s/6s apart) aborted the run at Agent-9 Ch9. The log's 18-MILLISECOND gap between error and
+  // next request was the tell: withRetry's delays never ran, because **23 pipeline call sites call
+  // chat() directly** (agents 2,2b-e,3b-judge,4,5,6,6.5,7,8 and all seven Agent-9 prose paths) —
+  // only agents 1/3/3b ever used chatWithRetry(). So `defaultRetryConfig.retryableErrors` — and the
+  // RC-6 timeout normalization built to feed it — was dead code on most of the pipeline, and every
+  // transport blip fell through to the AGENTS' content-retry loops, burning 3-attempt budgets in
+  // seconds and converting a network hiccup into an abort class.
+  //
+  // The fix puts the invariant where every caller inherits it: public chat() wraps a single-attempt
+  // chatOnce() in withRetry. Per-attempt logging (chat_request / chat_error, full prompts) stays
+  // inside chatOnce so the diagnostic contract is unchanged — one log line per real network attempt
+  // (run 3's forensics depended on exactly that). Temperature escalation stays keyed to the CALLER'S
+  // content-retry attempt (logContext.retryAttempt), never the transport attempt — a network failure
+  // says nothing about the sampling basin.
   async chat(options: ChatOptions): Promise<ChatResponse> {
+    return withRetry(() => this.chatOnce(options), options.retryConfig ?? defaultRetryConfig);
+  }
+
+  private async chatOnce(options: ChatOptions): Promise<ChatResponse> {
     const model = options.model || this.defaultModel;
     const baseTemperature = options.temperature ?? 0.7;
     // Salt repeated retries by escalating temperature (logged value reflects the escalated temp).
@@ -241,10 +261,12 @@ export class AzureOpenAIClient {
     }
   }
 
+  // A_62 RC-6.2: chat() now retries internally, so this must NOT wrap it in withRetry again —
+  // nested retry would multiply to 16 worst-case attempts. What remains here is the circuit
+  // breaker (agents 1/3/3b keep their fail-fast-after-sustained-outage behavior; the breaker
+  // counts whole exhausted-retry failures, so it opens only after ~5 fully-failed calls).
   async chatWithRetry(options: ChatOptions): Promise<ChatResponse> {
-    return await this.circuitBreaker.execute(() =>
-      withRetry(() => this.chat(options), defaultRetryConfig)
-    );
+    return await this.circuitBreaker.execute(() => this.chat(options));
   }
 
   getCostTracker(): CostTracker {

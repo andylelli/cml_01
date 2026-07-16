@@ -135,7 +135,31 @@ These were found on S0 and are the only *code* candidates left before the batche
 
 **Goal (rescoped 2026-07-15, −25% cut):** the one lever with live cap signal gets the powered verdict; the rest get observational verdicts. ~~Rationale: across all 11 shipped runs, only the scaffold/report-style family fires at measurable frequency (report-style 5/11, scaffold 4/11) — `mechanismExplainedTooEarly` 0/11, `revealUsesUnplantedEvidence` 0/11, `templateLeakageHits` 1/11.~~ **[A_62: this rationale is FALSIFIED — the figures were hand-tallied and wrong. Derived truth: template-leakage 7/15 M1-era (the most frequent single cap on current code, rising 1/6→3/5→2/4), `dualValueNoContrast` 6/21 and accelerating, `mechanism`/`reveal` 2/20 each (both §8 buy-back triggers MET). The P4 A/B must cover `AGENT9_REGEN_LEAKAGE` alongside `AGENT9_REGEN_SCAFFOLD` — the two caps co-fire on only 3/15 runs, so the scaffold verdict alone cannot clear prose. Both new levers are built (A_62 RC-2.1/RC-2.2), default-OFF, awaiting this gate.]** The plan's own rule still applies: **a lever whose cap never fired can't show movement; A/B'ing it burns runs for no signal** — the correction is to what the numbers actually are, not to the rule.
 
-- [ ] **P4.1** — `VERIFY` — assemble the pool: ≥4 shipped runs from P1–P3, diverse on era/setting/cast/crime/mechanism, chapter-count known. No `SYNTHESIZING_CODE 7` on replay.
+- [x] **P4.1** — `VERIFY` — **POOL ASSEMBLED 2026-07-16 (A_62):** every candidate verified hydratable (`.actual-run-state.json` + Agent-7 response present in its `documentation/prompts/actual/run_*/` folder), chapter count read from the per-chapter Agent-9 files, **balanced on chapter count per A_62 RC-3** (the confound that survives; theme-matching is dead). Caps listed are the run's historical `caps_applied` — every pool member's target cap actually fired on it. `SYNTHESIZING_CODE 7` is still asserted per arm at replay (the harness records `synthesizedAgent7` and the analyzer invalidates the pair).
+
+  **Scaffold ×8 (powered — the M2-critical verdict, committed £2.40):**
+  | runId | run | theme | ch | scaffold-family caps |
+  |---|---|---|---|---|
+  | `mystery-1784057933768` | M1-1 | optics | 10 | report-style ×2 |
+  | `mystery-1784060164809` | M1-3 | tide | 9 | report-style ×2 |
+  | `mystery-1784061663248` | M1-4 | acoustic | 9 | scaffold + ceil-65 |
+  | `mystery-1784064257736` | M1-6 | clock | 10 | scaffold + report-style ×2 |
+  | `mystery-1784137570721` | M1v2-2 | tide | 10 | scaffold + ceil-65 |
+  | `mystery-1784142200392` | M1v2-5 | identity | 10 | scaffold + ceil-65 + report-style ×2 |
+  | `mystery-1784147217332` | M1v3-2 | poison | 10 | scaffold |
+  | `mystery-1784235178238` | M1v4-2 | clock | 9 | scaffold |
+
+  **Leakage ×4 (`AGENT9_REGEN_LEAKAGE`, reserve buy-back per §8 — cap 7/15 M1-era and rising):** `mystery-1784059393094` (M1-2 poison, 9ch) · `mystery-1784148466901` (M1v3-3 tide, 9ch) · `mystery-1784146189809` (M1v3-1 clock, 10ch) · `mystery-1784142200392` (M1v2-5 identity, 10ch) — 2×9/2×10, four distinct themes.
+
+  **Dual-value ×4 (`AGENT9_REGEN_DUAL_VALUE`, reserve buy-back — cap 7/23, 4 of the last 7):** `mystery-1784059393094` (M1-2 poison, 9ch) · `mystery-1784235178238` (M1v4-2 clock, 9ch) · `mystery-1784139037942` (M1v2-3 optics, 10ch) · `mystery-1784230510658` (M1v3-5 acoustic, 10ch) — 2×9/2×10, four distinct themes.
+
+  **Commands (after the post-batch `build:all` + dist verify, one flag per invocation):**
+  ```
+  node scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_SCAFFOLD --runIds mystery-1784057933768,mystery-1784060164809,mystery-1784061663248,mystery-1784064257736,mystery-1784137570721,mystery-1784142200392,mystery-1784147217332,mystery-1784235178238
+  node scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_LEAKAGE --runIds mystery-1784059393094,mystery-1784148466901,mystery-1784146189809,mystery-1784142200392
+  node scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_DUAL_VALUE --runIds mystery-1784059393094,mystery-1784235178238,mystery-1784139037942,mystery-1784230510658
+  ```
+  Est. ~£4.80 total (16 pairs × ~£0.30): scaffold from the committed tranche, the two ×4s from the decision-gated reserve — both caps have live, rising signal, exactly what §8 reserves the buy-back for.
 - [x] **P4.2** — `CODE` — rewrite-acceptance validator (transition + mechanism predicates) — **DONE** (`a408451b`). Keep the suite green; it's the guard that lets rewrite levers be A/B'd safely.
 - [ ] **P4.3** — `RUN` (×8 matched pairs) — `scripts/exp-regen-clue-ab.mjs --flag AGENT9_REGEN_SCAFFOLD`, **one flag per replay**, pool theme-matched ~~(identity is a known cap-free confound — balance it across arms or exclude it)~~ **[A_62: the identity-confound claim is DEAD — M1v2-5 (identity) fired 7 caps, the most of any run; every theme has now capped. Balance the pool on CHAPTER COUNT instead — the confound that survives (9-ch vs 10-ch arcs take different code paths, e.g. Item 11 only fires on 10-beat Golden-Age arcs).]** Read **raw scores + cap frequencies, never the grade band** (60/63/70 quantization exaggerates). Accept only if the scaffold/report-style cap frequency moved and nothing regressed. **[A_62: run the `AGENT9_REGEN_LEAKAGE` A/B in the same batch — same pool, one flag per replay.]**
 - [ ] **P4.4** — `CODE` — flip the scaffold default per the verdict; **delete the injector layer** (LLD P7). Empty-`.env.local` run must then behave like the validated config.
