@@ -49,6 +49,7 @@ RC-1 exists because unverified numbers propagate. That applies to this document 
 | "15 M1 shipped runs" (§3 below) | Now **18** (M1v3-5 re-run + M1v4-1/2). §3's ratios are as-of the recompute; re-derive with the script rather than adjusting by hand. |
 | RC-6: "normalized … so withRetry's existing backoff takes over" | **Overstated when written.** True only for agents 1/3/3b — the other 23 call sites bypassed `withRetry` entirely, so the normalization had no consumer on the prose path until RC-6.2 moved retry inside `chat()`. The mechanism was right; the edge was missing. |
 | Tracker (22:15): "M1 attempt 4, 2/8 … run 3 in flight" | Run 3 became **abort class #4** (DNS outage → RC-6.2). Attempt 4 superseded → **attempt 5**, count from the RC-6.2 fix, poison first. |
+| "abort class #4 … the class pool question keeps answering 'not yet'" | Confirmed again same-day: attempt 5 run 1 = **abort class #5** (RC-2.4, split-brain matchers). Attempt 6 launched from that fix. Five classes, zero repeats — the floor gate is *finding* them, which is its job; each new attempt validates all prior fixes plus one more. |
 
 ---
 
@@ -225,6 +226,18 @@ Three standing premises are now falsified:
 4 new tests (incl. the exact run-3 shape: DNS dies twice, third succeeds); llm-client 34 green; prompts-llm 765 green; worker tsc clean; all five changes (this + RC-2 levers) verified in worker-resolved dist. **Count restarts → attempt 5, poison first.**
 
 **The pattern worth naming:** RC-6 bounded the request; RC-6.2 made the bound *reachable*. Both are instances of the same defect shape as RC-2 — *machinery built but not wired into the path that needs it* (regen kinds nothing emitted; retryable errors nothing retried). When a system has a correct-looking mechanism that never fires, look for the missing edge, not a missing mechanism.
+
+### RC-2.4 — the gate enforces a matcher the repair layers never consult → abort class #5 · **Structural · FIXED 2026-07-16**
+
+*Found via M1v5 run 1 (`mystery-1784238677818`, poison): release-gate hard-stop `clue visibility incomplete` on `clue_core_contradiction_chain` — an **essential** clue — with `corrective_attempts: 0`.*
+
+**The prose was fine.** Ch1–3 are saturated with the clue's content ("Poison, she thought", "confirming the residue of poison", "poison … had found its way into the victim"). The gate's matcher (`collectClueEvidenceFromProse`, scoring-adapter) demands **≥3 signature tokens co-occurring in a single paragraph** (min 2, ratio 0.28 over an ~8-token signature); the best paragraph had 2. Good prose disperses an idea across sentences — the matcher penalizes exactly what craft rewards.
+
+**The split brain.** The generation/repair side satisfies its obligations via `chapterMentionsRequiredClue` (clue-validation) — which passed. So no `missing_clue` regen ever fired, and the run carried a defect only the gate could see, into a gate that only knows how to kill. Worse: **the batch loop detected the exact gap at Ch3** (`cluesWithNoAnchor`) and papered over it with *synthetic trace anchors* — telemetry parity, prose untouched — before sailing on to the certain hard-stop. This is the RC-2 rule ("a cap has a lever iff its detector is reachable from the generation loop") violated **between the gate and the lever**, the third instance of the built-but-not-wired shape (RC-2.1 regen kinds, RC-6.2 retryable errors, now gate matchers).
+
+**The fix** — `repairUnanchoredNsdCluesBeforeGate` (agent9-run.ts, exported for tests): before the hard-stop fires, plant each unanchored enforceable clue via the **existing** `missing_clue` insertion regen into the chapter whose NSD step claimed the reveal, with the acceptance validator being **the gate's own matcher** (injected). Re-collect, hard-stop only what remains. Insertion-only (originals preserved); unflagged — reliability repair per the `dd2190f6`/`257f7855`/`6dff6933` category. **Honest residual:** this mutates prose after story-validation (the standing agent9 trap) — the plant is validated by the insertion pass + hygiene chain + the gate's re-collection, but not the full story-validation suite; a warning is logged on every repair so it is never silent. 4 both-directions tests; worker 305 green; dist verified.
+
+**Deliberately NOT done:** loosening the gate matcher itself (paragraph-window/token tuning). That's detector recalibration — the RC-4 lesson applies (the pronoun audit showed what blind hardening/loosening does). If the A/B era shows the matcher's strictness costs more runs, tune it *with fixtures* then.
 
 ---
 

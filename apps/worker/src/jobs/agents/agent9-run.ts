@@ -3224,6 +3224,129 @@ const loadWritingGuides = (workspaceRoot: string): { humour?: string; craft?: st
 };
 
 // ============================================================================
+// repairUnanchoredNsdCluesBeforeGate — A_62 abort class #5
+// ============================================================================
+
+/**
+ * A_62 abort class #5 (M1v5 run 1, `mystery-1784238677818`, poison): the release gate hard-stopped
+ * on `clue_core_contradiction_chain` — an ESSENTIAL clue — with `corrective_attempts: 0`, while the
+ * prose was saturated with the clue's content ("confirming the residue of poison", "poison …
+ * had found its way into the victim"). Two defects compounded:
+ *
+ *   1. SPLIT-BRAIN MATCHERS. The generation/repair side satisfies its obligations via
+ *      `chapterMentionsRequiredClue` (clue-validation); the release gate enforces
+ *      `collectClueEvidenceFromProse` (scoring-adapter), whose semantic pass needs >=3 signature
+ *      tokens co-occurring in ONE paragraph (min 2, ratio 0.28 over ~8 tokens). Good prose
+ *      disperses an idea across sentences, so the gate can fail text the ledger passed — and
+ *      nothing upstream ever repairs what only the gate can see. The RC-2 rule ("a cap has a lever
+ *      iff its detector is reachable from the generation loop") violated between gate and lever.
+ *   2. THE BATCH LOOP PAPERS OVER IT. At batch time the same condition is detected
+ *      (`cluesWithNoAnchor`) and "fixed" with SYNTHETIC trace anchors — telemetry parity, prose
+ *      untouched — so the run sails on toward a certain hard-stop 7 chapters later.
+ *
+ * This helper is the missing repair edge, run at the gate BEFORE the hard-stop fires: for each
+ * enforceable NSD-revealed clue with no anchor, plant it via the EXISTING `missing_clue` insertion
+ * regen into the chapter whose NSD step claimed the reveal — with the acceptance validator being
+ * THE GATE'S OWN MATCHER (injected `collectEvidence`), so cap and lever key off one function and a
+ * passing repair provably clears the stop. Insertion-only (original paragraphs preserved — the
+ * repair.ts:153 lesson); whatever regen cannot resolve still hard-stops, exactly as today.
+ *
+ * Post-validation-mutation caveat (the standing agent9 trap): this runs AFTER story-validation, so
+ * the planted paragraph is validated by (a) the insertion pass's own validators, (b) the re-run
+ * post-processing hygiene chain, (c) the gate's re-collection + its remaining checks (control
+ * chars / mojibake run after this point) — but NOT by the full story-validation suite. That
+ * residual is logged as a warning on every repair so it is never silent.
+ */
+export const repairUnanchoredNsdCluesBeforeGate = async (args: {
+  chapters: any[];
+  unanchoredClueIds: readonly string[];
+  nsdTransferTrace: ReadonlyArray<any>;
+  cmlCase: any;
+  clues: any;
+  bible: any;
+  regen: (req: any) => Promise<any>;
+  /** THE GATE'S matcher, injected — the same function the hard-stop keys off. */
+  collectEvidence: (chapters: any[], cmlCase: any, clues: any) => { visibleClueIds: string[] };
+  onNote?: (msg: string) => void;
+  maxAttemptsPerDefect?: number;
+}): Promise<{ chapters: any[]; repaired: string[]; unresolved: string[] }> => {
+  const chapters = [...args.chapters];
+  const repaired: string[] = [];
+  const unresolved: string[] = [];
+  if (args.unanchoredClueIds.length === 0 || chapters.length === 0) {
+    return { chapters, repaired, unresolved: [...args.unanchoredClueIds] };
+  }
+
+  const clueById = new Map(
+    ((Array.isArray(args.clues?.clues) ? args.clues.clues : []) as any[])
+      .map((c: any) => [String(c?.id ?? "").trim(), c] as const)
+      .filter(([id]) => id.length > 0),
+  );
+
+  // Target the chapter whose NSD step claimed the reveal (its batch_end — where the batch-time
+  // synthetic anchor pointed); clamp into range, fall back to an early chapter.
+  const byChapter = new Map<number, string[]>();
+  for (const clueId of args.unanchoredClueIds) {
+    const step = args.nsdTransferTrace.find(
+      (s: any) => Array.isArray(s?.newly_revealed_clue_ids) && s.newly_revealed_clue_ids.includes(clueId),
+    );
+    const raw = Number(step?.batch_end ?? 0);
+    const chapterNumber = Math.min(Math.max(raw >= 1 ? raw : 2, 1), chapters.length);
+    byChapter.set(chapterNumber, [...(byChapter.get(chapterNumber) ?? []), clueId]);
+  }
+
+  for (const [chapterNumber, clueIds] of byChapter) {
+    const idx = chapterNumber - 1;
+    const chapter = chapters[idx];
+    if (!chapter) {
+      unresolved.push(...clueIds);
+      continue;
+    }
+    const defects = clueIds.map((clueId) => {
+      const clue: any = clueById.get(clueId);
+      const observable = String(clue?.observable ?? clue?.description ?? clueId);
+      return {
+        chapter: chapterNumber,
+        kind: "missing_clue" as const,
+        obligationRef: clueId,
+        detail: `NSD claims this clue was revealed in ch${chapterNumber} but the release-gate matcher finds no prose anchor. Plant it as a concrete in-scene observation: ${observable}`,
+        severity: "hard" as const,
+      };
+    });
+    const presenceValidatorFor = (defect: any) => (c: any) => {
+      const ok = args
+        .collectEvidence([c], args.cmlCase, args.clues)
+        .visibleClueIds.includes(String(defect.obligationRef ?? ""));
+      return {
+        ok,
+        score: ok ? 100 : 0,
+        violations: ok ? [] : [`nsd_unanchored:${defect.obligationRef}`],
+      };
+    };
+    const pass = await runInsertionRegenPass({
+      chapter,
+      defects,
+      bible: args.bible,
+      regen: args.regen as any,
+      presenceValidatorFor,
+      maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2,
+      onUnresolved: (d: any, reason: string) =>
+        args.onNote?.(`[Agent 9] NSD-anchor regen UNRESOLVED ch${chapterNumber} ${d.obligationRef}: ${reason} (hard-stop stands).`),
+    });
+    if (pass.ran) chapters[idx] = pass.chapter;
+    repaired.push(...pass.repaired);
+    unresolved.push(...pass.unresolved);
+    if (pass.repaired.length > 0) {
+      args.onNote?.(
+        `[Agent 9] NSD-anchor regen planted [${pass.repaired.join(", ")}] in ch${chapterNumber} via the gate's own matcher. ` +
+        `NOTE: the planted paragraph is post-story-validation (insertion-validated + hygiene only) — A_62 class #5 residual.`,
+      );
+    }
+  }
+  return { chapters, repaired, unresolved };
+};
+
+// ============================================================================
 // runAgent9
 // ============================================================================
 
@@ -6042,10 +6165,50 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     optionalDowngraded: optionalDowngradedNsdRevealedClues,
   } = partitionNsdRevealedCluesForReleaseGate(nsdRevealedClues, expectedClueIds, optionalClueIds);
   const enforceableNsdRevealedClueSet = new Set(enforceableNsdRevealedClues);
-  const evidenceVisibleClues = new Set(clueEvidence.visibleClueIds);
-  const revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
+  let evidenceVisibleClues = new Set(clueEvidence.visibleClueIds);
+  let revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
     (id) => !evidenceVisibleClues.has(id),
   );
+  // A_62 abort class #5: an enforceable NSD clue with no anchor was previously a CERTAIN hard-stop
+  // with corrective_attempts:0 — the gate enforced a matcher the repair layers never consult
+  // (split-brain: ledger uses chapterMentionsRequiredClue, gate uses collectClueEvidenceFromProse).
+  // Repair BEFORE stopping: plant via the existing missing_clue insertion regen, accepted by THE
+  // GATE'S OWN matcher, then re-collect and only hard-stop what remains. Unflagged — reliability
+  // repair, same category as dd2190f6/257f7855/6dff6933.
+  let nsdAnchorRepairAttempts = 0;
+  if (revealedWithoutEvidence.length > 0 && Array.isArray(prose?.chapters) && prose.chapters.length > 0) {
+    nsdAnchorRepairAttempts = revealedWithoutEvidence.length;
+    const costBeforeNsdRepair = client.getCostTracker().getTotalCost();
+    try {
+      const nsdRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const repair = await repairUnanchoredNsdCluesBeforeGate({
+        chapters: prose.chapters,
+        unanchoredClueIds: revealedWithoutEvidence,
+        nsdTransferTrace: ctx.nsdTransferTrace,
+        cmlCase: (cml as any).CASE,
+        clues,
+        bible: { ...worldState, beatSheet: [] },
+        regen: nsdRegen,
+        collectEvidence: collectClueEvidenceFromProse as any,
+        onNote: (m) => ctx.warnings.push(m),
+      });
+      prose.chapters = repair.chapters;
+      prose = applyStandardPostProcessingChain(prose); // hygiene over the planted paragraphs
+      // Re-collect with the SAME matcher the hard-stop uses; keep only still-unanchored ids.
+      const recollected = collectClueEvidenceFromProse(prose.chapters, (cml as any).CASE, clues);
+      evidenceVisibleClues = new Set(recollected.visibleClueIds);
+      revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
+        (id) => !evidenceVisibleClues.has(id),
+      );
+    } catch (err) {
+      ctx.warnings.push(
+        `[Agent 9] NSD-anchor regen pass failed: ${err instanceof Error ? err.message : String(err)} (hard-stop evaluation proceeds on the original prose).`,
+      );
+    } finally {
+      const nsdRepairCost = client.getCostTracker().getTotalCost() - costBeforeNsdRepair;
+      if (nsdRepairCost > 0 && typeof (prose as any)?.cost === "number") (prose as any).cost += nsdRepairCost;
+    }
+  }
   const evidenceWithoutReveal = Array.from(evidenceVisibleClues).filter(
     (id) => !enforceableNsdRevealedClueSet.has(id),
   );
@@ -6322,7 +6485,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       ),
     );
     const correctiveAttempts =
-      (ctx.proseRepairPassCount ?? 0) + (ctx.proseRewritePassCount ?? 0);
+      (ctx.proseRepairPassCount ?? 0) + (ctx.proseRewritePassCount ?? 0) + nsdAnchorRepairAttempts;
     const finalBlockingReason =
       hardStopReasons.length > 0
         ? Array.from(new Set(hardStopReasons)).join('; ')
