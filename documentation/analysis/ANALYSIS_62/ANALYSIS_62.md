@@ -17,6 +17,80 @@
 
 **✅ M1 FLOOR GATE CLOSED — attempt 10: 8/8, zero aborts** (count from `88355628`). Ten attempts, 11 aborts, 9 distinct classes, every fix validated by the closing batch itself (5 deadline absorptions across the final two attempts, aborting themes shipping on their fixes). Median shipped rubric of the closing batch: **59** — the floor is proven and the ceiling problem is untouched, exactly as §3 predicted. **Next: P2 of this doc's plan is spent; P3 (the A/B triad) is the live phase.**
 
+## THE ROAD TO 80 — what is actually left (written 2026-07-17, mid-P3-final-leg)
+
+*Supersedes REMAINING_TO_80 §1's path-at-a-glance. Facts are marked as facts; everything else is
+the plan's own arithmetic, with its uncertainty stated.*
+
+```
+[M1 floor ✅ CLOSED 8/8]
+  → P3  lever verdicts: scaffold ✅ VALIDATED (n=7, −85%) · leakage ⏳ RUNNING · dual-value ⏳ QUEUED
+  → P4  gate decisions: defaults · injector deletion · ONE buy-back        ← DECIDE (hours)
+  → M2  check batch ≥4: top-4 caps ≤1, median ≥73                          ← RUN (~£1)
+  → P5  craft A/B ×2(+1 candidate): critique-rewrite · voice · [pronoun-clarity]  ← RUN (~£2.40)
+  → M3  final ≥4×4 + one external read per run + gap recalibration          ← RUN + SCORE (~£1 + manual reads)
+  → 80 ✅  (all four done-criteria on the same batch)
+```
+
+### 1. Finish P3 (in flight — hours)
+Leakage ×4 and dual-value ×4 are rerunning on the repaired replay path with per-flag metrics
+(`1d6a4bc4`). Each verdict is read on raw detector counts, never grade bands; incomplete pairs
+invalidate, missing metrics fail rather than false-pass. Risk: the Azure DNS flap (twice today) —
+the runner resumes cheaply.
+
+### 2. The P4 gate (one sitting, after P3)
+- **Defaults:** scaffold is DONE (default ON, `6d44f800`). Leakage/dual-value flip iff their
+  verdicts show cap-frequency movement without `completeness_structure` or pronoun regressions.
+- **Injector-layer deletion (LLD P7 / P4.4):** the evidence now includes class #6 (an injector
+  sentence fabricated a lifecycle death → run-killer) and the scaffold verdict (the regen
+  replacement works, −85%). Deletion proceeds iff leakage's verdict confirms the regen family can
+  hold the floor the injectors currently provide. This is the least-reversible P4 act — it goes
+  last, alone, with a smoke run.
+- **The ONE buy-back (§8 discipline):** `mechanism` vs `reveal`/DT-evidence — both 6/39 all-time,
+  reveal at 4/7 on the closing M1 batch (accelerating). Choose by which cap the post-P3 projection
+  says costs more points; fund ×4 pairs (~£1.20) from reserve. The other waits for P5-era data.
+
+### 3. The M2 check (~£1, one ≥4 batch)
+With flipped defaults, run ≥4 matched fresh runs and derive: top-4 caps ≤1 occurrence, median ≥73.
+**The honest arithmetic:** prose was capped ≤4 on 77% of shipped runs; historical UNCAPPED runs
+landed 59–70. Clearing the caps mechanically recovers the prose/clues/ending points the caps
+subtracted — but whether that lands the median at 73 or at ~68 is exactly what this batch measures.
+If it lands short, the gap is RAW CRAFT, which is P5's job, not another reliability pass. Do not
+re-litigate M1 if a run aborts here — a new abort class gets the same-day-fix treatment and the
+batch reruns; the floor machinery is proven.
+
+### 4. P5 — the craft lift (~£2.40, two levers + one decision-gated candidate)
+- `AGENT9_CRITIQUE_REWRITE` A/B ×4 — targets opening_hook/dialogue/pacing (floor means 6.2/6.75/5.85).
+  Note: prompt logs suggest it may already be firing on live runs — VERIFY its flag state before
+  designing the A/B, else the control arm is contaminated (the P5.1 premise may have the same
+  defect the rescope had).
+- `AGENT9_VOICE_ENFORCE=enforce` A/B ×4 — must measure dialogue-mark movement AND tic-frequency
+  (Item 14: 3/4 externals read tics as artificial), not just leakage.
+- **New candidate from the Item-13 spec:** `AGENT9_PRONOUN_CLARITY` (pronoun map in prompt +
+  name-over-pronoun in dense scenes + drafting-time pass). Decision-gated on the P5 budget after
+  the first two read out; the deterministic sweep already handles TP1/2/4, so this lever buys the
+  cross-sentence residue and the AMB clarity class.
+- Acceptance per lever: target category +1 with nothing regressed (the standing rule).
+
+### 5. M3 — the final gate (all four on ONE ≥4×4 matched batch)
+- mean external (ChatGPT) **≥ 80** — reads are manual, one per run
+- |internal − external| **≤ 3** — Item 10's recalibration happens HERE, after caps are gone
+  (the −9.5 gap was measured on capped runs; re-measure first, recalibrate the rubric only if the
+  cap-free gap still exceeds 3)
+- ship rate **100%** · reliability rows 0 · top-4 caps 0 · category floor mean **≥ 8.0**
+
+### Standing debts that ride along (not on the critical path)
+`mobile`/`digital` guards live in dist (built with the next build) · novelty skeleton-judge stays
+shadow until telemetry disagrees · TP5/AMB pronoun name-substitution lives inside the P5 pronoun
+lever · restore `standby-timeout-ac` 2700 when the last batch lands · the P4-loser buy-back and any
+rubric recalibration are the only unfunded lines if the reserve runs dry (~£5–6 remains of £15).
+
+**The one-sentence status: reliability is bought and paid for; the scaffold lever is proven; what
+stands between here and 80 is two lever verdicts, one gate sitting, and whether cap-free craft
+clears 73 on its own — everything after that is measurement.**
+
+---
+
 ### The abort-class ledger (campaign totals: 8 distinct classes, 10 aborts, one repeat-via-dead-fix)
 
 | # | Class (one line) | Fix | Status |
