@@ -347,8 +347,17 @@ describe('ProseConsistencyValidator — pronoun_drift', () => {
   it('fires on a later name occurrence when the first has a competitor (continue, not break)', () => {
     // First paragraph: Catherine + Christopher together → competitor suppresses position 1.
     // Second paragraph: Catherine alone near "his" → should still be detected (position 2).
+    //
+    // A_62 Item 13: the competitor guard now searches the SAME ±200-char window the pronoun was
+    // found in (not just the paragraph) — cross-paragraph tag attribution ("…," she observed.
+    // Edmund…) was double-flagging both characters. The para-2 position must therefore sit
+    // OUTSIDE the competitor's window for this test's spirit (genuinely isolated drift fires),
+    // so the fixture carries >200 chars of intervening narration.
     const text =
       'Christopher Regan and Catherine Nolan spoke briefly at the door. She went inside.\n\n' +
+      'The hallway clock ticked through the quarter hour while the rain kept its slow argument ' +
+      'with the windows, and the house settled into the particular stillness that follows a ' +
+      'disagreement no one intends to finish. The lamps burned low along the corridor.\n\n' +
       'Later, Catherine stood at the window alone. His coat was on the chair beside her.';
     const story = makeStory([makeScene({ number: 1, text })]);
     const cml = makeCMLWithCast([
@@ -531,5 +540,40 @@ describe('ProseConsistencyValidator — checkContextLeakage Pattern 2', () => {
     expect(wordCount).toBeLessThanOrEqual(55); // confirm it's under threshold
     const errs = leakageErrors(sentence);
     expect(errs).toHaveLength(0);
+  });
+});
+
+describe("A_62 Item 13 — TP3 Guard C refinement (fixture-driven, ITEM_13_PRONOUN_DRIFT_SPEC)", () => {
+  const cast = [
+    { name: "Eleanor Voss", gender: "female", role: "detective" },
+    { name: "Hugo Vane", gender: "male", role: "suspect" },
+    { name: "Sylvia Trent", gender: "female", role: "suspect" },
+  ] as any;
+
+  it("TP3: a self-consistent wrong-gender run with NO opposite-gender mention in the paragraph is repaired", () => {
+    const tp3 = "Eleanor Voss studied the tide tables. He pressed on toward the shore, his gaze fixed.";
+    const res = repairPronouns(tp3, cast);
+    expect(res.text).toBe("Eleanor Voss studied the tide tables. She pressed on toward the shore, her gaze fixed.");
+    expect(res.repairCount).toBeGreaterThan(0);
+  });
+
+  it("Guard C still protects when the opposite gender IS named in the paragraph (legit second actor)", () => {
+    const legit = "Eleanor Voss read the letter aloud. Hugo listened from the doorway. His hands would not stay still.";
+    expect(repairPronouns(legit, cast).text).toBe(legit);
+  });
+
+  it("FP1: a pronoun with a legitimate in-scene referent stays untouched", () => {
+    const fp1 = "Eleanor watched Hugo. He looked away.";
+    expect(repairPronouns(fp1, cast).text).toBe(fp1);
+  });
+
+  it("AMB: post-group ambiguity is never gender-flipped (name-substitution is P5-lever territory)", () => {
+    const amb = "Eleanor watched Hugo and Sylvia. He looked away.";
+    expect(repairPronouns(amb, cast).text).toBe(amb);
+  });
+
+  it("single-pronoun inheritance behaviour is unchanged", () => {
+    const single = "Eleanor Voss studied the tide tables. He frowned.";
+    expect(repairPronouns(single, cast).text).toBe("Eleanor Voss studied the tide tables. She frowned.");
   });
 });

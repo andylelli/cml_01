@@ -11,6 +11,7 @@ import {
   ProseConsistencyValidator,
   detectAttributionFlips,
   detectImpossibleSelfReferences,
+  detectPronounDriftEvents,
   type PronounDriftCastEntry,
 } from '../prose-consistency-validator.js';
 import type { CMLData, Scene, Story } from '../types.js';
@@ -199,5 +200,22 @@ describe('ProseConsistencyValidator — detector wiring + repair-targeting messa
       { name: 'Edmund Hale', gender: 'male' },
     ]));
     expect(result.errors.filter((e) => e.type === 'pronoun_drift')).toHaveLength(0);
+  });
+});
+
+describe("A_62 Item 13 — FP2 unnamed-role intervener (detector precision)", () => {
+  const cast = [
+    { name: "Eleanor Voss", gender: "female" },
+    { name: "Captain Ivor Hale", gender: "male" },
+  ] as any;
+
+  it("FP2 (the RC-4 live FP): an unnamed role carrying the pronoun does NOT fire", () => {
+    const fp2 = "As Eleanor spoke, the night porter stepped forward, clearing his throat.";
+    expect(detectPronounDriftEvents(fp2, cast)).toEqual([]);
+  });
+
+  it("TP1 still fires (recall preserved): a genuine beat mismatch with no role noun", () => {
+    const tp1 = "Captain Hale tightened her jaw and looked away.";
+    expect(detectPronounDriftEvents(tp1, cast).length).toBeGreaterThan(0);
   });
 });

@@ -246,6 +246,10 @@ export function detectAttributionFlips(text: string, cast: PronounDriftCastEntry
  * gloves"). Skipped when an opposite-gender pronoun intervenes (a second actor is in play) or when
  * ANY cast member matching the wrong pronoun's gender appears in the paragraph.
  */
+// A_62 Item 13 FP2 — unnamed person-roles that legitimately carry a pronoun of either gender.
+const UNNAMED_ROLE_INTERVENER =
+  /\b(?:porter|butler|maid|footman|valet|constable|sergeant|inspector|officer|doctor|nurse|driver|chauffeur|gardener|cook|housekeeper|waiter|waitress|steward|clerk|guard|vicar|curate|servant|attendant|bellboy|caretaker|watchman|postman|messenger|stranger|visitor|gentleman|lady|man|woman|boy|girl|figure)\b/i;
+
 export function detectImpossibleSelfReferences(text: string, cast: PronounDriftCastEntry[]): PronounDriftEvent[] {
   const events: PronounDriftEvent[] = [];
   const tokenIndex = buildGenderedTokenIndex(cast);
@@ -288,6 +292,14 @@ export function detectImpossibleSelfReferences(text: string, cast: PronounDriftC
           : possessiveMatch;
       if (!hit) continue;
       if (intervener.test(rest.slice(0, hit.index))) continue;
+      // A_62 Item 13 FP2 (fixture-driven): an UNNAMED role noun before the pronoun is a legitimate
+      // second actor — "As Eleanor spoke, the night porter stepped forward, clearing his throat."
+      // The cast-mention suppression below can never cover walk-ons (they are unnamed by design;
+      // class #8 even anonymises them INTO this shape). Same semantics as the pronoun intervener.
+      // Precision-first: any person-role noun suppresses regardless of its own gender coding — the
+      // detector's documented posture is high-precision/low-recall, and this list is the period
+      // staff/occupational vocabulary plus generic person nouns.
+      if (UNNAMED_ROLE_INTERVENER.test(rest.slice(0, hit.index))) continue;
 
       // Same-gender-as-wrong-pronoun cast mention anywhere in the paragraph → plausible referent, skip.
       let wrongGenderCastPresent = false;
@@ -580,7 +592,14 @@ export class ProseConsistencyValidator implements Validator {
               const paragraphStart = paragraphStartToken === -1 ? 0 : paragraphStartToken + 2;
               const paragraphEnd = paragraphEndToken === -1 ? scene.text.length : paragraphEndToken;
               const paragraphText = scene.text.slice(paragraphStart, paragraphEnd);
-              const competitorSearchText = stripDialogueFromWindow(paragraphText);
+              // A_62 Item 13 (fixes the long-standing pronoun-verify-policy failure): the PRONOUN
+              // test scans the ±200-char WINDOW (which crosses paragraph boundaries) but the
+              // competitor guard searched only the mention's PARAGRAPH — so "Eleanor …\n\n… she
+              // observed. Edmund Hale … his notebook." flagged BOTH characters: each one's wrong
+              // pronoun sat in the window while its owner sat outside the paragraph. Search
+              // competitors in the SAME window the pronoun was found in (plus the paragraph, a
+              // strict superset of the old behavior — suppression only ever widens).
+              const competitorSearchText = stripDialogueFromWindow(paragraphText) + " " + windowStripped;
               const competitorFound = oppositeFirstNames.some((fn) =>
                 new RegExp(`\\b${fn}\\b`, 'i').test(competitorSearchText)
               );

@@ -417,11 +417,18 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
     // that character anchors the paragraph — inheritance is unnecessary and risks
     // false repairs on correct pronouns that follow a named anchor.
     let lastSingleCharacter: CharacterPronounInfo | null = null;
+    // A_62 Item 13 TP3: whether the current anchor was inherited from the PREVIOUS paragraph.
+    // The Guard-C evidence relaxation below applies only to SAME-paragraph anchors — for an
+    // inherited anchor, the "different character" Guard C hypothesizes may live entirely in the
+    // previous paragraph (the orphaned-split case the guard was built for), so the unconditional
+    // count guard stays.
+    let anchorInherited = false;
     if (options?.crossParagraphInheritance && crossParagraphChar) {
       const openingSentence = segments[0] ?? paragraph;
       const namedInOpening = findMentionedCharacters(openingSentence, characters);
       if (namedInOpening.length === 0) {
         lastSingleCharacter = crossParagraphChar;
+        anchorInherited = true;
       }
     }
 
@@ -429,12 +436,16 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
     // quoted speech are never repaired by the inheritance/single-mention passes.
     let dialogueInside = false;
 
+    // A_62 Item 13 TP3: genders actually NAMED so far in this paragraph — Guard C's evidence base.
+    const paragraphMentionedGenders = new Set<string>();
+
     const repairedSegments = segments.map((segment) => {
       const dlg = scanDialogue(segment, dialogueInside);
       const inDialogue = dlg.isDialogue;
       dialogueInside = dlg.endInside;
 
       const mentioned = findMentionedCharacters(segment, characters);
+      for (const c of mentioned) paragraphMentionedGenders.add(c.gender);
 
       // Quoted speech: leave the model's pronouns untouched and do not let dialogue
       // change the narrative inheritance anchor. (Dialogue "he said" attribution tags
@@ -452,6 +463,7 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
           return segment;
         }
         lastSingleCharacter = mentioned[0]; // track for context continuity
+        anchorInherited = false; // re-anchored in THIS paragraph (A_62 Item 13 TP3)
         if (skip === 'mixed-or-perception') {
           // Wrong-gender pronouns here belong to another character — do not flip them.
           return segment;
@@ -487,9 +499,19 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
         // (e.g. an orphaned paragraph after a split) — do not flip a self-consistent
         // opposite-gender run. A single opposite pronoun (e.g. "She gasped." after a
         // male subject) is still repaired, preserving existing inheritance behaviour.
+        //
+        // A_62 Item 13 TP3 refinement (fixture-driven): Guard C's hypothesized "different
+        // character" must actually EXIST — i.e. someone of that gender was NAMED in this
+        // paragraph. Drift routinely flips a whole sentence self-consistently ("He pressed on
+        // toward the shore, his gaze fixed." after an Eleanor sentence, no male anywhere), and
+        // the unconditional count guard was exactly why that shape survived every production
+        // repair entry. With no opposite-gender mention in the paragraph there is no one to
+        // protect — repair. Fixture-verified unchanged: "Hugo listened from the doorway. His
+        // hands…" (male mentioned → still protected).
         const counts = countGenderedPronouns(segment);
-        const oppositeCount = lastSingleCharacter.gender === 'male' ? counts.female : counts.male;
-        if (oppositeCount >= 2) {
+        const oppositeGender: 'male' | 'female' = lastSingleCharacter.gender === 'male' ? 'female' : 'male';
+        const oppositeCount = oppositeGender === 'female' ? counts.female : counts.male;
+        if (oppositeCount >= 2 && (anchorInherited || paragraphMentionedGenders.has(oppositeGender))) {
           return segment;
         }
         // Only apply repair if the inherited subject is in the allowed set
@@ -506,6 +528,7 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
         const genders = new Set(mentioned.map((c) => c.gender));
         if (genders.size === 1) {
           lastSingleCharacter = mentioned[0]; // always track
+          anchorInherited = false; // re-anchored in THIS paragraph (A_62 Item 13 TP3)
           // In targeted mode (onlyNames set), fire if ANY mentioned character is in the allowed set
           // — not just the first one. Without this, "Dr. Finch watched Captain Hale, her coat..."
           // would skip repair for Hale when onlyNames={Hale} because mentioned[0]=Finch.
