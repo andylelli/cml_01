@@ -13,9 +13,25 @@
 
 ---
 
-## TRACKER — state as of 2026-07-16 22:15
+## TRACKER — state as of 2026-07-17 02:40
 
-**M1 floor gate: attempt 4, 2/8, count from `941fc94e`** (the request-deadline fix; restarted by decision because a deadline turns a hang into a retry that may then ship — not an inert change). Run 1 (identity — the theme that hung) **shipped clean, deadline never fired**; run 2 (clock) shipped; run 3 (poison) in flight.
+**M1 floor gate: attempt 9, 3/8 and counting** (count from `b1b3b5c7`, the class-#7 era-polysemy fix). The night's arc: attempts 4→9, each abort a distinct new class, each fixed same-day, each next attempt validating all prior fixes on the aborting theme first.
+
+### The abort-class ledger (campaign totals: 8 distinct classes, 10 aborts, one repeat-via-dead-fix)
+
+| # | Class (one line) | Fix | Status |
+|---|---|---|---|
+| 1 | optional-criticality NSD clue hard-stopped the gate | `dd2190f6` partition | ✅ 0 since |
+| 2 | Agent 6.5 victim omitted from portraits/sketches → count gate fatal | `257f7855` — **dead code** (`role` vs `role_archetype`; tests fixtured the same wrong field) → **recurred** → re-fixed `b5d822a8` | ✅ re-fixtured to production shape; **the only repeat** |
+| 3 | dual-detective archetype → name-switch critical | `6dff6933` source repair + titled evidence | ✅ 0 since |
+| 4 | transport error bypassed retry (23 call sites) → content-burn → resolution-less fallback abort | `79c60ed0` retry at the choke point + exception-path backstop (RC-6.2) | ✅ **validated live twice** (deadline fired, retried, runs continued) |
+| 5 | gate-only clue matcher; repair layers blind to it (split-brain) | `3b1b1de4` gate-matcher-keyed repair edge (RC-2.4) | ✅ armed, test-pinned |
+| 6 | injector template glued cast name + death-adjacent key-terms → lifecycle "death" → critical avalanche | `1e677246` template restructure + cross-package interaction test | ✅ validated on aborting theme |
+| 7 | "tablet"-as-pill convicted as computing anachronism ×8 chapters → majors>5 abort | `b1b3b5c7` polysemy guard, fixture-driven | ✅ validated on aborting theme |
+
+**The pattern (classes #5–#7): a single false or fabricated signal, amplified per chapter, crossing a count threshold.** Generation is no longer the reliability frontier — **detector precision is**, exactly as the RC-4 evidence pass predicted. Watched siblings of #7, deliberately NOT fixed mid-batch (no speculative dist changes while a count runs): bare `mobile` and `digital` in the same `forbiddenTerms` lists — if either fires it is a one-line guard entry; otherwise they get fixture-driven guards in the P3 build window.
+
+**RC-6/6.2 live validation:** two hung LLM calls on two different runs hit the 240s deadline, normalized retryable, backed off, retried, succeeded — runs continued and later failed (or shipped) on their REAL merits. Monday's identical signature was a 4.5-hour overnight hang. The hang class is closed *and its masking effect is gone* — which is precisely why the abort-class discovery rate jumped this week: runs now live long enough to reach their actual bugs.
 
 | # | Root cause | Tag | State | Evidence / next action |
 |---|---|---|---|---|
