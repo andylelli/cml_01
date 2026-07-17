@@ -186,6 +186,15 @@ export class EraAuthenticityValidator implements Validator {
   private static readonly POLYSEMOUS_TERM_GUARDS: Record<string, RegExp> = {
     // computing-device sense only; the pill/stone/writing senses are period-valid
     tablet: /\b(?:screen|device|electronic|digital|touch\w*|swipe\w*|app|apps|glow\w*|charg\w*|battery|pixel\w*)\b/i,
+    // Class-#7 siblings, guarded in the same build window with dictionary-sense fixtures (deferred
+    // from the abort-night on the no-speculative-mid-batch rule). "mobile" the ADJECTIVE is period
+    // prose ("her features were mobile", "the mobile library van"); only the phone sense is
+    // anachronistic. Known recall loss, accepted + documented: a bare British "answered his mobile"
+    // with no device context nearby will not flag — vanishingly rare in 1930s-50s narration vs the
+    // adjective, which the fixture run shows the model actually writes.
+    mobile: /\b(?:phone|cell\w*|call\w*|ring\w*|dial\w*|text\w*|screen|device|charg\w*|battery|signal)\b/i,
+    // "digital" the electronics sense vs the fingers/digits sense ("digital dexterity").
+    digital: /\b(?:display|screen|device|clock|watch|record\w*|camera|computer\w*|electronic\w*|data|signal|code)\b/i,
   };
 
   // ── module-scope helper (kept on the class for cohesion) ────────────────────────────────────────

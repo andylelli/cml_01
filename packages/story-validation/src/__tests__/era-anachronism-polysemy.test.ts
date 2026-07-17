@@ -44,6 +44,28 @@ describe("era anachronism polysemy guard — abort class #7", () => {
     expect(anachronisms(laptop).filter((e: any) => /laptop/i.test(e.message)).length).toBeGreaterThan(0);
   });
 
+  // The BARE words 'mobile'/'digital' sit in the 1900s–1920s forbiddenTerms (the 1930s+ lists carry
+  // the unambiguous phrases 'mobile phone'/'digital camera', which need no guard). Test the decade
+  // where the bare term actually fires.
+  const anachronisms1920s = (text: string) =>
+    new EraAuthenticityValidator()
+      .validate(storyWith(text) as any, { CASE: { meta: { era: { decade: "1920s" } } } } as any)
+      .errors.filter((e: any) => e.type === "anachronism");
+
+  it("sibling 'mobile' (1920s bare term): the adjective sense does NOT flag; the phone sense does", () => {
+    const adjective = "Her features were mobile and expressive, shifting with every thought.";
+    expect(anachronisms1920s(adjective).filter((e: any) => /"mobile"/i.test(e.message))).toEqual([]);
+    const phone = "He thumbed at his mobile, the screen glowing as the call connected.";
+    expect(anachronisms1920s(phone).filter((e: any) => /"mobile"/i.test(e.message)).length).toBeGreaterThan(0);
+  });
+
+  it("sibling 'digital' (1920s bare term): the fingers sense does NOT flag; the electronics sense does", () => {
+    const fingers = "The pianist's digital dexterity impressed even the sceptical Captain.";
+    expect(anachronisms1920s(fingers).filter((e: any) => /"digital"/i.test(e.message))).toEqual([]);
+    const electronics = "A digital display blinked on the strange device by the window.";
+    expect(anachronisms1920s(electronics).filter((e: any) => /"digital"/i.test(e.message)).length).toBeGreaterThan(0);
+  });
+
   it("guard is window-scoped: computing context elsewhere in the chapter does not convict a pill", () => {
     const mixed =
       "The wireless device crackled in the corner of the lounge, forgotten. " +
