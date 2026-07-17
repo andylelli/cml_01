@@ -6295,9 +6295,23 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       releaseGateReasons.push(
         `fair play audit score below threshold (${fpValidation}/100)${hasZeroScoreViolation ? " with 0-score violations" : ""}: ${violationSummary}`,
       );
-      hardStopReasons.push(
-        `fair play audit failed (${fpValidation}/100): mystery violates fundamental fair play principles`,
-      );
+      // A_62 P3 replay distortion: hydrated Agent-5 responses predate agent5-run's deterministic
+      // enrichment (the synthesized clue_fp_*/culprit_direct/strict-slot clues), so a FRESH audit
+      // over hydrated artifacts structurally zeroes and hard-stops arms whose LIVE runs shipped
+      // with real audits — 45/100 on most replay arms regardless of archive era. In A/B replays
+      // the fair-play gate is not the measured outcome (rubric caps are), and the distortion is
+      // identical in both arms, so demote to advisory THERE ONLY. Live runs are unaffected: the
+      // flag is set exclusively by the replay harness. Never set it in .env/.env.local.
+      if (parseBooleanEnv(process.env.CANARY_REPLAY_FAIRPLAY_ADVISORY, false)) {
+        ctx.warnings.push(
+          `[Agent 9] REPLAY: fair-play hard-stop demoted to advisory (CANARY_REPLAY_FAIRPLAY_ADVISORY) — ` +
+          `fresh audit over hydrated artifacts scored ${fpValidation}/100; not a verdict on the live story.`,
+        );
+      } else {
+        hardStopReasons.push(
+          `fair play audit failed (${fpValidation}/100): mystery violates fundamental fair play principles`,
+        );
+      }
     } else if (fairPlayAudit.overallStatus === "needs-revision") {
       releaseGateReasons.push(
         `fair play audit needs revision (score: ${fpValidation}/100)`,

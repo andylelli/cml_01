@@ -63,6 +63,11 @@ async function runArm(runId, arm, outDir, exp) {
     ...process.env,
     [exp.flag]: flagValue,
     CANARY_PROSE_DUMP_PATH: dumpPath,
+    // A_62 P3: hydrated artifacts predate the live pipeline's deterministic enrichment, so a fresh
+    // fair-play audit structurally zeroes and hard-stops most arms (45/100) regardless of era —
+    // while the LIVE runs shipped with real audits. The gate is not the A/B's measured outcome and
+    // the distortion is identical in both arms; demote it to advisory IN REPLAY ONLY.
+    CANARY_REPLAY_FAIRPLAY_ADVISORY: "true",
   };
   console.log(`\n=== ${runId} :: ${arm} (${exp.flag}=${flagValue}, agents=${exp.agents}) ===`);
   const child = spawnSync(
