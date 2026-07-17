@@ -280,7 +280,9 @@ const dedupeByDescriptionSimilarity = (
   return kept;
 };
 
-const buildDeterministicClueParagraphs = (
+// Exported for the abort-class-#6 interaction test (worker): the REAL lifecycle validator runs over
+// this builder's output to pin the no-cast-name-in-a-key-term-sentence invariant.
+export const buildDeterministicClueParagraphs = (
   materials: RequiredClueMaterialization[],
   investigatorName: string,
   isEarly: boolean,
@@ -289,17 +291,29 @@ const buildDeterministicClueParagraphs = (
   const clueList = materials.map((entry) => entry.description).filter(Boolean).join("; ");
   // A_50 Fix #1: drop the content-free meta-narration ("treated those facts as observable evidence…")
   // and the flagged scaffold leads; operands are de-spoiled key terms rendered as a readable clause.
+  //
+  // ABORT CLASS #6 (M1v7 run 1, mystery-1784244374547): NO sentence below may contain BOTH a cast
+  // name and the clue key-terms. The old shape — `${lead}: ${clueList}.` — shipped
+  // "Eleanor voss continued … toward the next concrete detail: Puncture wound victim body." as ONE
+  // sentence; the character-lifecycle validator's death heuristic (any cast name + DEATH_RE word in
+  // a sentence) then marked the DETECTIVE deceased in ch3, and her every later action became a
+  // `victim_reappears_alive` CRITICAL → release gate failed → run aborted. The injector fabricated
+  // evidence and a sibling validator believed it (A_61 RC-1 escalated from rubric cap to
+  // run-killer). Key-term operands may legitimately contain words like "victim"/"body"/"wound", so
+  // the name-bearing lead and the term-bearing sentences are now STRUCTURALLY separate sentences
+  // with neutral subjects on the term side. The interaction is pinned by a worker test that runs
+  // the REAL lifecycle validator over this builder's output.
   const lead = isEarly
-    ? `${investigatorName} laid the facts out plainly where the others could see them`
-    : `${investigatorName} pressed on to the next concrete detail`;
-  const observationParagraph = `${lead}: ${clueList}.`;
+    ? `${investigatorName} laid the facts out plainly where the others could see them.`
+    : `${investigatorName} pressed on to the next concrete detail.`;
+  const observationParagraph = `${lead} The record now held: ${clueList}.`;
   // R-A (M0): operands are key-term lists (≤6 tokens each), composed into a sentence — never a pasted
   // spec sentence, so no 12-word verbatim run can survive.
   const inferenceSentences = materials.map((entry) => {
     if (entry.pointsTo) {
-      return `${investigatorName} weighed ${entry.description}, and the trail bent toward ${entry.pointsTo}.`;
+      return `Weighed against the rest, ${entry.description} bent the trail toward ${entry.pointsTo}.`;
     }
-    return `${investigatorName} weighed ${entry.description}, and the standing account looked weaker for it.`;
+    return `Weighed against the rest, ${entry.description} left the standing account weaker.`;
   });
   const inferenceParagraph =
     `${materials.length > 1 ? "Those details" : "That detail"} shifted the reasoning. ${inferenceSentences.join(" ")}`;

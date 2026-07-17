@@ -28,6 +28,7 @@ export {
   resolveFallbackStageMode,
   resolveFallbackInvestigatorName,
   summarizeClueForFallback,
+  buildDeterministicClueParagraphs,
 } from "./deterministic-repair.js";
 export type {
   ChapterRepairContext,

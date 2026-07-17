@@ -155,6 +155,7 @@ export {
   runCritiqueRewritePass,
   critiqueAndRewriteChapter,
   selectLowestScoringChapters,
+  buildDeterministicClueParagraphs,
 } from "./agent9-prose.js";
 export type {
   ProseDefect,
