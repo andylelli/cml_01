@@ -13,9 +13,9 @@
 
 ---
 
-## TRACKER — state as of 2026-07-17 02:40
+## TRACKER — state as of 2026-07-17 05:40
 
-**M1 floor gate: attempt 9, 3/8 and counting** (count from `b1b3b5c7`, the class-#7 era-polysemy fix). The night's arc: attempts 4→9, each abort a distinct new class, each fixed same-day, each next attempt validating all prior fixes on the aborting theme first.
+**✅ M1 FLOOR GATE CLOSED — attempt 10: 8/8, zero aborts** (count from `88355628`). Ten attempts, 11 aborts, 9 distinct classes, every fix validated by the closing batch itself (5 deadline absorptions across the final two attempts, aborting themes shipping on their fixes). Median shipped rubric of the closing batch: **59** — the floor is proven and the ceiling problem is untouched, exactly as §3 predicted. **Next: P2 of this doc's plan is spent; P3 (the A/B triad) is the live phase.**
 
 ### The abort-class ledger (campaign totals: 8 distinct classes, 10 aborts, one repeat-via-dead-fix)
 
