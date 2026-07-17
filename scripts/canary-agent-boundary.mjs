@@ -24,6 +24,8 @@ import {
   runAgent9,
 } from "../apps/worker/dist/jobs/agents/index.js";
 import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-paths.js";
+// A_62 P3: the live pipeline's deterministic Agent-5 enrichment, re-applied at hydrate time.
+import { enforceAgent5DeterministicContracts } from "../apps/worker/dist/jobs/agents/agent5-run.js";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 import { parseJsonText } from "./canary-loop/json.mjs";
@@ -714,6 +716,22 @@ function applyHydratedContext(ctx, upstreamByCode) {
   }
   if (upstreamByCode["5"]) {
     ctx.clues = wrapClues(upstreamByCode["5"]);
+    // A_62 P3 (the root replay-fidelity gap, third firing post-mortem): archives record the RAW
+    // Agent-5 response, but the live pipeline's deterministic enrichment — the synthesized
+    // clue_fp_*/culprit_direct/strict-slot clues from enforceAgent5DeterministicContracts — is part
+    // of true artifact state. Without it, prose obligations reference clue IDs that do not exist in
+    // the replay: regens can't plant them (unresolved x5 on the treatment arm), the fresh audit
+    // structurally zeroes, and story validation counts them missing (needs_revision, 8 majors).
+    // Re-run the SAME exported enrichment the live pipeline runs, over the hydrated CML + clues.
+    if (ctx.cml && ctx.clues) {
+      try {
+        const enrichment = enforceAgent5DeterministicContracts(ctx.cml, ctx.clues, {});
+        const count = enrichment?.warnings?.length ?? 0;
+        if (count > 0) console.log(`HYDRATION_ENRICHED_AGENT5 ${count} deterministic repair(s) reapplied`);
+      } catch (err) {
+        console.warn(`HYDRATION_ENRICH_FAILED ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
   }
   if (upstreamByCode["6"]) {
     ctx.fairPlayAudit = wrapFairPlayAudit(upstreamByCode["6"]);
