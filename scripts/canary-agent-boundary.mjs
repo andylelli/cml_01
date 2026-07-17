@@ -629,6 +629,11 @@ async function writeAgent9ProseDump(ctx, dumpPath, runId) {
     0,
   );
 
+  // A_62 P3: the world-state discriminating pair, so the analyzer can run the SAME
+  // detectDualValueNoContrast the rubric cap keys off, per arm (the AGENT9_REGEN_DUAL_VALUE A/B
+  // metric). ctx.discriminatingContradiction is published by runAgent9 from worldState.contradiction.
+  const discriminatingPair = ctx.discriminatingContradiction ?? null;
+
   let agent9CostUsd = 0;
   for (const [key, value] of Object.entries(ctx.agentCosts ?? {})) {
     if (key.startsWith("agent9")) agent9CostUsd += Number(value) || 0;
@@ -660,6 +665,7 @@ async function writeAgent9ProseDump(ctx, dumpPath, runId) {
     chapterCount: chapters.length,
     totalWords,
     chapters,
+    discriminatingPair,
     cast: extractCastGenders(ctx.cast),
     agent9CostUsd,
     agent9DurationMs,

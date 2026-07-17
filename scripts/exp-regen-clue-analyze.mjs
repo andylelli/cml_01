@@ -60,7 +60,9 @@ async function main() {
     const control = await readJson(path.join(inDir, `${runId}.control.json`));
     const treatment = await readJson(path.join(inDir, `${runId}.treatment.json`));
     if (typeof treatment?.flag === "string" && treatment.flag) flagName = treatment.flag;
-    pairs.push(comparePair(control, treatment));
+    // A_62 P3: the record's own flag selects the PRIMARY metric (leakage/dual-value levers were
+    // being judged on scaffold numbers).
+    pairs.push(comparePair(control, treatment, treatment?.flag ?? flagName));
   }
 
   console.log(`${flagName} A/B verdict — ${pairs.length} matched pairs from ${path.relative(root, inDir)}\n`);

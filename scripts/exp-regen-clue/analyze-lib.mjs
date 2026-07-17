@@ -5,7 +5,7 @@
 // Each arm record: { arm, runId, exitCode, status, regen: {plantedCount, plantedClues,
 //   unresolvedCount, unresolved}, dump: <boundary prose dump | null> }.
 
-import { detectScaffoldNotProse } from "@cml/prose-guard";
+import { detectScaffoldNotProse, detectTemplateLeakage, detectDualValueNoContrast } from "@cml/prose-guard";
 
 const MALE_RE = /\b(?:he|him|his|himself)\b/gi;
 const FEMALE_RE = /\b(?:she|her|hers|herself)\b/gi;
@@ -63,6 +63,15 @@ export function summarizeArm(record) {
     totalWords: dump?.totalWords ?? null,
     costUsd: Number(dump?.agent9CostUsd) || 0,
     scaffold: scaffoldStats(chapters),
+    // A_62 P3 per-flag metrics — the SAME detectors the rubric caps key off (the RC-2 rule).
+    leakage: chapters.reduce((sum, ch) => sum + detectTemplateLeakage(String(ch?.text ?? "")).length, 0),
+    dualValue: (() => {
+      const pair = dump?.discriminatingPair;
+      if (!pair || !Array.isArray(pair.values)) return { available: false, chaptersFired: 0 };
+      let fired = 0;
+      for (const ch of chapters) if (detectDualValueNoContrast(String(ch?.text ?? ""), pair)) fired++;
+      return { available: true, chaptersFired: fired };
+    })(),
     pronouns: pronounTokenTotals(chapters),
     pronounSignals: pronounSignals(dump?.warnings),
     gateStatus: gate.status ?? null,
@@ -72,8 +81,10 @@ export function summarizeArm(record) {
   };
 }
 
-/** Compare one matched pair (same case, flag off vs on). Returns per-check ok flags + overall ok. */
-export function comparePair(controlRecord, treatmentRecord) {
+/** Compare one matched pair (same case, flag off vs on). Returns per-check ok flags + overall ok.
+ * `flag` (optional, e.g. "AGENT9_REGEN_LEAKAGE") selects the PRIMARY metric — A_62 P3 fix: the
+ * analyzer previously judged every lever on scaffold numbers. */
+export function comparePair(controlRecord, treatmentRecord, flag) {
   const c = summarizeArm(controlRecord);
   const t = summarizeArm(treatmentRecord);
   const checks = [];
@@ -102,6 +113,20 @@ export function comparePair(controlRecord, treatmentRecord) {
     const wc = c.totalWords || 0;
     const wt = t.totalWords || 0;
     add("word_parity_20pct", wc === 0 ? true : Math.abs(wt - wc) / wc <= 0.2, `control=${wc} treatment=${wt}`);
+
+    // A_62 P3 — flag-specific PRIMARY metric (same detector as the rubric cap):
+    if (flag === "AGENT9_REGEN_LEAKAGE") {
+      add("leakage_not_worse", t.leakage <= c.leakage, `control=${c.leakage} treatment=${t.leakage}`);
+    }
+    if (flag === "AGENT9_REGEN_DUAL_VALUE") {
+      if (!c.dualValue.available || !t.dualValue.available) {
+        // Never false-PASS on a missing metric: dumps predating the discriminatingPair field
+        // cannot support a dual-value verdict.
+        add("dual_value_metric_available", false, `control=${c.dualValue.available} treatment=${t.dualValue.available} (rerun with the current dump writer)`);
+      } else {
+        add("dual_value_not_worse", t.dualValue.chaptersFired <= c.dualValue.chaptersFired, `control=${c.dualValue.chaptersFired} treatment=${t.dualValue.chaptersFired}`);
+      }
+    }
   }
 
   return { runId: c.runId ?? t.runId, control: c, treatment: t, checks, ok: checks.every((k) => k.ok) };
