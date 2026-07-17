@@ -4486,6 +4486,26 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     result = repairWordFormLockedFacts(result, annotatedLockedFacts);
     result = applyLifecycleContinuityGuard(result, castDesign.characters as CastEntry[], cml).prose;
     result = normalizeLocationNames(result, buildLocationRegistry({ locationProfiles } as any));
+    // A_62 abort class #8 (order-of-operations half): the standalone walk-on sweep runs ONCE, but
+    // every text-writing pass after it (scaffold/missing_clue regens, the NSD-anchor plant, the
+    // resolution backstop) can introduce fresh titled-name shapes — M1v9-8 aborted on "Mr. In"
+    // written by a ch4/ch9 missing_clue regen AFTER the sweep. The chain re-runs after every such
+    // pass, so anonymising HERE puts the floor at the choke point (the RC-6.2 lesson applied to
+    // prose): no late writer can re-introduce a walk-on the sweep would have caught. Same flag,
+    // same allowlist, deterministic and cast-safe; function-word "surnames" are exempt inside
+    // anonymiseNamedWalkOns itself (the precision half of class #8).
+    if (isWalkonRepairEnabled() && Array.isArray(result?.chapters)) {
+      const walkonAllowedParts = buildAllowedNameParts(
+        ((castDesign.characters ?? []) as any[]).map((c: any) => String(c?.name ?? "")).filter(Boolean),
+      );
+      result = {
+        ...result,
+        chapters: result.chapters.map((ch: any) => ({
+          ...ch,
+          paragraphs: (ch.paragraphs ?? []).map((p: string) => anonymiseNamedWalkOns(String(p ?? ""), walkonAllowedParts).text),
+        })),
+      };
+    }
     return result;
   };
 

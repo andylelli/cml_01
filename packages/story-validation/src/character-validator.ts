@@ -7,6 +7,20 @@ import type { Validator, Story, CMLData, ValidationResult, ValidationError, Char
 
 const TITLED_NAME_PATTERN = /\b(Inspector|Constable|Sergeant|Captain|Detective|Mr\.?|Mrs\.?|Miss|Dr\.?)\s+([A-Z][a-z]+(?:[-'’][A-Z][a-z]+)?)/g;
 
+// A_62 abort class #8 (M1v9-8, mystery-1784256689298): a regen pass wrote a cut-off address —
+// "Mr. In…" — AFTER the walk-on sweep had run, and the detector convicted "Mr. In" as an
+// out-of-cast walk-on twice, tipping the run to majors>5 needs_revision ONE run short of the M1
+// gate. "In" is not a surname: a capitalized function word after an honorific is interrupted
+// dialogue or a sentence boundary, never a person. Excluded from BOTH the detector (no false
+// major) and the anonymiser (never rewrite "Mr. In—" into "the man—" — that would corrupt a
+// legitimate cut-off address). Real surnames (Mr. Bayless) keep both behaviors.
+const FUNCTION_WORD_SURNAMES = new Set([
+  'in', 'on', 'at', 'by', 'as', 'if', 'so', 'no', 'to', 'up', 'or', 'and', 'the', 'then',
+  'there', 'this', 'that', 'these', 'those', 'when', 'where', 'while', 'with', 'yet', 'but',
+  'for', 'not', 'now', 'once', 'only', 'over', 'under', 'until', 'upon', 'even', 'ever',
+  'here', 'how', 'why', 'what', 'who', 'whom', 'after', 'before', 'again', 'about',
+]);
+
 // Roadmap S2 — the deterministic anonymise-repair for `illegal_named_walk_on`. The LLM sometimes invents
 // out-of-cast named figures (Mrs Green, Mr Bayless…) → a major that aborts the whole run. This is the
 // reliability FLOOR: rather than abort an otherwise-shippable story over an incidental extra, rewrite the
@@ -44,6 +58,7 @@ export const anonymiseNamedWalkOns = (
     (full: string, title: string, surname: string, offset: number, str: string) => {
       const key = String(surname ?? '').replace(/[.,;:!?"'”’)]$/g, '').toLowerCase();
       if (!key || allowedNameParts.has(key)) return full; // a real cast member — leave it
+      if (FUNCTION_WORD_SURNAMES.has(key)) return full; // class #8: "Mr. In—" is a cut-off address, not a walk-on
       const t = String(title ?? '').replace(/\.$/, '').toLowerCase();
       let role = WALKON_TITLE_ROLE[t] ?? 'the visitor';
       const before = String(str).slice(0, offset).replace(/\s+$/, '');
@@ -401,6 +416,7 @@ export class CharacterConsistencyValidator implements Validator {
       const full = match[0];
       const surname = (match[2] ?? '').replace(/[.,;:!?"'”’)]$/g, '').toLowerCase();
       if (!surname) continue;
+      if (FUNCTION_WORD_SURNAMES.has(surname)) continue; // class #8: not a name
       if (!allowedSurnames.has(surname)) {
         unknownMentions.add(full);
       }
