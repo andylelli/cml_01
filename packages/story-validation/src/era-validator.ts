@@ -158,18 +158,46 @@ export class EraAuthenticityValidator implements Validator {
 
     for (const forbidden of era.forbiddenTerms) {
       const pattern = new RegExp(`\\b${forbidden.replace(/\s+/g, '\\s+')}\\b`, 'i');
-      if (pattern.test(scene.text)) {
-        errors.push({
-          type: 'anachronism',
-          message: `"${forbidden}" did not exist in the ${era.decade}`,
-          severity: 'major',
-          sceneNumber: scene.number,
-          suggestion: `Use period-appropriate technology: ${era.technologyAvailable.slice(0, 3).join(', ')}`
-        });
-      }
+      if (!pattern.test(scene.text)) continue;
+      // A_62 abort class #7 guard — polysemous terms need the ANACHRONISTIC sense's context.
+      const guard = EraAuthenticityValidator.POLYSEMOUS_TERM_GUARDS[forbidden.toLowerCase()];
+      if (guard && !this.termAppearsInAnachronisticSense(scene.text, pattern, guard)) continue;
+      errors.push({
+        type: 'anachronism',
+        message: `"${forbidden}" did not exist in the ${era.decade}`,
+        severity: 'major',
+        sceneNumber: scene.number,
+        suggestion: `Use period-appropriate technology: ${era.technologyAvailable.slice(0, 3).join(', ')}`
+      });
     }
 
     return errors;
+  }
+
+  // ── A_62 abort class #7 (M1v8-2, mystery-1784247524200) ─────────────────────────────────────────
+  // "tablet" flagged as an anachronism 8×/8 chapters in a POISON mystery — where every instance was
+  // the PILL sense ("a tablet, dissolved slowly, releasing its poison": the murder method itself).
+  // Medicine tablets date to the 1880s; stone/writing/soap tablets are centuries older. One
+  // polysemous word, repeated per chapter, crossed the majors>5 needs_revision threshold and aborted
+  // a run with ZERO criticals — the A_60 mechanical-"spring" shape on a new lexeme, with the same
+  // per-chapter amplification. Fixture-driven per the RC-4 rule (the run's own sentence is the test
+  // fixture). A polysemous term now needs the ANACHRONISTIC sense's context within ±80 chars: a
+  // computing tablet arrives with its context ("glowing screen", "swiped"); a pill never does.
+  private static readonly POLYSEMOUS_TERM_GUARDS: Record<string, RegExp> = {
+    // computing-device sense only; the pill/stone/writing senses are period-valid
+    tablet: /\b(?:screen|device|electronic|digital|touch\w*|swipe\w*|app|apps|glow\w*|charg\w*|battery|pixel\w*)\b/i,
+  };
+
+  // ── module-scope helper (kept on the class for cohesion) ────────────────────────────────────────
+  private termAppearsInAnachronisticSense(text: string, termPattern: RegExp, guard: RegExp): boolean {
+    const global = new RegExp(termPattern.source, "gi");
+    let match: RegExpExecArray | null;
+    while ((match = global.exec(text))) {
+      const lo = Math.max(0, match.index - 80);
+      const hi = Math.min(text.length, match.index + match[0].length + 80);
+      if (guard.test(text.slice(lo, hi))) return true;
+    }
+    return false;
   }
 
   private checkPeriodMarkers(scene: { text: string; number: number }, era: EraContext): ValidationError[] {
