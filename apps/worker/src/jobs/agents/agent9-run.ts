@@ -4114,8 +4114,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // [G2] Role cross-validation: culprits must not overlap with victimCandidates or detectiveCandidates.
   // An overlap indicates a conflated character role — the same person cannot be both culprit and victim/detective.
   {
-    const victimCandidates: string[] = castDesign.crimeDynamics?.victimCandidates ?? [];
-    const detectiveCandidates: string[] = castDesign.crimeDynamics?.detectiveCandidates ?? [];
+    // A_62 P3 replay fix: hydrated (archived) Agent-2 outputs carry candidate entries as OBJECTS
+    // ({name, reason}) where the live path normalizes to strings before this point — the A/B replay
+    // bypasses agent2-run's post-parse normalization, so every replay arm crashed here
+    // ("v.toLowerCase is not a function", 16/16 arms dead, $0 spent). Read both shapes.
+    const candidateName = (entry: any): string => String(entry?.name ?? entry ?? "").trim();
+    const victimCandidates: string[] = (castDesign.crimeDynamics?.victimCandidates ?? []).map(candidateName).filter(Boolean);
+    const detectiveCandidates: string[] = (castDesign.crimeDynamics?.detectiveCandidates ?? []).map(candidateName).filter(Boolean);
     for (const culpritName of storyContract.culpritNames) {
       if (victimCandidates.some(v => v.toLowerCase() === culpritName.toLowerCase())) {
         const msg = `[G2] Role conflict: "${culpritName}" appears in both culpability.culprits and crimeDynamics.victimCandidates — a culprit cannot also be a victim candidate.`;

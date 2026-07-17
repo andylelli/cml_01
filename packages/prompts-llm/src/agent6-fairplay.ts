@@ -195,7 +195,20 @@ function normalizeFairPlayAuditPayload(
 // Prompt Builder
 // ============================================================================
 
-export function buildFairPlayPrompt(inputs: FairPlayAuditInputs): PromptComponents {
+/**
+ * A_62 P3 replay fix: hydrated Agent-5 outputs from older archive eras can lack `redHerrings` (and
+ * in principle `clues`) — the live path always materializes both, but the A/B replay hydrates the
+ * raw archived JSON, and `clues.redHerrings.map` crashed every SYNTHESIZING_CODE-6 arm
+ * ("Cannot read properties of undefined (reading 'map')"). Normalize once at both entry points.
+ */
+const normalizeClueDistributionShape = (clues: ClueDistributionResult): ClueDistributionResult => ({
+  ...clues,
+  clues: Array.isArray((clues as any)?.clues) ? (clues as any).clues : [],
+  redHerrings: Array.isArray((clues as any)?.redHerrings) ? (clues as any).redHerrings : [],
+});
+
+export function buildFairPlayPrompt(rawInputs: FairPlayAuditInputs): PromptComponents {
+  const inputs: FairPlayAuditInputs = { ...rawInputs, clues: normalizeClueDistributionShape(rawInputs.clues) };
   const { caseData, clues, structuralAuditResult } = inputs;
   const structurallyVerified = !!(structuralAuditResult?.passed);
 
@@ -848,11 +861,14 @@ export interface BlindReaderResult {
 
 export async function blindReaderSimulation(
   client: AzureOpenAIClient,
-  clues: ClueDistributionResult,
+  rawClues: ClueDistributionResult,
   falseAssumption: string,
   castNames: string[],
   inputs: { runId?: string; projectId?: string; placementFilter?: Array<"early" | "mid" | "late"> }
 ): Promise<BlindReaderResult> {
+  // A_62 P3 replay fix — same shape-normalization as buildFairPlayPrompt (this is the third
+  // independent entry point taking a hydrated ClueDistributionResult).
+  const clues = normalizeClueDistributionShape(rawClues);
   const config = getGenerationParams().agent6_fairplay.params;
   const startTime = Date.now();
 

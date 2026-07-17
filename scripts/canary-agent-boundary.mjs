@@ -1037,6 +1037,9 @@ function toPositiveInt(value) {
 main().catch((error) => {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message);
+  // A_62 P3 post-mortem: message-only errors made the replay-path crashes (`v.toLowerCase is not a
+  // function`) undiagnosable from the A/B logs — every arm failed with no stack. Always print it.
+  if (error instanceof Error && error.stack) console.error(error.stack);
   console.log("CANARY_STATUS failure");
   console.log("WARNINGS_COUNT 0");
   process.exit(1);
