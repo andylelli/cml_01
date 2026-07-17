@@ -1,0 +1,642 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784139037942`
+- Project ID: ``
+- Request Timestamp: `2026-07-15T18:24:22.274Z`
+- Response Timestamp: `2026-07-15T18:25:22.730Z`
+- Agent: `Agent9-ProseGenerator-Ch1`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `63ea5106afe2195a`
+- Response Hash: `4b1be2f9c2753652`
+- Latency (ms): `60455`
+- Prompt Tokens: `18811`
+- Completion Tokens: `4500`
+- Total Tokens: `23311`
+- Estimated Cost: `0.012762845`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 1: The Shadow at the Mirror",
+      "summary": "Eleanor Voss discovers Captain Ivor Hale's body in the dining area of the seaside hotel on a wintry morning. The scene is fraught with tension as the guests gather, and the first unsettling clues—including a bullet wound, a contradictory witness account, and a suspiciously adjusted mirror—surface, setting the stage for Eleanor’s investigation.",
+      "paragraphs": [
+        "Eleanor Voss pressed her gloved hand to the cold brass handle and stepped into the dining area of the seaside hotel, the hush of the wintry morning broken only by the distant, rhythmic crash of waves against the sea wall. The air inside was heavy with the scent of damp wood and stale tobacco, mingling with the faint, metallic tang of blood. Pale daylight filtered through the streaked windows, catching on the dust motes that hung motionless in the chill. At the centre of the room, sprawled awkwardly near the long mahogany table, lay Captain Ivor Hale—his tailored overcoat bunched beneath him, one arm flung out as though reaching for something just beyond his grasp. The unnatural stillness of his form was punctuated by the dark circle blossoming on his chest, a bullet wound visible on the victim's body, stark and obscene against the white of his shirt.",
+        "For a moment, Eleanor could only stare, her mind refusing to assemble the scene into sense. The room felt suspended, as if the world outside—ration books, radio bulletins, the endless war—had been banished by the horror before her. Then the details began to press in: the overturned chair, the half-shattered glass on the carpet, and, most oddly, the large gilt-framed mirror at the far end of the dining area. Its angle was subtly wrong—tilted not to reflect the length of the table, but canted at what could only be described as thirty degrees, so that anyone seated near the windows would see a distorted view of the doorway. Eleanor’s gaze caught on fresh adjustment marks along the frame, as if someone had recently wrenched it from its usual position. The mirror’s surface shimmered with a faint, greasy fingerprint, and the lens itself seemed to catch the light in a way that made the room’s geometry uncertain.",
+        "She took a slow step forward, boots scuffing the worn carpet. The silence was broken by the approach of Dr. Mallory Finch, her medical bag clutched so tightly the knuckles showed white. Mallory’s composure was brittle as she knelt beside Captain Ivor Hale, fingers hovering over the wound. ‘He’s gone, Eleanor. There’s nothing to be done.’ Her voice was steady, but her hands trembled as she reached for the captain’s wrist, checking for a pulse she surely knew was absent. Eleanor nodded, swallowing the sour taste in her mouth. She forced herself to look again at the wound—a neat, round hole, the fabric singed at the edges. The implication was immediate and merciless: Captain Ivor Hale had been shot at close range.",
+        "A muffled sound from the corridor made Eleanor turn. Beatrice Quill appeared in the doorway, her fur-collared coat draped elegantly over her shoulders despite the indoor chill. ‘Oh, heavens—how ghastly,’ Beatrice breathed, her eyes wide and oddly bright. She crossed herself with a gloved hand, but Eleanor noted how she lingered just inside the threshold, gaze flickering not to the body but to the mirror, then away again. ‘I—I heard something in the night, but I thought it was only the wind off the sea,’ Beatrice offered, voice trembling with what might have been genuine distress—or something more calculated. She moved closer, her heels clicking on the floorboards, and bent to examine the mirror’s frame. ‘One must do what one must for the sake of progress,’ she murmured, as if the phrase were a protective spell.",
+        "Hugo Vane followed, his wool scarf askew and his hair in theatrical disarray, eyes darting from Captain Ivor Hale’s body to the shattered glass and back again. ‘If this is some ghastly rehearsal, I must have missed my cue,’ he quipped, but his voice lacked its usual bravado. He hovered near the sideboard, hands jammed into his overcoat pockets, and did not meet Eleanor’s gaze. The air grew colder as the wind rattled the windowpanes, and for a moment the only sound was the faint, persistent drip of rainwater from the eaves.",
+        "Eleanor knelt beside Dr. Mallory Finch, her own hands steady as she surveyed the immediate scene. The bullet wound was unmistakable, the entry clean, the exit uncertain—no powder burns on the captain’s sleeve, no weapon in sight. She glanced at the clock above the mantel: the hands pointed to a time that felt both arbitrary and accusatory. ‘Did anyone hear anything unusual?’ she asked, her tone gentle but insistent. She had no official standing, but the others looked to her as if expecting direction. In Scarborough, she was known for her discretion and her knack for seeing what others missed.",
+        "‘There was a sound—like a gunshot—just before dawn,’ Dr. Mallory Finch replied, her words clipped, eyes fixed on the captain’s face. ‘I thought perhaps it was a car backfiring. But then…’ She trailed off, glancing at Beatrice Quill, who shivered and wrapped her coat more tightly around her. Hugo Vane made a show of examining his cufflinks, but his fingers fumbled the fastening. The implication settled over them all: the death had occurred in the silent hours, while the rest of the hotel slept or pretended to.",
+        "Eleanor rose, brushing dust from her skirt. She crossed to the mirror, examining the adjustment marks with a frown. The frame bore scratches that looked recent, the sort left by hurried hands. ‘Did anyone touch this?’ she asked, voice light but edged with curiosity. Beatrice Quill’s lips curved in a brittle smile. ‘I assure you, I have better things to do than rearrange the furniture at such an ungodly hour.’ Yet her gaze lingered on the glass, and Eleanor caught the faintest tremor in her posture—a woman too eager to be helpful, too quick to distance herself from the scene.",
+        "The room’s geometry nagged at Eleanor. From where she stood, the mirror’s angle—thirty degrees—meant that anyone seated near the windows would have a skewed view of the main entrance, perhaps even mistake a reflection for the real thing. She made a mental note: the distance from the witness to the mirror was ten feet, but the length of the dining area was twenty-five feet—an odd contrast, as though the arrangement were designed to mislead. She did not voice this suspicion, not yet. There were too many eyes, too many secrets pressing in from the edges of the room.",
+        "A sudden gust rattled the panes, and the room’s tension fractured. Hugo Vane cleared his throat. ‘If I may—shouldn’t we send for someone official? Or are we all to become detectives this morning?’ Eleanor offered a dry smile. ‘I suppose I’m the closest thing to an investigator you’ll find, unless one of you has been hiding a badge under your winter coat.’ Her attempt at levity fell flat, but it was enough to break the spell of horror that had gripped them.",
+        "As the guests gathered, Eleanor’s mind spun through the possibilities. Dr. Mallory Finch’s hands still shook as she packed away her stethoscope. Beatrice Quill hovered near the mirror, her composure too perfect by half. Hugo Vane busied himself with the decanter, pouring a finger of whisky into a glass that trembled in his grasp. Each wore their shock like a borrowed coat—ill-fitting, but necessary for the occasion.",
+        "The silence was broken by the faint echo of footsteps in the corridor. The hotel’s isolation pressed in, the knowledge that the war had thinned the staff and left the guests to fend for themselves. The radio in the lobby crackled with the morning news, the announcer’s voice a distant, unheeded murmur. Outside, the wind howled, and the cold seemed to seep through the very walls.",
+        "Eleanor glanced once more at Captain Ivor Hale’s face, the features already settling into the waxen calm of death. She remembered him as he had been—laughing over a too-strong cup of tea, his wit as sharp as the winter air. Now, all that remained was the question of who had ended his story, and why. The clues lay scattered before her: a bullet wound, a gunshot heard in the night, a mirror askew with fresh marks, and a room full of witnesses who saw only what they wished to see.",
+        "She straightened, smoothing her skirt with deliberate care. ‘We’ll need to keep everyone here until we understand what happened,’ Eleanor said, her voice steady. ‘No one leaves, not until the truth is less elusive than the Scarborough sun in January.’ The others murmured assent, some with relief, others with resignation. The investigation had begun—not with certainty, but with the uneasy knowledge that appearances, in this room, were as deceptive as the winter light."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Dr. Mallory Finch",
+    "Captain Ivor Hale",
+    "Beatrice Quill",
+    "Hugo Vane"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 2, 8, 9 | absent",
+    "season_words_used": "wintry, winter, January | present",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_mechanism_visibility_core: paragraph 2; clue_9: paragraph 1; clue_10: paragraph 7; clue_culprit_direct_beatrice_quill: paragraph 2",
+    "early_observation_present": "mirror's position and marks, bullet wound, gunshot heard: paragraphs 1-2, 7",
+    "early_inference_present": "yes: paragraph immediately following each observation"
+  }
+}
+  
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+ 	 
+
+```

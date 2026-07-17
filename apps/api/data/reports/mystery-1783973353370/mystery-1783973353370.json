@@ -3625,5 +3625,8 @@
   "threshold_config": {
     "mode": "standard"
   },
-  "in_progress": true
+  "in_progress": true,
+  "interrupted": true,
+  "interrupted_reason": "process/host death mid-run: in_progress report went 73h stale (13 phases completed; run_outcome \"passed\" is the pre-death optimistic value — do not trust it). INTERRUPTED, not ABORTED: never restarts the M1 count (A_62 RC-5).",
+  "interrupted_stamped_at": "2026-07-16T21:02:09.509Z"
 }

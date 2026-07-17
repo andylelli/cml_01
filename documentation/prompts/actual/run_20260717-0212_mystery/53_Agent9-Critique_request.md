@@ -1,0 +1,60 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784254332872`
+- Project ID: ``
+- Timestamp: `2026-07-17T02:31:46.457Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `33a7d04dd272c214`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+Eleanor Voss pressed her gloved hand against the cool brass rail of the staircase, the faint scent of damp wool rising from her coat as she descended into the hotel lobby. The overcast morning pressed against the tall windows, muting the glow of the crystal chandelier and casting the sea-green upholstery in a pallid light. Rain tapped a persistent rhythm on the glass, and the usual hum of conversation was replaced by a brittle hush. At the far end, near the bar, a cluster of figures stood frozen; the air felt thick, as if the storm outside had seeped indoors and settled among them.
+
+She moved towards the bar, her footsteps muffled on the smooth marble floor. As she drew closer, the tableau resolved: Hugo Vane sprawled on the patterned carpet, his head turned at an unnatural angle, eyes wide with a terror that had not faded with death. The sharp tang of spilled whisky mingled with the lingering scent of cigarette smoke. Beatrice Quill, her uniform askew, hovered nearby, hands trembling as she clutched a napkin to her chest. Dr. Mallory Finch stood apart, her arms folded tightly, gaze fixed on the floor. Captain Ivor Hale, ever the sentinel, loomed at the edge of the group, his jaw set and eyes narrowed, as if daring the world to challenge the reality before them.
+
+Eleanor’s breath caught, not from the sight of death—she had seen its many guises in wartime—but from the contradiction it presented. Only last night, she had glimpsed Hugo Vane laughing at the masquerade, his voice carrying above the clink of glasses. Now, the mask was gone, and with it, the illusion of safety. The silence fractured as a radio crackled from behind the bar, a clipped BBC voice reporting Allied advances in Europe, but no one moved to lower the volume. Instead, the guests drew closer, as if proximity might shield them from implication.
+
+It was Beatrice’s voice, thin and wavering, that broke the spell. “I—I thought I saw Mr. Vane leave the bar after ten minutes past eleven. But then—someone else—he came back, or I thought he did. Only, he didn’t speak. He just… stood there. ” Her gaze darted to Eleanor, desperate for reassurance.
+
+Eleanor knelt beside Hugo Vane, careful not to disturb the scene. The bar’s dim lamplight caught on the silver buttons of his waistcoat, and she noted the faint imprint of a gloved hand on the lacquered counter. She glanced up, catching the eye of Dr. Mallory Finch, whose calm was betrayed by the quick, nervous flick of her gaze toward the clock above the bar. “You’re certain it was Hugo you saw? ” Eleanor asked quietly.
+
+Beatrice hesitated, twisting the napkin between her fingers. “It looked like him. The same suit, the same way he walked. But—something was off. I told myself it was just the shadows. I mean, with the costumes and all…” Her voice trailed off, and she bit her lip, as if afraid to say more.
+
+Captain Ivor Hale shifted his weight, the floor creaking beneath his polished shoes. “There’s talk among the guests,” he said, his voice low. “Several claim they saw Hugo twice last night—once leaving, then again, silent as a ghost. I’d wager half the room would swear to it, if pressed. ” He glanced at Eleanor, the challenge in his eyes softened by a flicker of uncertainty.
+
+Eleanor straightened, brushing a stray lock of hair from her cheek. The contradiction gnawed at her: witnesses recalling someone resembling Hugo Vane moving about the hotel after he was supposedly last seen alive. The masquerade had provided ample opportunity for confusion, yet the details were too precise, the sightings too consistent to dismiss as mere error. She let her gaze sweep the room, noting the subtle ways each guest avoided the bar’s shadow—no one eager to claim proximity, everyone wary of implication.
+
+Dr. Mallory Finch cleared her throat, her tone measured. “In my professional experience, one must consider the underlying motivations. Fear can play tricks on memory, especially in a place as charged as this. ” She did not look at the body, but at the clock above the bar, which read a time that seemed both too late and too early, depending on whom one asked.
+
+Eleanor’s mind caught on the implication. If witnesses truly saw Hugo Vane pacing the marble foyer as the antique clock chimed eleven-twelve, and yet here he lay, cold and silent, then someone had either mistaken another for him—or someone had intended to be mistaken. The masquerade’s very purpose was to blur identity, to make the familiar strange. But the stakes, it seemed, had been raised beyond mere flirtation or mischief.
+
+A gust of wind rattled the lobby’s windows, drawing a shiver from Beatrice. She stepped back, her voice barely above a whisper. “Oh dear, I hope I didn’t say anything silly! ” The words hung in the air, brittle and uncertain, as if she feared they might shatter upon landing.
+
+Captain Ivor Hale’s hand tightened around the brass rail, his posture rigid. “We’re all thinking it, Miss Voss. Someone wanted us to see what they wished us to see. The question is—why? ” His gaze lingered on Eleanor, searching for resolve.
+
+Eleanor met his eyes, her own expression unreadable. “Isn’t it fascinating how life can mirror the pages of a well-crafted novel? Only here, the author is unknown, and the ending uncertain. ” She rose, smoothing her skirt, and addressed the room. “Until the authorities arrive, I suggest we disturb nothing further. But if anyone recalls more about last night—costumes, conversations, anything odd—now is the time to speak. ”
+
+No one volunteered. The silence was complete, save for the radio’s distant drone and the persistent tap of rain. Eleanor felt the weight of the morning settle on her shoulders, the sense that the masquerade had not ended with the unmasking, but had only just begun.
+
+She allowed herself a moment’s respite, glancing through the lobby’s tall windows at the grey sea beyond. The world outside was unchanged—waves breaking against the cliff, gulls wheeling in the wind—but within these walls, everything had shifted. The guests clung to their roles, uncertain whether they were witnesses, suspects, or merely players in a drama not of their making.
+
+Eleanor’s thoughts turned to the peculiar consistency in the witnesses’ accounts. If so many had seen Hugo Vane—or someone indistinguishable from him—after ten minutes past eleven, then the masquerade’s confusion might have been more than accidental. He resolved to revisit each testimony, to trace the shadow that had moved among them. But for now, all he could do was wait, and watch, and wonder who among them had worn a mask not just for the ball, but for murder.
+```

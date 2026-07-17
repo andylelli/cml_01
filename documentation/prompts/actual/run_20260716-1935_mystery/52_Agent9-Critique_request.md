@@ -1,0 +1,62 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784230510658`
+- Project ID: ``
+- Timestamp: `2026-07-16T19:53:21.991Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `49b06cc58130c38f`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+The hush of the hotel library was broken only by the faint patter of rain against the tall, leaded windows, the sound threading through the thick spring afternoon like a nervous heartbeat. Lamplight flickered over the spines of a hundred battered volumes, casting long shadows that crept across the faded carpet. Eleanor Voss lingered by the mahogany table, her gloved fingers still faintly stained from the bloodied candlestick she had examined only moments before. The weight of the morning’s revelations pressed in on her, as tangible as the scent of damp wool and old paper that filled the air. She glanced at the door, half-expecting the storm outside to intrude, but the only movement was the slow drift of dust motes in the pale, uncertain glow.
+
+A tension, raw and unspoken, hovered among the three figures who had gathered at her summons. Dr. Mallory Finch stood nearest the window, her posture rigid, the sharp lines of her tailored suit softened only by the faint tremor in her hand as she adjusted her spectacles. Captain Ivor Hale, his uniform jacket draped carelessly over a chair, lounged with an affected ease that did little to disguise the tightness in his jaw. Sylvia Trent, the hotel manager, hovered near the shelves, her gaze fixed on a row of encyclopedias as if the secrets of the crime might be hidden between their covers. The air was thick with the promise of confession or accusation—Eleanor could not yet tell which.
+
+She cleared her throat, voice steady despite the knot in her chest. ‘We’re all here for a reason,’ she said, letting her words settle over the room. ‘Each of us had dealings with Mr. Vane. Each of us, I suspect, has something to lose—or gain—from his death. ’ The statement was met with silence, shattered solely by the distant murmur of rain and the distant creak of a floorboard in the corridor. Eleanor’s eyes lingered on Dr. Finch, who met her gaze with a mixture of defiance and fatigue.
+
+‘You were seen in the library last night, Dr. Finch,’ Eleanor began, her tone gentle but unyielding. ‘Reading, you said. Yet the timing—between the last sighting of Mr. Clock hands frozen at twenty past ten while the gramophone’s music at ten minutes past eleven—leaves a gap. Can you account for every moment? ’
+
+Dr. Finch’s lips pressed together, her fingers tightening around the back of a chair. ‘I was alone. The library is quiet at that hour, and I needed to review some medical texts. I…’ She hesitated, the mask of composure slipping. ‘I did not see or hear anything unusual until the music began. The walls here are thick. Sound barely carries. ’ Her voice was measured, but Eleanor caught the flicker of something like fear—an old, familiar dread that had nothing to do with the storm outside.
+
+Captain Hale shifted, the leather of his chair creaking in protest. ‘You’re not suggesting Mallory had anything to do with it, are you? ’ he said, his tone light but edged. ‘If we’re trading alibis, I was out on the cliffs. Needed to clear my head. The sea’s rough this time of year—spring winds and all that. I only came in when I heard the commotion. Couldn’t have heard a gramophone over the surf, let alone a struggle. ’ He offered a sardonic smile, but his gaze skittered away from Eleanor’s, landing instead on the rain-streaked window.
+
+Sylvia Trent’s voice cut through the tension, clipped and precise. ‘I was in the Staff Kitchen, overseeing dinner preparations. Rationing leaves no room for error, and I won’t have waste. There were others with me—if you doubt my word, ask the cook. I returned to the second floor only when the uproar began. ’ Her hands, folded tightly before her, betrayed a faint tremor, but her eyes were hard as flint. ‘We must uphold the standards expected of us. The hotel’s reputation is paramount. ’
+
+Eleanor let the silence stretch, watching the interplay of glances and gestures. Each account, so carefully constructed, left a residue of doubt. She turned to the gramophone, which sat on a side table, its polished wood gleaming dully in the lamplight. The machine had been brought down from the second floor for closer inspection, and now its presence seemed almost accusatory.
+
+She reached for the tonearm, her gloved fingertips brushing the needle. A faint, irregular pattern of scratches caught her eye—distinct, almost deliberate, unlike the smooth wear of ordinary use. Eleanor bent closer, heart pounding, and traced the tiny grooves with the tip of her nail. ‘Has anyone noticed this? ’ she asked, voice low. ‘The needle—look at these marks. They’re not random. Someone handled this gramophone with more than casual intent. ’
+
+Dr. Finch stepped forward, peering at the evidence with clinical detachment. ‘That’s not from ordinary play,’ she murmured. ‘If the machine was used to establish a timeline, someone may have tampered with it. But why? To confuse us? To—’ She broke off, the question hanging in the air like a challenge.
+
+Captain Hale’s expression darkened. ‘If it’s a question of motive, I suppose we all had one,’ he said, his voice suddenly raw. ‘Vane knew things—about debts, about people’s pasts. He had a way of twisting the knife, even when he smiled. I owed him more than I care to admit, and he never let me forget it. But murder? That’s another matter. ’ He ran a hand through his hair, the gesture more weary than dramatic.
+
+Sylvia Trent’s lips thinned. ‘Mr. Vane threatened the hotel’s future. He knew about the accounts—about my mistakes. If he had exposed me, everything I’ve built would have crumbled. But I was in the kitchen. The staff will confirm it. ’ Her voice was brittle, but Eleanor heard the undercurrent of desperation. ‘I would never risk the hotel for personal gain. ’
+
+Eleanor listened, weighing each word, each glance. The motives tangled and overlapped: Dr. Finch’s fear for her professional reputation, Captain Hale’s debts and pride, Sylvia Trent’s desperation to preserve the hotel. Each had reason to wish Hugo Vane harm, yet each clung to his alibi as if it were a lifeline. He felt the pressure mounting, the investigation narrowing to a point as sharp as the gramophone’s needle.
+
+A brief lull settled over the room, broken only by the soft ticking of the mantel clock and the distant call of a gull outside. For a moment, the tension eased, replaced by a fragile sense of camaraderie born of shared uncertainty. Dr. Finch allowed herself a rueful smile, the edges of her composure softening. ‘I do what I must for the greater good, after all,’ she said, her tone almost wry. ‘But murder is a line I would not cross. ’
+
+Eleanor caught her reflection in the glass of a bookcase, the image fractured by the leaded panes. She remembered Hugo Vane’s laughter echoing through the corridors, the way he had once praised one of her paintings with a careless generosity that now seemed almost cruel in its finality. A pang of loss twisted in her chest, sharper than she expected. The war had taught them all to hide their wounds, but some hurts refused to be buried.
+
+She returned her attention to the gramophone, the needle’s unique scratch pattern now lodged in her mind as a puzzle piece that refused to fit. The rain had slackened to a fine mist, the library’s shadows deepening as the afternoon waned. Eleanor felt the investigation pivot, the stakes rising with every new revelation. Motives, alibis, and secrets—each suspect was bound to the victim, and to one another, by threads of fear and desire.
+
+‘We’re not finished here,’ Eleanor said quietly, her voice carrying a new resolve. ‘The truth is tangled, but it will out. For now, I need to confirm every detail—every alibi, every motive. No one leaves until I say so. ’ She watched the faces before her, searching for the crack that would let the truth slip through. The gramophone’s needle, the rain, the memory of Hugo Vane’s easy charm—all pressed in, demanding resolution. But for now, only questions remained, and the shadows in the hotel library seemed to deepen with every passing minute.
+```

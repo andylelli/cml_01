@@ -1,0 +1,66 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784264575381`
+- Project ID: ``
+- Timestamp: `2026-07-17T05:18:31.539Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `5f0140e021d337e5`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+The clink of glass against polished wood cut through the low murmur in the Hotel bar, where the afternoon light struggled to penetrate the haze of cigarette smoke and the gloom of a rain-lashed spring day. Hugo Vane stood by the window, watching droplets chase each other down the pane, his reflection blurred and restless. The bar’s dim glow, cast by a pair of battered sconces, flickered across the faces gathered there—each one shadowed by fatigue and something sharper, less easily named. The world outside was washed in grey, the air inside heavy with the scent of damp wool and the faint tang of spilled gin.
+
+He turned from the window, the pressure from the morning’s discoveries still pulsing in his chest. The conversation in the bar ebbed and flowed, but every word seemed to circle back to Eleanor Voss, her absence a weight none could ignore. Dr. Mallory Finch perched on a high stool, her posture rigid, spectacles glinting as she surveyed the room with clinical detachment. Captain Ivor Hale leaned against the bar, his hand wrapped around a chipped tumbler, eyes hooded and distant. Sylvia Trent sat apart, her notebook closed for once, staring into her drink as if it might yield the truth she sought. Beatrice Quill hovered near the end of the counter, her hands folded tightly in her lap, gaze fixed on a spot just beyond Hugo’s shoulder.
+
+A lull settled, punctuated solely by the faint clatter of rain against the window and the soft creak of the bar’s old floorboards. Hugo cleared his throat, drawing the group’s attention. ‘We’ve talked about movements and timings,’ he began, voice measured, ‘but perhaps we should speak more plainly. Eleanor Voss was not without her enemies—nor, I suspect, without those who envied her position here. ’
+
+Dr. Finch’s lips twitched, a sardonic smile flickering before she spoke. ‘Enemies is a strong word, Mr. Vane. In my experience, ambition breeds resentment more reliably than malice. Eleanor had a talent for making herself indispensable—and for reminding others of it. ’ She sipped her drink, the gesture practiced, her gaze never quite meeting Hugo’s. ‘Still, I was with her until shortly before… everything. She asked me to look in on her, said she felt unwell. I left her parlor after she claimed exhaustion. Anyone can confirm I was seen leaving at that time. ’
+
+Captain Ivor Hale shifted, the leather of his chair creaking. ‘You know, I never saw eye to eye with Eleanor. She had a way of making a man feel like a schoolboy caught out after curfew. ’ He managed a rueful smile, but it faded quickly. ‘But I was in the lounge, playing cards. Half the staff saw me there. If you want to check, ask them. I heard the commotion only after the clock struck what must have been ten minutes past midnight. ’
+
+Sylvia Trent’s voice cut through the room, low and unflinching. ‘You’re all dancing around the obvious. Eleanor Voss had power here, and she didn’t mind wielding it. She could make or break a reputation with a word. I came to the coast for a story, but I found a woman who collected secrets like others collect stamps. She threatened to ruin me once, over a piece I’d written about the hotel. I suppose I should thank her for the lesson in humility. ’ Sylvia’s fingers traced the rim of her glass, but her eyes never left Hugo’s.
+
+Hugo let the silence settle, then turned to Beatrice. She sat rigid, her jaw clenched, the muscles in her neck taut as wire. ‘Miss Quill, you were seen speaking with Eleanor the day before she died. Some said it was not a friendly exchange. ’
+
+Beatrice’s cheeks flushed, her voice thin but edged with something raw. ‘Oh, the things we do for success! It’s all part of the charm, isn’t it? ’ Her laugh was brittle, quickly swallowed. ‘Eleanor—Miss Voss—she could be generous, but she never let you forget who held the reins. She promised me a promotion, then gave it to someone else. Said I was too young, too eager. I suppose I was angry. I said things I shouldn’t have. But I never wanted her dead. ’ Her hands twisted in her lap, knuckles whitening. ‘I just wanted her to see me. To see what I could do. ’
+
+Dr. Finch’s gaze softened, but her tone remained brisk. ‘Resentment is a common affliction in places like this. Still, Beatrice’s rounds are well documented. She was seen in The Servants’ Quarters before the alarm. ’
+
+Captain Hale interjected, his voice slower, almost apologetic. ‘I can vouch for that. I passed Miss Quill in the corridor, just before midnight. She looked upset, but not dangerous. I suppose we all looked a bit frayed at the edges last night. ’ He glanced at Beatrice, then away, as if the memory unsettled him.
+
+Sylvia’s bluntness returned, her words sharp. ‘You’re forgetting the sounds. I heard a struggle—coming from Eleanor’s room, just before everything went silent. It wasn’t a quiet end, whatever the doctor says. Someone was angry, or desperate. ’
+
+The room tensed, each suspect measuring the others. Hugo watched the interplay, noting the flickers of guilt, the small betrayals of posture and tone. He pressed on, his voice gentle but insistent. ‘Dr. Finch, you said Eleanor felt unwell. Did she mention anything unusual? Any threats, perhaps? ’
+
+Dr. Finch’s reply was careful, her words weighed. ‘She complained of chest pains, yes, but also of being watched. She was anxious, more than usual. I thought it was just the strain—managing a hotel in these times is no small feat. But perhaps there was more to it. ’
+
+A brief lull followed, the only sound the rain’s steady drumming and the faint crackle of a radio in the next room—news of the war’s end, distant and almost irrelevant in the face of the present crisis. Hugo felt the pressure shift; Beatrice’s admission had changed the tenor of the room. Her resentment, once hidden, now colored every recollection, every sideways glance.
+
+She let the moment stretch, then offered a respite. ‘We are all tired. Perhaps a break would do us good. The truth will wait, but not forever. ’ He watched as the group dispersed—Dr. Finch gathering her coat, Captain Hale standing with a slow, heavy motion, Sylvia lingering to jot a note. Beatrice remained seated, her shoulders hunched, eyes fixed on the empty glass before her.
+
+As the bar emptied, Hugo lingered at the window, the scent of rain and spirits mingling in the air. The spring light had faded to a muted glow, the world outside blurred by drizzle. He replayed Beatrice’s words, the bitterness beneath her protestations of innocence. The investigation had not found its answer, but the web had tightened. Motive was no longer hypothetical; it was personal, raw, and dangerously real.
+
+Hugo vane moved swiftly toward the following concrete detail. The record now held: Witnesses state heard struggle coming eleanor.
+
+As Hugo stood by the window, the voices from earlier echoed in his mind—especially Sylvia’s sharp recollection. He remembered the way she’d leaned forward, her tone unwavering: “You’re forgetting the sounds. I heard a struggle—coming from Eleanor’s room, just before everything went silent. ” The others had fallen quiet as she spoke, the weight of her words settling over the group. That moment, that detail, seemed to tilt the balance in the room. The witnesses’ accounts of a struggle drifting from Eleanor’s door pressed in on Hugo’s thoughts, nudging the investigation’s course toward the possibility of motive and opportunity for murder.
+
+In the hush that followed, Hugo caught his own reflection in the glass—drawn, uncertain, but resolved. The truth was closer now, but so too was the cost of uncovering it. The Grand Azure Hotel, with its faded grandeur and rationed comforts, had become a crucible for secrets. And as the rain continued, Hugo knew the next question would cut deeper than the last.
+```

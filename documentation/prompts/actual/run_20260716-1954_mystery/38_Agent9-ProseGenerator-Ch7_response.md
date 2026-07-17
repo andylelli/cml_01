@@ -1,0 +1,659 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784231640128`
+- Project ID: ``
+- Request Timestamp: `2026-07-16T20:10:50.445Z`
+- Response Timestamp: `2026-07-16T20:11:20.733Z`
+- Agent: `Agent9-ProseGenerator-Ch7`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `11a0f14a35ec2144`
+- Response Hash: `c1b78fca0b452230`
+- Latency (ms): `30288`
+- Prompt Tokens: `22431`
+- Completion Tokens: `4500`
+- Total Tokens: `26931`
+- Estimated Cost: `0.014192745000000001`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter 7: Secrets Revealed",
+      "summary": "Eleanor confronts Captain Hale in the quiet of the hotel library, uncovering his manipulation of the event schedule and deepening the pressure as evidence and motive intertwine. The chapter pivots the investigation, overturning the leading theory and casting suspicion anew.",
+      "paragraphs": [
+        "Eleanor set her satchel on the edge of the battered armchair, the soft thud swallowed by the hush of the hotel library. Rain traced delicate lines down the tall windows, blurring the lamplight that flickered over shelves heavy with dust and secrets. The faint scent of old paper mingled with the sharper tang of damp wool, and the only sound was the steady whisper of water against glass. It was late—too late for visitors, too late for comfort—and the November darkness pressed close, making the glow of the reading lamps seem fragile, almost defiant. She lingered by the hearth, staring into the faint orange embers, her thoughts looping back to the bar’s earlier accusations and the pressure that had driven her here.",
+        "The library’s silence was broken by the measured tread of boots on the thick rug. Captain Ivor Hale’s silhouette appeared in the doorway, his uniform jacket buttoned tight, the shoulders squared with practiced authority. He paused, glancing at the window where rainwater pooled in trembling beads, then crossed to the fire with a careful economy of movement. The lamplight caught the lines of fatigue etched at his eyes, and for a moment, he looked less like a figure of command and more like a man cornered by circumstance. Eleanor watched him from the shadows, her own pulse steady but sharp, the air between them charged with the residue of unspoken questions.",
+        "‘You sent for me, Miss Voss?’ Hale’s voice was low, almost cautious, as if the walls themselves might be listening. He did not sit, but stood with his back to the fire, hands clasped behind him. The library’s hush pressed in, broken only by the faint rustle of pages from a forgotten book left open on a side table. Eleanor gestured to the chair opposite, but he shook his head, remaining upright—a subtle assertion of control, or perhaps a shield.",
+        "‘I did,’ Eleanor replied, her tone measured, almost gentle. She let her gaze drift to the battered clock above the mantel, its hands unmoving. ‘There are matters that remain unresolved, Captain. The schedule for last night’s festivities, for one. The time for the closing toast was changed—hastily, and not by Dr. Finch’s hand. The ink is bold, the initials unfamiliar. You understand why that troubles me?’",
+        "Hale’s jaw tightened, but he offered no immediate answer. Instead, he let his gaze wander over the rows of books, the spines faded by years of salt air. The tension in his posture was palpable, a coiled energy that seemed ready to snap. ‘Schedules change, Miss Voss. It was a chaotic night. People were distracted, nerves frayed. I did what was necessary to keep the event on track.’ His words were careful, but Eleanor heard the strain beneath them—a man accustomed to command, now forced to justify his actions.",
+        "‘Necessary for whom?’ Eleanor pressed, her voice soft but unyielding. She reached into her satchel and withdrew the altered schedule, laying it on the table between them. The inked correction stood out, stark against the page. ‘You initialed this, Captain. Not Dr. Finch. And the time you chose—ten minutes past eleven—matches the clock in the lobby, but not the accounts of those who saw you elsewhere. Why move the toast? And why take such pains to leave your mark?’",
+        "For a moment, silence reigned. The fire’s glow flickered over Hale’s features, casting deep shadows. He looked at the schedule, then at Eleanor, and something in his expression shifted—a flicker of vulnerability, swiftly masked. ‘You’re very thorough, Miss Voss,’ he said, his tone almost admiring. ‘I changed the time because… because things were getting out of hand. Too many guests, too much confusion. I thought if I could move the proceedings along, keep people occupied, it would be safer for everyone.’",
+        "Eleanor did not look away. ‘Or safer for you?’ she asked quietly. ‘The schedule was altered, the time fixed, and yet witnesses recall seeing you entering the event room just before the commotion began. Their accounts do not match the official record. Someone created an alibi, Captain, but it does not hold.’ She let the words settle, watching for any sign of guilt or defiance.",
+        "Hale’s hands tightened behind his back. ‘You’re suggesting I manipulated the schedule to cover my movements?’ The question was rhetorical; he already knew the answer. ‘I did what I thought was right. The hotel was full of strangers, the staff overwhelmed. Dr. Finch… she was concerned about security, about the possibility of theft or worse. I was trying to help, not hinder.’",
+        "‘And yet,’ Eleanor continued, her voice gentle but relentless, ‘a piece of fabric matching your uniform was found near the scene. Not a servant’s dress, not a guest’s costume—yours. The masquerade gave us two identical outfits, but only one was left behind. You say you were at the event, but the evidence suggests otherwise.’ She watched his reaction closely, noting the way his eyes flickered, the tension in his jaw.",
+        "Hale drew a slow breath, his composure slipping. ‘Uniforms wander, Miss Voss. With rationing, with shortages, it’s not uncommon for garments to be borrowed or misplaced. Anyone could have picked up my jacket, worn it for the evening. The fabric proves nothing.’ His voice was steady, but Eleanor heard the edge of desperation that crept in at the end.",
+        "She let the silence stretch, the sound of rain and the distant echo of thunder filling the space between them. ‘You altered the schedule, Captain. You had the means and the motive. Dr. Finch was asking questions—about missing money, about security. She noticed things others missed. Was she a threat to you?’ Eleanor’s question was calculated, designed to probe the fault lines in his story.",
+        "Hale’s reply was slow, almost reluctant. ‘Dr. Finch… she was persistent. She wanted everything to run smoothly, to be above reproach. She asked questions, yes, but not just of me. Of everyone. She was worried about the staff, about Beatrice in particular. I tried to reassure her, to keep things calm. I didn’t want trouble, Miss Voss. I only wanted the evening to end without incident.’",
+        "Eleanor studied him, weighing the sincerity in his voice against the weight of evidence. The altered schedule, the fabric, the conflicting witness accounts—all pointed to a carefully constructed confusion. Yet Hale’s motives, once clear, now seemed muddied by fear and a desperate need to protect something—or someone. ‘You’ve been under strain, Captain. The war, the shortages, the responsibility. But altering the record is not the act of an innocent man. It is the act of someone with something to hide.’",
+        "Hale’s shoulders sagged, the fight draining from him. ‘You have no idea what it’s like, Miss Voss. To be responsible for so many, to know that one mistake could ruin lives. I did what I thought best. If that was wrong…’ He trailed off, the words unfinished. For the first time, Eleanor saw not the captain, but the man—flawed, frightened, and deeply human.",
+        "The library felt smaller now, the shadows crowding in as the fire burned low. Eleanor let the tension ebb, if only for a moment. She crossed to the window, watching the rain bead and run in silver rivulets. The world outside was indifferent, the storm’s fury spent. ‘The truth will out, Captain. It always does, in the end. But sometimes it costs more than we expect.’ Her words were not unkind, but there was no comfort in them.",
+        "Hale remained by the fire, staring into the embers. ‘You’ll do what you must, Miss Voss. I only ask that you remember—sometimes, the line between right and wrong is not as clear as it seems.’ His voice was quiet, almost pleading. ‘Dr. Finch was a good woman. She deserved better than this.’",
+        "Eleanor nodded, her own resolve tempered by the weight of what she had learned. The evidence was clear: Hale had the means and the motive. But the cost of truth, she now realized, was measured not only in justice, but in the lives it shattered along the way.",
+        "She gathered her satchel, the altered schedule, and the fragment of fabric, her movements deliberate. The investigation had shifted—what once seemed certain was now complicated by new knowledge. As she stepped into the corridor, the hush of the library at her back, Eleanor knew the next step would demand more than deduction. It would demand courage—and the willingness to see the truth, no matter how it hurt."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Captain Ivor Hale"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "the fabric was found near the scene: paragraph 10 | absent for other locked phrases",
+    "season_words_used": "November, autumn, autumnal, November darkness, rain, storm, thunder",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_10: paragraph 8 | clue_11: paragraph 6 | clue_late_2: paragraph 10",
+    "early_observation_present": "Eleanor sets the altered schedule on the table and references the changed time: paragraph 4",
+    "early_inference_present": "yes: paragraph 5"
+  }
+}
+  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 		  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+
+```

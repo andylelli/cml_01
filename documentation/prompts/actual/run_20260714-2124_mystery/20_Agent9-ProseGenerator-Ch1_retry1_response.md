@@ -1,0 +1,63 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784064257736`
+- Project ID: ``
+- Request Timestamp: `2026-07-14T21:35:21.931Z`
+- Response Timestamp: `2026-07-14T21:35:31.054Z`
+- Agent: `Agent9-ProseGenerator-Ch1`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `retry 1`
+- Prompt Hash: `e6fe4f961576e21c`
+- Response Hash: `ff6bc8abd8e47c9c`
+- Latency (ms): `9123`
+- Prompt Tokens: `22310`
+- Completion Tokens: `1765`
+- Total Tokens: `24075`
+- Estimated Cost: `0.010903975`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 1: The Frozen Clock",
+      "summary": "Hugo Vane arrives in the grand dining room of the seaside hotel to find Eleanor Voss dead at the table, with the household in shock. The clock reads ten minutes past nine, but the sunlight's angle suggests a contradiction, casting immediate suspicion and confusion among the guests.",
+      "paragraphs": [
+        "Hugo Vane stepped into the grand dining room of the seaside hotel, his shoes muffled by the thick rug as the morning fog pressed cold against the windowpanes. The air inside was heavy with the scent of last night’s roast mingling with the sharper tang of coffee left to cool, and the only sound was the distant, irregular patter of rain tapping at the glass. The scene before him was a tableau of autumnal gloom: Eleanor Voss, upright but slack, her head bowed over a pristine white tablecloth, a half-finished cup of coffee at her elbow. The golden light of the early day crept through a gap in the velvet drapes, illuminating her stillness with an indifferent clarity.",
+        "Hugo’s gaze flicked first to Eleanor Voss, then to the ornate clock mounted above the sideboard. Its hands, black and severe, were fixed at ten minutes past nine. Yet as sunlight slanted across the wall at a sharp angle—forty-five degrees, by his estimation—it struck him that the hour did not match the day’s progression. The contradiction was immediate and unsettling: the clock’s face insisted on one truth, while the world outside whispered another. Hugo, already recognized as the investigator by the anxious cluster of guests, felt the first prickle of suspicion settle at the base of his neck.",
+        "He approached Eleanor Voss with measured steps, careful not to disturb the hush that had fallen over the room. Her features, usually animated with the brisk authority of a woman accustomed to command, were now waxen and remote. The pearls at her throat gleamed dully in the autumn light, her fingers curled loosely around a linen napkin. There was no sign of violence, no overturned chair or shattered glass, only the faintest suggestion of unease in the way her shoulders slumped. Hugo noted the untouched bread roll beside her plate, the faint ring of moisture from her coffee cup—a tableau interrupted.",
+        "A low cough drew his attention to the far end of the table, where Beatrice Quill stood with her arms crossed, her swing dress rumpled and her gaze fixed on the floor. Beatrice Quill, the hotel’s resident journalist and once Eleanor’s protégé, had always possessed a restless energy, but now her movements were clipped, her jaw set in a way that suggested more than simple shock. She glanced up, eyes darting to Hugo before settling on the clock, then away again. 'I suppose you’ll want to know who found her,' she said, voice tight. The bravado in her tone could not quite mask the tremor beneath.",
+        "Captain Ivor Hale was next to make himself known, his broad frame casting a shadow over the silverware as he straightened the cuffs of his double-breasted jacket. The scent of damp wool and pipe tobacco clung to him, and his expression was one of practiced composure—though his fingers betrayed him, drumming a silent tattoo against the back of a chair. 'Well, I suppose I’m just an old sea dog, but even I know a bad turn when I see one,' he muttered, eyes lingering on Eleanor Voss before shifting to Hugo. The captain’s reputation as a steadfast ally of Eleanor’s in community matters was well known, though recent months had seen a chill in their relations.",
+        "Dr. Mallory Finch, standing a little apart from the others, regarded the scene with a physician’s detachment that bordered on clinical. Her tailored skirt and crisp blouse were immaculate, her dark hair pulled back in a severe chignon. She pressed her lips together, arms folded, and when Hugo caught her eye, she offered a nod—professional, but not without a flicker of uncertainty. 'In theory, that should work,' she murmured, more to herself than to anyone else, as if testing the logic of the moment against some private equation. The dryness of her tone did little to disguise the tension in her posture.",
+        "Hugo let the silence stretch, absorbing the subtle currents of the room: Beatrice Quill’s defensive bravado, Captain Ivor Hale’s forced calm, Dr. Mallory Finch’s analytic reserve. Each had a reason to be present, each had a connection to Eleanor Voss that ran deeper than mere acquaintance. He studied their faces, searching for the cracks beneath the surface. The weight of unspoken secrets pressed in from all sides, thick as the fog outside.",
+        "He turned back to the clock, its hands unmoving, the brass casing gleaming in the slanting sunlight. The angle of the light—forty-five degrees—should have signaled a later hour, yet the clock insisted on ten minutes past nine. Hugo’s mind ticked over the possibilities: a mechanical fault, a careless winding, or something more deliberate. He resisted the urge to speculate aloud, instead making a mental note to verify the clock’s accuracy against other timepieces in the hotel. For now, the contradiction was enough—a wedge driven into the narrative the household wished to present.",
+        "A sudden gust rattled the windows, drawing a collective shiver from the assembled guests. Beatrice Quill broke the tension with a brittle laugh. 'If you’re waiting for someone to confess, you’ll be here until the next rationing order.' She hugged her arms tighter, the bravado in her words at odds with the pallor of her cheeks. Captain Ivor Hale shot her a reproving glance, but said nothing. Dr. Mallory Finch, meanwhile, had moved closer to Eleanor Voss, her gaze lingering on the empty coffee cup as if cataloguing details for a future report.",
+        "Hugo stepped back, surveying the scene as a whole. The grand dining room, with its heavy drapes and glistening silverware, now felt more like a stage set for tragedy than a sanctuary of hospitality. The muted colors of the carpet and the soft rustle of napkins seemed to muffle any hope of clarity. Yet within this hush, the contradiction between clock and sunlight refused to be smothered. It was a detail that would not be ignored, a silent challenge to the stories that would soon be told.",
+        "He drew a steadying breath, aware that every eye in the room had turned to him. 'We will begin with what we know,' he said, voice low but firm. 'Eleanor Voss died here, at this table. The clock says ten minutes past nine, but the sun tells a different story.' He let the words hang, watching for the ripple of reaction—a flinch, averted gaze, a tightening of hands. The investigation, he realized, would be less a matter of solving a puzzle than of prying open the sealed boxes of memory and motive that each guest carried with them.",
+        "Outside, the rain had eased to a fine mist, the world beyond the windows blurred and indistinct. Inside, the boundaries between certainty and suspicion had grown just as hazy. Hugo Vane, investigator by necessity and now by consent, braced himself for the questions to come. The first clue had been set, the contradiction laid bare, and the answers—whatever they might be—remained shrouded in the uncertain light of morning."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Dr. Mallory Finch",
+    "Captain Ivor Hale",
+    "Beatrice Quill",
+    "Hugo Vane"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 2, 8, 11 | absent",
+    "season_words_used": "autumnal, autumn, mist | none",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_mechanism_visibility_core: chapter 1 paragraph 2 | present",
+    "early_observation_present": "description: chapter 1 paragraph 2 (first 25%) | present",
+    "early_inference_present": "yes: paragraph immediately following observation | present"
+  }
+}
+
+```

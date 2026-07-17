@@ -1,0 +1,48 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784258290481`
+- Project ID: ``
+- Timestamp: `2026-07-17T03:32:21.866Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `c1ac3f96afb726ae`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+Dr. Mallory Finch stepped onto Brighton beach, the damp sand yielding beneath her sensible shoes. The morning was overcast, the sky a pale shroud that pressed low against the horizon, and the wind carried the briny scent of salt and seaweed. A chill lingered in the air, despite the promise of summer, and the sound of distant waves merged with the anxious murmurs of the crowd. At the edge of the surf, Eleanor Voss lay lifeless and pale against the sand, her tea-length dress clinging to her form, sodden and torn. The sight was stark—a woman who once moved through the halls of The Seabreeze Hotel with effortless grace now rendered motionless by the sea’s indifferent hand.
+
+Dr. Mallory Finch, standing a little apart from the crowd, quietly reviewed the facts in her notebook, her gaze flicking from the written lines to Eleanor’s body. The record now held: Witness statements indicate eleanor last seen.
+
+Mallory paused, her pencil hovering above the page. She glanced up as a hotel maid whispered urgently to Beatrice Quill, 'She was by the rocks, just before the tide came in. ' That detail, spoken aloud, made Mallory look again at the tide tables pinned to the promenade wall. The maid’s words seemed to shift something in the air; Mallory’s thoughts, previously tangled, now bent toward the contradiction between Eleanor last known location and the supposed high tide.
+
+Mallory knelt beside Eleanor Voss, her gloved fingers trembling as she pressed them to Eleanor’s wrist, more out of habit than hope. The silence from Eleanor was absolute, broken only by the hush of the waves and the occasional crackle of a radio from the promenade above. Mallory’s gaze swept the shoreline, noting the cluster of guests and staff, their faces drawn and pale, eyes flicking between the body and each other. The crowd’s tension was palpable, a collective dread that seemed to thicken the air. Mallory was no stranger to death, but this—here, in the open, under the scrutiny of so many—felt different. She straightened, the weight of expectation settling on her shoulders, and found herself the centre of attention. She was the investigator now; there would be no waiting for a constable from the village, no deference to distant authority. The responsibility was hers.
+
+A fisherman, his jacket stained and his cap pulled low, stepped forward. Her voice was rough, edged with uncertainty. 'Saw her near the water, miss. Just before the tide came up. Seemed a bit off, if you ask me. There was a commotion—someone shouting, maybe. Not sure who. ' Mallory’s eyes narrowed, noting the way his gaze lingered on the body, then darted to the assembled guests. The fisherman’s account was echoed by others: Eleanor had been seen near the beach, close to the time when the tide was believed to be at its highest—'ten minutes past eleven,' someone whispered, clutching a rationed packet of cigarettes. Yet the details were muddled, the timeline uncertain. The witnesses’ statements offered only fragments, each piece contradicting the last.
+
+Mallory rose, brushing sand from her knees. The crowd’s whispers grew louder, a tide of speculation threatening to overwhelm the facts. She heard snippets—'Eleanor was always reckless,' 'She’d argued with Hugo Vane the night before,' 'Captain Ivor Hale was nowhere to be seen. ' Mallory’s mind catalogued each name, each accusation, her professional detachment warring with the personal history she shared with Eleanor. The hotel’s elegance, so carefully maintained, seemed to crumble under the weight of suspicion. Mallory caught Beatrice Quill’s eye; Beatrice, the hotel’s insider, stood rigid, her hands clasped too tightly, as if bracing herself against the storm. Sylvia Trent hovered nearby, her expression unreadable, lips parted as if to speak but never quite finding the words.
+
+A gust of wind sent a spray of salt across Mallory’s cheek, stinging her skin. She turned to Hugo Vane, whose presence loomed at the periphery—his suit immaculate, his gaze fixed on the horizon. Mallory noted the tension in his jaw, the way his hands remained buried in his pockets, refusing to meet her eyes. Captain Ivor Hale arrived late, his stride purposeful, the faint scent of leather and pipe tobacco trailing behind him. He surveyed the scene with a soldier’s discipline, but Mallory caught a flicker of uncertainty in his expression. The cast was assembled, each with their own secrets, each forced to confront the reality of Eleanor’s death.
+
+Mallory’s attention returned to the fisherman’s claim—a struggle near the water’s edge, just before Eleanor went missing. It was a detail that could not be ignored, yet it felt out of place, too convenient. The witnesses’ recollections were coloured by fear and the desire to distance themselves from blame. Mallory pressed the fisherman for specifics, but he hedged, his answers vague. 'Could’ve been anyone,' he muttered, eyes darting to Hugo Vane and then to Beatrice Quill. Mallory sensed the red herring: a possible attack, but nothing concrete. The truth was elusive, submerged beneath layers of uncertainty.
+
+Mallory took a slow breath, letting the salt air fill her lungs. She surveyed the beach, noting the subtle contradictions—Eleanor last seen near the water, the tide’s timing, the muddled statements. The tide tables posted at The Seabreeze Hotel claimed high tide at 'ten minutes past eleven,' yet the witnesses disagreed, their memories unreliable. Mallory’s mind sharpened, the discrepancy settling like a stone in her gut. Someone had seen Eleanor at the beach near the time of the tide, but the details refused to align. It was the first clue, a surface anomaly she could not yet explain.
+
+The morning pressed on, the sun hidden behind thick clouds, casting the beach in a dull, silvery glow. Mallory felt the eyes of the crowd upon her, waiting for answers she did not yet possess. She glanced at Eleanor’s body, the lifeless form that demanded truth. Mallory’s resolve hardened; she would pursue the facts, however slippery. The investigation had begun, and with it, the delicate dance of suspicion and revelation. The sea, indifferent and eternal, whispered its secrets to those willing to listen. Mallory was determined to hear them, no matter how unsettling the tide’s grim gift might prove.
+```

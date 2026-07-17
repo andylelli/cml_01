@@ -1,0 +1,50 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784252070066`
+- Project ID: ``
+- Timestamp: `2026-07-17T01:51:33.789Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `363bdde664bd3aab`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+Eleanor Voss pressed her heel into the damp sand, the chill of the midsummer morning biting through her stockings. The wind off the Channel carried a briny tang, sharp enough to sting her nose. She squinted into the grey haze where the water met the shore behind the seaside hotel, the faint echo of waves breaking against the rocks barely masking the low murmur of voices gathering behind her. And there, half-shrouded by a tangle of kelp and silt, lay the unmistakable form of Dr. Mallory Finch, her elegant evening dress sodden and clinging, one pale hand curled around a battered wristwatch whose glass face caught the weak daylight.
+
+The body of Dr. Mallory Finch, washed ashore, still clutching a broken watch, seemed both a grotesque interruption and a grim punctuation to the previous night’s festivities. Eleanor knelt, the cold seeping through her skirt, and brushed away a strand of seaweed from Dr. Mallory Finch’s wrist. The watch—its hands frozen at ten minutes past eleven—gleamed accusingly, a detail impossible to ignore. Behind Eleanor, the hush of the assembled guests was broken only by the distant call of a gull and the rhythmic crash of the tide, which, as several voices had already whispered, had reached its highest point at half past eleven at night. That narrow window—between the watch’s silent testimony and the relentless schedule of the sea—pressed in on Eleanor with a weight that felt almost personal.
+
+A shiver ran down Eleanor’s spine, but she steadied herself, glancing up to find Hugo Vane standing a few paces away. Hugo Vane, retired businessman and sometime patron of Dr. Mallory Finch’s more ambitious schemes, wore a navy suit that looked as though it had seen better days. His face, usually set in lines of pragmatic self-assurance, was pinched, his gaze fixed not on the body but on the horizon. Eleanor noted the way his hands clutched his hat, knuckles white, as if he might wring the truth from the very air. She wondered if her mind was already calculating the cost—financial or otherwise—of this morning’s revelation.
+
+Captain Ivor Hale’s voice, brisk and clipped, cut through the silence. “No one expected to find her here, least of all like this,” he said, his eyes darting from Eleanor to the cluster of guests. The captain’s uniform was immaculate, though his jaw worked as if he were biting back something more than grief. Eleanor remembered the stories of her wartime camaraderie with Dr. Mallory Finch—stories that had grown more elaborate with each retelling over last night’s dinner. Now, as he stood at parade rest, his hand hovered near his watch chain, betraying a tension that no discipline could quite conceal.
+
+Beatrice Quill, ever the socialite, arrived with a rustle of silk and a dramatic gasp. “Well, this is a scene straight from a penny dreadful, isn’t it? ” she declared, though her eyes lingered on the body a fraction too long. Her periwinkle dress, carefully chosen to suggest both innocence and style, was at odds with the hard set of her mouth. Eleanor caught the quick flicker of Beatrice Quill’s gaze toward the other guests, as if weighing the odds of scandal against the opportunity for sympathy. “One simply can’t take the risk, can one? ” she murmured, more to herself than anyone else.
+
+Sylvia Trent hung back, arms folded protectively across her chest. The artist’s smock she wore over her blouse was smeared with charcoal, a silent testament to a night spent sketching rather than socializing. “Art is a reflection of the soul, don’t you think? ” she offered, voice barely above the surf, but her eyes shied from the body. Eleanor noted the way Sylvia Trent’s fingers twisted the strap of her satchel, her gaze fixed on the shifting patterns of foam at the water’s edge. There was a fragility to her posture, as if she might be swept away by the next wave.
+
+Eleanor rose, brushing sand from her knees, and addressed the group with a steadiness she did not entirely feel. “I’ll need everyone to remain nearby,” she said, her tone brisk but not unkind. “Until we understand what’s happened, it’s best we keep our recollections sharp. ” She was aware of the way the others looked to her, not just as a journalist but as the investigator now—an unspoken consensus that settled over the group like the persistent drizzle that threatened from the overcast sky. The war had taught them all to improvise, but no one seemed prepared for this particular improvisation.
+
+A constable, summoned by the hotel manager, hovered at the edge of the gathering, but made no move to take charge. It was Eleanor’s investigation now, and she felt the weight of that responsibility settle on her shoulders. She turned her attention back to the watch—ten minutes past eleven—and then to the sea, recalling the whispered discussions of the tide’s schedule. The high tide had come at half past eleven at night, a detail several guests had volunteered with the certainty of those who had checked the almanac for their evening strolls. Yet here was Dr. Mallory Finch, her watch stopped before the water could have claimed her, and no one could explain the contradiction.
+
+The breeze shifted, carrying the scent of wet kelp and distant smoke from the hotel’s The Kitchen. Eleanor’s mind raced, cataloging details: the sand still damp from the receding tide, the absence of footprints leading from the water’s edge, the curious stillness that seemed to have settled over the entire beach. He glanced at Hugo Vane, who met his gaze with a level stare, then at Captain Ivor Hale, who had retreated into a silence that seemed almost strategic. Beatrice Quill’s whispers to Sylvia Trent were too soft to catch, but the tension in their posture spoke volumes.
+
+Eleanor crouched once more, careful not to disturb the scene. She noted the way Dr. Mallory Finch’s hair fanned out in the sand, the faint imprint of a ring on her finger where a stone was now missing, the torn edge of her dress caught on a shell. Every detail mattered, but it was the timing—the impossible narrowing of events between ten minutes past eleven and half past eleven at night—that gnawed at her. The tide, the watch, the absence of any sign of struggle on the sand: together, they formed a puzzle whose pieces refused to fit.
+
+A gull swooped low, its cry sharp against the morning hush. Eleanor straightened, her eyes tracing the line of the surf as it retreated. The war had brought enough uncertainty; now, here on this beach, another kind of battle was unfolding. She wondered, not for the first time, whether the truth would be as simple as it appeared—or whether, like the tide, it would reveal its secrets only to those patient enough to wait for the water to recede.
+```

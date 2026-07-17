@@ -1,0 +1,633 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784147217332`
+- Project ID: ``
+- Request Timestamp: `2026-07-15T20:40:05.122Z`
+- Response Timestamp: `2026-07-15T20:41:05.382Z`
+- Agent: `Agent9-ProseGenerator-Ch8`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `668f995246c0b845`
+- Response Hash: `288db769e90e101d`
+- Latency (ms): `60260`
+- Prompt Tokens: `24344`
+- Completion Tokens: `4500`
+- Total Tokens: `28844`
+- Estimated Cost: `0.01494838`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 8: The Pattern Emerges",
+      "summary": "Eleanor investigates the hotel kitchen late at night, reconstructing the timeline and finding evidence of Dr. Finch's access to the poison. The mounting pressure and a critical clue solidify Eleanor's suspicions, preparing her for the coming confrontation.",
+      "paragraphs": [
+        "\"You’re certain no one else entered after I left?\" Eleanor’s voice, low and urgent, cut through the hush of the hotel kitchen. The dim glow of a single bulb cast long shadows over the tiled floor, and the cold, rough edge of the marble counter pressed against her hip as she leaned in. The wind outside was still at work, rattling the back door and sending a faint, damp chill curling through the half-open window. It was late—so late that the usual clatter and clink had faded, leaving only the echo of her own breath and the distant, metallic drip of a tap left unresolved.",
+        "She had come here seeking silence, but found instead the residue of the day’s anxieties—smudges on the worktop, the lingering scent of onions and burnt sugar, and the memory of lamplight flickering across Dr. Finch’s strained features. The kitchen, so often the unseen heart of The Oceanic Grandeur, was now a crucible for secrets. Eleanor’s heart beat quick and shallow, the pressure of the case settling on her shoulders as tangibly as the chill of the vernal night. She pressed her palm to the smooth surface of the counter, grounding herself in the present, forcing her mind to order the chaos of recollection.",
+        "Dr. Mallory Finch stood at the far end of the room, her posture rigid, arms folded tight across her chest. The glow from the bulb etched deep lines of fatigue across her face, and her eyes—usually so steady—darted toward the door with each gust of wind. Eleanor noted the way Dr. Finch’s fingers twisted the edge of her sleeve, a nervous habit that had grown more pronounced as the investigation closed in. The silence between them was thick, broken only by the faint hum of the refrigerator and the distant, rhythmic pulse of the sea beyond the hotel walls.",
+        "Eleanor let the silence linger, watching Dr. Finch’s composure fray at the edges. At last, she spoke—her tone gentle, but edged with steel. \"You said before you were here, consulting with the staff about the menu. That was before the toast at twenty minutes past eight. Can you recall precisely what you did?\" She watched Dr. Finch’s reaction closely, searching for the tremor of a lie, the hesitation that might betray more than mere exhaustion.",
+        "Dr. Finch’s reply came slow, each word measured. \"I checked on the soup, made certain the dietary instructions were followed. I asked the staff to ensure the glasses were spotless. There was nothing unusual in it.\" Her gaze flicked to the shelf where the glasses waited, lined up in neat, accusing rows. \"I left before the toast was called. I had no reason to linger.\" But Eleanor caught the way her voice thinned on the last word, a note of defensiveness that had not been there before.",
+        "The kitchen’s air was heavy with the scent of boiled vegetables and the sharper tang of disinfectant, but beneath it, Eleanor caught another odor—something chemical, faint but unmistakable. She moved to the sideboard, her fingers tracing the rim of a clean glass, then pausing at a small, nearly invisible stain on the counter. It was nothing, perhaps—a trick of the light, a remnant of some earlier task. But Eleanor’s instincts, honed by years of watching for the detail that did not fit, would not let her dismiss it. She bent closer, the cold edge of the marble biting into her forearm, and noted the way the stain shimmered beneath the bulb’s flicker.",
+        "She straightened, turning to Dr. Finch. \"You’re certain all the glasses were here? None set aside, none handled separately?\" The question was casual, but Eleanor watched for the flinch, the quick dart of the eyes that might betray a memory best left unspoken.",
+        "Dr. Finch hesitated, her fingers tightening on her sleeve. \"I—yes, I believe so. The staff are meticulous. They know the importance of order.\" Her words were crisp, but Eleanor heard the uncertainty beneath them. The kitchen, with its orderly rows and regimented routines, was not immune to chaos. Not tonight.",
+        "A gust of wind rattled the window, the sound sharp and sudden. Eleanor let her gaze drift to the door, then back to Dr. Finch. \"You understand why I must ask,\" she said, her tone softening. \"The timeline is everything. The toast at twenty minutes past eight, the glasses, the residue in Hugo’s. If anything was out of place—\" She let the sentence hang, unfinished, the implication more damning than any accusation.",
+        "Dr. Finch’s composure wavered, her lips pressed thin. \"You think I had something to do with it,\" she said, the words brittle. \"That because I was here, because I had access—\" She broke off, her voice catching. \"I did not poison Hugo Vane, Eleanor. I swear it.\" The protest was earnest, but Eleanor noted the flicker of fear in her eyes, the way she drew herself smaller, as if bracing for a blow.",
+        "Eleanor’s breath quickened. She moved to the larder, examining the shelves with the methodical patience of a woman who knew the value of routine. The jars were neatly labeled, the tins stacked in precise rows—a testament to the discipline of the kitchen staff. Yet one jar, set slightly apart, bore a faint dusting of powder on its rim. Eleanor’s gloved finger traced the residue, and she felt a chill that had nothing to do with the spring night. She did not name her suspicion, not yet, but she marked the jar’s position, the way it seemed both ordinary and out of place.",
+        "She turned back, fixing Dr. Finch with a steady gaze. \"You were the last to handle the glasses before the toast, weren’t you? The staff said you insisted on overseeing the preparations. That’s unusual.\" The accusation was veiled, but the pressure behind it was unmistakable.",
+        "Dr. Finch’s response was a whisper, barely audible above the hum of the refrigerator. \"I was only doing my duty. Ensuring the guests’ safety. You know how it is, Eleanor—one slip, and the whole evening is ruined.\" Her hands twisted together, white-knuckled. \"I had no reason to harm Hugo. Our differences were professional, nothing more.\"",
+        "Eleanor’s mind raced, piecing together the fragments of testimony, the physical evidence, the contradictions in Dr. Finch’s account. The timeline was narrowing, the pattern emerging with each detail she uncovered. The records of Captain Hale’s gambling, the staff’s recollection of Beatrice’s presence in the dining room, the testimony that placed Dr. Finch in the kitchen at the critical moment—all pointed to a single, inescapable conclusion.",
+        "But Eleanor was not yet ready to name it. The certainty she sought was still just out of reach, hovering at the edge of the lamplight. She needed one more piece, one final confirmation before she could confront Dr. Finch with the full weight of her suspicion. For now, the kitchen remained a place of shadows, the truth flickering just beyond her grasp.",
+        "A moment of ironic relief surfaced as Beatrice Quill’s voice echoed from the corridor, her tone bright and brittle. \"If you two are plotting the menu for tomorrow, do spare us another boiled pudding, won’t you?\" The tension in the kitchen eased, just for a breath, as Eleanor allowed herself a ghost of a smile. The ordinary world pressed in, a reminder that life—and performance—continued, even as secrets threatened to unravel them all.",
+        "The relief was fleeting. As the echo of Beatrice’s laughter faded, Eleanor returned her focus to Dr. Finch, whose posture had grown even more rigid. The evidence of Dr. Finch’s access to the poison was no longer a matter of speculation—it was written in the arrangement of the glasses, the testimony of the staff, the residue that shimmered under the dim bulb. The pattern was there, undeniable, and Eleanor felt the weight of it settle over her, cold and inexorable.",
+        "She closed her notebook with a decisive snap, the sound sharp in the hush. The confrontation was coming—she could feel it in the quickening of her pulse, in the way Dr. Finch’s eyes darted from the door to the counter and back again. The truth was close, so close she could taste it, bitter as the chemical tang that lingered in the air.",
+        "For a moment, Eleanor allowed herself to imagine what might follow: the relief of certainty, the pain of accusation, the unraveling of loyalties that had bound them all together in this crucible of suspicion. But there was no comfort in the thought—only the knowledge that, come morning, the shadows would lift, and the truth, however unwelcome, would stand revealed in the cold, clear light of day."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Dr. Mallory Finch"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 4, paragraph 9, paragraph 13 | absent",
+    "season_words_used": "vernal, spring, spring night",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_8: paragraph 13; clue_1: paragraph 4",
+    "early_observation_present": "Eleanor notices Dr. Finch's nervousness and the kitchen's atmosphere: paragraph 2",
+    "early_inference_present": "yes: paragraph immediately following observation"
+  }
+}
+  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		
+```

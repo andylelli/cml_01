@@ -1,0 +1,48 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784146189809`
+- Project ID: ``
+- Timestamp: `2026-07-15T20:25:16.592Z`
+- Agent: `Agent9-Critique`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1-mini`
+- Temperature: `0.4`
+- Max Tokens: `1200`
+- Attempt: `first`
+- Prompt Hash: `33be0680d42f0bbf`
+
+## Message 1 (role=system)
+
+```text
+You are a demanding editor of Golden-Age detective fiction. Critique the chapter against the named dimensions. Identify only concrete, fixable craft problems — do not propose plot, clue, or logic changes. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+Critique this chapter on: prose, dialogue, character voice, atmosphere, de-repetition.
+
+Return EXACTLY: {"issues":["...","..."]} — each issue a specific, local craft fix (no plot/logic changes).
+
+CHAPTER:
+
+“You said you checked it yourself, Captain,” Eleanor’s voice cut through the hush, the words sharp as the wind that battered the hotel’s stone walls. The clock room was steeped in shadow, its air tinged with the faint scent of machine oil and the cold, metallic tang of brass. Beyond the thick glass, the night pressed close, a darkness broken only by the flicker of lightning and the restless echo of wind. The clock itself loomed in the lamplight, its face pale and inscrutable, hands fixed at ten minutes past seven. Eleanor’s heart hammered as she stepped closer, her gloved fingers tracing the outline of the winding key.
+
+The silence between them was weighted, broken only by the distant creak of timbers and the muffled sound of rain. Eleanor glanced at Captain Ivor Hale, who stood rigid by the window, his posture immaculate even now. His breath frosted in the chill air, and for a moment, the only movement was the subtle tightening of his jaw. The cold seeped through Eleanor’s coat, but she ignored it, her attention fixed on the clock’s surface. The brass was marred by a constellation of scratches—some deep, others shallow—clustered around the winding key. She bent closer, the lamplight revealing a pattern of wear that was too recent, too deliberate, to be the work of years.
+
+She let her hand hover over the mechanism, not touching, but close enough to sense the roughness of the scratches. The room smelled faintly of old polish and the ghost of tobacco smoke, a reminder of evenings spent here in better times. “This isn’t the sort of mark left by routine maintenance,” Eleanor said, her tone measured but edged with accusation. “Someone’s been at it—recently, and with purpose. ” The words seemed to hang in the dim air, and Captain Ivor Hale’s eyes flickered, his composure wavering for a heartbeat before he drew himself up.
+
+“I told you, Miss Voss, I checked the clock the morning after,” he replied, voice low, almost defensive. “It was set as always—ten minutes past seven. ” His gaze was fixed not on her, but on the clock’s face, as if searching for refuge in its mechanical certainty. The lamplight caught the lines at the corners of his eyes, deepened by fatigue and something more elusive—regret, perhaps, or fear. Eleanor watched him closely, noting the way his hand strayed to his pocket watch, a gesture of habit or of guilt.
+
+A gust of wind rattled the window, and for a moment, the tension broke. Eleanor allowed herself a breath, the relief as brittle as the frost on the glass. The room felt smaller, the darkness outside pressing in, but inside, the atmosphere shifted—just enough to let her see the scene with new clarity. She stepped back, surveying the clock from a distance, her mind racing through the pattern of events. The scratches by the winding key, the smudged fingerprints she had found earlier, the false testimony of the clock’s hands—all pointed to a single, inescapable conclusion, though the final proof remained just out of reach.
+
+“You were alone that night,” Eleanor said quietly, her words barely more than a whisper. “No one to see what you did, or didn’t do. The others—Beatrice, Sylvia, Hugo—all accounted for, all with witnesses. But you, Captain, you alone had the opportunity. ” She let the accusation settle, watching for the tremor in his stance, the flicker of uncertainty in his eyes. He met her gaze, but the mask of military discipline was slipping, the edges fraying under the weight of her scrutiny.
+
+Captain Ivor Hale’s reply was measured, but the tension in his voice was unmistakable. “You think because I was alone, I must be guilty? Is that all it takes? ” His hands were steady, but his knuckles whitened as he gripped the back of a chair. Eleanor shook her head, her tone softening, though the pressure did not relent. “No, Captain. But the pattern is there, whether you admit it or not. The clock was tampered with—deliberately. The marks are fresh, the fingerprints recent. The only one with both access and opportunity is you. ”
+
+The words seemed to echo in the small room, mingling with the sound of the storm outside. For a moment, neither spoke. Eleanor’s heart raced as she pieced together the timeline in her mind: the argument overheard at half past seven, the guests’ alibis, the false testimony of the clock. The realization settled over her, cold and inexorable—the tampering was not random, but calculated, a deception crafted to mislead. She pressed her hand to the cool glass of the window, feeling the tremor in her own fingers.
+
+“You have your theory, Miss Voss,” Captain Ivor Hale said at last, his voice flat. “But theory is not proof. ” He turned away, his silhouette outlined against the pale glow of the storm. The moment of confrontation had not yet come, but the pattern was clear. Eleanor watched him, her own resolve hardening. The evidence was not yet enough to accuse, but it was enough to isolate. The clock’s wounds, the fingerprints, the unaccounted hour—all pointed to the same, silent truth.
+
+Outside, the wind howled, and the hotel seemed to shudder beneath its assault. Inside the clock room, Eleanor allowed herself a moment of ironic relief—a pause in the relentless pressure. The investigation had narrowed, the field of suspicion contracted to a single figure. Yet the final answer remained elusive, the mechanism of the crime still hidden in shadow. She glanced once more at the clock, its hands unmoving, its secrets intact. The pattern was there, waiting to be revealed. All that remained was to set the final test—and watch who would break.
+```
