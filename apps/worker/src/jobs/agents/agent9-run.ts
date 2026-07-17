@@ -195,7 +195,13 @@ const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQ
  * report-style) has the flagged paragraph DRAMATIZED in-scene via the scoped regen loop, gated so a
  * rewrite ships only if it clears the shape AND drops no locked fact. OFF by default; N≥4 before default-on.
  */
-const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, false);
+// P4 VERDICT (2026-07-17, the A/B deferred since A_54): default ON. n=7 matched pairs — A1 scaffold
+// 14→0, total scaffold hits 20→3 (−85%), cost neutral ($1.31→$1.24), two magnitude-1 regressions
+// (one +1 scaffold on a control-clean run, one +1 pronoun signal) against 17 hits removed. The env
+// had run it ON observationally since RC1.2; the A/B validates that config, so the code default now
+// matches it (the P4.4 empty-env goal). Full table: scratchpad p3-ab/scaffold-analysis.txt +
+// results/ab-agent9_regen_scaffold/.
+const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, true);
 
 /**
  * A_62 RC-2.1 — the repair arm for `templateLeakageHits`, the most frequent cap of the M1 era (7/15
