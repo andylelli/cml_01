@@ -27,7 +27,8 @@
 | 4 | transport error bypassed retry (23 call sites) → content-burn → resolution-less fallback abort | `79c60ed0` retry at the choke point + exception-path backstop (RC-6.2) | ✅ **validated live twice** (deadline fired, retried, runs continued) |
 | 5 | gate-only clue matcher; repair layers blind to it (split-brain) | `3b1b1de4` gate-matcher-keyed repair edge (RC-2.4) | ✅ armed, test-pinned |
 | 6 | injector template glued cast name + death-adjacent key-terms → lifecycle "death" → critical avalanche | `1e677246` template restructure + cross-package interaction test | ✅ validated on aborting theme |
-| 7 | "tablet"-as-pill convicted as computing anachronism ×8 chapters → majors>5 abort | `b1b3b5c7` polysemy guard, fixture-driven | ✅ validated on aborting theme |
+| 7 | "tablet"-as-pill convicted as computing anachronism ×8 chapters → majors>5 abort | `b1b3b5c7` polysemy guard, fixture-driven | ✅ validated on aborting theme; siblings `mobile`/`digital` guarded `afbd74bc` (source-only, lands with the post-batch build) |
+| 8 | "Mr. In" (a regen-written cut-off address) convicted as a walk-on ×2 → majors to exactly 6 (>5) — **one run short of the gate at 7/8** | `88355628` function-word stoplist in detector AND anonymiser + walk-on sweep moved into the post-processing chain (late writers can no longer bypass the floor) | ✅ validated on aborting theme (M1v10-1 tide shipped) |
 
 **The pattern (classes #5–#7): a single false or fabricated signal, amplified per chapter, crossing a count threshold.** Generation is no longer the reliability frontier — **detector precision is**, exactly as the RC-4 evidence pass predicted. Watched siblings of #7, deliberately NOT fixed mid-batch (no speculative dist changes while a count runs): bare `mobile` and `digital` in the same `forbiddenTerms` lists — if either fires it is a one-line guard entry; otherwise they get fixture-driven guards in the P3 build window.
 
