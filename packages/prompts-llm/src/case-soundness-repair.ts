@@ -14,6 +14,7 @@
  * `residualBlocked` for the caller to log; `mechanism_environment` is NOT repaired here (it is already
  * handled by the prose repairInstruction) and must be excluded from any blocking-throw condition.
  */
+import { isVictimArchetype } from "@cml/cml";
 
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 
@@ -123,7 +124,7 @@ export function repairCaseSoundness(
     null;
   const isSuspectRole = (c: any): boolean => {
     const role = norm(c?.role_archetype ?? c?.role);
-    return !role.includes("detective") && !role.includes("victim");
+    return !role.includes("detective") && !isVictimArchetype(role);
   };
   const suspectNames = cast.filter(isSuspectRole).map((c) => String(c?.name ?? "")).filter(Boolean);
 

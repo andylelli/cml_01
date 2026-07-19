@@ -3,6 +3,7 @@
  * buildChapterObligationBlock â€” the combined clue-obligation / NSD context block
  * injected into every prose prompt.
  */
+import { isVictimArchetype } from "@cml/cml";
 import { deriveClueObservable, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
 import { getGenerationParams } from "@cml/story-validation";
 import {
@@ -72,7 +73,7 @@ export function buildChapterObligationBlock(
   // generate nonsensical or repetitive prose when forced to clear a victim.
   const _victimNamesForClearance = new Set<string>(
     ((cmlCase?.cast ?? []) as any[])
-      .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'))
+      .filter((c: any) => isVictimArchetype(c.role_archetype ?? c.role))
       .map((c: any) => String(c.name ?? '').trim().toLowerCase())
   );
   // Culprits must never be included in suspect-clearance obligations.
@@ -93,7 +94,7 @@ export function buildChapterObligationBlock(
       )
     : [];
   const victimForIdentity = ((cmlCase?.cast ?? []) as any[])
-    .find((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'));
+    .find((c: any) => isVictimArchetype(c.role_archetype ?? c.role));
   const victimNameForIdentity = String(victimForIdentity?.name ?? '').trim();
 
   // Extract detective first name for the paragraph-opener diversity constraint (all chapters).
@@ -118,7 +119,7 @@ export function buildChapterObligationBlock(
   const allSuspectNames: string[] = ((cmlCase.cast ?? []) as any[])
     .filter((c: any) => {
       const role = String(c.role_archetype ?? c.role ?? '').toLowerCase();
-      return !role.includes('detective') && !role.includes('victim') && !role.includes('narrator');
+      return !role.includes('detective') && !isVictimArchetype(role) && !role.includes('narrator');
     })
     .map((c: any) => String(c.name ?? '').trim())
     .filter(Boolean);
@@ -607,7 +608,7 @@ export function buildChapterObligationBlock(
         .filter((c: any) => {
           if ((cmlCase.culpability?.culprits ?? []).includes(c.name)) return false;
           const role = String(c.role_archetype ?? c.role ?? '').toLowerCase();
-          return !role.includes('detective') && !role.includes('victim');
+          return !role.includes('detective') && !isVictimArchetype(role);
         })
         .map((c: any) => c.name as string)
         .filter(Boolean);
@@ -773,7 +774,7 @@ export function buildChapterObligationBlock(
     );
     const _resVictimSet = new Set<string>(
       ((cmlCase?.cast ?? []) as any[])
-        .filter((c: any) => String(c.role_archetype ?? c.role ?? '').toLowerCase().includes('victim'))
+        .filter((c: any) => isVictimArchetype(c.role_archetype ?? c.role))
         .map((c: any) => String(c.name ?? '').trim())
         .filter(Boolean)
     );

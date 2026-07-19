@@ -4,6 +4,7 @@
  * clue description, NSD block, token budgeting, and the top-level
  * buildProsePrompt() assembler.
  */
+import { isVictimArchetype } from "@cml/cml";
 import { createHash } from "node:crypto";
 import type { CaseData } from "@cml/cml";
 import {
@@ -497,7 +498,7 @@ export const buildContextSummary = (caseData: CaseData, cast: CastDesign) => {
     (c: any) => {
       if (c.role === 'victim') return true;
       const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
-      return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
+      return typeof archetype === 'string' && isVictimArchetype(archetype);
     }
   );
   const victimName = (victimCharacter as any)?.name ?? '';
@@ -522,7 +523,7 @@ export const resolveVictimName = (cast: CastDesign): string => {
   // Pass 2: role_archetype contains 'victim'
   if (!victim) victim = chars.find((c: any) => {
     const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
-    return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
+    return typeof archetype === 'string' && isVictimArchetype(archetype);
   });
   // Pass 3: culpabilityVictim injected by caller from CML CASE.culpability.victim
   if (!victim && (cast as any)?.culpabilityVictim) {
@@ -736,7 +737,7 @@ const buildChapterOutcomeBlock = (
   const suspects = ((cmlCase?.cast ?? []) as any[])
     .filter((entry: any) => {
       const role = String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
-      return !role.includes("detective") && !role.includes("victim");
+      return !role.includes("detective") && !isVictimArchetype(role);
     })
     .map((entry: any) => String(entry?.name ?? ""))
     .filter(Boolean);
@@ -1508,7 +1509,7 @@ export const buildProsePrompt = (
   const system = `${narrativeVoiceLine}You are an expert prose writer for classic mystery fiction. Your role is to write compelling, atmospheric narrative chapters that read like a professionally published novel.
 
 ⛔ ABSOLUTE RULE — CHARACTER NAMES:
-The ONLY characters who exist in this story are: ${cast.map((c: any) => { const g = c.gender?.toLowerCase(); const label = g === 'female' ? 'woman' : g === 'male' ? 'man' : ''; const isVictim = String(c.role ?? c.roleArchetype ?? '').toLowerCase().includes('victim'); const baseName = label ? `${c.name} (${label})` : c.name; return isVictim ? `${baseName} — DECEASED, past-tense only` : baseName; }).join(', ')}.
+The ONLY characters who exist in this story are: ${cast.map((c: any) => { const g = c.gender?.toLowerCase(); const label = g === 'female' ? 'woman' : g === 'male' ? 'man' : ''; const isVictim = isVictimArchetype(c.role ?? c.roleArchetype); const baseName = label ? `${c.name} (${label})` : c.name; return isVictim ? `${baseName} — DECEASED, past-tense only` : baseName; }).join(', ')}.
 Do NOT invent, borrow, or introduce ANY character not on that list — no constables, no solicitors, no butlers, no servants, no shopkeepers, no bystanders with names.
 Unnamed walk-ons ("a footman", "the postmistress", "an officer") are allowed ONLY if they never receive a name or title+surname combination.
 ⚠️ BEFORE YOU WRITE each chapter, ask yourself: "Does every person I name appear in this list: ${cast.map((c: any) => c.name).join(', ')}?" If not, remove them.
@@ -1545,7 +1546,7 @@ ${victimIdentityRule}`;
   // Pre-Phase-1 Rule 2 was:
   //   "2. Gender pronouns must match character definition:\n   - Name: he/him/his ...\n   - Never switch pronouns mid-story"
   // Old Rule 3 (character roles) has been renumbered to Rule 2.
-  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => String(c.role ?? c.roleArchetype ?? '').toLowerCase().includes('victim') ? `${c.name} (DECEASED)` : c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${String(c.role ?? c.roleArchetype ?? '').toLowerCase().includes('victim') ? 'victim (DECEASED \u2014 does not appear in any scene, past tense only)' : c.roleArchetype || c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
+  const characterConsistencyRules = `\nCRITICAL CHARACTER CONSISTENCY RULES:\n\n1. Each character has ONE canonical name. Use ONLY names from this list. Never vary, abbreviate, or add titles beyond what is listed.\n   COMPLETE CAST (no other named characters exist): ${cast.map((c: any) => isVictimArchetype(c.role ?? c.roleArchetype) ? `${c.name} (DECEASED)` : c.name).join(', ')}\n   - "Mr. Jennings entered the room" \u2192 ILLEGAL. Jennings is not in the cast.\n   - "Constable Reed took notes" \u2192 ILLEGAL. Reed is not in the cast.\n   - "A constable took notes" \u2192 LEGAL (no name given).\n\n2. Character roles are fixed:\n${cast.map((c: any) => `   - ${c.name}: ${isVictimArchetype(c.role ?? c.roleArchetype) ? 'victim (DECEASED \u2014 does not appear in any scene, past tense only)' : c.roleArchetype || c.role || 'character'}`).join('\n')}\n   - Never place characters in locations inconsistent with their role`;
 
   const pronounAccuracyBlock = buildPronounAccuracyBlock(cast); // [PHASE 1]
 
@@ -1757,7 +1758,7 @@ ${victimIdentityRule}`;
     const unresolvedSuspects = allSuspects
       .filter((c: any) => {
         const role = String(c.role_archetype ?? c.role ?? '').toLowerCase();
-        return !role.includes('detective') && !role.includes('victim') && !culprits.includes(c.name) && !clearedNames.has(c.name);
+        return !role.includes('detective') && !isVictimArchetype(role) && !culprits.includes(c.name) && !clearedNames.has(c.name);
       })
       .map((c: any) => String(c.name ?? ''))
       .filter(Boolean);

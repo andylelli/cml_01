@@ -3,6 +3,7 @@
  * Core prose generation loop: generateProse() orchestrator, batch scoring,
  * retry feedback, victim-alive detection, and pronoun-error extraction.
  */
+import { isVictimArchetype } from "@cml/cml";
 import { createHash } from "node:crypto";
 import { jsonrepair } from "jsonrepair";
 import type { AzureOpenAIClient } from "@cml/llm-client";
@@ -2137,7 +2138,7 @@ export async function generateProse(
     value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const victimNamesForActiveCoverage = new Set<string>(
     ((inputs.caseData as any)?.CASE?.cast ?? [])
-      .filter((entry: any) => String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase().includes('victim'))
+      .filter((entry: any) => isVictimArchetype(entry?.role_archetype ?? entry?.role))
       .map((entry: any) => String(entry?.name ?? '').trim().toLowerCase())
       .filter(Boolean),
   );
@@ -3628,7 +3629,7 @@ export async function generateProse(
                 const suspectNames = ((cmlCase?.cast ?? []) as any[])
                   .filter((entry: any) => {
                     const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
-                    return !role.includes('detective') && !role.includes('victim');
+                    return !role.includes('detective') && !isVictimArchetype(role);
                   })
                   .map((entry: any) => String(entry?.name ?? ''))
                   .filter(Boolean);
@@ -4059,7 +4060,7 @@ export async function generateProse(
                 const suspectNames = ((cmlCase?.cast ?? []) as any[])
                   .filter((entry: any) => {
                     const role = String(entry?.role_archetype ?? entry?.role ?? '').toLowerCase();
-                    return !role.includes('detective') && !role.includes('victim');
+                    return !role.includes('detective') && !isVictimArchetype(role);
                   })
                   .map((entry: any) => String(entry?.name ?? ''))
                   .filter(Boolean);

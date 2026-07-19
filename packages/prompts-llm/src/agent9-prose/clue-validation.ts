@@ -3,6 +3,7 @@
  * Clue token matching, chapter obligation validation, batch-gate tracking,
  * word-count targets, and resolution checks.
  */
+import { isVictimArchetype } from "@cml/cml";
 import { getGenerationParams, getStoryLengthTarget } from "@cml/story-validation";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveClueObservable } from "../agent5-clues.js";
@@ -259,7 +260,7 @@ export const resolveStageModeKey = (
   const suspectNames = ((cmlCase?.cast ?? []) as any[])
     .filter((c: any) => {
       const role = String(c?.role_archetype ?? c?.role ?? "").toLowerCase();
-      return !role.includes("detective") && !role.includes("victim");
+      return !role.includes("detective") && !isVictimArchetype(role);
     })
     .map((c: any) => String(c?.name ?? ""))
     .filter(Boolean);

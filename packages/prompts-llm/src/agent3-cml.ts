@@ -7,7 +7,7 @@ import type { AzureOpenAIClient, LLMLogger, Message } from "@cml/llm-client";
 import { getGenerationParams } from "@cml/story-validation";
 import { parse as parseYAML } from "yaml";
 import { resolveDesignModel } from "./utils/model-tiers.js";
-import { validateCml } from "@cml/cml";
+import { validateCml, isVictimArchetype } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { jsonrepair } from "jsonrepair";
@@ -812,7 +812,7 @@ export async function generateCML(
       : [];
     const roleOf = (entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
     const suspectNamesForGenre: string[] = castEntries
-      .filter((e) => !roleOf(e).includes("detective") && !roleOf(e).includes("victim"))
+      .filter((e) => !roleOf(e).includes("detective") && !isVictimArchetype(roleOf(e)))
       .map((e) => String(e?.name ?? "").trim())
       .filter(Boolean);
     const innocentSuspect = suspectNamesForGenre.find((n) => !culpritNamesForGenre.includes(n));

@@ -16,6 +16,7 @@
  * Output Format: JSON (structured scene list)
  */
 
+import { isVictimArchetype } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
 import { jsonrepair } from "jsonrepair";
 import { getGenerationParams } from "@cml/story-validation";
@@ -608,7 +609,7 @@ function buildUserRequest(
   const victimFromCast: string | undefined = castCharactersForVictim.find((c: any) => {
     if (c.role === 'victim') return true;
     const archetype: string = c.roleArchetype ?? (c as any).role_archetype ?? '';
-    return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
+    return typeof archetype === 'string' && isVictimArchetype(archetype);
   })?.name;
   const crimeVictim: string = victimFromCast ?? (typeof legacy.setup?.crime?.victim === 'string' ? legacy.setup.crime.victim : "the victim");
   const rawLocationValue = legacy.setup?.crime?.location;

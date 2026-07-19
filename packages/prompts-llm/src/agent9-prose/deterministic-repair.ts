@@ -3,6 +3,7 @@
  * Deterministic chapter repair helpers, fallback chapter construction,
  * and shared chapter repair context derivation.
  */
+import { isVictimArchetype } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
 import { deriveClueObservable } from "../agent5-clues.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
@@ -720,7 +721,7 @@ export const resolveBatchMatchingClearances = (args: {
   const { batchScenes, batchStart, cmlCase, scenes } = args;
   const victimNames = new Set<string>(
     ((cmlCase?.cast ?? []) as any[])
-      .filter((entry: any) => String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase().includes("victim"))
+      .filter((entry: any) => isVictimArchetype(entry?.role_archetype ?? entry?.role))
       .map((entry: any) => String(entry?.name ?? "").trim().toLowerCase()),
   );
   // A_50 §9: never author a clearance for the actual CULPRIT — clearing the culprit is the upstream
@@ -817,7 +818,7 @@ export const buildChapterRepairContext = (args: {
   const suspectNames = ((cmlCase?.cast ?? []) as any[])
     .filter((entry: any) => {
       const role = String(entry?.role_archetype ?? entry?.role ?? "").toLowerCase();
-      return !role.includes("detective") && !role.includes("victim");
+      return !role.includes("detective") && !isVictimArchetype(role);
     })
     .map((entry: any) => String(entry?.name ?? ""))
     .filter(Boolean);

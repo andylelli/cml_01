@@ -7,6 +7,7 @@
  */
 
 import type { MacroArcEntry } from './agent9-prose.js';
+import { isVictimArchetype } from '@cml/cml';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -87,7 +88,7 @@ export function resolveVictimContract(
   // Pass 2
   found = chars.find((c: any) => {
     const archetype: string = String(c.roleArchetype ?? (c as any).role_archetype ?? '');
-    return archetype.toLowerCase().includes('victim');
+    return isVictimArchetype(archetype);
   });
   if (found) {
     return { name: String(found.name ?? ''), status: 'deceased', roleConfirmedFrom: 'cast.role_archetype' };

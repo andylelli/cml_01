@@ -20,6 +20,7 @@ import {
 
 export const packageName = "@cml/cml";
 export { validateCml };
+export { isVictimArchetype } from "./roles.js";
 export { validateArtifact, validateArtifacts, getArtifactTypes };
 export {
   GROUNDING_STOP_WORDS,

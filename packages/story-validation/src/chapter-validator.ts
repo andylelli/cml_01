@@ -5,6 +5,7 @@
  */
 
 import type { CMLData, Story, ValidationError } from './types.js';
+import { isVictimArchetype } from '@cml/cml';
 import { findUnknownTitledNameMentions } from './name-sanitizer.js';
 import { analyzeTemporalConsistency, extractCaseMechanismTerms } from './temporal-consistency.js';
 import { detectControlPlaneLeakage, detectVerbatimFieldEcho } from './control-plane-leakage.js';
@@ -476,7 +477,7 @@ export class ChapterValidator {
     const cast: any[] = Array.isArray(cmlCase.cast) ? cmlCase.cast : [];
     const victimChar = cast.find((c: any) => {
       const archetype: string = c.roleArchetype ?? c.role_archetype ?? '';
-      return typeof archetype === 'string' && archetype.toLowerCase().includes('victim');
+      return typeof archetype === 'string' && isVictimArchetype(archetype);
     });
     const victimName: string = victimChar?.name ?? '';
 

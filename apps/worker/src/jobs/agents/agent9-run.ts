@@ -59,7 +59,7 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage } from "@cml/prose-guard";
-import { validateArtifact, validateCml } from "@cml/cml";
+import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
@@ -808,7 +808,7 @@ const extractFirstTimeString = (text: string): string | null =>
  * mutually exclusive times for the same event that cause permanent
  * locked_fact_missing_value failures on every chapter that references the fact.
  */
-const detectLockedFactClueTimeMismatch = (
+export const detectLockedFactClueTimeMismatch = (
   factValue: string,
   clueText: string,
 ):
@@ -823,29 +823,23 @@ const detectLockedFactClueTimeMismatch = (
   const clueHour = extractDigitFormHour(clueText);
   if (clueHour === null) return null;
 
-  const factMinutes = factHour.hour * 60 + factHour.minute;
-  const clueMinutes = clueHour.hour * 60 + clueHour.minute;
-  const diffMinutes = Math.abs(factMinutes - clueMinutes);
+  // Word-form locked times ("ten minutes to nine") carry no meridiem, so an absolute-minutes diff
+  // against an explicit-meridiem clue time reads same-evening values as half a day apart — abort
+  // class #9 was "ten minutes to nine" vs "8:00 pm", 50 real minutes apart, scored as 670. Compare
+  // through classifyTemporalDifference, which uses the 12-hour circle whenever meridiem info is
+  // asymmetric or absent — identical semantics to the cross-artifact warning path.
+  const verdict = classifyTemporalDifference(
+    { hour: factHour.hour, minute: factHour.minute, explicitMeridiem: factHour.explicitMeridiem, raw: factValue.trim() },
+    { hour: clueHour.hour, minute: clueHour.minute, explicitMeridiem: clueHour.explicitMeridiem, raw: clueHour.raw },
+  );
+  if (verdict === null) return null;
 
-  // AM/PM ambiguity must be explicit in CML; never silently infer one side.
-  if (factHour.explicitMeridiem !== clueHour.explicitMeridiem && diffMinutes >= 60) {
-    return {
-      type: "ambiguity",
-      rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
-      factMinutes,
-      clueMinutes,
-    };
-  }
-
-  if (diffMinutes >= 60) {
-    return {
-      type: "mismatch",
-      rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
-      factMinutes,
-      clueMinutes,
-    };
-  }
-  return null;
+  return {
+    type: verdict.type,
+    rawClueTime: clueHour.raw || extractFirstTimeString(clueText) || `${clueHour.hour}:${String(clueHour.minute).padStart(2, "0")}`,
+    factMinutes: factHour.hour * 60 + factHour.minute,
+    clueMinutes: clueHour.hour * 60 + clueHour.minute,
+  };
 };
 
 type CrossArtifactTemporalConflict = {
@@ -1432,17 +1426,17 @@ const getVictimNameSet = (cml: any, castCharacters: CastEntry[]): Set<string> =>
   const cmlCast = Array.isArray(cmlCase?.cast) ? cmlCase.cast : [];
 
   for (const entry of cmlCast) {
-    const role = String(entry?.role_archetype ?? entry?.roleArchetype ?? entry?.role ?? "").toLowerCase();
+    const role = String(entry?.role_archetype ?? entry?.roleArchetype ?? entry?.role ?? "");
     const name = String(entry?.name ?? "").trim();
-    if (name && role.includes("victim")) {
+    if (name && isVictimArchetype(role)) {
       victims.add(normalizeNameLower(name));
     }
   }
 
   for (const entry of castCharacters) {
-    const role = String((entry as any)?.role_archetype ?? (entry as any)?.roleArchetype ?? (entry as any)?.role ?? "").toLowerCase();
+    const role = String((entry as any)?.role_archetype ?? (entry as any)?.roleArchetype ?? (entry as any)?.role ?? "");
     const name = String((entry as any)?.name ?? "").trim();
-    if (name && role.includes("victim")) {
+    if (name && isVictimArchetype(role)) {
       victims.add(normalizeNameLower(name));
     }
   }
@@ -1480,7 +1474,7 @@ const enforceCmlCulpritRoleIntegrity = (
 
   const victimSet = new Set<string>(
     castEntries
-      .filter((entry) => roleTextForIntegrity(entry).includes("victim"))
+      .filter((entry) => isVictimArchetype(roleTextForIntegrity(entry)))
       .map((entry) => normalizeNameLower(entry?.name)),
   );
   const detectiveSet = new Set<string>(
@@ -3757,7 +3751,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const castList: any[] = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
     const isSuspectRole = (c: any): boolean => {
       const role = String(c?.role_archetype ?? c?.role ?? "").toLowerCase();
-      return !role.includes("detective") && !role.includes("victim");
+      return !role.includes("detective") && !isVictimArchetype(role);
     };
     const suspectNames = castList.filter(isSuspectRole).map((c: any) => String(c?.name ?? "")).filter(Boolean);
     const culpritSet = new Set(worldStateCulprits.map((n) => String(n).trim().toLowerCase()));
@@ -3969,7 +3963,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   {
     const castArr = Array.isArray(castDesign?.characters) ? castDesign.characters : [];
     let victimEntry = castArr.find((c: any) =>
-      c.role === 'victim' || String(c.roleArchetype ?? '').toLowerCase().includes('victim'),
+      c.role === 'victim' || isVictimArchetype(c.roleArchetype),
     );
     // Phase 6a: fallback to CML CASE.culpability.victim when cast-level role resolution fails
     if (!victimEntry) {
@@ -6150,7 +6144,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const blindSuspects = (Array.isArray(castDesign.characters) ? castDesign.characters : [])
       .filter((c: any) => {
         const role = String(c?.role ?? c?.roleArchetype ?? "").toLowerCase();
-        return !role.includes("detective") && !role.includes("victim");
+        return !role.includes("detective") && !isVictimArchetype(role);
       })
       .map((c: any) => String(c?.name ?? "").trim())
       .filter(Boolean);

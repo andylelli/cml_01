@@ -1,4 +1,5 @@
 import type { CMLData, Story, ValidationError, ValidationResult, Validator } from './types.js';
+import { isVictimArchetype } from '@cml/cml';
 
 export type CharacterLifecycleStatus =
   | 'alive'
@@ -68,7 +69,7 @@ const getRole = (entry: any): string =>
 
 const getVictimNames = (cml?: CMLData): string[] =>
   ((cml as any)?.CASE?.cast ?? [])
-    .filter((entry: any) => getRole(entry).includes('victim'))
+    .filter((entry: any) => isVictimArchetype(getRole(entry)))
     .map((entry: any) => String(entry?.name ?? '').trim())
     .filter(Boolean);
 

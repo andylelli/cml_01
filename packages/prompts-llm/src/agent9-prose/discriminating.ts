@@ -2,6 +2,7 @@
  * agent9-prose/discriminating.ts
  * Discriminating-test checklist builder and checklist requirement validator.
  */
+import { isVictimArchetype } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
 import type { NarrativeOutline } from "../agent7-narrative.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
@@ -129,7 +130,7 @@ export function buildDiscriminatingTestChecklist(
         if (culpritSet.has(c.name)) return false;
         if (String(c.culpability || '').toLowerCase() === 'guilty') return false;
         const role = String(c.role_archetype ?? c.role ?? '').toLowerCase();
-        return !role.includes('detective') && !role.includes('victim');
+        return !role.includes('detective') && !isVictimArchetype(role);
       }).map((c: any) => c.name).filter(Boolean);
   
   // Only show checklist for the discriminating test chapter batch.
