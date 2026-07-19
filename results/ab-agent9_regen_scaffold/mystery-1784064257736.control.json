@@ -1,0 +1,20 @@
+{
+  "arm": "control",
+  "runId": "mystery-1784064257736",
+  "flag": "AGENT9_REGEN_SCAFFOLD",
+  "flagValue": "false",
+  "agents": "9",
+  "exitCode": 1,
+  "status": "failure",
+  "synthesizedAgent7": false,
+  "regen": {
+    "plantedCount": 1,
+    "plantedClues": [
+      "clue_8"
+    ],
+    "unresolvedCount": 0,
+    "unresolved": []
+  },
+  "dump": null,
+  "stdoutTail": "2026-07-17T13:30:40.882Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_response\n2026-07-17T13:30:40.885Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_request\n2026-07-17T13:30:43.352Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_response\n2026-07-17T13:30:43.355Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_request\n2026-07-17T13:30:45.904Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_response\n2026-07-17T13:30:45.905Z [INFO    ] Agent9-AtmosphereRepair-Ch4 | chat_request\n2026-07-17T13:30:47.854Z [INFO    ] Agent9-AtmosphereRepair-Ch4 | chat_response\n2026-07-17T13:30:47.857Z [INFO    ] Agent9-AtmosphereRepair-Ch5 | chat_request\n2026-07-17T13:30:50.925Z [INFO    ] Agent9-AtmosphereRepair-Ch5 | chat_response\n2026-07-17T13:30:50.927Z [INFO    ] Agent9-AtmosphereRepair-Ch6 | chat_request\n2026-07-17T13:30:52.872Z [INFO    ] Agent9-AtmosphereRepair-Ch6 | chat_response\n2026-07-17T13:30:52.874Z [INFO    ] Agent9-AtmosphereRepair-Ch7 | chat_request\n2026-07-17T13:30:53.944Z [INFO    ] Agent9-AtmosphereRepair-Ch7 | chat_response\n2026-07-17T13:30:53.946Z [INFO    ] Agent9-AtmosphereRepair-Ch8 | chat_request\n2026-07-17T13:30:55.325Z [INFO    ] Agent9-AtmosphereRepair-Ch8 | chat_response\n2026-07-17T13:30:55.328Z [INFO    ] Agent9-AtmosphereRepair-Ch9 | chat_request\n2026-07-17T13:30:56.757Z [INFO    ] Agent9-AtmosphereRepair-Ch9 | chat_response\n2026-07-17T13:30:56.758Z [INFO    ] Agent9-AtmosphereRepair-Ch10 | chat_request\n2026-07-17T13:30:58.708Z [INFO    ] Agent9-AtmosphereRepair-Ch10 | chat_response\n[Agent 9] Deterministic pronoun sweep: 19 repair(s) across 10 chapter(s).\n2026-07-17T13:30:58.799Z [ERROR   ] Agent9-ProseGenerator | batch_validation | ERROR: Prose generation: 6/10 batch(es) required retry due to validation issues\n2026-07-17T13:30:58.800Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 2 failed validation\n2026-07-17T13:30:58.801Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 2 failed validation\n2026-07-17T13:30:58.801Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 3 failed validation\n2026-07-17T13:30:58.801Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 4 failed validation\n2026-07-17T13:30:58.802Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 8 failed validation\n2026-07-17T13:30:58.802Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 8 failed validation\n2026-07-17T13:30:58.802Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation\n2026-07-17T13:30:58.803Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation\n2026-07-17T13:30:58.804Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 10 failed validation\n2026-07-17T13:30:58.804Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 10 failed validation\nPROGRESS prose - Prose generated (10 chapters)\nPROGRESS validation - Starting full-story validation gate...\n2026-07-17T13:30:59.000Z [ERROR   ] ValidationPipeline | final_validation | ERROR: Story validation: needs_revision - 0 critical, 10 major issues\nAGENT6_FIRST_PASS_STATUS pass\nAGENT6_RETRY_INVOKED false\nAGENT6_FAILURE_CLASS none\nCANARY_STATUS failure\nWARNINGS_COUNT 0\n"
+}

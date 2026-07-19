@@ -1,0 +1,640 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784464663892`
+- Project ID: ``
+- Request Timestamp: `2026-07-19T12:43:23.958Z`
+- Response Timestamp: `2026-07-19T12:43:50.651Z`
+- Agent: `Agent9-ProseGenerator-Ch2`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `2ff19d1c6605f7c2`
+- Response Hash: `dc5cf4c0e81fdbbf`
+- Latency (ms): `26693`
+- Prompt Tokens: `19839`
+- Completion Tokens: `4500`
+- Total Tokens: `24339`
+- Estimated Cost: `0.013168905`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 2: Contradiction",
+      "summary": "Eleanor Voss questions the suspects in the aftermath of Dr. Mallory Finch’s murder, uncovering contradictions in their accounts and realizing someone is lying about their whereabouts. The evidence of forged documents begins to shift her theory about the nature of the official figure seen near the scene.",
+      "paragraphs": [
+        "\"You saw the uniform, but did you see the face?\" Eleanor’s voice, low and steady, cut through the cold hush that still clung to the scene. The Grand Dining Room was heavy with the scent of damp wool and the metallic echo of rain against the windows. Morning light, pale and filtered through the overcast sky, barely reached the corners of the room where shadows gathered like silent witnesses. Eleanor’s gaze roamed the table nearest Dr. Mallory Finch’s body, catching on a sheaf of documents—official-looking, stamped and initialed, yet the signatures bled at the edges, as if the ink had been coaxed across the page by an unsteady hand. The chill in the air seemed to intensify as she bent closer, the roughness of the carpet biting through her skirt.",
+        "A knot formed in Eleanor’s stomach. The documents, meant to convey authority, were off—too pristine in some places, too hurried in others. She traced a gloved finger along the topmost sheet, noting the unfamiliar flourish in the signature, the mismatched watermark. It was the sort of detail that would escape a casual glance but stood out to someone who had spent years chasing stories through bureaucratic corridors. If these papers were forged, then the official figure who had gained access to Dr. Mallory Finch’s room was not what he seemed. Eleanor’s mind raced: anyone with the right knowledge and motive could have manufactured these. The contradiction was no longer just a matter of timelines—it was a question of legitimacy, of someone using false authority to slip past suspicion.",
+        "The room pulsed with tension as Eleanor straightened, the weight of her realization settling on her shoulders. She caught the wary exchange of glances between the guests—each one calculating, measuring what the others might reveal. The contradiction between the supposed authority of the documents and their evident falsity reframed everything. Where she had first believed in the presence of a legitimate official, she now saw the shadow of an impersonator, someone who had carefully constructed a mask to hide their true purpose. The implications were unsettling. It meant the circle of suspects was not only those with opportunity, but those with the skill and daring to forge such credentials.",
+        "Beatrice Quill broke the silence with a brittle laugh, her fingers drumming a nervous tattoo on the windowpane. \"Now, now, let’s not get too serious; life is far too short for that!\" Her melodious tone was at odds with the sharpness in her eyes. She wore a tea-length dress of deep navy, the kind that caught the dim light and reflected it in muted ripples, her faux fur stole slipping from one shoulder. \"I was in the Drawing Room, rehearsing, as I said. I hardly noticed the time—one loses oneself in the work, you know.\" The words were airy, but her gaze darted to the documents on the table, lingering just a moment too long.",
+        "Captain Ivor Hale’s voice, measured and cool, followed. \"In my day, we handled things with honor and dignity.\" He stood with his back to the window, the grey morning casting a hard edge along his profile. His suit was immaculate, his shoes polished to a dull shine, but his hands betrayed a tremor as he adjusted his cufflinks. \"I left the lounge at ten. I saw the officer—at least, I thought I did. The uniform was regulation, but the face… Well, I suppose I was distracted.\" He did not meet Eleanor’s eye, instead fixing his gaze on the stopped watch in Dr. Mallory Finch’s hand. The implication was clear: he wanted to distance himself from the moment, to place a barrier between his memory and the facts.",
+        "Sylvia Trent, ever the composed manager, stepped forward, her voice a calm counterpoint to the rising anxiety. \"It’s all part of the job, really. Keeping order, making sure everything runs as it should—even when it doesn’t.\" Her hands were steady now, folded neatly at her waist, but Eleanor noticed the way her eyes lingered on the forged documents. \"Dr. Finch was expecting a visitor, but she didn’t say who. I saw someone in the corridor, but I couldn’t say for certain who it was. The lighting was poor, and with the rain, everyone looked a bit bedraggled.\" Sylvia’s words were careful, each one weighed before it left her lips, but there was a flicker of something—fear, perhaps, or the burden of knowledge—just beneath the surface.",
+        "Hugo Vane leaned in, his voice smooth as ever, a faint smile curling at the edges of his mouth. \"Ah, but that’s just the nature of the business, isn’t it? Always evolving.\" He gestured lightly toward the documents. \"I’ve seen my share of paperwork, Miss Voss. Those look official enough to me. But then, I suppose that’s the point, isn’t it? To look the part.\" His eyes glinted with something like amusement, but Eleanor sensed the calculation behind it. Hugo was too polished, too quick to deflect. She wondered what he stood to gain—or lose—from the chaos now swirling through The Grand Dining Room.",
+        "The contradiction in the suspects’ accounts grew sharper as Eleanor pressed them. Beatrice insisted she had not left the Drawing Room, but a smear of mud on her heel suggested a hurried trip outdoors. Captain Ivor Hale’s recollection of the uniformed figure was vague, his timeline conveniently aligned with the hour of the murder—yet the documents on the table, so clearly forged, undermined his certainty. Sylvia’s insistence on order rang hollow in the face of mounting disorder. Hugo’s charm was a shield, his every word a calculated move. Eleanor watched them all, noting the nervous glances, the shifting alliances, the way each one seemed to test the air for accusation.",
+        "A moment of uneasy relief broke the tension when a distant radio crackled to life in the hallway, the clipped tones of a war bulletin momentarily drawing everyone’s attention. It was a reminder that the world outside was still turning, that Cromer’s anxieties were only a drop in the wider storm. Yet as the broadcast faded, the sense of confinement returned, the short winter daylight already beginning to wane. Eleanor felt the weight of the investigation settle anew. Someone here was lying—about their whereabouts, about what they had seen, about who they truly were.",
+        "She gathered the suspects, her voice steady but edged with resolve. \"The timelines do not add up. The official figure, the forged documents, the locked room—none of it fits unless someone here is not who they claim to be.\" Her words hung in the cold air, each one a challenge. The guests shifted, their faces a study in denial and deflection. Eleanor saw the fear in Beatrice’s eyes, the defensiveness in Captain Ivor Hale’s posture, the careful neutrality of Sylvia Trent, and the sly calculation of Hugo Vane. The masquerade was beginning to crack.",
+        "As Eleanor made her final notes, she realized her theory had shifted. Where she had once believed the official figure to be a legitimate authority, she now saw the possibility of an impersonator—someone who had used forged documents to gain access and trust. The contradiction in the suspects’ stories was no longer a minor detail; it was the thread that could unravel the entire case. She would need to press harder, to find the moment when someone’s story would break. For now, the only certainty was that the truth was buried beneath layers of deception, and that at least one of the people before her was lying."
+      ]
+    }
+  ],
+  "cast": ["Eleanor Voss", "Dr. Mallory Finch", "Captain Ivor Hale", "Beatrice Quill", "Sylvia Trent", "Hugo Vane"],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 1, 2 | absent",
+    "season_words_used": "winter, overcast, cold, rain, morning, daylight | none",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_core_contradiction_chain: chapter 2 paragraph 1-2 | present",
+    "early_observation_present": "Eleanor observes the forged documents and their suspicious qualities: chapter 2 paragraph 1 (first 25%) | present",
+    "early_inference_present": "Eleanor reasons what the forged documents imply about the official figure and the suspect pool: chapter 2 paragraph 2 | yes"
+  }
+}
+  
+ 		  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 	  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 		  
+ 
+```

@@ -1,0 +1,24 @@
+{
+  "arm": "treatment",
+  "runId": "mystery-1784064257736",
+  "flag": "AGENT9_REGEN_SCAFFOLD",
+  "flagValue": "true",
+  "agents": "9",
+  "exitCode": 1,
+  "status": "failure",
+  "synthesizedAgent7": false,
+  "regen": {
+    "plantedCount": 2,
+    "plantedClues": [
+      "clue_8",
+      "clue_7"
+    ],
+    "unresolvedCount": 2,
+    "unresolved": [
+      "clue_8",
+      "clue_culprit_direct_sylvia_trent"
+    ]
+  },
+  "dump": null,
+  "stdoutTail": "PROGRESS prose - ⚠ Chapter 10 required retry — 1 issue: Clue obligation: suspect clearance missing for \"Captain Ivor Hale\". This chapter must include a paragraph that (a) names \"Captain Ivor Hale\" explicitly, (b) contains a clearance phrase (e.g. \"cleared\", \"ruled out\", \"innocent\", \"alibi holds\", \"alibi confirmed\", \"could not have\"), AND (c) contains an evidence connector (e.g. \"because\", \"therefore\", \"which proves\", \"alibi\", \"timeline\", \"evidence\"). Example: \"Captain Ivor Hale's alibi was confirmed because multiple witnesses saw them in [location] at the time.\" Do not split the clearance across separate paragraphs.\n[Agent 9] Batch ch10 validated successfully on attempt 3\nPROGRESS prose - ✅ Chapter 10 validated (retry succeeded)\n2026-07-17T13:40:38.317Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_request\n2026-07-17T13:40:39.744Z [INFO    ] Agent9-AtmosphereRepair-Ch1 | chat_response\n2026-07-17T13:40:39.748Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_request\n2026-07-17T13:40:41.179Z [INFO    ] Agent9-AtmosphereRepair-Ch2 | chat_response\n2026-07-17T13:40:41.183Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_request\n2026-07-17T13:40:43.229Z [INFO    ] Agent9-AtmosphereRepair-Ch3 | chat_response\n2026-07-17T13:40:43.233Z [INFO    ] Agent9-AtmosphereRepair-Ch5 | chat_request\n2026-07-17T13:40:45.169Z [INFO    ] Agent9-AtmosphereRepair-Ch5 | chat_response\n2026-07-17T13:40:45.173Z [INFO    ] Agent9-AtmosphereRepair-Ch8 | chat_request\n2026-07-17T13:40:46.602Z [INFO    ] Agent9-AtmosphereRepair-Ch8 | chat_response\n2026-07-17T13:40:46.605Z [INFO    ] Agent9-AtmosphereRepair-Ch9 | chat_request\n2026-07-17T13:40:48.553Z [INFO    ] Agent9-AtmosphereRepair-Ch9 | chat_response\n2026-07-17T13:40:48.557Z [INFO    ] Agent9-AtmosphereRepair-Ch10 | chat_request\n2026-07-17T13:40:50.396Z [INFO    ] Agent9-AtmosphereRepair-Ch10 | chat_response\n[Agent 9] Deterministic pronoun sweep: 23 repair(s) across 10 chapter(s).\n2026-07-17T13:40:50.661Z [INFO    ] Agent9-Regen-Ch6-scaffold_not_prose | chat_request\n2026-07-17T13:41:21.530Z [INFO    ] Agent9-Regen-Ch6-scaffold_not_prose | chat_response\n2026-07-17T13:41:21.536Z [INFO    ] Agent9-Regen-Ch6-scaffold_not_prose | chat_request\n2026-07-17T13:41:31.363Z [INFO    ] Agent9-Regen-Ch6-scaffold_not_prose | chat_response\n2026-07-17T13:41:31.372Z [INFO    ] Agent9-Regen-Ch10-scaffold_not_prose | chat_request\n2026-07-17T13:41:38.776Z [INFO    ] Agent9-Regen-Ch10-scaffold_not_prose | chat_response\n2026-07-17T13:41:39.006Z [ERROR   ] Agent9-ProseGenerator | batch_validation | ERROR: Prose generation: 4/10 batch(es) required retry due to validation issues\n2026-07-17T13:41:39.009Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 8 failed validation\n2026-07-17T13:41:39.011Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation\n2026-07-17T13:41:39.012Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation\n2026-07-17T13:41:39.013Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 9 failed validation\n2026-07-17T13:41:39.014Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 10 failed validation\n2026-07-17T13:41:39.015Z [ERROR   ] Agent9-ProseGenerator | chapter_validation_failure | ERROR: Chapters 10 failed validation\nPROGRESS prose - Prose generated (10 chapters)\nPROGRESS validation - Starting full-story validation gate...\n2026-07-17T13:41:40.073Z [ERROR   ] ValidationPipeline | final_validation | ERROR: Story validation: needs_revision - 0 critical, 14 major issues\nAGENT6_FIRST_PASS_STATUS pass\nAGENT6_RETRY_INVOKED false\nAGENT6_FAILURE_CLASS none\nCANARY_STATUS failure\nWARNINGS_COUNT 0\n"
+}

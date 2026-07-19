@@ -1,0 +1,60 @@
+{
+  "runId": "mystery-1784469894397",
+  "projectId": "",
+  "folderName": "run_20260719-1404_mystery",
+  "records": [
+    {
+      "sequence": 1,
+      "agent": "Agent1-SettingRefiner",
+      "retryAttempt": 1,
+      "promptHash": "2d30e19ef1bc8480",
+      "requestTimestamp": "2026-07-19T14:04:54.454Z",
+      "requestFile": "01_Agent1-SettingRefiner_request.md",
+      "responseTimestamp": "2026-07-19T14:05:01.735Z",
+      "responseFile": "01_Agent1-SettingRefiner_response.md"
+    },
+    {
+      "sequence": 2,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "1140d59d190cfd57",
+      "requestTimestamp": "2026-07-19T14:05:01.777Z",
+      "requestFile": "02_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-07-19T14:05:24.615Z",
+      "responseFile": "02_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 3,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 2,
+      "promptHash": "1140d59d190cfd57",
+      "requestTimestamp": "2026-07-19T14:05:24.620Z",
+      "requestFile": "03_Agent2-CastDesigner_retry1_request.md",
+      "responseTimestamp": "2026-07-19T14:05:47.581Z",
+      "responseFile": "03_Agent2-CastDesigner_retry1_response.md"
+    },
+    {
+      "sequence": 4,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 1,
+      "promptHash": "166df1090ccb854f",
+      "requestTimestamp": "2026-07-19T14:05:47.592Z",
+      "requestFile": "04_Agent2-CastDesigner_request.md",
+      "responseTimestamp": "2026-07-19T14:06:18.841Z",
+      "responseFile": "04_Agent2-CastDesigner_response.md"
+    },
+    {
+      "sequence": 5,
+      "agent": "Agent2-CastDesigner",
+      "retryAttempt": 2,
+      "promptHash": "166df1090ccb854f",
+      "requestTimestamp": "2026-07-19T14:06:18.847Z",
+      "requestFile": "05_Agent2-CastDesigner_retry1_request.md"
+    }
+  ],
+  "integrity": {
+    "missing_request_count": 0,
+    "missing_response_count": 1,
+    "empty_response_body_count": 0
+  }
+}

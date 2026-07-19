@@ -1,597 +1,0 @@
-# Actual Prompt Response Record
-
-- Run ID: `run_f90e5f09-fc85-42df-ac3f-0b2046c0c3e1`
-- Project ID: `proj_8c4c19d0-23d6-4802-8d0c-6786100ca9b3`
-- Request Timestamp: `2026-07-13T18:32:59.344Z`
-- Response Timestamp: `2026-07-13T18:33:56.850Z`
-- Agent: `Agent9-ProseGenerator-Ch1`
-- Operation: `chat_response`
-- Model: `gpt-4.1`
-- Attempt: `first`
-- Prompt Hash: `2e11cc53a34a5395`
-- Response Hash: `b9b039b09d8a61da`
-- Latency (ms): `57505`
-- Prompt Tokens: `18524`
-- Completion Tokens: `4500`
-- Total Tokens: `23024`
-- Estimated Cost: `0.012649480000000001`
-
-## Response Body
-
-```text
-{
-  "status": "draft",
-  "tone": "classic",
-  "chapters": [
-    {
-      "title": "Chapter 1: Death at the Garden Gate",
-      "summary": "Inspector Evelyn Harcourt arrives at Wentworth Manor and discovers Lady Beatrice Wentworth dead near the garden gate. The first physical clues—a brass latch bolt with thermal stress and an unexplained delay in its release—immediately suggest something amiss. The household gathers, each member’s reaction revealing tension and suspicion.",
-      "paragraphs": [
-        "Inspector Evelyn Harcourt stepped briskly onto the rain-darkened gravel path, her boots sinking slightly into the damp earth as a low, persistent fog clung to the clipped hedges of the garden near the gate at Wentworth Manor. The cold bit through her wool coat, and the air was thick with the scent of wet moss and the faint tang of wood smoke drifting from the manor’s distant chimneys. Ahead, the rough stone pedestal of the Garden Sundial loomed pale in the midmorning haze, but it was the stillness beyond that drew her eye—a cluster of figures, their faces pinched with shock, gathered in uneasy silence around a body sprawled at the threshold of the gate.",
-        "Lady Beatrice Wentworth lay motionless, her silver hair fanned across the frost-glazed grass, the severe wound at her temple stark against the pallor of her skin. The hush was broken only by the soft drip of moisture from the yew branches overhead. Inspector Evelyn Harcourt’s gaze flicked immediately to the garden gate itself, where a brass latch bolt hung askew. Even in the dim winter light, she noted the telltale lines of stress etched along the metal’s surface, interrupted by streaks of soot and a faint, unnatural discoloration. The bolt appeared to have endured more than the usual wear of weather and time.",
-        "She crouched beside the gate, gloved fingers tracing the rough, cold brass. The latch mechanism, she observed, was not merely tarnished but bore the unmistakable signs of recent heating—fine hairline cracks, a subtle warping, and soot that had settled into the grooves. It was as if the bolt had been subjected to a temperature far beyond what a wintry English morning could provide. Inspector Evelyn Harcourt’s mind, trained to notice the unspoken language of objects, catalogued each detail: the stress lines, the soot, the odd way the latch seemed to resist movement, as though it had been forced to hold longer than nature intended.",
-        "Rising, Inspector Evelyn Harcourt swept her gaze over the assembled household. Charles Wentworth, Lady Beatrice’s nephew, stood stiffly apart, his sharply tailored overcoat buttoned to the throat, eyes darting between the body and the inspector with a mixture of impatience and something like dread. Margot Sinclair, her gloved hands folded tightly before her, wore an expression of brittle composure, yet her gaze lingered on Lady Beatrice with a sorrow that seemed edged with fear. Robert Hensley, the estate manager, hovered near the gate, his blunt features set in a mask of stoicism, but his jaw worked as if he were biting back words. Vivian Clarke, her cheeks blotched from the cold, pressed a handkerchief to her mouth, her eyes red-rimmed but dry. James Porter, the gardener, hung back in the shadow of the hedge, his cap in his hands and his face unreadable—calm, perhaps, or simply resigned.",
-        "The winter silence pressed in, broken only by the distant toll of church bells from Little Ashcombe and the muted clatter of a petrol-powered automobile idling at the manor’s drive. Inspector Evelyn Harcourt’s presence was now unmistakable; the gathered household shifted, attention drawn to her as the figure of authority. She straightened, her voice measured but carrying through the chill, 'No one is to leave the grounds. I will require statements from each of you.' The words, though formal, seemed to settle like a shroud over the group.",
-        "Her gaze returned to the garden gate. The brass bolt, she reasoned, should have remained engaged until the afternoon sun had warmed it sufficiently to cause expansion and release. Yet the visible evidence—the stress marks, the soot, the unnatural discoloration—suggested a disruption in this ordinary process. Inspector Evelyn Harcourt did not voice her suspicion, but the contradiction gnawed at her: the mechanism had delayed, or perhaps released, at a time inconsistent with the day’s feeble warmth. Something, or someone, had intervened.",
-        "Vivian Clarke’s composure faltered as she knelt beside Lady Beatrice, her hand trembling as she adjusted the hem of the dead woman’s coat. 'She was always so particular about her walks,' Vivian murmured, her voice barely audible beneath the fog-muffled air. 'She said the garden was the only place she could think.' The words hung, brittle and unfinished, as Inspector Evelyn Harcourt watched for the flicker of guilt or grief among the faces. Vivian’s tears, wiped quickly away, seemed genuine, but the inspector noted how her gaze never quite met Charles Wentworth’s.",
-        "Margot Sinclair’s voice, low and precise, cut through the tension. 'It’s a dreadful thing, Inspector, but surely an accident. The path is slippery, and Lady Beatrice was not steady on her feet.' Her words were measured, yet the inspector caught the way Margot’s eyes darted to the brass latch, then away, as if the sight unsettled her more than the body itself.",
-        "James Porter, when addressed, met Inspector Evelyn Harcourt’s scrutiny with a steady, almost deferential calm. 'I was in the kitchen, Miss, from noon to two, tending to the stove and the luncheon vegetables. I only came out when I heard the shouting.' His hands, rough and reddened by the cold, twisted his cap as he spoke, but his voice did not waver. Inspector Evelyn Harcourt marked the detail—Porter’s access to every corner of the estate and his habitual presence near the garden gate—yet found no overt sign of panic.",
-        "Robert Hensley’s reply, when it came, was flat and unvarnished. 'I checked the gate last evening, as always. It was secure then. If there’s fault, it’s with the weather or the metal, not the staff.' The estate manager’s gaze was fixed on the ground, but his posture radiated a defensive tension, as though he expected blame and resented it already.",
-        "Charles Wentworth, when pressed, offered a brittle, sardonic smile. 'I was in the study, Inspector, reviewing correspondence. My aunt had no shortage of opinions on the matter of estate finances, as I’m sure you’ll discover.' His tone was light, but the inspector registered the way his fingers drummed restlessly against his coat pocket—a man accustomed to control, now forced to wait.",
-        "Inspector Evelyn Harcourt moved methodically, cataloguing the scene. The moss on the sundial was undisturbed, but a faint smear of soot marred the stone near Lady Beatrice’s head. The air around the body was colder, the grass slick and flattened by more than one set of feet. She noted the absence of a handbag or walking stick, both items Lady Beatrice was seldom without on her morning walks. The inspector’s mind ticked through the possibilities, each detail a thread in a tapestry of contradiction.",
-        "A brief clearing in the fog allowed a shaft of pale daylight to strike the garden gate, illuminating the brass bolt with an almost theatrical clarity. Inspector Evelyn Harcourt squinted, noting how the light revealed the fine network of stress lines and the unnatural gleam of soot. It was a fleeting moment—within minutes, the mist thickened again, swallowing the garden in its wintry shroud. But the image remained: the mechanism was not as it should be.",
-        "She summoned James Porter once more, her tone deceptively casual. 'You’ve worked these grounds for years, haven’t you, Mr. Porter? Seen the gate through every season?' His nod was slow, his eyes steady. 'Aye, Miss. Brass is a fickle thing in winter. Holds tight in the cold, lets go when the sun’s high.' The words were simple, but Inspector Evelyn Harcourt detected a guardedness beneath the humility—a man careful to say only what was required.",
-        "Margot Sinclair lingered near the edge of the group, her gloved fingers worrying the clasp of her handbag. Inspector Evelyn Harcourt caught her eye, and Margot’s composure flickered. 'Lady Beatrice was… not herself, these past weeks. The news from London, the estate’s troubles—she carried it all.' The confession was offered with a tremor, but the inspector wondered whether Margot’s anxiety was for the dead or for herself.",
-        "Vivian Clarke, having recovered her poise, straightened and addressed Inspector Evelyn Harcourt with a clipped efficiency. 'You’ll want to speak with everyone, I suppose. But you won’t find much. Lady Beatrice kept her secrets.' Her tone was brisk, but her hands betrayed her, twisting the sodden handkerchief until the fabric threatened to tear.",
-        "Robert Hensley’s bluntness returned as he gestured to the garden gate. 'If you ask me, Inspector, the latch was never right. Too clever by half—always sticking when you least expect.' His words carried a note of old grievance, but Inspector Evelyn Harcourt noted that he did not approach the mechanism itself, keeping a careful distance.",
-        "The winter day was already waning, the fog thickening as the household retreated toward the manor’s warmth. Inspector Evelyn Harcourt lingered, alone with the silence and the cold, her thoughts circling the contradictions at her feet: a body where none should be, a mechanism that defied the ordinary order of things, and a household whose grief was laced with secrets. She knew, with the certainty of experience, that the truth would not yield easily—not in a place where appearances mattered more than facts.",
-        "As she turned back toward the manor, the distant sound of a rotary telephone’s bell echoed faintly from within, a reminder of the world’s slow encroachment on the estate’s isolation. The investigation had begun, but already Inspector Evelyn Harcourt sensed that Wentworth Manor would resist her efforts at every turn. The garden gate, with its warped brass and sooted latch, had spoken its silent warning: nothing here would be as simple as it seemed."
-      ]
-    }
-  ],
-  "cast": [
-    "Inspector Evelyn Harcourt",
-    "Lady Beatrice Wentworth",
-    "Charles Wentworth",
-    "Margot Sinclair",
-    "Robert Hensley",
-    "Vivian Clarke",
-    "James Porter"
-  ],
-  "note": "",
-  "audit": {
-    "locked_fact_phrases": "present in paragraph 6 | absent elsewhere",
-    "season_words_used": "winter, wintry, fog, cold, frost, daylight, mist",
-    "discriminating_test_present": "no",
-    "required_clues_present": "clue_1: paragraph 2, clue_mechanism_visibility_core: paragraph 6",
-    "early_observation_present": "brass latch bolt with stress lines, soot, and discoloration: paragraph 2",
-    "early_inference_present": "Inspector Harcourt suspects the latch's condition is inconsistent with natural winter temperatures: paragraph 3"
-  }
-}
-  
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	
-```

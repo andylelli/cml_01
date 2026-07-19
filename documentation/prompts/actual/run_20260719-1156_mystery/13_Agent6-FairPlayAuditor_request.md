@@ -1,0 +1,154 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784462209178`
+- Project ID: `unknown`
+- Timestamp: `2026-07-19T11:59:24.174Z`
+- Agent: `Agent6-FairPlayAuditor`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4o-mini`
+- Temperature: `0.3`
+- Max Tokens: `2500`
+- Attempt: `first`
+- Prompt Hash: `e220d1f4679c12cd`
+
+## Message 1 (role=system)
+
+```text
+You are an expert mystery fiction narrative quality auditor. The structural integrity of this mystery has been verified by a deterministic system before this call — all discriminating test evidence clues are present, all inference steps have essential early/mid coverage, and non-culprit eliminations are in place.
+
+Your role is to assess NARRATIVE QUALITY ONLY:
+1. Is the discriminating test a genuine inferential test, or does it rely on coincidence, confession, or authority?
+2. Does the false assumption feel convincingly planted across the clue trail?
+3. Is the solution discoverable by a careful reader who has not been told the answer?
+4. Does the clue trail feel fair (evidence before deduction) or like a trick (revelation withheld arbitrarily)?
+```
+
+## Message 2 (role=developer)
+
+```text
+# Narrative Quality Audit Context
+
+## Mystery Overview
+**Title**: The Deceptive Dose
+**Primary Axis / False Assumption Type**: behavioral
+**Crime**: delayed-action poisoning
+**Culprit**: Beatrice Quill
+
+
+## STRUCTURAL STATUS (system-verified — do not re-derive)
+All structural checks PASSED before this call: discriminating-test evidence present, every inference step has essential early|mid coverage, and non-culprit eliminations are in place.
+
+> Your task: assess NARRATIVE QUALITY only.
+
+---
+
+## Surface Model (What the Reader Is Meant to Believe)
+At the seaside hotel in Brighton, Hugo Vane mysteriously succumbs to a delayed-action poison. Detective Eleanor Voss must navigate through social tensions and hidden motives to unearth the truth.
+
+## Hidden Model (What Is Actually True)
+The poison requires a temperature of at least eighty degrees Fahrenheit to activate, which was only reached after the drink was left unattended.
+
+---
+
+## False Assumption
+**Statement**: Hugo was poisoned at a time when everyone was accounted for.
+**Why it seems reasonable**: Witnesses confidently confirm their whereabouts during dinner.
+**What it hides**: The timing of the poison activation occurred after the drink was left unattended.
+
+---
+
+## Inference Path (Detective's Logic)
+1. **The thermometer on the bar reads eighty degrees Fahrenheit when checked.**: The poison could only activate at this temperature. → Narrows the timeline for when the poison was effective.
+2. **Glass residue with a sticky substance is found near the sunlit area.**: This residue indicates the poison was likely in the beverage. → Eliminates the idea that the drink was harmless.
+3. **Witnesses remember seeing Hugo drinking alone after the bar was cleared.**: This suggests he was indeed poisoned after the drink was left alone. → Narrows suspect opportunities around that time frame.
+
+### Discriminating Test
+**Method**: trap
+**Design**: Reenacting the drink serving process while checking the residue on various glasses to compare with Hugo's drink.
+**Reveals**: The sticky residue found with Hugo's drink matches the poison used.
+
+---
+
+## Clue Distribution (summary — id, placement/criticality, one-line)
+- clue_mechanism_visibility_core [early/essential] →step1: The thermometer on the bar reads eighty degrees Fahrenheit when checked.
+- clue_core_contradiction_chain [early/essential] →step1: Witnesses confirm the dinner began at seven.
+- clue_1 [early/essential] →step1: Glass residue with a sticky substance is found near the sunlit area.
+- clue_4 [early/essential] →step1: The poison requires a temperature of at least eighty degrees Fahrenheit to activate.
+- clue_9 [early/essential] →step1: The victim shows signs of convulsion with no visible wounds.
+- clue_culprit_direct_beatrice_quill [early/essential] →step1: Direct evidence ties Beatrice Quill to the mechanism access point before the discriminating test and excludes competing suspect timelines.
+- clue_id_1 [early/essential] →step1: The poison requires a temperature of at least eighty degrees Fahrenheit to activate.
+- clue_core_elimination_chain [mid/essential] →step2: Eliminates Dr. Mallory Finch because he was attending to patients at the time of the murder.
+- clue_2 [mid/essential] →step2: Witnesses remember seeing Hugo drinking alone after the bar was cleared.
+- clue_3 [mid/essential] →step2: This residue indicates the poison was likely in the beverage.
+- clue_5 [mid/essential] →step2: Beatrice Quill is known to have a background in toxicology.
+- clue_6 [mid/essential] →step2: Beatrice Quill has a motive related to inheritance.
+- clue_7 [mid/essential] →step2: This suggests he was indeed poisoned after the drink was left alone.
+- clue_8 [mid/essential] →step2: The hotel clock stopped at half past three in the afternoon.
+- clue_culprit_direct_1 [mid/essential] →step3: Direct evidence links Beatrice Quill to the mechanism access point before the discriminating test and excludes competing suspect timelines.
+- clue_early_1 [mid/essential] →step2: This residue indicates the poison was likely in the beverage.
+- clue_id_2 [mid/essential] →step2: This suggests he was indeed poisoned after the drink was left alone.
+- clue_fp_contradiction_step_3 [mid/essential] →step3: Witnesses remember seeing Hugo drinking alone after the bar was cleared.
+- clue_late_optional_slot_1 [late/optional] →step3: The hotel clock stopped at a specific time. remains a late texture detail in the case background.
+
+### Red Herrings
+- Several guests claim they saw Hugo with his drink during dinner. (supports: Hugo was poisoned at a time when everyone was accounted for.)
+- Eleanor Voss mentions hearing a loud argument between Hugo and another guest before dinner. (supports: Hugo was poisoned at a time when everyone was accounted for.)
+```
+
+## Message 3 (role=user)
+
+```text
+# Narrative Quality Audit
+
+Structural integrity has been verified by the system before this call. Do NOT re-check clue presence or inference step coverage.
+
+## Your 4 narrative quality checks
+
+For each check, answer YES or NO and cite specific evidence from the Clue Distribution:
+
+1. **Genuine Inferential Test**: Is the discriminating test a real logical test (the culprit is exposed because only they satisfy a constraint revealed by prior clues), or does it rely on coincidence, confession, or authority? Cite the test design and the prior clue that makes it logically necessary.
+
+2. **False Assumption Planting**: Does the false assumption feel convincingly planted? Are there ≥2 early/mid clues that reinforce the false narrative before it is overturned? Name them.
+
+3. **Reader Solvability**: Could a careful reader, armed only with the early and mid clues in the distribution, reach the correct culprit through observation → correction → elimination before Act III? Trace the chain explicitly.
+
+4. **Clue Trail Fairness**: Does the trail feel fair — evidence before deduction, no arbitrary withholding — or does it feel like a trick? Flag any clue whose timing feels like a cheat.
+
+## Hard fairness contracts (must be enforced)
+- Ensure at least one mechanism-visibility clue appears before the discriminating test.
+- Reader reasoning must follow observation -> correction -> elimination, without hidden jumps.
+- For timing fairness, the test must confirm evidence, not introduce it.
+- Treat semantically equivalent clues as valid support when wording differs but mechanism and inference role are identical.
+
+## Quality Bar
+- Be thorough and specific.
+- Explain exactly what's wrong and how to fix it.
+
+## Micro-exemplars
+- Weak detail: "The test works somehow."
+- Strong detail: "The trace-comparison test confirms residue already established in early clues."
+
+## Silent Pre-Output Checklist
+- Before finalizing, confirm each check cites concrete clue IDs or CML fields.
+- Ensure every recommendation is minimal, actionable, and tied to a cited defect.
+
+## Output format
+
+```json
+{
+  "overallStatus": "pass" | "fail" | "needs-revision",
+  "checks": [
+    { "rule": "Genuine Inferential Test", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "False Assumption Planting", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "Reader Solvability", "status": "pass|fail|warning", "details": "...", "recommendations": [] },
+    { "rule": "Clue Trail Fairness", "status": "pass|fail|warning", "details": "...", "recommendations": [] }
+  ],
+  "violations": [],
+  "warnings": [],
+  "recommendations": [],
+  "summary": "Narrative quality assessment"
+}
+```
+
+JSON only, no markdown fences.
+```

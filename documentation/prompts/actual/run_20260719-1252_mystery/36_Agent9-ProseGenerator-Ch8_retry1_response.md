@@ -1,0 +1,67 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784465540334`
+- Project ID: ``
+- Request Timestamp: `2026-07-19T13:03:49.772Z`
+- Response Timestamp: `2026-07-19T13:03:57.888Z`
+- Agent: `Agent9-ProseGenerator-Ch8`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `retry 1`
+- Prompt Hash: `5902f4cd60dc781f`
+- Response Hash: `da2d915d5d838c58`
+- Latency (ms): `8115`
+- Prompt Tokens: `30534`
+- Completion Tokens: `2167`
+- Total Tokens: `32701`
+- Estimated Cost: `0.014628824999999998`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 8: The Pattern Emerges",
+      "summary": "In the quiet of the hotel study, Eleanor Voss reconstructs the timeline using the tide chart and witness statements, exposing a crucial anomaly. The mounting tension among the suspects leads to the elimination of one, and Eleanor prepares for a final test to confirm the truth, aware that the pattern of the crime is at last coming into focus.",
+      "paragraphs": [
+        "\"If you’re determined to keep us here all night, Miss Voss, at least let’s have the fire going,\" Captain Ivor Hale said, his voice rough as he crossed to the hearth. The hotel study was thick with the scent of old paper and the faint, lingering odor of coal smoke. The lamplight flickered across the spines of battered books, casting uncertain shadows across the carpet. Outside, the night pressed close—mist curling against the glass, muffling the distant sound of waves. Eleanor Voss stood by the desk, her notes and the tide chart spread before her, the cold edge of the wintry air seeping through the window frame.",
+        "The silence in the study was broken only by the soft creak of the chair as Beatrice Quill settled herself, her gloved hands twisting nervously in her lap. Sylvia Trent lingered near the door, arms folded tight, her posture rigid with fatigue. Hugo Vane slouched in the far corner, sketchbook closed for once, his eyes tracing the patterns of frost on the glass. The hour was late, and the tension in the room felt as dense as the mist outside. Eleanor’s breath caught in her throat as she glanced again at the tide chart—the inked lines and numbers suddenly more menacing than any accusation.",
+        "She pressed her palm flat against the desk, feeling the rough grain beneath her glove. The study’s lamplight was dim, but the chart was clear enough: high tide at \"ten minutes past eight\". That single fact had become the fulcrum of the entire case. Eleanor’s mind replayed the previous day’s events—the urgent footsteps, the hurried preparations, the anxious glances exchanged in the corridors. She remembered the peculiar urgency that had marked Captain Ivor Hale’s movements, the way Beatrice Quill’s laughter had grown brittle, the flicker of fear in Sylvia Trent’s eyes. But it was the rhythm of the sea, remarked upon by so many, that would not leave her.",
+        "A gust rattled the windowpane, and Eleanor’s voice, when it came, was soft but edged with resolve. \"The tide chart doesn’t lie,\" she said, her gaze fixed on the paper. \"High water at ten minutes past eight. Yet more than one of you claims to have seen Dr. Finch alive at half past eight.\" She let the words hang, watching the ripple of discomfort that moved through the room. Captain Ivor Hale’s jaw tightened, but he said nothing. Beatrice Quill’s foot tapped an irregular beat on the carpet, her composure fraying at the edges.",
+        "Hugo Vane broke the silence, his voice barely above a whisper. \"It’s the waves—I remember them. Loud, relentless. I heard them when I was outside, sketching. It must have been just after eight. The sound was…\" He hesitated, searching for the word. \"Insistent. Like the sea was trying to tell us something.\" The admission was met with uneasy glances. Eleanor’s mind caught on the detail—so many had remarked on the waves, their rhythm, their timing. It was not the background noise of the coast, but a marker, a witness to the crime.",
+        "Sylvia Trent’s tone was clipped, defensive. \"The kitchen clock chimed just after eight. I was counting ration coupons—there was a delivery due. I didn’t see Dr. Finch after dinner, not once. If she was out by the water, it wasn’t with my knowledge.\" Her words were practical, but the tremor in her hand as she adjusted her scarf betrayed her. Eleanor watched her, noting the calculation in her gaze—a woman accustomed to managing crises, now forced to account for every minute.",
+        "Beatrice Quill’s laughter, when it came, was brittle as glass. \"It’s all so confusing, isn’t it? I thought I saw her in the corridor, but the lights were low, and everyone was moving about. Maybe it was someone else. Timing is everything, darling, and mine’s never been perfect.\" She offered a quick, apologetic smile, but her voice trailed off as she caught Eleanor’s eye. The socialite’s bravado was a thin veneer over genuine anxiety. Eleanor caught the way Beatrice’s foot tapped, the nervous energy radiating from her.",
+        "Captain Ivor Hale’s reply was measured, but the edge of impatience was unmistakable. \"We’ve gone over this before, Miss Voss. The sea was roaring, but the rest of the hotel seemed still. I saw nothing out of the ordinary.\" Yet Eleanor saw the way his gaze lingered on the tide chart, the flicker of something—fear, perhaps, or guilt—behind his composure. The captain’s discipline was armour, but it was beginning to crack.",
+        "Eleanor gathered her notes, the pressure mounting with every contradiction. She drew a line down the centre of the page, listing each guest’s account, each claim about the time and place of Dr. Finch’s last moments. The pattern was emerging, but it was jagged, full of holes. The witnesses who reported hearing the waves at a specific time—just after eight—could not reconcile their memories with the hard evidence of the tide. The contradiction was no longer an abstraction; it was the pivot on which the case now turned.",
+        "She looked up, her eyes meeting each suspect in turn. \"There’s something we’re missing,\" she said, her tone gentle but insistent. \"The tide chart says one thing, the witnesses another. If Dr. Finch was on the beach at ten minutes past eight, she could not have been seen alive at half past eight inside the hotel. That’s a twenty-minute gap I can’t account for.\" The words landed with the weight of accusation, but Eleanor kept her voice steady. She saw Beatrice’s hand flutter to her pearls, Sylvia’s fingers tighten on her scarf, Hugo’s gaze drop to the floor, and Captain Ivor Hale’s jaw set in a hard line.",
+        "A brief, ironic beat of relief surfaced as the fire in the grate flared, sending a wave of warmth across the study. For a moment, the group’s attention shifted to the mundane struggle for comfort—a respite from the mounting tension. Beatrice let out a shaky laugh, the sound oddly bright in the gloom. \"At least we’re not freezing to death,\" she murmured, and the others managed weak smiles. But the relief was short-lived; the pressure soon reasserted itself.",
+        "Eleanor returned to the evidence, her mind racing. The witnesses’ statements about the waves—their timing, their rhythm—were too precise to be coincidence. She pressed Hugo. \"You said you heard the waves, louder than usual. Was anyone else outside with you?\" Hugo shook his head, his voice uncertain. \"No one. Just the sea, and the wind. I saw someone moving near the path, but I couldn’t say who. Time gets slippery when you’re drawing.\"",
+        "Sylvia interjected, her tone sharper than before. \"We’re all just trying to keep afloat. The hotel’s barely breaking even with rationing and blackouts. If word gets out that someone died here—\" She stopped herself, lips pressed thin. The anxiety in her eyes was unmistakable. Eleanor recognized the conflict: the need to protect her livelihood warring with the knowledge that the truth could destroy it.",
+        "Captain Ivor Hale’s voice was low, controlled. \"If you’re suggesting someone tampered with the timeline, Miss Voss, you’ll need more than hearsay. The war’s made us all jumpy, but murder is another matter.\" His sarcasm was sharp, but Eleanor detected a defensive note beneath the bluster. The captain glanced at the tide chart, his expression hardening. The conversation grew heated, the group’s alliances shifting with every new detail. Eleanor pressed on, refusing to let the tension distract her from the facts.",
+        "She drew a slow breath, the weight of the investigation settling on her shoulders. The pattern was emerging, but it was incomplete. The tide chart, the witness statements, the rhythm of the waves—all pointed to a truth just out of reach. Eleanor knew she would have to test each alibi, to find the thread that, once tugged, might unravel the rest. The need for a final test was clear; only by reenacting the timeline, by confronting each suspect with the evidence, could she hope to confirm the truth.",
+        "As the hour grew later, the study’s lamplight flickered, casting long shadows across the faces of the assembled guests. The fire’s warmth was a fragile shield against the cold, the mist pressing ever closer against the glass. Eleanor gathered her notes, her resolve hardening. The case was no closer to resolution, but the shape of the truth had shifted. The pattern had emerged, and with it, the need for a final test—a confrontation that would reveal, at last, what the tide had tried to conceal."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Captain Ivor Hale",
+    "Beatrice Quill",
+    "Sylvia Trent",
+    "Hugo Vane"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraphs 3, 4, 9, 10, 13 | absent",
+    "season_words_used": "wintry, mist, cold, frost",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_culprit_direct_1: paragraph 5",
+    "early_observation_present": "Eleanor’s focus on the tide chart and the rhythm of the waves: paragraph 3 (first 25%)",
+    "early_inference_present": "yes: paragraph 4"
+  }
+}
+
+```
