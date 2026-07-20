@@ -108,6 +108,42 @@ export function repairCaseSoundness(
     }
   }
 
+  // 8b. duplicate VICTIM archetype (abort class #11, P5-DV poison mystery-1784474957442): Agent 3
+  //     gave TWO cast members role_archetype "Victim" while Agent 2's design has exactly one — both
+  //     were prompted "DECEASED, past-tense only", the model wrote the true victim walking in, and
+  //     the reader-trust criticals failed the gate. Same design-authority precedence as the
+  //     duplicate-detective repair above (§8 / class #3): keep the designed victim (Agent 2 role or
+  //     culpability.victim), demote every other victim-archetype member to their designed role.
+  {
+    const victimMembers = cast.filter((c) => isVictimArchetype(c?.role_archetype ?? c?.role));
+    if (victimMembers.length > 1) {
+      const designedVictims = (options.castDesignCharacters ?? []).filter((c: any) =>
+        isVictimArchetype(c?.role ?? c?.roleArchetype) ||
+        norm(c?.role) === "victim" || norm(c?.roleArchetype) === "victim");
+      const designedKeys = new Set(designedVictims.map((c) => norm(c?.name)).filter(Boolean));
+      const culpabilityKey = norm(caseBlock?.culpability?.victim);
+      const keep =
+        victimMembers.find((c) => designedKeys.has(norm(c?.name))) ??
+        victimMembers.find((c) => culpabilityKey && norm(c?.name) === culpabilityKey) ??
+        victimMembers[0];
+      const designedRoleOf = (name: unknown): string | null => {
+        const match = (options.castDesignCharacters ?? []).find((c) => norm(c?.name) === norm(name));
+        const role = match ? String(match.role ?? "").trim() : "";
+        return role && !isVictimArchetype(role) && norm(role) !== "victim" ? role : null;
+      };
+      for (const member of victimMembers) {
+        if (member === keep) continue;
+        const fallback = designedRoleOf(member?.name) ?? "suspect";
+        const demoted = fallback.charAt(0).toUpperCase() + fallback.slice(1);
+        member.role_archetype = demoted;
+        repairs.push(
+          `case-soundness: demoted duplicate victim "${String(member?.name ?? "(unnamed)")}" to ` +
+          `"${demoted}" (design authority keeps "${String(keep?.name ?? "(unnamed)")}" as the victim)`
+        );
+      }
+    }
+  }
+
   // 1. character_missing_gender — the kind that actually fires. Resolve declared → name-inferred →
   //    deterministic alternation (the agent2 FIX-4 ladder), so no cast member reaches the Bible as unknown.
   cast.forEach((c, idx) => {

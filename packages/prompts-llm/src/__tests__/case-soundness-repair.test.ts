@@ -222,3 +222,62 @@ describe("repairCaseSoundness — duplicate detective archetype (M1 clock abort)
     expect(caseBlock.discriminating_test.eliminated_suspects).toContain("Eleanor Voss");
   });
 });
+
+// Abort class #11 (2026-07-20, P5-DV poison, mystery-1784474957442): Agent 3 gave TWO cast members
+// role_archetype "Victim" while Agent 2's design has exactly one — both were prompted as DECEASED,
+// the model wrote the true victim walking in, and reader-trust criticals failed the gate. Same
+// design-authority shape as the duplicate-detective repair (class #3).
+describe("repairCaseSoundness — duplicate victim archetype (class #11)", () => {
+  const dualVictimCase = () => ({
+    cast: [
+      { name: "Eleanor Voss", role_archetype: "Detective", gender: "female" },
+      { name: "Beatrice Quill", role_archetype: "Victim", gender: "female" },
+      { name: "Sylvia Trent", role_archetype: "Victim", gender: "female" },
+      { name: "Hugo Vane", role_archetype: "Rival Businessman", gender: "male" },
+    ],
+    culpability: { culprits: ["Hugo Vane"] },
+  });
+
+  it("keeps the design-authority victim and demotes the other to their designed role", () => {
+    const caseBlock = dualVictimCase();
+    const { repairs } = repairCaseSoundness(caseBlock, {
+      castDesignCharacters: [
+        { name: "Sylvia Trent", role: "victim" },
+        { name: "Beatrice Quill", role: "guardian" },
+      ],
+    });
+    const quill = caseBlock.cast.find((c: any) => c.name === "Beatrice Quill");
+    const trent = caseBlock.cast.find((c: any) => c.name === "Sylvia Trent");
+    expect(trent.role_archetype).toBe("Victim");
+    expect(quill.role_archetype).toBe("Guardian");
+    expect(repairs.some((r: string) => r.includes('demoted duplicate victim "Beatrice Quill"'))).toBe(true);
+  });
+
+  it("falls back to culpability.victim, then to keep-first + Suspect demotion", () => {
+    const caseBlock = { ...dualVictimCase(), culpability: { culprits: [], victim: "Sylvia Trent" } };
+    repairCaseSoundness(caseBlock);
+    expect(caseBlock.cast.find((c: any) => c.name === "Sylvia Trent").role_archetype).toBe("Victim");
+    expect(caseBlock.cast.find((c: any) => c.name === "Beatrice Quill").role_archetype).toBe("Suspect");
+  });
+
+  it("a single victim is untouched, and relational roles never count as duplicates", () => {
+    const caseBlock = {
+      cast: [
+        { name: "Sylvia Trent", role_archetype: "Victim", gender: "female" },
+        { name: "Beatrice Quill", role_archetype: "Friend of the victim", gender: "female" },
+      ],
+      culpability: { culprits: [] },
+    };
+    const { repairs } = repairCaseSoundness(caseBlock);
+    expect(caseBlock.cast[0].role_archetype).toBe("Victim");
+    expect(caseBlock.cast[1].role_archetype).toBe("Friend of the victim");
+    expect(repairs.some((r: string) => r.includes("duplicate victim"))).toBe(false);
+  });
+
+  it("is idempotent", () => {
+    const caseBlock = dualVictimCase();
+    repairCaseSoundness(caseBlock, { castDesignCharacters: [{ name: "Sylvia Trent", role: "victim" }] });
+    const second = repairCaseSoundness(caseBlock, { castDesignCharacters: [{ name: "Sylvia Trent", role: "victim" }] });
+    expect(second.repairs.some((r: string) => r.includes("duplicate victim"))).toBe(false);
+  });
+});

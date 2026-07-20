@@ -3297,6 +3297,9 @@ export const repairUnanchoredNsdCluesBeforeGate = async (args: {
   collectEvidence: (chapters: any[], cmlCase: any, clues: any) => { visibleClueIds: string[] };
   onNote?: (msg: string) => void;
   maxAttemptsPerDefect?: number;
+  /** Class #12: appended to each defect's regen instruction on the post-hygiene retry round —
+   * steers the plant away from the phrasings the hygiene chain rewrites (names/titles). */
+  detailSuffix?: string;
 }): Promise<{ chapters: any[]; repaired: string[]; unresolved: string[] }> => {
   const chapters = [...args.chapters];
   const repaired: string[] = [];
@@ -3337,7 +3340,7 @@ export const repairUnanchoredNsdCluesBeforeGate = async (args: {
         chapter: chapterNumber,
         kind: "missing_clue" as const,
         obligationRef: clueId,
-        detail: `NSD claims this clue was revealed in ch${chapterNumber} but the release-gate matcher finds no prose anchor. Plant it as a concrete in-scene observation: ${observable}`,
+        detail: `NSD claims this clue was revealed in ch${chapterNumber} but the release-gate matcher finds no prose anchor. Plant it as a concrete in-scene observation: ${observable}${args.detailSuffix ?? ""}`,
         severity: "hard" as const,
       };
     });
@@ -3359,11 +3362,42 @@ export const repairUnanchoredNsdCluesBeforeGate = async (args: {
       presenceValidatorFor,
       maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2,
       onUnresolved: (d: any, reason: string) =>
-        args.onNote?.(`[Agent 9] NSD-anchor regen UNRESOLVED ch${chapterNumber} ${d.obligationRef}: ${reason} (hard-stop stands).`),
+        args.onNote?.(`[Agent 9] NSD-anchor regen UNRESOLVED ch${chapterNumber} ${d.obligationRef}: ${reason} (deterministic floor next).`),
     });
     if (pass.ran) chapters[idx] = pass.chapter;
+    let stillUnresolved = [...pass.unresolved];
+    // Class #13 (P5-DV tide_on, mystery-1784576986525): the Azure content filter starved the
+    // anchor regen — every attempt filtered, zero candidates, certain hard-stop. Deterministic
+    // floor, same doctrine as the clue/clearance patches: append a neutral-subject paragraph
+    // carrying the clue's observable text ("The record now held" is the production builder's
+    // detector-non-membership-tested phrasing; class-#6 rule — no cast name shares the term
+    // sentence), accept iff THE GATE'S OWN matcher sees it. A flat sentence risks a rubric cap;
+    // a cap beats an abort (repair-not-abort).
+    for (const clueId of [...stillUnresolved]) {
+      const clue: any = clueById.get(clueId);
+      const observable = String(clue?.observable ?? clue?.description ?? "").trim().replace(/\.+$/, "");
+      if (!observable) continue;
+      const paragraph = `The record now held one further detail, set down without comment: ${observable}.`;
+      const current = chapters[idx];
+      const candidate = { ...current, paragraphs: [...(current?.paragraphs ?? []), paragraph] };
+      const ok = args
+        .collectEvidence([candidate], args.cmlCase, args.clues)
+        .visibleClueIds.includes(clueId);
+      if (ok) {
+        chapters[idx] = candidate;
+        stillUnresolved = stillUnresolved.filter((id) => id !== clueId);
+        repaired.push(clueId);
+        args.onNote?.(
+          `[Agent 9] NSD-anchor DETERMINISTIC floor planted ${clueId} in ch${chapterNumber} (regen starved — class #13); gate matcher accepted.`,
+        );
+      } else {
+        args.onNote?.(
+          `[Agent 9] NSD-anchor deterministic floor for ${clueId} NOT accepted by the gate matcher (hard-stop stands).`,
+        );
+      }
+    }
     repaired.push(...pass.repaired);
-    unresolved.push(...pass.unresolved);
+    unresolved.push(...stillUnresolved);
     if (pass.repaired.length > 0) {
       args.onNote?.(
         `[Agent 9] NSD-anchor regen planted [${pass.repaired.join(", ")}] in ch${chapterNumber} via the gate's own matcher. ` +
@@ -4768,7 +4802,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const chapterTextOf = (ch: any): string => ((ch?.paragraphs ?? []) as string[]).join(" ");
       const proseText = (prose.chapters as any[]).map(chapterTextOf).join("\n\n");
       const verdict = validateDialogueIdiolect(capsules, proseText);
-      ctx.warnings.push(`[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s).`);
+      ctx.warnings.push(`[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s); ${verdict.metrics.ticOveruseSpeakers.length} overuse speaker(s)${verdict.metrics.ticOveruseSpeakers.length ? ` (${verdict.metrics.ticOveruseSpeakers.join(", ")})` : ""}.`);
       if (voiceEnforceMode() === "enforce" && !verdict.ok) {
         // RC5.3 enforce-with-repair — regen each leaking chapter's offending line in the speaker's own
         // idiom, gated on the SAME validateDialogueIdiolect predicate + locked-fact preservation. Runs
@@ -6234,25 +6268,44 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeNsdRepair = client.getCostTracker().getTotalCost();
     try {
       const nsdRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
-      const repair = await repairUnanchoredNsdCluesBeforeGate({
-        chapters: prose.chapters,
-        unanchoredClueIds: revealedWithoutEvidence,
-        nsdTransferTrace: ctx.nsdTransferTrace,
-        cmlCase: (cml as any).CASE,
-        clues,
-        bible: { ...worldState, beatSheet: [] },
-        regen: nsdRegen,
-        collectEvidence: collectClueEvidenceFromProse as any,
-        onNote: (m) => ctx.warnings.push(m),
-      });
-      prose.chapters = repair.chapters;
-      prose = applyStandardPostProcessingChain(prose); // hygiene over the planted paragraphs
-      // Re-collect with the SAME matcher the hard-stop uses; keep only still-unanchored ids.
-      const recollected = collectClueEvidenceFromProse(prose.chapters, (cml as any).CASE, clues);
-      evidenceVisibleClues = new Set(recollected.visibleClueIds);
-      revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
-        (id) => !evidenceVisibleClues.has(id),
-      );
+      // Class #12 (P5-DV poison, mystery-1784570276364): a round-1 plant was accepted by the
+      // gate's own matcher, then applyStandardPostProcessingChain rewrote it and the re-collect
+      // missed — one hygiene pass turned a repaired run into a hard-stop with no second attempt.
+      // Two rounds: each plants → full hygiene → re-collect. Round 2 steers the regen away from
+      // named-person phrasings (the anonymiser/walk-on rewriters are the destructive passes) and
+      // logs the destruction explicitly so a recurrence names itself.
+      for (let round = 1; round <= 2 && revealedWithoutEvidence.length > 0; round++) {
+        const beforeRound = [...revealedWithoutEvidence];
+        const repair = await repairUnanchoredNsdCluesBeforeGate({
+          chapters: prose.chapters,
+          unanchoredClueIds: revealedWithoutEvidence,
+          nsdTransferTrace: ctx.nsdTransferTrace,
+          cmlCase: (cml as any).CASE,
+          clues,
+          bible: { ...worldState, beatSheet: [] },
+          regen: nsdRegen,
+          collectEvidence: collectClueEvidenceFromProse as any,
+          onNote: (m) => ctx.warnings.push(m),
+          detailSuffix: round === 2
+            ? " IMPORTANT: describe the physical evidence impersonally — do NOT name or title any person in the planted sentences (a prior attempt was rewritten away by the name-hygiene passes)."
+            : undefined,
+        });
+        prose.chapters = repair.chapters;
+        prose = applyStandardPostProcessingChain(prose); // hygiene over the planted paragraphs
+        // Re-collect with the SAME matcher the hard-stop uses; keep only still-unanchored ids.
+        const recollected = collectClueEvidenceFromProse(prose.chapters, (cml as any).CASE, clues);
+        evidenceVisibleClues = new Set(recollected.visibleClueIds);
+        revealedWithoutEvidence = Array.from(enforceableNsdRevealedClueSet).filter(
+          (id) => !evidenceVisibleClues.has(id),
+        );
+        const lostToHygiene = repair.repaired.filter((id) => revealedWithoutEvidence.includes(id));
+        if (lostToHygiene.length > 0) {
+          ctx.warnings.push(
+            `[Agent 9] NSD-anchor round ${round}: plant(s) [${lostToHygiene.join(", ")}] were accepted by the matcher but DESTROYED by the post-processing chain (class #12)${round < 2 ? " — retrying with impersonal phrasing" : " — hard-stop stands"}.`,
+          );
+        }
+        if (revealedWithoutEvidence.length === beforeRound.length && repair.repaired.length === 0) break; // nothing planted — a 2nd identical round is wasted spend
+      }
     } catch (err) {
       ctx.warnings.push(
         `[Agent 9] NSD-anchor regen pass failed: ${err instanceof Error ? err.message : String(err)} (hard-stop evaluation proceeds on the original prose).`,

@@ -78,14 +78,16 @@ describe("repairUnanchoredNsdCluesBeforeGate — A_62 class #5", () => {
     expect(notes.join(" ")).toMatch(/A_62 class #5 residual/);
   });
 
-  it("leaves the clue for the hard-stop when the regen cannot satisfy the gate matcher", async () => {
-    // Regen adds text the ORACLE still rejects (mentions poison but never the victim).
+  it("regen that cannot satisfy the matcher is rescued by the class-#13 deterministic floor", async () => {
+    // Regen adds text the ORACLE still rejects (mentions poison but never the victim). Pre-class-#13
+    // this was a certain hard-stop; now the deterministic floor plants the observable verbatim and
+    // the SAME oracle accepts it.
     const regen = vi.fn(async (req: any) => ({
       ...req.chapter,
       paragraphs: [...(req.chapter.paragraphs ?? []), "A faint chemical smell — poison, perhaps."],
     }));
     const res = await repairUnanchoredNsdCluesBeforeGate({
-      chapters,
+      chapters: JSON.parse(JSON.stringify(chapters)),
       unanchoredClueIds: ["clue_core_contradiction_chain"],
       nsdTransferTrace: trace,
       cmlCase: {},
@@ -96,10 +98,9 @@ describe("repairUnanchoredNsdCluesBeforeGate — A_62 class #5", () => {
       maxAttemptsPerDefect: 1,
     });
 
-    expect(res.repaired).toEqual([]);
-    expect(res.unresolved).toContain("clue_core_contradiction_chain");
-    // the failed draft is not committed — originals stand
-    expect(res.chapters[2].paragraphs).toEqual(chapters[2].paragraphs);
+    expect(res.repaired).toContain("clue_core_contradiction_chain");
+    expect(res.unresolved).toEqual([]);
+    expect(res.chapters[2].paragraphs.join(" ")).toContain("The record now held one further detail");
   });
 
   it("is a no-op with NO regen call when nothing is unanchored", async () => {
@@ -138,5 +139,122 @@ describe("repairUnanchoredNsdCluesBeforeGate — A_62 class #5", () => {
       collectEvidence: stubCollect as any,
     });
     expect(seen).toEqual([2]); // early-chapter fallback, never out of range
+  });
+});
+
+// Abort class #12 (P5-DV poison, mystery-1784570276364): a round-1 plant was accepted by the
+// matcher, then the post-processing chain rewrote it and the gate's re-collect missed — the caller
+// now runs a second round whose regen instruction carries an impersonal-phrasing suffix. This pins
+// the suffix plumbing: round-2 defects must carry it verbatim into the regen request.
+describe("repairUnanchoredNsdCluesBeforeGate — class #12 detailSuffix", () => {
+  it("appends detailSuffix to the regen instruction when provided", async () => {
+    const seen: string[] = [];
+    const regen = vi.fn(async (req: any) => {
+      seen.push(String(req.instruction ?? ""));
+      return {
+        ...req.chapter,
+        paragraphs: [...(req.chapter.paragraphs ?? []), "poison traces marked the victim's glass."],
+      };
+    });
+    await repairUnanchoredNsdCluesBeforeGate({
+      chapters,
+      unanchoredClueIds: ["clue_core_contradiction_chain"],
+      nsdTransferTrace: trace,
+      cmlCase: {},
+      clues,
+      bible,
+      regen: regen as any,
+      collectEvidence: stubCollect as any,
+      detailSuffix: " Do NOT name any person.",
+    });
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((d) => d.endsWith(" Do NOT name any person."))).toBe(true);
+  });
+
+  it("omits the suffix when not provided", async () => {
+    const seen: string[] = [];
+    const regen = vi.fn(async (req: any) => {
+      seen.push(String(req.instruction ?? ""));
+      return {
+        ...req.chapter,
+        paragraphs: [...(req.chapter.paragraphs ?? []), "poison traces marked the victim's glass."],
+      };
+    });
+    await repairUnanchoredNsdCluesBeforeGate({
+      chapters,
+      unanchoredClueIds: ["clue_core_contradiction_chain"],
+      nsdTransferTrace: trace,
+      cmlCase: {},
+      clues,
+      bible,
+      regen: regen as any,
+      collectEvidence: stubCollect as any,
+    });
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((d) => !d.includes("Do NOT name any person"))).toBe(true);
+  });
+});
+
+// Abort class #13 (P5-DV tide_on, mystery-1784576986525): the Azure content filter starved the
+// anchor regen — every attempt errored, zero candidates — and the hard-stop was certain. The
+// deterministic floor appends a neutral-subject paragraph carrying the clue observable and clears
+// the id iff THE GATE'S OWN matcher accepts it.
+describe("repairUnanchoredNsdCluesBeforeGate — class #13 deterministic floor", () => {
+  it("starved regen (throws every attempt) falls back to the deterministic plant and the matcher accepts", async () => {
+    const regen = vi.fn(async () => { throw new Error("content filter"); });
+    const notes: string[] = [];
+    const res = await repairUnanchoredNsdCluesBeforeGate({
+      chapters: JSON.parse(JSON.stringify(chapters)),
+      unanchoredClueIds: ["clue_core_contradiction_chain"],
+      nsdTransferTrace: trace,
+      cmlCase: {},
+      clues,
+      bible,
+      regen: regen as any,
+      collectEvidence: stubCollect as any,
+      onNote: (m) => notes.push(m),
+    });
+    expect(res.repaired).toContain("clue_core_contradiction_chain");
+    expect(res.unresolved).toEqual([]);
+    const planted = res.chapters.flatMap((c: any) => c.paragraphs ?? []).join(" ");
+    expect(planted).toContain("The record now held one further detail");
+    expect(planted).toContain("Discovery of poison in the victim's system");
+    expect(notes.some((n) => n.includes("DETERMINISTIC floor planted"))).toBe(true);
+  });
+
+  it("floor that the matcher rejects leaves the id unresolved (hard-stop stands, honestly)", async () => {
+    const regen = vi.fn(async () => { throw new Error("content filter"); });
+    const neverMatch = () => ({ visibleClueIds: [] });
+    const res = await repairUnanchoredNsdCluesBeforeGate({
+      chapters: JSON.parse(JSON.stringify(chapters)),
+      unanchoredClueIds: ["clue_core_contradiction_chain"],
+      nsdTransferTrace: trace,
+      cmlCase: {},
+      clues,
+      bible,
+      regen: regen as any,
+      collectEvidence: neverMatch as any,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved).toContain("clue_core_contradiction_chain");
+  });
+
+  it("clue with no observable/description text stays unresolved rather than planting an empty line", async () => {
+    const regen = vi.fn(async () => { throw new Error("content filter"); });
+    const bareClues = { clues: [{ id: "clue_bare", criticality: "essential" }] };
+    const bareTrace = [{ batch_start: 1, batch_end: 2, newly_revealed_clue_ids: ["clue_bare"] }];
+    const res = await repairUnanchoredNsdCluesBeforeGate({
+      chapters: JSON.parse(JSON.stringify(chapters)),
+      unanchoredClueIds: ["clue_bare"],
+      nsdTransferTrace: bareTrace,
+      cmlCase: {},
+      clues: bareClues,
+      bible,
+      regen: regen as any,
+      collectEvidence: (() => ({ visibleClueIds: [] })) as any,
+    });
+    expect(res.unresolved).toContain("clue_bare");
+    const text = res.chapters.flatMap((c: any) => c.paragraphs ?? []).join(" ");
+    expect(text).not.toContain("set down without comment: .");
   });
 });
