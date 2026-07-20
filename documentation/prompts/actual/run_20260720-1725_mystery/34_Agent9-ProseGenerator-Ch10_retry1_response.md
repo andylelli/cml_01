@@ -1,0 +1,66 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784568348619`
+- Project ID: ``
+- Request Timestamp: `2026-07-20T17:37:31.214Z`
+- Response Timestamp: `2026-07-20T17:37:46.634Z`
+- Agent: `Agent9-ProseGenerator-Ch10`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `retry 1`
+- Prompt Hash: `8a960be89066d94a`
+- Response Hash: `20660c8723cc372b`
+- Latency (ms): `15420`
+- Prompt Tokens: `30403`
+- Completion Tokens: `2021`
+- Total Tokens: `32424`
+- Estimated Cost: `0.014404070000000001`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic|atmospheric",
+  "chapters": [
+    {
+      "title": "Chapter 10: The Revelation",
+      "summary": "In the aftermath of Captain Ivor Hale's confession, Eleanor Voss and the remaining guests confront the emotional and social consequences of the crime. The group grapples with the reality of Hale's motives, the manipulation of the timeline, and the cost of truth as the investigation concludes.",
+      "paragraphs": [
+        "The sound of sunlight streaming through the tall lobby windows mingled with the faint echo of radio static from the bar, casting a summery glow across the marble floor. Eleanor lingered beneath the grand clock, her fingers tracing its rough, tampered casing, the air still thick with the unresolved tension from the morning’s confrontation. The lobby felt transformed: the crisp silence was now edged with a somber mood, as if the midsummer brightness could not dispel the shadow left by Captain Ivor Hale’s confession. The scent of damp velvet and old leather lingered, a reminder of the night’s cold and the secrets that had finally come to light.",
+        "Sylvia Trent moved quietly through the lobby, her tea-length dress swaying as she approached the reception desk. Eleanor watched her pause beside the mechanical typewriter, the keys idle, and then turn toward the assembled group. Sylvia Trent's alibi was confirmed because multiple witnesses saw her in The Kitchen at the time. The evidence was clear; the timeline and staff testimony excluded Sylvia Trent from suspicion.",
+        "Eleanor realised that with Sylvia Trent's alibi confirmed, the circle of suspects had narrowed, and the emotional cost of the crime deepened for those who remained. The clarity brought a bittersweet relief—one less shadow among them, yet the truth weighed heavier as the morning sunlight grew brighter.",
+        "Captain Ivor Hale sat apart, his navy suit immaculate but his posture collapsed, hands limp in his lap. The summery warmth of the lobby could not soften the chill that radiated from him. Eleanor watched as Hale’s gaze remained fixed on the clock above the reception desk, its hands stubbornly set at ten minutes past eleven—a false time that had been the heart of his deception. There was no bravado left, only a weary resignation. Hale’s jaw was slack, his eyes rimmed with regret. The group, gathered in uneasy silence, struggled to process the truth: the clock’s mechanism had been rewound to show ten minutes past eleven, a deliberate misdirection that masked Hugo Vane’s death at twenty minutes past ten.",
+        "Beatrice Quill stood by the velvet curtains, her floral dress vivid against the subdued décor. She dabbed at her eyes with a silk handkerchief, but her composure had fractured. Her voice, when it came, was brittle. 'I never imagined it would end like this,' she murmured, her gaze darting between Eleanor and Hale. The rivalry that had once colored her interactions with Hugo Vane now seemed trivial, eclipsed by the enormity of the crime. Beatrice’s ambition had always been her armor, but in the wake of the revelation, her grief was raw and unguarded. The social order she had prized was upended, and Eleanor sensed that Beatrice’s place in the group would never be the same.",
+        "Dr. Mallory Finch lingered near the reception desk, her tailored jacket buttoned with clinical precision. She pressed her gloved hands together, the gesture more an act of composure than necessity. Mallory’s eyes lingered on Captain Hale, then flickered to Eleanor. 'I suppose we must all account for ourselves,' she said quietly, her tone calm but edged with frustration. Mallory’s presence carried a gravity born of her own entanglements, but the investigation had cleared her. Relief mingled with guilt as she watched the group’s reaction to Hale’s undoing.",
+        "Eleanor paced beneath the velvet curtains, the soft crackle of the fire in the bar providing a counterpoint to the silence. She glanced at the mechanical typewriter on the reception desk, its keys idle, and wondered if the answer lay in the machinery of the hotel or the machinery of its guests. The tension in the room was palpable, but she forced herself to observe rather than judge. Everyone had access, everyone had motive, and the false certainty of the clock was the only clue she could trust—for now. The investigation had concluded, but the consequences would linger, a shadow cast by the clock’s deceit.",
+        "Captain Ivor Hale spoke at last, his voice barely above a whisper. 'I killed Hugo Vane,' he said, the admission hanging in the charged air. 'I tampered with the clock to mislead you, to conceal the true time of death. My motive was resentment—he had everything I wanted, and I was afraid he would ruin me.' Hale’s confession was explicit, the agency undeniable. The group reacted with shock and disbelief, the emotional weight settling in as the reality of Hale’s actions became clear. Eleanor registered the shift—a new pressure reveal: Hale’s story was no longer a tangled web, but a reckoning with legacy and regret.",
+        "Beatrice Quill’s grief deepened. She pressed her handkerchief to her lips, her posture composed but her fingers twisting the edge of her scarf. 'Resentment is a powerful thing,' she said, her voice trembling. 'But I never thought it would lead to murder.' The rivalry between Beatrice and Hugo Vane had always been a source of tension, but now it was overshadowed by the finality of Hale’s confession. The social order of the group had changed, and Eleanor sensed that Beatrice’s ambition would be tempered by the emotional fallout.",
+        "Dr. Mallory Finch’s calm facade wavered. She set her gloved hand atop the mechanical typewriter, a reminder of the era’s reliance on physical records. 'We must rely on facts, not just feelings,' she said, her voice controlled but edged with irritation. Mallory’s measured responses masked inner turmoil, and Eleanor wondered if guilt weighed heavier than duty. The physician’s relief was visible, but the consequences of the investigation would linger.",
+        "Eleanor’s dry wit surfaced, providing a brief respite from the tension. 'Certainty is always an illusion,' she said, her words weaving through the aftermath. The contradiction between the clock’s reading and the last sighting of Hugo Vane had become the pivot of suspicion. The meaning of the clues had shifted, and Eleanor resolved to probe deeper, knowing that every certainty was suspect, and every timeline a potential deception.",
+        "The guests retreated to the edges of the lobby, murmuring in low voices. Eleanor remained near Hugo Vane’s memory, her thoughts racing. The scent of rain-soaked earth drifted in as the doors opened briefly, and she caught a glimpse of the oceanfront, waves crashing against the cliffs. The morning, meant to be a summery respite, had become a tableau of suspicion and grief. She pressed her fingers to her temple, recalling Hugo Vane’s last words to her—a memory now tinged with regret. The clock above ticked on, indifferent to the tragedy below.",
+        "As the constable arrived—anonymous, purposeful—Eleanor guided her through the scene, careful not to disturb the evidence. The guests watched, each with their own secrets. She made note of the ligature marks, the position of the body, and the contradiction of the clock. The investigation had begun, but the truth remained hidden in the shadows. Eleanor glanced once more at the clock, knowing its false promise would shape every step she took. The morning was heavy with anticipation, the air thick with secrets, and the first clue had been planted—though its meaning was yet to be revealed.",
+        "Eleanor lingered beneath the grand clock, her fingers tracing its rough casing. The midsummer sunlight filtered through the windows, illuminating the lobby with a summery glow. The air was heavy with secrets, but the truth had finally been revealed. Eleanor reflected on the cost of certainty—how the machinery of truth could wound as much as it could heal. The guests dispersed, each bearing the scars of the investigation, and Eleanor’s dry wit surfaced one last time. 'Certainty is always an illusion,' she murmured, 'but sometimes, the illusion is all we have.' The case was closed, but the consequences would linger, a shadow cast by the clock’s deceit.",
+        "A final silence settled over the lobby. Eleanor stood beneath the grand clock, the summery light catching in her hair, her gaze fixed on the brass hands that had shaped the fate of everyone in the room. She drew a breath, feeling the weight of the investigation, and let her hand fall to her side. The sound of distant waves drifted in, and the world outside beckoned with the promise of new beginnings. Eleanor stepped forward, her heels clicking against the marble, the echo fading as she crossed the threshold into the sunlight."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Captain Ivor Hale",
+    "Beatrice Quill",
+    "Dr. Mallory Finch",
+    "Sylvia Trent"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 4 | absent",
+    "season_words_used": "summery, midsummer, summer",
+    "discriminating_test_present": "no",
+    "required_clues_present": "Sylvia Trent clearance: paragraph 2 | present",
+    "early_observation_present": "description: paragraph 1 (first 25%) | present",
+    "early_inference_present": "yes: paragraph immediately following observation | present"
+  }
+}
+
+```

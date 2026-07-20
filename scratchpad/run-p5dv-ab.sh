@@ -30,7 +30,10 @@ for T in "${THEMES[@]}"; do
     echo -e "${T}\t${ARM}\t${GATE:-EXIT$EC}\t${RUNID:-none}" >> "$SUMMARY"
     echo "   -> arm=$ARM gate=${GATE:-EXIT$EC} runId=${RUNID:-none} ec=$EC"
     case "${GATE:-}" in
-      passed|warning) echo "$KEY" >> "$DONE" ;;
+      # shipped AND scored: an Azure DNS flap can kill the RubricScorer after the gate passes
+      # (run_outcome infra_failure, no rubric diagnostics) — that arm is useless to the A/B.
+      passed|warning) if grep -q '^\[Rubric\]' "$LOG"; then echo "$KEY" >> "$DONE";
+                      else echo "   !! shipped but UNSCORED (rubric missing — infra?) — arm stays queued for rerun"; fi ;;
       *) echo "P5-DV CHAIN HALTED on $KEY (gate=${GATE:-EXIT$EC}) — root-cause before rerunning."
          exit 1 ;;
     esac

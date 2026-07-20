@@ -1,0 +1,44 @@
+# Actual Prompt Record
+
+- Run ID: `mystery-1784568348619`
+- Project ID: ``
+- Timestamp: `2026-07-20T17:33:24.261Z`
+- Agent: `Agent9-Regen-Ch3-missing_clue`
+- Operation: `chat_request_full_prompt`
+- Model: `gpt-4.1`
+- Temperature: `0.3`
+- Max Tokens: `4000`
+- Attempt: `first`
+- Prompt Hash: `d3c7762183d8d7e9`
+
+## Message 1 (role=system)
+
+```text
+You are a surgical prose reviser for Golden-Age detective fiction. You will revise ONE chapter to satisfy a single specific obligation, changing as little as possible. Render the required element as live, in-scene action, observation, or dialogue — never as a summary, a verdict, or reasoning narration. Preserve every other sentence verbatim. Do not reorder events, add or remove characters, or change who is implicated or cleared. NEVER alter any character's pronoun, gender, name, or any locked fact value. Do not emit instruction-shaped text, schema field names, validation language, or planning notes as prose. Output JSON only.
+```
+
+## Message 2 (role=user)
+
+```text
+OBLIGATION TO SATISFY: Plant the required clue (clue_5) in this chapter as a concrete in-scene observation a character sees, does, or says — not as a summary. Detail: The victim has bruising around the neck.
+
+Make the smallest change that satisfies the obligation.
+
+LOCKED FACTS — reproduce these values exactly where they appear; never paraphrase a value:
+  • ten minutes past eleven (The clock was rewound to show this false time, which does not align with the actual time of death.)
+  • twenty minutes past ten (The victim was last seen alive at this time, contradicting the clock's false reading.)
+
+PRONOUN LOCK — never change: Eleanor Voss: she/her; Dr. Mallory Finch: she/her; Captain Ivor Hale: he/him; Beatrice Quill: she/her; Sylvia Trent: she/her; Hugo Vane: he/him.
+
+EMBARGO — do NOT reveal or name any of these in this chapter:
+  • Captain Ivor Hale is the culprit
+  • how the concealment mechanism works (withheld until the discriminating test)
+
+Return EXACTLY this schema and nothing else:
+
+{"chapter":{"title":"...","summary":"...","paragraphs":["...","..."]}}
+
+SOURCE CHAPTER JSON:
+
+{"title":"Chapter 3: Initial Interviews","summary":"Eleanor Voss conducts her first round of interviews in the lobby of the seaside hotel, uncovering contradictions in the suspects' alibis. She observes the worn gears of the clock and ligature marks on Hugo Vane’s throat, deepening her suspicions and shifting the emotional balance among the guests.","paragraphs":["Late morning sunlight filtered through the overcast sky, casting a pale glow across the lobby of the seaside hotel. The air was thick with the lingering scent of rain, and the distant murmur of the radio in the bar carried news of the Berlin Airlift, echoing the tension that still clung to the guests. Eleanor Voss stood beneath the grand clock, her gaze fixed on its face. The hands were stubbornly set at ten minutes past eleven, but what caught her attention now was the mechanism itself—a cluster of gears, visibly worn, their teeth dulled as if someone had forced them against their natural rhythm. She reached up, fingertips brushing the brass casing, and felt a roughness that suggested recent tampering. The clock’s mechanical certainty was undermined by evidence of human intervention.","Eleanor drew back, considering what the worn gears implied. If the clock had been manipulated, then its reading—ten minutes past eleven—could not be trusted. She recalled Hugo Vane last seen alive at twenty minutes past ten, a fact that contradicted the clock’s display. The implication was clear: someone had tampered with the timepiece, attempting to mislead the investigation. Yet who among the guests had both access and motive? The question gnawed at her, and she resolved to press each suspect for their whereabouts during the critical window.","The body of Hugo Vane remained at the foot of the staircase, shrouded in the hush of the lobby. Eleanor knelt once more, her fingers tracing the bruises that ringed his throat—ligature marks, stark and undeniable, evidence of a violent struggle. The marks spoke of desperation, not finesse; whoever had done this had acted in haste or fear. Eleanor’s mind flickered with possibilities: was it a crime of passion, or a calculated act masked by panic? The physical evidence demanded answers, and she steeled herself to seek them.","She rose, smoothing her tea-length dress and glancing at the gathered guests. Captain Ivor Hale lingered near the bar, his navy suit immaculate but his posture betraying a nervous energy. He adjusted his watch chain with a flourish, then met Eleanor’s gaze. 'I was in the dining room from ten to eleven,' he declared, his tone theatrical but shadowed by unease. 'Ah, the trials of love! One never knows where the heart will lead.' Yet Eleanor noted how his eyes darted to the clock, as if measuring the distance between truth and performance.","Beatrice Quill stepped forward, her floral dress bright against the somber mood. She dabbed at her eyes with a silk handkerchief, but her voice was sharp, carrying the edge of rivalry. 'In my experience, the library is the only place for a clear mind. I was there, reading, when the commotion began.' Her words were precise, but Eleanor sensed a calculation behind them—Beatrice’s ambition was never far from the surface. The socialite’s composure seemed fragile, her grief tinged with suspicion.","Dr. Mallory Finch hovered near the reception desk, her tailored jacket buttoned with clinical precision. She examined the mechanical typewriter and the clock’s casing, her eyes lingering on the bruises Eleanor had observed. 'It’s a matter of life and death, really,' Mallory murmured, her tone calm but edged with frustration. 'I was attending to correspondence in the suite; the timeline is crucial, but I wouldn’t say it’s relevant to my duties.' Eleanor caught the hesitation in Mallory’s voice—a detail she wished to forget, perhaps, or a truth she struggled to conceal.","Sylvia Trent remained at the periphery, her string of pearls glinting in the dim light. Her calm, measured tone cut through the tension. 'One must always consider the consequences,' she said, her hands folded tightly. 'I was supervising preparations in the kitchen, ensuring the staff followed protocol. If the clock was tampered with, it means someone wanted to mislead us.' Sylvia’s careful distance suggested more than mere decorum; it was as if she feared being drawn too close to the heart of the matter. Eleanor wondered if Sylvia’s legacy was her armor, or her prison.","Eleanor paced beneath the velvet curtains, the soft crackle of the fire in the bar providing a counterpoint to the silence. Outside, rationed automobiles and bicycles lined the rain-soaked pavement, their presence a reminder of the era’s constraints. She turned to the group, her dry wit surfacing despite the gravity of the moment. 'Certainty is always an illusion,' she said, her words weaving through the tension. The contradiction between the clock’s reading and the last sighting of Hugo Vane had become the pivot of suspicion. Each guest’s alibi seemed plausible, yet none could be trusted without scrutiny.","The investigation pressed on, Eleanor’s questions growing sharper as she probed for inconsistencies. Captain Ivor Hale’s charm began to fray, revealing layers of jealousy and fear beneath his confident exterior. Beatrice Quill’s rivalry with Eleanor surfaced in subtle barbs, her ambition threatening to overshadow her grief. Dr. Mallory Finch’s calm facade wavered, a flicker of guilt betraying her internal struggle. Sylvia Trent’s measured responses hinted at a deeper anxiety, her legacy at risk if the truth emerged. The emotional cost of the crime became apparent, each suspect bearing wounds that extended beyond the murder.","As the late morning waned, relief flickered briefly among the guests. The radio in the bar crackled with news of distant conflict, the tension in Europe mirrored by the tension in the lobby. Eleanor lingered, her thoughts racing. The contradiction had shifted her understanding—what seemed a simple murder was now a puzzle of motive and opportunity. She resolved to probe deeper, knowing that every certainty was suspect, and every timeline a potential deception. The worn gears, the ligature marks, and the false promise of the clock were clues, but their meaning remained elusive. The air was thick with secrets, and the first round of interviews had only deepened the mystery."]}
+```
