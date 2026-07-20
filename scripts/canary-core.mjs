@@ -77,7 +77,11 @@ console.log("CANARY_CLUE_STATUS", _auditHasFail ? "fail" : "pass");
 console.log("CANARY_CLUE_AUDIT", JSON.stringify(_clueAudit));
 console.log("WARNINGS_COUNT", result.warnings.length);
 if (result.warnings.length) {
-  console.log("WARNINGS", JSON.stringify(result.warnings.slice(0, 6)));
+  // FULL array, one JSON line — the first-6 truncation silently discarded every Agent-9-era
+  // warning (voice-idiolect tic metrics, NSD-anchor round notes, regen-pass notes): reports don't
+  // store warnings, so the tail was unrecoverable from ANY artifact. The A/B analyzers and the
+  // abort-class forensics both read these lines from the chain logs.
+  console.log("WARNINGS", JSON.stringify(result.warnings));
 }
 
 const diagnostics = Array.isArray(result.scoringReport?.diagnostics)

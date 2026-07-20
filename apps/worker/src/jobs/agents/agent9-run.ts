@@ -4802,7 +4802,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const chapterTextOf = (ch: any): string => ((ch?.paragraphs ?? []) as string[]).join(" ");
       const proseText = (prose.chapters as any[]).map(chapterTextOf).join("\n\n");
       const verdict = validateDialogueIdiolect(capsules, proseText);
-      ctx.warnings.push(`[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s); ${verdict.metrics.ticOveruseSpeakers.length} overuse speaker(s)${verdict.metrics.ticOveruseSpeakers.length ? ` (${verdict.metrics.ticOveruseSpeakers.join(", ")})` : ""}.`);
+      const voiceMetricsLine = `[Agent 9] voice-idiolect (${voiceEnforceMode()}): ${verdict.metrics.speakersWithTic}/${verdict.metrics.distinctSignatures} speakers used their tic; ${verdict.metrics.ticLeakagePairs} leakage pair(s); ${verdict.metrics.ticOveruseSpeakers.length} overuse speaker(s)${verdict.metrics.ticOveruseSpeakers.length ? ` (${verdict.metrics.ticOveruseSpeakers.join(", ")})` : ""}.`;
+      // console.warn AND ctx.warnings: agent9-era ctx.warnings were observed missing from the
+      // canary's result.warnings on shipped runs (plumbing bug, backlog) — the chain logs are the
+      // A/B analyzer's tic-metrics source, so this line must reach stdout/stderr directly, the
+      // same channel applyCanonicalVictimRescue proves durable.
+      console.warn(voiceMetricsLine);
+      ctx.warnings.push(voiceMetricsLine);
       if (voiceEnforceMode() === "enforce" && !verdict.ok) {
         // RC5.3 enforce-with-repair — regen each leaking chapter's offending line in the speaker's own
         // idiom, gated on the SAME validateDialogueIdiolect predicate + locked-fact preservation. Runs

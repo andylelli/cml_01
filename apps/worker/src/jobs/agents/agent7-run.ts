@@ -1718,11 +1718,77 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         } else {
           const maxDeterministicGapFill = computeDeterministicGapFillCap(retriedOutlineScenes.length);
           const remainingGap = retriedMinClueScenes - retriedClueCount;
+          let secondRetryResolved = false;
           if (remainingGap > maxDeterministicGapFill) {
-            throw new Error(
-              `Outline pacing gate failed: retry still below threshold (${retriedClueCount}/${retriedOutlineScenes.length}, need >= ${retriedMinClueScenes}). Remaining gap ${remainingGap} exceeds deterministic fill cap ${maxDeterministicGapFill}.`,
+            // Class #14 (P5-VOICE poison_enforce, 2026-07-20): a catastrophic outline draw (2/10
+            // clue scenes) left a gap the bounded fill cannot bridge, and the single retry was the
+            // last word — the run died for want of ONE more Agent-7 call. Second targeted retry,
+            // same acceptance ladder; the abort stands if this too cannot reach the floor.
+            ctx.reportProgress(
+              "narrative",
+              `Clue pacing second retry: ${retriedClueCount}/${retriedOutlineScenes.length} (gap ${remainingGap} > fill cap ${maxDeterministicGapFill})`,
+              86
             );
+            const secondStart = Date.now();
+            const secondRetry = await formatNarrative(ctx.client, {
+              caseData: ctx.cml!,
+              clues: ctx.clues!,
+              targetLength: ctx.inputs.targetLength,
+              narrativeStyle: ctx.inputs.narrativeStyle,
+              detectiveType: ctx.inputs.detectiveType,
+              qualityGuardrails: [
+                `CRITICAL PACING FAILURE (second retry): your outline placed clues in only ${retriedClueCount} of ${retriedOutlineScenes.length} scenes; the minimum is ${retriedMinClueScenes}. EVERY act must contain clue-bearing scenes. Set cluesRevealed to at least one clue ID in AT LEAST ${retriedMinClueScenes} scenes — when unsure, prefer MORE clue-bearing scenes, not fewer.`,
+                ...buildNarrativeSceneCountGuardrails(sceneCountLock, "clue pacing repair"),
+                ...pacingGuardrails,
+              ],
+              runId: ctx.runId,
+              projectId: ctx.projectId || "",
+              ...lockedFactsSpread,
+              ...completenessSpread,
+            });
+            ctx.agentCosts["agent7_narrative"] =
+              (ctx.agentCosts["agent7_narrative"] ?? 0) + secondRetry.cost;
+            ctx.agentDurations["agent7_narrative"] =
+              (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - secondStart);
+            const secondScenes = (secondRetry.acts ?? []).flatMap((a: any) => a.scenes || []);
+            const secondClueCount = secondScenes.filter(
+              (s: any) => Array.isArray(s.cluesRevealed) && s.cluesRevealed.length > 0
+            ).length;
+            const secondMin = Math.ceil(secondScenes.length * minClueSceneRatio);
+            const secondCountCheck = checkNarrativeSceneCountFloor(secondRetry, sceneCountLock);
+            const secondCap = computeDeterministicGapFillCap(secondScenes.length);
+            if (secondCountCheck.ok && secondClueCount >= secondMin) {
+              narrative = secondRetry;
+              secondRetryResolved = true;
+              ctx.warnings.push(
+                `Outline pacing SECOND retry succeeded: ${secondClueCount}/${secondScenes.length} scenes carry clues.`
+              );
+            } else if (secondCountCheck.ok && secondMin - secondClueCount <= secondCap) {
+              const fill = applyDeterministicCluePreAssignment(
+                secondRetry,
+                ctx.cml!,
+                ctx.clues!,
+                minClueSceneRatio,
+                secondCap,
+              );
+              if (fill.after >= fill.minRequired) {
+                narrative = secondRetry;
+                secondRetryResolved = true;
+                ctx.warnings.push(
+                  `Outline pacing second retry + bounded fill recovered coverage to ${fill.after}/${fill.totalScenes}.`
+                );
+              } else {
+                throw new Error(
+                  `Outline pacing gate failed after second retry: bounded fill insufficient (${fill.after}/${fill.totalScenes}, need >= ${fill.minRequired}).`,
+                );
+              }
+            } else {
+              throw new Error(
+                `Outline pacing gate failed: two retries below threshold (${secondClueCount}/${secondScenes.length}, need >= ${secondMin})${secondCountCheck.ok ? ` and gap exceeds fill cap ${secondCap}` : ` (scene-count lock: ${secondCountCheck.message})`}.`,
+              );
+            }
           }
+          if (!secondRetryResolved) {
           const deterministicOnRetry = applyDeterministicCluePreAssignment(
             pacingRetried,
             ctx.cml!,
@@ -1744,6 +1810,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
             throw new Error(
               `Outline pacing gate failed: retry and bounded deterministic anchoring both insufficient (${deterministicOnRetry.after}/${deterministicOnRetry.totalScenes}, need >= ${deterministicOnRetry.minRequired}).`,
             );
+          }
           }
         }
       }

@@ -20,6 +20,42 @@ const ALL = ["premise", "opening_hook", "plot_structure", "character_clarity", "
   "atmosphere", "clues", "pacing", "ending", "prose"];
 const VOICE_RE = /voice-idiolect \((shadow|enforce)\): (\d+)\/(\d+) speakers used their tic; (\d+) leakage pair\(s\); (\d+) overuse speaker\(s\)/;
 
+// Offline recompute for arms that predate the console.warn telemetry fix. Deterministic:
+// capsules (name + signatureTic) from the run's prompt archive (Agent2b profiles response),
+// prose from the STORY_SAVED markdown recorded in the chain log.
+const { validateDialogueIdiolect } = await import(
+  "file:///C:/CML/packages/story-validation/dist/dialogue-idiolect-validator.js"
+);
+async function recomputeVoiceMetrics(runId, logText) {
+  const storyMatch = logText.match(/^STORY_SAVED (.+)$/m);
+  if (!storyMatch) throw new Error("no STORY_SAVED line");
+  const storyText = fs.readFileSync(storyMatch[1].trim(), "utf8");
+
+  const archivesRoot = path.join(root, "documentation", "prompts", "actual");
+  const dir = fs.readdirSync(archivesRoot).find((d) => {
+    const idx = path.join(archivesRoot, d, "INDEX.md");
+    return fs.existsSync(idx) && fs.readFileSync(idx, "utf8").includes(runId);
+  });
+  if (!dir) throw new Error("no prompt archive for run");
+  const profileFile = fs.readdirSync(path.join(archivesRoot, dir)).find((f) => /Agent2b.*response/.test(f));
+  if (!profileFile) throw new Error("no Agent2b profiles response in archive");
+  const profileText = fs.readFileSync(path.join(archivesRoot, dir, profileFile), "utf8");
+  const capsules = [];
+  const re = /"name"\s*:\s*"([^"]+)"[\s\S]{0,2000}?"signatureTic"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  for (const m of profileText.matchAll(re)) {
+    const tic = m[2].replace(/\\"/g, '"').trim();
+    capsules.push({ name: m[1], speechTics: tic ? [tic] : [] });
+  }
+  if (capsules.length === 0) throw new Error("no signatureTic capsules parsed");
+  const verdict = validateDialogueIdiolect(capsules, storyText);
+  return {
+    covered: verdict.metrics.speakersWithTic,
+    distinct: verdict.metrics.distinctSignatures,
+    leakage: verdict.metrics.ticLeakagePairs,
+    overuse: verdict.metrics.ticOveruseSpeakers.length,
+  };
+}
+
 const runs = new Map();
 for (const r of rows) {
   if (!["passed", "warning"].includes(r.gate)) continue;
@@ -31,18 +67,30 @@ for (const r of rows) {
   const marks = {};
   for (const c of ALL) marks[c] = rubric.categories?.find((x) => x.category === c)?.mark ?? null;
 
-  // tic metrics: prefer the chain log (always contains the warning line); take the LAST match
-  // (the post-repair verdict on enforce arms — the state the shipped story actually has).
+  // tic metrics: prefer the chain log's console line; take the LAST match (post-repair state on
+  // enforce arms). Arms that ran before the console.warn fix get an OFFLINE RECOMPUTE: the
+  // validator is deterministic, capsules come from the run's prompt archive, prose from the saved
+  // story markdown (the SHIPPED text) — the corpus-era method applied early.
   const logPath = path.join(outDir, `voice_${r.theme}_${r.arm}.log`);
   let voice = null;
+  let voiceSource = "log";
   if (fs.existsSync(logPath)) {
-    const matches = [...fs.readFileSync(logPath, "utf8").matchAll(new RegExp(VOICE_RE, "g"))];
+    const logText = fs.readFileSync(logPath, "utf8");
+    const matches = [...logText.matchAll(new RegExp(VOICE_RE, "g"))];
     const m = matches.at(-1);
     if (m) voice = { covered: +m[2], distinct: +m[3], leakage: +m[4], overuse: +m[5] };
+    if (!voice) {
+      try {
+        voice = await recomputeVoiceMetrics(r.runId, logText);
+        voiceSource = "recomputed";
+      } catch (e) {
+        console.log(`recompute failed for ${r.runId}: ${e.message}`);
+      }
+    }
   }
   runs.set(`${r.theme}_${r.arm}`, {
     ...r, final: rubric.final ?? null, capCount: (rubric.caps_applied ?? []).length,
-    marks, voice, cost: rep.total_cost ?? null,
+    marks, voice, voiceSource, cost: rep.total_cost ?? null,
   });
 }
 
@@ -59,7 +107,8 @@ console.log("\n| theme | arm | rubric | dlg | caps | tic cov | leak | overuse | 
 console.log("|---|---|---|---|---|---|---|---|---|");
 for (const p of pairs) for (const a of [p.s, p.e]) {
   const v = a.voice;
-  console.log(`| ${p.theme} | ${a.arm} | ${a.final} | ${a.marks.dialogue} | ${a.capCount} | ${v ? `${v.covered}/${v.distinct}` : "MISSING"} | ${v ? v.leakage : "—"} | ${v ? v.overuse : "—"} | $${a.cost?.toFixed?.(2) ?? a.cost} |`);
+  const tag = a.voiceSource === "recomputed" ? "*" : "";
+  console.log(`| ${p.theme} | ${a.arm} | ${a.final} | ${a.marks.dialogue} | ${a.capCount} | ${v ? `${v.covered}/${v.distinct}${tag}` : "MISSING"} | ${v ? v.leakage : "—"} | ${v ? v.overuse : "—"} | $${a.cost?.toFixed?.(2) ?? a.cost} |`);
 }
 
 if (pairs.length >= 4) {
