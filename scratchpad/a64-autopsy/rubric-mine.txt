@@ -1,0 +1,215 @@
+reports with rubric: 33
+
+category             n  mean  med  <=6 (deficit share)
+premise             33  7.15  7.0    6/33 (18%)
+opening_hook        33  6.33  6.0   19/33 (57%)
+plot_structure      33  5.55  6.0   32/33 (96%)
+character_clarity   33  6.12  6.0   25/33 (75%)
+dialogue            33  6.91  7.0    6/33 (18%)
+atmosphere          33  7.85  8.0    3/33 (9%)
+clues               33  5.21  5.0   32/33 (96%)
+pacing              33  5.94  6.0   30/33 (90%)
+ending              33  6.12  6.0   21/33 (63%)
+prose               33  5.48  6.0   23/33 (69%)
+
+=== DEFICIT REASONS (mark<=6), grouped ===
+
+--- clues (32 deficit reasons) ---
+  [5] Clues are present but not well-planted; the scratch on the clock is introduced too late in the narrative, making it feel like an afterthought.
+  [5] Clues are planted, but some are too subtle or not adequately foreshadowed, leading to confusion during the reveal.
+  [5] Clues are present but not always effectively planted; some critical details are revealed too late to feel fair-play, particularly regarding the scarf and its significance.
+  [6] Clues are planted throughout the narrative, but some are too subtle or vague, making it difficult for readers to piece together the mystery until the reveal.
+  [5] While clues are present, some are not sufficiently planted before they are revealed, leading to a feeling of unfairness in the resolution.
+  [5] Clues are present but not effectively planted; the resolution relies on revelations that feel unearned and sudden.
+  [5] Clues are present but not always planted effectively; some are introduced too late to feel fair-play, particularly the vial's significance.
+  [5] Clues are present but not always planted effectively; some are introduced too late or are too subtle, making the resolution feel unearned.
+  [5] Clues are present but not sufficiently planted before they are revealed, leading to a lack of fair-play logic.
+  [5] Clues are present but not always effectively planted; some are introduced too late or lack sufficient foreshadowing.
+  [5] Clues are planted, but many are either too obscure or revealed too late, leading to a sense of unfairness in the resolution.
+  [5] Clues are present but often feel contrived or insufficiently planted, leading to a reveal that relies on information not adequately foreshadowed.
+  [5] Clues are present, but several key pieces of evidence are introduced too late or are not sufficiently foreshadowed, leading to a sense of unfair play.
+  [5] While clues are present, some are not effectively planted or are introduced too late to be fair-play; the tide chart's significance is revealed too late.
+  [6] Clues are present and relevant, but some are introduced too late or not sufficiently foreshadowed, which may confuse readers during the reveal.
+  [5] Clues are present but not always planted effectively; the bouquet's significance is not clear until the end, which undermines fair play.
+  [5] Clues are present but not always effectively planted; some important details are revealed too late to be useful for the reader's deduction.
+  [5] Clues are present but not always effectively planted or utilized, leading to a reveal that feels unearned and reliant on last-minute exposition.
+  [6] Clues are planted throughout, but some are too subtle or confusing, particularly the clock's role, which may lead to reader frustration.
+  [5] While some clues are planted, they are often too subtle or not sufficiently integrated into the narrative, making the eventual reveal feel less satisfying.
+  [5] Clues are present but not effectively planted; many are revealed too late to be useful for the reader to solve the mystery.
+  [6] Clues are present but not always planted effectively; some are introduced too late or are too subtle to be fair-play.
+  [5] Clues are present but not always planted effectively; some are introduced too late to be meaningful, leading to an unsatisfying resolution.
+  [5] While clues are present, some are not adequately planted or are revealed too late, leading to confusion during the resolution.
+  [5] Clues are present but often feel unplanted or are revealed too late, making the resolution feel unearned.
+  [5] Clues are present but not always effectively planted; the scratch on the clock is introduced late in the narrative, which diminishes its impact as a key piece of evidence.
+  [5] Clues are present but not always planted effectively; the clock's tampering is revealed too late, and some clues feel like afterthoughts rather than integral parts of the mystery.
+  [5] Clues are present but often feel contrived or insufficiently planted, leading to a lack of fair-play logic in the resolution.
+  [6] Clues are present and relevant, but some are introduced too late or not adequately foreshadowed, making the resolution feel less satisfying.
+  [5] Clues are present but not always effectively planted; some are introduced too late or lack sufficient foreshadowing to be satisfying.
+  [5] Clues are present but not always planted effectively; some critical information is revealed too late to be of use to the reader.
+  [5] Clues are present but often feel unplanted or poorly integrated; the timeline discrepancies are not sufficiently foreshadowed, leading to an unsatisfying resolution.
+
+--- plot_structure (32 deficit reasons) ---
+  [5] The plot structure is convoluted, with multiple characters providing contradictory accounts that confuse rather than clarify the timeline of events.
+  [5] The plot structure is convoluted, with multiple characters introduced but not all contributing meaningfully to the resolution of the mystery.
+  [6] The plot structure is generally coherent, but the timeline is muddled with conflicting witness accounts and the reveal feels rushed without sufficient buildup.
+  [6] The plot structure is coherent, with a clear progression of events; however, some chapters feel overly long and could benefit from tighter pacing.
+  [6] The plot follows a coherent structure, but the pacing suffers from some repetitive elements and could benefit from tighter editing.
+  [5] The plot structure is convoluted, with multiple characters and timelines that create confusion rather than clarity. The resolution feels rushed and lacks a strong buildup.
+  [5] The plot structure is convoluted, with too many characters and shifting suspicions that make it difficult to follow the timeline and key events.
+  [5] The plot structure is convoluted, with too many characters and shifting suspicions that make it hard to follow the main thread.
+  [5] The plot structure is somewhat coherent, but the timeline becomes muddled with multiple characters' alibis and motivations, leading to confusion.
+  [5] The plot structure is convoluted, with multiple red herrings and a lack of clear progression towards the resolution, making it difficult for readers to follow the clues.
+  [5] The plot structure is somewhat coherent, but the pacing is uneven, with some chapters dragging on while others rush through critical developments.
+  [6] The plot structure is coherent, with a clear progression from the discovery of the body to the investigation; however, some clues feel forced and the timeline becomes convoluted.
+  [6] The plot follows a coherent structure, but the pacing drags in places, particularly during the exposition of alibis.
+  [6] The plot structure is coherent, but the pacing occasionally drags, particularly in the middle chapters where dialogue and exposition could be tightened.
+  [6] The plot structure is generally coherent, but the timeline becomes convoluted with multiple characters and their conflicting accounts, making it hard to follow.
+  [5] The plot structure is coherent but predictable; the pacing drags in places, particularly in the early chapters, leading to a less engaging buildup.
+  [5] The plot structure is somewhat coherent, but the timeline is confusing, particularly regarding the victim's last sighting and the clock's time, which detracts from the overall clarity.
+  [6] The plot structure is generally coherent, with a clear progression of investigation, but the timeline becomes muddled at points, particularly regarding the clock's discrepancies.
+  [6] The plot follows a logical structure, but the pacing is uneven, particularly in the middle sections where the investigation feels drawn out without significant developments.
+  [6] The plot structure is generally coherent, but the timeline is muddled, particularly around the timing of events leading to the murder.
+  [6] The plot structure is coherent, but the timeline becomes muddled at times, particularly regarding witness statements and their implications.
+  [5] The plot structure is muddled with multiple characters and timelines that are not clearly delineated, leading to confusion about the sequence of events.
+  [6] The plot follows a logical progression, but the timeline becomes convoluted at times, particularly with the clock discrepancies and the reveal.
+  [6] The plot structure is convoluted, with multiple suspects and red herrings that lead to confusion rather than a coherent narrative.
+  [6] The plot structure is coherent, but the pacing suffers from some drawn-out dialogue and exposition, particularly in the middle chapters, which could have been tightened for better flow.
+  [5] The plot structure is convoluted, with multiple characters and timelines that create confusion rather than suspense. The resolution feels rushed and lacks buildup.
+  [5] The plot structure is coherent but predictable, following a standard mystery arc without significant twists or surprises.
+  [6] The plot structure is coherent but somewhat predictable; the timeline of events is clear, though some twists feel forced.
+  [5] While the plot follows a logical progression, the timeline is convoluted with multiple characters' alibis and motivations that are not clearly delineated until late in the story.
+  [6] The plot structure is coherent but occasionally meanders, particularly in the middle sections where the investigation feels repetitive.
+  [5] The plot structure is convoluted, with multiple characters and timelines that create confusion rather than clarity. The resolution feels rushed and lacks a coherent buildup.
+  [5] The plot structure is muddled, with multiple timelines and character backstories that are not clearly delineated, leading to confusion about the sequence of events.
+
+--- opening_hook (19 deficit reasons) ---
+  [6] The opening hook introduces the victim and setting effectively, but the immediate transition to the investigation feels rushed and lacks depth.
+  [6] The opening hook introduces the victim and the setting effectively, but it takes too long to establish the stakes and the investigation's urgency.
+  [5] The opening hook introduces the scene effectively, but it does not immediately engage the reader with a strong sense of urgency or intrigue regarding the murder.
+  [6] The opening hook introduces the victim and the setting effectively, but it could engage the reader more directly with the investigator's perspective.
+  [5] The opening hook introduces the victim and the setting well, but it does not immediately engage the reader with a strong sense of urgency or conflict.
+  [6] The opening hook effectively introduces the setting and the victim, but the initial focus on Eleanor could be clearer in establishing her role.
+  [6] The opening hook introduces the murder effectively, but the subsequent chapters struggle to maintain tension and focus, leading to a somewhat meandering narrative.
+  [6] The opening hook introduces the victim and the setting effectively, but it takes too long to establish the stakes and the investigation, which may lose reader interest.
+  [6] The opening hook introduces the victim and the setting effectively, but it takes too long to establish the stakes and the investigation.
+  [6] The opening hook effectively introduces the scene and the victim, but it lacks immediate tension or urgency that could draw the reader in more compellingly.
+  [6] The opening hook introduces the victim and the investigator effectively, but the immediate focus on the clock could be confusing for readers unfamiliar with its significance.
+  [5] The opening hook sets a moody atmosphere but does not establish the stakes or introduce the victim effectively.
+  [6] The opening hook introduces Eleanor Voss and the setting effectively, but the immediate discovery of the body feels rushed and lacks emotional impact.
+  [6] The opening hook introduces the victim effectively, but the initial scene is overly descriptive, which detracts from the urgency of the situation.
+  [6] The opening hook introduces the scene effectively, but the immediate focus on the clock and the victim's body could be more engaging to draw readers in.
+  [6] The opening hook introduces the scene effectively, but it takes too long to establish the murder, which may lose reader engagement.
+  [6] The opening scene effectively establishes atmosphere and introduces the victim, but the initial confusion regarding the victim's identity detracts from immediate clarity.
+  [6] The opening hook introduces the victim effectively, but the initial scene is overly descriptive, which detracts from the urgency of the murder investigation.
+  [6] The opening hook introduces the victim and the setting effectively, but the immediate focus on Eleanor's internal thoughts detracts from establishing a gripping atmosphere.
+
+--- prose (23 deficit reasons) ---
+  [4] Prose is generally readable, but at times it becomes overly descriptive, detracting from the narrative drive and making it feel more like notes than fiction.
+  [6] Prose is generally readable, but there are moments of awkward phrasing and overly complex sentences that detract from the flow.
+  [6] The prose is generally readable, but there are moments of awkward phrasing that detract from the overall flow.
+  [4] Prose is generally readable and descriptive, but at times it becomes overly verbose, detracting from the narrative flow.
+  [6] Prose is generally readable, but it occasionally lapses into overly descriptive passages that detract from the narrative flow.
+  [4] Prose is generally readable and flows well, but some sections are overly descriptive, which can detract from the narrative momentum.
+  [4] Prose is generally readable and descriptive, but at times it becomes overly verbose, which can detract from the narrative's momentum.
+  [6] Prose is generally readable, but there are moments of awkward phrasing and repetition that detract from the overall flow.
+  [4] The prose is generally readable and descriptive, though it occasionally veers into overly complex sentences that could be simplified.
+  [4] Prose is generally readable and engaging, with vivid descriptions and a strong narrative voice that captures the era and setting.
+  [4] Prose is generally readable and engaging, though some sections are overly descriptive, which can detract from the narrative flow.
+  [6] Prose is generally readable, but there are moments of awkward phrasing and overly complex sentences that detract from clarity.
+  [4] Prose is generally readable, with some strong imagery, but it occasionally veers into overly descriptive passages that detract from the narrative flow.
+  [4] Prose is generally readable, but there are moments of awkward phrasing and overly complex sentences that detract from the flow.
+  [6] Prose is generally readable but occasionally lapses into overly descriptive passages that detract from the narrative flow.
+  [4] Prose is generally readable and engaging, with a few moments of lyrical quality, though it occasionally veers into overly descriptive territory.
+  [6] Prose is generally readable, but the excessive detail in some areas detracts from the overall flow and engagement of the narrative.
+  [4] Prose is generally readable, with some beautiful descriptions, but it occasionally veers into overly elaborate territory that detracts from clarity.
+  [4] Prose is generally readable, but there are moments of awkward phrasing and repetition that detract from the overall flow.
+  [6] The prose is generally readable but occasionally veers into overly descriptive territory that detracts from the narrative flow.
+  [4] Prose is generally readable and descriptive, but there are moments of awkward phrasing that disrupt the flow.
+  [4] Prose is generally readable, but at times it becomes overly descriptive, which detracts from the narrative flow.
+  [4] Prose is generally readable, with some moments of elegance, but it occasionally lapses into overly descriptive passages that detract from the narrative flow.
+
+--- pacing (30 deficit reasons) ---
+  [6] Pacing is uneven; the story drags in places, particularly during the exposition, while the climax feels rushed and lacks sufficient buildup.
+  [6] Pacing is uneven; some sections drag while others rush through critical developments, impacting the overall tension.
+  [6] Pacing is uneven; the story drags in places, particularly in the buildup to the reveal, which feels abrupt and lacks the necessary tension.
+  [5] Pacing is uneven; some chapters drag on with excessive detail, while others rush through critical moments, affecting overall engagement.
+  [5] The pacing drags in certain sections, particularly during repetitive discussions of alibis, which could be streamlined.
+  [6] Pacing is uneven, with some sections dragging while others rush through critical moments, particularly in the climax.
+  [6] Pacing is uneven; while some sections build tension effectively, others drag, particularly during the exposition-heavy dialogues.
+  [6] Pacing fluctuates, with some sections dragging on while others rush through critical moments, impacting overall engagement.
+  [6] Pacing is uneven; some sections drag on while others rush through critical moments, particularly in the reveal.
+  [6] Pacing is uneven; the story drags in places, particularly during the investigation scenes, which could benefit from tighter editing.
+  [6] Pacing fluctuates significantly; some sections drag on with excessive detail while others rush through crucial moments, impacting overall engagement.
+  [6] Pacing fluctuates, with some sections feeling overly drawn out while others rush through important revelations, impacting overall engagement.
+  [6] Pacing is uneven; while some sections build tension well, others drag on with excessive detail that could be trimmed for clarity.
+  [5] The pacing is uneven, with some sections feeling overly drawn out, particularly during the alibi discussions.
+  [6] Pacing is uneven, with some sections dragging on while others rush through important revelations, particularly towards the climax.
+  [6] Pacing is uneven; while some sections build tension effectively, others feel drawn out, particularly during the investigative discussions.
+  [6] Pacing is uneven, with some sections dragging on while others rush through critical moments, affecting the overall tension and engagement.
+  [6] Pacing is mostly steady, but certain sections drag, particularly during the exposition-heavy dialogue, which could be tightened.
+  [5] The pacing is inconsistent, with some sections dragging on while others rush through important developments, leading to a disjointed reading experience.
+  [6] Pacing is uneven, with some sections dragging on while others rush through critical moments, particularly during the reveal.
+  [6] Pacing is uneven, with sections that drag on without significant development, while others rush through critical plot points.
+  [6] The pacing is uneven, with some sections dragging on while others rush through critical moments, particularly in the reveal.
+  [6] Pacing is uneven, with some sections dragging on with excessive detail while others rush through critical developments.
+  [6] Pacing is uneven, with some sections feeling rushed while others drag on, particularly during character introductions and interrogations, which could be streamlined.
+  [6] Pacing is uneven; the story drags in places, particularly during the exposition, while the climax feels rushed and lacks the necessary tension.
+  [6] Pacing is uneven, with some sections dragging on while others rush through important developments, affecting overall engagement.
+  [5] The pacing is uneven, with some sections dragging due to excessive exposition while others rush through critical revelations.
+  [6] Pacing is uneven; while the tension builds effectively in some sections, others drag on with excessive detail that detracts from the urgency.
+  [6] Pacing is uneven; the story drags in places with excessive detail, while the climax feels rushed and lacks sufficient buildup.
+  [6] Pacing fluctuates, with some sections dragging due to excessive exposition, while others rush through critical moments, impacting overall engagement.
+
+--- character_clarity (25 deficit reasons) ---
+  [6] Character clarity is inconsistent; while some characters like Sylvia and Eleanor are well-defined, others like Dr. Finch lack depth and clear motivations.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others, like Beatrice and Sylvia, lack depth and clear motivations.
+  [5] Character clarity is inconsistent; while some characters have distinct traits, others blend into the background, making it hard to keep track of their roles and motivations.
+  [6] Character clarity is somewhat inconsistent; while some characters are well-defined, others, like Beatrice Quill, lack depth and motivation.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others, like Beatrice, lack depth in their motivations until the end.
+  [6] Character clarity is somewhat muddled; while the main characters are distinct, their motivations and relationships could be more thoroughly developed.
+  [6] Character clarity is muddled; while some characters have distinct traits, their motivations and relationships are not consistently developed, leading to confusion.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others, like Beatrice, have unclear motivations until late in the story.
+  [6] Characters are generally stable, but some, like Beatrice and Sylvia, lack depth and distinctiveness, making them feel interchangeable at times.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others, like Beatrice and Sylvia, lack depth and their motivations feel underdeveloped.
+  [6] Character clarity is inconsistent; while Dr. Mallory Finch is well-defined, other characters lack depth and distinct motivations, making it hard to engage with them.
+  [6] Character clarity is generally strong, but some characters, particularly the minor ones, lack depth and distinctiveness, making it difficult to keep track of their motivations.
+  [5] Character clarity suffers as some characters, particularly Dr. Finch, seem to shift in motivation without sufficient development, leading to confusion.
+  [6] Character clarity is mostly maintained, but some characters, like Captain Hale, feel underdeveloped and lack distinct motivations.
+  [6] Characters are introduced with distinct traits, but their motivations and relationships could be clearer, especially regarding the rivalry and emotional stakes.
+  [6] Character clarity is inconsistent; while Eleanor is well-defined, other characters like Captain Hale and Beatrice lack depth and their motivations could be clearer.
+  [5] Character clarity suffers as motivations are often vague or contradictory, particularly for Dr. Finch and the other guests.
+  [6] Character clarity is inconsistent; while Eleanor is well-defined, other characters like Dr. Finch and Captain Hale lack depth and clear motivations.
+  [5] Character clarity suffers as motivations and relationships are not consistently developed, leading to confusion about their roles in the story.
+  [6] Character clarity is generally good, but some characters, like Beatrice Quill, could benefit from deeper development to enhance their motivations and relationships with the victim.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others, like Sylvia Trent and Hugo Vane, lack depth and clear motivations.
+  [6] Characters are generally stable, but their motivations are often vague or clichéd, lacking depth and complexity.
+  [6] Most characters are distinct, but motivations and relationships are sometimes muddled, particularly regarding Dr. Finch's jealousy and rivalry with the victim.
+  [6] Character clarity is inconsistent; while some characters are well-defined, others lack depth and their motivations are not always clear.
+  [6] Character clarity is inconsistent; while Eleanor is well-developed, other characters like Captain Hale and Beatrice Quill lack depth and clear motivations throughout the narrative.
+
+--- ending (21 deficit reasons) ---
+  [6] The ending provides a resolution but feels unsatisfying due to the lack of a strong emotional payoff or a clear understanding of the characters' fates.
+  [5] The ending provides a resolution but lacks a satisfying emotional payoff; the motivations behind the murder feel underexplored.
+  [6] The ending provides a resolution but lacks a satisfying emotional payoff; the confession feels abrupt and does not fully explore the implications.
+  [5] The ending provides a resolution but lacks a satisfying reveal; the motivations behind the murder feel underexplored, leaving readers wanting more.
+  [5] The ending lacks a satisfying resolution, as it feels abrupt and does not fully address the emotional fallout of the crime.
+  [6] The ending provides a resolution with the reveal of the murderer, but it feels rushed and lacks emotional impact.
+  [6] The ending provides a resolution, but the reveal feels rushed and relies on a confession rather than a logical deduction from earlier clues.
+  [6] The ending provides a resolution but lacks a satisfying emotional payoff; the reveal feels abrupt and does not fully explore the implications of the crime.
+  [6] The reveal of the murderer is satisfying, but the resolution lacks a strong emotional impact, leaving some threads unresolved.
+  [6] The ending provides a resolution, but the reveal of the murderer feels rushed and relies on a confession rather than a logical deduction from clues.
+  [5] The ending provides a resolution but lacks a satisfying emotional payoff; the reveal feels abrupt and does not fully explore the implications of the murder.
+  [6] The ending provides a resolution, but the reveal of the murderer feels rushed and lacks the dramatic weight expected in a mystery.
+  [6] The ending provides a resolution, but the reveal of the culprit feels rushed and lacks the buildup necessary for a satisfying conclusion.
+  [5] The ending lacks a satisfying resolution; while the culprit is revealed, the emotional fallout feels rushed and underexplored.
+  [6] The ending provides a resolution, but the reveal lacks the punch of a truly satisfying twist, feeling somewhat predictable.
+  [5] The ending attempts to tie up loose ends but feels abrupt and lacks a satisfying resolution; the reveal of the murderer lacks buildup.
+  [5] The ending lacks a satisfying resolution, as the final reveal feels abrupt and does not fully address the motivations behind the murder.
+  [5] The ending lacks a satisfying resolution; while the culprit is revealed, the emotional impact and consequences of the crime are not fully explored.
+  [6] The reveal is satisfying in terms of motive but lacks the impact of a truly surprising twist; the resolution feels somewhat predictable.
+  [5] The ending lacks a satisfying resolution; while the murderer is revealed, the emotional impact is diluted by the convoluted plot.
+  [6] The ending provides a resolution but lacks a satisfying emotional payoff; the reveal feels abrupt and does not fully explore the implications of the characters' actions.
+
+=== MAIN PROBLEMS (all runs) ===
+
+=== FASTEST FIXES (all runs) ===
