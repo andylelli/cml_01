@@ -149,6 +149,17 @@ export function buildChapterObligationBlock(
     .map((c: any) => ({ name: String(c.name), alibiWindow: String(c.alibi_window ?? '').trim() }))
     .filter((c) => c.alibiWindow.length > 0);
 
+  // A_64 §3.3 C3 — THE TIMELINE SPINE. The corpus's plot_structure complaint (96% deficit,
+  // near-verbatim across 33 runs): "the timeline is muddled by multiple characters' conflicting
+  // accounts". Root cause: each interrogation scene re-tells whereabouts freely, and retellings
+  // drift. The spine pins every suspect's CLAIMED account once, canonically; every retelling must
+  // match it verbatim in substance. Victims are excluded (no alibi to claim).
+  const timelineSpine: string[] = ((cmlCase?.cast ?? []) as any[])
+    .filter((c: any) => !isVictimArchetype(c.role_archetype ?? c.role))
+    .map((c: any) => ({ name: String(c?.name ?? '').trim(), w: String(c?.alibi_window ?? '').trim() }))
+    .filter((c) => c.name && c.w)
+    .map((c) => `${c.name} claims: ${c.w}`);
+
   // B2: a "reveal-class" clue names the culprit or explains the tamper mechanism — the kind
   // Agent5 sometimes tags placement:'early', which previously forced the full solution into
   // an early chapter. Identified by clue id, by spoiler phrasing, or by containing a culprit
@@ -511,6 +522,23 @@ export function buildChapterObligationBlock(
         lines.push(`    • ${observable} [plant:${clueId}]`);
       }
       lines.push(`    Rules: set dressing only. NO character comments on its importance, NO narrator hint ("little did they know", "something about it seemed off" are FORBIDDEN), NO inference drawn. It simply exists in the scene, naturally. Its significance surfaces in a LATER chapter — planting it casually here is what makes that later reveal feel fair.`);
+    }
+
+    // A_64 §3.3 C3 — timeline spine + the ONE-QUESTION rule for interrogation/alibi scenes.
+    // "Drags during repetitive alibi discussions" (pacing, 90% deficit) + "timeline muddled by
+    // conflicting accounts" (plot_structure, 96%): an interrogation scene that re-litigates the
+    // whole board both drags AND drifts. Scope: investigation-register scenes before the reveal.
+    const sceneRegisterBlob = `${String((scene as any)?.beat ?? '')} ${String((scene as any)?.title ?? '')} ${String((scene as any)?.purpose ?? '')} ${String((scene as any)?.summary ?? '')}`;
+    const isInterrogationScene =
+      isPreRevealChapter && /\b(alibi|interrogat|question|witness|statement|whereabouts|movement|enquir|inquir)/i.test(sceneRegisterBlob);
+    if (isInterrogationScene) {
+      if (timelineSpine.length > 0) {
+        lines.push(`  - TIMELINE SPINE (canonical claimed accounts — every retelling must MATCH these in substance; accounts may be doubted, but what a character CLAIMS never drifts between chapters):`);
+        for (const entry of timelineSpine.slice(0, 8)) lines.push(`      · ${entry}`);
+      }
+      // The one-question rule stands even when no alibi windows exist to pin (probe review: gating
+      // it on the spine silently dropped the pacing contract wherever Agent 3 left alibi_window empty).
+      lines.push(`  - ONE-QUESTION RULE: this scene RESOLVES OR SHARPENS EXACTLY ONE timeline question (pick the one this chapter's clue/clearance obligations serve). It may restate AT MOST ONE already-established fact for context. Do NOT re-summarize other suspects' accounts, do NOT re-litigate settled points — the scene ends with its one question visibly answered, or visibly sharpened into a better question.`);
     }
 
     // Fix 5: Interrogation differentiation — if this scene interrogates a suspect who was

@@ -144,14 +144,16 @@ C1 > C2 > C3. C1+C2 are one contract seen from both ends (plant → cite-the-pla
 
 ## 6. Task list for the build (attended estimates)
 
-| # | Task | Size |
-|---|---|---|
-| B1 | F3 whole-chapter acceptance + F4 name-sweep guard + fixtures | ~1–2h |
-| B2 | F1 shared-signal rewire (with the 2.2 dual-value rewire — same doctrine, do together) | ~2–3h |
-| B3 | F2 final-write re-validation + F5 telemetry to artifact | ~1–2h |
-| B4 | C1 scheduler `plant_clue` + unit tests | ~2–3h |
-| B5 | C2 reveal-walk + denouement drafting contracts | ~1–2h |
-| B6 | C3 timeline spine + scene-function contract | ~2h |
-| B7 | Probe run + wiring read | ~1h attended |
+| # | Task | Size | Status (2026-07-21) |
+|---|---|---|---|
+| B1 | F3 whole-chapter acceptance + F4 name-sweep guard + fixtures | ~1–2h | ✅ replace-wording instruction; detector-gated exhaustion floor (A3→"placed X elsewhere", B5→evidence-preserving); FLOORED warning; negated-identity guard in the role-alias sweep (→"responsible", possessives stay referential); A3 template tail de-collided. Fixtures: the two shipped sentences verbatim |
+| B2 | F1 shared-signal rewire (with the 2.2 dual-value rewire — same doctrine, do together) | ~2–3h | ✅ `culpritEvidenceLinkInText` consumed by BOTH the RC1.4 pass and the injector (the split-brain was the name matcher: case-sensitive substring vs `/\b…\b/i` — "hale and hearty" false-linked); 7.2 rewire: `assembleScoringChapterTexts` single-sourced (orchestrator delegates), ship-scope detector + full-story residual regen arm + warn-only ship-check |
+| B3 | F2 final-write re-validation + F5 telemetry to artifact | ~1–2h | ✅ scaffold SHIP-CHECK in the last-write-wins slot (post-injectors, pre-validation; floors + honest-residual warnings); `run_warnings` diagnostic carries the FULL warnings array into every artifact |
+| B4 | C1 scheduler `plant_clue` + unit tests | ~2–3h | ✅ scheduler-synthesized plants ≥2 slots before essential reveals (by construction, `checkPlantBeforeReveal` self-verified) + `applyPlantBeforeReveal` additive outline stamp (RC3.5 pattern, `AGENT7_PLANT_BEFORE_REVEAL`, runtime getter) |
+| B5 | C2 reveal-walk + denouement drafting contracts | ~1–2h | ✅ PLANT OBLIGATIONS rendering (incidental, significance-unflagged, narrator-hint forbidden); walked deduction (prior essentials in reader order); CONFESSION CONFIRMS, NEVER SUPPLIES; AFTERMATH REQUIRED on the final chapter |
+| B6 | C3 timeline spine + scene-function contract | ~2h | ✅ canonical claimed-accounts spine (victims excluded) + ONE-QUESTION rule on pre-reveal interrogation-register scenes |
+| B7 | Probe run + wiring read | ~1h attended | ✅ **PASS** 2026-07-21 — `mystery-1784662295274` (tide), gate=warning (SHIPPED), **zero caps of any kind** (`caps_applied: []`), rubric 63/63 raw (n=1, recorded not concluded). **Live-verified:** C1 stamped 17 plants and PLANT OBLIGATIONS reached the Agent-9 prompts; C2 walked-deduction + confession-confirms + aftermath in the reveal request; F5 `run_warnings` (37) in the artifact; offline ship-time scaffold recheck clean; **F1 agreement by mutual silence** (no injector fire, no regen call — the link existed naturally in the walked reveal, the predicted C2 effect). **One build slip found and closed:** the B6 rebuild hadn't taken, so C3 was absent from the probe's dist — dist rebuilt, the one-question rule un-gated from spine availability (probe review fix), and C3 verified OFFLINE against the probe's own outline+cast (renders in chapters 2/3/5: exactly the interrogation-register scenes). No second run spent (§2.8). |
+
+All build steps test-covered: beat-scheduler 17/17 · prompts-llm 798 · worker 343 · tsc clean across all three; worker + package dists rebuilt (the canary imports worker dist).
 
 **Build order (run budget cut 33%, owner 2026-07-21): B1 → B3 → B2 → B4 → B5 → B6 → B7.** C3 no longer rides a second singular run — the ONE probe carries F1–F5 + C1 + C2 + C3 + the RC3.5 flip together, and M3 is pinned at exactly 4 runs (its acceptance floor), no contingency re-queues budgeted. Remaining runs: **5 total (~£7.5)** — probe 1, M3 4.

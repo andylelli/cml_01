@@ -126,6 +126,55 @@ describe("A_64 C2 — the earned reveal (walked deduction + demoted confession)"
   });
 });
 
+describe("A_64 C3 — the timeline spine + one-question rule on interrogation scenes", () => {
+  const withAlibis = (): any => {
+    const c = makeCase();
+    c.cast = [
+      { name: "Alice Grey", role: "detective", gender: "female", alibi_window: "" },
+      { name: "Edgar Vale", role_archetype: "suspect", gender: "male", alibi_window: "in the billiard room from nine until half past ten" },
+      { name: "Clara Whitfield", role_archetype: "suspect", gender: "female", alibi_window: "walking the shore path until the tide turned" },
+      { name: "Lionel Marlowe", role_archetype: "victim", gender: "male", alibi_window: "irrelevant — the victim" },
+    ];
+    return c;
+  };
+  const buildWithCase = (scene: any, chapterNumber: number, cmlCase: any, outline: any[]): string =>
+    buildChapterObligationBlock([scene], chapterNumber, cmlCase, [] as any, undefined, clueDistribution,
+      undefined, undefined, undefined, undefined, undefined, undefined, outline, undefined);
+
+  it("an interrogation-register pre-reveal scene carries the spine (claims verbatim) and the one-question rule", () => {
+    const outline = makeOutline();
+    const scene = mkScene(4, 2, "Alibis", { purpose: "The inspector questions the household about their movements." });
+    const block = buildWithCase(scene, 4, withAlibis(), outline);
+    expect(block).toContain("TIMELINE SPINE");
+    expect(block).toContain("Edgar Vale claims: in the billiard room from nine until half past ten");
+    expect(block).toContain("Clara Whitfield claims: walking the shore path");
+    expect(block).not.toContain("Lionel Marlowe claims"); // victims excluded
+    expect(block).toContain("ONE-QUESTION RULE");
+  });
+
+  it("a non-interrogation scene gets neither", () => {
+    const outline = makeOutline();
+    const scene = mkScene(6, 2, "The Storm Breaks", { purpose: "The household shelters from the gale." });
+    const block = buildWithCase(scene, 6, withAlibis(), outline);
+    expect(block).not.toContain("TIMELINE SPINE");
+    expect(block).not.toContain("ONE-QUESTION RULE");
+  });
+
+  it("the reveal chapter never carries the one-question rule (the walk owns that chapter)", () => {
+    const outline = makeOutline();
+    const scene = mkScene(9, 3, "The Final Trap", { purpose: "The inspector questions Edgar Vale one last time." });
+    const block = buildWithCase(scene, 9, withAlibis(), outline);
+    expect(block).not.toContain("ONE-QUESTION RULE");
+  });
+
+  it("no alibi windows in the CML → no spine (graceful degradation)", () => {
+    const outline = makeOutline();
+    const scene = mkScene(4, 2, "Alibis", { purpose: "Questioning about movements." });
+    const block = buildWithCase(scene, 4, makeCase(), outline);
+    expect(block).not.toContain("TIMELINE SPINE");
+  });
+});
+
 describe("A_64 C2 — the aftermath beat on the final chapter", () => {
   it("the last chapter of the macro arc carries the AFTERMATH REQUIRED contract", () => {
     const outline = makeOutline();
