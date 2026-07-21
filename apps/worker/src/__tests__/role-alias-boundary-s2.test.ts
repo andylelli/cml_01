@@ -55,3 +55,56 @@ describe("substituteRoleAliasesInPostRevealChapters — boundary aligned with th
     expect(fixed.chapters[0].paragraphs[0]).toContain("killer"); // unchanged
   });
 });
+
+describe("substituteRoleAliasesInPostRevealChapters — A_64 §2 F4 role-predicate guard", () => {
+  // dv_clock_off ch10 shipped "Beatrice Quill could not have been Captain Ivor Hale": the sweep
+  // substituted the culprit's proper name into a NEGATED identity predicate, where the alias names a
+  // ROLE. Under negation the guard substitutes "responsible" — clearance meaning preserved, no
+  // role-alias term left for the identity_role_alias_break detector, no identity nonsense.
+  const cmlHale: any = { CASE: { culpability: { culprits: ["Captain Ivor Hale"] } } };
+
+  it("substitutes 'responsible' (never the culprit's name) into a negated identity predicate", () => {
+    const prose = chOf([
+      "opening", "clues",
+      "Captain Ivor Hale was arrested for the murder.",
+      "The alibi placed Beatrice Quill elsewhere; Beatrice Quill could not have been the killer.", // post-reveal
+    ]);
+    const fixed = substituteRoleAliasesInPostRevealChapters(prose, cmlHale);
+    const text = fixed.chapters[3].paragraphs[0];
+    expect(text).toContain("Beatrice Quill could not have been responsible");
+    expect(text).not.toContain("could not have been Captain Ivor Hale"); // the shipped corruption
+    expect(validate(fixed)).toEqual([]); // the detector this sweep repairs still reads clean
+  });
+
+  it("still substitutes the culprit's name in affirmative post-reveal aliases", () => {
+    const prose = chOf([
+      "opening", "clues",
+      "Captain Ivor Hale confessed to the murder.",
+      "So the killer had been among them all along.", // affirmative — name is correct
+    ]);
+    const fixed = substituteRoleAliasesInPostRevealChapters(prose, cmlHale);
+    expect(fixed.chapters[3].paragraphs[0]).toContain("Captain Ivor Hale had been among them");
+  });
+
+  it("keeps the name in a POSSESSIVE alias even under negation (referential use)", () => {
+    const prose = chOf([
+      "opening", "clues",
+      "Captain Ivor Hale was arrested at dawn.",
+      "She had not been the killer's target after all.", // possessive → referential → name is right
+    ]);
+    const fixed = substituteRoleAliasesInPostRevealChapters(prose, cmlHale);
+    expect(fixed.chapters[3].paragraphs[0]).toContain("Captain Ivor Hale's target");
+    expect(fixed.chapters[3].paragraphs[0]).not.toContain("responsible's");
+  });
+
+  it("covers the contracted negation forms (wasn't / couldn't have been)", () => {
+    const prose = chOf([
+      "opening", "clues",
+      "Captain Ivor Hale was arrested for the murder.",
+      "Hugo Vane wasn't the murderer, whatever the village said.",
+    ]);
+    const fixed = substituteRoleAliasesInPostRevealChapters(prose, cmlHale);
+    expect(fixed.chapters[3].paragraphs[0]).toContain("wasn't responsible");
+    expect(fixed.chapters[3].paragraphs[0]).not.toContain("wasn't Captain");
+  });
+});

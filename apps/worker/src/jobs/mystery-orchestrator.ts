@@ -24,7 +24,7 @@ import { scoreStory, createLLMRubricJudge } from "@cml/rubric-score";
 // Agent 5 redesign shadow (10_agent_5 §9.1): the authoritative clue-spec derived from the CML.
 import { deriveClueSpec } from "@cml/clue-spec";
 import type { CaseData } from "@cml/cml";
-import { loadSeedCMLFiles, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
+import { loadSeedCMLFiles, findUnplantedDiscriminatingClues, assembleScoringChapterTexts } from "@cml/prompts-llm";
 import type {
   ClueDistributionResult,
   FairPlayAuditResult,
@@ -542,14 +542,10 @@ function assembleCharacterBundle(
 
 /** Assemble each chapter into its own string (title + body), in order. */
 function assembleChapters(prose: any): string[] {
-  const chapters = Array.isArray(prose?.chapters) ? prose.chapters : [];
-  return chapters
-    .map((c: any) => {
-      const body = Array.isArray(c?.paragraphs) ? c.paragraphs.join("\n\n") : String(c?.content ?? c?.text ?? "");
-      const title = c?.title ? `${c.title}\n\n` : "";
-      return `${title}${body}`.trim();
-    })
-    .filter(Boolean);
+  // A_64 §2 (the 7.2 rewire) — DELEGATED to the shared assembly so the dual-value lever's ship-scope
+  // detector and this scoring text provably read the same string (the split-brain that let the cap
+  // fire while the enabled lever stayed silent on every 7.2 arm).
+  return assembleScoringChapterTexts(Array.isArray(prose?.chapters) ? prose.chapters : []);
 }
 
 function assembleFullProse(prose: any): string {
@@ -1172,6 +1168,14 @@ export async function generateMystery(
     let scoringReport: GenerationReport | undefined;
     if (enableScoring && scoreAggregator && reportRepository && scoringLogger) {
       try {
+        // A_64 §2 F5 — the run's FULL warnings array must reach the artifact. The 7.5-pool autopsy
+        // found 67 scaffold-regen calls with zero artifact trace (the #12/#13 forensic-blindness
+        // family): chain logs die with the terminal; the report is the durable record. Everything
+        // Agent 9 pushes to ctx.warnings aliases this array, so this captures the whole run.
+        scoreAggregator.upsertDiagnostic("run_warnings", "orchestrator", "Run Warnings", "run_warnings", {
+          count: warnings.length,
+          warnings: [...warnings],
+        });
         scoringReport = scoreAggregator.generateReport({
           story_id: runId,
           started_at: new Date(startTime),

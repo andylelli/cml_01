@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildSceneGrid } from "../schedule.js";
-import { checkComplete, checkCoverage, checkOrdered } from "../invariants.js";
+import { checkComplete, checkCoverage, checkOrdered, checkPlantBeforeReveal, isClueBearing } from "../invariants.js";
 import { collectObligations } from "../collect.js";
 import { SchedulerInfeasibleError, type SchedulerInput } from "../types.js";
 
@@ -133,5 +133,64 @@ describe("buildSceneGrid — infeasibility surfaces loudly (§4.1)", () => {
     };
     // 20 slots, one clue, no clearances/herrings → cannot be 60% clue-bearing.
     expect(() => buildSceneGrid(sparse, 20)).toThrow(SchedulerInfeasibleError);
+  });
+});
+
+// ── A_64 §3.3 C1 — plant-before-reveal, by construction ──────────────────────────────
+
+describe("plant_clue — every essential reveal at slot ≥3 is foreshadowed ≥2 slots earlier (A_64 C1)", () => {
+  const grid = buildSceneGrid(workedExample(), 10);
+
+  it("satisfies checkPlantBeforeReveal on the worked example", () => {
+    const r = checkPlantBeforeReveal(grid);
+    expect(r.ok, r.violations.join(" | ")).toBe(true);
+  });
+
+  it("plants exist only for essential clues revealed at slot ≥3, and sit ≥2 slots before the reveal", () => {
+    const revealIdx = new Map<string, { idx: number; essential: boolean }>();
+    grid.slots.forEach((s, i) =>
+      s.obligations.forEach((o) => {
+        if (o.kind === "reveal_clue" && !revealIdx.has(o.id)) revealIdx.set(o.id, { idx: i, essential: o.criticality === "essential" });
+      }),
+    );
+    const plantIdx = new Map<string, number>();
+    grid.slots.forEach((s, i) =>
+      s.obligations.forEach((o) => {
+        if (o.kind === "plant_clue" && !plantIdx.has(o.id)) plantIdx.set(o.id, i);
+      }),
+    );
+    for (const [id, p] of plantIdx) {
+      const r = revealIdx.get(id)!;
+      expect(r, `plant for unknown clue ${id}`).toBeTruthy();
+      expect(r.essential, `plant for non-essential ${id}`).toBe(true);
+      expect(p).toBeLessThanOrEqual(r.idx - 2);
+    }
+    // and every essential reveal ≥ slot 3 HAS one
+    for (const [id, r] of revealIdx) {
+      if (r.essential && r.idx >= 2) expect(plantIdx.has(id), `essential ${id} unplanted`).toBe(true);
+    }
+  });
+
+  it("stamps cluesPlanted on the plant slot (the drafting contract's authoritative field)", () => {
+    const planted = grid.slots.flatMap((s) => s.cluesPlanted);
+    const plantObligations = grid.slots.flatMap((s) => s.obligations.filter((o) => o.kind === "plant_clue"));
+    expect(planted.length).toBe(plantObligations.length);
+    expect(planted.length).toBeGreaterThan(0); // the worked example has essentials revealed ≥ slot 3
+  });
+
+  it("labels the plant in the slot's function line, marked incidental/unflagged", () => {
+    const withPlant = grid.slots.find((s) => s.cluesPlanted.length > 0)!;
+    expect(withPlant.function).toMatch(/plant .* incidentally \(significance unflagged until scene \d+\)/);
+  });
+
+  it("plants never sit in the final slot and never count toward clue-bearing coverage", () => {
+    expect(grid.slots[grid.slots.length - 1].cluesPlanted).toEqual([]);
+    const plantOnly = { ...grid.slots[0], obligations: [{ kind: "plant_clue", id: "cX", revealScene: 9 } as const], cluesRevealed: [], cluesPlanted: ["cX"] };
+    expect(isClueBearing(plantOnly)).toBe(false);
+  });
+
+  it("small grids stay feasible — reveals at slots 1–2 are exempt (no plant, no throw)", () => {
+    const tiny = buildSceneGrid(workedExample(), 5);
+    expect(checkPlantBeforeReveal(tiny).ok).toBe(true);
   });
 });

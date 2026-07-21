@@ -511,7 +511,11 @@ const buildDeterministicClearanceParagraph = (
     : clearance.clearance_method
       ? `the ${clearance.clearance_method}`
       : "the testimony and the timeline";
-  return `By the time of the crime, ${supportClause} accounted for ${suspectName}'s movements elsewhere; ${suspectName} could not have been the killer.`;
+  // A_64 §2 F4 — tail says "responsible", not "the killer": the post-reveal role-alias sweep
+  // (agent9-run.ts substituteRoleAliasesInPostRevealChapters) substitutes the culprit's proper name
+  // into role-alias terms, which turned this clearance tail into shipped nonsense ("Beatrice Quill
+  // could not have been Captain Ivor Hale", dv_clock_off ch10). Don't plant the collision.
+  return `By the time of the crime, ${supportClause} accounted for ${suspectName}'s movements elsewhere; ${suspectName} could not have been responsible.`;
 };
 
 export const applyDeterministicClearancePatch = (

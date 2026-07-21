@@ -154,4 +154,4 @@ C1 > C2 > C3. C1+C2 are one contract seen from both ends (plant → cite-the-pla
 | B6 | C3 timeline spine + scene-function contract | ~2h |
 | B7 | Probe run + wiring read | ~1h attended |
 
-**Recommended build order: B1 → B3 → B2 → B4 → B5 → B7; B6 can follow the probe** (C3 is independent of the plant contract and can ride the next singular run).
+**Build order (run budget cut 33%, owner 2026-07-21): B1 → B3 → B2 → B4 → B5 → B6 → B7.** C3 no longer rides a second singular run — the ONE probe carries F1–F5 + C1 + C2 + C3 + the RC3.5 flip together, and M3 is pinned at exactly 4 runs (its acceptance floor), no contingency re-queues budgeted. Remaining runs: **5 total (~£7.5)** — probe 1, M3 4.

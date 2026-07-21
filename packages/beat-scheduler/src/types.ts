@@ -20,6 +20,14 @@ export type Obligation =
   | { kind: "introduce_suspect"; name: string }
   | { kind: "detective_entry"; type: DetectiveType }
   | { kind: "reveal_clue"; id: string; criticality: Criticality; placement: Placement }
+  /**
+   * A_64 §3.3 C1 — SCHEDULER-SYNTHESIZED (never collected from the CML): an incidental, unflagged
+   * appearance of an essential clue ≥2 scenes before its reveal. The 33-run corpus's #1 deficit
+   * (clues 5.21, 96%) is "present but not planted/foreshadowed — introduced too late, unearned":
+   * the grid previously scheduled a clue's REVEAL as its FIRST appearance. `revealScene` is the
+   * 1-based slot of the reveal this plant foreshadows.
+   */
+  | { kind: "plant_clue"; id: string; revealScene: number }
   | { kind: "plant_red_herring"; id: string }
   | { kind: "clear_suspect"; name: string; supportingClues: string[] }
   | { kind: "false_solution" }
@@ -36,6 +44,9 @@ export interface SceneSlot {
   obligations: Obligation[];
   /** Derived from this slot's `reveal_clue` obligations — AUTHORITATIVE (not LLM, not a patch). */
   cluesRevealed: string[];
+  /** A_64 C1 — derived from this slot's `plant_clue` obligations: incidental appearances whose
+   *  significance stays unflagged until the clue's reveal slot. */
+  cluesPlanted: string[];
   /** Golden-Age 10-beat label, assigned in canonical order (for the 10-slot format). */
   beat?: string;
   /** One-line machine summary of the slot's function, e.g. "Reveal c4; clear Marlowe". */

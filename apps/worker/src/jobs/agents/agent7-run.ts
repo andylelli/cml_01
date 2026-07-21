@@ -88,6 +88,65 @@ function deathMethodTellTokens(deathMethod: unknown): string[] {
  * is one Agent 5 tagged isDeathMethodTell, or whose description/pointsTo/keyTerms match a death-method
  * token. No-op when the discovery scene already references one, or when no tell clue exists.
  */
+/** A_64 §3.3 C1 — flag for the plant-before-reveal outline stamp. Runtime getter, never a module
+ *  const (the flags-freeze-before-dotenv trap). Default OFF; the A_64 probe flips it. */
+const isPlantBeforeRevealEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT7_PLANT_BEFORE_REVEAL ?? "");
+
+/**
+ * A_64 §3.3 C1 — plant-before-reveal on the SHIPPED outline (additive, the RC3.5 pattern). The
+ * 33-run corpus's #1 deficit (clues 5.21, 96% ≤6) is one complaint: essential clues surface too late
+ * to feel fair-play — the reveal is the clue's FIRST appearance. For every essential clue whose
+ * outline reveal sits at scene ≥3, stamp `cluesPlanted: [id]` on a scene ≥2 earlier: an incidental,
+ * unflagged appearance for Agent 9 to dramatize (the object/fact on the page; nobody says it
+ * matters). Additive only — never moves or removes a reveal, so it cannot violate the clue-pacing or
+ * coverage gates. Keyed on the outline's OWN reveal placement (the gate's signal), not the shadow
+ * grid's. The beat-scheduler carries the same guarantee by construction (`plant_clue`) for the
+ * authoritative path.
+ */
+export function applyPlantBeforeReveal(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
+  if (!isPlantBeforeRevealEnabled()) return;
+  try {
+    const clues = (ctx.clues?.clues ?? []) as any[];
+    const essential = new Set(
+      clues.filter((c) => c?.criticality === "essential").map((c) => String(c?.id ?? "")).filter(Boolean),
+    );
+    if (essential.size === 0) return;
+    const sceneRefs = flattenNarrativeScenes(narrative);
+    if (sceneRefs.length < 3) return;
+
+    const firstRevealIdx = new Map<string, number>();
+    sceneRefs.forEach((r, i) => {
+      const revealed = Array.isArray((r.scene as any)?.cluesRevealed) ? (r.scene as any).cluesRevealed : [];
+      for (const id of revealed.map(String)) {
+        if (essential.has(id) && !firstRevealIdx.has(id)) firstRevealIdx.set(id, i);
+      }
+    });
+
+    const stamped: string[] = [];
+    for (const [id, revealIdx] of firstRevealIdx) {
+      if (revealIdx < 2) continue; // revealed early already — "introduced too late" cannot apply
+      const poolIdxs = sceneRefs.map((_, i) => i).filter((i) => i <= revealIdx - 2);
+      poolIdxs.sort((i, j) => {
+        const pi = (sceneRefs[i].scene as any).cluesPlanted?.length ?? 0;
+        const pj = (sceneRefs[j].scene as any).cluesPlanted?.length ?? 0;
+        return pi - pj || i - j;
+      });
+      const target = sceneRefs[poolIdxs[0]].scene as any;
+      if (!Array.isArray(target.cluesPlanted)) target.cluesPlanted = [];
+      if (!target.cluesPlanted.includes(id)) {
+        target.cluesPlanted.push(id);
+        stamped.push(`${id}→scene ${poolIdxs[0] + 1} (reveal ${revealIdx + 1})`);
+      }
+    }
+    if (stamped.length > 0) {
+      ctx.warnings.push(`[Agent 7 plant-before-reveal] stamped ${stamped.length} plant(s): ${stamped.join("; ")} (A_64 C1).`);
+      console.info(`[Agent 7 plant-before-reveal] ${stamped.join("; ")}`);
+    }
+  } catch (e) {
+    console.warn(`[Agent 7 plant-before-reveal] skipped: ${(e as Error).message}`);
+  }
+}
+
 export function ensureDiscoverySceneMethodTellPresent(ctx: OrchestratorContext, narrative: NarrativeOutline): void {
   if (!isDiscoveryTellEnabled()) return;
   try {
@@ -2153,4 +2212,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // cannot arise from the LLM omitting it. Runs after coverage so it sees the final clue placement.
   ensureDiscriminatingTestEvidencePresent(ctx, narrative);
   ensureDiscoverySceneMethodTellPresent(ctx, narrative);
+  // A_64 §3.3 C1 (flag-gated, default OFF): plant essential clues ≥2 scenes before their reveal.
+  // Runs LAST so it sees the final clue placement (incl. the discovery-tell addition above).
+  applyPlantBeforeReveal(ctx, narrative);
 }

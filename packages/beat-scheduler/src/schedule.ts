@@ -9,7 +9,7 @@
  */
 
 import { collectObligations } from "./collect.js";
-import { checkComplete, checkCoverage, checkOrdered, isClueBearing } from "./invariants.js";
+import { checkComplete, checkCoverage, checkOrdered, checkPlantBeforeReveal, isClueBearing } from "./invariants.js";
 import {
   type Act,
   type Obligation,
@@ -32,6 +32,7 @@ interface MutSlot {
   act: Act;
   obligations: Obligation[];
   cluesRevealed: string[];
+  cluesPlanted: string[];
 }
 
 function actCounts(n: number): { a1: number; a2: number; a3: number } {
@@ -49,6 +50,7 @@ function actCounts(n: number): { a1: number; a2: number; a3: number } {
 function add(slot: MutSlot, o: Obligation): void {
   slot.obligations.push(o);
   if (o.kind === "reveal_clue" && !slot.cluesRevealed.includes(o.id)) slot.cluesRevealed.push(o.id);
+  if (o.kind === "plant_clue" && !slot.cluesPlanted.includes(o.id)) slot.cluesPlanted.push(o.id);
 }
 
 function functionString(o: Obligation): string {
@@ -58,6 +60,7 @@ function functionString(o: Obligation): string {
     case "introduce_suspect": return `introduce ${o.name}`;
     case "detective_entry": return `detective enters (${o.type})`;
     case "reveal_clue": return `reveal ${o.id}`;
+    case "plant_clue": return `plant ${o.id} incidentally (significance unflagged until scene ${o.revealScene})`;
     case "plant_red_herring": return `plant herring ${o.id}`;
     case "clear_suspect": return `clear ${o.name}`;
     case "false_solution": return "the false solution";
@@ -80,6 +83,7 @@ export function buildSceneGrid(input: SchedulerInput, sceneCount: number): Scene
     act: (i < a1 ? 1 : i < a1 + a2 ? 2 : 3) as Act,
     obligations: [],
     cluesRevealed: [],
+    cluesPlanted: [],
   }));
   const lastIdx = N - 1;
   const actIdxs = (act: Act): number[] => slots.map((s, i) => (s.act === act ? i : -1)).filter((i) => i >= 0);
@@ -173,12 +177,34 @@ export function buildSceneGrid(input: SchedulerInput, sceneCount: number): Scene
   // ── coverage lift: spread stacked reveals into empty eligible slots ───────────
   liftCoverage(slots, testIdx, lastIdx, revealIdxByClue);
 
+  // ── A_64 §3.3 C1 — plant-before-reveal, by construction ──────────────────────
+  // The 33-run corpus's #1 deficit (clues 5.21, 96% ≤6) is one complaint: clues aren't planted
+  // before they're needed — the reveal was the FIRST appearance. Every essential reveal landing at
+  // slot ≥3 gets a synthesized plant_clue ≥2 slots earlier (least-loaded-first): an incidental,
+  // unflagged appearance for the drafting contract to dramatize. Runs AFTER liftCoverage because the
+  // lift can relocate reveals; a reveal at slot ≤2 is already early and needs no foreshadow.
+  const finalRevealIdx = new Map<string, { idx: number; essential: boolean }>();
+  slots.forEach((s, i) =>
+    s.obligations.forEach((o) => {
+      if (o.kind === "reveal_clue" && !finalRevealIdx.has(o.id)) {
+        finalRevealIdx.set(o.id, { idx: i, essential: o.criticality === "essential" });
+      }
+    }),
+  );
+  for (const [id, r] of finalRevealIdx) {
+    if (!r.essential || r.idx < 2) continue;
+    const pool = slots.map((_, i) => i).filter((i) => i <= r.idx - 2);
+    pool.sort((i, j) => slots[i].obligations.length - slots[j].obligations.length || i - j);
+    add(slots[pool[0]], { kind: "plant_clue", id, revealScene: r.idx + 1 });
+  }
+
   // ── assemble ─────────────────────────────────────────────────────────────────
   const finalSlots: SceneSlot[] = slots.map((s, i) => ({
     sceneNumber: s.sceneNumber,
     act: s.act,
     obligations: s.obligations,
     cluesRevealed: s.cluesRevealed,
+    cluesPlanted: s.cluesPlanted,
     beat: N === 10 ? GOLDEN_AGE_BEATS[i] : undefined,
     function: s.obligations.map(functionString).join("; ") || "connective scene",
   }));
@@ -199,6 +225,8 @@ export function buildSceneGrid(input: SchedulerInput, sceneCount: number): Scene
   if (!coverage.ratioOk) {
     throw new SchedulerInfeasibleError(`coverage ${Math.round(coverage.ratio * 100)}% < 60% — too few clue-bearing slots for ${N} scenes`);
   }
+  const plants = checkPlantBeforeReveal(grid);
+  if (!plants.ok) throw new SchedulerInfeasibleError(`plant-before-reveal broken — ${plants.violations[0]}`);
   return grid;
 }
 

@@ -39,6 +39,7 @@ export {
   checkComplete,
   checkOrdered,
   checkCoverage,
+  checkPlantBeforeReveal,
   isClueBearing,
 } from "./invariants.js";
-export type { CompletenessResult, OrderingResult, CoverageResult } from "./invariants.js";
+export type { CompletenessResult, OrderingResult, CoverageResult, PlantCoverageResult } from "./invariants.js";

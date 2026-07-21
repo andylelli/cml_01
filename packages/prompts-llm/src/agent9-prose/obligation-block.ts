@@ -496,6 +496,23 @@ export function buildChapterObligationBlock(
       lines.push(`  - Clue obligations: none for this chapter.`);
     }
 
+    // A_64 §3.3 C1 — PLANT obligations: the outline (applyPlantBeforeReveal / the scheduler's
+    // plant_clue) stamped essential clues to APPEAR here incidentally, ≥2 scenes before their
+    // reveal. The corpus's #1 deficit is "clues introduced too late / not foreshadowed — unearned":
+    // the plant is the foreshadow. The clue is ON the page; its significance is NOT.
+    const cluesPlanted: string[] = Array.isArray((scene as any)?.cluesPlanted)
+      ? ((scene as any).cluesPlanted as any[]).map(String)
+      : [];
+    if (cluesPlanted.length > 0) {
+      lines.push(`  - PLANT OBLIGATIONS (incidental appearances): each item below MUST appear in this chapter as a passing physical detail a character sees, handles, or walks past — with its significance UNFLAGGED:`);
+      for (const clueId of cluesPlanted) {
+        const clue = clueMap.get(clueId);
+        const observable = clue ? surfaceSpecKeyTerms(deriveClueObservable(clue)) : 'the physical detail this clue concerns';
+        lines.push(`    • ${observable} [plant:${clueId}]`);
+      }
+      lines.push(`    Rules: set dressing only. NO character comments on its importance, NO narrator hint ("little did they know", "something about it seemed off" are FORBIDDEN), NO inference drawn. It simply exists in the scene, naturally. Its significance surfaces in a LATER chapter — planting it casually here is what makes that later reveal feel fair.`);
+    }
+
     // Fix 5: Interrogation differentiation — if this scene interrogates a suspect who was
     // already interrogated in a recent chapter, inject a mandatory differentiation directive.
     if (recentlyInterrogatedSuspects.size > 0) {
@@ -655,7 +672,49 @@ export function buildChapterObligationBlock(
       // A_58 #1: the reveal repeatedly failed "no resolution event" + "close in-scene". Make both explicit.
       lines.push(`  - ⚠ RESOLUTION EVENT REQUIRED: this chapter must contain a concrete resolution beat — the culprit CONFESSES, is ARRESTED/taken into custody, or the detective explicitly names them as the murderer with the evidence. A reflective summary is NOT a resolution event.`);
       lines.push(`  - ⚠ CLOSE IN-SCENE (final paragraph): end the chapter INSIDE the scene — on a line of dialogue, a physical action, or a sensation. Do NOT end on a narrator's summary verdict ("the case was closed", "justice had been served", "X was responsible"). The last sentence should be something a character does, says, or feels in the moment.`);
+
+      // A_64 §3.3 C2 — THE EARNED REVEAL. The 33-run corpus's ending complaint, near-verbatim: "the
+      // reveal relies on confession rather than logical deduction from earlier clues" (63% deficit)
+      // and clues "feel unearned". The fix: walk the deduction through the essential clues in the
+      // order the reader met them, citing each one's earlier on-page appearance — and demote the
+      // confession to confirmation. (This is also what structurally retires the B5 injector: a
+      // walked chain IS the culprit-evidence linkage.)
+      {
+        // Clues the reader has already seen: every cluesRevealed in outline scenes BEFORE this one,
+        // in narrative order (identity match into allOutlineScenes; chapter-index fallback).
+        const outline: any[] = Array.isArray(allOutlineScenes) ? allOutlineScenes : [];
+        let sceneCut = outline.findIndex((s: any) => s === scene);
+        if (sceneCut < 0) sceneCut = Math.max(0, chapterNumber - 1);
+        const priorClueIds: string[] = [];
+        for (const s of outline.slice(0, sceneCut)) {
+          for (const id of (Array.isArray(s?.cluesRevealed) ? s.cluesRevealed : []).map(String)) {
+            if (!priorClueIds.includes(id)) priorClueIds.push(id);
+          }
+        }
+        const walked = priorClueIds
+          .map((id) => clueMap.get(id))
+          .filter((c): c is Clue => Boolean(c) && (c as Clue).criticality === "essential")
+          .slice(0, 6);
+        if (walked.length > 0) {
+          lines.push(`  - ⚠ THE DEDUCTION MUST BE WALKED, NOT ASSERTED: the detective retraces the essential clues IN THE ORDER THE READER MET THEM, citing each one's earlier on-page appearance (where it was, who was present) BEFORE drawing its inference:`);
+          walked.forEach((c, i) => {
+            lines.push(`      ${i + 1}. ${surfaceSpecKeyTerms(deriveClueObservable(c))} [${c.id}]`);
+          });
+          lines.push(`    Each step must reference the moment the reader first saw the clue, so the chain can be verified from memory — "we all saw it, we simply read it wrong" is the register. A reveal that asserts conclusions without citing these appearances FAILS.`);
+        }
+        lines.push(`  - ⚠ CONFESSION CONFIRMS, NEVER SUPPLIES: the deduction chain must be COMPLETE — culprit named, mechanism explained, evidence walked — BEFORE any confession begins. The confession may corroborate, supply motive colour, or add emotional weight; it must NOT introduce the decisive fact. If deleting the confession would break the logical case, restructure so the deduction stands alone.`);
+      }
     }
+    // A_64 §3.3 C2 — the AFTERMATH beat. Corpus ending complaint #2 (near-verbatim across runs):
+    // "lacks a satisfying emotional payoff; the implications are not explored; feels abrupt". The
+    // grid schedules a denouement in the final slot; this gives it CONTENT.
+    const lastChapterInPlan = Array.isArray(macroArcPlan) && macroArcPlan.length > 0
+      ? Math.max(...macroArcPlan.map((e) => e.chapter))
+      : undefined;
+    if (lastChapterInPlan != null && chapterNumber === lastChapterInPlan) {
+      lines.push(`  - AFTERMATH REQUIRED (final chapter): after the resolution event, the fallout must land — at least two paragraphs in which (a) the motive is understood in HUMAN terms by those left behind (what it cost, what it says about the household), and (b) at least one named character's changed circumstance is SHOWN in-scene, not summarized. Do NOT end on the arrest/confession line, and do NOT end on a verdict sentence.`);
+    }
+
     // §3.3b: Sensory obligation injection
     const selectedVariant = sensoryVariantsByChapter?.[chapterNumber];
     if (selectedVariant) {

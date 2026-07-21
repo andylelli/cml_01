@@ -16,6 +16,7 @@ function obligationSig(o: Obligation): string {
     case "clear_suspect":
       return `${o.kind}:${o.name}`;
     case "reveal_clue":
+    case "plant_clue":
     case "plant_red_herring":
       return `${o.kind}:${o.id}`;
     default:
@@ -113,6 +114,13 @@ export function checkOrdered(grid: SceneGrid): OrderingResult {
         case "plant_red_herring":
           if (falseIdx >= 0 && idx > falseIdx) v.push(`red herring ${o.id} (slot ${idx + 1}) planted after the false solution it feeds (slot ${falseIdx + 1})`);
           break;
+        case "plant_clue": {
+          // A_64 C1 — a plant must sit ≥2 slots before the reveal it foreshadows.
+          const rp = revealByClue.get(o.id);
+          if (rp == null) v.push(`plant_clue ${o.id} (slot ${idx + 1}) foreshadows a clue that is never revealed`);
+          else if (idx > rp - 2) v.push(`plant_clue ${o.id} (slot ${idx + 1}) is not ≥2 slots before its reveal (slot ${rp + 1})`);
+          break;
+        }
         case "reveal_solution":
           if (idx !== lastIdx) v.push(`reveal_solution is not the final beat (slot ${idx + 1} of ${grid.slots.length})`);
           break;
@@ -135,7 +143,38 @@ export interface CoverageResult {
   violations: string[];
 }
 
-/** A slot is clue-bearing if it reveals a clue OR cites prior clues (clearance/test) OR plants a herring. */
+/**
+ * A_64 §3.3 C1 — the plant-before-reveal guarantee: every ESSENTIAL clue revealed at slot ≥3 has a
+ * plant_clue ≥2 slots earlier. Reveals at slots 1–2 are already early (the corpus complaint —
+ * "introduced too late" — cannot apply) and are exempt.
+ */
+export interface PlantCoverageResult {
+  ok: boolean;
+  violations: string[];
+}
+
+export function checkPlantBeforeReveal(grid: SceneGrid): PlantCoverageResult {
+  const violations: string[] = [];
+  const plantIdxByClue = new Map<string, number>();
+  grid.slots.forEach((slot, idx) => {
+    for (const o of slot.obligations) {
+      if (o.kind === "plant_clue" && !plantIdxByClue.has(o.id)) plantIdxByClue.set(o.id, idx);
+    }
+  });
+  grid.slots.forEach((slot, idx) => {
+    for (const o of slot.obligations) {
+      if (o.kind !== "reveal_clue" || o.criticality !== "essential" || idx < 2) continue;
+      const p = plantIdxByClue.get(o.id);
+      if (p == null) violations.push(`essential clue ${o.id} (reveal slot ${idx + 1}) has no plant slot`);
+      else if (p > idx - 2) violations.push(`essential clue ${o.id}: plant (slot ${p + 1}) is not ≥2 slots before the reveal (slot ${idx + 1})`);
+    }
+  });
+  return { ok: violations.length === 0, violations };
+}
+
+/** A slot is clue-bearing if it reveals a clue OR cites prior clues (clearance/test) OR plants a herring.
+ *  A_64 C1 note: plant_clue deliberately does NOT count — plants are incidental, unflagged appearances,
+ *  and counting them would loosen the ≥60% coverage guarantee that predates them. */
 export function isClueBearing(slot: SceneGrid["slots"][number]): boolean {
   if (slot.cluesRevealed.length > 0) return true;
   return slot.obligations.some(

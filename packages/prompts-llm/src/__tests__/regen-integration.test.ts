@@ -13,7 +13,13 @@ import {
   runScaffoldRegenPass,
   runMechanismRevealRegenPass,
   runVoiceLeakageRegenPass,
+  applyScaffoldExhaustionFloor,
+  culpritEvidenceLinkInText,
+  assembleScoringChapterTexts,
+  detectDualValueAtShipScope,
+  runDualValueFullStoryResidualPass,
 } from "../agent9-prose/regen-integration.js";
+import { detectScaffoldNotProse } from "@cml/prose-guard";
 import {
   deriveMechanismTerms,
   chapterFullyExplainsMechanism,
@@ -82,8 +88,11 @@ describe("instructionForDefect — maps kind to a concrete in-scene instruction"
       /witnessed deduction/i,
     );
   });
-  it("scaffold → rewrite as grounded prose preserving the fact", () => {
-    expect(instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose" })).toMatch(/grounded in-scene prose/i);
+  it("scaffold → REPLACE the machine-inserted wording entirely (A_64 F3), conveying the fact in-scene", () => {
+    const instr = instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose" });
+    expect(instr).toMatch(/machine-inserted template text/i);
+    expect(instr).toMatch(/REPLACE each flagged sentence entirely/);
+    expect(instr).toMatch(/do not reuse or lightly edit its wording/i); // the dv_clock_off echo failure
   });
   it("clue_too_late → add the observation within the first quarter, keeping the later mention", () => {
     const instr = instructionForDefect({ ...clueDefect, kind: "clue_too_late" });
@@ -99,7 +108,7 @@ describe("instructionForDefect — maps kind to a concrete in-scene instruction"
     expect(instr).toMatch(/do NOT summarize what is known/i);
     // ordinary scaffold details keep the normal wording — the override fires only on the A1 lead
     const normal = instructionForDefect({ ...clueDefect, kind: "scaffold_not_prose", detail: "the trail bent toward the gardener" });
-    expect(normal).toMatch(/grounded in-scene prose/i);
+    expect(normal).toMatch(/REPLACE each flagged sentence entirely/);
     expect(normal).not.toMatch(/assembled listeners/i);
   });
 });
@@ -526,6 +535,89 @@ describe("runScaffoldRegenPass — RC1.2/RC1.3 endgame de-templating (P4)", () =
     expect(onUnresolved).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/dropped_locked_fact|lowered score/));
     expect(res.chapter.paragraphs.join(" ")).toMatch(/half past three/); // original retained
   });
+
+  // ── A_64 §2 F3 — the exhaustion floor (the dv_clock_off / v_tide_enforce ship-time residual) ──
+
+  // The A_64 §1.3 shipped sentence, verbatim (dv_clock_off ch10, call 48): the regen echoed it back
+  // and the pass shipped it behind an invisible warning. The floor must de-template it while keeping
+  // every fact value ("nine to ten PM", both names).
+  const A3_SHIPPED =
+    "By the time of the crime, the Alibi confirmed: nine to ten PM accounted for Beatrice Quill's movements elsewhere; Beatrice Quill could not have been responsible.";
+  // The A_64 §1.4 shipped sentence, verbatim (v_tide_enforce ch10): the B5 injector template.
+  const B5_SHIPPED =
+    "Captain Ivor Hale was responsible, and the evidence placed the matter beyond all reasonable doubt.";
+
+  it("FLOOR: de-templates the shipped A3 clearance sentence, preserving every fact value", () => {
+    const chapter: ProseChapter = { title: "Ch10", paragraphs: ["The room held its breath.", A3_SHIPPED] };
+    const { chapter: out, floored } = applyScaffoldExhaustionFloor(chapter);
+    expect(floored).toEqual(["A3:accounted_for_movements"]);
+    const text = out.paragraphs.join(" ");
+    expect(detectScaffoldNotProse(text)).toEqual([]); // the ship-time recheck (facts.ts) cannot cap this
+    expect(text).toContain("nine to ten PM"); // locked-fact value survives
+    expect(text).toContain("placed Beatrice Quill elsewhere");
+    expect(text).toContain("could not have been responsible"); // clearance meaning intact
+  });
+
+  it("FLOOR: de-templates the shipped B5 culprit-evidence sentence, keeping attribution AND evidence linkage", () => {
+    const chapter: ProseChapter = { title: "Ch10", paragraphs: [B5_SHIPPED, "The tide had turned at last."] };
+    const { chapter: out, floored } = applyScaffoldExhaustionFloor(chapter);
+    expect(floored).toEqual(["B5:beyond_reasonable_doubt"]);
+    const text = out.paragraphs.join(" ");
+    expect(detectScaffoldNotProse(text)).toEqual([]);
+    expect(text).toContain("Captain Ivor Hale was responsible"); // attribution kept
+    expect(text).toMatch(/evidence/i); // the culprit-evidence gate (critical) must stay satisfied
+  });
+
+  it("FLOOR: is a no-op on clean prose and on non-floored families (A1 stays watched, not rewritten)", () => {
+    const clean: ProseChapter = { title: "Ch2", paragraphs: ["Evelyn crossed the wet lawn without a word."] };
+    expect(applyScaffoldExhaustionFloor(clean)).toEqual({ chapter: clean, floored: [] });
+    const a1: ProseChapter = { title: "Ch2", paragraphs: ["She weighed the timing, and the trail bent toward the gardener."] };
+    const res = applyScaffoldExhaustionFloor(a1);
+    expect(res.floored).toEqual([]);
+    expect(res.chapter.paragraphs).toEqual(a1.paragraphs); // silent-sibling doctrine: only observed families floor
+  });
+
+  it("PASS TAIL: when the regen ECHOES the A3 template back (the dv_clock_off failure), the floor fires and the shipped chapter is detector-clean", async () => {
+    const chapter: ProseChapter = { title: "Ch10", paragraphs: ["The room held its breath.", A3_SHIPPED] };
+    const client = {
+      // the model reproduces the flagged sentence verbatim — both attempts
+      chat: vi.fn(async () => ({ content: JSON.stringify({ chapter }) })),
+    } as any;
+    const res = await runScaffoldRegenPass({
+      chapter,
+      chapterNumber: 10,
+      bible,
+      regen: makeRegenFn({ client }),
+      maxAttemptsPerDefect: 1,
+    });
+    expect(res.ran).toBe(true);
+    expect(res.unresolved.length).toBeGreaterThan(0); // the regen loop honestly failed…
+    expect(res.floored).toEqual(["A3:accounted_for_movements"]); // …and the floor caught it
+    const text = res.chapter.paragraphs.join(" ");
+    expect(detectScaffoldNotProse(text)).toEqual([]);
+    expect(text).toContain("nine to ten PM");
+  });
+
+  it("PASS TAIL: the floor does NOT fire when the regen genuinely dramatizes the scaffold", async () => {
+    const chapter: ProseChapter = { title: "Ch10", paragraphs: ["The room held its breath.", A3_SHIPPED] };
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch10",
+            paragraphs: [
+              "The room held its breath.",
+              '"Nine to ten PM — I watched Beatrice Quill cross the yard myself," Cook said, and nobody doubted her.',
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runScaffoldRegenPass({ chapter, chapterNumber: 10, bible, regen: makeRegenFn({ client }) });
+    expect(res.ran).toBe(true);
+    expect(res.floored).toEqual([]);
+    expect(res.chapter.paragraphs.join(" ")).toContain("Cook said");
+  });
 });
 
 describe("mechanism-detect — the single-source predicate the S8 pass and the rubric cap both key off", () => {
@@ -776,5 +868,119 @@ describe("runVoiceLeakageRegenPass — RC5.3 enforce-with-repair (cross-speaker 
     expect(res.ran).toBe(true);
     expect(res.repaired).toEqual(["voice_leak_ch5_1"]); // ONE grouped obligation, not two
     expect(client.chat).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ── A_64 §2 F1 — the shared culprit-evidence link predicate (the v_tide_enforce split-brain) ──
+
+describe("culpritEvidenceLinkInText — ONE predicate for the RC1.4 regen pass and the B5 injector", () => {
+  const CULPRIT = "Captain Ivor Hale";
+
+  it("links on full name + culprit-term + evidence-term", () => {
+    expect(
+      culpritEvidenceLinkInText(CULPRIT, "Captain Ivor Hale was responsible because the evidence held."),
+    ).toBe(true);
+  });
+
+  it("links on the capitalized surname with boundaries", () => {
+    expect(culpritEvidenceLinkInText(CULPRIT, "Hale did it; the timeline proves it.")).toBe(true);
+  });
+
+  it("does NOT link on the lowercase common word ('hale and hearty' — the false-linked side of the split-brain)", () => {
+    expect(
+      culpritEvidenceLinkInText(CULPRIT, "They found him hale and hearty; the killer had left evidence behind."),
+    ).toBe(false);
+  });
+
+  it("does NOT link on a substring inside another word ('Whitehall')", () => {
+    expect(
+      culpritEvidenceLinkInText(CULPRIT, "The Whitehall office held the killer's evidence file."),
+    ).toBe(false);
+  });
+
+  it("links on a lowercase FULL name (case drift must not re-open the split)", () => {
+    expect(
+      culpritEvidenceLinkInText(CULPRIT, "captain ivor hale was the murderer, therefore the case closed."),
+    ).toBe(true);
+  });
+});
+
+// ── A_64 §2 — the 7.2 dual-value rewire: cap-scope detection + the ship-scope residual arm ──
+
+describe("dual-value at SHIP scope — the 7.2 'enabled and silent' split-brain", () => {
+  const pair = { values: ["ten past nine", "a quarter to eight"] as [string, string] };
+  const crossChapter: any[] = [
+    { title: "Chapter 1", paragraphs: ["The study was cold.", "The watch on the desk read ten past nine."] },
+    { title: "Chapter 2", paragraphs: ["The tide tables gave a quarter to eight for the last crossing.", "Nobody spoke."] },
+  ];
+
+  it("assembleScoringChapterTexts mirrors the rubric's text (title + double-newline joins)", () => {
+    const texts = assembleScoringChapterTexts(crossChapter);
+    expect(texts[0]).toBe("Chapter 1\n\nThe study was cold.\n\nThe watch on the desk read ten past nine.");
+    expect(texts).toHaveLength(2);
+  });
+
+  it("fires ACROSS a chapter boundary where the per-chapter lever is silent by construction", () => {
+    expect(detectDualValueAtShipScope(crossChapter, pair)).toBe(true);
+    // neither chapter alone carries both values — the per-chapter pass cannot see this
+    for (const ch of crossChapter) {
+      const t = (ch.paragraphs as string[]).join(" ").toLowerCase();
+      expect(t.includes(pair.values[0]) && t.includes(pair.values[1])).toBe(false);
+    }
+  });
+
+  it("stays silent when a contrast connective binds the pair", () => {
+    const bound: any[] = [
+      { title: "Chapter 1", paragraphs: ["The watch on the desk read ten past nine."] },
+      { title: "Chapter 2", paragraphs: ["Yet the tide tables gave a quarter to eight — the watch could not be trusted."] },
+    ];
+    expect(detectDualValueAtShipScope(bound, pair)).toBe(false);
+  });
+
+  it("residual pass: no-op when the ship-scope detector is clear", async () => {
+    const client = { chat: vi.fn() } as any;
+    const bound: any[] = [
+      { title: "Chapter 1", paragraphs: ["The watch on the desk read ten past nine."] },
+      { title: "Chapter 2", paragraphs: ["Yet the tide tables gave a quarter to eight."] },
+    ];
+    const res = await runDualValueFullStoryResidualPass({
+      chapters: bound, bible, pair, regen: makeRegenFn({ client }),
+    });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("residual pass: binds a cross-chapter pair when the regen adds the contrast (acceptance = the gate's own signal)", async () => {
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Chapter 2",
+            paragraphs: ["Yet the tide tables gave a quarter to eight for the last crossing — the watch could not be right.", "Nobody spoke."],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runDualValueFullStoryResidualPass({
+      chapters: crossChapter.map((c) => ({ ...c })), bible, pair, regen: makeRegenFn({ client }),
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toBe(true);
+    expect(detectDualValueAtShipScope(res.chapters, pair)).toBe(false); // the cap provably cannot fire
+  });
+
+  it("residual pass: an ECHO regen fails honestly (ran, not repaired) — the cap prediction warning path", async () => {
+    const onUnresolved = vi.fn();
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({ chapter: { title: "Chapter 2", paragraphs: ["The tide tables gave a quarter to eight for the last crossing.", "Nobody spoke."] } }),
+      })),
+    } as any;
+    const res = await runDualValueFullStoryResidualPass({
+      chapters: crossChapter.map((c) => ({ ...c })), bible, pair, regen: makeRegenFn({ client }), onUnresolved,
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toBe(false);
+    expect(onUnresolved).toHaveBeenCalled();
   });
 });

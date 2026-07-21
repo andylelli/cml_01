@@ -39,8 +39,12 @@ import {
   buildStoryBible,
   runCritiqueRewritePass,
   runScaffoldRegenPass,
+  applyScaffoldExhaustionFloor,
+  culpritEvidenceLinkInText,
   runTemplateLeakageRegenPass,
   runDualValueContrastRegenPass,
+  runDualValueFullStoryResidualPass,
+  detectDualValueAtShipScope,
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
   runCaseTransitionRegenPass,
@@ -58,7 +62,7 @@ import {
   type BatchCommitRecord,
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse } from "@cml/prose-guard";
 import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -2357,13 +2361,14 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
   const liveCulprits = computeLiveCulprits(prose, cml);
   if (liveCulprits.length === 0) return prose;
 
-  const CULPRIT_TERMS = /\b(culprits?|killers?|murderers?|responsible|did\s+it)\b/i;
-  const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
-
   return injectSentenceIfAbsent(
     prose,
     liveCulprits,
-    (culprit, text) => nameInTextShared(culprit, text) && CULPRIT_TERMS.test(text) && EVIDENCE_TERMS.test(text),
+    // A_64 §2 F1 — the SAME predicate the RC1.4 regen pass gates on (class-#5 doctrine: the floor
+    // consumes the gate's own signal). The previous local matcher (case-sensitive substring) and the
+    // pass's (case-insensitive `\b(name|surname)\b`) disagreed — the v_tide_enforce split-brain that
+    // pasted B5 after the pass had judged the story linked.
+    (culprit, text) => culpritEvidenceLinkInText(culprit, text),
     (culprit) => `${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`,
     'enforceCulpritEvidencePresence',
   );
@@ -2586,21 +2591,44 @@ export const substituteRoleAliasesInPostRevealChapters = (prose: any, cml: any):
   if (arrestCi < 0) return prose; // no arrest/confession → nothing is post-reveal
   const roleAliasReplaceRe = new RegExp(ROLE_ALIAS_TERMS.source, 'gi');
 
+  // A_64 §2 F4 — the role-predicate guard. In a NEGATED identity predicate ("X could not have been
+  // the killer", "X was not the murderer") the alias names a ROLE, not the culprit; substituting the
+  // culprit's proper name there produced shipped nonsense ("Beatrice Quill could not have been
+  // Captain Ivor Hale", dv_clock_off ch10). A bare skip is not available either — the detector this
+  // sweep repairs (identity_role_alias_break, abort-class critical) still flags the alias post-pivot.
+  // So under negation we substitute the role word "responsible": clearance meaning preserved, no
+  // role-alias term left for the detector, no identity corruption.
+  const NEGATED_IDENTITY_TAIL = /(?:\bnot|n['’]t|\bnever)(?:\s+(?:have|has|had))?(?:\s+(?:been|be))?\s*$/i;
+
   let substitutions = 0;
+  let negatedSubstitutions = 0;
   const updatedChapters = chapters.map((chapter: any, ci: number) => {
     if (ci <= arrestCi) return chapter; // at/before the reveal — skip
     const paragraphs = Array.isArray(chapter.paragraphs) ? (chapter.paragraphs as string[]) : [];
     const updatedParagraphs = paragraphs.map((p: string) => {
-      const updated = p.replace(roleAliasReplaceRe, primaryCulprit);
-      if (updated !== p) substitutions++;
-      return updated;
+      return p.replace(roleAliasReplaceRe, (...args: any[]) => {
+        const match = String(args[0]);
+        const offset = args[args.length - 2] as number;
+        const before = p.slice(Math.max(0, offset - 40), offset);
+        const after = p.slice(offset + match.length, offset + match.length + 2);
+        // Possessive follow ("the killer's target") is REFERENTIAL — the culprit's name is correct
+        // there even under negation; "responsible's" would be broken. Guard only bare predicates.
+        if (NEGATED_IDENTITY_TAIL.test(before) && !/^['’]/.test(after)) {
+          negatedSubstitutions++;
+          return "responsible";
+        }
+        substitutions++;
+        return primaryCulprit;
+      });
     });
     return { ...chapter, paragraphs: updatedParagraphs };
   });
 
-  if (substitutions > 0) {
+  if (substitutions > 0 || negatedSubstitutions > 0) {
     console.warn(
-      `[Agent 9] substituteRoleAliasesInPostRevealChapters: replaced ${substitutions} role alias(es) → "${primaryCulprit}" in post-reveal chapters.`,
+      `[Agent 9] substituteRoleAliasesInPostRevealChapters: replaced ${substitutions} role alias(es) → "${primaryCulprit}"` +
+        (negatedSubstitutions > 0 ? ` and ${negatedSubstitutions} negated identity predicate(s) → "responsible" (A_64 F4)` : "") +
+        ` in post-reveal chapters.`,
     );
   }
   return { ...prose, chapters: updatedChapters };
@@ -4604,6 +4632,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           if (pass.repaired.length > 0) {
             ctx.warnings.push(`[Agent 9] regen-scaffold dramatized [${pass.repaired.join(", ")}] in ch${i + 1}.`);
           }
+          // A_64 §2 F3 — the exhaustion floor de-templated a machine-inserted signature the regen
+          // could not dramatize. Log loudly: each firing is an injector the regen loop lost to.
+          if ((pass.floored ?? []).length > 0) {
+            ctx.warnings.push(`[Agent 9] regen-scaffold FLOORED [${(pass.floored ?? []).join(", ")}] in ch${i + 1} — injector template de-templated deterministically (A_64 F3).`);
+          }
         }
       }
       prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
@@ -4699,6 +4732,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         }
       }
       prose = applyStandardPostProcessingChain(prose); // re-run hygiene over any rewritten chapters
+      // A_64 §2 (the 7.2 rewire) — ship-scope residual arm. The per-chapter loop above detects on
+      // one chapter's text; the CAP detects on the assembled full story (the 7.2 split-brain: lever
+      // enabled + silent on every arm while tide_on capped). If the cap-scope detector still fires
+      // after the loop + hygiene, bind the pair with a targeted regen whose acceptance IS the
+      // cap-scope detector (candidate spliced into the full story).
+      const residual = await runDualValueFullStoryResidualPass({
+        chapters: prose.chapters,
+        bible: regenBible,
+        pair: worldState.contradiction,
+        regen: dualValueRegen,
+        onUnresolved: (d, reason) =>
+          ctx.warnings.push(`[Agent 9] regen-dual-value SHIP-SCOPE UNRESOLVED ${d.obligationRef}: ${reason} (cap will apply).`),
+      });
+      if (residual.ran) {
+        if (residual.repaired) {
+          prose.chapters = residual.chapters;
+          prose = applyStandardPostProcessingChain(prose);
+          ctx.warnings.push(`[Agent 9] regen-dual-value bound the contradiction at SHIP scope (cross-chapter window — A_64 7.2 rewire).`);
+        } else {
+          ctx.warnings.push(`[Agent 9] regen-dual-value: flat pair persists at SHIP scope — the dualValueNoContrast cap WILL apply (honest).`);
+        }
+      }
     } catch (err) {
       ctx.warnings.push(`[Agent 9] regen-dual-value pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
     } finally {
@@ -5541,6 +5596,43 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       }
     } catch (err) {
       ctx.warnings.push(`[Agent 9] walk-on repair skipped: ${err instanceof Error ? err.message : String(err)}.`);
+    }
+  }
+
+  // ── A_64 §2 F2 — the scaffold SHIP-CHECK: the last write wins ─────────────────────────────────
+  // Every deterministic injector above (culprit-evidence B5 at its call site, resolution, suspect-
+  // elimination) runs AFTER the scaffold regen pass, so a template pasted here ships straight into
+  // the rubric's facts.ts recheck — the exact Mechanism B of the 7.5-pool autopsy (v_tide_enforce:
+  // B5 written 17s before scoring, in no LLM call). This is the FINAL text-mutation slot: re-run the
+  // ship-time detector per chapter and de-template deterministically (value- and evidence-preserving
+  // floors); anything the floor can't cover ships capped WITH a warning that reaches the artifact.
+  // No text-writing pass may be added after this block — validation and scoring read this text.
+  if (Array.isArray(prose?.chapters)) {
+    for (let ci = 0; ci < prose.chapters.length; ci++) {
+      const chText = ((prose.chapters[ci]?.paragraphs ?? []) as string[]).join(" ");
+      const shipHits = detectScaffoldNotProse(chText);
+      if (shipHits.length === 0) continue;
+      const { chapter: floored, floored: rules } = applyScaffoldExhaustionFloor(prose.chapters[ci]);
+      if (rules.length > 0) {
+        prose.chapters[ci] = floored;
+        ctx.warnings.push(
+          `[Agent 9] scaffold SHIP-CHECK floored [${rules.join(", ")}] in ch${ci + 1} — template re-introduced after the regen pass (A_64 F2; suspect the injector ordering).`,
+        );
+      }
+      const residual = detectScaffoldNotProse(((prose.chapters[ci]?.paragraphs ?? []) as string[]).join(" "));
+      if (residual.length > 0) {
+        ctx.warnings.push(
+          `[Agent 9] scaffold SHIP-CHECK residual [${residual.map((h) => h.rule).join(", ")}] in ch${ci + 1} — no floor covers this family; the prose≤4 cap WILL apply (honest).`,
+        );
+      }
+    }
+    // Dual-value at cap scope — warn-only (a contrast needs prose, not a deterministic splice): a
+    // firing here perfectly predicts the dualValueNoContrast cap, since scoring runs the SAME
+    // function on the SAME assembled text. Telemetry for the corpus era (A_64 7.2 rewire).
+    if (worldState.contradiction && detectDualValueAtShipScope(prose.chapters, worldState.contradiction)) {
+      ctx.warnings.push(
+        `[Agent 9] SHIP-CHECK: dual-value flat pair present at cap scope — the clues≤6 cap WILL apply (honest).`,
+      );
     }
   }
 
