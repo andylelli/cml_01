@@ -383,3 +383,50 @@ describe("dropMalformedParsedClues — phantom-clue filter", () => {
     expect(droppedWarnings).toEqual([]);
   });
 });
+
+// ── A_65b Ph6 — the STRICT STRUCTURAL CONTRACT renders FIRST-PASS ────────────────────────────
+// Previously these shapes reached the LLM only in retry mode (gated on violations/warnings) and
+// retries are disabled by default — verified on the A_64 probe: 0 strict lines in its single
+// Agent-5 request, and deterministic synthesis fired on 5/5 planted-era runs.
+describe("agent5 strict contract — first-pass rendering (A_65b Ph6)", () => {
+  const minimalCml: any = {
+    CASE: {
+      meta: { title: "T", crime_class: { category: "murder" } },
+      false_assumption: { type: "temporal", statement: "s" },
+      culpability: { culprits: ["Iwan Hale"] },
+      hidden_model: { mechanism: { description: "m" } },
+      inference_path: { steps: [{ observation: "o", correction: "c" }] },
+      cast: [{ name: "Iwan Hale", culprit_eligibility: "eligible" }],
+    },
+  };
+
+  it("renders required ids, the direct-culprit clue, and the late slot in the FIRST-PASS user prompt", () => {
+    const prompt = buildCluePrompt({
+      cml: minimalCml,
+      clueDensity: "moderate",
+      redHerringBudget: 2,
+      strictContract: {
+        requiredIdToSourceMappings: [{ id: "clue_id_1", sourceInCML: "CASE.cast[0].alibi_window" }],
+        requiredDirectCulpritClue: {
+          id: "clue_culprit_direct_iwan_hale",
+          culpritName: "Iwan Hale",
+          allowedSourcePaths: ["CASE.cast[0].alibi_window"],
+          requiredPhrases: ["Iwan Hale"],
+        },
+        requiredLateClueSlot: { id: "clue_late_optional_slot_1", placement: "late", criticality: "optional" },
+        requiredStepCoverageFloors: [{ step: 1, requireContradiction: true, requireMapped: true }],
+      },
+    } as any);
+    expect(prompt.user).toContain("STRICT STRUCTURAL CONTRACT");
+    expect(prompt.user).toContain('REQUIRED ID: "clue_id_1"');
+    expect(prompt.user).toContain('DIRECT CULPRIT CLUE: id="clue_culprit_direct_iwan_hale"');
+    expect(prompt.user).toContain('LATE SLOT: id="clue_late_optional_slot_1"');
+    expect(prompt.user).toContain("STEP 1: must have a CONTRADICTION-evidence clue");
+    expect(prompt.user).toMatch(/NEVER meta-boilerplate/);
+  });
+
+  it("renders nothing extra without a strictContract (no behavior change on the default path)", () => {
+    const prompt = buildCluePrompt({ cml: minimalCml, clueDensity: "moderate", redHerringBudget: 2 } as any);
+    expect(prompt.user).not.toContain("STRICT STRUCTURAL CONTRACT");
+  });
+});

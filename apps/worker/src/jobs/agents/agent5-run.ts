@@ -3303,6 +3303,21 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     clueDensity,
     redHerringBudget: 2,
     fairPlayFeedback: mergeStrictPromptFeedback(proactiveFirstPassFeedback),
+    // A_65b Ph6 — the strict structural contract, FIRST-PASS. The merge above carries it only
+    // into the retry-mode prompt block (which renders only when violations/warnings exist — a
+    // condition the first pass never meets, verified on the probe: 0 strict lines in its one
+    // Agent-5 request). This channel renders unconditionally, so the LLM AUTHORS the required
+    // ids / direct-culprit clue / late slot in scene register and the deterministic synthesis
+    // (5/5 runs in the warning corpus) becomes the rare counted floor.
+    strictContract: strictPromptFeedbackBase
+      ? {
+          strictSourcePaths: strictPromptFeedbackBase.strictSourcePaths,
+          requiredIdToSourceMappings: strictPromptFeedbackBase.requiredIdToSourceMappings,
+          requiredStepCoverageFloors: strictPromptFeedbackBase.requiredStepCoverageFloors,
+          requiredLateClueSlot: strictPromptFeedbackBase.requiredLateClueSlot,
+          requiredDirectCulpritClue: strictPromptFeedbackBase.requiredDirectCulpritClue,
+        }
+      : undefined,
     runId: ctx.runId,
     projectId: ctx.projectId || "",
     // Pillar 1: pass locked facts so clue descriptions honour canonical values

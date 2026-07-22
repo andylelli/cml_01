@@ -20,6 +20,7 @@ import { resolveDesignModel } from "./utils/model-tiers.js";
 import type { ClueDistributionResult } from "./agent5-clues.js";
 import type { PromptComponents } from "./types.js";
 import { jsonrepair } from "jsonrepair";
+import { looksTruncatedJson } from "./shared/json-boundary.js";
 
 // ============================================================================
 // Types
@@ -92,6 +93,13 @@ function parseJsonWithRepair<T>(raw: string, contextLabel: string): T {
     return JSON.parse(raw) as T;
   } catch {
     // Fall through to repair/extraction attempts.
+  }
+
+  // A_65b Ph8 — truncation guard: a completion-limit truncated payload must be REFUSED, not
+  // jsonrepair-closed into a phantom structure (the a3c2973f class). Routes to the existing
+  // parse-failure path.
+  if (looksTruncatedJson(raw)) {
+    throw new Error(`LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk)`);
   }
 
   try {

@@ -9,6 +9,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
+import { looksTruncatedJson } from "./shared/json-boundary.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import type { CastDesign } from "./agent2-cast.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
@@ -157,6 +158,10 @@ export async function generateBackgroundContext(
       try {
         parsed = JSON.parse(response.content) as BackgroundContextArtifact;
       } catch {
+        // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
+        if (looksTruncatedJson(response.content)) {
+          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
+        }
         parsed = JSON.parse(jsonrepair(response.content)) as BackgroundContextArtifact;
       }
 

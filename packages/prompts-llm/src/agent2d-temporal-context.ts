@@ -10,6 +10,7 @@ import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { getGenerationParams } from "@cml/story-validation";
 import { jsonrepair } from "jsonrepair";
+import { looksTruncatedJson } from "./shared/json-boundary.js";
 import type { SettingRefinement } from "./agent1-setting.js";
 import { withValidationRetry, buildValidationFeedback } from "./utils/validation-retry-wrapper.js";
 import { simpleHash, generateSpecificDate } from "./shared/temporal-anchor.js";
@@ -360,6 +361,10 @@ export async function generateTemporalContext(
       try {
         context = JSON.parse(response.content);
       } catch (error) {
+        // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
+        if (looksTruncatedJson(response.content)) {
+          throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair");
+        }
         const repaired = jsonrepair(response.content);
         context = JSON.parse(repaired);
       }

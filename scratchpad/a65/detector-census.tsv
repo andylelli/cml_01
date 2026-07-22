@@ -1,0 +1,6 @@
+detector	pre_fix_era	sevenx_era	planted_era	verdict
+recurring-phrases (post-Ph4 exclusions)	30/34 (88%)	46/52 (88%)	5/5 (100%)	PRECISION-SUSPECT or live residual (>20% of CURRENT shipped)
+evidentiary-register (>=3 hits)	7/34 (21%)	17/52 (33%)	2/5 (40%)	PRECISION-SUSPECT or live residual (>20% of CURRENT shipped)
+scaffold (any rule)	16/34 (47%)	24/52 (46%)	0/5 (0%)	ok on current era
+template-leakage	20/34 (59%)	12/52 (23%)	0/5 (0%)	ok on current era
+report-style-clearance	10/34 (29%)	5/52 (10%)	0/5 (0%)	ok on current era

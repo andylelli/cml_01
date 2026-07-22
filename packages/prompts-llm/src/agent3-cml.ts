@@ -11,6 +11,7 @@ import { validateCml, isVictimArchetype } from "@cml/cml";
 import { reviseCml } from "./agent4-revision.js";
 import { patchCmlNode, makeLlmPatchProposer } from "./agent4-patch.js";
 import { jsonrepair } from "jsonrepair";
+import { looksTruncatedJson } from "./shared/json-boundary.js";
 import yaml from "js-yaml";
 import type { CMLPromptInputs, CMLGenerationResult, PromptMessages } from "./types.js";
 import {
@@ -1209,6 +1210,17 @@ export async function generateCML(
           return JSON.parse(raw);
         } catch (error) {
           jsonParseError = error as Error;
+        }
+
+        // A_65b Ph8 — truncation guard on THE CML BOUNDARY: jsonrepair closes a completion-limit
+        // truncated payload into a valid-looking case with silently missing tail sections (the
+        // phantom-clue class, a3c2973f, at the highest-stakes boundary). A truncated payload is
+        // REFUSED, routing to the existing parse-failure retry path instead of ingesting a phantom.
+        if (looksTruncatedJson(raw)) {
+          jsonParseError = new Error(
+            "CML payload looks completion-limit truncated (no closing brace) — refusing jsonrepair (phantom-structure risk); treat as parse failure",
+          );
+          return undefined;
         }
 
         try {

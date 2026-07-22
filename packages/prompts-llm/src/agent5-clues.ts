@@ -43,6 +43,22 @@ export interface ClueExtractionInputs {
   retryAttempt?: number; // 1-based attempt index for logging/file naming
   /** Pillar 1: canonical locked facts from registry — must be honoured verbatim in clue descriptions */
   lockedFacts?: Array<{ id: string; value: string; description: string }>;
+  /**
+   * A_65b Ph6 (reliability plan) — the STRICT STRUCTURAL CONTRACT, first-pass. Previously these
+   * exact shapes (required ids→sources, the direct-culprit clue, the late slot, step floors)
+   * reached the LLM only in RETRY mode — and retries are disabled by default ("deterministic
+   * remediation mode active") — so the deterministic synthesis fired on EVERY run (5/5 in the
+   * warning corpus) and its templated text ("remains a late texture detail in the case
+   * background") is the machine register the judge reads. Stating the contract up front lets the
+   * LLM AUTHOR these clues in scene register; the synthesis machinery stays as the counted floor.
+   */
+  strictContract?: {
+    strictSourcePaths?: string[];
+    requiredIdToSourceMappings?: Array<{ id: string; sourceInCML: string }>;
+    requiredStepCoverageFloors?: Array<{ step: number; requireContradiction: boolean; requireMapped: boolean }>;
+    requiredLateClueSlot?: { id: string; placement: "late"; criticality: "optional" | "supporting" };
+    requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
+  };
 }
 
 /**
@@ -65,6 +81,38 @@ export function deathMethodTellHints(deathMethod: string): { examples: string; t
   if (/drown/.test(m))
     return { examples: "for drowning: water in the lungs, sodden clothing, or weed on the body", tokens: ["water", "sodden", "drown", "lungs"] };
   return { examples: "a concrete physical sign of how the victim died, visible at the scene", tokens: ["wound", "mark", "residue", "collapse"] };
+}
+
+/**
+ * A_65b Ph6 — render the strict structural contract for the FIRST-PASS prompt. These exact shapes
+ * previously reached the LLM only on retry (and retries are off by default), so deterministic
+ * synthesis authored them from templates on every run. Stated up front, the LLM authors them in
+ * scene register and the synthesis becomes the rare, counted floor.
+ */
+function buildStrictContractBlock(sc: ClueExtractionInputs["strictContract"]): string {
+  if (!sc) return "";
+  const lines: string[] = [];
+  lines.push("- STRICT STRUCTURAL CONTRACT (author ALL of these YOURSELF, as concrete scene-register clues — a character sees/hears/finds something. NEVER meta-boilerplate like \"adds texture to the case background\"; if you omit any, a deterministic pass will synthesize flat machine text in its place, which reads as machine-made):");
+  for (const m of (sc.requiredIdToSourceMappings ?? []).slice(0, 24)) {
+    lines.push(`    • REQUIRED ID: "${m.id}" with sourceInCML=${m.sourceInCML}`);
+  }
+  const dc = sc.requiredDirectCulpritClue;
+  if (dc?.id) {
+    lines.push(`    • DIRECT CULPRIT CLUE: id="${dc.id}" — observable evidence tying ${dc.culpritName} uniquely to the crime` +
+      (dc.allowedSourcePaths?.length ? ` (source from: ${dc.allowedSourcePaths.slice(0, 6).join(", ")})` : "") +
+      (dc.requiredPhrases?.length ? `; the pointsTo must include: ${dc.requiredPhrases.slice(0, 6).join(", ")}` : ""));
+  }
+  const ls = sc.requiredLateClueSlot;
+  if (ls?.id) {
+    lines.push(`    • LATE SLOT: id="${ls.id}" placement=late criticality=${ls.criticality} — a real, observable late-story detail (a found object, an overheard line), never filler.`);
+  }
+  for (const f of (sc.requiredStepCoverageFloors ?? []).slice(0, 16)) {
+    if (f.requireContradiction) lines.push(`    • STEP ${f.step}: must have a CONTRADICTION-evidence clue (observable, scene-register).`);
+  }
+  if (sc.strictSourcePaths?.length) {
+    lines.push(`    • ALLOWED SOURCE PATHS (bracket-index leaf paths): ${sc.strictSourcePaths.slice(0, 20).join(", ")}`);
+  }
+  return lines.length > 1 ? lines.join("\n") : "";
 }
 
 const STEP_SOURCE_RE = /^CASE\.inference_path\.steps\[(\d+)\]\./i;
@@ -961,6 +1009,7 @@ Rules:
 - OUTPUT SHAPE CONTRACT: Include all three fixed IDs exactly once each - clue_mechanism_visibility_core, clue_core_contradiction_chain, clue_core_elimination_chain.
 - MECHANISM VISIBILITY: At least one essential early/mid clue must surface the core mechanism detail from hidden_model.mechanism.description.
 ${firstAttemptContracts}
+${buildStrictContractBlock(inputs.strictContract)}
 - CONTRADICTION CHAIN: At least one essential early/mid contradiction clue must explicitly overturn the false assumption.
 - ELIMINATION CHAIN: At least one essential early/mid elimination clue must explicitly eliminate an eligible non-culprit and narrow the solution.
 - DISCRIMINATING TEST ID CONTRACT: Every CASE.discriminating_test.evidence_clues ID must appear as a clue id.

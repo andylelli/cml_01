@@ -14,6 +14,7 @@ import type { AzureOpenAIClient, Message } from "@cml/llm-client";
 import type { CaseData } from "@cml/cml";
 import { validateArtifact } from "@cml/cml";
 import { jsonrepair } from "jsonrepair";
+import { looksTruncatedJson } from "./shared/json-boundary.js";
 import type { WorldDocumentResult } from "./types/world-document.js";
 import { getGenerationParams } from "@cml/story-validation";
 
@@ -1005,8 +1006,14 @@ export async function generateWorldDocument(
 
     let parsed: WorldDocumentResult;
     try {
-      const repaired = jsonrepair(response.content);
-      parsed = JSON.parse(repaired);
+      // A_65b Ph8 — truncation guard before repair (phantom-structure risk, the a3c2973f class)
+      if (response.content && looksTruncatedJson(response.content) ) {
+        try { parsed = JSON.parse(response.content); }
+        catch { throw new Error("LLM payload looks completion-limit truncated (no closing brace) — refusing jsonrepair"); }
+      } else {
+        const repaired = jsonrepair(response.content);
+        parsed = JSON.parse(repaired);
+      }
     } catch (parseError) {
       lastError = new Error(`JSON parse failure on attempt ${attempt}: ${parseError}`);
       if (attempt === 3) {
