@@ -13,15 +13,8 @@ const root = "C:/CML";
 const outTsv = path.join(root, "scratchpad/a65/measures.tsv");
 const archivesRoot = path.join(root, "documentation/prompts/actual");
 
-// Frozen measure families (script-local until the prose-guard register detector lands in the
-// craft plan's Phase 1.5 — then this imports it; same strings by contract).
-const REGISTER_FAMILY = [
-  /\bwitness(?:es)? (?:report|recall|remember|confirm)\w*\b/i,
-  /\banalysis (?:of [^.!?]{0,40})?(?:shows|suggests|indicates|reveals)\b/i,
-  /\bstatements? confirm\w*\b/i,
-  /\brecords? indicat\w*\b/i,
-  /\blogs? confirm\w*\b/i,
-];
+// A_65 Ph1.5 landed — the register detector is now single-sourced from prose-guard.
+import { detectEvidentiaryRegister } from "file:///C:/CML/packages/prose-guard/dist/register.js";
 // Inference density: sentences carrying explicit deductive connectives. Frozen measure list.
 const INFERENCE_CONNECTIVES =
   /\b(?:therefore|which (?:meant|proved|proves|implied)|this (?:meant|proved|suggested)|could only (?:mean|have)|if\b[^.!?]{5,120}\bthen\b|deduced|concluded that|it followed that)\b/i;
@@ -81,8 +74,7 @@ function measureRun(rid, logPath) {
     const md = fs.readFileSync(sp, "utf8");
     const chapters = chaptersOf(md);
     scaffoldShip = detectScaffoldNotProse(md).length;
-    registerCount = Object.values(chapters).reduce(
-      (n, t) => n + REGISTER_FAMILY.reduce((m, re) => m + (t.match(new RegExp(re.source, "gi")) ?? []).length, 0), 0);
+    registerCount = Object.values(chapters).reduce((n, t) => n + detectEvidentiaryRegister(t).length, 0);
     // inference density: % of chapters whose sentence set trips the connective family ≥3 times
     const dens = Object.entries(chapters).map(([ch, t]) => {
       const sents = t.match(/[^.!?]+[.!?]+/g) ?? [];

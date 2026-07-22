@@ -175,6 +175,45 @@ describe("A_64 C3 — the timeline spine + one-question rule on interrogation sc
   });
 });
 
+describe("A_65 Phase 1 — the withheld-inference contract", () => {
+  it("a pre-reveal chapter gets OBSERVATION ONLY + the INFERENCE EMBARGO — and neither the two-paragraph mandate nor Points-to", () => {
+    const outline = makeOutline();
+    const block = buildBlockFor(outline[4], 5, { outline }); // ch5: reveals c_tide (early) + nothing licensed
+    expect(block).toContain("INFERENCE EMBARGO (pre-reveal)");
+    expect(block).toContain("OBSERVATION ONLY");
+    expect(block).not.toContain("MANDATORY TWO-PARAGRAPH STRUCTURE");
+    expect(block).not.toContain("explicitly reason");
+    expect(block).not.toContain("Points to:");
+  });
+
+  it("the false-solution chapter is LICENSED to reason — honestly wrong — and carries no embargo", () => {
+    const outline = makeOutline();
+    const block = buildBlockFor(outline[5], 6, { outline }); // "The False Solution"
+    expect(block).toContain("REASONING LICENSED (the false solution)");
+    expect(block).toContain("WRONG conclusion the evidence permits");
+    expect(block).not.toContain("INFERENCE EMBARGO");
+  });
+
+  it("the reveal chapter keeps clue meaning (Points to) — the walk needs it — and carries no embargo", () => {
+    const outline = makeOutline();
+    const withRevealClue = { ...outline[8], cluesRevealed: ["c_watch"] };
+    const block = buildBlockFor(withRevealClue, 9, { outline });
+    expect(block).toContain("Points to:");
+    expect(block).not.toContain("INFERENCE EMBARGO");
+    expect(block).not.toContain("OBSERVATION ONLY");
+  });
+
+  it("NET-SMALLER (the Phase-1 law): the built block is smaller than the pre-inversion baseline", () => {
+    // Baseline measured 2026-07-23 pre-inversion on this exact fixture: 39 lines
+    // (scratchpad measure-block.mjs). The obligation block must END Phase 1 smaller than it
+    // started — pruning, not accretion.
+    const outline = makeOutline();
+    const scene = { ...outline[4], cluesRevealed: ["c_tide", "c_watch"] };
+    const block = buildBlockFor(scene, 5, { outline });
+    expect(block.split("\n").length).toBeLessThan(39);
+  });
+});
+
 describe("A_64 C2 — the aftermath beat on the final chapter", () => {
   it("the last chapter of the macro arc carries the AFTERMATH REQUIRED contract", () => {
     const outline = makeOutline();

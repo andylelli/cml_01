@@ -62,7 +62,7 @@ import {
   type BatchCommitRecord,
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
-import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse } from "@cml/prose-guard";
+import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister } from "@cml/prose-guard";
 import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -5633,6 +5633,29 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       ctx.warnings.push(
         `[Agent 9] SHIP-CHECK: dual-value flat pair present at cap scope — the clues≤6 cap WILL apply (honest).`,
       );
+    }
+    // A_65 Phase 1 — two MEASURES (never gates, never regens):
+    // (a) derived-contradiction leak: a PRE-reveal chapter assembling both canonical pair values
+    //     into an explicit inference (the F3 chapter-one class); assembly AT/after the pivot is
+    //     the walk's job and legal.
+    // (b) evidentiary-register narration count (the frozen family) — the machine-register residual.
+    {
+      const chapterTextsA65 = (prose.chapters as any[]).map((ch: any) => ((ch?.paragraphs ?? []) as string[]).join(" "));
+      const pivotA65 = computeArrestPivotIndex(chapterTextsA65);
+      if (worldState.contradiction && pivotA65 > 0) {
+        for (let ci = 0; ci < pivotA65; ci++) {
+          const leaks = detectDerivedContradictionLeak(chapterTextsA65[ci], worldState.contradiction);
+          if (leaks.length > 0) {
+            ctx.warnings.push(
+              `[Agent 9] SHIP-CHECK: derived-contradiction ASSEMBLED pre-reveal in ch${ci + 1} (the F3 class): "${leaks[0].sentence.slice(0, 120)}…"`,
+            );
+          }
+        }
+      }
+      const registerTotal = chapterTextsA65.reduce((n, t) => n + detectEvidentiaryRegister(t).length, 0);
+      if (registerTotal > 0) {
+        ctx.warnings.push(`[Agent 9] SHIP-CHECK: evidentiary-register narration ×${registerTotal} (measure — the withheld-inference contract should push this down).`);
+      }
     }
   }
 

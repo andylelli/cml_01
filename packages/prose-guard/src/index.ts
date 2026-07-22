@@ -60,5 +60,7 @@ export {
 export type { ScaffoldHit } from "./scaffold.js";
 // A_62 RC-2.2 — moved from @cml/rubric-score so the generation loop can reach it (the RC-2 rule);
 // rubric-score now imports it from here, so the Item 9 cap and its regen lever share one detector.
-export { detectDualValueNoContrast } from "./dual-value.js";
+export { detectDualValueNoContrast, detectDerivedContradictionLeak } from "./dual-value.js";
+export { detectEvidentiaryRegister } from "./register.js";
+export type { RegisterHit } from "./register.js";
 export type { DiscriminatingPair } from "./dual-value.js";

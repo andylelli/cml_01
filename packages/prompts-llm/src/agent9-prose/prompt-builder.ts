@@ -1101,7 +1101,7 @@ export function buildClueDescriptionBlock(
       seenMappingIds.add(id);
       mappingOnlyLines.push(`\n• [${id}] ${entry.delivery_method}`);
       mappingOnlyLines.push(`  Category: structural | Placement: early (Act ${entry.act_number})`);
-      mappingOnlyLines.push(`  Points to: what this observation reveals about the time or circumstances of the crime.`);
+      mappingOnlyLines.push(`  Later significance (context for YOU — do NOT state this in the prose; meaning surfaces only at the licensed deduction beats): what this observation reveals about the time or circumstances of the crime.`);
     }
   }
 
@@ -1115,7 +1115,9 @@ export function buildClueDescriptionBlock(
     // R-A (M0): surface key terms, never the full description/pointsTo sentence (LLM copies it).
     lines.push(`\n• [${clue.id}] ${surfaceSpecKeyTerms(String(clue.description ?? ''))}`);
     lines.push(`  Category: ${clue.category} | Criticality: ${clue.criticality}${clue.supportsInferenceStep ? ` | Supports inference step ${clue.supportsInferenceStep}` : ''}`);
-    lines.push(`  Points to: ${surfaceSpecKeyTerms(String(clue.pointsTo ?? ''))}`);
+    // A_65 Phase 1 — planning context, never prose: the old "Points to:" label read as an
+    // instruction to STATE the inference on arrival (the instant-inference syndrome, F3).
+    lines.push(`  Later significance (context for YOU — do NOT state this in the prose; meaning surfaces only at the licensed deduction beats): ${surfaceSpecKeyTerms(String(clue.pointsTo ?? ''))}`);
   }
   lines.push(...mappingOnlyLines);
   lines.push('\nFor each clue above: an attentive reader should be able to find, record, and later use it to reason toward the solution.');

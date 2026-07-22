@@ -59,3 +59,29 @@ export function detectDualValueNoContrast(prose: string, pair: DiscriminatingPai
   }
   return false;
 }
+
+/**
+ * A_65 Phase 1 — the DERIVED-CONTRADICTION LEAK: one sentence assembling BOTH canonical pair
+ * values into an explicit inference ("If the watch stopped at A and the tide was B, then the
+ * chart's prediction could not account for her drowning" — M3-tide CHAPTER ONE, verbatim: the
+ * story's central deduction, solved on page one, A_65 F3). Fixture-narrow BY LAW (A_65 §4): both
+ * values are known strings, so this checks exactly the observed class and never grows into a
+ * reasoning-shape arms race. A MEASURE at pre-reveal scope (assembly at the reveal is the walk's
+ * JOB); positional legality is the caller's to decide.
+ */
+const INFERENCE_ASSEMBLY = /\b(?:if\b|then\b|therefore\b|which (?:meant|means|proved|proves)|could (?:not|only)|cannot|meant that|proves? that)\b/i;
+
+export function detectDerivedContradictionLeak(prose: string, pair: DiscriminatingPair): Array<{ sentence: string }> {
+  const a = String(pair?.values?.[0] ?? "").trim().toLowerCase();
+  const b = String(pair?.values?.[1] ?? "").trim().toLowerCase();
+  if (!a || !b || a === b) return [];
+  const sentences = String(prose ?? "").match(/[^.!?]+[.!?]+/g) ?? [];
+  const out: Array<{ sentence: string }> = [];
+  for (const s of sentences) {
+    const ls = s.toLowerCase();
+    if (ls.includes(a) && ls.includes(b) && INFERENCE_ASSEMBLY.test(ls)) {
+      out.push({ sentence: s.trim().slice(0, 200) });
+    }
+  }
+  return out;
+}

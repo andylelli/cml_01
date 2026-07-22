@@ -363,6 +363,14 @@ export function buildChapterObligationBlock(
     // "who it implicates" reasoning forced into these chapters.
     const isPreRevealChapter = !isDiscriminatingTestChapter && !isRevealChapter && !isPostRevealChapter;
 
+    // A_65 Phase 1 — the scene's register text (beat/title/purpose/summary), used by the
+    // false-solution license below and the C3 interrogation contract further down.
+    const sceneRegisterBlob = `${String((scene as any)?.beat ?? '')} ${String((scene as any)?.title ?? '')} ${String((scene as any)?.purpose ?? '')} ${String((scene as any)?.summary ?? '')}`;
+    // The false-solution chapter is the FIRST licensed reasoning beat: it MUST reason visibly —
+    // honestly, to the wrong conclusion the evidence permits.
+    const isFalseSolutionChapter =
+      isPreRevealChapter && /false.?solution|false theory|wrong (?:theory|conclusion)|convincing (?:wrong|false)/i.test(sceneRegisterBlob);
+
     lines.push(`- Chapter ${chapterNumber}:`);
     // [PHASE 5] Inject structural archetype contract
     if (macroArcPlan) {
@@ -386,6 +394,17 @@ export function buildChapterObligationBlock(
 
     if (chapterNumber === 1 && victimNameForIdentity) {
       lines.push(`  - VICTIM IDENTITY LOCK (MANDATORY): name the victim as "${victimNameForIdentity}" in the discovery scene. After first mention, do not use unnamed placeholders such as "the victim" without naming ${victimNameForIdentity} in the same paragraph.`);
+    }
+    // A_65 Phase 1 — THE WITHHELD-INFERENCE CONTRACT. The 33-run corpus's unified syndrome
+    // (clues unearned · exposition drag · report-register prose · confession-reveal) traces to
+    // the old instant-inference mandate: every clue was observed AND explained on arrival, so
+    // nothing was ever withheld (A_65 F3: chapter 1 carried the solved contradiction). Inference
+    // is now RATIONED: pre-reveal chapters observe; reasoning is licensed at exactly three beats
+    // — the false solution (honestly wrong), the discriminating test, and the walked reveal.
+    if (isFalseSolutionChapter) {
+      lines.push(`  - ⚖ REASONING LICENSED (the false solution): this chapter MAY and SHOULD reason visibly — honestly, to the WRONG conclusion the evidence permits. Cite real observations the reader has seen; let the error be a fair misreading of true clues, never stupidity. This is the story's first assembled theory.`);
+    } else if (isPreRevealChapter) {
+      lines.push(`  - ⛔ INFERENCE EMBARGO (pre-reveal): observations ACCUMULATE here; explicit deduction ("therefore", "which proved", "could only mean", if-A-and-B-then-C assembly of locked values) is RESERVED for the false-solution, discriminating-test, and reveal chapters. Characters may wonder, doubt, or fall silent over a detail — never explain it.`);
     }
     lines.push(`  - Opening: Begin with a character action, spoken line, or clock/time marker — never a location name or location-description phrase.`);
     lines.push(`  - Scene is set in: ${locationAnchor || 'the canonical scene location'} — reference it naturally within the paragraph, never as your opening phrase.`);
@@ -470,16 +489,15 @@ export function buildChapterObligationBlock(
             if (clue.placement === 'early') {
               lines.push(`         Place this OBSERVATION in paragraph 1 or 2 (observation only — no inference about the culprit).`);
             }
+          } else if (isPreRevealChapter) {
+            // A_65 Phase 1 — the old branch here mandated a ¶2 that "explicitly reasons about what
+            // this evidence implies" for every early clue, which serialized the deduction across
+            // chapters 1–8 and left the reveal nothing to assemble. Observation only, meaning later.
+            lines.push(`      OBSERVATION ONLY: put it on the page concretely — a character sees, handles, or hears it inside the scene. The detective may NOTICE (a pause, a second glance, a pocketed item) but must NOT state what it implies.${clue.placement === 'early' ? ' Place the observation in paragraph 1 or 2.' : ''}`);
           } else {
+            // Licensed chapters (discriminating test / reveal) keep the clue's meaning — the walk
+            // and the test cite what each clue proves.
             lines.push(`      Points to: ${surfaceSpecKeyTerms(String(clue.pointsTo ?? ''))}`);
-            if (clue.placement === 'early') {
-              lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
-              lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
-              lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
-              lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
-              lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
-              lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
-            }
           }
         } else {
           // Fallback: no distribution data — use delivery_method from clue_to_scene_mapping if available
@@ -492,14 +510,11 @@ export function buildChapterObligationBlock(
             ? ' ⚠ EARLY PLACEMENT — write this in paragraphs 1 or 2 of the chapter'
             : '';
           lines.push(`    • ${fallbackDesc} [${clueId}]${earlyFlagFallback}`);
-          lines.push(`      Points to: what this observation reveals about the time or circumstances of the crime.`);
-          if (isEarlyMapping) {
-            lines.push(`      ↳ MANDATORY TWO-PARAGRAPH STRUCTURE (must appear in paragraphs 1 or 2 — no later):`);
-            lines.push(`         Paragraph 1: The POV character physically approaches or directly observes this evidence.`);
-            lines.push(`           The narration or dialogue explicitly states what is seen (use the exact locked phrase if one applies).`);
-            lines.push(`         Paragraph 2 (immediately following): The detective or POV character explicitly reasons`);
-            lines.push(`           about what this evidence implies — who it implicates, why it may be unreliable,`);
-            lines.push(`           or what inference it supports. This must be a separate full paragraph, not a sentence appended to Paragraph 1.`);
+          if (isPreRevealChapter) {
+            // A_65 Phase 1 — fallback branch: same inversion as above (observe; never explain).
+            lines.push(`      OBSERVATION ONLY: put it on the page concretely — a character sees, handles, or hears it inside the scene. The detective may NOTICE but must NOT state what it implies.${isEarlyMapping ? ' Place the observation in paragraph 1 or 2.' : ''}`);
+          } else {
+            lines.push(`      Points to: what this observation reveals about the time or circumstances of the crime.`);
           }
         }
       }
@@ -528,7 +543,7 @@ export function buildChapterObligationBlock(
     // "Drags during repetitive alibi discussions" (pacing, 90% deficit) + "timeline muddled by
     // conflicting accounts" (plot_structure, 96%): an interrogation scene that re-litigates the
     // whole board both drags AND drifts. Scope: investigation-register scenes before the reveal.
-    const sceneRegisterBlob = `${String((scene as any)?.beat ?? '')} ${String((scene as any)?.title ?? '')} ${String((scene as any)?.purpose ?? '')} ${String((scene as any)?.summary ?? '')}`;
+    // (sceneRegisterBlob hoisted above for the A_65 false-solution license.)
     const isInterrogationScene =
       isPreRevealChapter && /\b(alibi|interrogat|question|witness|statement|whereabouts|movement|enquir|inquir)/i.test(sceneRegisterBlob);
     if (isInterrogationScene) {
