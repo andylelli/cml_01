@@ -8,17 +8,19 @@
 
 ## 0. PROGRESS TRACKER
 
-| # | Workstream | Cost | Depends on | Status | Last update |
+*(One row per implementation phase — the detailed steps are §5. Statuses ⬜ pending · 🟡 in progress · ✅ done · ⛔ blocked.)*
+
+| Phase | What (workstream) | Cost | Depends on | Status | Last update |
 |---|---|---|---|---|---|
-| R0 | Ground-truth derivations (churn ranking, warning families, retry reasons) | £0 | — | ✅ done (embedded in §1) | 2026-07-22 |
-| R5 | Process debt: preflight dist-check · sleep-guard wrapper · report-outcome honesty | ~1–2h | — | ⬜ | — |
-| R2a | Warning-channel split (informational vs defect) → honest gate accounting | ~1–2h | — | ⬜ | — |
-| R6 | `derive-a65-measures.mjs`: churn + warning-family + craft measures, per probe | ~1–2h | — | ⬜ | — |
-| — | *A_65 Phase 1 probe lands (shared)* | (A_65's) | A_65 Phase 1 | ⬜ | — |
-| R1 | Churn reduction, ranked: re-rank post-Phase-1, then fix top residual causes (atmosphere-repair root-cause first) | ~2–4h each | R6 + Phase-1 probe | ⬜ | — |
-| R2b | Source-layer clue completeness (kill the every-run synthesis) + red-herring separation at source | ~3–5h | R2a ranking | ⬜ | — |
-| R3 | Detector census over the 93-story corpus + precision-fixture retrofit | ~2–3h | R6 | ⬜ | — |
-| R4 | Input-integrity audit: JSON boundaries (truncation/parse) + `repairCaseSoundness` vs the Type-C list | ~2–3h | — | ⬜ | — |
+| — | R0 ground-truth derivations (churn ranking, warning families, retry reasons) | £0 | — | ✅ done (embedded in §1) | 2026-07-22 |
+| **1** | Process debt (R5): preflight dist-check · sleep-guard · report-outcome honesty | ~1–2h | — | ⬜ | — |
+| **2** | Warning-channel split (R2a): info vs warn bands → honest accounting | ~1–2h | — | ⬜ | — |
+| **3** | The measures harness (R6): one derive, baseline row, auto-run per probe | ~1–2h | — | ⬜ | — |
+| **4** | Atmosphere-repair root-cause (R1.1) — corpus-only, parallel with everything | ~2–3h | — | ⬜ | — |
+| **5** | Post-Phase-1-probe re-rank (R1): measure what the inversion killed; fix top residual | ~2–4h | A_65 Phase-1 probe + Phase 3 | ⬜ | — |
+| **6** | Source-layer clue completeness (R2b): kill the every-run synthesis; herring separation at source | ~3–5h | Phase 2 ranking | ⬜ | — |
+| **7** | Detector census over the 93-story corpus + precision-fixture retrofit (R3) | ~2–3h | Phase 3 | ⬜ | — |
+| **8** | Input-integrity audits (R4): JSON boundaries + `repairCaseSoundness` vs Type C | ~2–3h | — | ⬜ | — |
 
 **Era acceptance (from A_65b §5):** aborts+losses stay **0** · corrective-call share **< 30%** (from ~45–65%) · Agent-9 retries **< 3/run** (from 6.2) · atmosphere repairs **< 2/run** (from 7.6) · gate=`passed` becomes the **majority** of shipped runs · zero detector over-firers on the known-good corpus.
 
@@ -92,3 +94,57 @@ Probes are shared with A_65 — reliability never buys its own run. Every workst
 ## 4. What DONE looks like (the era's reliability definition)
 
 A probe that ships with: gate=`passed` · corrective share <30% · atmosphere repairs <2 · retries <3 · zero synthesis warnings · zero detector over-firers — at which point the churn pool has visibly drained, £/run and minutes/run have roughly halved, and the reliability ledger closes the way the abort ledger did: by running out of classes.
+
+---
+
+## 5. The phased implementation plan — what we will actually do
+
+*(Fixture-first throughout; every phase ends with its suites green, tsc clean, and — where dists changed — the Phase-1 preflight passing. No phase buys a run: validation reads come from the probes A_65 already schedules.)*
+
+### Phase 1 — Process debt (retires three A_65b classes by construction)
+1. **`scripts/preflight-dist-check.mjs`**: for each workspace package with a build (every `packages/*` + `apps/worker`), fail loudly if any `src/**` mtime exceeds the newest `dist/**` mtime, naming the stale package. Self-test: touch a src file → preflight exits 1; rebuild → exits 0.
+2. **Wire it in**: first line of every harness template (probe scripts, any future chain) + a note in the campaign README. The grep-the-dist folklore is retired — the check is mechanical now.
+3. **Sleep-guard**: a shared harness snippet — `powercfg /change standby-timeout-ac 0` on entry, `trap 'powercfg /change standby-timeout-ac 45' EXIT` (minutes form) — used by any script expected >30 min unattended. Verify the trap restores on both clean exit and Ctrl-C.
+4. **Report-outcome honesty**: in the orchestrator, derive `run_outcome` from the P0.2 definition (release gate ∈ {passed, warning} → `shipped`); the phase-threshold detail moves to its own field (`phase_thresholds_met: false`), never again masquerading as a run failure. **First inventory every consumer of `run_outcome`** (scan scripts, `mark-interrupted-reports.mjs`, any dashboard) and migrate them in the same change. Fixture: a report with failing phase thresholds + gate=warning asserts `shipped`.
+
+### Phase 2 — The warning-channel split (accounting only; zero behavior change to gates)
+1. **Inventory before code**: confirm empirically which accounting consumes `warnings.length` (the run-logger status vs `release_gate_outcome` — they are different mechanisms; read both call paths first, assume nothing).
+2. **Band classifier**: `classifyRunWarning(w): "info" | "warn"` — a prefix map over OUR OWN emitted strings (bounded and ours, so a frozen map terminates — this is not a paraphrase-chasing detector; the anti-mole law does not apply to our own literals). The §1.2 band-1 families ("Scoring system enabled", novelty divergence, shadow-gate lines, "pre-audit PASS", "deterministic remediation mode") → `info`.
+3. **The F5 diagnostic gains bands**: `run_warnings.details = { info: [...], warn: [...], counts }` — full array still preserved. Status accounting counts `warn` only.
+4. **Fixture**: the probe artifact's 37 warnings classified; asserting the known five info-families land in `info` and the synthesis/inference-coverage lines land in `warn`.
+5. **Acceptance**: next probe's artifact shows banded warnings; a run whose only lines are `info` reports a clean status. Only now does "gate=passed majority" become measurable.
+
+### Phase 3 — The measures harness (the plan's instrument; craft + reliability in one)
+1. **`scratchpad/a65/derive-a65-measures.mjs`**, one run-scoped derive emitting a TSV row: corrective share · retries/regens/repairs by cause label · warning counts by band and family · caps · plant-page compliance (the A_65 script folded in) · inference density per chapter (count of reasoning-connective sentences — reuse the prose-guard connective vocabulary, one source) · evidentiary-register count (the frozen family) · gate status · £-true (chars/4 audit).
+2. **Baseline**: run it over the 5 planted-era runs; commit the baseline rows — the numbers in §1 become machine-derived and re-derivable.
+3. **Auto-run**: harness templates call it after `STORY_SAVED`; the TSV is the era's longitudinal record (append-only, one row per run).
+
+### Phase 4 — Atmosphere-repair root-cause (corpus-only; the one big cause independent of A_65 Phase 1)
+1. **Read the criteria** (`agent9-run.ts` anchor/sensory checks) and extract them into a standalone testable predicate if they aren't already.
+2. **Census them**: run the criteria over every chapter of the 93-story corpus, PLUS specifically the chapters of runs that scored atmosphere ≥8. Fire rate on judge-certified-excellent atmosphere = the precision verdict.
+3. **Fork on evidence**: (a) fires on excellent chapters → Type-A precision defect: recalibrate with innocent fixtures drawn from the atmosphere-8 set, amplification capped; (b) genuinely absent anchors in first drafts → the fix is the DRAFTING sensory contract (front-load what the repair back-fills), and the repair pass becomes the rare floor. Either way: target <2/run, measured on the next probe; the repair pass itself is never deleted (floor, not lever).
+4. **Fixture whichever fork**: innocent look-alikes (fork a) or a drafting-prompt snapshot test (fork b).
+
+### Phase 5 — Post-probe re-rank (the sequencing rule made operational)
+1. When A_65 Phase-1's probe lands, its Phase-3 TSV row IS the re-ranking: compare corrective share, retries, scaffold-regen and mechanism-early counts against the baseline.
+2. **Decision rule**: any cause the inversion cut ≥50% → leave alone (the contract fix is working; iterate there). Any cause flat → it has an independent root: take the top one, root-cause it from its prompt-archive labels, fix generation-side, fixture it.
+3. Expected residuals (predicted now, checked then): atmosphere (Phase 4 owns it), Agent-2 retries (~1/run, schema-shaped), template-linter repeats if opener-independent.
+
+### Phase 6 — Source-layer clue completeness (the every-run synthesis ends)
+1. **Derive the exact gaps** per run from the warn-band: which structural elements were synthesized (direct-culprit clue 5/5, fp_contradiction steps, late slot) and what the synthesized text looked like.
+2. **Move the contract upstream** (`agent3-cml.ts` prompt + schema, `agent5-clues` extraction): the clue set must arrive structurally complete — every inference step names its contradiction/elimination evidence, a direct-culprit clue is AUTHORED (in scene-register language, not template), the late slot is filled. Schema-level presence checks, LLM-authored content.
+3. **Red-herring separation at source** (`agent8`): herrings may not share key signal terms with the true-solution clues — stated in the generation contract; the downstream sanitizer stays as the floor.
+4. **Synthesis machinery is kept as the floor** — with its firing now a `warn`-band event counted by Phase 3, target ~0. Fixture: a CML missing the direct-culprit clue still ships (floor works), and a complete one shows zero synthesis warnings.
+5. *Craft dividend (A_65's register problem, same fix): clue text authored at the source in scene language is what stops the corpus reading as machine-made — this phase is jointly owned by both plans.*
+
+### Phase 7 — The detector census (Type-A prevention at scale)
+1. **Script**: run every deterministic detector family (scaffold, template-leakage, report-style, validation-note, the atmosphere criteria from Phase 4, the template linter, lifecycle death heuristic where runnable offline) over all 93 shipped stories, chapter-wise.
+2. **Rank fire rates.** Shipped stories are known-good by definition; any detector firing on >~20% of them is precision-suspect and gets the kit: an innocent-look-alike fixture set drawn from the corpus hits, an amplification cap (one defect ≠ N×majors — the class-#7 law), and advisory-first status until precision is re-proven.
+3. **Commit the census table** and add the standing rule: no new detector ships without its census run and its fixture kit.
+
+### Phase 8 — Input integrity (Types C/D closed by construction)
+1. **JSON-boundary inventory**: grep every LLM-JSON parse site across agents 1–9; tabulate which have the Agent-5 kit (truncation detect + one retry, parse-boundary filter, honest max_tokens). Add the kit where missing, with a truncated-payload fixture per boundary.
+2. **Type-C checklist**: one `repairCaseSoundness` arm + one fixture per class — dual-detective, dual-victim, cleared-culprit-conflict, victim cast-coverage, beat-enum. Fill gaps in the same pattern (soundness at Agent-3 exit, never discovered chapters later).
+3. **Acceptance**: the inventory tables committed; every row green; the phantom-clue and structural-CML classes become impossible anywhere, not just where they were first seen.
+
+**Order recap:** Phases 1→2→3 in one sitting (~4h, all free) · Phase 4 parallel, corpus-only · Phase 5 waits for A_65 Phase-1's probe · Phases 6→7→8 one per sitting thereafter, each read by Phase 3's measures on the next shared probe.
