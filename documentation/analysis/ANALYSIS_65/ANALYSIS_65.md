@@ -6,6 +6,24 @@
 
 ---
 
+## 0. PROGRESS TRACKER
+
+*(Update this table as work lands; one row per phase, statuses ⬜ pending · 🟡 in progress · ✅ done · ⛔ blocked.)*
+
+| Phase | What | Cost | Depends on | Status | Last update |
+|---|---|---|---|---|---|
+| — | Founding analyses F1–F5 (judge sensitivity, plant compliance, contrast) | £0 | — | ✅ done | 2026-07-22 |
+| **0** | Offset: owner's 4 M3 reads → external mean + gap | ~1.5h owner, £0 | — | ⬜ **owner** | — |
+| **1** | Withheld-Inference build (contract inversion, licensing, register guard, embargo fixture) | ~4–6h attended | — (parallel with 0) | ⬜ | — |
+| **2** | Probe #1 (ONE run) + P5 measures read | ~£1.5 | 1 | ⬜ | — |
+| **3** | Top-6 profile derivation → live-category contracts (rides the next probe) | ~3–4h | — (derivation free) | ⬜ | — |
+| **4** | Instrument decision (offset branch; optional external re-read of probe #1) | owner | 0 | ⬜ **owner** | — |
+| **5** | Standing corpus measures wired into the analyzer | ~1h | — | ⬜ | — |
+
+**Reading the tracker:** Phases 0 and 1 start in parallel today — 0 is the owner's, 1 is build work. The only spend on the board is probe runs at ~£1.5 each; every probe carries the full accumulated contract set, so Phase 3's contracts ride Phase 2's *successor* probe rather than buying their own. If the offset holds (Phase 0) and the live categories reach the top-6 profile (Phases 1–3), F5's arithmetic says the external-80 read is in reach — verified externally at that point, not by the instrument that can't see it (F4).
+
+---
+
 ## 1. Findings (each derivable in minutes from the corpus; scripts committed)
 
 ### F1 — The judge's complaint templates persist on planted-era stories: 5/5
@@ -86,7 +104,42 @@ Promote A_65's scripts to standing derives run on every future singular probe: p
 
 ---
 
-## 3. The do-NOT-do list
+## 3. The phased implementation plan — what we will actually do
+
+### Phase 0 — Pin the offset (owner; parallel with everything)
+1. Read the four M3 stories against the usual external rubric (packet: `scratchpad/m3/read-packet.md`); record the four /100 marks in the packet table.
+2. Derive: external mean, and gap = external mean − 60.8. Gap > 3 → 7.8 recalibration becomes a Phase-4 input; gap ≤ 3 → offset dead, Phase 4 branch B.
+3. While reading, note (free, invaluable): did the planted clues *feel* planted? Did the reveal feel earned? These two impressions are the only measurements of C1/C2 no internal instrument can make.
+
+### Phase 1 — The Withheld-Inference build (the A_64 sequel, fixture-first)
+1. **Fixtures before code** (the house rule): (a) the F3 chapter-1 sentence — *"If Sylvia's watch truly stopped at… then the tide chart's prediction could not account for her drowning"* — becomes the failing fixture for a new derived-contradiction embargo check; (b) evidentiary-register samples from the corpus ("witnesses report…", "analysis of the salt shaker suggests…") become fixtures for the register guard.
+2. **Invert the instant-inference contract** (`obligation-block.ts`): delete the mandatory ¶2 ("explicitly reasons about what this evidence implies") from the early-clue two-paragraph structure; replace with the C1 plant register generalized — *the clue is observed concretely, in scene; the detective may NOTICE (a pause, a second glance, a pocketed item) but never explain; its meaning is not stated in this chapter.* Audit downstream gates that might expect inference text (G6 read-back keys on observation tokens — expected safe; verify, don't assume).
+3. **License inference at exactly three beats**: the false-solution chapter (reasoning REQUIRED, honestly wrong), the discriminating-test chapter (the decisive comparison, already contracted), and the C2 walked reveal (already built — it finally receives material never assembled before). All other chapters: observation only.
+4. **The register guard** (`prose-guard`, new detector): evidentiary-summary narration outside quoted dialogue — the "witnesses report/recall", "analysis shows/suggests", "statements/records/logs confirm(ing)" family. Advisory-only at first; counts flow through the A_64 F5 telemetry into every artifact.
+5. **Extend the embargo** to derived contradictions: the mustNotReveal machinery currently embargoes the culprit and mechanism; it must also catch the "if A and B, then C" assembled-inference form pre-reveal (the F3 leak class).
+6. **Verify like A_64**: unit fixtures green → package + worker suites → tsc → rebuild EVERY dist and grep each for a new string (the stale-dist lesson, now standing rule).
+
+### Phase 2 — Probe #1 and its measures (the only spend)
+1. ONE fresh run on the full accumulated config (A_64 contracts + Phase 1).
+2. Read it with the P5 measures, not the marks: inference-density per chapter must DROP to ~zero outside the three licensed beats; register-guard counts must drop vs the M3 baseline; plant compliance stays ≥90%; zero caps; gate ships. The rubric marks are recorded for the corpus, never concluded from (n=1, K2).
+3. Any abort or wiring miss: same-day-fix doctrine, fixture the class, no rerun until fixed.
+
+### Phase 3 — The top-6 profile, made deliberate (free derivation; contracts ride the next probe)
+1. Derive from the corpus what the 66–74 runs do that the 55–59s don't, per live category: ending (aftermath length and content — M3 endings scored 5–7 *with* the aftermath contract; autopsy what the 7s did that the 5s didn't), atmosphere (already 8.3 at the top — find its floor), premise (Agent-1/3-era property — measure which devices score 8), prose (description density, sentence variance, dialogue share vs marks).
+2. Encode the two or three strongest deltas as drafting-contract revisions (prompt-level, no new subsystems).
+3. These ride the NEXT probe after Phase 2's — one probe per accumulated iteration, never a probe per contract.
+
+### Phase 4 — The instrument decision (owner, once Phase 0 lands)
+- **Branch A (gap ≥ +6):** internal 73 stays the proxy; iterate Phases 1–3 by live categories + P5 measures; external spot-reads at milestones only.
+- **Branch B (gap < +6):** the internal judge cannot certify the target. Owner chooses: a K2-class judge revision (stronger judge model, decomposed rubric, anchored exemplars — a measuring-stick change, made alone, never bundled with a lever), or steering purely by periodic external reads. Optional cheap input either way: externally re-read Phase 2's probe story (~20 min) to test whether withheld inference moved the *felt* experience.
+
+### Phase 5 — Standing measures (make every probe self-measuring)
+1. Promote `scratchpad/a65/` + the Phase-2 measures into one `derive-a65-measures.mjs`: plant compliance, per-chapter inference density, register counts, complaint-template hit-rate vs the frozen A_64 taxonomy, cap profile.
+2. Run it on every future probe automatically; append one row per probe to a tracked measures TSV — the corpus era's longitudinal record.
+
+---
+
+## 4. The do-NOT-do list
 
 - Do not spend levers on clues/plot_structure/pacing **marks** — dead bands (F4) until P4 resolves the instrument.
 - Do not touch the judge prompt as a side effect of anything — measuring-stick changes are owner decisions, made alone.
@@ -94,15 +147,3 @@ Promote A_65's scripts to standing derives run on every future singular probe: p
 - Do not conclude from the probe's marks (n=1, K2); conclude from P5's deterministic measures + the next external read.
 - Do not un-build A_64's contracts if P2 stalls — plants are the precondition for withheld inference, not a competing theory.
 
-## 4. Task board
-
-| # | Task | Cost | Depends on |
-|---|---|---|---|
-| 65.1 | Owner's M3 reads → offset + gap (+7.8 if gap > 3) | ~1.5h owner, £0 | — |
-| 65.2 | P2 build: withheld-inference contracts + register guard + embargo fixture | ~4–6h | — (parallel with 65.1) |
-| 65.3 | P2 probe (ONE run) + P5 measures on it | ~£1.5 | 65.2 |
-| 65.4 | P3 top-6 profile derivation + drafting contracts | ~3–4h | can start free |
-| 65.5 | P4 instrument decision | owner | 65.1 |
-| 65.6 | P5 standing measures wired into the analyzer | ~1h | — |
-
-**Reading the board:** 65.1 and 65.2 can run in parallel today; the P2 probe is the campaign's next spend (~£1.5). If the offset holds and P2+P3 lift the live categories to the top-6 profile, the arithmetic of F5 says the external-80 read is in reach — verified, at that point, by external reads, not by the instrument that can't see it.
