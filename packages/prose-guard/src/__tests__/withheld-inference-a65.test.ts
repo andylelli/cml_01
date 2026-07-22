@@ -47,3 +47,12 @@ describe("detectEvidentiaryRegister — the frozen data-sheet family, narration 
     expect(detectEvidentiaryRegister(prose)).toEqual([]);
   });
 });
+
+describe("A3 honorific blind spot — found by probe #1's EXTERNAL read", () => {
+  it("fires on 'Dr. Mallory Finch's movements elsewhere' (the shipped evader, verbatim)", async () => {
+    const { detectScaffoldNotProse } = await import("../scaffold.js");
+    const shipped =
+      "By the time of the crime, the Solid alibi verified by multiple witnesses. accounted for Dr. Mallory Finch's movements elsewhere; Dr. Mallory Finch could not have been responsible.";
+    expect(detectScaffoldNotProse(shipped).map((h) => h.rule)).toContain("A3:accounted_for_movements");
+  });
+});

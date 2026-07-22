@@ -481,7 +481,9 @@ const SCAFFOLD_EXHAUSTION_FLOORS: ReadonlyArray<{ rule: string; re: RegExp; repl
   // than risk a botched capture.
   {
     rule: "A3:accounted_for_movements",
-    re: /\baccounted for ([^.;!?]{0,40}?)['’]s\s+movements elsewhere\b/gi,
+    // Periods allowed in the captured span (probe-#1 external read: "Dr. Mallory Finch" evaded
+    // the old class — honorific dots blinded the whole single-sourced chain).
+    re: /\baccounted for ([^;!?]{0,40}?)['’]s\s+movements elsewhere\b/gi,
     replacement: "placed $1 elsewhere",
   },
   // B5 — de-template the verdict clause but KEEP an evidence linkage: the culprit-evidence gate

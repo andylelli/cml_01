@@ -506,10 +506,14 @@ const buildDeterministicClearanceParagraph = (
   // ("X was cleared because … placed X outside the fatal sequence … established by the evidence and the
   // timeline") that a human reads as validation output (and the rubric now caps). State the alibi as a
   // fact that accounts for the suspect's whereabouts, then the conclusion.
+  // A_65 probe-#1 external read: an unsanitized clearance_method ("Solid alibi verified by
+  // multiple witnesses.") glued mid-sentence shipped as "…the Solid alibi verified by multiple
+  // witnesses. accounted for…" — capital + trailing period inside a sentence. Sanitize the field.
+  const methodClause = String(clearance.clearance_method ?? "").trim().replace(/\.+$/, "");
   const supportClause = supportHints.length > 0
     ? `the evidence around ${supportHints.join(" and ")}`
-    : clearance.clearance_method
-      ? `the ${clearance.clearance_method}`
+    : methodClause
+      ? `the ${methodClause.charAt(0).toLowerCase()}${methodClause.slice(1)}`
       : "the testimony and the timeline";
   // A_64 §2 F4 — tail says "responsible", not "the killer": the post-reveal role-alias sweep
   // (agent9-run.ts substituteRoleAliasesInPostRevealChapters) substitutes the culprit's proper name

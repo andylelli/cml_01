@@ -42,7 +42,11 @@ const SEED_SIGNATURES: Array<{ rule: string; re: RegExp }> = [
   { rule: "A2:two_competing_readings", re: /\bset out the two competing readings\b/i },
   { rule: "A2:ran_test_in_full_view", re: /\bran that test in full view\b/i },
   // A3 — clearance patch (deterministic-repair.ts:487)
-  { rule: "A3:accounted_for_movements", re: /\baccounted for [^.;!?]{0,40}\bmovements elsewhere\b/i },
+  // A_65 probe-#1 external read: "Dr. Mallory Finch's movements elsewhere" EVADED this regex —
+  // the char class excluded '.', and honorifics carry one, blinding detector, regen, floor, and
+  // ship-check at once (the single-source coupling working against us for one character). Periods
+  // are allowed inside the span now; sentence scope is held by the length bound + the anchor words.
+  { rule: "A3:accounted_for_movements", re: /\baccounted for [^;!?]{0,40}\bmovements elsewhere\b/i },
   // B5 — culprit-evidence injection (agent9-run.ts:2160)
   { rule: "B5:beyond_reasonable_doubt", re: /\bwas responsible, and the evidence placed the matter beyond all reasonable doubt\b/i },
   // B7 — suspect-elimination injection (agent9-run.ts:2077)
