@@ -756,6 +756,9 @@ export function buildChapterObligationBlock(
       : undefined;
     if (lastChapterInPlan != null && chapterNumber === lastChapterInPlan) {
       lines.push(`  - AFTERMATH REQUIRED (final chapter): after the resolution event, the fallout must land — at least two paragraphs in which (a) the motive is understood in HUMAN terms by those left behind (what it cost, what it says about the household), and (b) at least one named character's changed circumstance is SHOWN in-scene, not summarized. Do NOT end on the arrest/confession line, and do NOT end on a verdict sentence.`);
+      // A_65 Phase 3 — the top-6 derivation: WEAK aftermaths carry MORE motive-wording than
+      // strong ones (7.3 vs 5.2 motive-term paragraphs) — stated motive is the failure mode.
+      lines.push(`  - AFTERMATH REGISTER: the motive arrives in VOICE — a character's spoken line, a specific act (a returned letter, a chair left empty, a debt quietly paid) — NEVER as narrator explanation ("she had done it because…"). If the narrator must gloss it, one clause maximum.`);
     }
 
     // §3.3b: Sensory obligation injection

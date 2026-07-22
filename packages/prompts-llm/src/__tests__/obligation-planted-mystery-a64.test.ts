@@ -228,3 +228,12 @@ describe("A_64 C2 — the aftermath beat on the final chapter", () => {
     expect(block).not.toContain("AFTERMATH REQUIRED");
   });
 });
+
+describe("A_65 Phase 3 — the aftermath register (top-6 derivation: stated motive is the failure mode)", () => {
+  it("the final chapter demands motive in VOICE, never narrator explanation", () => {
+    const outline = makeOutline();
+    const block = buildBlockFor(outline[9], 10, { outline, macroArcPlan: buildMacroArcPlan(10) });
+    expect(block).toContain("AFTERMATH REGISTER");
+    expect(block).toContain("NEVER as narrator explanation");
+  });
+});

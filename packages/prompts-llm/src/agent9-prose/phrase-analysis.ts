@@ -241,8 +241,16 @@ export function formatProvisionalScoringFeedbackBlock(
     }
   }
   if (effectivePhraseWarnings.length > 0) {
+    // A_65 Phase 3 — THE VARIETY CONTRACT. The top-6 derivation's single clean structural
+    // separator between the corpus's best and worst stories is phrase repetition (TOP ~10 vs BOT
+    // ~14 recurring 7-grams, 4 of 6 worst runs saturated); AtmosphereRepair burns ~8 LLM calls a
+    // run scrubbing it post-hoc and never converges. Prevention is a drafting behavior, so the
+    // instruction demands a DIFFERENT SOURCE, not merely avoidance.
     lines.push(
-      `- Phrases to avoid (already overused in earlier chapters): ${effectivePhraseWarnings.map((p) => `"${p}"`).join(', ')}.`,
+      `- USED-UP PHRASINGS (these exact wordings are spent — they already appear in earlier chapters and repetition is this story's biggest measured quality risk): ${effectivePhraseWarnings.map((p) => `"${p}"`).join(', ')}.`,
+    );
+    lines.push(
+      `  Do not reuse or lightly vary them. Draw this chapter's atmosphere and transitions from a DIFFERENT sensory or physical source than the previous chapter (if the last chapter leaned on sound/silence, use light, temperature, touch, or object detail here).`,
     );
   }
   lines.push('[END INTERNAL DIAGNOSTICS]');
