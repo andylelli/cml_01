@@ -8,7 +8,7 @@
 
 ## 0. PROGRESS TRACKER
 
-*(Update this table as work lands; one row per phase, statuses ⬜ pending · 🟡 in progress · ✅ done · ⛔ blocked.)*
+*(Update this table as work lands; one row per phase, statuses ⬜ pending · 🟡 in progress · ✅ done · ⛔ blocked. **The build-level plan with file targets and per-step fixtures lives in [CRAFT_IMPLEMENTATION_PLAN.md](./CRAFT_IMPLEMENTATION_PLAN.md); the reliability sibling in [RELIABILITY_REMEDIATION_PLAN.md](./RELIABILITY_REMEDIATION_PLAN.md) — the two share sittings, probes, and one measures harness.**)*
 
 | Phase | What | Cost | Depends on | Status | Last update |
 |---|---|---|---|---|---|
