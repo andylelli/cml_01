@@ -5,3 +5,4 @@ date	runId	gate	rubric	caps	calls	corrective	corr%	retries	regens	repairs	top_ca
 2026-07-21	mystery-1784665751813	warning	59	3	59	30	51%	6	16	8	regen:missing_clue_request=8,repair:AtmosphereRepair=8,regen:scaffold_not_prose_request=8	40	9	0	2	0/1/0/0/2/0/0/0/4/1	16 stamped
 2026-07-21	mystery-1784667048584	warning	63	0	50	24	48%	10	5	9	retry:Agent9=9,repair:AtmosphereRepair=9,regen:missing_clue_request=4	25	9	0	4	0/0/2/0/0/0/1/5/1	15 stamped
 2026-07-21	mystery-1784667048584	warning	63	0	50	24	48%	10	5	9	retry:Agent9=9,repair:AtmosphereRepair=9,regen:missing_clue_request=4	25	9	0	3	0/0/2/0/0/0/1/5/1	15 stamped
+2026-07-22	mystery-1784751055781	warning	69	0	43	15	35%	6	1	8	repair:AtmosphereRepair=8,retry:Agent9=4,retry:Agent2=2	8	9	0	1	1/0/0/0/0/1/1/1/0/1	7 stamped
