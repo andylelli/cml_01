@@ -1567,6 +1567,36 @@ describe("Agent 9 prompt hardening fixes", () => {
     expect(phrases[0]).toContain("air hung cold and still");
   });
 
+  // A_65b Ph4 — mandated repetitions are NOT repair targets: the AtmosphereRepair census found
+  // the pass scrubbing the A1 injector lead (top phrase, 19 occurrences) and locked-fact value
+  // phrasings the prose must repeat verbatim (whose LLM "alternative" risked locked_fact_absent).
+  it("excludes the A1 injector lead from recurring-phrase repair targets (our own template)", () => {
+    const para = "She pressed on to the next concrete detail, noting the ledger.";
+    const phrases = detectRecurringPhrases([
+      { title: "1", paragraphs: [para] },
+      { title: "2", paragraphs: [para] },
+      { title: "3", paragraphs: [para] },
+    ] as any, 7, 3);
+    expect(phrases.filter((p) => p.includes("pressed on to the next"))).toEqual([]);
+  });
+
+  it("excludes n-grams carrying a locked-fact value (mandated verbatim repetition)", () => {
+    const para = "The hands stood fixed at ten minutes past eight upon the mantel clock.";
+    const phrases = detectRecurringPhrases([
+      { title: "1", paragraphs: [para] },
+      { title: "2", paragraphs: [para] },
+      { title: "3", paragraphs: [para] },
+    ] as any, 7, 3, ["ten minutes past eight"]);
+    expect(phrases.filter((p) => p.includes("ten minutes past eight"))).toEqual([]);
+    // and WITHOUT the locked value declared, the same repetition IS a legitimate target
+    const unguarded = detectRecurringPhrases([
+      { title: "1", paragraphs: [para] },
+      { title: "2", paragraphs: [para] },
+      { title: "3", paragraphs: [para] },
+    ] as any, 7, 3);
+    expect(unguarded.length).toBeGreaterThan(0);
+  });
+
   it("Stage 9 detects configured phrase-family variants via normalization", () => {
     const hits = detectConfiguredBannedPhrases(
       [

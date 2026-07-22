@@ -49,6 +49,7 @@ import {
 import type { GenerationReport, ValidationReport, PhaseScore } from "@cml/story-validation";
 import { ScoringLogger } from "./scoring-logger.js";
 import { RunLogger } from "./run-logger.js";
+import { bandRunWarnings } from "./run-warnings.js";
 import { evaluateRetryGateGuard } from "./retry-gate-guard.js";
 import {
   runAgent1,
@@ -1172,9 +1173,16 @@ export async function generateMystery(
         // found 67 scaffold-regen calls with zero artifact trace (the #12/#13 forensic-blindness
         // family): chain logs die with the terminal; the report is the durable record. Everything
         // Agent 9 pushes to ctx.warnings aliases this array, so this captures the whole run.
+        // A_65b Ph2 — banded: `info` (telemetry/status) vs `warn` (defect/floor firings). The
+        // full array is preserved for forensics; status accounting counts `warn` only.
+        const warningBands = bandRunWarnings(warnings);
         scoreAggregator.upsertDiagnostic("run_warnings", "orchestrator", "Run Warnings", "run_warnings", {
           count: warnings.length,
+          warn_count: warningBands.warn.length,
+          info_count: warningBands.info.length,
           warnings: [...warnings],
+          warn: warningBands.warn,
+          info: warningBands.info,
         });
         scoringReport = scoreAggregator.generateReport({
           story_id: runId,
@@ -1195,8 +1203,14 @@ export async function generateMystery(
       }
     }
 
+    // A_65b Ph2 — status counts DEFECT-band warnings only: a run whose lines are all telemetry
+    // ("Scoring system enabled", shadow scores, pre-audit PASS) reads clean, as it should.
     const status =
-      errors.length > 0 ? "failure" : warnings.length > 0 ? "warning" : "success";
+      errors.length > 0
+        ? "failure"
+        : bandRunWarnings(warnings).warn.length > 0
+          ? "warning"
+          : "success";
 
     // Cross-run novelty (ANALYSIS_49 T1.7): record this shipped run's fingerprint so future runs
     // diverge from it. Best-effort — never affects the run outcome.

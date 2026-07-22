@@ -3884,7 +3884,8 @@ export async function generateProse(
           // §5.4: Pending warning pattern — each commit recalculates recurring phrase
           // warnings and forwards them only to the next batch.
           const recurringPhraseWarnings = mergeUniquePhrases(
-            detectRecurringPhrases(chapters),
+            detectRecurringPhrases(chapters, undefined, undefined,
+              (inputs.lockedFacts ?? []).map((f) => f.value)),
             rolloutFlags.phrase_family_detection_enabled
               ? detectConfiguredBannedPhrases(chapters, configuredWarningPhrases)
               : [],
@@ -4238,7 +4239,11 @@ export async function generateProse(
     }
   }
 
-  const recurringPhrases = detectRecurringPhrases(chapters);
+  // A_65b Ph4 — locked values and injector fragments are MANDATED repetitions, not repair
+  // targets (the census: the pass was scrubbing our own A1 leads and locked-fact phrasings,
+  // and the "fresh alternative" risked locked_fact_absent regens downstream).
+  const recurringPhrases = detectRecurringPhrases(chapters, undefined, undefined,
+    (inputs.lockedFacts ?? []).map((f) => f.value));
   const configuredDetectedPhrases = rolloutFlags.phrase_family_detection_enabled
     ? detectConfiguredBannedPhrases(chapters, configuredRepairPhrases)
     : [];

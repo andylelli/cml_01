@@ -123,10 +123,59 @@ export const sanitizeClueField = (text: string): string =>
     .trim();
 
 
+/**
+ * A_65b Ph4 (reliability plan) — MANDATED-REPETITION exclusions for the recurrence detector.
+ * The 277-call AtmosphereRepair census found the pass dominated by the pipeline scrubbing its
+ * OWN required repetitions (Type-B self-interference): the A1 injector lead ("pressed on to the
+ * next concrete detail" — the top phrase at 19+16+16 overlapping n-grams) and LOCKED-FACT value
+ * phrasings ("hands fixed at ten minutes past eight") which the fact machinery REQUIRES verbatim
+ * across chapters — and whose LLM "fresh alternative" then risks a locked_fact_absent regen (a
+ * three-stage self-interference chain). A recurring n-gram is exempt when it contains a locked
+ * value or matches an injector-seed fragment. Bounded and ours — this list never grows to chase
+ * model phrasing (the anti-mole law); it names only text WE insert or REQUIRE.
+ */
+const MANDATED_REPETITION_FRAGMENTS: ReadonlyArray<string> = [
+  // A1 early-clue lead family (deterministic-repair.ts; also scaffold seed A1:pressed_on)
+  'pressed on to the next concrete detail',
+  'laid the facts out plainly where the others could see them',
+];
+
+// n-grams are sliding windows, so a gram usually overlaps a fragment PARTIALLY ("she pressed on
+// to the next concrete" vs "pressed on to the next concrete detail"). Exempt a gram when it
+// contains any 5-word sub-window of a fragment — distinctive enough to never exempt innocent prose.
+const FRAGMENT_SUBWINDOWS: ReadonlyArray<string> = MANDATED_REPETITION_FRAGMENTS.flatMap((frag) => {
+  const words = frag.split(/\s+/);
+  const out: string[] = [];
+  for (let i = 0; i + 5 <= words.length; i++) out.push(words.slice(i, i + 5).join(' '));
+  return out.length > 0 ? out : [frag];
+});
+
+const containsMandatedRepetition = (gram: string, lockedValues: ReadonlyArray<string>): boolean => {
+  const g = gram.toLowerCase();
+  for (const w of FRAGMENT_SUBWINDOWS) {
+    if (g.includes(w)) return true;
+  }
+  for (const v of lockedValues) {
+    const lv = String(v ?? '').toLowerCase().trim();
+    if (lv.length < 6) continue;
+    if (g.includes(lv)) return true;
+    // Sliding windows overlap values partially too — a gram carrying ≥3 consecutive words of a
+    // locked value must not become a substitution target (replacing it would mangle the value).
+    // 3 words is the precision floor: 2-word windows ("ten minutes") would exempt innocent prose.
+    const words = lv.split(/\s+/);
+    for (let i = 0; i + 3 <= words.length; i++) {
+      if (g.includes(words.slice(i, i + 3).join(' '))) return true;
+    }
+  }
+  return false;
+};
+
 export function detectRecurringPhrases(
   chapters: ProseChapter[],
   ngramSize = 7,
   threshold = 3,
+  /** A_65b Ph4 — locked-fact VALUES the prose must repeat verbatim; never repair targets. */
+  lockedValues: ReadonlyArray<string> = [],
 ): string[] {
   const chapterHits = new Map<string, Set<number>>();
 
@@ -137,6 +186,7 @@ export function detectRecurringPhrases(
       const parts = gram.split(' ');
       const contentWords = parts.filter((part) => part.length > 3 && !CLUE_TOKEN_STOPWORDS.has(part));
       if (contentWords.length < 3) continue;
+      if (containsMandatedRepetition(gram, lockedValues)) continue;
       if (!chapterHits.has(gram)) {
         chapterHits.set(gram, new Set<number>());
       }

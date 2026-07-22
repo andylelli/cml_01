@@ -535,7 +535,11 @@ describe("ScoreAggregator", () => {
     expect(report.passed).toBe(true);
   });
 
-  it("keeps run_outcome 'failed' on a warnings-only gate when a phase misses threshold (the f90e5f09 shape)", () => {
+  // A_65b Ph1.3 — the P0.2 honesty contract: a warnings-only gate means the story SHIPPED, so
+  // run_outcome is 'passed' even when a phase missed its threshold; the phase verdict lives in
+  // phase_thresholds_met. (This test previously pinned the M1v2-2 artifact — 21 shipped runs
+  // reading "failed" — which every corpus scan had to know as folklore.)
+  it("run_outcome is 'passed' on a warnings-only gate (SHIPPED per P0.2); the phase verdict moves to phase_thresholds_met", () => {
     const agg = new ScoreAggregator(standardConfig);
     agg.addPhaseScore(
       "agent9-prose",
@@ -558,8 +562,9 @@ describe("ScoreAggregator", () => {
 
     const report = agg.generateReport(metadata);
     expect(report.release_gate_outcome?.status).toBe("warning"); // SHIPPED for ship-rate purposes
-    expect(report.run_outcome).toBe("failed"); // but the phase threshold verdict stands
-    expect(report.run_outcome_reason).toBe("One or more phases failed threshold");
+    expect(report.run_outcome).toBe("passed"); // shipped ⇒ passed (P0.2) — no more folklore reads
+    expect(report.run_outcome_reason).toBeUndefined();
+    expect(report.phase_thresholds_met).toBe(false); // the phase verdict, demoted but preserved
   });
 
   it("classifies infrastructure DNS failures as infra_failure", () => {

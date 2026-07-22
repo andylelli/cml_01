@@ -253,6 +253,12 @@ export class ScoreAggregator {
               ? 'passed'
               : 'unknown';
 
+    // A_65b Ph1.3 (reliability plan) — run_outcome derives from the P0.2 definition: the release
+    // gate ∈ {passed, warning} means the story SHIPPED ⇒ 'passed'. The old phase-threshold branch
+    // stamped 'failed' on 21 shipped runs (the M1v2-2 artifact) and every corpus scan had to know
+    // that folklore to read outcomes correctly. Phase thresholds are demoted to their own field
+    // (`phase_thresholds_met`) — an advisory quality signal, never a run-failure signal. The
+    // unknown-gate fallback stays phase-driven (no gate evidence → the old conservative read).
     const runOutcome: GenerationReport['run_outcome'] =
       inferredInfraFailure
         ? 'infra_failure'
@@ -260,6 +266,8 @@ export class ScoreAggregator {
         ? 'aborted'
         : releaseGateStatus === 'failed'
           ? 'failed'
+        : releaseGateStatus === 'passed' || releaseGateStatus === 'warning'
+          ? 'passed'
         : phaseThresholdPassed
           ? 'passed'
           : 'failed';
@@ -389,6 +397,7 @@ export class ScoreAggregator {
       passed,
       run_outcome: runOutcome,
       run_outcome_reason: runOutcomeReason,
+      phase_thresholds_met: phaseThresholdPassed,
       scoring_outcome: {
         score: parseFloat(adjustedOverallScore.toFixed(2)),
         grade: adjustedOverallGrade,

@@ -155,9 +155,16 @@ export interface GenerationReport {
   overall_grade: string;      // A, B, C, D, F
   passed: boolean;            // All phases passed thresholds
 
-  // Canonical run outcome (authoritative status for UI/export consumers)
+  // Canonical run outcome (authoritative status for UI/export consumers).
+  // A_65b Ph1.3 (reliability plan): derives from the P0.2 definition — release gate ∈
+  // {passed, warning} = the story SHIPPED = 'passed', regardless of phase thresholds. The old
+  // phase-threshold-driven 'failed' on shipped runs (the M1v2-2 artifact — 21 shipped runs read
+  // "failed" in every scan) now lives honestly in `phase_thresholds_met`.
   run_outcome?: RunOutcome;
   run_outcome_reason?: string;
+  /** A_65b Ph1.3 — the old phase-threshold verdict, demoted to its own field: true when every
+   *  phase met its threshold. Advisory quality signal; NEVER a run-failure signal. */
+  phase_thresholds_met?: boolean;
   scoring_outcome?: {
     score: number;
     grade: string;
@@ -165,7 +172,7 @@ export interface GenerationReport {
   };
   release_gate_outcome?: {
     /** 'warning' = shipped needs-review: 0 hard stops but gate warnings — counts as SHIPPED for
-     *  ship-rate/M1 bookkeeping (run_outcome stays phase-threshold-driven and may still be 'failed'). */
+     *  ship-rate bookkeeping, and (A_65b Ph1.3) run_outcome now agrees: shipped ⇒ 'passed'. */
     status: 'passed' | 'warning' | 'failed' | 'unknown';
     hard_stop_count: number;
     warning_count: number;
