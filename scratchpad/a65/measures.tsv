@@ -1,4 +1,4 @@
-date	runId	gate	rubric	caps	calls	corrective	corr%	retries	regens	repairs	top_causes	warn	info	scaffold_ship	register_hits	inference_per_ch	plants
+date	runId	gate	rubric	caps	calls	corrective	corr%	retries	regens	repairs	top_causes	warn	info	scaffold_ship	register_hits	inference_per_ch	plants	pronoun_hp
 2026-07-21	mystery-1784662295274	warning	63	0	44	18	41%	3	12	3	regen:scaffold_not_prose_request=6,regen:missing_clue_request=3,retry:Agent9=3	27	10	0	0	0/1/1/0/1/1/1/5/1	17 stamped
 2026-07-21	mystery-1784663896191	warning	62	0	55	27	49%	9	9	9	retry:Agent9=9,repair:AtmosphereRepair=9,regen:scaffold_not_prose_request=7	19	10	0	1	0/0/0/0/1/0/0/0/0/1	9 stamped
 2026-07-21	mystery-1784664846932	warning	59	1	52	24	46%	8	7	9	repair:AtmosphereRepair=9,regen:scaffold_not_prose_request=5,retry:Agent2=4	21	9	0	6	0/0/0/0/0/0/0/4/0	16 stamped
@@ -7,3 +7,5 @@ date	runId	gate	rubric	caps	calls	corrective	corr%	retries	regens	repairs	top_ca
 2026-07-21	mystery-1784667048584	warning	63	0	50	24	48%	10	5	9	retry:Agent9=9,repair:AtmosphereRepair=9,regen:missing_clue_request=4	25	9	0	3	0/0/2/0/0/0/1/5/1	15 stamped
 2026-07-22	mystery-1784751055781	warning	69	0	43	15	35%	6	1	8	repair:AtmosphereRepair=8,retry:Agent9=4,retry:Agent2=2	8	9	0	1	1/0/0/0/0/1/1/1/0/1	7 stamped
 2026-07-22	mystery-1784752665289	warning	66	0	52	23	44%	5	8	10	repair:AtmosphereRepair=10,regen:missing_clue_request=5,retry:Agent9=4	24	9	0	0	0/0/0/0/0/0/2/1/3/1	8 stamped
+2026-07-23	mystery-1784791658913	warning	66	0	61	33	54%	8	22	3	regen:scaffold_not_prose_request=13,retry:Agent9=6,regen:missing_clue_request=6	5	9	0	1	0/0/3/0/0/2/1/0/1/1	10 stamped	0
+2026-07-23	mystery-1784832044130	warning	62	0	49	23	47%	5	11	7	repair:AtmosphereRepair=7,regen:scaffold_not_prose_request=7,retry:Agent9=5	22	9	0	3	0/0/0/0/0/1/1/1/0	10 stamped	0

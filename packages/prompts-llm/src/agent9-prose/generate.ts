@@ -16,6 +16,8 @@ import {
   getStoryLengthTarget,
   repairChapterPronouns,
   repairPronouns,
+  detectPronounDriftEvents,
+  type PronounDriftCastEntry,
   detectVerbatimFieldEcho,
 } from "@cml/story-validation";
 import type { NarrativeOutline } from "../agent7-narrative.js";
@@ -1982,6 +1984,49 @@ export function buildCanonicalRetryBrief(args: {
 //   4. Remove `temporalSeasonLock, // [WORLD FIX B]` from the call site
 //      inside generateProse() (search for "WORLD FIX B" at the call site).
 // ─────────────────────────────────────────────────────────────────────────
+
+// A_66 P1+P2, completed for THIS path — the "Fix 2" final sweep was the last ungated
+// deterministic pronoun mutation in the pipeline: probe #3's first re-run (mystery-1784832044130)
+// applied 11 flips from exactly here while generation-params said `pronoun_policy: verify`.
+// The law now holds end-to-end:
+//   P1 — the sweep obeys the policy: under verify/off (checkingEnabled=false) it never runs,
+//        never even computes candidates. Deterministic pronoun repair is strict/relaxed-only.
+//   P2 — every chapter mutation wraps in the HIGH-PRECISION guard: a sweep whose result raises
+//        attribution-flips + impossible-self-references REVERTS for that chapter, and reporting
+//        keys on TEXT CHANGE, never repairCount (the probe-#1 silent-mutation telemetry hole).
+// Exported for the fixture tests — fixture the FAILURE, not the fix (A_66 §6).
+export function applyFinalPronounSweep(
+  chapters: ProseChapter[],
+  castCharacters: PronounDriftCastEntry[],
+  checkingEnabled: boolean,
+): { chaptersChanged: number; revertedChapters: number } {
+  const result = { chaptersChanged: 0, revertedChapters: 0 };
+  if (!checkingEnabled || castCharacters.length === 0) return result;
+  for (let ci = 0; ci < chapters.length; ci++) {
+    const ch = chapters[ci];
+    if (!Array.isArray(ch.paragraphs) || ch.paragraphs.length === 0) continue;
+    const chText = (ch.paragraphs as string[]).join('\n\n');
+    const swept = repairPronouns(chText, castCharacters, { crossParagraphInheritance: true });
+    if (swept.text === chText) continue; // text-change honesty — repairCount lies both ways
+    const before = detectPronounDriftEvents(chText, castCharacters).length;
+    const after = detectPronounDriftEvents(swept.text, castCharacters).length;
+    if (after > before) {
+      result.revertedChapters++;
+      console.warn(
+        `[Agent 9] Final pronoun sweep REVERTED for chapter ${ci + 1} (A_66 P2): high-precision mismatches would rise (${before} → ${after}).`,
+      );
+      continue;
+    }
+    chapters[ci] = { ...ch, paragraphs: swept.text.split('\n\n') };
+    result.chaptersChanged++;
+  }
+  if (result.chaptersChanged > 0) {
+    console.log(
+      `[Agent 9] Final pronoun sweep changed text in ${result.chaptersChanged} chapter(s) (guarded, A_66 P2).`,
+    );
+  }
+  return result;
+}
 
 export async function generateProse(
   client: AzureOpenAIClient,
@@ -4269,29 +4314,10 @@ export async function generateProse(
     }
   }
 
-  // Fix 2: applyDeterministicPronounSweep — final conservative pronoun repair on all
-  // committed chapters.  Catches residual mismatches that were accepted at attempt 3+
-  // in the per-chapter pronoun gate (where the targeted repair could not safely fix
-  // mixed-gender context sentences within the retry budget).
-  // Does NOT use onlyNames (full-cast sweep) and uses crossParagraphInheritance for
-  // better coverage.  The existing female→male guard in repairPronouns prevents false
-  // replacements on correct male pronouns that follow a female character.
-  if (castCharacters.length > 0) {
-    let sweepRepairTotal = 0;
-    for (let ci = 0; ci < chapters.length; ci++) {
-      const ch = chapters[ci];
-      if (!Array.isArray(ch.paragraphs) || ch.paragraphs.length === 0) continue;
-      const chText = (ch.paragraphs as string[]).join('\n\n');
-      const swept = repairPronouns(chText, castCharacters, { crossParagraphInheritance: true });
-      if (swept.repairCount > 0) {
-        chapters[ci] = { ...ch, paragraphs: swept.text.split('\n\n') };
-        sweepRepairTotal += swept.repairCount;
-      }
-    }
-    if (sweepRepairTotal > 0) {
-      console.log(`[Agent 9] Deterministic pronoun sweep: ${sweepRepairTotal} repair(s) across ${chapters.length} chapter(s).`);
-    }
-  }
+  // Fix 2: the final conservative pronoun sweep over all committed chapters — full-cast,
+  // crossParagraphInheritance for coverage. A_66: this call site is now policy-obedient and
+  // high-precision-guarded (see applyFinalPronounSweep) — under `verify`/`off` it is a no-op.
+  applyFinalPronounSweep(chapters, castCharacters, pronounCheckingEnabled);
 
   validateChapterCount(chapters, sceneCount);
 

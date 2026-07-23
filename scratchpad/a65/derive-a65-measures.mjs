@@ -75,13 +75,26 @@ function measureRun(rid, logPath) {
     const md = fs.readFileSync(sp, "utf8");
     const chapters = chaptersOf(md);
     scaffoldShip = detectScaffoldNotProse(md).length;
-    // A_66 — high-precision pronoun mismatches on the shipped page (cast from the Agent-2 archive)
+    // A_66 — high-precision pronoun mismatches on the shipped page. Cast genders come from the
+    // chain log's CANARY_INPUTS (authoritative) first; the Agent-2 archive regex is the fallback
+    // ONLY — its fields run ~860 chars between name and gender, and the original {0,300} window
+    // silently yielded an empty cast and a blank pronoun_hp (the no-silent-caps law, again).
     try {
-      const castFile = fs.readdirSync(path.join(archivesRoot, dir))
-        .filter((f) => /Agent2-CastDesigner.*response\.md$/.test(f)).sort().pop();
-      const castTxt = castFile ? fs.readFileSync(path.join(archivesRoot, dir, castFile), "utf8") : "";
-      const cast = [...castTxt.matchAll(/"name"\s*:\s*"([^"]+)"[\s\S]{0,300}?"gender"\s*:\s*"(male|female)"/gi)]
-        .map((m) => ({ name: m[1], gender: m[2].toLowerCase() }));
+      let cast = [];
+      const ciLine = (log.match(/^CANARY_INPUTS (\{.*\})$/m) ?? [])[1];
+      if (ciLine) {
+        try {
+          cast = Object.entries(JSON.parse(ciLine).castGenders ?? {})
+            .map(([name, gender]) => ({ name, gender: String(gender).toLowerCase() }));
+        } catch { /* fall through to the archive */ }
+      }
+      if (cast.length === 0) {
+        const castFile = fs.readdirSync(path.join(archivesRoot, dir))
+          .filter((f) => /Agent2-CastDesigner.*response\.md$/.test(f)).sort().pop();
+        const castTxt = castFile ? fs.readFileSync(path.join(archivesRoot, dir, castFile), "utf8") : "";
+        cast = [...castTxt.matchAll(/"name"\s*:\s*"([^"]+)"[\s\S]{0,2000}?"gender"\s*:\s*"(male|female)"/gi)]
+          .map((m) => ({ name: m[1], gender: m[2].toLowerCase() }));
+      }
       pronounHP = cast.length
         ? Object.values(chapters).reduce((n, t2) => n + detectAttributionFlips(t2, cast).length + detectImpossibleSelfReferences(t2, cast).length, 0)
         : "";

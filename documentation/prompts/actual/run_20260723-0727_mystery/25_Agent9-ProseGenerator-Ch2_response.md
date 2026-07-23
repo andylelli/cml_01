@@ -1,0 +1,76 @@
+# Actual Prompt Response Record
+
+- Run ID: `mystery-1784791658913`
+- Project ID: ``
+- Request Timestamp: `2026-07-23T07:37:32.042Z`
+- Response Timestamp: `2026-07-23T07:37:59.001Z`
+- Agent: `Agent9-ProseGenerator-Ch2`
+- Operation: `chat_response`
+- Model: `gpt-4.1`
+- Attempt: `first`
+- Prompt Hash: `1f4ed44380373378`
+- Response Hash: `44f3019b5a22868c`
+- Latency (ms): `26958`
+- Prompt Tokens: `19538`
+- Completion Tokens: `2058`
+- Total Tokens: `21596`
+- Estimated Cost: `0.01015624`
+
+## Response Body
+
+```text
+{
+  "status": "draft",
+  "tone": "classic",
+  "chapters": [
+    {
+      "title": "Chapter 2: Initial Investigation",
+      "summary": "In Captain Hale's room, Eleanor Voss discovers two identical masks, raising suspicion about his access to costumes. Tension mounts as Eleanor and Dr. Mallory Finch probe Hale, whose defensiveness and shifting demeanor complicate the investigation.",
+      "paragraphs": [
+        "\"You ought to knock, Miss Voss,\" Captain Ivor Hale said, his voice clipped as the wind rattled the windowpane behind him. The room was dim, the weak winter morning filtered through heavy drapes, and the air held a faint, lingering scent of tobacco and damp wool. Eleanor hesitated just inside the threshold, her gloved hand still resting on the polished brass doorknob. The rain had not relented; it pattered insistently against the glass, a grey wash of sound that made the silence between them feel colder than the December air.",
+        "Eleanor’s gaze swept the room, cataloguing the details with the detachment of a seasoned observer. The bedspread was crisply turned down, but a pair of black leather gloves lay abandoned atop it, beside a silver cigarette case and a half-folded copy of The Times. The fire in the grate had died to a sullen glow, leaving the corners of the room in shadow. On the writing desk, a masquerade mask—silver filigree, unmistakably like the one Sylvia Trent had worn—caught the meagre light. Next to it, to Eleanor’s growing unease, lay another mask, identical in every curve and flourish, the ribbons trailing like severed threads.",
+        "She moved closer, her shoes muffled by the thick rug. The masks were not merely similar; they were twins, each feathered edge and painted detail a mirror of the other. Eleanor reached out, hesitating before touching the cool, smooth surface. A flicker of suspicion darted through her: two identical masks, here in Captain Hale’s room, when only one should have adorned Sylvia Trent’s face. The implication pressed at her, insistent as the rain.",
+        "Dr. Mallory Finch entered with a briskness that belied the tension. Her heels tapped softly on the floorboards, and she paused just inside the door, eyes sharp behind her spectacles. \"I see we’re not the only ones with a penchant for drama,\" Dr. Finch remarked, her tone edged with irony. She glanced from the masks to Eleanor, then to Captain Hale, whose posture had stiffened. \"A matched set? How very thorough.\"",
+        "Captain Hale’s jaw worked, but he did not immediately reply. Instead, he crossed to the wardrobe, as if searching for an escape route among his own belongings. His hand lingered on the door, knuckles pale. \"Those were for the performance,\" he said at last, not quite meeting either woman’s gaze. \"The hotel provided extras, in case of mishap. You know how these things go—someone always tears a ribbon or smudges the paint.\" The explanation hung in the air, plausible enough, but Eleanor noted the defensive edge to his voice.",
+        "Eleanor picked up one of the masks, weighing it in her palm. The craftsmanship was exquisite, but it was the sameness that unsettled her. \"How fortunate, then, that you ended up with both,\" she said lightly, her tone almost conversational. \"Did you collect them after the party, or were they here all along?\" Her question was casual, but her eyes did not leave his face.",
+        "Captain Hale’s reply was a beat too slow. \"I—well, I found the second one after the festivities. Someone left it behind, I suppose. I meant to return it to the staff.\" He ran a hand through his hair, the gesture betraying a flicker of uncertainty. \"If you’re implying anything else, Miss Voss, I assure you—my only concern last night was the success of the event.\"",
+        "Dr. Finch moved to the writing desk, her fingers tracing the edge of the newspaper. \"Success is a relative term,\" she murmured, glancing at the masks. \"Given the outcome.\" Her gaze lingered on Captain Hale, the silence stretching. \"You were in the ballroom at nine thirty, you said?\"",
+        "\"That’s correct,\" Captain Hale replied, his voice regaining some of its earlier authority. \"I left just after ten. I saw nothing out of the ordinary.\"",
+        "Eleanor set the mask down with deliberate care. The rain’s rhythm seemed to quicken, as if urging her to press further. \"And yet, here we are, with two identical costumes and a dead woman in the ballroom. That is out of the ordinary, wouldn’t you say?\"",
+        "Captain Hale’s lips twitched, a shadow of his usual sardonic smile. \"Perhaps the hotel’s standards have slipped,\" he said, but the joke fell flat. He turned away, busying himself with the cigarette case, though he did not open it.",
+        "Dr. Finch’s attention shifted to a stack of witness statements on the desk, the top sheet bearing Sylvia Trent’s name in neat, official script. She thumbed through the pages, her brow furrowing. \"It seems everyone saw something different last night,\" she observed. \"Memory is a tricky thing, especially in a crowd.\"",
+        "Eleanor watched her, noting the way Dr. Finch’s composure never quite slipped, even as her fingers trembled minutely. \"We’ll need to account for everyone’s whereabouts,\" Eleanor said. \"Hugo Vane, for instance, was confirmed elsewhere during the crucial time. That narrows the field.\" She let the implication settle, her gaze returning to Captain Hale.",
+        "Captain Hale bristled, his shoulders squaring. \"If you’re suggesting I had anything to do with this—\"",
+        "\"No one is suggesting anything,\" Dr. Finch interrupted, her tone soothing but firm. \"We’re merely establishing facts. The sooner we do, the sooner we can all put this behind us.\"",
+        "Eleanor suppressed a sigh, feeling the weight of the masks in her mind. The evidence was accumulating, but the picture remained blurred. She turned to the window, watching the rain trace crooked paths down the glass. The Grand Seaside Hotel, so full of light and laughter the night before, now felt like a stage emptied of its players, the echoes of music replaced by the hush of suspicion.",
+        "A knock at the door interrupted the charged silence. Beatrice Quill’s voice drifted in from the hallway, bright but brittle. \"Is this the queue for confessions, or am I early?\" she called, her laughter forced. Eleanor exchanged a glance with Dr. Finch, the briefest flicker of shared understanding passing between them.",
+        "Captain Hale moved to open the door, but paused, his hand on the knob. \"We’re finished here,\" he said, though the certainty in his tone was less than convincing. He looked at Eleanor, something wary in his eyes. \"If you have further questions, Miss Voss, I suggest you address them to the management.\"",
+        "\"I’ll keep that in mind,\" Eleanor replied, her voice mild. She gathered her notes, slipping them into her clutch. The masks remained on the desk, silent witnesses to a night that had spun out of control.",
+        "As the group filed out, Eleanor lingered a moment, studying the arrangement of objects: the twin masks, the witness statements, the gloves. She noted, too, the absence of any personal effects belonging to Sylvia Trent—no perfume, no jewelry, nothing to suggest she had ever set foot in this room. The implication was clear: whatever had happened, it had not begun here, but the trail now led directly through Captain Hale’s domain.",
+        "In the corridor, the atmosphere was no less tense. The muted sounds of the hotel filtered through the thick carpet—distant voices, the clatter of a breakfast tray, the faint strains of a radio playing in the Main Lobby. Eleanor paused, her thoughts circling the masks and the contradictions they posed. She could feel the investigation tightening, the circle narrowing around those with access and opportunity.",
+        "Dr. Finch caught up with her, her expression unreadable. \"You’re not the only one who notices things, Miss Voss,\" she said quietly. \"But sometimes, noticing is the most dangerous thing of all.\" She moved away before Eleanor could reply, her footsteps fading into the hush of the corridor.",
+        "Eleanor watched her go, the weight of the morning settling on her shoulders. The rain showed no sign of stopping, and the Grand Seaside Hotel seemed, for a moment, suspended between past and present, truth and masquerade. Eleanor squared her shoulders and turned back toward the Main Lobby, the image of the two identical masks fixed in her mind—a riddle waiting to be solved."
+      ]
+    }
+  ],
+  "cast": [
+    "Eleanor Voss",
+    "Dr. Mallory Finch",
+    "Captain Ivor Hale",
+    "Beatrice Quill",
+    "Sylvia Trent",
+    "Hugo Vane"
+  ],
+  "note": "",
+  "audit": {
+    "locked_fact_phrases": "present in paragraph 2 | absent",
+    "season_words_used": "winter, December, rain, cold, damp, drapes, morning, hush, corridor | none",
+    "discriminating_test_present": "no",
+    "required_clues_present": "clue_early_2: paragraph 2",
+    "early_observation_present": "description: Eleanor discovers two identical masks in Captain Hale's room (paragraph 2)",
+    "early_inference_present": "yes: paragraph 3"
+  }
+}
+  
+   
+```
