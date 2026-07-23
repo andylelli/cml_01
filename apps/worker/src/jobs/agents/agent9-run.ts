@@ -41,6 +41,9 @@ import {
   runScaffoldRegenPass,
   applyScaffoldExhaustionFloor,
   culpritEvidenceLinkInText,
+  runRegenRepair,
+  composeChapterValidator,
+  buildRegenRequest,
   runTemplateLeakageRegenPass,
   runDualValueContrastRegenPass,
   runDualValueFullStoryResidualPass,
@@ -67,7 +70,7 @@ import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
 import { mutateThenValidate, noMetadataDumpValidator } from "@cml/prose-guard";
-import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS } from "@cml/story-validation";
+import { ProseScorer, StoryValidationPipeline, CharacterConsistencyValidator, repairChapterPronouns, repairPronouns, normalizeTitles, buildLocationRegistry, normalizeLocationNames, getGenerationParams, getPronounPolicySettings, validateCharacterLifecycle, CONFESSION_RE as LIFECYCLE_CONFESSION_RE, RECOLLECTION_FRAME_RE as LIFECYCLE_RECOLLECTION_RE, detectMissingCaseTransitionBridge, BRIDGE_TERMS, validateDialogueIdiolect, anonymiseNamedWalkOns, buildAllowedNameParts, computeArrestPivotIndex, ROLE_ALIAS_TERMS, detectAttributionFlips, detectImpossibleSelfReferences } from "@cml/story-validation";
 import type { PhaseScore, CastEntry } from "@cml/story-validation";
 import {
   adaptProseForScoring,
@@ -227,6 +230,8 @@ const isTemplateLeakageRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_R
  * OFF by default (N≥4 matched pairs before default-on); runtime getter, never a module const.
  */
 const isDualValueRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_DUAL_VALUE, false);
+/** A_66 P3 — the verify-mode pronoun regen channel; precision-triggered, cost-bounded. */
+const isPronounRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_PRONOUN, true);
 
 /** A_61 RC1.4 — dramatize the reveal/culprit-evidence in-scene instead of pasting the deterministic
  * "It was me… I confess" resolution backstop / "beyond all reasonable doubt" culprit sentence. Both
@@ -1596,6 +1601,12 @@ const extractPronounTargetNames = (errors: any[], castCharacters: CastEntry[]): 
     if (type !== "pronoun_drift" && type !== "pronoun_gender_mismatch") continue;
     const message = String(error?.message ?? "");
 
+    // A_66 P5 — repair targets may be seeded ONLY by the high-precision detectors. The
+    // ±200-char proximity heuristic ("…found a female pronoun nearby") false-positived on
+    // probe #1's CLEAN story 23 times and seeded the corruption; it stays alive as a MEASURE
+    // but can never again name a repair target (detectors-are-measures; levers need precision).
+    if (type === "pronoun_drift" && /pronoun nearby/i.test(message)) continue;
+
     const driftMatch = message.match(/Pronoun drift for\s+"([^"]+)"/i);
     const mismatchMatch = message.match(/Character\s+"([^"]+)"\s+has\s+incorrect\s+pronouns/i);
     const rawName = (driftMatch?.[1] ?? mismatchMatch?.[1] ?? "").trim();
@@ -1608,7 +1619,7 @@ const extractPronounTargetNames = (errors: any[], castCharacters: CastEntry[]): 
   return targets;
 };
 
-const applyTargetedPronounSweep = (
+export const applyTargetedPronounSweep = (
   prose: any,
   castCharacters: CastEntry[],
   targetNames: Set<string>,
@@ -2082,6 +2093,41 @@ export const buildPronounStabilityValidator =
       // (e.g. 5→2 mismatches) read as a brand-new violation ("…:2" ∉ ["…:5") and get reverted, so only a
       // repair to exactly zero ever shipped. A stable label lets the score comparison gate regressions.
       violations: mismatches > 0 ? ["pronoun_gender_mismatch"] : [],
+    };
+  };
+
+/**
+ * A_66 P2 — the HIGH-PRECISION pronoun guard metric. The A_57 D5 metric above shares the
+ * name-anchored fallacy with the repair it guards (probe #1: the corruption SCORED AS AN
+ * IMPROVEMENT), so guarded mutations could vandalize with the guard's blessing. This validator
+ * counts only the two precision-first detectors — attribution flips ("…," he said after a female
+ * referent) and impossible self-references ("Eleanor composed himself") — which carry near-zero
+ * false-positive rates by design (their headers say "precision over recall"). A pronoun-mutating
+ * pass that RAISES this count is doing damage, whatever the loose metric says. Count-free
+ * violation labels (the A_58 lesson). Measurement failure = no signal (inert, never harmful).
+ */
+export const buildHighPrecisionPronounValidator =
+  (castCharacters: CastEntry[]) =>
+  (currentProse: any): { ok: boolean; score: number; violations: string[] } => {
+    let hits = 0;
+    try {
+      const cast = (castCharacters as any[])
+        .filter((c) => typeof c?.gender === "string" && /^(male|female)$/i.test(c.gender))
+        .map((c) => ({ name: String(c.name ?? "").trim(), gender: String(c.gender).toLowerCase() }));
+      if (cast.length === 0) return { ok: true, score: 100, violations: [] };
+      for (const ch of (currentProse?.chapters ?? []) as any[]) {
+        const text = ((ch?.paragraphs ?? []) as string[]).join("\n\n");
+        if (!text.trim()) continue;
+        hits += detectAttributionFlips(text, cast as any).length;
+        hits += detectImpossibleSelfReferences(text, cast as any).length;
+      }
+    } catch {
+      return { ok: true, score: 100, violations: [] };
+    }
+    return {
+      ok: hits === 0,
+      score: 100 - hits * 10,
+      violations: hits > 0 ? ["pronoun_high_precision_mismatch"] : [],
     };
   };
 
@@ -5550,6 +5596,75 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       if (regenCost > 0 && typeof prose?.cost === "number") prose.cost += regenCost;
     }
   }
+  // A_66 P3 — THE VERIFY-MODE PRONOUN REPAIR CHANNEL, wired at last. `pronoun_policy: verify`
+  // has always documented "repairs go through LLM regen, validator-gated" — but `pronoun_mismatch`
+  // had an instruction, a regen path, and ZERO producers. The two HIGH-PRECISION detectors are now
+  // the producers: each hit becomes a scoped, phrase-level regen (the ANALYSIS_20-safe shape —
+  // "change nothing else"), accepted only if the high-precision count strictly falls and nothing
+  // else regresses. Precision-triggered ⇒ cost-bounded (clean drafts = zero hits = zero calls).
+  // Kill-switch: AGENT9_REGEN_PRONOUN=false (runtime getter, never a module const).
+  if (
+    isPronounRegenEnabled() &&
+    getPronounPolicySettings().policy === "verify" &&
+    Array.isArray(prose.chapters) &&
+    prose.chapters.length > 0
+  ) {
+    const hpCast = (castDesign.characters as any[])
+      .filter((c) => typeof c?.gender === "string" && /^(male|female)$/i.test(c.gender))
+      .map((c) => ({ name: String(c.name ?? "").trim(), gender: String(c.gender).toLowerCase() }));
+    if (hpCast.length > 0) {
+      const costBeforePronoun = client.getCostTracker().getTotalCost();
+      try {
+        const regenBibleP = { ...worldState, beatSheet: [] };
+        const pronounRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        const genderByName = new Map(hpCast.map((c) => [c.name, c.gender]));
+        for (let i = 0; i < prose.chapters.length; i++) {
+          const chText = ((prose.chapters[i]?.paragraphs ?? []) as string[]).join("\n\n");
+          if (!chText.trim()) continue;
+          const events = [
+            ...detectAttributionFlips(chText, hpCast as any),
+            ...detectImpossibleSelfReferences(chText, hpCast as any),
+          ];
+          if (events.length === 0) continue;
+          const defects = events.slice(0, 4).map((e, k) => ({
+            chapter: i + 1,
+            kind: "pronoun_mismatch" as const,
+            detail: `${e.characterName} (${genderByName.get(e.characterName) ?? "?"}) is misgendered in: "${e.sentence}"`,
+            obligationRef: `pronoun_ch${i + 1}_${k}`,
+            severity: "hard" as const,
+          }));
+          const hpChapterValidator = (c: any) => {
+            const t = ((c?.paragraphs ?? []) as string[]).join("\n\n");
+            const n = detectAttributionFlips(t, hpCast as any).length + detectImpossibleSelfReferences(t, hpCast as any).length;
+            return { ok: n === 0, score: 100 - n * 10, violations: n > 0 ? ["pronoun_high_precision_mismatch"] : [] };
+          };
+          const validate = composeChapterValidator(hpChapterValidator);
+          const result = await runRegenRepair(
+            prose.chapters[i],
+            defects as any,
+            (chapter: any, d: any) => buildRegenRequest(chapter, d, regenBibleP),
+            pronounRegen,
+            validate,
+            {
+              maxAttemptsPerDefect: 2,
+              onUnresolved: (d: any, reason: string) =>
+                ctx.warnings.push(`[Agent 9] regen-pronoun UNRESOLVED ch${i + 1} ${d.obligationRef}: ${reason} (drift ships; census will count it).`),
+            },
+          );
+          if (result.unresolved.length < defects.length) {
+            prose.chapters[i] = result.chapter;
+            ctx.warnings.push(`[Agent 9] regen-pronoun repaired ${defects.length - result.unresolved.length} high-precision mismatch(es) in ch${i + 1} (A_66 P3).`);
+          }
+        }
+      } catch (err) {
+        ctx.warnings.push(`[Agent 9] regen-pronoun pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
+      } finally {
+        const pronounCost = client.getCostTracker().getTotalCost() - costBeforePronoun;
+        if (pronounCost > 0 && typeof prose?.cost === "number") prose.cost += pronounCost;
+      }
+    }
+  }
+
   prose = enforceCulpritEvidencePresence(prose, cml);
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
   prose = injectResolutionIfAbsent(prose, cml);
@@ -5794,18 +5909,36 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // victim-rescue and role-alias mutations above — those mutate prose and can leave a
   // residual mismatch the earlier sweep (which ran before them) never re-checked. Behind
   // pronoun_gate_parity_enabled.
-  // ANALYSIS_44 follow-up: this targeted parity repair is INTENTIONALLY independent of the broad
-  // `pronoun_policy` (which gates the aggressive cross-paragraph sweep). The parity pass only
-  // touches characters the final validator flagged with a clear gender mismatch (e.g. a male
-  // detective written she/her), so it must still fire when the broad sweep is off — otherwise a
-  // validator-confirmed mismatch survives straight to a terminal abort (the observed run 6aea3501).
+  //
+  // A_66 P1 — THE PARITY PASS NOW OBEYS pronoun_policy. The ANALYSIS_44 note that stood here
+  // declared this pass "INTENTIONALLY independent of the broad pronoun_policy" so that a
+  // validator-confirmed mismatch could not ride to a TERMINAL ABORT (run 6aea3501). That
+  // rationale has EXPIRED: residual pronoun issues are warn-only today (the integrity gate
+  // below), so nothing aborts — and the independence became pure corruption surface: probe #1's
+  // entry-point forensics proved ALL 27 shipped drift instances were manufactured by this exact
+  // path on pronoun-CLEAN drafts ("He knelt beside Eleanor Voss" → "She knelt…"), seeded by
+  // false-positive proximity detections, unguarded, and scored as an improvement by the loose
+  // metric. Under `verify` ("deterministic fixer stays off — it corrupted prose historically",
+  // the owner's own comment) NO deterministic pronoun mutation runs; true drift routes to the
+  // validator-gated LLM regen channel (A_66 P3). Under strict/relaxed the pass still runs — now
+  // wrapped in the HIGH-PRECISION guard (A_66 P2) so it can never again bless its own vandalism.
   const pronounGateParityEnabled =
-    (getGenerationParams().agent9_prose as any)?.rollout_flags?.pronoun_gate_parity_enabled !== false;
+    (getGenerationParams().agent9_prose as any)?.rollout_flags?.pronoun_gate_parity_enabled !== false &&
+    getPronounPolicySettings().checkingEnabled;
   if (pronounGateParityEnabled) {
     const lateTargets = extractPronounTargetNames(validationReport.errors ?? [], castDesign.characters as CastEntry[]);
     if (lateTargets.size > 0) {
+      const highPrecisionValidator = buildHighPrecisionPronounValidator(castDesign.characters as CastEntry[]);
+      const before = highPrecisionValidator(prose);
       const lateRepair = applyTargetedPronounSweep(prose, castDesign.characters as CastEntry[], lateTargets);
-      if (lateRepair.repairCount > 0) {
+      const after = highPrecisionValidator(lateRepair.prose);
+      if (after.score < before.score) {
+        ctx.warnings.push(
+          `[Agent 9] late pronoun re-repair REVERTED (A_66 P2): high-precision mismatches would rise (${before.score} → ${after.score}).`,
+        );
+      } else if (lateRepair.prose !== prose) {
+        // A_66 P5 honesty: report on TEXT CHANGE, not repairCount — the sweep historically
+        // mutated with repairCount=0 (normalization/segment churn), shipping silent flips.
         prose = lateRepair.prose;
         validationReport = await validateCurrentProse(prose);
         postRepairValidationSummary = { ...validationReport.summary };

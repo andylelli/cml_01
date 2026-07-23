@@ -403,6 +403,18 @@ export class CharacterConsistencyValidator implements Validator {
       if (correctPronouns.possessive !== 'his' && /\bhis\b/i.test(context) && !maleInContext() && !correctPronounInContext && g3Male(/\bhis\b/i)) {
         incorrect.push('his');
       }
+      // A_66 P4 — coverage holes closed: reflexives (himself/herself) and 'hers' were checked
+      // NOWHERE in this validator ("Eleanor braced himself" was invisible to the mismatch type).
+      // Same guard structure as the forms above — detection-side only.
+      if (correctPronouns.subject !== 'he' && /\bhimself\b/i.test(context) && !maleInContext() && !correctPronounInContext && g3Male(/\bhimself\b/i)) {
+        incorrect.push('himself');
+      }
+      if (correctPronouns.subject !== 'she' && /\bherself\b/i.test(context) && !femaleInContext() && !correctPronounInContext && g3Female(/\bherself\b/i)) {
+        incorrect.push('herself');
+      }
+      if (correctPronouns.possessive !== 'her' && /\bhers\b/i.test(context) && !femaleInContext() && !correctPronounInContext && g3Female(/\bhers\b/i)) {
+        incorrect.push('hers');
+      }
     }
 
     return Array.from(new Set(incorrect));

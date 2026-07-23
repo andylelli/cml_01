@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import { bandRunWarnings } from "file:///C:/CML/apps/worker/dist/jobs/run-warnings.js";
 import { detectScaffoldNotProse } from "file:///C:/CML/packages/prose-guard/dist/scaffold.js";
+import { detectAttributionFlips, detectImpossibleSelfReferences } from "file:///C:/CML/packages/story-validation/dist/prose-consistency-validator.js";
 
 const root = "C:/CML";
 const outTsv = path.join(root, "scratchpad/a65/measures.tsv");
@@ -69,11 +70,22 @@ function measureRun(rid, logPath) {
 
   // story-level measures
   const sp = (log.match(/^STORY_SAVED (.+)$/m) ?? [])[1]?.trim();
-  let plantOk = "", scaffoldShip = "", registerCount = "", inferenceDense = "";
+  let plantOk = "", scaffoldShip = "", registerCount = "", inferenceDense = "", pronounHP = "";
   if (sp && fs.existsSync(sp)) {
     const md = fs.readFileSync(sp, "utf8");
     const chapters = chaptersOf(md);
     scaffoldShip = detectScaffoldNotProse(md).length;
+    // A_66 — high-precision pronoun mismatches on the shipped page (cast from the Agent-2 archive)
+    try {
+      const castFile = fs.readdirSync(path.join(archivesRoot, dir))
+        .filter((f) => /Agent2-CastDesigner.*response\.md$/.test(f)).sort().pop();
+      const castTxt = castFile ? fs.readFileSync(path.join(archivesRoot, dir, castFile), "utf8") : "";
+      const cast = [...castTxt.matchAll(/"name"\s*:\s*"([^"]+)"[\s\S]{0,300}?"gender"\s*:\s*"(male|female)"/gi)]
+        .map((m) => ({ name: m[1], gender: m[2].toLowerCase() }));
+      pronounHP = cast.length
+        ? Object.values(chapters).reduce((n, t2) => n + detectAttributionFlips(t2, cast).length + detectImpossibleSelfReferences(t2, cast).length, 0)
+        : "";
+    } catch { pronounHP = "?"; }
     registerCount = Object.values(chapters).reduce((n, t) => n + detectEvidentiaryRegister(t).length, 0);
     // inference density: % of chapters whose sentence set trips the connective family ≥3 times
     const dens = Object.entries(chapters).map(([ch, t]) => {
@@ -95,12 +107,12 @@ function measureRun(rid, logPath) {
     c.retries, c.regens, c.repairs,
     Object.entries(c.byCause).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k}=${v}`).join(","),
     (bands.warn ?? []).length, (bands.info ?? []).length,
-    scaffoldShip, registerCount, inferenceDense, plantOk,
+    scaffoldShip, registerCount, inferenceDense, plantOk, pronounHP,
   ].join("\t");
   return row;
 }
 
-const HEADER = ["date","runId","gate","rubric","caps","calls","corrective","corr%","retries","regens","repairs","top_causes","warn","info","scaffold_ship","register_hits","inference_per_ch","plants"].join("\t");
+const HEADER = ["date","runId","gate","rubric","caps","calls","corrective","corr%","retries","regens","repairs","top_causes","warn","info","scaffold_ship","register_hits","inference_per_ch","plants","pronoun_hp"].join("\t");
 
 const args = process.argv.slice(2);
 const rows = [];

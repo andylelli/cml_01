@@ -329,12 +329,23 @@ function classifySingleMentionSkip(
   const labelAlt = char.labels.map(escapeRegExp).join('|');
   if (!labelAlt) return null;
 
-  // Guard B: leading subject pronoun whose clause directs a verb at the NAMED object.
-  const objectReferent = new RegExp(
-    `^\\s*["'“”‘’]?\\s*(?:he|she|they)\\b[\\s\\S]{0,30}?\\b(?:${DIRECTIONAL_OBJECT_VERBS})\\s+(?:the\\s+|lady\\s+|lord\\s+|mr\\.?\\s+|mrs\\.?\\s+|miss\\s+|dr\\.?\\s+)?(?:${labelAlt})\\b`,
-    'i',
-  );
-  if (objectReferent.test(segment)) return 'object-referent';
+  // A_66 POSITIONAL RULE (replaces the old Guard-B verb list): a leading subject pronoun that
+  // PRECEDES the sentence's only named character means the name sits in object/possessive
+  // position and is NOT the pronoun's referent — rebinding it was the mechanism that
+  // manufactured all 27 of probe #1's shipped drift instances ("He knelt beside Eleanor Voss"
+  // → "She knelt…"; replay-proven, A_66 §2). The old guard required one of 12 directional
+  // verbs; the census verbs (knelt beside / caught…eye / felt / remembered / watched) were
+  // absent, and growing the list is the mole shape — position needs no vocabulary.
+  // Deliberately NO clause-coordinator exception ("She nodded, and Hugo felt…"): re-enabling
+  // capture there re-opens a corruption vector; true drift of that shape belongs to the
+  // validator-gated LLM regen channel, not to deterministic rebinding.
+  const leadingSubject = segment.match(/^\s*["'“”‘’]?\s*(he|she|they)\b/i);
+  if (leadingSubject) {
+    const nameMatch = segment.match(new RegExp(`\\b(?:${labelAlt})\\b`, 'i'));
+    if (nameMatch && (nameMatch.index ?? 0) > segment.toLowerCase().indexOf(leadingSubject[1].toLowerCase())) {
+      return 'object-referent';
+    }
+  }
 
   // Guard D: named char is the perceiver — pronouns after a perception verb are the object's.
   const perceiver = new RegExp(`\\b(?:${labelAlt})\\s+(?:${PERCEPTION_VERBS})\\b`, 'i');
@@ -399,12 +410,22 @@ export function repairPronouns(text: string, cast: CastEntry[], options?: Pronou
   let crossParagraphChar: CharacterPronounInfo | null = null;
 
   const repairedParagraphs = paragraphs.map((paragraph) => {
-    // Split into sentences, preserving delimiters for reconstruction
+    // Split into sentences, preserving delimiters for reconstruction.
+    // A_66 - honorific-safe: the raw [.!?] splitter fractured 'Dr. Mallory Finch' mid-name
+    // (the honorific-period class that blinded the A3 scaffold detector), splitting the name
+    // across segments and corrupting association. A terminator immediately preceded by an
+    // honorific abbreviation is NOT a sentence boundary - merge with the following piece.
+    const HONORIFIC_TAIL = /\b(?:Dr|Mr|Mrs|Ms|St|Capt|Col|Prof|Rev|Sgt|Insp|Lt|Maj)\.\s*$/i;
     const sentencePattern = /([^.!?]*[.!?]+\s*)|([^.!?]+$)/g;
     const segments: string[] = [];
     let match: RegExpExecArray | null;
     while ((match = sentencePattern.exec(paragraph)) !== null) {
-      segments.push(match[0]);
+      const piece = match[0];
+      if (segments.length > 0 && HONORIFIC_TAIL.test(segments[segments.length - 1])) {
+        segments[segments.length - 1] += piece; // continuation of the same sentence
+      } else {
+        segments.push(piece);
+      }
     }
     if (segments.length === 0) {
       segments.push(paragraph);
@@ -727,12 +748,37 @@ function repairByMajorityVote(
     if (wrongCount > 3) continue; // too many — may be legitimate mixed POV
     if (wrongCount / total > 0.30) continue; // not a clear minority
 
-    // Apply a targeted full-chapter sweep for this character's wrong pronouns.
-    const repaired = repairPronounsInSegment(result, character);
-    if (repaired !== result) {
-      repairCount += wrongCount;
-      result = repaired;
-    }
+    // A_66 — SENTENCE-SCOPED, COMPETITOR-GUARDED (was: a full-chapter blind sweep). The old
+    // pass counted every gendered pronoun in the chapter as this character's and flipped the
+    // minority wholesale — in a male-POV chapter it steamrolled Dr. Finch's legitimate
+    // "her lips" into "his" (the A_66 replay fixture). A flip is now allowed only inside a
+    // sentence that (a) names THIS character and (b) names NO character of the wrong
+    // pronoun's gender — anything looser is the corruption engine, not a repair.
+    const wrongGender = character.gender === 'male' ? 'female' : 'male';
+    let mutated = false;
+    // Paragraph-wise, then sentence-wise — so \n\n structure survives reconstruction.
+    const repairedText = result
+      .split('\n\n')
+      .map((para) =>
+        para
+          .split(/(?<=[.!?])\s+/)
+          .map((sentence) => {
+            if (!characterMentionedIn(sentence, character.labels)) return sentence;
+            const competitors = characters.filter(
+              (c) => c.gender === wrongGender && characterMentionedIn(sentence, c.labels),
+            );
+            if (competitors.length > 0) return sentence;
+            const repairedSentence = repairPronounsInSegment(sentence, character);
+            if (repairedSentence !== sentence) {
+              mutated = true;
+              repairCount += 1;
+            }
+            return repairedSentence;
+          })
+          .join(' '),
+      )
+      .join('\n\n');
+    if (mutated) result = repairedText;
   }
 
   return { text: result, repairCount };
