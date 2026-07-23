@@ -1,0 +1,260 @@
+{
+ "instances": [
+  {
+   "chapter": 1,
+   "quote": "She moved closer, heart thudding with a mixture of disbelief and dread, and knelt beside Eleanor Voss.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo named 2 sentences back ('reverberate in Hugo's chest'); falsely bound to Eleanor Voss (same sentence, object of 'knelt beside')"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her eyes stared past her, glassy and unseeing",
+   "character": "Hugo Vane (object)",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 inheritance-flip",
+   "antecedentDistance": "sentence names no one; inherited false anchor Eleanor Voss from previous (already-rebound) sentence"
+  },
+  {
+   "chapter": 1,
+   "quote": "He watched Hugo with an intensity that bordered on intrusive, yet when he spoke, his words were laced with a sardonic edge.",
+   "character": "Beatrice Quill",
+   "expected": "She/she/her",
+   "found": "He/he/his",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind (female\u2192male)",
+   "antecedentDistance": "true antecedent Beatrice named 2 sentences back ('Beatrice Quill hovered by the sideboard'); falsely bound to Hugo (same sentence, object of 'watched' \u2014 Guard D only protects a NAMED perceiver)"
+  },
+  {
+   "chapter": 1,
+   "quote": "His gaze swept the room, lingering on each guest in turn, before settling on Hugo",
+   "character": "Sylvia Trent",
+   "expected": "Her",
+   "found": "His",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind (female\u2192male)",
+   "antecedentDistance": "true antecedent Sylvia named 3 sentences back; falsely bound to Hugo (same sentence, object of 'settling on')"
+  },
+  {
+   "chapter": 1,
+   "quote": "She felt the weight of expectation settle on her shoulders-old friend to Eleanor, yes, but now something more.",
+   "character": "Hugo Vane",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo named in the immediately preceding sentence ('Hugo rose, brushing dust from his knees'); falsely bound to Eleanor (same sentence)"
+  },
+  {
+   "chapter": 1,
+   "quote": "For now, the responsibility of sense-making fell to her.",
+   "character": "Hugo Vane",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 inheritance-flip",
+   "antecedentDistance": "sentence names no one; inherited false anchor Eleanor"
+  },
+  {
+   "chapter": 2,
+   "quote": "She reached for Eleanor's evening bag, its clasp stiff and cold beneath her fingers.",
+   "character": "Hugo Vane",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo 1 sentence back ('the hem of Hugo's trousers as he knelt'); falsely bound to Eleanor (possessive in same sentence)"
+  },
+  {
+   "chapter": 2,
+   "quote": "She glanced at the others-Dr. Finch's composure was brittle",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo named in same sentence-group ('Hugo set the watch on the parquet'); [.!?] splitter cuts at 'Dr.', leaving a fragment whose only detected mention is Finch"
+  },
+  {
+   "chapter": 2,
+   "quote": "Hugo wondered, not for the first time, what secrets he guarded so fiercely.",
+   "character": "Dr. Mallory Finch",
+   "expected": "she",
+   "found": "he",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind (female\u2192male)",
+   "antecedentDistance": "true antecedent Dr. Finch 3 sentences back ('Dr. Finch moved to the window'); falsely bound to Hugo (subject of same sentence)"
+  },
+  {
+   "chapter": 2,
+   "quote": "He glanced at Dr. Finch, then away, her jaw set.",
+   "character": "Captain Ivor Hale",
+   "expected": "his",
+   "found": "her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hale, subject of the sentence and named 2 sentences back; splitter fragment 'Finch, then away, his jaw set.' single-mentions Finch \u2192 his\u2192her"
+  },
+  {
+   "chapter": 2,
+   "quote": "She caught Dr. Finch's eye once more.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo (prior paragraph); fragment 'He caught Dr.' matches Finch's 'dr.' label \u2192 flip"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned, watchful, as the others assembled: Dr. Mallory Finch in a tailored skirt and cardigan",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo (previous paragraph, 'Hugo Vane remained by the mantel'); split at 'Dr.' isolates Finch as sole mention of the fragment"
+  },
+  {
+   "chapter": 3,
+   "quote": "She pressed on, voice steady but softer. \"Dr. Finch, you're certain you left at nine?\"",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split / inheritance",
+   "antecedentDistance": "true antecedent Hugo 2 sentences back; anchored to Dr. Finch via the adjacent 'Dr. Finch' address"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned again to the clock, the scratch at its rim, the hands fixed at ten minutes past ten, and the silent accusation of Eleanor's watch.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo named 1 sentence back ('Hugo felt the first stirrings of doubt'); falsely bound to Eleanor (possessive in same sentence)"
+  },
+  {
+   "chapter": 3,
+   "quote": "A faint sound from the corridor interrupted her thoughts-a chambermaid's voice, confirming in passing that Dr. Finch had indeed left the party at nine.",
+   "character": "Hugo Vane",
+   "expected": "his",
+   "found": "her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo (previous paragraph); falsely bound to Dr. Finch named later in the same sentence"
+  },
+  {
+   "chapter": 4,
+   "quote": "She turned to Dr. Finch, voice softer.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo (2 sentences back); 'turned to' IS in Guard B's directional list but the splitter's cut at 'Dr.' prevents Guard B's object regex from matching the label"
+  },
+  {
+   "chapter": 4,
+   "quote": "She caught Dr. Finch's eye, searching for something-remorse, perhaps, or relief.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo 1 sentence back ('Hugo allowed himself a breath')"
+  },
+  {
+   "chapter": 5,
+   "quote": "She hesitated, gaze flicking to the clock on the sideboard-the one whose face displayed the time so clearly-before settling opposite Dr. Finch.",
+   "character": "Captain Ivor Hale",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind + Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hale named in the immediately preceding sentence ('Captain Ivor Hale followed, his broad shoulders filling the doorway'); falsely bound to Dr. Finch (object, end of sentence)"
+  },
+  {
+   "chapter": 6,
+   "quote": "She remembered the contradiction of Eleanor's watch, the testimony of the guests, the persistent gaps in the timeline.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo 1 sentence back ('drove Hugo Vane back'/'He drifted toward the clock'); falsely bound to Eleanor (possessive)"
+  },
+  {
+   "chapter": 6,
+   "quote": "But as she looked at Dr. Finch, isolated by the group's certainty, and at the clock's unmoving hands, she knew the case was not yet closed.",
+   "character": "Hugo Vane",
+   "expected": "he/he",
+   "found": "she/she",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind + Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo 1 sentence back ('Hugo allowed himself to hope'); falsely bound to Dr. Finch (object of 'looked at'; mid-sentence pronoun position defeats Guard B)"
+  },
+  {
+   "chapter": 6,
+   "quote": "The answer, she sensed, lay not in the comfort of consensus, but in the stubborn refusal of the facts to conform.",
+   "character": "Hugo Vane",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 inheritance-flip",
+   "antecedentDistance": "sentence names no one; inherited false anchor Dr. Finch from the rebound previous sentence"
+  },
+  {
+   "chapter": 8,
+   "quote": "and at Dr. Finch, who now watched her with wary expectation.",
+   "character": "Hugo Vane (object)",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true referent Hugo (subject of the full sentence, 'He glanced back at Captain Hale... and at Dr. Finch'); splitter fragment 'Finch, who now watched him' single-mentions Finch; ', who now' between label and verb defeats Guard D's perceiver pattern"
+  },
+  {
+   "chapter": 10,
+   "quote": "She could not help but wonder at the relief that flickered across Beatrice's face as she spoke.",
+   "character": "Hugo Vane",
+   "expected": "He ... he",
+   "found": "She ... she",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo (previous paragraph, 'He picked up the notepad'); falsely bound to Beatrice (possessive 'Beatrice's face')"
+  },
+  {
+   "chapter": 10,
+   "quote": "She realised, as she watched Sylvia's shoulders sag in relief, that the ordeal had left scars on them all.",
+   "character": "Hugo Vane",
+   "expected": "He ... he",
+   "found": "She ... she",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind",
+   "antecedentDistance": "true antecedent Hugo (previous paragraph); falsely bound to Sylvia ('watched Sylvia's shoulders' \u2014 perceiver is the pronoun, so Guard D misses)"
+  },
+  {
+   "chapter": 10,
+   "quote": "She glanced at Dr. Finch, whose eyes glistened with unshed tears.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 Dr.-abbreviation split",
+   "antecedentDistance": "true antecedent Hugo 2 sentences back ('Hugo drew a slow breath'); 'glanced at' IS in Guard B's list but the splitter's cut at 'Dr.' defeats the guard's label match"
+  },
+  {
+   "chapter": 10,
+   "quote": "She felt the ache of her own failure-her inability to save Eleanor, her blindness to the signs that had been there all along.",
+   "character": "Hugo Vane",
+   "expected": "He/his/his/his",
+   "found": "She/her/her/her",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 object-rebind (REVIEWER'S HEADLINE EXAMPLE)",
+   "antecedentDistance": "true antecedent Hugo named 3 sentences back ('Hugo watched the women'); falsely bound to Eleanor Voss (object of 'save', same sentence). Final draft (33_..._retry1) reads 'He felt the ache of his own failure'"
+  },
+  {
+   "chapter": 10,
+   "quote": "Yet in the quiet that followed, she sensed the first stirrings of something like hope",
+   "character": "Hugo Vane",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "INTRODUCED-BY-applyTargetedPronounSweep/repairChapterPronouns \u2014 inheritance-flip",
+   "antecedentDistance": "sentence names no one; inherited false anchor Eleanor from the rebound previous sentence"
+  }
+ ],
+ "totals": "27 shipped drift instances (28 pronoun-token flips) across chapters 1,2,3,4,5,6,8,10. Verdicts: GENERATED-WRONG: 0. REPAIR-MISSED: 0. INTRODUCED-BY-deterministic-post-processing: 27/27 \u2014 every instance was pronoun-CORRECT in the accepted LLM draft (files 20, 22, 23, 24, 25, 26, 29, 30, 31, 33 in C:\\CML\\documentation\\prompts\\actual\\run_20260722-2010_mystery\\) and was flipped by applyTargetedPronounSweep \u2192 repairChapterPronouns. Replaying the shipped dist (C:\\CML\\packages\\story-validation\\dist\\pronoun-repair.js, rebuilt 2026-07-22 19:55, 15 min before the run) on the clean drafts reproduces ALL 28 flips byte-for-byte (ch1:6, ch2:5, ch3:4, ch4:2, ch5:1, ch6:4, ch8:1, ch10:5) and leaves ch7/ch9 unchanged \u2014 exactly matching the shipped story, where ch7/ch9 are the only clean chapters. AtmosphereRepair responses (34-41) contain only atmosphere phrase replacements; the Ch9 scaffold regen (42) is unrelated. The ch10 'Solid alibi verified by multiple witnesses' leakage sentence is likewise in NO LLM response \u2014 injected by enforceSuspectEliminationPresence (agent9-run.ts:5556), same post-LLM layer.",
+ "classBreakdown": "Mechanism sub-classes (all inside repairPronouns/repairChapterPronouns, packages/story-validation/src/pronoun-repair.ts): (1) OBJECT-REBIND x12 \u2014 the single-mention rule (lines 457-478: 'exactly one character named in a sentence => every pronoun is theirs') rebinds subject pronouns to an OBJECT/possessive-position name ('knelt beside Eleanor Voss', 'save Eleanor', 'watched Sylvia's shoulders', 'across Beatrice's face'); Guard B (line 333) only covers 12 directional verbs (watched/felt/wondered/knelt-beside/save are absent), Guard D (line 340) only fires when the NAMED character is the perceiver, Guard E (line 345) needs a correct-gender pronoun in-sentence which fully-flipped sentences never have. (2) DR.-ABBREVIATION SPLIT x10 \u2014 the naive [.!?] sentence splitter (line 403) cuts at 'Dr.', isolating fragments ('He glanced at Dr.' / 'Finch, then away, his jaw set.') whose only detected mention is Finch, defeating Guards B and D even for verbs they DO cover ('turned to', 'glanced at'). (3) INHERITANCE-FLIP x5 \u2014 a no-name sentence inherits the falsely-rebound anchor (lines 496-525) and its pronouns flip too. Direction: male\u2192female 24 (Hugo x22, Hale x2); female\u2192male 3 (Beatrice, Sylvia, Finch x1 each). The reviewer's ROLE-contamination theory (legacy 'Eleanor-investigator' she/her) is REFUTED: flips go both directions and always track the gender of the nearest NAMED character in the sentence, not the role's historical occupant \u2014 Hugo reads as 'she' only because his investigator sentences constantly name the female victim/suspects as objects.",
+ "keyFindings": [
+  "VERDICT: the fix is 100% post-processing-side. All 10 accepted Agent9 chapter drafts are pronoun-clean (per-chapter character_pronoun_consistency gate passed 10/10 with 0 failed attempts in the report), and a prompt-side pronoun lock would have changed nothing.",
+  "LIVE PATH (split-brain): apps/worker/config/generation-params.yaml:549 sets pronoun_policy: verify \u2014 comment at line 548 says 'deterministic fixer stays off (it corrupted prose historically)' \u2014 which makes pronounRepairEnabled=false (agent9-run.ts:3481; generation-params.ts:1711-1712) and correctly skips every policy-gated repair (agent9-run.ts:5409\u21922745, 5561, 5714, 5725). But yaml:438 pronoun_gate_parity_enabled: true keeps the parity pass (agent9-run.ts:5802-5817) alive, and its comment (5797-5801) declares it 'INTENTIONALLY independent of the broad pronoun_policy' \u2014 so it re-runs the exact fixer the policy turned off, unguarded.",
+  "TRIGGER: the deterministic validators FALSE-POSITIVE on the clean story. Replaying them on the clean assembled drafts yields 23 moderate pronoun_drift (ProseConsistencyValidator.checkPronounDrift, packages/story-validation/src/prose-consistency-validator.ts:504-626, \u00b1200-char proximity window) + 2 major pronoun_gender_mismatch (CharacterConsistencyValidator, packages/story-validation/src/character-validator.ts:298-307) naming ALL SIX cast members \u2014 matching the report's pre_repair snapshot (24 issues: 23 moderate + 1 major). extractPronounTargetNames (agent9-run.ts:1590-1609) parses those messages into targets; applyTargetedPronounSweep (agent9-run.ts:1611-1680) then calls repairChapterPronouns UNRESTRICTED (no onlyNames, full cast) on every chapter that mentions any target name (1642-1664).",
+  "PROOF BY REPLAY: node-running the shipped dist repairChapterPronouns on the clean drafts reproduces all 28 shipped pronoun flips byte-for-byte, including the reviewer's headline 'She felt the ache of her own failure' (draft 33 has 'He felt the ache of his own failure'), and produces ZERO changes on ch7/ch9 \u2014 the only chapters that shipped clean. Scripts: C:\\Users\\andyl\\AppData\\Local\\Temp\\claude\\c--CML\\d52d29f1-7029-4eba-b534-50bf41e07300\\scratchpad\\replay.js, replay_all.js, replay_validators.js.",
+  "NO GUARD COVERS THE PARITY PATH: applyTargetedPronounSweep has no monotonic mismatch check and is NOT wrapped by applyPronounGuardedMutation \u2014 D5 wraps only repairMalformedSurfacing (agent9-run.ts:5478) and applyDeterministicPronounSweep (5561), both no-ops here. Worse, the monotonic metric itself (countChapterPronounMismatches, agent9-run.ts:2421-2455) uses the same nearest-named-entity fallacy, so this corruption scores as an IMPROVEMENT (each 'He \u2026 <FemaleName>' sentence counts as a mismatch before and zero after) \u2014 even a wrapped guard would have approved it.",
+  "RUN_WARNINGS ANSWER: the report's run_warnings (17 entries) contains ZERO pronoun lines and ZERO [Agent 9] lines \u2014 no sweep/repair/revert telemetry surfaced, even though the code unconditionally pushes warnings on this path ('Late pronoun re-repair \u2026 applied' agent9-run.ts:5812-5814; 'Pronoun integrity gate: N pronoun issue(s) remain' 5825-5829). Agent 9 ctx.warnings are not reaching the report's run_warnings diagnostic \u2014 a separate telemetry bug worth filing. The damage IS visible in diagnostics: entity_pronoun_drift_count: 24 (final residual, agent9-run.ts:5819-5824) with validation_status needs_review and no hard stop \u2014 the validator saw the corrupted output and shipped it anyway.",
+  "D5 GUARD ANSWER: no revert occurred and none could \u2014 applyPronounGuardedMutation never wraps the parity/targeted path, and the guarded sweeps it does wrap were disabled by pronoun_policy: verify.",
+  "BONUS (same layer): the reviewer's ch10 'validation-style leakage' sentence ('By the time of the crime, the Solid alibi verified by multiple witnesses. accounted for Dr. Mallory Finch's movements elsewhere') appears in NO LLM response \u2014 it is deterministic suspect-elimination injection (enforceSuspectEliminationPresence, agent9-run.ts:5556) mangling its template, confirming the post-LLM injection/repair layer as the run's quality bottleneck.",
+  "FIX DIRECTION: (a) make pronoun_gate_parity_enabled respect pronoun_policy=verify (or route parity repairs through the validator-gated LLM regen the verify contract promises, generation-params.ts:1709-1710); (b) fix repairPronouns' object-position rebinding and its [.!?] splitter's 'Dr.' handling (packages/story-validation/src/pronoun-repair.ts:403,457-478); (c) fix the validator false positives that seeded the targets (prose-consistency-validator.ts:504-626); (d) fix Agent 9 warnings not propagating to run_warnings. This is the memory note 'Agent9 post-processing runs after validation \u2026 check this layer first' confirmed with a complete causal chain."
+ ]
+}

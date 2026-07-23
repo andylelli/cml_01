@@ -1,0 +1,817 @@
+{
+ "instances": [
+  {
+   "chapter": 1,
+   "quote": "She moved closer, heart thudding with a mixture of disbelief and dread, and knelt beside Eleanor Voss.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He/his",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo's chest\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "He watched Hugo with an intensity that bordered on intrusive, yet when he spoke, his words were laced with a sardonic edge.",
+   "character": "S1: Beatrice Quill (journalist, F)",
+   "expected": "She/she/her",
+   "found": "He/he/his (x3)",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "same paragraph, prior clause \"her expression\""
+  },
+  {
+   "chapter": 1,
+   "quote": "His gaze swept the room, lingering on each guest in turn, before settling on Hugo with a look that managed to be both pleading and appraising.",
+   "character": "S1: Sylvia Trent (F)",
+   "expected": "Her",
+   "found": "His",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "1 sentence (\"she said, voice pitched just above a whisper\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "She felt the weight of expectation settle on her shoulders-old friend to Eleanor, yes, but now something more.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo rose, brushing dust from his knees\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "For now, the responsibility of sense-making fell to her.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "3 sentences"
+  },
+  {
+   "chapter": 2,
+   "quote": "She reached for Eleanor's evening bag, its clasp stiff and cold beneath her fingers.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"hem of Hugo's trousers as he knelt\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "She glanced at the others-Dr. Finch's composure was brittle, her lips pressed tight...",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo set the watch on the parquet\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "Hugo wondered, not for the first time, what secrets he guarded so fiercely.",
+   "character": "S1: Dr. Mallory Finch (F; female referent either way)",
+   "expected": "she guarded",
+   "found": "he guarded",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "1 sentence (Mallory just spoke)"
+  },
+  {
+   "chapter": 2,
+   "quote": "He glanced at Dr. Finch, then away, her jaw set.",
+   "character": "S1: Captain Ivor Hale (M)",
+   "expected": "his jaw",
+   "found": "her jaw",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "same sentence"
+  },
+  {
+   "chapter": 2,
+   "quote": "She caught Dr. Finch's eye once more.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo felt the pressure mounting\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned, watchful, as the others assembled...",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "2 sentences (\"He reached up, fingertips brushing the brass casing\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "She pressed on, voice steady but softer.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"He found himself revisiting...\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned again to the clock, the scratch at its rim, the hands fixed at ten minutes past ten...",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo felt the first stirrings of doubt... about himself\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "A faint sound from the corridor interrupted her thoughts-a chambermaid's voice...",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "his",
+   "found": "her",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "2 sentences"
+  },
+  {
+   "chapter": 4,
+   "quote": "She turned to Dr. Finch, voice softer.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "3 sentences (\"Hugo let the words settle\")"
+  },
+  {
+   "chapter": 4,
+   "quote": "She caught Dr. Finch's eye, searching for something-remorse, perhaps, or relief.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo allowed himself a breath... his shoulders\")"
+  },
+  {
+   "chapter": 5,
+   "quote": "She hesitated, gaze flicking to the clock on the sideboard... before settling opposite Dr. Finch.",
+   "character": "S1: Captain Ivor Hale (M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale followed, his broad shoulders filling the doorway\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "She remembered the contradiction of Eleanor's watch, the testimony of the guests, the persistent gaps in the timeline.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "2 sentences (\"He drifted toward the clock\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "But as she looked at Dr. Finch, isolated by the group's certainty, and at the clock's unmoving hands, she knew the case was not yet closed.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "he (x2)",
+   "found": "she (x2)",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo allowed himself to hope\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "The answer, she sensed, lay not in the comfort of consensus, but in the stubborn refusal of the facts to conform.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "contiguous with prior drifted sentence"
+  },
+  {
+   "chapter": 8,
+   "quote": "He glanced back at Captain Hale... and at Dr. Finch, who now watched her with wary expectation.",
+   "character": "S1: Hugo Vane (investigator, M; object position)",
+   "expected": "watched him",
+   "found": "watched her",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "same sentence (\"He glanced\" correct)"
+  },
+  {
+   "chapter": 10,
+   "quote": "She could not help but wonder at the relief that flickered across Beatrice's face as she spoke.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "3 sentences (\"He picked up the notepad\")"
+  },
+  {
+   "chapter": 10,
+   "quote": "She realised, as she watched Sylvia's shoulders sag in relief, that the ordeal had left scars on them all.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He/he",
+   "found": "She/she",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "2 sentences (\"Hugo's voice was gentle\")"
+  },
+  {
+   "chapter": 10,
+   "quote": "She glanced at Dr. Finch, whose eyes glistened with unshed tears.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "3+ sentences (mid-speech narration, Hugo speaking)"
+  },
+  {
+   "chapter": 10,
+   "quote": "She felt the ache of her own failure-her inability to save Eleanor, her blindness to the signs that had been there all along.",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "He/his (x4)",
+   "found": "She/her (x4)",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "2 sentences (\"Hugo watched the women\") \u2014 reviewer's flagged ch10 example"
+  },
+  {
+   "chapter": 10,
+   "quote": "Yet in the quiet that followed, she sensed the first stirrings of something like hope...",
+   "character": "S1: Hugo Vane (investigator, M)",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "male-investigator-feminized",
+   "antecedentDistance": "contiguous with prior drifted sentence"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her jaw was set, but her gaze darted from Eleanor to the body and back again, as if calculating some unspoken risk.",
+   "character": "S2: Captain Ivor Hale (M)",
+   "expected": "His/his",
+   "found": "Her/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"his navy-blue blazer\"); next sentence flips back (\"He cleared his throat\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "She offered a half-hearted smile to Eleanor, but it faded as her eyes fell upon Dr. Mallory Finch.",
+   "character": "S2: Hugo Vane (charmer, M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"His tweed jacket was rumpled\"); flips back (\"he murmured\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "As he gathered his notes, he caught a final, lingering glance from Captain Ivor Hale...",
+   "character": "S2: Eleanor Voss (investigator, F)",
+   "expected": "she/her/she",
+   "found": "he/his/he",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"Eleanor felt the first stirrings of resolve\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "The investigation, he realized, had only just begun.",
+   "character": "S2: Eleanor Voss (investigator, F)",
+   "expected": "she",
+   "found": "he",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "contiguous with prior drifted sentence"
+  },
+  {
+   "chapter": 4,
+   "quote": "The defensiveness in her tone was unmistakable, and Eleanor wondered what lay beneath it.",
+   "character": "S2: Captain Ivor Hale (M)",
+   "expected": "his tone",
+   "found": "her tone",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"He broke off, his eyes hard\")"
+  },
+  {
+   "chapter": 4,
+   "quote": "She looked back at Eleanor, her expression unreadable.",
+   "character": "S2: Hugo Vane (M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Hugo Vane lingering by the window, his silhouette\"); flips back (\"he said quietly\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "Eleanor met her gaze, refusing to look away.",
+   "character": "S2: Captain Ivor Hale (M; gaze owner)",
+   "expected": "his gaze",
+   "found": "her gaze",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"His tone was clipped\")"
+  },
+  {
+   "chapter": 7,
+   "quote": "He realised that the presence of the cufflink, here in the garden, contradicted the alibi Hugo Vane had offered...",
+   "character": "S2: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "2 sentences"
+  },
+  {
+   "chapter": 7,
+   "quote": "He offered a crooked smile, but it faltered as he noticed the cufflink in his palm.",
+   "character": "S2: Eleanor Voss (investigator, F; possessive \u2014 palm is Eleanor's)",
+   "expected": "her palm",
+   "found": "his palm",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "same sentence (\"He offered/he noticed\"=Hugo, correct)"
+  },
+  {
+   "chapter": 7,
+   "quote": "Hugo's gaze flicked from his face to the object, then away.",
+   "character": "S2: Eleanor Voss (investigator, F; face owner)",
+   "expected": "her face",
+   "found": "his face",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "same sentence"
+  },
+  {
+   "chapter": 7,
+   "quote": "The meaning of her alibi-so carefully corroborated by Beatrice-was suddenly less certain.",
+   "character": "S2: Hugo Vane (M; alibi owner)",
+   "expected": "his alibi",
+   "found": "her alibi",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence; next sentence flips back (\"Had he truly been in the lounge\")"
+  },
+  {
+   "chapter": 7,
+   "quote": "Eleanor met her gaze, searching for any sign of guilt.",
+   "character": "S2: Captain Ivor Hale (M; gaze owner)",
+   "expected": "his gaze",
+   "found": "her gaze",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale emerged... his voice low and rough\")"
+  },
+  {
+   "chapter": 9,
+   "quote": "Hugo Vane offered a crooked smile, but his hands fidgeted at his cuffs. Eleanor fixed her with a measured look.",
+   "character": "S2: Hugo Vane (M; object)",
+   "expected": "fixed him",
+   "found": "fixed her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 10,
+   "quote": "...the logbook's silent testimony-all had converged to reveal her guilt.",
+   "character": "S2: Captain Ivor Hale (M; the culprit)",
+   "expected": "his guilt",
+   "found": "her guilt",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences; next sentence flips back (\"undid him... his calm exterior\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her voice, usually confident and theatrical, faltered as she addressed Eleanor. 'Is there any hope?' he asked...",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "His/he",
+   "found": "Her/she, then flips back to he mid-passage",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"He hovered nearest the body\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "She wondered if the discipline she wore so proudly was merely a shield.",
+   "character": "S3: Captain Ivor Hale (M; discipline is Hale's)",
+   "expected": "he wore",
+   "found": "she wore",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 1,
+   "quote": "He pressed his fingers to his temple, recalling Hugo Vane's last words to him-a memory now tinged with regret.",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "She/her (x3)",
+   "found": "He/his/him",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "2 sentences (\"Eleanor remained near Hugo Vane, her thoughts racing\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "The contradiction gnawed at him-Hugo Vane had been witnessed stepping out into the corridor at twenty minutes past ten...",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "her",
+   "found": "him",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"Eleanor's fingers trembled as she recalled\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "He pressed the point gently, careful not to accuse.",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "contiguous with prior drifted sentence"
+  },
+  {
+   "chapter": 2,
+   "quote": "She glanced at the clock, then at Eleanor, as if searching for reassurance.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale shifted, his navy suit immaculate\"); flips back (\"he said\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "The tension in her voice suggested more than mere concern for accuracy.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "his voice",
+   "found": "her voice",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"His hand lingered on his watch chain\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "He recalled Hugo Vane last glimpsed leaving the bakery at 10:20, a fact that contradicted the clock's display.",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "2 sentences (\"Eleanor drew back, considering\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "She adjusted her watch chain with a flourish, then met Eleanor's gaze. 'I was in the dining room from ten to eleven,' he declared...",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He/his",
+   "found": "She/her, flips back to he in dialogue tag",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale lingered near the bar\")"
+  },
+  {
+   "chapter": 4,
+   "quote": "She adjusted her navy suit, the fabric crisp and immaculate, but her hand lingered on her watch chain...",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He/his (x4)",
+   "found": "She/her (x4)",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale broke the hush\"); flips back (\"he said\")"
+  },
+  {
+   "chapter": 4,
+   "quote": "'Hugo and I...' he began, then hesitated, her eyes searching Eleanor's face.",
+   "character": "S3: Dr. Mallory Finch (F; the speaker confessing the affair)",
+   "expected": "she began",
+   "found": "he began (her eyes correct \u2014 mid-sentence flip)",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "2 sentences (\"Mallory's calm facade wavered. She set her fork down\")"
+  },
+  {
+   "chapter": 5,
+   "quote": "Her attempt at bravado faltered under Eleanor's scrutiny.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "His",
+   "found": "Her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Hale's confidence wavered\"); flips back (\"he muttered\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "She offered explanations for its reading, but her voice trembled, betraying a fear that Eleanor could not ignore.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"He avoided the group's scrutiny, his fidgeting\")"
+  },
+  {
+   "chapter": 7,
+   "quote": "She adjusted her thin leather belt, posture rigid, but her eyes darted restlessly between Eleanor and the shadowed rose bushes.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He/his (x3)",
+   "found": "She/her (x3)",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale paced beside her, his navy suit immaculate\")"
+  },
+  {
+   "chapter": 7,
+   "quote": "Mallory's affair with Hugo Vane, revealed earlier, now seemed to entangle his in more than just scandal.",
+   "character": "S3: Dr. Mallory Finch (F)",
+   "expected": "her",
+   "found": "his",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "same sentence (name in sentence)"
+  },
+  {
+   "chapter": 7,
+   "quote": "She avoided Eleanor's gaze, eyes lingering on the shadowed roses.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Hale's jaw tightened\"); flips back (\"he said\")"
+  },
+  {
+   "chapter": 8,
+   "quote": "He recalled the earlier contradiction-Hugo Vane last spotted leaving the billiard room at twenty minutes past ten...",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"a false certainty that gnawed at her\")"
+  },
+  {
+   "chapter": 8,
+   "quote": "She paused near the reception desk, fingers fidgeting with her watch chain, avoiding Eleanor Voss's gaze.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale entered, his navy suit immaculate\")"
+  },
+  {
+   "chapter": 8,
+   "quote": "The sound of her shoes on the marble was sharp, a counterpoint to the dim silence.",
+   "character": "S3: Captain Ivor Hale (M)",
+   "expected": "his shoes",
+   "found": "her shoes",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences"
+  },
+  {
+   "chapter": 8,
+   "quote": "Eleanor Voss registered the tremor in her words, the defensiveness that had grown since the confrontation in the garden.",
+   "character": "S3: Captain Ivor Hale (M; the words are Hale's)",
+   "expected": "his words",
+   "found": "her words",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"Hale said, his voice unsteady\")"
+  },
+  {
+   "chapter": 10,
+   "quote": "The rivalry that had once colored his interactions with Hugo Vane now seemed trivial, eclipsed by the enormity of the crime.",
+   "character": "S3: Beatrice Quill (F)",
+   "expected": "her interactions",
+   "found": "his interactions",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "2 sentences (Beatrice's paragraph: \"her gaze darting\")"
+  },
+  {
+   "chapter": 10,
+   "quote": "Relief mingled with guilt as he watched the group's reaction to Hale's undoing.",
+   "character": "S3: Dr. Mallory Finch (F)",
+   "expected": "she watched",
+   "found": "he watched",
+   "driftClass": "female-suspect-masculinized",
+   "antecedentDistance": "same sentence region (\"the investigation had cleared her\")"
+  },
+  {
+   "chapter": 10,
+   "quote": "He pressed his fingers to his temple, recalling Hugo Vane's last words to him-a memory now tinged with regret.",
+   "character": "S3: Eleanor Voss (investigator, F)",
+   "expected": "She/her (x3)",
+   "found": "He/his/him \u2014 verbatim repeat of the ch1 drifted sentence",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "2 sentences (\"Eleanor remained near Hugo Vane's memory, her thoughts racing\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her eyes, usually so quick to command, darted from Eleanor to the bed, then to the clock.",
+   "character": "S4: Captain Ivor Hale (M)",
+   "expected": "His",
+   "found": "Her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"He filled the threshold... as he removed his fedora\"); flips back (\"he said\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her connection to Dr. Mallory Finch was professional, yet tinged with the wary respect of two strong personalities...",
+   "character": "S4: Captain Ivor Hale (M)",
+   "expected": "His",
+   "found": "Her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale... had always carried himself\"); next sentence flips back (\"his posture was disciplined\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "Eleanor watched her closely, noting the way her gaze avoided Dr. Mallory Finch's form, settling instead on the clock.",
+   "character": "S4: Captain Ivor Hale (M)",
+   "expected": "him/his",
+   "found": "her/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"Captain Ivor Hale cleared his throat... he said\")"
+  },
+  {
+   "chapter": 1,
+   "quote": "The detail nagged at her: why should the time matter so much to her, or to herself?",
+   "character": "S4: Captain Ivor Hale (M; the one fixated on the clock)",
+   "expected": "to him",
+   "found": "to her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 2,
+   "quote": "He steadied himself, smoothing the sleeve of his wool skirt, and turned to face Captain Ivor Hale.",
+   "character": "S4: Eleanor Voss (investigator, F; note the wool SKIRT)",
+   "expected": "She/herself/her",
+   "found": "He/himself/his",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"drawing Eleanor's attention\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "Her gaze flickered between Eleanor and the clock, a muscle twitching at her jaw.",
+   "character": "S4: Captain Ivor Hale (M)",
+   "expected": "His/his",
+   "found": "Her/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"He stood by the foot of the bed, his posture rigid\"); flips back (\"he said\")"
+  },
+  {
+   "chapter": 2,
+   "quote": "He wondered, not for the first time, whether Captain Ivor Hale's reputation for discipline masked a deeper uncertainty.",
+   "character": "S4: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1-2 sentences (\"Eleanor allowed the silence to stretch\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "The implications were stark: with the mechanism in hand, she could have set the hands to any time she wished...",
+   "character": "S4: Captain Ivor Hale (M; key found in HIS jacket)",
+   "expected": "he/he",
+   "found": "she/she",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"it suggested he not only had access\" \u2014 correct he, then flips)"
+  },
+  {
+   "chapter": 3,
+   "quote": "He met his gaze, searching for irony or accusation, but found only weariness.",
+   "character": "S4: Eleanor Voss (investigator, F; meeting Hugo's gaze)",
+   "expected": "She met his gaze",
+   "found": "He met his gaze",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"seemed to echo Eleanor's own unease\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "She wondered if her reluctance was born of guilt or fear-or both.",
+   "character": "S4: Captain Ivor Hale (M; the reluctance/evasiveness is Hale's)",
+   "expected": "his reluctance",
+   "found": "her reluctance",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"the way Captain Ivor Hale's answers skirted\")"
+  },
+  {
+   "chapter": 3,
+   "quote": "He would need more-another contradiction, a slip of the tongue, a corroboration from elsewhere in the hotel.",
+   "character": "S4: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 3,
+   "quote": "He set the key on the mantel, its metallic gleam catching the firelight. 'We'll keep this safe,' she said...",
+   "character": "S4: Eleanor Voss (investigator, F)",
+   "expected": "She set",
+   "found": "He set (she said correct \u2014 flip within passage)",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "same passage"
+  },
+  {
+   "chapter": 4,
+   "quote": "She paused in the doorway, her gaze flickering from Eleanor to Beatrice and back again. 'You wanted to see me, Miss Voss?'",
+   "character": "S4: Hugo Vane (M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences (\"admitting Hugo Vane... He wore a rumpled flannel shirt\")"
+  },
+  {
+   "chapter": 4,
+   "quote": "Hugo's words complicated everything, introducing a motive he had not fully considered.",
+   "character": "S4: Eleanor Voss (investigator, F; she had not considered it)",
+   "expected": "she had not fully considered",
+   "found": "he had not fully considered",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"Eleanor steadied herself\")"
+  },
+  {
+   "chapter": 5,
+   "quote": "She turned, the movement deliberate, and offered a wan smile. 'Of course, Miss Voss. I've nothing to hide...'",
+   "character": "S4: Captain Ivor Hale (M; speaker addresses Miss Voss)",
+   "expected": "He turned",
+   "found": "She turned",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences; flips back (\"His self-deprecating humour\")"
+  },
+  {
+   "chapter": 5,
+   "quote": "She watched her closely, noting the way her bravado seemed to collapse inward, replaced by a defensive uncertainty.",
+   "character": "S4: Captain Ivor Hale (M; object + possessive)",
+   "expected": "watched him... his bravado",
+   "found": "watched her... her bravado",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1-2 sentences"
+  },
+  {
+   "chapter": 5,
+   "quote": "She attempted a laugh, but it came out brittle. 'These clocks are temperamental, Miss Voss...'",
+   "character": "S4: Captain Ivor Hale (M; speaker addresses Miss Voss)",
+   "expected": "He attempted",
+   "found": "She attempted",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 5,
+   "quote": "He watched him closely, searching for the line between fear and guilt.",
+   "character": "S4: Eleanor Voss (investigator, F; watcher)",
+   "expected": "She watched him",
+   "found": "He watched him",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"the contradictions in Captain Ivor Hale's statements\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "She glanced at Beatrice, then back at Eleanor, as if bracing herself for a revelation she did not want to hear.",
+   "character": "S4: Hugo Vane (M)",
+   "expected": "He/himself/he",
+   "found": "She/herself/she",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence (\"his expression betrayed a flicker of fear\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "He turned his attention to the key on the table, recalling the unease in Captain Ivor Hale's demeanor.",
+   "character": "S4: Eleanor Voss (investigator, F)",
+   "expected": "She/her",
+   "found": "He/his",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"Eleanor nodded, the lines of her earlier theory\"); flips back (\"she admitted\")"
+  },
+  {
+   "chapter": 6,
+   "quote": "He cleared his throat, drawing their attention. 'Miss Voss, we've finished dusting the clock,' she announced... behind him.",
+   "character": "S4: forensic team member (gender never established)",
+   "expected": "internally consistent pronouns",
+   "found": "he -> she -> him within 3 sentences",
+   "driftClass": "ungendered-minor-inconsistent",
+   "antecedentDistance": "same passage"
+  },
+  {
+   "chapter": 7,
+   "quote": "He did not rise. Instead, she placed the letter on the table between them...",
+   "character": "S4: Eleanor Voss (investigator, F; seated with the letter)",
+   "expected": "She did not rise",
+   "found": "He did not rise (she placed correct \u2014 flip within passage)",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "same passage"
+  },
+  {
+   "chapter": 7,
+   "quote": "The evidence of tampering was no longer theoretical-it was physical, and it pointed to her.",
+   "character": "S4: Captain Ivor Hale (M; the tamperer)",
+   "expected": "pointed to him",
+   "found": "pointed to her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "2 sentences"
+  },
+  {
+   "chapter": 7,
+   "quote": "'You have your evidence, Miss Voss,' she said, his voice steadier now.",
+   "character": "S4: Captain Ivor Hale (M; speaker addresses Miss Voss)",
+   "expected": "he said",
+   "found": "she said (his voice correct \u2014 mid-sentence flip)",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "same sentence"
+  },
+  {
+   "chapter": 8,
+   "quote": "Captain Ivor Hale's hands trembled. She looked from Eleanor to the others, her gaze pleading, but found no refuge.",
+   "character": "S4: Captain Ivor Hale (M)",
+   "expected": "He/his",
+   "found": "She/her",
+   "driftClass": "male-suspect-feminized",
+   "antecedentDistance": "1 sentence"
+  },
+  {
+   "chapter": 9,
+   "quote": "He felt the weight of consequence settle over the room...",
+   "character": "S4: Eleanor Voss (investigator, F)",
+   "expected": "She",
+   "found": "He",
+   "driftClass": "female-investigator-masculinized",
+   "antecedentDistance": "1 sentence (\"Eleanor allowed herself a breath of relief\")"
+  }
+ ],
+ "totals": "Counting method: sentence-level \u2014 each sentence containing >=1 wrong-gender pronoun for a clearly identifiable referent = 1 instance (contiguous wrong pronouns within a sentence counted once; ambiguous referents excluded, e.g. the ungendered constable in S3 ch1). Stories: S1 = C:\\CML\\stories\\story_20260722-2127\\the_clockwork_deception.md (run mystery-1784751055781, investigator Hugo Vane M, 5 of 6 named characters female). S2 = C:\\CML\\stories\\story_20260722-2154\\the_tide_s_deception.md (run mystery-1784752665289, investigator Eleanor Voss F). S3 = C:\\CML\\stories\\story_20260720-1840\\the_clock_s_deceit.md (run mystery-1784568348619, investigator Eleanor Voss F, victim Hugo Vane). S4 = C:\\CML\\stories\\story_20260720-1857\\the_clock_s_deception.md (run mystery-1784569235134, investigator Eleanor Voss F, victim Mallory Finch). PER-STORY TOTALS \u2014 S1: 26 total (investigator-directed 21, other characters 5). S2: 14 total (investigator-directed 5, others 9). S3: 23 total (investigator-directed 6, others 17). S4: 26 total (investigator-directed 10, others 15, plus 1 ungendered-minor inconsistency). GRAND TOTAL: 89 instances. Investigator-directed drift: Hugo (M) 21 vs Eleanor (F) 5/6/10 (mean 7).",
+ "classBreakdown": "By direction: male referent -> feminine pronouns = 60/89 (67%): S1 23 (Hugo-investigator 21, Hale 2), S2 9 (Hale 5, Hugo 4), S3 13 (all Hale), S4 15 (Hale 13, Hugo 2). Female referent -> masculine pronouns = 28/89 (31%): S1 3 (Beatrice 1, Sylvia 1, Mallory 1), S2 5 (all Eleanor-investigator), S3 10 (Eleanor 6, Mallory 3, Beatrice 1), S4 10 (all Eleanor-investigator). Ungendered-minor-inconsistent = 1 (S4 forensic tech, he->she->him in one passage). By character across all four stories: Captain Ivor Hale (M, never investigator) 33 \u2014 the single largest drift target; Hugo Vane as investigator (S1) 21; Eleanor Voss as investigator (S2-S4) 21; Hugo Vane as suspect 6; Dr. Mallory Finch 4; Beatrice Quill 2; Sylvia Trent 1; minor char 1. By class: male-investigator-feminized 21, female-investigator-masculinized 21, male-suspect-feminized 39, female-suspect-masculinized 7, ungendered-minor-inconsistent 1.",
+ "keyFindings": [
+  "VERDICT: the strong hypothesis is REFUTED. Drift does NOT near-vanish for female investigators: the three Eleanor-led stories carry 14, 23, and 26 sentence-level drift instances (vs 26 for the Hugo-led story), and Eleanor herself is misgendered as he/his/him 5-10 times per story \u2014 a 'female-investigator prior' cannot produce masculine pronouns on a female investigator.",
+  "A weaker form of the hypothesis survives: investigator-DIRECTED drift is ~3x higher when the investigator is male (Hugo 21 instances, 100% feminine-direction, vs Eleanor mean 7), so a male investigator does attract disproportionate she/her narration. But the S1 cast is 5-of-6 female (Eleanor victim, Mallory, Beatrice, Sylvia, plus male Hale), so majority-gender pressure explains this as well as an Eleanor-investigator prior does.",
+  "The single largest drift target across all four stories is Captain Ivor Hale \u2014 33 instances, all male->feminine, and he is NEVER the investigator. His feminizations cluster (a) in interrogation scenes opposite female Eleanor and (b) in recurring trait-template sentences: 'She adjusted her watch chain / her navy suit / her thin leather belt' recurs with feminine pronouns in S3 chapters 3, 4, 7, and 8. Drift attaches to trait-phrase templates and to whoever shares scenes with opposite-gender characters, not to the investigator role per se.",
+  "Mechanism signature is interlocutor/nearest-referent gender bleed, bidirectional within the same exchange: S4 ch2 'He steadied himself, smoothing the sleeve of his wool skirt, and turned to face Captain Ivor Hale' (female Eleanor masculinized while facing a man, garment stays female); S3 ch1 'Her voice... faltered as she addressed Eleanor. Is there any hope? he asked' (male Hale feminized while addressing a woman, flipping back mid-passage).",
+  "Antecedent distances are tiny and repair-friendly: in ~80% of instances the correct name is 0-2 sentences away, and passages frequently flip back to the correct gender in the next clause or dialogue tag \u2014 this is exactly the pattern the Item 13 detector/repair layer (documentation/analysis/ANALYSIS_62/ITEM_13_PRONOUN_DRIFT_SPEC.md, fix commit 047d469f) should catch, yet both 2026-07-22 probe runs (post-fix) still ship 26 and 14 instances.",
+  "Template/duplication carrier: the drifted sentence 'He pressed his fingers to his temple, recalling Hugo Vane's last words to him' appears VERBATIM in S3 ch1 and ch10 \u2014 wrong-gender pronouns are being propagated by repeated obligation/summary boilerplate, consistent with the known agent9 post-processing/template layer (see memory: post-LLM passes corrupt clean output).",
+  "Drift is NOT investigator-specific: in the female-investigator stories 64-74% of drift lands on non-investigator MALE characters (Hale, Hugo). The reviewer's 'role-pronoun contamination toward a female-investigator prior' fits only the S1 investigator subset; the cross-story data better fits character-agnostic referent confusion biased toward the locally dominant gender (feminine direction = 67% overall, matching the heavily female casts).",
+  "Secondary observations: S4 has an ungendered minor character (forensic tech) whose pronouns cycle he->she->him within one passage (ch6), and S1's male investigator drift persists into pure introspection with no female character in the sentence (ch10 'She felt the ache of her own failure'), i.e. once drifted, a passage can stay drifted for 2-3 sentences before snapping back."
+ ]
+}

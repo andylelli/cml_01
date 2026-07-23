@@ -1,0 +1,102 @@
+{
+ "components": [
+  {
+   "name": "Item 13 spec (owner-authored, 2026-07-17)",
+   "file": "C:\\CML\\documentation\\analysis\\ANALYSIS_62\\ITEM_13_PRONOUN_DRIFT_SPEC.md",
+   "lines": "1-97",
+   "what": "The owner's canonical pronoun-drift problem spec: 5 true-positive shapes (TP1 beat-mismatch, TP2 alibi-clearance drift, TP3 investigator-masculinized cross-sentence, TP4 cross-beat mixing, TP5 nearest-name capture), 3 must-not-flag precision shapes (FP1 legit referent, FP2 unnamed-role, AMB group-ambiguity), high-risk scene classes, a 4-part fix architecture, an editing checklist, and a verbatim generation instruction for a P5 prompt lever. Bottom section records the 2026-07-17 fixture-audit results run through the real shipped machinery.",
+   "scope": "Fixture source and requirements doc for all Item-13 work; explicitly maps every fix onto existing machinery ('nothing here is a new subsystem').",
+   "knownLimitations": "The spec itself notes the externals' verbatim drift quotes were never recorded (47fe3c20 summarized without quotes); shapes are owner-reconstructed, not transcript-derived."
+  },
+  {
+   "name": "Fixture audit harness (spec architecture prerequisite: measure-then-fix)",
+   "file": "C:\\CML\\scripts\\pronoun-fixture-audit.mjs",
+   "what": "IMPLEMENTED (commit 047d469f, 2026-07-17). Runs every TP/FP/AMB spec shape through the real shipped detector and repair sweep BEFORE any code change. Verdict recorded in the spec (lines 79-97): repair already fixed TP1/TP2/TP4; detector was 1/5 blind and fired the FP2 false positive; TP3 untouched by repair; TP5/AMB genuinely ambiguous.",
+   "scope": "One-shot audit script; also scripts/pronoun-audit.mjs (A_62 RC-4, 2026-07-16) which ran the real detectPronounDriftEvents over the S0 stories with designed casts.",
+   "knownLimitations": "Audit fixtures are the spec's synthetic shapes, not recovered external quotes; the RC-4 audit found the S0-era 0/20 cap history is partly version skew (the S0 rubric never ran the pronoun scan at all \u2014 ANALYSIS_62.md:272)."
+  },
+  {
+   "name": "Spec fix-arch #1: fixed pronoun map before drafting (frozen Bible gender map)",
+   "file": "C:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "56, 255-257",
+   "what": "IMPLEMENTED pre-spec (bf96b516, 2026-07-03, A_61 RC2.2): genderMapFromBible dereferenced as the single authoritative pronoun source for validators + narrative state, behind AGENT9_BIBLE_AUTHORITATIVE (agent9-run.ts:257, default false in code, ON via env per ledger cap panel line 144). Prompts DO surface it per character: pronoun tags on personality headers (packages/prompts-llm/src/agent9-prose/prompt-blocks.ts:213-214, 282-283), compact per-cast PRONOUN LOCK block (prompt-builder.ts:2036-2039), ABSOLUTE PRONOUN LOCK retry guidance (generate.ts:2712-2715), and 'PRONOUN LOCK \u2014 never change' lines in regen and critique-rewrite prompts (regen-llm.ts:54, critique-rewrite.ts:108).",
+   "scope": "Generation-time + regen/rewrite-time prompt surface across the whole Agent-9 stack.",
+   "knownLimitations": "The spec's sub-task 'Verify prompts actually surface it per character' has no recorded verification artifact; the surfacing is confirmed only by code inspection here. Ran ON for all 20 cap-ledger runs yet all 4 external reads still saw drift (TARGET_80_LEDGER.md:144) \u2014 the map alone does not prevent generation-time drift; the probe-#1 reviewer's ROLE-contamination class defeats it."
+  },
+  {
+   "name": "Spec fix-arch #2: AGENT9_PRONOUN_CLARITY generation-instruction lever",
+   "file": "C:\\CML\\documentation\\analysis\\ANALYSIS_62\\ANALYSIS_62.md",
+   "lines": "75-76",
+   "what": "NOT IMPLEMENTED. Zero hits for AGENT9_PRONOUN_CLARITY in any .ts/.js/.mjs/.json in the repo \u2014 it exists only in ANALYSIS_62.md and the spec. The spec required a default-OFF prompt lever carrying the owner's verbatim instruction (pronoun map + name-over-pronoun in dense scenes + drafting-time consistency pass), A/B'd at P5 measuring drift-event count AND dialogue/prose marks. The 7.4 decision sitting (2026-07-20) kept the candidate LIVE (character_clarity 6.19 < 6.5) but as corpus-era design (ANALYSIS_63.md:120); 7.9 close-out lists it among open carry-overs (ANALYSIS_63.md:125). The A/B era then ENDED (7.3 was 'the campaign's last A/B batch') without it ever being built or measured.",
+   "scope": "Would have been the owner's editing checklist + verbatim instruction (spec lines 58-75) as prompt copy; also the designated home for TP5/AMB handling.",
+   "knownLimitations": "Because this lever was never built, spec fix-arch #4 (name-substitution repair) and TP5 recall are also unimplemented \u2014 047d469f explicitly routed both here. Now effectively superseded by the probe-#1 'PRONOUN ROLE-CONTAMINATION' work item (CRAFT_IMPLEMENTATION_PLAN.md:23-24), queued as the top craft blocker for the next sitting, still not root-caused."
+  },
+  {
+   "name": "Spec fix-arch #3a: detector precision fix (FP2 unnamed-role suppression)",
+   "file": "C:\\CML\\packages\\story-validation\\src\\prose-consistency-validator.ts",
+   "lines": "249-302",
+   "what": "IMPLEMENTED (047d469f). UNNAMED_ROLE_INTERVENER (line 250-251): a period staff/occupational + generic-person noun list; detectImpossibleSelfReferences skips a wrong-pronoun hit when an unnamed role noun precedes it (line 302) \u2014 reproducing and killing the RC-4 live FP ('the night porter \u2026 clearing his throat'). Precision-first posture: any person-role noun suppresses regardless of gender coding.",
+   "scope": "Detector (b) impossible-self-reference, narration only (dialogue stripped, line 263); feeds pronounInstabilityEvents/pronounsUnstable cap.",
+   "knownLimitations": "Deliberately high-precision/low-recall (documented at lines 299-301); the fixture audit showed the detector remains blind to TP2/TP3/TP4/TP5 even after this fix \u2014 only its FP noise was removed. Fixed noun list can miss novel role nouns."
+  },
+  {
+   "name": "Spec fix-arch #3b: repair recall fix (TP3 \u2014 Guard C existence requirement)",
+   "file": "C:\\CML\\packages\\story-validation\\src\\pronoun-repair.ts",
+   "lines": "439, 497-503",
+   "what": "IMPLEMENTED (047d469f). Guard C previously protected any >=2 opposite-pronoun run as 'probably a different character'; it now requires that hypothesized different character to actually EXIST \u2014 someone of that gender named in the paragraph (evidence base built at line 439) \u2014 before protecting the run. This lets the sweep repair self-consistent whole-sentence drift ('He pressed on toward the shore, his gaze fixed.' after an Eleanor sentence with no male named). Cross-paragraph-INHERITED anchors keep the unconditional guard (lines 422-426). Same commit fixed the pronoun-verify-policy cross-paragraph window mismatch (competitor search widened to the test's \u00b1200-char window; suppression only widens).",
+   "scope": "repairPronouns/repairChapterPronouns \u2014 the deterministic sweep invoked from agent9-run.ts:1635, 1649, 2476, 2746.",
+   "knownLimitations": "Title-as-evidence override (line 482) and mixed-gender-paragraph guards remain heuristic; TP5 nearest-name capture is untouched by design (genuinely ambiguous \u2014 needs name substitution, which was never built)."
+  },
+  {
+   "name": "Spec fix-arch #4: AMB name-substitution repair",
+   "file": "C:\\CML\\documentation\\analysis\\ANALYSIS_62\\ITEM_13_PRONOUN_DRIFT_SPEC.md",
+   "lines": "55-57, 96-97",
+   "what": "NOT IMPLEMENTED \u2014 deliberately. The spec requires ambiguity repaired by replacing the pronoun with the intended NAME, never by flipping gender ('a wrong flip corrupts; a name is always safe'). Commit 047d469f states verbatim: 'TP5 + AMB name-substitution deliberately NOT attempted (genuinely ambiguous \u2192 the P5 AGENT9_PRONOUN_CLARITY prompt lever, per the spec)' \u2014 and that lever was never built.",
+   "scope": "Would target the AMB shape and TP5; also the editing-checklist rules (names over pronouns in deduction/reveal scenes, no ambiguous pronouns after group descriptions).",
+   "knownLimitations": "No code path anywhere performs name substitution for ambiguous pronouns; the highest-risk scene classes the spec lists (group interrogations, reveals, alibi-clearing) have no concentrated detection/repair targeting either."
+  },
+  {
+   "name": "D5 monotonic sweep guard + pronoun-stability validator (pre-spec machinery the spec builds on)",
+   "file": "C:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "2051-2084, 2416-2500, 5400, 5478, 5561",
+   "what": "A_57 D5 (486f3c48, plus f6386e47's R-B sweep 2026-06-24): buildPronounStabilityValidator (line 2058) counts pronoun_gender_mismatch via CharacterConsistencyValidator for mutateThenValidate; applyDeterministicPronounSweep (line 2457) runs repairPronouns with crossParagraphInheritance and REVERTS the whole chapter if countChapterPronounMismatches rises (lines 2486-2495 \u2014 the monotonic guard); applyPronounGuardedMutation (line 5400) wraps later post-processing mutations (grounding-lead, etc.) so they revert when they raise the mismatch count. applyTargetedPronounSweep (lines 1611-1649) re-repairs only validator-named characters.",
+   "invokedFrom": "Agent 9 post-processing chain (post-LLM, per-chapter), lines 5478 and 5561 for the guarded mutations.",
+   "scope": "The deterministic backstop layer \u2014 the spec's architecture item 3 'exists' claim points here.",
+   "knownLimitations": "countChapterPronounMismatches only scores sentences naming exactly one gender (line 2446) so it under-counts; MEMORY-documented trap: post-processing runs AFTER validation, so passes outside the guard can still corrupt clean output; M1v8-2 shipped 3 surviving pronoun majors \u2014 the sweep demonstrably misses shapes (spec line 54)."
+  },
+  {
+   "name": "A/B pronoun telemetry (what 'pronoun 13.3\u219215.0' actually measures)",
+   "file": "C:\\CML\\scripts\\exp-regen-clue\\analyze-lib.mjs",
+   "lines": "12, 34-48, 75-76, 112",
+   "what": "pronounTokenTotals (line 35) = descriptive gendered-pronoun token totals, explicitly 'NOT a correctness metric'; pronounSignals (line 47) = pronoun/misgender/re-gender warning strings, 'the honest guardrail signal'; guardrail check no_new_pronoun_signals (line 112) requires treatment <= control. The ledger's P5.2-DV 'pronoun 13.3\u219215.0' treatment dip (TARGET_80_LEDGER.md:21) is this token-total metric on arms the lever never touched \u2014 explicitly attributed to story variance, not causation. The P3/P4 scaffold verdict accepted 'one +1 pronoun signal' regression against 17 hits removed (TARGET_80_LEDGER.md:18; agent9-run.ts:204 comment).",
+   "scope": "A/B analyzer for all flag experiments (scaffold, dual-value, voice, critique-rewrite batches).",
+   "knownLimitations": "No A/B ever measured drift-event count as the spec's lever protocol required (the pronoun-clarity A/B never ran); token totals cannot distinguish drift from cast composition."
+  },
+  {
+   "name": "Internal pronoun cap + Item 13 register entry",
+   "file": "C:\\CML\\documentation\\plan\\target_80\\TARGET_80_LEDGER.md",
+   "lines": "144, 216, 91-92",
+   "what": "Cap panel line 144: pronounsUnstable 0/20 across all scored runs with AGENT9_BIBLE_AUTHORITATIVE ON \u2014 while all 4 external reads saw drift \u2192 Item 13. Open Item 13 (line 216): the A_62 RC-4 audit (2026-07-16) inverted the picture \u2014 S0 rubric never ran the scan (version skew), current detector fires 2 FPs on tide and ZERO events on the drift externals saw \u2192 both precision and recall gaps; ruling: 'Do NOT harden or promote this detector' (would add false caps, the A_61 RC-4 mole). Run-log corroboration: M1v8-2 had 30 moderate pronoun_drift FPs (line 92); M1v9-8 class-#8 abort included pronoun \u00d73 majors, with residual pronoun majors labeled Item-13-family and deliberately untouched (line 91).",
+   "scope": "Campaign bookkeeping for the pronoun defect class.",
+   "knownLimitations": "Blocked item never unblocked: the externals' quoted examples were to be recovered from ChatGPT conversations and never were; the owner's spec substituted canonical shapes instead."
+  },
+  {
+   "name": "Current open work item: pronoun ROLE-contamination (probe #1 external review)",
+   "file": "C:\\CML\\documentation\\analysis\\ANALYSIS_65\\CRAFT_IMPLEMENTATION_PLAN.md",
+   "lines": "20, 23-24",
+   "what": "The probe-#1 external read (story_20260722-2127, run mystery-1784751055781) scored 78/100 and named pronoun drift 'severe' \u2014 top of the evidence-ranked work queue: 'the model assigns pronouns by the ROLE's historical occupant, not the character holding it (investigator drifted to she/her because prior drafts used a female investigator). The existing lock/sweep/repair stack misses it at scale. The reviewer: fixing this alone reaches 84\u201387.' Marked as the next sitting's work item \u2014 root-cause the pronoun stack against this story's drift instances.",
+   "scope": "The live, unresolved defect the whole history converges on.",
+   "knownLimitations": "Not yet root-caused or fixed; it is a NEW failure class the Item-13 spec's five TP shapes do not name (role-prior contamination is generation-time, upstream of every detector/repair layer built so far)."
+  }
+ ],
+ "keyFindings": [
+  "SPEC STATUS SUMMARY \u2014 of the Item-13 spec's four fix-architecture requirements: #1 (frozen Bible gender map before drafting) EXISTS pre-spec (bf96b516, agent9-run.ts:255-257) and prompts do surface per-character pronouns at 6+ sites (prompt-blocks.ts:213-214/282-283, prompt-builder.ts:2036-2039, generate.ts:2712, regen-llm.ts:54, critique-rewrite.ts:108); #2 (AGENT9_PRONOUN_CLARITY generation lever, default-OFF, P5 A/B) NEVER BUILT \u2014 zero code hits, doc-only, kept 'LIVE' at the 7.4 sitting (character_clarity 6.19 < 6.5) but the A/B era closed (7.3 was the last batch) before it ran; #3 (post-processing pass: measure current repair vs each TP shape, then fix) FULLY DONE via scripts/pronoun-fixture-audit.mjs + commit 047d469f (FP2 unnamed-role suppression at prose-consistency-validator.ts:250-302, TP3 Guard-C existence requirement at pronoun-repair.ts:439/497-503, cross-paragraph window alignment; 414/414 green); #4 (AMB name-substitution repair, never gender-flip) NOT BUILT \u2014 047d469f deliberately routed TP5+AMB to the never-built #2 lever, so they remain unhandled. The editing checklist and verbatim generation instruction (spec lines 58-75) are likewise unimplemented prompt copy for the missing lever. Commit-message claims in 047d469f check out against the code.",
+  "FAILURE HISTORY (prompt-rule era, Mar-Apr 2026): the first fix generation was prompt rules \u2014 ANALYSIS_17 Issue II (Critical) introduced the ABSOLUTE PRONOUN LOCK block (ANALYSIS_17.md:210) + retry hard-lock feedback; ANALYSIS_19 found the 9-rule block + deterministic sweep only reduced drift to 1-2 retries/chapter, never eliminating it (A9-PR-1), and identified antecedent-chain migration (A9-PR-4). ANALYSIS_20 delivered the killing diagnosis: the LOCK block sits at priority 0, 3,000+ tokens from the generation context, 'effectively invisible' by chapter 5 (ANALYSIS_20.md:146); the narrator defaults masculine when the POV name isn't in the preceding clause (A20-PR-2); per-character CML gender can flip mid-run (A20-PR-3). Note: the task brief's 'ANALYSIS_16 Phase D locks' is a mislabel \u2014 ANALYSIS_16 has essentially no pronoun content; the lock block is ANALYSIS_17's Refactor #2, autopsied in ANALYSIS_20. The re-gendering lesson (full-chapter LLM rewrites re-gender during reconstruction, fixed by phrase-level substitution) survives as the 'whole-chapter re-gender scar, LLD \u00a76.4' (ANALYSIS_61.md:205) and ANALYSIS_59 P3.3's insertion-only preservation guard 'blocks re-gendering'.",
+  "FAILURE HISTORY (measured-repair era, Apr-Jun 2026): repair volumes stayed high and stubborn \u2014 ANALYSIS_21 \u00a72.6: 14-18 repairs per attempt on Ch5-8, NOT decreasing across retries ('the model is not registering the pronoun table'); ANALYSIS_26: 15 pronoun errors were validator FALSE POSITIVES from alias incompleteness (the first documented detector-precision failure, foreshadowing RC-4); ANALYSIS_27: sweep fixed 34 issues yet ChatGPT still found he\u2192she errors, with pronoun_validation_enabled:false; ANALYSIS_45 D4 (June): 'pronoun sweep: 17 repairs' with residual errors surviving to the shipped story; ANALYSIS_58: 11 repairs/10 chapters (~1/chapter persistent drift). ANALYSIS_59 (ChatGPT): pronoun errors were 'the biggest reason the score is not closer to 80'.",
+  "FAILURE HISTORY (deterministic-guard era, Jun-Jul 2026): f6386e47 (2026-06-24) shipped the R-B pronoun sweep; A_57 D5 (486f3c48) root-caused pronoun_policy=off + post-processing-mutates-after-validation, and built buildPronounStabilityValidator + the monotonic guard (applyDeterministicPronounSweep reverts a chapter if the sweep RAISES mismatches, agent9-run.ts:2486-2495; applyPronounGuardedMutation:5400 wraps later mutation passes); bf96b516 (2026-07-03, A_61 RC2.2) froze the Bible gender map as the single source (AGENT9_BIBLE_AUTHORITATIVE).",
+  "FAILURE HISTORY (detector-inversion era, Jul 2026): the internal pronounsUnstable cap read 0/20 while ALL FOUR 2026-07-13 external reads saw drift (TARGET_80_LEDGER.md:144) \u2192 Item 13. The A_62 RC-4 audit (2026-07-16, scripts/pronoun-audit.mjs) inverted the diagnosis: (1) the S0-era rubric never ran the pronoun scan at all \u2014 the 0/20 history is partly VERSION SKEW; (2) the current detector's only firings on S0 stories were 2 false positives; (3) it yields zero events on the drift externals saw \u2192 BOTH precision and recall gaps, and hardening it would only add false caps (ANALYSIS_62.md:271-276). Live-run corroboration: 30 moderate pronoun_drift FPs on M1v8-2 (every character, 'opposite-gender pronoun nearby' in mixed-gender scenes); pronoun \u00d73 majors helped tip the class-#8 abort (M1v9-8).",
+  "MEASUREMENT RECORD: the only A/B numbers ever attached to pronouns are (a) 'one +1 pronoun signal' \u2014 an accepted magnitude-1 regression in the P3/P4 scaffold verdict (TARGET_80_LEDGER.md:18), and (b) 'pronoun 13.3\u219215.0' in P5.2-DV (TARGET_80_LEDGER.md:21) \u2014 which is pronounTokenTotals, a DESCRIPTIVE gendered-token count explicitly 'NOT a correctness metric' (analyze-lib.mjs:34-35), on treatment arms the dual-value lever never touched, and the ledger itself labels it story variance. The spec's required measurement (drift-event count + dialogue/prose marks under a pronoun-clarity A/B) was never taken.",
+  "CURRENT STATE (2026-07-22): the probe-#1 external reviewer found SEVERE drift on mystery-1784751055781 despite every layer above being live, and diagnosed a class outside the spec's five shapes: ROLE-pronoun contamination \u2014 pronouns assigned from the role's historical occupant (prior drafts' female investigator Eleanor) rather than the character holding it (male Hugo Vane). CRAFT_IMPLEMENTATION_PLAN.md:24 ranks it 'the top craft blocker'; the reviewer estimates fixing it alone reaches 84-87 external. It is queued for the next sitting and NOT yet root-caused \u2014 the drift instances live in the story artifact + prompt archive (documentation/prompts/actual/run_20260722-2010_mystery/).",
+  "PATTERN ACROSS SIX MONTHS: every era's fix worked at its own layer and was defeated one layer upstream \u2014 prompt locks failed to context distance (A_20), sweeps failed to shape blindness (fixture audit: detector 1/5), the frozen gender map failed to generation-time role priors (probe #1). The two deliberate gaps today are (1) the unbuilt AGENT9_PRONOUN_CLARITY generation-side lever (which the spec designated for exactly the generation-time class now biting) and (2) TP5/AMB name-substitution repair, which was routed into that lever. Commit timeline: da82652a/b2f055b2/e595f17f (2026-05-14 first pronoun review) \u2192 f6386e47 (06-24 R-B sweep) \u2192 486f3c48 (A_57 D5) \u2192 2e32d698/3ef0d2aa (A_57/A_58 fixes) \u2192 bf96b516 (07-03 RC2.2 pronoun-lock) \u2192 047d469f (07-17 Item-13 fix) \u2192 034f7972 (07-22 probe-#1 external read)."
+ ]
+}

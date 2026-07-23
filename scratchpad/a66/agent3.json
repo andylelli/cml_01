@@ -1,0 +1,258 @@
+{
+ "instances": [
+  {
+   "chapter": 1,
+   "quote": "She moved closer, heart thudding with a mixture of disbelief and dread, and knelt beside Eleanor Voss.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap (investigator-as-she); B plausible (Eleanor in window)",
+   "antecedentDistance": "correct (Hugo): previous sentence ('in Hugo's chest'); wrong (Eleanor Voss): same sentence (after pronoun) and 2 sentences prior ('Eleanor Voss lay sprawled')"
+  },
+  {
+   "chapter": 1,
+   "quote": "Her eyes stared past her, glassy and unseeing, her hands curled loosely at her sides.",
+   "character": "Hugo Vane (the 'past her' object; first 'Her'=Eleanor is correct)",
+   "expected": "past him",
+   "found": "past her",
+   "driftClass": "A (continuation of prior drifted sentence) + C overlap; reading slightly ambiguous",
+   "antecedentDistance": "correct (Hugo): 2 sentences prior; wrong (Eleanor Voss): previous sentence"
+  },
+  {
+   "chapter": 1,
+   "quote": "He watched Hugo with an intensity that bordered on intrusive, yet when he spoke, his words were laced with a sardonic edge.",
+   "character": "Beatrice Quill",
+   "expected": "She / she / her",
+   "found": "He / he / his (3 tokens)",
+   "driftClass": "B (binds to Hugo in same sentence); mild C overlap (journalist role male-coded)",
+   "antecedentDistance": "correct (Beatrice Quill): name 2 sentences prior + epithet 'the journalist'/'her' in previous sentence; wrong (Hugo): same sentence"
+  },
+  {
+   "chapter": 1,
+   "quote": "His gaze swept the room, lingering on each guest in turn, before settling on Hugo with a look that managed to be both pleading and appraising.",
+   "character": "Sylvia Trent",
+   "expected": "Her",
+   "found": "His",
+   "driftClass": "B (binds to Hugo in same sentence); anti-role (socialite is female-typical), so no C",
+   "antecedentDistance": "correct (Sylvia): previous sentence ('she said'); wrong (Hugo): same sentence (after pronoun)"
+  },
+  {
+   "chapter": 1,
+   "quote": "She felt the weight of expectation settle on her shoulders-old friend to Eleanor, yes, but now something more.",
+   "character": "Hugo Vane",
+   "expected": "He / his",
+   "found": "She / her (2 tokens)",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): previous sentence ('Hugo rose, brushing dust from his knees'); wrong (Eleanor): same sentence (after pronoun only)"
+  },
+  {
+   "chapter": 1,
+   "quote": "For now, the responsibility of sense-making fell to her.",
+   "character": "Hugo Vane",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "A (continuation of prior drift run) + C overlap",
+   "antecedentDistance": "correct (Hugo): 3 sentences prior; wrong (Eleanor): 2 sentences prior; no name in same/previous sentence"
+  },
+  {
+   "chapter": 2,
+   "quote": "She reached for Eleanor's evening bag, its clasp stiff and cold beneath her fingers.",
+   "character": "Hugo Vane",
+   "expected": "He / his",
+   "found": "She / her (2 tokens)",
+   "driftClass": "A (primary) + C overlap; B plausible (Eleanor's-bag possessive in same sentence)",
+   "antecedentDistance": "correct (Hugo): 2 sentences prior ('hem of Hugo's trousers as he knelt'); wrong (Eleanor): same sentence (after pronoun) + 2 sentences prior"
+  },
+  {
+   "chapter": 2,
+   "quote": "She glanced at the others-Dr. Finch's composure was brittle, her lips pressed tight, while Captain Hale's fingers drummed a silent tattoo against his sleeve.",
+   "character": "Hugo Vane (first 'She')",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "B (nearest preceding name is 'Eleanor's hand') + A/C overlap",
+   "antecedentDistance": "correct (Hugo): previous sentence (subject 'Hugo set the watch'); wrong (Eleanor): previous sentence, nearer to the pronoun ('beside Eleanor's hand')"
+  },
+  {
+   "chapter": 2,
+   "quote": "Hugo wondered, not for the first time, what secrets he guarded so fiercely.",
+   "character": "Dr. Mallory Finch",
+   "expected": "she",
+   "found": "he",
+   "driftClass": "B (binds to matrix-subject Hugo); C overlap (doctor-role male-coded)",
+   "antecedentDistance": "correct (Finch): 'she/herself' in previous sentence, name 3 sentences prior ('Dr. Finch moved to the window'); wrong (Hugo): same sentence, before pronoun"
+  },
+  {
+   "chapter": 2,
+   "quote": "He glanced at Dr. Finch, then away, her jaw set.",
+   "character": "Captain Ivor Hale ('her jaw' \u2014 jaw-set is Hale's motif)",
+   "expected": "his",
+   "found": "her",
+   "driftClass": "B (binds to Dr. Finch immediately preceding in same sentence)",
+   "antecedentDistance": "correct (Hale): same-sentence subject 'He', name 2 sentences prior ('Captain Hale's composure faltered'); wrong (Dr. Finch): same sentence, immediately before pronoun"
+  },
+  {
+   "chapter": 2,
+   "quote": "She caught Dr. Finch's eye once more.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap; female name only cataphoric",
+   "antecedentDistance": "correct (Hugo): previous sentence ('Hugo felt the pressure mounting'); wrong (Dr. Finch): same sentence, after pronoun"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned, watchful, as the others assembled: Dr. Mallory Finch in a tailored skirt and cardigan, her hair pinned with clinical precision; Captain Ivor Hale...; Beatrice Quill...; and Sylvia Trent...",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap; female names only after pronoun",
+   "antecedentDistance": "correct (Hugo): 'behind him' previous sentence (pronoun only), name 4 sentences prior ('Hugo Vane remained by the mantel'); wrong (Finch/Beatrice/Sylvia): same sentence, after pronoun only"
+  },
+  {
+   "chapter": 3,
+   "quote": "She pressed on, voice steady but softer.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): 'he/his' pronouns in previous 2 sentences, name ~4 sentences prior; wrong: none before pronoun in paragraph (Dr. Finch only in following dialogue address)"
+  },
+  {
+   "chapter": 3,
+   "quote": "She turned again to the clock, the scratch at its rim, the hands fixed at ten minutes past ten, and the silent accusation of Eleanor's watch.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): previous sentence ('Hugo felt the first stirrings... about himself'); wrong (Eleanor): same sentence, after pronoun"
+  },
+  {
+   "chapter": 3,
+   "quote": "A faint sound from the corridor interrupted her thoughts-a chambermaid's voice, confirming in passing that Dr. Finch had indeed left the party at nine.",
+   "character": "Hugo Vane ('her thoughts')",
+   "expected": "his",
+   "found": "her",
+   "driftClass": "A (primary, continues drift run from 2 sentences prior) + C overlap",
+   "antecedentDistance": "correct (Hugo): 3 sentences prior; wrong (chambermaid/Dr. Finch): same sentence, after pronoun; drifted 'She' 2 sentences prior"
+  },
+  {
+   "chapter": 4,
+   "quote": "She turned to Dr. Finch, voice softer.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap; female name only cataphoric",
+   "antecedentDistance": "correct (Hugo): ~4 sentences prior ('Hugo let the words settle'); wrong (Dr. Finch): same sentence, after pronoun; no name in previous sentence"
+  },
+  {
+   "chapter": 4,
+   "quote": "She caught Dr. Finch's eye, searching for something-remorse, perhaps, or relief.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): previous sentence ('Hugo allowed himself a breath... his shoulders'); wrong (Dr. Finch): same sentence, after pronoun"
+  },
+  {
+   "chapter": 5,
+   "quote": "She hesitated, gaze flicking to the clock on the sideboard-the one whose face displayed the time so clearly-before settling opposite Dr. Finch.",
+   "character": "Captain Ivor Hale",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "B (subject-chain carry-over from Finch's entrance 2 sentences prior; Dr. Finch also in same sentence); anti-role (captain male-typical), so no C",
+   "antecedentDistance": "correct (Hale): previous sentence ('Captain Ivor Hale followed, his broad shoulders'); wrong (Mallory Finch): 2 sentences prior ('She took a seat') + Dr. Finch same sentence, after pronoun"
+  },
+  {
+   "chapter": 6,
+   "quote": "She remembered the contradiction of Eleanor's watch, the testimony of the guests, the persistent gaps in the timeline.",
+   "character": "Hugo Vane",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): 2 sentences prior ('He drifted toward the clock'); wrong (Eleanor): same sentence, after pronoun; no name in previous sentence"
+  },
+  {
+   "chapter": 6,
+   "quote": "But as she looked at Dr. Finch, isolated by the group's certainty, and at the clock's unmoving hands, she knew the case was not yet closed.",
+   "character": "Hugo Vane",
+   "expected": "he / he",
+   "found": "she / she (2 tokens)",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): previous sentence ('Hugo allowed himself to hope'); wrong (Dr. Finch): same sentence, after first pronoun"
+  },
+  {
+   "chapter": 6,
+   "quote": "The answer, she sensed, lay not in the comfort of consensus, but in the stubborn refusal of the facts to conform.",
+   "character": "Hugo Vane",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "A (continuation of prior drifted sentence) + C overlap",
+   "antecedentDistance": "correct (Hugo): 2 sentences prior; wrong (Dr. Finch): previous sentence"
+  },
+  {
+   "chapter": 8,
+   "quote": "He glanced back at Captain Hale, whose gaze had drifted to the floor, and at Dr. Finch, who now watched her with wary expectation.",
+   "character": "Hugo Vane (object of Finch's watching)",
+   "expected": "him",
+   "found": "her",
+   "driftClass": "B (binds to Dr. Finch immediately preceding the pronoun)",
+   "antecedentDistance": "correct (Hugo): same-sentence subject 'He', name 3 sentences prior ('Hugo seized the moment'); wrong (Dr. Finch): same sentence, immediately before pronoun"
+  },
+  {
+   "chapter": 10,
+   "quote": "She could not help but wonder at the relief that flickered across Beatrice's face as she spoke.",
+   "character": "Hugo Vane (first pronoun certain; 'as she spoke' also likely Hugo \u2014 he is the speaker of the preceding alibi declaration, Beatrice has no dialogue here)",
+   "expected": "He ... (as) he",
+   "found": "She ... (as) she (1 certain + 1 ambiguous token)",
+   "driftClass": "B (nearest preceding name is Beatrice; narration beat is all about Beatrice) + A/C overlap",
+   "antecedentDistance": "correct (Hugo): 'He picked up the notepad' 3 sentences prior, name ~5 sentences prior; wrong (Beatrice): 2 sentences prior + same sentence"
+  },
+  {
+   "chapter": 10,
+   "quote": "She realised, as she watched Sylvia's shoulders sag in relief, that the ordeal had left scars on them all.",
+   "character": "Hugo Vane",
+   "expected": "He / he",
+   "found": "She / she (2 tokens)",
+   "driftClass": "B (only name in previous sentence is Sylvia) + A/C overlap",
+   "antecedentDistance": "correct (Hugo): 3 sentences prior ('Hugo's voice was gentle'); wrong (Sylvia): previous sentence + same sentence"
+  },
+  {
+   "chapter": 10,
+   "quote": "She glanced at Dr. Finch, whose eyes glistened with unshed tears.",
+   "character": "Hugo Vane (mid-monologue narration beat)",
+   "expected": "He",
+   "found": "She",
+   "driftClass": "A (primary) + C overlap; female name only cataphoric",
+   "antecedentDistance": "correct (Hugo): dialogue frame 'he began, voice rough' 3 sentences prior; wrong (Dr. Finch): same sentence, after pronoun; previous sentence is dialogue with no names"
+  },
+  {
+   "chapter": 10,
+   "quote": "She felt the ache of her own failure-her inability to save Eleanor, her blindness to the signs that had been there all along.",
+   "character": "Hugo Vane (reviewer's flagged example)",
+   "expected": "He / his / his / his",
+   "found": "She / her / her / her (4 tokens)",
+   "driftClass": "A (primary) + C overlap",
+   "antecedentDistance": "correct (Hugo): 3 sentences prior ('Hugo watched the women'); wrong: epithet 'the women' 3 sentences prior, Eleanor same sentence after pronouns; no name in previous 2 sentences"
+  },
+  {
+   "chapter": 10,
+   "quote": "Yet in the quiet that followed, she sensed the first stirrings of something like hope: a chance, however slim, to rebuild from the wreckage.",
+   "character": "Hugo Vane",
+   "expected": "he",
+   "found": "she",
+   "driftClass": "A (continuation of prior drifted sentence) + C overlap",
+   "antecedentDistance": "correct (Hugo): 4 sentences prior; wrong (Eleanor): previous sentence"
+  }
+ ],
+ "totals": "27 drift instances (36 unambiguous drifted pronoun tokens, +1 ambiguous in ch10 'as she spoke') in stories/story_20260722-2127/the_clockwork_deception.md. Per chapter: ch1=6, ch2=5, ch3=4, ch4=2, ch5=1, ch6=3, ch7=0, ch8=1, ch9=0, ch10=5. Per character: Hugo Vane (male POV investigator) misgendered as she/her in 22 instances; Captain Ivor Hale as she/her in 2; Beatrice Quill as he/his in 1 (3 tokens); Sylvia Trent as His in 1; Dr. Mallory Finch as he in 1. Dialogue is 100% correctly gendered in all 10 chapters \u2014 every drift is in narration.",
+ "classBreakdown": "A (viewpoint-narration drift) primary: 18/27 \u2014 every one is Hugo-as-she and every one carries C (role-contamination) overlap; in most, the nearest PRECEDING name is the correct male name (Hugo in the same or previous sentence) and the female name appears only AFTER the pronoun (cataphoric: 'She caught Dr. Finch's eye', 'She turned to Dr. Finch', 'She remembered... Eleanor's watch'), which rules out classic antecedent confusion. B (adjacent-antecedent confusion) primary: 9/27 \u2014 3 are Hugo-as-she where a female name is the nearest preceding antecedent (ch2 'She glanced at the others' after 'Eleanor's hand'; ch10 Beatrice and Sylvia beats), so A/C overlap; 1 is Finch-as-he with C overlap (doctor-role male-coded); 5 are pure B with no role story (Beatrice-as-he, Sylvia-as-his, Hale-as-she x2, Hugo-as-'her' object in ch8). C primary: 0 \u2014 role contamination is expressed as overlap on all 22 Hugo-as-she instances rather than as a standalone structure. D: 0.",
+ "keyFindings": [
+  "The dominant defect (22/27 instances, ~81%) is the male POV investigator Hugo Vane rendered she/her in narration \u2014 consistent with the external reviewer's ROLE-contamination diagnosis (the investigator slot's prior occupant was female). All 22 carry C overlap; 18 are structurally pure viewpoint drift (A+C) where the nearest preceding name is the CORRECT male name, usually Hugo in the previous sentence.",
+  "Most Hugo-as-she drifts are cataphoric: sentence-initial 'She' followed by a female name later in the same sentence as OBJECT ('She caught Dr. Finch's eye', 'She turned to Dr. Finch', 'She glanced at Dr. Finch', 'She remembered... Eleanor's watch'). A detector using nearest-preceding-antecedent gender will mark these sentences consistent and miss them; the giveaway signature is [She + investigator-action-verb + female-name-as-object].",
+  "Drift is sticky in runs of 2 consecutive sentences: once narration drifts, the next sentence stays in the wrong gender (ch1 'She moved closer'->'past her', ch1 'She felt the weight'->'fell to her', ch6 'she knew'->'she sensed', ch10 'She felt the ache'->'she sensed'). 8 of 27 instances are continuations of an immediately preceding drifted sentence.",
+  "5/27 instances (~19%) are NOT investigator-role drift: Beatrice Quill as he/he/his (ch1), Sylvia Trent as His (ch1), Dr. Finch as he (ch2), Captain Hale as she/her (ch2, ch5), plus Hugo as object-'her' (ch8). All are class B adjacent-antecedent binds (the pronoun takes the gender of the other character in the sentence). A fix targeting only Hugo-as-she leaves these.",
+  "Chapters 7 and 9 are completely clean; ch9 is the name-dense denouement (explicit 'Hugo said/He turned to Captain Ivor Hale' framing) and ch7 is dialogue-heavy. Drift concentrates in name-sparse reflective narration beats \u2014 chapter openings, evidence-examination beats, and the ch10 epilogue (5 instances). Dialogue pronouns are correct in all 2000+ lines of quoted speech.",
+  "These 27 instances shipped AFTER the Item 13 fix (commit 047d469f, detector precision + repair recall) \u2014 the D5-guarded deterministic sweep in apps/worker/src/jobs/agents/agent9-run.ts either did not flag them or its guarded mutation was reverted; the cataphoric structure in finding 2 is a plausible recall gap since the wrong-gender pronoun agrees with no preceding antecedent and the sentence contains a female name that would make 'her' look locally consistent.",
+  "Drift count decays mid-story then spikes at the end: ch1-3 carry 15/27 (opening, where the model is establishing referents) and ch10 carries 5 (reflective epilogue with 'the women' as an intervening plural female antecedent before the reviewer's flagged 'She felt the ache of her own failure' sentence)."
+ ]
+}

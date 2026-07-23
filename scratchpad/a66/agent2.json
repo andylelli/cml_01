@@ -1,0 +1,185 @@
+{
+ "components": [
+  {
+   "name": "System-prompt gender rules (drafting prompt, system message head)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\prompt-builder.ts",
+   "lines": "1511-1520",
+   "what": "EXACT lock language near the TOP of the system message: cast list rendered with per-name gender labels ('The ONLY characters who exist in this story are: <Name> (woman), <Name> (man)...'), then '\u26a0\ufe0f BEFORE YOU WRITE each chapter, also ask yourself: \"Am I using the correct pronouns for every character \u2014 she/her for women, he/him for men?\" If not, correct it before writing a single word.' and '\u26d4 GENDER IS NON-NEGOTIABLE: The gender of every character is shown above. Use the correct pronouns at all times \u2014 a woman is always she/her, a man is always he/him. Never swap, default, or guess.'",
+   "invokedFrom": "buildProsePrompt (every per-chapter drafting call)",
+   "scope": "Every chapter-drafting LLM call; sits early in the system message (lines 3-10 of it), i.e. maximally far from the generation point in a ~24k-token prompt",
+   "knownLimitations": "All name-keyed, none role-keyed: it binds 'Hugo Vane -> man' but never 'the INVESTIGATOR role -> Hugo Vane -> he'. Role-contamination drift (model assigning the role's habitual gender) is exactly the failure this phrasing does not address."
+  },
+  {
+   "name": "narrativeVoiceLine (POV pronoun anchor)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\prompt-builder.ts",
+   "lines": "1406-1416",
+   "what": "The ONLY role-aware pronoun text in the whole prompt. Prefixed to the very first line of the system message: 'NARRATIVE VOICE: <Name[HE/SHE]> is the viewpoint character. Unanchored \"she/her\" or \"he/him\" without a nearby name refers to <name>. Default narrator pronoun: <TAG>. Never default to \"he/his\" as the neutral narrator voice unless the POV character is male.'",
+   "invokedFrom": "buildProsePrompt",
+   "scope": "Only emitted when a cast member's role or role_archetype string .includes('detective')",
+   "knownLimitations": "TWO structural holes for role contamination: (1) povChar lookup matches only the substring 'detective' \u2014 a sleuth labeled INVESTIGATOR (Hugo Vane in the probe run) produces povChar=undefined and the entire line is silently omitted, so unanchored narration pronouns have NO declared referent; (2) the fallback is `identityMap.get(povChar.name) ?? 'SHE'` \u2014 the template itself hard-codes a female default narrator pronoun, i.e. it encodes the exact female-investigator (Eleanor) prior the reviewer diagnosed."
+  },
+  {
+   "name": "buildPronounAccuracyBlock (10-rule ABSOLUTE PRONOUN LOCK)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\prompt-blocks.ts",
+   "lines": "21-63",
+   "what": "'\u26d4 ABSOLUTE PRONOUN LOCK \u2014 NO EXCEPTIONS' + canonical per-character table ('\u2022 <Name>: ALWAYS he/him/his/himself \u2014 NEVER she/her/herself'), 'MANDATORY PRE-OUTPUT CHECK: Before generating the JSON, re-read every sentence that contains a pronoun and verify it against the table', plus rules 1-10 (ambiguity->use name, no pronoun migration across semicolons, 'her' grammar for males, reflexives, dialogue-tag agrees with SPEAKER, full-name attribution mandatory) and conditional rule 11 (lone-male cast composition: 'every he/him refers exclusively to <name>').",
+   "invokedFrom": "buildProsePrompt -> buildPromptContextBlocks (prompt-builder.ts:1289, 1553)",
+   "scope": "Every drafting call; priority 'critical' (never dropped by budgeting) but token-capped at 700 (prompt-builder.ts:1321)",
+   "knownLimitations": "Placement is NOT actually recency: the 'recency fix: moved from position 0 to last' (1289) makes it last of the 24 context blocks, but applyPromptBudgeting (1368-1372) then appends the PROMPT BUDGET SUMMARY line AND the entire developer section after the blocks \u2014 so it sits mid-system-message. Cap 700 tokens can truncate the table+rules for large casts. Entirely name-keyed; rule 11 (the only deduction-style rule) fires only for the 1-male/2+-female cast shape."
+  },
+  {
+   "name": "Compact PRONOUN LOCK header (user message, recency position)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\prompt-builder.ts",
+   "lines": "2028-2042",
+   "what": "'\u26d4 PRONOUN LOCK (verify every sentence before writing):' + per-character lines '\u2022 <Name> \u2014 he/him/his (NEVER she/her)' placed in the user message immediately before the 'Outline scenes:' JSON \u2014 the last instruction text before the scene data the model writes from.",
+   "invokedFrom": "buildProsePrompt user-message assembly (2042)",
+   "scope": "Every drafting call",
+   "knownLimitations": "Name-keyed table again; a model doing role-based pronoun assignment can pass a name->pronoun table check per-name and still drift in unanchored narration where no name appears to bind against."
+  },
+  {
+   "name": "Obligation-block compact PRONOUN TABLE (F6a/F6b) + reveal-chapter PRONOUN RESOLUTION",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\obligation-block.ts",
+   "lines": "909-926 and 714",
+   "what": "Appended to the END of every chapter's obligation block: '\u26d4 PRONOUN TABLE \u2014 re-check after EVERY paragraph before writing the next:' + '<Name>: he/him/his' lines + 'Any sentence containing a pronoun must agree with this table. Correct mismatches before moving on.' Separately, reveal chapters get '\u26a0 PRONOUN RESOLUTION: any pronoun in the confession that refers to a third party (\"protect him\", \"because of her\") must be resolved by naming the character in the same sentence.'",
+   "invokedFrom": "buildChapterObligationBlock; the obligation block leads the user message (prompt-builder.ts:2042)",
+   "scope": "Every chapter (table); reveal chapters only (resolution rule)",
+   "knownLimitations": "Table is the same name->pronoun mapping; PRONOUN RESOLUTION is an anti-ambiguity rule about naming referents, not a gender lock. Nothing states which character HOLDS each role."
+  },
+  {
+   "name": "PRONOUN AUDIT self-check table (checklist message) + NSD/context annotations",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\prompt-builder.ts",
+   "lines": "2131-2150, 2181-2184 (audit); 1160-1163 (NSD 'CHARACTER PRONOUNS \u2014 never deviate'); 486-494 (Cast: '<Name> (she/her)' in Case Overview); 371-372 (voice-sketch headings); phrase-analysis.ts:97-109 (Name[SHE]/[HE] identity tags)",
+   "what": "A second user message carries '\u25a1 PRONOUN AUDIT \u2014 for every character you named in your chapters, list the pronouns you actually used, then verify against the canonical table' with a fill-in Character|Canonical|Used|Match? table (ANALYSIS_24 Option C \u2014 forces active self-review). NSD block, Case Overview cast line, voice-sketch headings and instruction-block name tags all repeat the name->pronoun mapping.",
+   "invokedFrom": "buildProsePrompt messages[2]; buildNSDBlock; buildContextSummary; tagCharacter",
+   "scope": "Every drafting call",
+   "knownLimitations": "Five+ redundant NAME-keyed restatements of the same table; zero role->holder bindings. The audit table verifies per-character pronoun sets, which a role-contaminated draft can 'pass' by self-report while narration pronouns for the POV character are unanchored (no name in sentence to audit against)."
+  },
+  {
+   "name": "getPronounPolicySettings (policy knobs) + live config",
+   "file": "c:\\CML\\packages\\story-validation\\src\\generation-params.ts",
+   "lines": "244-256, 1617-1630, 1678-1716; live values apps/worker/config/generation-params.yaml:549-555",
+   "what": "Unified policy: strict (deterministic repair ON + validator errors ON), relaxed (repair ON, errors OFF), verify (repair OFF, errors ON \u2014 'repairs go through LLM regen, validator-gated'), off (both OFF). Legacy booleans pronoun_checking_enabled / pronoun_validation_enabled are only a fallback when pronoun_policy is unset. LIVE CONFIG: pronoun_policy: verify -> checkingEnabled=false, validationEnabled=true. Pipeline filter at packages/story-validation/src/pipeline.ts:80-83 drops pronoun_gender_mismatch/pronoun_drift errors only when validationEnabled=false.",
+   "invokedFrom": "agent9-run.ts:3481 (pronounRepairEnabled), generate.ts:2079 (pronounCheckingEnabled), pipeline.ts:80",
+   "scope": "Global, runtime-read (not frozen at module load)",
+   "knownLimitations": "Under the LIVE 'verify' policy every deterministic pronoun repair pass in the pipeline is disabled (generation-loop repairs, broad sweep at 5558, rescue sweep at 5713, targeted sweep at 5724) \u2014 and the LLM-regen path verify promises does not exist (see pronoun_mismatch component). The only repairs still live are the parity pass and the abort-softening cycle."
+  },
+  {
+   "name": "CharacterConsistencyValidator.checkPronounAgreement / findIncorrectPronouns (pronoun_gender_mismatch, severity major)",
+   "file": "c:\\CML\\packages\\story-validation\\src\\character-validator.ts",
+   "lines": "274-409",
+   "what": "Per scene, per character: only sentences that reference the character by label are examined; context = that sentence \u00b11 unnamed neighbor. Flags wrong-gender he/she/him/her/his subject to three suppression guards: Guard 1 \u2014 ANY competing-gender character label in a \u221210/+3 SENTENCE window suppresses; Guard 2 \u2014 the character's own correct pronoun in the same sentence suppresses; Guard 3 \u2014 extension-sentence pronouns suppressed if that gender exists anywhere in the text.",
+   "invokedFrom": "StoryValidationPipeline (final gate, agent9-run.ts:5679); per-chapter in generate.ts:2987 (but only when pronounCheckingEnabled \u2014 OFF under verify); buildPronounStabilityValidator (agent9-run.ts:2058-2086)",
+   "scope": "Final full-story validation gate always; per-chapter generation loop only under strict/relaxed",
+   "knownLimitations": "Structurally blind to role-contamination drift: (a) requires the character's NAME in the sentence \u2014 the reviewer's ch10 'she felt the ache of her own failure' (viewpoint Hugo, no name) is never examined; (b) Guard 1's 13-sentence window means any mixed-gender scene (Hugo+Beatrice on the same page) suppresses nearly everything; (c) checks only he/she/him/her/his \u2014 herself/himself/hers drift is invisible to this major-severity detector."
+  },
+  {
+   "name": "ProseConsistencyValidator.checkPronounDrift + detectPronounDriftEvents (pronoun_drift, severity moderate)",
+   "file": "c:\\CML\\packages\\story-validation\\src\\prose-consistency-validator.ts",
+   "lines": "504-626 (error emission), 180-240 (detectAttributionFlips), 253-320 (detectImpossibleSelfReferences), 323-325 (combined)",
+   "what": "Two high-precision detectors \u2014 attribution_flip ('\"...,\" he said' whose nearest preceding gendered narration referent is opposite-gender, no same-gender name in a ~2-paragraph window) and impossible_self_reference (sentence-initial cast-name subject + opposite-gender reflexive or possessive-over-SELF_NOUNS, suppressed by pronoun interveners, UNNAMED_ROLE_INTERVENER nouns, or any wrong-gender cast mention in the paragraph) \u2014 plus a \u00b1200-char window heuristic around each name mention, suppressed when an opposite-gender competitor is named in the paragraph or window. Message format 'Pronoun drift for \"<name>\"...' is the parsing contract for extractPronounTargetNames.",
+   "invokedFrom": "StoryValidationPipeline final gate; replicated locally in rubric facts.ts:207-228 (pronounsUnstable cap: fires only on >=2 events across >=2 chapters); standalone via scripts/pronoun-audit.mjs",
+   "scope": "Final gate + rubric cap",
+   "knownLimitations": "Documented posture is precision-first/low-recall (the audit script exists because externals saw drift while the cap read 0/20). Every detector needs a NAME anchor: attribution flips need dialogue tags, self-references need the name as sentence subject, the window heuristic scans only \u00b1200 chars around name mentions. Sustained role-swapped POV narration with no nearby name \u2014 the role-contamination shape \u2014 sits outside all three. Severity 'moderate' means even confirmed drift never blocks release on its own (needs_review at >5 moderates)."
+  },
+  {
+   "name": "repairPronouns (sentence-level deterministic repair core)",
+   "file": "c:\\CML\\packages\\story-validation\\src\\pronoun-repair.ts",
+   "lines": "384-598 (plus guards 297-382)",
+   "what": "Sentence-scan: exactly-one-named-character sentences repaired against that character (subject to Guard B object-referent, Guard D perceiver, Guard E mixed-gender skips); nameless sentences inherit lastSingleCharacter (cross-paragraph inheritance opt-in, Guard C protects self-consistent >=2 opposite-gender pronoun runs when the anchor was inherited OR that gender was named in the paragraph \u2014 the A_62 Item 13 TP3 relaxation from commit 047d469f); gendered-title appositive override (R-B); dialogue never touched; onlyNames targeting mode; T2-7 actor/object split for 2-character mixed sentences.",
+   "invokedFrom": "applyDeterministicPronounSweep (agent9-run.ts:2476), applyTargetedPronounSweep (1635), generate.ts:3013, repairChapterPronouns (pronoun-repair.ts:768)",
+   "scope": "All deterministic repair paths",
+   "knownLimitations": "Calibrated for SPORADIC drift against a correct majority. Systematic role-contamination produces long self-consistent wrong-gender runs: Guard C explicitly protects >=2-pronoun opposite runs whenever the opposite gender is named anywhere in the paragraph (routine in mixed-cast scenes), mixed-gender sentences are skipped outright, and nameless narration is only repairable via inheritance from the last SINGLE named character \u2014 which in role-drifted prose is often the wrong anchor or absent."
+  },
+  {
+   "name": "repairChapterPronouns (3-pass chapter wrapper) + repairDialogueAttributionPronouns + repairByMajorityVote",
+   "file": "c:\\CML\\packages\\story-validation\\src\\pronoun-repair.ts",
+   "lines": "752-800 (wrapper), 618-677 (attribution), 697-739 (majority vote)",
+   "what": "Pass 1: repairPronouns over full chapter text with cross-paragraph inheritance (+normalizeTitles). Pass 2: dialogue-tag repair \u2014 unambiguous single-speaker lookback (nearest paragraph break / 800 chars). Pass 3: per-character chapter-wide majority vote sweep \u2014 fires ONLY when wrongCount<=3 AND wrongCount/total<=30% and the character is named in the chapter.",
+   "invokedFrom": "agent9-run.ts:1649 (inside applyTargetedPronounSweep, chapters mentioning a flagged name), agent9-run.ts:2746 (per-chapter inside applyDeterministicProsePostProcessing, monotonic-guarded, gated on enablePronounRepair), generate.ts:2617 (pre-validation) and 2926 (post-expansion) \u2014 both gated on pronounCheckingEnabled",
+   "scope": "Chapter granularity; the only pass that can catch drift far from any name (pass 3)",
+   "knownLimitations": "Pass 3's <=3-and-<=30% ceiling is precisely tuned to REFUSE the ANALYSIS_20-scale systematic re-gendering class (15-17 errors/run): a chapter narrated with the wrong gender throughout exceeds both thresholds and is deliberately left untouched ('may be legitimate mixed POV'). Under live verify policy, three of the four call sites never run at all."
+  },
+  {
+   "name": "applyDeterministicPronounSweep + countChapterPronounMismatches (monotonic guard counter)",
+   "file": "c:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "2457-2522 (sweep), 2421-2455 (counter)",
+   "what": "Full-cast per-chapter sweep: normalizeTitles then repairPronouns with crossParagraphInheritance; a per-chapter before/after mismatch count reverts any chapter where the sweep INCREASED wrong-gender pronouns (the run_1d55f7c7 flip bug). Counter matches full/first/surname labels (Item 13 fix), strips quoted speech, counts wrong pronouns only in sentences naming exactly one gender.",
+   "invokedFrom": "agent9-run.ts:5561-5565 (D5-wrapped, gated pronounRepairEnabled \u2014 OFF under verify), 5713-5715 (deterministic rescue, same gate), 6015 (abort-softening cycle \u2014 runs when pronounRepairEnabled OR pronounGateParityEnabled)",
+   "scope": "Story-wide post-processing",
+   "knownLimitations": "The guard counter shares the detectors' blindness: sentences with NO name and sentences naming both genders contribute zero \u2014 so both the monotonic guard and the D5 revert decision are measured on a subset that excludes the unanchored-narration sentences where role drift lives. A sweep could fix or worsen those invisibly."
+  },
+  {
+   "name": "applyPronounGuardedMutation (A_57 D5 guard) + buildPronounStabilityValidator",
+   "file": "c:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "5398-5407 (guard), 2058-2086 (validator)",
+   "what": "Wraps a mutation in mutateThenValidate against a validator that counts pronoun_gender_mismatch via CharacterConsistencyValidator (Bible gender map under RC2.2); a pass that raises the count is reverted with a warning. Violation label is count-free (A_58 fix) so partial repairs ship. Gated by AGENT9_MUTATION_REVALIDATION (default on).",
+   "invokedFrom": "ONLY two call sites: repairMalformedSurfacing (5478) and applyDeterministicPronounSweep (5561). Content-injection passes (locked-fact injector, resolution injector, victim rescues, role-alias substitution, walk-on repair, all LLM regen passes) are deliberately NOT wrapped (comment at 5386-5394).",
+   "scope": "Two cleanup passes in final post-processing",
+   "knownLimitations": "Inherits CharacterConsistencyValidator's name-anchored recall \u2014 a mutation that introduces drift in nameless narration scores identically before/after ('no signal'). The many unwrapped text-writing passes after the sweep (5567-5660) can introduce pronoun regressions the sweep never re-checks; only the parity pass (5802) partially covers this, and only for validator-visible mismatches."
+  },
+  {
+   "name": "applyTargetedPronounSweep + extractPronounTargetNames (validator-driven targeted repair)",
+   "file": "c:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "1560-1609 (name extraction), 1611-1680 (sweep)",
+   "what": "Parses validation errors of type pronoun_drift / pronoun_gender_mismatch via message regexes ('Pronoun drift for \"X\"' / 'Character \"X\" has incorrect pronouns'), then per chapter runs repairPronouns with onlyNames + cross-paragraph inheritance, and additionally repairChapterPronouns on chapters that mention a target name.",
+   "invokedFrom": "5723-5738 (post-validation, gated pronounRepairEnabled \u2014 OFF under verify); 5802-5817 parity pass (pronoun_gate_parity_enabled, default ON and INTENTIONALLY independent of pronoun_policy \u2014 ANALYSIS_44); 6011-6013 abort-softening cycle",
+   "scope": "Only characters the final validators flagged",
+   "knownLimitations": "Recall ceiling = validator recall: it can only target names the name-anchored detectors surfaced. Role-contamination drift the validators miss (unanchored narration, competitor-suppressed windows) produces zero targets, so under the live verify policy the parity pass \u2014 the ONLY repair still active on the normal path \u2014 fires on an empty set. Note also the rescue trigger at 5683-5691 lists pronoun_drift but NOT pronoun_gender_mismatch."
+  },
+  {
+   "name": "In-generation per-chapter pronoun loop (repair -> validate -> targeted repair -> retry/accept)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\generate.ts",
+   "lines": "2613-2625 (pre-validation repairChapterPronouns), 2923-2934 (post-expansion repeat), 2979-3059 (validate + targeted repair + residual acceptance), 177-184 (acceptance policy), 1007-1024 (pronoun-specific retry feedback branch), 457-475 (extractPronounOffendingSentences for quoted retry feedback)",
+   "what": "During chapter generation: deterministic repair before validation, CharacterConsistencyValidator per chapter, targeted onlyNames repair of flagged characters, re-validate; surviving mismatches become chapterErrors that force an LLM retry with pronoun-specific feedback (offending sentences quoted); at attempt >=3 residual pronoun issues are ACCEPTED with the comment 'applyDeterministicPronounSweep will make one final pass'.",
+   "invokedFrom": "generateProse chapter-batch loop; all repair steps gated on pronounCheckingEnabled (generate.ts:2079)",
+   "scope": "Per chapter, per attempt, during generation \u2014 the earliest repair layer",
+   "knownLimitations": "Under live verify policy pronounCheckingEnabled=false: the ENTIRE block is skipped \u2014 no per-chapter pronoun validation, no retry feedback for pronoun drift, nothing. And the acceptance comment's promised backstop (the final broad sweep) is ALSO disabled under verify (agent9-run.ts:5558), so the attempt-3 acceptance rationale is void in production."
+  },
+  {
+   "name": "ProseDefect kind 'pronoun_mismatch' (the LLM-regen repair path)",
+   "file": "c:\\CML\\packages\\prompts-llm\\src\\agent9-prose\\regen-integration.ts",
+   "lines": "111-112 (instructionForDefect), 31-54 (pronounsFromBible/genderMapFromBible), 136-149 (buildRegenRequest constraints.pronouns); kind declared in regen-repair.ts:28",
+   "what": "instructionForDefect case 'pronoun_mismatch' -> 'Correct the pronoun(s) to match the locked gender for the named character; change nothing else. Detail: ...'. pronounsFromBible dereferences the frozen Story Bible into a name->he/him|she/her lock injected into EVERY regen prompt as 'PRONOUN LOCK \u2014 never change: ...' plus the system rule 'NEVER alter any character's pronoun, gender, name, or any locked fact value' (regen-llm.ts:41,54).",
+   "invokedFrom": "NOWHERE for the defect kind: repo-wide grep for `kind: \"pronoun_mismatch\"` returns ZERO producers \u2014 no verifier ever constructs this defect, so instructionForDefect's pronoun case and the scoped-regen pronoun repair are dead code. The pronoun LOCK (preservation constraint) does reach every wired regen pass (scaffold 4622, voice-leakage 4886, locked-fact 5438, culprit-evidence 5501, resolution 5531, insertion 3385).",
+   "scope": "Defined for the whole regen loop; never triggered",
+   "knownLimitations": "This is the load-bearing gap of the 'verify' policy: verify's contract (generation-params.ts:247-248, 1709-1710) is 'detection without the prose-writing fixer... repairs go through LLM regen, validator-gated' \u2014 but the regen producer for pronoun defects was never wired. Detection output (pronoun_drift/pronoun_gender_mismatch errors) is consumed only by the deterministic targeted sweeps, which verify mostly disables. Regens also only PRESERVE pronouns; they never fix pre-existing drift."
+  },
+  {
+   "name": "Final-gate orchestration order (invocation sequence around validation)",
+   "file": "c:\\CML\\apps\\worker\\src\\jobs\\agents\\agent9-run.ts",
+   "lines": "5409-6028",
+   "what": "Order: 5409 applyDeterministicProsePostProcessing (contains per-chapter repairChapterPronouns, gated) -> 5415 locked-fact insertion regen -> 5469 locked-fact injector -> 5474 D5-guarded splice repair -> 5493 culprit-evidence + resolution regens -> 5553-5557 deterministic injectors + lifecycle guard -> 5558 D5-guarded BROAD pronoun sweep (gated pronounRepairEnabled) -> 5571 location/title normalization -> 5575 role-alias substitution -> 5580 walk-on repair -> 5610 scaffold SHIP-CHECK ('no text-writing pass may be added after this block') -> 5679 StoryValidationPipeline.validate -> 5693 deterministic rescue (incl. sweep 5713, gated) -> 5723 targeted sweep (gated) -> 5740/5767 victim rescues (text-mutating, pronoun-unguarded) -> 5802 LATE pronoun parity re-repair (ANALYSIS_43 H \u2014 independent of pronoun_policy, exists precisely because victim/alias mutations after the sweep can re-introduce mismatches) -> 5819 residual count -> warning -> 5966 abort-softening cycle (targeted + broad sweep at 6010-6015 when parity enabled) -> release/abort decision.",
+   "invokedFrom": "runAgent9 main flow",
+   "scope": "Whole story, after all chapters generated",
+   "knownLimitations": "Repairs are ordered BEFORE several text-mutating passes (victim rescue, role-alias substitution) whose regressions only the validator-recall-limited parity pass can see. Residual pronoun issues surface as a WARNING ('Pronoun integrity gate: N pronoun issue(s) remain'), and both pronoun error types are in REPAIRABLE_ISSUE_TYPES (5966-5980) so they soften failed->needs_review \u2014 confirmed drift ships with the story saved."
+  },
+  {
+   "name": "scripts/pronoun-audit.mjs (corpus detector audit)",
+   "file": "c:\\CML\\scripts\\pronoun-audit.mjs",
+   "lines": "1-119",
+   "what": "Evidence pass, not a fix (A_62 RC-4/Item 13): runs the SHIPPED detectPronounDriftEvents (story-validation dist) standalone over saved stories in stories/, recovering DESIGNED cast genders from each run's Agent2-CastDesigner response in documentation/prompts/actual/ (temporal + name-overlap pairing). Reports every event per chapter and whether the rubric pronounsUnstable cap threshold (>=2 events across >=2 chapters) would fire. Zero events over externally-flagged stories = 'answer (c): detector-shape gap'.",
+   "invokedFrom": "node scripts/pronoun-audit.mjs [dateFilter]",
+   "scope": "Offline measurement over saved corpus",
+   "knownLimitations": "Measures only the two high-precision detectors (not the window heuristic or CharacterConsistencyValidator), so it quantifies the drift-cap's recall, not total detection recall. Its own framing concedes the gap this task investigates: externals saw drift, the detector read 0/20."
+  },
+  {
+   "name": "scripts/pronoun-fixture-audit.mjs (catch/miss/repair matrix)",
+   "file": "c:\\CML\\scripts\\pronoun-fixture-audit.mjs",
+   "lines": "1-68",
+   "what": "Runs the canonical Item-13 drift shapes (TP1 beat-mismatch, TP2 alibi-drift, TP3 investigator-masc, TP4 cross-beat-mix, TP5 nearest-name-capture) and precision fixtures (FP1 legit-referent, FP2 unnamed-role, AMB group-ambiguity) through the real detectPronounDriftEvents AND repairPronouns, printing per-fixture FIRE/quiet vs expected plus whether repair touched each TP. 'Fix ONLY what this table indicts.' Cast fixture is the probe-run cast (Eleanor Voss detective, Hugo Vane, Captain Ivor Hale, Beatrice Quill...).",
+   "invokedFrom": "node scripts/pronoun-fixture-audit.mjs",
+   "scope": "Single-sentence/short-passage fixtures",
+   "knownLimitations": "All fixtures are NAME-ANCHORED short shapes (a cast name in or adjacent to the drifted sentence). There is no fixture for sustained unanchored POV narration drift ('she felt the ache of her own failure' with no name for paragraphs) \u2014 the role-contamination shape the external reviewer quoted \u2014 so the matrix can read green while that class passes through untouched."
+  }
+ ],
+ "keyFindings": [
+  "LIVE POLICY DISABLES NEARLY ALL REPAIR: apps/worker/config/generation-params.yaml:549 sets pronoun_policy: verify -> getPronounPolicySettings returns checkingEnabled=false (generation-params.ts:1711-1713). This turns OFF: per-chapter repair + validation + retry feedback during generation (generate.ts:2079, 2616, 2983), the per-chapter repair in post-processing (agent9-run.ts:2745), the broad sweep (5558), the rescue sweep (5713), and the primary targeted sweep (5724). The only live repairs are the parity pass (5802, pronoun_gate_parity_enabled default on, targeted-only) and the abort-softening cycle (6010-6015, fires only when the run would otherwise hard-fail).",
+  "THE VERIFY POLICY'S PROMISED LLM-REGEN REPAIR IS UNWIRED: verify's documented contract is 'repairs go through LLM regen, validator-gated' (generation-params.ts:1709-1710), and regen-integration.ts:111-112 carries the pronoun_mismatch instruction \u2014 but a repo-wide grep for `kind: \"pronoun_mismatch\"` finds ZERO producers. No verifier ever emits the defect, so the pronoun regen path is dead code. Detection under verify therefore flows only into: (a) moderate/major validation errors that soften to needs_review (agent9-run.ts:5966-5980), (b) the parity pass, whose targets are limited to validator-flagged names.",
+  "EVERY DETECTOR IS NAME-ANCHORED; ROLE-CONTAMINATION DRIFT IS UNANCHORED: CharacterConsistencyValidator requires the character's name in the sentence (character-validator.ts:336-338) and suppresses on any competing-gender name within \u221210/+3 sentences (354-364); ProseConsistencyValidator's window heuristic scans only \u00b1200 chars around name mentions with paragraph+window competitor suppression (prose-consistency-validator.ts:578-608); attribution_flip needs a dialogue tag (185); impossible_self_reference needs the name as sentence subject (260-278). The reviewer's ch10 example \u2014 'she felt the ache of her own failure' in Hugo's unanchored viewpoint narration \u2014 matches NONE of these shapes, and mixed-gender scenes (Hugo+Beatrice) trip competitor suppression for the rest. Also: findIncorrectPronouns never checks himself/herself/hers (character-validator.ts:391-405).",
+  "REPAIR IS CALIBRATED AGAINST SYSTEMATIC DRIFT: repairByMajorityVote hard-stops at wrongCount>3 or >30% (pronoun-repair.ts:727-728) \u2014 the ANALYSIS_20 class (15-17 errors/run) and any chapter with a role-swapped POV throughout exceeds both thresholds and is deliberately left alone. Guard C protects self-consistent >=2-pronoun opposite-gender runs whenever the opposite gender is named in the paragraph or the anchor is inherited (514) \u2014 systematic role drift IS self-consistent. The monotonic-guard counter (agent9-run.ts:2421-2455) ignores nameless and two-gender sentences, so guards measure exactly the subset where role drift does NOT live.",
+  "THE PROMPT'S ONLY ROLE-AWARE LINE MISFIRES ON THIS CAST AND ENCODES THE FEMALE PRIOR: narrativeVoiceLine (prompt-builder.ts:1406-1416) fires only when role/role_archetype .includes('detective') \u2014 Hugo Vane is an INVESTIGATOR, so the probe run's prompts carried NO declared referent for unanchored narration pronouns. Its fallback is literally `identityMap.get(povChar.name) ?? 'SHE'` and 'Never default to \"he/his\" as the neutral narrator voice unless the POV character is male' \u2014 the template default is the female investigator, i.e. the Eleanor-role prior the reviewer diagnosed. All other pronoun locks (10-rule block, compact tables, audit table, NSD, cast annotations \u2014 five+ redundant copies) are NAME->pronoun mappings; nothing anywhere binds ROLE->holder->gender.",
+  "PROMPT PLACEMENT: the pronoun_accuracy block's 'recency fix: moved from position 0 to last' (prompt-builder.ts:1289) only makes it last among the 24 context blocks \u2014 applyPromptBudgeting (1368-1372) appends the PROMPT BUDGET SUMMARY and the ENTIRE developer section after it, so it sits mid-system-message; it is also token-capped at 700 (1321). The true recency anchors are the compact PRONOUN LOCK immediately before the outline JSON in the user message (2028-2042) and the obligation block's per-paragraph re-check table (obligation-block.ts:909-926).",
+  "ACCEPTANCE POLICY LEAKS DRIFT UNDER VERIFY: during generation, residual pronoun issues are accepted at attempt >=3 on the rationale 'applyDeterministicPronounSweep will make one final pass' (generate.ts:3034-3058, 177-184) \u2014 but under verify neither the in-loop block nor that final sweep runs. At the final gate, residual pronoun errors are warn-only ('Pronoun integrity gate: N pronoun issue(s) remain', agent9-run.ts:5825-5828) and both types are in REPAIRABLE_ISSUE_TYPES so a would-be abort softens to needs_review with output saved. Rubric backstop pronounsUnstable (facts.ts:207-228) requires >=2 high-precision events across >=2 chapters \u2014 the audit script (scripts/pronoun-audit.mjs) was written because that cap read 0/20 while all four external reads saw drift.",
+  "FIXTURE COVERAGE MATCHES THE FIX, NOT THE FAILURE: commit 047d469f's fixture-driven changes (Guard C TP3 relaxation pronoun-repair.ts:502-514, FP2 UNNAMED_ROLE_INTERVENER prose-consistency-validator.ts:249-302, Item-13 label matching agent9-run.ts:2422-2432) all target name-adjacent single-sentence shapes; scripts/pronoun-fixture-audit.mjs contains no fixture for multi-paragraph unanchored POV narration drift, so the current green matrix does not certify against the role-contamination class the external reviewer reported on stories/story_20260722-2127/the_clockwork_deception.md (run mystery-1784751055781)."
+ ]
+}
