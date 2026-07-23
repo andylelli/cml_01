@@ -73,6 +73,35 @@ All §2.8-constrained: measuring most of these is batch-shaped and therefore own
 
 ---
 
+## 6. THE TOP THREE FIXES — multi-run review (added 2026-07-23, same day)
+
+The owner asked for a recurrence check across the recent runs. Sources: THREE external reads (probe #1 `the_clockwork_deception` 78/100; the pre-fix control `story_20260723-1620` masquerade 80/100 — a read we hadn't logged; probe #3 `masks_of_authority` 76/100) + template greps across the FIVE most recent shipped pages + source attribution. This upgrades category 1 from single-story to multi-run evidence.
+
+### FIX 1 — Dismantle the suspect-closure enforcement stack's report-register output (categories 1.1/1.2/2.1/2.2 — one machine)
+
+**Recurrence: 5/5 shipped pages, 3/3 external reads.** Every recent story's final/denouement chapter carries the same sentence with only the location slot varied: *"X's alibi was confirmed because multiple witnesses saw her in the {Hotel Kitchen | lobby | lounge ×3 | dining room ×2} at the time."* All three reads name it ("sounds like a checklist", "generated residue — cut it", "validation-style phrasing"); probe #3's read ranks the resulting duplicate validation chapter as **the biggest issue**.
+
+**Attribution — three cooperating mechanisms, all ours:**
+1. **The lint teaches the template**: `suspect_clearance_missing` (`lint.ts:445–472`) demands per-suspect one paragraph with name + clearance phrase + evidence connector, and hands the model the exact sentence as `Example:` — to an LLM an example IS a template, hence 5/5 verbatim copies. The AND-shape (all three in ONE paragraph, "do not split") structurally forbids the dramatic aftermath phrasing the reviewers keep writing out as the fix.
+2. **The deterministic injection writes fiction**: `enforceSuspectEliminationPresence` (`agent9-run.ts:2289`) — replay-proven author of probe #1's mangled ch10 leakage line (A_66 §2 bonus).
+3. **Agent7 requires a closure scene** (`agent7-run.ts:1141`) — the likely source of a whole chapter whose PURPOSE is re-clearing suspects after ch8 already did (probe #3's ch9).
+
+**Fix shape (to design, not here):** closure obligations stay — the register goes. (a) The lint example must model fiction or be removed; (b) the injection must never write into prose — route to the regen channel; (c) Agent7's closure scene becomes aftermath-with-clearances, not a clearance chapter. The A_66 method applies: census first, replay the injection, fixture the failure.
+
+### FIX 2 — A required early physical method clue (category 1.5)
+
+**Recurrence: 3/3 external reads, near-identical wording.** Probe #1: "murder method needs a physical ligature clue… feel planted, not merely revealed." Control: "the murder method needs more physical detail… planted rather than announced." Probe #3: "strangulation needs an earlier physical clue… planted, not just revealed." Three different stories, same hole: mechanism and alibi clues get planted; cause-of-death evidence never does.
+
+**Fix shape:** a required clue-spec slot (method-evidence, early band, tied to the final deduction) at Agent5, stamped by Agent7 plant-before-reveal. The machinery exists — the clue-spec shadow already maps 92% of shipped clues to slots.
+
+### FIX 3 — Plant→payoff binding: every stamped plant must be cited in the reveal (categories 1.3/1.4)
+
+**Recurrence: 3/3 reads, escalating.** Probe #1: the watch's true time withheld at the plant ("a different hour entirely" — the reader needs the number). Control: "the clock time is underused" — final proof rests on costumes. Probe #3: clocks planted and never used ("need to matter, or cut them"), footprints introduced then fade. The plant-before-reveal contract stamps plant→reveal scheduling, but **nothing verifies the reveal TEXT cites the planted object** — so we pay the fair-play setup cost and skip collecting the payoff.
+
+**Fix shape:** a reveal-citation check — the discriminating-test/denouement must reference each stamped plant's anchor terms, else regen (the existing `missing_clue` channel) or demote/cut the plant. Deterministically measurable; a corpus dry-run over the 93 stories prices it for free before any lever is built.
+
+**Runners-up, for the record:** the false-solution-needs-a-physical-clue ask (also 3/3, lower reviewer weight), the referent-vagueness pass (light), the quote-parity instrument fix (3.1). Note the combined pricing across the three reads: fixing these classes is what the reviewers price at 84–89 — the other side of the 80 target.
+
 ## The shape of the board, in one paragraph
 
 The pronoun war's closure exposes the same pattern one layer up: **the top external blocker is again our own deterministic layer** (the suspect-elimination injection and the ch9 validation chapter it produces — category 2), followed by classic craft debts the reviewer priced precisely (category 1: clue payoffs, early method clue, tear forensics). Categories 3–5 are the meta-work: instruments that lie (quote-parity, the unpinned offset, the possibly-template-answering judge) and a shelf of built-but-unmeasured levers that §2.8 correctly refuses to let us measure by reflex. Nothing here is designed or scheduled — that is the next analysis's job, and the A_66 lesson stands for all of it: **prove the entry point before fixing the layer.**
