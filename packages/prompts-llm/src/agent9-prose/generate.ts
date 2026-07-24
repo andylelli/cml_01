@@ -119,7 +119,7 @@ import {
   attemptUnderflowExpansion,
   runAtmosphereRepairIfNeeded,
 } from "./repair.js";
-import { polishPassingChapter } from "./post-pass-polish.js";
+import { polishPassingChapter, runFullStoryRepetitionPolish } from "./post-pass-polish.js";
 import {
   applyDeterministicClearancePatch,
   buildCompletionFallbackChapter,
@@ -4343,6 +4343,34 @@ export async function generateProse(
       }
     } catch {
       // Repetition repair is best-effort only. Keep the original chapters if repair fails.
+    }
+  }
+
+  // A_68 (prose audit, cross-chapter axis): the atmosphere repair above is a blind phrase-for-phrase
+  // token swap; it cannot fix sentence-opening monotony or reword a recurring filler in-voice. When
+  // AGENT9_FULLSTORY_POLISH is on, hand each chapter that carries a cross-chapter repetition (recurring
+  // n-gram or a shared opening shape) to the LLM to VARY those phrasings, with a self-contained guard
+  // (locked values + cast names + number/time tokens + length all preserved) that rolls that chapter
+  // back to its committed text on any regression. Default OFF — opt-in / probe (bounded extra calls).
+  const fullStoryPolishEnabled =
+    process.env.AGENT9_FULLSTORY_POLISH === "true" || process.env.AGENT9_FULLSTORY_POLISH === "1";
+  if (fullStoryPolishEnabled && recurringPhrases.length > 0) {
+    try {
+      const fullStory = await runFullStoryRepetitionPolish({
+        chapters,
+        client,
+        model: inputs.model,
+        runId: inputs.runId,
+        projectId: inputs.projectId,
+        lockedValues: (inputs.lockedFacts ?? []).map((f) => f.value),
+        recurringPhrases,
+        castNames,
+      });
+      if (fullStory.chapters.length === chapters.length) {
+        chapters.splice(0, chapters.length, ...fullStory.chapters);
+      }
+    } catch {
+      // Best-effort cross-chapter polish; keep the committed chapters if it fails.
     }
   }
 

@@ -134,6 +134,9 @@ import {
   buildCompletionFallbackChapter,
   buildEnhancedRetryFeedback,
   buildPostPassPolishPrompt,
+  buildRepeatedOpenings,
+  hasRepetitionRewriteRegression,
+  buildFullStoryRepetitionPolishPrompt,
   buildChapterObligationBlock,
   buildDiscriminatingTestChecklist,
   describeDtMechanismForPrompt,
@@ -1327,6 +1330,76 @@ describe("A_67 polish — buildPostPassPolishPrompt targets planning/validation 
     // A_68 prose-audit additions: show-the-deduction + bounded period-diction lift
     expect(prompt).toContain("SHOW THE DEDUCTION");
     expect(prompt).toContain("PERIOD DICTION LIFT");
+  });
+});
+
+describe("A_68 full-story repetition polish — deterministic guards (never regress a fact)", () => {
+  it("buildRepeatedOpenings flags an opening shape shared by >=2 chapters, ignores unique ones", () => {
+    const chapters = [
+      { title: "1", paragraphs: ["The rain settled over the manor, cold and grey."] },
+      { title: "2", paragraphs: ["The rain settled over the garden, thin and grey."] },
+      { title: "3", paragraphs: ["Inspector Wren studied the sundial's frozen face."] },
+    ];
+    const openings = buildRepeatedOpenings(chapters as any);
+    expect(openings.some((o) => o.includes("rain") && o.includes("settled"))).toBe(true);
+    expect(openings.some((o) => o.includes("inspector"))).toBe(false);
+  });
+
+  it("hasRepetitionRewriteRegression rolls back when a locked value, cast name, number, or length is lost", () => {
+    const original = {
+      title: "9",
+      paragraphs: [
+        "At twenty minutes past ten, Charles Pembroke crossed the frozen garden with his collar turned up against the cold. The sundial threw its long grey shadow across the gravel, and he studied it for a moment before he set the gnomon straight again.",
+        "Nothing about the morning felt ordinary. The frost had held through the night, and the copper plate was still cold to the touch when he pressed his gloved hand flat against it and waited for the household to stir.",
+      ],
+    };
+    const args = { lockedValues: ["twenty minutes past ten"], castNames: ["Charles Pembroke"] };
+
+    // clean variation (openings reworded, all facts + length kept) → NOT a regression
+    const clean = {
+      title: "9",
+      paragraphs: [
+        "Charles Pembroke crossed the frozen garden at twenty minutes past ten, his collar turned up against the cold. Where the sundial threw its long grey shadow over the gravel he paused, studying it, then reached down and set the gnomon straight again.",
+        "The morning felt anything but ordinary to him. Frost had held through the night, and when he pressed a gloved hand flat to the copper plate it was still cold, and he waited there for the household to stir.",
+      ],
+    };
+    expect(hasRepetitionRewriteRegression({ original, rewritten: clean, ...args })).toBe(false);
+
+    // dropped locked value → regression
+    const noLocked = {
+      title: "9",
+      paragraphs: [
+        "Early that morning, Charles Pembroke crossed the frozen garden with his collar turned up against the cold. The sundial threw its long grey shadow across the gravel, and he studied it for a moment before he set the gnomon straight again.",
+        "Nothing about the morning felt ordinary. The frost had held through the night, and the copper plate was still cold to the touch when he pressed his gloved hand flat against it and waited for the household to stir.",
+      ],
+    };
+    expect(hasRepetitionRewriteRegression({ original, rewritten: noLocked, ...args })).toBe(true);
+
+    // dropped cast name → regression
+    const noName = {
+      title: "9",
+      paragraphs: [
+        "At twenty minutes past ten, he crossed the frozen garden with his collar turned up against the cold. The sundial threw its long grey shadow across the gravel, and he studied it for a moment before he set the gnomon straight again.",
+        "Nothing about the morning felt ordinary. The frost had held through the night, and the copper plate was still cold to the touch when he pressed his gloved hand flat against it and waited for the household to stir.",
+      ],
+    };
+    expect(hasRepetitionRewriteRegression({ original, rewritten: noName, ...args })).toBe(true);
+
+    // over-shortened (>12% words lost) → regression
+    const short = { title: "9", paragraphs: ["At twenty minutes past ten, Charles Pembroke crossed the frozen garden and set the gnomon straight."] };
+    expect(hasRepetitionRewriteRegression({ original, rewritten: short, ...args })).toBe(true);
+  });
+
+  it("buildFullStoryRepetitionPolishPrompt lists the recurring phrase, mandates locked values, and forbids other changes", () => {
+    const prompt = buildFullStoryRepetitionPolishPrompt({
+      chapter: { title: "9", paragraphs: ["x"] } as any,
+      repeatedPhrases: ["in a remembered moment"],
+      repeatedOpenings: ["rain settled"],
+      lockedValues: ["twenty minutes past ten"],
+    });
+    expect(prompt).toContain("in a remembered moment");
+    expect(prompt).toContain("twenty minutes past ten");
+    expect(prompt).toContain("Change NOTHING else");
   });
 });
 

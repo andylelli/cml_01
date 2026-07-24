@@ -243,3 +243,225 @@ export const polishPassingChapter = async (args: {
     keptPolishedVersion: true,
   };
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A_68 — full-story cross-chapter repetition polish.
+// A per-chapter pass cannot see repetition that spans chapters (the recurring filler /
+// sentence-opening monotony the external review flags). This stage takes a deterministically-built
+// repetition map (recurring n-grams from detectRecurringPhrases + repeated chapter openings) and hands
+// each affected chapter to the LLM to VARY those specific phrasings — with a self-contained
+// validate-then-rollback guard (no ledger needed): a repetition-variation rewrite is accepted only when
+// it preserves every locked-fact value, every cast name present, every number/time token, and the
+// chapter's length. Otherwise that chapter rolls back to its committed text. Flag-gated; never regresses.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const chapterFullText = (chapter: ProseChapter): string => (chapter.paragraphs ?? []).join("\n\n");
+
+const OPENING_STOPWORDS = new Set([
+  "the", "a", "an", "and", "but", "as", "of", "to", "in", "on", "it", "he", "she", "they", "there", "that", "this", "his", "her",
+]);
+
+/** First up-to-4 content words of a chapter's opening sentence, normalized — the "opening shape". */
+const openingShape = (chapter: ProseChapter): string => {
+  const first = String((chapter.paragraphs ?? [])[0] ?? "").trim();
+  const words = first
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !OPENING_STOPWORDS.has(w));
+  return words.slice(0, 3).join(" ");
+};
+
+/** Opening shapes shared by >=2 chapters — the monotony a per-chapter pass can't see. */
+export const buildRepeatedOpenings = (chapters: ProseChapter[]): string[] => {
+  const counts = new Map<string, number>();
+  for (const ch of chapters) {
+    const shape = openingShape(ch);
+    if (shape.split(" ").length < 2) continue;
+    counts.set(shape, (counts.get(shape) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .filter(([, n]) => n >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .map(([shape]) => shape);
+};
+
+const digitTokens = (text: string): string[] => text.match(/\b\d[\d:.,]*\d\b|\b\d\b/g) ?? [];
+
+/**
+ * Self-contained guard for a repetition-variation rewrite. Returns true (regressed → roll back) when the
+ * rewrite drops any locked-fact value, any cast name that was present, any number/time token, or >12% of
+ * the chapter's words. It does NOT need per-chapter ledgers: a rewrite that keeps every fact-bearing token
+ * and the length, while only varying flagged phrasings, cannot alter the plot logic.
+ */
+export const hasRepetitionRewriteRegression = (args: {
+  original: ProseChapter;
+  rewritten: ProseChapter;
+  lockedValues: ReadonlyArray<string>;
+  castNames: ReadonlyArray<string>;
+}): boolean => {
+  const originalText = chapterFullText(args.original);
+  const rewrittenText = chapterFullText(args.rewritten);
+  const originalLower = originalText.toLowerCase();
+  const rewrittenLower = rewrittenText.toLowerCase();
+
+  const originalWords = countWords(originalText);
+  const rewrittenWords = countWords(rewrittenText);
+  if (originalWords >= 80 && rewrittenWords < Math.floor(originalWords * 0.88)) return true;
+
+  for (const raw of args.lockedValues) {
+    const value = String(raw ?? "").trim().toLowerCase();
+    if (!value) continue;
+    if (originalLower.includes(value) && !rewrittenLower.includes(value)) return true;
+  }
+  for (const raw of args.castNames) {
+    const name = String(raw ?? "").trim().toLowerCase();
+    if (!name) continue;
+    if (originalLower.includes(name) && !rewrittenLower.includes(name)) return true;
+  }
+  // Every number/time token present before must survive (a dropped time/number is a lost fact).
+  const before = digitTokens(originalText);
+  const afterCounts = new Map<string, number>();
+  for (const t of digitTokens(rewrittenText)) afterCounts.set(t, (afterCounts.get(t) ?? 0) + 1);
+  const beforeCounts = new Map<string, number>();
+  for (const t of before) beforeCounts.set(t, (beforeCounts.get(t) ?? 0) + 1);
+  for (const [token, n] of beforeCounts) {
+    if ((afterCounts.get(token) ?? 0) < n) return true;
+  }
+  return false;
+};
+
+export const buildFullStoryRepetitionPolishPrompt = (args: {
+  chapter: ProseChapter;
+  repeatedPhrases: ReadonlyArray<string>;
+  repeatedOpenings: ReadonlyArray<string>;
+  lockedValues: ReadonlyArray<string>;
+}): string => {
+  const lines: string[] = [];
+  lines.push("CROSS-CHAPTER REPETITION POLISH");
+  lines.push("These phrasings and sentence-openings recur ACROSS the story and read as repetitive to a reader.");
+  lines.push("Rewrite ONLY where they appear in THIS chapter so each reads fresh; vary the sentence openings.");
+  lines.push("Change NOTHING else: preserve every named character, clue, alibi, clearance, number, time, and");
+  lines.push("date exactly; do not shorten the chapter; do not alter who is implicated or cleared.");
+  if (args.repeatedPhrases.length > 0) {
+    lines.push("");
+    lines.push("RECURRING PHRASINGS (vary each occurrence in this chapter):");
+    for (const p of args.repeatedPhrases.slice(0, 10)) lines.push(`- "${p}"`);
+  }
+  if (args.repeatedOpenings.length > 0) {
+    lines.push("");
+    lines.push("REPEATED CHAPTER/SENTENCE OPENINGS (re-open differently if this chapter uses one):");
+    for (const o of args.repeatedOpenings.slice(0, 6)) lines.push(`- "${o}…"`);
+  }
+  if (args.lockedValues.length > 0) {
+    lines.push("");
+    lines.push("MANDATED — reproduce these EXACT phrases verbatim; never vary them:");
+    for (const v of args.lockedValues.slice(0, 12)) lines.push(`- "${v}"`);
+  }
+  lines.push("");
+  lines.push("OUTPUT RULES");
+  lines.push("- Return full corrected JSON for exactly one chapter, same title.");
+  lines.push("- Preserve the narrative voice and period register — this is a variation pass, not a re-voicing.");
+  lines.push("- If varying a phrasing would risk any factual or logical change, keep the original wording.");
+  return lines.join("\n");
+};
+
+export interface FullStoryRepetitionPolishResult {
+  chapters: ProseChapter[];
+  editedChapters: number[];
+}
+
+export const runFullStoryRepetitionPolish = async (args: {
+  chapters: ProseChapter[];
+  client: AzureOpenAIClient;
+  model?: string;
+  runId?: string;
+  projectId?: string;
+  lockedValues: ReadonlyArray<string>;
+  recurringPhrases: ReadonlyArray<string>;
+  castNames: ReadonlyArray<string>;
+  /** cost bound: how many chapters a single recurring phrase may trigger a rewrite in (default 2). */
+  maxChaptersPerPhrase?: number;
+}): Promise<FullStoryRepetitionPolishResult> => {
+  const chapters = [...args.chapters];
+  const repeatedOpenings = buildRepeatedOpenings(chapters);
+  const phrases = (args.recurringPhrases ?? []).filter((p) => typeof p === "string" && p.trim().length > 0);
+  if (phrases.length === 0 && repeatedOpenings.length === 0) {
+    return { chapters, editedChapters: [] };
+  }
+  const cap = Math.max(1, args.maxChaptersPerPhrase ?? 2);
+
+  // Decide target chapters: any chapter carrying a repeated opening, plus (per phrase, first `cap`
+  // chapters that contain it) so a phrase in 6 chapters doesn't fan out to 6 LLM calls.
+  const targetIdx = new Set<number>();
+  chapters.forEach((ch, i) => {
+    if (repeatedOpenings.includes(openingShape(ch))) targetIdx.add(i);
+  });
+  for (const phrase of phrases) {
+    const needle = phrase.toLowerCase();
+    let taken = 0;
+    for (let i = 0; i < chapters.length && taken < cap; i++) {
+      if (chapterFullText(chapters[i]).toLowerCase().includes(needle)) {
+        targetIdx.add(i);
+        taken += 1;
+      }
+    }
+  }
+  if (targetIdx.size === 0) return { chapters, editedChapters: [] };
+
+  const editedChapters: number[] = [];
+  for (const i of Array.from(targetIdx).sort((a, b) => a - b)) {
+    const original = chapters[i];
+    if (!Array.isArray(original?.paragraphs) || original.paragraphs.length === 0) continue;
+    // Per-chapter: only surface the phrases/openings that actually appear here.
+    const localPhrases = phrases.filter((p) => chapterFullText(original).toLowerCase().includes(p.toLowerCase()));
+    const localOpening = repeatedOpenings.includes(openingShape(original)) ? [openingShape(original)] : [];
+    if (localPhrases.length === 0 && localOpening.length === 0) continue;
+
+    let candidate: ProseChapter | undefined;
+    try {
+      const response = await args.client.chat({
+        messages: [
+          { role: "system", content: "Vary repetitive phrasing across a story without changing any story fact, name, number, or logic." },
+          {
+            role: "user",
+            content: `${buildFullStoryRepetitionPolishPrompt({
+              chapter: original,
+              repeatedPhrases: localPhrases,
+              repeatedOpenings: localOpening,
+              lockedValues: args.lockedValues,
+            })}\n\nSOURCE CHAPTER JSON\n${JSON.stringify({ status: "draft", chapters: [original] }, null, 2)}`,
+          },
+        ],
+        model: args.model,
+        temperature: 0.3,
+        maxTokens: 5000,
+        jsonMode: true,
+        logContext: {
+          runId: args.runId ?? "",
+          projectId: args.projectId ?? "",
+          agent: `Agent9-FullStoryRepetitionPolish-Ch${i + 1}`,
+          retryAttempt: 1,
+        },
+      });
+      candidate = parseProseResponse(response.content).chapters?.[0];
+    } catch {
+      candidate = undefined;
+    }
+    if (!candidate || !Array.isArray(candidate.paragraphs) || candidate.paragraphs.length === 0) continue;
+    if (
+      hasRepetitionRewriteRegression({
+        original,
+        rewritten: candidate,
+        lockedValues: args.lockedValues,
+        castNames: args.castNames,
+      })
+    ) {
+      continue; // roll back this chapter to its committed text
+    }
+    chapters[i] = { ...original, ...candidate, title: original.title ?? candidate.title };
+    editedChapters.push(i + 1);
+  }
+
+  return { chapters, editedChapters };
+};
