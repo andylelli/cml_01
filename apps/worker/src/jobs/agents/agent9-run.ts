@@ -2312,10 +2312,29 @@ export const computeEliminationSuspects = (cml: any, castDesign?: any): string[]
   );
   const detectiveSet = new Set<string>(
     rawCast
-      .filter((c: any) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
+      // A_67 review bug: the preferred source (castDesign.characters, Agent-2) stores the archetype in
+      // camelCase `roleArchetype`, so a bare snake_case `role_archetype` read silently excluded NO
+      // detective on the normal path — the injector/regen then "cleared" the sleuth as a suspect. Read
+      // both spellings (+ role), matching every sibling cast read in this file (e.g. lines 1444/1452).
+      .filter((c: any) => String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '').toLowerCase().includes('detective'))
       .map((c: any) => String(c.name ?? '').trim()),
   );
-  return castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
+  // A_68 probe (SUSPECT_ELIM run 1715): the VICTIM was never excluded here — only culprit + detective
+  // were — so the elimination injector shipped "Ellsworth was thoroughly cleared by the evidence; the
+  // alibi confirmed they could not have committed the crime" for Lady Beatrice ELLSWORTH, the murder
+  // victim. You do not clear the victim of being the murderer. Exclude victims the same way the cast-
+  // integrity pass does (isVictimArchetype over role_archetype ?? roleArchetype ?? role, + culpability.victim).
+  const victimSet = new Set<string>();
+  for (const c of rawCast) {
+    const role = String(c?.role_archetype ?? c?.roleArchetype ?? c?.role ?? '');
+    const name = String(c?.name ?? '').trim();
+    if (name && isVictimArchetype(role)) victimSet.add(name);
+  }
+  const culpabilityVictim = String(cml?.CASE?.culpability?.victim ?? '').trim();
+  if (culpabilityVictim) victimSet.add(culpabilityVictim);
+  return castNames.filter(
+    (name) => !culpritSet.has(name) && !detectiveSet.has(name) && !victimSet.has(name),
+  );
 };
 
 export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
