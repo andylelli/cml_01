@@ -119,6 +119,24 @@ export function deriveClueSpec(cml: unknown): ClueSpec {
     });
   }
 
+  // 2b. Method-evidence (A_67 FIX-2) — the PHYSICAL manner of death (CASE.death_method) must be
+  //     reader-visible EARLY, as its own fair-play tell, DISTINCT from the concealment mechanism above
+  //     (which is the alibi/cover-up device, not how the victim died). Guarded on death_method presence
+  //     so empty/minimal CMLs emit no method slot. No supportsInferenceStep: it is planted early and
+  //     cited at the reveal, not bound to a mid/late inference step.
+  const deathMethod = caseData.death_method;
+  if (typeof deathMethod === "string" && deathMethod.trim()) {
+    clueSlots.push({
+      id: "slot_method_evidence",
+      evidenceType: "observation",
+      criticality: "essential",
+      sourceInCML: "CASE.death_method",
+      category: "physical",
+      keyTerms: extractKeyTerms(deathMethod),
+      suggestedPlacement: "early",
+    });
+  }
+
   // 3. Discriminating-test evidence — the clue(s) the test turns on, which it must NOT introduce.
   const dt = caseData.discriminating_test;
   if (dt) {

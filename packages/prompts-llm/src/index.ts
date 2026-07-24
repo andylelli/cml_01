@@ -138,6 +138,7 @@ export {
   composeChapterValidator,
   runClueRegenPass,
   runClearanceRegenPass,
+  runSuspectEliminationRegenPass,
   runScaffoldRegenPass,
   applyScaffoldExhaustionFloor,
   culpritEvidenceLinkInText,

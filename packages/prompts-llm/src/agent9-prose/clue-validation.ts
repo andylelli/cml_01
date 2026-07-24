@@ -753,6 +753,35 @@ export const chapterMentionsRequiredClue = (
 };
 
 /**
+ * A_67 FIX-3 (plant→payoff measure): does the reveal chapter CITE the planted essential clues, or just
+ * assert conclusions? Pure + deterministic, reusing the SAME `chapterMentionsRequiredClue` token-match
+ * the `missing_clue` regen channel keys on — so the measure and any future hard regen/cut lever agree.
+ * Built for the corpus dry-run the doc prescribes: price the reveal-citation gap over the 93 stories
+ * before building a lever. `deathMethodTokens` (from `deathMethodTellHints`) additionally reports whether
+ * the physical cause-of-death tell is cited; `methodCited` is null when no death method is known.
+ */
+export const auditRevealCitesPlants = (
+  revealChapterText: string,
+  priorEssentialClueIds: ReadonlyArray<string>,
+  clueDistribution?: ClueDistributionResult,
+  castNames?: string[],
+  deathMethodTokens?: ReadonlyArray<string>,
+): { total: number; cited: number; uncited: string[]; methodCited: boolean | null } => {
+  const uncited: string[] = [];
+  let cited = 0;
+  for (const id of priorEssentialClueIds) {
+    if (chapterMentionsRequiredClue(revealChapterText, id, clueDistribution, castNames)) cited += 1;
+    else uncited.push(id);
+  }
+  const lowered = String(revealChapterText ?? "").toLowerCase();
+  const methodCited =
+    deathMethodTokens && deathMethodTokens.length > 0
+      ? deathMethodTokens.some((t) => tokenMatchesText(String(t).toLowerCase(), lowered))
+      : null;
+  return { total: priorEssentialClueIds.length, cited, uncited, methodCited };
+};
+
+/**
  * For early-placement clues: check whether the clue tokens appear in the first
  * 25% of the chapter paragraphs (paragraph-window, not character offset).
  * Uses the same token-matching logic as chapterMentionsRequiredClue.

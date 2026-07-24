@@ -50,6 +50,7 @@ import {
   detectDualValueAtShipScope,
   runResolutionRegenPass,
   runCulpritEvidenceRegenPass,
+  runSuspectEliminationRegenPass,
   runCaseTransitionRegenPass,
   runMechanismRevealRegenPass,
   runVoiceLeakageRegenPass,
@@ -238,6 +239,11 @@ const isPronounRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_PRO
  * default-off (N≥4 before default-on), runtime-read; the deterministic injectors stay as the floor. */
 const isResolutionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_RESOLUTION, false);
 const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_CULPRIT_EVIDENCE, false);
+/** A_67 FIX-1(b) — dramatize suspect clearances in-scene (witnessed deduction) instead of pasting the
+ * deterministic "X was thoroughly cleared by the evidence…" register sentence. Default-off (probe before
+ * default-on), runtime-read; enforceSuspectEliminationPresence stays as the last-resort floor so a run
+ * whose clearance the LLM cannot dramatize never aborts the release gate. */
+const isSuspectEliminationRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SUSPECT_ELIM, false);
 
 /** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
  * murder with none. Default-off (N≥4 before default-on), runtime-read. */
@@ -2286,21 +2292,19 @@ const injectSentenceIfAbsent = (
   return { ...prose, chapters };
 };
 
-export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
-  // P1-7: Prefer castDesign.characters (Agent 2 normalised) over cml.CASE.cast (Agent 3 raw).
+/**
+ * A_67 FIX-1(b) — the suspect set shared by the deterministic injector floor and the LLM regen gate
+ * (class-#5 doctrine: floor and gate agree on WHO must be cleared). Cast minus culprits minus detectives.
+ * P1-7: prefer castDesign.characters (Agent 2 normalised) over cml.CASE.cast (Agent 3 raw).
+ */
+export const computeEliminationSuspects = (cml: any, castDesign?: any): string[] => {
   const rawCast: any[] = Array.isArray(castDesign?.characters)
     ? castDesign.characters
     : Array.isArray(cml?.CASE?.cast)
       ? cml.CASE.cast
       : [];
   const castNames: string[] = rawCast.map((c: any) => String(c?.name ?? '').trim()).filter(Boolean);
-  if (castNames.length === 0) {
-    if (!Array.isArray(castDesign?.characters) && !Array.isArray(cml?.CASE?.cast)) {
-      console.warn('[Agent 9] enforceSuspectEliminationPresence: no cast source available (castDesign and cml.CASE.cast both absent)');
-    }
-    return prose;
-  }
-
+  if (castNames.length === 0) return [];
   const culpritSet = new Set<string>(
     Array.isArray(cml?.CASE?.culpability?.culprits)
       ? cml.CASE.culpability.culprits.map((n: any) => String(n ?? '').trim())
@@ -2311,8 +2315,17 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
       .filter((c: any) => typeof c.role_archetype === 'string' && c.role_archetype.toLowerCase().includes('detective'))
       .map((c: any) => String(c.name ?? '').trim()),
   );
-  const suspects = castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
-  if (suspects.length === 0) return prose;
+  return castNames.filter((name) => !culpritSet.has(name) && !detectiveSet.has(name));
+};
+
+export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
+  const suspects = computeEliminationSuspects(cml, castDesign);
+  if (suspects.length === 0) {
+    if (!Array.isArray(castDesign?.characters) && !Array.isArray(cml?.CASE?.cast)) {
+      console.warn('[Agent 9] enforceSuspectEliminationPresence: no cast source available (castDesign and cml.CASE.cast both absent)');
+    }
+    return prose;
+  }
 
   const ELIMINATION_TERMS = /\b(cleared|ruled\s+out|eliminated|not\s+the\s+culprit|innocent|alibi\s+holds|alibi\s+confirmed|could\s+not\s+have)\b/i;
   const EVIDENCE_TERMS = /\b(evidence|because|therefore|which\s+proves|proof|alibi|timeline|constraint|observation)\b/i;
@@ -5536,7 +5549,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // A_61 RC1.4 — inject→regen for culprit-evidence (B5) and resolution (B6). Each runs BEFORE its
   // deterministic injector so a successful regen makes the injector a logged no-op floor; on failure the
   // injector fires exactly as today. Wrapped so any regen failure leaves prose untouched.
-  if ((isCulpritEvidenceRegenEnabled() || isResolutionRegenEnabled()) && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+  if ((isCulpritEvidenceRegenEnabled() || isResolutionRegenEnabled() || isSuspectEliminationRegenEnabled()) && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
     const costBeforeRegen = client.getCostTracker().getTotalCost();
     try {
       const regenBibleRc14 = { ...worldState, beatSheet: [] };
@@ -5586,6 +5599,25 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
               prose.chapters[targetIdx] = pass.chapter;
               if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-resolution dramatized the reveal for "${culprit}" in ch${targetIdx + 1} (injector suppressed).`);
             }
+          }
+        }
+      }
+      if (isSuspectEliminationRegenEnabled()) {
+        // A_67 FIX-1(b): dramatize each non-culprit suspect's clearance in-scene BEFORE the deterministic
+        // register-sentence injector floor at enforceSuspectEliminationPresence, so a successful regen
+        // makes the floor a logged no-op. Unresolved suspects fall through to the injector (never abort).
+        const elimSuspects = computeEliminationSuspects(cml, castDesign);
+        if (elimSuspects.length > 0) {
+          const pass = await runSuspectEliminationRegenPass({
+            chapters: prose.chapters,
+            suspects: elimSuspects,
+            bible: regenBibleRc14,
+            regen: regenFnRc14,
+            onUnresolved: (d, reason) => ctx.warnings.push(`[Agent 9] regen-suspect-elimination UNRESOLVED ${d.obligationRef}: ${reason} (injector floor applies).`),
+          });
+          if (pass.ran) {
+            prose.chapters = pass.chapters;
+            if (pass.repaired.length > 0) ctx.warnings.push(`[Agent 9] regen-suspect-elimination dramatised clearances for [${pass.repaired.join(", ")}] (injector suppressed for these).`);
           }
         }
       }

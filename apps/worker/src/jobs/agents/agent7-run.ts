@@ -1294,6 +1294,59 @@ export function coerceNarrativeSceneBeats(narrative: unknown): { coerced: number
   return { coerced, dropped };
 }
 
+/**
+ * Deterministically HOIST scene fields the model nested under `setting` up to the scene top-level, and
+ * synthesise a missing `summary` from the model's own authored intent — in place.
+ *
+ * The Agent-7 formatter sometimes emits a scene with only a `title` at the top level and buries
+ * `purpose` / `summary` / `characters` / `cluesRevealed` / `dramaticElements` INSIDE the `setting`
+ * object (observed run a9c1e346 scene 7 "Secrets Beneath Secrets" — the bundled completeness
+ * remediation reproduced the same misplacement, hard-aborting the run at
+ * `evaluateOutlinePreCommitCompleteness`). The content is present and correct; only its location is
+ * wrong. Recover the model's intent by copying each misplaced field to where the schema and prose
+ * handoff expect it (never overwriting an existing top-level value; the nested copy is left in place
+ * because the `setting` schema is permissive and nothing downstream reads these from it). Same doctrine
+ * as `coerceNarrativeSceneBeats`: never abort a run over a field the model actually authored.
+ *
+ * @returns count of fields hoisted or synthesised.
+ */
+export function hoistMisplacedSceneFields(narrative: unknown): { hoisted: number } {
+  let hoisted = 0;
+  const acts = (narrative as any)?.acts;
+  if (!Array.isArray(acts)) return { hoisted };
+  const isEmpty = (v: unknown): boolean =>
+    v == null || (typeof v === "string" && v.trim() === "") || (Array.isArray(v) && v.length === 0);
+  for (const act of acts) {
+    if (!act || !Array.isArray(act.scenes)) continue;
+    for (const scene of act.scenes) {
+      if (!scene || typeof scene !== "object") continue;
+      const nested = scene.setting && typeof scene.setting === "object" ? scene.setting : null;
+      if (nested) {
+        for (const field of ["purpose", "summary", "characters", "cluesRevealed", "dramaticElements"] as const) {
+          if (isEmpty(scene[field]) && !isEmpty(nested[field])) {
+            scene[field] = nested[field];
+            hoisted++;
+          }
+        }
+      }
+      // Last-resort summary synthesis from the model's OWN authored intent (purpose + dramatic beats),
+      // so a scene given a title/purpose but no summary passes the completeness gate without fabricating
+      // plot the model never wrote — and without aborting the run.
+      if (isEmpty(scene.summary)) {
+        const de = scene.dramaticElements && typeof scene.dramaticElements === "object" ? scene.dramaticElements : {};
+        const parts = [scene.purpose, de.revelation, de.conflict, de.tension]
+          .map((p: unknown) => (typeof p === "string" ? p.trim() : ""))
+          .filter(Boolean);
+        if (parts.length > 0) {
+          scene.summary = parts.join(" ");
+          hoisted++;
+        }
+      }
+    }
+  }
+  return { hoisted };
+}
+
 export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   const retriesEnabled = preAgent9LlmRetriesEnabled();
   const contractRecoveryEnabled = preAgent9ContractRecoveryEnabled();
@@ -1458,6 +1511,12 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       `Narrative beat coercion: mapped ${beatCoercion.coerced} synonym beat(s) to the Golden-Age arc, dropped ${beatCoercion.dropped} unrecognised beat(s) before schema validation.`,
     );
   }
+  const fieldHoist = hoistMisplacedSceneFields(narrative);
+  if (fieldHoist.hoisted > 0) {
+    ctx.warnings.push(
+      `Narrative field hoist: recovered ${fieldHoist.hoisted} scene field(s) the model nested under 'setting' (purpose/summary/characters/…) before schema validation — prevents a spurious completeness abort.`,
+    );
+  }
 
   // ── Schema repair ──────────────────────────────────────────────────────────
   let narrativeSchemaValidation = validateArtifact("narrative_outline", narrative);
@@ -1503,6 +1562,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
         `Narrative beat coercion (retry): mapped ${retryBeatCoercion.coerced} synonym beat(s), dropped ${retryBeatCoercion.dropped} unrecognised beat(s) before schema validation.`,
       );
     }
+    hoistMisplacedSceneFields(retriedNarrative);
 
     const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     if (!retryValidation.valid) {
@@ -1913,6 +1973,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - remediationStart);
 
+      hoistMisplacedSceneFields(remediatedNarrative); // recover any still-misplaced fields before the abort gate
       const countCheck = checkNarrativeSceneCountFloor(remediatedNarrative, sceneCountLock);
       const remainingIssues = evaluateOutlinePreCommitCompleteness(remediatedNarrative);
 

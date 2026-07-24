@@ -1252,3 +1252,86 @@ export async function runCulpritEvidenceRegenPass(args: {
   }
   return { chapters, repaired, unresolved, ran };
 }
+
+/**
+ * A_67 FIX-1 (P4) — the suspect-elimination regen pass: the multi-chapter sibling of
+ * runCulpritEvidenceRegenPass, and the wiring the standalone runClearanceRegenPass never had. For each
+ * non-culprit suspect not already cleared (co-located name + clearance term + evidence connector) in ANY
+ * chapter, dramatize the clearance as a witnessed deduction in the last chapter that names them, via the
+ * scoped regen. Runs BEFORE enforceSuspectEliminationPresence so a successful regen makes the deterministic
+ * register-sentence injector ("X was thoroughly cleared by the evidence…") a logged no-op floor — the
+ * A_67 FIX-1(b) "the injection must never write into prose" goal. The suspect SET is supplied by the caller
+ * (cast minus culprits minus detectives — the injector's own list, so floor and gate agree on scope).
+ * Insertion-only: existing paragraphs and locked-fact values are preserved (the repair.ts:153 guard).
+ */
+export async function runSuspectEliminationRegenPass(args: {
+  chapters: ProseChapter[];
+  suspects: ReadonlyArray<string>;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<CulpritEvidenceRegenResult> {
+  const chapters = [...args.chapters];
+  const repaired: string[] = [];
+  const unresolved: string[] = [];
+  let ran = false;
+  const requiredValues = lockedFactValues(args.bible).map((f) => f.value).filter(Boolean);
+
+  // Group suspects still needing a clearance by the last chapter that names them — mirrors the injector's
+  // whole-prose "already present?" check and its last-chapter targeting, so one regen call per chapter
+  // clears everyone who lands there.
+  const byTarget = new Map<number, string[]>();
+  for (const suspect of args.suspects) {
+    if (!suspect) continue;
+    if (chapters.some((c) => clearancePresenceValidator(suspect)(c).ok)) continue;
+    const re = nameOrSurnameRe(suspect);
+    let targetIdx = -1;
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      if (re.test(chapterText(chapters[i]))) { targetIdx = i; break; }
+    }
+    if (targetIdx < 0) targetIdx = chapters.length - 1;
+    if (targetIdx < 0) continue;
+    const arr = byTarget.get(targetIdx);
+    if (arr) arr.push(suspect);
+    else byTarget.set(targetIdx, [suspect]);
+  }
+
+  for (const [targetIdx, suspectsHere] of byTarget) {
+    ran = true;
+    const target = chapters[targetIdx];
+    const presentValues = requiredValues.filter((v) => chapterText(target).includes(v));
+    const defects: ProseDefect[] = suspectsHere.map((suspect) => ({
+      chapter: targetIdx + 1,
+      kind: "missing_clearance" as const,
+      detail: `clear ${suspect} as a witnessed deduction (where they were, who saw them) — dramatized, not a verdict`,
+      obligationRef: suspect,
+      severity: "hard" as const,
+    }));
+    const validate = composeChapterValidator(
+      preserveOriginalParagraphsValidator(target.paragraphs ?? []),
+      ...defects.map((d) => clearancePresenceValidator(d.obligationRef ?? "")),
+      (c: ProseChapter): ValidatorResult => {
+        const dropped = presentValues.filter((v) => !chapterText(c).includes(v));
+        return { ok: dropped.length === 0, score: dropped.length === 0 ? 100 : 0, violations: dropped.map((v) => `dropped_locked_fact:${v}`) };
+      },
+    );
+    const result = await runRegenRepair(
+      target,
+      defects,
+      (chapter, d) => buildRegenRequest(chapter, d, args.bible),
+      args.regen,
+      validate,
+      { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+    );
+    // Insertion-only guard makes writing back safe even on partial success — no original paragraph is
+    // lost, and any suspect regen could not clear is returned for the deterministic injector floor.
+    chapters[targetIdx] = result.chapter;
+    const unresolvedHere = new Set(result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean));
+    for (const s of suspectsHere) {
+      if (unresolvedHere.has(s)) unresolved.push(s);
+      else repaired.push(s);
+    }
+  }
+  return { chapters, repaired, unresolved, ran };
+}

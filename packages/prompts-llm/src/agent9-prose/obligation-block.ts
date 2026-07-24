@@ -4,7 +4,7 @@
  * injected into every prose prompt.
  */
 import { isVictimArchetype } from "@cml/cml";
-import { deriveClueObservable, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
+import { deriveClueObservable, deathMethodTellHints, type ClueDistributionResult, type Clue } from "../agent5-clues.js";
 import { getGenerationParams } from "@cml/story-validation";
 import {
   ARC_POS_TO_SCENE_TYPE,
@@ -627,13 +627,16 @@ export function buildChapterObligationBlock(
     }
 
     if (matchingClearances.length > 0) {
-      lines.push(`  - ⚠ SUSPECT CLEARANCE REQUIRED (MANDATORY): each suspect below MUST be named explicitly and cleared with on-page evidence and a reasoning connector (because / therefore / which proves):`);
+      lines.push(`  - ⚠ SUSPECT CLEARANCE REQUIRED (MANDATORY): each suspect below must be ruled out on-page — dramatised in the scene's action and dialogue, not recited as a verdict:`);
       for (const clearance of matchingClearances) {
         const realClueIds = Array.isArray(clearance.supporting_clues)
           ? (clearance.supporting_clues as string[]).filter((id: string) => id && !id.match(/^clue_id_\d+$/))
           : [];
         const clueRef = realClueIds.length > 0 ? ` Cite clues: ${realClueIds.join(', ')}.` : '';
-        lines.push(`    • "${clearance.suspect_name}": write a dedicated paragraph that (a) names ${clearance.suspect_name} explicitly, (b) states the clearance method ("${clearance.clearance_method}"), (c) shows the supporting evidence using "because / therefore / which proves", and (d) the clearing event must be shown as an in-scene moment — a named witness, a physical record, or a witnessed observation. Asserting the alibi without showing how it was confirmed is not sufficient. Accepted clearance phrases: "cleared", "ruled out", "innocent", "alibi holds", "alibi confirmed", "could not have".${clueRef}`);
+        // A_67 FIX-1 (de-register): guidance, not a copy-me template. Keep the suspect name and the
+        // clearance method so the obligation is concrete, but ask for the clearance to be dramatised
+        // across the scene rather than compressed into one report-register sentence.
+        lines.push(`    • "${clearance.suspect_name}": somewhere in this chapter, name ${clearance.suspect_name} and show — through a witness's words, a physical record, or the detective's observation — the clearance method ("${clearance.clearance_method}") that rules them out, then let the conclusion that they could not have done it land naturally in the prose. Use ordinary clearing language ("cleared", "ruled out", "innocent", "alibi holds", "could not have") woven into the scene across as many sentences as it takes; do not compress it into one flat report line, and show how the alibi was confirmed rather than merely asserting it.${clueRef}`);
       }
     }
     // FIX-C3: Alibi consistency lock — culprit's established alibi window must not be contradicted.
@@ -734,12 +737,40 @@ export function buildChapterObligationBlock(
             if (!priorClueIds.includes(id)) priorClueIds.push(id);
           }
         }
-        const walked = priorClueIds
+        const essentialPrior = priorClueIds
           .map((id) => clueMap.get(id))
-          .filter((c): c is Clue => Boolean(c) && (c as Clue).criticality === "essential")
-          .slice(0, 6);
+          .filter((c): c is Clue => Boolean(c) && (c as Clue).criticality === "essential");
+        // A_67 FIX-3 (plant→payoff): when reveal-cites-plants is on, front-load the cause-of-death method
+        // tell (token-matched against death_method) and lift the 6-clue cap so EVERY planted essential
+        // clue is cited at the reveal, not merely asserted. Default OFF = identical to the prior slice(0,6).
+        const revealCitesPlants =
+          process.env.AGENT9_REVEAL_CITES_PLANTS === "true" || process.env.AGENT9_REVEAL_CITES_PLANTS === "1";
+        let walked: Clue[];
+        let methodWalkNote = "";
+        if (revealCitesPlants) {
+          const mannerOfDeath = ((): string => {
+            const explicit = typeof (cmlCase as any)?.death_method === "string" ? (cmlCase as any).death_method.trim() : "";
+            if (explicit) return explicit;
+            const cc = (cmlCase as any)?.meta?.crime_class ?? {};
+            return (typeof cc.subtype === "string" && cc.subtype.trim()) || (typeof cc.category === "string" && cc.category.trim()) || "";
+          })();
+          const tokens = mannerOfDeath ? deathMethodTellHints(mannerOfDeath).tokens.map((t) => t.toLowerCase()) : [];
+          const isMethodTell = (c: Clue): boolean => {
+            if (tokens.length === 0) return false;
+            const hay = `${c.observable ?? ""} ${c.description ?? ""} ${c.pointsTo ?? ""}`.toLowerCase();
+            return tokens.some((t) => hay.includes(t));
+          };
+          const method = essentialPrior.filter(isMethodTell);
+          const rest = essentialPrior.filter((c) => !isMethodTell(c));
+          walked = [...method, ...rest].slice(0, 12);
+          if (method.length > 0) {
+            methodWalkNote = ` The physical cause-of-death evidence (how ${mannerOfDeath || "the victim died"}) MUST be one of the walked clues — the reveal cites where the reader first saw it, never merely asserts the method.`;
+          }
+        } else {
+          walked = essentialPrior.slice(0, 6);
+        }
         if (walked.length > 0) {
-          lines.push(`  - ⚠ THE DEDUCTION MUST BE WALKED, NOT ASSERTED: the detective retraces the essential clues IN THE ORDER THE READER MET THEM, citing each one's earlier on-page appearance (where it was, who was present) BEFORE drawing its inference:`);
+          lines.push(`  - ⚠ THE DEDUCTION MUST BE WALKED, NOT ASSERTED: the detective retraces the essential clues IN THE ORDER THE READER MET THEM, citing each one's earlier on-page appearance (where it was, who was present) BEFORE drawing its inference:${methodWalkNote}`);
           walked.forEach((c, i) => {
             lines.push(`      ${i + 1}. ${surfaceSpecKeyTerms(deriveClueObservable(c))} [${c.id}]`);
           });
@@ -859,13 +890,26 @@ export function buildChapterObligationBlock(
   } else if (currentArcPosition === 'resolution') {
     const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
     const murderMethod: string = cmlCase?.hidden_model?.mechanism?.description ?? 'the crime method';
+    // A_67 FIX-2 (BUG-1): feed the PHYSICAL cause of death (CASE.death_method) into the "name the manner
+    // of death" half of the METHOD obligation. Previously ONLY the concealment string (hidden_model.
+    // mechanism.description) was interpolated, so the model was told to name the killing but handed cover-up
+    // vocabulary — the "concealment explained, death not" defect the weakMurderMethod cap penalises.
+    // Resolved inline (death_method → crime_class subtype/category) to avoid a prompt-builder import cycle.
+    const mannerOfDeath: string = (() => {
+      const explicit = typeof (cmlCase as any)?.death_method === 'string' ? (cmlCase as any).death_method.trim() : '';
+      if (explicit) return explicit;
+      const cc = (cmlCase as any)?.meta?.crime_class ?? {};
+      const subtype = typeof cc.subtype === 'string' ? cc.subtype.trim() : '';
+      const category = typeof cc.category === 'string' ? cc.category.trim() : '';
+      return subtype || category || '';
+    })();
     lines.push(`\n⛔ MANDATORY RESOLUTION — THIS IS THE FINAL CHAPTER:`);
     lines.push(`  Five events MUST appear as on-page prose (not offstage summary):`);
     lines.push(`  1. ACCUSATION: The detective names ${culpritNames || 'the culprit'} and states the charge.`);
     lines.push(`  2. CULPRIT RESPONSE: ${culpritNames || 'The culprit'} confesses with detail, or reacts in a way that confirms guilt.`);
     // L1 (ROADMAP_TO_80 M0): the reveal must state HOW THE VICTIM DIED (manner of death), not only
     // how the timeline/scene was faked — otherwise the "concealment explained, death not" cap fires.
-    lines.push(`  3. METHOD: State BOTH how the victim was killed (name the manner of death — e.g. the stab wound, the poison, the blow) AND how the scene/timeline was manipulated (compose in your own words from these elements, do NOT quote them verbatim: ${surfaceSpecKeyTerms(murderMethod)}). Naming only the concealment is a failure.`);
+    lines.push(`  3. METHOD: State BOTH how the victim was physically killed${mannerOfDeath ? ` — name the manner of death (${mannerOfDeath}): the physical injury or agent (the wound, the poison, the blow, the ligature), NOT the cover-up` : ` (name the manner of death — e.g. the stab wound, the poison, the blow)`} AND how the scene/timeline was manipulated (compose in your own words from these elements, do NOT quote them verbatim: ${surfaceSpecKeyTerms(murderMethod)}). Naming only the concealment is a failure.`);
     lines.push(`  4. CONSEQUENCE: What happens to ${culpritNames || 'the culprit'} (arrested, fled, taken into custody).`);
     lines.push(`  5. AFTERMATH: At least one other character reacts emotionally to the truth.`);
     lines.push(`  A chapter submitted without all five will be rejected and regenerated.`);
@@ -898,9 +942,12 @@ export function buildChapterObligationBlock(
       .map((c: any) => String(c.name ?? '').trim())
       .filter(Boolean);
     if (finalChapterSuspects.length > 0) {
-      lines.push(`  6. SUSPECT CLEARANCES (MANDATORY — lint-enforced): every non-culprit suspect below MUST be named explicitly and cleared in a dedicated paragraph in THIS chapter:`);
+      lines.push(`  6. SUSPECT CLEARANCES (MANDATORY — lint-enforced): every non-culprit suspect below must be ruled out on-page in THIS chapter, dramatised rather than recited:`);
       for (const suspectName of finalChapterSuspects) {
-        lines.push(`    • "${suspectName}" — include a paragraph that: (a) names "${suspectName}" by name, (b) states a clearance phrase (cleared / ruled out / innocent / alibi holds / alibi confirmed / could not have), (c) includes a reasoning connector (because / therefore / which proves / alibi). Write it as DEDUCTION the reader watches, NOT a verdict: show the alibi as a witnessed fact, then the conclusion — avoid the report frame "X was cleared because…". Example: "Two witnesses had placed ${suspectName} elsewhere until well after it happened, which proves ${suspectName} could not have been responsible." All three elements must be in the SAME paragraph — do not split across paragraphs.`);
+        // A_67 FIX-1 (de-register): no copy-me Example sentence and no single-paragraph constraint —
+        // both drove the verbatim "…alibi was confirmed because…" report line reviewers flag. Ask for
+        // the clearance to be watched as deduction and spread across the scene.
+        lines.push(`    • "${suspectName}" — somewhere in this chapter, name "${suspectName}" and let the reader watch the evidence rule them out: show the alibi or observation as a witnessed fact (a named witness, a record, a timeline), then the detective's conclusion that they could not have been responsible. Use ordinary clearing language ("cleared", "ruled out", "innocent", "alibi holds", "could not have") woven into the scene across as many sentences as it takes; do not compress it into one flat report line that merely asserts the alibi was confirmed.`);
       }
       lines.push(`  Items 1–6 are ALL mandatory. A chapter missing any item will be rejected and regenerated.`);
     }

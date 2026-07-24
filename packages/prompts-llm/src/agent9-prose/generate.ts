@@ -3226,7 +3226,13 @@ export async function generateProse(
           linterOptions.batchChapterStart = batchStart + 1;
         }
         let linterIssues = lintBatchProse(proseBatch.chapters, chapters, [], linterOptions);
-        if (batchMatchingClearances.length > 0 && linterIssues.some((issue) => issue.type === "suspect_clearance_missing")) {
+        // A_67 FIX-1(b): when the suspect-elimination regen channel is on, do NOT take the deterministic
+        // register-paragraph shortcut here — let the suspect_clearance_missing issue escalate to an LLM
+        // retry so the clearance is dramatized rather than pasted. The post-LLM regen pass + injector floor
+        // (agent9-run) still guarantee coverage, so this never strands the release gate.
+        const suspectElimRegenOn =
+          process.env.AGENT9_REGEN_SUSPECT_ELIM === "true" || process.env.AGENT9_REGEN_SUSPECT_ELIM === "1";
+        if (!suspectElimRegenOn && batchMatchingClearances.length > 0 && linterIssues.some((issue) => issue.type === "suspect_clearance_missing")) {
           let insertedClearances = 0;
           proseBatch.chapters = proseBatch.chapters.map((chapter, idx) => {
             const patch = applyDeterministicClearancePatch(

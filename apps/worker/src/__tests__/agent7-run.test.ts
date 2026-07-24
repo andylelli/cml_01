@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDeterministicGapFillCap, coerceNarrativeSceneBeats } from "../jobs/agents/agent7-run.js";
+import { computeDeterministicGapFillCap, coerceNarrativeSceneBeats, hoistMisplacedSceneFields } from "../jobs/agents/agent7-run.js";
 
 const GOLDEN_AGE_BEAT_SET = new Set([
   "gathering", "crime", "first_enquiries", "motives", "alibis",
@@ -72,5 +72,61 @@ describe("coerceNarrativeSceneBeats", () => {
     expect(coerceNarrativeSceneBeats({})).toEqual({ coerced: 0, dropped: 0 });
     const narrative: any = { acts: [{ scenes: [{}, { beat: "" }, { beat: null }] }] };
     expect(coerceNarrativeSceneBeats(narrative)).toEqual({ coerced: 0, dropped: 0 });
+  });
+});
+
+describe("hoistMisplacedSceneFields — recover scene fields the model nested under 'setting' (run a9c1e346)", () => {
+  it("hoists purpose/characters/cluesRevealed/dramaticElements out of setting and synthesises the summary, clearing the completeness gate", () => {
+    // The exact shape that hard-aborted run a9c1e346 (scene 7 "Secrets Beneath Secrets"): a title at the
+    // top level, everything else buried inside `setting`.
+    const narrative: any = {
+      acts: [
+        {
+          act_number: 2,
+          scenes: [
+            {
+              sceneNumber: 7,
+              title: "Secrets Beneath Secrets",
+              purpose: null,
+              summary: null,
+              characters: null,
+              setting: {
+                location: "Backstage corridors",
+                timeOfDay: "Next morning",
+                atmosphere: "Revelatory and tense",
+                characters: ["Inspector Harold Bramwell", "Philip Turner"],
+                purpose: "Uncover unrelated lies and sabotage; reveal premeditation by Philip Turner",
+                cluesRevealed: ["clue_14", "clue_15"],
+                dramaticElements: { conflict: "Sabotage aimed to damage Fenwick", tension: "Suspicion shifts to Turner" },
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const res = hoistMisplacedSceneFields(narrative);
+    expect(res.hoisted).toBeGreaterThan(0);
+
+    const scene = narrative.acts[0].scenes[0];
+    expect(scene.purpose).toContain("Uncover unrelated lies");
+    expect(scene.characters).toEqual(["Inspector Harold Bramwell", "Philip Turner"]);
+    expect(scene.cluesRevealed).toEqual(["clue_14", "clue_15"]);
+    // No top-level summary anywhere → synthesised from the model's own purpose + dramatic beats.
+    expect(String(scene.summary).trim().length).toBeGreaterThan(0);
+    expect(scene.summary).toContain("Suspicion shifts to Turner");
+  });
+
+  it("never overwrites an existing top-level value and is null-safe", () => {
+    expect(hoistMisplacedSceneFields(undefined)).toEqual({ hoisted: 0 });
+    expect(hoistMisplacedSceneFields({})).toEqual({ hoisted: 0 });
+    const narrative: any = {
+      acts: [{ scenes: [{ title: "Whole", purpose: "keep me", summary: "mine", characters: ["A"], setting: { purpose: "IGNORE", characters: ["B"] } }] }],
+    };
+    const res = hoistMisplacedSceneFields(narrative);
+    expect(res.hoisted).toBe(0);
+    const scene = narrative.acts[0].scenes[0];
+    expect(scene.purpose).toBe("keep me");
+    expect(scene.characters).toEqual(["A"]);
   });
 });

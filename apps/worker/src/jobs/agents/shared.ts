@@ -312,8 +312,15 @@ export const buildOutlineRepairGuardrails = (
   if (issues.some((i) => i.type === "missing_suspect_closure_scene")) {
     const culpritsList: string[] = cmlCase.culpability?.culprits ?? [];
     const culpritClause = culpritsList.length > 0 ? " (" + culpritsList.join(", ") + ")" : "";
+    // A_67 FIX-1(c): fold closure into the reveal/discriminating-test scene rather than allocating a
+    // scene whose sole purpose is clearing suspects (the duplicate "clearance chapter"). Default-off
+    // (probe before default-on); when off, the historical dedicated-scene guardrail is kept.
+    const foldSuspectClearances =
+      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
     guardrails.push(
-      "In Act III, include at least one scene where the detective explains why each non-culprit suspect is cleared with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
+      foldSuspectClearances
+        ? "In Act III, rule out each non-culprit suspect with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references, folded INTO the discriminating-test / reveal scene as the detective works through the evidence — do NOT allocate a separate scene whose sole purpose is clearing suspects. The culprit" + culpritClause + " must be identified with a complete evidence chain."
+        : "In Act III, include at least one scene where the detective explains why each non-culprit suspect is cleared with explicit elimination language (cleared, ruled out, alibi confirmed) and evidence references. The culprit" + culpritClause + " must be identified with a complete evidence chain.",
     );
   }
 

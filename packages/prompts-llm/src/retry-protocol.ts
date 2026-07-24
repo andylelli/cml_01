@@ -32,6 +32,11 @@ const classifySingle = (error: string): RetryFailureClass => {
   if (/boundary integrity|unbalanced quotation|malformed apostrophe|dangling quote|punctuation boundary/.test(e)) return "structure";
   if (/stage[-\s]?mode outcome/.test(e)) return "fair_play";
   if (/discriminating test validity/.test(e)) return "clue_timing";
+  // A_67 FIX-1: suspect-clearance obligations are clue-timing failures (rank 95) — the documented intent
+  // at lint.ts. Pin the class explicitly so it never rides on an incidental "timeline" token in the
+  // message (which had classified it as continuity) and never drops to "unknown" when the message is
+  // reworded to model fiction rather than hand a copy-me template.
+  if (/suspect clearance|clue obligation/.test(e)) return "clue_timing";
   if (/final reveal completeness/.test(e)) return "fair_play";
   if (/control-plane leakage|template linter|opening-style entropy|ngram|paragraph fingerprint|sentence within a chapter|prompt leakage|scene-template text leaked|internal audit note leaked/.test(e)) return "template";
   if (/chapter\.paragraphs|chapter\.title|\bstructure\b|\bformat\b|has only \d+ paragraph/.test(e)) return "structure";

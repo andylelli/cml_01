@@ -10,6 +10,7 @@ import {
   composeChapterValidator,
   runClueRegenPass,
   runClearanceRegenPass,
+  runSuspectEliminationRegenPass,
   runScaffoldRegenPass,
   runMechanismRevealRegenPass,
   runVoiceLeakageRegenPass,
@@ -427,6 +428,77 @@ describe("runClearanceRegenPass — the A3/B7 replacement (P4)", () => {
       chapter,
       chapterNumber: 5,
       suspectsNeedingClearance: ["Edward Mallory"],
+      bible,
+      regen: makeRegenFn({ client }),
+      maxAttemptsPerDefect: 1,
+    });
+    expect(res.repaired).toEqual([]);
+    expect(res.unresolved).toContain("Edward Mallory");
+  });
+});
+
+describe("runSuspectEliminationRegenPass — A_67 FIX-1(b) multi-chapter clearance regen", () => {
+  const ch1: ProseChapter = { title: "Ch1", paragraphs: ["The manor settled into an uneasy quiet after the storm."] };
+  const makeCh2 = (): ProseChapter => ({
+    title: "Ch2",
+    paragraphs: ["The drawing room was tense.", "Evelyn studied Edward Mallory across the table."],
+  });
+
+  it("dramatizes a clearance in the last chapter that names the suspect (ran + repaired); untouched chapters are preserved", async () => {
+    const client = {
+      chat: vi.fn(async () => ({
+        content: JSON.stringify({
+          chapter: {
+            title: "Ch2",
+            paragraphs: [
+              "The drawing room was tense.",
+              "Evelyn studied Edward Mallory across the table.",
+              "Two witnesses had seen Mallory in town all afternoon; his alibi held, and he could not have been at the manor.",
+            ],
+          },
+        }),
+      })),
+    } as any;
+    const res = await runSuspectEliminationRegenPass({
+      chapters: [ch1, makeCh2()],
+      suspects: ["Edward Mallory"],
+      bible,
+      regen: makeRegenFn({ client }),
+    });
+    expect(res.ran).toBe(true);
+    expect(res.repaired).toContain("Edward Mallory");
+    expect(res.unresolved).toEqual([]);
+    expect(res.chapters[0]).toEqual(ch1); // the non-target chapter is left exactly as-is
+  });
+
+  it("is a no-op (no LLM call) when every suspect is already cleared in-scene — the injector floor stays silent too", async () => {
+    const cleared: ProseChapter = {
+      title: "Ch2",
+      paragraphs: ["Edward Mallory was seen in town by two witnesses; his alibi held and he could not have done it."],
+    };
+    const client = { chat: vi.fn() } as any;
+    const res = await runSuspectEliminationRegenPass({
+      chapters: [ch1, cleared],
+      suspects: ["Edward Mallory"],
+      bible,
+      regen: makeRegenFn({ client }),
+    });
+    expect(res.ran).toBe(false);
+    expect(client.chat).not.toHaveBeenCalled();
+  });
+
+  it("returns the suspect UNRESOLVED (handed to the deterministic injector floor) when regen rewrites an existing paragraph", async () => {
+    const client = {
+      chat: vi.fn(async () => ({
+        // drops the two original paragraphs → insertion-only guard rejects → unresolved
+        content: JSON.stringify({
+          chapter: { title: "Ch2", paragraphs: ["Mallory was cleared because two witnesses saw him in town."] },
+        }),
+      })),
+    } as any;
+    const res = await runSuspectEliminationRegenPass({
+      chapters: [ch1, makeCh2()],
+      suspects: ["Edward Mallory"],
       bible,
       regen: makeRegenFn({ client }),
       maxAttemptsPerDefect: 1,

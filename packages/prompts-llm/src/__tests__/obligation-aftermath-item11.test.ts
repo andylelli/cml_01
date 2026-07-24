@@ -127,6 +127,58 @@ describe("ITEM 11 #1 — final-chapter contract keys off the stage mode, not pos
   });
 });
 
+// ── A_67 FIX-1: de-registered clearance obligations (no copy-me template) ─────
+describe("A_67 FIX-1 — clearance obligation blocks model fiction, not a copy-me register sentence", () => {
+  it("the reveal-as-final item-6 keeps its header + suspect name but drops the copy-me Example and the single-paragraph rule", () => {
+    const outline = makeOutline();
+    const base = makeCase();
+    const cml = makeCase({
+      ...base.prose_requirements,
+      culprit_revelation_scene: { act_number: 3, scene_number: 3 },
+    });
+    const block = buildBlockFor(outline[9], 10, cml, outline, "resolution", "final_reveal");
+
+    // Obligation kept.
+    expect(block).toContain("SUSPECT CLEARANCES (MANDATORY");
+    expect(block).toContain("rejected and regenerated");
+    // The copy-me Example sentence and the single-paragraph constraint (the register drivers) are gone.
+    // (The "because / therefore / which proves" connector still legitimately appears in the SEPARATE
+    // discriminating-test elimination block — that reveal-side obligation is deliberately untouched.)
+    expect(block).not.toContain("Two witnesses had placed");
+    expect(block).not.toContain("do not split across paragraphs");
+  });
+
+  it("the pre-reveal SUSPECT CLEARANCE REQUIRED block keeps name + clearance method but drops the dedicated-paragraph report framing", () => {
+    const outline = makeOutline();
+    const cml = makeCase();
+    const ch9 = buildBlockFor(outline[8], 9, cml, outline, "climax", "final_reveal");
+
+    // Obligation kept (header + name + method).
+    expect(ch9).toContain("SUSPECT CLEARANCE REQUIRED");
+    expect(ch9).toContain("Clara Whitfield");
+    expect(ch9).toContain("clearance method");
+    // The clearance line no longer instructs a dedicated report paragraph (the register driver).
+    expect(ch9).not.toContain("write a dedicated paragraph");
+  });
+});
+
+// ── A_67 FIX-2: the reveal METHOD obligation names the physical cause of death ─
+describe("A_67 FIX-2 — reveal METHOD obligation names CASE.death_method, not the concealment mechanism", () => {
+  it("feeds the physical manner of death into the 'name the manner of death' half of the METHOD item", () => {
+    const outline = makeOutline();
+    const base = makeCase();
+    const cml = makeCase({ ...base.prose_requirements, culprit_revelation_scene: { act_number: 3, scene_number: 3 } });
+    cml.death_method = "strangulation"; // physical cause of death, distinct from the concealment mechanism
+    const block = buildBlockFor(outline[9], 10, cml, outline, "resolution", "final_reveal");
+
+    expect(block).toContain("3. METHOD");
+    // The manner-of-death half now carries the PHYSICAL cause of death (BUG-1: was fed the concealment string).
+    expect(block).toContain("name the manner of death (strangulation)");
+    // The concealment description still drives the separate scene/timeline-manipulated half.
+    expect(block).toContain("how the scene/timeline was manipulated");
+  });
+});
+
 // ── ITEM 11 #3: DT exclusivity ───────────────────────────────────────────────
 describe("ITEM 11 #3 — the DT contract is exclusive to the exact-matched chapter", () => {
   it("when Ch9 exact-matches the DT ref, Ch10 containing 'disproved' does NOT get the DT block", () => {

@@ -98,4 +98,7 @@ export interface CmlCaseForClues {
   culpability?: { culprits?: string[] };
   cast?: CmlCastMember[];
   hidden_model?: { mechanism?: { description?: string } };
+  /** The PHYSICAL manner of death (Agent3-authored, e.g. "stabbed"/"poisoned"/"strangled"), distinct
+   *  from hidden_model.mechanism (the concealment). Source for the A_67 FIX-2 method-evidence slot. */
+  death_method?: string;
 }

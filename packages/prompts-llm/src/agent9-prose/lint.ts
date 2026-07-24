@@ -443,7 +443,14 @@ export const lintBatchProse = (
     // a weaker gate than what SuspectClosureValidator enforces (per-scene co-occurrence)
     // and causes false-passes where a suspect name appears in one paragraph and a clearance
     // term in another.
-    const allParagraphs = batchChapters.flatMap((ch) => ch.paragraphs ?? []);
+    // A_67 FIX-1 (de-register): co-locate at CHAPTER granularity, not per-paragraph. This matches
+    // SuspectClosureValidator's per-scene rule (a scene == a chapter downstream), so a clearance
+    // dramatised across several of a chapter's paragraphs now PASSES and the model is no longer forced
+    // to compress it into a single report-register sentence to satisfy the gate. All three signals —
+    // name, a clearance term, an evidence connector — must still co-occur within the SAME chapter; a
+    // suspect named in one chapter and cleared in another still fails. Term-sets stay narrower-or-equal
+    // to the validator's, so a lint pass still implies a release-gate pass.
+    const chapterBlobs = batchChapters.map((ch) => (ch.paragraphs ?? []).join('\n\n'));
     for (const clearance of options.matchingClearances) {
       const suspectName = clearance.suspect_name;
       const escapedName = suspectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -453,21 +460,28 @@ export const lintBatchProse = (
       const surname = surnameParts[surnameParts.length - 1];
       const escapedSurname = surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const surnamePattern = new RegExp(`\\b${escapedSurname}\\b`, 'i');
-      const hasCoLocatedClearance = allParagraphs.some(
-        (para) =>
-          (suspectPattern.test(para) || surnamePattern.test(para)) &&
-          CLEARANCE_TERMS.test(para) &&
-          CLEARANCE_EVIDENCE_TERMS.test(para)
+      const hasCoLocatedClearance = chapterBlobs.some(
+        (blob) =>
+          (suspectPattern.test(blob) || surnamePattern.test(blob)) &&
+          CLEARANCE_TERMS.test(blob) &&
+          CLEARANCE_EVIDENCE_TERMS.test(blob)
       );
       if (!hasCoLocatedClearance) {
+        // A_67 FIX-1: the message models FICTION, not a copy-me template. The old `Example:` sentence
+        // was reproduced verbatim in 5/5 shipped stories ("an example IS a template" to an LLM), and the
+        // "do not split across paragraphs" rule structurally forbade the dramatic aftermath phrasing
+        // reviewers keep asking for. We keep the accepted vocabulary (a word list, not a sentence, so it
+        // is not copyable) so the gate stays satisfiable, but hand no reusable sentence.
         issues.push({
           type: "suspect_clearance_missing",
           message: `Clue obligation: suspect clearance missing for "${suspectName}". ` +
-            `This chapter must include a paragraph that (a) names "${suspectName}" explicitly, ` +
-            `(b) contains a clearance phrase (e.g. "cleared", "ruled out", "innocent", "alibi holds", "alibi confirmed", "could not have"), ` +
-            `AND (c) contains an evidence connector (e.g. "because", "therefore", "which proves", "alibi", "timeline", "evidence"). ` +
-            `Example: "${suspectName}'s alibi was confirmed because multiple witnesses saw them in [location] at the time." ` +
-            `Do not split the clearance across separate paragraphs.`,
+            `Somewhere in this chapter, dramatise how the evidence rules "${suspectName}" out: name them, ` +
+            `show the specific alibi or observation that clears them (a named witness, a physical record, a ` +
+            `timeline that does not fit), and let the detective conclude they could not have done it. Use ` +
+            `natural clearing language ("cleared", "ruled out", "innocent", "alibi holds", "could not have") ` +
+            `together with an evidence connector ("because", "the evidence", "the alibi", "the timeline"). ` +
+            `Spread it across the scene in as many sentences as it takes — do NOT compress it into one flat ` +
+            `report sentence that merely asserts the alibi was confirmed.`,
         });
       }
     }

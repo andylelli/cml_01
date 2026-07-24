@@ -29,6 +29,21 @@ describe("retry-protocol failure class mapping", () => {
     expect(packet.failureClass).toBe("clue_timing");
   });
 
+  it("A_67 FIX-1: maps a de-registered suspect-clearance obligation to clue_timing (rank 95), not continuity or unknown", () => {
+    // The reworded lint message no longer contains the incidental "timeline" token that had classified
+    // it as continuity; the explicit rule keeps it at the documented clue_timing rank regardless of wording.
+    const packet = classifyFailure({
+      validationErrors: [
+        'Clue obligation: suspect clearance missing for "Edgar Vale". Somewhere in this chapter, dramatise how the evidence rules "Edgar Vale" out.',
+      ],
+      attempt: 1,
+      maxRetries: 3,
+      priorPackets: [],
+    });
+
+    expect(packet.failureClass).toBe("clue_timing");
+  });
+
   it("maps tone and pacing signals to tone_pacing class", () => {
     const packet = classifyFailure({
       validationErrors: ["Tone pacing drift detected in chapter opening"],

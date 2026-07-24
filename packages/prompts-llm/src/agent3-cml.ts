@@ -1080,7 +1080,13 @@ export async function generateCML(
         ? (Number((proseRequirements.culprit_revelation_scene as any).scene_number) || 6)
         : 6;
     const clearanceActNum = revealActNum;
-    const clearanceSceneNum = Math.max(1, revealSceneNum - 1);
+    // A_67 FIX-1(c): fold gap-filled clearances INTO the reveal / discriminating-test scene (where the
+    // reveal already eliminates non-culprits on-page) instead of stamping them all onto a dedicated
+    // pre-reveal scene — the structural root of the duplicate "clearance chapter" the probe reads flag.
+    // Default-off (probe before default-on); when off, the historical (reveal − 1) coordinate is kept.
+    const foldSuspectClearances =
+      process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "true" || process.env.AGENT9_FOLD_SUSPECT_CLEARANCES === "1";
+    const clearanceSceneNum = foldSuspectClearances ? revealSceneNum : Math.max(1, revealSceneNum - 1);
 
     // Build a lookup of clue IDs that appear to eliminate each suspect.
     const clueToSceneMapping: any[] = ensureArray(proseRequirements.clue_to_scene_mapping);

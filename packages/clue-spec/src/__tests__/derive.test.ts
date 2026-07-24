@@ -75,6 +75,28 @@ describe("deriveClueSpec — §4.1 mapping table", () => {
     );
   });
 
+  it("A_67 FIX-2: emits an essential/early/physical method-evidence slot from CASE.death_method, distinct from the mechanism", () => {
+    const spec = deriveClueSpec({ ...workedExample(), death_method: "strangulation" });
+    const method = spec.clueSlots.find((s) => s.id === "slot_method_evidence");
+    expect(method).toBeDefined();
+    expect(method!.sourceInCML).toBe("CASE.death_method");
+    expect(method!.criticality).toBe("essential");
+    expect(method!.suggestedPlacement).toBe("early");
+    expect(method!.category).toBe("physical");
+    expect(method!.evidenceType).toBe("observation");
+    // planted early + cited at the reveal, NOT bound to a mid/late inference step (which would push placement late)
+    expect(method!.supportsInferenceStep).toBeUndefined();
+    // the cause of death is a DIFFERENT source than the concealment mechanism
+    expect(method!.sourceInCML).not.toBe(
+      spec.clueSlots.find((s) => s.id === "slot_mechanism_visible")?.sourceInCML,
+    );
+  });
+
+  it("A_67 FIX-2: emits NO method-evidence slot when CASE.death_method is absent", () => {
+    expect(deriveClueSpec(workedExample()).clueSlots.some((s) => s.id === "slot_method_evidence")).toBe(false);
+    expect(deriveClueSpec({}).clueSlots.some((s) => s.id === "slot_method_evidence")).toBe(false);
+  });
+
   it("emits a discriminating-evidence slot when the test has no declared evidence_clues", () => {
     const spec = deriveClueSpec(workedExample());
     expect(spec.clueSlots.some((s) => s.id === "slot_discrim_evidence")).toBe(true);

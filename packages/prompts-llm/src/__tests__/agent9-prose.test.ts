@@ -158,7 +158,7 @@ import {
   polishPassingChapter,
 } from "../agent9-prose.ts";
 import type { ProseGenerationResult } from "../agent9-prose.ts";
-import { hasAffirmativePrematureResolution, composeKeyTermPhrase, composeProseTermPhrase } from "../agent9-prose/clue-validation.ts";
+import { hasAffirmativePrematureResolution, composeKeyTermPhrase, composeProseTermPhrase, auditRevealCitesPlants } from "../agent9-prose/clue-validation.ts";
 
 // ── composeProseTermPhrase (A_50 Fix #1 — readable de-spoiled rendering) ──────
 describe("composeProseTermPhrase — same de-spoiled terms, readable (no comma-dump)", () => {
@@ -963,6 +963,146 @@ describe("deterministic suspect-clearance patch", () => {
     expect(before.some((issue) => issue.type === "suspect_clearance_missing")).toBe(true);
     expect(patched.insertedSuspects).toEqual(["Edgar Vale"]);
     expect(after.some((issue) => issue.type === "suspect_clearance_missing")).toBe(false);
+  });
+});
+
+describe("A_67 FIX-3 — auditRevealCitesPlants (plant→payoff measure)", () => {
+  const clueDistribution: any = {
+    clues: [
+      { id: "clue_ligature", observable: "ligature marks around the throat", pointsTo: "strangulation", criticality: "essential", placement: "early" },
+      { id: "clue_clock", observable: "the mantel clock stopped at thirteen minutes to midnight", pointsTo: "the staged time", criticality: "essential", placement: "early" },
+    ],
+  };
+
+  it("counts cited planted essential clues and flags the cause-of-death tell as cited", () => {
+    const reveal =
+      "The ligature marks around the throat told the truth: she had been strangled. The mantel clock, stopped at thirteen minutes to midnight, had staged the time.";
+    const res = auditRevealCitesPlants(reveal, ["clue_ligature", "clue_clock"], clueDistribution, [], ["ligature", "throat", "strangulation"]);
+    expect(res.total).toBe(2);
+    expect(res.cited).toBe(2);
+    expect(res.uncited).toEqual([]);
+    expect(res.methodCited).toBe(true);
+  });
+
+  it("reports uncited plants and methodCited=false when the reveal only asserts the verdict", () => {
+    const reveal = "The detective named the culprit. It was all perfectly clear, and justice was served.";
+    const res = auditRevealCitesPlants(reveal, ["clue_ligature", "clue_clock"], clueDistribution, [], ["ligature", "throat", "strangulation"]);
+    expect(res.cited).toBe(0);
+    expect(res.uncited).toEqual(expect.arrayContaining(["clue_ligature", "clue_clock"]));
+    expect(res.methodCited).toBe(false);
+  });
+
+  it("methodCited is null when no death-method tokens are supplied", () => {
+    expect(auditRevealCitesPlants("anything at all", [], clueDistribution, []).methodCited).toBeNull();
+  });
+});
+
+describe("A_67 FIX-3 — reveal walked-deduction front-loads the cause-of-death tell (flag-gated)", () => {
+  const clueDistribution: any = {
+    clues: [
+      { id: "clue_1", observable: "a torn ledger page", pointsTo: "the forged accounts", criticality: "essential", placement: "early" },
+      { id: "clue_2", observable: "mud on the stair carpet", pointsTo: "the garden entry", criticality: "essential", placement: "early" },
+      { id: "clue_3", observable: "a stopped mantel clock", pointsTo: "the staged time", criticality: "essential", placement: "early" },
+      { id: "clue_4", observable: "a missing brass key", pointsTo: "the locked study", criticality: "essential", placement: "mid" },
+      { id: "clue_5", observable: "a scratched pendulum bob", pointsTo: "the altered swing", criticality: "essential", placement: "mid" },
+      { id: "clue_6", observable: "a servant's note about odd chimes", pointsTo: "the tampering", criticality: "essential", placement: "mid" },
+      { id: "clue_ligature", observable: "ligature marks around the throat", pointsTo: "strangulation", criticality: "essential", placement: "early" },
+    ],
+  };
+  const mk = (sceneNumber: number, act: number, cluesRevealed: string[]) => ({
+    act, sceneNumber, title: `S${sceneNumber}`, summary: "x", purpose: "x", characters: ["Detective"], cluesRevealed,
+  });
+  // act1: 1-3, act2: 4-7, act3: 8-9. The ligature (method) tell is the 7th essential clue in reader order.
+  const outline = [
+    mk(1, 1, ["clue_1"]), mk(2, 1, ["clue_2"]), mk(3, 1, ["clue_3"]),
+    mk(4, 2, ["clue_4"]), mk(5, 2, ["clue_5"]), mk(6, 2, ["clue_6"]), mk(7, 2, ["clue_ligature"]),
+    mk(8, 3, ["clue_dt"]), mk(9, 3, []),
+  ];
+  const cml: any = {
+    meta: { setting: { location: "Marlowe Hall" }, crime_class: { category: "murder" } },
+    death_method: "strangulation",
+    cast: [
+      { name: "Detective Grey", role: "detective" },
+      { name: "Charles Fenwick", role_archetype: "suspect" },
+      { name: "Lady Beatrice", role_archetype: "victim" },
+    ],
+    culpability: { culprits: ["Charles Fenwick"] },
+    hidden_model: { mechanism: { description: "the clock was set back to fake the timeline" } },
+    prose_requirements: {
+      culprit_revelation_scene: { act_number: 3, scene_number: 2 }, // per-act scene 2 of act 3 = global scene 9
+      discriminating_test_scene: { act_number: 3, scene_number: 1 },
+      clue_to_scene_mapping: [],
+    },
+  };
+  const build = () =>
+    buildChapterObligationBlock([outline[8]], 9, cml, undefined, undefined, clueDistribution, undefined, undefined, undefined, "climax", undefined, undefined, outline, "final_reveal");
+
+  it("OFF (default): the 7th essential clue (the ligature tell) is dropped by the 6-clue walk cap", () => {
+    delete process.env.AGENT9_REVEAL_CITES_PLANTS;
+    const block = build();
+    expect(block).toContain("THE DEDUCTION MUST BE WALKED");
+    expect(block).not.toContain("[clue_ligature]");
+  });
+
+  it("ON: the ligature cause-of-death tell is front-loaded into the walk with a method note", () => {
+    process.env.AGENT9_REVEAL_CITES_PLANTS = "1";
+    try {
+      const block = build();
+      expect(block).toContain("[clue_ligature]");
+      expect(block).toContain("physical cause-of-death evidence");
+    } finally {
+      delete process.env.AGENT9_REVEAL_CITES_PLANTS;
+    }
+  });
+});
+
+describe("A_67 FIX-1 — suspect-clearance lint de-register + per-chapter re-sync", () => {
+  const clearances = [{ suspect_name: "Edgar Vale", clearance_method: "timeline contradiction" }];
+
+  it("the failure message models fiction, not a copy-me template (no verbatim Example, no 'do not split')", () => {
+    const chapter = {
+      title: "Chapter 6",
+      paragraphs: [
+        "Clara gathered the household in the drawing room and returned everyone to the stopped clock on the mantel.",
+        "Edgar Vale sat rigid by the window, his hands knotted in his lap.",
+      ],
+    };
+    const issues = lintBatchProse([chapter] as any, [], [], { matchingClearances: clearances as any });
+    const issue = issues.find((i) => i.type === "suspect_clearance_missing");
+    expect(issue).toBeDefined();
+    // The old copy-me Example sentence and the single-paragraph constraint are GONE (they were
+    // reproduced verbatim in shipped stories — the ANALYSIS_67 "an example IS a template" failure).
+    expect(issue!.message).not.toContain("multiple witnesses saw them in");
+    expect(issue!.message.toLowerCase()).not.toContain("do not split");
+    // It now guides toward dramatising the clearance across the scene.
+    expect(issue!.message.toLowerCase()).toContain("dramatise");
+    expect(issue!.message).toContain("Edgar Vale");
+  });
+
+  it("PASSES a clearance dramatised ACROSS a chapter's paragraphs (re-synced to the per-scene validator)", () => {
+    // Name in paragraph 1, clearance term + evidence connector in paragraph 2 — NOT co-located in one
+    // paragraph. The old per-paragraph rule failed this (forcing the report sentence); per-chapter passes.
+    const chapter = {
+      title: "Chapter 6",
+      paragraphs: [
+        "Edgar Vale stood by the window, watching the rain streak the glass.",
+        "The lounge register and the pianist's account placed him there from nine until half past ten; his alibi held, and he could not have been near the study.",
+      ],
+    };
+    const issues = lintBatchProse([chapter] as any, [], [], { matchingClearances: clearances as any });
+    expect(issues.some((i) => i.type === "suspect_clearance_missing")).toBe(false);
+  });
+
+  it("still FIRES when the chapter names the suspect but carries no clearance language at all", () => {
+    const chapter = {
+      title: "Chapter 6",
+      paragraphs: [
+        "Edgar Vale stood by the window, watching the rain streak the glass.",
+        "He said nothing useful, and Clara moved on to the next question.",
+      ],
+    };
+    const issues = lintBatchProse([chapter] as any, [], [], { matchingClearances: clearances as any });
+    expect(issues.some((i) => i.type === "suspect_clearance_missing")).toBe(true);
   });
 });
 

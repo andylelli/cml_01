@@ -588,6 +588,14 @@ function buildValidSourcePaths(caseData: any): string[] {
     paths.push(`CASE.prose_requirements.clue_to_scene_mapping[${i}].clue_id`);
   }
 
+  // A_67 FIX-2 (BUG-2): the mandatory cause-of-death "key tell" requirement (1c) prescribes
+  // sourceInCML "CASE.death_method", but that leaf was never whitelisted — so the SOURCE LEGALITY
+  // CONTRACT forbade the very path the requirement demands, letting the LLM drop or re-source the
+  // method clue. Whitelist it (a strict superset; present on every Agent3-authored CASE via fallback).
+  if (typeof caseData?.death_method === "string" && caseData.death_method.trim()) {
+    paths.push("CASE.death_method");
+  }
+
   return paths;
 }
 
@@ -896,6 +904,7 @@ Allowed source roots include:
 - CASE.cast[N].evidence_sensitivity[M]
 - CASE.discriminating_test.evidence_clues[M]
 - CASE.prose_requirements.clue_to_scene_mapping[M].clue_id
+- CASE.death_method
 Forbidden examples:
 - CASE.constraint_space.access.footprints[0]
 - CASE.character_behavior.*
