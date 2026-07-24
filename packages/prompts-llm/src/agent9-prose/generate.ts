@@ -3119,7 +3119,31 @@ export async function generateProse(
           // When hard errors (e.g. a missing clue) dominate, appending a preferred miss adds
           // noise that pulls the model toward word-count expansion at the expense of the real fix.
           // Preferred misses contribute to provisional scoring but are not surfaced as retry errors.
-          if (chapterErrors.length === 0 && attempt === 1) {
+          // A_67 polish scope: by default the polish pass runs only on chapters that passed cleanly on
+          // the FIRST attempt — but the reveal/discriminating-test chapters (where planning/validation
+          // leakage concentrates) most often needed a retry, so they silently skip polish. When
+          // AGENT9_POLISH_RETRIED_CHAPTERS is on, run one polish pass on any accepted chapter regardless
+          // of attempt (still one call, still rollback-guarded). Default off — opt-in (adds one LLM call
+          // per retried chapter) so it can be probed against the current behaviour.
+          const polishRetriedChapters =
+            process.env.AGENT9_POLISH_RETRIED_CHAPTERS === "true" || process.env.AGENT9_POLISH_RETRIED_CHAPTERS === "1";
+          // A_68 (prose audit): the machine-prose the external review flags concentrates in the
+          // reveal / discriminating-test / clearance chapters — which (a) most often needed a retry
+          // (so attempt!==1 skipped them) AND (b) score HIGH on the provisional preview because it is
+          // composed of word/clue/issue density with ZERO prose-flatness term, so a clue-complete
+          // reveal chapter clears the <95 gate and is excluded a second time. AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS
+          // runs polish on any ACCEPTED high-leakage-stage-mode chapter regardless of attempt AND bypasses
+          // the provisional gate for it. Rollback-guarded (worst case = today's accepted chapter). Default
+          // OFF — opt-in / probe (one extra LLM call per such chapter). Runtime getter (dotenv-freeze trap).
+          const polishHighLeakageChapters =
+            process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS === "true" || process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS === "1";
+          const isHighLeakageStageMode =
+            repairContext.stageMode === "final_reveal" ||
+            repairContext.stageMode === "discriminating_test" ||
+            repairContext.stageMode === "suspect_pressure" ||
+            repairContext.stageMode === "false_suspect_clearing";
+          const polishHighLeakage = polishHighLeakageChapters && isHighLeakageStageMode;
+          if (chapterErrors.length === 0 && (attempt === 1 || polishRetriedChapters || polishHighLeakage)) {
             const provisionalPreview = buildProvisionalChapterScore(
               chapter,
               chapterNumber,
@@ -3128,7 +3152,9 @@ export async function generateProse(
               inputs.clueDistribution,
               castNames,
             );
-            if (provisionalPreview.score < 95) {
+            // High-leakage chapters bypass the provisional<95 gate: the provisional score is blind to
+            // prose flatness, so it would exclude exactly the clue-complete reveal chapters that leak most.
+            if (provisionalPreview.score < 95 || polishHighLeakage) {
               const polished = await polishPassingChapter({
                 chapter,
                 client,

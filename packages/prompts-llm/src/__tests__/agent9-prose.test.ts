@@ -879,6 +879,35 @@ describe("validator-aligned deterministic repair helpers", () => {
     expect(after.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
   });
 
+  it("A_68: DT patch drops the validation-log leakage phrases and title-cases a lowercase investigator name", () => {
+    const chapter = {
+      title: "Chapter 9",
+      paragraphs: [
+        "The household gathered, uncertain which comparison would finally be forced on them.",
+        "No one yet knew how the morning would resolve.",
+      ],
+    };
+    const patched = applyDeterministicDiscriminatingTestPatch(
+      chapter as any,
+      baseCaseData,
+      "inspector harold wren", // lowercase upstream name (the shipped-defect input)
+      undefined,
+      "Edgar Vale",
+      { chapterNumber: 9, hardFloorWords: 1, preferredWords: 1, requiredClueIds: [] } as any,
+      baseInputs.clueDistribution,
+    );
+    expect(patched.inserted).toBe(true);
+    const text = patched.chapter.paragraphs.join("\n");
+    // the two deterministic-injection leak sentences are gone at source
+    expect(text).not.toContain("proved one theory and ruled out the other");
+    expect(text).not.toContain("behaved in only one way when tested directly");
+    expect(text).not.toContain("failed it under direct comparison");
+    // name is fully title-cased, not first-char-only ("Inspector harold wren")
+    expect(text).toContain("Inspector Harold Wren");
+    expect(text).not.toContain("inspector harold wren");
+    expect(text).not.toContain("Inspector harold wren");
+  });
+
   it("renders prose-facing DT evidence text instead of raw clue ids", () => {
     const ledger = {
       chapterNumber: 8,
@@ -1269,6 +1298,35 @@ describe("deterministic clue and discriminating-test patches", () => {
     expect(repaired.appliedRepairs).toContain("discriminating_test_scaffold");
     expect(repaired.insertedDiscriminatingTest).toBe(true);
     expect(obligations.hardFailures.some((msg) => msg.includes("Discriminating test validity failed"))).toBe(false);
+  });
+});
+
+describe("A_67 polish — buildPostPassPolishPrompt targets planning/validation leakage (keep style + content)", () => {
+  it("instructs the line-editor to rewrite planning/validation/spec leakage as fiction and preserve the voice", () => {
+    const repairContext = buildChapterRepairContext({
+      chapterNumber: 9,
+      scene: baseScene,
+      sceneCount: 10,
+      caseData: baseCaseData,
+      cmlCase: baseCaseData.CASE,
+      scenes: [baseScene],
+      dtSceneCheck: { act_number: 3, scene_number: 1 },
+      ledgerEntry: { chapterNumber: 9, hardFloorWords: 1, preferredWords: 1, requiredClueIds: [], clueObligationContext: [] } as any,
+      clueDistribution: baseInputs.clueDistribution,
+      matchingClearances: [],
+    });
+    const chapter = { title: "Chapter 9", paragraphs: ["The result proved one theory and ruled out the other.", "It had gained thirty seconds per hour in all."] };
+    const prompt = buildPostPassPolishPrompt({ chapter, repairContext });
+
+    // the anti-leakage directive + reframe-as-fiction + voice preservation
+    expect(prompt).toContain("REMOVE PLANNING");
+    expect(prompt).toContain("as a character would");
+    expect(prompt.toLowerCase()).toContain("narrative voice");
+    // and it still forbids content changes (content preserved by the pass's re-validation + rollback)
+    expect(prompt).toContain("Invent no new facts");
+    // A_68 prose-audit additions: show-the-deduction + bounded period-diction lift
+    expect(prompt).toContain("SHOW THE DEDUCTION");
+    expect(prompt).toContain("PERIOD DICTION LIFT");
   });
 });
 

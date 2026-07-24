@@ -98,6 +98,16 @@ export interface StoryFacts {
   mechanismExplainedTooEarly?: boolean;
   noResolution?: boolean;
   endingContradictsEarlier?: boolean;
+  // A_68 FIX A — the cover-up mechanism is physically impossible / a category error (e.g. "cold delayed
+  // the sundial's shadow"). Judge-supplied + citation-gated; the pipeline's only lever on mechanism physics.
+  mechanismIncoherent?: boolean;
+  // A_68 FIX B — a self-contradictory reveal time ("died before 10:20 … in fact 10:50"). Deterministic,
+  // ultra-high-precision (explicit before/after-<T1> … in-fact-<T2> numeric contradiction). Cap gated
+  // behind RUBRIC_STRUCTURAL_CAPS_A68 for the first corpus pass (probe before default-on).
+  temporalContradiction?: boolean;
+  // A_68 FIX C — the reveal is fully re-staged in ≥2 late chapters (culprit named + mechanism explained
+  // again). Deterministic; same flag gate as temporalContradiction.
+  duplicateReveal?: boolean;
 }
 
 /**
@@ -118,6 +128,14 @@ export interface StructuralAdjustments {
   testChapter?: number | null;
   /** Evidence the reveal leans on that is genuinely NOT planted earlier (confirms a real unplanted flag). */
   unplantedEvidence?: string[];
+  /** A_68 FIX B — detected self-contradictory reveal time (raw signal, before flag-gating the cap). */
+  temporalContradiction?: boolean;
+  /** The verbatim contradicting time clause (telemetry / report). */
+  temporalContradictionEvidence?: string;
+  /** A_68 FIX C — detected duplicate reveal (reveal fully re-staged in ≥2 late chapters). */
+  duplicateReveal?: boolean;
+  /** 1-based chapters that each re-stage the full reveal (telemetry). */
+  duplicateRevealChapters?: number[];
 }
 
 export type Band =

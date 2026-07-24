@@ -377,12 +377,19 @@ export const applyDeterministicCluePatch = (
   };
 };
 
+// A_68: capitalize the first letter of any word that STARTS lowercase, leaving already-cased words
+// (McField, DeVries) untouched. Fixes the shipped "Inspector harold wren" garble where an upstream
+// lowercase investigator name was only first-char-capitalized. Idempotent on correctly-cased names.
+const titleCaseName = (value: string): string =>
+  String(value ?? "").replace(/\b[a-z][A-Za-z']*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1));
+
 const buildDeterministicDiscriminatingTestParagraphs = (args: {
   caseData: CaseData;
   investigatorName: string;
   evidenceSummary: string;
   focusName?: string;
 }): string[] => {
+  const investigatorName = titleCaseName(args.investigatorName);
   const cmlCase = (args.caseData as any)?.CASE ?? {};
   const discriminatingTest = cmlCase?.discriminating_test ?? {};
   const falseAssumption = cmlCase?.false_assumption ?? {};
@@ -400,17 +407,22 @@ const buildDeterministicDiscriminatingTestParagraphs = (args: {
   // knowledge_revealed schema sentences (the Ch9 78-word verbatim leak). theoryA is the surface
   // assumption (reader-meaningful); everything else is composed prose, not transcribed schema.
   const theoryParagraph =
-    `${args.investigatorName} set out the two competing readings so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
+    `${investigatorName} set out the two competing readings so everyone could weigh them side by side. Either ${theoryA}, or the physical evidence had been deliberately staged to suggest as much. Once the alternatives were stated plainly, vague suspicion gave way to what could actually be tested.`;
   const testParagraph =
-    `${args.investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. It hinged on ${args.evidenceSummary}, and the result was there for everyone present to see.`;
+    `${investigatorName} then ran that test in full view, recreating the conditions the evidence demanded and letting the room watch the outcome unfold. It hinged on ${args.evidenceSummary}, and the result was there for everyone present to see.`;
+  // R-A (A_68): render the elimination as in-scene observation, not a test-outcome validation log.
+  // The prior template ("The result proved one theory and ruled out the other because the evidence
+  // behaved in only one way when tested directly") read as machine planning text and was flagged in
+  // every external review. This keeps the DT-validity markers the pre-commit gate needs — a "theory"
+  // word (DISCRIMINATING_TEST_THEORY_RE) and a proof word / "result"/"ruled out"
+  // (DISCRIMINATING_TEST_PROOF_RE) — but embeds them in what the room actually watched.
   const eliminationLead = eliminatedSuspects.length > 0
-    ? `${eliminatedSuspects.join(", ")} ${eliminatedSuspects.length > 1 ? "were" : "was"} ruled out because the same result contradicted ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"} once the evidence was compared under identical conditions.`
-    : "One path was ruled out because the evidence failed it under direct comparison, while the surviving path held up to every check.";
+    ? `Run again in front of them all, the test came out the same way, and its result ruled out ${eliminatedSuspects.join(", ")}: what the room had just watched could not be squared with ${eliminatedSuspects.length > 1 ? "their accounts" : "that account"}, only with the competing theory.`
+    : "Run again in front of them all, the test came out the same way twice; its result ruled out one theory and left the other standing, plain enough that the room needed only its own eyes to see it.";
   const conclusionTail = culpritName
-    ? ` That left ${culpritName} as the only suspect whose version still depended on the false explanation.`
+    ? ` That left ${culpritName} as the only person whose story still needed the discredited theory to be true.`
     : "";
-  const conclusionParagraph =
-    `${eliminationLead} The result proved one theory and ruled out the other because the evidence behaved in only one way when tested directly.${conclusionTail}`;
+  const conclusionParagraph = `${eliminationLead}${conclusionTail}`;
 
   return [theoryParagraph, testParagraph, conclusionParagraph];
 };
@@ -878,7 +890,8 @@ export const buildCompletionFallbackChapter = (
     .filter(Boolean)
     .join("; ");
   const investigatorName = resolveFallbackInvestigatorName(cmlCase, characters);
-  const investigatorSentenceName = investigatorName.replace(/^\w/, (char) => char.toUpperCase());
+  // A_68: title-case every word, not just the first char (the old /^\w/ produced "Inspector harold wren").
+  const investigatorSentenceName = titleCaseName(investigatorName);
   const canonicalFocusName = resolveCanonicalFocusName(options?.focusName, cmlCase);
   const stageAwareParagraphs = buildStageAwareFallbackParagraphs({
     stageMode: options?.stageMode,

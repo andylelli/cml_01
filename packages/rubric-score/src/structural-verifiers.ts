@@ -31,6 +31,14 @@ export interface StructuralVerdict {
   testChapter: number | null;
   /** undefined = could not determine; true = the resolved victim name appears in the prose. */
   victimNamedInProse?: boolean;
+  /** A_68 FIX B — true = a self-contradictory reveal time ("before T1 … in fact T2>T1") is present. */
+  temporalContradiction?: boolean;
+  /** The verbatim contradicting clause (telemetry). */
+  temporalContradictionEvidence?: string;
+  /** A_68 FIX C — true = the reveal is fully re-staged in ≥2 late chapters. */
+  duplicateReveal?: boolean;
+  /** 1-based chapters that each re-stage the full reveal (telemetry). */
+  duplicateRevealChapters?: number[];
 }
 
 /** Minimal shape of `findUnplantedDiscriminatingClues`'s return — the CASE-level structural ordering check. */
@@ -233,6 +241,114 @@ function resolveMechanismExplainedChapter(
   return null;
 }
 
+// ── A_68 FIX B: temporal reveal-ordering contradiction ────────────────────────
+// Ultra-high-precision: fires ONLY on an explicit "<before/after> <T1> … (in fact|the true time was) <T2>"
+// where T2 numerically contradicts the stated ordering (the shipped sundial defect: "died before twenty
+// minutes past ten. In fact, the true time of death was ten minutes to eleven"). A CORRECT reveal ("died
+// at ten minutes to eleven, not twenty past ten as the shadow suggested") has no before/after relation and
+// never fires. Parses digit ("10:20") and word-form ("twenty minutes past ten", "ten minutes to eleven",
+// "quarter past ten", "half past ten", "ten o'clock") times.
+const CLOCK_WORD_NUM: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+  eighteen: 18, nineteen: 19, twenty: 20, "twenty-five": 25, "twenty five": 25, thirty: 30,
+  "thirty-five": 35, "thirty five": 35, forty: 40, "forty-five": 45, "forty five": 45, fifty: 50,
+  "fifty-five": 55, "fifty five": 55, quarter: 15, half: 30,
+};
+
+const clockWordNum = (w: string): number | null => {
+  const key = String(w ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  if (key in CLOCK_WORD_NUM) return CLOCK_WORD_NUM[key];
+  return /^\d+$/.test(key) ? Number(key) : null;
+};
+
+interface FoundTime { minutes: number; start: number; end: number; raw: string; }
+
+const MIN_ALT = "twenty-five|twenty five|thirty-five|thirty five|forty-five|forty five|fifty-five|fifty five|five|ten|fifteen|twenty|thirty|forty|fifty|quarter|half";
+const HOUR_ALT = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\\d{1,2}";
+
+const findClockTimes = (text: string): FoundTime[] => {
+  const out: FoundTime[] = [];
+  const push = (minutes: number | null, m: RegExpExecArray): void => {
+    if (minutes === null || !Number.isFinite(minutes)) return;
+    out.push({ minutes, start: m.index, end: m.index + m[0].length, raw: m[0] });
+  };
+  let m: RegExpExecArray | null;
+  const digit = /\b(\d{1,2}):(\d{2})\b/g;
+  while ((m = digit.exec(text))) push(Number(m[1]) * 60 + Number(m[2]), m);
+  const pastTo = new RegExp(`\\b(${MIN_ALT})\\s+(?:minutes?\\s+)?(past|to)\\s+(${HOUR_ALT})\\b`, "gi");
+  while ((m = pastTo.exec(text))) {
+    const mins = clockWordNum(m[1]);
+    const h = clockWordNum(m[3]);
+    if (mins === null || h === null) continue;
+    push(m[2].toLowerCase() === "to" ? h * 60 - mins : h * 60 + mins, m);
+  }
+  const oclock = new RegExp(`\\b(${HOUR_ALT})\\s+o['’]?clock\\b`, "gi");
+  while ((m = oclock.exec(text))) {
+    const h = clockWordNum(m[1]);
+    push(h === null ? null : h * 60, m);
+  }
+  return out.sort((a, b) => a.start - b.start);
+};
+
+const TEMPORAL_RELATION_RE = /\b(before|earlier than|prior to|no later than|after|later than|no earlier than)\b/gi;
+const TEMPORAL_CORRECTIVE_RE = /\b(?:in fact|in truth|in reality|actually|really|the (?:true|actual|real) time(?: of death)?(?: was| had been)?|was in fact|proved to be)\b/i;
+
+export function detectTemporalOrderingContradiction(chaptersLower: string[]): { contradiction: boolean; evidence?: string } {
+  const startIdx = Math.max(0, Math.floor(chaptersLower.length * 0.55));
+  for (let i = startIdx; i < chaptersLower.length; i++) {
+    const text = chaptersLower[i] ?? "";
+    const relRe = new RegExp(TEMPORAL_RELATION_RE.source, "gi");
+    let rm: RegExpExecArray | null;
+    while ((rm = relRe.exec(text))) {
+      const relation = rm[1].toLowerCase();
+      const isBefore = /before|earlier|prior|no later/.test(relation);
+      const isAfter = /after|later|no earlier/.test(relation);
+      if (!isBefore && !isAfter) continue;
+      const t1s = findClockTimes(text.slice(rm.index, rm.index + 60));
+      if (t1s.length === 0) continue;
+      const t1 = t1s[0].minutes;
+      const window = text.slice(rm.index + rm[0].length, rm.index + rm[0].length + 220);
+      const corr = window.match(TEMPORAL_CORRECTIVE_RE);
+      if (!corr) continue;
+      const corrIdx = window.indexOf(corr[0]);
+      const t2s = findClockTimes(window);
+      const t2f = t2s.find((t) => t.start >= corrIdx) ?? t2s[t2s.length - 1];
+      if (!t2f) continue;
+      const t2 = t2f.minutes;
+      const diff = Math.abs(t2 - t1);
+      if (diff === 0 || diff >= 360) continue; // identical or AM/PM-wrap ambiguity → not a contradiction
+      if ((isBefore && t2 > t1) || (isAfter && t2 < t1)) {
+        const evidence = `${rm[0]}${window.slice(0, 130)}`.replace(/\s+/g, " ").trim().slice(0, 200);
+        return { contradiction: true, evidence: `ch${i + 1}: ${evidence}` };
+      }
+    }
+  }
+  return { contradiction: false };
+}
+
+// ── A_68 FIX C: duplicate reveal (the reveal fully re-staged in ≥2 late chapters) ──
+const REVEAL_ACCUSATION_RE = /\b(?:the (?:murderer|killer|culprit) (?:was|is|had been)\b|named\b[^.]{0,60}\bas the (?:murderer|killer|culprit)\b|confess(?:ed|ion|es)?\b|you (?:killed|murdered)\b|only (?:person|suspect) with[^.]{0,60}\b(?:means|motive|opportunity)\b|guilt\b)/i;
+
+const restatesFullReveal = (chapterLower: string, culpritKey: string): boolean => {
+  if (!culpritKey || !chapterLower.includes(culpritKey)) return false;
+  if (!REVEAL_ACCUSATION_RE.test(chapterLower)) return false;
+  return MECHANISM_EXPLANATION_MARKER.test(chapterLower) || TEST_SCENE_PROSE_RE.test(chapterLower);
+};
+
+export function detectDuplicateReveal(caseData: Record<string, any>, chaptersLower: string[]): { duplicate: boolean; chapters: number[] } {
+  const rawCulprit = caseData?.culpability?.culprits?.[0];
+  const culpritName = typeof rawCulprit === "string" ? rawCulprit : String(rawCulprit?.name ?? "").trim();
+  const tokens = norm(culpritName).split(" ").filter((w) => w.length >= 3);
+  const culpritKey = tokens.length ? tokens[tokens.length - 1] : "";
+  if (!culpritKey) return { duplicate: false, chapters: [] };
+  const chapters: number[] = [];
+  for (let i = 0; i < chaptersLower.length; i++) {
+    if (restatesFullReveal(chaptersLower[i] ?? "", culpritKey)) chapters.push(i + 1);
+  }
+  return { duplicate: chapters.length >= 2, chapters };
+}
+
 /** Run the three structural verifiers over the CASE + prose. Pure; never throws. */
 export function verifyStructure(input: VerifyStructureInput): StructuralVerdict {
   const caseData = unwrapCase(input.cml);
@@ -293,6 +409,18 @@ export function verifyStructure(input: VerifyStructureInput): StructuralVerdict 
   // valid story (same false-negative class as RC4.3). Genuine miss (name never appears) still yields false.
   if (input.victimName && input.victimName.trim()) {
     verdict.victimNamedInProse = nameAppearsInProse(input.victimName, chaptersLower.join(" \n "));
+  }
+
+  // ── A_68 FIX B/C: temporal reveal contradiction + duplicate reveal (deterministic, telemetry always) ──
+  const temporal = detectTemporalOrderingContradiction(chaptersLower);
+  if (temporal.contradiction) {
+    verdict.temporalContradiction = true;
+    verdict.temporalContradictionEvidence = temporal.evidence;
+  }
+  const dup = detectDuplicateReveal(caseData, chaptersLower);
+  if (dup.duplicate) {
+    verdict.duplicateReveal = true;
+    verdict.duplicateRevealChapters = dup.chapters;
   }
 
   return verdict;

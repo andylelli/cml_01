@@ -61,6 +61,7 @@ export const RUBRIC_SCHEMA = {
         mechanismExplainedTooEarly: { type: "boolean" },
         noResolution: { type: "boolean" },
         endingContradictsEarlier: { type: "boolean" },
+        mechanismIncoherent: { type: "boolean" },
       },
     },
     // K2 §2: EVERY flag set true above MUST cite the chapter + the verbatim sentence that proves it.
@@ -79,7 +80,7 @@ export const RUBRIC_SCHEMA = {
               "deadVictimAppearsAlive", "deadVictimIsCulprit", "victimIdentityUnclear",
               "multipleRoleChanges", "pronounsUnstable", "culpritConfessesTamperingOnly",
               "revealUsesUnplantedEvidence", "mechanismExplainedTooEarly", "noResolution",
-              "endingContradictsEarlier",
+              "endingContradictsEarlier", "mechanismIncoherent",
             ],
           },
           chapter: { type: "integer", minimum: 1 },

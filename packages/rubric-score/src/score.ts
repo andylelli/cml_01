@@ -104,6 +104,11 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
     mechanismExplainedChapter: verdict.mechanismExplainedChapter,
     testChapter: verdict.testChapter,
     unplantedEvidence: verdict.unplantedEvidence,
+    // A_68 FIX B/C — raw deterministic detections are recorded for telemetry regardless of the cap gate.
+    temporalContradiction: verdict.temporalContradiction,
+    temporalContradictionEvidence: verdict.temporalContradictionEvidence,
+    duplicateReveal: verdict.duplicateReveal,
+    duplicateRevealChapters: verdict.duplicateRevealChapters,
   };
   const citationsDropped: string[] = [];
   if (flagCitations && flagCitations.length) {
@@ -139,6 +144,15 @@ export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResu
   // Victim-named check: feed the prose scan into the facts (overrides the judge's victimIdentityUnclear
   // guesswork when we can positively confirm the named victim is present).
   if (verdict.victimNamedInProse === true) judgeFlags.victimIdentityUnclear = false;
+
+  // A_68 FIX B/C — the deterministic temporal-contradiction + duplicate-reveal CAPS are gated behind
+  // RUBRIC_STRUCTURAL_CAPS_A68 (default-OFF) for the first corpus pass: the detectors always run and are
+  // surfaced in `structural` for telemetry, but they only clamp the score once an A/B confirms no
+  // false-positives (probe-before-default-on, §2.8). Runtime env read — never a frozen module const.
+  const a68CapsOn =
+    process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "true" || process.env.RUBRIC_STRUCTURAL_CAPS_A68 === "1";
+  if (a68CapsOn && verdict.temporalContradiction) deterministic.temporalContradiction = true;
+  if (a68CapsOn && verdict.duplicateReveal) deterministic.duplicateReveal = true;
 
   const facts = mergeFacts(deterministic, judgeFlags);
   const capped = applyHardCaps(rubric, facts);

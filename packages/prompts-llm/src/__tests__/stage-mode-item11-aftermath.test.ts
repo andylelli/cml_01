@@ -87,3 +87,74 @@ describe("ITEM 11 #6 — resolveStageModeKey classifies the Golden-Age revelatio
     expect(mode).not.toBe("aftermath_consequence");
   });
 });
+
+// A_68 FIX C — beat-INDEPENDENT signal fallback (flag-gated AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK).
+// The real sundial failure: beats were absent, so the item-11 beat guard could not fire and Ch10
+// ("Clearance and Culprit Revealed") got a second MANDATORY RESOLUTION. This recovers the decision
+// from scene title/purpose signals when NO beats are present.
+const mkSignalScene = (sceneNumber: number, title: string, purpose: string): any => ({
+  sceneNumber,
+  title,
+  summary: purpose,
+  purpose,
+  characters: [],
+});
+
+// Beatless outline that carries SIGNALS: Ch9 is the on-page-naming trap, Ch10 reads as reveal/aftermath.
+const signalOutlineNoBeats = (): any[] => [
+  ...Array.from({ length: 8 }, (_, i) => mkScene(i + 1)),
+  mkSignalScene(9, "The Final Trap: Discriminating Test", "Spring the final trap; the culprit is named on-page."),
+  mkSignalScene(10, "Clearance and Culprit Revealed", "Clear the remaining suspects and reveal the culprit."),
+];
+
+describe("A_68 FIX C — beat-independent aftermath signal fallback", () => {
+  const FLAG = "AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK";
+  const withFlag = <T,>(value: string | undefined, fn: () => T): T => {
+    const prev = process.env[FLAG];
+    if (value === undefined) delete process.env[FLAG];
+    else process.env[FLAG] = value;
+    try {
+      return fn();
+    } finally {
+      if (prev === undefined) delete process.env[FLAG];
+      else process.env[FLAG] = prev;
+    }
+  };
+
+  it("POSITIVE (flag on): beatless outline with a Ch9 trap signal → Ch10 resolves to aftermath_consequence", () => {
+    const outline = signalOutlineNoBeats();
+    const mode = withFlag("1", () =>
+      resolveStageModeKey(10, 10, 10, false, caseWithUnresolvableReveal(), outline, [outline[9]]),
+    );
+    expect(mode).toBe("aftermath_consequence");
+  });
+
+  it("CONTROL (flag off): the SAME signalled outline still resolves to final_reveal (default-OFF)", () => {
+    const outline = signalOutlineNoBeats();
+    const mode = withFlag(undefined, () =>
+      resolveStageModeKey(10, 10, 10, false, caseWithUnresolvableReveal(), outline, [outline[9]]),
+    );
+    expect(mode).toBe("final_reveal");
+  });
+
+  it("NEGATIVE (flag on): no earlier trap signal → NOT aftermath (protects a genuine last-chapter reveal)", () => {
+    const outline = [
+      ...Array.from({ length: 9 }, (_, i) => mkScene(i + 1)),
+      mkSignalScene(10, "Clearance and Culprit Revealed", "Clear the suspects and reveal the culprit."),
+    ];
+    const mode = withFlag("1", () =>
+      resolveStageModeKey(10, 10, 10, false, caseWithUnresolvableReveal(), outline, [outline[9]]),
+    );
+    expect(mode).not.toBe("aftermath_consequence");
+  });
+
+  it("NEGATIVE (flag on): does NOT override PRESENT beats (a real non-aftermath final beat is respected)", () => {
+    // Beats present but final scene is NOT revelation → the signal fallback must not fire.
+    const outline = goldenAgeOutline();
+    outline[9] = mkScene(10, "secrets"); // final beat deliberately non-revelation
+    const mode = withFlag("1", () =>
+      resolveStageModeKey(10, 10, 10, false, caseWithUnresolvableReveal(), outline, [outline[9]]),
+    );
+    expect(mode).not.toBe("aftermath_consequence");
+  });
+});

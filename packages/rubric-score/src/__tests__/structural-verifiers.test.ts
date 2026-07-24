@@ -4,8 +4,11 @@ import {
   verifyStructure,
   verifyCitations,
   splitProseIntoChapters,
+  detectTemporalOrderingContradiction,
+  detectDuplicateReveal,
   type FlagCitation,
 } from "../structural-verifiers.js";
+import { applyHardCaps } from "../hard-caps.js";
 import { computeCalibrationDelta, summarizeCalibration } from "../calibration.js";
 import { CATEGORIES, type Category, type RubricScore } from "../types.js";
 
@@ -338,5 +341,83 @@ describe("calibration hook (K2 §3) — internal↔external delta", () => {
     expect(s.count).toBe(2);
     expect(s.meanAbsError).toBeCloseTo(10.5, 5);
     expect(s.withinBandRate).toBe(0.5);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A_68 FIX B/C — deterministic detectors + FIX A cap
+// ─────────────────────────────────────────────────────────────────────────────
+describe("A_68 FIX B — temporal reveal-ordering contradiction", () => {
+  it("fires on the shipped sundial self-contradiction (before T1 … in fact T2>T1)", () => {
+    const chapters = [
+      "the body lay by the sundial in the cold june frost.",
+      "the physical evidence proves lady beatrice died before twenty minutes past ten. in fact, the true time of death was ten minutes to eleven. your alibi does not hold.",
+    ];
+    const r = detectTemporalOrderingContradiction(chapters);
+    expect(r.contradiction).toBe(true);
+    expect(r.evidence).toContain("ch2");
+  });
+
+  it("parses digit-form times (before 10:20 … in fact 10:50)", () => {
+    const r = detectTemporalOrderingContradiction(["x", "he died before 10:20. in fact the true time was 10:50."]);
+    expect(r.contradiction).toBe(true);
+  });
+
+  it("does NOT fire on the CORRECT reveal (died at T2, not T1 as the shadow suggested)", () => {
+    const chapters = [
+      "the body lay by the sundial.",
+      "lady beatrice died at ten minutes to eleven, not twenty minutes past ten as the shadow suggested.",
+    ];
+    expect(detectTemporalOrderingContradiction(chapters).contradiction).toBe(false);
+  });
+
+  it("does NOT fire on a normal timeline with different-event times", () => {
+    const chapters = [
+      "dinner was at eight o'clock and the guests arrived before seven o'clock.",
+      "the detective reviewed the timeline: the train left at ten minutes past nine.",
+    ];
+    expect(detectTemporalOrderingContradiction(chapters).contradiction).toBe(false);
+  });
+});
+
+describe("A_68 FIX C — duplicate reveal detector", () => {
+  const caseData = { culpability: { culprits: ["Charles Pembroke"] } } as any;
+  const lower = (chs: string[]): string[] => chs.map((c) => c.toLowerCase());
+
+  it("flags ≥2 late chapters that each re-stage the full reveal", () => {
+    const chapters = lower([
+      "the garden was quiet.",
+      "interviews continued through the afternoon.",
+      "the final trap: charles pembroke was the murderer; he had reset the watch to fake the time. you killed her.",
+      "clearance and culprit revealed: charles pembroke confessed. the discriminating test proved he had adjusted the sundial. the murderer was charles pembroke.",
+    ]);
+    const r = detectDuplicateReveal(caseData, chapters);
+    expect(r.duplicate).toBe(true);
+    expect(r.chapters).toEqual([3, 4]);
+  });
+
+  it("does NOT flag a single reveal followed by a pure aftermath chapter", () => {
+    const chapters = lower([
+      "the garden was quiet.",
+      "the final trap: charles pembroke was the murderer; he had reset the watch to fake the time. you killed her.",
+      "in the weeks that followed, the household grieved and the estate was quietly settled. the garden bloomed again.",
+    ]);
+    expect(detectDuplicateReveal(caseData, chapters).duplicate).toBe(false);
+  });
+});
+
+describe("A_68 FIX A — mechanismIncoherent cap", () => {
+  it("caps clues/plot/ending ≤6 and ceils the total ≤72", () => {
+    const capped = applyHardCaps(rubric(), { mechanismIncoherent: true });
+    const byCat = Object.fromEntries(capped.categories.map((c) => [c.category, c.mark]));
+    expect(byCat.clues).toBeLessThanOrEqual(6);
+    expect(byCat.plot_structure).toBeLessThanOrEqual(6);
+    expect(byCat.ending).toBeLessThanOrEqual(6);
+    expect(capped.final).toBeLessThanOrEqual(72);
+  });
+
+  it("does not cap a clean story", () => {
+    const capped = applyHardCaps(rubric(), {});
+    expect(capped.final).toBe(80);
   });
 });

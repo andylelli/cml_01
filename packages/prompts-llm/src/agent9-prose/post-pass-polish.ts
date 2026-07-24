@@ -101,6 +101,12 @@ export const buildPostPassPolishPrompt = (args: {
   // preserve every named fact/clue/alibi/clearance in meaning (the pass re-validates and rolls back).
   lines.push("- DIALOGUE SUBTEXT: rewrite any line that reads as a flat exposition dump — an alibi, time, or clearance stated as a plain report (\"I was in the kitchen at eleven, the cook will confirm\") — into a line with subtext: the speaker deflects, hedges, qualifies, or implies, and the investigator infers the rest. Preserve every named fact, clue, alibi, and clearance verbatim in meaning; invent nothing.");
   lines.push("- DE-REDUNDANCY: cut repeated atmospheric/setting phrasing and vary sentence openings across the chapter; never repeat a sensory sentence near-verbatim.");
+  // A_67 polish: the recurring external-review polish drag is internal planning/validation/spec text that
+  // the model reproduced as if it were prose. A line-editor should rewrite it into fiction, not leave it.
+  lines.push("- REMOVE PLANNING / VALIDATION / SPEC LEAKAGE: delete or rewrite any sentence that reads as internal planning, validation, or mechanism-spec text rather than fiction — a bare computed value stated flatly (\"it had gained thirty seconds per hour in all\"), a measurement/spec dump (\"the depth of the echo chamber came to six feet\"), a test-outcome validation line (\"the result proved one theory and ruled out the other\", \"the evidence failed it under direct comparison\"), or a repeated stock filler (\"in a remembered moment\"). Express the SAME fact as a character would NOTICE, SAY, or REACT to it, in the scene's voice — never as a report, a note, or a bare figure. Invent no new facts and keep every named clue/alibi/clearance.");
+  // A_68 (prose audit): two more of the recurring "Prose/polish 6/10" shapes the review flags.
+  lines.push("- SHOW THE DEDUCTION, DON'T REPORT IT: rewrite any line that narrates a conclusion as a flat report — \"X concluded/realized/understood that Y\", \"the evidence cleared Z\", \"Z was cleared by the alibi\", \"the alibi confirmed Z could not have done it\" — into the observation-plus-inference a character actually makes on the page (what they see, ask, or say, and the beat that turns it into the conclusion). Keep the logical content and every named clue/suspect/clearance identical; a clearance must still read as this person being ruled out by this fact.");
+  lines.push("- PERIOD DICTION LIFT (bounded): where a sentence uses generically modern or flat phrasing, prefer era-authentic diction consistent with the story's established register — this is a light lift, NOT a re-voicing, and never at the cost of clarity or a named fact.");
   lines.push("");
   lines.push("LOCKED STORY CONTRACT");
   lines.push(`- Stage mode remains ${formatStageModeLabel(args.repairContext.stageMode)}.`);
@@ -128,6 +134,7 @@ export const buildPostPassPolishPrompt = (args: {
   lines.push("- Return full corrected JSON for exactly one chapter.");
   lines.push("- Keep the same title unless there is a minor punctuation or capitalization cleanup.");
   lines.push("- Prefer sentence-level or paragraph-local edits over rewrites of the whole chapter.");
+  lines.push("- Preserve the narrative voice, period register, and atmosphere — this is a line-edit for polish, not a re-voicing.");
   lines.push("- If a possible improvement would risk a logic change, keep the original wording instead.");
   return lines.join("\n");
 };

@@ -409,7 +409,11 @@ Quality bar:
 - PLAUSIBILITY (critical): the underlyingReality must obey real period physics — a knowledgeable
   1930s reader could believe it genuinely works. Do NOT invent effects that violate basic mechanics:
   a pendulum/grandfather clock does NOT run backward when wound, wind does NOT "rewind" a clock by
-  tens of minutes, springs do not store time. If a mechanism only works by hand-waving, replace it.
+  tens of minutes, springs do not store time. A false TIME can only be produced by tampering with an
+  instrument whose reading can be genuinely reset or shifted (clock/watch/chime/bell/log); a reading
+  set by an EXTERNAL driver — a sundial/shadow (sun geometry), a thermometer (ambient heat), a tide,
+  a burned candle — CANNOT be time-delayed by cooling, warping, or moving the device (that changes the
+  reading's value or position, not the timeline). If a mechanism only works by hand-waving, replace it.
 - Prefer the SIMPLEST mechanism that creates the contradiction; do not add steps for their own sake.
 - Each device must produce clueable traces the reader could reasonably notice.
 - Variation across devices should include different principle types and social contexts.
@@ -422,7 +426,8 @@ Micro-exemplars:
 
 Before finalizing, run a silent checklist:
 - every device passes a basic physics plausibility check — the underlyingReality is genuinely possible
-  with period technology (no clock running backward, no wind rewinding a mechanism), not just asserted
+  with period technology (no clock running backward, no wind rewinding a mechanism, no cooling/warping
+  "delaying" a sundial shadow or thermometer reading — those cannot be time-shifted), not just asserted
 - the primary device is the simplest one that still creates a fair, clueable contradiction
 - exactly 5 devices unless explicit impossibility
 - principleType enums valid

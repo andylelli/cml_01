@@ -509,6 +509,11 @@ export function mergeFacts(deterministic: StoryFacts, fromJudge: StoryFacts = {}
     mechanismExplainedTooEarly: fromJudge.mechanismExplainedTooEarly ?? deterministic.mechanismExplainedTooEarly,
     noResolution: fromJudge.noResolution ?? deterministic.noResolution,
     endingContradictsEarlier: fromJudge.endingContradictsEarlier ?? deterministic.endingContradictsEarlier,
+    // A_68 FIX A — mechanism coherence is a judge call (physics is semantic); citation-gated in score.ts.
+    mechanismIncoherent: fromJudge.mechanismIncoherent ?? deterministic.mechanismIncoherent,
+    // A_68 FIX B/C — deterministic verifiers win (set from the structural verdict in score.ts, flag-gated).
+    temporalContradiction: deterministic.temporalContradiction ?? fromJudge.temporalContradiction,
+    duplicateReveal: deterministic.duplicateReveal ?? fromJudge.duplicateReveal,
     // the extractor's exact facts are authoritative
     weakMurderMethod: deterministic.weakMurderMethod ?? fromJudge.weakMurderMethod,
   };

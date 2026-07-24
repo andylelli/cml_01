@@ -299,6 +299,7 @@ GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play myster
 
 Before finalizing, run a silent checklist:
 - death_method names a PHYSICAL manner of death (stabbed/poisoned/struck/strangled/shot), distinct from the concealment mechanism
+- if the concealment creates a false time or reading, it tampers with a genuinely resettable instrument (clock/watch/chime/bell/log), NOT a reading fixed by an external driver (sundial/shadow, thermometer, tide, candle) which cannot be time-shifted by cooling/warping/moving it
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
 - discriminating_test uses only previously exposed evidence
@@ -520,7 +521,7 @@ ${hardLogicDeviceText}
 3. Build entire mystery around the **${inputs.primaryAxis}** axis
 4. False assumption MUST be type: ${inputs.primaryAxis}
 5. Use ALL provided character names in cast section
-6. Create mechanism that exploits the false assumption
+6. Create mechanism that exploits the false assumption. PHYSICAL COHERENCE (critical — a physically impossible trick fails fair-play and is rejected): if the concealment works by producing a FALSE TIME or any false reading, it must tamper with an instrument whose value can genuinely be reset, advanced, retarded, or stopped — a clock, watch, chime, bell, whistle, or written log can all be falsified this way. A reading whose value is fixed by an EXTERNAL physical driver CANNOT be time-shifted by tampering with the instrument: a sundial/shadow is set by the sun's geometry, a thermometer by ambient heat, a tide by the moon, a burned candle or wick by elapsed burning. Cooling, warping, chilling, or moving such a device changes the reading's VALUE or POSITION, never the underlying TIMELINE — "cold warped the plate and delayed the sundial's shadow by minutes" is a CATEGORY ERROR and is rejected. Name the specific instrument and the physically real way it was falsified
 7. Design constraint space with 5-8 constraints that hide the truth
 8. Build inference path with 3-5 logical steps. EACH step must satisfy ALL of:
    a. observation: A CONCRETE, SCENE-LEVEL fact the reader can witness

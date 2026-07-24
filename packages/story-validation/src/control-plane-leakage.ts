@@ -54,6 +54,15 @@ export const CONTROL_PLANE_LEAKAGE_PATTERNS: LeakagePattern[] = [
   { code: 'reasoning_leak_mechanism_specific', pattern: /\bmechanism-specific\s+evidence\b/i, confidence: 'contextual', severity: 'major' },
   { code: 'reasoning_leak_direct_evidence', pattern: /\bdirect\s+evidence\s+(?:links|ties)\b/i, confidence: 'contextual', severity: 'major' },
   { code: 'reasoning_leak_false_assumption', pattern: /\boverturning the false assumption\b/i, confidence: 'contextual', severity: 'major' },
+  // A_68 DT-validation-leakage family. The deterministic SOURCE of these (deterministic-repair.ts DT
+  // templates) is now rewritten to in-scene prose, so the primary channel is closed at source. These
+  // patterns are a SHADOW backstop for LLM-produced variants (the "ambiguity than of misdirection"
+  // reasoning leak has no deterministic source at all). Kept at 'watch' — detected + available to
+  // telemetry, but NOT gating (lint.ts forwards only 'hard') — per the log-first/promote-after
+  // discipline. Promote to 'contextual' once a corpus pass confirms no false-fire on legit denouement.
+  { code: 'dt_validation_proved_theory', pattern: /\bproved one theory and ruled out the other\b/i, confidence: 'watch', severity: 'major' },
+  { code: 'dt_validation_behaved_tested', pattern: /\bthe evidence (?:behaved|failed)\b[^.]{0,40}\b(?:when tested directly|under direct comparison)\b/i, confidence: 'watch', severity: 'major' },
+  { code: 'reasoning_leak_ambiguity_misdirection', pattern: /\b(?:issue|matter|question) of ambiguity (?:rather |more )?than (?:of )?(?:deliberate )?misdirection\b/i, confidence: 'watch', severity: 'major' },
 ];
 
 const sentenceAround = (text: string, index: number): string => {

@@ -195,6 +195,26 @@ const GOLDEN_AGE_REVELATION_BEAT = "revelation";
 
 const readSceneBeat = (scene: any): string => String(scene?.beat ?? "").trim().toLowerCase();
 
+// A_68 FIX C: beat-independent aftermath fallback. The beat-based guard below only fires when the
+// outline scenes carry LLM-emitted `.beat` strings; when those are absent (common — the field is
+// Optional and set only for the exact-10-scene format), the guard returns false, getCulpritRevealChapter
+// falls back to `totalScenes`, and the final chapter gets a second MANDATORY RESOLUTION → the recurring
+// duplicate "Clearance and Culprit Revealed" chapter. This fallback recovers the aftermath decision from
+// scene title/purpose SIGNALS when (and only when) no beats are present. Flag-gated, default-OFF,
+// probe-first (per §2.8). Runtime getter — never a module const (dotenv-freeze trap).
+const isAftermathFinalSignalFallbackEnabled = (): boolean =>
+  process.env.AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK === "true" ||
+  process.env.AGENT9_AFTERMATH_FINAL_SIGNAL_FALLBACK === "1";
+
+// The final chapter reads as an aftermath/denouement close.
+const REVELATION_SIGNAL_RE = /(revelation|aftermath|denouement|reckoning|culprit\s+(?:is\s+)?revealed|unmask|case\s+closed|confession|resolution|epilogue|clearance)/;
+// An earlier chapter stages the on-page naming (the real reveal): final trap / discriminating test /
+// confrontation where the culprit is named. This is the guard that prevents suppressing a genuinely
+// late (last-chapter-only) reveal.
+const FINAL_TRAP_SIGNAL_RE = /(final\s+trap|discriminating\s+test|confront|expos(?:e|es|ed|ing|ure)|named\s+as|accus|trap\s+is\s+sprung|culprit\s+(?:is\s+)?revealed)/;
+// Never treat a false-solution / red-herring chapter as the naming trap.
+const FALSE_SOLUTION_SIGNAL_RE = /(false\s+solution|red\s+herring|wrong\s+suspect|mistaken|misdirection|false\s+accus)/;
+
 const isGoldenAgeAftermathFinalChapter = (
   chapterEnd: number,
   totalScenes: number,
@@ -211,12 +231,28 @@ const isGoldenAgeAftermathFinalChapter = (
     (Array.isArray(batchScenes) &&
       batchScenes.some((scene) => readSceneBeat(scene) === GOLDEN_AGE_REVELATION_BEAT)) ||
     readSceneBeat(scenes[scenes.length - 1]) === GOLDEN_AGE_REVELATION_BEAT;
-  if (!finalIsRevelation) return false;
   // And an EARLIER chapter must carry the on-page naming (`final_trap`), so we never
   // suppress a legitimately-late reveal in a story with no separate trap chapter.
-  return scenes.some(
+  const earlierFinalTrap = scenes.some(
     (scene, idx) => idx < scenes.length - 1 && readSceneBeat(scene) === GOLDEN_AGE_FINAL_TRAP_BEAT,
   );
+  if (finalIsRevelation && earlierFinalTrap) return true;
+
+  // A_68 signal fallback — only when NO scene carries a beat at all (never override present beats).
+  if (!isAftermathFinalSignalFallbackEnabled()) return false;
+  const anyBeatPresent = scenes.some((scene) => readSceneBeat(scene) !== "");
+  if (anyBeatPresent) return false;
+  const finalScene =
+    Array.isArray(batchScenes) && batchScenes.length > 0
+      ? batchScenes[batchScenes.length - 1]
+      : scenes[scenes.length - 1];
+  const finalIsRevelationBySignal = REVELATION_SIGNAL_RE.test(normalizeSceneSignalText(finalScene));
+  const earlierTrapBySignal = scenes.some((scene, idx) => {
+    if (idx >= scenes.length - 1) return false;
+    const signal = normalizeSceneSignalText(scene);
+    return FINAL_TRAP_SIGNAL_RE.test(signal) && !FALSE_SOLUTION_SIGNAL_RE.test(signal);
+  });
+  return finalIsRevelationBySignal && earlierTrapBySignal;
 };
 
 export const resolveStageModeKey = (

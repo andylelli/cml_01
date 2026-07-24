@@ -109,6 +109,29 @@ export function applyHardCaps(raw: RubricScore, facts: StoryFacts): CappedScore 
     capCat("ending", 6, "weak murder method (concealment explained, death not)");
     ceil(75, "weak murder method (concealment explained, death not)");
   }
+  // A_68 FIX A — the cover-up mechanism is physically impossible / a category error (judge-flagged +
+  // citation-gated). An impossible trick is a simultaneous evidence-logic + reveal + fair-play failure,
+  // so it caps clues/plot/ending and ceils the whole case (mirrors weak-murder-method's shape).
+  if (facts.mechanismIncoherent) {
+    capCat("clues", 6, "cover-up mechanism physically impossible / incoherent");
+    capCat("plot_structure", 6, "cover-up mechanism physically impossible / incoherent");
+    capCat("ending", 6, "cover-up mechanism physically impossible / incoherent");
+    ceil(72, "cover-up mechanism physically impossible / incoherent");
+  }
+  // A_68 FIX B — a self-contradictory reveal time ("before T1 … in fact T2>T1"). Deterministic, gated
+  // behind RUBRIC_STRUCTURAL_CAPS_A68 in score.ts. A reader-visible impossibility caps plot + reveal.
+  if (facts.temporalContradiction) {
+    capCat("plot_structure", 5, "self-contradictory reveal time (impossible ordering)");
+    capCat("ending", 6, "self-contradictory reveal time (impossible ordering)");
+    ceil(72, "self-contradictory reveal time (impossible ordering)");
+  }
+  // A_68 FIX C — the reveal is fully re-staged in ≥2 late chapters ("solve then keep explaining").
+  // Deterministic, gated behind RUBRIC_STRUCTURAL_CAPS_A68. Anticlimax + repeated-beat drag.
+  if (facts.duplicateReveal) {
+    capCat("pacing", 5, "duplicate reveal (culprit re-accused / mechanism re-explained in a later chapter)");
+    capCat("ending", 6, "duplicate reveal (reveal re-staged instead of a denouement)");
+    capCat("plot_structure", 6, "duplicate reveal (reveal re-staged instead of a denouement)");
+  }
 
   // ── apply ────────────────────────────────────────────────────────────────────
   const categories: CategoryMark[] = raw.categories.map((c) => {
