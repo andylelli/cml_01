@@ -61,6 +61,13 @@ import {
   deriveMechanismTerms,
   chapterFullyExplainsMechanism,
   resolveDiscriminatingTestChapter,
+  // A_69 Increment 3 — whole-story read-only diagnostic. Lives HERE, not in generate.ts: the A_69
+  // smoke probe proved the prose keeps changing after generate.ts returns (scaffold regen replaced
+  // ch9 wholesale, so 2 of 5 findings pointed at text that no longer shipped). Only this layer sees
+  // the final story.
+  resolveFullStoryDiagnosticMode,
+  runFullStoryDiagnostic,
+  applyFullStoryDiagnosticFindings,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -6945,6 +6952,87 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     ctx.errors.push(hardStopMessage);
     reportProgress("validation", hardStopMessage, 99);
     throw new Error(hardStopMessage);
+  }
+
+  // ============================================================================
+  // A_69 Increment 3 — whole-story READ-ONLY diagnostic (default OFF)
+  // ============================================================================
+  // Placed at the very end on purpose. Every rewrite layer — scaffold regen, leakage regen, the
+  // deterministic injectors (enforceSuspectEliminationPresence et al), NSD-anchor planting, the
+  // pronoun sweeps — has now run, so `prose.chapters` is what actually ships. It also sits AFTER the
+  // hard-stop throw above, so a story that will never ship never costs a diagnostic call.
+  //
+  // `shadow` reads the story and records findings, changing nothing. `apply` additionally routes the
+  // anchored findings into a per-chapter rewrite behind the locked-value/cast-name/number/length
+  // rollback guard. Best-effort throughout: any failure leaves the committed chapters untouched.
+  const fullStoryDiagnosticMode = resolveFullStoryDiagnosticMode();
+  if (fullStoryDiagnosticMode !== "off" && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
+    const costBeforeDiagnostic = client.getCostTracker().getTotalCost();
+    try {
+      const diagnostic = await runFullStoryDiagnostic({
+        chapters: prose.chapters,
+        client,
+        model: proseDeployment,
+        runId: ctx.runId,
+        projectId: ctx.projectId,
+        mode: fullStoryDiagnosticMode,
+      });
+      const byClass: Record<string, number> = {};
+      for (const finding of diagnostic.findings) {
+        byClass[finding.findingClass] = (byClass[finding.findingClass] ?? 0) + 1;
+      }
+      let editedChapters: number[] = [];
+      let rolledBackChapters: number[] = [];
+      if (fullStoryDiagnosticMode === "apply" && diagnostic.findings.length > 0) {
+        const applied = await applyFullStoryDiagnosticFindings({
+          chapters: prose.chapters,
+          findings: diagnostic.findings,
+          client,
+          model: proseDeployment,
+          runId: ctx.runId,
+          projectId: ctx.projectId,
+          lockedValues: annotatedLockedFacts.map((f: any) => String(f?.value ?? "")).filter(Boolean),
+          castNames: (castDesign?.characters ?? [])
+            .map((c: any) => String(c?.name ?? ""))
+            .filter(Boolean),
+        });
+        if (applied.chapters.length === prose.chapters.length) {
+          prose.chapters = applied.chapters;
+          prose = applyStandardPostProcessingChain(prose); // hygiene over any rewritten chapters
+        }
+        editedChapters = applied.editedChapters;
+        rolledBackChapters = applied.rolledBackChapters;
+      }
+      // The discard count IS the anchoring failure rate — the number that decides whether `apply`
+      // is ever worth promoting. Surface it, never swallow it.
+      (prose as any).validationDetails = {
+        ...((prose as any).validationDetails ?? {}),
+        fullStoryDiagnostic: {
+          mode: fullStoryDiagnosticMode,
+          findingCount: diagnostic.findings.length,
+          discardedCount: diagnostic.discarded.length,
+          malformedCount: diagnostic.malformed,
+          failed: diagnostic.failed,
+          byClass,
+          editedChapters,
+          rolledBackChapters,
+          findings: diagnostic.findings,
+          discarded: diagnostic.discarded,
+        },
+      };
+      if (diagnostic.discarded.length > 0) {
+        ctx.warnings.push(
+          `[Agent 9] full-story diagnostic: ${diagnostic.discarded.length} of ${diagnostic.findings.length + diagnostic.discarded.length} finding(s) failed to anchor and were discarded.`,
+        );
+      }
+    } catch (err) {
+      ctx.warnings.push(
+        `[Agent 9] full-story diagnostic failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`,
+      );
+    } finally {
+      const diagnosticCost = client.getCostTracker().getTotalCost() - costBeforeDiagnostic;
+      if (diagnosticCost > 0 && typeof (prose as any)?.cost === "number") (prose as any).cost += diagnosticCost;
+    }
   }
 
   // ============================================================================

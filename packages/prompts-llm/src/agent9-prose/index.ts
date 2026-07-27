@@ -36,6 +36,7 @@ export type {
   MatchingClearance,
 } from "./deterministic-repair.js";
 export * from "./post-pass-polish.js";
+export * from "./full-story-diagnostic.js";
 export * from "./prose-blind-reader.js";
 export * from "./regen-repair.js";
 export * from "./regen-llm.js";

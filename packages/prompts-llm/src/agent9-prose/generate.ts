@@ -4354,6 +4354,9 @@ export async function generateProse(
   // back to its committed text on any regression. Default OFF — opt-in / probe (bounded extra calls).
   const fullStoryPolishEnabled =
     process.env.AGENT9_FULLSTORY_POLISH === "true" || process.env.AGENT9_FULLSTORY_POLISH === "1";
+  // A_69 §8 — which chapters this pass actually rewrote. Previously discarded, which made the lever
+  // unmeasurable: the A_69 smoke probe had to reconstruct it from logs/llm.jsonl by hand.
+  let fullStoryPolishEditedChapters: number[] = [];
   if (fullStoryPolishEnabled && recurringPhrases.length > 0) {
     try {
       const fullStory = await runFullStoryRepetitionPolish({
@@ -4368,6 +4371,7 @@ export async function generateProse(
       });
       if (fullStory.chapters.length === chapters.length) {
         chapters.splice(0, chapters.length, ...fullStory.chapters);
+        fullStoryPolishEditedChapters = fullStory.editedChapters;
       }
     } catch {
       // Best-effort cross-chapter polish; keep the committed chapters if it fails.
@@ -4421,6 +4425,9 @@ export async function generateProse(
     configuredRepairPhraseCount: configuredRepairPhrases.length,
     repairPhraseCandidateCount: repairPhraseCandidates.length,
     hardBanLinterFailures: proseLinterStats.bannedPhraseFailures,
+    // A_69 §8 — cross-chapter polish outcome (empty when the lever is off or nothing was rewritten).
+    fullStoryPolishEnabled,
+    fullStoryPolishEditedChapters,
     rolloutFlags: {
       phraseFamilyDetectionEnabled: rolloutFlags.phrase_family_detection_enabled,
       uncappedRepairTargetsEnabled: rolloutFlags.uncapped_repair_targets_enabled,

@@ -158,6 +158,14 @@ export {
   deriveMechanismTerms,
   chapterFullyExplainsMechanism,
   resolveStageModel,
+  // A_69 Increment 3 — whole-story read-only diagnostic (consumed by agent9-run at the ship layer).
+  resolveFullStoryDiagnosticMode,
+  runFullStoryDiagnostic,
+  applyFullStoryDiagnosticFindings,
+  anchorFullStoryFindings,
+  parseFullStoryFindings,
+  buildFullStoryDiagnosticPrompt,
+  FULL_STORY_FINDING_CLASSES,
   runCritiqueRewritePass,
   critiqueAndRewriteChapter,
   selectLowestScoringChapters,
@@ -173,6 +181,10 @@ export type {
   InsertionRegenPassResult,
   CritiqueRewriteResult,
   ChapterScoreRef,
+  FullStoryFinding,
+  FullStoryFindingClass,
+  FullStoryDiagnosticMode,
+  FullStoryDiagnosticResult,
 } from "./agent9-prose.js";
 export { generateWorldDocument } from "./agent65-world-builder.js";
 export type { WorldBuilderInputs } from "./agent65-world-builder.js";

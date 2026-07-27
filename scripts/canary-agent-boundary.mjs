@@ -657,6 +657,17 @@ async function writeAgent9ProseDump(ctx, dumpPath, runId) {
         warnings: Array.isArray(vr.warningReasons) ? vr.warningReasons : [],
       };
 
+  // A_69 §8 — cross-chapter pass telemetry. Neither full-story lever reached the dump before, so the
+  // A_69 smoke probe had to reconstruct "did it fire, what did it edit" from logs/llm.jsonl by hand.
+  // That does not scale across the 8 arms of an A/B, so both land here.
+  const vd = prose.validationDetails ?? {};
+  const fullStoryDiagnostic = vd.fullStoryDiagnostic ?? null;
+  const fullStoryPolish = {
+    enabled: vd.phraseTelemetry?.fullStoryPolishEnabled ?? false,
+    editedChapters: vd.phraseTelemetry?.fullStoryPolishEditedChapters ?? [],
+    recurringPhraseCount: vd.phraseTelemetry?.recurringPhraseCount ?? 0,
+  };
+
   const payload = {
     runId,
     agent: "9",
@@ -665,6 +676,8 @@ async function writeAgent9ProseDump(ctx, dumpPath, runId) {
     chapterCount: chapters.length,
     totalWords,
     chapters,
+    fullStoryDiagnostic,
+    fullStoryPolish,
     discriminatingPair,
     cast: extractCastGenders(ctx.cast),
     agent9CostUsd,

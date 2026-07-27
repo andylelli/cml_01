@@ -6,6 +6,7 @@ import type { AzureOpenAIClient } from "@cml/llm-client";
 import { parseProseResponse } from "./sanitization.js";
 import { assessNarrativeBalanceSignals, buildNarrativeBalanceBlock } from "./narrative-balance.js";
 import { formatStageModeLabel } from "./clue-validation.js";
+import { resolveStageModel } from "./model-tiering.js";
 import type { ProseChapter } from "./types.js";
 import type { ChapterRepairContext } from "./deterministic-repair.js";
 
@@ -169,7 +170,8 @@ export const polishPassingChapter = async (args: {
         }, null, 2)}`,
       },
     ],
-    model: args.model,
+    // A_69 Increment 2 — polish-stage tier (AGENT9_MODEL_POLISH); unset falls back to args.model.
+    model: resolveStageModel("polish", args.model),
     temperature: 0.2,
     maxTokens: 5000,
     jsonMode: true,
@@ -433,7 +435,8 @@ export const runFullStoryRepetitionPolish = async (args: {
             })}\n\nSOURCE CHAPTER JSON\n${JSON.stringify({ status: "draft", chapters: [original] }, null, 2)}`,
           },
         ],
-        model: args.model,
+        // A_69 Increment 2 — polish-stage tier (AGENT9_MODEL_POLISH); unset falls back to args.model.
+        model: resolveStageModel("polish", args.model),
         temperature: 0.3,
         maxTokens: 5000,
         jsonMode: true,
