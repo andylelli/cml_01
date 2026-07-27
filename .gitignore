@@ -48,3 +48,6 @@ data/novelty-ledger.json
 data/novelty-ledger*.tmp
 stories/
 scripts/.corpus-cache/
+# A_67 FIX-3 per-run corpus snapshots (CORPUS_SNAPSHOT_DIR) — accumulated telemetry, not source
+corpus/
+*.corpus-snapshot.json

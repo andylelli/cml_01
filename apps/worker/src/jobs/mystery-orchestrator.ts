@@ -91,6 +91,7 @@ import {
   mergePriorRunsIntoConstraints,
   extractPriorRunRecord,
 } from "./novelty-ledger.js";
+import { writeCorpusSnapshot } from "./corpus-snapshot.js";
 
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
@@ -1220,6 +1221,22 @@ export async function generateMystery(
       } catch {
         // best-effort persistence; ignore
       }
+    }
+
+    // A_67 FIX-3 — per-run corpus snapshot (best-effort; gated by CORPUS_SNAPSHOT_DIR, no-op when unset).
+    // The live store retains only the latest project; this accumulates a corpus so the plant→payoff
+    // measure (scripts/reveal-cites-plants-coverage.mjs) can be run over many stories. Never affects the run.
+    if (process.env.CORPUS_SNAPSHOT_DIR && status !== "failure") {
+      const snap = writeCorpusSnapshot({
+        dir: process.env.CORPUS_SNAPSHOT_DIR,
+        projectId,
+        runId,
+        cml: ctx.cml,
+        clues: ctx.clues,
+        outline: ctx.narrative,
+        prose: ctx.prose,
+      });
+      if (snap) console.log(`[corpus-snapshot] wrote ${snap} (A_67 FIX-3 plant→payoff corpus).`);
     }
 
     return {

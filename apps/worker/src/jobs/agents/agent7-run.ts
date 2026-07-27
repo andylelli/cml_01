@@ -2246,6 +2246,15 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // A_67 review fix (missing-coercion on retry paths): normalise the FINAL outline once, regardless of
+  // which retry/remediation path produced it. The narrative-replacing retries (scene-count / coverage /
+  // pacing / pre-commit remediation) assign a fresh formatNarrative() result WITHOUT re-running beat
+  // coercion or field hoisting, so an uncoerced synonym beat (e.g. "resolution" → "revelation") could
+  // reach Agent 9 and misfire the aftermath-chapter stage-mode (permitting a duplicate reveal). Both
+  // passes are idempotent — a no-op when the first attempt already passed through them.
+  coerceNarrativeSceneBeats(narrative);
+  hoistMisplacedSceneFields(narrative);
+
   ctx.narrative = narrative;
   // A_53 P10 (outline-coverage-evaluated-thrice): reuse the deterministic-patch scan; only the
   // coverage patch above (and SWEEP B, which touches no coverage field) runs between it and here,

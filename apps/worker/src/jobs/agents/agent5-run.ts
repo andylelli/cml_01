@@ -3000,6 +3000,12 @@ export function enforceAgent5DeterministicContracts(
 
   const castPathRepairs = repairCastNamePathConsistency(cml, clues);
   castPathRepairs.forEach((repair) => warnings.push(`Agent 5 cast-path auto-repair: ${repair}`));
+  // A_67 review bug (stale-audit-vs-repaired-text): repairCastNamePathConsistency rewrites clue text
+  // (wrong cast name → expected), which shifts suspect coverage. Without re-syncing, the audit still
+  // reflects the PRE-repair text (reconciled at line 2994), so checkModelAuditConsistency below
+  // recomputes coverage from the repaired text and mismatches the stale snapshot — a spurious
+  // run-killing abort on a run the repair just fixed. Re-reconcile so the audit matches the repaired text.
+  if (castPathRepairs.length > 0) reconcileModelAudit(cml, clues);
 
   const castPathConsistencyIssues = checkCastNamePathConsistency(cml, clues);
   if (castPathConsistencyIssues.length > 0) {
@@ -3857,6 +3863,11 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   castPathRepairs.forEach((repair) =>
     ctx.warnings.push(`Agent 5 cast-path auto-repair: ${repair}`),
   );
+  // A_67 review bug (stale-audit-vs-repaired-text): the cast-path repair rewrites clue text, shifting
+  // suspect coverage; without re-syncing, checkModelAuditConsistency below recomputes coverage from the
+  // repaired text and mismatches the pre-repair audit snapshot (line 3848), spuriously aborting a clean
+  // run the repair just fixed. Re-reconcile so the audit reflects the repaired text.
+  if (castPathRepairs.length > 0) reconcileModelAudit(ctx.cml!, clues);
 
   const castPathConsistencyIssues = checkCastNamePathConsistency(ctx.cml!, clues);
   castPathConsistencyIssues.forEach((issue) => ctx.errors.push(`Agent 5 cast-path consistency: ${issue.message}`));
@@ -4188,6 +4199,8 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
 export const __testables = {
   buildSuspectCoverage,
   analyzeSuspectCoverage,
+  reconcileModelAudit,
+  checkModelAuditConsistency,
   buildStrictPromptFeedback,
   enforceAgent5DeterministicContracts,
   recomputeInferenceCoverageForAgent6,

@@ -1578,3 +1578,58 @@ describe("purgeUnmappableDiscriminatingEvidenceIds — A_61 evidence-mapping FP 
     expect(issues.some((i: any) => i.severity === "critical" && /no evidence found in the clue set/i.test(i.message))).toBe(true);
   });
 });
+
+describe("model-audit consistency survives a cast-name text change (A_67 review — stale-audit spurious abort)", () => {
+  const { reconcileModelAudit, checkModelAuditConsistency, analyzeSuspectCoverage } = __testables as any;
+
+  const makeCml = (): any => ({
+    CASE: {
+      culpability: { culprits: ["Grace Wend"] },
+      cast: [
+        { name: "Arthur Wilkins", culprit_eligibility: "eligible" },
+        { name: "Cecil Harding", culprit_eligibility: "eligible" },
+        { name: "Grace Wend", culprit_eligibility: "eligible" },
+      ],
+      inference_path: { steps: [] },
+      discriminating_test: {},
+    },
+  });
+  // A clue that merely NAMES a suspect with no elimination/alibi language → that suspect is "weak".
+  const makeClues = (name: string): any => ({
+    clues: [
+      {
+        id: "clue_1",
+        description: `${name} was seen loitering near the study that evening, saying nothing to anyone.`,
+        pointsTo: `${name} was present near the scene.`,
+        sourceInCML: "CASE.cast[0].access_plausibility",
+        criticality: "supporting",
+        placement: "mid",
+        evidenceType: "observation",
+      },
+    ],
+    redHerrings: [],
+    audit: {},
+  });
+
+  it("reconcile→check is consistent; a suspect-name rewrite desyncs it; re-reconcile restores it", () => {
+    const cml = makeCml();
+    const clues = makeClues("Arthur Wilkins");
+
+    // sanity: Wilkins is the weak (referenced-but-uneliminated) suspect
+    expect(analyzeSuspectCoverage(cml, clues).weakElimination).toContain("Arthur Wilkins");
+
+    reconcileModelAudit(cml, clues);
+    expect(checkModelAuditConsistency(cml, clues)).toEqual([]); // audit matches the text
+
+    // Simulate what repairCastNamePathConsistency does: rewrite the wrong cast name Wilkins -> Harding.
+    clues.clues[0].description = clues.clues[0].description.replace(/Arthur Wilkins/g, "Cecil Harding");
+    clues.clues[0].pointsTo = clues.clues[0].pointsTo.replace(/Arthur Wilkins/g, "Cecil Harding");
+
+    // The bug: without re-reconciling, the recompute (Harding weak) mismatches the stale audit (Wilkins).
+    expect(checkModelAuditConsistency(cml, clues).length).toBeGreaterThan(0);
+
+    // The fix: re-reconcile after the repair → audit reflects the repaired text → consistent again.
+    reconcileModelAudit(cml, clues);
+    expect(checkModelAuditConsistency(cml, clues)).toEqual([]);
+  });
+});
