@@ -143,7 +143,62 @@ The blocked prompt carries the pipeline's own generated prose: *"a brass candles
 
 ---
 
-## 8. In flight
+## 8. RESULT — the A/B ran, and it found a silent no-op (not a verdict on the craft)
+
+**Completed 2026-07-27, ~£1.10 actual.** The analyzer prints `VERDICT: FAIL ❌ — flag stays off`. **That headline is misleading and must not be quoted on its own.** The FAIL is driven entirely by `all_pairs_ok: 3/4` — one arm crashed. Every substantive gate passed, and treatment was *cheaper* ($0.8178 → $0.5772). The real finding is underneath.
+
+### 8.1 The lever never ran — MEASURED, four ways
+
+| Treatment arm | flag `enabled` | `recurringPhraseCount` | `editedChapters` |
+|---|---|---|---|
+| `e68c8118` | true | 15 | **[]** |
+| `6dc1ee3a` | true | 7 | **[]** |
+| `mystery-1785175520689` | true | 5 | **[]** |
+| `477bb27a` | — | — | arm crashed |
+
+1. The A_69 §9.5 telemetry works — `enabled` correctly tracks the arm. **That fix is validated.**
+2. `editedChapters` is empty in **every** treatment arm despite 5–15 recurring phrases detected.
+3. **Zero** `Agent9-FullStoryRepetitionPolish-Ch*` LLM calls in the entire 1,627-line A/B log — while the same log carries hundreds of `Agent9-ProseGenerator` / `Agent9-Regen-*` labels, so label capture demonstrably works. The label is confirmed at [post-pass-polish.ts:446](../../packages/prompts-llm/src/agent9-prose/post-pass-polish.ts#L446).
+4. **NOT my Increment-2 routing.** `resolveStageModel("polish", args.model)` returns `args.model` when `AGENT9_MODEL_POLISH` is unset — verified against [model-tiering.ts:35](../../packages/prompts-llm/src/agent9-prose/model-tiering.ts#L35). Ruled out explicitly.
+
+### 8.2 Root cause — normalized needle, raw haystack
+
+**MEASURED by reproduction.** Replaying `detectRecurringPhrases` over a treatment arm's shipped chapters returns exactly **15** phrases — matching that arm's telemetry `recurringPhraseCount: 15`, which validates the reproduction. Then:
+
+```
+repeatedOpenings:                                    0
+phrases that literally substring-match some chapter: 0 / 15
+```
+
+`detectRecurringPhrases` ([phrase-analysis.ts:173](../../packages/prompts-llm/src/agent9-prose/phrase-analysis.ts#L173)) builds 7-word n-grams from `tokenizeWords(...)` — a **normalized** stream: lowercased, punctuation stripped, single-spaced. Sample output: `"clock running oddly earlier this afternoon chimes"`.
+
+`runFullStoryRepetitionPolish` ([post-pass-polish.ts:406](../../packages/prompts-llm/src/agent9-prose/post-pass-polish.ts#L406)) then matches those needles with a raw substring test against **un-normalized** chapter text:
+
+```js
+if (chapterFullText(chapters[i]).toLowerCase().includes(needle))
+```
+
+A 7-word n-gram nearly always spans a sentence break or punctuation (`"…this afternoon. Chimes not as usual…"`), so the raw `.includes()` can never match it. `targetIdx` stays empty → the early return at [post-pass-polish.ts:412](../../packages/prompts-llm/src/agent9-prose/post-pass-polish.ts#L412) → **zero LLM calls, no error, no warning.**
+
+**The phrase path has therefore never worked.** The only functioning trigger is `repeatedOpenings`, which is a different, narrower signal.
+
+### 8.3 This reconciles A_69 §9.4 exactly
+
+A_69 reported the smoke probe firing on Ch4 + Ch10 — and noted, honestly and with puzzlement, that *"it varied the words and not the image — both chapters still open on the grandfather clock."* That is now fully explained: both chapters shared an **opening shape**, so they were caught by the `repeatedOpenings` path. The n-gram path contributed nothing then either. A_69 attributed the limitation to "the detector works on n-grams, so that is the ceiling" — the truth is the opposite: **the n-gram half was dead, and only the opening half ran.**
+
+### 8.4 What this does and does not say
+
+- It says **nothing** about whether cross-chapter polish improves prose. The experiment could not test that, because the treatment never differed from control on 3 of 4 pairs. A null result here is a **plumbing** result.
+- Fix the needle/haystack mismatch (normalize both sides before matching), then re-run. The pool is built and the harness is proven, so the re-run is ~£4–8 and needs no new infrastructure.
+- **The A/B was still worth its cost.** It bought a proven-dead code path in a lever that two prior docs treated as working, plus a validated telemetry channel. Probes that find plumbing bugs are not wasted probes.
+
+### 8.5 The crashed arm — flake, not signal
+
+`477bb27a :: treatment` died with exit `3221226505` (`0xC0000409`, a Windows fatal process abort) **seconds in, right after `Agent4-Revision | chat_request`** — long before Agent 9, and therefore unrelated to the flag under test. No error text was emitted. The harness correctly marked the pair invalid rather than scoring a half-pair. **UNBASELINED — one occurrence; worth watching for recurrence, not worth chasing yet.**
+
+---
+
+## 8b. Original A/B framing (retained)
 
 `AGENT9_FULLSTORY_POLISH` A/B — 4 matched pairs, 8 Agent-9 replays, ~£4–8, launched 2026-07-27 after the pool reached N=4:
 
@@ -164,6 +219,7 @@ This is also the first real test of the A_69 §9.5 telemetry fix — whether `fu
 
 ## 9. The board, ranked by (evidence × lift) ÷ cost
 
+0. **The `AGENT9_FULLSTORY_POLISH` needle/haystack bug** (§8.2) — measured by reproduction, one-line-class fix (normalize both sides), and it unblocks a lever two docs already believed was working. Highest ratio on the board.
 1. **`"In a remembered moment"` × 28** (§3) — measured, one-to-one causal, a phrase bank is near-zero cost and needs no LLM. The clearest craft win on the board.
 2. **Stale-report integrity** (§4) — measured; a run that scored 66 is on record as 96 A. Cheap to fix (mark or delete the in-progress artifact when the final report fails), and until it is, every score-tracking number is suspect.
 3. **Amend A_68 §8.1** (§2) — free; leaving it unamended means the next session spends £4–8 on a null A/B.
