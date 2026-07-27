@@ -809,7 +809,14 @@ describe("applyCanonicalVictimRescue (canonical victim_reappears_alive)", () => 
     const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
     // All THREE post-death sentences reframed (the under-firing fix), not just the active one.
     expect(rescued.repairCount).toBe(3);
-    expect(rescued.prose.chapters[1].paragraphs.every((p: string) => /^In a remembered moment,/.test(p))).toBe(true);
+    // A_70 §3: the frame now ROTATES, so this asserts every sentence is framed by an accepted
+    // recollection frame — not that all three carry the identical opener (that stamping was the
+    // defect: 28 copies of one phrase in a shipped story).
+    expect(
+      rescued.prose.chapters[1].paragraphs.every((p: string) =>
+        /^(In a remembered moment|In life|Before the death),/.test(p),
+      ),
+    ).toBe(true);
 
     // Re-validation finds no residual (no sibling-sentence whack-a-mole) and the death line is intact.
     const after = validateCharacterLifecycle(makeStory(rescued.prose) as any, cml as any);
@@ -825,5 +832,90 @@ describe("applyCanonicalVictimRescue (canonical victim_reappears_alive)", () => 
     const rescued = applyCanonicalVictimRescue(before, castCharacters as any, cml as any, issues as any);
     expect(rescued.repairCount).toBe(0);
     expect(rescued.prose.chapters[1].paragraphs[0]).toBe("Margaret Hargrove studied the room and questioned each guest in turn.");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A_70 §3 — recollection-frame VARIETY
+// ---------------------------------------------------------------------------
+
+describe("applyCanonicalVictimRescue — A_70 §3 frame rotation", () => {
+  const castCharacters = [{ name: "Hugo Vane", gender: "male" }];
+  const cml = {
+    CASE: {
+      cast: [{ name: "Hugo Vane", role: "victim", role_archetype: "victim", gender: "male" }],
+      culpability: { victim: "Hugo Vane" },
+    },
+  };
+  const issues = [{ characterName: "Hugo Vane", deadByChapter: 1, reappearsChapter: 2 }];
+
+  const makeStory = (prose: any) => ({
+    id: "s",
+    projectId: "p",
+    scenes: prose.chapters.map((c: any, i: number) => ({
+      number: i + 1,
+      title: `Chapter ${i + 1}`,
+      text: c.paragraphs.join("\n\n"),
+    })),
+  });
+
+  // The measured defect: 28 identical openers in one shipped story. One stamped phrase is the bug;
+  // a repeated phrase surviving N reframes is what this pins.
+  it("does not stamp the same opener on every reframed sentence", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["The lifeless body of Hugo Vane lay beside the clock."] },
+        {
+          paragraphs: [
+            "Hugo Vane entered the hall and spoke to the housekeeper.",
+            "Hugo Vane left a written confession on the blotter.",
+            "Hugo Vane confessed to the arrangement before the assembled household.",
+          ],
+        },
+      ],
+    };
+    const rescued = applyCanonicalVictimRescue(prose as any, castCharacters as any, cml as any, issues as any);
+    expect(rescued.repairCount).toBe(3);
+
+    const framed: string[] = rescued.prose.chapters[1].paragraphs;
+    const openers = framed.map((p: string) => p.split(",")[0] + ",");
+    // Every sentence is framed …
+    expect(framed.every((p: string) => /^(In a remembered moment|In life|Before the death),/.test(p))).toBe(true);
+    // … but not all with the SAME frame.
+    expect(new Set(openers).size).toBeGreaterThan(1);
+  });
+
+  it("every rotated frame still clears the lifecycle validator end-to-end", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["The lifeless body of Hugo Vane lay beside the clock."] },
+        {
+          paragraphs: [
+            "Hugo Vane entered the hall and spoke to the housekeeper.",
+            "Hugo Vane left a written confession on the blotter.",
+            "Hugo Vane confessed to the arrangement before the assembled household.",
+          ],
+        },
+      ],
+    };
+    const baseline = validateCharacterLifecycle(makeStory(prose) as any, cml as any);
+    expect(baseline.some((e: any) => e.type === "victim_reappears_alive")).toBe(true);
+
+    const rescued = applyCanonicalVictimRescue(prose as any, castCharacters as any, cml as any, issues as any);
+    const after = validateCharacterLifecycle(makeStory(rescued.prose) as any, cml as any);
+    // This is the whole safety argument: a varied frame must not reintroduce an abort.
+    expect(after.some((e: any) => e.type === "victim_reappears_alive")).toBe(false);
+    expect(after.some((e: any) => e.type === "deceased_character_confesses")).toBe(false);
+  });
+
+  it("keeps the canonical first frame, so a single reframe is unchanged from before A_70", () => {
+    const prose = {
+      chapters: [
+        { paragraphs: ["The lifeless body of Hugo Vane lay beside the clock."] },
+        { paragraphs: ["Hugo Vane entered the hall and spoke to the housekeeper."] },
+      ],
+    };
+    const rescued = applyCanonicalVictimRescue(prose as any, castCharacters as any, cml as any, issues as any);
+    expect(rescued.prose.chapters[1].paragraphs[0]).toMatch(/^In a remembered moment, Hugo Vane entered/);
   });
 });

@@ -85,7 +85,29 @@ The run's *actual* outcome: internal rubric **66**, three chapters failing valid
 
 **The real, narrower gap is direct-file consumers.** `scripts/target80-ledger-row.mjs` reads the report with a bare `fs.readFileSync` ([:8](../../scripts/target80-ledger-row.mjs#L8)) and checks neither `in_progress` nor `stale` — so it will read **96 A / passed** for a run that scored 66 and failed three chapters. Any human or agent grepping `apps/api/data/reports/` directly is equally exposed; that is exactly how this was found.
 
-**Severity: moderate, and it is a measurement bug, not a craft bug.** The reporting analogue of `report-total-cost-underreports-7x`: **never trust a persisted report read off disk without checking `in_progress` / `stale`.** The durable fix belongs on the **write** side — mark or rename the snapshot when finalization fails — because that protects every consumer at once instead of one script at a time.
+**ESCALATION — MEASURED while building the fix. It is not one run; it is all of them.**
+
+```
+mystery-1785175552068   in_progress: true   outcome: passed   phases: 13   score: 96
+run_e68c8118…           in_progress: true   outcome: failed   phases: 13   score: 74
+run_6dc1ee3a…           in_progress: true   outcome: failed   phases: 13   score: 74
+run_477bb27a…           in_progress: true   outcome: failed   phases: 13   score: 74
+```
+
+**Every report on disk is a partial snapshot.** All four carry the same 13 phases, ending at Narrative Outline (Agent 7) — **no Prose Generation phase, no rubric_score diagnostic, no release-gate data**. `has prose phase?: false` on all of them. **No run in this corpus has ever produced a finalized report.**
+
+Two consequences that matter more than the original finding:
+
+- `scripts/target80-ledger-row.mjs` exists to print rubric caps, categories, clue visibility and gate status from these files. **Those keys have never been present.** Any ledger row built from a report has been reading empty lookups — the `74 C` and `96 A` figures are *upstream-only* scores that stop before a single word of prose is written.
+- `report-repository.ts:106` skips `in_progress` snapshots when listing, so the repository's view of valid reports is **empty**.
+
+This also bounds §6: "Cast Design is the weakest phase in every run" is true, but it is weakest *within the upstream-only subset* — no report contains a prose phase for it to lose to.
+
+**Severity: high again, on the escalated evidence, and it is a measurement bug, not a craft bug.** The reporting analogue of `report-total-cost-underreports-7x`: **never trust a persisted report read off disk without checking `in_progress` / `stale`.** *Why* finalization fails on every run — not just the invariant seen on 07-27 — is open and is now the most valuable unanswered question on this board.
+
+**FIXED 2026-07-27 (both sides):**
+- **Write side** — `markStaleInProgressReport` in `mystery-orchestrator.ts` stamps `stale`, `incomplete`, `passed: false`, `run_outcome: "aborted"` and a reason onto the surviving partial when finalization throws, mirroring the field set the API applies on read so both paths agree. `in_progress` deliberately stays `true` so the repository keeps excluding it from listings. Best-effort; a failed marking can never fail a run (§2.8).
+- **Read side** — `target80-ledger-row.mjs` now refuses to score a partial snapshot, printing `*** PARTIAL / STALE SNAPSHOT — NOT A RUN RESULT ***` with the reason. Verified against all four reports on disk: every one is correctly rejected.
 
 Adjacent, MEASURED: all three 07-24 reports carry `release_gate_outcome: {"status":"unknown", …}` while reporting `run_outcome: failed` and `overall_score: 74 C`. Under `canary-core`'s shipped rule (`status ∈ {passed, warning}`), `unknown` is **not** shipped — so the same run can read "shipped" via one path and "not shipped" via another. The two definitions need reconciling.
 
@@ -223,9 +245,9 @@ This is also the first real test of the A_69 §9.5 telemetry fix — whether `fu
 
 ## 9. The board, ranked by (evidence × lift) ÷ cost
 
-0. **The `AGENT9_FULLSTORY_POLISH` needle/haystack bug** (§8.2) — measured by reproduction, one-line-class fix (normalize both sides), and it unblocks a lever two docs already believed was working. Highest ratio on the board.
-1. **`"In a remembered moment"` × 28** (§3) — measured, one-to-one causal, a phrase bank is near-zero cost and needs no LLM. The clearest craft win on the board.
-2. **Stale-report integrity** (§4) — measured; a run that scored 66 is on record as 96 A *on disk*. The API view is already protected (A_44 R5a); the gap is direct-file readers. Fix on the write side so every consumer is covered at once.
+0. **The `AGENT9_FULLSTORY_POLISH` needle/haystack bug** (§8.2) — **FIXED 2026-07-27.** Two sites, not one: the target-selection loop *and* the per-chapter `localPhrases` filter. Fixing only the first would have changed nothing — a chapter selected by phrase would still have been skipped. Re-run the A/B to get the craft answer that is still outstanding.
+1. **`"In a remembered moment"` × 28** (§3) — **FIXED 2026-07-27.** Deterministic 3-frame rotation, all gender-free (inferring he/she here walks back into the A_66 pronoun war), all accepted by both the local guard and `RECOLLECTION_FRAME_RE`.
+2. **Stale-report integrity** (§4) — **FIXED both sides 2026-07-27**, and the finding escalated on the way: *every* report on disk is a partial snapshot with no prose phase. **Why finalization fails on every run is now the top open question.**
 3. **Amend A_68 §8.1** (§2) — free; leaving it unamended means the next session spends £4–8 on a null A/B.
 4. **Red herrings = 0 / Cast Design quality 49** (§6) — measured, upstream of everything Agent 9 can fix; a mystery with no misdirection cannot score well on clues no matter how good the prose.
 5. **Content-filter instrumentation** (§5) — measured but low frequency; needs telemetry before it needs a fix.

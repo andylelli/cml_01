@@ -729,6 +729,43 @@ export async function generateMystery(
     }
   };
 
+  /**
+   * A_70 §4 — stamp terminal "this run never finished" markers onto the surviving partial snapshot.
+   *
+   * Mirrors the field set the API applies on read (A_44 R5a `finalizeStaleInProgressReport`) so a
+   * direct-file reader and an API reader agree about the same run. Keeps `in_progress: true` so the
+   * repository still excludes it from listings. Best-effort: any failure is swallowed.
+   */
+  const markStaleInProgressReport = async (reason: string): Promise<void> => {
+    if (!scoreAggregator || !reportRepository) return;
+    try {
+      const partial = scoreAggregator.generateReport({
+        story_id: runId,
+        started_at: new Date(startTime),
+        completed_at: new Date(),
+        user_id: projectId,
+      });
+      Object.assign(partial as any, {
+        in_progress: true,
+        stale: true,
+        stale_reason: "report_finalization_failed",
+        incomplete: true,
+        incomplete_reason:
+          `Run ended before the report was finalized (report generation failed: ${reason}). ` +
+          `Scores below cover only the phases that completed and MUST NOT be read as a run result.`,
+        passed: false,
+        run_outcome: "aborted",
+        scoring_outcome: {
+          ...(((partial as any).scoring_outcome as Record<string, unknown>) ?? {}),
+          passed_threshold: false,
+        },
+      });
+      await reportRepository.save(partial);
+    } catch {
+      /* best-effort — a failed marking must never fail the run */
+    }
+  };
+
   const proseScoringSnapshot: ProseScoringSnapshot = {
     startedAtMs: null,
     chaptersGenerated: 0,
@@ -1201,6 +1238,22 @@ export async function generateMystery(
         );
       } catch (reportError) {
         warnings.push(`Scoring report generation failed: ${describeError(reportError)}`);
+        // A_70 §4 — when finalization fails, the last in_progress partial stays on disk as the ONLY
+        // record of the run. Measured on mystery-1785175520689: the invariant
+        // `failed_phase_signal_cannot_have_passed_outcome` threw here, leaving a snapshot frozen
+        // before Agent 9 that reads `overall_score: 96, run_outcome: passed, 13/13 phases` for a run
+        // that actually scored 66 with three chapters failing validation.
+        //
+        // The API read path already corrects this (A_44 R5a finalizeStaleInProgressReport), but
+        // direct-file consumers do not — scripts/target80-ledger-row.mjs reads the JSON with a bare
+        // readFileSync and would record 96/A. Stamp the truth onto the artifact so every consumer
+        // sees it, not just the ones that go through the API.
+        //
+        // `in_progress` deliberately stays TRUE: report-repository skips in_progress snapshots when
+        // listing, and flipping it would promote this partial to a "real" report. We add the terminal
+        // markers alongside it. Best-effort throughout — this must never turn a bad report into a
+        // failed run (§2.8 never-abort).
+        await markStaleInProgressReport(describeError(reportError));
       }
     }
 

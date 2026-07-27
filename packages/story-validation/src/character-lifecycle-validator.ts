@@ -52,7 +52,10 @@ const clearanceOverturnedNear = (sentences: string[], index: number): boolean =>
 // `active_dialogue` for a deceased victim. Anchored to the sentence start so it cannot be
 // tripped by an incidental mid-sentence "remembered"; the deterministic victim rescue
 // emits exactly this frame ("In a remembered moment, ...") to clear a false reappearance.
-export const RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b|[A-Z][a-z]+ (?:remembered|recalled) (?:how|that|the)\b)/i;
+// A_70 §3 — `before the death` added so the rescue can ROTATE its frame instead of stamping one
+// phrase N times (measured: 28 identical openers in one shipped story). It is gender-free and places
+// the action unambiguously before the death, which is exactly the semantics this guard needs.
+export const RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before the death\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b|[A-Z][a-z]+ (?:remembered|recalled) (?:how|that|the)\b)/i;
 
 const normalizeName = (value: string): string => value.toLowerCase().replace(/\s+/g, ' ').trim();
 

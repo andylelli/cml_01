@@ -6,6 +6,19 @@ import fs from "fs";
 
 for (const p of process.argv.slice(2)) {
   const r = JSON.parse(fs.readFileSync(p, "utf8"));
+  // A_70 §4: a report left behind by a run whose finalization failed is a PARTIAL snapshot — it can
+  // read `overall_score: 96 / run_outcome: passed` for a run that actually scored 66 with chapters
+  // failing validation (measured: mystery-1785175520689). The API corrects this on read (A_44 R5a);
+  // this script reads the file directly, so it must check for itself. Loud, and never silently
+  // scored as a real row.
+  if (r.in_progress === true || r.stale === true || r.incomplete === true) {
+    console.log(`run=${r.run_id}`);
+    console.log(`  *** PARTIAL / STALE SNAPSHOT — NOT A RUN RESULT. Do not enter in the ledger. ***`);
+    console.log(`  reason=${r.stale_reason ?? r.incomplete_reason ?? "in_progress snapshot (run never finalized)"}`);
+    console.log(`  (upstream-only figures follow for diagnosis) score=${r.overall_score}/${r.overall_grade} phases_failed=${r.summary?.phases_failed ?? "-"}`);
+    console.log("");
+    continue;
+  }
   const gate = r.release_gate_outcome ?? {};
   const rub = (r.diagnostics ?? []).find((d) => d.key === "rubric_score")?.details ?? {};
   const gs = (r.diagnostics ?? []).find((d) => d.key === "agent9_prose_release_gate_summary")?.details ?? {};

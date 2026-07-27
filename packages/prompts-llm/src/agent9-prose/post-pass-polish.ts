@@ -7,6 +7,7 @@ import { parseProseResponse } from "./sanitization.js";
 import { assessNarrativeBalanceSignals, buildNarrativeBalanceBlock } from "./narrative-balance.js";
 import { formatStageModeLabel } from "./clue-validation.js";
 import { resolveStageModel } from "./model-tiering.js";
+import { tokenizeWords } from "./lint.js";
 import type { ProseChapter } from "./types.js";
 import type { ChapterRepairContext } from "./deterministic-repair.js";
 
@@ -259,6 +260,22 @@ export const polishPassingChapter = async (args: {
 
 const chapterFullText = (chapter: ProseChapter): string => (chapter.paragraphs ?? []).join("\n\n");
 
+/**
+ * A_70 §8.2 — the needle/haystack fix.
+ *
+ * `detectRecurringPhrases` emits NORMALIZED token n-grams (via `tokenizeWords`: lowercased,
+ * punctuation stripped, single-spaced) — e.g. `"clock running oddly earlier this afternoon chimes"`.
+ * This pass used to match them with a raw `.toLowerCase().includes()` against un-normalized chapter
+ * text. A 7-word n-gram nearly always spans a sentence break ("…this afternoon. Chimes not as
+ * usual…"), so the raw test could never match: measured 0/15 phrases on every arm of the A_70 A/B,
+ * which made the phrase half of the targeting a SILENT no-op (no error, no warning, zero LLM calls).
+ * Only the `repeatedOpenings` path ever fired — which is why A_69 §9.4 saw the pass vary words but
+ * not images.
+ *
+ * Run both sides through the SAME tokenizer so needle and haystack are comparable.
+ */
+const normalizedText = (text: string): string => tokenizeWords(text).join(" ");
+
 const OPENING_STOPWORDS = new Set([
   "the", "a", "an", "and", "but", "as", "of", "to", "in", "on", "it", "he", "she", "they", "there", "that", "this", "his", "her",
 ]);
@@ -399,11 +416,14 @@ export const runFullStoryRepetitionPolish = async (args: {
   chapters.forEach((ch, i) => {
     if (repeatedOpenings.includes(openingShape(ch))) targetIdx.add(i);
   });
+  // A_70 §8.2: normalize each chapter once, then match normalized needles against normalized text.
+  const normalizedChapters = chapters.map((ch) => normalizedText(chapterFullText(ch)));
   for (const phrase of phrases) {
-    const needle = phrase.toLowerCase();
+    const needle = normalizedText(phrase);
+    if (needle.length === 0) continue;
     let taken = 0;
     for (let i = 0; i < chapters.length && taken < cap; i++) {
-      if (chapterFullText(chapters[i]).toLowerCase().includes(needle)) {
+      if (normalizedChapters[i].includes(needle)) {
         targetIdx.add(i);
         taken += 1;
       }
@@ -416,7 +436,10 @@ export const runFullStoryRepetitionPolish = async (args: {
     const original = chapters[i];
     if (!Array.isArray(original?.paragraphs) || original.paragraphs.length === 0) continue;
     // Per-chapter: only surface the phrases/openings that actually appear here.
-    const localPhrases = phrases.filter((p) => chapterFullText(original).toLowerCase().includes(p.toLowerCase()));
+    // A_70 §8.2 — the SECOND site of the same needle/haystack bug. Fixing only the targeting loop
+    // above would not have helped: a chapter selected purely by phrase would arrive here, match
+    // nothing under the raw comparison, and be skipped by the `continue` below — still zero calls.
+    const localPhrases = phrases.filter((p) => normalizedChapters[i].includes(normalizedText(p)));
     const localOpening = repeatedOpenings.includes(openingShape(original)) ? [openingShape(original)] : [];
     if (localPhrases.length === 0 && localOpening.length === 0) continue;
 

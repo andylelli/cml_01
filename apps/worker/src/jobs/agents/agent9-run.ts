@@ -1945,8 +1945,26 @@ export const applyVictimReappearanceRescue = (
 // post-death chapters, it prepends an explicit recollection frame ("In a remembered moment,
 // ...") — minimal, grammatical, reversible — which the lifecycle validator now treats as a
 // flashback rather than a live appearance (RECOLLECTION_FRAME_RE), clearing the false reappearance.
-const VICTIM_RECOLLECTION_PREFIX = "In a remembered moment, ";
-const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
+// A_70 §3 — frame VARIETY, not a single stock opener.
+//
+// Measured: this one prefix shipped 28 times in `the_bell_tower_s_last_chime.md` (the 79) and 4 times
+// in the 2026-07-27 run — the most-repeated machine phrase in the corpus, and a deterministic
+// injection rather than an LLM tic. The polish prompt names it and asks the LLM to remove it
+// ([post-pass-polish.ts:107]) but polish runs INSIDE generateProse, ~1,600 lines before this
+// injection — it is told to delete a phrase that does not exist yet. So the fix belongs here.
+//
+// Every frame below must be accepted by BOTH the local guard and story-validation's
+// RECOLLECTION_FRAME_RE, or the validator still sees a live appearance and the run risks an abort.
+// All three are gender-free by design: inferring he/she here would walk straight back into the A_66
+// pronoun war. Rotation is deterministic (by repair index), never random, so runs stay reproducible.
+const VICTIM_RECOLLECTION_FRAMES = [
+  "In a remembered moment, ",
+  "In life, ",
+  "Before the death, ",
+] as const;
+/** Retained as the canonical first frame; rotation starts here. */
+const VICTIM_RECOLLECTION_PREFIX = VICTIM_RECOLLECTION_FRAMES[0];
+const VICTIM_RECOLLECTION_FRAME_RE = /^\s*(?:in a remembered moment\b|in life\b|before the death\b|before (?:she|he|they) (?:died|was killed|was murdered)\b|the memory of\b)/i;
 
 /**
  * A_50 §8 rank 3: match a victim by full name, surname, or possessive — parity with the lifecycle
@@ -2021,7 +2039,10 @@ export const applyCanonicalVictimRescue = (
           if (chapterNumber < issue.deadByChapter) continue;
           const namePattern = namePatterns.get(issue.characterName) ?? victimSentencePattern(issue.characterName);
           if (!namePattern.test(sentence)) continue;
-          sentence = VICTIM_RECOLLECTION_PREFIX + sentence.replace(/^\s+/, "");
+          // A_70 §3: rotate the frame so N reframes in one story do not read as one stamped phrase.
+          sentence =
+            VICTIM_RECOLLECTION_FRAMES[repairCount % VICTIM_RECOLLECTION_FRAMES.length] +
+            sentence.replace(/^\s+/, "");
           changed = true;
           repairCount += 1;
           reframed.add(issue.characterName);
