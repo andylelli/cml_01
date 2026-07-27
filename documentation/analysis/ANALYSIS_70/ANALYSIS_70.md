@@ -81,7 +81,11 @@ The run's *actual* outcome: internal rubric **66**, three chapters failing valid
 
 **Root cause, MEASURED from the warning:** *"Scoring report generation failed: GenerationReport invariant violation(s): `failed_phase_signal_cannot_have_passed_outcome`: Failed phase signals … are incompatible with `run_outcome=passed`."* The final report refused to serialise, and **nothing rolled back or marked the stale one** — so the in-progress artifact became the record of the run.
 
-**Severity: high, and it is a measurement bug, not a craft bug.** Every score-tracking path that reads reports (`target80-ledger-row.mjs`, any external audit of "how are we doing") will read **96 A / passed** for a run that scored 66 and failed three chapters. This is the reporting analogue of `report-total-cost-underreports-7x`: **do not trust a persisted report without checking `in_progress`.**
+**CORRECTION to an earlier draft of this section, which overstated the blast radius.** The **API serving path is already protected**: ANALYSIS_44 R5a's `finalizeStaleInProgressReport` ([server.ts:1336](../../apps/api/src/server.ts#L1336)) detects a stale `in_progress` snapshot and flips it to `run_outcome: "aborted"`, `passed: false`, `stale: true`, with an explicit `incomplete_reason`. That machinery works and needs nothing.
+
+**The real, narrower gap is direct-file consumers.** `scripts/target80-ledger-row.mjs` reads the report with a bare `fs.readFileSync` ([:8](../../scripts/target80-ledger-row.mjs#L8)) and checks neither `in_progress` nor `stale` — so it will read **96 A / passed** for a run that scored 66 and failed three chapters. Any human or agent grepping `apps/api/data/reports/` directly is equally exposed; that is exactly how this was found.
+
+**Severity: moderate, and it is a measurement bug, not a craft bug.** The reporting analogue of `report-total-cost-underreports-7x`: **never trust a persisted report read off disk without checking `in_progress` / `stale`.** The durable fix belongs on the **write** side — mark or rename the snapshot when finalization fails — because that protects every consumer at once instead of one script at a time.
 
 Adjacent, MEASURED: all three 07-24 reports carry `release_gate_outcome: {"status":"unknown", …}` while reporting `run_outcome: failed` and `overall_score: 74 C`. Under `canary-core`'s shipped rule (`status ∈ {passed, warning}`), `unknown` is **not** shipped — so the same run can read "shipped" via one path and "not shipped" via another. The two definitions need reconciling.
 
@@ -221,7 +225,7 @@ This is also the first real test of the A_69 §9.5 telemetry fix — whether `fu
 
 0. **The `AGENT9_FULLSTORY_POLISH` needle/haystack bug** (§8.2) — measured by reproduction, one-line-class fix (normalize both sides), and it unblocks a lever two docs already believed was working. Highest ratio on the board.
 1. **`"In a remembered moment"` × 28** (§3) — measured, one-to-one causal, a phrase bank is near-zero cost and needs no LLM. The clearest craft win on the board.
-2. **Stale-report integrity** (§4) — measured; a run that scored 66 is on record as 96 A. Cheap to fix (mark or delete the in-progress artifact when the final report fails), and until it is, every score-tracking number is suspect.
+2. **Stale-report integrity** (§4) — measured; a run that scored 66 is on record as 96 A *on disk*. The API view is already protected (A_44 R5a); the gap is direct-file readers. Fix on the write side so every consumer is covered at once.
 3. **Amend A_68 §8.1** (§2) — free; leaving it unamended means the next session spends £4–8 on a null A/B.
 4. **Red herrings = 0 / Cast Design quality 49** (§6) — measured, upstream of everything Agent 9 can fix; a mystery with no misdirection cannot score well on clues no matter how good the prose.
 5. **Content-filter instrumentation** (§5) — measured but low frequency; needs telemetry before it needs a fix.
