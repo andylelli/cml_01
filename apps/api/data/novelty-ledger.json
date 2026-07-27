@@ -52,6 +52,32 @@
       "discrimMethod": "constraint_proof",
       "discrimDesign": "Demonstrate by controlled temperature simulation and gate latch observation that the garden gate’s bolt cannot be released before 1:45 pm, contradicting witness statements. Then cross-reference servants’ timeline inconsistencies and James Porter’s exclusive latch knowledge to prove only he could have exploited this delay to commit the murder.",
       "premise": "At Wentworth Manor, Lady Beatrice Wentworth is found dead, struck by a heavy brass garden gate bolt. Witnesses unanimously claim to have seen her enter the garden grounds at noon, but physical evidence and mechanical timing contradict this. Inspector Evelyn Harcourt uncovers a deception embedded in the thermal expansion delay of the garden gate’s brass latch, exposing a false timeline created by manipulated memories and overlooked physical laws. Through careful reconstruction and social scrutiny, the truth emerges: the butler, James Porter, exploited the garden gate’s delayed bolt release to commit murder, hiding the true time of death and misdirecting suspicion."
+    },
+    {
+      "id": "run_6dc1ee3a-ae3c-453e-9644-090754bf4ca3",
+      "title": "The Bell Tower's Last Chime",
+      "era": "1930s",
+      "location": "Langley Manor",
+      "crimeSubtype": "delayed acoustic timeline murder",
+      "deathMethod": "struck with a heavy brass choir bell clapper",
+      "axis": "temporal",
+      "falseAssumption": "The manor’s choir bell chimed immediately upon being struck, so the time it was heard corresponds exactly to the time of the bell strike and thus the murder.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "A controlled ringing of the choir bell is staged in the presence of witnesses, with prior measurement of the echo chamber’s acoustic delay and observation of the muffling pad’s effect. The test proves the bell’s strike time does not match the sound heard by listeners, exposing the false auditory timeline and implicating only someone with access to the bell tower during the critical window.",
+      "premise": "On a foggy autumn evening in 1930s Yorkshire, Lady Beatrice Langley is found dead in her chambers. Witnesses swear the manor's choir bell rang the hour after her death, suggesting a timeline that contradicts physical evidence. Inspector Gerald Havers must unravel the truth behind the acoustic deception and social tensions to reveal the murderer among family and staff."
+    },
+    {
+      "id": "run_477bb27a-9d95-4577-96b8-9f1ce53e9e89",
+      "title": "The Sundial’s Frozen Shadow",
+      "era": "1930s",
+      "location": "English countryside",
+      "crimeSubtype": "struck with heavy copper sundial gnomon",
+      "deathMethod": "struck with heavy copper sundial gnomon",
+      "axis": "temporal",
+      "falseAssumption": "The victim was alive until at least twenty past ten, as indicated by the sundial’s shadow position and multiple witness sightings in the garden.",
+      "discrimMethod": "constraint_proof",
+      "discrimDesign": "By comparing the exact stopped time on Lady Beatrice’s watch with the sundial shadow position and measuring the copper plate contraction from ambient temperature, the test proves the victim’s death occurred earlier than the sundial’s indicated time, invalidating Charles Pembroke’s alibi which depends on the false later timeline.",
+      "premise": "On a cool autumn morning at the isolated Ellsworth Manor in Yorkshire, Lady Beatrice Ellsworth was found dead, struck by the manor's heavy copper sundial gnomon. Initial witness testimonies and the sundial's shadow suggested she was alive well into the late morning. Inspector Harold Wren's meticulous investigation reveals that thermal contraction of the sundial's copper plate shifted the shadow, misleading everyone about the time of death. This false timeline concealed the murderer’s exact opportunity. Through careful analysis of environmental clues and witness statements, Inspector Wren unravels the true sequence of events, exposing Charles Pembroke, the estate manager, who exploited the manor’s physical and social constraints to commit murder."
     }
   ]
 }
