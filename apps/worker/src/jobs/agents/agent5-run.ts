@@ -62,6 +62,39 @@ type StrictPromptFeedbackPayload = {
   requiredDirectCulpritClue?: { id: string; culpritName: string; allowedSourcePaths: string[]; requiredPhrases: string[] };
 };
 
+/**
+ * A_71 (A_70 §6) — the misdirection budget, named once.
+ *
+ * `2` was hard-coded at four separate `extractWithAttempt` call sites, which is how the value could
+ * be honoured as a ceiling everywhere and as a floor nowhere. `RED_HERRING_FLOOR` is the point below
+ * which the mystery has no misdirection at all and a bounded regeneration is worth a call; a
+ * shortfall of 1-against-2 is logged, not retried.
+ */
+const RED_HERRING_BUDGET = 2;
+const RED_HERRING_FLOOR = 1;
+
+/**
+ * The floor decision, extracted so the branch is testable without an LLM.
+ *
+ * `redHerrings` is whatever came back from the model — the array may be absent, null, or a
+ * non-array on a malformed response, and every one of those is "no misdirection", not "skip the
+ * check". Reads the flag at call time, never at module load
+ * (`module-const-flags-frozen-before-dotenv`).
+ */
+export function assessRedHerringFloor(
+  redHerrings: unknown,
+  env: NodeJS.ProcessEnv = process.env,
+): { enabled: boolean; count: number; needsRepair: boolean; shortOfBudget: boolean } {
+  const enabled = !/^(0|off|false|no)$/i.test(env.AGENT5_RED_HERRING_FLOOR ?? "");
+  const count = Array.isArray(redHerrings) ? redHerrings.length : 0;
+  return {
+    enabled,
+    count,
+    needsRepair: enabled && count < RED_HERRING_FLOOR,
+    shortOfBudget: count < RED_HERRING_BUDGET,
+  };
+}
+
 const RH_OVERLAP_STOP_WORDS = new Set([
   "therefore", "because", "suggests", "suggested", "indicates", "indicated", "through", "before", "after", "during", "reader", "should", "could", "would", "their", "about", "which", "while", "where", "when", "being", "shows", "found", "noted",
 ]);
@@ -3307,7 +3340,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
   const cluesInputBase = {
     cml: ctx.cml!,
     clueDensity,
-    redHerringBudget: 2,
+    redHerringBudget: RED_HERRING_BUDGET,
     fairPlayFeedback: mergeStrictPromptFeedback(proactiveFirstPassFeedback),
     // A_65b Ph6 — the strict structural contract, FIRST-PASS. The merge above carries it only
     // into the retry-mode prompt block (which renders only when violations/warnings exist — a
@@ -3402,7 +3435,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       clues = await extractWithAttempt({
         cml: ctx.cml!,
         clueDensity,
-        redHerringBudget: 2,
+        redHerringBudget: RED_HERRING_BUDGET,
         fairPlayFeedback: mergeStrictPromptFeedback({
           overallStatus: "fail",
           violations: [
@@ -3536,7 +3569,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       clues = await extractWithAttempt({
         cml: ctx.cml!,
         clueDensity,
-        redHerringBudget: 2,
+        redHerringBudget: RED_HERRING_BUDGET,
         fairPlayFeedback: mergeStrictPromptFeedback(coverageFeedback),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -3625,7 +3658,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       clues = await extractWithAttempt({
         cml: ctx.cml!,
         clueDensity,
-        redHerringBudget: 2,
+        redHerringBudget: RED_HERRING_BUDGET,
         fairPlayFeedback: mergeStrictPromptFeedback(suspectCoverageFeedback),
         runId: ctx.runId,
         projectId: ctx.projectId || "",
@@ -3679,6 +3712,89 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
+  // ── A_71 (A_70 §6) — the red-herring FLOOR ────────────────────────────────────────────────────
+  //
+  // MEASURED: the 07-27 run shipped with **0 red herrings** where all three 07-24 runs produced 2.
+  // A fair-play mystery with no red herrings has no misdirection field at all — the reader has
+  // nothing to be wrong about — and that run scored `clues: 5/10`.
+  //
+  // The cause is that `redHerringBudget` was only ever enforced as a CEILING:
+  // `redHerringsDontBreakLogic: redHerrings.length <= budget` (agent5-clues.ts). Zero satisfies it.
+  // Every other Agent-5 shortfall (suspect coverage, clue coverage) has a floor; misdirection did
+  // not, so an LLM that simply omitted the array shipped unchallenged.
+  //
+  // Shape follows the suspect-coverage precedent directly above: ONE bounded regeneration with
+  // feedback naming the shortfall, then continue with a loud warning either way. No abort path —
+  // a missing red herring is a quality defect, not a fair-play violation (§2.8 never-abort). No
+  // deterministic synthesis: a fabricated red herring is exactly the template-injection class
+  // A_67/A_68 spent two boards removing from prose.
+  //
+  // Off-switch: AGENT5_RED_HERRING_FLOOR=false. Runtime getter, never a module const
+  // (`module-const-flags-frozen-before-dotenv`).
+  const redHerringFloor = assessRedHerringFloor(clues.redHerrings);
+  const redHerringCount = redHerringFloor.count;
+  if (redHerringFloor.needsRepair) {
+    ctx.warnings.push(
+      `Agent 5 red-herring floor: ${redHerringCount} red herring(s) against a budget of ${RED_HERRING_BUDGET} — ` +
+        `a mystery with no misdirection has no false trail for the reader to follow`,
+    );
+
+    if (llmRetriesEnabled) {
+      const redHerringFloorStart = Date.now();
+      agent5RetryInvoked = true;
+      ctx.reportProgress("clues", "Regenerating clues to restore red herrings...", 60);
+      const beforeCount = redHerringCount;
+      clues = await extractWithAttempt({
+        cml: ctx.cml!,
+        clueDensity,
+        redHerringBudget: RED_HERRING_BUDGET,
+        fairPlayFeedback: mergeStrictPromptFeedback({
+          overallStatus: "fail",
+          violations: [
+            {
+              severity: "critical" as const,
+              rule: "Red Herring Budget",
+              description:
+                `The previous response returned ${beforeCount} red herring(s); ${RED_HERRING_BUDGET} were requested. ` +
+                `Without them the reader has no plausible wrong answer to be drawn toward.`,
+              suggestion:
+                `Populate redHerrings[] with ${RED_HERRING_BUDGET} entries that each support the false assumption ` +
+                `and point at a non-culprit, without reusing correction language from the true solution.`,
+            },
+          ],
+          warnings: [],
+          recommendations: [
+            "Every red herring must support the false assumption, never the true solution",
+            "A red herring should make an innocent suspect look plausible on the evidence available at that point",
+            "Red herrings are separate from clues — populate redHerrings[], do not relabel existing clues",
+          ],
+        }),
+        runId: ctx.runId,
+        projectId: ctx.projectId || "",
+      });
+      ctx.agentCosts["agent5_clues"] = (ctx.agentCosts["agent5_clues"] || 0) + clues.cost;
+      ctx.agentDurations["agent5_clues"] =
+        (ctx.agentDurations["agent5_clues"] || 0) + (Date.now() - redHerringFloorStart);
+
+      const postFloorGuardrails = applyClueGuardrails(ctx.cml!, clues);
+      postFloorGuardrails.fixes.forEach((fix) =>
+        ctx.warnings.push(`Post-red-herring-floor guardrail auto-fix: ${fix}`),
+      );
+
+      const afterCount = Array.isArray(clues.redHerrings) ? clues.redHerrings.length : 0;
+      ctx.warnings.push(
+        afterCount >= RED_HERRING_FLOOR
+          ? `Agent 5 red-herring floor: restored ${afterCount} red herring(s) after regeneration`
+          : `Agent 5 red-herring floor still unmet after regeneration (${afterCount}); continuing — the story ships without misdirection`,
+      );
+    }
+  } else if (redHerringFloor.enabled && redHerringFloor.shortOfBudget) {
+    // Above the floor but under budget: worth a number, not worth an LLM call.
+    ctx.warnings.push(
+      `Agent 5 red-herring budget: ${redHerringCount}/${RED_HERRING_BUDGET} red herrings (above the floor; not regenerated)`,
+    );
+  }
+
   // Red-herring separation hardening: if a red herring semantically overlaps with
   // true-solution correction language, run one bounded regeneration pass and hard-fail
   // if overlap still persists.
@@ -3725,7 +3841,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
       clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
-      redHerringBudget: 2,
+      redHerringBudget: RED_HERRING_BUDGET,
       fairPlayFeedback: mergeStrictPromptFeedback({
         overallStatus: "fail",
         violations: initialRedHerringOverlapIds.map((id: string) => ({
@@ -3956,7 +4072,7 @@ export async function runAgent5(ctx: OrchestratorContext): Promise<void> {
     clues = await extractWithAttempt({
       cml: ctx.cml!,
       clueDensity,
-      redHerringBudget: 2,
+      redHerringBudget: RED_HERRING_BUDGET,
       fairPlayFeedback: mergeStrictPromptFeedback({
         overallStatus: "fail",
         violations: [

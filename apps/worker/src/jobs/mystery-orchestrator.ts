@@ -614,7 +614,26 @@ async function runRubricScoring(args: {
       overall_view: r.rubric.overall_view,
       main_problems: r.rubric.main_problems,
       fastest_fixes: r.rubric.fastest_fixes,
+      // A_71 (A_70 §6) — attribute the score to the model that produced it.
+      //
+      // A_70 measured the judge running on `gpt-4o-mini`, the cheapest deployed model, and filed it
+      // under A_67 §3.2's open "internal-judge sensitivity unproven". The lever to fix that
+      // (`RUBRIC_JUDGE_MODEL`) has existed since K2 §3 — but while it is unset the judge silently
+      // inherits `AZURE_OPENAI_DEPLOYMENT_NAME`, so changing the BASE model retunes the scale that
+      // gates and caps the whole pipeline, with nothing on the artifact to say it moved. Every
+      // cross-run rubric comparison in the ledger assumes a fixed judge; this records whether it was.
+      judge_model: model,
+      judge_model_explicit: Boolean(process.env.RUBRIC_JUDGE_MODEL),
+      judge_model_source: process.env.RUBRIC_JUDGE_MODEL
+        ? "RUBRIC_JUDGE_MODEL"
+        : "AZURE_OPENAI_DEPLOYMENT_NAME (inherited)",
     });
+    if (!process.env.RUBRIC_JUDGE_MODEL) {
+      args.warnings.push(
+        `Final-story rubric: judge model "${model}" inherited from AZURE_OPENAI_DEPLOYMENT_NAME — ` +
+          `set RUBRIC_JUDGE_MODEL to pin the scale that gates and caps the pipeline`,
+      );
+    }
   } catch (e) {
     args.warnings.push(`Rubric scoring skipped: ${describeError(e)}`);
   }
@@ -713,6 +732,19 @@ export async function generateMystery(
     runLogger.logProgress(stage, message, warnings, errors);
   };
 
+  /**
+   * A_71 — an unfinished snapshot must never read as a run result.
+   *
+   * A_70 §4 fixed ONE exit path: `markStaleInProgressReport` stamps the truth when report
+   * finalization throws. Every other way a run can end — a crash, a hard-stop whose own save
+   * fails, the 0xC0000409 process abort of A_70 §8.5, a power loss — left the partial exactly as
+   * written: `run_outcome: passed`, `overall_score: 96`, `phases: 13/13`. MEASURED: 7 of the 9
+   * reports on disk are stranded partials of that shape.
+   *
+   * The structural fix is to make the artifact honest AT WRITE TIME rather than to add another
+   * cleanup path for each new way a process can die. A partial now says what it is in the same
+   * fields a naive reader looks at first.
+   */
   const savePartialReport = async () => {
     if (!scoreAggregator || !reportRepository) return;
     try {
@@ -722,7 +754,20 @@ export async function generateMystery(
         completed_at: new Date(),
         user_id: projectId,
       });
-      (partial as any).in_progress = true;
+      Object.assign(partial as any, {
+        in_progress: true,
+        incomplete: true,
+        incomplete_reason:
+          "Live snapshot written while the run was still executing. Scores cover only the phases " +
+          "completed so far and MUST NOT be read as a run result.",
+        passed: false,
+        run_outcome: "in_progress",
+        run_outcome_reason: "Run still in progress when this snapshot was written",
+        scoring_outcome: {
+          ...(((partial as any).scoring_outcome as Record<string, unknown>) ?? {}),
+          passed_threshold: false,
+        },
+      });
       await reportRepository.save(partial);
     } catch {
       /* best-effort */
@@ -1197,6 +1242,38 @@ export async function generateMystery(
       projectId,
       discriminatingPair: ctx.discriminatingContradiction ?? null,
     });
+
+    // A_71 (A_70 §5) — surface the content-filter refusal tally. Measured on the 07-27 run: 10
+    // refusals, all `Agent9-Regen-Ch*-missing_clue`, visible ONLY in raw logs. The never-abort gate
+    // held and the story shipped, which is exactly why the class needs a number: it is invisible in
+    // every artifact, premise-dependent (it recurs on the blunt-force-plus-staining story family),
+    // and it injects unmodelled variance into any A/B whose replays regenerate that prose.
+    const contentFilterSummary = client.getContentFilterTracker?.().getSummary();
+    if (contentFilterSummary && contentFilterSummary.total > 0) {
+      const families = Object.entries(contentFilterSummary.byFamily)
+        .sort((a, b) => b[1] - a[1])
+        .map(([family, count]) => `${family} ×${count}`)
+        .join(", ");
+      warnings.push(
+        `Content filter: ${contentFilterSummary.total} Azure refusal(s) — ${families}. ` +
+          `The pipeline generated content its own next call refused; affected regens fell back to the deterministic backstop.`
+      );
+    }
+    if (enableScoring && scoreAggregator && contentFilterSummary) {
+      scoreAggregator.upsertDiagnostic(
+        "content_filter_refusals",
+        "orchestrator",
+        "Content Filter",
+        "content_filter_refusals",
+        {
+          total: contentFilterSummary.total,
+          by_agent: contentFilterSummary.byAgent,
+          by_family: contentFilterSummary.byFamily,
+          // Bounded sample: enough to identify the prompt family without copying the whole log.
+          samples: contentFilterSummary.refusals.slice(0, 10),
+        }
+      );
+    }
 
     // ── Complete ─────────────────────────────────────────────────────────────
     const totalDurationMs = Date.now() - startTime;

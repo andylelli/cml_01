@@ -554,6 +554,35 @@ const buildDeterministicClearanceParagraph = (
   return frames[pick];
 };
 
+/**
+ * A_71 — a per-run tally of clearance paragraphs this module actually pasted into shipped prose.
+ *
+ * WHY IT IS HERE AND NOT AT A CALL SITE. A_70 §2 measured `enforceSuspectEliminationPresence`
+ * (agent9-run.ts) firing 0/14 shipped stories and concluded "the injector is not the source" of the
+ * report-style clearance prose the external reviews keep flagging. That measurement is correct — and
+ * still holds at 0/18 including the four 07-31 stories — but it was taken on the wrong body. The
+ * prose the 07-31 reviewers quoted comes from `buildDeterministicClearanceParagraph`, right here,
+ * which has THREE call sites: the generate.ts pre-retry shortcut (suppressed when
+ * AGENT9_REGEN_SUSPECT_ELIM is on), `repairChapterDeterministically` (gated by
+ * `args.applyClearancePatch`), and `applyDeterministicStagePatches` (gated only by having
+ * clearances). Counting at any ONE of them reproduces exactly the mistake that made A_70 §2's
+ * conclusion point at the wrong code — so the counter lives at the choke point every path crosses.
+ *
+ * Read it once per run and reset; the worker generates one story at a time.
+ */
+let clearancePasteCount = 0;
+let clearancePasteSuspects: string[] = [];
+
+export const getDeterministicClearancePasteTelemetry = (): {
+  count: number;
+  suspects: string[];
+} => ({ count: clearancePasteCount, suspects: [...clearancePasteSuspects] });
+
+export const resetDeterministicClearancePasteTelemetry = (): void => {
+  clearancePasteCount = 0;
+  clearancePasteSuspects = [];
+};
+
 export const applyDeterministicClearancePatch = (
   chapter: ProseChapter,
   clearances: MatchingClearance[],
@@ -577,6 +606,8 @@ export const applyDeterministicClearancePatch = (
     return { chapter, insertedSuspects: [] };
   }
   paragraphs.splice(insertionIndex, 0, ...additions);
+  clearancePasteCount += additions.length;
+  clearancePasteSuspects.push(...insertedSuspects);
   return {
     chapter: {
       ...chapter,

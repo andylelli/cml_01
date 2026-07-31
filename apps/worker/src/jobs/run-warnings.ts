@@ -31,6 +31,10 @@ const INFO_PREFIXES: ReadonlyArray<string> = [
   // shadow instruments reporting scores — measurements, not defects
   "Clue-spec (shadow):",
   "Final-story rubric (shadow):",
+  // A_71 — which model judged the run. Configuration telemetry, not a defect: it fires on every
+  // run where RUBRIC_JUDGE_MODEL is unset, and banding it `warn` would put a permanent false
+  // defect on the status line of every clean run.
+  "Final-story rubric: judge model",
   "[Novelty skeleton-judge SHADOW]",
   // expected, successful contract actions (stamps of designed behavior — NOT deficiency
   // responses: the discovery-tell line, by contrast, fires only when a tell was MISSING and

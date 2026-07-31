@@ -124,6 +124,7 @@ describe("agent6-run flow", () => {
         allEssentialCluesPresent: true,
         noNewFactsIntroduced: true,
         redHerringsDontBreakLogic: true,
+        redHerringBudgetMet: true,
       },
       cost: 0.02,
     });
@@ -296,6 +297,7 @@ describe("agent6-run flow", () => {
         allEssentialCluesPresent: true,
         noNewFactsIntroduced: true,
         redHerringsDontBreakLogic: true,
+        redHerringBudgetMet: true,
       },
       cost: 0.01,
     });

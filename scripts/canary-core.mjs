@@ -163,7 +163,14 @@ try {
 // Fallback to result.status only when no gate outcome exists (scoring disabled).
 const integrityFailed = integrityAssertionFailures.length > 0;
 const gateStatus = result.scoringReport?.release_gate_outcome?.status;
-const shipped = gateStatus === "passed" || gateStatus === "warning";
+// A_71: prefer the report's own `shipped` field — one derivation, computed at report time — and
+// re-derive only for pre-A_71 reports that predate the field. The hand-copied rule below is what
+// let the same run read "shipped" here and "not shipped" elsewhere (A_70 §4).
+const recordedShipped = result.scoringReport?.release_gate_outcome?.shipped;
+const shipped =
+  typeof recordedShipped === "boolean"
+    ? recordedShipped
+    : gateStatus === "passed" || gateStatus === "warning";
 const hardFailed = gateStatus ? !shipped : result.status === "failure";
 console.log("CANARY_RELEASE_GATE", gateStatus ?? "unknown");
 process.exit(hardFailed || integrityFailed ? 1 : 0);

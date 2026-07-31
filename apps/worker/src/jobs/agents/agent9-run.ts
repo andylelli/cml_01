@@ -68,6 +68,8 @@ import {
   resolveFullStoryDiagnosticMode,
   runFullStoryDiagnostic,
   applyFullStoryDiagnosticFindings,
+  getDeterministicClearancePasteTelemetry,
+  resetDeterministicClearancePasteTelemetry,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -3560,6 +3562,11 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     workspaceRoot,
   } = ctx;
 
+  // A_71 — the clearance-paste tally is module-level state in @cml/prompts-llm. Reset per run so a
+  // replay harness that calls runAgent9 twice in one process cannot carry the first run's count
+  // into the second and make a probe read as a change it never was.
+  resetDeterministicClearancePasteTelemetry();
+
   if (!ctx.cml || !ctx.cast || !ctx.characterProfiles || !ctx.locationProfiles || !ctx.temporalContext || !ctx.hardLogicDevices || !ctx.narrative || !ctx.clues || !ctx.coverageResult || !ctx.outlineCoverageIssues) {
     throw new Error("Agent 9 precondition failed: missing required upstream artifacts before prose generation.");
   }
@@ -5149,6 +5156,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const phraseTelemetry = (prose.validationDetails as any)?.phraseTelemetry;
       const integrityTelemetry = (prose.validationDetails as any)?.integrityTelemetry;
       const phraseRolloutFlags = phraseTelemetry?.rolloutFlags ?? {};
+      const clearancePasteTelemetry = getDeterministicClearancePasteTelemetry();
       return {
         template_linter_checks_run: linter?.checksRun ?? 0,
         template_linter_failed_checks: linter?.failedChecks ?? 0,
@@ -5170,6 +5178,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         semantic_rewrite_diff_blocks_count:
           integrityTelemetry?.semanticRewriteDiffBlocks ?? 0,
         entity_pronoun_drift_count: entityPronounDriftCount,
+        // A_71 — the AGENT9_REGEN_SUSPECT_ELIM probe's read path. A_70 §2 measured the WRONG
+        // injector (enforceSuspectEliminationPresence, 0/14 and still 0/18) and concluded the
+        // clearance prose had no injector source. It has one: buildDeterministicClearanceParagraph
+        // in deterministic-repair.ts, across three call sites. This counts what actually shipped.
+        deterministic_clearance_paste_count: clearancePasteTelemetry.count,
+        deterministic_clearance_paste_suspects: clearancePasteTelemetry.suspects,
         culprit_gate_alias_matches_count: culpritGateAliasMatchesCount,
         culprit_gate_false_positive_count: culpritGateFalsePositiveCount,
         phrase_telemetry_recurring_phrase_count: phraseTelemetry?.recurringPhraseCount ?? 0,

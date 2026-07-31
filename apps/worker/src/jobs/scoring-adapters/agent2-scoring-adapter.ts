@@ -41,9 +41,19 @@ export function adaptCastForScoring(castDesign: CastDesign): CastDesignOutput {
   const redHerrings = Array.isArray((castDesign as any)?.crimeDynamics?.redHerrings)
     ? (castDesign as any).crimeDynamics.redHerrings
     : [];
-  const relationshipPairs: RelationshipPair[] = Array.isArray((castDesign as any)?.relationships?.pairs)
-    ? (castDesign as any).relationships.pairs as RelationshipPair[]
-    : [];
+  // A_71 (A_70 §6) — accept BOTH shapes.
+  //
+  // `normalizeRelationshipWeb` now coerces at the source, but this adapter also runs over hydrated
+  // artifacts from prior runs (A/B replays read a stored castDesign), and those hold the raw bare
+  // array the model actually emits. Reading only `.pairs` is what produced an empty relationship
+  // list for every character and pinned Cast Design's quality score at 60 with two 0-scored tests —
+  // on a cast that had 9–15 fully-formed relationships. MEASURED across three runs.
+  const rawRelationships = (castDesign as any)?.relationships;
+  const relationshipPairs: RelationshipPair[] = Array.isArray(rawRelationships)
+    ? (rawRelationships as RelationshipPair[])
+    : Array.isArray(rawRelationships?.pairs)
+      ? (rawRelationships.pairs as RelationshipPair[])
+      : [];
 
   const cast: CastMember[] = castDesign.characters.map(ch => {
     // Derive culprit eligibility from the crimeDynamics block

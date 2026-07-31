@@ -13,7 +13,13 @@ function toNumber(value: unknown): number {
 
 function getCanonicalOutcome(report: Record<string, unknown>): RunOutcome | undefined {
   const explicit = report.run_outcome;
-  if (explicit === 'passed' || explicit === 'failed' || explicit === 'aborted' || explicit === 'infra_failure') {
+  if (
+    explicit === 'passed' ||
+    explicit === 'failed' ||
+    explicit === 'aborted' ||
+    explicit === 'infra_failure' ||
+    explicit === 'in_progress'
+  ) {
     return explicit;
   }
 
@@ -237,16 +243,49 @@ export function validateGenerationReportInvariants(
     }
   }
 
+  // A_71 §1 — this invariant predates A_65b Ph1.3 and, until now, directly contradicted it.
+  //
+  // Ph1.3 redefined `run_outcome`: it derives from the RELEASE GATE (gate ∈ {passed, warning} =
+  // the story SHIPPED ⇒ 'passed') and the phase-threshold verdict was demoted to its own field,
+  // `phase_thresholds_met`. So "shipped, but some phase missed its threshold" became a legitimate,
+  // designed state — and this check still called it a violation. `save()` asserts invariants, so
+  // the throw meant the finalized report was NEVER WRITTEN and the misleading `in_progress`
+  // partial survived as the only record of the run.
+  //
+  // MEASURED (A_71): 7 of 9 reports on disk are stranded partials, and Cast Design fails its
+  // threshold on every run (A_70 §6, quality ≈ 49) — so any shipped run tripped this. The two
+  // reports that finalized are exactly the two with `phases_failed: 0`.
+  //
+  // The genuine contradiction is narrower: claiming every threshold was met while a phase reports
+  // failure. That is what we assert now. A report with no `phase_thresholds_met` field is
+  // pre-Ph1.3 and keeps the old conservative reading.
   if (outcome === 'passed' && hasFailedPhaseSignals(candidate)) {
-    violations.push({
-      code: 'failed_phase_signal_cannot_have_passed_outcome',
-      message:
-        'Failed phase signals (phases[].passed=false or summary.phases_failed>0) are incompatible with run_outcome=passed.',
-    });
+    const thresholdsMet = candidate.phase_thresholds_met;
+    if (thresholdsMet === true) {
+      violations.push({
+        code: 'phase_thresholds_met_contradicts_failed_phase_signal',
+        message:
+          'phase_thresholds_met=true is incompatible with failed phase signals (phases[].passed=false or summary.phases_failed>0).',
+      });
+    } else if (thresholdsMet === undefined) {
+      violations.push({
+        code: 'failed_phase_signal_cannot_have_passed_outcome',
+        message:
+          'Failed phase signals (phases[].passed=false or summary.phases_failed>0) are incompatible with run_outcome=passed.',
+      });
+    }
   }
 
-  // E1: agent9_prose phase present → post_generation_summary diagnostic required
-  if (hasAgent9ProsePhaseEntry(candidate) && !hasAgent9ProsePostGenerationSummaryDiagnostic(candidate)) {
+  // E1: agent9_prose phase present → post_generation_summary diagnostic required.
+  // A_71 — exempt live `in_progress` snapshots: a partial written mid-prose legitimately has the
+  // phase registered before its summary diagnostic exists, and a throw here would leave the run
+  // with NO artifact at all (savePartialReport swallows the error). E1 still binds every final
+  // report, which is the record it was written to protect.
+  if (
+    candidate.in_progress !== true &&
+    hasAgent9ProsePhaseEntry(candidate) &&
+    !hasAgent9ProsePostGenerationSummaryDiagnostic(candidate)
+  ) {
     violations.push({
       code: 'missing_post_generation_summary',
       message:

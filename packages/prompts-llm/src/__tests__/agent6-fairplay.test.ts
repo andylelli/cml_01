@@ -72,6 +72,7 @@ describe("agent6 fair-play prompt contract alignment", () => {
           allEssentialCluesPresent: true,
           noNewFactsIntroduced: true,
           redHerringsDontBreakLogic: true,
+          redHerringBudgetMet: true,
         },
         latencyMs: 1,
         cost: 0,

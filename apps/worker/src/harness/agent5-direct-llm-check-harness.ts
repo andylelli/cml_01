@@ -375,6 +375,7 @@ const normalizeDistribution = (
     allEssentialCluesPresent: essentialClues.length >= 3,
     noNewFactsIntroduced: clues.every((c: NormalizedClue) => c.sourceInCML && c.sourceInCML.trim() !== "" && c.sourceInCML !== "N/A"),
     redHerringsDontBreakLogic: redHerrings.length <= redHerringBudget,
+    redHerringBudgetMet: redHerrings.length >= redHerringBudget,
   };
 
   const statusRaw = String(parsed?.status ?? "").toLowerCase();

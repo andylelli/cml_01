@@ -286,6 +286,13 @@ export class ScoreAggregator {
           ? 'Release gate failed'
         : runOutcome === 'failed'
           ? 'One or more phases failed threshold'
+        // A_71 — say so when 'passed' came from the phase-threshold fallback rather than from a
+        // scored gate. `unknown` means no gate evidence was recorded at all, so this run is NOT
+        // shipped by the P0.2 definition even though the outcome reads 'passed'; leaving the
+        // reason blank is what made the two readings look like a contradiction rather than a
+        // documented fallback (A_70 §4).
+        : runOutcome === 'passed' && releaseGateStatus === 'unknown'
+          ? 'Phase thresholds met; no release-gate evidence recorded (ship status unconfirmed)'
           : undefined;
 
     const adjustedOverallScore =
@@ -405,6 +412,14 @@ export class ScoreAggregator {
       },
       release_gate_outcome: {
         status: releaseGateStatus,
+        // A_71 — one derivation of SHIPPED, recorded on the artifact.
+        //
+        // A_70 §4 found the same run reading "shipped" through `run_outcome` and "not shipped"
+        // through the gate status: scripts/canary-core.mjs re-derives P0.2 (`status ∈ {passed,
+        // warning}`) for itself, and on an `unknown` gate that disagrees with the phase-driven
+        // run_outcome fallback below. Two copies of a definition drift; one field cannot.
+        // Consumers must read this rather than re-testing `status`.
+        shipped: releaseGateStatus === 'passed' || releaseGateStatus === 'warning',
         hard_stop_count: effectiveReleaseGateHardStopCount,
         warning_count: releaseGateWarningCount,
       },

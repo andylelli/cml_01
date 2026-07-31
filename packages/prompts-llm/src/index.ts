@@ -170,6 +170,9 @@ export {
   critiqueAndRewriteChapter,
   selectLowestScoringChapters,
   buildDeterministicClueParagraphs,
+  // A_71 — clearance-paste tally, the AGENT9_REGEN_SUSPECT_ELIM probe's read path.
+  getDeterministicClearancePasteTelemetry,
+  resetDeterministicClearancePasteTelemetry,
 } from "./agent9-prose.js";
 export type {
   ProseDefect,

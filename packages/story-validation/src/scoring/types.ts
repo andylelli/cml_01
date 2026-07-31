@@ -129,7 +129,17 @@ export interface GenerationDiagnostic {
   details: Record<string, unknown>;
 }
 
-export type RunOutcome = 'passed' | 'failed' | 'aborted' | 'infra_failure';
+/**
+ * A_71 — `in_progress` is a first-class outcome, not a missing one.
+ *
+ * Partial snapshots are written throughout a run so the UI can poll. Until now they carried the
+ * outcome `generateReport` happened to derive from the phases completed so far — which is how a
+ * run that scored 66 and failed three chapters left `run_outcome: passed, overall_score: 96` on
+ * disk as its only record (A_70 §4). Any direct-file reader believed it. Naming the state means
+ * an unfinished snapshot cannot be mistaken for a verdict by ANY consumer, not just the ones that
+ * remember to check `in_progress`.
+ */
+export type RunOutcome = 'passed' | 'failed' | 'aborted' | 'infra_failure' | 'in_progress';
 
 export interface ValidationIssueSnapshotSummary {
   total: number;
@@ -174,6 +184,10 @@ export interface GenerationReport {
     /** 'warning' = shipped needs-review: 0 hard stops but gate warnings — counts as SHIPPED for
      *  ship-rate bookkeeping, and (A_65b Ph1.3) run_outcome now agrees: shipped ⇒ 'passed'. */
     status: 'passed' | 'warning' | 'failed' | 'unknown';
+    /** A_71 — THE ship signal (P0.2: status ∈ {passed, warning}), computed once at report time.
+     *  Read this; do not re-derive from `status`. Two hand-copies of the definition are what let
+     *  the same run read "shipped" via run_outcome and "not shipped" via the gate (A_70 §4). */
+    shipped?: boolean;
     hard_stop_count: number;
     warning_count: number;
   };

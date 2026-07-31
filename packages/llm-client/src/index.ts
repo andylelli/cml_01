@@ -8,6 +8,12 @@ export { LLMLogger } from "./logger.js";
 export { CostTracker, defaultCostConfig } from "./cost-tracker.js";
 export { RateLimiter } from "./ratelimit.js";
 export { withRetry, CircuitBreaker, defaultRetryConfig, isRetryableError } from "./retry.js";
+export {
+  ContentFilterTracker,
+  isContentFilterRefusal,
+  contentFilterFamily,
+} from "./content-filter.js";
+export type { ContentFilterRefusal, ContentFilterSummary } from "./content-filter.js";
 
 export type {
   Message,

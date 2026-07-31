@@ -38,6 +38,14 @@ A_68 §8 names `AGENT9_REGEN_SUSPECT_ELIM` the single biggest lift, priced *"76 
 
 **Consequence.** An 8-replay A/B on this flag would return mostly no-op pairs — a null result by construction, for ~£4–8 and ~2h. **It was not run.** A_68 §8's priority-1 line needs amending: the *prose problem* it describes may well be real, but **the injector is not its source**, so an injector→regen swap cannot be the fix. Finding the actual source of report-style clearance prose is open work.
 
+> **RESOLVED 2026-07-31 (A_71 §3) — the measurement above holds; the conclusion pointed at the wrong body.**
+>
+> Re-measured on the four 07-31 stories: `enforceSuspectEliminationPresence`'s template is still absent — **0/18 shipped stories now**, so §2's evidence is stronger than when written. But "the injector is not its source" is false in the general case: it is **a different injector**. The report-style clearance prose both 07-31 external reviewers quoted is written by `buildDeterministicClearanceParagraph` / `applyDeterministicClearancePatch` in `packages/prompts-llm/src/agent9-prose/deterministic-repair.ts` — a second body, in a different package, producing the same symptom. §2 measured one and cleared both.
+>
+> This is §3's pattern one layer up: not "a fix aimed at a layer that runs too early", but **a measurement aimed at one of two bodies**. The same trap as `probe-validity-process-start-vs-dist-build` ("the A_66 vandal had 3 bodies across 2 packages") and `cast-field-camelcase-vs-snakecase-trap`.
+>
+> `AGENT9_REGEN_SUSPECT_ELIM` is now ON in `.env.local` as an A_71 probe, and that is **correct** — it gates more than §2 credited (it also suppresses the generate.ts pre-retry clearance shortcut). But it does not gate the other two `applyDeterministicClearancePatch` call sites, so it cannot remove the class on its own. A_71 added `deterministic_clearance_paste_count` at the shared choke point — the probe's missing read path.
+
 ---
 
 ## 3. The recurring architecture bug: fixes aimed at a layer that runs too early

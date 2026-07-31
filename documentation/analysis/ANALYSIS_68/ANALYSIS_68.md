@@ -91,6 +91,33 @@ Per reader 4, not fully additive (shared plot/ending headroom): mechanism cohere
 
 ## 8. Prose audit — deterministic string → LLM rewrite (where machine prose ships)
 
+> **⚠️ AMENDED TWICE — read this before acting on §8.1.**
+>
+> **A_70 §2 (2026-07-27) falsified the frequency claim.** *"76 → mid-80s on any run where a clearance
+> floor fires **(common)**"* — the parenthesis is the whole argument, and it is wrong.
+> `enforceSuspectEliminationPresence`'s exact template appears **0 times across 14 shipped stories**;
+> the injector never fired on any of 4 pool runs; `detectReportStyleClearance` returns clean 14/14.
+>
+> **A_71 (2026-07-31) confirms the measurement and corrects the conclusion.** Re-measured on the four
+> 07-31 stories: still **0 — now 0/18**. So A_70's number holds. But A_70 then concluded *"the
+> injector is not its source, so an injector→regen swap cannot be the fix"*, and left "find the
+> actual source of report-style clearance prose" as open work. **That source is now found, and it IS
+> an injector — a different one.** The clearance prose both 07-31 external reviewers quoted comes
+> from `buildDeterministicClearanceParagraph` / `applyDeterministicClearancePatch`
+> (`packages/prompts-llm/src/agent9-prose/deterministic-repair.ts`), not from
+> `enforceSuspectEliminationPresence` (`apps/worker/.../agent9-run.ts`). Two injectors, two packages,
+> one symptom — the `probe-validity-process-start-vs-dist-build` lesson again: *grep one module and
+> you prove nothing.*
+>
+> **Consequence for §8.1's recommendation:** it is directionally right for the wrong reason.
+> `AGENT9_REGEN_SUSPECT_ELIM` does more than swap the agent9-run injector — it also suppresses the
+> generate.ts pre-retry clearance shortcut, which is a real path into shipped prose. But **two of the
+> three `applyDeterministicClearancePatch` call sites are not gated by it at all**
+> (`repairChapterDeterministically`, `applyDeterministicStagePatches`), so the flag alone cannot
+> remove the class. A_71 added `deterministic_clearance_paste_count` at the shared choke point so the
+> live probe finally has a read path; until it returns a number, nobody should quote a lift figure
+> for this lever. See [ANALYSIS_71](../ANALYSIS_71/ANALYSIS_71.md) §3.
+
 Follow-on 5-reader audit (`wlzyp77sh`) of every place a deterministic string reaches the final prose. **All five readers converged on one root cause:** the pipeline has a **complete, wired, validator-gated LLM scoped-regen layer** that dramatizes each obligation in-scene — but **every content-obligation regen ships default-OFF**, so the reader gets the machine template, and (worse) the *default-ON* scaffold regen then has to un-machine a sentence the pipeline itself just pasted.
 
 **The single worst offender (named by 3 readers, = the A_67 "suspect-closure stack is one machine"):** `enforceSuspectEliminationPresence` (`agent9-run.ts:2325`) pastes *"`<Surname>` was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime"* **once per uncleared suspect** — N near-identical verdict sentences stacked into the endgame. One such sentence trips **two** prose caps at once (`scaffoldHits` B7 → prose≤4 **and** `reportStyleClearance` → prose≤6 + ending≤7); a second scaffold signature (the culprit-evidence B5 line) drops the overall ceiling to **≤65**. It runs *after* the scaffold regen, so nothing rewrites it. Reader 5's estimate: flipping its flag on clears two prose caps + the ending cap + removes the ≤65 ceiling → **76 → mid-80s on any run where a clearance floor fires (common).**

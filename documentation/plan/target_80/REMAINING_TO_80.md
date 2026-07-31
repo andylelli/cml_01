@@ -1,5 +1,17 @@
 # WHAT'S LEFT TO REACH 80 — the remaining-work list
 
+> **🛑 STALE AS A TO-DO LIST (flagged 2026-07-31).** This file is dated 2026-07-15 and its §3–§5
+> milestone tracking has been overtaken by six boards (A_63 closed the batch era; A_66 closed the
+> pronoun war; A_67/A_68/A_69/A_70/A_71 have run since). **Do not pick work from §3 onward without
+> checking it against [ANALYSIS_71](../../analysis/ANALYSIS_71/ANALYSIS_71.md) first** — that is the
+> current board. Retained for the reasoning in §0–§2 and as build history.
+>
+> One correction that matters for anything here that reads a report: **A_71 §1 found that report
+> finalization was failing on most runs** (an invariant that predated A_65b Ph1.3 made `save()`
+> throw, so the final report was never written and an `in_progress` partial survived reading
+> "96 / A / passed"). Any ledger row or score in this file derived from a persisted report before
+> 2026-07-31 should be re-derived, not trusted.
+
 > **⚠️ A_62 AMENDMENT (2026-07-16) — read before acting on §4/§5.** A from-source recomputation of all
 > shipped runs ([ANALYSIS_62](../../analysis/ANALYSIS_62/ANALYSIS_62.md)) falsified two premises this
 > file still argues from: **(1)** the §5 rescope's "template-leakage 1/11" is wrong — the true M1-era

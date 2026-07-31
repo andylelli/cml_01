@@ -64,6 +64,37 @@ export interface RelationshipWeb {
   }>;
 }
 
+/**
+ * A_71 (A_70 §6) — coerce whatever shape the model returned into the declared `RelationshipWeb`.
+ *
+ * MEASURED across three runs (07-27, 07-31 ×2): the model emits `relationships` as a **bare array**
+ * of pairs — 15, 9 and 10 of them, each well-formed with character1/character2/relationship/tension
+ * /sharedHistory. The declared contract is `{ pairs: [...] }`, and every reader guarded on
+ * `Array.isArray(relationships.pairs)`, which is `undefined` on a bare array. So two things silently
+ * did nothing on every run since the contract was written:
+ *
+ *   1. `adaptCastForScoring` built an EMPTY relationship list for each character, which is why
+ *      Cast Design scores 0 on "Relationship density" and "Relationships reference cast" in every
+ *      report and reads as the weakest phase in the pipeline. The relationships were always there.
+ *   2. `normalizeRelationshipTension` never ran, so tension values were never coerced to the enum.
+ *
+ * Both are the `cast-field-camelcase-vs-snakecase-trap` class: a shape assumption that no-ops
+ * instead of failing. Normalising at the source fixes every reader at once rather than teaching
+ * each one about both shapes.
+ */
+export function normalizeRelationshipWeb(raw: unknown): RelationshipWeb {
+  if (Array.isArray(raw)) {
+    return { pairs: raw.filter((pair) => Boolean(pair) && typeof pair === "object") as RelationshipWeb["pairs"] };
+  }
+  if (raw && typeof raw === "object") {
+    const pairs = (raw as { pairs?: unknown }).pairs;
+    if (Array.isArray(pairs)) {
+      return { pairs: pairs.filter((pair) => Boolean(pair) && typeof pair === "object") as RelationshipWeb["pairs"] };
+    }
+  }
+  return { pairs: [] };
+}
+
 export interface CastDesign {
   characters: CharacterProfile[];
   relationships: RelationshipWeb;
@@ -851,12 +882,13 @@ export async function designCast(
       }
 
       // Normalise enum-style relationship and gender declarations before returning.
-      if (cast.relationships && Array.isArray(cast.relationships.pairs)) {
-        cast.relationships.pairs = cast.relationships.pairs.map((pair: any) => ({
-          ...pair,
-          tension: normalizeRelationshipTension(pair?.tension),
-        }));
-      }
+      // A_71: coerce the web to its declared shape FIRST — the model returns a bare array, so the
+      // old `Array.isArray(cast.relationships.pairs)` guard skipped this block on every real run.
+      cast.relationships = normalizeRelationshipWeb(cast.relationships);
+      cast.relationships.pairs = cast.relationships.pairs.map((pair: any) => ({
+        ...pair,
+        tension: normalizeRelationshipTension(pair?.tension),
+      }));
 
       cast.characters = cast.characters.map((char: any) => ({
         ...char,

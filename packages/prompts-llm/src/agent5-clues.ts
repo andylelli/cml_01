@@ -258,6 +258,12 @@ export interface ClueDistributionResult {
     allEssentialCluesPresent: boolean;
     noNewFactsIntroduced: boolean;
     redHerringsDontBreakLogic: boolean;
+    /**
+     * A_71 (A_70 §6) — the budget was enforced ONLY as a ceiling (`length <= budget`), so a
+     * response with zero red herrings passed every check and the 07-27 run shipped a fair-play
+     * mystery with no misdirection field. This records the other side of the same number.
+     */
+    redHerringBudgetMet: boolean;
   };
   latencyMs: number;
   cost: number;
@@ -1420,6 +1426,9 @@ export async function extractClues(
         (c: Clue) => c.sourceInCML && c.sourceInCML.trim() !== "" && c.sourceInCML !== "N/A"
       ),
       redHerringsDontBreakLogic: normalizedRedHerrings.length <= inputs.redHerringBudget,
+      // A_71: a budget of N asked for N. Reporting only `<= N` made "returned none" indistinguishable
+      // from "returned exactly what was asked for".
+      redHerringBudgetMet: normalizedRedHerrings.length >= inputs.redHerringBudget,
     };
 
     const latencyMs = Date.now() - startTime;

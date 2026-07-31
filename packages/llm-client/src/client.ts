@@ -7,6 +7,7 @@ import type { ChatOptions, ChatResponse, Message } from "./types.js";
 import { withRetry, CircuitBreaker, defaultRetryConfig } from "./retry.js";
 import { RateLimiter } from "./ratelimit.js";
 import { CostTracker } from "./cost-tracker.js";
+import { ContentFilterTracker } from "./content-filter.js";
 import { LLMLogger } from "./logger.js";
 
 // Retry salt (ANALYSIS_49 follow-up): escalate the sampling temperature on each *retry* so a call that
@@ -58,6 +59,7 @@ export class AzureOpenAIClient {
   private circuitBreaker: CircuitBreaker;
   private rateLimiter: RateLimiter;
   private costTracker: CostTracker;
+  private contentFilterTracker: ContentFilterTracker;
   private logger: LLMLogger;
   private defaultModel: string;
 
@@ -91,6 +93,7 @@ export class AzureOpenAIClient {
     });
 
     this.costTracker = new CostTracker();
+    this.contentFilterTracker = new ContentFilterTracker();
 
     this.logger = config.logger || new LLMLogger();
   }
@@ -244,6 +247,13 @@ export class AzureOpenAIClient {
           )
         : error;
 
+      // A_71 (A_70 §5) — count Azure content-filter refusals at the one place every call passes
+      // through. The 07-27 run took 10, all on `Agent9-Regen-Ch*-missing_clue` prompts carrying the
+      // pipeline's own prose, and the only trace was raw log text. The refusal is NOT retryable
+      // (the same prompt earns the same refusal), so this records rather than recovers — a
+      // softening policy is a separate increment that should be designed against these counts.
+      this.contentFilterTracker.record(normalized, options.logContext?.agent, model);
+
       // Log error
       if (options.logContext) {
         await this.logger.logError({
@@ -271,6 +281,11 @@ export class AzureOpenAIClient {
 
   getCostTracker(): CostTracker {
     return this.costTracker;
+  }
+
+  /** A_71 — per-run tally of Azure content-filter refusals (A_70 §5). */
+  getContentFilterTracker(): ContentFilterTracker {
+    return this.contentFilterTracker;
   }
 
   getRateLimiter(): RateLimiter {
