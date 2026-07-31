@@ -3,6 +3,7 @@
  */
 
 export { AzureOpenAIClient } from "./client.js";
+export { AnthropicClient, DEFAULT_ANTHROPIC_MODEL, extractJsonPayload } from "./anthropic-client.js";
 export { LLMLogger } from "./logger.js";
 export { CostTracker, defaultCostConfig } from "./cost-tracker.js";
 export { RateLimiter } from "./ratelimit.js";
@@ -13,6 +14,7 @@ export type {
   TokenUsage,
   ChatOptions,
   ChatResponse,
+  ChatCapableClient,
   LogContext,
   LLMLogEntry,
   RetryConfig,

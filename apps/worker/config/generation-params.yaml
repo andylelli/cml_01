@@ -187,7 +187,19 @@ agent9_prose:
     chapter_target_tolerance: 2
     # Per-length chapter plan.
     # total_ideal_words = chapter_count * chapter_ideal_words
-    word_target_multiplier: 1.25
+    # The LLM-facing per-chapter aim = chapter_ideal_words * word_target_multiplier.
+    #
+    # Was 1.25, which aimed each chapter at 1250 words -> 12,500 total for `short` — EXACTLY
+    # total_max_words (chapter_count * chapter_ideal_words * max_ratio = 10,000 * 1.25). The prompt
+    # therefore asked for precisely the maximum allowed and left zero headroom, so any chapter that
+    # ran long pushed the story over its own ceiling. Measured on story_20260731-1537: 13,563 words
+    # against a 12,500 ceiling (+8.5%), with chapters ranging 963-1751.
+    #
+    # 1.0 aims at chapter_ideal_words (1000 -> 10,000 total for `short`), leaving the 12,500 ceiling
+    # as genuine headroom (25%) rather than a target. Nothing else needs to move: min_words,
+    # max_words and chapterMinWords are all derived from chapter_ideal_words and the ratios below,
+    # none of which reference this multiplier.
+    word_target_multiplier: 1.0
     word_targets:
       short:
         chapter_ideal_words: 1000

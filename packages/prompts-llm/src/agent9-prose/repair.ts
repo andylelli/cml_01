@@ -199,6 +199,33 @@ export const parsePhraseReplacementsResponse = (content: string): PhraseReplacem
   }
 };
 
+/**
+ * Shapes that are almost never valid English prose and that a naive splice readily produces.
+ *
+ * The canonical failure (story_20260731-1650 Ch1, MEASURED): the banned phrase `tremor in her
+ * fingers` — a NOUN PHRASE — was replaced with `her knuckles twitched` — a CLAUSE. The regex swap
+ * is context-blind, so the determiner+adjective in front of it survived and the sentence shipped as
+ * "noticed the slight her knuckles twitched as she straightened her gloves". The polish pass had
+ * already produced clean prose for that sentence; this pass runs afterwards and broke it.
+ */
+const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
+  // determiner (+ up to 2 modifiers) immediately followed by a pronoun: "the slight her knuckles"
+  /\b(?:the|a|an)\s+(?:\w+\s+){0,2}(?:he|she|it|they|his|her|its|their|him|them)\b/i,
+  // doubled determiner / preposition left by an overlapping splice: "the the", "in in"
+  /\b(the|a|an|of|in|on|at|to|with|by)\s+\1\b/i,
+  // possessive immediately followed by a finite pronoun clause: "her she was"
+  /\b(?:his|her|its|their|my|our|your)\s+(?:he|she|it|they|we|i|you)\b/i,
+];
+
+/**
+ * True when `candidate` contains a malformed shape that `before` did not — i.e. THIS substitution
+ * introduced it. Comparing against the prior text (rather than testing `candidate` alone) means
+ * pre-existing oddities in the source prose are never blamed on the replacement, so the guard has
+ * no false positives on text it did not touch.
+ */
+export const substitutionIntroducesMalformedText = (before: string, candidate: string): boolean =>
+  MALFORMED_SPLICE_PATTERNS.some((re) => re.test(candidate) && !re.test(before));
+
 export const applyPhraseSubstitutions = (
   paragraphs: string[],
   replacements: PhraseReplacement[],
@@ -209,7 +236,7 @@ export const applyPhraseSubstitutions = (
     for (const { original, replacement } of replacements) {
       const escaped = original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const pattern = new RegExp(escaped, 'gi');
-      result = result.replace(pattern, (match) => {
+      const candidate = result.replace(pattern, (match) => {
         // Preserve ALL-CAPS (e.g. chapter headings, emphasis typography)
         if (match === match.toUpperCase() && match !== match.toLowerCase()) {
           return replacement.toUpperCase();
@@ -220,6 +247,12 @@ export const applyPhraseSubstitutions = (
         }
         return replacement;
       });
+      // Per-replacement rollback. A variety pass is a nice-to-have; shipping a broken sentence is
+      // not. Dropping one substitution costs a repeated phrase, which is strictly the lesser defect.
+      if (substitutionIntroducesMalformedText(result, candidate)) {
+        continue;
+      }
+      result = candidate;
     }
     return result;
   });
@@ -260,6 +293,15 @@ export const runAtmosphereRepairIfNeeded = async (
             'You are a prose variety assistant for mystery fiction.',
             'You will be given a list of overused phrases.',
             'For each phrase provide one fresh, scene-specific alternative of similar length and register.',
+            // The replacement is spliced in by literal string substitution — the words around it do
+            // not change. A replacement of a different grammatical type therefore breaks the
+            // sentence: replacing the noun phrase "tremor in her fingers" with the clause "her
+            // knuckles twitched" shipped "noticed the slight her knuckles twitched".
+            'CRITICAL: each replacement is substituted into the sentence VERBATIM, with the surrounding words untouched.',
+            'It MUST be the same grammatical type as the phrase it replaces: a noun phrase for a noun phrase, a verb phrase for a verb phrase, a clause only for a clause.',
+            'Do NOT begin a replacement with a pronoun (he/she/it/they/his/her/their) unless the original phrase also begins with one — the original is often preceded by an article or adjective that will remain in place.',
+            'Do not include leading or trailing articles, prepositions, or punctuation that the original phrase does not itself contain.',
+            'Before answering, read each replacement back in place of the original and confirm the sentence is still grammatical.',
             'Output JSON only — no explanation, no prose outside the JSON.',
           ].join(' '),
         },

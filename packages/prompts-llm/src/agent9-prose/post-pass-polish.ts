@@ -2,7 +2,7 @@
  * agent9-prose/post-pass-polish.ts
  * Guarded quality-only polish for chapters that already satisfy hard validators.
  */
-import type { AzureOpenAIClient } from "@cml/llm-client";
+import type { AzureOpenAIClient, ChatCapableClient } from "@cml/llm-client";
 import { parseProseResponse } from "./sanitization.js";
 import { assessNarrativeBalanceSignals, buildNarrativeBalanceBlock } from "./narrative-balance.js";
 import { formatStageModeLabel } from "./clue-validation.js";
@@ -83,6 +83,37 @@ export const hasPolishRegression = (args: {
   return false;
 };
 
+/**
+ * A_71 — the single source of truth for "does this chapter get a polish pass?".
+ *
+ * MANDATORY INVARIANT: at most ONE polish call per chapter per run, and only after that chapter has
+ * passed its hard gates. Extracted as a pure predicate so the rule is testable without standing up
+ * generateProse, and so the two opt-in flags cannot re-open a chapter that was already polished.
+ *
+ * Order matters — `chapterPassed` and `alreadyPolished` are checked before anything else, so no flag
+ * combination can route a failing or already-polished chapter to the provider.
+ */
+export const shouldPolishChapter = (args: {
+  chapterNumber: number;
+  /** True only when the chapter cleared every hard gate. A failing chapter is never polished. */
+  chapterPassed: boolean;
+  /** Chapter numbers already given their one polish attempt this run. */
+  alreadyPolished: ReadonlySet<number>;
+  /** 1-based content attempt for this batch. */
+  attempt: number;
+  provisionalScore: number;
+  polishRetriedChapters: boolean;
+  polishHighLeakage: boolean;
+}): boolean => {
+  if (!args.chapterPassed) return false;
+  if (args.alreadyPolished.has(args.chapterNumber)) return false;
+  const attemptAllows = args.attempt === 1 || args.polishRetriedChapters || args.polishHighLeakage;
+  if (!attemptAllows) return false;
+  // High-leakage chapters bypass the provisional<95 gate: the provisional score is blind to prose
+  // flatness, so it would exclude exactly the clue-complete reveal chapters that leak most.
+  return args.provisionalScore < 95 || args.polishHighLeakage;
+};
+
 export const buildPostPassPolishPrompt = (args: {
   chapter: ProseChapter;
   repairContext: ChapterRepairContext;
@@ -148,13 +179,26 @@ export const polishPassingChapter = async (args: {
   model?: string;
   runId?: string;
   projectId?: string;
+  /**
+   * Optional alternate provider for THIS stage only (see polish-provider.ts). When supplied, the
+   * Agent 9 stage-model tier is bypassed and `polishModel` is used instead — `resolveStageModel`
+   * returns an AZURE DEPLOYMENT NAME, which is meaningless to another provider and would 404.
+   * Unset ⇒ identical behaviour to before this option existed.
+   */
+  polishClient?: ChatCapableClient;
+  polishModel?: string;
   validateCandidate: (candidate: ProseChapter) => Promise<{ chapter: ProseChapter; hardErrors: string[] }> | { chapter: ProseChapter; hardErrors: string[] };
 }): Promise<PostPassPolishResult> => {
   if (!Array.isArray(args.chapter?.paragraphs) || args.chapter.paragraphs.length === 0) {
     return { chapter: args.chapter, applied: false, keptPolishedVersion: false };
   }
 
-  const response = await args.client.chat({
+  const client: ChatCapableClient = args.polishClient ?? args.client;
+  // A_69 Increment 2 — polish-stage tier (AGENT9_MODEL_POLISH); unset falls back to args.model.
+  // When an alternate provider is routed in, its own model id wins (see the note above).
+  const model = args.polishClient ? args.polishModel : resolveStageModel("polish", args.model);
+
+  const response = await client.chat({
     messages: [
       {
         role: "system",
@@ -171,8 +215,9 @@ export const polishPassingChapter = async (args: {
         }, null, 2)}`,
       },
     ],
-    // A_69 Increment 2 — polish-stage tier (AGENT9_MODEL_POLISH); unset falls back to args.model.
-    model: resolveStageModel("polish", args.model),
+    model,
+    // Providers that reject `temperature` (current Claude models) drop it in their own client; this
+    // value still governs the Azure path, so it stays.
     temperature: 0.2,
     maxTokens: 5000,
     jsonMode: true,
@@ -183,6 +228,19 @@ export const polishPassingChapter = async (args: {
       retryAttempt: 1,
     },
   });
+
+  // A truncated (`max_tokens`) or declined (`refusal`) reply is a PARTIAL document. Both are normal
+  // 200s on Claude, so nothing throws — and a partial chapter can still parse into a plausible-looking
+  // object that quietly drops the back half. Roll back on the finish reason rather than hoping
+  // JSON.parse fails. The chapter we already accepted is the floor.
+  if (response.finishReason === "max_tokens" || response.finishReason === "refusal") {
+    return {
+      chapter: args.chapter,
+      applied: true,
+      keptPolishedVersion: false,
+      rollbackReason: "validation_regression",
+    };
+  }
 
   let candidate: ProseChapter;
   try {

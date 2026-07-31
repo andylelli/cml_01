@@ -112,4 +112,19 @@ export interface CostConfig {
   gpt41MiniCompletionCostPer1k: number;
   gpt35PromptCostPer1k: number;
   gpt35CompletionCostPer1k: number;
+  claudeSonnetPromptCostPer1k: number;
+  claudeSonnetCompletionCostPer1k: number;
+  claudeOpusPromptCostPer1k: number;
+  claudeOpusCompletionCostPer1k: number;
+  claudeHaikuPromptCostPer1k: number;
+  claudeHaikuCompletionCostPer1k: number;
+}
+
+/**
+ * The minimum surface Agent 9 needs from a provider. Both AzureOpenAIClient and AnthropicClient
+ * satisfy it structurally, so a stage can be routed to either without widening any call site's
+ * concrete client type.
+ */
+export interface ChatCapableClient {
+  chat(options: ChatOptions): Promise<ChatResponse>;
 }

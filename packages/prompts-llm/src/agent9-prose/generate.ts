@@ -119,7 +119,8 @@ import {
   attemptUnderflowExpansion,
   runAtmosphereRepairIfNeeded,
 } from "./repair.js";
-import { polishPassingChapter, runFullStoryRepetitionPolish } from "./post-pass-polish.js";
+import { polishPassingChapter, runFullStoryRepetitionPolish, shouldPolishChapter } from "./post-pass-polish.js";
+import { resolvePolishProvider } from "./polish-provider.js";
 import {
   applyDeterministicClearancePatch,
   buildCompletionFallbackChapter,
@@ -2156,6 +2157,18 @@ export async function generateProse(
   // count survives a throw that exits generateProse() before the post-loop aggregation.
   const retriedBatches = new Set<number>();
 
+  // A_71 — the post-pass polish is ONCE PER CHAPTER, after that chapter has passed. Invariant.
+  //
+  // The accept path is re-entered on every batch attempt, so a chapter that passed on attempt 1 is
+  // re-evaluated (and was re-polished) on attempts 2, 3, … whenever ANOTHER chapter in the same batch
+  // forced a batch retry. Measured on the 2026-07-31 agent-loop run: Ch4 was polished 4×, Ch6 3×,
+  // Ch7/Ch8/Ch9 2× each — 13 calls for 5 chapters, at ~2.4x the projected spend.
+  //
+  // The default `attempt === 1` guard masked this, which is why it never showed before: it is only
+  // visible once AGENT9_POLISH_RETRIED_CHAPTERS or AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS lifts that
+  // guard. Run-scoped, so it holds across batches, attempts, and both opt-in flags.
+  const polishedChapterNumbers = new Set<number>();
+
   // Deep-copy the caller's NarrativeState so mutations during generation (updateNSD calls)
   // do not bleed back into the orchestrator's copy.  Array/object fields need explicit
   // spreading because the outer spread {...inputs.narrativeState} is only one level deep.
@@ -3143,7 +3156,7 @@ export async function generateProse(
             repairContext.stageMode === "suspect_pressure" ||
             repairContext.stageMode === "false_suspect_clearing";
           const polishHighLeakage = polishHighLeakageChapters && isHighLeakageStageMode;
-          if (chapterErrors.length === 0 && (attempt === 1 || polishRetriedChapters || polishHighLeakage)) {
+          if (chapterErrors.length === 0) {
             const provisionalPreview = buildProvisionalChapterScore(
               chapter,
               chapterNumber,
@@ -3152,14 +3165,41 @@ export async function generateProse(
               inputs.clueDistribution,
               castNames,
             );
-            // High-leakage chapters bypass the provisional<95 gate: the provisional score is blind to
-            // prose flatness, so it would exclude exactly the clue-complete reveal chapters that leak most.
-            if (provisionalPreview.score < 95 || polishHighLeakage) {
+            if (
+              shouldPolishChapter({
+                chapterNumber,
+                chapterPassed: true,
+                alreadyPolished: polishedChapterNumbers,
+                attempt,
+                provisionalScore: provisionalPreview.score,
+                polishRetriedChapters,
+                polishHighLeakage,
+              })
+            ) {
+              // Claim the chapter BEFORE the call, not after. Marking on success would let a rollback
+              // (validator regression, truncation, refusal) re-open the chapter for another polish on
+              // the next batch attempt — which is the same repeat spend by a different route. One
+              // attempt per chapter, outcome irrelevant.
+              polishedChapterNumbers.add(chapterNumber);
+              // Flag-gated alternate provider for this stage only (AGENT9_POLISH_PROVIDER=anthropic).
+              // Resolved HERE, inside the `chapterErrors.length === 0` branch, so the guarantee is
+              // structural rather than a convention: a chapter that failed its gates never reaches
+              // this line, and so is never sent to the polish provider. Undefined ⇒ today's client.
+              // Share the host client's logger AND cost tracker, so a Sonnet 5 polish call lands in
+              // logs/llm.jsonl + logs/llm-prompts-full.jsonl and in per-agent cost attribution
+              // exactly as an Azure call does. Without this the stage bills silently and invisibly.
+              const polishProvider = resolvePolishProvider({
+                logger: typeof (client as any)?.getLogger === "function" ? (client as any).getLogger() : undefined,
+                costTracker:
+                  typeof (client as any)?.getCostTracker === "function" ? (client as any).getCostTracker() : undefined,
+              });
               const polished = await polishPassingChapter({
                 chapter,
                 client,
                 repairContext,
                 model: inputs.model,
+                polishClient: polishProvider?.client,
+                polishModel: polishProvider?.model,
                 runId: inputs.runId,
                 projectId: inputs.projectId,
                 validateCandidate: async (candidate) => {

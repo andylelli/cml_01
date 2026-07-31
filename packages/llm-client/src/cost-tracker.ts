@@ -20,6 +20,20 @@ export const defaultCostConfig: CostConfig = {
   // GPT-3.5-turbo pricing (converted to GBP)
   gpt35PromptCostPer1k: 0.000395,
   gpt35CompletionCostPer1k: 0.001185,
+
+  // Anthropic list pricing, converted to GBP at the same 0.79 rate used above.
+  // Deliberately LIST, not Sonnet 5's introductory $2/$10 — an under-reported rate is the failure
+  // mode this file already has once (see the gpt-4.1 note in calculateCost), and a polish-stage A/B
+  // is only decidable if the new provider's cost is not flattering.
+  // Sonnet 5 $3/$15 per MTok:
+  claudeSonnetPromptCostPer1k: 0.00237,
+  claudeSonnetCompletionCostPer1k: 0.01185,
+  // Opus 5 $5/$25 per MTok:
+  claudeOpusPromptCostPer1k: 0.00395,
+  claudeOpusCompletionCostPer1k: 0.01975,
+  // Haiku 4.5 $1/$5 per MTok:
+  claudeHaikuPromptCostPer1k: 0.00079,
+  claudeHaikuCompletionCostPer1k: 0.00395,
 };
 
 export class CostTracker {
@@ -31,6 +45,25 @@ export class CostTracker {
 
   calculateCost(model: string, usage: TokenUsage): number {
     const modelName = model.toLowerCase();
+
+    // Anthropic models first — their ids share no substring with the GPT branches below, so an
+    // unmatched claude-* id would otherwise silently fall through to the GPT-3.5 fallback rate.
+    if (modelName.includes("claude")) {
+      const isHaiku = modelName.includes("haiku");
+      const isOpus = !isHaiku && modelName.includes("opus");
+      const promptPer1k = isHaiku
+        ? this.config.claudeHaikuPromptCostPer1k
+        : isOpus
+          ? this.config.claudeOpusPromptCostPer1k
+          : this.config.claudeSonnetPromptCostPer1k;
+      const completionPer1k = isHaiku
+        ? this.config.claudeHaikuCompletionCostPer1k
+        : isOpus
+          ? this.config.claudeOpusCompletionCostPer1k
+          : this.config.claudeSonnetCompletionCostPer1k;
+      return (usage.promptTokens / 1000) * promptPer1k + (usage.completionTokens / 1000) * completionPer1k;
+    }
+
     // Detect gpt-4.1-mini first — it does not contain "4o" so without an explicit
     // check it falls through to the GPT-3.5 fallback and produces understated costs.
     const isGpt41Mini = modelName.includes("gpt-4.1-mini") || modelName.includes("4.1-mini");

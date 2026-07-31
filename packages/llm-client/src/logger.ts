@@ -15,7 +15,12 @@ interface FullPromptLogEntry {
   projectId: string;
   operation: string;
   model: string;
-  temperature: number;
+  /**
+   * Optional because not every provider takes one. Current Claude models reject `temperature`
+   * outright (400), so AnthropicClient sends none — and logging a fabricated value would make any
+   * cross-provider comparison over this file unreadable. Absent means "no temperature was sent".
+   */
+  temperature?: number;
   maxTokens: number;
   promptHash: string;
   retryAttempt: number;
@@ -575,7 +580,7 @@ export class LLMLogger {
     lines.push(`- Agent: \`${entry.agent}\``);
     lines.push(`- Operation: \`${entry.operation}\``);
     lines.push(`- Model: \`${entry.model}\``);
-    lines.push(`- Temperature: \`${entry.temperature}\``);
+    lines.push(`- Temperature: \`${entry.temperature ?? "n/a (provider takes none)"}\``);
     lines.push(`- Max Tokens: \`${entry.maxTokens}\``);
     lines.push(`- Attempt: \`${this.getAttemptLabel(entry.retryAttempt)}\``);
     lines.push(`- Prompt Hash: \`${entry.promptHash}\``);
