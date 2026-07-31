@@ -531,7 +531,27 @@ const buildDeterministicClearanceParagraph = (
   // (agent9-run.ts substituteRoleAliasesInPostRevealChapters) substitutes the culprit's proper name
   // into role-alias terms, which turned this clearance tail into shipped nonsense ("Beatrice Quill
   // could not have been Captain Ivor Hale", dv_clock_off ch10). Don't plant the collision.
-  return `By the time of the crime, ${supportClause} accounted for ${suspectName}'s movements elsewhere; ${suspectName} could not have been responsible.`;
+  // A_71 — vary the floor and drop the verdict formula.
+  //
+  // Both the 2026-07-31 external reviews quoted this paste as the clearest remaining "validation-style
+  // prose", capping Prose/polish at 6-7/10. The single fixed frame made it recognisable: every cleared
+  // suspect got the identical "By the time of the crime … could not have been responsible." sentence,
+  // so a story clearing three suspects shipped the same sentence three times with the names swapped.
+  //
+  // A deterministic paste cannot write character-specific prose — that is what AGENT9_REGEN_SUSPECT_ELIM
+  // is for, and this remains the FLOOR beneath it. What it can do is stop announcing itself: lead with
+  // the evidence rather than the verdict, and vary the frame per suspect so repeats don't stack. The
+  // variant is chosen by name hash, so it is deterministic and stable across retries of the same run.
+  // Each frame MUST retain recognised clearing language ("cleared" / "ruled out") — the whole point of
+  // this paste is to satisfy the suspect-clearance linter, and a frame that reads beautifully while
+  // failing that gate is worse than the flat one it replaced.
+  const frames = [
+    `${supportClause.charAt(0).toUpperCase()}${supportClause.slice(1)} put ${suspectName} elsewhere while it happened, and ${suspectName} was ruled out.`,
+    `Whatever else stayed uncertain, ${supportClause} placed ${suspectName} well away from it; ${suspectName} was cleared.`,
+    `${suspectName} had been elsewhere, and ${supportClause} held — enough to leave ${suspectName} ruled out.`,
+  ];
+  const pick = Array.from(suspectName).reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % frames.length;
+  return frames[pick];
 };
 
 export const applyDeterministicClearancePatch = (

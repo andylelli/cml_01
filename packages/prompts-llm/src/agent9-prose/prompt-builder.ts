@@ -1235,6 +1235,17 @@ export function buildNSDBlock(
     lines.push('  Exception: a character\'s spoken dialogue may contain these terms — the ban applies to narrator voice only.');
   }
 
+  // A_71 — identifiers leaking into prose. MEASURED (story_20260731-1650 Ch9): the model copied
+  // clue ids out of this prompt and set them as hyphenated appositives inside the reveal —
+  // "Witness accounts-clue_mid_1-place you away from the lobby." A deterministic scrub now removes
+  // them (scrubInternalIdentifiers), but the scrub cannot restore the sentence rhythm it breaks, so
+  // the prompt has to stop producing them in the first place.
+  lines.push('\n⛔ INTERNAL IDENTIFIERS — never appear in prose:');
+  lines.push('Identifiers such as clue_mid_1, clue_core_contradiction_chain, scene_3, or any token containing an underscore are internal bookkeeping.');
+  lines.push('  FORBIDDEN: writing an identifier anywhere in a paragraph, in any form — bare, hyphenated, parenthesised, or quoted.');
+  lines.push('  REQUIRED: refer to the EVIDENCE ITSELF in plain language — "the witness accounts", "the dust on the clock face", "the forensic report".');
+  lines.push('  A reader must never be able to tell that clues had internal names.');
+
   lines.push('═══════════════════════════════════════════════════════');
   return lines.join('\n');
 }

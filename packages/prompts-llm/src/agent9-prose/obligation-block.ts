@@ -438,6 +438,16 @@ export function buildChapterObligationBlock(
         `Do NOT spend the opening paragraphs solely on clock examination, atmospheric setup, or character introductions before the body is found. ` +
         `Required Chapter 1 structure: atmosphere (one sentence max) → body/discovery → investigator reaction → suspects → first time-source contradiction.`
       );
+      // A_71 — plant the weapon at discovery (external review of story_20260731-1650).
+      // The murder weapon was declared in the reveal ("the fatal blow was delivered with the clock")
+      // but its physical evidence was never observed at the scene, so the method read as ASSERTED
+      // rather than DISCOVERED. Planting the observable facts here is what lets the reveal land as
+      // a deduction the reader could have made.
+      lines.push(
+        `  - ⛔ WEAPON PLANTED AT DISCOVERY (Chapter 1 only): if an object at the scene is the murder weapon, its physical condition must be OBSERVED here without being named as the weapon. ` +
+        `Show at least two of: damage to the object consistent with impact; a transfer on it (blood, hair, fibre, residue); an injury on the body whose shape or position matches it; its weight, position, or the effort it would take to move. ` +
+        `Describe what is seen, never what it means — the investigator must not conclude, or even speculate, that this object is the weapon. A reader should be able to look back after the reveal and find the proof already on the page.`
+      );
     }
 
     // Mechanism spoiler ban — fires for the early/mid investigation stages (embargo tier
@@ -913,6 +923,22 @@ export function buildChapterObligationBlock(
     lines.push(`  4. CONSEQUENCE: What happens to ${culpritNames || 'the culprit'} (arrested, fled, taken into custody).`);
     lines.push(`  5. AFTERMATH: At least one other character reacts emotionally to the truth.`);
     lines.push(`  A chapter submitted without all five will be rejected and regenerated.`);
+    // A_71 — two craft requirements from the 2026-07-31 external review of story_20260731-1650
+    // (scored 75/100). Both were named as the changes that would "raise the score significantly".
+    //
+    // (a) MECHANISM PRECISION. The reveal said the clock had been "tampered with" and the chime "set
+    //     to ring falsely" — a LABEL, not a mechanism. The reader could not reconstruct how the hands
+    //     read 8:10 while the chime sounded at 8:45. Requirement 3 above already forces the manner of
+    //     death; nothing forced the CONCEALMENT to be mechanically legible.
+    lines.push(`  ⚙ MECHANISM PRECISION: explain the concealment as a sequence of physical operations a reader could repeat — which part was altered, in what order, and why that produces the false impression.`);
+    lines.push(`     Words like "tampered with", "manipulated", "rigged", "somehow", or "interfered with" are LABELS, not explanations. If you use one, the next sentence must say concretely what was done to which part.`);
+    lines.push(`     If two effects come from separate parts of the same object, say so explicitly — a reader must not be left assuming one action caused both.`);
+    // (b) PHYSICAL TRACE. The culprit was linked by access, nervousness, proximity, motive and
+    //     confession — all behavioural. `culpritEvidenceLinkInText` accepts exactly that, so the
+    //     chapter passed while the reviewer judged the proof "not fully decisive".
+    lines.push(`  🔬 PHYSICAL TRACE: at least ONE piece of physical evidence must tie ${culpritNames || 'the culprit'} to the method itself — a mark, residue, transfer, fragment, or trace left by the act.`);
+    lines.push(`     Access, opportunity, nervousness, proximity, motive, and confession are NOT physical traces. They establish that ${culpritNames || 'the culprit'} COULD have done it; the trace establishes that they DID.`);
+    lines.push(`     The trace must have been observable earlier in the story — reveal what it MEANS here, do not invent it here.`);
     // FIX-2: Mandatory per-suspect clearance in final chapter.
     // gpt-4.1-mini efficiently places clearances in earlier chapters and writes Chapter 10
     // as pure resolution, causing the final lint gate to fail. Force explicit clearances here.

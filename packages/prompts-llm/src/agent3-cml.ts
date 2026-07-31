@@ -295,11 +295,17 @@ GOLDEN AGE GENRE STRUCTURES (required — these make the case a fair-play myster
 - red_herrings: at least TWO misleading details. Each MUST have an innocent_explanation that resolves it — never leave a suspicious detail unexplained. Each red herring MUST misdirect TOWARD an INNOCENT suspect (ideally the false_solution's accused) and AWAY from the real culprit — a "red herring" that points at the actual culprit adds no misdirection and is wrong. Red herrings should be plausible and meaningful, not random.
 - motive: the culprit's motive must be specific and human, NOT a generic "financial desperation / inheritance / money troubles" cliché on its own (the #1 novelty-failure pattern). If money is involved, anchor it to a concrete, particular stake (a specific secret, relationship, reputation, or obligation) that makes THIS culprit's choice feel inevitable.
 - closed_circle.suspects: the sealed pool of suspects. The real culprit (culpability.culprits) MUST be a member. No outsider may be the culprit.
+- hidden_model.mechanism.actual_time_of_death / apparent_time_of_death: when the concealment fakes a TIME, both are REQUIRED as concrete clock times ("9:10", "a quarter past ten"). They MUST satisfy the direction that makes a false-time trick work:
+    • the APPARENT time must fall INSIDE a window the culprit can account for — the staged time is what gives the culprit their alibi;
+    • the ACTUAL time must fall in a gap the culprit CANNOT account for — the real time is what exposes them.
+  Staging a time that lands inside the culprit's own unaccounted gap incriminates them and is backwards; a reader will notice immediately. Say plainly, in the mechanism description, WHY the culprit chose to move the apparent time in that direction. If the concealment does not fake a time, leave both fields empty.
+- alibi_window (per suspect, in cast): the span each suspect can account for. It MUST OVERLAP the window in which the victim actually died — an alibi covering a period when nobody claims the murder happened proves nothing and makes the clearances meaningless. State it as a concrete clock span ("8:00 to 8:30 in the billiard room"), never a vague part of day ("evening"). Where the concealment makes the APPARENT time of death differ from the REAL one, the alibis that matter are those covering the REAL window; a suspect whose alibi covers only the apparent time has no alibi at all, which is exactly the trap the detective should notice.
 - The reader must be able to reach the true solution from clues shown before the reveal; the detective must not rely on a confession or secret knowledge.
 
 Before finalizing, run a silent checklist:
 - death_method names a PHYSICAL manner of death (stabbed/poisoned/struck/strangled/shot), distinct from the concealment mechanism
 - if the concealment creates a false time or reading, it tampers with a genuinely resettable instrument (clock/watch/chime/bell/log), NOT a reading fixed by an external driver (sundial/shadow, thermometer, tide, candle) which cannot be time-shifted by cooling/warping/moving it
+- if the concealment fakes a time: apparent_time_of_death sits inside a culprit alibi window, actual_time_of_death sits in a culprit gap, and the two differ
 - all required top-level keys present
 - 3-5 inference steps with required_evidence in each
 - discriminating_test uses only previously exposed evidence
@@ -364,6 +370,8 @@ CASE:
     mechanism:
       description: ""
       delivery_path: []
+      actual_time_of_death: ""
+      apparent_time_of_death: ""
     outcome:
       result: ""
   false_assumption:
@@ -780,6 +788,11 @@ export async function generateCML(
     hidden.mechanism = hiddenMechanism;
     hiddenMechanism.description = ensureString(hiddenMechanism.description, "Poisoned tea.");
     hiddenMechanism.delivery_path = ensureArray(hiddenMechanism.delivery_path);
+    // A_71 — false-time direction fields. Default to "" (not a placeholder time): an absent time must
+    // read as "this concealment does not fake a time", which checkTimelineDeception treats as
+    // nothing-to-check. Inventing a default here would fabricate a coherence claim the case never made.
+    hiddenMechanism.actual_time_of_death = ensureString(hiddenMechanism.actual_time_of_death, "");
+    hiddenMechanism.apparent_time_of_death = ensureString(hiddenMechanism.apparent_time_of_death, "");
     const hiddenOutcome = ensureObject(hidden.outcome);
     hidden.outcome = hiddenOutcome;
     hiddenOutcome.result = ensureString(hiddenOutcome.result, "Victim poisoned.");

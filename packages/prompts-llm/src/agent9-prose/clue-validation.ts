@@ -190,6 +190,71 @@ const getCulpritRevealChapter = (cmlCase: any, allOutlineScenes: any[], fallback
 // whole accusation/confession/clearance there. Honor the authored beat so the AFTERMATH
 // CONTRACT branch fires instead. Beat strings mirror agent7-narrative.GOLDEN_AGE_BEATS;
 // kept as local literals to avoid coupling clue-validation to the agent-7 module.
+/**
+ * A_71 — detect an aftermath chapter that RE-STAGES the reveal instead of showing consequence.
+ *
+ * The AFTERMATH CONTRACT in the prompt (obligation-block.ts) already forbids four things and tells
+ * the model they "will be rejected and regenerated". Nothing enforced that, so the recurring
+ * "Chapter N repeats Chapter N-1" defect shipped unchallenged.
+ *
+ * Each check requires a RE-ENACTMENT signal (present tense, on-page speech/action), not a
+ * retrospective mention — the contract explicitly REQUIRES naming the culprit and referencing the
+ * outcome in retrospect, so a naive keyword match would fail every compliant chapter.
+ *
+ * Exported for direct testing.
+ */
+export const detectRestagedRevealViolations = (chapterText: string): string[] => {
+  const text = String(chapterText ?? "");
+  if (!text.trim()) return [];
+  const violations: string[] = [];
+
+  // 1. Fresh accusation staged on the page — second-person naming of the crime.
+  if (/\byou\s+(?:killed|murdered|struck|poisoned|did\s+it|are\s+the\s+(?:killer|murderer|culprit))\b/i.test(text)) {
+    violations.push("The chapter stages a fresh accusation (a character is accused on-page).");
+  }
+
+  // 2. First-person admission. Two distinct defects, and the message must name the right one — the
+  //    model failed three attempts on story_20260731-1750 against a message that described the wrong
+  //    problem. There it wrote: `Ivor's confession lingered in the air, the words still echoing:
+  //    "I killed her. … I struck her with the candlestick, then set the clock…"` — framed as
+  //    recollection but re-quoting motive, method and mechanism in full. Retrospective FRAMING does
+  //    not make a verbatim re-quote retrospective; it is the reveal run twice.
+  // `killed time` / `killed the hour` are idioms, not admissions — the bare verb match flagged
+  // "I killed time in the lounge" as a confession. Require the object not to be a duration.
+  const admission = /\bI\s+(?:(?:killed|murdered|struck|poisoned)\s+(?!time\b|the\s+(?:time|hour|afternoon|evening|morning)\b)|did\s+it\b)/.exec(text);
+  if (admission) {
+    const before = text.slice(Math.max(0, admission.index - 120), admission.index);
+    const isRecollectionFrame = /\b(?:confession|words|admission|said|told|spoken|echo\w*|linger\w*|recall\w*|remember\w*)\b/i.test(before);
+    violations.push(
+      isRecollectionFrame
+        ? "The chapter re-quotes the confession verbatim. Referring to a confession is required; reproducing its words is not — replace the quotation with a brief reference to the fact of it (\"the confession he had signed\"), and do not restate the motive, method, or mechanism."
+        : "The chapter stages a fresh confession (a first-person admission delivered on-page). Report the confession as something already given in an earlier chapter; do not dramatise it again.",
+    );
+  }
+
+  // 3. Per-suspect clearance recitation — the roll-call the contract names explicitly. Two or more
+  //    distinct clearance verdicts in one chapter is a recitation, not a passing retrospective note.
+  const clearanceVerdicts =
+    text.match(/\b(?:is|are|was|were)\s+(?:now\s+)?(?:cleared|eliminated|ruled\s+out|exonerated)\b/gi) ?? [];
+  const addressedClearances = text.match(/\byou\s+(?:were|was|are)\s+(?:upstairs|elsewhere|away|not)\b/gi) ?? [];
+  if (clearanceVerdicts.length + addressedClearances.length >= 2) {
+    violations.push("The chapter recites per-suspect clearances again (a clearance roll-call).");
+  }
+
+  // 4. Evidence-chain re-run — the deduction walked through again as a sequence.
+  //    "Taken together" on its own is an ordinary connective ("Taken together, they left"), so the
+  //    loose phrases must co-occur with evidence vocabulary; the explicit chain phrases stand alone.
+  const chainPhrase = /\b(?:evidence\s+chain|chain\s+of\s+evidence)\b/i.test(text);
+  const walkthrough =
+    /\b(?:taken\s+together|piece\s+by\s+piece|point\s+by\s+point)\b/i.test(text) &&
+    /\b(?:evidence|clue|proof|testimony|alibi|timeline|witness)\w*\b/i.test(text);
+  if (chainPhrase || walkthrough) {
+    violations.push("The chapter re-runs the evidence chain rather than treating it as settled.");
+  }
+
+  return violations;
+};
+
 const GOLDEN_AGE_FINAL_TRAP_BEAT = "final_trap";
 const GOLDEN_AGE_REVELATION_BEAT = "revelation";
 
@@ -1241,6 +1306,21 @@ export const validateChapterPreCommitObligations = (
         if (/\b(new clue|new evidence|for the first time|newly discovered)\b/i.test(chapterText)) {
           uniqueHardFailures.push(
             "Stage-mode outcome failed (aftermath_consequence): aftermath chapter must focus on consequence, not introduce decisive new mystery evidence."
+          );
+        }
+        // A_71 — enforce the prohibitions the AFTERMATH CONTRACT already states.
+        //
+        // MEASURED (story_20260731-1650): Ch9's prompt correctly carried the aftermath contract,
+        // including "DO NOT RE-STAGE THE REVEAL … no per-suspect clearance recitation … all of these
+        // will be rejected and regenerated". The model re-staged the reveal anyway, and NOTHING
+        // rejected it: this case tested only for new evidence. The external review's headline
+        // structural complaint ("Chapter 9 repeats Chapter 8") is that unkept promise.
+        //
+        // A prompt that threatens rejection without a validator behind it is strictly worse than no
+        // threat — it trains nothing and the defect ships.
+        for (const violation of detectRestagedRevealViolations(chapterText)) {
+          uniqueHardFailures.push(
+            `Stage-mode outcome failed (aftermath_consequence): ${violation} The reveal already happened on-page in an earlier chapter; this chapter must show consequence and retrospect only.`
           );
         }
         break;

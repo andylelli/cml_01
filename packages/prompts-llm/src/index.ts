@@ -297,3 +297,12 @@ export {
   resolveProseModel,
   resolveBaseModel,
 } from "./utils/model-tiers.js";
+
+// A_71 — false-time concealment direction check (external review headline defect).
+export {
+  checkTimelineDeception,
+  checkCaseTimelineDeception,
+  parseClockTime,
+  parseTimeWindow,
+} from "./timeline-deception.js";
+export type { TimelineDeceptionInput, TimelineDeceptionViolation } from "./timeline-deception.js";

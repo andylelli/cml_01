@@ -208,9 +208,21 @@ export const parsePhraseReplacementsResponse = (content: string): PhraseReplacem
  * "noticed the slight her knuckles twitched as she straightened her gloves". The polish pass had
  * already produced clean prose for that sentence; this pass runs afterwards and broke it.
  */
+// Words that legitimately re-open a phrase between a determiner and a pronoun. Without excluding
+// these, the first pattern below matches ordinary English — "the chain of his medals", "the marble
+// as she turned", "the medals on his coat" — and the guard rolls back valid substitutions. Measured
+// on story_20260731-1750: 71 such matches in a clean story, every one of them well-formed.
+const PHRASE_CONNECTORS =
+  "of|in|on|at|to|with|by|for|from|as|than|and|or|but|near|over|under|behind|beside|against|across|through|into|onto|upon|about|after|before|between|beyond|around";
+
 const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
-  // determiner (+ up to 2 modifiers) immediately followed by a pronoun: "the slight her knuckles"
-  /\b(?:the|a|an)\s+(?:\w+\s+){0,2}(?:he|she|it|they|his|her|its|their|him|them)\b/i,
+  // Determiner (+ up to 2 ADJECTIVAL words) directly followed by a pronoun: "the slight her knuckles".
+  // A determiner followed by another determiner is ungrammatical; a connector in between means the
+  // phrase legitimately restarted, so those are excluded.
+  new RegExp(
+    `\\b(?:the|a|an)\\s+(?:(?!(?:${PHRASE_CONNECTORS})\\b)\\w+\\s+){0,2}(?:he|she|it|they|his|her|its|their|him|them)\\b`,
+    "i",
+  ),
   // doubled determiner / preposition left by an overlapping splice: "the the", "in in"
   /\b(the|a|an|of|in|on|at|to|with|by)\s+\1\b/i,
   // possessive immediately followed by a finite pronoun clause: "her she was"

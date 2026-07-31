@@ -22,6 +22,53 @@ const INTERNAL_AUDIT_LEAK_PATTERNS: RegExp[] = [
   /^\s*(setting|mood|atmosphere|continuity note|audit note)\s*:/i,
 ];
 
+/**
+ * Internal identifier families that must never survive into shipped prose. These are pipeline
+ * bookkeeping tokens; no work of fiction contains them, so the scrub below is unconditionally safe.
+ */
+// Narrowed after a false-positive sweep: `fact|node|step` were speculative additions beyond the
+// observed leak (`clue_*`) and they matched ordinary text — "the fact_finding mission" became
+// "the mission", and case-insensitivity let "Node_A of the plan" become "of the plan". Only families
+// the pipeline actually emits, matched case-SENSITIVELY because pipeline ids are always lowercase.
+const IDENTIFIER_PREFIXES = "clue|scene|beat|atom|obligation";
+const IDENTIFIER_TOKEN = `(?:${IDENTIFIER_PREFIXES})_[a-z0-9_]+`;
+
+/**
+ * Remove internal identifiers from prose, repairing the punctuation they were embedded in.
+ *
+ * MEASURED (story_20260731-1650 Ch9): the model copied identifiers out of its own prompt and set
+ * them as hyphenated appositives —
+ *   "Witness accounts-clue_mid_1-place you away from the lobby."
+ *   "the forensic report revealing tampering-clue_core_contradiction_chain-prove the deception."
+ *
+ * `stripInternalAuditPhrasing` could not help: it drops whole SENTENCES, so applying it here would
+ * delete a load-bearing reveal beat rather than a stray token. This scrub is surgical — it removes
+ * the identifier and the bracketing punctuation, leaving the sentence otherwise intact.
+ *
+ * All three of that run's leaks were in Chapter 9 — the one chapter that failed validation and so
+ * never reached the post-pass polish, whose prompt explicitly strips this class of text. This scrub
+ * is the backstop that does not depend on polish being reached.
+ */
+export function scrubInternalIdentifiers(text: string): string {
+  const input = String(text ?? "");
+  if (!input) return input;
+  let out = input;
+  // Dash-wrapped appositive: "accounts-clue_mid_1-place" -> "accounts place"
+  out = out.replace(new RegExp(`\\s*[-–—]\\s*${IDENTIFIER_TOKEN}\\s*[-–—]\\s*`, "g"), " ");
+  // Bracketed aside: "(clue_mid_1)" / "[clue_mid_1]" -> removed
+  out = out.replace(new RegExp(`\\s*[([{]\\s*${IDENTIFIER_TOKEN}\\s*[)\\]}]`, "g"), "");
+  // Trailing dash form: "tampering-clue_x" -> "tampering"
+  out = out.replace(new RegExp(`\\s*[-–—]\\s*${IDENTIFIER_TOKEN}\\b`, "g"), "");
+  // Bare token anywhere else.
+  out = out.replace(new RegExp(`\\b${IDENTIFIER_TOKEN}\\b`, "g"), "");
+  // Repair what removal left behind.
+  return out
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/([,;:])\s*\1+/g, "$1")
+    .trim();
+}
+
 export function stripInternalAuditPhrasing(text: string): string {
   const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
   if (!normalized) return "";
@@ -91,7 +138,9 @@ export function sanitizeScenesCharacters(scenes: any[], validCastNames: string[]
 export function sanitizeGeneratedChapter(chapter: ProseChapter, validCastNames: string[]): ProseChapter {
   const sanitizeText = (text: string): string => {
     const withAnonymousNames = anonymizeUnknownTitledNames(text, validCastNames);
-    return stripInternalAuditPhrasing(withAnonymousNames);
+    // Scrub identifiers BEFORE the sentence-level audit filter: a sentence carrying a stray
+    // identifier is otherwise valid prose, and dropping it whole would lose a reveal beat.
+    return stripInternalAuditPhrasing(scrubInternalIdentifiers(withAnonymousNames));
   };
 
   return {
