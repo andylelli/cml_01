@@ -108,6 +108,8 @@ export interface CostConfig {
   gpt4oCompletionCostPer1k: number;
   gpt4oMiniPromptCostPer1k: number;
   gpt4oMiniCompletionCostPer1k: number;
+  gpt41PromptCostPer1k: number;
+  gpt41CompletionCostPer1k: number;
   gpt41MiniPromptCostPer1k: number;
   gpt41MiniCompletionCostPer1k: number;
   gpt35PromptCostPer1k: number;

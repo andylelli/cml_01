@@ -30,29 +30,34 @@ export const STORY_LENGTH_TARGETS = {
   // SWEEP B: the Golden Age product is the 10-chapter / ~10,000-word format (one ~1,000-word
   // chapter per spec beat). Aligned with story_length_policy in generation-params.yaml (short=10);
   // the previous static fallback of 20 contradicted YAML and the spec.
+  // A_71: these MUST mirror what generation-params.yaml derives, because getSceneTarget falls back
+  // here (`policy.targets[len] ?? STATIC`). They had drifted badly — medium said 30 chapters vs the
+  // YAML's 20, long said 42 vs 30 — so a missing or renamed YAML key silently produced a 42-chapter
+  // "long" story. Derived values: min = floor(count*ideal*0.45), max = ceil(count*ideal*1.25),
+  // chapterMinWords = floor(min/count).
   short: {
     scenes: 10,
     chapters: 10,
-    minWords: 8_000,
-    maxWords: 13_000,
-    chapterMinWords: 800,
+    minWords: 4_500,
+    maxWords: 12_500,
+    chapterMinWords: 450,
     chapterIdealWords: 1_000,
   },
   medium: {
-    scenes: 30,
-    chapters: 30,
-    minWords: 40_000,
-    maxWords: 60_000,
-    chapterMinWords: 1_200,
-    chapterIdealWords: 1_700,
+    scenes: 20,
+    chapters: 20,
+    minWords: 13_500,
+    maxWords: 37_500,
+    chapterMinWords: 675,
+    chapterIdealWords: 1_500,
   },
   long: {
-    scenes: 42,
-    chapters: 42,
-    minWords: 70_000,
-    maxWords: 100_000,
-    chapterMinWords: 1_500,
-    chapterIdealWords: 2_200,
+    scenes: 30,
+    chapters: 30,
+    minWords: 27_000,
+    maxWords: 75_000,
+    chapterMinWords: 900,
+    chapterIdealWords: 2_000,
   },
 } as const;
 

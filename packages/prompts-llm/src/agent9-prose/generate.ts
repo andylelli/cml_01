@@ -3148,8 +3148,15 @@ export async function generateProse(
           // runs polish on any ACCEPTED high-leakage-stage-mode chapter regardless of attempt AND bypasses
           // the provisional gate for it. Rollback-guarded (worst case = today's accepted chapter). Default
           // OFF — opt-in / probe (one extra LLM call per such chapter). Runtime getter (dotenv-freeze trap).
+          // A_71 — PROMOTED TO DEFAULT-ON. Measured on the 2026-07-31 full run with this off: the
+          // three-part default gate (passed AND attempt===1 AND provisional<95) excluded EVERY
+          // chapter and the polish stage made zero calls — the pass was effectively dead. Two
+          // subsequent runs with it on produced 8 and 6 polish calls, zero errors, every one
+          // rollback-guarded. Set AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS=false to restore the old
+          // behaviour. Runtime getter, never a module const (dotenv-freeze trap).
           const polishHighLeakageChapters =
-            process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS === "true" || process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS === "1";
+            process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS !== "false" &&
+            process.env.AGENT9_POLISH_HIGH_LEAKAGE_CHAPTERS !== "0";
           const isHighLeakageStageMode =
             repairContext.stageMode === "final_reveal" ||
             repairContext.stageMode === "discriminating_test" ||

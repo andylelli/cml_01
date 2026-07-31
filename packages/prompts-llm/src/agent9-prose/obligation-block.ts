@@ -897,6 +897,12 @@ export function buildChapterObligationBlock(
     lines.push(`  3. REMAINING QUESTIONS: tie off the questions the reveal left open — what becomes of the household, the estate, and the surviving characters' obligations.`);
     lines.push(`  4. CONSEQUENCE: show the emotional and social consequences of the truth on the surviving characters.`);
     lines.push(`  ⛔ DO NOT RE-STAGE THE REVEAL: no new accusation scene, no fresh confession, no re-run of the evidence chain, and no per-suspect clearance recitation — all of these already happened on-page in the reveal chapter, and repeating them will be rejected and regenerated.`);
+    // A_71 — the specific evasion the model actually used, three attempts running: it wrapped the
+    // whole reveal in a recollection frame ("the confession lingered in the air, the words still
+    // echoing: 'I killed her. … I struck her with the candlestick, then set the clock…'") and treated
+    // that as retrospect. Naming the loophole up front is cheaper than rejecting it three times.
+    lines.push(`  ⛔ DO NOT QUOTE THE CONFESSION. Referring to it is required; reproducing its words is forbidden. Write "the confession he had signed", never a quoted line of it. A recollection frame ("the words still echoing", "his confession lingered") does NOT make a quotation retrospective — it is the reveal delivered a second time, and it will be rejected.`);
+    lines.push(`  ⛔ DO NOT RESTATE the motive, the method, or how the concealment worked. The reader already has them. Referring to "what he had done" is enough.`);
   } else if (currentArcPosition === 'resolution') {
     const culpritNames: string = ((cmlCase?.culpability?.culprits ?? []) as string[]).filter((n) => typeof n === 'string' && n).join(', ');
     const murderMethod: string = cmlCase?.hidden_model?.mechanism?.description ?? 'the crime method';

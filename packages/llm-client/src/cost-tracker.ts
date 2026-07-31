@@ -13,6 +13,14 @@ export const defaultCostConfig: CostConfig = {
   gpt4oMiniPromptCostPer1k: 0.00013035,
   gpt4oMiniCompletionCostPer1k: 0.0005214,
 
+  // GPT-4.1 pricing ($2.00/$8.00 per million tokens, converted to GBP at 0.79).
+  // A_71: `gpt-4.1` matched NO branch below — it contains neither "4o" nor "4.1-mini" — so it fell
+  // through to the GPT-3.5 fallback and every run reported ~5x under its true cost (measured:
+  // £1.58 reported vs £7.90 real for 1M+1M tokens). Every cost figure in the reports, the per-agent
+  // attribution, and any provider A/B was wrong by that factor.
+  gpt41PromptCostPer1k: 0.00158,
+  gpt41CompletionCostPer1k: 0.00632,
+
   // GPT-4.1-mini pricing ($0.40/$1.60 per million tokens, converted to GBP at 0.79)
   gpt41MiniPromptCostPer1k: 0.000316,
   gpt41MiniCompletionCostPer1k: 0.001264,
@@ -68,10 +76,14 @@ export class CostTracker {
     // check it falls through to the GPT-3.5 fallback and produces understated costs.
     const isGpt41Mini = modelName.includes("gpt-4.1-mini") || modelName.includes("4.1-mini");
     const isGpt4oMini = !isGpt41Mini && (modelName.includes("gpt-4o-mini") || modelName.includes("4o-mini"));
+    // Full gpt-4.1 — must be tested AFTER the mini check so "gpt-4.1-mini" never lands here.
+    const isGpt41 = !isGpt41Mini && (modelName.includes("gpt-4.1") || modelName.includes("gpt-41"));
     const isGpt4o = !isGpt41Mini && !isGpt4oMini && (modelName.includes("gpt-4o") || modelName.includes("4o"));
 
     const promptCostPer1k = isGpt41Mini
       ? this.config.gpt41MiniPromptCostPer1k
+      : isGpt41
+        ? this.config.gpt41PromptCostPer1k
       : isGpt4oMini
         ? this.config.gpt4oMiniPromptCostPer1k
         : isGpt4o
@@ -80,6 +92,8 @@ export class CostTracker {
 
     const completionCostPer1k = isGpt41Mini
       ? this.config.gpt41MiniCompletionCostPer1k
+      : isGpt41
+        ? this.config.gpt41CompletionCostPer1k
       : isGpt4oMini
         ? this.config.gpt4oMiniCompletionCostPer1k
         : isGpt4o
