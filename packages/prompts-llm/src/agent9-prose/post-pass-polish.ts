@@ -126,20 +126,66 @@ export const buildPostPassPolishPrompt = (args: {
   const balanceBlock = buildNarrativeBalanceBlock(args.repairContext.stageMode);
   const balanceAssessment = assessNarrativeBalanceSignals(args.chapter, args.repairContext.stageMode);
   const lines: string[] = [];
-  lines.push("QUALITY-ONLY POLISH PASS");
-  lines.push("You are editing a chapter that already passes hard logic and validation gates.");
-  lines.push("Make only local prose improvements: rhythm, clarity, transitions, sentence variety, and naturalness.");
-  lines.push("Do not reorder events, add new facts, remove evidence, or change who is implicated or cleared.");
-  // ROADMAP_TO_80 M3: dialogue subtext + de-redundancy targets. These are LOCAL rewrites that must
-  // preserve every named fact/clue/alibi/clearance in meaning (the pass re-validates and rolls back).
-  lines.push("- DIALOGUE SUBTEXT: rewrite any line that reads as a flat exposition dump — an alibi, time, or clearance stated as a plain report (\"I was in the kitchen at eleven, the cook will confirm\") — into a line with subtext: the speaker deflects, hedges, qualifies, or implies, and the investigator infers the rest. Preserve every named fact, clue, alibi, and clearance verbatim in meaning; invent nothing.");
-  lines.push("- DE-REDUNDANCY: cut repeated atmospheric/setting phrasing and vary sentence openings across the chapter; never repeat a sensory sentence near-verbatim.");
-  // A_67 polish: the recurring external-review polish drag is internal planning/validation/spec text that
-  // the model reproduced as if it were prose. A line-editor should rewrite it into fiction, not leave it.
-  lines.push("- REMOVE PLANNING / VALIDATION / SPEC LEAKAGE: delete or rewrite any sentence that reads as internal planning, validation, or mechanism-spec text rather than fiction — a bare computed value stated flatly (\"it had gained thirty seconds per hour in all\"), a measurement/spec dump (\"the depth of the echo chamber came to six feet\"), a test-outcome validation line (\"the result proved one theory and ruled out the other\", \"the evidence failed it under direct comparison\"), or a repeated stock filler (\"in a remembered moment\"). Express the SAME fact as a character would NOTICE, SAY, or REACT to it, in the scene's voice — never as a report, a note, or a bare figure. Invent no new facts and keep every named clue/alibi/clearance.");
-  // A_68 (prose audit): two more of the recurring "Prose/polish 6/10" shapes the review flags.
-  lines.push("- SHOW THE DEDUCTION, DON'T REPORT IT: rewrite any line that narrates a conclusion as a flat report — \"X concluded/realized/understood that Y\", \"the evidence cleared Z\", \"Z was cleared by the alibi\", \"the alibi confirmed Z could not have done it\" — into the observation-plus-inference a character actually makes on the page (what they see, ask, or say, and the beat that turns it into the conclusion). Keep the logical content and every named clue/suspect/clearance identical; a clearance must still read as this person being ruled out by this fact.");
-  lines.push("- PERIOD DICTION LIFT (bounded): where a sentence uses generically modern or flat phrasing, prefer era-authentic diction consistent with the story's established register — this is a light lift, NOT a re-voicing, and never at the cost of clarity or a named fact.");
+  lines.push("LINE EDIT — MAKE THIS CHAPTER READ LIKE PUBLISHED FICTION");
+  lines.push("");
+  lines.push("This chapter is already logically correct. Every clue, alibi and clearance in it is right, and");
+  lines.push("your job is not to check them. Your job is the sentences.");
+  lines.push("");
+  // A_71 — a single governing test, stated first. Two external reviews scored Prose/polish 6/10 and
+  // 7/10 on chapters this pass had already touched, both citing "generated validation prose". A list
+  // of prohibitions was not landing; a reader-facing test the model can apply to every sentence is a
+  // better instrument than another rule.
+  lines.push("THE TEST — apply it to every sentence:");
+  lines.push("  Would a reader believe a novelist wrote this, or would they sense a machine assembling facts?");
+  lines.push("  If the second, rewrite it. If a sentence reads as though it exists to satisfy a requirement,");
+  lines.push("  it must be rewritten so it exists because the scene needed it.");
+  lines.push("");
+  lines.push("THE FIVE THINGS REVIEWERS KEEP FLAGGING — fix every instance you find:");
+  lines.push("");
+  lines.push("1. VERDICT SENTENCES. A conclusion announced instead of dramatised. The tells are a fact");
+  lines.push("   followed by its own ruling in the same breath — \"…placed her elsewhere; she could not have");
+  lines.push("   been responsible\" — or a clause naming its own function (\"the evidence chain\", \"the");
+  lines.push("   testimony confirmed\", \"which proved\"). Replace the ruling with the moment it lands: who");
+  lines.push("   stops arguing, what the investigator does next, what goes quiet. The reader draws the");
+  lines.push("   conclusion; the prose does not hand it over.");
+  lines.push("");
+  lines.push("2. OVER-EXPLANATION. Prose that tells the reader how important something is —");
+  lines.push("   \"this is what proves it\", \"the significance was unmistakable\", a detail followed by a");
+  lines.push("   sentence explaining why it matters. Cut the explanation. Trust the detail. A murder weapon");
+  lines.push("   described accurately does not need to be announced as the murder weapon.");
+  lines.push("");
+  lines.push("3. STACKED MODIFIERS THAT DESCRIBE NOTHING REAL. Adjective pile-ups assembled from setting");
+  lines.push("   vocabulary rather than observed from a place — three or four qualifiers queued in front of");
+  lines.push("   one noun, or a room given a grander name than it has elsewhere in the story. Picture the");
+  lines.push("   object; write what is actually there; call each place by the same name every time.");
+  lines.push("");
+  lines.push("4. SPEC TEXT WEARING A SENTENCE. A computed value or measurement set down bare, as though");
+  lines.push("   copied from a specification — a rate, a depth, an interval, a test outcome stated as a");
+  lines.push("   result rather than as something anyone in the room saw or said. Keep the number exactly;");
+  lines.push("   give it to a character to notice, doubt, or argue about.");
+  lines.push("");
+  lines.push("5. FLAT REPORTING OF SPEECH AND THOUGHT. Alibis recited, times stated, deductions narrated");
+  lines.push("   as \"X realised that Y\". People under suspicion deflect, qualify, and answer the question");
+  lines.push("   they wish had been asked. Let them. The investigator infers the rest.");
+  lines.push("");
+  // The A_67 lesson: illustrative prose in a prompt gets copied into stories verbatim. Any example
+  // here must be impossible to reuse — hence a bare shape, not a sentence anyone could lift.
+  lines.push("Do NOT copy any wording from these instructions into the chapter. They describe shapes to");
+  lines.push("remove, not text to insert.");
+  lines.push("");
+  lines.push("ALSO, WHERE IT HELPS:");
+  lines.push("- Vary sentence length and opening. Two long sentences in a row, or three openings sharing a");
+  lines.push("  shape, flatten a paragraph however correct it is.");
+  lines.push("- Cut repeated atmospheric phrasing. A sensory image used once is a detail; twice is a tic.");
+  lines.push("- Prefer era-authentic diction where a phrase reads generically modern — a light lift, never a");
+  lines.push("  re-voicing, and never at the cost of clarity.");
+  lines.push("");
+  lines.push("WHAT YOU MAY NOT DO:");
+  lines.push("- Do not reorder events, add facts, remove evidence, or change who is implicated or cleared.");
+  lines.push("- Do not invent a detail to make a sentence prettier. Every physical fact must already be here.");
+  lines.push("- Do not shorten the chapter materially. This is a rewrite of sentences, not a trim.");
+  lines.push("- If an improvement risks changing the logic, keep the original wording. Losing a small");
+  lines.push("  improvement costs nothing; losing a clue fails the chapter.");
   lines.push("");
   lines.push("LOCKED STORY CONTRACT");
   lines.push(`- Stage mode remains ${formatStageModeLabel(args.repairContext.stageMode)}.`);
@@ -166,9 +212,10 @@ export const buildPostPassPolishPrompt = (args: {
   lines.push("OUTPUT RULES");
   lines.push("- Return full corrected JSON for exactly one chapter.");
   lines.push("- Keep the same title unless there is a minor punctuation or capitalization cleanup.");
-  lines.push("- Prefer sentence-level or paragraph-local edits over rewrites of the whole chapter.");
-  lines.push("- Preserve the narrative voice, period register, and atmosphere — this is a line-edit for polish, not a re-voicing.");
-  lines.push("- If a possible improvement would risk a logic change, keep the original wording instead.");
+  lines.push("- Return EVERY paragraph, edited or not, in its original order.");
+  lines.push("- Preserve the narrative voice, period register, and atmosphere — this is a line-edit, not a re-voicing.");
+  lines.push("- Before returning, reread your version once as a reader who does not know the plot. If any");
+  lines.push("  sentence still reads as assembled rather than written, fix it and reread again.");
   return lines.join("\n");
 };
 

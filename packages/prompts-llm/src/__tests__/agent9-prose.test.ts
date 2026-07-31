@@ -1321,15 +1321,18 @@ describe("A_67 polish — buildPostPassPolishPrompt targets planning/validation 
     const chapter = { title: "Chapter 9", paragraphs: ["The result proved one theory and ruled out the other.", "It had gained thirty seconds per hour in all."] };
     const prompt = buildPostPassPolishPrompt({ chapter, repairContext });
 
-    // the anti-leakage directive + reframe-as-fiction + voice preservation
-    expect(prompt).toContain("REMOVE PLANNING");
-    expect(prompt).toContain("as a character would");
+    // A_71 restructured this prompt; the CONTRACT it must express is unchanged, so assert the
+    // intent rather than the old wording: spec/planning text reframed as fiction, voice preserved,
+    // and no invented content.
+    expect(prompt).toContain("SPEC TEXT WEARING A SENTENCE");
+    expect(prompt).toContain("give it to a character to notice, doubt, or argue about");
     expect(prompt.toLowerCase()).toContain("narrative voice");
     // and it still forbids content changes (content preserved by the pass's re-validation + rollback)
-    expect(prompt).toContain("Invent no new facts");
+    expect(prompt).toContain("Do not invent a detail");
     // A_68 prose-audit additions: show-the-deduction + bounded period-diction lift
-    expect(prompt).toContain("SHOW THE DEDUCTION");
-    expect(prompt).toContain("PERIOD DICTION LIFT");
+    // A_68's two additions survive the A_71 restructure under new headings.
+    expect(prompt).toContain("The reader draws the");   // show-the-deduction, not report it
+    expect(prompt).toContain("era-authentic diction");  // bounded period-diction lift
   });
 });
 
@@ -2446,7 +2449,13 @@ describe("post-pass polish", () => {
       }),
     });
 
-    expect(prompt).toContain("QUALITY-ONLY POLISH PASS");
+    expect(prompt).toContain("LINE EDIT — MAKE THIS CHAPTER READ LIKE PUBLISHED FICTION");
+    // The governing reader test is what the A_71 rewrite added; a list of prohibitions was not
+    // landing (two reviews scored Prose/polish 6-7/10 on chapters this pass had already touched).
+    expect(prompt).toContain("Would a reader believe a novelist wrote this");
+    // Illustrative wording in prompts has been copied into stories before (A_67), so the pass must
+    // keep telling the model these are shapes to remove, not text to insert.
+    expect(prompt).toContain("Do NOT copy any wording from these instructions");
     expect(prompt).toContain("Edgar Vale");
     expect(result.keptPolishedVersion).toBe(false);
     expect(result.rollbackReason).toBe("validation_regression");
