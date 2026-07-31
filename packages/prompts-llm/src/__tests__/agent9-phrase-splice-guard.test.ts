@@ -11,6 +11,8 @@
  */
 import { describe, expect, it } from "vitest";
 import {
+  phraseToTolerantRegex,
+  rawTextContainsPhrase,
   applyPhraseSubstitutions,
   substitutionIntroducesMalformedText,
 } from "../agent9-prose/repair.js";
@@ -125,5 +127,37 @@ describe("guard precision — must not reject ordinary English", () => {
 
   it("does not fire on 'hiss' and similar words that merely start with a pronoun", () => {
     expect(substitutionIntroducesMalformedText("x", "the faint hiss of rain against the glass")).toBe(false);
+  });
+});
+
+/**
+ * A_71 — the A_70 §8.2 needle/haystack bug, found live at a THIRD and FOURTH site (repair.ts
+ * targeting + replacement) long after it was fixed in the cross-chapter pass. detectRecurringPhrases
+ * emits NORMALIZED 7-grams; this pass matched them against RAW text, so any run crossing punctuation
+ * silently never matched. Partial no-op: no error, no warning, the phrase was simply dropped.
+ */
+describe("punctuation-tolerant phrase matching", () => {
+  it("matches a normalized phrase across a sentence boundary", () => {
+    expect(rawTextContainsPhrase("the clock ran oddly this afternoon. Chimes rang", "clock ran oddly this afternoon chimes")).toBe(true);
+  });
+
+  it("the old exact-literal comparison could not", () => {
+    expect("the clock ran oddly this afternoon. chimes rang".includes("clock ran oddly this afternoon chimes")).toBe(false);
+  });
+
+  it("substitutes across punctuation", () => {
+    expect(
+      applyPhraseSubstitutions(["He paused, then went in."], [{ original: "paused then went", replacement: "hesitated before stepping" }])[0],
+    ).toBe("He hesitated before stepping in.");
+  });
+
+  it("still rolls back the malformed regression case", () => {
+    expect(
+      applyPhraseSubstitutions(["Hugo noticed the slight tremor in her fingers."], [{ original: "tremor in her fingers", replacement: "her knuckles twitched" }])[0],
+    ).toBe("Hugo noticed the slight tremor in her fingers.");
+  });
+
+  it("returns null for a phrase with no usable tokens", () => {
+    expect(phraseToTolerantRegex("   ,,,  ")).toBeNull();
   });
 });

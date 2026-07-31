@@ -118,11 +118,14 @@ export const buildPostPassPolishPrompt = (args: {
   chapter: ProseChapter;
   repairContext: ChapterRepairContext;
 }): string => {
-  const requiredClues = args.repairContext.requiredClueSummaries.slice(0, 6);
+  // A_71 — these were capped at 6 and 5 while hasPolishRegression checks EVERY required clue and
+  // clearance. A chapter with more obligations than the cap was told to preserve a subset, dropped
+  // one outside it, and was rolled back for the omission — a silent, self-inflicted rollback that
+  // wasted the polish call. The guard defines the contract, so the prompt must state all of it.
+  const requiredClues = args.repairContext.requiredClueSummaries;
   const clearances = args.repairContext.matchingClearances
     .map((entry) => entry.suspect_name)
-    .filter(Boolean)
-    .slice(0, 5);
+    .filter(Boolean);
   const balanceBlock = buildNarrativeBalanceBlock(args.repairContext.stageMode);
   const balanceAssessment = assessNarrativeBalanceSignals(args.chapter, args.repairContext.stageMode);
   const lines: string[] = [];
@@ -423,6 +426,12 @@ export const hasRepetitionRewriteRegression = (args: {
   rewritten: ProseChapter;
   lockedValues: ReadonlyArray<string>;
   castNames: ReadonlyArray<string>;
+  /**
+   * A_71 — required clue observables. The guard covered locked facts, cast names, digits and
+   * length, but NOT clues: a variation rewrite could reword a clue out of the chapter and pass.
+   * Optional so existing callers keep working; absent ⇒ previous behaviour exactly.
+   */
+  clueTerms?: ReadonlyArray<string>;
 }): boolean => {
   const originalText = chapterFullText(args.original);
   const rewrittenText = chapterFullText(args.rewritten);
@@ -442,6 +451,12 @@ export const hasRepetitionRewriteRegression = (args: {
     const name = String(raw ?? "").trim().toLowerCase();
     if (!name) continue;
     if (originalLower.includes(name) && !rewrittenLower.includes(name)) return true;
+  }
+  // A clue present before the rewrite must survive it.
+  for (const raw of args.clueTerms ?? []) {
+    const term = String(raw ?? "").trim().toLowerCase();
+    if (term.length < 4) continue;
+    if (originalLower.includes(term) && !rewrittenLower.includes(term)) return true;
   }
   // Every number/time token present before must survive (a dropped time/number is a lost fact).
   const before = digitTokens(originalText);

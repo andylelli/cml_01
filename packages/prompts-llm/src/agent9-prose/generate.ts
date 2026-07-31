@@ -2846,7 +2846,27 @@ export async function generateProse(
                   castNames,
                   isLastBatch ? (() => {
                     const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
-                    return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
+                    // A_71 — ITEM 11's validator half was DEAD: this object never carried
+                    // revealChapterText, so `revealSatisfiesResolution` was always false and the
+                    // final chapter was unconditionally required to re-stage the confession/arrest —
+                    // even when an earlier chapter already delivered it. That is the mechanism behind
+                    // the recurring "Chapter N repeats Chapter N-1" defect, and it put this check in
+                    // direct contradiction with the aftermath re-stage detector (the model burned
+                    // three attempts caught between "must confess" and "must not confess").
+                    // Committed earlier chapters ARE the reveal candidates; join them so the check
+                    // can see a resolution that already happened on-page.
+                    const priorChaptersText = chapters
+                      .map((c) => (c?.paragraphs ?? []).join(" "))
+                      .join(" ");
+                    return culpritSurname
+                      ? {
+                          isLastChapter: true,
+                          culpritName,
+                          culpritSurname,
+                          murderMethod: murderMethod || undefined,
+                          revealChapterText: priorChaptersText,
+                        }
+                      : undefined;
                   })() : undefined,
                   stageContractCheck
                 )
@@ -3768,7 +3788,27 @@ export async function generateProse(
                   castNames,
                   isLastBatch ? (() => {
                     const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
-                    return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
+                    // A_71 — ITEM 11's validator half was DEAD: this object never carried
+                    // revealChapterText, so `revealSatisfiesResolution` was always false and the
+                    // final chapter was unconditionally required to re-stage the confession/arrest —
+                    // even when an earlier chapter already delivered it. That is the mechanism behind
+                    // the recurring "Chapter N repeats Chapter N-1" defect, and it put this check in
+                    // direct contradiction with the aftermath re-stage detector (the model burned
+                    // three attempts caught between "must confess" and "must not confess").
+                    // Committed earlier chapters ARE the reveal candidates; join them so the check
+                    // can see a resolution that already happened on-page.
+                    const priorChaptersText = chapters
+                      .map((c) => (c?.paragraphs ?? []).join(" "))
+                      .join(" ");
+                    return culpritSurname
+                      ? {
+                          isLastChapter: true,
+                          culpritName,
+                          culpritSurname,
+                          murderMethod: murderMethod || undefined,
+                          revealChapterText: priorChaptersText,
+                        }
+                      : undefined;
                   })() : undefined,
                   {
                     mode: chapterMode,
@@ -4200,7 +4240,27 @@ export async function generateProse(
                   castNames,
                   isLastBatch ? (() => {
                     const culpritSurname = culpritName.trim().split(/\s+/).pop() ?? culpritName;
-                    return culpritSurname ? { isLastChapter: true, culpritName, culpritSurname, murderMethod: murderMethod || undefined } : undefined;
+                    // A_71 — ITEM 11's validator half was DEAD: this object never carried
+                    // revealChapterText, so `revealSatisfiesResolution` was always false and the
+                    // final chapter was unconditionally required to re-stage the confession/arrest —
+                    // even when an earlier chapter already delivered it. That is the mechanism behind
+                    // the recurring "Chapter N repeats Chapter N-1" defect, and it put this check in
+                    // direct contradiction with the aftermath re-stage detector (the model burned
+                    // three attempts caught between "must confess" and "must not confess").
+                    // Committed earlier chapters ARE the reveal candidates; join them so the check
+                    // can see a resolution that already happened on-page.
+                    const priorChaptersText = chapters
+                      .map((c) => (c?.paragraphs ?? []).join(" "))
+                      .join(" ");
+                    return culpritSurname
+                      ? {
+                          isLastChapter: true,
+                          culpritName,
+                          culpritSurname,
+                          murderMethod: murderMethod || undefined,
+                          revealChapterText: priorChaptersText,
+                        }
+                      : undefined;
                   })() : undefined,
                   {
                     mode: chapterMode,

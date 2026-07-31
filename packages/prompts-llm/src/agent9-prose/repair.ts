@@ -213,7 +213,7 @@ export const parsePhraseReplacementsResponse = (content: string): PhraseReplacem
 // as she turned", "the medals on his coat" — and the guard rolls back valid substitutions. Measured
 // on story_20260731-1750: 71 such matches in a clean story, every one of them well-formed.
 const PHRASE_CONNECTORS =
-  "of|in|on|at|to|with|by|for|from|as|than|and|or|but|near|over|under|behind|beside|against|across|through|into|onto|upon|about|after|before|between|beyond|around";
+  "of|in|on|at|to|with|by|for|from|as|than|and|or|but|near|over|under|behind|beside|against|across|through|into|onto|upon|about|after|before|between|beyond|around|below|above|beneath|among|amid|past|toward|towards|within|without|outside|inside|opposite|alongside|watching|holding|carrying|facing|following|touching|showing|leaving|beside";
 
 const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
   // Determiner (+ up to 2 ADJECTIVAL words) directly followed by a pronoun: "the slight her knuckles".
@@ -238,6 +238,37 @@ const MALFORMED_SPLICE_PATTERNS: ReadonlyArray<RegExp> = [
 export const substitutionIntroducesMalformedText = (before: string, candidate: string): boolean =>
   MALFORMED_SPLICE_PATTERNS.some((re) => re.test(candidate) && !re.test(before));
 
+/**
+ * A_71 — build a punctuation-TOLERANT matcher for a normalized phrase.
+ *
+ * `detectRecurringPhrases` emits NORMALIZED 7-grams (tokenizeWords: lowercased, punctuation
+ * stripped, single-spaced). This pass then matched them against RAW chapter text with a literal
+ * regex, so any 7-word run crossing a comma or sentence boundary could never match — the A_70 §8.2
+ * needle/haystack bug, still live here at both the targeting and replacement sites long after it was
+ * fixed in the cross-chapter pass. Silent: no error, no warning, the phrase was simply dropped.
+ *
+ * Joining the tokens with a non-alphanumeric separator class lets the normalized needle find its raw
+ * occurrence AND gives applyPhraseSubstitutions a real span to replace, which a normalized-only
+ * comparison could not.
+ */
+export const phraseToTolerantRegex = (phrase: string, flags = "gi"): RegExp | null => {
+  const tokens = String(phrase ?? "")
+    .toLowerCase()
+    .split(/[^a-z0-9']+/)
+    .filter(Boolean)
+    // No escaping needed: the split above keeps only [a-z0-9'], none of which are regex
+    // metacharacters. Escaping here previously introduced its own quoting bug.
+    ;
+  if (tokens.length === 0) return null;
+  return new RegExp(tokens.join("[^A-Za-z0-9']+"), flags);
+};
+
+/** Punctuation-tolerant presence test for a normalized phrase inside raw text. */
+export const rawTextContainsPhrase = (text: string, phrase: string): boolean => {
+  const re = phraseToTolerantRegex(phrase, "i");
+  return re !== null && re.test(String(text ?? ""));
+};
+
 export const applyPhraseSubstitutions = (
   paragraphs: string[],
   replacements: PhraseReplacement[],
@@ -246,8 +277,11 @@ export const applyPhraseSubstitutions = (
   return paragraphs.map((para) => {
     let result = para;
     for (const { original, replacement } of replacements) {
-      const escaped = original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const pattern = new RegExp(escaped, 'gi');
+      // Punctuation-tolerant: the phrase arrives NORMALIZED (tokenizeWords), so an exact-literal
+      // regex could never match a run that crosses a comma or sentence boundary — the A_70 §8.2
+      // needle/haystack bug, live at this site until A_71.
+      const pattern = phraseToTolerantRegex(original);
+      if (pattern === null) continue;
       const candidate = result.replace(pattern, (match) => {
         // Preserve ALL-CAPS (e.g. chapter headings, emphasis typography)
         if (match === match.toUpperCase() && match !== match.toLowerCase()) {
@@ -289,12 +323,12 @@ export const runAtmosphereRepairIfNeeded = async (
       chapter,
       text: (chapter.paragraphs ?? []).join(' '),
     }))
-    .filter(({ text }) => bannedPhrases.some((phrase) => text.toLowerCase().includes(phrase.toLowerCase())));
+    .filter(({ text }) => bannedPhrases.some((phrase) => rawTextContainsPhrase(text, phrase)));
 
   for (const target of repairTargets) {
     // Only send the phrases actually present in this chapter.
     const presentPhrases = bannedPhrases.filter((phrase) =>
-      target.text.toLowerCase().includes(phrase.toLowerCase())
+      rawTextContainsPhrase(target.text, phrase)
     );
 
     const response = await client.chat({

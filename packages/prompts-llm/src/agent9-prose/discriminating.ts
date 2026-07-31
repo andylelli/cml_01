@@ -138,8 +138,15 @@ export function buildDiscriminatingTestChecklist(
   // so the checklist fires correctly when batchSize > 1 and the DT scene number is below
   // the raw integer threshold. The call site already validates the DT scene via act+scene
   // matching; this guard prevents the checklist from appearing in very early chapters only.
-  const chapterNumbers = chapterRange.split('-').map(n => parseInt(n, 10));
-  const isLateChapter = chapterNumbers.some(n => n / totalScenes >= 0.40);
+  // A_71 — parseInt had no NaN guard and the division had no zero guard: a malformed range yielded
+  // NaN (silently omitting the checklist) and totalScenes === 0 yielded Infinity (firing it on every
+  // chapter). Both fail silently in opposite directions.
+  const chapterNumbers = chapterRange
+    .split('-')
+    .map((n) => parseInt(n, 10))
+    .filter((n) => Number.isFinite(n));
+  const isLateChapter =
+    totalScenes > 0 && chapterNumbers.some((n) => n / totalScenes >= 0.40);
   
   if (!isLateChapter) {
     return '';
