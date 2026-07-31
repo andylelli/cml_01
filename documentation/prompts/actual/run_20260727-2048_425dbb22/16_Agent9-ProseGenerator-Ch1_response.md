@@ -1,702 +1,0 @@
-# Actual Prompt Response Record
-
-- Run ID: `run_425dbb22-2e5e-4f39-86a6-7935a3c3830b`
-- Project ID: `proj_8d84e7a9-9798-4656-8c29-73c856049d93`
-- Request Timestamp: `2026-07-27T20:57:43.913Z`
-- Response Timestamp: `2026-07-27T20:58:17.798Z`
-- Agent: `Agent9-ProseGenerator-Ch1`
-- Operation: `chat_response`
-- Model: `gpt-4.1`
-- Attempt: `first`
-- Prompt Hash: `ad47880a44b75d41`
-- Response Hash: `94917667e1ef4e5a`
-- Latency (ms): `33885`
-- Prompt Tokens: `18467`
-- Completion Tokens: `4500`
-- Total Tokens: `22967`
-- Estimated Cost: `0.012626965`
-
-## Response Body
-
-```text
-{
-  "status": "draft",
-  "tone": "classic",
-  "chapters": [
-    {
-      "title": "Chapter 1: The Frosted Hourglass",
-      "summary": "Inspector Helen Marwood arrives at the study in Winthrope Manor Estate to find Lady Beatrice Winthrope dead, her head bloodied by a heavy paperweight. As the household gathers in shock, Helen observes frost crystals inside the hourglass on the mantelpiece, and the suspects' first reactions reveal a web of tension and concealed emotion.",
-      "paragraphs": [
-        "Helen’s gloved hand pressed against the cold brass handle as she entered the Study room, Winthrope Manor Estate. Rain whispered against the leaded glass panes, the faintest chill curling beneath the door and stirring the scent of old leather and extinguished fire. In the centre of the room, Lady Beatrice Winthrope lay sprawled beside the desk, her head turned at an unnatural angle, dark hair matted with fresh blood. The heavy antique paperweight—its base smeared red—rested inches from her outstretched fingers, as if dropped in haste or horror. Helen paused, the gravity of the scene settling on her shoulders with the same weight as the winter air.",
-        "A hush clung to the room, broken only by the distant creak of settling wood and the soft, uneven breaths of those assembled. Helen’s gaze swept the scene, cataloguing the evidence with methodical calm. The hourglass on the mantelpiece drew her eye: within its glass, minute frost crystals traced delicate patterns along the inner surface, sparkling faintly in the dim morning light. She stepped closer, noting the peculiar shimmer—an anomaly for a room warmed by last night’s fire, and yet the glass was rimmed with a fine, unmistakable layer of ice. Her mind marked the detail, though her face betrayed nothing but professional reserve.",
-        "Charles Montague, the estate manager, stood a measured distance from the body, his hands clasped so tightly behind his back that the knuckles blanched. His tailored suit was immaculate, save for a single thread caught at the cuff. He spoke first, voice smooth but pitched too low. “I found her—Lady Beatrice—just as you see.” His eyes flicked from Helen to the hourglass, then away, as if the sight of it unsettled him. Helen watched him for a heartbeat longer, noting the nervous dart of his gaze and the way his jaw worked as if grinding down a confession.",
-        "Margaret Hensley lingered at the threshold, her posture rigid, hands twisted in the folds of her apron. The lady’s maid’s face was blotched with the rawness of recent tears, her eyes fixed on Lady Beatrice Winthrope with a devotion that bordered on anguish. She did not move closer, nor did she look at Charles Montague, though her shoulders tightened at the sound of his voice. Helen registered the tension—resentment, perhaps, or something deeper—before turning her attention to the others.",
-        "Edward Winthrope, the late Lady Beatrice’s brother, loomed near the window, his stance as unyielding as the military cut of his overcoat. The faint scratch on the window latch and the slight gap where the sash met the sill caught Helen’s eye, but Edward’s focus remained fixed on the body, his expression carved from stone. “This is intolerable,” he said, the words clipped and cold. “You’ll see to it that the family’s reputation is not dragged through the mud, Inspector.” He did not wait for a reply, but Helen noted the tremor in his hand as he adjusted his cufflink.",
-        "Clara Simmons, housekeeper and pragmatic confidante, hovered at the edge of the rug, her gaze steady and unflinching. She surveyed the room with the practiced calm of one accustomed to crisis, yet her fingers drummed a silent rhythm against her skirt. “If you’ll permit, Inspector, the staff are waiting for instruction. There’s stew on the hob and nerves to settle.” Her voice was even, but her eyes lingered on the hourglass, then the window, as if piecing together her own silent narrative.",
-        "James Fletcher, the young legal advisor, stood apart, a sheaf of papers clutched to his chest. His hair was rumpled, his collar askew, and his eyes darted from the body to the hourglass and back again. “I—I was drafting correspondence in the library when I heard the commotion,” he stammered, voice thin. “Lady Beatrice had asked for the estate ledgers, but I never imagined—” He broke off, swallowing hard, the words dissolving into the heavy silence.",
-        "Helen knelt beside Lady Beatrice Winthrope, careful not to disturb the pattern of blood pooling on the Turkish rug. The wound at the crown of Lady Beatrice’s head was unmistakable: a deep, brutal indentation, edged with bruising and fresh blood, perfectly aligned with the heft and shape of the antique paperweight. No sign of a struggle marred the room—no overturned chair, no scattered papers—only the silent witness of the hourglass and the faint, metallic tang of blood in the air.",
-        "She rose, glancing again at the mantelpiece. The hourglass, its sand arrested halfway, seemed to mark time in defiance of the scene’s violence. The frost crystals inside the glass—so fine, so out of place—caught the light with a ghostly shimmer. Helen’s breath clouded faintly as she exhaled, the room colder than it ought to be, as if the winter had seeped through more than just the window’s imperfect seal.",
-        "A faint scratch marred the window latch, and the latch itself showed signs of having been opened, if only slightly. Helen ran her gloved finger along the groove, noting its freshness. She let her gaze drift to the access logs stacked on the desk—a neat column of entries in Charles Montague’s hand, each line confirming the estate manager’s authority and opportunity to move freely about the house. The detail was quietly filed away, its significance yet to be determined.",
-        "Margaret Hensley’s voice broke the silence, trembling. “She was well last night, Inspector. I brought her tea at quarter past six. She—she said she’d be working late, as usual.” Margaret’s gaze flickered to Charles Montague, then dropped. “I never thought—” Her words faltered, and she pressed a hand to her mouth, shoulders shaking.",
-        "Charles Montague cleared his throat, stepping forward. “If I may, Inspector, I was in the study myself not long after. Lady Beatrice was…preoccupied. She dismissed me. I left her to her work—she often preferred solitude at this hour.” His words were careful, measured, but Helen caught the way his eyes lingered on the hourglass, as though weighing its testimony against his own.",
-        "Edward Winthrope’s patience frayed. “This is a family matter, Inspector. I trust you will proceed with discretion.” He glanced at Clara Simmons, who merely nodded, her composure unbroken. Helen offered no reassurance, only a measured, “I am here to establish the facts, Mr. Winthrope. The law does not distinguish by pedigree.”",
-        "The silence that followed was thick with unspoken accusation. Helen moved to the desk, scanning the scattered papers, the ink still wet on Lady Beatrice Winthrope’s final correspondence. The faint scent of lavender clung to the air, a last trace of the woman whose presence had once dominated this room. The hourglass, the wound, the frost—each detail layered upon the next, demanding explanation.",
-        "Helen addressed the room, her voice low but unwavering. “No one is to leave the manor. I will speak to each of you in turn. Until then, I ask for your patience—and your candour.” The assembled suspects exchanged glances, some defiant, some fearful, all united by the shock of what had transpired.",
-        "As Helen turned back to the mantelpiece, the morning light caught the frost within the hourglass, illuminating a mystery as chilling as the winter beyond the pane. The evidence was plain: Lady Beatrice Winthrope, struck down in her own study, the hourglass and its crystalline frost marking a contradiction that could not yet be named. In the hush that followed, Helen felt the first stirrings of suspicion settle over the room—subtle, persistent, and as impossible to ignore as the cold."
-      ]
-    }
-  ],
-  "cast": [
-    "Inspector Helen Marwood",
-    "Lady Beatrice Winthrope",
-    "Charles Montague",
-    "Margaret Hensley",
-    "Edward Winthrope",
-    "Clara Simmons",
-    "James Fletcher"
-  ],
-  "note": "",
-  "audit": {
-    "locked_fact_phrases": "present in paragraph 2 | absent",
-    "season_words_used": "winter, cold, frost, chill",
-    "discriminating_test_present": "no",
-    "required_clues_present": "clue_1: paragraph 2; clue_11: paragraph 1",
-    "early_observation_present": "clue_1: paragraph 2; clue_11: paragraph 1",
-    "early_inference_present": "yes: paragraph 3"
-  }
-}
-  
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	 
- 	
-```

@@ -51,3 +51,18 @@ scripts/.corpus-cache/
 # A_67 FIX-3 per-run corpus snapshots (CORPUS_SNAPSHOT_DIR) — accumulated telemetry, not source
 corpus/
 *.corpus-snapshot.json
+
+# ── Generated run artifacts (A_71) ───────────────────────────────────────────────
+# These are pipeline OUTPUT, not source. Tracking them made the branch diff
+# 1,236,261 lines across 2,483 files, which exceeds every review tool's limits
+# (data/store.json alone is 385k lines). They are all reproducible by running the
+# pipeline; store.json is recreated empty when absent (apps/api/src/db.ts loadState
+# returns null on a missing file).
+data/store.json
+data/novelty-ledger.json
+apps/api/data/reports/
+documentation/prompts/actual/*/
+results/
+stories/
+logs/*.jsonl
+logs/*.json
