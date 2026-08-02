@@ -9,7 +9,6 @@ import { countWords, getRequiredClueIdsForScene } from "./clue-validation.js";
 import {
   capitalizeWord,
   getSeasonAllowList,
-  enforceMonthSeasonLockOnChapter,
 } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import { sanitizeGeneratedChapter } from "./sanitization.js";

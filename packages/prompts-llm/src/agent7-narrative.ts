@@ -16,8 +16,22 @@
  * Output Format: JSON (structured scene list)
  */
 
+// R4 — re-exported for backwards compatibility; every existing importer of GOLDEN_AGE_BEATS
+// from this module keeps working. The definition now lives in a leaf module so the schema
+// can import it without creating a cycle back through this file.
+export { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
+export type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
+import { GOLDEN_AGE_BEATS } from "./constants/golden-age-beats.js";
+import type { GoldenAgeBeat } from "./constants/golden-age-beats.js";
 import { isVictimArchetype } from "@cml/cml";
 import type { AzureOpenAIClient } from "@cml/llm-client";
+// R4 — structured-output schema for this agent. Safe to import: the schema reads the beat list
+// from constants/golden-age-beats.js, not from here, so there is no cycle.
+import {
+  NARRATIVE_OUTLINE_SCHEMA,
+  NARRATIVE_OUTLINE_SCHEMA_NAME,
+  isAgent7StructuredOutputEnabled,
+} from "./agent7-narrative-schema.js";
 import { jsonrepair } from "jsonrepair";
 import { getGenerationParams } from "@cml/story-validation";
 import { resolveDesignModel } from "./utils/model-tiers.js";
@@ -153,21 +167,7 @@ export interface NarrativeFormattingInputs {
   };
 }
 
-/** SWEEP B: the canonical Golden Age 10-chapter arc, in order (see documentation/Golden Age Crime.txt §7). */
-export const GOLDEN_AGE_BEATS = [
-  "gathering",
-  "crime",
-  "first_enquiries",
-  "motives",
-  "alibis",
-  "false_solution",
-  "secrets",
-  "pattern",
-  "final_trap",
-  "revelation",
-] as const;
 
-export type GoldenAgeBeat = (typeof GOLDEN_AGE_BEATS)[number];
 
 /** Human-readable beat guidance injected into the outline prompt for the 10-chapter format. */
 export const GOLDEN_AGE_BEAT_GUIDE: Record<GoldenAgeBeat, string> = {
@@ -928,7 +928,14 @@ export async function formatNarrative(
     ],
     temperature: config.model.temperature,
     maxTokens: config.model.max_tokens,
-    jsonMode: true,
+    // R4 — schema-constrained decoding when AGENT7_STRUCTURED_OUTPUT is on; plain json_object
+    // otherwise. The two are mutually exclusive at the client (passing both throws), so this is an
+    // either/or, never a merge. The coercion layer downstream is deliberately LEFT IN PLACE: it is
+    // the fallback for the flag-off path and the safety net for the flag-on path, and its telemetry
+    // counters are the evidence for whether it can eventually be deleted (S7).
+    ...(isAgent7StructuredOutputEnabled()
+      ? { jsonSchema: { name: NARRATIVE_OUTLINE_SCHEMA_NAME, schema: NARRATIVE_OUTLINE_SCHEMA as unknown as Record<string, unknown> } }
+      : { jsonMode: true }),
     logContext: {
       runId: inputs.runId || "unknown",
       projectId: inputs.projectId || "unknown",

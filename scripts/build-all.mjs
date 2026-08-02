@@ -16,7 +16,6 @@ import { execSync } from "node:child_process";
 const ORDER = [
   // leaves (no internal deps)
   "@cml/cml-core",
-  "@cml/utils",
   "@cml/period-kb",
   "@cml/prose-guard",
   "@cml/style-contract",

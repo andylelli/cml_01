@@ -28,7 +28,6 @@ import {
   getSeasonAllowList,
   MONTH_TO_SEASON,
   deriveTemporalSeasonLock,
-  enforceMonthSeasonLockOnChapter,
 } from "./lint.js";
 import type { CanonicalSeason } from "./lint.js";
 import {
@@ -87,111 +86,24 @@ import type {
   MacroArcEntry,
 } from "./types.js";
 
-// A_58 review: a CLOCK TIME requires a number/number-word around the preposition — not a bare `to`/
-// `half`/`quarter`, which match ordinary English ("pinned TO the door", "a QUARTER of the estate", "the
-// HALF-open door"). The old `\b(?:past|to|quarter|half)\b` test mis-classified such descriptive values as
-// atomic (D1) and could pair them as a bogus discriminating contradiction (D2). Matches: "3:30", "4.20",
-// "ten o'clock", "half past three", "quarter to nine", "twenty minutes past four", "thirteen minutes to
-// midnight". Does NOT match a bare preposition with no clock number on both sides.
-const TIME_NUM = "(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|noon|midnight|midday|quarter|half)";
-const CLOCK_TIME_RE = new RegExp(
-  "\\d{1,2}\\s*[:.]\\s*\\d{2}" + // 3:30 / 4.20
-    "|\\b[\\w-]+\\s+o[’']clock\\b" + // ten o'clock
-    `|\\b(?:${TIME_NUM}|\\d{1,2})(?:[-\\s]${TIME_NUM})*\\s+(?:minutes?\\s+)?(?:past|to)\\s+(?:the\\s+)?(?:${TIME_NUM}|\\d{1,2})\\b`, // half past three / twenty minutes past four / thirteen minutes to midnight
-  "i",
-);
-
-// Canonical singular for each measurement unit, so a staged/true pair of the SAME scale merges even across
-// irregular plurals ("ten feet" vs "twelve foot"; "metres" vs "meters").
-const UNIT_CANON: Record<string, string> = {
-  minutes: "minute", minute: "minute", hours: "hour", hour: "hour", seconds: "second", second: "second",
-  degrees: "degree", degree: "degree", feet: "foot", foot: "foot", metres: "metre", metre: "metre",
-  meters: "metre", meter: "metre", yards: "yard", yard: "yard", inches: "inch", inch: "inch",
-  paces: "pace", pace: "pace", miles: "mile", mile: "mile", pounds: "pound", pound: "pound",
-  ounces: "ounce", ounce: "ounce", stone: "stone", grains: "grain", grain: "grain",
-};
-const UNIT_RE = /\b(minutes?|hours?|seconds?|degrees?|feet|foot|metres?|meters?|yards?|inches?|paces?|miles?|pounds?|ounces?|stone|grains?)\b/i;
-
-/**
- * A_57 D1 — is a locked-fact value ATOMIC (a time / number / measurement that must be reproduced
- * verbatim) vs DESCRIPTIVE (a log entry / weather note / document clause that must be paraphrased, not
- * spliced in verbatim)? Parameter-generic: keys off the value's shape, never its content. Exported so
- * the prose prompt and the worker's locked-fact presence enforcer agree on which facts are verbatim.
- */
-export const isAtomicLockedFactValue = (raw: string): boolean => {
-  const v = String(raw ?? "").trim();
-  if (!v) return false;
-  // A clue-critical time may carry a trailing day-part ("…past four in the afternoon"); it is still an
-  // atomic time and must stay verbatim. Strip that qualifier before the length check so a pure time of 7+
-  // words ("twenty minutes past four in the afternoon") is not misread as a descriptive clause and routed
-  // to the paraphrase block — which would lose fidelity on the single most clue-critical value.
-  const core = v.replace(/[,\s]+(?:in\s+the\s+(?:morning|afternoon|evening)|at\s+night)\.?$/i, "").trim();
-  const words = core.split(/\s+/).filter(Boolean);
-  if (words.length > 6) return false; // a clause/sentence is descriptive
-  if (/\d/.test(core) || CLOCK_TIME_RE.test(core) || UNIT_RE.test(core)) {
-    return true; // time / measurement / quantity
-  }
-  if (words.length <= 3 && /^(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty)\b/i.test(core)) {
-    return true; // a short number-word amount
-  }
-  return false;
-};
-
-/**
- * A_57 D2 — the discriminating dimension of an atomic locked-fact value: a clock-time, else a measurement
- * unit, used to pair a STAGED value against a TRUE value of the SAME scale. Bare counts (no unit, no time)
- * return null: two unrelated tallies ("three drops", "two letters") are NOT a comparable contradiction, so
- * they must never be paired. Parameter-generic — keys off the value's shape, never its content.
- */
-const lockedFactDimension = (raw: string): string | null => {
-  const v = String(raw ?? "").trim().toLowerCase();
-  if (!v) return null;
-  if (CLOCK_TIME_RE.test(v)) return "time"; // a real clock time, not a bare to/half/quarter (A_58 review)
-  const unit = v.match(UNIT_RE);
-  if (unit) return `unit:${UNIT_CANON[unit[1].toLowerCase()] ?? unit[1].toLowerCase().replace(/s$/, "")}`;
-  return null; // a bare count is not a comparable dimension — never pair on it
-};
-
-export interface DiscriminatingContradictionPair {
-  /** the two contradicting locked-fact values (a staged value and the true value), in registry order */
-  values: [string, string];
-  /** their locked-fact descriptions, for the obligation text */
-  descriptions: [string, string];
-}
-
-/**
- * A_57 D2 — find the "single canonical contradiction" pair among the locked facts. A discriminating
- * timeline/quantity mystery turns on a STAGED value and a TRUE value of the SAME dimension (two
- * clock-times, two readings). When the prose states both as flat parallel truths instead of ONE
- * contradiction, a human reads "the central clue contradicts itself" (ChatGPT's biggest problem on run
- * 09168377). Returning the pair lets the chapter obligation require them to appear AS A CONTRAST.
- *
- * Conservative: groups the ATOMIC locked facts by dimension (clock-time / measurement unit) and returns a
- * pair ONLY when exactly one dimension holds exactly two DISTINCT values. Any ambiguity (no such
- * dimension, three+ same-dimension values, or several candidate pairs) → null, so a wrong contrast is
- * never forced onto unrelated facts. Parameter-generic across clock, tide table, thermometer, or ledger.
- */
-export const findDiscriminatingContradictionPair = (
-  lockedFacts: ReadonlyArray<{ description?: string; value?: string }> | undefined,
-): DiscriminatingContradictionPair | null => {
-  if (!Array.isArray(lockedFacts)) return null;
-  const byDim = new Map<string, Array<{ description: string; value: string }>>();
-  for (const f of lockedFacts) {
-    const value = String(f?.value ?? "").trim();
-    if (!value || !isAtomicLockedFactValue(value)) continue;
-    const dim = lockedFactDimension(value);
-    if (!dim) continue;
-    const list = byDim.get(dim) ?? [];
-    if (!list.some((x) => x.value.toLowerCase() === value.toLowerCase())) {
-      list.push({ description: String(f?.description ?? "").trim(), value });
-      byDim.set(dim, list);
-    }
-  }
-  const candidates = [...byDim.values()].filter((list) => list.length === 2);
-  if (candidates.length !== 1) return null; // none, or ambiguous (multiple candidate pairs)
-  const [a, b] = candidates[0];
-  return { values: [a.value, b.value], descriptions: [a.description, b.description] };
-};
+// ── S6 prerequisite (architecture/REVIEW.md) ─────────────────────────────────
+// `isAtomicLockedFactValue`, `findDiscriminatingContradictionPair` and their shared regexes moved to
+// `../shared/locked-fact-atoms.js`, a module that imports nothing.
+//
+// WHY. `world-state.ts` — which lives OUTSIDE agent9-prose/ — imported them from here, while fourteen
+// modules inside agent9-prose/ import from the package root. That made the dependency between
+// agent9-prose/ and its parent BIDIRECTIONAL, so S6 ("extract agent9-prose into its own package")
+// would have produced a package cycle rather than a layer. Moving the shared symbols to a leaf
+// removes one back-edge. Re-exported here so every existing importer is unaffected.
+export {
+  isAtomicLockedFactValue,
+  findDiscriminatingContradictionPair,
+  type DiscriminatingContradictionPair,
+} from "../shared/locked-fact-atoms.js";
+import {
+  findDiscriminatingContradictionPair,
+  isAtomicLockedFactValue,
+} from "../shared/locked-fact-atoms.js";
 
 export const REVEAL_GROUNDWORK_BANNED_TERMS = [
   'culprit',
@@ -1272,38 +1184,97 @@ export function buildNSDBlock(
  */
 
 
+/**
+ * R8 (architecture/REVIEW.md) — how often a block's CONTENT changes within one run.
+ *
+ * This is the axis prompt caching turns on. Azure OpenAI caches automatically for prompts above
+ * ~1024 tokens, matched on an EXACT PREFIX — there is no `cache_control` parameter to add, so the
+ * only lever is ordering. Agent 9 re-sends the bible, cast, era rules and craft guide on every
+ * chapter, retry and regen: 30+ calls over a near-identical body of text that today is interleaved
+ * with per-chapter content, so the shared prefix ends at the first varying block.
+ *
+ *   run          identical for every call in the run (cast, era, static rules, the frozen bible)
+ *   chapter      varies with chapterStart / the scenes in this batch / active characters
+ *   attempt      varies with the retry (scoring feedback from the previous attempt)
+ *   pinned_last  run-frozen CONTENT, but position is load-bearing and must not move
+ *
+ * `pinned_last` exists for exactly one block. `pronoun_accuracy` was deliberately moved from
+ * position 0 to last for recency during the A_66 pronoun work; sorting it back to the front by its
+ * content-stability would silently undo a measured craft fix to buy prefix length. Caching is not
+ * worth re-opening a war that took a board to close.
+ */
+type PromptBlockStability = 'run' | 'chapter' | 'attempt' | 'pinned_last';
+
+/**
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`).
+ *
+ * Default OFF. Block order does influence model behaviour, so this is a behaviour change under the
+ * corpus regime, not a free optimisation — even though no block's CONTENT changes.
+ */
+const isPromptPrefixOrderEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  env.AGENT9_PROMPT_PREFIX_ORDER === 'true' || env.AGENT9_PROMPT_PREFIX_ORDER === '1';
+
 export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
-  const orderedSections: Array<{ key: string; priority: PromptBlockPriority; content: string }> = [
-    { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical' },
-    { key: 'first_appearance_contracts', content: sections.firstAppearanceContractsBlock, priority: 'critical' },
-    { key: 'character_pressure_contract', content: sections.characterPressureContractBlock, priority: 'critical' },
-    { key: 'setting_refinement', content: sections.settingRefinementBlock, priority: 'high' },
-    { key: 'background_context', content: sections.backgroundContextBlock, priority: 'medium' },
-    { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high' },
-    { key: 'fair_play_contract', content: sections.fairPlayContractBlock, priority: 'critical' },
-    { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high' },
-    { key: 'character_contracts', content: sections.characterContractsBlock, priority: 'high' },
-    { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high' },
-    { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high' },
-    { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium' },
-    { key: 'texture_pool', content: sections.texturePoolBlock ?? '', priority: 'medium' },
-    { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high' }, // Fix A1: temporal consistency promoted from medium
-    { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical' },
-    { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical' },
-    { key: 'narrative_state', content: sections.nsdBlock, priority: 'critical' },
-    { key: 'continuity_context', content: sections.continuityBlock, priority: 'medium' },
-    { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical' },
-    { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional' },
-    { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high' }, // Fix D2: craft guide promoted from optional
-    { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical' },
-    { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical' },
-    { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical' }, // recency fix: moved from position 0 to last
+  const orderedSections: Array<{
+    key: string;
+    priority: PromptBlockPriority;
+    content: string;
+    stability: PromptBlockStability;
+  }> = [
+    // ── run-frozen: functions of cast / caseData / temporalContext only ──────
+    { key: 'character_consistency', content: `\n\n${sections.characterConsistencyRules}`, priority: 'critical', stability: 'run' },
+    { key: 'first_appearance_contracts', content: sections.firstAppearanceContractsBlock, priority: 'critical', stability: 'chapter' },
+    { key: 'character_pressure_contract', content: sections.characterPressureContractBlock, priority: 'critical', stability: 'chapter' },
+    { key: 'setting_refinement', content: sections.settingRefinementBlock, priority: 'high', stability: 'run' },
+    { key: 'background_context', content: sections.backgroundContextBlock, priority: 'medium', stability: 'run' },
+    // chapter: buildWorldBriefBlock takes chapterStart, narrativeState and the active-character set.
+    { key: 'world_document', content: sections.worldDocumentBlock, priority: 'high', stability: 'chapter' },
+    { key: 'fair_play_contract', content: sections.fairPlayContractBlock, priority: 'critical', stability: 'run' },
+    // chapter: personality and contracts are filtered to the characters active in THIS batch (§1.6).
+    { key: 'character_personality', content: sections.characterPersonalityContext, priority: 'high', stability: 'chapter' },
+    { key: 'character_contracts', content: sections.characterContractsBlock, priority: 'high', stability: 'chapter' },
+    { key: 'physical_plausibility', content: `\n\n${sections.physicalPlausibilityRules}`, priority: 'high', stability: 'run' },
+    { key: 'era_authenticity', content: sections.eraAuthenticityRules, priority: 'high', stability: 'run' },
+    // chapter: buildLocationProfilesBlock takes scenesOverride + chapterStart.
+    { key: 'location_profiles', content: sections.locationProfilesContext, priority: 'medium', stability: 'chapter' },
+    { key: 'texture_pool', content: sections.texturePoolBlock ?? '', priority: 'medium', stability: 'chapter' },
+    { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high', stability: 'run' }, // Fix A1: temporal consistency promoted from medium
+    { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical', stability: 'run' },
+    { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical', stability: 'chapter' },
+    { key: 'narrative_state', content: sections.nsdBlock, priority: 'critical', stability: 'chapter' },
+    { key: 'continuity_context', content: sections.continuityBlock, priority: 'medium', stability: 'chapter' },
+    { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical', stability: 'chapter' },
+    { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional', stability: 'run' },
+    { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high', stability: 'run' }, // Fix D2: craft guide promoted from optional
+    { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical', stability: 'chapter' },
+    { key: 'provisional_scoring_feedback', content: sections.provisionalScoringFeedbackBlock, priority: 'critical', stability: 'attempt' },
+    { key: 'pronoun_accuracy', content: sections.pronounAccuracyBlock, priority: 'critical', stability: 'pinned_last' }, // recency fix: moved from position 0 to last
   ];
 
-  return orderedSections
-    .filter((section) => section.content.trim().length > 0)
-    .map((section) => ({ key: section.key, content: section.content, priority: section.priority }));
+  const present = orderedSections.filter((section) => section.content.trim().length > 0);
+
+  // Flag OFF: byte-identical to the order this file has always emitted.
+  // Flag ON: same blocks, same content, regrouped so the run-frozen prefix is contiguous. Within a
+  // group the original relative order is preserved — a bucket concat, not a comparator sort, so the
+  // result does not depend on sort stability.
+  //
+  // ONE NON-OBVIOUS CONSEQUENCE. `applyPromptBudgeting` drops blocks by priority and, within a
+  // priority class, in ARRAY ORDER. Reordering therefore changes *which* `medium` block is dropped
+  // first when a prompt exceeds the token ceiling — same set of candidates, different victim. That
+  // is a real behaviour change under budget pressure, and it is the strongest single reason this
+  // sits behind a flag rather than shipping as a free optimisation. Check `droppedBlocks` in the
+  // prompt-budget summary when probing, not just the cached-token counts.
+  const emitted = isPromptPrefixOrderEnabled()
+    ? (['run', 'chapter', 'attempt', 'pinned_last'] as PromptBlockStability[]).flatMap((stability) =>
+        present.filter((section) => section.stability === stability),
+      )
+    : present;
+
+  return emitted.map((section) => ({ key: section.key, content: section.content, priority: section.priority }));
 };
+
+/** Exported for tests: the classification is the claim R8 rests on, so it has to be assertable. */
+export const __isPromptPrefixOrderEnabled = isPromptPrefixOrderEnabled;
 
 export const estimateTokenCount = (value: string): number => {
   if (!value) return 0;

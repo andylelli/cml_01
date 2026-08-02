@@ -193,6 +193,18 @@ export interface OrchestratorContext {
   backgroundContext?: BackgroundContextArtifact;
   hardLogicDevices?: HardLogicDeviceResult;
   hardLogicDirectives?: HardLogicDirectives;  // merged directives after Agent 3b
+  /**
+   * R4 step 4 (architecture/REVIEW.md) — how often Agent 7's coercion layer fired this run, and
+   * under which structured-output arm. Written by `recordAgent7Coercion`; read by S7 as the only
+   * admissible evidence that a coercion site has stopped firing and can be deleted.
+   */
+  agent7Coercion?: {
+    structuredOutput: boolean;
+    beatsCoerced: number;
+    beatsDropped: number;
+    fieldsHoisted: number;
+    firings: number;
+  };
   cml?: CaseData;                    // may be reassigned by Agent 4 / Agent 6 retries
   noveltyAudit?: NoveltyAuditResult;
   clues?: ClueDistributionResult;    // may be reassigned by Agent 6 retries

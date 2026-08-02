@@ -44,6 +44,7 @@ export * from "./prose-blind-reader.js";
 export * from "./regen-repair.js";
 export * from "./regen-llm.js";
 export * from "./regen-integration.js";
+// S3 — the enumerable answer to "which obligations have an LLM repair path, and what gates each one?"
+export * from "./regen-registry.js";
 export * from "./model-tiering.js";
-export * from "./critique-rewrite.js";
 export * from "./generate.js";

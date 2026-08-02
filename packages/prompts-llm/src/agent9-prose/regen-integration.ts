@@ -27,6 +27,8 @@ import { runRegenRepair } from "./regen-repair.js";
 import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./regen-repair.js";
 // Leaf-module detectors (no cycle: mechanism-detect.js imports nothing from generate/regen-integration).
 import { chapterFullyExplainsMechanism, mechanismExplanationParagraphIndex } from "./mechanism-detect.js";
+// S3 — the pass registry plus the result-shaping tail every pass used to repeat inline.
+import { finishRegenPass, regenPassDidNotRun } from "./regen-registry.js";
 
 const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
 
@@ -266,7 +268,7 @@ export async function runInsertionRegenPass(args: {
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
 }): Promise<InsertionRegenPassResult> {
   if (args.defects.length === 0) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const validate = composeChapterValidator(
     preserveOriginalParagraphsValidator(args.chapter.paragraphs ?? []),
@@ -280,9 +282,7 @@ export async function runInsertionRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = args.defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
-  return { chapter: result.chapter, repaired, unresolved, ran: true };
+  return finishRegenPass(result.chapter, args.defects, result.unresolved);
 }
 
 /** Back-compat alias of the result shape for the clue pass. */
@@ -324,7 +324,7 @@ export async function runClueRegenPass(args: {
       })
     : [];
   if (missing.length === 0 && tooLate.length === 0) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const chapterNumber = ledgerEntry?.chapterNumber ?? 0;
   const ctxById = new Map((ledgerEntry?.clueObligationContext ?? []).map((c) => [c.id, c]));
@@ -382,7 +382,7 @@ export async function runClearanceRegenPass(args: {
     (s) => s && !clearancePresenceValidator(s)(args.chapter).ok,
   );
   if (needing.length === 0) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const defects: ProseDefect[] = needing.map((suspect) => ({
     chapter: args.chapterNumber,
@@ -545,7 +545,7 @@ export async function runScaffoldRegenPass(args: {
   const scaffoldHits = detectScaffoldNotProse(text);
   const reportStyle = detectReportStyleClearance(text);
   if (scaffoldHits.length === 0 && !reportStyle) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   // Group the offending fragments by paragraph so each regen edit is paragraph-scoped (never a free
   // whole-chapter rewrite — the repair.ts:153 re-gendering lesson).
@@ -584,8 +584,6 @@ export async function runScaffoldRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
   // A_64 §2 F3 — exhaustion floor, gated on the DETECTOR (not on `unresolved`: the acceptance loop
   // takes partial-progress candidates, so hits can survive with an empty unresolved list). If the
   // final chapter still trips a machine-inserted signature, de-template it deterministically so the
@@ -597,7 +595,7 @@ export async function runScaffoldRegenPass(args: {
     finalChapter = floorResult.chapter;
     floored = floorResult.floored;
   }
-  return { chapter: finalChapter, repaired, unresolved, ran: true, floored };
+  return finishRegenPass(finalChapter, defects, result.unresolved, { floored });
 }
 
 /**
@@ -637,7 +635,7 @@ export async function runTemplateLeakageRegenPass(args: {
   const text = paragraphs.join(" ");
   const hits = detectTemplateLeakage(text);
   if (hits.length === 0) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
 
   // Group the leaked fragments by paragraph so each regen edit stays paragraph-scoped.
@@ -678,9 +676,7 @@ export async function runTemplateLeakageRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = defects.map((d) => d.obligationRef ?? "").filter((r) => r && !unresolved.includes(r));
-  return { chapter: result.chapter, repaired, unresolved, ran: true };
+  return finishRegenPass(result.chapter, defects, result.unresolved);
 }
 
 /**
@@ -717,7 +713,7 @@ export async function runDualValueContrastRegenPass(args: {
   const paragraphs = args.chapter.paragraphs ?? [];
   const text = paragraphs.join(" ");
   if (!args.pair || !detectDualValueNoContrast(text, args.pair)) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
 
   // Scope: prefer the single paragraph that trips the detector on its own; if the window spans a
@@ -767,9 +763,7 @@ export async function runDualValueContrastRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
-  return { chapter: result.chapter, repaired, unresolved, ran: true };
+  return finishRegenPass(result.chapter, [defect], result.unresolved);
 }
 
 /**
@@ -897,7 +891,7 @@ export async function runMechanismRevealRegenPass(args: {
   const text = paragraphs.join(" ");
   const terms = [...args.mechanismTerms];
   if (terms.length === 0 || !chapterFullyExplainsMechanism(text.toLowerCase(), terms)) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const idx = mechanismExplanationParagraphIndex(paragraphs, terms);
   const defect: ProseDefect = {
@@ -926,9 +920,7 @@ export async function runMechanismRevealRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
-  return { chapter: result.chapter, repaired, unresolved, ran: true };
+  return finishRegenPass(result.chapter, [defect], result.unresolved);
 }
 
 // ── RC1.4 — the resolution + culprit-evidence injectors converted to regen ──────────────────────────
@@ -971,7 +963,7 @@ export async function runResolutionRegenPass(args: {
 }): Promise<InsertionRegenPassResult> {
   const culpritSurname = surnameOf(args.culprit);
   if (!args.culprit || !culpritSurname || resolutionPresenceValidator(culpritSurname)(args.chapter).ok) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const defects: ProseDefect[] = [{
     chapter: args.chapterNumber,
@@ -1011,7 +1003,7 @@ export async function runCaseTransitionRegenPass(args: {
   onUnresolved?: (defect: ProseDefect, reason: string) => void;
 }): Promise<InsertionRegenPassResult> {
   if (args.bridgePresent(chapterText(args.chapter))) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const requiredValues = lockedFactValues(args.bible)
     .map((f) => f.value)
@@ -1042,9 +1034,7 @@ export async function runCaseTransitionRegenPass(args: {
     validate,
     { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
   );
-  const unresolved = result.unresolved.map((d) => d.obligationRef ?? "").filter(Boolean);
-  const repaired = unresolved.length === 0 ? [defect.obligationRef!] : [];
-  return { chapter: result.chapter, repaired, unresolved, ran: true };
+  return finishRegenPass(result.chapter, [defect], result.unresolved);
 }
 
 /**
@@ -1090,7 +1080,7 @@ export async function runVoiceLeakageRegenPass(args: {
     byTic.set(key, entry);
   }
   if (byTic.size === 0) {
-    return { chapter: args.chapter, repaired: [], unresolved: [], ran: false };
+    return regenPassDidNotRun(args.chapter);
   }
   const requiredValues = lockedFactValues(args.bible)
     .map((f) => f.value)

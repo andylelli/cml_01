@@ -19,6 +19,33 @@ export interface ChatOptions {
   temperature?: number;
   maxTokens?: number;
   jsonMode?: boolean;
+  /**
+   * R3 (architecture/REVIEW.md) — STRUCTURED OUTPUTS.
+   *
+   * `jsonMode` guarantees the reply parses as JSON. It does NOT guarantee it matches your shape,
+   * which is why this codebase carries ~55 coercion sites and five `jsonrepair` call sites: the
+   * recurring defects are shape drift (`relationships` as a bare array vs `{pairs}`, scene fields
+   * nested under `setting`, `role_archetype` vs `roleArchetype`), and every one of them failed
+   * SILENTLY. Azure OpenAI supports schema-constrained decoding on gpt-4.1: the schema shapes the
+   * token distribution during generation rather than being checked afterwards.
+   *
+   * Mutually exclusive with `jsonMode` — passing both throws, because the two response formats
+   * cannot both be sent and silently preferring one would hide a caller bug.
+   *
+   * Azure's supported schema subset is narrower than full JSON Schema:
+   *   - every object needs `additionalProperties: false`
+   *   - every property must appear in `required` (use a nullable type for optional fields)
+   *   - no recursive `$ref`
+   *   - no `minLength`/`maximum`/`pattern`-style constraints
+   * A schema outside the subset is rejected by the API at request time, not silently ignored.
+   */
+  jsonSchema?: {
+    /** Schema name sent to the API; also used in error messages. */
+    name: string;
+    schema: Record<string, unknown>;
+    /** Defaults to true — the entire point is the guarantee. */
+    strict?: boolean;
+  };
   logContext?: LogContext;
   /**
    * A_62 RC-6.2 — override the TRANSPORT retry budget for this call (attempts/delays over network

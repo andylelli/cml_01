@@ -92,6 +92,16 @@ import {
   extractPriorRunRecord,
 } from "./novelty-ledger.js";
 import { writeCorpusSnapshot } from "./corpus-snapshot.js";
+import {
+  applyResumeBundle,
+  buildResumeDiagnostic,
+  computeBuildFingerprint,
+  ResumeSkipTracker,
+  writeRunFingerprint,
+  type ResumeApplication,
+  type ResumeBundle,
+  type ResumeStageField,
+} from "./run-resume.js";
 
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
@@ -213,6 +223,19 @@ export interface MysteryGenerationInputs {
   enableBindingGates?: boolean;
   /** Pillar 3: override a blocking gate — log audit warning instead of throwing */
   forceWarnings?: boolean;
+
+  /**
+   * R5 — resume a previously-failed run instead of restarting it.
+   *
+   * `resumeFromRunId` identifies the run for reporting; `resumeArtifacts` carries that run's
+   * persisted artifacts, keyed by the same names `onArtifact` writes. Any stage whose artifact is
+   * present is SKIPPED; the pipeline starts at the first missing one.
+   *
+   * The caller owns loading (the API holds the artifact store); the orchestrator owns skipping.
+   * That split keeps this module free of storage concerns and makes the behaviour unit-testable.
+   */
+  resumeFromRunId?: string;
+  resumeArtifacts?: ResumeBundle;
   /** Pillar 6: inject BANNED PARAGRAPH blocks and structural-pivot mode into Agent 9 retry prompts
     *  when a paragraph fingerprint failure recurs across attempts. Default is enabled;
     *  set false only for explicit control experiments. */
@@ -680,6 +703,14 @@ function runClueSpecShadow(args: { cml: unknown; clues: unknown; warnings: strin
 // Main Orchestrator
 // ============================================================================
 
+/**
+ * R9 — runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`).
+ * Default OFF: parallelising the profile trio changes concurrency and error semantics, so it is
+ * a behaviour lever under the corpus regime, not a free refactor.
+ */
+const profilesParallelEnabled = (): boolean =>
+  process.env.AGENT_PROFILES_PARALLEL === "true" || process.env.AGENT_PROFILES_PARALLEL === "1";
+
 export async function generateMystery(
   client: AzureOpenAIClient,
   inputs: MysteryGenerationInputs,
@@ -704,6 +735,11 @@ export async function generateMystery(
 
   const logsDir = join(WORKER_APP_ROOT, "logs");
   const runLogger = new RunLogger(logsDir, runId, projectId);
+
+  // R5 — stamp the build this run executes under, before any stage produces an artifact. Read back
+  // on resume to refuse mixing generations of code (see checkBuildFingerprint). Written here rather
+  // than at the end because the runs worth resuming are precisely the ones that never reach the end.
+  writeRunFingerprint(WORKER_APP_ROOT, runId, computeBuildFingerprint(WORKSPACE_ROOT));
 
   if (enableScoring) {
     try {
@@ -914,15 +950,75 @@ export async function generateMystery(
     if (retryGateGuard.fatal) throw new Error(retryGateGuard.fatal);
 
     // ── Pipeline ────────────────────────────────────────────────────────────
-    await runAgent1(ctx);   // Era & Setting Refiner
+    // R5 — restore any artifacts carried over from a failed run, then skip the stages they satisfy.
+    const skippedStages: ResumeStageField[] = [];
+    let resumeApplication: ResumeApplication | null = null;
+    if (inputs.resumeArtifacts && Object.keys(inputs.resumeArtifacts).length > 0) {
+      const applied = applyResumeBundle(ctx as OrchestratorContext, inputs.resumeArtifacts);
+      resumeApplication = applied;
+      warnings.push(
+        `[R5] Resuming from run ${inputs.resumeFromRunId ?? "(unknown)"} — restored ${applied.restored.length} artifact(s): ${applied.restored.join(", ") || "none"}.`,
+      );
+      if (applied.skippedEmpty.length > 0) {
+        warnings.push(`[R5] Ignored empty artifact(s), these stages will re-run: ${applied.skippedEmpty.join(", ")}.`);
+      }
+      if (applied.unknown.length > 0) {
+        warnings.push(`[R5] Ignored unrecognised artifact key(s): ${applied.unknown.join(", ")}.`);
+      }
+    }
+
+    /**
+     * Run a stage unless its artifact is already present. One guard for every stage so resume,
+     * normal execution, and the reporting of what was skipped all share a single code path.
+     *
+     * The tracker enforces CONTIGUOUS-PREFIX skipping. A per-stage `isStageSatisfied` check is not
+     * enough: a store holding `hard_logic_devices` but not `cml` would skip Agent 3b and then run
+     * Agent 3, which reads `ctx.hardLogicDirectives` — state only Agent 3b writes — and crashes.
+     * Once any stage runs, everything after it runs too.
+     */
+    const skipTracker = new ResumeSkipTracker();
+    const stage = async (
+      field: ResumeStageField,
+      run: (c: OrchestratorContext) => Promise<void>,
+    ): Promise<void> => {
+      // ctx is assigned above; the closure defers execution so TS cannot narrow it for us.
+      const c = ctx as OrchestratorContext;
+      if (skipTracker.shouldSkip(c, field)) {
+        skippedStages.push(field);
+        return;
+      }
+      await run(c);
+    };
+
+    /**
+     * A binding gate whose input was never produced must report that it could not evaluate.
+     *
+     * `ctx.noveltyAudit?.blocking` and `ctx.coverageResult?.hasCriticalGaps` both read `undefined`
+     * as "nothing wrong". On a fresh run that is correct — the stage ran and found nothing. On a
+     * resumed run where the producing stage was SKIPPED it is a silent bypass of a gate, which is
+     * the failure class this project has paid most for. Warn per signal, once, loudly.
+     */
+    // Called after the pipeline, when the tracker actually holds the skip record — calling it here,
+    // before any stage has run, would always report nothing.
+    const noteDegradedResumeSignals = (): void => {
+      for (const [field, missing] of skipTracker.degraded) {
+        warnings.push(
+          `[R5] Stage '${field}' was restored from artifacts, so its derived signal(s) ` +
+            `${missing.join(", ")} are UNAVAILABLE this run. Any gate reading them did not pass — ` +
+            `it could not be evaluated. Treat this run as weaker evidence than a fresh one.`,
+        );
+      }
+    };
+
+    await stage("setting", (c) => runAgent1(c));            // Era & Setting Refiner
     if (onArtifact && ctx.setting) await onArtifact("setting", ctx.setting).catch(() => {});
-    await runAgent2(ctx);   // Cast & Motive Designer
+    await stage("cast", (c) => runAgent2(c));               // Cast & Motive Designer
     if (onArtifact && ctx.cast) await onArtifact("cast", ctx.cast).catch(() => {});
-    await runAgent2e(ctx);  // Background Context
+    await stage("backgroundContext", (c) => runAgent2e(c)); // Background Context
     if (onArtifact && ctx.backgroundContext) await onArtifact("background_context", ctx.backgroundContext).catch(() => {});
-    await runAgent3b(ctx);  // Hard-Logic Device Ideation
+    await stage("hardLogicDevices", (c) => runAgent3b(c));  // Hard-Logic Device Ideation
     if (onArtifact && ctx.hardLogicDevices) await onArtifact("hard_logic_devices", ctx.hardLogicDevices).catch(() => {});
-    await runAgent3(ctx);   // CML Generator (+ Agent 4 auto-revision)
+    await stage("cml", (c) => runAgent3(c));                // CML Generator (+ Agent 4 auto-revision)
     if (onArtifact && ctx.cml) await onArtifact("cml", ctx.cml).catch(() => {});
 
     // ── Pillar 3 (Unit 3.2): Novelty binding gate ───────────────────────────
@@ -942,10 +1038,10 @@ export async function generateMystery(
       }
     }
 
-    await runAgent5(ctx);   // Clue Distributor
+    await stage("clues", (c) => runAgent5(c));              // Clue Distributor
     if (onArtifact && ctx.clues) await onArtifact("clues", ctx.clues).catch(() => {});
     runClueSpecShadow({ cml: ctx.cml, clues: ctx.clues, warnings }); // shadow: log derived-vs-shipped coverage
-    await runAgent6(ctx);   // Fair-Play Auditor + clue refinement loop
+    await stage("fairPlayAudit", (c) => runAgent6(c));      // Fair-Play Auditor + clue refinement loop
     if (onArtifact && ctx.fairPlayAudit) await onArtifact("fair_play_report", ctx.fairPlayAudit).catch(() => {});
 
     // ── Pillar 3 (Unit 3.2): Fair-play binding gate ──────────────────────────
@@ -981,11 +1077,52 @@ export async function generateMystery(
       throw new Error(errorMsg);
     }
 
-    await runAgent2b(ctx);  // Character Profiles
+    // ── R9 (architecture/REVIEW.md) — the profile trio ───────────────────────
+    // 2b/2c/2d are independent reads off the FROZEN CML: each writes a distinct artifact key
+    // (characterProfiles / locationProfiles / temporalContext) and reads only upstream state that
+    // is already settled (cml, cast, setting, backgroundContext). Anthropic's parallelisation
+    // pattern ("sectioning") is exactly this shape, and they run sequentially today for no
+    // structural reason.
+    //
+    // TWO HAZARDS, both handled below rather than hoped away:
+    //   1. `ctx.savePartialReport` writes ONE file. Three concurrent calls race on it. Suppressed
+    //      inside the block; one snapshot is taken after.
+    //   2. `ctx.warnings` is a shared array. Concurrent pushes interleave non-deterministically,
+    //      which would make run-to-run diffs unreadable. Each agent gets a private buffer, merged
+    //      back in fixed 2b → 2c → 2d order.
+    // Object mutation itself is safe under Node's single-threaded event loop; agentCosts and
+    // agentDurations are shared by reference through the shallow clone, so they need no merge.
+    //
+    // Flag-gated default-OFF: this is a behaviour change (concurrency + error semantics), and the
+    // corpus regime says those get probed, not assumed. Acceptance is byte-identical artifacts on a
+    // fixed premise — verify before promoting.
+    if (profilesParallelEnabled()) {
+      warnings.push("[R9] Profile agents 2b/2c/2d running in PARALLEL (AGENT_PROFILES_PARALLEL).");
+      const suppressedSave = async () => {};
+      const isolated = (): { sub: OrchestratorContext; buf: string[] } => {
+        const buf: string[] = [];
+        return { sub: { ...ctx, warnings: buf, savePartialReport: suppressedSave } as OrchestratorContext, buf };
+      };
+      const a = isolated(), b = isolated(), c = isolated();
+
+      // Promise.all rejects on the FIRST failure. Each agent keeps its own retry/abort semantics;
+      // a rejection here propagates to the same catch that would have caught it sequentially.
+      await Promise.all([runAgent2b(a.sub), runAgent2c(b.sub), runAgent2d(c.sub)]);
+
+      // Artifact keys are assigned on the clone, so copy them back explicitly.
+      ctx.characterProfiles = a.sub.characterProfiles;
+      ctx.locationProfiles = b.sub.locationProfiles;
+      ctx.temporalContext = c.sub.temporalContext;
+      // Deterministic merge order — never arrival order.
+      warnings.push(...a.buf, ...b.buf, ...c.buf);
+      try { await savePartialReport(); } catch { /* best-effort */ }
+    } else {
+      await stage("characterProfiles", (c) => runAgent2b(c));  // Character Profiles
+      await stage("locationProfiles", (c) => runAgent2c(c));   // Location Profiles
+      await stage("temporalContext", (c) => runAgent2d(c));    // Temporal Context
+    }
     if (onArtifact && ctx.characterProfiles) await onArtifact("character_profiles", ctx.characterProfiles).catch(() => {});
-    await runAgent2c(ctx);  // Location Profiles
     if (onArtifact && ctx.locationProfiles) await onArtifact("location_profiles", ctx.locationProfiles).catch(() => {});
-    await runAgent2d(ctx);  // Temporal Context
     if (onArtifact && ctx.temporalContext) await onArtifact("temporal_context", ctx.temporalContext).catch(() => {});
 
     // ── CML Validation Gate ─────────────────────────────────────────────────
@@ -1178,7 +1315,7 @@ export async function generateMystery(
     }
 
     // ── World Builder + Narrative Outline ───────────────────────────────────
-    await runAgent65(ctx);  // World Document synthesis
+    await stage("worldDocument", (c) => runAgent65(c));     // World Document synthesis
     if (onArtifact && ctx.worldDocument) await onArtifact("world_document", ctx.worldDocument).catch(() => {});
 
     // ── Pillar 2 (Unit 2.1): Assemble Character Context Bundle ────────────────
@@ -1207,7 +1344,7 @@ export async function generateMystery(
       warnings,
     });
 
-    await runAgent7(ctx);   // Narrative Outliner
+    await stage("narrative", (c) => runAgent7(c));          // Narrative Outliner
     if (onArtifact && ctx.narrative) await onArtifact("outline", ctx.narrative).catch(() => {});
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
@@ -1227,8 +1364,11 @@ export async function generateMystery(
       warnings,
     });
 
-    await runAgent9(ctx);
+    await stage("prose", (c) => runAgent9(c));
     if (onArtifact && ctx.prose) await onArtifact("prose", ctx.prose).catch(() => {});
+
+    // R5 — now that every stage has been decided, name any derived signal a skip cost us.
+    noteDegradedResumeSignals();
 
     // Final-story rubric (shadow): score the finished prose with the LLM critic + cap engine, log it,
     // and attach it to the report as a diagnostic. Never throws into the run.
@@ -1290,6 +1430,24 @@ export async function generateMystery(
         // Agent 9 pushes to ctx.warnings aliases this array, so this captures the whole run.
         // A_65b Ph2 — banded: `info` (telemetry/status) vs `warn` (defect/floor firings). The
         // full array is preserved for forensics; status accounting counts `warn` only.
+        // R5 — a resumed run must be distinguishable from a fresh one ON THE ARTIFACT. Its cost,
+        // duration and LLM-call counts cover only the stages that actually executed, so a ledger
+        // that cannot tell the two apart would read a resumed run as a startlingly cheap fresh one
+        // and average it into a batch. `partial_cost_accounting` is the flag that stops that.
+        if (resumeApplication) {
+          scoreAggregator.upsertDiagnostic(
+            "run_resume",
+            "orchestrator",
+            "Run Resume",
+            "run_resume",
+            buildResumeDiagnostic(
+              inputs.resumeFromRunId ?? "(unknown)",
+              resumeApplication,
+              skippedStages,
+              skipTracker.degradedSignals(),
+            ),
+          );
+        }
         const warningBands = bandRunWarnings(warnings);
         scoreAggregator.upsertDiagnostic("run_warnings", "orchestrator", "Run Warnings", "run_warnings", {
           count: warnings.length,

@@ -21,8 +21,10 @@
  * re-derived) is the follow-up (§9.5 clause 2); this lands the structure and the gate.
  */
 
-import { isAtomicLockedFactValue, findDiscriminatingContradictionPair } from "./agent9-prose/prompt-builder.js";
-import type { DiscriminatingContradictionPair } from "./agent9-prose/prompt-builder.js";
+// S6 prerequisite — read from the LEAF, not from inside agent9-prose/. This edge is one of the two
+// back-references that made agent9-prose ⇄ its parent a cycle and blocked the package extraction.
+import { isAtomicLockedFactValue, findDiscriminatingContradictionPair } from "./shared/locked-fact-atoms.js";
+import type { DiscriminatingContradictionPair } from "./shared/locked-fact-atoms.js";
 import { checkMechanismEnvironmentConsistency } from "./mechanism-environment.js";
 import type { DeviceLike, AtmosphereLike, MechanismEnvironmentCheck } from "./mechanism-environment.js";
 

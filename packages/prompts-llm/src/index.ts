@@ -32,6 +32,13 @@ export type {
 export { buildCluePrompt, extractClues, deriveClueObservable, deriveClueDescription, checkPointsToDistinctness } from "./agent5-clues.js";
 export { buildFairPlayPrompt, auditFairPlay, blindReaderSimulation } from "./agent6-fairplay.js";
 export { buildNarrativePrompt, formatNarrative, GOLDEN_AGE_BEATS, GOLDEN_AGE_BEAT_GUIDE } from "./agent7-narrative.js";
+// R4 — the structured-output flag reader, exported so the worker's coercion telemetry can stamp
+// which arm produced its counters. A count without its arm is not evidence of anything.
+export {
+  isAgent7StructuredOutputEnabled,
+  NARRATIVE_OUTLINE_SCHEMA,
+  NARRATIVE_OUTLINE_SCHEMA_NAME,
+} from "./agent7-narrative-schema.js";
 export { generateCharacterProfiles } from "./agent2b-character-profiles.js";
 export { extractVoiceCapsule, checkVoiceCapsules, voiceGatePass, buildVoiceGateFeedback } from "./agent2b-voice-capsule.js";
 export type {
@@ -44,7 +51,7 @@ export type {
   VoiceCapsuleCheckResult,
   VoiceCapsuleCheckOptions,
 } from "./agent2b-voice-capsule.js";
-export { generateLocationProfiles } from "./agent2c-location-profiles.js";
+export { generateLocationProfiles, buildLocationProfilesPrompt } from "./agent2c-location-profiles.js";
 export { extractLocationSpine, checkLocationSpine } from "./agent2c-location-spine.js";
 export {
   parseSceneGateMode,
@@ -166,9 +173,6 @@ export {
   parseFullStoryFindings,
   buildFullStoryDiagnosticPrompt,
   FULL_STORY_FINDING_CLASSES,
-  runCritiqueRewritePass,
-  critiqueAndRewriteChapter,
-  selectLowestScoringChapters,
   buildDeterministicClueParagraphs,
   // A_71 — clearance-paste tally, the AGENT9_REGEN_SUSPECT_ELIM probe's read path.
   getDeterministicClearancePasteTelemetry,
@@ -182,8 +186,6 @@ export type {
   ChapterValidator,
   ClueRegenPassResult,
   InsertionRegenPassResult,
-  CritiqueRewriteResult,
-  ChapterScoreRef,
   FullStoryFinding,
   FullStoryFindingClass,
   FullStoryDiagnosticMode,

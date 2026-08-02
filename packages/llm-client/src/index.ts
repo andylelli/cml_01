@@ -2,7 +2,7 @@
  * LLM Client Package - Azure OpenAI integration with retry, rate limiting, and logging
  */
 
-export { AzureOpenAIClient } from "./client.js";
+export { AzureOpenAIClient, resolveResponseFormat, StructuredOutputError } from "./client.js";
 export { AnthropicClient, DEFAULT_ANTHROPIC_MODEL, extractJsonPayload } from "./anthropic-client.js";
 export { LLMLogger } from "./logger.js";
 export { CostTracker, defaultCostConfig } from "./cost-tracker.js";

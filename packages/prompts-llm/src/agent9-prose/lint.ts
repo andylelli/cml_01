@@ -991,10 +991,3 @@ export const enforceMonthSeasonLockOnChapterWithTelemetry = (
   };
 };
 
-export const enforceMonthSeasonLockOnChapter = (
-  chapter: ProseChapter,
-  lock: { month: string; season: CanonicalSeason } | undefined,
-  options?: SeasonLockRewriteOptions,
-): ProseChapter => {
-  return enforceMonthSeasonLockOnChapterWithTelemetry(chapter, lock, options).chapter;
-};

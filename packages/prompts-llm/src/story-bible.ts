@@ -19,7 +19,9 @@ import { buildStoryWorldState, runContradictionGate } from "./world-state.js";
 import type { StoryWorldState, WorldStateInputs, ContradictionGateResult } from "./world-state.js";
 import { verifyDiscriminator } from "./discriminator-verifier.js";
 import type { DiscriminatorVerdict } from "./discriminator-verifier.js";
-import type { MacroArcEntry } from "./agent9-prose/types.js";
+// S6 prerequisite — read the TYPE from the leaf, not from inside agent9-prose/. This was the second
+// of two back-edges making agent9-prose ⇄ its parent a cycle (see types/macro-arc.ts).
+import type { MacroArcEntry } from "./types/macro-arc.js";
 
 const norm = (s: unknown): string => String(s ?? "").trim();
 const lc = (s: unknown): string => norm(s).toLowerCase();

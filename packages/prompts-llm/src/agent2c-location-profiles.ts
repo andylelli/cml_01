@@ -89,7 +89,15 @@ export interface LocationProfilesInputs {
   projectId?: string;
 }
 
-const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErrors?: string[]) => {
+/**
+ * R2 (architecture/REVIEW.md) — exported so the `narrative`-absent path is testable.
+ *
+ * `narrative` is undefined on EVERY production run: Agent 2c runs long before Agent 7, which is the
+ * only writer of `ctx.narrative`, and the order cannot reverse because Agent 7 consumes these
+ * profiles. The degradation path below (empty `narrativeActs` → no scene-derived locations) is
+ * therefore the only path that has ever executed, and nothing asserted it until now.
+ */
+export const buildLocationProfilesPrompt = (inputs: LocationProfilesInputs, previousErrors?: string[]) => {
   const cmlCase = (inputs.caseData as any)?.CASE ?? {};
   const meta = cmlCase.meta ?? {};
   const title = meta.title ?? "Untitled Mystery";

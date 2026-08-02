@@ -37,7 +37,6 @@ import {
   runContradictionGate,
   verifyDiscriminator,
   buildStoryBible,
-  runCritiqueRewritePass,
   runScaffoldRegenPass,
   applyScaffoldExhaustionFloor,
   culpritEvidenceLinkInText,
@@ -70,6 +69,7 @@ import {
   applyFullStoryDiagnosticFindings,
   getDeterministicClearancePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
+  resolveStageModel,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -203,7 +203,6 @@ const isBibleGatesBlockingEnabled = () => parseBooleanEnv(process.env.AGENT9_BIB
  * smuggle scaffold; clue-presence and pronoun fidelity are additionally backstopped by the downstream
  * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
  */
-const isCritiqueRewriteEnabled = () => parseBooleanEnv(process.env.AGENT9_CRITIQUE_REWRITE, false);
 
 /**
  * First-principles LLD §6.4 / phase P4 (RC1.2/RC1.3) — the deductive-scaffold / report-style-clearance
@@ -4187,6 +4186,44 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     ? ({ model: proseDeployment } as Record<string, string>)
     : {};
 
+  /**
+   * The model scoped regens actually run on.
+   *
+   * THE BUG THIS FIXES. `AGENT9_MODEL_REGEN` has existed since the P6 stage router and is set to
+   * `gpt-4.1-mini` in `.env.local` — but every one of the ten `makeRegenFn` call sites below passed
+   * `proseDeployment` directly, so `resolveStageModel("regen", …)` was never consulted and every
+   * regen ran on the premium prose deployment. Measured on run mystery-1785521869768: 11 regen calls,
+   * £0.150 of a £0.947 Agent 9, against ~£0.030 at the tier the config asked for. A configured lever
+   * that silently does nothing is this codebase's most expensive recurring defect shape, and this is
+   * one more instance of it.
+   *
+   * Resolution is unchanged when `AGENT9_MODEL_REGEN` is UNSET — it falls back to `proseDeployment`,
+   * exactly as today. Setting it is what now takes effect.
+   */
+  const regenDeployment = resolveStageModel("regen", proseDeployment);
+
+  /**
+   * Chapters per generation call.
+   *
+   * WHY THIS IS A COST LEVER. Measured on run mystery-1785521869768: generation sent 22,292 prompt
+   * tokens to produce 1,913 completion tokens per chapter — an 11.7:1 ratio, and roughly two thirds
+   * of that prompt (bible, cast, era rules, physics, craft/humour guides, output schema) is IDENTICAL
+   * for every chapter in the run. At batch size 1 that block is re-sent ten times. Batching two
+   * chapters per call halves the number of times it is sent.
+   *
+   * WHY IT IS NOT SIMPLY DEFAULTED UP. Two real constraints:
+   *   1. `maxTokens` bounds the reply. At ~1,913 tokens per chapter, 2 fits inside the 4,000 default
+   *      and 3 does not — a larger batch needs maxTokens raised or it truncates mid-chapter.
+   *   2. Retries are per BATCH. This run retried 3 of 13 calls; at batch size 2 each retry
+   *      regenerates two chapters, so a high retry rate erodes the saving and can reverse it.
+   * Both make it a behaviour change, so it reads from env and stays at today's value unless set.
+   */
+  const proseBatchSizeFromEnv = (): number | undefined => {
+    const raw = Number(process.env.AGENT9_PROSE_BATCH_SIZE);
+    return Number.isFinite(raw) && raw >= 1 && raw <= 10 ? Math.floor(raw) : undefined;
+  };
+  const effectiveProseBatchSize = inputs.proseBatchSize ?? proseBatchSizeFromEnv();
+
   const pushProsePassAccounting = (
     passType: string,
     durationMs: number,
@@ -4218,7 +4255,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     if (!enableScoring || !scoreAggregator || chaptersToScore.length === 0) return [];
     try {
       const scorer = new ProseScorer();
-      const batchSize = Math.max(1, Math.min(inputs.proseBatchSize ?? 1, 10));
+      const batchSize = Math.max(1, Math.min(effectiveProseBatchSize ?? 1, 10));
       const series: any[] = [];
       const accumulated: any[] = [];
       const totalChapters = totalSceneCount || chaptersToScore.length;
@@ -4381,7 +4418,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       : undefined,
     onProgress: (phase: string, message: string, percentage: number) =>
       reportProgress(phase as any, message, percentage),
-    batchSize: inputs.proseBatchSize,
+    batchSize: effectiveProseBatchSize,
     onAtomsSelected: (ids: string[]) => {
       pendingObligationAtomIds = ids;
     },
@@ -4730,7 +4767,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeScaffold = client.getCostTracker().getTotalCost();
     try {
       const regenBible = { ...worldState, beatSheet: [] };
-      const scaffoldRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const scaffoldRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       for (let i = 0; i < prose.chapters.length; i++) {
         const pass = await runScaffoldRegenPass({
           chapter: prose.chapters[i],
@@ -4773,7 +4810,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeLeakage = client.getCostTracker().getTotalCost();
     try {
       const regenBible = { ...worldState, beatSheet: [] };
-      const leakageRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const leakageRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       for (let i = 0; i < prose.chapters.length; i++) {
         const pass = await runTemplateLeakageRegenPass({
           chapter: prose.chapters[i],
@@ -4826,7 +4863,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeDualValue = client.getCostTracker().getTotalCost();
     try {
       const regenBible = { ...worldState, beatSheet: [] };
-      const dualValueRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const dualValueRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       for (let i = 0; i < prose.chapters.length; i++) {
         const pass = await runDualValueContrastRegenPass({
           chapter: prose.chapters[i],
@@ -4889,7 +4926,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const costBeforeMechanism = client.getCostTracker().getTotalCost();
       try {
         const regenBibleM = { ...worldState, beatSheet: [] };
-        const mechanismRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        const mechanismRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
         for (let i = 0; i < prose.chapters.length; i++) {
           if (i + 1 >= dtChapter) continue; // only chapters strictly before the discriminating-test scene
           const pass = await runMechanismRevealRegenPass({
@@ -4928,7 +4965,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const costBeforeTransition = client.getCostTracker().getTotalCost();
       try {
         const regenBibleT = { ...worldState, beatSheet: [] };
-        const regenFnT = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        const regenFnT = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
         const bridgePresent = (text: string): boolean => BRIDGE_TERMS.test(text);
         for (const loc of transitionDefects) {
           const idx = loc.chapterNumber - 1;
@@ -4984,7 +5021,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const costBeforeVoice = client.getCostTracker().getTotalCost();
         try {
           const regenBibleV = { ...worldState, beatSheet: [] };
-          const regenFnV = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+          const regenFnV = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
           const leakedTicsIn = (text: string): string[] =>
             validateDialogueIdiolect(capsules, text).issues
               .filter((iss) => iss.severity === "error" && iss.type === "voice_tic_leakage")
@@ -5029,77 +5066,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
-  // P5 (default-off, AGENT9_CRITIQUE_REWRITE) — critique→rewrite the lowest-scoring chapters at creative
-  // temperature. Runs BEFORE first-pass scoring + the story-validation pipeline, so every rewrite flows
-  // through the existing gates; the library's own validator rolls back any rewrite that drops a locked
-  // fact or introduces scaffold, and clue-presence/pronoun fidelity are re-checked downstream. Wrapped
-  // so any failure leaves the generated chapters untouched.
-  if (isCritiqueRewriteEnabled() && Array.isArray(prose.chapters) && prose.chapters.length > 0) {
-    // Snapshot the client's running cost so the critique-rewrite LLM spend is folded into prose.cost
-    // (otherwise the per-agent cost telemetry under-reports it).
-    const costBeforeRewrite = client.getCostTracker().getTotalCost();
-    try {
-      const atomicValues = (worldState.facts ?? [])
-        .filter((f) => f.type === "atomic")
-        .map((f) => String(f.value ?? "").trim())
-        .filter(Boolean);
-      const pronouns: Record<string, string> = {};
-      for (const c of (castDesign.characters ?? []) as any[]) {
-        const g = String(c?.gender ?? "").toLowerCase();
-        const name = String(c?.name ?? "").trim();
-        if (name) pronouns[name] = g === "male" ? "he/him" : g === "female" ? "she/her" : "they/them";
-      }
-      // Ledger P4.2 — a creative-temperature rewrite may not REINTRODUCE defect classes the regen
-      // passes (which run BEFORE this pass) already cleared. The validator is evaluated on the
-      // original first (critiqueAndRewriteChapter's isRegression), so pre-existing defects self-
-      // baseline: only NEW violations roll a rewrite back. Chapter-list snapshot note: within one
-      // pass, earlier accepted rewrites aren't reflected here — a combination defect across two
-      // same-pass rewrites still lands on the final release gate, which is unchanged.
-      const rewriteMechanismTerms = deriveMechanismTerms(String(caseBlock?.hidden_model?.mechanism?.description ?? ""));
-      const rewriteDtChapter = resolveDiscriminatingTestChapter(macroArcPlan);
-      const rewriteChapterSnapshot = (prose.chapters as any[]).slice();
-      const validatorFor = (index: number, original: any): ChapterValidator =>
-        buildRewriteAcceptanceValidator({
-          atomicValues,
-          chapterSnapshot: rewriteChapterSnapshot,
-          mechanismTerms: rewriteMechanismTerms,
-          dtChapter: rewriteDtChapter,
-          index,
-          original,
-        });
-      const scored = (ctx.proseChapterScores ?? [])
-        .map((s: any) => ({ index: (Number(s?.chapter) || 0) - 1, score: Number(s?.individual_score) || 0 }))
-        .filter((s) => s.index >= 0 && s.index < prose.chapters.length);
-      const rw = await runCritiqueRewritePass({
-        client,
-        chapters: prose.chapters,
-        scored,
-        maxChapters: 4,
-        validatorFor,
-        constraintsFor: () => ({ lockedFacts: atomicValues, pronouns, requiredClues: [] }),
-        model: proseDeployment,
-        runId: ctx.runId,
-        projectId: ctx.projectId,
-        onResult: (i, r) => {
-          if (!r.rewritten && r.rollbackReason) {
-            ctx.warnings.push(`[Agent 9] critique-rewrite ch${i + 1} rolled back: ${r.rollbackReason}`);
-          }
-        },
-      });
-      if (rw.rewrittenIndices.length > 0) {
-        prose.chapters = rw.chapters;
-        prose = applyStandardPostProcessingChain(prose); // re-run hygiene over the rewritten chapters
-        ctx.warnings.push(`[Agent 9] critique-rewrite rewrote chapter(s) [${rw.rewrittenIndices.map((i) => i + 1).join(", ")}].`);
-      }
-    } catch (err) {
-      ctx.warnings.push(`[Agent 9] critique-rewrite pass failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`);
-    } finally {
-      // Fold the critique-rewrite spend into the prose cost regardless of outcome (calls may have run
-      // before a rollback), so per-agent cost telemetry stays accurate.
-      const rewriteCost = client.getCostTracker().getTotalCost() - costBeforeRewrite;
-      if (rewriteCost > 0 && typeof prose?.cost === "number") prose.cost += rewriteCost;
-    }
-  }
+  // S1 (architecture/FLAG-AUDIT.md) — the critique-rewrite pass was REMOVED 2026-08-01.
+  // Probe complete with a negative verdict: A_63 P5.1, 4 matched fresh pairs — targets flat
+  // (oh -0.50, dlg 0.00, pace 0.00), prose -1.00, rubric total -2.0. It was off in .env.local
+  // AND off by code default, so removal is a runtime no-op. Do not reintroduce without a
+  // fresh probe; the negative result is the reason it is gone, not neglect.
+
   // 1c: Repair digit-form conversions of word-phrased locked facts (e.g. "11:10 PM" → "ten minutes past eleven").
   // Must run before StoryValidationPipeline so ProseConsistencyValidator sees the canonical form.
   // 1d: Normalize location names to canonical capitalised forms before validation.
@@ -5250,7 +5222,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     per_pass_accounting: ctx.prosePassAccounting,
     metrics_snapshot: finalized ? "final" : "initial",
     bottom_up_redesign_enabled: bottomUpRedesignEnabled,
-    batch_size: inputs.proseBatchSize ?? 1,
+    batch_size: effectiveProseBatchSize ?? 1,
     batches_with_retries: prose.validationDetails?.batchesWithRetries ?? 0,
     total_batches: prose.validationDetails?.totalBatches ?? 0,
     batch_failure_events: prose.validationDetails?.failureHistory?.length ?? 0,
@@ -5456,7 +5428,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       storyContract,
       onProgress: (phase: string, message: string, percentage: number) =>
         reportProgress(phase as any, message, percentage),
-      batchSize: inputs.proseBatchSize,
+      batchSize: effectiveProseBatchSize,
       onBatchComplete: (_batchChapters: any, _batchStart: number, batchEnd: number) => {
         const chapterLabel = `${batchEnd}/${totalSceneCount || batchEnd}`;
         reportProgress(
@@ -5536,7 +5508,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeLf = client.getCostTracker().getTotalCost();
     try {
       const regenBibleLf = { ...worldState, beatSheet: [] };
-      const regenFnLf = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const regenFnLf = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       const chapterTextsLf = (prose.chapters as any[]).map((ch: any) =>
         (Array.isArray(ch?.paragraphs) ? ch.paragraphs.join("\n\n") : "").toLowerCase(),
       );
@@ -5614,7 +5586,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     const costBeforeRegen = client.getCostTracker().getTotalCost();
     try {
       const regenBibleRc14 = { ...worldState, beatSheet: [] };
-      const regenFnRc14 = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const regenFnRc14 = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       if (isCulpritEvidenceRegenEnabled()) {
         const liveCulprits = computeLiveCulprits(prose, cml);
         if (liveCulprits.length > 0) {
@@ -5709,7 +5681,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       const costBeforePronoun = client.getCostTracker().getTotalCost();
       try {
         const regenBibleP = { ...worldState, beatSheet: [] };
-        const pronounRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+        const pronounRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
         const genderByName = new Map(hpCast.map((c) => [c.name, c.gender]));
         for (let i = 0; i < prose.chapters.length; i++) {
           const chText = ((prose.chapters[i]?.paragraphs ?? []) as string[]).join("\n\n");
@@ -6614,7 +6586,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     nsdAnchorRepairAttempts = revealedWithoutEvidence.length;
     const costBeforeNsdRepair = client.getCostTracker().getTotalCost();
     try {
-      const nsdRegen = makeRegenFn({ client, model: proseDeployment, runId: ctx.runId, projectId: ctx.projectId });
+      const nsdRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
       // Class #12 (P5-DV poison, mystery-1784570276364): a round-1 plant was accepted by the
       // gate's own matcher, then applyStandardPostProcessingChain rewrote it and the re-collect
       // missed — one hygiene pass turned a repaired run into a hard-stop with no second attempt.

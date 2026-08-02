@@ -19,28 +19,13 @@ export interface ProseChapter {
   paragraphs: string[];
 }
 
-// [PHASE 5] Narrative arc archetype system
-const BASE_ARCHETYPES = [
-  'DISCOVERY',        // body found — no interrogation
-  'FIRST_CONTACT',    // initial interviews — no evidence found yet
-  'EVIDENCE',         // physical discovery — no formal accusation
-  'ALIBI_PROBE',      // test one alibi — result must be stated
-  'RED_HERRING',      // follow wrong lead — disproved within chapter
-  'REVERSAL',         // prior assumption overturned — new theory formed
-  'ISOLATION',        // eliminate one suspect definitively
-  'DISCRIMINATING',   // apply discriminating test logic
-  'CONFRONTATION',    // direct accusation scene — culprit present
-  'RESOLUTION',       // confession, arrest, aftermath
-] as const;
-
-type Archetype = typeof BASE_ARCHETYPES[number];
-
-export interface MacroArcEntry {
-  chapter: number;
-  archetype: Archetype;
-  mustContain: string;
-  mustNotContain: string;
-}
+// [PHASE 5] Narrative arc archetype system.
+// S6 prerequisite — the archetype list and MacroArcEntry moved to the leaf `../types/macro-arc.js`
+// so `story-bible.ts` can read the type without importing INTO agent9-prose/. Re-exported here, so
+// every existing importer of `MacroArcEntry` from this module keeps working unchanged.
+export type { MacroArcEntry, Archetype } from "../types/macro-arc.js";
+export { BASE_ARCHETYPES } from "../types/macro-arc.js";
+import { BASE_ARCHETYPES, type Archetype, type MacroArcEntry } from "../types/macro-arc.js";
 
 // P2-24: mustNotContain values use chapter-specific content rules, not cross-chapter state
 // references ("same confrontation as prior chapter") that cannot be verified from the current

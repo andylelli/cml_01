@@ -8,7 +8,6 @@
  *
  *   AGENT9_MODEL_GENERATE   — chapter generation (strong)
  *   AGENT9_MODEL_REWRITE    — critique→rewrite (strong)
- *   AGENT9_MODEL_CRITIQUE   — the critique half (may be cheaper than the rewrite half)
  *   AGENT9_MODEL_REGEN      — scoped micro-regens (cheap/fast)
  *   AGENT9_MODEL_POLISH     — post-pass / cross-chapter polish line-edits (A_69 Increment 2)
  *
@@ -18,12 +17,11 @@
  * behaviour to today (falls back to the caller's prose deployment).
  */
 
-export type Agent9Stage = "generate" | "rewrite" | "critique" | "regen" | "polish";
+export type Agent9Stage = "generate" | "rewrite" | "regen" | "polish";
 
 const ENV_BY_STAGE: Record<Agent9Stage, string> = {
   generate: "AGENT9_MODEL_GENERATE",
   rewrite: "AGENT9_MODEL_REWRITE",
-  critique: "AGENT9_MODEL_CRITIQUE",
   regen: "AGENT9_MODEL_REGEN",
   polish: "AGENT9_MODEL_POLISH",
 };

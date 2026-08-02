@@ -34,148 +34,56 @@
  * Azure creds are read from .env.local / .env at the workspace root (never printed).
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
-import { deriveStoryTitle } from "@cml/prompts-llm";
+import { AzureOpenAIClient } from "@cml/llm-client";
 import { createLLMRubricJudge, scoreStory } from "@cml/rubric-score";
 
 import { runAgent9 } from "./agents/agent9-run.js";
 import type { OrchestratorContext } from "./agents/shared.js";
+import { latestArtifact, loadArtifactStore, loadProjectSpec } from "./artifact-store.js";
+import { buildClient, loadEnvFiles } from "./cli-runtime.js";
 import { RunLogger } from "./run-logger.js";
+import {
+  assembleFullProse,
+  normalizeStoryText as normalizeText,
+  saveReadableStory,
+  storyFolderName,
+} from "./story-output.js";
 
-// ── tiny .env loader (no dependency; never echoes values) ────────────────────
-function loadEnvFiles(root: string): void {
-  for (const name of [".env.local", ".env"]) {
-    const path = join(root, name);
-    if (!existsSync(path)) continue;
-    for (const raw of readFileSync(path, "utf8").split(/\r?\n/)) {
-      const line = raw.trim();
-      if (!line || line.startsWith("#")) continue;
-      const eq = line.indexOf("=");
-      if (eq < 0) continue;
-      const key = line.slice(0, eq).trim();
-      let val = line.slice(eq + 1).trim();
-      if (
-        (val.startsWith('"') && val.endsWith('"')) ||
-        (val.startsWith("'") && val.endsWith("'"))
-      ) {
-        val = val.slice(1, -1);
-      }
-      if (key && process.env[key] === undefined) process.env[key] = val;
-    }
+// ── shared readers ───────────────────────────────────────────────────────────
+// R5 — `loadStore`, `latestArtifact`, `findSpec`, the .env loader, the client builder and the story
+// writer all used to live here as private copies. They now come from `artifact-store.ts`,
+// `cli-runtime.ts` and `story-output.ts`, shared with production resume and the eval harness: one
+// body per concept, so a fix cannot land on one copy and miss the others.
+const loadStore = loadArtifactStore;
+const findSpec = loadProjectSpec;
+
+// ── R6: frozen golden bundles ────────────────────────────────────────────────
+/**
+ * A bundle is a run's upstream artifacts, extracted from the store and committed so the eval set is
+ * reproducible after `data/store.json` has moved on. See `scripts/eval-freeze-bundle.mjs`.
+ */
+interface GoldenBundle {
+  id: string;
+  projectId: string;
+  spec: Record<string, unknown>;
+  artifacts: Record<string, unknown>;
+}
+
+function loadGoldenBundle(path: string): GoldenBundle {
+  if (!existsSync(path)) throw new Error(`Golden bundle not found: ${path}`);
+  const parsed = JSON.parse(readFileSync(path, "utf8"));
+  if (!parsed || typeof parsed !== "object" || !parsed.artifacts) {
+    throw new Error(`Malformed golden bundle (no 'artifacts' object): ${path}`);
   }
-}
-
-const parseEnvBool = (v: string | undefined, def: boolean): boolean =>
-  v === undefined || v === "" ? def : /^(1|true|yes|on)$/i.test(v);
-
-// ── store.json artifact loader ───────────────────────────────────────────────
-interface StoreArtifact {
-  id?: string;
-  projectId?: string;
-  project_id?: string;
-  type?: string;
-  artifact_type?: string;
-  payload?: unknown;
-  payload_json?: unknown;
-}
-
-function loadStore(workspaceRoot: string): StoreArtifact[] {
-  const path = join(workspaceRoot, "data", "store.json");
-  if (!existsSync(path)) throw new Error(`Artifact store not found at ${path}`);
-  const j = JSON.parse(readFileSync(path, "utf8"));
-  const arts = j.artifacts ?? j.artifact_versions;
-  if (!Array.isArray(arts)) throw new Error(`No 'artifacts' array in ${path}`);
-  return arts as StoreArtifact[];
-}
-
-/** Latest payload for (projectId, type); store has no version field, so last-wins by array order. */
-function latestArtifact(store: StoreArtifact[], projectId: string, type: string): unknown {
-  let found: unknown;
-  for (const a of store) {
-    if ((a.project_id ?? a.projectId) !== projectId) continue;
-    if ((a.artifact_type ?? a.type) !== type) continue;
-    let payload = a.payload !== undefined ? a.payload : a.payload_json;
-    if (typeof payload === "string") {
-      try {
-        payload = JSON.parse(payload);
-      } catch {
-        /* leave as string */
-      }
-    }
-    found = payload;
-  }
-  return found;
-}
-
-function findSpec(workspaceRoot: string, projectId: string): any {
-  const path = join(workspaceRoot, "data", "store.json");
-  const j = JSON.parse(readFileSync(path, "utf8"));
-  const specs = Array.isArray(j.specs) ? j.specs : Object.values(j.specs ?? {});
-  const mine = (specs as any[]).filter((s) => s && (s.project_id ?? s.projectId) === projectId);
-  const rec = mine[mine.length - 1] ?? (specs as any[])[(specs as any[]).length - 1];
-  return rec?.spec ?? rec ?? {};
-}
-
-// ── text helpers ─────────────────────────────────────────────────────────────
-const normalizeText = (s: unknown): string =>
-  String(s ?? "")
-    .replace(/[‘’]/g, "'")
-    .replace(/[“”]/g, '"')
-    .replace(/…/g, "...")
-    .replace(/[–—]/g, "-")
-    .trim();
-
-/** Plain prose join — what the live shadow scorer rubric-scores (orchestrator.assembleFullProse). */
-function assembleFullProse(prose: any): string {
-  const chapters = Array.isArray(prose?.chapters) ? prose.chapters : [];
-  return chapters
-    .map((c: any) => {
-      const body = Array.isArray(c?.paragraphs)
-        ? c.paragraphs.join("\n\n")
-        : String(c?.content ?? c?.text ?? "");
-      const title = c?.title ? `${c.title}\n\n` : "";
-      return `${title}${body}`.trim();
-    })
-    .filter(Boolean)
-    .join("\n\n");
-}
-
-function storyFolderName(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `story_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
-}
-
-/** Readable story markdown, byte-for-byte the same shape the API's saveReadableStoryText writes. */
-function saveReadableStory(
-  prose: any,
-  runId: string,
-  storyDir: string,
-  fallbackTitle: string,
-): { filePath: string; slug: string; title: string } {
-  const storyTitle = normalizeText(deriveStoryTitle(prose, fallbackTitle)) || "Mystery Story";
-  const slug =
-    storyTitle.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48) || "story";
-  const chapters: any[] = Array.isArray(prose?.chapters) ? prose.chapters : [];
-  const now = new Date();
-  const lines: string[] = [`# ${storyTitle}`, ``, `*Run ID: ${runId} — Generated ${now.toDateString()}*`, ``, `---`];
-  chapters.forEach((ch, i) => {
-    const chTitle = normalizeText(ch?.title || `Chapter ${i + 1}`);
-    lines.push(``, `## Chapter ${i + 1}: ${chTitle}`, ``);
-    const paragraphs = Array.isArray(ch?.paragraphs) ? ch.paragraphs : ch?.text ? [ch.text] : [];
-    for (const p of paragraphs) {
-      const text = normalizeText(p);
-      if (text) lines.push(text, ``);
-    }
-    lines.push(`---`);
-  });
-  const content = lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
-  mkdirSync(storyDir, { recursive: true });
-  const filePath = join(storyDir, `${slug}.md`);
-  writeFileSync(filePath, content, "utf8");
-  return { filePath, slug, title: storyTitle };
+  return {
+    id: String(parsed.id ?? "unnamed"),
+    projectId: String(parsed.projectId ?? parsed.project_id ?? parsed.id ?? "bundle"),
+    spec: (parsed.spec ?? {}) as Record<string, unknown>,
+    artifacts: parsed.artifacts as Record<string, unknown>,
+  };
 }
 
 // ── rubric report rendering ──────────────────────────────────────────────────
@@ -247,40 +155,6 @@ function renderRubricMarkdown(
   bullets("Fastest fixes", rb.fastest_fixes);
 
   return L.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
-}
-
-// ── AzureOpenAIClient (mirrors apps/api buildLlmClient, incl. the LLM logger) ─
-function buildLlmLogger(workspaceRoot: string): LLMLogger {
-  return new LLMLogger({
-    logLevel: process.env.LOG_LEVEL as any,
-    logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
-    logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
-    logFilePath: process.env.LOG_FILE_PATH || join(workspaceRoot, "logs", "llm.jsonl"),
-    logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
-    fullPromptLogFilePath:
-      process.env.FULL_PROMPT_LOG_FILE_PATH || join(workspaceRoot, "logs", "llm-prompts-full.jsonl"),
-    logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
-    actualPromptDocsDir:
-      process.env.ACTUAL_PROMPT_DOCS_DIR || join(workspaceRoot, "documentation", "prompts", "actual"),
-  });
-}
-
-function buildClient(workspaceRoot: string): AzureOpenAIClient {
-  const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
-  const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
-  if (!endpoint || !apiKey) {
-    throw new Error(
-      "Missing Azure credentials. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY (or put them in .env.local at the workspace root).",
-    );
-  }
-  return new AzureOpenAIClient({
-    endpoint,
-    apiKey,
-    defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
-    apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
-    requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
-    logger: buildLlmLogger(workspaceRoot),
-  } as any);
 }
 
 async function runRubric(
@@ -391,11 +265,19 @@ async function main(): Promise<void> {
     return;
   }
 
-  const projectId = process.argv[2];
+  // R6 — a frozen bundle (eval/golden/*.json) is an alternative artifact SOURCE, not an alternative
+  // code path: everything below this block is identical whether the artifacts came from the live
+  // store or from a committed fixture. That is deliberate — a golden-set harness that ran its own
+  // replay implementation would be measuring something other than what production does.
+  const bundlePath = (process.env.REPLAY_BUNDLE || "").trim();
+  const bundle = bundlePath ? loadGoldenBundle(bundlePath) : null;
+
+  const projectId = bundle ? bundle.projectId : process.argv[2];
   const label = (process.argv[3] || "").trim();
   if (!projectId) {
     console.error(
-      "Usage: node --use-system-ca apps/worker/dist/jobs/agent9-replay.js <projectId> [label]",
+      "Usage: node --use-system-ca apps/worker/dist/jobs/agent9-replay.js <projectId> [label]\n" +
+        "   or: REPLAY_BUNDLE=eval/golden/<id>.json node --use-system-ca apps/worker/dist/jobs/agent9-replay.js",
     );
     process.exit(1);
     return;
@@ -408,16 +290,23 @@ async function main(): Promise<void> {
 
   const runId = label || `replay-${Date.now()}`;
   console.log(`[replay-agent9] project   : ${projectId}`);
+  console.log(`[replay-agent9] source    : ${bundle ? `bundle ${bundlePath}` : "data/store.json"}`);
   console.log(`[replay-agent9] runId     : ${runId}`);
   console.log(`[replay-agent9] workspace : ${workspaceRoot}`);
   console.log(`[replay-agent9] mode      : ${dry ? "DRY (no LLM)" : "LIVE"}`);
 
   // ── load upstream artifacts ────────────────────────────────────────────────
-  const store = loadStore(workspaceRoot);
+  const store = bundle ? [] : loadStore(workspaceRoot);
+  const optional = (type: string): unknown =>
+    bundle ? bundle.artifacts[type] : latestArtifact(store, projectId, type);
   const required = (type: string): unknown => {
-    const a = latestArtifact(store, projectId, type);
+    const a = optional(type);
     if (a === undefined) {
-      throw new Error(`Required artifact '${type}' not found for project ${projectId} in data/store.json`);
+      throw new Error(
+        bundle
+          ? `Required artifact '${type}' missing from bundle ${bundlePath} — re-freeze it with 'npm run eval:freeze'`
+          : `Required artifact '${type}' not found for project ${projectId} in data/store.json`,
+      );
     }
     return a;
   };
@@ -430,10 +319,10 @@ async function main(): Promise<void> {
   const hardLogicDevices = required("hard_logic_devices");
   const narrative = required("outline");
   const clues = required("clues");
-  const worldDocument = latestArtifact(store, projectId, "world_document");
-  const setting = latestArtifact(store, projectId, "setting");
-  const backgroundContext = latestArtifact(store, projectId, "background_context");
-  const fairPlayAudit = latestArtifact(store, projectId, "fair_play_report");
+  const worldDocument = optional("world_document");
+  const setting = optional("setting");
+  const backgroundContext = optional("background_context");
+  const fairPlayAudit = optional("fair_play_report");
 
   console.log(
     `[replay-agent9] artifacts : cml, cast, character_profiles, location_profiles, temporal_context, ` +
@@ -442,7 +331,7 @@ async function main(): Promise<void> {
       `${backgroundContext ? ", background_context" : ""}${fairPlayAudit ? ", fair_play_report" : ""}`,
   );
 
-  const spec = findSpec(workspaceRoot, projectId);
+  const spec = bundle ? bundle.spec : findSpec(workspaceRoot, projectId);
   const inputs: any = {
     ...spec,
     runId,
@@ -556,6 +445,48 @@ async function main(): Promise<void> {
       chapters: Array.isArray((ctx.prose as any)?.chapters) ? (ctx.prose as any).chapters.length : 0,
     });
     console.log(`[replay-agent9] rubric report: ${join(storyDir, "rubric-report.md")}`);
+  }
+
+  // R6 — machine-readable result for the eval harness. Written to a caller-chosen path so the
+  // harness never has to guess which `stories/story_<timestamp>/` folder belonged to which bundle;
+  // a timestamp race between two bundles in the same minute would otherwise cross the results.
+  const resultOut = (process.env.REPLAY_RESULT_OUT || "").trim();
+  if (resultOut) {
+    writeFileSync(
+      resultOut,
+      JSON.stringify(
+        {
+          bundleId: bundle?.id ?? null,
+          projectId,
+          runId,
+          storyPath,
+          storyDir,
+          chapters: Array.isArray((ctx.prose as any)?.chapters) ? (ctx.prose as any).chapters.length : 0,
+          proseChars: proseText.length,
+          warnings: ctx.warnings.length,
+          errors: ctx.errors.length,
+          // null when scoring is off or the prose was too short — the harness reports that as a
+          // failed bundle rather than silently scoring it 0, which would look like a regression.
+          rubric: scored
+            ? {
+                final: scored.final,
+                band: scored.band,
+                raw_total: scored.rawTotal,
+                caps_applied: scored.capsApplied,
+                categories: (scored.categories ?? []).map((c: any) => ({
+                  category: c.category,
+                  mark: c.mark,
+                  capped: !!c.capped,
+                })),
+              }
+            : null,
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    console.log(`[replay-agent9] result json : ${resultOut}`);
   }
 
   runLogger.logComplete("complete", Date.now() - startMs, ctx.warnings, ctx.errors);

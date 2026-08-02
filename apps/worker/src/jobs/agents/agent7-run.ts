@@ -7,7 +7,7 @@
  * pacing. Writes ctx.narrative and ctx.outlineCoverageIssues.
  */
 
-import { formatNarrative, GOLDEN_AGE_BEATS } from "@cml/prompts-llm";
+import { formatNarrative, GOLDEN_AGE_BEATS, isAgent7StructuredOutputEnabled } from "@cml/prompts-llm";
 import type { NarrativeOutline, ClueDistributionResult, WorldDocumentResult } from "@cml/prompts-llm";
 import { validateArtifact } from "@cml/cml";
 import type { CaseData } from "@cml/cml";
@@ -1267,6 +1267,89 @@ const BEAT_SYNONYMS: Record<string, string> = {
  *
  * @returns counts of coerced (synonym-mapped) and dropped (unrecognised) beats.
  */
+// ── R4 step 4: coercion telemetry ────────────────────────────────────────────
+/**
+ * How often the coercion layer actually fired this run, and under which arm.
+ *
+ * WHY THIS EXISTS. R3/R4 add schema-constrained decoding to Agent 7, which should make the ~55-site
+ * coercion layer redundant. "Should" is the problem: REVIEW §2.4 catalogues three shape bugs that
+ * failed SILENTLY, and the only reason they were expensive is that nothing counted them. Deleting
+ * coercion because the schema is on would be the same mistake in reverse — removing a safety net on
+ * a belief rather than on a measurement.
+ *
+ * S7 ("retire coercion sites proven dead") consumes these counters. The bar it should be held to:
+ * zero firings across several real runs on the flag-ON arm, per helper, before any site is deleted.
+ */
+export interface Agent7CoercionCounters {
+  /** Which arm produced these counts — the comparison is meaningless without it. */
+  structuredOutput: boolean;
+  /** Beats mapped from a synonym onto the canonical Golden-Age arc. */
+  beatsCoerced: number;
+  /** Beats dropped as unrecognised. */
+  beatsDropped: number;
+  /** Scene fields recovered from a wrongly-nested `setting` object. */
+  fieldsHoisted: number;
+  /** Times any coercion helper changed anything at all. */
+  firings: number;
+}
+
+const emptyCoercionCounters = (): Agent7CoercionCounters => ({
+  structuredOutput: isAgent7StructuredOutputEnabled(),
+  beatsCoerced: 0,
+  beatsDropped: 0,
+  fieldsHoisted: 0,
+  firings: 0,
+});
+
+/**
+ * Accumulate one helper's result onto the run. Stored on `ctx`, never in module state — a module
+ * counter would leak across runs in a batch harness and quietly inflate the very number S7 reads.
+ */
+export function recordAgent7Coercion(
+  ctx: OrchestratorContext,
+  delta: { beatsCoerced?: number; beatsDropped?: number; fieldsHoisted?: number },
+): void {
+  const counters = (ctx.agent7Coercion ??= emptyCoercionCounters());
+  counters.beatsCoerced += delta.beatsCoerced ?? 0;
+  counters.beatsDropped += delta.beatsDropped ?? 0;
+  counters.fieldsHoisted += delta.fieldsHoisted ?? 0;
+  if ((delta.beatsCoerced ?? 0) + (delta.beatsDropped ?? 0) + (delta.fieldsHoisted ?? 0) > 0) {
+    counters.firings += 1;
+  }
+}
+
+/**
+ * Emit the run's counters once, to both channels that survive the process:
+ *   - `ctx.warnings`, which the orchestrator captures wholesale into the `run_warnings` diagnostic
+ *     (chain logs die with the terminal; the report is the durable record);
+ *   - a dedicated report diagnostic, so an A/B analyser can read the number without regex over prose.
+ *
+ * Emitted even when every count is ZERO. A zero that is never written is indistinguishable from a
+ * telemetry path that never ran — which is precisely the defect class this counter exists to detect.
+ */
+export function emitAgent7CoercionTelemetry(ctx: OrchestratorContext): void {
+  const counters = ctx.agent7Coercion ?? emptyCoercionCounters();
+  ctx.agent7Coercion = counters;
+
+  ctx.warnings.push(
+    `[R4] agent7 coercion telemetry: structured_output=${counters.structuredOutput} ` +
+      `firings=${counters.firings} beats_coerced=${counters.beatsCoerced} ` +
+      `beats_dropped=${counters.beatsDropped} fields_hoisted=${counters.fieldsHoisted}`,
+  );
+
+  try {
+    (ctx as any).scoreAggregator?.upsertDiagnostic?.(
+      "agent7_coercion",
+      "agent7_narrative",
+      "Agent 7 Coercion Counters",
+      "agent7_coercion",
+      { ...counters },
+    );
+  } catch {
+    // Telemetry must never abort a run that produced a valid outline.
+  }
+}
+
 export function coerceNarrativeSceneBeats(narrative: unknown): { coerced: number; dropped: number } {
   const allowed = new Set<string>(GOLDEN_AGE_BEATS);
   let coerced = 0;
@@ -1506,12 +1589,14 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
 
   // ── Deterministic beat coercion (before schema validation) ──────────────────
   const beatCoercion = coerceNarrativeSceneBeats(narrative);
+  recordAgent7Coercion(ctx, { beatsCoerced: beatCoercion.coerced, beatsDropped: beatCoercion.dropped });
   if (beatCoercion.coerced > 0 || beatCoercion.dropped > 0) {
     ctx.warnings.push(
       `Narrative beat coercion: mapped ${beatCoercion.coerced} synonym beat(s) to the Golden-Age arc, dropped ${beatCoercion.dropped} unrecognised beat(s) before schema validation.`,
     );
   }
   const fieldHoist = hoistMisplacedSceneFields(narrative);
+  recordAgent7Coercion(ctx, { fieldsHoisted: fieldHoist.hoisted });
   if (fieldHoist.hoisted > 0) {
     ctx.warnings.push(
       `Narrative field hoist: recovered ${fieldHoist.hoisted} scene field(s) the model nested under 'setting' (purpose/summary/characters/…) before schema validation — prevents a spurious completeness abort.`,
@@ -1557,12 +1642,16 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     // same deterministic coercion as the first attempt — otherwise a beat-only defect on the
     // retry still hard-aborts at the last gate before failure.
     const retryBeatCoercion = coerceNarrativeSceneBeats(retriedNarrative);
+    recordAgent7Coercion(ctx, {
+      beatsCoerced: retryBeatCoercion.coerced,
+      beatsDropped: retryBeatCoercion.dropped,
+    });
     if (retryBeatCoercion.coerced > 0 || retryBeatCoercion.dropped > 0) {
       ctx.warnings.push(
         `Narrative beat coercion (retry): mapped ${retryBeatCoercion.coerced} synonym beat(s), dropped ${retryBeatCoercion.dropped} unrecognised beat(s) before schema validation.`,
       );
     }
-    hoistMisplacedSceneFields(retriedNarrative);
+    recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(retriedNarrative).hoisted });
 
     const retryValidation = validateArtifact("narrative_outline", retriedNarrative);
     if (!retryValidation.valid) {
@@ -1973,7 +2062,8 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
       ctx.agentDurations["agent7_narrative"] =
         (ctx.agentDurations["agent7_narrative"] ?? 0) + (Date.now() - remediationStart);
 
-      hoistMisplacedSceneFields(remediatedNarrative); // recover any still-misplaced fields before the abort gate
+      // recover any still-misplaced fields before the abort gate
+      recordAgent7Coercion(ctx, { fieldsHoisted: hoistMisplacedSceneFields(remediatedNarrative).hoisted });
       const countCheck = checkNarrativeSceneCountFloor(remediatedNarrative, sceneCountLock);
       const remainingIssues = evaluateOutlinePreCommitCompleteness(remediatedNarrative);
 
@@ -2252,8 +2342,20 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
   // coercion or field hoisting, so an uncoerced synonym beat (e.g. "resolution" → "revelation") could
   // reach Agent 9 and misfire the aftermath-chapter stage-mode (permitting a duplicate reveal). Both
   // passes are idempotent — a no-op when the first attempt already passed through them.
-  coerceNarrativeSceneBeats(narrative);
-  hoistMisplacedSceneFields(narrative);
+  const finalCoercion = coerceNarrativeSceneBeats(narrative);
+  const finalHoist = hoistMisplacedSceneFields(narrative);
+  recordAgent7Coercion(ctx, {
+    beatsCoerced: finalCoercion.coerced,
+    beatsDropped: finalCoercion.dropped,
+    fieldsHoisted: finalHoist.hoisted,
+  });
+
+  // R4 step 4 (architecture/REVIEW.md) — emit the counters ONCE per run, at the point the outline is
+  // final. These counts ARE the evidence for S7: the coercion layer can only be deleted per agent
+  // where a structured-output arm drives its counters to zero across real runs. Without them, "the
+  // schema made coercion redundant" is an assertion, and this codebase has been wrong about exactly
+  // that kind of assertion before ("(common)" on a lever that fired 0/18).
+  emitAgent7CoercionTelemetry(ctx);
 
   ctx.narrative = narrative;
   // A_53 P10 (outline-coverage-evaluated-thrice): reuse the deterministic-patch scan; only the

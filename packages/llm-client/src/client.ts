@@ -54,6 +54,62 @@ export const resolveRequestTimeoutMs = (raw = process.env.LLM_REQUEST_TIMEOUT_MS
   return Math.floor(parsed);
 };
 
+/**
+ * R3 — resolve the Azure `responseFormat` from the caller's options.
+ *
+ * Exported for testing: the whole value of structured outputs is that the schema actually reaches
+ * the API, and that is exactly the kind of wiring this codebase has repeatedly got wrong silently.
+ */
+export const resolveResponseFormat = (options: {
+  jsonMode?: boolean;
+  jsonSchema?: { name: string; schema: Record<string, unknown>; strict?: boolean };
+}):
+  | { type: "json_object" }
+  | { type: "json_schema"; json_schema: { name: string; schema: Record<string, unknown>; strict: boolean } }
+  | undefined => {
+  if (options.jsonSchema && options.jsonMode) {
+    // Throw rather than pick one. Silently preferring a format would mask a caller bug and produce
+    // output that looks fine but was never schema-constrained — the exact failure mode R3 exists
+    // to remove.
+    throw new Error(
+      "ChatOptions: `jsonMode` and `jsonSchema` are mutually exclusive — pass only one " +
+        `(jsonSchema.name="${options.jsonSchema.name}")`,
+    );
+  }
+  if (options.jsonSchema) {
+    return {
+      type: "json_schema" as const,
+      json_schema: {
+        name: options.jsonSchema.name,
+        schema: options.jsonSchema.schema,
+        strict: options.jsonSchema.strict ?? true,
+      },
+    };
+  }
+  return options.jsonMode ? { type: "json_object" as const } : undefined;
+};
+
+/**
+ * R3 — a schema-constrained call can come back unusable in ways an unconstrained one cannot.
+ * `length` means the JSON is truncated mid-object; `content_filter` means nothing usable arrived.
+ * Both would otherwise surface downstream as a parse failure, which sends the reader hunting for a
+ * schema bug that does not exist.
+ */
+export class StructuredOutputError extends Error {
+  constructor(
+    readonly reason: "truncated" | "filtered",
+    readonly schemaName: string,
+    readonly finishReason: string,
+  ) {
+    super(
+      reason === "truncated"
+        ? `Structured output "${schemaName}" was truncated (finish_reason=${finishReason}) — the JSON is incomplete. Raise maxTokens.`
+        : `Structured output "${schemaName}" was blocked by the content filter (finish_reason=${finishReason}).`,
+    );
+    this.name = "StructuredOutputError";
+  }
+}
+
 export class AzureOpenAIClient {
   private client: OpenAIClient;
   private circuitBreaker: CircuitBreaker;
@@ -170,7 +226,7 @@ export class AzureOpenAIClient {
         {
           temperature,
           maxTokens,
-          responseFormat: options.jsonMode ? { type: "json_object" as const } : undefined,
+          responseFormat: resolveResponseFormat(options),
           ...(timeoutMs > 0 ? { abortSignal: AbortSignal.timeout(timeoutMs) } : {}),
         }
       );
@@ -191,6 +247,18 @@ export class AzureOpenAIClient {
 
       const content = response.choices[0]?.message?.content || "";
       const finishReason = response.choices[0]?.finishReason || "stop";
+
+      // R3 — a schema-constrained reply that stopped early is NOT a parse problem, and must not be
+      // reported as one. Only raised for jsonSchema calls: the unconstrained paths have their own
+      // completion-first fallbacks that depend on receiving partial content.
+      if (options.jsonSchema) {
+        if (finishReason === "length") {
+          throw new StructuredOutputError("truncated", options.jsonSchema.name, finishReason);
+        }
+        if (finishReason === "content_filter") {
+          throw new StructuredOutputError("filtered", options.jsonSchema.name, finishReason);
+        }
+      }
 
       const chatResponse: ChatResponse = {
         content,
