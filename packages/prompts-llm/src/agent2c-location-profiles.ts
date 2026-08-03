@@ -90,7 +90,7 @@ export interface LocationProfilesInputs {
 }
 
 /**
- * R2 (architecture/REVIEW.md) — exported so the `narrative`-absent path is testable.
+ * R2 (architecture/REVIEW_01.md) — exported so the `narrative`-absent path is testable.
  *
  * `narrative` is undefined on EVERY production run: Agent 2c runs long before Agent 7, which is the
  * only writer of `ctx.narrative`, and the order cannot reverse because Agent 7 consumes these

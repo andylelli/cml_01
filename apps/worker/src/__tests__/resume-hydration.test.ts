@@ -1,5 +1,5 @@
 /**
- * R5 (architecture/REVIEW.md) — durable-execution resume.
+ * R5 (architecture/REVIEW_01.md) — durable-execution resume.
  *
  * Both directions throughout, per the REVIEW §7 conventions: every test that proves resume RESTORES
  * something has a partner proving it does NOT restore when it shouldn't. The dangerous failure here
@@ -27,7 +27,7 @@ import {
   STAGE_SECONDARY_OUTPUTS,
   writeRunFingerprint,
   type ResumeBundle,
-} from "../jobs/run-resume.js";
+} from "../jobs/resume-hydration.js";
 import { latestArtifact, loadArtifactStore, loadProjectSpec } from "../jobs/artifact-store.js";
 import type { OrchestratorContext } from "../jobs/agents/shared.js";
 

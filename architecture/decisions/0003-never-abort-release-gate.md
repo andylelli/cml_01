@@ -39,6 +39,20 @@ a success.
 - **It creates pressure in the right place.** The way to stop shipping flat paragraphs is to make the
   LLM rungs succeed more often — which is what the regen flags exist to test.
 
+## Scope boundary — what this decision does NOT cover
+
+Added 2026-08-02, because REVIEW_02 introduced an abort path and a reader should not have to guess
+whether it violates this record.
+
+**This decision governs REPAIRABLE OBLIGATIONS in a run that has already spent money.** It says
+nothing about a run that cannot possibly succeed. `assertFlagCapabilities` throws at t=0 when the
+configuration is impossible — e.g. structured outputs requested on a transport that cannot carry a
+schema. That abort costs nothing, protects the £1.40 the run would otherwise burn before failing, and
+crucially **refuses to degrade silently**: falling back would let a probe report "flag ON" while
+running the control arm, which corrupts the measurement this project's every decision rests on.
+
+The distinction: *never abort a story that could still ship* · *always abort a run that cannot*.
+
 ## What would change our mind
 
 - If the LLM rungs reached a high enough success rate that the floor fired approximately never, the

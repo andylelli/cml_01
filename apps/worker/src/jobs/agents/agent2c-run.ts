@@ -166,7 +166,7 @@ export async function runAgent2c(ctx: OrchestratorContext): Promise<void> {
     const rawProfiles = await generateLocationProfiles(ctx.client, {
       settingRefinement: ctx.setting!.setting,
       caseData: ctx.cml!,
-      // R2 (architecture/REVIEW.md) — `narrative` is ALWAYS undefined here, by design.
+      // R2 (architecture/REVIEW_01.md) — `narrative` is ALWAYS undefined here, by design.
       // ctx.narrative is assigned only in agent7-run, and Agent 7 runs long after 2c because
       // Agent 7 consumes these location profiles. The order cannot reverse without a cycle.
       // generateLocationProfiles declares the field optional and degrades cleanly (it derives

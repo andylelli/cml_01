@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * R6 (architecture/REVIEW.md) — the golden-set eval harness. THE KEYSTONE TASK.
+ * R6 (architecture/REVIEW_01.md) — the golden-set eval harness. THE KEYSTONE TASK.
  *
  * WHAT PROBLEM THIS SOLVES. Prose quality is currently only measurable by a £4-8, two-hour, hand-run
  * A/B. That cost is why levers stay flag-OFF, why the deterministic injector floor keeps shipping,
@@ -357,7 +357,19 @@ function writeExternalReadPackage(current) {
   for (const [id, summary] of Object.entries(current)) {
     if (!summary) continue;
     for (const storyPath of summary.storyPaths) {
-      manifest.push({ bundleId: id, storyPath, internalFinal: summary.final, externalFinal: null, gap: null });
+      manifest.push({
+        bundleId: id,
+        storyPath,
+        internalFinal: summary.final,
+        externalFinal: null,
+        gap: null,
+        // R7 — per-category marks, so calibration can be measured where it actually matters. A
+        // single total hides the shape of the disagreement: a judge that is 9.5 low but ranks
+        // stories correctly is USABLE for A/B work, and one that is unbiased on the total while
+        // scrambling categories is not. `npm run eval:calibrate` reads both.
+        internalCategories: summary.categories ?? {},
+        externalCategories: Object.fromEntries(CATEGORIES.map((c) => [c, null])),
+      });
     }
   }
 
@@ -373,7 +385,10 @@ function writeExternalReadPackage(current) {
       "Read the story cold. Do not look at any internal score, cap list, or report before scoring —",
       "the whole value of this read is that it is independent of the pipeline's own judge.",
       "",
-      "Record each result in `manifest.json` under `externalFinal`. `gap` is internal minus external.",
+      "Record each result in `manifest.json` under `externalFinal`, and the ten per-category marks",
+      "under `externalCategories`. `gap` is internal minus external. Then run `npm run eval:calibrate`",
+      "— it computes the judge's bias, its spread, and whether its per-story RANKING agrees with",
+      "yours, which is the property that decides whether an internal A/B delta means anything.",
       "",
       "## Why",
       "",

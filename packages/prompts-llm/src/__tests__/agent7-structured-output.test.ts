@@ -7,7 +7,7 @@ import {
 import { GOLDEN_AGE_BEATS } from "../constants/golden-age-beats.js";
 
 /**
- * R4 (architecture/REVIEW.md) — Agent 7 structured outputs.
+ * R4 (architecture/REVIEW_01.md) — Agent 7 structured outputs.
  *
  * The schema's job is to make specific historical defects UNREPRESENTABLE. These tests assert the
  * structural properties that do that, not the field list — a field list test would just restate the

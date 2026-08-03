@@ -34,7 +34,7 @@ never "is the prose self-consistent?" — the latter is unanswerable without a r
   better story, because a better story would be a different CML.
 - **The cost is front-loaded.** Roughly two thirds of the pipeline runs before any prose exists. A run
   that dies at Agent 9 has spent most of its money on structure — which is precisely why durable
-  resume ([R5](../REVIEW.md)) is worth building rather than restarting from stage 1.
+  resume ([R5](../REVIEW_01.md)) is worth building rather than restarting from stage 1.
 - **We inherit a rendering problem.** Prose that is *correct* is not automatically prose that is
   *good*. Every craft board since A_57 has been working on that gap, and it exists because we chose
   correctness-first.

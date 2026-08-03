@@ -147,141 +147,27 @@ const persistAgent9ResumeCheckpoint = (
   writeFileSync(checkpointPath, JSON.stringify(checkpoint, null, 2), "utf8");
 };
 
-const parseBooleanEnv = (value: string | undefined, fallback: boolean): boolean => {
-  if (value === undefined || value === null || value.trim() === "") return fallback;
-  const normalized = value.trim().toLowerCase();
-  if (["1", "true", "yes", "y", "on"].includes(normalized)) return true;
-  if (["0", "false", "no", "n", "off"].includes(normalized)) return false;
-  return fallback;
-};
-
-/**
- * Agent 9 redesign Phase A (§4.2): validation-gated mutation. When ON, every deterministic prose
- * mutation that has a machine-checkable validator (today: the grounding-lead injector vs the §3.2
- * location-metadata-dump leak) is wrapped in `mutateThenValidate` and reverted if it regresses the
- * property. Default ON (the safety law is active); set `AGENT9_MUTATION_REVALIDATION=0` to disable.
- * When on but no regression occurs, behaviour is identical to legacy (the lead ships unchanged); it
- * only ever REVERTS a lead that would have introduced a metadata-dump opening (a strict improvement).
- */
-// Read at RUNTIME, not import time: the worker/canary call dotenv `config()` AFTER their (hoisted)
-// static imports, so a module-level `const = process.env.X` would freeze to the default before
-// .env.local loads and a flag set only there would silently never flip. Getters read on each call.
-const isMutationRevalidationEnabled = () => parseBooleanEnv(process.env.AGENT9_MUTATION_REVALIDATION, true);
-
-/**
- * ROADMAP_TO_80 M1: the deterministic grounding-lead PREPEND cycled 5 fixed location-preamble
- * templates onto the front of (almost) every chapter — the dominant prose offender behind the judge's
- * "repeated atmospheric/setting descriptions", the Ch1 location mismatch (keyLocations[idx % n] ≠ the
- * scene's room), and the Ch6 verbatim doubled opener. It is now OFF by default: chapters keep the
- * model's own opening (gpt-4.1 + the OPENING_STYLE_ROTATION prompt guidance). Reversible — set
- * `AGENT9_GROUNDING_LEAD=1` to restore the prepend. The leak/duplicate SANITISATION fallbacks
- * (replacing a scaffold-leak or exact-duplicate paragraph) still use the template as a last resort.
- *
- * A_52 item 3: kept OFF by default ON PURPOSE. Scene-grounding is only a release-gate *warning*, but the
- * prepend's repetition was itself a K2 prose penalty ("repeated atmospheric/setting descriptions") — so
- * forcing it to clear the warning can lower the score we are trying to raise. The primary lever is now
- * the prompt reconciliation (OPENING_STYLE_ROTATION + the grounding checklist no longer fight). The
- * opt-in path is still improved: the Ch1 location-mismatch noted above is FIXED — the lead now anchors
- * to a location the chapter actually visits (preferredLocationName), so enabling it no longer describes
- * the wrong room.
- */
-const isGroundingLeadEnabled = () => parseBooleanEnv(process.env.AGENT9_GROUNDING_LEAD, false);
-
-/**
- * First-principles LLD §6.1 / phase P2 — promote the world-state contradiction gate and the
- * discriminator verifier from warn-level telemetry to SOURCE-LEVEL BLOCKING: an incoherent or unsound
- * case is repaired upstream (Agent 3b/5/7), never papered over in prose. OFF by default — flipping it
- * on turns previously-shipping unsound cases into aborts, so it must land with an upstream repair hook
- * and clear an N≥4 gate first. When off, behaviour is unchanged (the conflicts stay warnings).
- */
-const isBibleGatesBlockingEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_GATES_BLOCKING, false);
-
-/**
- * First-principles LLD §6.5 / phase P5 — the critique→rewrite-at-creative-temperature pass. After
- * generation, the lowest-scoring chapters are critiqued against the rubric and rewritten at temp
- * 0.7–0.9, with deterministic re-validation + rollback (the rewrite can never drop a locked fact or
- * smuggle scaffold; clue-presence and pronoun fidelity are additionally backstopped by the downstream
- * story-validation pipeline + pronoun sweep). OFF by default; scoped to ≤4 chapters for the 2× ceiling.
- */
-
-/**
- * First-principles LLD §6.4 / phase P4 (RC1.2/RC1.3) — the deductive-scaffold / report-style-clearance
- * regen pass. After generation + deterministic hygiene, any chapter whose endgame ships its deduction or
- * a suspect clearance as a templated verdict (the rubric caps: prose ≤ 4 scaffold, prose ≤ 6 / ending ≤ 7
- * report-style) has the flagged paragraph DRAMATIZED in-scene via the scoped regen loop, gated so a
- * rewrite ships only if it clears the shape AND drops no locked fact. OFF by default; N≥4 before default-on.
- */
-// P4 VERDICT (2026-07-17, the A/B deferred since A_54): default ON. n=7 matched pairs — A1 scaffold
-// 14→0, total scaffold hits 20→3 (−85%), cost neutral ($1.31→$1.24), two magnitude-1 regressions
-// (one +1 scaffold on a control-clean run, one +1 pronoun signal) against 17 hits removed. The env
-// had run it ON observationally since RC1.2; the A/B validates that config, so the code default now
-// matches it (the P4.4 empty-env goal). Full table: scratchpad p3-ab/scaffold-analysis.txt +
-// results/ab-agent9_regen_scaffold/.
-const isScaffoldRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SCAFFOLD, true);
-
-/**
- * A_62 RC-2.1 — the repair arm for `templateLeakageHits`, the most frequent cap of the M1 era (7/15
- * runs; it pins `prose ≤4` on 10/15 and fires with NO scaffold-family cap on 4/15, so the P4 scaffold
- * A/B provably cannot reach those runs). The detector, the `"leakage"` defect kind and its regen
- * instruction all shipped already — only the producer was missing (see `runTemplateLeakageRegenPass`).
- *
- * OFF by default, and deliberately so: an unmeasured default-on lever is the A_54 trap, and it would
- * silently confound the P4 scaffold read (the two caps co-fire on 3/15 runs). N≥4 matched pairs before
- * default-on. Runtime getter, never a module const — the flags-freeze-before-dotenv trap.
- */
-const isTemplateLeakageRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_LEAKAGE, false);
-
-/**
- * A_62 RC-2.2 — the repair arm for `dualValueNoContrast` (Item 9, A_57 D2): 6/21 shipped runs and
- * accelerating (3 of 5 on M1 attempt 3). The detector was promoted from rubric-score into
- * prose-guard so cap and lever key off the same function. Pair source: `worldState.contradiction`
- * — the SAME `ctx.discriminatingContradiction` the final rubric consumes (never re-derived).
- * OFF by default (N≥4 matched pairs before default-on); runtime getter, never a module const.
- */
-const isDualValueRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_DUAL_VALUE, false);
-/** A_66 P3 — the verify-mode pronoun regen channel; precision-triggered, cost-bounded. */
-const isPronounRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_PRONOUN, true);
-
-/** A_61 RC1.4 — dramatize the reveal/culprit-evidence in-scene instead of pasting the deterministic
- * "It was me… I confess" resolution backstop / "beyond all reasonable doubt" culprit sentence. Both
- * default-off (N≥4 before default-on), runtime-read; the deterministic injectors stay as the floor. */
-const isResolutionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_RESOLUTION, false);
-const isCulpritEvidenceRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_CULPRIT_EVIDENCE, false);
-/** A_67 FIX-1(b) — dramatize suspect clearances in-scene (witnessed deduction) instead of pasting the
- * deterministic "X was thoroughly cleared by the evidence…" register sentence. Default-off (probe before
- * default-on), runtime-read; enforceSuspectEliminationPresence stays as the last-resort floor so a run
- * whose clearance the LLM cannot dramatize never aborts the release gate. */
-const isSuspectEliminationRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_SUSPECT_ELIM, false);
-
-/** A_61 RC3.3 — dramatize an explicit body-discovery bridge when prose shifts a missing-person frame to
- * murder with none. Default-off (N≥4 before default-on), runtime-read. */
-const isTransitionRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_TRANSITION, false);
-
-/** A_61 roadmap S8 — the fifth regen pass: withhold the causal mechanism explanation in any chapter
- * strictly before the discriminating-test chapter (the plot_structure/pacing "mechanism explained too
- * early" cap). Default-off (powered ≥4×4 A/B before default-on), runtime-read. */
-const isMechanismRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_MECHANISM, false);
-
-/** A_61 roadmap S2 — the reliability floor for `illegal_named_walk_on`: rewrite an out-of-cast titled
- * walk-on to a role noun instead of aborting the run over an incidental extra. Default-off, runtime-read. */
-const isWalkonRepairEnabled = () => parseBooleanEnv(process.env.AGENT9_WALKON_REPAIR, false);
-
-/** Ledger Item 15 — LLM-first surfacing of missing atomic locked-fact values (insertion regen) so the
- * deterministic "The hour stood at X." injector (externally read as generated-sounding, 2/4 S0 reviews)
- * becomes a rare floor instead of the norm. Default-off, runtime-read; N≥4 before default-on. */
-const isLockedFactRegenEnabled = () => parseBooleanEnv(process.env.AGENT9_REGEN_LOCKED_FACT, false);
-
-/** A_61 RC2.2 — dereference the frozen Bible gender map as the SINGLE authoritative pronoun source
- * (validators + narrative state), instead of each site re-parsing raw cast gender. Default-off. */
-const isBibleAuthoritativeEnabled = () => parseBooleanEnv(process.env.AGENT9_BIBLE_AUTHORITATIVE, false);
-
-/** A_61 RC5.3 — the dialogue-distinctiveness (voice idiolect) gate mode: off | shadow | enforce.
- * Default off. shadow logs coverage/leakage telemetry; enforce additionally surfaces leakage as a
- * release-gate warning (repair-not-abort — never aborts the run). Runtime-read. */
-const voiceEnforceMode = (): "off" | "shadow" | "enforce" => {
-  const m = String(process.env.AGENT9_VOICE_ENFORCE ?? "off").trim().toLowerCase();
-  return m === "enforce" ? "enforce" : m === "shadow" || m === "1" || m === "true" || m === "on" ? "shadow" : "off";
-};
+// S4 (REVIEW_03 item 6) — the flag surface moved to ./agent9/flags.ts. Runtime getters, never
+// module consts: see that file for why, and FLAG-AUDIT.md for each lever's probe.
+import {
+  parseBooleanEnv,
+  isMutationRevalidationEnabled,
+  isGroundingLeadEnabled,
+  isBibleGatesBlockingEnabled,
+  isScaffoldRegenEnabled,
+  isTemplateLeakageRegenEnabled,
+  isDualValueRegenEnabled,
+  isPronounRegenEnabled,
+  isResolutionRegenEnabled,
+  isCulpritEvidenceRegenEnabled,
+  isSuspectEliminationRegenEnabled,
+  isTransitionRegenEnabled,
+  isMechanismRegenEnabled,
+  isWalkonRepairEnabled,
+  isLockedFactRegenEnabled,
+  isBibleAuthoritativeEnabled,
+  voiceEnforceMode,
+} from "./agent9/flags.js";
 
 /**
  * Ledger P4.2 — the critique-rewrite acceptance validator: a creative-temperature rewrite may not
@@ -362,171 +248,17 @@ export const buildSyntheticNsdClueAnchor = (
   };
 };
 
-// ============================================================================
-// Prose text sanitization helpers
-// ============================================================================
-
-const proseMojibakeReplacements: Array<[RegExp, string]> = [
-  [/Ã¢â‚¬â„¢/g, "\u2019"],
-  [/Ã¢â‚¬Ëœ/g, "\u2018"],
-  // eslint-disable-next-line no-control-regex
-  [/Ã¢â‚¬Å"|Ã¢â‚¬\x9d/g, "\u201D"],
-  [/Ã¢â‚¬"|Ã¢â‚¬â€/g, "\u2014"],
-  [/Ã¢â‚¬â€œ/g, "\u2013"],
-  [/Ã¢â‚¬Â¦/g, "\u2026"],
-  [/faË†Â§ade|fa\u02c6\u00a7ade/g, "fa\u00e7ade"],
-  [/â€™/g, "\u2019"],
-  [/â€˜/g, "\u2018"],
-  // eslint-disable-next-line no-control-regex
-  [/â€œ|â€\x9d/g, "\u201C"],
-  [/â€"|â€"/g, "\u2014"],
-  [/â€"/g, "\u2013"],
-  [/â€¦/g, "\u2026"],
-  [/â\u0080\u0099/g, "\u2019"],
-  [/â\u0080\u0098/g, "\u2018"],
-  [/â\u0080\u009c|â\u0080\u009d/g, "\u201C"],
-  [/â\u0080\u0093/g, "\u2013"],
-  [/â\u0080\u0094/g, "\u2014"],
-  [/â\u0080\u00a6/g, "\u2026"],
-  [/â\u0080\u00a2/g, "\u2022"],
-  [/Ã\u201a/g, ""],
-  [/Â/g, ""],
-  [/\uFFFD/g, ""],
-];
-
-export const illegalControlCharPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
-// persistentMojibakePattern: detects sequences that survived the replacement table above.
-// Used as a hard-stop check after the chapter is written to disk — if any of these
-// multibyte mojibake fragments appear, the repair table failed and the prose must be rejected.
-export const persistentMojibakePattern =
-  /(?:Ã¢â‚¬â„¢|Ã¢â‚¬Ëœ|Ã¢â‚¬Å"|â€™|â€˜|â€œ|â€\x9d|â€"|â€¦|\uFFFD)/; // eslint-disable-line no-control-regex
-
-const normalizeWrappedParagraphText = (text: string) => {
-  const blocks = text
-    .replace(/\r\n/g, "\n")
-    .split(/\n{2,}/)
-    .map((block) => block.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim())
-    .filter((block) => block.length > 0);
-  return blocks.join("\n\n");
-};
-
-const splitIntoFallbackChunks = (text: string, maxLength: number): string[] => {
-  const fallbackChunks: string[] = [];
-  let remaining = text.trim();
-  while (remaining.length > maxLength) {
-    const splitAt = remaining.lastIndexOf(" ", maxLength);
-    const safeSplit = splitAt > Math.floor(maxLength * 0.55) ? splitAt : maxLength;
-    fallbackChunks.push(remaining.slice(0, safeSplit).trim());
-    remaining = remaining.slice(safeSplit).trim();
-  }
-  if (remaining.length > 0) fallbackChunks.push(remaining);
-  return fallbackChunks.filter(Boolean);
-};
-
-const splitLongParagraphForReadability = (paragraph: string, maxLength = 900): string[] => {
-  const normalized = paragraph.trim();
-  if (!normalized) return [];
-  if (normalized.length <= maxLength) return [normalized];
-
-  const sentences = normalized
-    .split(/(?<=[.!?]["'\u201D\u2019]?)\s+(?=[A-Z0-9"\u201C\u2018])/)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-
-  if (sentences.length <= 1) {
-    return splitIntoFallbackChunks(normalized, maxLength);
-  }
-
-  const chunks: string[] = [];
-  let current = "";
-  for (const sentence of sentences) {
-    const candidate = current ? `${current} ${sentence}` : sentence;
-    if (candidate.length > maxLength && current) {
-      chunks.push(current);
-      current = sentence;
-    } else {
-      current = candidate;
-    }
-  }
-  if (current) chunks.push(current);
-  if (chunks.length <= 1 && normalized.length > maxLength) {
-    return splitIntoFallbackChunks(normalized, maxLength);
-  }
-
-  return chunks;
-};
-
-/**
- * Words that may legitimately appear doubled in English prose and must NOT be collapsed by the
- * adjacent-duplicate sweep in sanitizeProseText: "he had had enough", "the fact that that happened",
- * the cleft "what it is is…". Everything else (e.g. "the the", "soft soft") is treated as an artefact.
- */
-const VALID_DOUBLED_WORDS = new Set(["had", "that", "is"]);
-
-export const sanitizeProseText = (value: unknown) => {
-  let text = typeof value === "string" ? value : value == null ? "" : String(value);
-  text = text.normalize("NFC");
-  for (const [pattern, replacement] of proseMojibakeReplacements) {
-    text = text.replace(pattern, replacement);
-  }
-  return text
-    .replace(/^Generated in scene batches\b.*$/gim, "")
-    // Collapse accidental adjacent duplicate words ("the the" → "the", "soft soft" → "soft"),
-    // preserving the first word's case and the grammatical doublings in VALID_DOUBLED_WORDS.
-    // The trailing \b stops false positives where a word merely prefixes the next ("the thermometer").
-    .replace(/\b(\w+)\s+\1\b/gi, (match, word: string) =>
-      VALID_DOUBLED_WORDS.has(word.toLowerCase()) ? match : word,
-    )
-    // Fix possessive+article bleed: "my The Study" → "the Study"; "in my The Library" → "in the Library"
-    .replace(/\b(my|your|his|her|our|their)\s+(The|A|An)\s+/gi, (_, _poss, art) => `${art.toLowerCase()} `)
-    .replace(/[\u200B-\u200D\uFEFF]/g, "")
-    .replace(illegalControlCharPattern, "")
-    .replace(/\u00A0/g, " ")
-    .replace(/\t/g, " ")
-    .replace(/\r\n/g, "\n")
-    // Dialogue punctuation normalization
-    .replace(/"([^"]*)"/g, "\u201C$1\u201D")
-    .replace(/(\w)'(\w)/g, "$1\u2019$2")
-    .replace(/--/g, "\u2014")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\s+$/gm, "")
-    .trim();
-};
-
-const enforceReadableParagraphFlow = (paragraphs: string[]): string[] => {
-  let normalized = paragraphs
-    .map((paragraph) => normalizeWrappedParagraphText(sanitizeProseText(paragraph)))
-    .flatMap((paragraph) => paragraph.split(/\n{2,}/))
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph.length > 0)
-    .flatMap((paragraph) => splitLongParagraphForReadability(paragraph));
-
-  let guard = 0;
-  while (normalized.length < 3 && guard < 4) {
-    const longestIndex = normalized.reduce(
-      (bestIdx, paragraph, idx, arr) =>
-        paragraph.length > arr[bestIdx].length ? idx : bestIdx,
-      0,
-    );
-    const longest = normalized[longestIndex] ?? "";
-    if (longest.length < 500) break;
-
-    const splitChunks = splitLongParagraphForReadability(
-      longest,
-      Math.max(280, Math.floor(longest.length / 2)),
-    );
-    if (splitChunks.length <= 1) break;
-
-    normalized = [
-      ...normalized.slice(0, longestIndex),
-      ...splitChunks,
-      ...normalized.slice(longestIndex + 1),
-    ];
-    guard += 1;
-  }
-
-  return normalized;
-};
+// S4 (REVIEW_03 item 6) — prose text sanitation moved to ./agent9/prose-text.ts. Re-exported below
+// so every existing import of these symbols from agent9-run.js keeps resolving.
+import {
+  illegalControlCharPattern,
+  persistentMojibakePattern,
+  sanitizeProseText,
+  enforceReadableParagraphFlow,
+  splitLongParagraphForReadability,
+  normalizeWrappedParagraphText,
+} from "./agent9/prose-text.js";
+export { illegalControlCharPattern, persistentMojibakePattern, sanitizeProseText };
 
 // A field value is "phrase-like" (multi-clause or verb-bearing) and unsafe to
 // interpolate directly into a sentence template. Earlier agents occasionally emit
@@ -4182,8 +3914,23 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   const proseDeployment =
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME_PROSE ||
     process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
-  const proseModelOverride = proseDeployment
-    ? ({ model: proseDeployment } as Record<string, string>)
+  /**
+   * REVIEW_02 §2.3 — the model chapter GENERATION actually runs on.
+   *
+   * Same defect as the regen tier below, found by the same check and missed by the sweep that fixed
+   * that one: `AGENT9_MODEL_GENERATE` is set in `.env.local`, and `resolveStageModel("generate", …)`
+   * had ZERO call sites — both `generateProse` calls took `proseDeployment` directly. The config has
+   * been asserting a choice about the pipeline's single most expensive stage that nothing read.
+   *
+   * Both consumers of this override are `generateProse`, so the tier is scoped exactly to generation.
+   * Resolution is unchanged when the var is unset; at the current config it is a no-op
+   * (`AGENT9_MODEL_GENERATE=gpt-4.1` = `AZURE_OPENAI_DEPLOYMENT_NAME_PROSE`), which is why this
+   * ships wired rather than flag-gated: it makes an existing config line true without moving today's
+   * behaviour by a byte.
+   */
+  const generateDeployment = resolveStageModel("generate", proseDeployment);
+  const proseModelOverride = generateDeployment
+    ? ({ model: generateDeployment } as Record<string, string>)
     : {};
 
   /**
@@ -4218,11 +3965,28 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
    *      regenerates two chapters, so a high retry rate erodes the saving and can reverse it.
    * Both make it a behaviour change, so it reads from env and stays at today's value unless set.
    */
+  /**
+   * REVIEW_02 §3.2 — the documented hard limit is now the CODED limit.
+   *
+   * FLAG-AUDIT states "Hard limit: 2 — a chapter is ~1,913 completion tokens against a 4,000
+   * maxTokens", and the code accepted 1–10. An operator who read that reasoning as guidance and set
+   * 3 got JSON truncated mid-chapter with `maxTokens` unchanged. A constraint that lives only in a
+   * markdown table is not a constraint; the preflight warns when the configured value is clamped.
+   */
+  const MAX_PROSE_BATCH_SIZE = 2;
   const proseBatchSizeFromEnv = (): number | undefined => {
     const raw = Number(process.env.AGENT9_PROSE_BATCH_SIZE);
-    return Number.isFinite(raw) && raw >= 1 && raw <= 10 ? Math.floor(raw) : undefined;
+    if (!Number.isFinite(raw) || raw < 1) return undefined;
+    return Math.min(Math.floor(raw), MAX_PROSE_BATCH_SIZE);
   };
-  const effectiveProseBatchSize = inputs.proseBatchSize ?? proseBatchSizeFromEnv();
+  // Clamped HERE rather than only at the loop, so the value recorded on the artifact is the value
+  // actually used. Reporting a batch size the run did not use is the reporting defect A_71 §1 spent
+  // a section on.
+  const requestedProseBatchSize = inputs.proseBatchSize ?? proseBatchSizeFromEnv();
+  const effectiveProseBatchSize =
+    requestedProseBatchSize === undefined
+      ? undefined
+      : Math.max(1, Math.min(requestedProseBatchSize, MAX_PROSE_BATCH_SIZE));
 
   const pushProsePassAccounting = (
     passType: string,
@@ -4255,7 +4019,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     if (!enableScoring || !scoreAggregator || chaptersToScore.length === 0) return [];
     try {
       const scorer = new ProseScorer();
-      const batchSize = Math.max(1, Math.min(effectiveProseBatchSize ?? 1, 10));
+      const batchSize = Math.max(1, Math.min(effectiveProseBatchSize ?? 1, MAX_PROSE_BATCH_SIZE));
       const series: any[] = [];
       const accumulated: any[] = [];
       const totalChapters = totalSceneCount || chaptersToScore.length;

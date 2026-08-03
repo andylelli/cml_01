@@ -6,7 +6,12 @@
  * locked facts metadata, and the macro arc plan into a single typed record.
  */
 
-import type { MacroArcEntry } from './agent9-prose.js';
+// S6 prerequisite — read the TYPE from the leaf (`types/macro-arc.ts`), not from inside
+// `agent9-prose/`. This was the THIRD back-edge: REVIEW_01 §5.7 recorded removing two
+// (`world-state.ts`, `story-bible.ts`) and concluded "the extraction is now a mechanical move",
+// but this one survived, so the direction was never actually clean. See REVIEW_03 §0j for why
+// removing it still does not make the extraction mechanical.
+import type { MacroArcEntry } from './types/macro-arc.js';
 import { isVictimArchetype } from '@cml/cml';
 
 // ---------------------------------------------------------------------------

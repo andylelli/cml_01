@@ -9,6 +9,13 @@ import { RateLimiter } from "./ratelimit.js";
 import { CostTracker } from "./cost-tracker.js";
 import { ContentFilterTracker } from "./content-filter.js";
 import { LLMLogger } from "./logger.js";
+import {
+  MIN_JSON_SCHEMA_API_VERSION,
+  buildChatWireRequest,
+  isHttpTransportEnabled,
+  postChatCompletion,
+  supportsJsonSchema,
+} from "./azure-http-transport.js";
 
 // Retry salt (ANALYSIS_49 follow-up): escalate the sampling temperature on each *retry* so a call that
 // reproduces the same failing response gets pushed out of its sampling basin. Most valuable for the
@@ -118,6 +125,10 @@ export class AzureOpenAIClient {
   private contentFilterTracker: ContentFilterTracker;
   private logger: LLMLogger;
   private defaultModel: string;
+  // REVIEW_02 §4.1 — kept for the direct-HTTP transport, which needs the URL and key the SDK hides.
+  private endpoint: string;
+  private apiKey: string;
+  private apiVersion: string;
 
   constructor(config: {
     apiKey: string;
@@ -128,11 +139,15 @@ export class AzureOpenAIClient {
     tokensPerMinute?: number;
     logger?: LLMLogger;
   }) {
+    this.endpoint = config.endpoint;
+    this.apiKey = config.apiKey;
+    this.apiVersion = config.apiVersion || "2024-02-15-preview";
+
     this.client = new OpenAIClient(
       config.endpoint,
       new AzureKeyCredential(config.apiKey),
       {
-        apiVersion: config.apiVersion || "2024-02-15-preview"
+        apiVersion: this.apiVersion
       }
     );
 
@@ -181,6 +196,32 @@ export class AzureOpenAIClient {
     const temperature = escalateRetryTemperature(baseTemperature, options.logContext?.retryAttempt ?? 0);
     const maxTokens = options.maxTokens ?? 4000;
 
+    // REVIEW_02 §2.1 — resolve the response format BEFORE anything is logged or sent, and refuse a
+    // schema the active transport cannot carry. Without this the request goes out as
+    // `{"type":"json_schema"}` with the schema stripped by the SDK serializer and comes back a
+    // non-retryable 400 from stage 13 — expensive, and indistinguishable from a schema bug. The
+    // orchestrator has a t=0 guard for the same condition (`assertFlagCapabilities`); this is the
+    // backstop for the direct-to-agent harnesses that never touch the orchestrator.
+    const responseFormat = resolveResponseFormat(options);
+    const useHttpTransport = isHttpTransportEnabled();
+    if (options.jsonSchema) {
+      if (!useHttpTransport) {
+        throw new Error(
+          `Structured output "${options.jsonSchema.name}" was requested, but the @azure/openai SDK ` +
+            `transport DROPS the json_schema payload (operations.js rebuilds response_format as ` +
+            `{type} only). Set LLM_HTTP_TRANSPORT=true to send it. Refusing rather than sending a ` +
+            `malformed request — see architecture/REVIEW_02.md §2.1.`,
+        );
+      }
+      if (!supportsJsonSchema(this.apiVersion)) {
+        throw new Error(
+          `Structured output "${options.jsonSchema.name}" requires api-version ` +
+            `${MIN_JSON_SCHEMA_API_VERSION} or later; AZURE_OPENAI_API_VERSION is "${this.apiVersion}". ` +
+            `Refusing rather than sending a request this endpoint will reject.`,
+        );
+      }
+    }
+
     // Wait for rate limit capacity
     await this.rateLimiter.waitForCapacity();
 
@@ -199,6 +240,11 @@ export class AzureOpenAIClient {
       promptHash,
       retryAttempt: options.logContext?.retryAttempt || 0,
       messages: options.messages,
+      // REVIEW_02 §2.1 — the project's rule is that a flag is verified only by finding its effect in
+      // `llm-prompts-full.jsonl`. That rule could not be applied to structured outputs because the
+      // field was never logged. Now it is: `json_schema` here means the schema was actually sent.
+      responseFormat,
+      transport: useHttpTransport ? "http" : "azure-sdk",
     });
     if (options.logContext) {
       await this.logger.logRequest({
@@ -217,26 +263,55 @@ export class AzureOpenAIClient {
     const timeoutMs = resolveRequestTimeoutMs();
 
     try {
-      const response = await this.client.getChatCompletions(
-        model,
-        options.messages.map((msg) => ({
-          role: msg.role as "system" | "user" | "assistant",
-          content: msg.content,
-        })),
-        {
-          temperature,
-          maxTokens,
-          responseFormat: resolveResponseFormat(options),
-          ...(timeoutMs > 0 ? { abortSignal: AbortSignal.timeout(timeoutMs) } : {}),
-        }
-      );
+      const wire = useHttpTransport
+        ? await postChatCompletion({
+            request: buildChatWireRequest({
+              endpoint: this.endpoint,
+              deployment: model,
+              apiVersion: this.apiVersion,
+              messages: options.messages,
+              temperature,
+              maxTokens,
+              responseFormat,
+            }),
+            apiKey: this.apiKey,
+            ...(timeoutMs > 0 ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
+          })
+        : await (async () => {
+            const response = await this.client.getChatCompletions(
+              model,
+              options.messages.map((msg) => ({
+                role: msg.role as "system" | "user" | "assistant",
+                content: msg.content,
+              })),
+              {
+                temperature,
+                maxTokens,
+                responseFormat,
+                ...(timeoutMs > 0 ? { abortSignal: AbortSignal.timeout(timeoutMs) } : {}),
+              }
+            );
+            return {
+              content: response.choices[0]?.message?.content || "",
+              finishReason: response.choices[0]?.finishReason || "stop",
+              usage: {
+                promptTokens: response.usage?.promptTokens || 0,
+                completionTokens: response.usage?.completionTokens || 0,
+                totalTokens: response.usage?.totalTokens || 0,
+                // The SDK's CompletionsUsage has no details object; 0 means "not reported by this
+                // transport", NOT "no cache hit". Only the http transport can carry a real figure.
+                cachedPromptTokens: 0,
+              },
+            };
+          })();
 
       const latencyMs = Date.now() - startTime;
 
       const usage = {
-        promptTokens: response.usage?.promptTokens || 0,
-        completionTokens: response.usage?.completionTokens || 0,
-        totalTokens: response.usage?.totalTokens || 0,
+        promptTokens: wire.usage.promptTokens,
+        completionTokens: wire.usage.completionTokens,
+        totalTokens: wire.usage.totalTokens,
+        ...(useHttpTransport ? { cachedPromptTokens: wire.usage.cachedPromptTokens } : {}),
       };
 
       const estimatedCost = this.costTracker.trackCost(
@@ -245,8 +320,8 @@ export class AzureOpenAIClient {
         options.logContext?.agent
       );
 
-      const content = response.choices[0]?.message?.content || "";
-      const finishReason = response.choices[0]?.finishReason || "stop";
+      const content = wire.content;
+      const finishReason = wire.finishReason;
 
       // R3 — a schema-constrained reply that stopped early is NOT a parse problem, and must not be
       // reported as one. Only raised for jsonSchema calls: the unconstrained paths have their own
@@ -283,6 +358,9 @@ export class AzureOpenAIClient {
           promptTokens: usage.promptTokens,
           completionTokens: usage.completionTokens,
           totalTokens: usage.totalTokens,
+          // Only present on the http transport — see TokenUsage.cachedPromptTokens on why an absent
+          // value must never be written as 0.
+          ...(usage.cachedPromptTokens !== undefined ? { cachedPromptTokens: usage.cachedPromptTokens } : {}),
           estimatedCost,
           success: true,
           timestamp: new Date().toISOString(),

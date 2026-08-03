@@ -25,6 +25,18 @@ interface FullPromptLogEntry {
   promptHash: string;
   retryAttempt: number;
   messages: Message[];
+  /**
+   * REVIEW_02 §2.1 — the exact `response_format` sent with the request, or absent when none was.
+   *
+   * WHY IT IS HERE. This project's verification rule is "a flag is not verified by reading the code
+   * that declares it — only by finding its effect in `llm-prompts-full.jsonl`" (FLAG-AUDIT). That
+   * rule could not be applied to structured outputs, because the field existed nowhere in the log —
+   * so an SDK that silently dropped the schema stayed invisible through twelve green tests. A
+   * `json_schema` entry here is the proof the schema was actually sent.
+   */
+  responseFormat?: unknown;
+  /** `http` = direct POST (schema-capable, reports cached tokens) · `azure-sdk` = the beta SDK. */
+  transport?: string;
 }
 
 interface ActualPromptRecord {
@@ -124,6 +136,11 @@ export class LLMLogger {
         promptHash: entry.promptHash,
         retryAttempt: entry.retryAttempt,
         messages: entry.messages,
+        // Copied explicitly because this builder rebuilds the entry field by field — the same shape
+        // that made the SDK drop `json_schema`. A field added to the interface and not to this list
+        // is silently absent from the log, which is exactly the blindness REVIEW_02 §2.1 closes.
+        ...(entry.responseFormat !== undefined ? { responseFormat: entry.responseFormat } : {}),
+        ...(entry.transport !== undefined ? { transport: entry.transport } : {}),
       };
       this.writeJsonLine(this.fullPromptLogFilePath, logEntry, "full prompt log");
     }
@@ -175,6 +192,7 @@ export class LLMLogger {
       promptTokens: entry.promptTokens,
       completionTokens: entry.completionTokens,
       totalTokens: entry.totalTokens,
+      cachedPromptTokens: entry.cachedPromptTokens,
       estimatedCost: entry.estimatedCost,
       success: entry.success ?? true,
       errorCode: entry.errorCode,

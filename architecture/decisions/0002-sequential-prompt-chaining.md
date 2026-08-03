@@ -1,6 +1,6 @@
 # 0002 — Sequential prompt chaining, not an autonomous agent
 
-**Status:** Accepted · **Decided:** original design, re-examined in REVIEW.md §2.1 (2026-08-01)
+**Status:** Accepted · **Decided:** original design, re-examined in REVIEW_01.md §2.1 (2026-08-01)
 
 ## Context
 

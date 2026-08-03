@@ -1,4 +1,5 @@
 import path from "path";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { config } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
@@ -57,9 +58,49 @@ if (canaryInputConfig.sources.quickRunEnabled && canaryInputConfig.sources.quick
 }
 console.log("CANARY_INPUTS", JSON.stringify(inputs));
 
-const result = await generateMystery(client, inputs, (progress) => {
-  console.log(`PROGRESS ${progress.stage} - ${progress.message}`);
-});
+/**
+ * REVIEW_03 item 7 — persist every stage artifact so a canary run is RESUMABLE.
+ *
+ * FOUND BY THE RESUME DRILL. R5 built resume against the artifacts `onArtifact` writes into
+ * `data/store.json`, and the API supplies that callback. **The canary path did not** — it called
+ * `generateMystery` with a progress callback and nothing else. So the runs R5 was built for were
+ * exactly the runs it could not recover: every £1.50 batch run on this project goes through here,
+ * and `run-resume.ts`'s own header cites the losses — "a hung socket, a Windows process abort
+ * (0xC0000409), a laptop entering standby" — all of which were canary runs.
+ *
+ * A capability whose read path does not exist on the path that matters is this codebase's most
+ * expensive recurring shape (A_70/A_71). It was one callback away from working.
+ *
+ * Failures are swallowed: persistence must never be able to abort a run that is otherwise fine.
+ */
+const projectId = inputs.projectId ?? `canary_${Date.now()}`;
+const persistArtifact = async (type, payload) => {
+  try {
+    const dbPath = process.env.CML_JSON_DB_PATH || path.join(root, "data", "store.json");
+    const store = existsSync(dbPath) ? JSON.parse(readFileSync(dbPath, "utf8")) : {};
+    store.artifacts = Array.isArray(store.artifacts) ? store.artifacts : [];
+    store.artifacts.push({
+      id: `${projectId}_${type}_${store.artifacts.length}`,
+      projectId,
+      type,
+      payload,
+      createdAt: new Date().toISOString(),
+    });
+    writeFileSync(dbPath, JSON.stringify(store, null, 2), "utf8");
+  } catch (error) {
+    console.log("CANARY_ARTIFACT_PERSIST_FAILED", type, String(error?.message ?? error));
+  }
+};
+
+console.log("CANARY_PROJECT_ID", projectId);
+const result = await generateMystery(
+  client,
+  { ...inputs, projectId },
+  (progress) => {
+    console.log(`PROGRESS ${progress.stage} - ${progress.message}`);
+  },
+  persistArtifact,
+);
 
 console.log("CANARY_STATUS", result.status);
 console.log("RUN_ID", result.metadata.runId);

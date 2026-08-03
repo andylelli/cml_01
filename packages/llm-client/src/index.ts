@@ -14,6 +14,19 @@ export {
   contentFilterFamily,
 } from "./content-filter.js";
 export type { ContentFilterRefusal, ContentFilterSummary } from "./content-filter.js";
+// REVIEW_02 §2.1 — the wire-capable transport. `supportsJsonSchema` is exported because the worker's
+// t=0 flag guard has to answer "can this configuration carry a schema?" without opening a socket.
+export {
+  DEFAULT_HTTP_API_VERSION,
+  MIN_JSON_SCHEMA_API_VERSION,
+  AzureHttpError,
+  buildChatWireRequest,
+  isHttpTransportEnabled,
+  parseChatWireResponse,
+  postChatCompletion,
+  supportsJsonSchema,
+} from "./azure-http-transport.js";
+export type { ChatWireRequest, ParsedChatWireResponse, WireResponseFormat } from "./azure-http-transport.js";
 
 export type {
   Message,

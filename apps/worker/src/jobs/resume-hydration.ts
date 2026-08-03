@@ -1,5 +1,10 @@
 /**
- * R5 (architecture/REVIEW.md) — durable execution: resume a run instead of restarting it.
+ * R5 (architecture/REVIEW_01.md) — durable execution: resume a run instead of restarting it.
+ *
+ * NAMING NOTE (REVIEW_02 §3.4). This file was `run-resume.ts`, one directory away from
+ * `resume-run.ts` — near-identical names for opposite roles. That file is the operator CLI; this one
+ * is the hydration library it (and the orchestrator) calls. Renamed so the pair reads as
+ * `resume-run` (the verb, an entry point) and `resume-hydration` (the noun, a mechanism).
  *
  * THE PROBLEM. A run is a single in-process async call. Any failure after stage 1 discards
  * everything before it — a crash at Agent 9 throws away thirteen stages and ~£1.40 of a ~£1.50 run,
@@ -197,6 +202,29 @@ export class ResumeSkipTracker {
   /** Flat list of derived signals unavailable this run, e.g. ["coverageResult", "noveltyAudit"]. */
   degradedSignals(): string[] {
     return [...new Set([...this.degraded.values()].flat())].sort();
+  }
+
+  /**
+   * REVIEW_02 §3.1 — the same decision for a group of stages that will run CONCURRENTLY.
+   *
+   * A concurrent branch cannot call the orchestrator's `stage()` wrapper, and the R9 profile branch
+   * therefore skipped the resume gate entirely: a resumed run re-ran all three profile agents and
+   * overwrote the artifacts it had just restored. Fields are evaluated in the given order so Rule 1
+   * still holds — the first one that must run closes the prefix for the rest of the group.
+   *
+   * Returns the fields that must execute, in order; skipped fields are recorded as usual.
+   */
+  selectPending<T extends ResumeStageField>(
+    ctx: OrchestratorContext,
+    fields: ReadonlyArray<T>,
+  ): { pending: T[]; skipped: T[] } {
+    const pending: T[] = [];
+    const skipped: T[] = [];
+    for (const field of fields) {
+      if (this.shouldSkip(ctx, field)) skipped.push(field);
+      else pending.push(field);
+    }
+    return { pending, skipped };
   }
 }
 

@@ -86,7 +86,7 @@ import type {
   MacroArcEntry,
 } from "./types.js";
 
-// ── S6 prerequisite (architecture/REVIEW.md) ─────────────────────────────────
+// ── S6 prerequisite (architecture/REVIEW_01.md) ─────────────────────────────────
 // `isAtomicLockedFactValue`, `findDiscriminatingContradictionPair` and their shared regexes moved to
 // `../shared/locked-fact-atoms.js`, a module that imports nothing.
 //
@@ -1185,7 +1185,7 @@ export function buildNSDBlock(
 
 
 /**
- * R8 (architecture/REVIEW.md) — how often a block's CONTENT changes within one run.
+ * R8 (architecture/REVIEW_01.md) — how often a block's CONTENT changes within one run.
  *
  * This is the axis prompt caching turns on. Azure OpenAI caches automatically for prompts above
  * ~1024 tokens, matched on an EXACT PREFIX — there is no `cache_control` parameter to add, so the

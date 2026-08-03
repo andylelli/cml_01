@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * R6 (architecture/REVIEW.md) — freeze a run's upstream artifacts into a committed golden bundle.
+ * R6 (architecture/REVIEW_01.md) — freeze a run's upstream artifacts into a committed golden bundle.
  *
  * The golden set has to survive `data/store.json`. That file is the live working store: it is
  * rewritten by every run, it is 14 MB, and it is not the kind of thing a baseline should depend on.

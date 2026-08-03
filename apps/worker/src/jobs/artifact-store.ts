@@ -1,5 +1,5 @@
 /**
- * R5 (architecture/REVIEW.md) — the ONE reader for the file-backed artifact store.
+ * R5 (architecture/REVIEW_01.md) — the ONE reader for the file-backed artifact store.
  *
  * `data/store.json` is the durable record of every artifact a run produced: the API's `onArtifact`
  * callback writes into it as each stage completes, so it is already the checkpoint substrate that
@@ -34,8 +34,27 @@ export interface StoreArtifact {
   createdAt?: string;
 }
 
-export const artifactStorePath = (workspaceRoot: string): string =>
-  join(workspaceRoot, "data", "store.json");
+/**
+ * Where the artifact store actually lives.
+ *
+ * FOUND BY THE RESUME DRILL (REVIEW_03 item 7, 2026-08-02). This resolved
+ * `<workspaceRoot>/data/store.json` unconditionally and ignored `CML_JSON_DB_PATH` — the variable
+ * `.env.local` sets, and whose comment there says it exists "so the API uses the same store
+ * regardless of which working directory it is launched from."
+ *
+ * So the API wrote to the configured store while `resume-run` read the default one. They happen to
+ * be the same file today, which is why nothing had noticed. Point the config anywhere else and
+ * resume reads an unrelated store, finds no artifacts, and re-runs the whole pipeline at full cost —
+ * looking exactly like "the artifacts were never persisted", which is the misdiagnosis this module's
+ * own comment warns about two lines below.
+ *
+ * The drill was run against a copy of the store with the prose artifact removed; resume reported
+ * prose RESTORED, because it had never opened the copy.
+ */
+export const artifactStorePath = (workspaceRoot: string): string => {
+  const configured = (process.env.CML_JSON_DB_PATH ?? "").trim();
+  return configured.length > 0 ? configured : join(workspaceRoot, "data", "store.json");
+};
 
 /**
  * Read every artifact row. Throws when the store is absent or malformed — a resume built on an

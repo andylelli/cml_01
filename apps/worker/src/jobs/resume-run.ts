@@ -1,5 +1,5 @@
 /**
- * R5 (architecture/REVIEW.md) — resume CLI. The operator-facing end of durable execution.
+ * R5 (architecture/REVIEW_01.md) — resume CLI. The operator-facing end of durable execution.
  *
  * A run that dies at Agent 9 has already produced thirteen stages of artifacts and spent ~£1.40 of
  * its ~£1.50. Today the only recovery is to start again from stage 1. This entry point restores what
@@ -31,7 +31,7 @@ import {
   readRunFingerprint,
   RESUME_FIELD_BY_ARTIFACT,
   type ResumeArtifactName,
-} from "./run-resume.js";
+} from "./resume-hydration.js";
 import { saveReadableStory, storyFolderName } from "./story-output.js";
 
 /**

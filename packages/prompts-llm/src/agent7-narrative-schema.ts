@@ -1,5 +1,5 @@
 /**
- * R4 (architecture/REVIEW.md) — the Agent 7 narrative-outline JSON Schema.
+ * R4 (architecture/REVIEW_01.md) — the Agent 7 narrative-outline JSON Schema.
  *
  * WHY AGENT 7 FIRST. It has the worst shape-drift history in the pipeline: `coerceNarrativeSceneBeats`
  * (the beat enum arriving as free text), `hoistMisplacedSceneFields` (the LLM burying `purpose`,

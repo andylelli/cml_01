@@ -1,5 +1,5 @@
 /**
- * R4 step 4 (architecture/REVIEW.md) — Agent 7 coercion counters.
+ * R4 step 4 (architecture/REVIEW_01.md) — Agent 7 coercion counters.
  *
  * These counters are the ONLY admissible evidence for S7 ("retire coercion sites proven dead").
  * The bar S7 has to clear is "this helper fired zero times across real runs on the structured-output

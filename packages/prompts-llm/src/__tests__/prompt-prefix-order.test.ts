@@ -1,5 +1,5 @@
 /**
- * R8 (architecture/REVIEW.md) — prefix-ordering Agent 9 prompts for automatic caching.
+ * R8 (architecture/REVIEW_01.md) — prefix-ordering Agent 9 prompts for automatic caching.
  *
  * Azure OpenAI caches on an EXACT PREFIX MATCH, so the lever is block ORDER, not an API parameter.
  * These tests pin the two properties the change rests on:

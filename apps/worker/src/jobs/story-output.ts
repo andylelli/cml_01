@@ -2,7 +2,7 @@
  * Story rendering helpers shared by every path that turns a finished `prose` artifact into files.
  *
  * Extracted from `agent9-replay.ts` when R5's resume CLI needed the same output (R5/R6, see
- * architecture/REVIEW.md). Three consumers now render stories — the replay bench, the resume CLI,
+ * architecture/REVIEW_01.md). Three consumers now render stories — the replay bench, the resume CLI,
  * and the golden-set eval harness — and three private copies of "how a chapter becomes markdown"
  * would drift the moment one of them was fixed. Same reasoning as `artifact-store.ts`.
  *

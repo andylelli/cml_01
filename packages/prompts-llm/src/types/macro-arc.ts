@@ -1,7 +1,7 @@
 /**
  * [PHASE 5] Narrative arc archetypes — the structural contract one chapter owes the story.
  *
- * WHY THIS IS A LEAF MODULE (S6 prerequisite, architecture/REVIEW.md).
+ * WHY THIS IS A LEAF MODULE (S6 prerequisite, architecture/REVIEW_01.md).
  * `MacroArcEntry` was declared in `agent9-prose/types.ts` and imported by `story-bible.ts`, which
  * sits OUTSIDE agent9-prose/ — while agent9-prose/ imports `../story-bible.js` in return. That
  * mutual reference is one of the two back-edges that made "extract agent9-prose into its own

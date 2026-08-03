@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { resolveResponseFormat, StructuredOutputError } from "../client.js";
 
 /**
- * R3 (architecture/REVIEW.md) — structured outputs on the Azure client.
+ * R3 (architecture/REVIEW_01.md) — structured outputs on the Azure client.
  *
  * These pin the wiring, not the model. The failure mode this task exists to remove is a schema that
  * looks configured but never reaches the API — so the assertions are about what gets SENT.

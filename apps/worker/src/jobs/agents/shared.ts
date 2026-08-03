@@ -194,7 +194,7 @@ export interface OrchestratorContext {
   hardLogicDevices?: HardLogicDeviceResult;
   hardLogicDirectives?: HardLogicDirectives;  // merged directives after Agent 3b
   /**
-   * R4 step 4 (architecture/REVIEW.md) — how often Agent 7's coercion layer fired this run, and
+   * R4 step 4 (architecture/REVIEW_01.md) — how often Agent 7's coercion layer fired this run, and
    * under which structured-output arm. Written by `recordAgent7Coercion`; read by S7 as the only
    * admissible evidence that a coercion site has stopped firing and can be deleted.
    */

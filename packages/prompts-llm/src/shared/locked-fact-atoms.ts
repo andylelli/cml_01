@@ -2,7 +2,7 @@
  * Locked-fact value SHAPE analysis: is a value atomic, and which two atomic values form the story's
  * single canonical contradiction?
  *
- * WHY THIS IS A LEAF MODULE (S6 prerequisite, architecture/REVIEW.md).
+ * WHY THIS IS A LEAF MODULE (S6 prerequisite, architecture/REVIEW_01.md).
  * These functions were defined in `agent9-prose/prompt-builder.ts` and imported by `world-state.ts`,
  * which sits OUTSIDE `agent9-prose/`. Meanwhile fourteen modules inside `agent9-prose/` import from
  * the package root (`../story-bible.js`, `../agent5-clues.js`, …). That made the dependency between

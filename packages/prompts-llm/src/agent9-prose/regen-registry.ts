@@ -1,5 +1,5 @@
 /**
- * S3 (architecture/REVIEW.md) — the regen pass registry.
+ * S3 (architecture/REVIEW_01.md) — the regen pass registry.
  *
  * THE PROBLEM IT SOLVES. Twelve regen passes live in `regen-integration.ts`, all with the same
  * shape: a detector fires, a defect kind is reported, an instruction goes to the model, a flag gates

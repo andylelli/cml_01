@@ -92,6 +92,7 @@ import {
   extractPriorRunRecord,
 } from "./novelty-ledger.js";
 import { writeCorpusSnapshot } from "./corpus-snapshot.js";
+import { assertFlagCapabilities } from "./flag-preflight.js";
 import {
   applyResumeBundle,
   buildResumeDiagnostic,
@@ -101,7 +102,7 @@ import {
   type ResumeApplication,
   type ResumeBundle,
   type ResumeStageField,
-} from "./run-resume.js";
+} from "./resume-hydration.js";
 
 const { workspaceRoot: WORKSPACE_ROOT, workerAppRoot: WORKER_APP_ROOT, examplesRoot: EXAMPLES_ROOT } =
   resolveWorkerRuntimePaths(import.meta.url);
@@ -726,6 +727,11 @@ export async function generateMystery(
   const warnings: string[] = [];
   const errors: string[] = [];
 
+  // REVIEW_02 §4.2 — refuse an impossible flag combination HERE, at t=0, rather than discovering it
+  // as a 400 at stage 13 with the upstream spend already committed. Deliberately before the run
+  // fingerprint and any agent: nothing has been produced yet, so nothing is lost.
+  warnings.push(...assertFlagCapabilities());
+
   const enableScoring =
     String(process.env.ENABLE_SCORING || "false").toLowerCase() === "true";
   let scoreAggregator: ScoreAggregator | undefined;
@@ -1077,7 +1083,7 @@ export async function generateMystery(
       throw new Error(errorMsg);
     }
 
-    // ── R9 (architecture/REVIEW.md) — the profile trio ───────────────────────
+    // ── R9 (architecture/REVIEW_01.md) — the profile trio ───────────────────────
     // 2b/2c/2d are independent reads off the FROZEN CML: each writes a distinct artifact key
     // (characterProfiles / locationProfiles / temporalContext) and reads only upstream state that
     // is already settled (cml, cast, setting, backgroundContext). Anthropic's parallelisation
@@ -1103,18 +1109,45 @@ export async function generateMystery(
         const buf: string[] = [];
         return { sub: { ...ctx, warnings: buf, savePartialReport: suppressedSave } as OrchestratorContext, buf };
       };
-      const a = isolated(), b = isolated(), c = isolated();
+
+      // REVIEW_02 §3.1 — the resume gate lives in `stage()`, and this branch does not call it. Left
+      // as it was, a resumed run with R9 on would RE-RUN all three profile agents whose artifacts had
+      // just been restored: three needless LLM calls, restored artifacts overwritten with fresh ones,
+      // and `skippedStages` under-reporting what the run did. R5's own acceptance test ("resume →
+      // 0 LLM calls for stages 1-13") failed whenever R9's flag was on, and it looked like a resume
+      // bug rather than a flag interaction. Consult the same tracker, then parallelise the remainder.
+      type ProfileStage = {
+        field: "characterProfiles" | "locationProfiles" | "temporalContext";
+        run: (c: OrchestratorContext) => Promise<void>;
+      };
+      const profileStages: ProfileStage[] = [
+        { field: "characterProfiles", run: runAgent2b },
+        { field: "locationProfiles", run: runAgent2c },
+        { field: "temporalContext", run: runAgent2d },
+      ];
+      const selection = skipTracker.selectPending(
+        ctx as OrchestratorContext,
+        profileStages.map((s) => s.field),
+      );
+      skippedStages.push(...selection.skipped);
+      const isolatedRuns = profileStages
+        .filter((s) => selection.pending.includes(s.field))
+        .map((s) => ({ stage: s, ...isolated() }));
 
       // Promise.all rejects on the FIRST failure. Each agent keeps its own retry/abort semantics;
       // a rejection here propagates to the same catch that would have caught it sequentially.
-      await Promise.all([runAgent2b(a.sub), runAgent2c(b.sub), runAgent2d(c.sub)]);
+      await Promise.all(isolatedRuns.map((r) => r.stage.run(r.sub)));
 
-      // Artifact keys are assigned on the clone, so copy them back explicitly.
-      ctx.characterProfiles = a.sub.characterProfiles;
-      ctx.locationProfiles = b.sub.locationProfiles;
-      ctx.temporalContext = c.sub.temporalContext;
-      // Deterministic merge order — never arrival order.
-      warnings.push(...a.buf, ...b.buf, ...c.buf);
+      // Artifact keys are assigned on the clone, so copy them back explicitly — and ONLY for stages
+      // that ran. Copying from a clone of a skipped stage would write back the restored value, which
+      // is harmless today but would mask a future divergence between clone and ctx.
+      for (const r of isolatedRuns) {
+        if (r.stage.field === "characterProfiles") ctx.characterProfiles = r.sub.characterProfiles;
+        if (r.stage.field === "locationProfiles") ctx.locationProfiles = r.sub.locationProfiles;
+        if (r.stage.field === "temporalContext") ctx.temporalContext = r.sub.temporalContext;
+      }
+      // Deterministic merge order — never arrival order. `isolatedRuns` preserves 2b → 2c → 2d.
+      for (const r of isolatedRuns) warnings.push(...r.buf);
       try { await savePartialReport(); } catch { /* best-effort */ }
     } else {
       await stage("characterProfiles", (c) => runAgent2b(c));  // Character Profiles

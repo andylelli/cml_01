@@ -11,6 +11,17 @@ export interface TokenUsage {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+  /**
+   * REVIEW_02 §2.2 — prompt tokens served from Azure's automatic cache, the metric R8's
+   * prefix-ordering probe is defined against.
+   *
+   * ABSENT means "this transport does not report it" — the `@azure/openai` SDK's `CompletionsUsage`
+   * carries three fields and no `prompt_tokens_details`, which is why the probe was unmeasurable.
+   * Only the direct-HTTP transport (`LLM_HTTP_TRANSPORT=true`) populates it. Absent is NOT zero:
+   * reading it as a cache miss would turn "we cannot see" into "we looked and there was nothing",
+   * which is the A_70 measurement class this project keeps paying for.
+   */
+  cachedPromptTokens?: number;
 }
 
 export interface ChatOptions {
@@ -20,7 +31,7 @@ export interface ChatOptions {
   maxTokens?: number;
   jsonMode?: boolean;
   /**
-   * R3 (architecture/REVIEW.md) — STRUCTURED OUTPUTS.
+   * R3 (architecture/REVIEW_01.md) — STRUCTURED OUTPUTS.
    *
    * `jsonMode` guarantees the reply parses as JSON. It does NOT guarantee it matches your shape,
    * which is why this codebase carries ~55 coercion sites and five `jsonrepair` call sites: the
@@ -103,6 +114,8 @@ export interface LLMLogEntry {
   promptTokens?: number;
   completionTokens?: number;
   totalTokens?: number;
+  /** REVIEW_02 §2.2 — absent unless the direct-HTTP transport reported it. Absent is not zero. */
+  cachedPromptTokens?: number;
   estimatedCost?: number;
 
   // Outcome

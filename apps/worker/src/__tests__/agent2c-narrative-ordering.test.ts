@@ -1,5 +1,5 @@
 /**
- * R2 (architecture/REVIEW.md) — Agent 2c's `narrative` read, and the sweep that followed it.
+ * R2 (architecture/REVIEW_01.md) — Agent 2c's `narrative` read, and the sweep that followed it.
  *
  * THE FINDING. `agent2c-run.ts` passed `narrative: ctx.narrative!` to `generateLocationProfiles`.
  * `ctx.narrative` is assigned only by Agent 7, which runs LONG AFTER 2c — it has to, because Agent 7

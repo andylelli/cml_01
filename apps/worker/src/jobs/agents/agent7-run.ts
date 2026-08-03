@@ -2350,7 +2350,7 @@ export async function runAgent7(ctx: OrchestratorContext): Promise<void> {
     fieldsHoisted: finalHoist.hoisted,
   });
 
-  // R4 step 4 (architecture/REVIEW.md) — emit the counters ONCE per run, at the point the outline is
+  // R4 step 4 (architecture/REVIEW_01.md) — emit the counters ONCE per run, at the point the outline is
   // final. These counts ARE the evidence for S7: the coercion layer can only be deleted per agent
   // where a structured-output arm drives its counters to zero across real runs. Without them, "the
   // schema made coercion redundant" is an assertion, and this codebase has been wrong about exactly

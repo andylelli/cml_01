@@ -1,5 +1,5 @@
 /**
- * S3 (architecture/REVIEW.md) — the regen pass registry.
+ * S3 (architecture/REVIEW_01.md) — the regen pass registry.
  *
  * A registry that describes the code is worth nothing if it can drift from the code. These tests are
  * what make it load-bearing rather than decorative: they check the table against the ACTUAL exports,
