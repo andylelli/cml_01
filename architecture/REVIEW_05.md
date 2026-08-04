@@ -37,11 +37,30 @@ Two riders also confirmed: the corrected canary collision assertion passes (`CAN
 
 > *"In the hush that followed, the survivors were left to measure what had been lost, and what, if anything, might yet be restored. **Captain Ivor Hale was responsible; the evidence allowed no other reading.**"*
 
-That second sentence is not prose. It is `regen-integration.ts:511`:
+That second sentence is not prose. **Three machine layers wrote it, and they disagree with each other:**
 
-```ts
-replacement: "was responsible; the evidence allowed no other reading",
 ```
+lint.ts:708          FORBIDS this shape in a resolution chapter:
+                     /^[A-Z][a-z][\w\s]+ was responsible/  ·  /placed the matter beyond/
+                     — "a resolution chapter must close with an in-scene moment, not a narrator
+                        pronouncement that wraps up the case like an end-of-report summary"
+
+agent9-run.ts:2216   INJECTS exactly that shape when the model did not name the culprit:
+                     `${culprit} was responsible, and the evidence placed the matter beyond all
+                      reasonable doubt.`
+
+regen-integration.ts:510  LAUNDERS it — the B5 scaffold floor matches the injector's phrasing and
+                     rewrites it to "was responsible; the evidence allowed no other reading",
+                     which the scaffold detector no longer recognises
+```
+
+**The linter's rule binds the model and not the injector.** The floor then rewrites the injector's
+output until the detector stops seeing it, and the story ends on the exact sentence shape the linter
+calls forbidden. The run's own log records the last step: *"scaffold SHIP-CHECK floored
+[B5:beyond_reasonable_doubt] in ch10 — template re-introduced after the regen pass"*.
+
+That is a class, not an incident: **the deterministic floors are not subject to the quality gates
+that constrain the model.** §10.1 and §10.6 both turn on it.
 
 The causal chain, from the run's own newly-visible warnings:
 
@@ -214,3 +233,211 @@ The re-ordered head of the plan:
 The geometry work has now found, in order: a culprit chosen by array position who was the falsely accused suspect; a false-time deception backwards in both directions; a warning channel that discarded everything Agent 9 ever said; two contradictory time models; and a story whose only disclosure is a machine-written sentence. **Five real defects, none of them geometry's, all found by building a checker and pointing it at real output.**
 
 Against that: **no probe has yet shown geometry improving a story**, and this run is the first evidence that the acceptance test can be silently blind to the exact failure it was designed to catch. Both things are true at once, and the second is the reason §11 now starts with three free instrument fixes rather than a paid probe.
+
+---
+
+## 10. The fix implementation plan
+
+**How to read this.** One subsection per item, in execution order. Each states the **files**, the
+**change**, the **proof it worked**, the **risk**, and the **rollback**. Items N1–N4 are free and
+offline; N5 onward cost money and inherit REVIEW_04 §11's dependency structure unchanged.
+
+**Three rules that apply to every item below**, learned from §6's five instrument defects:
+
+1. **No detector ships without a corpus run.** `probe:geometry-backtest` and `probe:validators` over
+   every archived manuscript, firings eyeballed once. A detector that has never met real prose is a
+   hypothesis.
+2. **One body per concept, and the needle comes from the producer.** Template strings, beat lists and
+   parsers are imported, never re-typed. Five of the defects recorded across REVIEW_04 and this
+   document are second copies drifting from firsts.
+3. **Nothing here is batched with anything else in a probe run.** Each behaviour-changing flag is
+   settled alone, or attribution is lost.
+
+---
+
+### 10.1 N1 — record an injected disclosure as a floored failure *(free)*
+
+**The problem.** §2: the obligation reads as met, the sentence is machine-written, and no artifact
+distinguishes the two. Without that distinction there is no exit metric for the injector, so
+[THINK_01](THINK_01.md) Move 5 can never be run.
+
+**Files.**
+
+| File | Change |
+|---|---|
+| `apps/worker/src/jobs/agents/agent9-run.ts` | Export the injector's own template builders as a `PROSE_INJECTION_TEMPLATES` registry — the literal at `:2216` and its siblings, as regexes derived from the same functions that write them |
+| `packages/prompts-llm/src/agent9-prose/regen-integration.ts` | Export `SCAFFOLD_EXHAUSTION_FLOORS`' `replacement` strings as part of that registry — **the laundered forms, not just the originals** |
+| `packages/story-geometry/src/types.ts` | `GeometryCheck.satisfied: boolean` → `verdict: "met" \| "met_by_injection" \| "unmet"` |
+| `packages/story-geometry/src/accept.ts` | Accept `injectionTemplates` in `GeometryAcceptanceOptions` (the `parseClockTime` injection pattern — a leaf cannot import upward). A check whose evidence sentence matches one returns `met_by_injection` |
+| `apps/worker/src/jobs/agents/agent9-run.ts` | Pass the registry; count `met_by_injection` on the acceptance diagnostic |
+
+**The subtlety that decides the design.** The shipped sentence is the **laundered** form, not the
+injected one — the B5 floor rewrote it. A registry containing only `agent9-run.ts:2216` would match
+nothing. It must contain both sides of every floor that rewrites an injector's output, and both must
+be imported from where they are defined.
+
+**Proof.** Recompute the 08-04 treatment run's acceptance offline: chapter 10's disclosure must come
+back `met_by_injection`, not `unmet` and not `met`. That is a decisive one-shot check against a
+manuscript already on disk.
+
+**Risk.** A third verdict touches every consumer of `GeometryCheck`. Contained: two call sites and
+the tests. **The real risk is under-matching** — a floor rewrite nobody registered leaves the
+sentence looking authored. Mitigated by deriving the registry from the floor table rather than a
+hand-list, and asserted by a test that every `SCAFFOLD_EXHAUSTION_FLOORS` entry appears in it.
+
+**Rollback.** Type-only; revert the commit.
+
+**Explicitly NOT in scope.** `met_by_injection` must **not** trigger a regen yet. The pass that would
+repair it is the one that already failed (§2), so regenerating on this signal would spend money to
+re-fail. It becomes actionable when N7 lands.
+
+---
+
+### 10.2 N2 — "unaccounted time" instead of "third time" *(free)*
+
+**The problem.** §4: `half past two` was flagged as a third time. It is `kitchen_timer_setting`, a
+locked fact of the device, printed 7 times because the injector prints locked facts.
+
+**Files.**
+
+| File | Change |
+|---|---|
+| `packages/story-geometry/src/types.ts` | `TimeModel` gains `accountedTimes: string[]` — clock-valued locked facts that are legitimately fixed but are not times of death |
+| `packages/story-geometry/src/derive.ts` | Populate it from a new `lockedFacts` input, keeping only values that parse as clock times |
+| `packages/story-geometry/src/accept.ts` | Allowed set = both anchors ∪ `accountedTimes`. Rename `third_time` → `unaccounted_time` |
+| `apps/worker/src/jobs/agents/agent75-run.ts` | Pass `ctx.lockedFactRegistry` |
+| `scripts/geometry-backtest.mjs`, tests, REVIEW_04 §10.2 | Follow the rename |
+
+**Proof.** The backtest must still flag both 08-02 stories — the 1936 extras (`ten minutes past
+eleven`, `a quarter past ten`, `five to eight`) are unaccounted by any locked fact and must survive.
+The 08-04 treatment run must drop from 2 extras to 1, losing only `half past two`.
+
+**Risk.** Widening an allowed set weakens a detector. Bounded: only clock-valued *locked facts*
+widen it, and a wrong device time is `checkLockedFactTimeAlignment`'s job, not this check's.
+
+**Rollback.** Revert; the rename is mechanical.
+
+**Angle considered and rejected.** Allowing *any* CML-mentioned time. Too wide — the CML mentions
+alibi windows, and admitting those would let a genuine third time hide behind an alibi.
+
+---
+
+### 10.3 N3 — normalise once, at the checking boundary *(free)*
+
+**The problem.** §6: five defects, all "needle and haystack disagree about a match". Defect 5 existed
+*only* because folding was per-call-site — a fix applied to one side.
+
+**Files.** `packages/story-geometry/src/accept.ts`.
+
+**Change.** At entry to `checkManuscriptGeometry`, build one normalised view — typography folded,
+whitespace collapsed — and have every check read it. Fold every needle at the same boundary. Delete
+the scattered per-comparison `foldTypography` calls.
+
+**The caveat that must be in the type, not a comment.** `paragraphIndices` on a violation feed scoped
+regeneration, so they must index the **original** paragraphs. The normalised view must therefore be
+positionally identical to the original, and the type should carry both rather than substituting one
+for the other.
+
+**Proof.** Every existing test passes unchanged, plus a test that a check cannot be constructed
+against unfolded text. The backtest verdict must be unchanged.
+
+**Risk.** Low, and the highest-value structural item here: it removes the family rather than the
+instances.
+
+**Angle considered and rejected.** Normalising in `agent9-run` before calling. That puts the
+guarantee outside the package that depends on it — the next caller would have to remember.
+
+---
+
+### 10.4 N4 — warn when the beat label and the chapter disagree *(free)*
+
+**The problem.** §5: three runs, and the beat label has now twice pointed the reveal contract at a
+chapter that does not disclose.
+
+**Files.** `packages/story-geometry/src/derive.ts`, `closure.ts`.
+
+**Change.** After resolving the reveal chapter, compare its beat against its own title/summary. When
+a chapter labelled `final_trap` is titled *"The Discriminating Test"*, or a later chapter's signal
+looks more like disclosure, record a `closure.notes` entry naming both.
+
+**Proof.** The 08-04 treatment outline must produce the note (beat `final_trap` @8 vs title "The
+Discriminating Test"); the 1810 outline must not (beat `final_trap` @9, title "The Final Trap").
+Both are on disk.
+
+**Risk.** A note, not a violation — it cannot break a run. The risk is noise if the heuristic is
+loose; keep it to an explicit disagreement, not a similarity score.
+
+**Deliberately not doing.** Re-binding the contract on the strength of the title. Titles are as
+model-authored as beats, and preferring one guess over another is not a fix — N6 is.
+
+---
+
+### 10.5 N5 — hydrate replays from committed artifacts *(free, unchanged from REVIEW_04 §11.3)*
+
+Carried forward as written. Acceptance is still the single assertion: replaying `run_20260802-1654`
+hydrates the **10-beat** outline (attempt 18), not the 9-scene one (attempt 20).
+
+---
+
+### 10.6 The injector-vs-linter class *(free to detect, a decision to fix)*
+
+§2 exposed something wider than one sentence: **`lint.ts` forbids the model from writing a
+summary-verdict closing line, and the injector writes one anyway, and a floor then launders it past
+the scaffold detector.** Deterministic floors are not subject to the gates that bind the model.
+
+Two options, and I do not think this is my call to make alone:
+
+**Option 1 — subject injector output to the same linters.** After every deterministic injection,
+re-run the chapter linter; if the injected sentence violates a rule the model would have been held
+to, record it and refuse the injection.
+*For:* it is the consistent position — one standard for machine and model.
+*Against:* refusing the injection means shipping without the obligation, which ADR-0003 forbids for a
+repairable defect. It converts a bad sentence into a missing one.
+
+**Option 2 — keep the injection, record the contradiction.** Do not refuse; log that an injected
+sentence violates a rule the model is held to, with the rule named.
+*For:* safe, free, and it produces the firing-rate evidence A3 (retire the injector) needs.
+*Against:* the bad sentence still ships.
+
+**Recommendation: Option 2 now, Option 1 only once N7 has shown the repair path can actually land.**
+Option 1 without a working repair is just a different way to fail.
+
+---
+
+### 10.7 The paid items — what "ready" means
+
+Unchanged from REVIEW_04 §11.4, with entry conditions made explicit so none is started early.
+
+| # | Item | Cost | Ready when |
+|---|---|---|---|
+| N6 | Promote `beat-scheduler`, ≥4 runs | ~£6 | N5 done, canary status clean (already fixed), N4's note giving a per-run signal to compare against |
+| N7 | Culprit-evidence pass on the edit-list channel | ~£3 | `aftermath_repeat` has exercised `AGENT9_REGEN_EDIT_LIST` once, so the channel is not debuting on the reveal |
+| N8 | Phase-2 geometry contract probe | ~£3 | N6 decided (REVIEW_04 §11.4 D2), N1–N3 landed so the acceptance test can be trusted to read the result |
+
+---
+
+### 10.8 Sequencing constraints
+
+- **N1 before N7.** Repairing an injected disclosure requires being able to see one.
+- **N3 before N8.** A phase-2 probe read through detectors with a known matching defect is not evidence.
+- **N5 before N6.** A probe hydrated from the wrong outline attempt is not evidence either.
+- **N2 independent.** Nothing depends on it; do it whenever.
+- **Never batch two behaviour flags in one run.** `AGENT3_DEVICE_TIME_BINDING` was settled alone, and
+  that is why its result is readable.
+
+---
+
+### 10.9 Definition of done for this plan
+
+The plan is complete when all four hold:
+
+1. An injected disclosure appears on the report as `met_by_injection`, with a per-run count — so the
+   injector's firing rate is a number rather than an impression.
+2. `unaccounted_time` fires on both 08-02 stories and not on a locked-fact timer setting.
+3. Every geometry check reads one normalised view, and a sixth instrument defect of the §6 family
+   would be a surprise rather than the pattern.
+4. REVIEW_04 §11.4 D2 has an answer on the record: after the scheduler probe, are geometry phases 2–4
+   still worth their cost?
+
+**Point 4 is the one that matters.** Everything else is maintenance on an instrument whose value is
+still unproven — and this plan should not be read as assuming the answer is yes.
