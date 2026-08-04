@@ -144,3 +144,126 @@ describe("closure notes — the contract's weakest assumption, stated", () => {
     expect(geometry.closure.notes).toEqual([]);
   });
 });
+
+describe("reveal-binding disagreement (N4)", () => {
+  /**
+   * MEASURED three runs running: the beat label does not track what a chapter does. 1936 labelled
+   * chapter 7 `final_trap` and disclosed in 9; the 08-04 treatment labelled chapter 8 `final_trap`,
+   * titled it "The Discriminating Test", and put its only naming sentence in chapter 10 — a chapter
+   * the contract does not bind at all.
+   *
+   * This reports; it does not re-bind. Titles are as model-authored as beats.
+   */
+  const outlineOf = (
+    titles: Array<{ beat?: string; title: string; purpose?: string; summary?: string }>,
+  ): GeometryOutline => ({
+    acts: [{ scenes: titles }],
+  });
+
+  it("notes the 08-04 shape: final_trap on a chapter that reads as the test, disclosure later", () => {
+    const narrative = outlineOf([
+      { beat: "gathering", title: "Arrival" },
+      { beat: "crime", title: "The Body" },
+      { beat: "first_enquiries", title: "First Enquiries" },
+      { beat: "motives", title: "Motives" },
+      { beat: "alibis", title: "Alibis" },
+      { beat: "false_solution", title: "The False Solution" },
+      { beat: "secrets", title: "Secrets" },
+      { beat: "final_trap", title: "The Discriminating Test" },
+      { beat: "revelation", title: "Suspect Clearances" },
+      { beat: "revelation", title: "The Culprit Revealed" },
+    ]);
+    const g = deriveStoryGeometry({ cml: baseCase(), clues: clue, narrative });
+    expect(g.closure.notes.join(" ")).toMatch(/reveal bound to chapter 8/);
+    expect(g.closure.notes.join(" ")).toMatch(/discriminating test/i);
+    expect(g.closure.notes.join(" ")).toMatch(/chapter 10 .*reads as the disclosure/);
+  });
+
+  it("says nothing when the beat and the chapter agree", () => {
+    const narrative = outlineOf([
+      { beat: "gathering", title: "Arrival" },
+      { beat: "crime", title: "The Body" },
+      { beat: "first_enquiries", title: "First Enquiries" },
+      { beat: "motives", title: "Motives" },
+      { beat: "alibis", title: "Alibis" },
+      { beat: "false_solution", title: "The False Solution" },
+      { beat: "secrets", title: "Secrets" },
+      { beat: "pattern", title: "The Pattern" },
+      { beat: "final_trap", title: "The Final Trap" },
+      { beat: "revelation", title: "Aftermath" },
+    ]);
+    const g = deriveStoryGeometry({ cml: baseCase(), clues: clue, narrative });
+    expect(g.closure.notes.filter((n) => n.includes("reveal bound to chapter"))).toEqual([]);
+  });
+
+  it("does not re-bind the contract on the strength of a title", () => {
+    const narrative = outlineOf([
+      { beat: "gathering", title: "Arrival" },
+      { beat: "crime", title: "The Body" },
+      { beat: "first_enquiries", title: "Enquiries" },
+      { beat: "motives", title: "Motives" },
+      { beat: "alibis", title: "Alibis" },
+      { beat: "false_solution", title: "False Solution" },
+      { beat: "secrets", title: "Secrets" },
+      { beat: "final_trap", title: "The Discriminating Test" },
+      { beat: "revelation", title: "The Culprit Revealed" },
+    ]);
+    const g = deriveStoryGeometry({ cml: baseCase(), clues: clue, narrative });
+    // The note fires, but the reveal contract stays where the beat put it.
+    expect(g.closure.notes.join(" ")).toMatch(/may be bound to the wrong chapter/);
+    expect(g.chapterContract.find((c) => c.role === "reveal")?.chapter).toBe(8);
+  });
+
+  /**
+   * THE CONTROL, and the reason the check needs both halves. Run 08-02 1654 binds chapter 8
+   * correctly: that chapter runs the test AND names the guilt, and chapter 9 is the aftermath
+   * looking back on it. A first version of this check keyed on the bound chapter's test-shaped
+   * purpose alone, and on a later chapter saying "as the murderer" — which the aftermath says by
+   * design. It reported a defect on a well-formed outline.
+   */
+  it("says nothing when the later chapter is the aftermath looking back (08-02 1654)", () => {
+    const narrative = outlineOf([
+      { beat: "gathering", title: "Arrival" },
+      { beat: "crime", title: "The Body" },
+      { beat: "first_enquiries", title: "First Enquiries" },
+      { beat: "motives", title: "Motives" },
+      { beat: "alibis", title: "Alibis" },
+      { beat: "false_solution", title: "The False Solution" },
+      { beat: "secrets", title: "Secrets" },
+      {
+        beat: "final_trap",
+        title: "The Final Trap",
+        purpose: "Execute the discriminating test",
+        summary:
+          "Eleanor stages a final confrontation, comparing the clock's tampering evidence with Hale's alibi. " +
+          "As she lays out the inconsistencies, Hale's demeanor shifts, revealing his guilt.",
+      },
+      {
+        beat: "revelation",
+        title: "The Revelation",
+        purpose: "Reveal the final conclusions and aftermath",
+        summary:
+          "In the aftermath, Eleanor summarizes the evidence that led to Hale's exposure as the murderer. " +
+          "She reflects on the manipulation of the clock.",
+      },
+    ]);
+    const g = deriveStoryGeometry({ cml: baseCase(), clues: clue, narrative });
+    expect(g.closure.notes.filter((n) => n.includes("reveal bound to chapter"))).toEqual([]);
+  });
+
+  it("needs both halves — a test-shaped chapter with no later disclosure is not a disagreement", () => {
+    const narrative = outlineOf([
+      { beat: "gathering", title: "Arrival" },
+      { beat: "crime", title: "The Body" },
+      { beat: "first_enquiries", title: "First Enquiries" },
+      { beat: "motives", title: "Motives" },
+      { beat: "alibis", title: "Alibis" },
+      { beat: "false_solution", title: "The False Solution" },
+      { beat: "secrets", title: "Secrets" },
+      { beat: "final_trap", title: "The Discriminating Test" },
+      { beat: "revelation", title: "Aftermath at the Hotel" },
+    ]);
+    const g = deriveStoryGeometry({ cml: baseCase(), clues: clue, narrative });
+    expect(g.closure.notes.filter((n) => n.includes("reveal bound to chapter"))).toEqual([]);
+  });
+});

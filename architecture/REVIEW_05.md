@@ -31,7 +31,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
 | N3 | Normalise once at the checking boundary | free | ✅ | [§10.3](#103-n3--normalise-once-at-the-checking-boundary-free) |
-| N4 | Warn when a beat label and its chapter disagree — **also gates reading N1's count** (§14.3) | free | ☐ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) |
+| N4 | Warn when a beat label and its chapter disagree — **also gates reading N1's count** (§14.3) | free | ✅ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) · [§15](#15-n4--done-and-the-control-that-nearly-passed-silently) |
 | N5 | Hydrate replays from committed artifacts, not the prompt log | free | ☐ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) |
 | N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | **C. Newly found, not yet planned** ||||
@@ -833,3 +833,61 @@ On the run that motivated all of this, the acceptance test still reports the rev
 `met_by_injection` counts as a resolution **for the judge** — `noResolution` is set only by `unmet`. The culprit *is* named on the page, badly; the story that broke calibration (`2026-08-02-1936`) had no such sentence at all and ends on *"the truth poised to emerge in the hours ahead"*.
 
 Treating an injected disclosure as `noResolution` would cap the ending on every run the floor fires on — a scoring change made on n=1. It is counted separately instead, and the decision can be revisited when the firing rate is a number rather than an impression.
+
+---
+
+## 15. N4 — done, and the control that nearly passed silently
+
+**Completed 2026-08-04.** `checkRevealBinding` (in `derive.ts`, called at the end of
+`deriveStoryGeometry`) records a `closure.notes` entry when the beat label binds the reveal contract
+to a chapter that reads as the discriminating test while a **later** chapter reads as the actual
+disclosure. It reports; it does not re-bind (§10.4, *deliberately not doing*).
+
+The note reaches the run report through `ctx.warnings` — the channel repaired earlier this session,
+without which this whole item would have shipped into a severed alias and produced nothing.
+
+### 15.1 Verified against all three archived outlines
+
+| run | reveal bound to | note |
+| --- | --- | --- |
+| 08-02 **1654** | ch 8 `final_trap` "The Final Trap" | **clean** — beat and chapter agree |
+| 08-02 **1818** | ch 7 `final_trap` "The Discriminating Test" | **fires** — ch 9 "The Culprit Revealed" is the disclosure |
+| 08-04 **1916** | ch 8 `final_trap` "The Discriminating Test" | **fires** — ch 10 "Confrontation and Culprit's Unveiling" is the disclosure |
+
+That is exactly the split §10.4 asked for before the code existed: the two runs whose contract is
+misbound are flagged, and the one whose contract is sound is not.
+
+### 15.2 Three false-positive traps, in the order they were hit
+
+**1. The beat label was in the text being matched.** `sceneSignal()` concatenates beat + title +
+purpose + summary, so the canonical aftermath beat `revelation` matched the disclosure pattern and
+**every well-formed outline** reported a disagreement. The check now reads title/purpose/summary
+only: the question is whether the label agrees with the chapter, and feeding the label back in makes
+it agree with itself.
+
+**2. `revelation` was in the pattern as well.** Removed for the same reason — it is the Golden-Age
+name for the aftermath beat, not a disclosure verb.
+
+**3. The aftermath restates the culprit by design.** Run 1654's chapter 9 says *"Hale's exposure as
+the murderer"*, and its chapter 8's purpose is literally *"Execute the discriminating test"* — so a
+check keyed on "test-shaped bound chapter **or** later chapter naming the murderer" reported a
+defect on the one outline of the three that is correctly bound. Two changes fixed it: an
+`AFTERMATH_LIKE` guard (*aftermath, epilogue, reflects, days later*) disqualifies a
+looking-back chapter from being the disclosure, and the two halves are now **`and`**, not `or`.
+
+### 15.3 What could not be used as the discriminator, and why
+
+The obvious tightening — *suppress the note when the bound chapter itself claims to disclose* —
+would have suppressed the 08-04 run, the single most important case. That outline's chapter 8
+purpose reads *"Execute the constraint_proof test to expose pendulum suspension and reveal
+culprit"*, while the manuscript's only naming sentence landed in chapter 10 (§14.3). **An outline's
+claim about a chapter is not evidence about that chapter**; the only usable signal is the relative
+one — where the story puts its disclosure scene compared with where the beat puts the contract.
+
+### 15.4 What this unblocks
+
+§14.3 recorded that `met_by_injection_count` under-reports while the beat labels misbind the reveal,
+because the injection detector only sees chapters the contract binds. That is now **visible** rather
+than silent: a run whose count is zero and whose report carries this note has not demonstrated that
+the injector did not fire. It is still not *fixed* — fixing it is N6 (promote `beat-scheduler`), and
+this note is the per-run signal N6's outcome is compared against.

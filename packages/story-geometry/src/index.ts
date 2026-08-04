@@ -39,6 +39,7 @@ export type {
 
 export {
   caseOf,
+  checkRevealBinding,
   deathMethodSignatureTerms,
   deriveStoryGeometry,
   flattenScenes,

@@ -83,6 +83,68 @@ export const resolveRevealChapter = (scenes: ReadonlyArray<GeometryScene>): numb
   return scenes.length;
 };
 
+/**
+ * Does the chapter the reveal contract binds actually look like a reveal? (REVIEW_05 §10.4 / N4)
+ *
+ * MEASURED three runs running: the beat label does not track what a chapter does. Run 1936 labelled
+ * chapter 7 `final_trap` and disclosed in chapter 9; the 08-04 treatment run labelled chapter 8
+ * `final_trap` and titled it *"The Discriminating Test"*, while its only naming sentence landed in
+ * chapter 10 — a chapter the contract does not bind at all.
+ *
+ * This REPORTS the disagreement; it does not re-bind. Titles are as model-authored as beats, and
+ * preferring one guess over another is not a fix — an authoritative `beat-scheduler` is (§8bis).
+ *
+ * IT ALSO GATES A NUMBER. §14.3: the injection detector only sees chapters the contract binds, so
+ * while the reveal is misbound, `met_by_injection_count` under-reports and cannot be read as the
+ * injector's firing rate.
+ */
+const TEST_LIKE =
+  /(discriminating test|constraint_proof|conducts the test|the test\b|experiment|demonstration|trap is set|proof of concept)/;
+/**
+ * Deliberately does NOT contain "revelation". That is the canonical Golden-Age name for the
+ * AFTERMATH beat, so matching it would report a disagreement on every correctly-formed outline —
+ * the first version of this check fired on all ten of them.
+ */
+const DISCLOSURE_LIKE =
+  /(culprit revealed|culprit.{0,3}s unveiling|reveals? \w+ as the culprit|names? the murderer|as the murderer|unmask|confession|confesses)/;
+/**
+ * A chapter that looks back on a disclosure is not the disclosure. Without this, the aftermath
+ * chapter — which restates the culprit by design — reads as a rival for the reveal contract, and
+ * the 08-02 1654 outline (correctly bound) produced a note.
+ */
+const AFTERMATH_LIKE = /(aftermath|epilogue|reflects|looking back|days later|weeks later)/;
+
+const sceneTitleSignal = (scene: GeometryScene | undefined): string =>
+  [scene?.title, scene?.purpose, scene?.summary].map((v) => str(v)).join(" ").toLowerCase();
+
+export const checkRevealBinding = (
+  scenes: ReadonlyArray<GeometryScene>,
+  revealChapter: number,
+): string | null => {
+  const bound = scenes[revealChapter - 1];
+  if (!bound) return null;
+  const boundLooksLikeTest = TEST_LIKE.test(sceneTitleSignal(bound));
+
+  // A later chapter whose OWN WORDS read as the disclosure and NOT as aftermath. Its beat is
+  // excluded on purpose: the question is whether the label agrees with the chapter.
+  const laterDisclosure = scenes
+    .map((scene, index) => ({ scene, chapter: index + 1 }))
+    .find(({ scene, chapter }) => {
+      if (chapter <= revealChapter) return false;
+      const signal = sceneTitleSignal(scene);
+      return DISCLOSURE_LIKE.test(signal) && !AFTERMATH_LIKE.test(signal);
+    });
+
+  if (!boundLooksLikeTest || !laterDisclosure) return null;
+  const parts = [
+    `reveal bound to chapter ${revealChapter} by its beat "${str(bound.beat) || "(none)"}"`,
+    `but that chapter reads as the discriminating test ("${str(bound.title)}")`,
+    `and chapter ${laterDisclosure.chapter} ("${str(laterDisclosure.scene.title)}") reads as the disclosure`,
+  ];
+  return `${parts.join(" ")} — the contract may be bound to the wrong chapter, so every reveal check ` +
+    `(and the injected-disclosure count) is reading a chapter that does not disclose`;
+};
+
 const resolveChapterByBeat = (scenes: ReadonlyArray<GeometryScene>, beat: RegExp, signal: RegExp): number | null => {
   const byBeat = scenes.findIndex((s) => beat.test(str(s?.beat)));
   if (byBeat >= 0) return byBeat + 1;
@@ -392,5 +454,7 @@ export const deriveStoryGeometry = (input: GeometryDeriveInput): StoryGeometry =
   };
 
   geometry.closure = checkGeometryClosure(geometry, caseData);
+  const bindingNote = scenes.length > 0 ? checkRevealBinding(scenes, revealChapter) : null;
+  if (bindingNote) geometry.closure.notes.push(bindingNote);
   return geometry;
 };
