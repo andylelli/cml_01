@@ -21,6 +21,16 @@ import {
 export const packageName = "@cml/cml";
 export { validateCml };
 export { isVictimArchetype } from "./roles.js";
+// A_71 — the directional invariant for false-time concealments. Lives here (not in prompts-llm) so
+// `validateCml` can enforce it: a case whose staged time incriminates its own culprit is a case-logic
+// defect, and the cheapest place to catch it is the £0.03 end of the pipeline.
+export {
+  checkCaseTimelineDeception,
+  checkTimelineDeception,
+  parseClockTime,
+  parseTimeWindow,
+} from "./timeline-deception.js";
+export type { TimelineDeceptionInput, TimelineDeceptionViolation } from "./timeline-deception.js";
 export { validateArtifact, validateArtifacts, getArtifactTypes };
 export {
   GROUNDING_STOP_WORDS,

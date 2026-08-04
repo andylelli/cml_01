@@ -1,4 +1,5 @@
 import fs from "fs";
+import { checkCaseTimelineDeception } from "./timeline-deception.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import yaml from "js-yaml";
@@ -341,6 +342,76 @@ const validateCrossReferences = (caseBlock: any, errors: string[]): void => {
   }
 };
 
+/**
+ * Culprit integrity — the answer to the mystery must exist, be a person in the story, and not be the
+ * person the story deliberately accuses in error.
+ *
+ * WHY THIS EXISTS (found 2026-08-03 by `scripts/geometry-backtest.mjs`). On run
+ * `run_20260802-1654` the model returned `culpability: { culprit_count: 1, culprits: [] }` — it never
+ * decided who did it. `normalizeCml` then filled the gap with the first culprit-eligible cast member,
+ * which was **Captain Ivor Hale — the same person `false_solution.accused_suspect` names.** Nothing
+ * compared the two, and the external reviewer's complaint on that story was, verbatim:
+ * *"Chapter 6 accuses Hale, but Hale is guilty."*
+ *
+ * `agent3-cml.ts` has instructed "The accused_suspect MUST NOT be the real culprit" for months. This
+ * is the first thing that checks it. Prompt-only enforcement of a hard constraint is exactly the gap
+ * a validator is for — and being a validation ERROR means Agent 4's revision loop gets to repair it
+ * before any prose token is spent, rather than the defect reaching a reader.
+ */
+const validateCulpritIntegrity = (caseBlock: any, errors: string[]): void => {
+  if (!caseBlock) return;
+  const norm = (v: unknown): string => String(v ?? "").trim().toLowerCase();
+
+  const culprits: string[] = Array.isArray(caseBlock?.culpability?.culprits)
+    ? caseBlock.culpability.culprits.map((c: unknown) => String(c ?? "").trim()).filter(Boolean)
+    : [];
+
+  if (culprits.length === 0) {
+    errors.push(
+      "CASE.culpability.culprits is empty - the case states no answer to its own mystery, so every " +
+        "downstream stage that reads the culprit runs against undefined",
+    );
+    return; // Every check below is relative to a culprit; reporting five consequences of one cause is noise.
+  }
+
+  const declaredCount = caseBlock?.culpability?.culprit_count;
+  if (typeof declaredCount === "number" && declaredCount !== culprits.length) {
+    errors.push(
+      `CASE.culpability.culprit_count is ${declaredCount} but ${culprits.length} culprit(s) are named`,
+    );
+  }
+
+  const cast: any[] = Array.isArray(caseBlock.cast) ? caseBlock.cast : [];
+  const memberOf = (name: string) => cast.find((c) => norm(c?.name) === norm(name));
+  const roleOf = (member: any) => norm(member?.role_archetype ?? member?.roleArchetype ?? member?.role);
+
+  for (const culprit of culprits) {
+    const member = memberOf(culprit);
+    if (!member) {
+      errors.push(`CASE.culpability.culprits names "${culprit}", who is not in CASE.cast`);
+      continue;
+    }
+    const role = roleOf(member);
+    if (role.includes("victim")) {
+      errors.push(`CASE.culpability.culprits names "${culprit}", who is the victim`);
+    }
+    if (role.includes("detective")) {
+      errors.push(`CASE.culpability.culprits names "${culprit}", who is the detective`);
+    }
+    if (norm(member?.culprit_eligibility) === "ineligible") {
+      errors.push(`CASE.culpability.culprits names "${culprit}", whose culprit_eligibility is "ineligible"`);
+    }
+  }
+
+  const accused = String(caseBlock?.false_solution?.accused_suspect ?? "").trim();
+  if (accused && culprits.some((c) => norm(c) === norm(accused))) {
+    errors.push(
+      `CASE.false_solution.accused_suspect is "${accused}", who is the culprit - a false solution that ` +
+        "names the murderer is not misdirection, and the reader sees it immediately",
+    );
+  }
+};
+
 export const validateCml = (payload: unknown): CmlValidationResult => {
   const schema = loadSchema();
 
@@ -359,6 +430,27 @@ export const validateCml = (payload: unknown): CmlValidationResult => {
   const caseBlock = (record as any)?.CASE ?? record;
   validateInferencePathQuality(caseBlock, errors);
   validateCrossReferences(caseBlock, errors);
+  validateCulpritIntegrity(caseBlock, errors);
+
+  /**
+   * The directional invariant for false-time concealments (A_71).
+   *
+   * WHY THIS IS HERE AND NOT SOMEWHERE ELSE. `checkTimelineDeception` was written in response to an
+   * external review whose headline complaint was *"the timeline is backwards"*, was exported from its
+   * package — and was called by nothing for two months. The 2026-08-03 backtest found run
+   * `run_20260802-1818` (external 68/100) violating it in BOTH directions: apparent 8:50, actual 8:15,
+   * and culprit Hugo Vane's alibi window 8:10–8:30, which *contains* the real time of death (so he
+   * could not have done it) and *excludes* the staged one (so faking it does not protect him). The
+   * manuscript then quietly re-based the case onto a third time — "a quarter past ten" — that the CML
+   * never contained, because a story cannot be told from an incoherent one.
+   *
+   * As a validation error this reaches Agent 4's revision loop, pre-prose, at the £0.03 end of the
+   * pipeline. It is deliberately conservative: `checkCaseTimelineDeception` returns NOTHING when the
+   * times are absent or unparseable, so a case that does not fake a time is never blocked by it.
+   */
+  for (const violation of checkCaseTimelineDeception(caseBlock)) {
+    errors.push(`CASE.hidden_model.mechanism (${violation.code}): ${violation.message}`);
+  }
 
   return { valid: errors.length === 0, errors };
 };

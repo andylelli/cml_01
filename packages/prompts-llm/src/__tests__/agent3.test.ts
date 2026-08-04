@@ -37,8 +37,31 @@ function buildValidCml() {
           moral_complexity: "Complicit in prior cover-up.",
           nickname: "Blake",
         },
+        {
+          // Added 2026-08-03: the fixture previously named the DETECTIVE as the culprit, which
+          // `validateCulpritIntegrity` now rejects (Van Dine's rule 4, and the pipeline's own
+          // normalizer has always excluded the detective from culprit candidates). The fixture was
+          // never valid; nothing checked it.
+          name: "Miss Vance",
+          age_range: "30s",
+          role_archetype: "suspect",
+          relationships: [] as string[],
+          public_persona: "guarded",
+          private_secret: "a debt",
+          motive_seed: "inheritance",
+          motive_strength: "strong",
+          alibi_window: "9pm-10pm",
+          access_plausibility: "high",
+          opportunity_channels: [] as string[],
+          behavioral_tells: [] as string[],
+          stakes: "fortune",
+          evidence_sensitivity: [] as string[],
+          culprit_eligibility: "eligible",
+          culpability: "guilty",
+          gender: "female",
+        },
       ],
-      culpability: { culprit_count: 1, culprits: ["Inspector Blake"] },
+      culpability: { culprit_count: 1, culprits: ["Miss Vance"] },
       surface_model: {
         narrative: { summary: "A death seems natural." },
         accepted_facts: ["The victim collapsed at dinner."],
@@ -465,5 +488,78 @@ describe("Agent 3 -> Agent 4 Handoff", () => {
     expect(cml.CASE.cast[0].role).toBe("suspect");
     expect(cml.CASE.cast[0].gender).toBe("non-binary");
     expect(cml.CASE.culpability.culprit_count).toBe(1);
+  });
+});
+
+/**
+ * The fallback that decides the mystery.
+ *
+ * MEASURED (run_20260802-1654, external 80/100): Agent 3 returned `culprits: []` — it never decided
+ * who did it — and `normalizeCml`'s fallback took the first culprit-eligible cast member, who was
+ * also `false_solution.accused_suspect`. The story therefore staged its deliberate wrong accusation
+ * against the actual murderer, and the reviewer's complaint was verbatim: "Chapter 6 accuses Hale,
+ * but Hale is guilty." Nothing logged that the culprit had been chosen by array position.
+ */
+describe("Agent 3 culprit fallback (run-1654 defect)", () => {
+  const cmlWithNoCulprit = () => {
+    const cml = buildValidCml() as any;
+    cml.CASE.cast = [
+      { name: "Eleanor Voss", role_archetype: "detective", culprit_eligibility: "eligible", culpability: "unknown" },
+      { name: "Dr. Mallory Finch", role_archetype: "victim", culprit_eligibility: "ineligible", culpability: "unknown" },
+      { name: "Captain Ivor Hale", role_archetype: "suspect", culprit_eligibility: "eligible", culpability: "unknown" },
+      { name: "Beatrice Quill", role_archetype: "suspect", culprit_eligibility: "eligible", culpability: "unknown" },
+    ];
+    cml.CASE.culpability = { culprit_count: 1, culprits: [] };
+    cml.CASE.false_solution = { accused_suspect: "Captain Ivor Hale", supporting_points: ["weak alibi"], the_one_flaw: "he was seen elsewhere" };
+    return cml;
+  };
+
+  const runWith = async (cml: any) => {
+    const json = JSON.stringify(cml);
+    const client = makeMockClientForAgent3Fallback(json, json);
+    return generateCML(client as any, {
+      decade: "1930s",
+      location: "Seaside hotel",
+      institution: "Hotel",
+      tone: "Classic Golden Age",
+      weather: "Rain",
+      socialStructure: "Rigid class hierarchy",
+      primaryAxis: "temporal",
+      castSize: 4,
+      castNames: ["Eleanor Voss", "Dr. Mallory Finch", "Captain Ivor Hale", "Beatrice Quill"],
+      detectiveType: "Amateur",
+      victimArchetype: "Dr. Mallory Finch",
+      complexityLevel: "moderate",
+      mechanismFamilies: ["clock manipulation"],
+      runId: "culprit-fallback-run",
+      projectId: "culprit-fallback-project",
+    } as any, undefined, 1);
+  };
+
+  it("never fabricates a culprit who is the falsely accused suspect", async () => {
+    const result = await runWith(cmlWithNoCulprit());
+    const culprits = (result.cml as any).CASE.culpability.culprits;
+    expect(culprits).not.toContain("Captain Ivor Hale");
+    expect(culprits).toHaveLength(1);
+  });
+
+  it("records the fabrication, so a guessed answer never reads like a decided one", async () => {
+    const result = await runWith(cmlWithNoCulprit());
+    expect((result.normalizationNotes ?? []).join(" ")).toMatch(/did not decide its own answer/);
+  });
+
+  it("prefers a cast member the model actually marked guilty over array position", async () => {
+    const cml = cmlWithNoCulprit();
+    cml.CASE.cast[3].culpability = "guilty";
+    const result = await runWith(cml);
+    expect((result.cml as any).CASE.culpability.culprits).toEqual(["Beatrice Quill"]);
+  });
+
+  it("says nothing when the model decided for itself", async () => {
+    const cml = cmlWithNoCulprit();
+    cml.CASE.culpability = { culprit_count: 1, culprits: ["Beatrice Quill"] };
+    const result = await runWith(cml);
+    expect((result.cml as any).CASE.culpability.culprits).toEqual(["Beatrice Quill"]);
+    expect((result.normalizationNotes ?? []).join(" ")).not.toMatch(/did not decide/);
   });
 });

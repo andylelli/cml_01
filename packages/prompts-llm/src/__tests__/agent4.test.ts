@@ -64,8 +64,31 @@ function buildValidCml(overrides?: Record<string, unknown>) {
           role: "detective",
           moral_complexity: "Flawed but principled.",
         },
+        {
+          // Added 2026-08-03: the fixture previously named the DETECTIVE as the culprit, which
+          // `validateCulpritIntegrity` now rejects (Van Dine's rule 4, and the pipeline's own
+          // normalizer has always excluded the detective from culprit candidates). The fixture was
+          // never valid; nothing checked it.
+          name: "Miss Vance",
+          age_range: "30s",
+          role_archetype: "suspect",
+          relationships: [] as string[],
+          public_persona: "guarded",
+          private_secret: "a debt",
+          motive_seed: "inheritance",
+          motive_strength: "strong",
+          alibi_window: "9pm-10pm",
+          access_plausibility: "high",
+          opportunity_channels: [] as string[],
+          behavioral_tells: [] as string[],
+          stakes: "fortune",
+          evidence_sensitivity: [] as string[],
+          culprit_eligibility: "eligible",
+          culpability: "guilty",
+          gender: "female",
+        },
       ],
-      culpability: { culprit_count: 1, culprits: ["Inspector Blake"] },
+      culpability: { culprit_count: 1, culprits: ["Miss Vance"] },
       surface_model: {
         narrative: { summary: "A death seems natural." },
         accepted_facts: ["The victim collapsed at dinner."],

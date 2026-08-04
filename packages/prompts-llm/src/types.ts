@@ -110,6 +110,16 @@ export interface CMLGenerationResult {
   degraded?: boolean;
   /** Unresolved validation/logic errors carried forward when degraded (for downstream/review). */
   unresolvedLogicWarnings?: string[];
+  /**
+   * What normalization had to INVENT because the model did not supply it — most consequentially, the
+   * culprit. Surfaced on the run warnings by `agent3-run`.
+   *
+   * A silent normalizer that fabricates the answer to the mystery is indistinguishable, on the
+   * report, from a model that answered it. That is how run 20260802-1654 shipped a positionally-chosen
+   * culprit who was also the falsely accused suspect, survived a full external review, and had the
+   * defect attributed to the prose.
+   */
+  normalizationNotes?: string[];
 }
 
 export interface SeedPattern {

@@ -8,7 +8,7 @@
 
 import { generateCML, auditNovelty, findUnplantedDiscriminatingClues } from "@cml/prompts-llm";
 import { createSkeletonExtractor, judgeNovelty, loadReferenceCorpus } from "@cml/novelty";
-import { validateCml } from "@cml/cml";
+import { parseClockTime, validateCml } from "@cml/cml";
 import type { PhaseScore, TestResult } from "@cml/story-validation";
 import { scoreRealCml, getGenerationParams } from "@cml/story-validation";
 import { type OrchestratorContext, preAgent9ContractRecoveryEnabled, preAgent9LlmRetriesEnabled, applyHonestScorer } from "./shared.js";
@@ -74,6 +74,78 @@ function applyCmlRepairAndRevalidate(
     ...cmlResult,
     validation: repairedValidation,
   };
+}
+
+/**
+ * Do the case's temporal anchors agree with the times the story will actually print?
+ *
+ * FOUND 2026-08-04, on the first live geometry run. Two agents invent times from non-overlapping
+ * inputs and nothing reconciles them:
+ *
+ *   Agent 3b designs the hard-logic device and locks its facts — `false_time_displayed`,
+ *   `resumption_time`. Those are INJECTED into the prose, so they are what a reader sees.
+ *   Agent 3 authors `hidden_model.mechanism.{apparent,actual}_time_of_death`, and its prompt
+ *   receives only the device's mechanism FAMILY, never its locked times.
+ *
+ * On the 08-04 run the case said 8:15 / 7:15 and the manuscript said 3:45 / 4:10 — the case's two
+ * anchors appeared **zero times in the finished story**, five and six times respectively for the
+ * device's. Everything reading the mechanism (the geometry contract, `checkCaseTimelineDeception`,
+ * the rubric) was measuring a timeline the book does not have.
+ *
+ * WHY THIS REPORTS AND DOES NOT REPAIR. Exactly one mapping is unambiguous:
+ * `false_time_displayed` ("clock time shown during the freeze") IS the apparent time of death.
+ * `resumption_time` is when the mechanism restarted — NOT when anyone died — and `freeze_duration`
+ * is a duration. Writing `actual_time_of_death` from either would fabricate a coherence claim the
+ * case never made, which is the failure `timeline-deception.ts` documents in its own header. So the
+ * divergence is surfaced and left to the owner: the root fix is upstream, giving Agent 3 the
+ * device's locked times, and that is a prompt change under the corpus regime.
+ */
+export function checkLockedFactTimeAlignment(ctx: OrchestratorContext): string[] {
+  const findings: string[] = [];
+  const registry = ctx.lockedFactRegistry ?? [];
+  if (registry.length === 0) return findings;
+
+  const mechanism = ((ctx.cml as any)?.CASE ?? ctx.cml as any)?.hidden_model?.mechanism ?? {};
+  const apparent = String(mechanism.apparent_time_of_death ?? "").trim();
+  const actual = String(mechanism.actual_time_of_death ?? "").trim();
+
+  const clockFacts = registry
+    .map((f) => ({ ...f, minutes: parseClockTime(f.value) }))
+    .filter((f) => f.minutes !== null);
+  if (clockFacts.length === 0) return findings;
+
+  // The one safe correspondence. Matched on the locked fact's OWN id/description, never on position.
+  const staged = clockFacts.find(
+    (f) => /false_time|displayed|staged|apparent/i.test(`${f.id} ${f.description}`),
+  );
+  // Only a STATED time can disagree with anything. An absent one means the case does not model a
+  // false-time trick, and reporting a split there would manufacture a finding from missing input —
+  // the same rule `timeline-deception.ts` holds itself to ("a generator that omits the fields is
+  // never blocked by this").
+  if (staged && apparent) {
+    const apparentMinutes = parseClockTime(apparent);
+    if (apparentMinutes === null) {
+      findings.push(
+        `the case states apparent_time_of_death "${apparent}", which does not parse as a clock time, ` +
+          `while the locked fact ${staged.id} fixes the staged time at "${staged.value}"`,
+      );
+    } else if (apparentMinutes !== staged.minutes) {
+      findings.push(
+        `the case stages the death at "${apparent}" but locked fact ${staged.id} puts the displayed ` +
+          `clock time at "${staged.value}" — the prose will print the locked value, so every check ` +
+          `reading the mechanism is measuring a timeline the manuscript does not have`,
+      );
+    }
+  }
+
+  // The residual, reported because it cannot be safely derived: no locked fact means "time of death".
+  if (actual && !clockFacts.some((f) => /actual|true[_ ]time|time_of_death/i.test(`${f.id} ${f.description}`))) {
+    findings.push(
+      `the case states actual_time_of_death "${actual}", and no locked fact corresponds to it — ` +
+        `nothing binds the true time of death to anything the prose is contractually required to print`,
+    );
+  }
+  return findings;
 }
 
 function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints: any) {
@@ -161,6 +233,18 @@ export async function runAgent3(ctx: OrchestratorContext): Promise<void> {
 
   ctx.agentCosts["agent3_cml"] = cmlResult.cost;
   ctx.agentDurations["agent3_cml"] = Date.now() - cmlStart;
+
+  for (const finding of checkLockedFactTimeAlignment(ctx)) {
+    ctx.warnings.push(`Agent 3 time-model split: ${finding}.`);
+  }
+
+  // What normalization had to INVENT because the model did not supply it. The culprit is the one
+  // that matters: on run 20260802-1654 the model returned `culprits: []`, normalization filled it
+  // positionally with the falsely-accused suspect, and the run shipped, scored 80, and had the
+  // resulting defect attributed to the prose. A fabricated answer must never read like a decided one.
+  for (const note of cmlResult.normalizationNotes ?? []) {
+    ctx.warnings.push(`Agent 3 normalization: ${note}`);
+  }
 
   if (!cmlResult.validation.valid) {
     if (cmlResult.degraded) {

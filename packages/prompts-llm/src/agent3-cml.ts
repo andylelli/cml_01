@@ -633,6 +633,15 @@ export async function generateCML(
   const ensureString = (value: unknown, fallback: string) =>
     typeof value === "string" && value.trim() ? value : fallback;
 
+  /**
+   * What normalization had to invent because the model did not supply it.
+   *
+   * Surfaced on the result and pushed to the run warnings by `agent3-run`. A silent normalizer that
+   * fabricates the answer to the mystery is indistinguishable, on the report, from a model that
+   * answered it — which is how the 1810 defect stayed invisible through a full external review.
+   */
+  const normalizationNotes: string[] = [];
+
   const normalizeCml = (raw: Record<string, unknown>) => {
     const cml = ensureObject(raw);
     cml.CML_VERSION = 2.0;
@@ -748,18 +757,55 @@ export async function generateCML(
       return castEntry.culprit_eligibility === "eligible";
     });
 
-    const fallbackCulprit = normalizedCast.find((member) => {
-      const lowered = String(member.name ?? "").trim().toLowerCase();
+    /**
+     * THE FALLBACK THAT DECIDES THE MYSTERY, and until 2026-08-03 it did so silently and positionally.
+     *
+     * MEASURED (run_20260802-1654, external 80/100): the model returned `culprits: []` — it never
+     * decided who did it — and this fallback took the FIRST culprit-eligible cast member. That was
+     * Captain Ivor Hale, who is also `false_solution.accused_suspect`. The story therefore staged its
+     * deliberate wrong accusation against the actual murderer, and the external reviewer's complaint
+     * was verbatim: "Chapter 6 accuses Hale, but Hale is guilty."
+     *
+     * Two changes, and both matter:
+     *   1. PREFERENCE ORDER, not position. A cast member the model actually marked guilty, or locked
+     *      as the culprit, is a real answer; first-in-array is a coin toss the reader can feel.
+     *   2. THE FALSELY ACCUSED IS EXCLUDED. Picking them is self-contradictory by construction — and
+     *      it is the one wrong answer the genre punishes hardest.
+     *
+     * The fabrication is still permitted (removing it outright would convert a recoverable defect
+     * into an abort, which ADR-0003 forbids and which 1-in-2 observed runs would have hit), but it is
+     * now RECORDED in `normalizationNotes`, and `validateCml` independently rejects a culprit who is
+     * the accused — so Agent 4 gets a chance to replace the guess with a decision.
+     */
+    const accusedKey = String(
+      ensureObject(caseBlock.false_solution).accused_suspect ?? "",
+    ).trim().toLowerCase();
+    const isCandidate = (member: any, allowAccused: boolean): boolean => {
+      const lowered = String(member?.name ?? "").trim().toLowerCase();
       if (!lowered) return false;
       if (victimNameSet.has(lowered) || detectiveNameSet.has(lowered)) return false;
-      return member.culprit_eligibility === "eligible";
-    });
+      if (!allowAccused && accusedKey && lowered === accusedKey) return false;
+      return member.culprit_eligibility === "eligible" || member.culprit_eligibility === "locked";
+    };
+    const fallbackCulprit =
+      normalizedCast.find((m) => m.culpability === "guilty" && isCandidate(m, true)) ??
+      normalizedCast.find((m) => m.culprit_eligibility === "locked" && isCandidate(m, true)) ??
+      normalizedCast.find((m) => isCandidate(m, false)) ??
+      normalizedCast.find((m) => isCandidate(m, true));
 
     const normalizedCulprits = validCulprits.length > 0
       ? [validCulprits[0]]
       : fallbackCulprit
         ? [String(fallbackCulprit.name)]
         : [normalizedCast[0]?.name ?? "Unknown"].filter(Boolean);
+
+    if (validCulprits.length === 0) {
+      // A run must never be readable as "the model chose this culprit" when this code did.
+      normalizationNotes.push(
+        `Agent 3 returned no usable culprit (culprits=[${rawCulprits.join(", ")}]); normalization ` +
+          `assigned "${normalizedCulprits[0] ?? "(none)"}" from the cast. The case did not decide its own answer.`,
+      );
+    }
 
     culpability.culprits = normalizedCulprits;
     culpability.culprit_count = normalizedCulprits.length;
@@ -1355,6 +1401,7 @@ export async function generateCML(
           attempt,
           latencyMs,
           cost,
+          normalizationNotes: [...normalizationNotes],
         };
       }
 
@@ -1450,6 +1497,7 @@ export async function generateCML(
                 return {
                   cml: patchResult.cml,
                   validation: regrounded.valid ? regrounded : patchResult.validation,
+                  normalizationNotes: [...normalizationNotes],
                   attempt: resolvedMaxAttempts + 1,
                   latencyMs: Date.now() - startTime,
                   cost: client.getCostTracker().getSummary().byAgent["Agent3-CMLGenerator"] || 0,
@@ -1536,6 +1584,7 @@ export async function generateCML(
           return {
             cml: revisionResult.cml,
             validation: revisionResult.validation,
+            normalizationNotes: [...normalizationNotes],
             attempt: resolvedMaxAttempts + revisionResult.attempt,
             latencyMs: totalLatency,
             cost: totalCost + revisionCost,
