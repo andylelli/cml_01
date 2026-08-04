@@ -387,6 +387,12 @@ Recorded because both were used to plan, and one still is.
 
 ---
 
+> **UPDATE 2026-08-04 — see [REVIEW_05](REVIEW_05.md) §11.** S7's blocker (§0k, "the R4 counters did
+> not emit") is **resolved**: it was the warning-channel severing in `agent6-run.ts`. The counters now
+> emit and read `firings=0`. That same evidence **demotes R4** — structured outputs on Agent 7 fix a
+> coercion problem that is not occurring — and re-sequences **R6** behind THINK_01 Move 1, because a
+> baseline read through a 42.9% judge buys noise. REVIEW_05 §11.1 assesses every row below on value.
+
 ## 6. What remains
 
 Ordered by what unblocks the most. **Nothing here is blocked on code.**

@@ -4,6 +4,8 @@
 
 **Companion documents:** [REVIEW_04](REVIEW_04.md) is the state of the geometry work · [THINK_01](THINK_01.md) is the diagnosis this all descends from · [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) §10 is the build record.
 
+**§10 is the geometry fix plan. §11 assesses the whole outstanding backlog from REVIEW_01/03 and THINK_01 against it and merges both into one order — including three items recommended AGAINST.**
+
 **Method marking:** **MEASURED** · **INFERRED** · **UNVERIFIABLE**.
 
 ---
@@ -441,3 +443,125 @@ The plan is complete when all four hold:
 
 **Point 4 is the one that matters.** Everything else is maintenance on an instrument whose value is
 still unproven — and this plan should not be read as assuming the answer is yes.
+
+---
+
+## 11. The wider backlog — what is worth doing, and what is not
+
+§10 planned the geometry work in isolation. This section assesses everything still open from
+[REVIEW_01](REVIEW_01.md), [REVIEW_03](REVIEW_03.md) and [THINK_01](THINK_01.md) against it, and
+merges the two into one order. **Three items are recommended against**, and saying so is the point of
+the exercise — a backlog that only ever grows is not a plan.
+
+### 11.0 One item closed by this session
+
+REVIEW_03 §0k marked **S7** *"blocked on a defect, not a run"*: the R4 coercion counters did not emit
+on a run that demonstrably reached their call site, and the board could not explain why.
+
+**It was the warning-channel severing (§4.3 of [REVIEW_04](REVIEW_04.md)).** `recordAgent7Coercion`
+pushes to `ctx.warnings`; Agent 7 runs after Agent 6; Agent 6 replaced the array. MEASURED across the
+two 08-04 runs:
+
+```
+control    (pre-fix)    19 warnings,   0 × [R4]
+treatment  (post-fix)  100 warnings,   1 × [R4]   firings=0
+```
+
+S7's exit condition — the counters reading zero across real runs — now has its first reading, and it
+is **zero**. The blocker is gone; what remains is runs, and it needs none of its own (§11.3).
+
+*Correction to §0k while it is open:* it cited "no `agent7_coercion` diagnostic on the report" as one
+of four proofs. That diagnostic is present on **both** runs — it travels via `scoreAggregator`, not
+the warning channel — so that limb of the evidence does not reproduce.
+
+### 11.1 The assessment
+
+| Item | Cost | Verdict | Reasoning |
+|---|---|---|---|
+| **THINK_01 Move 1 — rewrite the judge** | ~1 day, ~£1 | **DO FIRST** | At 42.9% ranking agreement, no quality claim in any document is checkable. It needs no new run — the external prompt is in the review files and seven internal/external pairs are on disk. Everything else in this table that reads quality is worth less until it lands |
+| §10 N1–N4 — the free instrument fixes | free | **DO** | Independent of the judge; unblocks the geometry probes |
+| N5 — hydration from committed artifacts | free | **DO** | Blocks every matched-pair probe |
+| **N6 — promote `beat-scheduler`, ≥4 runs** | ~£6 | **DO** | §8bis's discriminating test, now with three misbinding datapoints (§5). May cut the value of geometry phases 2–4, which is exactly why it goes before them |
+| **Move 3 — whole-manuscript revision** | ~£0 to start | **DO, as a ride-along** | `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` costs one call per run and produces findings on runs that are happening anyway. A_70 found the polish lever had *never executed*; shadow is how that stops being true |
+| S7 — retire dead coercion sites | free | **DO, as a ride-along** | Unblocked (§11.0), reading zero. Needs runs, not dedicated ones |
+| R5 — live kill-and-resume drill | free | **DO, as a ride-along** | Kill one probe run mid-flight and resume it. No extra spend |
+| N7 — culprit-evidence on the edit-list channel | ~£3 | **DO, after N1** | §2's defect has no other repair path |
+| N8 — phase-2 geometry contract | ~£3 | **DO, after N6** | And see Move 2 below — this is its cheap proxy |
+| **R6 — `eval:baseline`** | £4–8 | **HOLD — and re-sequence** | Held at your instruction, and there is now a *reason*: it routes through the 42.9% judge. Baselining with an instrument that ranks at chance buys noise at £4–8. **After Move 1, not before** |
+| **Move 2 — write the reveal first** | days + probe | **DON'T BUILD YET** | It is the heavyweight version of the hypothesis N8 tests cheaply: "specify the endgame before writing it". If a prompt-level contract moves first-pass success, that is evidence for building the real thing; if it does not, Move 2 would have been a large bet on a falsified premise |
+| **R4 — structured outputs on Agent 7** | ~£3 | **DON'T** | Its purpose is to remove Agent-7 coercion. Coercion `firings=0` on the run just measured — **it fixes a problem that is not occurring.** The same evidence promotes S7 (delete the sites) over R4 (make them unnecessary) |
+| **R9 — parallelise 2b/2c/2d** | ~£3 | **DON'T** | Latency optimisation on a pipeline whose constraint is quality. Correct to have built; not worth a probe slot now |
+| **S4 / S6 — split `agent9-run.ts` / extract `agent9-prose`** | days | **DON'T, yet** | Real maintainability value — several defects this session hid in a 6,814-line file. But refactoring while the central quality question is unanswered is displacement. Revisit once Move 1 and N6 have produced a direction |
+| Move 6 — give Agent 9 the rubric | ~£3 | **DEFER** | Cheap and plausible, but its effect is only readable through the judge. After Move 1 |
+| R10 — ratify the ADRs | ~1 h | **OWNER** | Not blocking anything technical. An agent can reconstruct what was decided; it cannot ratify |
+| The other 20 DEFER flags | — | **LEAVE** | Two matter and are already scheduled: `AGENT9_REGEN_EDIT_LIST` (N7) and `AGENT9_FULLSTORY_DIAGNOSTIC` (Move 3). The rest have no pending question |
+
+### 11.2 The two assessments that changed my mind while writing this
+
+**R4 is dead on the evidence, and it takes S7 with it — in the opposite direction.** R4 exists to make
+Agent 7's ~55 coercion sites unnecessary by constraining the model's output shape. But the counters
+now say `firings=0`: the coercion sites are not firing. Probing R4 would spend £3 to prevent
+something that is not happening, while S7 — *delete the sites* — becomes the cheaper move on the same
+evidence. **The unblocking of S7 is what demotes R4**, and neither board could see that because the
+counters were being discarded.
+
+**R6 is not merely "held", it is mis-sequenced.** REVIEW_03 lists it as the last money item awaiting
+your say-so. It should not be run at all until Move 1 lands: a baseline is only as good as the
+instrument that measures it, and this one ranks at chance. Spending £4–8 now would produce numbers
+that cannot be compared against anything later.
+
+### 11.3 Ride-alongs — things that need runs but not runs of their own
+
+Three items need live execution and no dedicated spend. Attach them to N6's four scheduler runs:
+
+| Ride-along | How | Reads |
+|---|---|---|
+| S7 | nothing to enable | `[R4] … firings=` on each run; four zeros retires the sites |
+| Move 3 | `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` | finding count and class distribution; the anchoring-discard rate decides whether `apply` is ever worth it |
+| R5 | kill run 3 mid-flight, resume it | 0 LLM calls for the restored stages; artifacts not overwritten |
+
+**One caution.** `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` is read-only, so it does not violate the
+one-lever-per-run rule that keeps N6's result attributable. S7 and R5 change nothing at all. **Do not
+add anything that alters prose to those runs.**
+
+### 11.4 The merged order
+
+Free work first, then paid, with the two independent tracks marked — Move 1 does not block the
+instrument fixes and should proceed in parallel.
+
+```
+TRACK A (judgement)                    TRACK B (geometry + instruments)
+─────────────────────────────          ────────────────────────────────
+1. Move 1 — rewrite the judge          1. N1  injected disclosure recorded   free
+   ~1 day, ~£1, no new run             2. N2  unaccounted time               free
+   Re-score the 7 existing pairs       3. N3  normalise at the boundary      free
+   Re-run eval:calibrate               4. N4  beat/content disagreement      free
+                                       5. N5  hydration from artifacts       free
+   ↓ gates everything below
+                                                    ↓
+        ┌───────────────────────────────────────────┘
+        ▼
+6. N6 — promote beat-scheduler, ≥4 runs                              ~£6
+   + ride-alongs: S7 counters · Move 3 shadow · R5 kill-resume
+        ▼
+7. D2 — DECISION: are geometry phases 2–4 still worth their cost?    free
+        ▼
+8. N7 culprit-evidence on edit-list  ·  N8 phase-2 contract          ~£6
+        ▼
+9. R6 eval:baseline  ·  Move 6 rubric-in-prompt                      £4–8
+   (both only meaningful once Move 1 has landed)
+        ▼
+10. Move 2 / Move 5 / S4 / S6 — revisit on evidence, not on backlog age
+```
+
+**Total paid: ~£12 before any decision point, plus £4–8 for a baseline that should wait for Move 1.**
+Everything in Track B's first five items, and Track A's only item, is free or near-free.
+
+### 11.5 What this ordering is betting
+
+That **measurement precedes construction**. Move 1 and N1–N5 build nothing a reader would notice;
+they make it possible to tell whether anything else worked. On a project whose own board says months
+of disciplined optimisation were *"a random walk with excellent documentation"*, that is the bet worth
+making — and if Move 1 lands and the judge still ranks at chance, [THINK_01 §8](THINK_01.md) is right
+that the whole measurement strategy needs rethinking rather than repairing, and this order should be
+torn up rather than continued.
