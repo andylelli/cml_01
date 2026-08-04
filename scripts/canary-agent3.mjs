@@ -5,6 +5,8 @@ import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
 import { parseJsonText } from "./canary-loop/json.mjs";
+// REVIEW_04 §11.1 A3 — one body for "which attempt shipped?", shared with canary-agent-boundary.mjs.
+import { readLatestAgentJson as readLatestAgentJsonShared } from "./canary-loop/hydrate.mjs";
 import { deriveHardLogicDirectives, buildNoveltyConstraints, normalizePrimaryAxis, runAgent3 } from "../apps/worker/dist/jobs/agents/index.js";
 import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-paths.js";
 
@@ -118,25 +120,11 @@ async function main() {
   }
 }
 
+/** Thin adapter: the shared resolver, given this file's markdown reader. */
 async function readLatestAgentJson(runState, runFolder, agentCode) {
-  const records = Array.isArray(runState?.records) ? runState.records : [];
-  const matches = records
-    .filter((record) => parseAgentCode(record.agent) === agentCode)
-    .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0));
-
-  if (!matches.length) {
-    throw new Error(`Missing required hydrated response for agent code '${agentCode}'.`);
-  }
-
-  const latest = matches[matches.length - 1];
-  const responseFile = latest.responseFile;
-  if (!responseFile) {
-    throw new Error(`Missing response file metadata for agent code '${agentCode}'.`);
-  }
-
-  const responsePath = path.join(runFolder, responseFile);
-  const body = await fs.readFile(responsePath, "utf8");
-  return extractResponseJson(body);
+  return readLatestAgentJsonShared(runState, runFolder, agentCode, async (responsePath) =>
+    extractResponseJson(await fs.readFile(responsePath, "utf8")),
+  );
 }
 
 function extractResponseJson(markdown) {

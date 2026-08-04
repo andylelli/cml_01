@@ -29,6 +29,8 @@ import { enforceAgent5DeterministicContracts } from "../apps/worker/dist/jobs/ag
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
 import { parseJsonText } from "./canary-loop/json.mjs";
+// REVIEW_04 §11.1 A3 — one body for "which attempt shipped?", shared with canary-agent3.mjs.
+import { readLatestAgentJson as readLatestAgentJsonShared } from "./canary-loop/hydrate.mjs";
 
 const workspaceRoot = process.cwd();
 loadDotEnv({ path: path.join(workspaceRoot, ".env") });
@@ -898,24 +900,11 @@ async function buildBaseContext({ client, runId, projectId, canaryInputs = {} })
   };
 }
 
+/** Thin adapter: the shared resolver, given this file's markdown reader. */
 async function readLatestAgentJson(runState, runFolder, agentCode) {
-  const records = Array.isArray(runState?.records) ? runState.records : [];
-  const matches = records
-    .filter((record) => parseAgentCode(record.agent) === agentCode)
-    .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0));
-
-  if (matches.length === 0) {
-    throw new Error(`Missing required hydrated response for agent code '${agentCode}'.`);
-  }
-
-  const latest = matches[matches.length - 1];
-  if (!latest.responseFile) {
-    throw new Error(`Missing response file metadata for agent code '${agentCode}'.`);
-  }
-
-  const responsePath = path.join(runFolder, latest.responseFile);
-  const body = await fs.readFile(responsePath, "utf8");
-  return extractResponseJson(body);
+  return readLatestAgentJsonShared(runState, runFolder, agentCode, async (responsePath) =>
+    extractResponseJson(await fs.readFile(responsePath, "utf8")),
+  );
 }
 
 function extractResponseJson(markdown) {

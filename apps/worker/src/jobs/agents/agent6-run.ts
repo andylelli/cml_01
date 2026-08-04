@@ -1433,10 +1433,35 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
     persistentRiskWarnings.add(normalized);
   };
 
+  /**
+   * Drop the cleared warnings IN PLACE. The array identity is load-bearing.
+   *
+   * FOUND 2026-08-04 by the first live geometry run. This was
+   * `ctx.warnings = ctx.warnings.filter(...)`, and `filter` returns a NEW array — so the first call
+   * (which is unconditional, at the end of every Agent 6) silently **replaced** `ctx.warnings` and
+   * broke its aliasing with the orchestrator's `warnings`. Two consequences, both invisible:
+   *
+   *   1. Every warning pushed to `ctx.warnings` AFTER Agent 6 went into an orphaned array that
+   *      nothing reads. That is Agent 7, Agent 7.5 and **all 108 push sites in Agent 9** — regen
+   *      unresolved notes, release-gate reasons, the geometry acceptance violations. The live run
+   *      logged "Release gate warning: scene-grounding coverage below target" to the console and
+   *      recorded it nowhere. Every archived report shows the same: zero `[Agent 9]` warnings, ever.
+   *      `mystery-orchestrator.ts` asserts the opposite in a comment — "Everything Agent 9 pushes to
+   *      ctx.warnings aliases this array, so this captures the whole run" — which is exactly the
+   *      forensic-blindness class A_64 §2 F5 exists to prevent, sitting inside the fix for it.
+   *   2. The clearing never took effect either. The report reads the orchestrator's array, which
+   *      still held every "transient" line this was written to remove.
+   *
+   * Mutating in place fixes both at once, and is the only form that can: the alias survives, and the
+   * removal lands where the report will actually see it.
+   */
   const clearWarningsFromSet = (toClear: Set<string>): void => {
     if (!Array.isArray(ctx.warnings) || ctx.warnings.length === 0) return;
     if (toClear.size === 0) return;
-    ctx.warnings = ctx.warnings.filter((warning) => !toClear.has(String(warning).trim()));
+    const kept = ctx.warnings.filter((warning) => !toClear.has(String(warning).trim()));
+    if (kept.length === ctx.warnings.length) return;
+    ctx.warnings.length = 0;
+    for (const warning of kept) ctx.warnings.push(warning);
   };
 
   const fairPlayConfig = getGenerationParams().agent6_fairplay.params;

@@ -202,3 +202,62 @@ function resolveRunRelativePath(runFolder, fileName) {
 function describeAgent(code) {
   return getCanonicalAgentForCode(code) ?? `Agent${code}`;
 }
+
+/**
+ * WHICH ATTEMPT SHIPPED? THE ARTIFACTS DO NOT SAY — so this reports the guess instead of hiding it.
+ *
+ * MEASURED 2026-08-03 (`scripts/geometry-backtest.mjs`, REVIEW_04 §8). "The highest-sequence response
+ * is the one the run kept" is FALSE. On `run_20260802-1654` Agent 7 produced three outlines — 10
+ * beats, then 10 with a duplicated `revelation`, then 9 — and the shipped manuscript matches the
+ * FIRST. On `run_20260802-1818` it produced two and the manuscript matches the SECOND. A later
+ * attempt can score worse and be discarded, and `.actual-run-state.json` records only sequence,
+ * agent, retryAttempt and file names: **no validation status, no success flag, nothing saying which
+ * candidate was committed.**
+ *
+ * 10 of 11 recorded runs have at least one multi-attempt agent (Agent 7 in 8, Agent 2 in 5, Agent 3
+ * in 3), so this is the normal case. Hydrating the wrong Agent-7 attempt hands the replay a different
+ * CHAPTER COUNT — one of the two variables that dominate any single-run comparison, and precisely
+ * what matched-pair A/B exists to hold fixed.
+ *
+ * The real fix is to read the COMMITTED artifacts (the `onArtifact` store production resume already
+ * uses) rather than the prompt record — REVIEW_04 §11.3 C1. Until then the guess must at least be
+ * visible, because a silently mis-hydrated arm reports as a measured one.
+ */
+export function reportHydrationAmbiguity(agentCode, matches, chosen) {
+  if (!Array.isArray(matches) || matches.length <= 1) return;
+  console.log(
+    `HYDRATION_AMBIGUOUS code=${agentCode} attempts=${matches.length} ` +
+      `using=${chosen?.responseFile ?? "?"} ` +
+      `(candidates: ${matches.map((m) => m?.responseFile ?? "?").join(", ")}) ` +
+      `— the artifacts do not record which attempt the run committed; the highest sequence is a GUESS`,
+  );
+}
+
+/**
+ * The highest-sequence response for an agent code, parsed.
+ *
+ * ONE BODY, deliberately (REVIEW_04 §11.1 A3). `canary-agent-boundary.mjs` and `canary-agent3.mjs`
+ * each carried their own copy, which is the two-bodies-for-one-concept trap S3 exists to prevent —
+ * and it mattered here, because §11.3 is going to change how this resolves and a fix applied to one
+ * copy would have left the other quietly wrong.
+ *
+ * `readResponseFile` is injected so each caller keeps its own file reader and JSON parser.
+ */
+export async function readLatestAgentJson(runState, runFolder, agentCode, readResponseFile) {
+  const records = Array.isArray(runState?.records) ? runState.records : [];
+  const matches = records
+    .filter((record) => parseAgentCode(record.agent) === agentCode)
+    .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0));
+
+  if (matches.length === 0) {
+    throw new Error(`Missing required hydrated response for agent code '${agentCode}'.`);
+  }
+
+  const latest = matches[matches.length - 1];
+  if (!latest.responseFile) {
+    throw new Error(`Missing response file metadata for agent code '${agentCode}'.`);
+  }
+  reportHydrationAmbiguity(agentCode, matches, latest);
+
+  return readResponseFile(path.join(runFolder, latest.responseFile));
+}
