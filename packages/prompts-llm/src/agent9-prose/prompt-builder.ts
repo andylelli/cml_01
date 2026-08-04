@@ -5,6 +5,7 @@
  * buildProsePrompt() assembler.
  */
 import { isVictimArchetype } from "@cml/cml";
+import { buildGeometryChapterBlock, buildGeometryRunBlocks } from "@cml/story-geometry";
 import { createHash } from "node:crypto";
 import type { CaseData } from "@cml/cml";
 import {
@@ -1214,6 +1215,15 @@ type PromptBlockStability = 'run' | 'chapter' | 'attempt' | 'pinned_last';
 const isPromptPrefixOrderEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
   env.AGENT9_PROMPT_PREFIX_ORDER === 'true' || env.AGENT9_PROMPT_PREFIX_ORDER === '1';
 
+/**
+ * Phase 2 of the geometry build sequence: let the contract bind the prose prompt.
+ *
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`). Default OFF —
+ * Agent 7.5 derives and reports in shadow first, and only a probe promotes it to a prompt input.
+ */
+export const isGeometryContractEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_GEOMETRY_CONTRACT ?? ''));
+
 export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptContextBlock[] => {
   const orderedSections: Array<{
     key: string;
@@ -1240,10 +1250,19 @@ export const buildPromptContextBlocks = (sections: PromptSectionInputs): PromptC
     { key: 'texture_pool', content: sections.texturePoolBlock ?? '', priority: 'medium', stability: 'chapter' },
     { key: 'temporal_context', content: sections.temporalContextBlock, priority: 'high', stability: 'run' }, // Fix A1: temporal consistency promoted from medium
     { key: 'locked_facts', content: sections.lockedFactsBlock, priority: 'critical', stability: 'run' },
+    // ── Agent 7.5 geometry (§8.2) ────────────────────────────────────────────
+    // `geometry_time` is critical: a third clock time is the defect that took the clues mark to 5/10
+    // and was the reviewer's first "main problem". The other two are high — they shape what the
+    // chapter must physically contain, but a dropped block degrades craft rather than coherence.
+    { key: 'geometry_time', content: sections.geometryTimeBlock ?? '', priority: 'critical', stability: 'run' },
+    { key: 'geometry_clincher', content: sections.geometryClincherBlock ?? '', priority: 'high', stability: 'run' },
+    { key: 'geometry_method', content: sections.geometryMethodBlock ?? '', priority: 'high', stability: 'run' },
     { key: 'clue_descriptions', content: sections.clueDescriptionBlock, priority: 'critical', stability: 'chapter' },
     { key: 'narrative_state', content: sections.nsdBlock, priority: 'critical', stability: 'chapter' },
     { key: 'continuity_context', content: sections.continuityBlock, priority: 'medium', stability: 'chapter' },
     { key: 'discriminating_test', content: sections.discriminatingTestBlock, priority: 'critical', stability: 'chapter' },
+    // Chapter-stable: differs per chapter, and only the load-bearing chapters carry one at all.
+    { key: 'geometry_chapter', content: sections.geometryChapterBlock ?? '', priority: 'critical', stability: 'chapter' },
     { key: 'humour_guide', content: sections.humourGuideBlock, priority: 'optional', stability: 'run' },
     { key: 'craft_guide', content: sections.craftGuideBlock, priority: 'high', stability: 'run' }, // Fix D2: craft guide promoted from optional
     { key: 'scene_grounding', content: sections.sceneGroundingChecklist, priority: 'critical', stability: 'chapter' },
@@ -2023,6 +2042,31 @@ ${victimIdentityRule}`;
 
   const user = `Write the full prose following the outline scenes.\n\n${chapterObligationBlock}${chapterOutcomeBlock}${timelineStateBlock}${storyToDateBlock}${completenessContractBlock}\n\n${buildContextSummary(inputs.caseData, inputs.cast)}\n\n${compactPronounHeader}Outline scenes:\n${JSON.stringify(scenesForPrompt, null, 2)}`;
 
+  // ── Agent 7.5 geometry as prompt input (GEOMETRY-AGENT-DESIGN §8.2) ────────
+  // A contract and a test, nothing between: these blocks state obligations in the vocabulary of the
+  // finished text and stop. No sentence, no template, no example prose — the moment geometry supplies
+  // prose it becomes the injector layer under a new name, which is external complaint #1 in every
+  // review. Runtime-read flag, default OFF (the corpus regime): the derivation runs in shadow long
+  // before it is allowed to change a prompt.
+  const geometryBlocks = (() => {
+    const empty = { time: '', clincher: '', method: '', chapter: '' };
+    if (!isGeometryContractEnabled() || !inputs.storyGeometry) return empty;
+    try {
+      const runBlocks = buildGeometryRunBlocks(inputs.storyGeometry);
+      const chapterBlock = buildGeometryChapterBlock(inputs.storyGeometry, chapterStart, chapterEnd);
+      const byKey = (key: string) => runBlocks.find((b) => b.key === key)?.content ?? '';
+      return {
+        time: byKey('geometry_time'),
+        clincher: byKey('geometry_clincher'),
+        method: byKey('geometry_method'),
+        chapter: chapterBlock?.content ?? '',
+      };
+    } catch {
+      // A malformed contract must cost the run a prompt block, never the run itself.
+      return empty;
+    }
+  })();
+
   const promptContextBlocks = buildPromptContextBlocks({
     pronounAccuracyBlock, // [PHASE 1]
     characterConsistencyRules,
@@ -2048,6 +2092,10 @@ ${victimIdentityRule}`;
     provisionalScoringFeedbackBlock,
     worldDocumentBlock,
     texturePoolBlock,
+    geometryTimeBlock: geometryBlocks.time,
+    geometryClincherBlock: geometryBlocks.clincher,
+    geometryMethodBlock: geometryBlocks.method,
+    geometryChapterBlock: geometryBlocks.chapter,
   });
 
   const baseSystem = `${system}${amateurPoliceWarning}`;

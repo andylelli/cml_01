@@ -147,6 +147,23 @@ export const REGEN_PASS_REGISTRY: ReadonlyArray<RegenPassSpec> = [
     detects: "pipeline vocabulary or a premature reveal leaked into shipped prose",
   },
   {
+    /**
+     * The thirteenth pass, and the first NEGATIVE one (GEOMETRY-AGENT-DESIGN §8.5/§8.6).
+     *
+     * Geometry's other violations map onto passes that already exist — the reveal not disclosing is
+     * `resolution`, the clincher missing from the reveal is `culprit_evidence`, a clearance register
+     * is `clearance`/`suspect_elimination`. Only this one had nothing to reuse, because nothing in
+     * this registry expresses "must not contain". It is `rewrite` family for the same reason: a
+     * negative constraint cannot be satisfied by insertion.
+     */
+    id: "aftermath_repeat",
+    runner: "runAftermathRepeatRegenPass",
+    defectKinds: ["aftermath_repeat"],
+    flag: "AGENT9_REGEN_AFTERMATH_REPEAT",
+    family: "rewrite",
+    detects: "the aftermath chapter re-delivers the culprit, method, motive, concealment or a clearance",
+  },
+  {
     id: "voice_leakage",
     runner: "runVoiceLeakageRegenPass",
     defectKinds: ["voice_tic_leakage"],

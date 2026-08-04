@@ -95,6 +95,21 @@ export interface PromptSectionInputs {
   provisionalScoringFeedbackBlock: string;
   worldDocumentBlock: string;
   texturePoolBlock?: string;
+  /**
+   * Agent 7.5 — the manuscript contract (architecture/GEOMETRY-AGENT-DESIGN.md §8.2).
+   *
+   * Three of the four are RUN-STABLE — identical in every chapter — so they land inside the cached
+   * prompt prefix and are paid for once. Empty strings when the geometry stage is off or the
+   * contract binding flag is not set, which drops them from the prompt entirely.
+   *
+   * The one genuinely new thing on this prompt surface is what these blocks DO NOT carry: every
+   * existing block is positive — do this, include that — and the contract's `mustNotContain` is
+   * deliberately withheld from the model and enforced by the acceptance test instead (§8.3).
+   */
+  geometryTimeBlock?: string;
+  geometryClincherBlock?: string;
+  geometryMethodBlock?: string;
+  geometryChapterBlock?: string;
 }
 
 

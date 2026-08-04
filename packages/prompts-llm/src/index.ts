@@ -159,6 +159,8 @@ export {
   runCaseTransitionRegenPass,
   runMechanismRevealRegenPass,
   runVoiceLeakageRegenPass,
+  // Agent 7.5 geometry — the negative-obligation pass (§8.5/§8.6).
+  runAftermathRepeatRegenPass,
   runInsertionRegenPass,
   pronounsFromBible,
   genderMapFromBible,

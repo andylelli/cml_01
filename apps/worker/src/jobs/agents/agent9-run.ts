@@ -70,12 +70,17 @@ import {
   getDeterministicClearancePasteTelemetry,
   resetDeterministicClearancePasteTelemetry,
   resolveStageModel,
+  // Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md §8.5/§8.6) — the negative-obligation
+  // repair pass, and the one clock-time parser the acceptance test must share.
+  runAftermathRepeatRegenPass,
+  parseClockTime,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister } from "@cml/prose-guard";
+import { chapterIndexFor, checkManuscriptGeometry } from "@cml/story-geometry";
 import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -3276,6 +3281,41 @@ export const repairUnanchoredNsdCluesBeforeGate = async (args: {
 };
 
 // ============================================================================
+// Agent 7.5 geometry — the Agent-9 half of the interface
+// ============================================================================
+
+/**
+ * Phase 3 of the geometry build sequence: the post-prose acceptance test.
+ *
+ * `off` — not run.
+ * `shadow` — re-check the contract against the committed manuscript and record every constraint's
+ *            outcome, satisfied ones included. Deterministic and free (no LLM call), which is why
+ *            this is the default: the alternative is a checker that ships dark, and "checkers get
+ *            built and never wired" is the failure mode this whole design was written against.
+ * `apply` — additionally route chapter-scoped violations into the repair ladder.
+ *
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`).
+ */
+type GeometryAcceptanceMode = "off" | "shadow" | "apply";
+const resolveGeometryAcceptanceMode = (env: NodeJS.ProcessEnv = process.env): GeometryAcceptanceMode => {
+  const raw = String(env.AGENT9_GEOMETRY_ACCEPTANCE ?? "").trim().toLowerCase();
+  if (raw === "off" || raw === "0" || raw === "false" || raw === "no") return "off";
+  if (raw === "apply" || raw === "on" || raw === "1" || raw === "true") return "apply";
+  return "shadow";
+};
+
+/** The thirteenth regen pass — the first negative one. Default OFF. */
+const isAftermathRepeatRegenEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT9_REGEN_AFTERMATH_REPEAT ?? ""));
+
+/**
+ * The defect kinds geometry violations map onto — all of them pre-existing (§8.5 "reuse").
+ * `aftermath_repeat` is deliberately absent: it is the one violation with no reusable pass, and it
+ * has its own runner rather than a mapping.
+ */
+type GeometryRepairDefectKind = "missing_clue" | "culprit_unlinked" | "missing_resolution";
+
+// ============================================================================
 // runAgent9
 // ============================================================================
 
@@ -4173,6 +4213,9 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
     enableOutlineCompleteness: inputs.enableOutlineCompleteness,
     storyContract,
+    // Agent 7.5 — the manuscript contract as prompt input. Self-gating: the prompt builder ignores it
+    // unless AGENT9_GEOMETRY_CONTRACT is on, so passing it here is inert until that flag flips.
+    storyGeometry: ctx.storyGeometry,
     resumeCheckpoint: loadedCheckpoint
       ? {
           chapters: loadedCheckpoint.completedChapters,
@@ -5190,6 +5233,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
       enableSurgicalFingerprintRetry: inputs.enableSurgicalFingerprintRetry,
       enableOutlineCompleteness: inputs.enableOutlineCompleteness,
       storyContract,
+      storyGeometry: ctx.storyGeometry,
       onProgress: (phase: string, message: string, percentage: number) =>
         reportProgress(phase as any, message, percentage),
       batchSize: effectiveProseBatchSize,
@@ -6188,6 +6232,208 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   validationReport = await validateCurrentProse(prose);
   postRepairValidationSummary = { ...validationReport.summary };
 
+  // ============================================================================
+  // Agent 7.5 — the post-prose ACCEPTANCE TEST (GEOMETRY-AGENT-DESIGN §8.9)
+  // ============================================================================
+  // This is what makes geometry a stage rather than a utility: every other stage asserts about a
+  // plan; this is the only one that wrote its acceptance test before the artefact existed and
+  // enforces it after.
+  //
+  // WHERE IT SITS IS NOT A DETAIL. It runs on the COMMITTED chapters, after every deterministic
+  // post-processing pass and after the re-validation above — never before. This codebase has already
+  // paid for the other order once: deterministic sweeps running after validation, corrupting clean
+  // output with nothing left to re-validate it. A geometry check placed earlier would certify a
+  // constraint that a later sweep then violated.
+  //
+  // `shadow` (default) records every constraint's outcome and changes nothing. `apply` routes
+  // chapter-scoped violations into the repair ladder — reusing the existing passes where §8.5 says
+  // reuse, and the one new negative pass where nothing could be reused. Never an abort (ADR-0003):
+  // a violation that survives repair ships, recorded.
+  const geometryAcceptanceMode = resolveGeometryAcceptanceMode();
+  let geometryReleaseWarnings: string[] = [];
+  if (
+    geometryAcceptanceMode !== "off" &&
+    ctx.storyGeometry &&
+    Array.isArray(prose.chapters) &&
+    prose.chapters.length > 0
+  ) {
+    const geometryCostBefore = client.getCostTracker().getTotalCost();
+    try {
+      const geometry = ctx.storyGeometry;
+      const runAcceptance = () =>
+        checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], { parseClockTime });
+
+      let report = runAcceptance();
+      const before = report.violations.map((v) => `${v.code}@${v.chapter ?? "-"}`);
+      const repaired: string[] = [];
+
+      if (geometryAcceptanceMode === "apply") {
+        // A validator that re-runs the REAL check on the candidate chapter, substituted into the real
+        // manuscript. No second implementation of "is it fixed?" — a regen validated against a
+        // paraphrase of the detector can pass its own check and fail the one that ships.
+        // `chapterIndex` is the ARRAY slot; `chapterNumber` is what the contract binds. They are equal
+        // only while the chapter array is dense and in order, and assuming it silently substitutes one
+        // chapter while checking another (the misalignment the package's `chapterIndexFor` now closes).
+        const validatorForCode = (chapterIndex: number, chapterNumber: number, code: string) => (candidate: any) => {
+          const probe = (prose.chapters ?? []).slice();
+          probe[chapterIndex] = candidate;
+          const probed = checkManuscriptGeometry(geometry, probe as any[], { parseClockTime });
+          const still = probed.violations.some((v) => v.code === code && v.chapter === chapterNumber);
+          return { ok: !still, score: still ? 0 : 100, violations: still ? [`geometry:${code}`] : [] };
+        };
+        const geometryBible = { ...worldState, beatSheet: [] } as any;
+        const geometryRegen = makeRegenFn({ client, model: regenDeployment, runId: ctx.runId, projectId: ctx.projectId });
+
+        // ── the reused passes (§8.5) ─────────────────────────────────────────
+        // Each geometry violation maps onto a defect kind that already has an instruction and a
+        // repair path. Only the mapping is new; no second repair body is created.
+        const DEFECT_KIND_BY_CODE: Record<string, GeometryRepairDefectKind> = {
+          method_signature_absent: "missing_clue",
+          clincher_not_planted: "missing_clue",
+          clincher_absent_at_payoff: "culprit_unlinked",
+          reveal_culprit_not_named: "missing_resolution",
+          reveal_method_absent: "missing_resolution",
+          reveal_motive_absent: "missing_resolution",
+        };
+        const additive = report.violations.filter(
+          (v) => v.scope === "chapter" && v.chapter !== null && DEFECT_KIND_BY_CODE[v.code],
+        );
+        const byChapter = new Map<number, typeof additive>();
+        for (const violation of additive) {
+          const list = byChapter.get(violation.chapter as number) ?? [];
+          list.push(violation);
+          byChapter.set(violation.chapter as number, list);
+        }
+        for (const [chapterNumber, violations] of byChapter) {
+          const index = chapterIndexFor((prose.chapters ?? []) as any[], chapterNumber);
+          const chapter = index >= 0 ? (prose.chapters ?? [])[index] : undefined;
+          if (!chapter) continue;
+          const defects = violations.map((v) => ({
+            chapter: chapterNumber,
+            kind: DEFECT_KIND_BY_CODE[v.code]!,
+            detail: v.message,
+            obligationRef: `geometry_${v.code}`,
+            severity: "hard" as const,
+          }));
+          const pass = await runInsertionRegenPass({
+            chapter,
+            defects,
+            bible: geometryBible,
+            regen: geometryRegen,
+            presenceValidatorFor: (defect: any) => {
+              const code = String(defect.obligationRef ?? "").replace(/^geometry_/, "");
+              return validatorForCode(index, chapterNumber, code);
+            },
+            onUnresolved: (_d: any, reason: string) =>
+              ctx.warnings.push(`[Agent 9] geometry regen UNRESOLVED in ch${chapterNumber}: ${reason}.`),
+          });
+          if (pass.ran && pass.repaired.length > 0) {
+            prose.chapters[index] = pass.chapter;
+            repaired.push(...pass.repaired);
+          }
+        }
+
+        // ── the one NEW pass: the negative obligation (§8.6) ─────────────────
+        if (isAftermathRepeatRegenEnabled()) {
+          const aftermath = report.violations.find((v) => v.code === "aftermath_repeat" && v.chapter !== null);
+          const revealChapter = geometry.chapterContract.find((c) => c.role === "reveal")?.chapter ?? 0;
+          if (aftermath?.chapter) {
+            const index = chapterIndexFor((prose.chapters ?? []) as any[], aftermath.chapter);
+            const chapter = index >= 0 ? (prose.chapters ?? [])[index] : undefined;
+            if (chapter) {
+              const pass = await runAftermathRepeatRegenPass({
+                chapter,
+                chapterNumber: aftermath.chapter,
+                paragraphIndices: aftermath.paragraphIndices ?? [],
+                culprit: geometry.culprit,
+                methodTerms: geometry.methodSignature?.keyTerms ?? [],
+                revealChapter,
+                bible: geometryBible,
+                regen: geometryRegen,
+                onUnresolved: (_d: any, reason: string) =>
+                  ctx.warnings.push(`[Agent 9] aftermath-repeat regen UNRESOLVED in ch${aftermath.chapter}: ${reason}.`),
+              });
+              if (pass.ran && pass.repaired.length > 0) {
+                prose.chapters[index] = pass.chapter;
+                repaired.push(...pass.repaired);
+              }
+            }
+          }
+        }
+
+        if (repaired.length > 0) {
+          // Same parity invariant as above: prose changed, so hygiene and validation run again before
+          // any release decision reads it.
+          prose = applyStandardPostProcessingChain(prose);
+          validationReport = await validateCurrentProse(prose);
+          postRepairValidationSummary = { ...validationReport.summary };
+          report = runAcceptance();
+        }
+      }
+
+      // A violation that survived is a warning on the report, not a stop. Only in `apply` does it
+      // reach the release gate — in shadow the contract is not authoritative, and a shadow signal
+      // that shows up as a gate reason would misreport what the run was actually gated on.
+      if (geometryAcceptanceMode === "apply") {
+        geometryReleaseWarnings = report.violations.map(
+          (v) => `geometry ${v.code}${v.chapter ? ` (ch${v.chapter})` : ""}`,
+        );
+      }
+
+      const geometryDiagnostic = {
+        mode: geometryAcceptanceMode,
+        violation_count: report.violations.length,
+        violations: report.violations,
+        // Every check, INCLUDING the satisfied ones. A zero that is never written is
+        // indistinguishable from a check that never ran (A_70/A_71).
+        checks: report.checks,
+        satisfied_count: report.checks.filter((c) => c.satisfied).length,
+        extra_times: report.extraTimes,
+        violations_before_repair: before,
+        repaired,
+      };
+      (prose as any).validationDetails = {
+        ...((prose as any).validationDetails ?? {}),
+        storyGeometry: geometryDiagnostic,
+      };
+      if (enableScoring && scoreAggregator && scoringLogger) {
+        scoringLogger.logPhaseDiagnostic(
+          "agent9_prose",
+          "Prose Generation",
+          "story_geometry_acceptance",
+          geometryDiagnostic,
+          runId,
+          projectId || "",
+        );
+        scoreAggregator.upsertDiagnostic(
+          "agent9_prose_story_geometry",
+          "agent9_prose",
+          "Prose Generation",
+          "story_geometry_acceptance",
+          geometryDiagnostic,
+        );
+      }
+      console.info(
+        `[Agent 9 geometry:${geometryAcceptanceMode}] ${report.checks.length} checks, ` +
+          `${report.violations.length} violation(s)` +
+          (repaired.length > 0 ? `, ${repaired.length} repaired` : "") +
+          (report.violations.length > 0 ? `: ${report.violations.map((v) => v.code).join(", ")}` : ""),
+      );
+      for (const violation of report.violations) {
+        ctx.warnings.push(
+          `[Agent 9] geometry ${violation.code}${violation.chapter ? ` (ch${violation.chapter})` : ""}: ${violation.message}`,
+        );
+      }
+    } catch (err) {
+      ctx.warnings.push(
+        `[Agent 9] geometry acceptance test failed: ${err instanceof Error ? err.message : String(err)} (chapters unchanged).`,
+      );
+    } finally {
+      const geometryCost = client.getCostTracker().getTotalCost() - geometryCostBefore;
+      if (geometryCost > 0 && typeof (prose as any)?.cost === "number") (prose as any).cost += geometryCost;
+    }
+  }
+
   const assetDeploymentReport = buildAssetDiagnosticReport(
     assetLibrary,
     narrativeState.deployedAssets,
@@ -6489,6 +6735,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     validationErrorTypes.has("case_transition_missing")
   ) {
     releaseGateReasons.push("critical continuity issue detected");
+  }
+
+  // Agent 7.5 — contract violations that survived repair. Warnings, never a hard stop: the run ships
+  // with the violation recorded (ADR-0003 / GEOMETRY-AGENT-DESIGN §8.10). Populated only in `apply`
+  // mode, so a shadow signal never misreports what a run was actually gated on.
+  if (geometryReleaseWarnings.length > 0) {
+    releaseGateReasons.push(...geometryReleaseWarnings);
   }
   if (validationErrorTypes.has("temporal_contradiction")) {
     releaseGateReasons.push("temporal continuity contradiction detected");

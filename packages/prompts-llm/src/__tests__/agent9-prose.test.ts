@@ -2574,3 +2574,82 @@ describe("post-pass polish", () => {
     })).toBe(false);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Agent 7.5 — the contract as prompt input (architecture/GEOMETRY-AGENT-DESIGN.md §8.2/§8.3)
+// ─────────────────────────────────────────────────────────────────────────────
+describe("geometry contract blocks", () => {
+  const geometry: any = {
+    version: 1,
+    chapterCount: 10,
+    culprit: "Hugo Hale",
+    timeModel: { trueTime: "10:15", apparentTime: "8:50", directionViolations: [] },
+    clincher: {
+      trace: "a torn scrap of grey fabric",
+      clueId: "c_fabric",
+      uniqueToCulprit: "Hugo Hale",
+      plantByChapter: 3,
+      payoffChapter: 9,
+      keyTerms: ["fabric"],
+      source: "derived",
+    },
+    methodSignature: { method: "strangled", plantChapter: 1, keyTerms: ["ligature"] },
+    chapterContract: [
+      { chapter: 1, role: "opening", mustContain: ["the physical signs of the manner of death"], mustNotContain: ["the identity of the culprit"] },
+      { chapter: 10, role: "aftermath", mustContain: ["consequence and reaction"], mustNotContain: ["any restatement of the method"] },
+    ],
+    falseSolution: { accused: "Eleanor Frey", proposedChapter: 6, collapseChapter: 8 },
+    clearanceBudget: { maxSentences: 2, inScene: true },
+    closure: { closed: true, unmet: [], waived: [] },
+  };
+
+  const withFlag = (value: string | undefined, fn: () => void) => {
+    const saved = process.env.AGENT9_GEOMETRY_CONTRACT;
+    if (value === undefined) delete process.env.AGENT9_GEOMETRY_CONTRACT;
+    else process.env.AGENT9_GEOMETRY_CONTRACT = value;
+    try {
+      fn();
+    } finally {
+      if (saved === undefined) delete process.env.AGENT9_GEOMETRY_CONTRACT;
+      else process.env.AGENT9_GEOMETRY_CONTRACT = saved;
+    }
+  };
+
+  it("emits nothing at default config, even when a contract is present", () => {
+    withFlag(undefined, () => {
+      const content = buildProsePrompt({ ...baseInputs, storyGeometry: geometry }, [baseScene], 1, []).messages[0].content;
+      expect(content).not.toContain("TIME MODEL");
+      expect(content).not.toContain("THE DECISIVE TRACE");
+      expect(content).not.toContain("CHAPTER CONTRACT");
+    });
+  });
+
+  it("binds the prompt when the flag is on", () => {
+    withFlag("true", () => {
+      const content = buildProsePrompt({ ...baseInputs, storyGeometry: geometry }, [baseScene], 1, []).messages[0].content;
+      expect(content).toContain("TIME MODEL");
+      expect(content).toContain("8:50");
+      expect(content).toContain("10:15");
+      expect(content).toContain("THE DECISIVE TRACE");
+      expect(content).toContain("THE MANNER OF DEATH, ON THE PAGE");
+      expect(content).toContain("CHAPTER CONTRACT");
+    });
+  });
+
+  it("never shows the model what the chapter must NOT contain (§8.3)", () => {
+    withFlag("true", () => {
+      const content = buildProsePrompt({ ...baseInputs, storyGeometry: geometry }, [baseScene], 1, []).messages[0].content;
+      // Naming a thing you do not want raises the chance the model produces it. The prohibition is
+      // enforced by the acceptance test, not stated in the prompt.
+      expect(content).not.toContain("the identity of the culprit");
+      expect(content).not.toContain("any restatement of the method");
+    });
+  });
+
+  it("is inert with the flag on but no contract derived — no crash, no empty headings", () => {
+    withFlag("true", () => {
+      const content = buildProsePrompt(baseInputs, [baseScene], 1, []).messages[0].content;
+      expect(content).not.toContain("TIME MODEL");
+    });
+  });
+});

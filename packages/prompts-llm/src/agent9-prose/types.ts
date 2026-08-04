@@ -9,6 +9,7 @@ import type { CastDesign } from "../agent2-cast.js";
 import type { ClueDistributionResult } from "../agent5-clues.js";
 import { STORY_LENGTH_TARGETS, getStoryLengthTarget } from "@cml/story-validation";
 import type { StoryContract } from "../story-contract.js";
+import type { StoryGeometry } from "@cml/story-geometry";
 import type { NarrativeState } from "../types/narrative-state.js";
 import type { AssetLibrary } from "../types/asset-library.js";
 import type { BatchCommitRecord, BatchGateName } from "../contracts/batch-commit-record.js";
@@ -157,6 +158,14 @@ export interface ProseGenerationInputs {
   macroArcPlan?: MacroArcEntry[];
   /** [G5] Pre-compiled StoryContract oracle (victim, culprit alibi, inference chain, time anchors). */
   storyContract?: StoryContract;
+  /**
+   * Agent 7.5 — the manuscript contract (architecture/GEOMETRY-AGENT-DESIGN.md).
+   *
+   * Read here as PROMPT INPUT only, and only when `AGENT9_GEOMETRY_CONTRACT` is on. The other half of
+   * the interface — the acceptance test — deliberately lives outside prose generation, in the
+   * orchestrator, on the committed text (§8.9).
+   */
+  storyGeometry?: StoryGeometry;
   /** Optional persisted checkpoint to resume chapter generation without replaying committed chapters. */
   resumeCheckpoint?: {
     chapters: ProseChapter[];

@@ -34,7 +34,18 @@ export type ProseDefectKind =
   | "mechanism_revealed_early"
   | "leakage"
   | "voice_tic_leakage"
-  | "dual_value_no_contrast";
+  | "dual_value_no_contrast"
+  /**
+   * Agent 7.5 geometry (GEOMETRY-AGENT-DESIGN §8.5/§8.6) — the aftermath chapter re-delivers what the
+   * reveal already disclosed. Genette's unmotivated repeating narration, and the ONLY defect kind in
+   * this union that expresses a NEGATIVE obligation.
+   *
+   * That distinction is load-bearing, not taxonomic: a positive constraint is satisfied by ADDING
+   * text; a negative one can only be satisfied by removing or rewriting it. Every other kind here can
+   * be repaired by insertion. This one cannot, which is why it needs the rewrite family and the
+   * edit-list channel rather than a whole-chapter regeneration.
+   */
+  | "aftermath_repeat";
 
 export interface ProseDefect {
   chapter: number;

@@ -29,6 +29,9 @@ import type { ChapterValidator, ProseDefect, RegenFn, RegenRequest } from "./reg
 import { chapterFullyExplainsMechanism, mechanismExplanationParagraphIndex } from "./mechanism-detect.js";
 // S3 — the pass registry plus the result-shaping tail every pass used to repeat inline.
 import { finishRegenPass, regenPassDidNotRun } from "./regen-registry.js";
+// The aftermath-repeat detector, imported rather than reimplemented: the repair must be validated
+// against the SAME body the acceptance test uses, or it can pass its own check and fail the real one.
+import { detectAftermathRepeatParagraphs } from "@cml/story-geometry";
 
 const pronounFor = (gender: string): string => (gender === "male" ? "he/him" : gender === "female" ? "she/her" : "they/them");
 
@@ -121,6 +124,17 @@ export function instructionForDefect(defect: ProseDefect): string {
       return `Remove the premature reveal / leaked material, keeping the scene intact. Detail: ${defect.detail}`;
     case "voice_tic_leakage":
       return `Rewrite the flagged speaker's dialogue so it stays in THEIR OWN idiom: remove the other character's signature phrase from their line. Do NOT reassign the line to the other character and do NOT delete the exchange — reword it in the speaker's established voice, preserving what the line communicates. Detail: ${defect.detail}`;
+    case "aftermath_repeat":
+      // The negative constraint. Deletion is the cheapest way to silence the detector and the worst
+      // outcome — an aftermath chapter with its content excised is shorter, flatter, and trips the
+      // word-floor gate. So the instruction asks for REPLACEMENT with the thing the chapter actually
+      // owes: what the disclosure cost the people still in the room.
+      return `This chapter is the aftermath. The chapter before it has ALREADY told the reader who did it, how, and why — ` +
+        `so re-explaining any of that here is the reader being told twice. Rewrite the flagged paragraph so it carries ` +
+        `CONSEQUENCE and REACTION instead: what this has cost, what someone does or cannot do now, what is said or left ` +
+        `unsaid between the people still here. Keep the paragraph roughly its present length — replace the restatement, ` +
+        `do not delete it. Do not re-name the culprit as a discovery, do not restate the method, the motive or how the ` +
+        `concealment worked, and do not clear any suspect. Detail: ${defect.detail}`;
     case "dual_value_no_contrast":
       // A_62 RC-2.2 / A_57 D2 — the central clue stated as two flat side-by-side truths. The fix is
       // MORE binding, not less content: both canonical values must survive, joined as one observed
@@ -1324,4 +1338,102 @@ export async function runSuspectEliminationRegenPass(args: {
     }
   }
   return { chapters, repaired, unresolved, ran };
+}
+
+/**
+ * Agent 7.5 geometry (GEOMETRY-AGENT-DESIGN §8.5, §8.6) — the aftermath chapter repeats the reveal.
+ *
+ * THE PART WITH NO PRECEDENT IN THIS CODEBASE, and it deserves stating plainly:
+ *
+ *   > A positive constraint is satisfied by ADDING text. A negative constraint can only be satisfied
+ *   > by removing or rewriting it.
+ *
+ * Every other pass in this file is, at heart, "make something appear". This one is "make something
+ * stop appearing", and none of the existing machinery expresses it — the `Obligation` union upstream
+ * is entirely positive, which is precisely why "Chapter 10 repeats Chapter 9" has had no owner.
+ *
+ * WHY IT IS NOT A WHOLE-CHAPTER REGENERATION. Regenerating a chapter to DELETE a repeated reveal
+ * risks dropping locked facts, clue mentions or cast names along the way — the exact collateral the
+ * acceptance validators exist to catch. The right primitive already exists and has never been probed:
+ * `AGENT9_REGEN_EDIT_LIST`, which returns only the changed paragraphs and splices the untouched ones
+ * verbatim, so anything the pass did not name CANNOT drift by construction. This pass is that flag's
+ * first compelling use case, and FLAG-AUDIT's stronger argument for it — safety, not cost — is
+ * exactly this argument. The channel is chosen by the injected `RegenFn`, so enabling the edit-list
+ * flag changes how this pass edits without changing a line here.
+ *
+ * THE THREE GUARDS, and what each one stops:
+ *   • the detector itself, re-run — the same body `checkManuscriptGeometry` uses, never a second copy
+ *   • locked-fact preservation — a rewrite that quietly drops the canonical clock value is rejected
+ *   • length preservation — DELETING the offending paragraph is the cheapest way to satisfy a negative
+ *     constraint and the worst outcome available: it shortens the chapter, flattens the ending, and
+ *     trips the word-floor batch gate. The repair must REPLACE the restatement with consequence.
+ *
+ * No-op (`ran: false`, no LLM call, no cost) when the chapter is clean.
+ */
+export async function runAftermathRepeatRegenPass(args: {
+  chapter: ProseChapter;
+  chapterNumber: number;
+  /** Paragraph indices the acceptance test flagged. Empty ⇒ the pass does not run. */
+  paragraphIndices: ReadonlyArray<number>;
+  culprit: string | null;
+  methodTerms: ReadonlyArray<string>;
+  /** What the reveal chapter already delivered — used only in the defect detail, never as copy. */
+  revealChapter: number;
+  bible: RegenBible;
+  regen: RegenFn;
+  maxAttemptsPerDefect?: number;
+  onUnresolved?: (defect: ProseDefect, reason: string) => void;
+}): Promise<InsertionRegenPassResult> {
+  const paragraphs = args.chapter.paragraphs ?? [];
+  const flagged = [...new Set(args.paragraphIndices)].filter((i) => i >= 0 && i < paragraphs.length);
+  if (flagged.length === 0) {
+    return regenPassDidNotRun(args.chapter);
+  }
+
+  const defects: ProseDefect[] = flagged.map((index) => ({
+    chapter: args.chapterNumber,
+    paragraphIndex: index,
+    kind: "aftermath_repeat" as const,
+    detail:
+      `this paragraph re-delivers what chapter ${args.revealChapter} already disclosed (the culprit's guilt, the ` +
+      `method, the motive, the concealment, or a suspect's clearance)`,
+    obligationRef: `aftermath_repeat_ch${args.chapterNumber}_p${index}`,
+    severity: "hard" as const,
+  }));
+
+  const text = chapterText(args.chapter);
+  const requiredValues = lockedFactValues(args.bible)
+    .map((f) => f.value)
+    .filter((v) => v && text.includes(v));
+  const originalWords = text.split(/\s+/).filter(Boolean).length;
+
+  const noAftermathRepeatValidator = (c: ProseChapter): ValidatorResult => {
+    const remaining = detectAftermathRepeatParagraphs(c.paragraphs ?? [], {
+      culprit: args.culprit,
+      methodTerms: args.methodTerms,
+    });
+    return {
+      ok: remaining.length === 0,
+      // The score is the progress signal `regenThenValidate` gates on: a rewrite that clears two of
+      // three offending paragraphs must read as an improvement, not as a flat failure.
+      score: remaining.length === 0 ? 100 : Math.max(0, 100 - remaining.length * 25),
+      violations: remaining.map((i) => `aftermath_repeat:p${i}`),
+    };
+  };
+
+  const validate = composeChapterValidator(
+    noAftermathRepeatValidator,
+    preserveLockedFactsValidator(requiredValues),
+    preserveChapterLengthValidator(originalWords),
+  );
+
+  const result = await runRegenRepair(
+    args.chapter,
+    defects,
+    (chapter, defect) => buildRegenRequest(chapter, defect, args.bible),
+    args.regen,
+    validate,
+    { maxAttemptsPerDefect: args.maxAttemptsPerDefect ?? 2, onUnresolved: args.onUnresolved },
+  );
+  return finishRegenPass(result.chapter, defects, result.unresolved);
 }
