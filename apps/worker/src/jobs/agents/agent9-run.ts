@@ -84,7 +84,11 @@ import {
   type ReleaseGateAudit,
 } from "@cml/prompts-llm";
 import { noScaffoldValidator, detectTemplateLeakage, detectScaffoldNotProse, detectDerivedContradictionLeak, detectEvidentiaryRegister } from "@cml/prose-guard";
-import { chapterIndexFor, checkManuscriptGeometry } from "@cml/story-geometry";
+import {
+  chapterIndexFor,
+  checkManuscriptGeometry,
+  GEOMETRY_CODES_WITHOUT_PROSE_REPAIR,
+} from "@cml/story-geometry";
 import { validateArtifact, validateCml, isVictimArchetype } from "@cml/cml";
 // Agent 9 redesign Phase A (§4.2 / §9.7): the validation-gated-mutation law — a deterministic prose
 // pass may not ship a mutation it didn't re-validate. Default-off flag; legacy path byte-identical.
@@ -3321,6 +3325,21 @@ const isAftermathRepeatRegenEnabled = (env: NodeJS.ProcessEnv = process.env): bo
  */
 type GeometryRepairDefectKind = "missing_clue" | "culprit_unlinked" | "missing_resolution";
 
+/**
+ * The reuse map, hoisted to module scope so it can be ASSERTED against the code list rather than
+ * inspected by reading (X1, REVIEW_05 §12.1). Every geometry code is either here, in
+ * `GEOMETRY_CODES_WITH_OWN_PASS`, or in `GEOMETRY_CODES_WITHOUT_PROSE_REPAIR` with a reason —
+ * a total partition, enforced by test.
+ */
+export const GEOMETRY_DEFECT_KIND_BY_CODE: Readonly<Record<string, GeometryRepairDefectKind>> = {
+  method_signature_absent: "missing_clue",
+  clincher_not_planted: "missing_clue",
+  clincher_absent_at_payoff: "culprit_unlinked",
+  reveal_culprit_not_named: "missing_resolution",
+  reveal_method_absent: "missing_resolution",
+  reveal_motive_absent: "missing_resolution",
+};
+
 // ============================================================================
 // runAgent9
 // ============================================================================
@@ -6299,14 +6318,7 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         // ── the reused passes (§8.5) ─────────────────────────────────────────
         // Each geometry violation maps onto a defect kind that already has an instruction and a
         // repair path. Only the mapping is new; no second repair body is created.
-        const DEFECT_KIND_BY_CODE: Record<string, GeometryRepairDefectKind> = {
-          method_signature_absent: "missing_clue",
-          clincher_not_planted: "missing_clue",
-          clincher_absent_at_payoff: "culprit_unlinked",
-          reveal_culprit_not_named: "missing_resolution",
-          reveal_method_absent: "missing_resolution",
-          reveal_motive_absent: "missing_resolution",
-        };
+        const DEFECT_KIND_BY_CODE = GEOMETRY_DEFECT_KIND_BY_CODE;
         const additive = report.violations.filter(
           (v) => v.scope === "chapter" && v.chapter !== null && DEFECT_KIND_BY_CODE[v.code],
         );
@@ -6437,8 +6449,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
           (report.violations.length > 0 ? `: ${report.violations.map((v) => v.code).join(", ")}` : ""),
       );
       for (const violation of report.violations) {
+        // X1 — say which violations nothing can act on. A code with no repair path reads on the
+        // report exactly like one that was handled and simply did not resolve; naming the state is
+        // the whole free half of §12.1, and the reason travels with it so nobody re-derives it.
+        const noRepair = GEOMETRY_CODES_WITHOUT_PROSE_REPAIR[violation.code];
         ctx.warnings.push(
-          `[Agent 9] geometry ${violation.code}${violation.chapter ? ` (ch${violation.chapter})` : ""}: ${violation.message}`,
+          `[Agent 9] geometry ${violation.code}${violation.chapter ? ` (ch${violation.chapter})` : ""}: ${violation.message}` +
+            (noRepair ? ` — NO REPAIR PATH: ${noRepair}.` : ""),
         );
       }
     } catch (err) {

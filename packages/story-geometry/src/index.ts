@@ -60,6 +60,12 @@ export {
 } from "./accept.js";
 export { applyGeometryOutlineRepair, type GeometryRepairResult } from "./repair.js";
 export {
+  GEOMETRY_CODES_WITHOUT_PROSE_REPAIR,
+  GEOMETRY_CODES_WITH_OWN_PASS,
+  GEOMETRY_VIOLATION_CODES,
+  type GeometryViolationCode,
+} from "./codes.js";
+export {
   buildGeometryChapterBlock,
   buildGeometryRunBlocks,
   type GeometryPromptBlock,

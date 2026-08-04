@@ -35,7 +35,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | N5 | Hydrate replays from committed artifacts, not the prompt log | free | ✅ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) · [§16](#16-n5--done-and-the-two-runs-that-were-replaying-the-wrong-story) |
 | N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ⛔ | Superseded — N5 landed; see [§16.4](#164-why-n5b-is-now-recommended-against) |
 | **C. Newly found, not yet planned** ||||
-| X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ☐ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) |
+| X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ◑ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) · [§17](#17-x1--free-half-done-the-repair-partition-is-now-total) |
 | X2 | Mechanism regen pass reports `UNRESOLVED (score 200)` — detector and validator disagree | free to diagnose | ☐ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) |
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` | free | ☐ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
@@ -978,3 +978,34 @@ same shape as the `CANARY_STATUS failure` item already in this document: a warni
 always, for a known reason, trains people to read past warnings. The fix is to treat "4" the way
 `2b/2c/2d` are already treated — legacy-optional when the run has no records for it — and it is
 free. Tracker row **X5**.
+
+---
+
+## 17. X1 — free half done: the repair partition is now total
+
+**Completed 2026-08-04 (step 1 of 2).** `false_solution_absent` still has no repair path, which is
+the decision §12.1 argued for. What changed is that the state is now **visible and enumerable**
+instead of implicit.
+
+The problem with the 08-04 report was not that nothing acted on the violation — it was that a code
+with nowhere to go read exactly like a code that had been routed to a pass and failed. Three things
+close that:
+
+- **`GEOMETRY_VIOLATION_CODES`** in `@cml/story-geometry` — all twelve codes, in the package that
+  owns them rather than next to the mapping, because a partition kept beside the mapping can only
+  check itself.
+- **`GEOMETRY_CODES_WITHOUT_PROSE_REPAIR`** — the five codes nothing acts on, each with its reason.
+  The reasons matter: three of the five are not prose defects at all (`contract_chapter_missing` is
+  an Agent 7 defect, `time_model_unparseable` an Agent 3 one, `clearance_over_budget` a negative
+  constraint), so treating them as one class would argue for building four passes where the evidence
+  supports considering one.
+- **A totality test** (`apps/worker/src/__tests__/geometry-repair-partition.test.ts`) asserting that
+  every code is routed, has its own pass, or is excused with a reason — and that the list matches the
+  codes `accept.ts` actually emits. A new code cannot join the silent bucket without failing a test.
+
+The Agent 9 warning now carries the reason: `geometry false_solution_absent (ch6): … — NO REPAIR
+PATH: X1 — … nothing in the regen registry expresses "argue a wrong solution convincingly".`
+
+**Step 2 is unchanged and still gated on N8**: if the phase-2 probe moves the reveal obligation, the
+same mechanism should move this one. Building a fourteenth regen pass before the thirteenth has ever
+fired remains the wrong order.
