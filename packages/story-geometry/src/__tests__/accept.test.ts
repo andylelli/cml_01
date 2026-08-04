@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { chapterIndexFor, checkManuscriptGeometry } from "../accept.js";
+import { chapterIndexFor, checkManuscriptGeometry, foldTypography } from "../accept.js";
 import { deriveStoryGeometry } from "../derive.js";
 import type { GeometryChapter, GeometryOutline } from "../types.js";
 
@@ -279,5 +279,91 @@ describe("clearance budget — counting exonerations, not argued ones", () => {
       "Finch allowed herself a rare, quiet moment \u2014 relief rather than triumph \u2014 for the innocent had been spared.",
     ]);
     expect(report.violations.map((v) => v.code)).not.toContain("clearance_over_budget");
+  });
+});
+
+describe("typography folding — the instrument and the text must agree on a match", () => {
+  /**
+   * FOUND 2026-08-04 on a live run. The CML held `actual_time_of_death: "two o’clock"` (U+2019); the
+   * shipped manuscript printed "two o'clock" (U+0027) — 233 straight apostrophes, zero curly, because
+   * prose sanitization normalises smart quotes and the case model never passes through it. Counting
+   * raw reported the case's true time as absent from a story that states it thirteen times.
+   */
+  it("matches a CML value written with a curly apostrophe against straight-quoted prose", () => {
+    const curlyCase = {
+      CASE: {
+        culpability: { culprits: ["Hugo O\u2019Hale"] },
+        death_method: "strangled with a cord",
+        hidden_model: { mechanism: { actual_time_of_death: "10:15", apparent_time_of_death: "8:50" } },
+        false_solution: { accused_suspect: "Eleanor Frey" },
+      },
+    };
+    const g = deriveStoryGeometry({ cml: curlyCase, clues: CLUES, narrative: TEN_CHAPTER_OUTLINE });
+    const chapters = cleanManuscript();
+    // The prose spells the culprit with a STRAIGHT apostrophe, as the sanitizer leaves it.
+    chapters[8] = chapter([
+      "Hugo O'Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff exactly.",
+      "He had done it because exposure would have ruined him.",
+    ]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).not.toContain("reveal_culprit_not_named");
+  });
+
+  it("recognises a time written with either apostrophe", () => {
+    const chapters = cleanManuscript();
+    chapters[3] = chapter(["The gate went at eleven o\u2019clock, she was certain of it."]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
+    expect(report.extraTimes.map((t) => t.minutes)).toContain(11 * 60);
+  });
+
+  it("folds en/em dashes and non-breaking spaces too", () => {
+    expect(foldTypography("a\u00A0quarter\u2014to\u2013three")).toBe("a quarter-to-three");
+  });
+});
+
+describe("the time-model anchors are folded too", () => {
+  /**
+   * A PARTIAL FIX IS WORSE THAN NONE, 2026-08-04. The first typography fix folded the manuscript but
+   * not the case's own anchors. `parseClockTime("two o’clock")` returns null on the curly form, so the
+   * true time never entered the allowed set — while the now-folded prose parsed "two o'clock" cleanly
+   * and was reported as a THIRD time. The check accused the manuscript of inventing the very hour the
+   * case had declared.
+   */
+  it("does not report the case's own true time as a third time when it is curly-quoted", () => {
+    const curlyTimes = {
+      CASE: {
+        culpability: { culprits: ["Hugo Hale"] },
+        death_method: "strangled with a cord",
+        hidden_model: {
+          mechanism: { actual_time_of_death: "two o\u2019clock", apparent_time_of_death: "a quarter to three" },
+        },
+        false_solution: { accused_suspect: "Eleanor Frey" },
+      },
+    };
+    const g = deriveStoryGeometry({ cml: curlyTimes, clues: CLUES, narrative: TEN_CHAPTER_OUTLINE });
+    const chapters = cleanManuscript();
+    chapters[1] = chapter(["The clock had not chimed after two o'clock, and she had noticed."]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+
+    expect(report.extraTimes.map((t) => t.phrase.toLowerCase())).not.toContain("two o'clock");
+  });
+
+  it("still flags a genuine third time under the same conditions", () => {
+    const curlyTimes = {
+      CASE: {
+        culpability: { culprits: ["Hugo Hale"] },
+        death_method: "strangled with a cord",
+        hidden_model: {
+          mechanism: { actual_time_of_death: "two o\u2019clock", apparent_time_of_death: "a quarter to three" },
+        },
+        false_solution: { accused_suspect: "Eleanor Frey" },
+      },
+    };
+    const g = deriveStoryGeometry({ cml: curlyTimes, clues: CLUES, narrative: TEN_CHAPTER_OUTLINE });
+    const chapters = cleanManuscript();
+    chapters[1] = chapter(["The porter heard the gate at half past two, he was certain."]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+    expect(report.extraTimes.map((t) => t.minutes)).toContain(150);
   });
 });

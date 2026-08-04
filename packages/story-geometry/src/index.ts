@@ -54,6 +54,7 @@ export {
   chapterScopedViolations,
   checkManuscriptGeometry,
   detectAftermathRepeatParagraphs,
+  foldTypography,
   nameMatcher,
 } from "./accept.js";
 export { applyGeometryOutlineRepair, type GeometryRepairResult } from "./repair.js";

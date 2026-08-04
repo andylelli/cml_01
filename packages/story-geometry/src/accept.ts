@@ -32,6 +32,26 @@ import type {
 const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
+ * Fold typographic punctuation to ASCII before any matching.
+ *
+ * FOUND 2026-08-04 by the probe reporting a false negative on a live run. The CML held
+ * `actual_time_of_death: "two o’clock"` with a curly apostrophe; the shipped manuscript used straight
+ * apostrophes throughout — 233 of them, zero curly — because prose sanitization normalises smart
+ * quotes and the case model never passes through it. A needle taken from the CML and a haystack taken
+ * from the page therefore disagree on a character no reader can see, and the check reported "the
+ * case's true time never appears in the story" about a story that says it **thirteen times**.
+ *
+ * Every comparison in this file folds BOTH sides. Same family as the paragraph-vs-sentence and
+ * index-vs-chapter defects: the instrument and the text have to agree on what a match is.
+ */
+export const foldTypography = (value: string): string =>
+  String(value ?? "")
+    .replace(/[‘’‛′]/g, "'")
+    .replace(/[“”‟″]/g, '"')
+    .replace(/[‐-―−]/g, "-")
+    .replace(/ /g, " ");
+
+/**
  * Which array slot holds chapter N.
  *
  * FOUND ON REVIEW 2026-08-03. This was `chapters[n - 1]`, which is correct only while the array is a
@@ -57,7 +77,7 @@ export const chapterIndexFor = (chapters: ReadonlyArray<GeometryChapter>, n: num
 };
 
 const paragraphsOf = (chapter: GeometryChapter | undefined): string[] =>
-  Array.isArray(chapter?.paragraphs) ? chapter!.paragraphs!.map((p) => String(p ?? "")) : [];
+  Array.isArray(chapter?.paragraphs) ? chapter!.paragraphs!.map((p) => foldTypography(String(p ?? ""))) : [];
 
 const textOf = (chapter: GeometryChapter | undefined): string => paragraphsOf(chapter).join("\n\n");
 
@@ -74,7 +94,7 @@ const COMMON_WORD_SURNAMES = new Set([
 ]);
 
 export const nameMatcher = (name: string): RegExp | null => {
-  const full = String(name ?? "").trim();
+  const full = foldTypography(name).trim();
   if (!full) return null;
   const parts = full.split(/\s+/);
   const surname = parts[parts.length - 1] ?? "";
@@ -108,7 +128,7 @@ const TIME_MENTION = new RegExp(
   [
     `\\b\\d{1,2}:\\d{2}\\b`,
     `\\b(?:a\\s+)?(?:${MINUTE_WORDS})(?:\\s+minutes)?\\s+(?:past|to)\\s+(?:${HOUR_WORDS})\\b`,
-    `\\b(?:${HOUR_WORDS})\\s+o'?clock\\b`,
+    `\\b(?:${HOUR_WORDS})\\s+o['’]?clock\\b`,
   ].join("|"),
   "gi",
 );
@@ -225,7 +245,12 @@ export const checkManuscriptGeometry = (
   {
     const allowed = new Set<number>();
     for (const raw of [geometry.timeModel.trueTime, geometry.timeModel.apparentTime]) {
-      const parsed = options.parseClockTime(raw ?? undefined);
+      // FOLD THE ANCHOR TOO. The first version of this fix folded only the haystack, which made the
+      // defect worse rather than better: `parseClockTime("two o’clock")` returns null on the curly
+      // form, so the case's true time never entered the allowed set — while the now-folded prose
+      // parsed "two o'clock" cleanly and was reported as a THIRD time. The manuscript was accused of
+      // inventing the very hour the case had declared.
+      const parsed = options.parseClockTime(raw ? foldTypography(raw) : undefined);
       if (parsed !== null) allowed.add(parsed);
     }
     if (allowed.size === 0) {
@@ -265,7 +290,7 @@ export const checkManuscriptGeometry = (
   if (geometry.methodSignature && geometry.methodSignature.keyTerms.length > 0 && chapterAt(geometry.methodSignature.plantChapter)) {
     const plantChapter = geometry.methodSignature.plantChapter;
     const text = textOf(chapterAt(plantChapter)).toLowerCase();
-    const satisfied = geometry.methodSignature.keyTerms.some((term) => text.includes(term));
+    const satisfied = geometry.methodSignature.keyTerms.some((term) => text.includes(foldTypography(term)));
     record({ field: "method_signature", code: "method_signature_absent", chapter: plantChapter, satisfied }, {
       scope: "chapter",
       message:
@@ -279,7 +304,7 @@ export const checkManuscriptGeometry = (
     const { payoffChapter, plantByChapter, keyTerms, trace } = geometry.clincher;
 
     const payoffText = textOf(chapterAt(payoffChapter)).toLowerCase();
-    const payoffSatisfied = keyTerms.some((term) => payoffText.includes(term));
+    const payoffSatisfied = keyTerms.some((term) => payoffText.includes(foldTypography(term)));
     record({ field: "clincher", code: "clincher_absent_at_payoff", chapter: payoffChapter, satisfied: payoffSatisfied }, {
       scope: "chapter",
       message:
@@ -292,7 +317,9 @@ export const checkManuscriptGeometry = (
       const c = chapterAt(n);
       if (c) plantWindow.push(c);
     }
-    const plantedBy = plantWindow.some((c) => keyTerms.some((term) => textOf(c).toLowerCase().includes(term)));
+    const plantedBy = plantWindow.some((c) =>
+      keyTerms.some((term) => textOf(c).toLowerCase().includes(foldTypography(term))),
+    );
     record({ field: "clincher", code: "clincher_not_planted", chapter: plantByChapter, satisfied: plantedBy }, {
       scope: "chapter",
       message:

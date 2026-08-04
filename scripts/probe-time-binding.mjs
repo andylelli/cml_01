@@ -81,10 +81,25 @@ const diagnostic = (report, key) => {
   return entry?.details ?? entry ?? null;
 };
 
+/**
+ * Fold typographic punctuation before counting — the same fix as `@cml/story-geometry`.
+ *
+ * The CML holds `"two o’clock"` (curly); the manuscript prints `"two o'clock"` (straight),
+ * because prose sanitization normalises smart quotes and the case model never passes through it.
+ * Counting raw reported 0x for a time the story states thirteen times, which would have been read as
+ * the treatment arm failing.
+ */
+const fold = (value) =>
+  String(value ?? "")
+    .replace(/[‘’‛′]/g, "'")
+    .replace(/[“”‟″]/g, '"')
+    .replace(/[‐-―−]/g, "-")
+    .replace(/ /g, " ");
+
 const countOccurrences = (haystack, needle) => {
-  const n = String(needle ?? "").trim();
+  const n = fold(needle).trim();
   if (!n) return 0;
-  return haystack.toLowerCase().split(n.toLowerCase()).length - 1;
+  return fold(haystack).toLowerCase().split(n.toLowerCase()).length - 1;
 };
 
 const reports = findReports();
