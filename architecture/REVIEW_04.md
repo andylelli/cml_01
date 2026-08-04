@@ -245,7 +245,19 @@ The abort risk is lower than it first looks: `AGENT4_GRACEFUL_DEGRADE=true` is s
 
 *Cost:* a prompt change, therefore flag-gated and default-OFF under the corpus regime — call it `AGENT3_DEVICE_TIME_BINDING`. One matched pair to probe, ~£3.
 
-*Know it worked:* `checkLockedFactTimeAlignment` findings drop to zero, and the case's two anchors start appearing in the manuscript at all.
+*Know it worked:* `npm run probe:time-binding` — the readout compares any run against the 08-04 control and reports three things: whether the case's two anchors appear in the manuscript at all (they were **0× and 0×** on the control), whether the case's apparent anchor equals the device's locked staged value, and whether `third_time` got worse. It derives the split from the artifacts rather than from the detector's warning, so it reads runs that predate the detector — "not measured" must never look like "clean".
+
+*How to run it:*
+
+```
+AGENT3_DEVICE_TIME_BINDING=true npm run canary:core     # the treatment arm
+npm run probe:time-binding                              # control and treatment, side by side
+```
+
+The control is `mystery-1785860662362`, already on disk. **PASS requires all three: both anchors
+present, staged time aligned, `third_time` no worse.** It reads coherence, not quality — the story
+being *better* is a different question needing a calibrated judge, and this instrument reports
+neither.
 
 **B2. The floor, if B1 does not take.** Deterministically set `apparent_time_of_death` from `false_time_displayed` after generation — the one unambiguous mapping — and keep reporting the `actual_time_of_death` residual rather than inventing it.
 
