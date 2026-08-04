@@ -64,6 +64,7 @@ import {
   runAgent6,
   runAgent7,
   runAgent65,
+  runAgent75,
   runAgent9,
   describeError,
   applyAbortedRunMetadata,
@@ -1379,6 +1380,16 @@ export async function generateMystery(
 
     await stage("narrative", (c) => runAgent7(c));          // Narrative Outliner
     if (onArtifact && ctx.narrative) await onArtifact("outline", ctx.narrative).catch(() => {});
+
+    // ── Agent 7.5: Story Geometry ───────────────────────────────────────────
+    // The manuscript contract, derived after the outline and binding on prose
+    // (architecture/GEOMETRY-AGENT-DESIGN.md). Called directly rather than through `stage()`: the
+    // stage guard enforces a contiguous skip prefix, and this stage legitimately produces nothing
+    // when `AGENT75_GEOMETRY=off` — which would close the prefix and force prose to re-run on every
+    // resume. Its artifact is restored by `applyResumeBundle` regardless, and `runAgent75` returns
+    // early when the contract is already on ctx. Never throws (ADR-0003).
+    await runAgent75(ctx);
+    if (onArtifact && ctx.storyGeometry) await onArtifact("story_geometry", ctx.storyGeometry).catch(() => {});
 
     // ── Unit 1.5: Locked-fact consistency gate ───────────────────────────────
     if (inputs.enableLockedFactGate && ctx.lockedFactRegistry && ctx.lockedFactRegistry.length > 0 && ctx.narrative) {

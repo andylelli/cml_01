@@ -1,0 +1,23 @@
+{
+  "name": "@cml/story-geometry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent 7.5 — the Story Geometry compiler. Derives the machine-checkable manuscript contract from the frozen CML + outline (architecture/GEOMETRY-AGENT-DESIGN.md), checks its closure against the outline BEFORE prose is spent, and re-checks it against the finished manuscript as an acceptance test. Pure, no LLM, no prose.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.0"
+  }
+}

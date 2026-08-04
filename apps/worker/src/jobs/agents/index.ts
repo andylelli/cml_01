@@ -49,6 +49,7 @@ export { runAgent5 } from "./agent5-run.js";
 export { runAgent6 } from "./agent6-run.js";
 export { runAgent7 } from "./agent7-run.js";
 export { runAgent65 } from "./agent65-run.js";
+export { runAgent75, resolveGeometryStageMode, type GeometryStageMode } from "./agent75-run.js";
 export { runAgent9 } from "./agent9-run.js";
 
 // ── Testable helpers (re-exported for orchestrator __testables) ───────────

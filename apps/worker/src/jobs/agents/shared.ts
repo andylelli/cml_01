@@ -27,6 +27,7 @@ import type {
   WorldDocumentResult,
 } from "@cml/prompts-llm";
 import { checkPointsToDistinctness } from "@cml/prompts-llm";
+import type { StoryGeometry } from "@cml/story-geometry";
 import type {
   ScoreAggregator,
   RetryManager,
@@ -219,6 +220,14 @@ export interface OrchestratorContext {
   agent6RetryInvoked?: boolean;
   agent6FailureClass?: string;
   narrative?: NarrativeOutline;        // may be reassigned by Agent 7 retries
+  /**
+   * Agent 7.5 — the manuscript contract (architecture/GEOMETRY-AGENT-DESIGN.md). Written by
+   * `runAgent75` after the outline and read by Agent 9 twice: as prompt input before a chapter is
+   * generated, and as the acceptance test after the manuscript is committed. Absent when the stage
+   * is `off` or could not derive — every consumer must treat that as "no contract", never as "the
+   * contract is satisfied".
+   */
+  storyGeometry?: StoryGeometry;
   failedNarrative?: NarrativeOutline;  // last outline candidate that failed schema validation (debug-only; set on Agent 7 abort)
   outlineCoverageIssues?: OutlineCoverageIssue[];
   characterProfiles?: CharacterProfilesResult;

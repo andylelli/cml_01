@@ -25,6 +25,7 @@ import { adaptNarrativeForScoring, type ClueRef } from "../scoring-adapters/inde
 // Agent 7 redesign shadow (outstanding-redesign-item §7 step 1 / 13_agent_7_narrative_outliner §7.1):
 // build the deterministic Beat Scheduler grid ALONGSIDE the LLM outline and log the comparison.
 // Acts on nothing; default-off flag → zero behaviour change. Gathers the divergence data §7.1 wants.
+import { deathMethodSignatureTerms } from "@cml/story-geometry";
 import {
   buildSceneGrid,
   collectObligations,
@@ -67,19 +68,14 @@ const AGENT7_MECHANISM_GATE = !/^(0|false|no|off)$/i.test(process.env.AGENT7_MEC
  * the discovery scene's cluesRevealed, so it cannot violate the clue-pacing/coverage gates. */
 const isDiscoveryTellEnabled = () => /^(1|true|yes|on)$/i.test(process.env.AGENT7_DISCOVERY_TELL ?? "");
 
-/** RC3.5 — tokens that signal a physical manner of death, used to locate the tell clue Agent 5 planted
- * (kept local to avoid a cross-package import, per the DEATH_METHOD_CANON duplication note in agent3-cml). */
-function deathMethodTellTokens(deathMethod: unknown): string[] {
-  const m = String(deathMethod ?? "").toLowerCase();
-  if (!m) return [];
-  if (/poison|toxin|venom|arsenic|cyanide|strychnine/.test(m)) return ["poison", "numbness", "bitter", "residue", "collapse", "convulsion", "froth"];
-  if (/stab|knife|blade|dagger|puncture/.test(m)) return ["stab", "wound", "blood", "blade", "puncture"];
-  if (/blunt|struck|bludgeon|blow|beaten/.test(m)) return ["blunt", "wound", "blood", "bruis", "struck"];
-  if (/strangl|garrot|throttle|asphyxiat|suffocat/.test(m)) return ["strangl", "ligature", "throat", "collar", "petechiae"];
-  if (/shot|gun|firearm|bullet|pistol|revolver/.test(m)) return ["shot", "wound", "bullet", "powder", "cartridge", "gunshot"];
-  if (/drown/.test(m)) return ["drown", "water", "sodden", "lungs"];
-  return [];
-}
+/** RC3.5 — tokens that signal a physical manner of death, used to locate the tell clue Agent 5 planted.
+ *
+ * WAS a local copy ("kept local to avoid a cross-package import"). It now aliases the canonical body in
+ * `@cml/story-geometry`, which needs the same list to check that the method's physical signature is on
+ * the page in chapter 1. The lists were identical, so this changed no behaviour — it removed the second
+ * body before the two could drift, which is how the DEATH_METHOD_CANON duplication note reads in
+ * hindsight rather than in advance. */
+const deathMethodTellTokens = deathMethodSignatureTerms;
 
 /**
  * A_61 RC3.5 — the discovery-scene mirror of ensureDiscriminatingTestEvidencePresent. Additively

@@ -77,5 +77,36 @@ export function assertFlagCapabilities(env: NodeJS.ProcessEnv = process.env): st
     );
   }
 
+  // ── Agent 7.5 geometry (architecture/GEOMETRY-AGENT-DESIGN.md) ─────────────
+  // Three levers with a dependency the flag names do not show. Each of these combinations produces a
+  // run that READS as an enabled arm and silently executes the control — the precise defect class
+  // this preflight exists for, and the reason it throws rather than degrading.
+  const geometryStage = String(env.AGENT75_GEOMETRY ?? "").trim().toLowerCase();
+  const geometryStageOff = ["off", "0", "false", "no"].includes(geometryStage);
+  const acceptance = String(env.AGENT9_GEOMETRY_ACCEPTANCE ?? "").trim().toLowerCase();
+
+  if (geometryStageOff && isOn(env.AGENT9_GEOMETRY_CONTRACT)) {
+    throw new FlagCapabilityError(
+      "AGENT9_GEOMETRY_CONTRACT=true requires AGENT75_GEOMETRY to be on (shadow or gate). With the " +
+        "stage off there is no contract on ctx, so the prose prompt would silently omit every " +
+        "geometry block and the run would report as the treatment arm while executing the control.",
+    );
+  }
+
+  if (geometryStageOff && acceptance === "apply") {
+    throw new FlagCapabilityError(
+      "AGENT9_GEOMETRY_ACCEPTANCE=apply requires AGENT75_GEOMETRY to be on (shadow or gate). Without " +
+        "a derived contract there is nothing to accept against, and the repair ladder would never fire.",
+    );
+  }
+
+  if (isOn(env.AGENT9_REGEN_AFTERMATH_REPEAT) && acceptance !== "apply") {
+    throw new FlagCapabilityError(
+      "AGENT9_REGEN_AFTERMATH_REPEAT=true requires AGENT9_GEOMETRY_ACCEPTANCE=apply. The pass is " +
+        "driven by the acceptance test's paragraph indices; in shadow the violation is recorded and " +
+        "no repair is attempted, so the flag would gate a branch that cannot be reached.",
+    );
+  }
+
   return warnings;
 }

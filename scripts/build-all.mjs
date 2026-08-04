@@ -22,6 +22,7 @@ const ORDER = [
   "@cml/device-library",
   "@cml/clue-spec",
   "@cml/beat-scheduler",
+  "@cml/story-geometry",
   "@cml/llm-client",
   "@cml/novelty",
   // depend on leaves
@@ -30,7 +31,7 @@ const ORDER = [
   "@cml/story-validation",   // → cml, llm-client
   // depend on the above
   "@cml/prompts-llm",        // → cml, llm-client, period-kb, story-validation, prose-guard
-  "@cml/worker",             // → cml, llm-client, prompts-llm, story-validation, prose-guard, beat-scheduler, rubric-score, clue-spec
+  "@cml/worker",             // → cml, llm-client, prompts-llm, story-validation, prose-guard, beat-scheduler, rubric-score, clue-spec, story-geometry
   "@cml/api",                // → cml, prompts-llm, worker
 ];
 

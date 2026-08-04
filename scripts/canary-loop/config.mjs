@@ -57,6 +57,7 @@ export const PIPELINE_AGENT_ORDER = [
   "2c",
   "2d",
   "7",
+  "75",
   "65",
   "9",
 ];
@@ -75,6 +76,9 @@ const AGENT_DISPLAY_BY_CODE = {
   "6": "Agent6-FairPlay",
   "65": "Agent65-WorldBuilder",
   "7": "Agent7-NarrativeOutline",
+  // Agent 7.5 — the Story Geometry compiler. Runs between the outline and prose; `normalizeAgentCode`
+  // maps "7.5" to "75", which is why the code is unpunctuated here.
+  "75": "Agent75-StoryGeometry",
   "9": "Agent9-Prose",
 };
 
@@ -92,6 +96,7 @@ const AGENT_PACKAGE_BY_CODE = {
   "6": "@cml/worker",
   "65": "@cml/worker",
   "7": "@cml/worker",
+  "75": "@cml/worker",
   "9": "@cml/worker",
 };
 
@@ -109,6 +114,7 @@ export const agentToCanaryCommand = {
   "Agent6-FairPlay": "node scripts/canary-agent-boundary.mjs --agent 6",
   "Agent65-WorldBuilder": "node scripts/canary-agent-boundary.mjs --agent 65",
   "Agent7-NarrativeOutline": "node scripts/canary-agent-boundary.mjs --agent 7",
+  "Agent75-StoryGeometry": "node scripts/canary-agent-boundary.mjs --agent 75",
   "Agent9-Prose": "node scripts/canary-agent9.mjs",
 };
 
@@ -126,6 +132,7 @@ export const agentToTargetedTestCommands = {
   "Agent6-FairPlay": ["npm run -w @cml/worker test"],
   "Agent65-WorldBuilder": ["npm run -w @cml/worker test"],
   "Agent7-NarrativeOutline": ["npm run -w @cml/worker test"],
+  "Agent75-StoryGeometry": ["npm run -w @cml/worker test"],
   "Agent9-Prose": ["npm run -w @cml/worker test"],
 };
 

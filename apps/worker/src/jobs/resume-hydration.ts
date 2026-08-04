@@ -46,6 +46,7 @@ export type ResumeArtifactName =
   | "temporal_context"
   | "world_document"
   | "outline"
+  | "story_geometry"
   | "prose";
 
 /** A previously-persisted run, keyed by artifact name. Partial by nature — a died run is partial. */
@@ -71,6 +72,10 @@ export const RESUME_FIELD_BY_ARTIFACT = {
   temporal_context: "temporalContext",
   world_document: "worldDocument",
   outline: "narrative",
+  // Agent 7.5 — a resumed run must inherit the CONTRACT it was written against, not re-derive a
+  // different one. Re-deriving would silently change the acceptance test between the chapters that
+  // were written and the chapters that are about to be.
+  story_geometry: "storyGeometry",
   prose: "prose",
 } as const satisfies Record<ResumeArtifactName, keyof OrchestratorContext>;
 
