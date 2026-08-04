@@ -288,8 +288,75 @@ whoever owns that agent.
 
 ---
 
+## Addendum 6 — two corrections from the 2026-08-03 audit
+
+### `.env` shadows `.env.local` — and this register was reading the losing file
+
+> ✅ **FIXED 2026-08-03.** Every production loader now passes `{ override: true }` on `.env.local`, so the local file wins — what the filenames always implied. `.env.local`'s api-version was raised to `2024-12-01-preview` **before** the flip, so the change could not regress `json_schema` support. **Effective config now: `AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4.1-mini`** (was `gpt-4o-mini`). Both endpoint hostnames were verified against the live API (HTTP 200, `gpt-4.1-mini` present on each) before switching. `flags:check` models the new precedence and reports remaining duplicate keys as hygiene, not as a defect. **This is a real behaviour change: every non-prose agent now runs on `gpt-4.1-mini`, and it has not yet been through a run.**
+
+Every entry point calls `config({path: .env})` **before** `config({path: .env.local})`, and dotenv does not override a value already set. **`.env` therefore wins every conflict.** Three keys currently differ:
+
+| Key | Effective (`.env`) | Ignored (`.env.local`) |
+|---|---|---|
+| `AZURE_OPENAI_DEPLOYMENT_NAME` | **`gpt-4o-mini`** | `gpt-4.1-mini` |
+| `AZURE_OPENAI_API_VERSION` | `2024-12-01-preview` | `2024-02-15-preview` |
+| `AZURE_OPENAI_ENDPOINT` | `…cognitiveservices.azure.com` | `…openai.azure.com` |
+
+Consequences for this document: **every "SET" state recorded above was read from `.env.local` alone.** For the `AGENT9_*` flags that is harmless — none is set in `.env` — but the register's *method* was wrong, and `flags:check` inherited it. Both now read both files, apply the real precedence, and report shadowing as its own finding class.
+
+This also corrects [REVIEW_02 §2.1](REVIEW_02.md): its "second, independent blocker" (api-version too old for `json_schema`) was derived from the losing file. The effective version is past the floor. **Only the SDK strip was ever real.**
+
+### `AGENT5_RED_HERRING_FLOOR` is a detector, not a floor
+
+> ✅ **FIXED 2026-08-03.** The regeneration was gated on `if (llmRetriesEnabled)`; it is now gated on `if (redHerringFloor.enabled)` — the flag A_71 gave it precisely so it would work at default config. Still exactly one bounded attempt, still no abort path, still no deterministic synthesis. **Unprobed: no run has yet exercised the repair.**
+
+Recorded here because the register presents it as a repair lever, and it is not.
+
+Its bounded regeneration sits inside `if (llmRetriesEnabled)`, and **`AGENT5_ENABLE_LLM_RETRIES` is default-OFF** ("deterministic remediation mode active — LLM retry loops disabled by default"). On run `mystery-1785694688534` the floor detected the shortfall, logged *"0 red herring(s) against a budget of 2"*, **attempted no repair, and the story shipped with no misdirection**.
+
+| Flag | Recorded state | Corrected state |
+|---|---|---|
+| `AGENT5_RED_HERRING_FLOOR` | default-**ON** repair lever (A_71 §4) | default-ON **detector**; its repair is unreachable at default config |
+| `AGENT5_ENABLE_LLM_RETRIES` | listed as "default OFF, mode-valued" | **gates A_71's red-herring repair** — the dependency was undocumented |
+
+The earlier run's 2 red herrings were the model's own output, not a repair. **The floor has never repaired anything.** Either enable the retry path for this one case, or the flag should be renamed to what it does.
+
+---
+
 ## The lifecycle rule this establishes
 
 Every new behaviour flag must record, at creation: **who owns it, what probe would settle it, and what happens if the probe never runs.** A flag with no exit condition is a permanent branch.
 
 Concretely, the audit found the review's own framing was wrong because *nothing recorded a flag's default alongside its configured state*. The cheapest guard is a generated table: enumerate `AGENT9_*` from source, resolve each default, diff against `.env.local`, and fail CI when a flag exists in neither the register above nor the config. That is a natural follow-on once R6 exists.
+
+---
+
+## Addendum 7 — Agent 7.5, the Story Geometry compiler (2026-08-03)
+
+Design: [GEOMETRY-AGENT-DESIGN.md](GEOMETRY-AGENT-DESIGN.md) · concept: [STORY-GEOMETRY.md](STORY-GEOMETRY.md) · motivation: [THINK_01.md](THINK_01.md)
+
+Five flags, registered at creation as the lifecycle rule requires: **who owns it, what probe would
+settle it, and what happens if the probe never runs.**
+
+| Flag | State | Verdict | Probe that would settle it |
+|---|---|---|---|
+| `AGENT75_GEOMETRY` | unset → **`shadow`** | **PROBE** | Mode-valued (`off` / `shadow` / `gate`). `shadow` derives the manuscript contract, checks its closure against the outline, and reports — it costs no LLM call and changes no behaviour, which is why it is the default rather than `off`: a checker that ships dark is the exact failure this whole line of work exists to stop. `gate` additionally applies bounded, additive outline repair. **Probe:** the closure diagnostic on ≥4 runs — does it flag the defects the external reviewers flagged? Then `gate` vs `shadow` on outline-repair rate and first-pass chapter success |
+| `AGENT75_GEOMETRY_RESOLVE` | unset → off | **DEFER** | The one LLM call (§6): which trace is the clincher, whom the false solution accuses. Default OFF because the deterministic selection is complete without it — the call is an improvement, never a prerequisite. ~£0.002/run on the cheap deployment against ~£0.24/run of repair. **Probe:** clincher `source=llm` vs `derived` on matched runs, read on the external clue mark |
+| `AGENT9_GEOMETRY_CONTRACT` | unset → off | **DEFER** | Phase 2 — lets the contract bind the prose prompt (four blocks; three run-stable, so they land in the cached prefix). **Probe:** first-pass chapter success against the 64%/71% baseline, plus generation-side cost. **If it does not move, the thesis is wrong and the stage should stop at shadow** |
+| `AGENT9_GEOMETRY_ACCEPTANCE` | unset → **`shadow`** | **PROBE** | Mode-valued (`off` / `shadow` / `apply`). `shadow` re-checks the contract against the committed manuscript and records every constraint's outcome — **including the satisfied ones** (the A_70/A_71 rule). Deterministic, free, and the cheapest measurement this design has. `apply` routes chapter-scoped violations into the regen ladder. **Probe:** violation rate at ship across ≥4 runs; promote to `apply` only once the violations are real |
+| `AGENT9_REGEN_AFTERMATH_REPEAT` | unset → off | **DEFER** | The thirteenth regen pass, and the first NEGATIVE one — nothing else in the registry can express "must not contain". Rewrite family, guarded by the detector, locked-fact preservation and a length floor (deleting the paragraph is the cheapest wrong answer). Best run over the `AGENT9_REGEN_EDIT_LIST` channel, whose stronger argument — safety, untouched paragraphs cannot drift — is exactly this pass's argument. **Probe:** `aftermath_repeat` violations at ship, flag-on vs flag-off |
+
+**What happens if the probes never run.** The two `shadow` defaults keep reporting and changing
+nothing — the contract is derived, its closure is on the report, and the acceptance test says which
+constraints the shipped manuscript met. The three deferred flags stay off, so the prompt, the outline
+and the repair ladder are byte-identical to today. Nothing regresses; the measurement accrues anyway.
+That is the point of defaulting the read-only halves to `shadow` rather than `off`: this project's
+recurring failure is not that it builds the wrong checkers, it is that checkers get built and never
+wired.
+
+**One flag this work does NOT add, deliberately.** §8.2 lists a fifth prompt block,
+`geometry_feedback` (stability `attempt`). It has no reachable producer — §8.9 requires the
+chapter-level acceptance test to run on the committed chapter, strictly after the retry loop that
+would consume it — so it is not built. A prompt branch nothing can populate is the
+`AGENT9_MODEL_REGEN` defect in a different costume. Geometry violations reach the model through the
+regen instruction instead.

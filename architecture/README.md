@@ -96,6 +96,7 @@ flowchart TD
 
     subgraph Dramatize["DRAMATIZE — turn the model into a story"]
         A7["Agent 7 · Narrative Outline<br/>chapters · scenes · beats"]
+        A75["Agent 7.5 · Story Geometry<br/>manuscript contract + acceptance test<br/>(shadow by default)"]
         A9["Agent 9 · Prose Generation"]
     end
 
@@ -107,7 +108,7 @@ flowchart TD
     A6 -->|"binding gate"| EarlyAbort{"Structurally<br/>sound?"}
     EarlyAbort -->|no| Abort(["Abort before<br/>the expensive stage"])
     EarlyAbort -->|yes| A2b --> A2c --> A2d
-    A2d -->|"locked-fact gate"| A65 --> A7 --> A9 --> Rubric --> Report
+    A2d -->|"locked-fact gate"| A65 --> A7 --> A75 --> A9 --> Rubric --> Report
 
     style Abort fill:#b3261e,stroke:#e06c6c,color:#ffffff
     style A9 fill:#1f5fa8,stroke:#7aa2e3,color:#ffffff
@@ -385,6 +386,7 @@ flowchart TD
         cml["cml · cml-core<br/>schema + validation"]
         clue["clue-spec<br/>derive required clues from CML"]
         beat["beat-scheduler<br/>clue reveal scheduling"]
+        geom["story-geometry<br/>manuscript contract + acceptance test"]
         device["device-library"]
         period["period-kb<br/>era knowledge"]
         novelty["novelty<br/>corpus + ledger"]
@@ -473,6 +475,26 @@ Short list of traps that have each cost more than one debugging session.
 ---
 
 ## 12. Related documentation
+
+### In this folder
+
+Written after this map (2026-08-01) and, where they conflict with it, **newer**:
+
+| Doc | What it holds |
+|---|---|
+| [REVIEW_01](REVIEW_01.md) | The remediation plan and build record (R- and S-series) |
+| [REVIEW_02](REVIEW_02.md) | Audit of that build **against the wire** — found R3/R4 non-functional, R8 unmeasurable |
+| [REVIEW_03](REVIEW_03.md) | Position statement after two live runs. **§0m is the freshest state of the system** |
+| [REVIEW_04](REVIEW_04.md) | **Start here for the current state.** The geometry work, and the four defects it uncovered |
+| [THINK_01](THINK_01.md) | Why 80 is a ceiling: two failure regimes, and a judge that ranks at 42.9% |
+| [STORY-GEOMETRY](STORY-GEOMETRY.md) | The concept — narratology behind it, and what it would constrain |
+| [GEOMETRY-AGENT-DESIGN](GEOMETRY-AGENT-DESIGN.md) | Agent 7.5: boundaries, Agent-9 interface, build sequence. **Built 2026-08-03** — phases 1–3 landed flag-gated; §10 carries the status table |
+| [FLAG-AUDIT](FLAG-AUDIT.md) | The flag register. `npm run flags:check` keeps it honest |
+| [decisions/](decisions/) | 12 ADRs + the ratification checklist |
+
+> ⚠️ **This map is dated 2026-08-01 and predates the transport rewrite, production resume, the eval and calibration harnesses, three live runs, and the Agent 7.5 / geometry work.** Where it and [REVIEW_04](REVIEW_04.md) disagree, REVIEW_04 is current; for the state of the R/S remediation specifically, REVIEW_03 §0m still holds. In particular: the base deployment described here is not what runs — `.env` shadows `.env.local`, so every non-prose agent executes on `gpt-4o-mini`.
+
+### Elsewhere in the repo
 
 | Doc | What it holds |
 |---|---|
