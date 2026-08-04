@@ -196,11 +196,25 @@ export interface GeometryViolation {
  * A zero that is never written is indistinguishable from a check that never ran (the A_70/A_71 rule,
  * and the exact defect that left the `[R4]` counters unreadable). Every check emits a row.
  */
+/**
+ * `met` — the manuscript delivers the obligation in authored prose.
+ * `met_by_injection` — it is delivered ONLY by a sentence the pipeline wrote for itself.
+ * `unmet` — it is not delivered at all.
+ *
+ * THE THIRD STATE IS THE POINT (REVIEW_05 §3/§10.1). Collapsing it into `met` certifies template text
+ * as disclosure — which is how "the story never names its culprit" read as satisfied on a run whose
+ * only naming sentence was an injector floor's. Collapsing it into `unmet` is no better: it would
+ * drive a regeneration for an obligation that has already been floored, spending money to re-fail.
+ * "Satisfied, but by a machine" is genuinely a different state from both, and it is the state the
+ * injector-retirement work needs in order to have an exit condition it can measure.
+ */
+export type GeometryVerdict = "met" | "met_by_injection" | "unmet";
+
 export interface GeometryCheck {
   field: GeometryField;
   code: string;
   chapter: number | null;
-  satisfied: boolean;
+  verdict: GeometryVerdict;
 }
 
 export interface GeometryAcceptanceReport {
@@ -272,6 +286,13 @@ export interface GeometryChapter {
 }
 
 export interface GeometryAcceptanceOptions {
+  /**
+   * Patterns matching the sentences the pipeline writes for itself — the injector floors AND the
+   * scaffold rewrites of them. Injected rather than imported: this package is a leaf and cannot reach
+   * `@cml/prompts-llm`, which is where the sentences are defined. Supply
+   * `INJECTED_SENTENCE_PATTERNS`; omitting it simply means no check can return `met_by_injection`.
+   */
+  injectionTemplates?: ReadonlyArray<RegExp>;
   /**
    * The clock-time parser. REQUIRED and injected, with no default on purpose: `parseClockTime` in
    * `@cml/prompts-llm/timeline-deception.ts` is the project's one implementation, and a private copy

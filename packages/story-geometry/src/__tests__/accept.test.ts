@@ -96,7 +96,7 @@ describe("checkManuscriptGeometry — the control", () => {
   it("records satisfied checks too — a zero that is never written cannot be told from a check that never ran", () => {
     const report = checkManuscriptGeometry(geometry, cleanManuscript(), { parseClockTime });
     expect(report.checks.length).toBeGreaterThan(5);
-    expect(report.checks.every((c) => c.satisfied)).toBe(true);
+    expect(report.checks.every((c) => c.verdict === "met")).toBe(true);
   });
 });
 
@@ -365,5 +365,54 @@ describe("the time-model anchors are folded too", () => {
     chapters[1] = chapter(["The porter heard the gate at half past two, he was certain."]);
     const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
     expect(report.extraTimes.map((t) => t.minutes)).toContain(150);
+  });
+});
+
+describe("met_by_injection — telling the pipeline's own sentences apart from prose", () => {
+  /**
+   * MEASURED on run mystery-1785870981757. The manuscript named its murderer in exactly one sentence
+   * and no human wrote it: "Captain Ivor Hale was responsible; the evidence allowed no other reading."
+   * That is the B5 scaffold floor's rewrite of what `enforceCulpritEvidencePresence` injected, so a
+   * registry holding only the injector's phrasing would match nothing.
+   */
+  const TEMPLATES = [
+    /\bwas responsible,\s*and the evidence placed the matter beyond all reasonable doubt\b/i,
+    /\bwas responsible;\s*the evidence allowed no other reading\b/i,
+  ];
+  const verdictFor = (paragraphs: string[], templates = TEMPLATES) => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(paragraphs);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime, injectionTemplates: templates });
+    return report.checks.find((c) => c.code === "reveal_culprit_not_named")!.verdict;
+  };
+
+  it("calls an authored disclosure `met`", () => {
+    expect(verdictFor(["Hugo Hale had strangled him, and the ligature told them how."])).toBe("met");
+  });
+
+  it("calls the SHIPPED (laundered) injector sentence `met_by_injection`, not met", () => {
+    expect(verdictFor(["Hugo Hale was responsible; the evidence allowed no other reading."]))
+      .toBe("met_by_injection");
+  });
+
+  it("also catches the injector's original phrasing, before a floor rewrites it", () => {
+    expect(verdictFor(["Hugo Hale was responsible, and the evidence placed the matter beyond all reasonable doubt."]))
+      .toBe("met_by_injection");
+  });
+
+  it("calls a missing disclosure `unmet` — the story-1936 shape", () => {
+    expect(verdictFor(["Everything pointed toward Hugo Hale.", "The truth was poised to emerge in the hours ahead."]))
+      .toBe("unmet");
+  });
+
+  it("does not raise a violation for met_by_injection — the floor already fired", () => {
+    const chapters = cleanManuscript();
+    chapters[8] = chapter(["Hugo Hale was responsible; the evidence allowed no other reading."]);
+    const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime, injectionTemplates: TEMPLATES });
+    expect(report.violations.map((v) => v.code)).not.toContain("reveal_culprit_not_named");
+  });
+
+  it("degrades to `met` when no templates are supplied, rather than guessing", () => {
+    expect(verdictFor(["Hugo Hale was responsible; the evidence allowed no other reading."], [])).toBe("met");
   });
 });

@@ -604,7 +604,13 @@ async function runRubricScoring(args: {
   const revealChecks = (geometryAcceptance?.checks ?? []).filter(
     (c: any) => c?.code === "reveal_culprit_not_named",
   );
-  const noResolutionVerdict: boolean | null = revealChecks.length > 0 ? !revealChecks[0].satisfied : null;
+  // `met_by_injection` counts as a resolution for the JUDGE: the culprit IS named on the page, badly.
+  // The story that broke calibration (2026-08-02-1936) had no such sentence at all — it ends on "the
+  // truth poised to emerge" — so `unmet` is the state that must cap the ending. Treating an injected
+  // disclosure as `noResolution` would cap every run the floor fires on, which is a scoring change
+  // made on n=1. It is counted separately instead (REVIEW_05 §10.1).
+  const noResolutionVerdict: boolean | null =
+    revealChecks.length > 0 ? revealChecks[0].verdict === "unmet" : null;
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
   try {

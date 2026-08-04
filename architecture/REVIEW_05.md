@@ -28,10 +28,10 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed:** rubric already matches the external ten; caps are not the distortion; one blind spot (an undisclosed reveal) drags 86% → 50%. Deterministic `noResolution` now wired from geometry | ~1 day | ◑ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) |
 | M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
-| N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ☐ | [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) |
+| N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ☐ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
 | N3 | Normalise once at the checking boundary | free | ☐ | [§10.3](#103-n3--normalise-once-at-the-checking-boundary-free) |
-| N4 | Warn when a beat label and its chapter disagree | free | ☐ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) |
+| N4 | Warn when a beat label and its chapter disagree — **also gates reading N1's count** (§14.3) | free | ☐ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) |
 | N5 | Hydrate replays from committed artifacts, not the prompt log | free | ☐ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) |
 | N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | **C. Newly found, not yet planned** ||||
@@ -789,3 +789,47 @@ Meanwhile geometry's `reveal_culprit_not_named` — which requires the culprit's
 - **§11.1's M1 row was wrong as written.** "Rewrite the internal judge as the external rubric, ~1 day" describes work that would not have helped. The tracker now reads `◑` with the real finding, and M1b carries the remaining test.
 - **It is the first time geometry has paid for itself in another system.** Its value here is not that it improves a story — it is that it supplies a fact the scoring instrument could not compute for itself.
 - **The next step is cheap and falsifiable:** re-score the archived stories with the deterministic verdict wired in and re-run `eval:calibrate`. If agreement moves toward 60/86%, the hypothesis holds and cap severity becomes worth tuning on a larger corpus. If it does not, the judge's problem is broader than one blind spot and [THINK_01 §8](THINK_01.md)'s harder question applies.
+
+---
+
+## 14. N1 — done, and what it revealed about the ordering
+
+**Completed 2026-08-04.** `GeometryCheck.satisfied: boolean` is now `verdict: "met" | "met_by_injection" | "unmet"`, and the acceptance test can tell the pipeline's own sentences from prose.
+
+### 14.1 What shipped
+
+- **`injection-templates.ts`** — one registry, in `@cml/prompts-llm`, holding both the injector builders and the patterns that recognise them. `agent9-run.ts` now *calls* those builders instead of holding its own copies of the strings, so the checker cannot drift from the writer. It carries the **laundered** forms too: the B5 scaffold floor rewrites what `enforceCulpritEvidencePresence` injects, and a registry holding only the injector's phrasing would have matched nothing on the run that motivated this.
+- **`met_by_injection` raises no violation.** The obligation is on the page, badly. Regenerating it would re-run the pass that already failed into the floor — money spent to re-fail.
+- **`met_by_injection_count`** is now on the acceptance diagnostic. That is the number [THINK_01](THINK_01.md) Move 5 and §12.4 need; it has never been counted before.
+
+Verified against the sentence that actually shipped:
+
+```
+"Captain Ivor Hale was responsible; the evidence allowed no other reading."
+   isInjectedSentence                     -> true
+   verdict (reveal contract on that chapter) -> met_by_injection
+   raises a violation                     -> false
+```
+
+### 14.2 The ordering mattered, and it was the reverse of the obvious one
+
+The laundered sentence first read `unmet`, because `GUILT_MARKER` did not contain "responsible" — the injector's own template word (§3, Issue B).
+
+The obvious fix is to add it. **Doing that first would have been the wrong move**: with only two states, a wider vocabulary converts a false negative into a false *certification* — geometry marking a chapter satisfied on the strength of machine text. Adding it is safe **only because the third verdict landed first**, which turns the match into `met_by_injection` rather than acceptance.
+
+That is B2-before-B1 as §3 argued, and it is the kind of ordering that is invisible until the two changes are attempted in the wrong sequence. The regex now carries a note saying so, and `was responsible` is deliberately narrower than bare `responsible` — a character can be responsible for the arrangements.
+
+### 14.3 The coupling nobody planned for: N1's reach depends on N4
+
+On the run that motivated all of this, the acceptance test still reports the reveal as **`unmet`**, not `met_by_injection`. It is right to: the contract binds the reveal to **chapter 8**, and chapter 8 discloses nothing. The injected sentence is in **chapter 10**, which the contract does not bind at all (§5, Issue D).
+
+**So the injection detector only ever sees chapters the contract binds.** Two consequences worth stating before the firing-rate data is trusted:
+
+1. **`met_by_injection_count` will under-report** while the beat labels misbind the reveal. A zero is not yet evidence that the injector did not fire — it may mean the injected sentence landed in an unbound chapter.
+2. **N4 is therefore a precondition for reading N1's number**, not merely a nice-to-have. §12.4 says the injector retirements are gated on N1; they are gated on N1 *and* N4.
+
+### 14.4 One judge decision recorded
+
+`met_by_injection` counts as a resolution **for the judge** — `noResolution` is set only by `unmet`. The culprit *is* named on the page, badly; the story that broke calibration (`2026-08-02-1936`) had no such sentence at all and ends on *"the truth poised to emerge in the hours ahead"*.
+
+Treating an injected disclosure as `noResolution` would cap the ending on every run the floor fires on — a scoring change made on n=1. It is counted separately instead, and the decision can be revisited when the firing rate is a number rather than an impression.

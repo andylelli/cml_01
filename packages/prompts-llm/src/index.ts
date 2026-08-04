@@ -313,3 +313,11 @@ export {
   parseTimeWindow,
 } from "./timeline-deception.js";
 export type { TimelineDeceptionInput, TimelineDeceptionViolation } from "./timeline-deception.js";
+
+// REVIEW_05 §10.1 (N1) — the sentences the pipeline writes for itself, and their patterns.
+export {
+  INJECTED_SENTENCE_PATTERNS,
+  isInjectedSentence,
+  buildCulpritEvidenceSentence,
+  buildSuspectClearanceSentence,
+} from "./agent9-prose/injection-templates.js";

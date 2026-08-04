@@ -14,7 +14,7 @@
  *      that had already passed.
  *   2. The whole-manuscript test runs after every chapter is committed.
  *
- * Everything here is pure and total. Missing input yields a `satisfied: false` check with a stated
+ * Everything here is pure and total. Missing input yields an `unmet` check with a stated
  * reason, or no check at all — never a throw, and never a fabricated violation.
  */
 
@@ -105,8 +105,24 @@ export const nameMatcher = (name: string): RegExp | null => {
   return new RegExp(`\\b(?:${alternatives.join("|")})\\b`, "i");
 };
 
+/**
+ * What it looks like to name someone as the person who did it.
+ *
+ * `(?:was|is|were|had been|held) responsible` and `to blame` were ADDED 2026-08-04, and the order of
+ * that fix mattered. REVIEW_05 §3 showed that adding "responsible" on its own would have been the
+ * WRONG move: it is the injector's own template word, so a bigger vocabulary alone would have turned
+ * a false negative ("the reveal never discloses") into a false CERTIFICATION — geometry marking a
+ * chapter satisfied on the strength of a sentence the pipeline wrote for itself.
+ *
+ * It is safe only because the third verdict exists first. A disclosure matching an injector template
+ * returns `met_by_injection`, so widening the vocabulary makes the machine sentence VISIBLE rather
+ * than accepted. Do not widen this further without checking that ordering still holds.
+ *
+ * Deliberately `was responsible` and not bare `responsible`: a character can be responsible for the
+ * arrangements, the household, or the noise.
+ */
 const GUILT_MARKER =
-  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|arrested?|took\s+the\s+life)\b/i;
+  /\b(?:killed|murdered|strangled|poisoned|stabbed|shot|bludgeoned|smothered|is\s+(?:the|our|your)\s+(?:murderer|killer|culprit)|was\s+(?:the|our)\s+(?:murderer|killer|culprit)|committed\s+the\s+murder|confess(?:ed|es|ion)|guilty|arrested?|took\s+the\s+life|(?:was|is|were|had\s+been|held)\s+responsible|to\s+blame)\b/i;
 
 const MOTIVE_MARKER =
   /\b(?:motive|because|in\s+order\s+to|so\s+that|to\s+protect|to\s+conceal|to\s+silence|revenge|inheritance|blackmail|jealous(?:y)?|ruin|debt|disgrace|exposure)\b/i;
@@ -181,9 +197,17 @@ const sentencesOf = (text: string): string[] =>
  *
  * A conjunction is only evidence at the granularity a reader reads it.
  */
-const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean => {
-  if (!culpritRe) return false;
-  return sentencesOf(text).some((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(sentence));
+const namesCulpritAsGuilty = (text: string, culpritRe: RegExp | null): boolean =>
+  disclosingSentence(text, culpritRe) !== null;
+
+/**
+ * The sentence that satisfies the disclosure obligation, or null. Returned rather than a boolean so
+ * the caller can ask WHO WROTE IT — a template match makes the difference between `met` and
+ * `met_by_injection` (REVIEW_05 §10.1).
+ */
+const disclosingSentence = (text: string, culpritRe: RegExp | null): string | null => {
+  if (!culpritRe) return null;
+  return sentencesOf(text).find((sentence) => culpritRe.test(sentence) && GUILT_MARKER.test(sentence)) ?? null;
 };
 
 // ── the test ─────────────────────────────────────────────────────────────────
@@ -206,7 +230,9 @@ export const checkManuscriptGeometry = (
 
   const record = (check: GeometryCheck, violation?: Omit<GeometryViolation, "field" | "code" | "chapter">) => {
     checks.push(check);
-    if (!check.satisfied && violation) {
+    // `met_by_injection` is NOT a violation: the obligation is on the page, badly. Regenerating it
+    // would re-run the pass that already failed into the floor. It is counted, not repaired.
+    if (check.verdict === "unmet" && violation) {
       violations.push({ field: check.field, code: check.code, chapter: check.chapter, ...violation });
     }
   };
@@ -231,7 +257,7 @@ export const checkManuscriptGeometry = (
   ]);
   const missingChapters = [...boundChapters].filter((n) => !chapterAt(n)).sort((a, b) => a - b);
   if (missingChapters.length > 0) {
-    record({ field: "chapter_contract", code: "contract_chapter_missing", chapter: null, satisfied: false }, {
+    record({ field: "chapter_contract", code: "contract_chapter_missing", chapter: null, verdict: "unmet" }, {
       scope: "manuscript",
       message:
         `The contract binds chapter(s) ${missingChapters.join(", ")}, which the manuscript does not contain ` +
@@ -254,7 +280,7 @@ export const checkManuscriptGeometry = (
       if (parsed !== null) allowed.add(parsed);
     }
     if (allowed.size === 0) {
-      record({ field: "time_model", code: "time_model_unparseable", chapter: null, satisfied: false }, {
+      record({ field: "time_model", code: "time_model_unparseable", chapter: null, verdict: "unmet" }, {
         scope: "manuscript",
         message:
           "Neither temporal anchor parses as a clock time, so exclusivity cannot be checked against the page. " +
@@ -273,7 +299,7 @@ export const checkManuscriptGeometry = (
         }
       });
       const satisfied = extraTimes.length === 0;
-      record({ field: "time_model", code: "third_time", chapter: null, satisfied }, {
+      record({ field: "time_model", code: "third_time", chapter: null, verdict: satisfied ? "met" : "unmet" }, {
         scope: "manuscript",
         message:
           `The manuscript states ${extraTimes.length} time(s) that are neither the true nor the apparent time: ` +
@@ -291,7 +317,7 @@ export const checkManuscriptGeometry = (
     const plantChapter = geometry.methodSignature.plantChapter;
     const text = textOf(chapterAt(plantChapter)).toLowerCase();
     const satisfied = geometry.methodSignature.keyTerms.some((term) => text.includes(foldTypography(term)));
-    record({ field: "method_signature", code: "method_signature_absent", chapter: plantChapter, satisfied }, {
+    record({ field: "method_signature", code: "method_signature_absent", chapter: plantChapter, verdict: satisfied ? "met" : "unmet" }, {
       scope: "chapter",
       message:
         `Chapter ${plantChapter} shows no physical sign of the manner of death ("${geometry.methodSignature.method}"). ` +
@@ -305,7 +331,7 @@ export const checkManuscriptGeometry = (
 
     const payoffText = textOf(chapterAt(payoffChapter)).toLowerCase();
     const payoffSatisfied = keyTerms.some((term) => payoffText.includes(foldTypography(term)));
-    record({ field: "clincher", code: "clincher_absent_at_payoff", chapter: payoffChapter, satisfied: payoffSatisfied }, {
+    record({ field: "clincher", code: "clincher_absent_at_payoff", chapter: payoffChapter, verdict: payoffSatisfied ? "met" : "unmet" }, {
       scope: "chapter",
       message:
         `Chapter ${payoffChapter} produces no decisive physical trace tying the culprit to the act. The contract ` +
@@ -320,7 +346,7 @@ export const checkManuscriptGeometry = (
     const plantedBy = plantWindow.some((c) =>
       keyTerms.some((term) => textOf(c).toLowerCase().includes(foldTypography(term))),
     );
-    record({ field: "clincher", code: "clincher_not_planted", chapter: plantByChapter, satisfied: plantedBy }, {
+    record({ field: "clincher", code: "clincher_not_planted", chapter: plantByChapter, verdict: plantedBy ? "met" : "unmet" }, {
       scope: "chapter",
       message:
         `The decisive trace does not appear anywhere in chapters 1–${plantByChapter}, so its production in the ` +
@@ -339,8 +365,22 @@ export const checkManuscriptGeometry = (
       // "Chapter 9 only points toward Hugo" / "the truth poised to emerge in the hours ahead" — the
       // chapter titled "The Culprit Revealed" performed the wrong hermeneutic morpheme. Disclosure
       // was due; it delivered a suspended answer, and nothing in fourteen stages could tell.
-      const named = paragraphs.some((p) => namesCulpritAsGuilty(p, culpritRe));
-      record({ field: "chapter_contract", code: "reveal_culprit_not_named", chapter: contract.chapter, satisfied: named }, {
+      /**
+       * WHO WROTE THE DISCLOSURE? (REVIEW_05 §10.1)
+       *
+       * A sentence matching an injector template is the pipeline talking to itself. Counting it as
+       * `met` certifies template text as a reveal — the false certification §3 warns about — and it
+       * is the state the 08-04 run actually shipped in.
+       */
+      const disclosure = paragraphs.map((p) => disclosingSentence(p, culpritRe)).find((x) => x !== null) ?? null;
+      const injected =
+        disclosure !== null && (options.injectionTemplates ?? []).some((re) => re.test(disclosure));
+      record({
+        field: "chapter_contract",
+        code: "reveal_culprit_not_named",
+        chapter: contract.chapter,
+        verdict: disclosure === null ? "unmet" : injected ? "met_by_injection" : "met",
+      }, {
         scope: "chapter",
         message: geometry.culprit
           ? `Chapter ${contract.chapter} is the reveal, and no paragraph names ${geometry.culprit} as the person who ` +
@@ -353,14 +393,14 @@ export const checkManuscriptGeometry = (
         const methodStated =
           geometry.methodSignature.keyTerms.some((t) => lower.includes(t)) ||
           lower.includes(geometry.methodSignature.method.toLowerCase());
-        record({ field: "chapter_contract", code: "reveal_method_absent", chapter: contract.chapter, satisfied: methodStated }, {
+        record({ field: "chapter_contract", code: "reveal_method_absent", chapter: contract.chapter, verdict: methodStated ? "met" : "unmet" }, {
           scope: "chapter",
           message: `Chapter ${contract.chapter} does not state how the murder was physically done.`,
         });
       }
 
       const motiveStated = MOTIVE_MARKER.test(text);
-      record({ field: "chapter_contract", code: "reveal_motive_absent", chapter: contract.chapter, satisfied: motiveStated }, {
+      record({ field: "chapter_contract", code: "reveal_motive_absent", chapter: contract.chapter, verdict: motiveStated ? "met" : "unmet" }, {
         scope: "chapter",
         message: `Chapter ${contract.chapter} does not state why the culprit did it.`,
       });
@@ -375,7 +415,7 @@ export const checkManuscriptGeometry = (
         methodTerms: geometry.methodSignature?.keyTerms ?? [],
       });
       const satisfied = offending.length === 0;
-      record({ field: "chapter_contract", code: "aftermath_repeat", chapter: contract.chapter, satisfied }, {
+      record({ field: "chapter_contract", code: "aftermath_repeat", chapter: contract.chapter, verdict: satisfied ? "met" : "unmet" }, {
         scope: "chapter",
         paragraphIndices: offending,
         message:
@@ -389,7 +429,7 @@ export const checkManuscriptGeometry = (
       const accusedRe = nameMatcher(geometry.falseSolution.accused);
       const accusesTheInnocent = accusedRe ? paragraphs.some((p) => accusedRe.test(p)) : false;
       record(
-        { field: "false_solution", code: "false_solution_absent", chapter: contract.chapter, satisfied: accusesTheInnocent },
+        { field: "false_solution", code: "false_solution_absent", chapter: contract.chapter, verdict: accusesTheInnocent ? "met" : "unmet" },
         {
           scope: "chapter",
           message: `Chapter ${contract.chapter} carries the false solution but never puts ${geometry.falseSolution.accused} in the frame.`,
@@ -430,7 +470,7 @@ export const checkManuscriptGeometry = (
        */
       const registerSentences = sentencesOf(textOf(chapter)).filter((s) => CLEARANCE_MARKER.test(s));
       const satisfied = registerSentences.length <= geometry.clearanceBudget.maxSentences;
-      record({ field: "clearance_budget", code: "clearance_over_budget", chapter: chapterNumber, satisfied }, {
+      record({ field: "clearance_budget", code: "clearance_over_budget", chapter: chapterNumber, verdict: satisfied ? "met" : "unmet" }, {
         scope: "chapter",
         message:
           `Chapter ${chapterNumber} spends ${registerSentences.length} sentences clearing suspects against a budget of ` +

@@ -74,6 +74,10 @@ import {
   // repair pass, and the one clock-time parser the acceptance test must share.
   runAftermathRepeatRegenPass,
   parseClockTime,
+  // REVIEW_05 §10.1 — the pipeline's own sentences, and the patterns that recognise them.
+  buildCulpritEvidenceSentence,
+  buildSuspectClearanceSentence,
+  INJECTED_SENTENCE_PATTERNS,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -2119,7 +2123,7 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
     prose,
     suspects,
     (name, text) => nameInTextShared(name, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text),
-    (suspect) => `${extractSurname(suspect)} was thoroughly cleared by the evidence; the alibi confirmed they could not have committed the crime.`,
+    (suspect) => buildSuspectClearanceSentence(extractSurname(suspect)),
     'enforceSuspectEliminationPresence',
   );
 };
@@ -2213,7 +2217,9 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
     // pass's (case-insensitive `\b(name|surname)\b`) disagreed — the v_tide_enforce split-brain that
     // pasted B5 after the pass had judged the story linked.
     (culprit, text) => culpritEvidenceLinkInText(culprit, text),
-    (culprit) => `${culprit} was responsible, and the evidence placed the matter beyond all reasonable doubt.`,
+    // REVIEW_05 §10.1 — the sentence text lives in `injection-templates.ts` with the pattern that
+    // recognises it (and the floor's rewrite of it). A local copy here would drift from the checker.
+    (culprit) => buildCulpritEvidenceSentence(culprit),
     'enforceCulpritEvidencePresence',
   );
 };
@@ -6261,7 +6267,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     try {
       const geometry = ctx.storyGeometry;
       const runAcceptance = () =>
-        checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], { parseClockTime });
+        checkManuscriptGeometry(geometry, (prose.chapters ?? []) as any[], {
+          parseClockTime,
+          injectionTemplates: INJECTED_SENTENCE_PATTERNS,
+        });
 
       let report = runAcceptance();
       const before = report.violations.map((v) => `${v.code}@${v.chapter ?? "-"}`);
@@ -6277,7 +6286,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         const validatorForCode = (chapterIndex: number, chapterNumber: number, code: string) => (candidate: any) => {
           const probe = (prose.chapters ?? []).slice();
           probe[chapterIndex] = candidate;
-          const probed = checkManuscriptGeometry(geometry, probe as any[], { parseClockTime });
+          const probed = checkManuscriptGeometry(geometry, probe as any[], {
+            parseClockTime,
+            injectionTemplates: INJECTED_SENTENCE_PATTERNS,
+          });
           const still = probed.violations.some((v) => v.code === code && v.chapter === chapterNumber);
           return { ok: !still, score: still ? 0 : 100, violations: still ? [`geometry:${code}`] : [] };
         };
@@ -6387,7 +6399,12 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
         // Every check, INCLUDING the satisfied ones. A zero that is never written is
         // indistinguishable from a check that never ran (A_70/A_71).
         checks: report.checks,
-        satisfied_count: report.checks.filter((c) => c.satisfied).length,
+        met_count: report.checks.filter((c) => c.verdict === "met").length,
+        // REVIEW_05 §10.1 — the number the injector-retirement work (THINK_01 Move 5) needs. An
+        // obligation the pipeline satisfied for itself is not a success and not a failure; it is a
+        // floored failure, and it has never been counted before.
+        met_by_injection_count: report.checks.filter((c) => c.verdict === "met_by_injection").length,
+        met_by_injection: report.checks.filter((c) => c.verdict === "met_by_injection"),
         extra_times: report.extraTimes,
         violations_before_repair: before,
         repaired,
