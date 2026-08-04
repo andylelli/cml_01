@@ -36,7 +36,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ⛔ | Superseded — N5 landed; see [§16.4](#164-why-n5b-is-now-recommended-against) |
 | **C. Newly found, not yet planned** ||||
 | X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ◑ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) · [§17](#17-x1--free-half-done-the-repair-partition-is-now-total) |
-| X2 | Mechanism regen pass reports `UNRESOLVED (score 200)` — detector and validator disagree | free to diagnose | ☐ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) |
+| X2 | ~~Mechanism regen `score 200` — detector and validator disagree~~ → **no disagreement; the message was unreadable.** Fixed | free | ✅ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) · [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why) |
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` | free | ☐ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ☐ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) |
@@ -663,6 +663,8 @@ the thirteenth (`aftermath_repeat`) has ever fired, for a defect seen once.
 **MEASURED**, same run: `[Agent 9] regen-mechanism UNRESOLVED ch6: regen did not improve the targeted
 property (score 200)`.
 
+> **CORRECTED 2026-08-04 — the diagnosis below is wrong; see [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why). The pass is honest. Kept as written because the reasoning that produced the wrong answer is the point of the item.**
+
 `200` is the **maximum** its composed validator can return — two checks at 100 each. `acceptanceReason`
 only reports "did not improve" when the candidate failed to beat the prior score, so the pass judged
 the chapter already clean while its own detector
@@ -1009,3 +1011,53 @@ PATH: X1 — … nothing in the regen registry expresses "argue a wrong solution
 **Step 2 is unchanged and still gated on N8**: if the phase-2 probe moves the reveal obligation, the
 same mechanism should move this one. Building a fourteenth regen pass before the thirteenth has ever
 fired remains the wrong order.
+
+---
+
+## 18. X2 — the diagnosis was wrong, and the message is why
+
+**Completed 2026-08-04.** §12.2 said the mechanism regen pass "cannot succeed" because its detector
+and its validator disagree about the same chapter. **They do not.** Both read
+`(chapter.paragraphs ?? []).join(" ")` — the detector's `text` and the validator's `chapterText` are
+the same expression, twelve lines apart. There is no representation mismatch, and the §6 family this
+was filed under does not apply.
+
+### 18.1 What `score 200` actually means
+
+`composeChapterValidator` **silently prepends `noScaffoldValidator`** to whatever checks it is given:
+
+```ts
+const all = [(c) => noScaffoldValidator((c.paragraphs ?? []).join(" ")), ...checks];
+```
+
+So the mechanism pass composes **three** checks, not two, and scores out of 300. `200` is
+100 (scaffold clean) + **0 (the mechanism is still explained)** + 100 (no locked fact dropped) — the
+candidate came back still explaining the mechanism, twice, and the pass reported an honest
+UNRESOLVED. It is a *model* failure, correctly recorded, not a broken pass.
+
+### 18.2 What was actually wrong
+
+The message. `regen did not improve the targeted property (score 200)` states a bare sum with **no
+denominator and no failing check**, so the only reading available is "200 sounds like a maximum" —
+which is the reading it got, in a document that then proposed investigating a defect that does not
+exist. §12.2's own instruction, *"do not fix it by loosening the acceptance rule"*, would have been
+the natural next step from the wrong premise, and it would have made a pass that reports failure
+honestly start reporting success.
+
+It now reads:
+
+```
+regen did not improve the targeted property (score 200, was 200; still failing: mechanism_explained_too_early)
+```
+
+`was 200` is the diagnostic that settles it in one glance: the score did not move, so nothing about
+a ceiling is involved. Two tests pin both halves — the named failing check, and silence when there
+is none.
+
+### 18.3 The general point, which is worth more than the fix
+
+A validator that composes checks **its callers did not pass it** produces scores its callers cannot
+interpret. Every message keyed on `score` from `composeChapterValidator` inherits the same ambiguity;
+this one was noticed because it happened to land on a round number that looked like a maximum. The
+cheap general guard is what shipped: never report a score without either its denominator or the
+names of what failed.

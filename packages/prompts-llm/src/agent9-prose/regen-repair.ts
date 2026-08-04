@@ -113,7 +113,18 @@ const acceptanceReason = (before: ValidatorResult, after: ValidatorResult): stri
   if (newViolations.length > 0) return `regen introduced: ${newViolations.join("; ")}`;
   if (after.score < before.score) return `regen lowered score ${before.score} → ${after.score}`;
   const improved = after.score > before.score || (!before.ok && after.ok);
-  if (!improved) return `regen did not improve the targeted property (score ${after.score})`;
+  if (!improved) {
+    // X2 (REVIEW_05 §12.2) — name the failing checks and both scores.
+    //
+    // This used to report the bare sum: "did not improve the targeted property (score 200)". That
+    // number was read, reasonably, as the MAXIMUM of a two-check validator — making the pass look
+    // like it had judged a chapter clean that its own detector had just judged defective, and
+    // costing a diagnosis that nearly loosened the acceptance rule. It is nothing of the kind:
+    // `composeChapterValidator` silently prepends `noScaffoldValidator`, so the mechanism pass
+    // scores out of THREE checks, and 200 is one of them still failing. The message now says which.
+    const stillFailing = after.violations.length > 0 ? `; still failing: ${after.violations.join(", ")}` : "";
+    return `regen did not improve the targeted property (score ${after.score}, was ${before.score}${stillFailing})`;
+  }
   return null; // accept
 };
 

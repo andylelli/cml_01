@@ -134,3 +134,58 @@ describe("regenThenValidate — async revert-on-regression analog of mutateThenV
     expect(regress.reverted).toBe(true);
   });
 });
+
+/**
+ * X2 (architecture/REVIEW_05.md §12.2) — the UNRESOLVED reason has to be readable.
+ *
+ * The 08-04 run reported `regen-mechanism UNRESOLVED ch6: regen did not improve the targeted
+ * property (score 200)`. That bare sum was read as the MAXIMUM of a two-check validator, which
+ * would mean the pass had judged a chapter clean that its own detector had just judged defective —
+ * a detector/validator disagreement that does not exist. `composeChapterValidator` silently
+ * prepends `noScaffoldValidator`, so the mechanism pass scores out of three checks and 200 is one
+ * of them still failing.
+ *
+ * The pass was honest; only its message was not. This pins the message.
+ */
+describe("the reason an unresolved defect gives (X2)", () => {
+  const threeChecks = (c: ProseChapter): ValidatorResult => {
+    const stillExplains = text(c).toLowerCase().includes("because the pendulum was suspended");
+    return {
+      ok: !stillExplains,
+      score: (stillExplains ? 0 : 100) + 100 + 100, // mechanism + scaffold + locked facts
+      violations: stillExplains ? ["mechanism_explained_too_early"] : [],
+    };
+  };
+
+  it("names the failing check and both scores, not a bare sum", async () => {
+    const chapter = chapterOf("The clock stopped because the pendulum was suspended.");
+    const regen = vi.fn(async () => chapterOf("It stopped because the pendulum was suspended, plainly."));
+
+    const result = await regenThenValidate(
+      chapter,
+      (c) => ({ chapter: c, paragraphIndex: 0, instruction: "withhold the mechanism" }) as RegenRequest,
+      regen,
+      threeChecks,
+      2,
+    );
+
+    expect(result.applied).toBe(false);
+    // 200 of a possible 300 — the number alone said neither of those things.
+    expect(result.reason).toMatch(/score 200, was 200/);
+    expect(result.reason).toMatch(/still failing: mechanism_explained_too_early/);
+  });
+
+  it("stays silent about failing checks when there are none to name", async () => {
+    const clean = chapterOf("The clock stopped. Nobody said why.");
+    const regen = vi.fn(async () => chapterOf("The clock stopped. Nobody said why at all."));
+    const result = await regenThenValidate(
+      clean,
+      (c) => ({ chapter: c, paragraphIndex: 0, instruction: "no-op" }) as RegenRequest,
+      regen,
+      threeChecks,
+      1,
+    );
+    expect(result.reason).toMatch(/score 300, was 300/);
+    expect(result.reason).not.toMatch(/still failing/);
+  });
+});
