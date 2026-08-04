@@ -16,6 +16,12 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 
 **Free work first. Nothing below is blocked on code except where marked.**
 
+> ⚠️ **MAINTENANCE RULE — owner instruction, 2026-08-04.** This table is updated **as work happens**,
+> in the **same commit** as the change, never in a batch afterwards. A tracker that lags reads as
+> authoritative while being wrong — the same defect as a zero that is never written. New outstanding
+> work gets a row **and** a §12 section; nothing is deleted, only moved to *recommended against* with
+> its reason.
+
 | ID | Item | Cost | Status | § |
 |---|---|---|---|---|
 | **A. Measurement — gates every quality claim** ||||
