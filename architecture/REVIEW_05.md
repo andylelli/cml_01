@@ -29,7 +29,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ✅ | [§14](#14-n1--done-and-what-it-revealed-about-the-ordering) |
-| N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ☐ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
+| N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
 | N3 | Normalise once at the checking boundary | free | ☐ | [§10.3](#103-n3--normalise-once-at-the-checking-boundary-free) |
 | N4 | Warn when a beat label and its chapter disagree — **also gates reading N1's count** (§14.3) | free | ☐ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) |
 | N5 | Hydrate replays from committed artifacts, not the prompt log | free | ☐ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) |

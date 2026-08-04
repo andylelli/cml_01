@@ -54,6 +54,19 @@ export interface TimeModel {
   trueTime: string | null;
   apparentTime: string | null;
   directionViolations: ReadonlyArray<{ code: string; message: string }>;
+  /**
+   * Other clock values the case has legitimately fixed — a timer setting, a chime, a departure.
+   *
+   * FOUND 2026-08-04: `third_time` flagged "half past two" as an incoherence in a story where that
+   * value is `kitchen_timer_setting`, a LOCKED FACT the injector prints seven times. Geometry called
+   * the manuscript incoherent for stating a time the case itself declared.
+   *
+   * The rule in STORY-GEOMETRY §5 — "the manuscript may contain no third time" — is a correct
+   * intuition stated too strongly. A mystery may contain any number of clock readings; what it may
+   * not contain is one that **nothing accounts for**. Stored unparsed: the parser is injected at the
+   * acceptance boundary, and this package holds no second copy of it.
+   */
+  accountedTimes: string[];
 }
 
 /**
@@ -275,6 +288,11 @@ export interface GeometryDeriveInput {
   sceneGrid?: GeometryGrid | null;
   /** From `checkCaseTimelineDeception` — injected so this package holds no second copy of it. */
   timelineViolations?: ReadonlyArray<{ code: string; message: string }>;
+  /**
+   * The device's locked facts. Any whose value reads as a clock time becomes an ACCOUNTED time —
+   * legitimately fixed by the case, and therefore not a third time when it appears on the page.
+   */
+  lockedFacts?: ReadonlyArray<{ id?: string; value?: string; description?: string }>;
   resolution?: GeometryResolution | null;
 }
 

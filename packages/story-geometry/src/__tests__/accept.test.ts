@@ -106,7 +106,7 @@ describe("checkManuscriptGeometry — the three defects Phase 1 must flag", () =
     chapters[3] = chapter(["The porter was certain he had heard the gate at a quarter past eleven."]);
     const report = checkManuscriptGeometry(geometry, chapters, { parseClockTime });
 
-    expect(report.violations.map((v) => v.code)).toContain("third_time");
+    expect(report.violations.map((v) => v.code)).toContain("unaccounted_time");
     expect(report.extraTimes).toHaveLength(1);
     expect(report.extraTimes[0]).toMatchObject({ chapter: 4, minutes: 11 * 60 + 15 });
   });
@@ -414,5 +414,42 @@ describe("met_by_injection — telling the pipeline's own sentences apart from p
 
   it("degrades to `met` when no templates are supplied, rather than guessing", () => {
     expect(verdictFor(["Hugo Hale was responsible; the evidence allowed no other reading."], [])).toBe("met");
+  });
+});
+
+describe("accounted times — a locked clock value is not a third time", () => {
+  /**
+   * FOUND 2026-08-04 on a live run: `third_time` flagged "half past two" as an incoherence in a story
+   * where that value is `kitchen_timer_setting`, a LOCKED FACT the injector prints seven times.
+   * Geometry called the manuscript incoherent for stating a time the case itself declared.
+   */
+  const withLocked = (lockedFacts: Array<{ id: string; value: string }>) =>
+    deriveStoryGeometry({ cml: CML, clues: CLUES, narrative: TEN_CHAPTER_OUTLINE, lockedFacts });
+
+  it("does not flag a clock value the case locked", () => {
+    const g = withLocked([{ id: "kitchen_timer_setting", value: "half past two" }]);
+    const chapters = cleanManuscript();
+    chapters[3] = chapter(["The kitchen timer was still set for half past two, exactly as she had left it."]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).not.toContain("unaccounted_time");
+  });
+
+  it("still flags a time nothing accounts for", () => {
+    const g = withLocked([{ id: "kitchen_timer_setting", value: "half past two" }]);
+    const chapters = cleanManuscript();
+    chapters[3] = chapter(["The porter heard the gate at a quarter past eleven, he was certain."]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).toContain("unaccounted_time");
+    expect(report.extraTimes.map((t) => t.minutes)).toContain(11 * 60 + 15);
+  });
+
+  it("ignores locked facts that are not clock times", () => {
+    // "forty minutes" is a duration; it must not widen the allowed set to something it cannot parse.
+    const g = withLocked([{ id: "pendulum_pause_duration", value: "forty minutes" }]);
+    expect(g.timeModel.accountedTimes).toEqual(["forty minutes"]);
+    const chapters = cleanManuscript();
+    chapters[3] = chapter(["The porter heard the gate at a quarter past eleven."]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+    expect(report.violations.map((v) => v.code)).toContain("unaccounted_time");
   });
 });

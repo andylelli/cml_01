@@ -272,7 +272,7 @@ const highCodes = codes(high);
 const closureCodes = (r) => new Set(r.geometry.closure.unmet.map((u) => u.code));
 
 const criteria = [
-  { name: "three clock times", hit: lowCodes.has("third_time") },
+  { name: "three clock times", hit: lowCodes.has("unaccounted_time") },
   { name: "chapter 9 never discloses", hit: lowCodes.has("reveal_culprit_not_named") },
   {
     name: "chapter 10 repeats chapter 9",

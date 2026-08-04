@@ -227,6 +227,9 @@ export async function runAgent75(ctx: OrchestratorContext): Promise<void> {
       clues,
       narrative: (ctx.narrative as any) ?? null,
       timelineViolations,
+      // REVIEW_05 §10.2 (N2) — the device's other fixed clock values. Without them the two-time check
+      // reports a locked timer setting as an incoherence the story invented.
+      lockedFacts: ctx.lockedFactRegistry,
       resolution,
     });
 

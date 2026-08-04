@@ -269,8 +269,18 @@ export const checkManuscriptGeometry = (
   // The one violation class that must never reach a repair pass (§8.5): a third clock time is a
   // PRE-PROSE defect. It is reported so the pre-prose gate can be judged on it, not regenerated.
   {
+    /**
+     * ACCOUNTED, not "exactly two". A mystery may state any number of clock readings; what it may not
+     * state is one nothing accounts for. The two anchors plus every clock-valued locked fact — the
+     * timer setting, the chime, the departure — are all accounted for, and flagging one of those was
+     * geometry calling a manuscript incoherent for a time the case itself declared.
+     */
     const allowed = new Set<number>();
-    for (const raw of [geometry.timeModel.trueTime, geometry.timeModel.apparentTime]) {
+    for (const raw of [
+      geometry.timeModel.trueTime,
+      geometry.timeModel.apparentTime,
+      ...(geometry.timeModel.accountedTimes ?? []),
+    ]) {
       // FOLD THE ANCHOR TOO. The first version of this fix folded only the haystack, which made the
       // defect worse rather than better: `parseClockTime("two o’clock")` returns null on the curly
       // form, so the case's true time never entered the allowed set — while the now-folded prose
@@ -299,12 +309,12 @@ export const checkManuscriptGeometry = (
         }
       });
       const satisfied = extraTimes.length === 0;
-      record({ field: "time_model", code: "third_time", chapter: null, verdict: satisfied ? "met" : "unmet" }, {
+      record({ field: "time_model", code: "unaccounted_time", chapter: null, verdict: satisfied ? "met" : "unmet" }, {
         scope: "manuscript",
         message:
-          `The manuscript states ${extraTimes.length} time(s) that are neither the true nor the apparent time: ` +
+          `The manuscript states ${extraTimes.length} time(s) that nothing in the case accounts for — neither anchor, nor any locked fact: ` +
           extraTimes.map((t) => `"${t.phrase}" (ch${t.chapter})`).join(", ") +
-          `. A reader cannot build one sequence of events from three unrelated clock readings.`,
+          `. A reader cannot build one sequence of events from clock readings the story never relates.`,
       });
     }
   }

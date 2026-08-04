@@ -158,7 +158,7 @@ for (const runId of runIds) {
     // Present only once the warning-channel fix has been exercised; absent on runs before it.
     agent9WarningsPresent: warnings.some((w) => String(w).includes("[Agent 9]")),
     thirdTime: {
-      violated: (acceptance?.violations ?? []).some((v) => v.code === "third_time"),
+      violated: (acceptance?.violations ?? []).some((v) => v.code === "unaccounted_time"),
       extraTimes: acceptance?.extra_times ?? [],
     },
   });
@@ -200,7 +200,7 @@ for (const r of rows) {
         : ""),
   );
   for (const f of r.splitFindings) console.log(`       • ${String(f).slice(0, 150)}`);
-  console.log(`   geometry third_time       : ${r.thirdTime.violated ? `VIOLATED (${r.thirdTime.extraTimes.length} extra)` : "clean"}`);
+  console.log(`   geometry unaccounted_time       : ${r.thirdTime.violated ? `VIOLATED (${r.thirdTime.extraTimes.length} extra)` : "clean"}`);
   console.log(`   [Agent 9] warnings on report : ${r.agent9WarningsPresent ? "yes" : "no — the channel fix has not been exercised on this run"}`);
 }
 
@@ -208,6 +208,6 @@ console.log(`\n${bar}\nHOW TO READ IT\n${bar}`);
 console.log(`  PASS for the treatment arm requires ALL of:`);
 console.log(`    1. both case anchors appear in the manuscript at least once  (they were 0× and 0× on the control)`);
 console.log(`    2. staged time aligned — the case's apparent anchor equals the device's locked value`);
-console.log(`    3. third_time no worse than the control arm`);
+console.log(`    3. unaccounted_time no worse than the control arm`);
 console.log(`\n  This reads coherence, not quality. It says nothing about whether the story is better,`);
 console.log(`  and must not be quoted as if it did — that question needs the calibrated judge.\n`);

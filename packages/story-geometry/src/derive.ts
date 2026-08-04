@@ -159,6 +159,8 @@ const deriveTimeModel = (caseData: any, input: GeometryDeriveInput): TimeModel =
     trueTime: str(mechanism.actual_time_of_death) || null,
     apparentTime: str(mechanism.apparent_time_of_death) || null,
     directionViolations: (input.timelineViolations ?? []).map((v) => ({ code: str(v.code), message: str(v.message) })),
+    // Kept as written, not parsed: the acceptance test owns the one clock parser (§ types.ts).
+    accountedTimes: (input.lockedFacts ?? []).map((f) => str(f?.value)).filter(Boolean),
   };
 };
 
