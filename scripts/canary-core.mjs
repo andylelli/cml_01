@@ -8,7 +8,7 @@ import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.m
 
 const root = process.cwd();
 config({ path: path.join(root, ".env") });
-config({ path: path.join(root, ".env.local") });
+config({ path: path.join(root, ".env.local"), override: true });
 
 const parseEnvBool = (value, fallback) => {
   if (value === undefined) return fallback;
@@ -155,10 +155,41 @@ console.log("CANARY_CULPRIT_GATE_ALIAS_MATCHES_COUNT", integrityMetrics.culprit_
 console.log("CANARY_CULPRIT_GATE_FALSE_POSITIVE_COUNT", integrityMetrics.culprit_gate_false_positive_count);
 
 const integrityAssertionFailures = [];
-if (integrityMetrics.mechanical_term_collision_count > 0) {
-  integrityAssertionFailures.push(
-    `mechanical_term_collision_count == ${integrityMetrics.mechanical_term_collision_count} (expected 0)`
-  );
+
+/**
+ * `mechanical_term_collision_count` is CONTEXT, not a defect — corrected 2026-08-04.
+ *
+ * `countMechanicalSeasonCollisions` counts places where the locked season's word is used
+ * MECHANICALLY: "mainspring", "spring tension", "the pendulum's suspension spring". Its job is to
+ * tell the season-lock rewriter what it must not touch — a high count means the rewriter had more to
+ * protect, not that the prose is wrong.
+ *
+ * Asserting zero made that impossible to satisfy for a whole class of story. The 2026-08-04 run
+ * ("The Silent Swing of the Pendulum") reported 13 and every single one was the phrase "the
+ * pendulum's suspension spring" — the physical object the culprit tampered with, i.e. the mystery's
+ * own murder mechanism. The assertion was demanding that a horology mystery set in spring not
+ * mention a clock spring.
+ *
+ * That cost more than a red line: `CANARY_STATUS failure` for a known, benign reason on every such
+ * run is how a status line stops being read at all, and probe runs need it to mean something.
+ *
+ * WHAT IS ACTUALLY A DEFECT is the rewriter CORRUPTING one of those mechanical uses — turning "the
+ * suspension spring" into "the suspension autumn". That is what the two guards below count, and they
+ * are what this now asserts. The collision count stays on the record as context.
+ */
+if (integrityMetrics.season_lock_replacements_total > 0 && integrityMetrics.mechanical_term_collision_count > 0) {
+  // Replacements happened in a story that contains mechanical uses of the season word. The guards
+  // should have blocked every one of them; if neither guard fired, a mechanical term may have been
+  // rewritten into nonsense and nothing recorded it.
+  const guardsFired =
+    integrityMetrics.season_lock_protected_collisions_blocked + integrityMetrics.semantic_rewrite_diff_blocks_count;
+  if (guardsFired === 0) {
+    integrityAssertionFailures.push(
+      `season_lock_replacements_total == ${integrityMetrics.season_lock_replacements_total} with ` +
+        `${integrityMetrics.mechanical_term_collision_count} mechanical use(s) of the season word and ZERO guard ` +
+        `blocks — a mechanical term may have been rewritten (expected at least one block, or no replacements)`
+    );
+  }
 }
 if (integrityMetrics.culprit_gate_false_positive_count > 0) {
   integrityAssertionFailures.push(

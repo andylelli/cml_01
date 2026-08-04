@@ -21,6 +21,7 @@ import {
   type OrchestratorContext,
   type InferenceCoverageResult,
   applyClueGuardrails,
+  clearWarningsInPlace,
   preAgent9LlmRetriesEnabled,
 } from "./shared.js";
 import {
@@ -1456,12 +1457,7 @@ export async function runAgent6(ctx: OrchestratorContext): Promise<void> {
    * removal lands where the report will actually see it.
    */
   const clearWarningsFromSet = (toClear: Set<string>): void => {
-    if (!Array.isArray(ctx.warnings) || ctx.warnings.length === 0) return;
-    if (toClear.size === 0) return;
-    const kept = ctx.warnings.filter((warning) => !toClear.has(String(warning).trim()));
-    if (kept.length === ctx.warnings.length) return;
-    ctx.warnings.length = 0;
-    for (const warning of kept) ctx.warnings.push(warning);
+    clearWarningsInPlace(ctx.warnings, toClear);
   };
 
   const fairPlayConfig = getGenerationParams().agent6_fairplay.params;

@@ -18,14 +18,34 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const AGENT_SOURCES = [
-  "agent1-run.ts", "agent2-run.ts", "agent2b-run.ts", "agent2c-run.ts", "agent2d-run.ts",
-  "agent2e-run.ts", "agent3-run.ts", "agent3b-run.ts", "agent5-run.ts", "agent6-run.ts",
-  "agent65-run.ts", "agent7-run.ts", "agent75-run.ts", "agent9-run.ts", "shared.ts",
-].map((f) => ({ file: f, path: fileURLToPath(new URL(`../jobs/agents/${f}`, import.meta.url)) }));
+import { clearWarningsInPlace } from "../jobs/agents/shared.js";
+
+/**
+ * EVERY source file under jobs/, not a hand-listed set of agents.
+ *
+ * The original list named the agent run files. That would have missed a reassignment in the
+ * orchestrator, in shared.ts, or in any file added later — and "the list was not updated" is how the
+ * defect this test exists for survived in the first place.
+ */
+const collectSources = (dir: string, out: Array<{ file: string; path: string }> = []) => {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === "__tests__" || entry.name === "node_modules") continue;
+      collectSources(full, out);
+    } else if (entry.name.endsWith(".ts")) {
+      out.push({ file: relative(JOBS_ROOT, full).split("\\").join("/"), path: full });
+    }
+  }
+  return out;
+};
+
+const JOBS_ROOT = fileURLToPath(new URL("../jobs", import.meta.url));
+const AGENT_SOURCES = collectSources(JOBS_ROOT);
 
 describe("warning-channel aliasing", () => {
   it("no agent replaces ctx.warnings with a new array", () => {
@@ -47,21 +67,41 @@ describe("warning-channel aliasing", () => {
     expect(offenders, `ctx.warnings must be mutated in place, never reassigned:\n${offenders.join("\n")}`).toEqual([]);
   });
 
-  it("clearing warnings in place preserves the array the orchestrator holds", () => {
-    // The exact shape agent6-run uses, asserted as a property so the fix cannot silently regress.
-    const orchestratorWarnings: string[] = ["keep-1", "drop-me", "keep-2"];
+  it("scans a non-trivial number of files, so a passing result means something", () => {
+    // A glob that silently matched nothing would pass forever.
+    expect(AGENT_SOURCES.length).toBeGreaterThan(15);
+    expect(AGENT_SOURCES.some((s) => s.file.endsWith("agent6-run.ts"))).toBe(true);
+    expect(AGENT_SOURCES.some((s) => s.file.endsWith("mystery-orchestrator.ts"))).toBe(true);
+  });
+
+  it("clearWarningsInPlace — the REAL helper Agent 6 calls — keeps the array identity", () => {
+    // Behavioural, not a source scan: this is the function that runs, exercised directly.
+    const orchestratorWarnings = ["keep-1", "drop-me", "keep-2"];
     const ctx = { warnings: orchestratorWarnings };
-    const toClear = new Set(["drop-me"]);
 
-    const kept = ctx.warnings.filter((w) => !toClear.has(w.trim()));
-    ctx.warnings.length = 0;
-    for (const w of kept) ctx.warnings.push(w);
+    const removed = clearWarningsInPlace(ctx.warnings, new Set(["drop-me"]));
 
-    expect(ctx.warnings).toBe(orchestratorWarnings); // identity: the alias survived
-    expect(orchestratorWarnings).toEqual(["keep-1", "keep-2"]); // and the removal is visible to the report
+    expect(removed).toBe(1);
+    expect(ctx.warnings).toBe(orchestratorWarnings);
+    expect(orchestratorWarnings).toEqual(["keep-1", "keep-2"]);
 
-    // A later stage's push must reach the orchestrator's array.
+    // The property that actually failed in production: a later stage's push must be visible.
     ctx.warnings.push("[Agent 9] geometry third_time");
     expect(orchestratorWarnings).toContain("[Agent 9] geometry third_time");
   });
+
+  it("clearWarningsInPlace is a no-op on nothing-to-clear, and says so", () => {
+    const warnings = ["a", "b"];
+    expect(clearWarningsInPlace(warnings, new Set())).toBe(0);
+    expect(clearWarningsInPlace(warnings, new Set(["absent"]))).toBe(0);
+    expect(clearWarningsInPlace([], new Set(["a"]))).toBe(0);
+    expect(warnings).toEqual(["a", "b"]);
+  });
+
+  it("clearWarningsInPlace matches on the trimmed value, as the call site does", () => {
+    const warnings = ["  padded  ", "kept"];
+    expect(clearWarningsInPlace(warnings, new Set(["padded"]))).toBe(1);
+    expect(warnings).toEqual(["kept"]);
+  });
+
 });
