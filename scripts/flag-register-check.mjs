@@ -33,7 +33,20 @@ import { join, relative } from "node:path";
 
 const ROOT = process.env.CML_WORKSPACE_ROOT || process.cwd();
 const REGISTER = join(ROOT, "architecture", "FLAG-AUDIT.md");
-const ENV_FILE = join(ROOT, ".env.local");
+/**
+ * BOTH env files, in the order the pipeline loads them.
+ *
+ * FOUND BY AUDIT 2026-08-03. This read `.env.local` alone — but every entry point calls
+ * `config({path: .env})` *before* `config({path: .env.local})`, and **dotenv does not override a
+ * value already set**. So `.env` WINS on any key both files define, which is the opposite of what
+ * the filenames imply. Five keys are currently shadowed that way, including
+ * `AZURE_OPENAI_DEPLOYMENT_NAME`: `.env.local` asks for `gpt-4.1-mini`, `.env` says `gpt-4o-mini`,
+ * and every non-prose agent runs on `gpt-4o-mini`.
+ *
+ * A checker that reads only the losing file can report "clean" while the runtime disagrees — the
+ * precise defect class this tool exists to catch, in the tool itself.
+ */
+const ENV_FILES = [join(ROOT, ".env"), join(ROOT, ".env.local")];
 const SOURCE_ROOTS = ["apps", "packages", "scripts"];
 const JSON_OUT = process.argv.includes("--json");
 
@@ -44,7 +57,31 @@ const JSON_OUT = process.argv.includes("--json");
  * timeouts) are configuration in the ordinary sense and have never produced this defect. The prefixes
  * below are the pipeline's own levers — the ones the corpus regime governs.
  */
-const FLAG_PATTERN = /\b(AGENT\d*[A-Z]*_[A-Z0-9_]+|LLM_HTTP_TRANSPORT|RUBRIC_[A-Z0-9_]+|NOVELTY_[A-Z0-9_]+)\b/g;
+/**
+ * The logging keys are named ONE BY ONE rather than caught by a `LOG_[A-Z0-9_]+` wildcard.
+ *
+ * X3 (REVIEW_05 §12.3) put them in scope because `LOG_FULL_PROMPTS_TO_FILE` had four parsers, three
+ * of which read `1` as false and silently disabled the evidence a paid run leaves behind. A
+ * wildcard would also sweep in every LOG_-prefixed local and telemetry label in the tree, and a
+ * checker that reports phantoms is one people learn to ignore — the failure this file already warns
+ * about two functions below.
+ */
+const LOGGING_KEYS = [
+  "LOG_LEVEL",
+  "LOG_TO_CONSOLE",
+  "LOG_TO_FILE",
+  "LOG_FILE_PATH",
+  "LOG_FULL_PROMPTS_TO_FILE",
+  "FULL_PROMPT_LOG_FILE_PATH",
+  "LOG_ACTUAL_PROMPT_DOCS_TO_FILE",
+  "ACTUAL_PROMPT_DOCS_DIR",
+];
+
+const FLAG_PATTERN = new RegExp(
+  String.raw`\b(AGENT\d*[A-Z]*_[A-Z0-9_]+|LLM_HTTP_TRANSPORT|RUBRIC_[A-Z0-9_]+|NOVELTY_[A-Z0-9_]+|` +
+    `${LOGGING_KEYS.join("|")})\\b`,
+  "g",
+);
 
 /** Paths whose flag mentions are documentation of a flag, not a use of one. */
 const isExcluded = (path) =>
@@ -119,16 +156,42 @@ const collectCodeFlags = () => {
   return found;
 };
 
-/** Flags the CONFIG sets — commented-out lines do not count as set. */
-const collectConfigFlags = () => {
-  const set = new Set();
-  if (!existsSync(ENV_FILE)) return set;
-  for (const line of readFileSync(ENV_FILE, "utf8").split(/\r?\n/)) {
-    const match = /^\s*([A-Z][A-Z0-9_]+)\s*=/.exec(line);
-    if (!match) continue;
-    if (new RegExp(`^(?:${FLAG_PATTERN.source})$`).test(match[1])) set.add(match[1]);
+/** Every assignment in one env file. Commented-out lines do not count as set. */
+const readEnvFile = (path) => {
+  const map = new Map();
+  if (!existsSync(path)) return map;
+  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
+    const match = /^\s*([A-Z][A-Z0-9_]+)\s*=(.*)$/.exec(line);
+    if (match) map.set(match[1], match[2].trim());
   }
-  return set;
+  return map;
+};
+
+/**
+ * Flags the CONFIG sets, plus every key SHADOWED across the two files.
+ *
+ * Shadowing is reported for **all** env keys, not just flag-shaped ones — the worst instance found
+ * was `AZURE_OPENAI_DEPLOYMENT_NAME`, which no flag pattern would have matched.
+ */
+const collectConfigFlags = () => {
+  const isFlag = (name) => new RegExp(`^(?:${FLAG_PATTERN.source})$`).test(name);
+  const [base, local] = ENV_FILES.map(readEnvFile);
+
+  // Precedence as of 2026-08-03: every production loader passes { override: true } on
+  // , so the LOCAL file wins — matching what the filenames imply. Before that fix
+  //  won silently, and this checker modelled the broken order.
+  const effective = new Map(base);
+  for (const [k, v] of local) effective.set(k, v);
+
+  const shadowed = [];
+  for (const [k, v] of base) {
+    if (local.has(k) && local.get(k) !== v) {
+      shadowed.push({ key: k, wins: local.get(k), ignored: v });
+    }
+  }
+
+  const set = new Set([...effective.keys()].filter(isFlag));
+  return { set, shadowed };
 };
 
 /** Flags the REGISTER documents — any FLAG-AUDIT mention inside a table row or backticks. */
@@ -143,7 +206,7 @@ const collectRegisterFlags = () => {
 };
 
 const code = collectCodeFlags();
-const config = collectConfigFlags();
+const { set: config, shadowed } = collectConfigFlags();
 const register = collectRegisterFlags();
 
 const codeNames = new Set(code.keys());
@@ -155,6 +218,7 @@ if (JSON_OUT) {
     JSON.stringify(
       {
         counts: { code: codeNames.size, config: config.size, register: register.size },
+        shadowed,
         configuredButUnread,
         readButUnregistered,
         readSites: Object.fromEntries([...code].map(([k, v]) => [k, [...v].sort()])),
@@ -164,7 +228,7 @@ if (JSON_OUT) {
     ),
   );
 } else {
-  console.log(`[flags] code reads ${codeNames.size} · .env.local sets ${config.size} · register documents ${register.size}`);
+  console.log(`[flags] code reads ${codeNames.size} · config sets ${config.size} (.env + .env.local) · register documents ${register.size}`);
 
   if (configuredButUnread.length) {
     console.log(`\n[flags] SET IN CONFIG, READ BY NO CODE — ${configuredButUnread.length}:`);
@@ -184,7 +248,17 @@ if (JSON_OUT) {
     );
   }
 
-  if (!configuredButUnread.length && !readButUnregistered.length) {
+  if (shadowed.length) {
+    console.log(`\n[flags] DUPLICATED — set in BOTH files with different values — ${shadowed.length}:`);
+    for (const s of shadowed) console.log(`  ${s.key}\n    effective: ${s.wins}  (.env.local)\n    ignored  : ${s.ignored}  (.env)`);
+    console.log(
+      "  → .env.local now wins: every production loader passes { override: true } (fixed 2026-08-03).\n" +
+        "    Not a defect any more, but two sources for one key is how the gpt-4o-mini shadowing\n" +
+        "    survived unnoticed for months — delete the .env copy.",
+    );
+  }
+
+  if (!configuredButUnread.length && !readButUnregistered.length && !shadowed.length) {
     console.log("\n[flags] clean — every configured flag is read, and every read flag is registered.");
   }
 }

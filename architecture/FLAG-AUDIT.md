@@ -391,3 +391,41 @@ the split on every run regardless of this flag.
 detector keeps reporting it on every run — and **REVIEW_04 §5 stays true: phase 2 of the geometry
 build sequence remains blocked**, because `AGENT9_GEOMETRY_CONTRACT` would put the mechanism's times
 into the prose prompt as a hard contract while the locked-fact layer injects two different ones.
+
+---
+
+## Addendum 9 — the logging keys (2026-08-04, X3)
+
+Found by [REVIEW_05](REVIEW_05.md) §12.3 and closed the same day. These eight keys were outside
+`flags:check`'s scope entirely, which is how the defect below survived: **four separate parsers, three
+of which accepted only the literal string `true`.** Setting `LOG_FULL_PROMPTS_TO_FILE=1` — the form
+every gated flag in this pipeline accepts — read as FALSE and silently disabled full-prompt logging.
+
+The failure mode is losing the evidence for a run that has already been paid for, and the loss looks
+exactly like the run having never been made. `logs/llm-prompts-full.jsonl` is the only cost
+measurement this project trusts (`report-total-cost-underreports-7x`), and the audits that read it —
+prompt overlap, temperature, prompt size — see a run with logging off as absent rather than as
+unlogged.
+
+All four call sites now use `parseEnvBool` and `buildLlmLogger` from `@cml/worker`
+(`jobs/cli-runtime.ts`). The truthy set is `1|true|yes|on`; an empty value takes the default, because
+`LOG_TO_FILE=` in a dotenv file is an unset key rather than an instruction to stop logging.
+
+**These are `CONFIG`, not behaviour levers** — they select where evidence is written, not what the
+pipeline does — so the promote/delete lifecycle does not apply. They are registered so that a change
+to one is visible, which is the property that was missing.
+
+| Flag | State | Verdict | Notes |
+|---|---|---|---|
+| `LOG_LEVEL` | SET (`info`) | **CONFIG** | Verbosity only |
+| `LOG_TO_CONSOLE` | SET on | **CONFIG** | |
+| `LOG_TO_FILE` | SET on | **CONFIG** | Gates `logs/llm.jsonl` |
+| `LOG_FILE_PATH` | SET (`./logs/llm.jsonl`) | **CONFIG** | The agent-loop copy defaulted to a relative `apps/api/logs/llm.jsonl`; unified to `<workspaceRoot>/logs/llm.jsonl`. Never observed, because the key is set |
+| `LOG_FULL_PROMPTS_TO_FILE` | unset → **ON** | **CONFIG** | Default-on. Gates the cost-audit surface — the key the defect was found on |
+| `FULL_PROMPT_LOG_FILE_PATH` | unset → `<root>/logs/llm-prompts-full.jsonl` | **CONFIG** | |
+| `LOG_ACTUAL_PROMPT_DOCS_TO_FILE` | unset → **ON** | **CONFIG** | Default-on. Gates `documentation/prompts/actual/`, which is what replay hydration reads (N5) |
+| `ACTUAL_PROMPT_DOCS_DIR` | unset → `<root>/documentation/prompts/actual` | **CONFIG** | |
+
+Two of the eight are **default-ON and unset**, which is the class Addendum 1's correction was about:
+the run's actual behaviour is not reconstructable from `.env.local` alone. They stay unset — a
+default-on evidence surface is the right default — but they are now written down.

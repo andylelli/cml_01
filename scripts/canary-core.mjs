@@ -1,7 +1,8 @@
 import path from "path";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { config } from "dotenv";
-import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
+import { AzureOpenAIClient } from "@cml/llm-client";
+import { buildLlmLogger } from "../apps/worker/dist/jobs/cli-runtime.js";
 import { generateMystery } from "../apps/worker/dist/jobs/mystery-orchestrator.js";
 import { saveReadableStory } from "../apps/worker/dist/jobs/save-readable-story.js";
 import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.mjs";
@@ -9,11 +10,6 @@ import { loadCanaryInputOverrides } from "./canary-loop/canary-input-overrides.m
 const root = process.cwd();
 config({ path: path.join(root, ".env") });
 config({ path: path.join(root, ".env.local"), override: true });
-
-const parseEnvBool = (value, fallback) => {
-  if (value === undefined) return fallback;
-  return value.toLowerCase() === "true";
-};
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT ?? "";
 const apiKey = process.env.AZURE_OPENAI_API_KEY ?? "";
@@ -29,20 +25,7 @@ const client = new AzureOpenAIClient({
   defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
   apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
   requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
-  logger: new LLMLogger({
-    // Matches the API's buildLlmLogger() exactly, so a canary run produces the same logs as a UI run.
-    logLevel: process.env.LOG_LEVEL,
-    logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
-    logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
-    logFilePath: process.env.LOG_FILE_PATH ?? path.resolve(root, "logs", "llm.jsonl"),
-    logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
-    fullPromptLogFilePath:
-      process.env.FULL_PROMPT_LOG_FILE_PATH ?? path.resolve(root, "logs", "llm-prompts-full.jsonl"),
-    logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
-    actualPromptDocsDir:
-      process.env.ACTUAL_PROMPT_DOCS_DIR ??
-      path.resolve(root, "documentation", "prompts", "actual"),
-  }),
+  logger: buildLlmLogger(root),
 });
 
 const canaryInputConfig = await loadCanaryInputOverrides({ workspaceRoot: root });

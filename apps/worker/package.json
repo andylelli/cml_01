@@ -13,6 +13,10 @@
       "types": "./dist/jobs/mystery-orchestrator.d.ts",
       "default": "./dist/jobs/mystery-orchestrator.js"
     },
+    "./jobs/cli-runtime.js": {
+      "types": "./dist/jobs/cli-runtime.d.ts",
+      "default": "./dist/jobs/cli-runtime.js"
+    },
     "./jobs/save-readable-story.js": {
       "types": "./dist/jobs/save-readable-story.d.ts",
       "default": "./dist/jobs/save-readable-story.js"

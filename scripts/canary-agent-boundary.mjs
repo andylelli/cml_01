@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import { config as loadDotEnv } from "dotenv";
-import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
+import { AzureOpenAIClient } from "@cml/llm-client";
+import { buildLlmLogger } from "../apps/worker/dist/jobs/cli-runtime.js";
 import { loadSeedCMLFiles, reviseCml } from "@cml/prompts-llm";
 import { getGenerationParams } from "@cml/story-validation";
 import { validateCml } from "@cml/cml";
@@ -37,11 +38,6 @@ loadDotEnv({ path: path.join(workspaceRoot, ".env") });
 loadDotEnv({ path: path.join(workspaceRoot, ".env.local") });
 
 /** Mirrors canary-core.mjs so both harnesses read the LOG_* switches identically. */
-const parseEnvBool = (value, fallback) => {
-  if (value === undefined) return fallback;
-  return value.toLowerCase() === "true";
-};
-
 const AGENT_LABELS = {
   "1": "Agent1-SettingRefiner",
   "2": "Agent2-CastDesigner",
@@ -122,23 +118,8 @@ async function main() {
     defaultModel: process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "gpt-4o-mini",
     apiVersion: process.env.AZURE_OPENAI_API_VERSION ?? "2024-10-21",
     requestsPerMinute: Number(process.env.LLM_RATE_LIMIT_PER_MINUTE ?? 60),
-    logger: new LLMLogger({
-      // Match canary-core.mjs (and the API's buildLlmLogger) so an agent-loop run produces the SAME
-      // log surfaces as a full run. Previously this omitted the full-prompt and actual-doc options:
-      // LLMLogger defaults logFullPromptsToFile to false, and writeActualRequestRecord returns early
-      // when actualPromptDocsDir is undefined — so an agent-loop run wrote llm.jsonl and nothing else,
-      // silently, for every agent. Any audit that reads llm-prompts-full.jsonl (prompt-overlap,
-      // temperature, prompt-size) saw an agent-loop run as if it had never happened.
-      logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
-      logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
-      logFilePath: process.env.LOG_FILE_PATH ?? "apps/api/logs/llm.jsonl",
-      logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
-      fullPromptLogFilePath:
-        process.env.FULL_PROMPT_LOG_FILE_PATH ?? path.resolve(workspaceRoot, "logs", "llm-prompts-full.jsonl"),
-      logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
-      actualPromptDocsDir:
-        process.env.ACTUAL_PROMPT_DOCS_DIR ?? path.resolve(workspaceRoot, "documentation", "prompts", "actual"),
-    }),
+    // X3 — one body, in @cml/worker. Three copies of this literal had already drifted twice.
+    logger: buildLlmLogger(workspaceRoot),
   });
 
   const artifactBundle = await resolveArtifacts({

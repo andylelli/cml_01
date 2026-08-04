@@ -5,9 +5,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRepository } from "./db.js";
 import { validateCml } from "@cml/cml";
-import { AzureOpenAIClient, LLMLogger, LogLevel } from "@cml/llm-client";
+import { AzureOpenAIClient } from "@cml/llm-client";
 import { deriveStoryTitle, generateCharacterProfiles } from "@cml/prompts-llm";
 import { FileReportRepository, type AggregateStats } from "@cml/story-validation";
+import { buildLlmLogger as buildWorkerLlmLogger } from "@cml/worker/jobs/cli-runtime.js";
 import { generateMystery } from "@cml/worker/jobs/mystery-orchestrator.js";
 import { saveReadableStory } from "@cml/worker/jobs/save-readable-story.js";
 import type { MysteryGenerationInputs } from "@cml/worker/jobs/mystery-orchestrator.js";
@@ -352,11 +353,6 @@ const buildProsePdf = (prose: Record<string, unknown>, fallbackTitle?: string) =
   return buildPdfFromLinePages(pages);
 };
 
-const parseEnvBool = (value: string | undefined, defaultValue: boolean) => {
-  if (value === undefined) return defaultValue;
-  return value.toLowerCase() === "true";
-};
-
 const buildLlmClient = () => {
   const config = {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
@@ -408,21 +404,11 @@ const normalizeCastForProfiles = (castPayload: Record<string, unknown>) => {
   };
 };
 
-const buildLlmLogger = () =>
-  new LLMLogger({
-    logLevel: process.env.LOG_LEVEL as LogLevel | undefined,
-    logToConsole: parseEnvBool(process.env.LOG_TO_CONSOLE, true),
-    logToFile: parseEnvBool(process.env.LOG_TO_FILE, true),
-    logFilePath: process.env.LOG_FILE_PATH || path.resolve(__dirname, "../../..", "logs", "llm.jsonl"),
-    logFullPromptsToFile: parseEnvBool(process.env.LOG_FULL_PROMPTS_TO_FILE, true),
-    fullPromptLogFilePath:
-      process.env.FULL_PROMPT_LOG_FILE_PATH ||
-      path.resolve(__dirname, "../../..", "logs", "llm-prompts-full.jsonl"),
-    logActualPromptDocsToFile: parseEnvBool(process.env.LOG_ACTUAL_PROMPT_DOCS_TO_FILE, true),
-    actualPromptDocsDir:
-      process.env.ACTUAL_PROMPT_DOCS_DIR ||
-      path.resolve(__dirname, "../../..", "documentation", "prompts", "actual"),
-  });
+/**
+ * X3 — one body, in `@cml/worker`. This file used to carry its own copy, and the three other copies
+ * carried a comment claiming to match it "exactly".
+ */
+const buildLlmLogger = () => buildWorkerLlmLogger(path.resolve(__dirname, "../../.."));
 
 const describeError = (error: unknown) => {
   if (error instanceof Error) {

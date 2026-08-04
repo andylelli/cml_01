@@ -37,7 +37,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | **C. Newly found, not yet planned** ||||
 | X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ◑ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) · [§17](#17-x1--free-half-done-the-repair-partition-is-now-total) |
 | X2 | ~~Mechanism regen `score 200` — detector and validator disagree~~ → **no disagreement; the message was unreadable.** Fixed | free | ✅ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) · [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why) |
-| X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` | free | ☐ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) |
+| X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` — **four parsers, three wrong** | free | ✅ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) · [§19](#19-x3--one-parser-one-logger-eight-registered-keys) · [FLAG-AUDIT Addendum 9](FLAG-AUDIT.md) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ☐ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) |
 | **D. Paid probes, in dependency order** ||||
@@ -1061,3 +1061,43 @@ interpret. Every message keyed on `score` from `composeChapterValidator` inherit
 this one was noticed because it happened to land on a round number that looked like a maximum. The
 cheap general guard is what shipped: never report a score without either its denominator or the
 names of what failed.
+
+---
+
+## 19. X3 — one parser, one logger, eight registered keys
+
+**Completed 2026-08-04.** §12.3 described one parser in `canary-core.mjs`. There were **four** —
+`canary-core.mjs`, `canary-agent-boundary.mjs`, `apps/api/src/server.ts` and the worker's
+`cli-runtime.ts` — all resolving the same five logging keys, and only the worker's accepted anything
+but the literal string `"true"`.
+
+### 19.1 Why four copies is the more serious half
+
+Three of them carried a comment saying they matched the API's version *"exactly"*. A correspondence
+maintained by hand is not maintained, and these had already drifted twice:
+
+- the agent-loop copy once omitted the full-prompt and actual-doc options **entirely**, so an
+  agent-loop run wrote `llm.jsonl` and nothing else, silently, for every agent;
+- it still defaulted `logFilePath` to a *relative* `apps/api/logs/llm.jsonl` where the other three
+  resolve against the workspace root.
+
+Neither drift was caught by anything. Both are the same shape as the defect §12.3 named, and fixing
+only the parser would have left the shape in place. All four now call `parseEnvBool` and
+`buildLlmLogger` from `@cml/worker` (`jobs/cli-runtime.js`, newly added to the package's exports).
+
+### 19.2 The register could not see these keys at all
+
+`flags:check`'s pattern covers `AGENT*_`, `RUBRIC_*`, `NOVELTY_*` and `LLM_HTTP_TRANSPORT`. The
+`LOG_*` keys were outside its scope, which is how a four-parser divergence on the pipeline's evidence
+surface survived a flag audit.
+
+The eight keys are now named **individually** in the pattern rather than caught by a `LOG_*`
+wildcard — a wildcard would sweep in every LOG-prefixed local and telemetry label in the tree, and
+the checker's own comments already record what happens when it reports phantoms. FLAG-AUDIT
+Addendum 9 registers all eight as `CONFIG`: they select where evidence is written, not what the
+pipeline does, so the promote/delete lifecycle does not apply — but a change to one is now visible.
+
+**Two of the eight are default-ON and unset** (`LOG_FULL_PROMPTS_TO_FILE`,
+`LOG_ACTUAL_PROMPT_DOCS_TO_FILE`), which is exactly the class Addendum 1's correction was about: the
+run's real behaviour is not reconstructable from `.env.local` alone. They stay unset — a default-on
+evidence surface is the right default — but they are written down now.

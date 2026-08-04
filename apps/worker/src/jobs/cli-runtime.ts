@@ -41,9 +41,32 @@ export function loadEnvFiles(root: string): void {
   }
 }
 
+/**
+ * X3 (architecture/REVIEW_05.md §12.3) — THE parser for the logging switches.
+ *
+ * There were four of these: here, `apps/api/src/server.ts`, `scripts/canary-core.mjs` and
+ * `scripts/canary-agent-boundary.mjs`. Three accepted only the literal string `"true"`, so
+ * `LOG_FULL_PROMPTS_TO_FILE=1` — the form every gated flag in this pipeline accepts — read as
+ * FALSE and silently disabled full-prompt logging. The failure mode is losing the evidence for a
+ * run that has already been paid for, and it would look like the run had never been made.
+ *
+ * The truthy set matches the rest of the pipeline (`1|true|yes|on`). An empty value takes the
+ * default rather than reading as false: `LOG_TO_FILE=` in a dotenv file is an unset key, not an
+ * instruction to stop logging.
+ */
 export const parseEnvBool = (v: string | undefined, def: boolean): boolean =>
   v === undefined || v === "" ? def : /^(1|true|yes|on)$/i.test(v);
 
+/**
+ * THE logger every entry point builds — API, canary core, agent-loop boundary, benches.
+ *
+ * Four copies of this existed, three of them carrying a comment claiming to match the API's version
+ * "exactly" — a correspondence maintained by hand, which is to say not maintained. They had already
+ * drifted twice: the agent-loop copy once omitted the full-prompt and actual-doc options entirely
+ * (so an agent-loop run wrote `llm.jsonl` and nothing else, silently, for every agent), and it
+ * still defaulted `logFilePath` to a relative `apps/api/logs/llm.jsonl` where the others resolve
+ * against the workspace root.
+ */
 export function buildLlmLogger(workspaceRoot: string): LLMLogger {
   return new LLMLogger({
     logLevel: process.env.LOG_LEVEL as any,
