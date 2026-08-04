@@ -25,7 +25,8 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | ID | Item | Cost | Status | § |
 |---|---|---|---|---|
 | **A. Measurement — gates every quality claim** ||||
-| M1 | Rewrite the internal judge as the external rubric; re-score the 7 existing pairs | ~1 day, ~£1 | ☐ | [§11.1](#111-the-assessment) |
+| M1 | ~~Rewrite the judge as the external rubric~~ → **diagnosed:** rubric already matches the external ten; caps are not the distortion; one blind spot (an undisclosed reveal) drags 86% → 50%. Deterministic `noResolution` now wired from geometry | ~1 day | ◑ | [§13](#13-m1--what-the-judge-diagnosis-actually-found) |
+| M1b | Re-score the archived stories with the verdict wired in; re-run `eval:calibrate` | ~£1 | ☐ | [§13.4](#134-what-this-changes-upstream) |
 | **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
 | N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ☐ | [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) |
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ☐ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
@@ -725,3 +726,66 @@ an exit condition it can meet.
 - **The five files modified before this session** (`llm-connectivity-harness.ts`, `index.ts`,
   `agent5-run.ts`, `flag-register-check.mjs`, a prompt-records README). Not mine, uncommitted,
   untouched.
+
+---
+
+## 13. M1 — what the judge diagnosis actually found
+
+**Started 2026-08-04. The recommendation in §11.1 was based on [THINK_01](THINK_01.md) Move 1's framing, and the data does not support that framing.** What follows is the diagnosis, done before writing any judge, and the small fix it pointed at instead.
+
+### 13.1 Three findings that killed the planned fix
+
+**1. The rubric already IS the external rubric.** Move 1 says *"ours is a different rubric"*. It is not: `prompt.ts` scores ten categories — premise, opening_hook, plot_structure, character_clarity, dialogue, atmosphere, clues, pacing, ending, prose — against the external reader's ten (Premise/concept, Opening hook, Plot structure, Character clarity, Dialogue, Atmosphere/setting, Mystery clues, Pacing, Ending/reveal, Prose/polish). Same ten, same scale, plus `main_problems` and `fastest_fixes`. **Rewriting it would change nothing.**
+
+**2. The hard caps are not the distortion — removing them makes it worse.** MEASURED over the 7 pairs:
+
+```
+CAPPED (what ships)                9/21 orderable pairs agree = 42.9%
+RAW (LLM marks, caps not applied)  7/18                       = 38.9%
+```
+
+Move 1's "structural caps that fire hard" hypothesis is falsified. They are a small net positive.
+
+**3. The judge is not randomly bad. It has one blind spot.** Agreement by how far apart the external reader placed the two stories:
+
+| external gap | pairs | agreement |
+|---|---|---|
+| ≥1 | 21 | 43% |
+| ≥5 | 12 | 50% |
+| ≥8 | 5 | 40% |
+
+All three misses at ≥8 involve **the same story** — `2026-08-02-1936`, the one whose reveal names nobody. Exclude it:
+
+```
+                        all 7      excluding 1936
+gap >= 1                 43%   ->    60%
+gap >= 5                 50%   ->    86%   <- the published calibration target
+```
+
+**MEASURED. n = 7, and excluding the worst-fitting point is exactly how people fool themselves — so this is a hypothesis with a cheap test, not a result.** But it is a *specific* hypothesis: the judge orders stories acceptably except when a story fails to disclose.
+
+### 13.2 Why it is blind there, precisely
+
+On that story the judge scored `ending: 6/10` — *"The culprit is identified by process of elimination and circumstantial…"* — about a manuscript whose reveal names nobody. The external reader gave it **4/10**: *"No completed culprit exposure; Chapter 9 only points toward Hugo."*
+
+The cap that would have caught it exists (`noResolution` caps `ending` at 5). It never fired, and the reason is one line in `facts.ts`:
+
+```ts
+noResolution: fromJudge.noResolution ?? deterministic.noResolution,
+```
+
+**`deterministic.noResolution` is never set.** It has no extractor — `noResolution` is the only structural fact that is purely the judge's opinion, unchecked by anything. The judge believed the reveal disclosed, so the flag stayed false and the cap never ran.
+
+Meanwhile geometry's `reveal_culprit_not_named` — which requires the culprit's name and a guilt marker **in one sentence** — got the same story right.
+
+### 13.3 The fix, and what it deliberately does not do
+
+`scoreStory` accepts `noResolutionVerdict`; the orchestrator reads it off the geometry acceptance test that has already run on the committed chapters; `mergeFacts` reverses the precedence so **the detector wins**, as `pronounsUnstable` and the A_68 verifiers already do. `null` when geometry did not run — never `false`, because "not measured" must not read as "the reveal disclosed". The run warnings now record whether the deterministic verdict *agreed with or overrode* the judge.
+
+**What it does not do: tune the caps.** Simulating the existing cap on that story moves its internal from 73 to 72, and ranking agreement does not change — it would still outscore five stories the reader placed above it. Choosing a cap severity that fits 7 data points is overfitting with extra steps. **The wiring is the defensible part; the severity needs more pairs.**
+
+### 13.4 What this changes upstream
+
+- **§11.1's M1 row was wrong as written.** "Rewrite the internal judge as the external rubric, ~1 day" describes work that would not have helped. The tracker now reads `◑` with the real finding, and M1b carries the remaining test.
+- **It is the first time geometry has paid for itself in another system.** Its value here is not that it improves a story — it is that it supplies a fact the scoring instrument could not compute for itself.
+- **The next step is cheap and falsifiable:** re-score the archived stories with the deterministic verdict wired in and re-run `eval:calibrate`. If agreement moves toward 60/86%, the hypothesis holds and cap severity becomes worth tuning on a larger corpus. If it does not, the judge's problem is broader than one blind spot and [THINK_01 §8](THINK_01.md)'s harder question applies.

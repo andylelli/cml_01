@@ -590,6 +590,21 @@ async function runRubricScoring(args: {
   /** A_57 D2 — the world-state ledger's canonical staged/true pair (for the dual-value-without-contrast cap). */
   discriminatingPair?: { values: [string, string] } | null;
 }): Promise<void> {
+  /**
+   * REVIEW_05 §13 (M1) — hand the judge a deterministic verdict on whether the reveal disclosed.
+   *
+   * Read off the geometry acceptance test that already ran on the committed chapters. This is the one
+   * place geometry pays for itself immediately: the judge's `noResolution` fact had no extractor, and
+   * the story it got wrong is the story that drags calibration from 86% to 50%.
+   *
+   * `null` when geometry did not run or bound no reveal chapter — never `false`, because "not
+   * measured" must not read as "the reveal disclosed".
+   */
+  const geometryAcceptance = (args.prose as any)?.validationDetails?.storyGeometry;
+  const revealChecks = (geometryAcceptance?.checks ?? []).filter(
+    (c: any) => c?.code === "reveal_culprit_not_named",
+  );
+  const noResolutionVerdict: boolean | null = revealChecks.length > 0 ? !revealChecks[0].satisfied : null;
   const mode = (process.env.RUBRIC_SCORING_MODE ?? "shadow").toLowerCase();
   if (mode === "off") return;
   try {
@@ -617,6 +632,7 @@ async function runRubricScoring(args: {
       chapters,
       findUnplanted: findUnplantedDiscriminatingClues,
       discriminatingPair: args.discriminatingPair,
+      noResolutionVerdict,
     });
     const vetoes = [
       r.structural?.unplantedEvidenceVetoed && "unplanted-evidence vetoed",
@@ -629,6 +645,12 @@ async function runRubricScoring(args: {
         (vetoes.length ? `; structural: ${vetoes.join("; ")}` : ""),
     );
     args.warnings.push(`Final-story rubric (shadow): ${r.final}/100 — ${r.band}`);
+    if (noResolutionVerdict !== null) {
+      args.warnings.push(
+        `Final-story rubric: noResolution supplied deterministically by geometry = ${noResolutionVerdict} ` +
+          `(judge's own view: ${r.facts?.noResolution === noResolutionVerdict ? "agreed" : "OVERRIDDEN"}).`,
+      );
+    }
     args.aggregator?.upsertDiagnostic("rubric_score", "scoring", "Final-Story Rubric", "rubric_score", {
       final: r.final,
       band: r.band,

@@ -507,7 +507,12 @@ export function mergeFacts(deterministic: StoryFacts, fromJudge: StoryFacts = {}
     culpritConfessesTamperingOnly: fromJudge.culpritConfessesTamperingOnly ?? deterministic.culpritConfessesTamperingOnly,
     revealUsesUnplantedEvidence: fromJudge.revealUsesUnplantedEvidence ?? deterministic.revealUsesUnplantedEvidence,
     mechanismExplainedTooEarly: fromJudge.mechanismExplainedTooEarly ?? deterministic.mechanismExplainedTooEarly,
-    noResolution: fromJudge.noResolution ?? deterministic.noResolution,
+    // REVIEW_05 §13 (M1) — the DETECTOR WINS, reversing the precedence. This fact previously had no
+    // extractor at all and was therefore the judge's unchecked opinion; when a caller supplies a
+    // deterministic verdict (geometry's `reveal_culprit_not_named`), a judge that believes the reveal
+    // disclosed must not be able to suppress it. Same precedence as `pronounsUnstable` and the A_68
+    // verifiers, and for the same reason: a detector that only ever speaks when it is sure.
+    noResolution: deterministic.noResolution ?? fromJudge.noResolution,
     endingContradictsEarlier: fromJudge.endingContradictsEarlier ?? deterministic.endingContradictsEarlier,
     // A_68 FIX A — mechanism coherence is a judge call (physics is semantic); citation-gated in score.ts.
     mechanismIncoherent: fromJudge.mechanismIncoherent ?? deterministic.mechanismIncoherent,

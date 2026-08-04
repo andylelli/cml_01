@@ -57,6 +57,20 @@ export interface ScoreStoryInput {
    * two values are stated as flat parallel truths instead of one contradiction).
    */
   discriminatingPair?: { values: [string, string] } | null;
+  /**
+   * REVIEW_05 §13 (M1) — a DETERMINISTIC verdict on whether the manuscript names its culprit.
+   *
+   * `noResolution` was the only structural fact with no extractor at all: `facts.ts` read it purely
+   * from the judge, and on `2026-08-02-1936` the judge scored the ending 6/10 with *"the culprit is
+   * identified by process of elimination"* about a story whose reveal names nobody. The external
+   * reader gave that ending 4/10 — *"No completed culprit exposure"* — and it is the single story
+   * that drags the judge's ranking agreement from 86% (gap≥5, excluding it) to 50%.
+   *
+   * Supplied by the caller from geometry's `reveal_culprit_not_named`, which requires the culprit's
+   * name and a guilt marker in ONE SENTENCE and got this story right. When present it WINS over the
+   * judge, as `pronounsUnstable` and the A_68 verifiers already do.
+   */
+  noResolutionVerdict?: boolean | null;
 }
 
 export interface ScoreStoryResult extends CappedScore {
@@ -71,7 +85,12 @@ export interface ScoreStoryResult extends CappedScore {
  * ships is `final`.
  */
 export async function scoreStory(input: ScoreStoryInput): Promise<ScoreStoryResult> {
-  const deterministic = extractStoryFacts(input.cml, input.prose, { discriminatingPair: input.discriminatingPair });
+  const extracted = extractStoryFacts(input.cml, input.prose, { discriminatingPair: input.discriminatingPair });
+  // A deterministic verdict, when the caller has one, is a FACT — not a hint the judge may overrule.
+  const deterministic =
+    typeof input.noResolutionVerdict === "boolean"
+      ? { ...extracted, noResolution: input.noResolutionVerdict }
+      : extracted;
   const caseData = unwrapCase(input.cml);
 
   const chapters = input.chapters && input.chapters.length ? input.chapters : splitProseIntoChapters(input.prose);
