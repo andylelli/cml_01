@@ -198,6 +198,11 @@ Every number here re-measured on 2026-08-04.
 
 ---
 
+> **SUPERSEDED IN PART by [REVIEW_05](REVIEW_05.md) §7.** B1 shipped and its probe PASSED (the case's
+> anchors went from 0×/0× to 43×/13× in the manuscript). But that run also shipped a story whose only
+> disclosure is an injector template, which REVIEW_05 §7 puts three free instrument fixes ahead of
+> everything paid here. Read §11 for the dependency structure, REVIEW_05 §7 for the current head.
+
 ## 11. The plan — everything outstanding, in dependency order
 
 **The shape of it.** Four things must happen before any money is usefully spent: measure the risk this session's validators introduced, commit the tree, fix the two time models at source, and make replay hydration honest. Only then do the paid probes mean anything — and one of them (D1) may reduce the value of everything geometry does, which is why it comes *before* the geometry probes rather than after.

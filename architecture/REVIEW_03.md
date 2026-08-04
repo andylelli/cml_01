@@ -61,6 +61,54 @@ the run's own warnings for exactly this reason.
 
 ---
 
+## 0m. Second run, and three findings that supersede sections below — **2026-08-03**
+
+A second full-logging run (`mystery-1785694688534`) and two external reads arrived after this board was written. **Three things below are now stale or wrong; this section is authoritative where they conflict.**
+
+### R7 is answered, and the answer is bad
+
+Both 08-02 runs were externally read, giving the corpus **7** internal/external pairs — past the n≥6 bar. `npm run eval:calibrate`:
+
+```
+BIAS      internal − external = -7.71   (sd 7.11, n 7)
+RANKING   9/21 orderable pairs agree = 42.9%
+VERDICT   NOT CALIBRATED (42.9% vs 85%)   ·   OFFSET not usable
+```
+
+**42.9% is worse than a coin flip on ordering.** The judge ranked the two runs *backwards*: `the_clockwork_deceit` internal **68** / external **80**; `the_clock_s_deception` internal **73** / external **68**. The +5 is the first positive gap ever recorded, which also kills the informal "add ~9" correction.
+
+**Supersedes:** §0e, §3's calibration row, §6 item 3 and §9's log, all of which say "5 of 6 pairs, refuses at n=5". R7 is no longer *awaiting data* — it is **answered, and every internal A/B verdict on this project rests on it**. See [THINK_01 §2](THINK_01.md).
+
+### `.env` silently overrides `.env.local` — ✅ **FIXED 2026-08-03**
+
+> Loaders now pass `{ override: true }` on `.env.local`. `.env.local`'s api-version was raised to `2024-12-01-preview` **first**, so flipping precedence could not regress `json_schema`; both endpoints were verified live (HTTP 200) before the switch. **Effective deployment is now `gpt-4.1-mini`** — a real behaviour change, unprobed. The red-herring floor was fixed in the same pass (its repair now gates on its own flag). All six suites green; `flags:check` updated to the new precedence.
+
+Every entry point calls `config({path: .env})` **before** `config({path: .env.local})`, and dotenv does not override an existing value — so **`.env` wins every conflict**, the opposite of what the filenames imply. Three keys differ:
+
+| Key | Effective (`.env`) | Ignored (`.env.local`) |
+|---|---|---|
+| `AZURE_OPENAI_DEPLOYMENT_NAME` | **`gpt-4o-mini`** | `gpt-4.1-mini` |
+| `AZURE_OPENAI_API_VERSION` | `2024-12-01-preview` | `2024-02-15-preview` |
+| `AZURE_OPENAI_ENDPOINT` | `…cognitiveservices.azure.com` | `…openai.azure.com` |
+
+**Every non-prose agent has been running on `gpt-4o-mini`** — Agents 1, 2, 2b/c/d/e, 3, 3b, 5, 6, 6.5, 7, 8 and Agent-9 validation — while `.env.local`'s comment explains that `gpt-4.1-mini` was chosen because it is *"far more reliable than 4o-mini (fewer retries → fewer tokens)"*. That decision has never taken effect on a canary run.
+
+**This also corrects [REVIEW_02 §2.1](REVIEW_02.md).** Its "second, independent blocker" — that the api-version predated `json_schema` — was derived from the losing file. The effective version is `2024-12-01-preview`, past the floor. **Only the SDK strip was ever real.**
+
+`npm run flags:check` read only `.env.local` until 2026-08-03 and so could report "clean" while the runtime differed — the same defect class the tool exists to catch. It now reads both and reports shadowing.
+
+### A_71's red-herring floor cannot repair
+
+Run 2 shipped **0 red herrings**. The floor detected it and logged *"0 red herring(s) against a budget of 2"* — but its bounded regeneration sits inside `if (llmRetriesEnabled)`, and `AGENT5_ENABLE_LLM_RETRIES` is **default-OFF** (the run logged *"Agent 5: deterministic remediation mode active — LLM retry loops disabled by default"*).
+
+**So it is a detector, not a floor.** The previous run's 2 red herrings were the model's own output, not a repair — the floor has never repaired anything. **Supersedes §3's "Red-herring floor ✅ predicted and confirmed"**: what was confirmed is that it *fires*, not that it *works*.
+
+### True cost, measured from token counts
+
+£0.8755 ($1.1082) with cache credit; £1.0413 without. The pipeline's tracker and the report both say **£1.1213 — a 28% over-statement**, from two causes: no cache credit (£0.166) and Sonnet 5 priced at the standard $3/$15 when it is on **introductory $2/$10 through 2026-08-31** (£0.077). The old 7× *under*-report is genuinely fixed; the residual error is smaller and in the opposite direction.
+
+---
+
 ## 0c–0i. The rest of §6, worked
 
 ### 0e. R7 — five of the six pairs already existed
@@ -294,7 +342,7 @@ and a different thing from having no way to find out.)*
 | Regen edit-list / batch size | ✅ | ✅ | ❌ flag OFF |
 | Production resume | ✅ | ✅ | ◑ **dry drill passed, 2 defects found** (§0i); no live kill-resume |
 | Eval harness | ✅ | ✅ dry | ❌ baseline **held by the owner** |
-| Judge calibration | ✅ | ✅ 8 | ◑ **5 of 6 pairs assembled**; refuses to verdict at n=5 |
+| Judge calibration | ✅ | ✅ 8 | ✅ **ANSWERED — n=7, 42.9% ranking, NOT CALIBRATED** (§0m) |
 
 **The row that was called out as different behaved exactly as predicted.** `AGENT5_RED_HERRING_FLOOR`
 is an off-*switch*, so it was the one piece of new behaviour a fresh run would exercise unasked — and
@@ -347,7 +395,7 @@ Ordered by what unblocks the most. **Nothing here is blocked on code.**
 |---|---|---|---|---|
 | 1 | **One fresh run with `LLM_HTTP_TRANSPORT=true`** | owner | ~£1.50 | ✅ **DONE** — shipped, every instrument read (§0b) |
 | 2 | **`npm run eval:baseline`** | owner | £4–8 | ⏸ **HELD** at the owner's instruction — the only item left that costs money |
-| 3 | **R7 — 6+ cold reads** | 👤 human | ~2 h | ◑ **5 of 6 pairs assembled** from the corpus with provenance; needs **one** more read (§0e) |
+| 3 | **R7 — judge calibration** | 👤 human | done | ✅ **ANSWERED 08-03: 42.9% ranking agreement, NOT CALIBRATED** (§0m). The task is no longer collecting reads — it is deciding what to do about an instrument that ranks at chance |
 | 4 | **Ratify the ADRs** | 👤 owner | ~1 h | ◑ **prepared** — ADR-0012 added, 0003 scoped, per-record ratification checklist written (§0f) |
 | 5 | Verdict the 39 unregistered flags | agent owners | ~1 sitting each | ◑ **evidenced** — all 39 resolved to their defaults; **8 were live in every run, unconfigured**, now explicit (§0g) |
 | 6a | S4 — split `agent9-run.ts` | agent | ~1 day | ◑ **two tranches done** — 7,082 → 6,814, typecheck + all suites green (§0h); 4 groups left |
@@ -426,8 +474,8 @@ npm test                             ✅ api 27 · worker 431 · web 174 · llm-
                                         prompts-llm 1008 (+7 skipped) · story-validation 430
 npm run test:eval-calibrate          ✅ 8
 npm run eval:dry                     ✅ 4/4 bundles assembled a context
-npm run flags:check                  ✅ CLEAN both ways — 76 read · 28 configured · 79 registered
-npm run eval:calibrate               ⛔ refuses at n=5 (by design; needs 6)
+npm run flags:check                  ⛔ 3 keys SHADOWED by .env (§0m); 76 read · 28 configured · 79 registered
+npm run eval:calibrate               ⛔ n=7 → NOT CALIBRATED (42.9% ranking, bias -7.71)
 ```
 
 **Live, against Azure:**
