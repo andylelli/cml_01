@@ -82,6 +82,24 @@ const paragraphsOf = (chapter: GeometryChapter | undefined): string[] =>
 const textOf = (chapter: GeometryChapter | undefined): string => paragraphsOf(chapter).join("\n\n");
 
 /**
+ * THE FOLDING BOUNDARY (REVIEW_05 §10.3 / N3).
+ *
+ * Every value that crosses from the CASE MODEL into a comparison with the PAGE goes through here.
+ * `paragraphsOf` folds the page; this folds everything held up against it — names, key terms, clock
+ * anchors, method names.
+ *
+ * Why a named boundary rather than scattered calls: the previous fix folded the haystack and not the
+ * needles, and that partial state was WORSE than no folding at all — `parseClockTime` returned null
+ * on a curly anchor, so the case's own true time never entered the allowed set while the now-folded
+ * prose parsed cleanly, and the check accused the manuscript of inventing the very hour the case had
+ * declared. A boundary cannot be half-applied; a call site can.
+ *
+ * `paragraphIndices` on a violation still index the ORIGINAL paragraphs — folding is
+ * position-preserving, so a scoped regeneration targets the text that actually shipped.
+ */
+const needle = (value: string | null | undefined): string => foldTypography(String(value ?? ""));
+
+/**
  * Match a character by full name, or by surname when the surname is distinctive.
  *
  * The surname guard is not fussiness: a culprit surnamed "Bell" or "Frost" would otherwise match
@@ -94,7 +112,7 @@ const COMMON_WORD_SURNAMES = new Set([
 ]);
 
 export const nameMatcher = (name: string): RegExp | null => {
-  const full = foldTypography(name).trim();
+  const full = needle(name).trim();
   if (!full) return null;
   const parts = full.split(/\s+/);
   const surname = parts[parts.length - 1] ?? "";
@@ -165,10 +183,10 @@ export const detectAftermathRepeatParagraphs = (
   args: { culprit?: string | null; methodTerms?: ReadonlyArray<string> },
 ): number[] => {
   const culpritRe = args.culprit ? nameMatcher(args.culprit) : null;
-  const methodTerms = (args.methodTerms ?? []).map((t) => String(t).toLowerCase()).filter(Boolean);
+  const methodTerms = (args.methodTerms ?? []).map((t) => needle(t).toLowerCase()).filter(Boolean);
   const offending: number[] = [];
   paragraphs.forEach((paragraph, index) => {
-    const text = String(paragraph ?? "");
+    const text = foldTypography(String(paragraph ?? ""));
     const namesCulpritAsDiscovery = namesCulpritAsGuilty(text, culpritRe);
     const restatements = [
       methodTerms.some((t) => text.toLowerCase().includes(t)),
@@ -286,7 +304,7 @@ export const checkManuscriptGeometry = (
       // form, so the case's true time never entered the allowed set — while the now-folded prose
       // parsed "two o'clock" cleanly and was reported as a THIRD time. The manuscript was accused of
       // inventing the very hour the case had declared.
-      const parsed = options.parseClockTime(raw ? foldTypography(raw) : undefined);
+      const parsed = options.parseClockTime(raw ? needle(raw) : undefined);
       if (parsed !== null) allowed.add(parsed);
     }
     if (allowed.size === 0) {
@@ -326,7 +344,7 @@ export const checkManuscriptGeometry = (
   if (geometry.methodSignature && geometry.methodSignature.keyTerms.length > 0 && chapterAt(geometry.methodSignature.plantChapter)) {
     const plantChapter = geometry.methodSignature.plantChapter;
     const text = textOf(chapterAt(plantChapter)).toLowerCase();
-    const satisfied = geometry.methodSignature.keyTerms.some((term) => text.includes(foldTypography(term)));
+    const satisfied = geometry.methodSignature.keyTerms.some((term) => text.includes(needle(term)));
     record({ field: "method_signature", code: "method_signature_absent", chapter: plantChapter, verdict: satisfied ? "met" : "unmet" }, {
       scope: "chapter",
       message:
@@ -340,7 +358,7 @@ export const checkManuscriptGeometry = (
     const { payoffChapter, plantByChapter, keyTerms, trace } = geometry.clincher;
 
     const payoffText = textOf(chapterAt(payoffChapter)).toLowerCase();
-    const payoffSatisfied = keyTerms.some((term) => payoffText.includes(foldTypography(term)));
+    const payoffSatisfied = keyTerms.some((term) => payoffText.includes(needle(term)));
     record({ field: "clincher", code: "clincher_absent_at_payoff", chapter: payoffChapter, verdict: payoffSatisfied ? "met" : "unmet" }, {
       scope: "chapter",
       message:
@@ -354,7 +372,7 @@ export const checkManuscriptGeometry = (
       if (c) plantWindow.push(c);
     }
     const plantedBy = plantWindow.some((c) =>
-      keyTerms.some((term) => textOf(c).toLowerCase().includes(foldTypography(term))),
+      keyTerms.some((term) => textOf(c).toLowerCase().includes(needle(term))),
     );
     record({ field: "clincher", code: "clincher_not_planted", chapter: plantByChapter, verdict: plantedBy ? "met" : "unmet" }, {
       scope: "chapter",
@@ -402,7 +420,7 @@ export const checkManuscriptGeometry = (
         const lower = text.toLowerCase();
         const methodStated =
           geometry.methodSignature.keyTerms.some((t) => lower.includes(t)) ||
-          lower.includes(geometry.methodSignature.method.toLowerCase());
+          lower.includes(needle(geometry.methodSignature.method).toLowerCase());
         record({ field: "chapter_contract", code: "reveal_method_absent", chapter: contract.chapter, verdict: methodStated ? "met" : "unmet" }, {
           scope: "chapter",
           message: `Chapter ${contract.chapter} does not state how the murder was physically done.`,

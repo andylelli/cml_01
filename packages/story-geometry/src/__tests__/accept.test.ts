@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { chapterIndexFor, checkManuscriptGeometry, foldTypography } from "../accept.js";
+import { chapterIndexFor, checkManuscriptGeometry, detectAftermathRepeatParagraphs, foldTypography } from "../accept.js";
 import { deriveStoryGeometry } from "../derive.js";
 import type { GeometryChapter, GeometryOutline } from "../types.js";
 
@@ -451,5 +451,59 @@ describe("accounted times — a locked clock value is not a third time", () => {
     chapters[3] = chapter(["The porter heard the gate at a quarter past eleven."]);
     const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
     expect(report.violations.map((v) => v.code)).toContain("unaccounted_time");
+  });
+});
+
+describe("the folding boundary holds on both sides (N3)", () => {
+  /**
+   * A PARTIAL FIX WAS WORSE THAN NONE. Folding the page but not the case's values left
+   * `parseClockTime` returning null on a curly anchor, so the true time never entered the allowed set
+   * while the folded prose parsed cleanly — and the check accused the manuscript of inventing the very
+   * hour the case had declared. These assert the boundary from the case-model side, value by value.
+   */
+  const curly = (v: string) => v.replace(/'/g, "\u2019");
+
+  const caseWithCurly = {
+    CASE: {
+      culpability: { culprits: [curly("Hugo O'Hale")] },
+      death_method: "strangled with a cord",
+      hidden_model: {
+        mechanism: { actual_time_of_death: curly("two o'clock"), apparent_time_of_death: "a quarter to three" },
+      },
+      false_solution: { accused_suspect: "Eleanor Frey" },
+    },
+  };
+
+  it("folds the culprit name, the clock anchors and the locked facts alike", () => {
+    const g = deriveStoryGeometry({
+      cml: caseWithCurly,
+      clues: CLUES,
+      narrative: TEN_CHAPTER_OUTLINE,
+      lockedFacts: [{ id: "chime", value: curly("no chimes after four o'clock") }],
+    });
+    const chapters = cleanManuscript();
+    // The page uses straight apostrophes throughout, as the prose sanitizer leaves it.
+    chapters[1] = chapter(["There had been no chimes after four o'clock, and the clock stood at two o'clock."]);
+    chapters[8] = chapter([
+      "Hugo O'Hale had strangled him, and the ligature told them how.",
+      "The torn fabric matched the tear at his cuff.",
+      "He did it because exposure would have ruined him.",
+    ]);
+    const report = checkManuscriptGeometry(g, chapters, { parseClockTime });
+
+    // the name folded → the reveal is recognised
+    expect(report.violations.map((v) => v.code)).not.toContain("reveal_culprit_not_named");
+    // the anchor folded → the case's own true time is not a third time
+    expect(report.extraTimes.map((t) => t.phrase.toLowerCase())).not.toContain("two o'clock");
+    // the locked fact folded → the accounted chime is not a third time either
+    expect(report.extraTimes.map((t) => t.phrase.toLowerCase())).not.toContain("four o'clock");
+  });
+
+  it("folds method terms for the aftermath detector too", () => {
+    const offending = detectAftermathRepeatParagraphs(
+      ["He had strangled her, and the alibi was cleared by the evidence."],
+      { culprit: "Hugo Hale", methodTerms: [curly("strangl")] },
+    );
+    expect(offending).toEqual([0]);
   });
 });
