@@ -2,6 +2,8 @@ import fs from "fs/promises";
 import path from "path";
 import { parseAgentCode } from "./config.mjs";
 import { readJsonIfPresent } from "./json.mjs";
+import { resolveCommittedSelection } from "./committed.mjs";
+import { readResponseJson } from "./response-body.mjs";
 
 export async function resolveArtifacts({
   workspaceRoot,
@@ -83,10 +85,23 @@ export async function resolveArtifacts({
 
   const logs = await gatherScopedLogs(workspaceRoot, runFolder, resolvedRunId);
 
+  /**
+   * N5 — which source answers for each upstream agent. Resolved here, where the run folder and the
+   * workspace root are both already in hand, so that the hydration bundle the report prints and the
+   * payloads the replay reads are decided by the SAME map rather than by two rules that can drift.
+   */
+  const committedSelection = await resolveCommittedSelection({
+    workspaceRoot,
+    runState: { ...runState, runId: resolvedRunId },
+    runFolder,
+    readResponseJson,
+  });
+
   return {
     runId: resolvedRunId,
     projectId: runState.projectId,
     runFolder,
+    committedSelection,
     runReportPath: runReportPath ?? undefined,
     runReport: runReport ?? undefined,
     runStatePath,

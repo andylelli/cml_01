@@ -32,13 +32,14 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ✅ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
 | N3 | Normalise once at the checking boundary | free | ✅ | [§10.3](#103-n3--normalise-once-at-the-checking-boundary-free) |
 | N4 | Warn when a beat label and its chapter disagree — **also gates reading N1's count** (§14.3) | free | ✅ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) · [§15](#15-n4--done-and-the-control-that-nearly-passed-silently) |
-| N5 | Hydrate replays from committed artifacts, not the prompt log | free | ☐ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) |
-| N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| N5 | Hydrate replays from committed artifacts, not the prompt log | free | ✅ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) · [§16](#16-n5--done-and-the-two-runs-that-were-replaying-the-wrong-story) |
+| N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ⛔ | Superseded — N5 landed; see [§16.4](#164-why-n5b-is-now-recommended-against) |
 | **C. Newly found, not yet planned** ||||
 | X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ☐ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) |
 | X2 | Mechanism regen pass reports `UNRESOLVED (score 200)` — detector and validator disagree | free to diagnose | ☐ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) |
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` | free | ☐ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
+| X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ☐ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) |
 | **D. Paid probes, in dependency order** ||||
 | N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
 | D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? | free | 👤 | [§11.4](#114-the-merged-order) |
@@ -891,3 +892,89 @@ because the injection detector only sees chapters the contract binds. That is no
 than silent: a run whose count is zero and whose report carries this note has not demonstrated that
 the injector did not fire. It is still not *fixed* — fixing it is N6 (promote `beat-scheduler`), and
 this note is the per-run signal N6's outcome is compared against.
+
+---
+
+## 16. N5 — done, and the two runs that were replaying the wrong story
+
+**Completed 2026-08-04.** Replay hydration now resolves each agent's payload from what the run
+**committed**, in three descending strengths of evidence, and says which one answered.
+
+| | source | evidence | applies to |
+| --- | --- | --- | --- |
+| 1 | `committed_artifact` | `data/store.json` — the payload `onArtifact` wrote as the stage completed | any run with a `projectId` (7 of 13) |
+| 2 | `committed_manuscript_shape` | Agent 9's checkpoint: the chapters that were actually written, matched against each candidate outline | runs predating artifact persistence (6 of 13) |
+| 3 | `highest_sequence_guess` | the old rule, reported as a guess | nothing, on the current corpus |
+
+### 16.1 The acceptance assertion, and two more that were not asked for
+
+§10.5's single test passes: **run 08-02 1654 now hydrates the 10-beat outline (attempt 18), not
+the 9-scene attempt 20.** The manuscript that shipped has ten chapters, so an outline with nine
+cannot be the one it was written from — the wrong count is excluded on fact, and title agreement
+(8 of 10) then picks between the two remaining candidates.
+
+Running the probe across all thirteen archived runs found **a second corrupted replay nobody knew
+about**:
+
+```
+run_20260731-1817   old guess: attempt 19   titles agreeing with the manuscript: 0 of 9
+                    now:       attempt 18   titles agreeing with the manuscript: 7 of 9
+```
+
+Both candidates have nine chapters, so this one was invisible to any chapter-count check. Attempt
+18 also carries a **duplicated `final_trap` beat** — which is exactly the duplicate-chapter defect
+that run's manuscript exhibits, so the flawed outline really is the one that shipped. Every replay
+of 1817 to date has been reading a different story.
+
+Across the seven runs that have store rows, resolution 1 agrees with the old guess every time. So
+this is not a behaviour change dressed as a fix: it changes 1654-class runs and leaves modern ones
+exactly where they were.
+
+### 16.2 The defect this fix nearly introduced
+
+The hydration **bundle** — the object the run report prints — resolved its own "latest" file
+independently of `readLatestAgentJson`. Left alone, N5 would have made the report name attempt 20
+while the replay read attempt 18: a measurement layer describing a path the data never travelled,
+which is the defect class the previous commit existed to remove, introduced *by* a fix for
+mis-hydration.
+
+Both now consume one `committedSelection` map, resolved once in `resolveArtifacts` where the run
+folder and workspace root are already in hand. Each bundle entry carries its `source`, so a report
+that says `committed_manuscript_shape` is making a checkable claim.
+
+### 16.3 Three smaller things it took to get there
+
+- **`response-body.mjs`** — `canary-agent-boundary.mjs` and `canary-agent3.mjs` each carried a
+  byte-identical private `extractResponseJson`, two files along the same call path whose shared
+  resolver's own comment warns about exactly this. N5 needed a third caller, so three copies became
+  one body.
+- **Agent 7.5 hydrates from the store.** It is deterministic and makes no LLM call, so it appears
+  nowhere in the prompt log and a record-driven loop reported its artifact as missing on the one run
+  that persisted it. The 08-04 run's missing-upstream list drops from two entries to one.
+- **`setting` and `cast` are stored wrapped** (`{setting: {...}, cost, latencyMs}`) and consumed
+  bare. Verified key-by-key against the 08-04 run; every other type is a superset of its response
+  body and passes through untouched.
+
+### 16.4 Why N5b is now recommended against
+
+N5b was the fallback: *if N5 slips, at least record the committed candidate in
+`.actual-run-state.json` going forward*. It was explicitly the lesser option — it fixes nothing
+already on disk, and REVIEW_04 §11.3 C2 says so.
+
+N5 landed, and it covers the existing corpus as well as future runs. Adding a second recording of
+the same fact would create a third place the answer lives, which can disagree with the other two.
+Marked ⛔.
+
+### 16.5 X5 — a required upstream that has never run
+
+Found while verifying the bundle: **`Agent4-Revision` has no records in any of the thirteen
+archived runs.** It is a conditional revision stage that has never fired, yet it sits in
+`PIPELINE_AGENT_ORDER` as a required upstream, so `buildHydrationBundle` reports it missing on
+*every* run.
+
+It is not blocking — `canSelfHydrateBoundary` downgrades the error to a warning when the canary
+command resolves boundary context itself — which is precisely why it has gone unnoticed. It is the
+same shape as the `CANARY_STATUS failure` item already in this document: a warning that fires
+always, for a known reason, trains people to read past warnings. The fix is to treat "4" the way
+`2b/2c/2d` are already treated — legacy-optional when the run has no records for it — and it is
+free. Tracker row **X5**.

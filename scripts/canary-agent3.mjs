@@ -4,7 +4,7 @@ import { config as loadDotEnv } from "dotenv";
 import { AzureOpenAIClient, LLMLogger } from "@cml/llm-client";
 import { loadSeedCMLFiles } from "@cml/prompts-llm";
 import { resolveArtifacts } from "./canary-loop/artifacts.mjs";
-import { parseJsonText } from "./canary-loop/json.mjs";
+import { extractResponseJson } from "./canary-loop/response-body.mjs";
 // REVIEW_04 §11.1 A3 — one body for "which attempt shipped?", shared with canary-agent-boundary.mjs.
 import { readLatestAgentJson as readLatestAgentJsonShared } from "./canary-loop/hydrate.mjs";
 import { deriveHardLogicDirectives, buildNoveltyConstraints, normalizePrimaryAxis, runAgent3 } from "../apps/worker/dist/jobs/agents/index.js";
@@ -127,18 +127,6 @@ async function readLatestAgentJson(runState, runFolder, agentCode) {
   );
 }
 
-function extractResponseJson(markdown) {
-  const textBlockMatch = markdown.match(/##\s+Response Body[\s\S]*?```text\s*([\s\S]*?)```/i);
-  if (!textBlockMatch) {
-    throw new Error("Unable to parse response body JSON block.");
-  }
-  const raw = textBlockMatch[1].trim();
-  try {
-    return parseJsonText(raw);
-  } catch (error) {
-    throw new Error(`Response body JSON parse failed: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
 
 function parseAgentCode(input) {
   const text = String(input ?? "").trim();
