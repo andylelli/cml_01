@@ -177,6 +177,10 @@ function buildCmlGenerationRequest(ctx: OrchestratorContext, noveltyConstraints:
     hardLogicModes: hardLogicDirectives.hardLogicModes,
     difficultyMode: hardLogicDirectives.difficultyMode,
     hardLogicDevices: hardLogicDevices.devices,
+    // REVIEW_04 §11.2 B1 — the device's locked times, so Agent 3 does not author a second clock.
+    // Self-gating: `buildCMLPrompt` ignores them unless AGENT3_DEVICE_TIME_BINDING is on, and the
+    // registry is empty unless `enableLockedFactRegistry` populated it.
+    lockedFacts: ctx.lockedFactRegistry,
     backgroundContext,
     noveltyConstraints,
     runId: ctx.runId,

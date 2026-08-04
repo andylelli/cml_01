@@ -107,7 +107,13 @@ Found on the first live geometry run, 08-04:
 
 Agent 3b designs the device, locks its times, and injects them into prose. Agent 3 authors the mechanism's times and **its prompt never receives the device's**. Nothing reconciles them.
 
-`checkLockedFactTimeAlignment` now reports the split on every run. It deliberately does not repair: `false_time_displayed` ↔ `apparent_time_of_death` is unambiguous, but `resumption_time` is when the mechanism restarted — not when anyone died — and writing `actual_time_of_death` from it would fabricate the coherence claim the case failed to make. **The root fix is upstream: give Agent 3 the device's locked times.** That is a prompt change, so it is a flag and a probe, and it is the owner's call.
+**B1 SHIPPED 2026-08-04, flag-gated OFF** — `AGENT3_DEVICE_TIME_BINDING` passes the device's locked
+facts into the CML prompt and requires `apparent_time_of_death` to equal the locked displayed time,
+with the true time and every alibi window on the same clock. Default OFF because it changes a prompt.
+Self-gating twice over: with no locked facts, or with `enableLockedFactRegistry` off, the prompt is
+byte-identical (asserted by test). **§5 stays true until the probe runs and the flag flips.**
+
+`checkLockedFactTimeAlignment` reports the split on every run regardless. It deliberately does not repair: `false_time_displayed` ↔ `apparent_time_of_death` is unambiguous, but `resumption_time` is when the mechanism restarted — not when anyone died — and writing `actual_time_of_death` from it would fabricate the coherence claim the case failed to make. **The root fix is upstream: give Agent 3 the device's locked times.** That is a prompt change, so it is a flag and a probe, and it is the owner's call.
 
 ---
 
@@ -303,10 +309,10 @@ This is §8bis's discriminating test between *"geometry is the fix"* and *"the s
 
 | # | Item | Cost | Blocks | Blocked by |
 |---|---|---|---|---|
-| A1 | Measure the new validators against the corpus | free | D1 | — |
-| A2 | Commit the tree | free | — | — |
-| A3 | One `readLatestAgentJson`, not two | free | C1 | — |
-| B1 | Give Agent 3 the device's locked times **[decision]** | ~£3 | D3 | A1 |
+| A1 | Measure the new validators against the corpus | free | D1 | ✅ **done** — 17% reach Agent 4, all timeline; no demotion needed |
+| A2 | Commit the tree | free | — | ✅ **done** — five commits |
+| A3 | One `readLatestAgentJson`, not two | free | C1 | ✅ **done** — plus the Agent-75 canary mapping it exposed |
+| B1 | Give Agent 3 the device's locked times — **built 2026-08-04, flag OFF; the ~£3 is the probe** | ~£3 | D3 | A1 ✅ |
 | C1 | Hydrate from committed artifacts | free | D1, D3, D4 | A3 |
 | D1 | Promote `beat-scheduler`, ≥4 runs **[decision]** | ~£6 | D2 | A1, C1 |
 | D2 | Re-justify geometry **[decision]** | free | D3 | D1 |

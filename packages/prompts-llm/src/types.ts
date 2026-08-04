@@ -47,6 +47,18 @@ export interface CMLPromptInputs {
   hardLogicModes?: string[];
   difficultyMode?: "standard" | "increase" | "extreme";
   hardLogicDevices?: HardLogicDeviceIdea[];
+  /**
+   * The device's LOCKED FACTS — the values Agent 3b fixed and the prose injector will print verbatim.
+   *
+   * REVIEW_04 §4.4 / §11.2. Agent 3 previously received the device's mechanism FAMILY and never its
+   * locked times, so it authored `apparent_time_of_death` blind to the clock the story would actually
+   * show. Measured on the 08-04 run: the case said 8:15 / 7:15, the manuscript printed 3:45 and 4:10,
+   * and **neither of the case's anchors appeared anywhere in the finished story**. Two agents
+   * inventing times from non-overlapping inputs, with nothing reconciling them.
+   *
+   * Consumed only when `AGENT3_DEVICE_TIME_BINDING` is on; absent or empty, the prompt is unchanged.
+   */
+  lockedFacts?: Array<{ id: string; value: string; description?: string }>;
   backgroundContext?: BackgroundContextInput;
   
   // Novelty constraints

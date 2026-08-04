@@ -69,6 +69,17 @@ const seedPatternsTextCache = new Map<string, string>();
 /**
  * Build the complete prompt for CML generation
  */
+/**
+ * REVIEW_04 §11.2 B1 — let the device's locked times bind the case's temporal anchors.
+ *
+ * Runtime getter, never a module const (`module-const-flags-frozen-before-dotenv`). Default OFF: this
+ * changes a prompt, which the corpus regime treats as a behaviour change to be probed rather than
+ * assumed. Probe: `checkLockedFactTimeAlignment` findings drop to zero, and the case's two anchors
+ * start appearing in the manuscript at all.
+ */
+export const isDeviceTimeBindingEnabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
+  /^(1|true|yes|on)$/i.test(String(env.AGENT3_DEVICE_TIME_BINDING ?? ""));
+
 export function buildCMLPrompt(inputs: CMLPromptInputs, examplesDir?: string): PromptMessages {
   // Load seed patterns if examples directory provided
   let seedPatternsText = "No seed patterns loaded (will generate from first principles).";
@@ -157,6 +168,45 @@ Grounding rule:
 - Preserve its contradiction structure in false_assumption + constraint_space + inference_path + discriminating_test.
 - Keep clues observable and fair-play deducible from the selected device logic.`;
 
+  /**
+   * REVIEW_04 §11.2 B1 — bind the case's temporal anchors to the times the story will actually print.
+   *
+   * THE DEFECT THIS CLOSES. Agent 3b designs the hard-logic device, locks its facts, and the prose
+   * injector prints them verbatim. Agent 3 authors `hidden_model.mechanism.{apparent,actual}_time_of_death`
+   * from a prompt that has never seen them. On the 2026-08-04 run the case said "quarter past eight" /
+   * "quarter past seven" and the manuscript printed "a quarter to four" (5x) and "ten minutes past
+   * four" (6x): **the case's two anchors appeared zero times in the finished story.** Everything that
+   * reads the mechanism — the geometry contract, `checkCaseTimelineDeception`, the rubric — was
+   * measuring a timeline the book does not have.
+   *
+   * WHY A PROMPT CHANGE RATHER THAN A REPAIR. Only one correspondence is safe to write mechanically:
+   * `false_time_displayed` IS the apparent time. `resumption_time` is when the mechanism restarted,
+   * not when anyone died, and deriving `actual_time_of_death` from it would fabricate the coherence
+   * claim the case failed to make. The model, which knows the device's story, can author both
+   * consistently; a deterministic mapping cannot. `checkLockedFactTimeAlignment` remains as the
+   * detector either way.
+   *
+   * Flag-gated, default OFF (corpus regime), runtime-read. Self-gating: with no locked facts the
+   * section is empty and the prompt is byte-identical.
+   */
+  const lockedFacts = Array.isArray(inputs.lockedFacts) ? inputs.lockedFacts.filter((f) => f?.id && f?.value) : [];
+  const deviceTimeBindingSection =
+    isDeviceTimeBindingEnabled() && lockedFacts.length > 0
+      ? `
+**Device Locked Facts (ALREADY FIXED — the prose will print these values verbatim)**:
+${lockedFacts.map((f) => `- ${f.id} = "${f.value}"${f.description ? `  (${f.description})` : ""}`).join("\n")}
+
+Binding rules — these values are settled and the case must be built around them, not beside them:
+- The clock time the staged evidence displays is ALREADY chosen. If a locked fact gives the displayed
+  or false time, \`hidden_model.mechanism.apparent_time_of_death\` MUST equal that value.
+- \`hidden_model.mechanism.actual_time_of_death\` must be consistent with the same device timeline —
+  the real death happens at a time these locked facts make possible, not at an unrelated hour.
+- Every alibi window in \`cast[].alibi_window\` must sit on that same clock. Do not invent a second
+  evening.
+- Write the times in the same form the locked facts use (word-form if they are word-form): the prose
+  reproduces them exactly, and two spellings of one hour read to a reader as two different times.`
+      : "";
+
   const backgroundGroundingSection = `
 **Background Context Artifact (must remain separate from mechanism logic)**:
 ${backgroundContextText}
@@ -227,6 +277,7 @@ ${backgroundGroundingSection}
 ---
 
 ${hardLogicGroundingSection}
+${deviceTimeBindingSection}
 
 ---
 

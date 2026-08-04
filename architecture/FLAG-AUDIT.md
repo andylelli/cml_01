@@ -360,3 +360,34 @@ chapter-level acceptance test to run on the committed chapter, strictly after th
 would consume it — so it is not built. A prompt branch nothing can populate is the
 `AGENT9_MODEL_REGEN` defect in a different costume. Geometry violations reach the model through the
 regen instruction instead.
+
+---
+
+## Addendum 8 — the device/case time binding (2026-08-04)
+
+Found by the first live geometry run and recorded in [REVIEW_04](REVIEW_04.md) §4.4: **the pipeline
+carries two contradictory time models.** Agent 3b designs the hard-logic device, locks its facts, and
+the prose injector prints them verbatim. Agent 3 authors
+`hidden_model.mechanism.{apparent,actual}_time_of_death` from a prompt that has never seen them.
+
+On `mystery-1785860662362` the case said "quarter past eight" / "quarter past seven" and the
+manuscript printed "a quarter to four" (5x) and "ten minutes past four" (6x). **Neither of the case's
+two anchors appeared anywhere in the finished story** — so the geometry contract,
+`checkCaseTimelineDeception` and the rubric were all measuring a timeline the book does not have.
+
+| Flag | State | Verdict | Probe that would settle it |
+|---|---|---|---|
+| `AGENT3_DEVICE_TIME_BINDING` | unset → off | **PROBE** | Passes the device's locked facts into the CML prompt and requires `apparent_time_of_death` to equal the locked displayed time, with the true time and every alibi window on the same clock. Default OFF because it changes a prompt, which the corpus regime probes rather than assumes. Self-gating twice over: no locked facts, or `enableLockedFactRegistry` off, and the prompt is byte-identical. **Probe:** one matched pair; `checkLockedFactTimeAlignment` findings drop to zero, and the case's anchors start appearing in the manuscript at all |
+
+**Why a prompt change and not a deterministic repair.** Exactly one correspondence is safe to write
+mechanically — `false_time_displayed` IS the apparent time. `resumption_time` is when the mechanism
+restarted, not when anyone died, and deriving `actual_time_of_death` from it would fabricate the
+coherence claim the case failed to make, which is the failure `timeline-deception.ts` warns about in
+its own header. The model knows the device's story and can author both consistently; a mapping
+cannot. `checkLockedFactTimeAlignment` (agent3-run) remains as the detector either way, and reports
+the split on every run regardless of this flag.
+
+**What happens if the probe never runs.** The flag stays off, the two models stay divergent, the
+detector keeps reporting it on every run — and **REVIEW_04 §5 stays true: phase 2 of the geometry
+build sequence remains blocked**, because `AGENT9_GEOMETRY_CONTRACT` would put the mechanism's times
+into the prose prompt as a hard contract while the locked-fact layer injects two different ones.
