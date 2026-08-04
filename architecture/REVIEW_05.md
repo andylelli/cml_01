@@ -10,6 +10,57 @@
 
 ---
 
+## Progress tracker
+
+Everything outstanding, in one place. `☐` not started · `◑` partial · `✅` done · `👤` owner's call · `⛔` recommended against, with reasons.
+
+**Free work first. Nothing below is blocked on code except where marked.**
+
+| ID | Item | Cost | Status | § |
+|---|---|---|---|---|
+| **A. Measurement — gates every quality claim** ||||
+| M1 | Rewrite the internal judge as the external rubric; re-score the 7 existing pairs | ~1 day, ~£1 | ☐ | [§11.1](#111-the-assessment) |
+| **B. Free instrument fixes — geometry can't be trusted to read a probe until these land** ||||
+| N1 | Record an injected disclosure as `met_by_injection`, not as satisfied | free | ☐ | [§10.1](#101-n1--record-an-injected-disclosure-as-a-floored-failure-free) |
+| N2 | `unaccounted_time` instead of `third_time` (locked-fact times are accounted) | free | ☐ | [§10.2](#102-n2--unaccounted-time-instead-of-third-time-free) |
+| N3 | Normalise once at the checking boundary | free | ☐ | [§10.3](#103-n3--normalise-once-at-the-checking-boundary-free) |
+| N4 | Warn when a beat label and its chapter disagree | free | ☐ | [§10.4](#104-n4--warn-when-the-beat-label-and-the-chapter-disagree-free) |
+| N5 | Hydrate replays from committed artifacts, not the prompt log | free | ☐ | [§10.5](#105-n5--hydrate-replays-from-committed-artifacts-free-unchanged-from-review_04-113) |
+| N5b | *Fallback if N5 slips:* record the committed candidate in `.actual-run-state.json` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| **C. Newly found, not yet planned** ||||
+| X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ☐ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) |
+| X2 | Mechanism regen pass reports `UNRESOLVED (score 200)` — detector and validator disagree | free to diagnose | ☐ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) |
+| X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` | free | ☐ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) |
+| X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
+| **D. Paid probes, in dependency order** ||||
+| N6 | Promote `beat-scheduler`, ≥4 runs — the §8bis discriminating test | ~£6 | ☐ | [§11.4](#114-the-merged-order) |
+| D2 | **DECISION:** after N6, are geometry phases 2–4 still worth their cost? | free | 👤 | [§11.4](#114-the-merged-order) |
+| N7 | Culprit-evidence regen on the edit-list channel | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
+| N8 | Phase-2 geometry contract probe (`AGENT9_GEOMETRY_CONTRACT`) | ~£3 | ☐ | [§10.7](#107-the-paid-items--what-ready-means) |
+| R6 | `eval:baseline` — **after M1, not before** | £4–8 | ☐ | [§11.2](#112-the-two-assessments-that-changed-my-mind-while-writing-this) |
+| M6 | Give Agent 9 the real rubric — only readable after M1 | ~£3 | ☐ | [§11.1](#111-the-assessment) |
+| **E. Ride-alongs — need runs, not runs of their own. Attach to N6.** ||||
+| S7 | Retire dead coercion sites — 4 runs at `firings=0` | free | ◑ 1 of 4 | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
+| M3 | Whole-manuscript revision: `AGENT9_FULLSTORY_DIAGNOSTIC=shadow` | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
+| R5 | Live kill-and-resume drill | free | ☐ | [§11.3](#113-ride-alongs--things-that-need-runs-but-not-runs-of-their-own) |
+| **F. Deferred — real value, wrong time** ||||
+| P4 | Geometry phase 4: retire `applyPlantBeforeReveal`, the aftermath classifier, `enforceSuspectEliminationPresence` | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
+| M5 | Delete the deterministic injectors | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
+| CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| CS2 | Add a clincher slot type to `clue-spec` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions | 2 min | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| R10 | Ratify the 12 ADRs | ~1 h | 👤 | [§11.1](#111-the-assessment) |
+| **G. Recommended against** ||||
+| M2 | Write the reveal first | days | ⛔ | N8 tests the same hypothesis for £3 |
+| R4 | Structured outputs on Agent 7 | ~£3 | ⛔ | Coercion `firings=0` — it fixes a problem that is not occurring |
+| R9 | Parallelise 2b/2c/2d | ~£3 | ⛔ | Latency work on a quality-constrained pipeline |
+| S4/S6 | Split `agent9-run.ts` / extract `agent9-prose` | days | ⛔ *for now* | Refactoring while the central question is unanswered |
+| GF | `geometry_feedback` prompt block | — | ⛔ | No reachable producer; §8.9 forbids the placement it would need |
+
+**Done this session, for context:** the geometry stage and its acceptance test · culprit-integrity and false-time validators · the warning channel (which unblocked S7 and made the rest of this visible) · `AGENT3_DEVICE_TIME_BINDING` (built, probed, PASS) · the canary collision assertion · five instrument defects.
+
+---
+
 ## 0. The position, in one paragraph
 
 > The probe I designed answered its question correctly and told me almost nothing about the run. `AGENT3_DEVICE_TIME_BINDING` works — the case's temporal anchors went from appearing **0× and 0×** in the manuscript to **43× and 13×** — and while that was being measured, the same run shipped a story in which **no chapter names the culprit in authored prose**. The only disclosure is a deterministic injector template bolted to the final paragraph: *"Captain Ivor Hale was responsible; the evidence allowed no other reading."* The LLM never said it; a regen pass tried to make it say so and failed; the injector wrote it instead. **Geometry's acceptance test could not see this**, because its guilt vocabulary does not contain the injector's own template word — so the one check built to catch "the story never names its culprit" is structurally blind to the mechanism that most often produces it. Five issues follow, and the ordering of REVIEW_04 §11 needs one change.
@@ -565,3 +616,106 @@ of disciplined optimisation were *"a random walk with excellent documentation"*,
 making — and if Move 1 lands and the judge still ranks at chance, [THINK_01 §8](THINK_01.md) is right
 that the whole measurement strategy needs rethinking rather than repairing, and this order should be
 torn up rather than continued.
+
+---
+
+## 12. Items with no home in §10 or §11
+
+The tracker must not point at sections that do not exist. These are the outstanding items that
+surfaced too late for §10, or that carried over from [REVIEW_04](REVIEW_04.md) §11.5 and needed
+restating rather than dropping.
+
+### 12.1 X1 — the false-solution chapter does not accuse anyone
+
+**MEASURED**, treatment run `…981757`: `false_solution_absent (ch6): Chapter 6 carries the false
+solution but never puts Hugo Vane in the frame.* The contract is
+`{accused: "Hugo Vane", proposedChapter: 6, collapseChapter: 8}` and chapter 6 never names him as a
+suspect.
+
+This is the mirror of Issue A. The reveal chapter does not disclose; the false-solution chapter does
+not misdirect. **Both endgame obligations were missed on the same run**, and only geometry saw it —
+no existing gate covers "the false solution must actually accuse the falsely accused".
+
+*Why it is listed separately rather than folded into A:* the repair paths differ. A has a regen pass
+that failed for a structural reason (§2). This has **no pass at all** — `false_solution_absent` maps
+to nothing in the regen registry, so `apply` mode would detect it and have nowhere to send it.
+
+**Fix.** Two steps, in order:
+1. *Free:* leave it detected and reported. It is already on the report; the gap is that nothing acts.
+2. *When N8 runs:* the reveal chapter's `mustContain` already carries the disclosure obligation; the
+   false-solution chapter's contract carries "a solution that accuses X, argued well enough to
+   convince". If the phase-2 probe moves the reveal, the same mechanism should move this — **test
+   both from the one probe** rather than building a second repair path first.
+
+**Angle rejected.** Adding a `false_solution` regen pass now. That is a fourteenth pass built before
+the thirteenth (`aftermath_repeat`) has ever fired, for a defect seen once.
+
+### 12.2 X2 — a regen pass that cannot succeed
+
+**MEASURED**, same run: `[Agent 9] regen-mechanism UNRESOLVED ch6: regen did not improve the targeted
+property (score 200)`.
+
+`200` is the **maximum** its composed validator can return — two checks at 100 each. `acceptanceReason`
+only reports "did not improve" when the candidate failed to beat the prior score, so the pass judged
+the chapter already clean while its own detector
+(`chapterFullyExplainsMechanism`) had judged it defective enough to fire.
+
+**Detector and validator disagree about the same chapter.** That is the family in §6 again — two
+bodies answering "is this wrong?" and reaching different answers — and the cost is concrete: the pass
+spends up to two LLM calls per firing and can never register progress.
+
+**Fix.** Diagnose before changing anything. The likely cause is a representation mismatch between the
+detector's text (`text`, joined one way) and the validator's (`chapterText(c)`, joined another), which
+would make a phrase spanning a paragraph boundary visible to one and not the other — the exact shape
+of §6 defect 1. **Do not "fix" it by loosening the acceptance rule**: a pass that reports success
+without improving anything is worse than one that reports UNRESOLVED honestly.
+
+### 12.3 X3 — a flag parser that reads `1` as false
+
+`canary-core.mjs` resolves its logging switches through `parseEnvBool`, which accepts only the literal
+string `"true"`. Setting `LOG_FULL_PROMPTS_TO_FILE=1` — the form every other flag in this codebase
+accepts — **silently disables full-prompt logging**.
+
+Not currently biting: both keys are unset, so the `true` defaults apply, and full logging was verified
+live during the 08-04 probe. But it is a trap of exactly the shape FLAG-AUDIT exists to catalogue, and
+the failure mode is losing the evidence for a run you have already paid for.
+
+**Fix.** Make `parseEnvBool` accept the same truthy set as the rest of the pipeline (`1|true|yes|on`),
+and register the logging keys in FLAG-AUDIT so `flags:check` can see them.
+
+### 12.4 P4 / M5 — retiring the band-aids
+
+Two retirements, gated on the same kind of evidence and repeatedly confused with each other:
+
+- **P4 (geometry phase 4):** delete `applyPlantBeforeReveal`, the aftermath stage classifier, and
+  `enforceSuspectEliminationPresence` once each has fired zero times across ≥4 runs.
+- **M5 ([THINK_01](THINK_01.md) Move 5):** delete the deterministic prose injectors.
+
+**Neither is startable today**, and the reason is worth keeping visible: the injector fired on the
+08-04 run and produced the story's only disclosure (§2). Deleting it now converts a bad sentence into
+a missing one, which [ADR-0003](decisions/0003-never-abort-release-gate.md) forbids.
+
+**N1 is the precondition for both.** Until an injected obligation is recorded as
+`met_by_injection`, the firing rate is an impression rather than a number, and neither retirement has
+an exit condition it can meet.
+
+### 12.5 The smaller carried-over items
+
+| Item | What | Why it is still here |
+|---|---|---|
+| **N5b** | If N5 slips, at least record which candidate a run committed in `.actual-run-state.json` | It does not recover the 12 ambiguous archived runs, but it stops the corpus growing more of them |
+| **CS1** | Promote `@cml/clue-spec` out of shadow | REVIEW_04 §11 paired it with `beat-scheduler` in Phase 0. N6 promotes the scheduler alone — deliberately, since two levers in one probe cost attribution. CS1 is the second probe, not a rider on the first |
+| **CS2** | Add a clincher slot type to `clue-spec` | §5's `closure.notes` fires on every run measured: the clincher rests on a clue the set marks `optional`, so no stage but geometry is obliged to place it. The note makes it visible; the slot type would make it false by construction |
+| **ENV** | Delete the duplicated `.env` copies of `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_DEPLOYMENT_NAME` | `flags:check` has reported them for three sessions. Two sources for one key is how the `gpt-4o-mini` shadowing survived for months |
+
+### 12.6 What is deliberately not on the tracker
+
+- **The 20 remaining DEFER flags.** Two matter and are scheduled (`AGENT9_REGEN_EDIT_LIST` → N7,
+  `AGENT9_FULLSTORY_DIAGNOSTIC` → M3). The rest have no pending question, and listing them as work
+  would make the backlog look larger than it is.
+- **Move 7 (the five 2/2 complaints).** Not a task — it is the *symptom set* the rest of this plan
+  addresses. Geometry now detects four of the five; N7, N8 and M3 are the candidate fixes. Tracking it
+  separately would double-count.
+- **The five files modified before this session** (`llm-connectivity-harness.ts`, `index.ts`,
+  `agent5-run.ts`, `flag-register-check.mjs`, a prompt-records README). Not mine, uncommitted,
+  untouched.
