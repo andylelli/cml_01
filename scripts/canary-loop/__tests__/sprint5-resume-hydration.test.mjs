@@ -87,6 +87,69 @@ test("legacy run layout downgrades missing 2b/2c/2d for downstream hydration", (
   assert.match(result.warnings[0], /Legacy run layout detected/i);
 });
 
+// ── X5 — Agent 4 is conditional, and its absence is not a missing artifact ───────────────────
+//
+// The fixture in the test above had to include an `Agent4-Revision` record to pass. That was the
+// bug: Agent 4 fires only when Agent 3's CML fails validation, has no records in any of the
+// thirteen archived runs, and every replay of every run therefore reported a required upstream
+// missing.
+test("X5: a conditional stage that never ran is reported as 'did not run', not as missing", () => {
+  const artifactBundle = makeArtifactBundle([
+    { sequence: 1, agent: "Agent1-SettingRefiner", responseFile: "01_a1_response.md" },
+    { sequence: 2, agent: "Agent2-CastDesigner", responseFile: "02_a2_response.md" },
+    { sequence: 3, agent: "Agent2e-BackgroundContext", responseFile: "03_a2e_response.md" },
+    { sequence: 4, agent: "Agent3b-HardLogicDeviceGenerator", responseFile: "04_a3b_response.md" },
+    { sequence: 5, agent: "Agent3-CMLGenerator", responseFile: "05_a3_response.md" },
+    { sequence: 6, agent: "Agent5-ClueExtraction", responseFile: "06_a5_response.md" },
+    { sequence: 7, agent: "Agent6-FairPlay", responseFile: "07_a6_response.md" },
+    { sequence: 8, agent: "Agent2b-CharacterProfiles", responseFile: "08_a2b_response.md" },
+    { sequence: 9, agent: "Agent2c-LocationProfiles", responseFile: "09_a2c_response.md" },
+    { sequence: 10, agent: "Agent2d-TemporalContext", responseFile: "10_a2d_response.md" },
+  ]);
+
+  const result = buildHydrationBundle({
+    artifactBundle,
+    startFromAgentCode: "7",
+    selectedAgentCode: "7",
+    hydratePriorFromRun: true,
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.bundle.missingRequiredArtifacts, []);
+  assert.match(result.warnings.join(" "), /did not run in the source run/i);
+  // The bundle is COMPLETE — a stage that did not fire leaves nothing to hydrate. Only a legacy
+  // downgrade makes a bundle partial, and none happened here.
+  assert.equal(result.bundle.integrity.partial, false);
+});
+
+test("X5: a conditional stage that DID run still requires its artifact", () => {
+  const artifactBundle = makeArtifactBundle([
+    { sequence: 1, agent: "Agent1-SettingRefiner", responseFile: "01_a1_response.md" },
+    { sequence: 2, agent: "Agent2-CastDesigner", responseFile: "02_a2_response.md" },
+    { sequence: 3, agent: "Agent2e-BackgroundContext", responseFile: "03_a2e_response.md" },
+    { sequence: 4, agent: "Agent3b-HardLogicDeviceGenerator", responseFile: "04_a3b_response.md" },
+    { sequence: 5, agent: "Agent3-CMLGenerator", responseFile: "05_a3_response.md" },
+    { sequence: 6, agent: "Agent5-ClueExtraction", responseFile: "06_a5_response.md" },
+    { sequence: 7, agent: "Agent6-FairPlay", responseFile: "07_a6_response.md" },
+    // Agent 4 fired — and left no response file. The CML downstream needs is the REVISED one, so
+    // hydrating the pre-revision copy would replay a story the run did not tell.
+    { sequence: 8, agent: "Agent4-Revision" },
+    { sequence: 9, agent: "Agent2b-CharacterProfiles", responseFile: "09_a2b_response.md" },
+    { sequence: 10, agent: "Agent2c-LocationProfiles", responseFile: "10_a2c_response.md" },
+    { sequence: 11, agent: "Agent2d-TemporalContext", responseFile: "11_a2d_response.md" },
+  ]);
+
+  const result = buildHydrationBundle({
+    artifactBundle,
+    startFromAgentCode: "7",
+    selectedAgentCode: "7",
+    hydratePriorFromRun: true,
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors[0], /Missing required upstream hydration artifacts.*Agent4-Revision/i);
+});
+
 test("default request includes resume and shared-edit policy flags", () => {
   const request = buildDefaultRequest({ runId: "latest", agent: "Agent5-ClueExtraction" });
   assert.equal(request.hydratePriorFromRun, true);

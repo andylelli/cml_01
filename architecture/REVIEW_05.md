@@ -39,7 +39,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X2 | ~~Mechanism regen `score 200` — detector and validator disagree~~ → **no disagreement; the message was unreadable.** Fixed | free | ✅ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) · [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why) |
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` — **four parsers, three wrong** | free | ✅ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) · [§19](#19-x3--one-parser-one-logger-eight-registered-keys) · [FLAG-AUDIT Addendum 9](FLAG-AUDIT.md) |
 | X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
-| X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ☐ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) |
+| X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ✅ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) · [§21](#21-x5--conditional-is-not-the-same-as-legacy) |
 | X6 | A_71's red-herring floor was gated on default-OFF `AGENT5_ENABLE_LLM_RETRIES` — a detector wearing the name of a floor. Now governs its own repair. **Landed, never probed** | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X8 | **The run that reads X6/X7's effect.** Every non-prose agent now runs on `gpt-4.1-mini` (was `gpt-4o-mini`) and the floor's repair has never fired. Ride-along on N6 | free | ☐ | [§20.3](#203-what-neither-fix-has-had) |
@@ -1203,3 +1203,38 @@ First clean run in three sessions. Resolved config verified through a loader aft
 *Not committable, and worth saying:* `.env` and `.env.local` are both git-ignored, so the deletion
 above exists only on this machine. The tracker row and this section are the only durable record —
 which is precisely the argument for it having one.
+
+---
+
+## 21. X5 — "conditional" is not the same as "legacy"
+
+**MEASURED, 2026-08-05:** zero `Agent4-Revision` records across all thirteen archived runs, re-verified
+by grep over `documentation/prompts/actual/run_*/` after the two 08-04 runs were added. So
+`buildHydrationBundle` reported a missing required upstream on **every replay of every run**, for a
+reason that was never a defect.
+
+The obvious fix was to add `"4"` to `LEGACY_OPTIONAL_UPSTREAM_CODES` beside `2b/2c/2d`. That would
+have worked and been wrong, because the two absences mean different things:
+
+| | `2b/2c/2d` | `Agent4-Revision` |
+|---|---|---|
+| Why it can be absent | the branch post-dates the run | the stage was **not needed** |
+| The question the rule asks | "is this an old run?" | "did this stage happen?" |
+| Depends on the start boundary | yes — only downstream of `2d` | **no** |
+| What its absence makes the bundle | `partial` | **complete** |
+
+Agent 4 is the revision pass Agent 3 invokes only when its CML fails validation, after the
+targeted-patch path fails to resolve ([`agent3-cml.ts:1575`](../packages/prompts-llm/src/agent3-cml.ts#L1575)).
+A run with no Agent-4 records is a run whose CML validated. There is nothing to hydrate and nothing
+degraded, so `CONDITIONAL_UPSTREAM_CODES` is its own rule with its own message — *"did not run in the
+source run"* — and it does **not** set `integrity.partial`.
+
+**The distinction that keeps it honest.** *No records at all* → the stage did not fire. *Records but
+no artifact* → it fired and the artifact is genuinely missing, which stays a hard error: the CML
+every downstream agent needs is then the revised one, and hydrating the pre-revision copy would
+replay a story the run did not tell. Both directions are pinned by tests
+([`sprint5-resume-hydration.test.mjs`](../scripts/canary-loop/__tests__/sprint5-resume-hydration.test.mjs), 81/81 green).
+
+**One thing the old test was quietly telling us.** The pre-existing legacy-downgrade test had to put
+an `Agent4-Revision` record in its fixture to pass — a shape no real run has ever produced. A fixture
+that has to invent a record to get green is a defect report nobody filed.

@@ -9,6 +9,22 @@ import {
 
 const LEGACY_OPTIONAL_UPSTREAM_CODES = new Set(["2b", "2c", "2d"]);
 
+/**
+ * X5 — agents that are *conditional*, not legacy: they are in `PIPELINE_AGENT_ORDER` because they
+ * can run, and absent from a run's records because they were not needed.
+ *
+ * Agent 4 is the revision pass Agent 3 invokes only when its CML fails validation (`agent3-cml.ts`
+ * → `reviseCml`, after the targeted-patch path has failed to resolve). **It has no records in any of
+ * the thirteen archived runs** — so before this rule every replay reported a required upstream
+ * missing, on every run, for a reason that was never a defect. A warning that always fires trains
+ * people to read past warnings, which is how the real one gets missed.
+ *
+ * The distinction that keeps this honest: *no records at all* means the stage did not fire and there
+ * is nothing to hydrate. *Records but no artifact* means it DID fire and the artifact is genuinely
+ * missing — the CML downstream needs is the revised one, so that stays a hard error.
+ */
+const CONDITIONAL_UPSTREAM_CODES = new Set(["4"]);
+
 export function buildHydrationBundle({
   artifactBundle,
   startFromAgentCode,
@@ -89,6 +105,7 @@ export function buildHydrationBundle({
   const hydratedArtifacts = {};
   const missingRequiredArtifacts = [];
   const downgradedOptionalArtifacts = [];
+  const skippedConditionalArtifacts = [];
 
   for (const upstreamCode of upstreamCodes) {
     const artifacts = resolveLatestAgentArtifacts({
@@ -103,6 +120,10 @@ export function buildHydrationBundle({
     if (!artifacts?.responseFilePath && artifacts?.source !== "committed_artifact") {
       if (canDowngradeLegacyOptionalUpstream({ upstreamCode, startFromAgentCode, observedAgentCodes })) {
         downgradedOptionalArtifacts.push(agentName);
+        continue;
+      }
+      if (canDowngradeConditionalUpstream({ upstreamCode, observedAgentCodes })) {
+        skippedConditionalArtifacts.push(agentName);
         continue;
       }
       missingRequiredArtifacts.push(agentName);
@@ -141,6 +162,15 @@ export function buildHydrationBundle({
         },
       },
     };
+  }
+
+  // Stated as "did not run", never as "missing". The bundle is complete — the stage was not needed.
+  if (skippedConditionalArtifacts.length) {
+    warnings.push(
+      `Conditional upstream stage(s) did not run in the source run, so there is nothing to hydrate: ${skippedConditionalArtifacts.join(
+        ", "
+      )}.`
+    );
   }
 
   if (downgradedOptionalArtifacts.length) {
@@ -184,6 +214,23 @@ function canDowngradeLegacyOptionalUpstream({ upstreamCode, startFromAgentCode, 
 
   const hasAnyBranchRecords = ["2b", "2c", "2d"].some((code) => observedAgentCodes.has(code));
   return !hasAnyBranchRecords;
+}
+
+/**
+ * X5. A conditional stage with **no records of its own** did not fire, so the bundle is complete
+ * without it — no downgrade, no partial flag, just a statement that it did not run.
+ *
+ * Deliberately NOT gated on the start boundary the way the legacy 2b/2c/2d rule is. That rule asks
+ * "is this an old run?"; this one asks "did this stage happen?", and the answer does not depend on
+ * where the replay starts.
+ *
+ * If `observedAgentCodes` DOES contain the code, the stage fired and its artifact is required — the
+ * CML every downstream agent needs is then the revised one, and hydrating the pre-revision copy
+ * would replay a story the run did not tell.
+ */
+function canDowngradeConditionalUpstream({ upstreamCode, observedAgentCodes }) {
+  if (!CONDITIONAL_UPSTREAM_CODES.has(upstreamCode)) return false;
+  return !observedAgentCodes.has(upstreamCode);
 }
 
 /**
