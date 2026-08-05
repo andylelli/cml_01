@@ -23,12 +23,16 @@ import { createLLMRubricJudge, scoreStory } from "../packages/rubric-score/dist/
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 
+// `.env.local` FIRST, then `.env`, first-wins — the precedence every production loader has had
+// since X7. Reading `.env` alone meant scoring against the key the pipeline ignores (REVIEW_05 §20.2).
 function loadEnv() {
-  const p = path.join(repoRoot, ".env");
-  if (!fs.existsSync(p)) return;
-  for (const line of fs.readFileSync(p, "utf8").split(/\r?\n/)) {
-    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
-    if (m && process.env[m[1]] == null) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+  for (const name of [".env.local", ".env"]) {
+    const p = path.join(repoRoot, name);
+    if (!fs.existsSync(p)) continue;
+    for (const line of fs.readFileSync(p, "utf8").split(/\r?\n/)) {
+      const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
+      if (m && process.env[m[1]] == null) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+    }
   }
 }
 

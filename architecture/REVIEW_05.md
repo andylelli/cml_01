@@ -59,7 +59,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | M5 | Delete the deterministic injectors | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
 | CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
 | CS2 | Add a clincher slot type to `clue-spec` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
-| ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions | 2 min | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions — **and six loaders X7 had missed** | 2 min | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) |
 | R10 | Ratify the 12 ADRs | ~1 h | 👤 | [§11.1](#111-the-assessment) |
 | **G. Recommended against** ||||
 | M2 | Write the reveal first | days | ⛔ | N8 tests the same hypothesis for £3 |
@@ -1166,3 +1166,40 @@ name in the prompt log, a `restored N red herring(s) after regeneration` warning
 
 **The probe-validity rule applies with force here** ([§16.3](#163-three-smaller-things-it-took-to-get-there)):
 the worker consumes this code via `dist`, so a run started before the rebuild measures neither fix.
+
+### 20.4 ENV — and the six loaders X7 did not reach
+
+Deleting the duplicated `.env` keys should have been the two-minute item it is billed as. It was not,
+because **"every production loader" was four files, and there are ten.** Deleting the keys first
+would have taken the credentials out from under six of them.
+
+| Loader | Was | Now |
+|---|---|---|
+| `canary-agent3.mjs` · `canary-agent9.mjs` · `canary-agent-loop.mjs` · `canary-agent-boundary.mjs` | loaded `.env.local` **without** `override` → `.env` won | `{ override: true }` |
+| `agent6-blind-reader-variance.mjs` · `rubric-score-spike.mjs` | hand-rolled loaders reading **`.env` only** | `.env.local` first, then `.env`, first-wins |
+| `canary-core.mjs` · `cli-runtime.ts` · `agent5-direct-llm-check-harness.ts` · `apps/api` | already correct | unchanged |
+
+**Why this one matters more than its size.** Four of the six are the canary harnesses — *the scripts
+that will run N6*. Until this commit the pipeline resolved `gpt-4.1-mini` and its own probe harnesses
+resolved `gpt-4o-mini`. A £6 four-run probe would have measured a model the product does not use, and
+nothing in the report would have said so. That is the §1 defect of this whole review — the probe
+passing while the run underneath it does not — reproduced in the instrument.
+
+The stale half of it was in `flag-register-check.mjs` itself: its header comment still asserted
+*"`.env` WINS"* while its own output said the opposite. The checker was right and its documentation
+was wrong, which is the X6/X7 shape one more time.
+
+**Then** the keys went. `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_DEPLOYMENT_NAME` are gone from
+`.env`, with a comment where they were saying why they must not come back.
+
+```
+[flags] code reads 90 · config sets 32 (.env + .env.local) · register documents 93
+[flags] clean — every configured flag is read, and every read flag is registered.
+```
+
+First clean run in three sessions. Resolved config verified through a loader afterwards:
+`gpt-4.1-mini`, `…openai.azure.com`, api-version `2024-12-01-preview`, key present.
+
+*Not committable, and worth saying:* `.env` and `.env.local` are both git-ignored, so the deletion
+above exists only on this machine. The tracker row and this section are the only durable record —
+which is precisely the argument for it having one.

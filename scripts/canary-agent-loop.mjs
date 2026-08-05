@@ -19,7 +19,7 @@ import {
 const workspaceRoot = process.cwd();
 const defaultRequestYamlDir = path.join(workspaceRoot, "scripts", "canary-loop");
 loadDotEnv({ path: path.join(workspaceRoot, ".env") });
-loadDotEnv({ path: path.join(workspaceRoot, ".env.local") });
+loadDotEnv({ path: path.join(workspaceRoot, ".env.local"), override: true });  // .env.local wins (X7); dotenv keeps the first value without this
 
 async function main() {
   const rawArgs = parseArgs(process.argv.slice(2));

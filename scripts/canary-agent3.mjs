@@ -12,7 +12,7 @@ import { resolveWorkerRuntimePaths } from "../apps/worker/dist/jobs/runtime-path
 
 const workspaceRoot = process.cwd();
 loadDotEnv({ path: path.join(workspaceRoot, ".env") });
-loadDotEnv({ path: path.join(workspaceRoot, ".env.local") });
+loadDotEnv({ path: path.join(workspaceRoot, ".env.local"), override: true });  // .env.local wins (X7); dotenv keeps the first value without this
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));

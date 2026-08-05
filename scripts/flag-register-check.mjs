@@ -36,15 +36,21 @@ const REGISTER = join(ROOT, "architecture", "FLAG-AUDIT.md");
 /**
  * BOTH env files, in the order the pipeline loads them.
  *
- * FOUND BY AUDIT 2026-08-03. This read `.env.local` alone — but every entry point calls
+ * FOUND BY AUDIT 2026-08-03. This read `.env.local` alone — but every entry point called
  * `config({path: .env})` *before* `config({path: .env.local})`, and **dotenv does not override a
- * value already set**. So `.env` WINS on any key both files define, which is the opposite of what
- * the filenames imply. Five keys are currently shadowed that way, including
- * `AZURE_OPENAI_DEPLOYMENT_NAME`: `.env.local` asks for `gpt-4.1-mini`, `.env` says `gpt-4o-mini`,
- * and every non-prose agent runs on `gpt-4o-mini`.
+ * value already set**, so `.env` won every key both files defined: the opposite of what the
+ * filenames imply. `AZURE_OPENAI_DEPLOYMENT_NAME` was the expensive one — `.env.local` asked for
+ * `gpt-4.1-mini`, `.env` said `gpt-4o-mini`, and every non-prose agent ran on `gpt-4o-mini`.
  *
  * A checker that reads only the losing file can report "clean" while the runtime disagrees — the
  * precise defect class this tool exists to catch, in the tool itself.
+ *
+ * UPDATED 2026-08-05 (X7, REVIEW_05 §20.2). Precedence is now inverted at the source: every loader
+ * either passes `{ override: true }` on `.env.local` or reads it first under first-wins, so
+ * **`.env.local` wins** — including the four canary harnesses and the two spike scripts, which were
+ * still on the old semantics when this line was last edited. The `effective` map below is where
+ * that is modelled; the order here is the LOAD order, not the priority order. Reading it as
+ * priority is how the original defect was written.
  */
 const ENV_FILES = [join(ROOT, ".env"), join(ROOT, ".env.local")];
 const SOURCE_ROOTS = ["apps", "packages", "scripts"];

@@ -35,7 +35,7 @@ import { readLatestAgentJson as readLatestAgentJsonShared } from "./canary-loop/
 
 const workspaceRoot = process.cwd();
 loadDotEnv({ path: path.join(workspaceRoot, ".env") });
-loadDotEnv({ path: path.join(workspaceRoot, ".env.local") });
+loadDotEnv({ path: path.join(workspaceRoot, ".env.local"), override: true });  // .env.local wins (X7); dotenv keeps the first value without this
 
 /** Mirrors canary-core.mjs so both harnesses read the LOG_* switches identically. */
 const AGENT_LABELS = {

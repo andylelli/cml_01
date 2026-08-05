@@ -4,7 +4,7 @@ import { config as loadDotEnv } from "dotenv";
 
 const root = process.cwd();
 loadDotEnv({ path: path.join(root, ".env") });
-loadDotEnv({ path: path.join(root, ".env.local") });
+loadDotEnv({ path: path.join(root, ".env.local"), override: true });  // .env.local wins (X7); dotenv keeps the first value without this
 
 const args = parseArgs(process.argv.slice(2));
 const startChapter = toPositiveInt(args.startChapter) ?? 1;

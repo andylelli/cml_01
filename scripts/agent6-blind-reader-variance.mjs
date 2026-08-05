@@ -29,15 +29,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 
 // ── tiny .env loader (so the harness is self-sufficient) ─────────────────────
+//
+// `.env.local` FIRST, then `.env`, first-wins — the same precedence as
+// `cli-runtime.ts` and as every production loader since X7. This file used to read `.env` alone,
+// which meant it ran on the key the pipeline ignores (REVIEW_05 §20.2).
 function loadEnv() {
-  const envPath = path.join(repoRoot, ".env");
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
-    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
-    if (!m) continue;
-    const key = m[1];
-    let val = m[2].replace(/^["']|["']$/g, "");
-    if (process.env[key] == null) process.env[key] = val;
+  for (const name of [".env.local", ".env"]) {
+    const envPath = path.join(repoRoot, name);
+    if (!fs.existsSync(envPath)) continue;
+    for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
+      const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
+      if (!m) continue;
+      const key = m[1];
+      let val = m[2].replace(/^["']|["']$/g, "");
+      if (process.env[key] == null) process.env[key] = val;
+    }
   }
 }
 
