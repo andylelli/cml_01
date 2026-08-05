@@ -704,20 +704,13 @@ export const lintBatchProse = (
     const _e2Chapter = options.batchChapterStart;
     const _e2ArcEntry = options.macroArcPlan.find((e) => Number(e.chapter) === _e2Chapter);
     if (_e2ArcEntry?.archetype === 'RESOLUTION') {
-      const VERDICT_CLOSER_RE = [
-        /^[A-Z][a-z][\w\s]+ was responsible\b/,
-        /\bplaced the matter beyond\b/i,
-        /\bevidence (?:confirmed|established)\b.{0,40}\bbeyond\b/i,
-        /\bthe case was closed\b/i,
-        /\bjustice had been served\b/i,
-      ];
       for (const chapter of batchChapters) {
         const paras = chapter.paragraphs ?? [];
         const finalPara = paras[paras.length - 1] ?? '';
-        if (VERDICT_CLOSER_RE.some((re) => re.test(finalPara))) {
+        if (RESOLUTION_VERDICT_CLOSER_RULES.some((rule) => rule.pattern.test(finalPara))) {
           issues.push({
             type: 'debug_note_bleed',
-            message: 'Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not a summary verdict sentence. Rewrite the final paragraph to end inside the scene.',
+            message: RESOLUTION_VERDICT_CLOSER_MESSAGE,
           });
           break;
         }
@@ -803,6 +796,62 @@ export const lintBatchProse = (
 // modules that `import type { CanonicalSeason } from "./lint.js"` keep resolving.
 export { MONTH_TO_SEASON, normalizeMonthToken };
 export type { CanonicalSeason };
+
+/**
+ * X4 (REVIEW_05 §10.6) — the rules that bind the MODEL, exported so the deterministic injectors can
+ * be measured against them.
+ *
+ * FIX-E2 used to hold these five regexes as a local inside `lintBatchProse`, which meant the standard
+ * existed in exactly one place and could be checked in exactly one direction: prose the model wrote.
+ * On run `mystery-1785870981757` the story's closing sentence — *"Captain Ivor Hale was responsible;
+ * the evidence allowed no other reading."* — was written by `enforceCulpritEvidencePresence`, laundered
+ * by the B5 scaffold floor, and shipped. It matches the first rule below. **The linter forbids the
+ * model from writing that shape and the injector writes it anyway.**
+ *
+ * §10.6 offers two ways out and recommends the second for now: subjecting injector output to these
+ * rules and REFUSING (Option 1) converts a bad sentence into a missing one, which
+ * [ADR-0003](../../../../architecture/decisions/0003-never-abort-release-gate.md) forbids for a
+ * repairable defect. So the injection stands and the contradiction is RECORDED — which is also the
+ * firing-rate evidence the injector-retirement work (THINK_01 Move 5) needs.
+ *
+ * Exported as data, not as a predicate over chapters, precisely so the same rule text can be applied
+ * to a single sentence at the moment of injection.
+ */
+export interface ModelBoundSentenceRule {
+  /** Stable id — what a telemetry line names, so a count can be tracked across runs. */
+  id: string;
+  pattern: RegExp;
+  /** What the model is told, in the words the model is told it. */
+  rule: string;
+}
+
+export const RESOLUTION_VERDICT_CLOSER_MESSAGE =
+  'Resolution chapter must close with an in-scene moment (dialogue, action, or sensation), not a summary verdict sentence. Rewrite the final paragraph to end inside the scene.';
+
+export const RESOLUTION_VERDICT_CLOSER_RULES: ReadonlyArray<ModelBoundSentenceRule> = [
+  { id: 'verdict_closer.was_responsible', pattern: /^[A-Z][a-z][\w\s]+ was responsible\b/, rule: RESOLUTION_VERDICT_CLOSER_MESSAGE },
+  { id: 'verdict_closer.beyond', pattern: /\bplaced the matter beyond\b/i, rule: RESOLUTION_VERDICT_CLOSER_MESSAGE },
+  { id: 'verdict_closer.evidence_beyond', pattern: /\bevidence (?:confirmed|established)\b.{0,40}\bbeyond\b/i, rule: RESOLUTION_VERDICT_CLOSER_MESSAGE },
+  { id: 'verdict_closer.case_closed', pattern: /\bthe case was closed\b/i, rule: RESOLUTION_VERDICT_CLOSER_MESSAGE },
+  { id: 'verdict_closer.justice_served', pattern: /\bjustice had been served\b/i, rule: RESOLUTION_VERDICT_CLOSER_MESSAGE },
+];
+
+/**
+ * Which model-binding rules a single sentence violates. Empty array is the normal answer and the one
+ * worth reporting: a zero that is never written cannot be told apart from a check that never ran.
+ *
+ * The `^`-anchored rule is applied to the sentence itself. That is the point — an injected sentence is
+ * appended to the END of a final paragraph, so as prose it sits mid-paragraph, and a whole-paragraph
+ * check would miss the shape the linter would have caught had the model written it as the closer.
+ */
+export const findModelBoundRuleViolations = (
+  sentence: string,
+  rules: ReadonlyArray<ModelBoundSentenceRule> = RESOLUTION_VERDICT_CLOSER_RULES,
+): ModelBoundSentenceRule[] => {
+  const text = String(sentence ?? '').trim();
+  if (!text) return [];
+  return rules.filter((rule) => rule.pattern.test(text));
+};
 
 export const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

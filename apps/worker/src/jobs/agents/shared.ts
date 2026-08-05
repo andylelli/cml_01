@@ -206,6 +206,21 @@ export interface OrchestratorContext {
     fieldsHoisted: number;
     firings: number;
   };
+  /**
+   * X4 (architecture/REVIEW_05.md §10.6) — how often a deterministic prose injector wrote a sentence
+   * that violates a rule the MODEL is held to. Written by `recordAgent9Injection` in `agent9-run.ts`.
+   *
+   * `injections` counts every injected sentence; `violations` counts the subset that break a
+   * model-binding rule. Both are needed: the ratio is what tells an injector-retirement decision
+   * (THINK_01 Move 5, §12.4) whether the floors are firing at all, and whether what they write would
+   * have been rejected had a model written it.
+   */
+  agent9InjectorLint?: {
+    injections: number;
+    violations: number;
+    /** `${injector}:${ruleId}` → count. Named so an A/B analyser needs no regex over prose. */
+    byRule: Record<string, number>;
+  };
   cml?: CaseData;                    // may be reassigned by Agent 4 / Agent 6 retries
   noveltyAudit?: NoveltyAuditResult;
   clues?: ClueDistributionResult;    // may be reassigned by Agent 6 retries

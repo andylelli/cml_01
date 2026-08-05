@@ -321,3 +321,12 @@ export {
   buildCulpritEvidenceSentence,
   buildSuspectClearanceSentence,
 } from "./agent9-prose/injection-templates.js";
+
+// REVIEW_05 §10.6 (X4) — the rules that bind the model, so injector output can be measured
+// against the standard the model is held to.
+export {
+  RESOLUTION_VERDICT_CLOSER_RULES,
+  RESOLUTION_VERDICT_CLOSER_MESSAGE,
+  findModelBoundRuleViolations,
+} from "./agent9-prose/lint.js";
+export type { ModelBoundSentenceRule } from "./agent9-prose/lint.js";

@@ -38,7 +38,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | X1 | `false_solution_absent` — the false-solution chapter never accuses the accused | free to detect | ◑ | [§12.1](#121-x1--the-false-solution-chapter-does-not-accuse-anyone) · [§17](#17-x1--free-half-done-the-repair-partition-is-now-total) |
 | X2 | ~~Mechanism regen `score 200` — detector and validator disagree~~ → **no disagreement; the message was unreadable.** Fixed | free | ✅ | [§12.2](#122-x2--a-regen-pass-that-cannot-succeed) · [§18](#18-x2--the-diagnosis-was-wrong-and-the-message-is-why) |
 | X3 | `parseEnvBool` silently disables logging when a flag is set to `1` instead of `true` — **four parsers, three wrong** | free | ✅ | [§12.3](#123-x3--a-flag-parser-that-reads-1-as-false) · [§19](#19-x3--one-parser-one-logger-eight-registered-keys) · [FLAG-AUDIT Addendum 9](FLAG-AUDIT.md) |
-| X4 | Injector output is not subject to the linters that bind the model | free to record | 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) |
+| X4 | Injector output is not subject to the linters that bind the model — **Option 2 shipped: recorded, counted, never refused.** Option 1 stays the owner's call after N7 | free to record | ◑ 👤 | [§10.6](#106-the-injector-vs-linter-class-free-to-detect-a-decision-to-fix) · [§22](#22-x4--the-injectors-now-report-themselves) |
 | X5 | `Agent4-Revision` is a required upstream that has never run in 13 archived runs — every replay reports it missing | free | ✅ | [§16.5](#165-x5--a-required-upstream-that-has-never-run) · [§21](#21-x5--conditional-is-not-the-same-as-legacy) |
 | X6 | A_71's red-herring floor was gated on default-OFF `AGENT5_ENABLE_LLM_RETRIES` — a detector wearing the name of a floor. Now governs its own repair. **Landed, never probed** | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
 | X7 | `.env.local` did not override `.env` in the two `dotenv` loaders — the register was reading the losing file | free | ✅ | [§20](#20-x6-and-x7--two-fixes-that-lived-only-in-the-working-tree) · [FLAG-AUDIT](FLAG-AUDIT.md) |
@@ -1238,3 +1238,62 @@ replay a story the run did not tell. Both directions are pinned by tests
 **One thing the old test was quietly telling us.** The pre-existing legacy-downgrade test had to put
 an `Agent4-Revision` record in its fixture to pass — a shape no real run has ever produced. A fixture
 that has to invent a record to get green is a defect report nobody filed.
+
+---
+
+## 22. X4 — the injectors now report themselves
+
+§10.6 left this as a decision with a recommendation: **Option 2 now** (record the contradiction),
+Option 1 (refuse the injection) only once N7 has shown the repair path can land. Option 2 is built.
+
+### 22.1 One registry, checked in both directions
+
+FIX-E2's five verdict-closer regexes were a local `const` inside `lintBatchProse`. That is why the
+standard could only ever be applied to prose the model wrote: there was no way to ask the question
+about anything else. They are now `RESOLUTION_VERDICT_CLOSER_RULES` in
+[`lint.ts`](../packages/prompts-llm/src/agent9-prose/lint.ts) — the same regexes, each with a stable
+id — and the linter consumes the registry rather than a copy of it. A second copy would have been the
+two-bodies defect §6 is entirely about.
+
+`findModelBoundRuleViolations(sentence)` applies them to **one sentence**, which is the whole trick:
+an injected sentence is appended to the end of a final paragraph, so a paragraph-scoped check reads
+it as mid-paragraph text and the `^`-anchored rule never fires. The linter would have caught the
+shape had a model written it as the closer; now so does this.
+
+### 22.2 What it found, as a test rather than an anecdote
+
+```
+findModelBoundRuleViolations(buildCulpritEvidenceSentence("Captain Ivor Hale"))
+  → verdict_closer.beyond            ← the injector's own output, forbidden to the model
+findModelBoundRuleViolations("Captain Ivor Hale was responsible; the evidence allowed no other reading.")
+  → verdict_closer.was_responsible   ← the LAUNDERED form, which is what actually shipped
+```
+
+Both are pinned in [`x4-injector-vs-lint.test.ts`](../apps/worker/src/__tests__/x4-injector-vs-lint.test.ts).
+The second matters more than the first: the sentence that shipped was the B5 floor's rewrite, so a
+check that knew only the injector's phrasing would have found nothing on the very run that produced
+this review.
+
+### 22.3 Records, never refuses — and counts what it does not object to
+
+All four injection sites route through one recorder: the three floors at the main call site, plus the
+deterministic **repair** path at `hasDeterministicRepairableFailures`, which injects too and was
+never measured. `injectResolutionIfAbsent` appends a whole paragraph rather than routing through the
+shared helper, so it reports itself at its own site.
+
+The counters are `injections` and `violations`, not just violations. A floor firing constantly while
+writing acceptable prose is a different decision from one writing forbidden prose, and Move 5 /
+[§12.4](#124-p4--m5--retiring-the-band-aids) needs to tell those apart. `byRule` keys are
+`${injector}:${ruleId}`, so an A/B analyser reads a number instead of grepping prose.
+
+`emitAgent9InjectorLintTelemetry` runs once per run **even when everything is zero**, for the reason
+N4 and §16 keep re-teaching: a zero that is never written cannot be told apart from a check that
+never ran. If the floors fire zero times across N6's four runs, that zero is the retirement evidence
+P4 and M5 have been waiting for — and it only counts if it is written down.
+
+### 22.4 What is deliberately not done
+
+The injection still ships. Refusing it converts a bad sentence into a missing one, which
+[ADR-0003](decisions/0003-never-abort-release-gate.md) forbids for a repairable defect, and Option 1
+without a working repair path is just a different way to fail. **This changes no prose.** It is an
+instrument, and it is now one of the reads N6 gets for free.

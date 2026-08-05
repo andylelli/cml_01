@@ -78,6 +78,8 @@ import {
   buildCulpritEvidenceSentence,
   buildSuspectClearanceSentence,
   INJECTED_SENTENCE_PATTERNS,
+  // REVIEW_05 §10.6 (X4) — the rules that bind the model, applied to what the floors write.
+  findModelBoundRuleViolations,
   type ChapterValidator,
   type NarrativeState,
   type BatchCommitRecord,
@@ -2034,12 +2036,86 @@ const nameInTextShared = (name: string, text: string): boolean => {
   const surname = extractSurname(titleStripped || name);
   return !!surname && text.includes(surname);
 };
+/**
+ * X4 — what an injection reports about itself. Called once per injected sentence, by every floor
+ * that routes through `injectSentenceIfAbsent`, so a single recorder sees them all.
+ */
+export type InjectionRecorder = (event: {
+  injector: string;
+  target: string;
+  chapterIndex: number;
+  sentence: string;
+}) => void;
+
+/**
+ * X4 (REVIEW_05 §10.6) — record that a deterministic floor wrote a sentence the linter forbids the
+ * model from writing. **Records; never refuses.**
+ *
+ * §10.6 weighs refusing the injection (Option 1) and rejects it for now: refusing means shipping
+ * without the obligation, which ADR-0003 forbids for a repairable defect — it converts a bad
+ * sentence into a missing one. Option 1 becomes available once N7 shows the repair path can land.
+ *
+ * Until then this is the evidence that decision needs, and the counters are the whole point: they
+ * make "the injectors write text the model would be failed for" a NUMBER instead of an anecdote from
+ * one run.
+ */
+export const recordAgent9Injection = (ctx: OrchestratorContext): InjectionRecorder => {
+  const counters = (ctx.agent9InjectorLint ??= { injections: 0, violations: 0, byRule: {} });
+  return ({ injector, target, chapterIndex, sentence }) => {
+    counters.injections += 1;
+    for (const rule of findModelBoundRuleViolations(sentence)) {
+      counters.violations += 1;
+      const key = `${injector}:${rule.id}`;
+      counters.byRule[key] = (counters.byRule[key] ?? 0) + 1;
+      ctx.warnings.push(
+        `[X4] injector-vs-lint: ${injector} injected a sentence into chapter ${chapterIndex + 1} ` +
+          `for "${target}" that violates ${rule.id} — a rule the model is held to. ` +
+          `The injection STANDS (ADR-0003); this is a record, not a refusal. Rule: ${rule.rule}`,
+      );
+    }
+  };
+};
+
+/**
+ * Emit X4's counters once per run, to the two channels that outlive the process — `ctx.warnings`
+ * (captured wholesale into `run_warnings`) and a report diagnostic an A/B analyser can read without
+ * regex over prose.
+ *
+ * **Emitted even when every count is zero**, for the reason §16/N4 keeps re-teaching: a zero that is
+ * never written is indistinguishable from a check that never ran. If the injectors fired zero times
+ * this run, that fact is the retirement evidence.
+ */
+export const emitAgent9InjectorLintTelemetry = (ctx: OrchestratorContext): void => {
+  const counters = (ctx.agent9InjectorLint ??= { injections: 0, violations: 0, byRule: {} });
+  const byRule = Object.entries(counters.byRule)
+    .map(([key, count]) => `${key}=${count}`)
+    .join(" ");
+
+  ctx.warnings.push(
+    `[X4] agent9 injector-vs-lint telemetry: injections=${counters.injections} ` +
+      `violations=${counters.violations}${byRule ? ` ${byRule}` : ""}`,
+  );
+
+  try {
+    (ctx as any).scoreAggregator?.upsertDiagnostic?.(
+      "agent9_injector_lint",
+      "agent9_prose",
+      "Agent 9 Injector-vs-Lint Counters",
+      "agent9_injector_lint",
+      { ...counters, byRule: { ...counters.byRule } },
+    );
+  } catch {
+    // Telemetry must never abort a run that produced a manuscript.
+  }
+};
+
 const injectSentenceIfAbsent = (
   prose: any,
   targets: string[],
   hasContent: (name: string, text: string) => boolean,
   buildSentence: (target: string) => string,
   logTag: string,
+  onInject?: InjectionRecorder,
 ): any => {
   const chapters = (prose.chapters as any[]).slice();
   for (const target of targets) {
@@ -2059,9 +2135,12 @@ const injectSentenceIfAbsent = (
     const paragraphs: string[] = Array.isArray(ch.paragraphs) ? [...(ch.paragraphs as string[])] : [];
     if (paragraphs.length === 0) continue;
     const lastIdx = paragraphs.length - 1;
-    paragraphs[lastIdx] = `${paragraphs[lastIdx].trim()} ${buildSentence(target)}`;
+    const injectedSentence = buildSentence(target);
+    paragraphs[lastIdx] = `${paragraphs[lastIdx].trim()} ${injectedSentence}`;
     chapters[targetIdx] = { ...ch, paragraphs };
     console.warn(`[Agent 9] ${logTag}: injected sentence for "${target}".`);
+    // X4 — the injection has already happened. Recording never blocks it (§10.6 Option 2).
+    onInject?.({ injector: logTag, target, chapterIndex: targetIdx, sentence: injectedSentence });
   }
   return { ...prose, chapters };
 };
@@ -2111,7 +2190,7 @@ export const computeEliminationSuspects = (cml: any, castDesign?: any): string[]
   );
 };
 
-export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any): any => {
+export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesign?: any, onInject?: InjectionRecorder): any => {
   const suspects = computeEliminationSuspects(cml, castDesign);
   if (suspects.length === 0) {
     if (!Array.isArray(castDesign?.characters) && !Array.isArray(cml?.CASE?.cast)) {
@@ -2129,6 +2208,7 @@ export const enforceSuspectEliminationPresence = (prose: any, cml: any, castDesi
     (name, text) => nameInTextShared(name, text) && ELIMINATION_TERMS.test(text) && EVIDENCE_TERMS.test(text),
     (suspect) => buildSuspectClearanceSentence(extractSurname(suspect)),
     'enforceSuspectEliminationPresence',
+    onInject,
   );
 };
 
@@ -2209,7 +2289,7 @@ export const computeLiveCulprits = (prose: any, cml: any): string[] => {
   return liveCulprits;
 };
 
-export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
+export const enforceCulpritEvidencePresence = (prose: any, cml: any, onInject?: InjectionRecorder): any => {
   const liveCulprits = computeLiveCulprits(prose, cml);
   if (liveCulprits.length === 0) return prose;
 
@@ -2225,6 +2305,7 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
     // recognises it (and the floor's rewrite of it). A local copy here would drift from the checker.
     (culprit) => buildCulpritEvidenceSentence(culprit),
     'enforceCulpritEvidencePresence',
+    onInject,
   );
 };
 
@@ -2234,7 +2315,7 @@ export const enforceCulpritEvidencePresence = (prose: any, cml: any): any => {
  * inject a minimal resolution paragraph. This is a last-resort guard — Layer 1 (obligation block) and
  * Layer 2 (pre-commit validator) should already have handled this via retries.
  */
-const injectResolutionIfAbsent = (prose: any, cml: any): any => {
+const injectResolutionIfAbsent = (prose: any, cml: any, onInject?: InjectionRecorder): any => {
   const chapters: any[] = Array.isArray(prose.chapters) ? prose.chapters : [];
   if (chapters.length === 0) return prose;
 
@@ -2260,10 +2341,19 @@ const injectResolutionIfAbsent = (prose: any, cml: any): any => {
 
   const paragraphs = [...((finalChapter.paragraphs ?? []) as string[])];
   // Use shared sentence from buildResolutionBackstopSentence so both backstop sites stay in sync (fix #2.4)
-  paragraphs.push(buildResolutionBackstopSentence(culpritSurname));
+  const injectedSentence = buildResolutionBackstopSentence(culpritSurname);
+  paragraphs.push(injectedSentence);
   const newChapters = [...chapters];
   newChapters[newChapters.length - 1] = { ...finalChapter, paragraphs };
   console.warn(`[Agent 9] injectResolutionIfAbsent: injected resolution paragraph for "${culprit}".`);
+  // X4 — this floor appends a WHOLE paragraph rather than routing through injectSentenceIfAbsent,
+  // so it reports itself here. Same recorder, same rules, one more site that cannot go unmeasured.
+  onInject?.({
+    injector: 'injectResolutionIfAbsent',
+    target: culprit,
+    chapterIndex: newChapters.length - 1,
+    sentence: injectedSentence,
+  });
   return { ...prose, chapters: newChapters };
 };
 
@@ -5563,10 +5653,13 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
     }
   }
 
-  prose = enforceCulpritEvidencePresence(prose, cml);
+  // X4 — one recorder for all three floors, so every injected sentence is measured against the
+  // rules that bind the model (REVIEW_05 §10.6). Records; never refuses.
+  const recordInjection = recordAgent9Injection(ctx);
+  prose = enforceCulpritEvidencePresence(prose, cml, recordInjection);
   // Phase 6 Layer 3: Backstop resolution injector — guarantees resolution markers exist in final chapter
-  prose = injectResolutionIfAbsent(prose, cml);
-  prose = enforceSuspectEliminationPresence(prose, cml, castDesign); // P1-7: pass castDesign
+  prose = injectResolutionIfAbsent(prose, cml, recordInjection);
+  prose = enforceSuspectEliminationPresence(prose, cml, castDesign, recordInjection); // P1-7: pass castDesign
   prose = applyLifecycleContinuityGuard(prose, castDesign.characters as CastEntry[], cml).prose;
   if (pronounRepairEnabled) {
     // D5-guarded: the broad pronoun sweep is the canonical fix, but the §3.3 bug was a sweep that
@@ -5712,11 +5805,14 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
             annotatedLockedFacts,
           ),
           cml,
+          recordInjection, // X4 — the repair path injects too, and was never measured
         ),
         cml,
+        recordInjection,
       ),
       cml,
       castDesign, // P1-7: pass castDesign
+      recordInjection,
     );
     const withLifecycleGuard = applyLifecycleContinuityGuard(
       repairedInner,
@@ -7096,6 +7192,10 @@ export async function runAgent9(ctx: OrchestratorContext): Promise<void> {
   // ============================================================================
   // Commit results to context
   // ============================================================================
+  // X4 — emitted here, after every injection site including the deterministic repair path, and
+  // emitted even at zero: a zero that is never written cannot be told apart from a check that
+  // never ran (REVIEW_05 §10.6).
+  emitAgent9InjectorLintTelemetry(ctx);
   ctx.prose = prose;
   ctx.validationReport = validationReport;
 }
