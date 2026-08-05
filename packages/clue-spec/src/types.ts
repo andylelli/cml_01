@@ -14,6 +14,22 @@ export type ClueCategory = "temporal" | "spatial" | "physical" | "behavioral" | 
 export type Placement = "early" | "mid" | "late";
 
 /**
+ * CS2 (REVIEW_05 §5, §12.5) — the job a slot does, when that job is load-bearing for a downstream
+ * obligation rather than merely being "a clue".
+ *
+ * Why this exists. Geometry has to name the ONE object that ties the culprit to the act — the
+ * clincher — and bind a plant-before-payoff obligation to it. With no declared clincher in the clue
+ * set, `selectClincherClue` scores the available clues and takes the best one, and across three
+ * measured runs the winner was a clue the set marks **optional**. Geometry then hangs a load-bearing
+ * obligation on a clue every other stage is free to drop, and records the mismatch in
+ * `clincher.sourceCriticality` and a closure note — visible, and still true.
+ *
+ * A declared role makes it false by construction: the clincher is derived as an `essential` slot from
+ * the CML, so the thing geometry binds to is a thing the pipeline is obliged to place.
+ */
+export type SlotRole = "clincher";
+
+/**
  * One required clue, as a *slot* — what must exist and where it comes from, NOT yet prose. The LLM's
  * only later job (Stage B) is to render `description`/`pointsTo` for each slot; everything here is
  * fixed by the CML so the model cannot misnumber, mispath, or skip a clue (§4.1).
@@ -31,6 +47,12 @@ export interface ClueSlot {
   /** Salient terms the rendered clue should surface (a render hint, not a gate). */
   keyTerms: string[];
   suggestedPlacement: Placement;
+  /**
+   * CS2 — the downstream obligation this slot exists to carry, when it carries one. Absent on the
+   * ordinary slots, which is most of them: a role is a claim that something else binds to this slot,
+   * and a role on every slot would mean nothing.
+   */
+  role?: SlotRole;
 }
 
 /**

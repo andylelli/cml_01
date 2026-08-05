@@ -170,6 +170,10 @@ export const selectClincherClue = (clues: ReadonlyArray<GeometryClue>): Geometry
   if (candidates.length === 0) return null;
   const score = (c: GeometryClue): number => {
     let s = 0;
+    // CS2 — a DECLARED clincher wins outright. The weight is larger than every other signal combined
+    // on purpose: when the clue set says which clue is the clincher, scoring is not a tie-breaker,
+    // it is a fallback for clue sets that do not say (REVIEW_05 §23).
+    if (str(c.role).toLowerCase() === "clincher") s += 32;
     if (str(c.category).toLowerCase() === "physical") s += 8;
     if (str(c.criticality).toLowerCase() === "essential") s += 4;
     if (PHYSICAL_TRACE_HINTS.test(`${str(c.description)} ${str(c.pointsTo)} ${(c.keyTerms ?? []).join(" ")}`)) s += 3;

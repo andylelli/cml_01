@@ -250,6 +250,16 @@ export interface GeometryClue {
   keyTerms?: string[];
   supportsInferenceStep?: number;
   isDeathMethodTell?: boolean;
+  /**
+   * CS2 — the clue set's own declaration that this clue IS the clincher (`@cml/clue-spec`'s
+   * `SlotRole`). When present, `selectClincherClue` stops guessing: a declared clincher outranks
+   * anything scoring can find, because scoring's best answer has been an `optional` clue on every
+   * run measured (REVIEW_05 §5).
+   *
+   * Optional, and expected to be absent until CS1 promotes clue-spec out of shadow. The scoring
+   * fallback below is what runs until then, unchanged.
+   */
+  role?: string;
 }
 
 export interface GeometryScene {

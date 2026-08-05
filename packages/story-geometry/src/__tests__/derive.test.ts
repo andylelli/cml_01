@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveStoryGeometry } from "../derive.js";
+import { deriveStoryGeometry, selectClincherClue } from "../derive.js";
 import type { GeometryClue, GeometryOutline } from "../types.js";
 
 const GOLDEN_AGE_10: GeometryOutline = {
@@ -170,5 +170,48 @@ describe("the clincher is selected, never authored", () => {
     });
     expect(g.clincher?.trace).toBe("grey wool torn from a cuff");
     expect(g.clincher?.source).toBe("llm");
+  });
+});
+
+/**
+ * CS2 (REVIEW_05 §5, §23) — a DECLARED clincher outranks scoring.
+ *
+ * Until `@cml/clue-spec` is promoted (CS1), no clue carries `role`, and `selectClincherClue` scores
+ * the set and takes the best available. On three measured runs that winner was an `optional` clue,
+ * so geometry hung a plant-before-payoff obligation on a clue the pipeline may drop. When the clue
+ * set declares which clue is the clincher, scoring stops being the decision.
+ */
+describe("selectClincherClue — CS2 declared role", () => {
+  const scoringFavourite: GeometryClue = {
+    id: "clue_physical_optional",
+    description: "A scorched glove tip beside the hearth.",
+    category: "physical",
+    criticality: "optional",
+    supportsInferenceStep: 2,
+  };
+  const declared: GeometryClue = {
+    id: "slot_clincher",
+    description: "The right glove, scorched by the clock spring.",
+    category: "testimonial", // deliberately scores WORSE on every other signal
+    criticality: "essential",
+    role: "clincher",
+  };
+
+  it("picks the declared clincher over the clue scoring would choose", () => {
+    expect(selectClincherClue([scoringFavourite, declared])?.id).toBe("slot_clincher");
+    // order-independent — a sort that depended on input order would pass one of these only
+    expect(selectClincherClue([declared, scoringFavourite])?.id).toBe("slot_clincher");
+  });
+
+  it("still scores normally when nothing is declared — the fallback is unchanged", () => {
+    expect(selectClincherClue([scoringFavourite])?.id).toBe("clue_physical_optional");
+    expect(selectClincherClue([])).toBeNull();
+  });
+
+  it("a declared clincher wins even when it is also the death-method tell's shape", () => {
+    // isDeathMethodTell scores -6 precisely to keep the two obligations apart; a DECLARATION is a
+    // stronger signal than that heuristic, and the clue set is the thing that knows.
+    const declaredTell: GeometryClue = { ...declared, isDeathMethodTell: true };
+    expect(selectClincherClue([scoringFavourite, declaredTell])?.id).toBe("slot_clincher");
   });
 });

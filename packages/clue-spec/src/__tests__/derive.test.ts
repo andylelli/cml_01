@@ -198,3 +198,83 @@ describe("deriveClueSpec — robustness", () => {
     expect(spec.redHerringSlots).toEqual([]);
   });
 });
+
+/**
+ * CS2 (REVIEW_05 §5, §12.5, §23) — the clincher as a declared slot.
+ *
+ * The defect this closes: geometry must name the ONE object tying the culprit to the act and bind a
+ * plant-before-payoff obligation to it. With nothing declared, `selectClincherClue` scores the clues
+ * and takes the best — and on three measured runs the winner was a clue the set marks `optional`.
+ * A load-bearing obligation hung on a clue every other stage may drop.
+ */
+describe("deriveClueSpec — CS2 clincher slot", () => {
+  it("derives the clincher from the culprit's own evidence_sensitivity", () => {
+    const base = workedExample();
+    const spec = deriveClueSpec({
+      ...base,
+      cast: base.cast!.map((c) =>
+        c.name === "Mrs. Hale"
+          ? { ...c, evidence_sensitivity: ["The right glove, scorched at the fingertip by the clock's spring."] }
+          : c,
+      ),
+    });
+
+    const clincher = spec.clueSlots.find((s) => s.id === "slot_clincher");
+    expect(clincher).toBeDefined();
+    expect(clincher!.role).toBe("clincher");
+    // The whole point of CS2 — essential BY CONSTRUCTION, so geometry's `sourceCriticality`
+    // mismatch cannot arise from this slot.
+    expect(clincher!.criticality).toBe("essential");
+    expect(clincher!.category).toBe("physical");
+    // Geometry plants the clincher by chapter 3 at the latest; "early" says that where Agent 5 reads it.
+    expect(clincher!.suggestedPlacement).toBe("early");
+    expect(clincher!.sourceInCML).toBe("CASE.cast[1].evidence_sensitivity[0]");
+  });
+
+  it("falls back to what the discriminating test proves when the culprit has no sensitivity listed", () => {
+    const spec = deriveClueSpec(workedExample()); // no evidence_sensitivity on any cast member
+    const clincher = spec.clueSlots.find((s) => s.id === "slot_clincher");
+    expect(clincher?.sourceInCML).toBe("CASE.discriminating_test.knowledge_revealed");
+    expect(clincher?.criticality).toBe("essential");
+  });
+
+  it("emits NO clincher slot when the CML gives it nothing to point at", () => {
+    // Deriving a clincher from nothing would be inventing a clue — the one thing Stage A must never
+    // do. An absent slot is the honest answer, and geometry's scoring fallback still applies.
+    const spec = deriveClueSpec({
+      culpability: { culprits: ["Mrs. Hale"] },
+      cast: [{ name: "Mrs. Hale", culprit_eligibility: "eligible" }],
+    });
+    expect(spec.clueSlots.find((s) => s.id === "slot_clincher")).toBeUndefined();
+  });
+
+  it("does not collapse the clincher into the method tell — they are separate obligations", () => {
+    const base = workedExample();
+    const spec = deriveClueSpec({
+      ...base,
+      death_method: "strangulation",
+      cast: base.cast!.map((c) =>
+        c.name === "Mrs. Hale" ? { ...c, evidence_sensitivity: ["A torn right glove."] } : c,
+      ),
+    });
+
+    const clincher = spec.clueSlots.find((s) => s.id === "slot_clincher");
+    const method = spec.clueSlots.find((s) => s.id === "slot_method_evidence");
+    expect(clincher).toBeDefined();
+    expect(method).toBeDefined();
+    expect(clincher!.sourceInCML).not.toBe(method!.sourceInCML);
+    // Geometry scores `isDeathMethodTell` DOWN when selecting a clincher for this exact reason.
+    expect(clincher!.role).toBe("clincher");
+    expect(method!.role).toBeUndefined();
+  });
+
+  it("emits at most one clincher, whatever the cast size", () => {
+    const base = workedExample();
+    const spec = deriveClueSpec({
+      ...base,
+      culpability: { culprits: ["Mrs. Hale", "the nephew"] },
+      cast: base.cast!.map((c) => ({ ...c, evidence_sensitivity: ["A torn right glove."] })),
+    });
+    expect(spec.clueSlots.filter((s) => s.role === "clincher")).toHaveLength(1);
+  });
+});

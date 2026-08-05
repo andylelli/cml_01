@@ -58,7 +58,7 @@ Everything outstanding, in one place. `☐` not started · `◑` partial · `✅
 | P4 | Geometry phase 4: retire `applyPlantBeforeReveal`, the aftermath classifier, `enforceSuspectEliminationPresence` | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
 | M5 | Delete the deterministic injectors | free | ☐ | [§12.4](#124-p4--m5--retiring-the-band-aids) |
 | CS1 | Promote `@cml/clue-spec` out of shadow | ~£3 | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
-| CS2 | Add a clincher slot type to `clue-spec` | free | ☐ | [§12.5](#125-the-smaller-carried-over-items) |
+| CS2 | Add a clincher slot type to `clue-spec` — **shipped**, plus geometry preferring a declared clincher over scoring. Inert until CS1 promotes clue-spec | free | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§23](#23-cs2--the-clincher-stops-being-whatever-scored-highest) |
 | ENV | Delete the duplicated `.env` keys `flags:check` has reported for three sessions — **and six loaders X7 had missed** | 2 min | ✅ | [§12.5](#125-the-smaller-carried-over-items) · [§20.4](#204-env--and-the-six-loaders-x7-did-not-reach) |
 | R10 | Ratify the 12 ADRs | ~1 h | 👤 | [§11.1](#111-the-assessment) |
 | **G. Recommended against** ||||
@@ -1297,3 +1297,54 @@ The injection still ships. Refusing it converts a bad sentence into a missing on
 [ADR-0003](decisions/0003-never-abort-release-gate.md) forbids for a repairable defect, and Option 1
 without a working repair path is just a different way to fail. **This changes no prose.** It is an
 instrument, and it is now one of the reads N6 gets for free.
+
+---
+
+## 23. CS2 — the clincher stops being whatever scored highest
+
+§5 recorded the shape and §12.5 kept it alive: geometry has to name the one object tying the culprit
+to the act, and bind a plant-before-payoff obligation to it. Nothing in the clue set says which clue
+that is, so `selectClincherClue` scores the available clues and takes the winner — and across three
+measured runs **the winner was a clue the set marks `optional`.** Geometry recorded the mismatch
+faithfully in `clincher.sourceCriticality` and a closure note, which is honest and does not fix it: a
+load-bearing obligation still hangs on a clue every other stage is free to drop.
+
+### 23.1 The slot
+
+`@cml/clue-spec` now derives `slot_clincher` with `role: "clincher"`, `criticality: "essential"`, and
+`category: "physical"`. Essential **by construction** — that is the entire item. The mismatch geometry
+records cannot arise from a slot that is essential where it is defined.
+
+Source order, and the boundary that matters more than either:
+
+1. the culprit's own `cast[i].evidence_sensitivity[0]` — the evidence *that specific person* is
+   vulnerable to, which is what "unique to the culprit" means in CML terms;
+2. `discriminating_test.knowledge_revealed` — what the test proves, and therefore what the clincher
+   must show;
+3. **neither → no slot.** Deriving a clincher from nothing is inventing a clue, which is the one
+   thing Stage A must never do ([§3](#3-issue-b--geometry-is-blind-to-the-injector-which-is-the-thing-it-most-needs-to-see)
+   and the `clincherTrace` defect of 08-03 are both this rule being broken). An absent slot is the
+   honest answer; geometry's scoring fallback still applies.
+
+`suggestedPlacement: "early"` because geometry plants the clincher by chapter 3 at the latest. The
+obligation existed; it was only ever expressed downstream, where Agent 5 does not read it.
+
+### 23.2 The half that makes it do something
+
+A slot nothing consumes is a comment. `selectClincherClue` now scores a declared `role: "clincher"`
+at **+32** — larger than every other signal combined, on purpose. Scoring is not a tie-breaker
+against a declaration; it is the fallback for clue sets that do not carry one. Pinned three ways
+(declared beats the scoring favourite, order-independently; scoring unchanged when nothing is
+declared; a declaration beats even the `isDeathMethodTell` −6 penalty).
+
+The clincher and the method tell stay separate obligations — geometry already scores the method tell
+*down* when picking a clincher, and CS2 derives them from different CML paths, so a case where one
+clue could serve both still produces two slots.
+
+### 23.3 What this is worth today: nothing, and that is fine
+
+`@cml/clue-spec` is in shadow. Until **CS1** promotes it, no clue reaches geometry carrying a `role`,
+every run takes the scoring fallback, and behaviour is byte-identical. This is a change that pays out
+on promotion, and CS1 is the probe that collects it — which is also the argument for having built it
+now rather than as part of CS1: promoting a package and changing what it derives in the same run
+would leave the result unattributable, the one-lever rule N6 rests on.

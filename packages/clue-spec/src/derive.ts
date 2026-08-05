@@ -17,6 +17,7 @@
  *   eligible non-culprit cast[*]          → one elimination slot per suspect
  *   false_solution.the_one_flaw           → the hinge clue the false solution can't explain
  *   false_solution.supporting_points[*]   → one red-herring slot each (§4.2)
+ *   culprit's evidence_sensitivity[0]     → the CLINCHER slot (CS2, role: "clincher")
  */
 
 import type {
@@ -211,6 +212,46 @@ export function deriveClueSpec(cml: unknown): ClueSpec {
       keyTerms: extractKeyTerms(flaw),
       suggestedPlacement: "mid",
     });
+  }
+
+  // 6b. CS2 — THE CLINCHER. The one physical trace that ties the culprit to the act, declared as a
+  //     slot so geometry binds its plant-before-payoff obligation to a clue the pipeline is OBLIGED
+  //     to place, instead of scoring the available clues and landing on an `optional` one (§5).
+  //
+  //     Source, in order: the culprit's own `evidence_sensitivity[0]` — the evidence that specific
+  //     person is vulnerable to, which is what "unique to the culprit" means in CML terms — then the
+  //     discriminating test's `knowledge_revealed`, which is what the test proves and therefore what
+  //     the clincher must show. **If neither exists, NO SLOT IS EMITTED.** Deriving a clincher from
+  //     nothing would be inventing a clue, which is the one thing this stage must never do.
+  //
+  //     Deliberately NOT the method tell: the manner of death is a separate obligation, and geometry
+  //     scores `isDeathMethodTell` DOWN for exactly this reason. Collapsing the two loses one of them.
+  const clincherCulprit = culprits[0];
+  if (clincherCulprit) {
+    const idx = cast.findIndex((c) => c?.name === clincherCulprit);
+    const sensitivity = (idx >= 0 ? cast[idx]?.evidence_sensitivity ?? [] : []).filter(
+      (s): s is string => typeof s === "string" && s.trim().length > 0,
+    );
+    const fromSensitivity = sensitivity[0];
+    const source = fromSensitivity ?? caseData.discriminating_test?.knowledge_revealed;
+    if (source && source.trim()) {
+      clueSlots.push({
+        id: "slot_clincher",
+        evidenceType: "observation",
+        // Essential BY CONSTRUCTION. This is the whole of CS2: the criticality mismatch geometry
+        // records in `clincher.sourceCriticality` cannot arise from a slot that is essential here.
+        criticality: "essential",
+        sourceInCML: fromSensitivity
+          ? `CASE.cast[${idx}].evidence_sensitivity[0]`
+          : "CASE.discriminating_test.knowledge_revealed",
+        category: "physical",
+        keyTerms: extractKeyTerms(source),
+        // Geometry plants the clincher by chapter 3 at the latest (`plantByChapter`). "early" is the
+        // placement vocabulary's way of saying the same thing, in the slot set, where Agent 5 reads it.
+        suggestedPlacement: "early",
+        role: "clincher",
+      });
+    }
   }
 
   // 7. Red herrings derived from false_solution.supporting_points (§4.2) — cannot reinforce the
